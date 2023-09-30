@@ -1,0 +1,49 @@
+﻿<UserControl 
+    x:Class="TeensyRom.Ui.Controls.DetailButton"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    mc:Ignorable="d"
+    Name="DetailButtonControl">
+    
+    <UserControl.Resources>
+        <Style x:Key="Title" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Padding" Value="0 0 0 3"/>
+        </Style>
+
+        <Style x:Key="NonTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="LightGray"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+    </UserControl.Resources>
+    <StackPanel>
+        <Button Name="Button" Click="OnClick" Command="{Binding ClickCommand, ElementName=DetailButtonControl}" MaxHeight="120" MinHeight="110" MaxWidth="400">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.15*"></ColumnDefinition>
+                    <ColumnDefinition Width="0.85*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <Image Grid.Column="0" Source="{Binding ImageSource, ElementName=DetailButtonControl}"/>
+
+                <StackPanel Grid.Column="1" Margin="5 0 0 0">
+                    <TextBlock 
+                        Name="TxtTitle"  
+                        Style="{StaticResource Title}"
+                        Text="{Binding Title, ElementName=DetailButtonControl}"
+                        HorizontalAlignment="Left" />
+                    <TextBlock 
+                        Name="TxtSubtitle" 
+                        Style="{StaticResource NonTitle}"
+                        Text="{Binding Subtitle, ElementName=DetailButtonControl}"
+                        HorizontalAlignment="Left" />       
+                </StackPanel>
+            </Grid>
+        </Button>
+    </StackPanel>
+</UserControl>
