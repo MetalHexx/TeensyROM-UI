@@ -21,6 +21,7 @@ namespace TeensyRom.Core.Serial
 
         public void SetPort(string port)
         {
+            if (string.IsNullOrWhiteSpace(port)) return;
             _serialPort.PortName = port;
         }
 
@@ -75,6 +76,7 @@ namespace TeensyRom.Core.Serial
             catch (Exception ex)
             {
                 _logs.OnNext($"Failed to open the serial port: {ex.Message}");
+                throw;
             }
         }
 
