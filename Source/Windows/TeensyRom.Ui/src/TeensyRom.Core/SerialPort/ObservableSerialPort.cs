@@ -52,7 +52,7 @@ namespace TeensyRom.Core.Serial
 
                         if (data.Length > 0)
                         {
-                            observer.OnNext($"> {data}");
+                            observer.OnNext($"{data}");
                         }
                         return Observable.Empty<string>();
                     }))

@@ -59,6 +59,15 @@
                 Style="{StaticResource LightButton}" 
                 ToolTip="Press to connect to ping the TeensyROM device" />
 
+            <Button 
+                Margin="10" 
+                HorizontalAlignment="Left" 
+                Command="{Binding ResetCommand}" 
+                Content="Reset" 
+                IsEnabled="{Binding IsConnected}"
+                Style="{StaticResource LightButton}" 
+                ToolTip="Press to connect to reset the TeensyROM device" />
+
             <Label 
                 Margin="10 0 0 0" 
                 Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConvertor}}"

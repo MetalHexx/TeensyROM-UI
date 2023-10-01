@@ -1,5 +1,6 @@
 using FluentAssertions;
 using System.IO.Ports;
+using System.Security.Cryptography.X509Certificates;
 using TeensyRom.Core.Serial;
 using TeensyRom.Ui.Features.Connect;
 
@@ -105,7 +106,7 @@ namespace TeensyRom.Tests
             //Arrange            
             var actualSelectedPort = SerialPort.GetPortNames().First();
             var expectedPingLog = $"Pinging device";
-            var expectedPongLog = $"> TeensyROM";
+            var expectedPongLog = $"TeensyROM";
 
             //Act
             _viewModel.SelectedPort = actualSelectedPort;
@@ -158,6 +159,31 @@ namespace TeensyRom.Tests
 
             //Assert
             _viewModel.IsConnected.Should().BeTrue();
+        }
+
+
+        [Fact]
+        public void Given_Connected_When_ResetClicked_Then_LogsReset()
+        {
+            //Arrange
+            var actualSelectedPort = SerialPort.GetPortNames().First();
+            var expectedLog1 = "Resetting device";
+            var expectedLog2 = "Reset cmd received";
+            var expectedLog3 = "Loading IO handler: TeensyROM";
+            var expectedLog4 = "Resetting C64";
+
+            //Act
+            _viewModel.SelectedPort = actualSelectedPort;
+            _viewModel.ConnectCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+            _viewModel.ResetCommand.Execute().Subscribe();
+            Thread.Sleep(1000);
+
+            //Assert
+            _viewModel.Logs.Should().Contain(expectedLog1);
+            _viewModel.Logs.Should().Contain(expectedLog2);
+            _viewModel.Logs.Should().Contain(expectedLog3);
+            _viewModel.Logs.Should().Contain(expectedLog4);
         }
 
         public void Dispose()

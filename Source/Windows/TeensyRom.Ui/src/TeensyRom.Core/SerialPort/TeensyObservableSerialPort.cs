@@ -18,5 +18,19 @@ namespace TeensyRom.Core.Serial
 
             return Unit.Default;
         }
+
+        public Unit ResetDevice()
+        {
+            if (!_serialPort.IsOpen)
+            {
+                _logs.OnNext("You must first connect in order to reset the device.");
+                return Unit.Default;
+            }
+            _logs.OnNext($"Resetting device");
+
+            _serialPort.Write(TeensySerialPortConstants.Reset_Bytes.ToArray(), 0, 2);
+
+            return Unit.Default;
+        }
     }
 }

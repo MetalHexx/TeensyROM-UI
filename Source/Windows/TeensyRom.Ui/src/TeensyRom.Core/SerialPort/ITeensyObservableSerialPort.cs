@@ -8,5 +8,10 @@ namespace TeensyRom.Core.Serial
         /// Sends ping bytes to teensyrom
         /// </summary>        
         Unit PingDevice();
+
+        /// <summary>
+        /// Sends reset bytes to teensyrom
+        /// </summary>        
+        Unit ResetDevice();
     }
 }
