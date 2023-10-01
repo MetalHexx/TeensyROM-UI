@@ -6,20 +6,19 @@ using System.Text;
 
 namespace TeensyRom.Core.Serial
 {
-    //TODO: Mark abstract and create a Teensy Specific Serial Port implementation
-    public class ObservableSerialPort : IObservableSerialPort, IDisposable
+    public abstract class ObservableSerialPort : IObservableSerialPort, IDisposable
     {   
-        private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
+        protected readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         public IObservable<string[]> Ports => _ports.AsObservable();
 
-        private readonly BehaviorSubject<bool> _isConnected = new(false);
+        protected readonly BehaviorSubject<bool> _isConnected = new(false);
         public IObservable<bool> IsConnected => _isConnected.AsObservable();
 
-        private readonly BehaviorSubject<string> _logs = new("Not connected.");
+        protected readonly BehaviorSubject<string> _logs = new("Not connected.");
         public IObservable<string> Logs => _logs.AsObservable();
 
-        public readonly SerialPort _serialPort = new SerialPort { ReadTimeout = 200 };
-        private IDisposable _openPortSubscription;
+        protected readonly SerialPort _serialPort = new SerialPort { ReadTimeout = 200 };
+        protected IDisposable _openPortSubscription;
 
 
         public void SetPort(string port)
@@ -106,21 +105,6 @@ namespace TeensyRom.Core.Serial
             }
             return data;
         }
-
-        public Unit PingDevice()
-        {
-            if (!_serialPort.IsOpen)
-            {
-                _logs.OnNext("You must first connect in order to ping the device.");
-                return Unit.Default;
-            }
-            _logs.OnNext($"Pinging device");
-
-            _serialPort.Write(SerialPortConstants.Teensy_Ping_Bytes.ToArray(), 0, 2);            
-            
-            return Unit.Default;
-        }
-
         public void Dispose()
         {
             if (_serialPort.IsOpen) _serialPort.Close();

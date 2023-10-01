@@ -28,27 +28,27 @@ namespace TeensyRom.Ui.Features.Connect
 
         public ReactiveCommand<Unit, Unit> PingCommand { get; set; }
 
-        private readonly IObservableSerialPort _serialService;
+        private readonly ITeensyObservableSerialPort _teensySerial;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public ConnectViewModel(IObservableSerialPort serialService)
+        public ConnectViewModel(ITeensyObservableSerialPort teensySerial)
         {
-            _serialService = serialService;
+            _teensySerial = teensySerial;
 
-            _serialService.Ports.ToPropertyEx(this, vm => vm.Ports);
-            _serialService.IsConnected.ToPropertyEx(this, vm => vm.IsConnected);
+            _teensySerial.Ports.ToPropertyEx(this, vm => vm.Ports);
+            _teensySerial.IsConnected.ToPropertyEx(this, vm => vm.IsConnected);
 
             ConnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                _serialService.OpenPort(), outputScheduler: ImmediateScheduler.Instance);
+                _teensySerial.OpenPort(), outputScheduler: ImmediateScheduler.Instance);
 
             PingCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                _serialService.PingDevice(), outputScheduler: ImmediateScheduler.Instance);
+                _teensySerial.PingDevice(), outputScheduler: ImmediateScheduler.Instance);
 
             this.WhenAnyValue(x => x.SelectedPort)
                 .Where(port => port != null)
-                .Subscribe(port => _serialService.SetPort(port));
+                .Subscribe(port => _teensySerial.SetPort(port));
 
-            _serialService.Logs.Subscribe(log => 
+            _teensySerial.Logs.Subscribe(log => 
             {
                 _logBuilder.AppendLine(log);
                 Logs = _logBuilder.ToString();

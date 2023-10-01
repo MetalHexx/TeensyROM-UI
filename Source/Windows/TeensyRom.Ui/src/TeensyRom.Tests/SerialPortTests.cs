@@ -9,10 +9,10 @@ namespace TeensyRom.Tests
     public class SerialPortTests: IDisposable
     {
         private ConnectViewModel _viewModel;
-        private ObservableSerialPort _serialPort;
+        private ITeensyObservableSerialPort _serialPort;
         public SerialPortTests()
         {
-            _serialPort = new ObservableSerialPort();
+            _serialPort = new TeensyObservableSerialPort();
             _viewModel = new ConnectViewModel(_serialPort);
         }
         [Fact]

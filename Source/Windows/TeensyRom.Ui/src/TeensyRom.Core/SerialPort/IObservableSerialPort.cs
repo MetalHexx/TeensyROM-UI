@@ -32,12 +32,6 @@ namespace TeensyRom.Core.Serial
         /// </summary>
         Unit OpenPort();
 
-        /// <summary>
-        /// Sends ping bytes to teensyrom
-        /// </summary>        
-        Unit PingDevice();
-
-        //TOOD: Add an observable value representing a stream of changes to the status of the serial port connection
         //TODO: Add a method to close the port
         //TODO: Add a method to send file data
     }
