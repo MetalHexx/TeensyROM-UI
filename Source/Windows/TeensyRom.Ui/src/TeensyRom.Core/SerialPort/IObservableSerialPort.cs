@@ -11,18 +11,29 @@ namespace TeensyRom.Core.Serial
         /// Connections can be dropped, thus ports can change, so we want to observe those changes.
         /// </summary>
         IObservable<string[]> Ports { get; }
+
+        /// <summary>
+        /// All the log data from serial port communications
+        /// </summary>
         IObservable<string> Logs { get; }
 
         /// <summary>
         /// Sets the port to connect to
         /// </summary>
         void SetPort(string port);
+
+        /// <summary>
+        /// Opens the port with the current set port
+        /// </summary>
         Unit OpenPort();
+
+        /// <summary>
+        /// Sends ping bytes to teensyrom
+        /// </summary>        
         Unit PingDevice();
 
         //TOOD: Add an observable value representing a stream of changes to the status of the serial port connection
-        //TODO: Add an observable value representing a stream of data received from the serial port
         //TODO: Add a method to close the port
-        //TODO: Add a method to send data
+        //TODO: Add a method to send file data
     }
 }
