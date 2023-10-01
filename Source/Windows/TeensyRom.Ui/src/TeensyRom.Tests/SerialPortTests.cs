@@ -33,13 +33,45 @@ namespace TeensyRom.Tests
         }
 
         [Fact]
-        public void Given_NotConnected_Then_Returns_NotConnectedMessage()
+        public void Given_NotConnected_Then_Returns_NotConnectedLog()
         {
             //Arrange
-            var expectedMessage = $"Not Connected.";
+            var expectedMessage = $"Not connected.";
 
             //Assert
-            _viewModel.Logs.First().Should().BeEquivalentTo(expectedMessage);
+            _viewModel.Logs.Should().Contain(expectedMessage);
+        }
+
+        [Fact]
+        public void Given_NotConnected_When_Connecting_Then_Returns_ConnectionLogs()
+        {
+            //Arrange            
+            var actualSelectedPort = SerialPort.GetPortNames().First();
+            var expectedConnectingLog = $"Connecting to {actualSelectedPort}.";
+            var expectedConnectedLog = $"Connection to {actualSelectedPort} successful.";
+
+            //Act
+            _viewModel.SelectedPort = actualSelectedPort;
+            _viewModel.ConnectCommand.Execute().Subscribe();
+
+            //Assert
+            _viewModel.Logs.Should().Contain(expectedConnectingLog);
+            _viewModel.Logs.Should().Contain(expectedConnectedLog);
+        }
+
+        [Fact]
+        public void Given_NotConnected_When_Connecting_And_ErrorOccurs_Then_Returns_ErrorLog()
+        {
+            //Arrange            
+            var actualSelectedPort = SerialPort.GetPortNames().First();
+            var expectedErrorLog = $"Failed to open the serial port: The given port name (Not a real port) does not resolve to a valid serial port. (Parameter 'portName')";
+
+            //Act
+            _viewModel.SelectedPort = "Not a real port";
+            _viewModel.ConnectCommand.Execute().Subscribe();
+
+            //Assert
+            _viewModel.Logs.Should().Contain(expectedErrorLog);
         }
     }
 }

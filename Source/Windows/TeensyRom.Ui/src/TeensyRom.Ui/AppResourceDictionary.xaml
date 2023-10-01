@@ -18,6 +18,10 @@
         <Setter Property="Foreground" Value="White"/>
     </Style>
 
+    <Style x:Key="LightButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedSecondaryLightButton}">
+        <Setter Property="Width" Value="100" />
+    </Style>
+
     <Style x:Key="ListBoxItemStretch" TargetType="{x:Type ListBoxItem}">
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
     </Style>

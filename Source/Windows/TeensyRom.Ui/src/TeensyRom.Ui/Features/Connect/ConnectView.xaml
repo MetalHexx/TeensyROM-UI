@@ -13,7 +13,14 @@
         
         <ComboBox ItemsSource="{Binding Ports, Mode=OneWay}"
                   SelectedItem="{Binding SelectedPort, Mode=TwoWay}"/>
-        
+
+        <Button 
+            Command="{Binding ConnectCommand}"
+            Content="Connect"
+            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+            Style="{StaticResource LightButton}"
+            ToolTip="Resource name: MaterialDesignPaperLightButton" />
+
         <TextBox Height="80"
                  MinWidth="280"
                  VerticalAlignment="Stretch"

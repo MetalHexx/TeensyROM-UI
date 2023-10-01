@@ -3,6 +3,8 @@ using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using System.Windows.Documents;
@@ -21,9 +23,7 @@ namespace TeensyRom.Ui.Features.Connect
         [Reactive]
         public string Logs { get; set; } = string.Empty;
 
-        //TODO: Add a command to connect to the selected serial port
-
-        //TODO: Add a property to display the logs received from the serial port
+        public ReactiveCommand<Unit, Unit> ConnectCommand { get; set; }
 
         private readonly IObservableSerialPort _serialService;
         private readonly StringBuilder _logBuilder = new StringBuilder();
@@ -33,6 +33,9 @@ namespace TeensyRom.Ui.Features.Connect
             _serialService = serialService;
 
             _serialService.Ports.ToPropertyEx(this, vm => vm.Ports);
+
+            ConnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
+                _serialService.EnsureConnection(), outputScheduler: ImmediateScheduler.Instance);
 
             this.WhenAnyValue(x => x.SelectedPort)
                 .Where(port => port != null)
