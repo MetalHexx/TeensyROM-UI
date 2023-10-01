@@ -38,18 +38,17 @@ namespace TeensyRom.Core.Serial
                     .Interval(TimeSpan.FromMilliseconds(SerialPortConstants.Read_Polling_Milliseconds))
                     .SelectMany(_ => Observable.Defer(() =>
                     {
-                        if (!_serialPort.IsOpen)
+
+                        try
                         {
-                            try
-                            {
-                                EnsureConnection();
-                            }
-                            catch (Exception ex)
-                            {
-                                observer.OnError(ex);
-                                return Observable.Empty<string>();
-                            }
+                            EnsureConnection();
                         }
+                        catch (Exception ex)
+                        {
+                            observer.OnError(ex);
+                            return Observable.Empty<string>();
+                        }
+
                         var data = ReadBytes();
 
                         if (data.Length > 0)
