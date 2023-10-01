@@ -1,7 +1,11 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
+using System.Text;
+using System.Windows.Documents;
 using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Ui.Features.Connect
@@ -14,6 +18,9 @@ namespace TeensyRom.Ui.Features.Connect
         [Reactive]
         public string SelectedPort { get; set; }
 
+        [Reactive]
+        public string Logs { get; set; } = string.Empty;
+
         //TODO: Add a property to represent the selected port in the drop down
 
         //TODO: Add a command to set the serial port to the users selection
@@ -23,6 +30,7 @@ namespace TeensyRom.Ui.Features.Connect
         //TODO: Add a property to display the logs received from the serial port
 
         private readonly IObservableSerialPort _serialService;
+        private readonly StringBuilder _logBuilder = new StringBuilder();
 
         public ConnectViewModel(IObservableSerialPort serialService)
         {
@@ -32,6 +40,12 @@ namespace TeensyRom.Ui.Features.Connect
             this.WhenAnyValue(x => x.SelectedPort)
                 .Where(port => port != null)
                 .Subscribe(port => _serialService.SetPort(port));
+
+            _serialService.Logs.Subscribe(log => 
+            {
+                _logBuilder.AppendLine(log);
+                Logs = _logBuilder.ToString();
+            });
 
             SelectedPort = Ports![0];
         }

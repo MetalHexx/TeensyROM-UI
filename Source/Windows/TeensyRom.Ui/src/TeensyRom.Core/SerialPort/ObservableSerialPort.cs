@@ -9,6 +9,10 @@ namespace TeensyRom.Core.Serial
     {   
         private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         public IObservable<string[]> Ports => _ports.AsObservable();
+
+        private readonly BehaviorSubject<string> _logs = new("Not connected.");
+        public IObservable<string> Logs => _logs.AsObservable();
+
         public readonly SerialPort _serialPort = new SerialPort { ReadTimeout = 200 };
 
         public void SetPort(string port)

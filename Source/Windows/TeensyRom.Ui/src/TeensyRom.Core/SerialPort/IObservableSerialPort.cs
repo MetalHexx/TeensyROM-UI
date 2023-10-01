@@ -11,6 +11,7 @@ namespace TeensyRom.Core.Serial
         /// Connections can be dropped, thus ports can change, so we want to observe those changes.
         /// </summary>
         IObservable<string[]> Ports { get; }
+        IObservable<string> Logs { get; }
 
         /// <summary>
         /// Sets the port to connect to

@@ -31,5 +31,15 @@ namespace TeensyRom.Tests
             //Assert
             _viewModel.SelectedPort.Should().BeEquivalentTo(actualSelectedPort);
         }
+
+        [Fact]
+        public void Given_NotConnected_Then_Returns_NotConnectedMessage()
+        {
+            //Arrange
+            var expectedMessage = $"Not Connected.";
+
+            //Assert
+            _viewModel.Logs.First().Should().BeEquivalentTo(expectedMessage);
+        }
     }
 }
