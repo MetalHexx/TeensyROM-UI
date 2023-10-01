@@ -35,5 +35,6 @@
 
     <helpers:BoolToVisibilityConvertor x:Key="BoolToVisibilityConvertor"/>
     <helpers:InverseBoolToVisibilityConvertor x:Key="InverseBoolToVisibilityConvertor"/>
+    <helpers:BooleanInverterConverter x:Key="BooleanInverterConverter"/>
 
 </ResourceDictionary>

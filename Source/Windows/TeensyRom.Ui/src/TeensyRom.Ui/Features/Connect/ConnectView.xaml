@@ -37,7 +37,7 @@
                 HorizontalAlignment="Left" 
                 Command="{Binding ConnectCommand}" 
                 Content="Connect" 
-                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" 
+                IsEnabled="{Binding IsConnected, Converter={StaticResource InvertBooleanConverter}}"
                 Style="{StaticResource LightButton}" 
                 ToolTip="Press to connect to the selected port" />
 
