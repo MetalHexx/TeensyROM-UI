@@ -5,31 +5,60 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:TeensyRom.Ui.Features.Connect"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <StackPanel>
+             mc:Ignorable="d">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/> <!-- New Row for Label -->
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock 
+            Grid.Row="0" 
+            Style="{StaticResource SectionTitle}" 
+            Margin="10" 
+            Text="Manage Connection"/>
+
+        <Label 
+            HorizontalAlignment="Left" 
+            Margin="10 0 0 0"
+            Grid.Row="1"              
+            Content="Port:"/>
         
-        <TextBlock Grid.Row="0" Style="{StaticResource SectionTitle}">Connect</TextBlock>
-        
-        <ComboBox ItemsSource="{Binding Ports, Mode=OneWay}"
-                  SelectedItem="{Binding SelectedPort, Mode=TwoWay}"/>
+        <ComboBox 
+            Grid.Row="2" 
+            Margin="11 0 0 0" 
+            ItemsSource="{Binding Ports, Mode=OneWay}" 
+            SelectedItem="{Binding SelectedPort, Mode=TwoWay}"/>
 
         <Button 
-            Command="{Binding ConnectCommand}"
-            Content="Connect"
-            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
-            Style="{StaticResource LightButton}"
-            ToolTip="Resource name: MaterialDesignPaperLightButton" />
+            Grid.Row="3" 
+            Margin="10" 
+            HorizontalAlignment="Left" 
+            Command="{Binding ConnectCommand}" 
+            Content="Connect" 
+            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" 
+            Style="{StaticResource LightButton}" 
+            ToolTip="Press to connect to the selected port" />
 
-            <TextBox x:Name="LogTextBox" 
-             Height="400"
-             MinWidth="280"                    
-             materialDesign:HintAssist.Hint="Multiline text"
-             AcceptsReturn="True"
-             SpellCheck.IsEnabled="True"
-             Text="{Binding Logs, Mode=OneWay}"
-             TextWrapping="Wrap"
-             IsReadOnly="True"
-             VerticalScrollBarVisibility="Auto" />
-    </StackPanel>
+        <!-- New Label Added Here -->
+        <Label 
+            HorizontalAlignment="Left" 
+            Margin="10 0 0 0"
+            Grid.Row="4"              
+            Content="Logs:"/>
+
+        <TextBox 
+            Grid.Row="5" 
+            x:Name="LogTextBox" 
+            Margin="13 0 10 0" 
+            materialDesign:HintAssist.Hint="Logs" 
+            Text="{Binding Logs, Mode=OneWay}" 
+            TextWrapping="Wrap" 
+            IsReadOnly="True" 
+            VerticalScrollBarVisibility="Auto" />
+    </Grid>
 </UserControl>
