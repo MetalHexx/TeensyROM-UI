@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TeensyRom.Ui.Features.Connect
 {
-    internal class ConnectionViewModel
+    public class ConnectViewModel
     {
     }
 }

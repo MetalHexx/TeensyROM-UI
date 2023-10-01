@@ -1,6 +1,7 @@
 ﻿using CommonServiceLocator;
 using GalaSoft.MvvmLight.Ioc;
 using MaterialDesignThemes.Wpf;
+using TeensyRom.Ui.Features.Connect;
 using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.Help;
 using TeensyRom.Ui.Features.Midi;
@@ -25,6 +26,7 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<DialogHost, DialogHost>();
             SimpleIoc.Default.Register<INavigationService, NavigationService>();
             SimpleIoc.Default.Register<NavigationHostViewModel>();
+            SimpleIoc.Default.Register<ConnectViewModel>();
             SimpleIoc.Default.Register<FileTransferViewModel>();
             SimpleIoc.Default.Register<HelpViewModel>();
             SimpleIoc.Default.Register<MidiViewModel>();

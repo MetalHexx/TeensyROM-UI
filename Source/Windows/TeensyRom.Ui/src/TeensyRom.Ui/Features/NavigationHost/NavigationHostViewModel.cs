@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Linq;
 using TeensyRom.Ui.Features.Help;
 using TeensyRom.Ui.Features.Midi;
+using TeensyRom.Ui.Features.Connect;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -27,18 +28,25 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
         private readonly INavigationService _navService;
 
-        public NavigationHostViewModel(INavigationService navStore, FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help)
+        public NavigationHostViewModel(INavigationService navStore, FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help, ConnectViewModel connect)
         {
             _navService = navStore;
             RegisterModelProperties();
             RegisterModelCommands();
-            InitializeNavItems(fileTransfer, midi, help);
+            InitializeNavItems(fileTransfer, midi, help, connect);
         }     
 
-        public void InitializeNavItems(FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help)
+        public void InitializeNavItems(FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help, ConnectViewModel connect)
         {
-            _navService.Initialize(NavigationLocation.FileTransfer, new List<NavigationItem>
+            _navService.Initialize(NavigationLocation.Connect, new List<NavigationItem>
             {
+                new NavigationItem
+                {
+                    Name = "Connect",
+                    Type = NavigationLocation.Connect,
+                    ViewModel = connect,
+                    Icon = "LanConnect"
+                },
                 new NavigationItem
                 {
                     Name = "File Transfer",

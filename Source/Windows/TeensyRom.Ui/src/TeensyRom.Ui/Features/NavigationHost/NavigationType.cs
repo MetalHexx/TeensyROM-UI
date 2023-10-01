@@ -2,8 +2,9 @@
 {
     public enum NavigationLocation
     {
+        Connect,
         FileTransfer,
         Midi,
-        Help
+        Help        
     }
 }
