@@ -50,7 +50,9 @@ namespace TeensyRom.Ui.Features.Connect
                 Logs = _logBuilder.ToString();
             });
 
-            SelectedPort = Ports![0];
+            SelectedPort = Ports is not null && Ports?.Length == 0
+                ? SelectedPort = ""
+                : Ports![0];
         }
     }
 }
