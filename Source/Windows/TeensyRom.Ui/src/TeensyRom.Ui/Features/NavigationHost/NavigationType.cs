@@ -2,9 +2,6 @@
 {
     public enum NavigationLocation
     {
-        ScreenProfileSelect,
-        ScreenProfileEdit,
-        DeviceProfileEdit,
         FileTransfer,
         Midi,
         Help
