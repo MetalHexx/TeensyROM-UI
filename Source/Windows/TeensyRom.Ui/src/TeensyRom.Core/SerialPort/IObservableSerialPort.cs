@@ -17,7 +17,8 @@ namespace TeensyRom.Core.Serial
         /// Sets the port to connect to
         /// </summary>
         void SetPort(string port);
-        Unit EnsureConnection();
+        Unit OpenPort();
+        Unit PingDevice();
 
         //TOOD: Add an observable value representing a stream of changes to the status of the serial port connection
         //TODO: Add an observable value representing a stream of data received from the serial port

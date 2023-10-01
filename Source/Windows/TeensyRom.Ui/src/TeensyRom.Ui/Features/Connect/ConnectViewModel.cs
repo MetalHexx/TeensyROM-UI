@@ -1,13 +1,11 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
-using System.Windows.Documents;
 using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Ui.Features.Connect
@@ -25,6 +23,8 @@ namespace TeensyRom.Ui.Features.Connect
 
         public ReactiveCommand<Unit, Unit> ConnectCommand { get; set; }
 
+        public ReactiveCommand<Unit, Unit> PingCommand { get; set; }
+
         private readonly IObservableSerialPort _serialService;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
@@ -35,7 +35,10 @@ namespace TeensyRom.Ui.Features.Connect
             _serialService.Ports.ToPropertyEx(this, vm => vm.Ports);
 
             ConnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                _serialService.EnsureConnection(), outputScheduler: ImmediateScheduler.Instance);
+                _serialService.OpenPort(), outputScheduler: ImmediateScheduler.Instance);
+
+            PingCommand = ReactiveCommand.Create<Unit, Unit>(n =>
+                _serialService.PingDevice(), outputScheduler: ImmediateScheduler.Instance);
 
             this.WhenAnyValue(x => x.SelectedPort)
                 .Where(port => port != null)

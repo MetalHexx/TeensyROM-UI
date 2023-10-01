@@ -5,12 +5,15 @@ using TeensyRom.Ui.Features.Connect;
 
 namespace TeensyRom.Tests
 {
-    public class SerialPortTests
+    [Collection("SerialPortTests")]
+    public class SerialPortTests: IDisposable
     {
         private ConnectViewModel _viewModel;
+        private ObservableSerialPort _serialPort;
         public SerialPortTests()
         {
-            _viewModel = new ConnectViewModel(new ObservableSerialPort());
+            _serialPort = new ObservableSerialPort();
+            _viewModel = new ConnectViewModel(_serialPort);
         }
         [Fact]
         public void Given_PortsExist_Then_PortsShouldMatch()
@@ -53,6 +56,7 @@ namespace TeensyRom.Tests
             //Act
             _viewModel.SelectedPort = actualSelectedPort;
             _viewModel.ConnectCommand.Execute().Subscribe();
+            Thread.Sleep(500);
 
             //Assert
             _viewModel.Logs.Should().Contain(expectedConnectingLog);
@@ -69,9 +73,34 @@ namespace TeensyRom.Tests
             //Act
             _viewModel.SelectedPort = "Not a real port";
             _viewModel.ConnectCommand.Execute().Subscribe();
+            Thread.Sleep(500);
 
             //Assert
             _viewModel.Logs.Should().Contain(expectedErrorLog);
+        }
+
+        [Fact]
+        public void Given_Connected_When_Pinged_RespondsWithSuccessLog()
+        {
+            //Arrange            
+            var actualSelectedPort = SerialPort.GetPortNames().First();
+            var expectedPingLog = $"Pinging device/C64";
+            var expectedPongLog = $"> TeensyROM";
+
+            //Act
+            _viewModel.SelectedPort = actualSelectedPort;
+            _viewModel.ConnectCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+            _viewModel.PingCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+
+            _viewModel.Logs.Should().Contain(expectedPingLog);
+            _viewModel.Logs.Should().Contain(expectedPongLog);
+        }
+
+        public void Dispose()
+        {
+            _serialPort?.Dispose();
         }
     }
 }

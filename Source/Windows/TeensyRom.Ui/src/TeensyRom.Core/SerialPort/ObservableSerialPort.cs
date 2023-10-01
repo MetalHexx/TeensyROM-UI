@@ -2,10 +2,12 @@
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Text;
 
 namespace TeensyRom.Core.Serial
 {
-    public class ObservableSerialPort : IObservableSerialPort
+    //TODO: Mark abstract and create a Teensy Specific Serial Port implementation
+    public class ObservableSerialPort : IObservableSerialPort, IDisposable
     {   
         private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         public IObservable<string[]> Ports => _ports.AsObservable();
@@ -14,6 +16,7 @@ namespace TeensyRom.Core.Serial
         public IObservable<string> Logs => _logs.AsObservable();
 
         public readonly SerialPort _serialPort = new SerialPort { ReadTimeout = 200 };
+        private IDisposable _openPortSubscription;
 
 
         public void SetPort(string port)
@@ -21,9 +24,47 @@ namespace TeensyRom.Core.Serial
             _serialPort.PortName = port;
         }
 
-        public Unit EnsureConnection()
+        public Unit OpenPort()
         {
-            if (_serialPort.IsOpen) return Unit.Default;
+            _openPortSubscription?.Dispose();
+
+            _openPortSubscription = Observable.Create<string>(observer =>
+            {
+                return Observable
+                    .Interval(TimeSpan.FromMilliseconds(SerialPortConstants.Read_Polling_Milliseconds))
+                    .SelectMany(_ => Observable.Defer(() =>
+                    {
+                        if (!_serialPort.IsOpen)
+                        {
+                            try
+                            {
+                                EnsureConnection();
+                            }
+                            catch (Exception ex)
+                            {
+                                observer.OnError(ex);
+                                return Observable.Empty<string>();
+                            }
+                        }
+                        var data = ReadBytes();
+
+                        if (data.Length > 0)
+                        {
+                            observer.OnNext($"> {data}");
+                        }
+                        return Observable.Empty<string>();
+                    }))
+                    .RetryWhen(errors => errors.DelaySubscription(TimeSpan.FromSeconds(SerialPortConstants.Read_Retry_Seconds)))
+                    .Subscribe();
+            })
+            .Subscribe(_logs.OnNext, _logs.OnError);
+
+            return Unit.Default;
+        }
+
+        private void EnsureConnection()
+        {
+            if (_serialPort.IsOpen) return;
 
             _logs.OnNext($"Connecting to {_serialPort.PortName}.");
             try
@@ -35,7 +76,51 @@ namespace TeensyRom.Core.Serial
             {
                 _logs.OnNext($"Failed to open the serial port: {ex.Message}");
             }
+        }
+
+        private StringBuilder ReadBytes()
+        {
+            var data = new StringBuilder();
+            while (_serialPort.BytesToRead > 0)
+            {
+                try
+                {
+                    data.AppendLine(_serialPort.ReadLine());
+                }
+                catch (TimeoutException)
+                {
+                    data.Append(".");
+
+                    while (_serialPort.BytesToRead > 0)
+                    {
+                        data.Append((char)_serialPort.ReadChar());
+                    }   
+                    data.AppendLine();
+                }
+            }
+            return data;
+        }
+
+        public Unit PingDevice()
+        {
+            if (!_serialPort.IsOpen)
+            {
+                _logs.OnNext("You must first connect in order to ping the device.");
+                return Unit.Default;
+            }
+            _logs.OnNext($"Pinging device/C64");
+            _serialPort.Write(SerialPortConstants.Ping_Bytes.ToArray(), 0, 2);            
             return Unit.Default;
+        }
+
+        public void Dispose()
+        {
+            if (_serialPort.IsOpen) _serialPort.Close();
+
+            _serialPort?.Dispose();
+            _openPortSubscription?.Dispose();
+            _logs?.Dispose();
+            _ports?.Dispose();
         }
     }
 }
