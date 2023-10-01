@@ -64,6 +64,19 @@ namespace TeensyRom.Core.Serial
             return Unit.Default;
         }
 
+        public Unit ClosePort()
+        {
+            _logs.OnNext($"Disconnecting from {_serialPort.PortName}.");
+
+            if (_serialPort.IsOpen) _serialPort.Close();
+            
+            _logs.OnNext($"Disconnected from {_serialPort.PortName} successfully.");
+
+            _openPortSubscription.Dispose();
+            _isConnected.OnNext(false);
+            return Unit.Default;
+        }
+
         private void EnsureConnection()
         {
             if (_serialPort.IsOpen) return;

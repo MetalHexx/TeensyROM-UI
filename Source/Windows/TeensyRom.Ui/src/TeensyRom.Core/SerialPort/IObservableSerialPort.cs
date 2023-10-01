@@ -32,6 +32,11 @@ namespace TeensyRom.Core.Serial
         /// </summary>
         Unit OpenPort();
 
+        /// <summary>
+        /// Closes the port
+        /// </summary>
+        Unit ClosePort();
+
         //TODO: Add a method to close the port
         //TODO: Add a method to send file data
     }

@@ -37,9 +37,18 @@
                 HorizontalAlignment="Left" 
                 Command="{Binding ConnectCommand}" 
                 Content="Connect" 
-                IsEnabled="{Binding IsConnected, Converter={StaticResource InvertBooleanConverter}}"
+                Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
                 Style="{StaticResource LightButton}" 
                 ToolTip="Press to connect to the selected port" />
+
+            <Button 
+                Margin="10" 
+                HorizontalAlignment="Left" 
+                Command="{Binding DisconnectCommand}" 
+                Content="Disconnect" 
+                Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConvertor}}"
+                Style="{StaticResource LightButton}" 
+                ToolTip="Press to disconnect from the port" />
 
             <Button 
                 Margin="10" 

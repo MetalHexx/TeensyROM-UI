@@ -80,6 +80,26 @@ namespace TeensyRom.Tests
         }
 
         [Fact]
+        public void Given_Connected_When_Disconnecting_Then_Returns_DisconnectionLogs()
+        {
+            //Arrange            
+            var actualSelectedPort = SerialPort.GetPortNames().First();
+            var expectedDisconnectingLog = $"Disconnecting from {actualSelectedPort}.";
+            var expectedDisconnectedLog = $"Disconnected from {actualSelectedPort} successfully.";
+
+            //Act
+            _viewModel.SelectedPort = actualSelectedPort;
+            _viewModel.ConnectCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+            _viewModel.DisconnectCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+
+            //Assert
+            _viewModel.Logs.Should().Contain(expectedDisconnectingLog);
+            _viewModel.Logs.Should().Contain(expectedDisconnectedLog);
+        }
+
+        [Fact]
         public void Given_Connected_When_Pinged_RespondsWithSuccessLog()
         {
             //Arrange            
@@ -103,6 +123,23 @@ namespace TeensyRom.Tests
         {
             //Arrange            
             var actualSelectedPort = SerialPort.GetPortNames().First();
+
+            //Assert
+            _viewModel.IsConnected.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Given_Connected_When_Disconnected_Then_ConnectionStatusIsFalse()
+        {
+            //Arrange            
+            var actualSelectedPort = SerialPort.GetPortNames().First();
+
+            //Act
+            _viewModel.SelectedPort = actualSelectedPort;
+            _viewModel.ConnectCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+            _viewModel.DisconnectCommand.Execute().Subscribe();
+            Thread.Sleep(500);
 
             //Assert
             _viewModel.IsConnected.Should().BeFalse();

@@ -25,6 +25,7 @@ namespace TeensyRom.Ui.Features.Connect
         public string Logs { get; set; } = string.Empty;
 
         public ReactiveCommand<Unit, Unit> ConnectCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> DisconnectCommand { get; set; }
 
         public ReactiveCommand<Unit, Unit> PingCommand { get; set; }
 
@@ -40,6 +41,9 @@ namespace TeensyRom.Ui.Features.Connect
 
             ConnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 _teensySerial.OpenPort(), outputScheduler: ImmediateScheduler.Instance);
+
+            DisconnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
+                _teensySerial.ClosePort(), outputScheduler: ImmediateScheduler.Instance);
 
             PingCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 _teensySerial.PingDevice(), outputScheduler: ImmediateScheduler.Instance);

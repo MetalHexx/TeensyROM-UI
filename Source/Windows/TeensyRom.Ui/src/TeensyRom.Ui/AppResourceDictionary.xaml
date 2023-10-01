@@ -19,7 +19,7 @@
     </Style>
 
     <Style x:Key="LightButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedSecondaryLightButton}">
-        <Setter Property="Width" Value="100" />
+        <Setter Property="Width" Value="120" />
     </Style>
 
     <Style x:Key="ListBoxItemStretch" TargetType="{x:Type ListBoxItem}">
