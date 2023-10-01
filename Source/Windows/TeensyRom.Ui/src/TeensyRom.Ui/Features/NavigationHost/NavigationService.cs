@@ -33,16 +33,9 @@ namespace TeensyRom.Ui.Features.NavigationHost
         }
 
         public void Initialize(NavigationLocation startingLocation, List<NavigationItem> navItems)
-        {   
-            navItems.ForEach(i => AddNavigationItem(i));
-            NavigateTo(startingLocation);
-        }
-        
-        private Unit AddNavigationItem(NavigationItem navItem)
         {
-            var navItems = _navigationItems.Value;
-            navItems.Add(navItem);
-            return Unit.Default;
+            _navigationItems.OnNext(navItems);
+            NavigateTo(startingLocation);
         }
         
         public Unit NavigateTo(Guid id)
