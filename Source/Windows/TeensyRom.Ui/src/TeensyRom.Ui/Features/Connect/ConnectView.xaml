@@ -46,7 +46,7 @@
                 HorizontalAlignment="Left" 
                 Command="{Binding PingCommand}" 
                 Content="Ping" 
-                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" 
+                IsEnabled="{Binding IsConnected}"
                 Style="{StaticResource LightButton}" 
                 ToolTip="Press to connect to ping the TeensyROM device" />
 
