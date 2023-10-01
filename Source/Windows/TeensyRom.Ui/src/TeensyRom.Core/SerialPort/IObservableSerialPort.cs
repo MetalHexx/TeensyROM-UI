@@ -1,8 +1,15 @@
-﻿namespace TeensyRom.Core
+﻿namespace TeensyRom.Core.Serial
 {
-    public interface ISerialPortService
+    /// <summary>
+    /// Provides an observable interface to a serial port that can be interacted with
+    /// </summary>
+    public interface IObservableSerialPort
     {
-        //TODO: Add an observable representing the ports in the system
+        /// <summary>
+        /// Connections can be dropped, thus ports can change, so we want to observe those changes.
+        /// </summary>
+        IObservable<string[]> Ports { get; }
+
         //TOOD: Add an observable value representing a stream of changes to the status of the serial port connection
         //TODO: Add an observable value representing a stream of data received from the serial port
         //TODO: Add a method to Set the selected port state

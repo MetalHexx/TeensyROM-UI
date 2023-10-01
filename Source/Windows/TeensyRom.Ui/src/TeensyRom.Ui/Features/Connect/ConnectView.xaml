@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:TeensyRom.Ui.Features.Connect"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <StackPanel>
         <TextBlock Grid.Row="0" Style="{StaticResource SectionTitle}">Connect</TextBlock>
-    </Grid>
+        <ComboBox ItemsSource="{Binding Ports, Mode=OneWay}"/>
+    </StackPanel>
 </UserControl>

@@ -17,6 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TeensyRom.Core\TeensyRom.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Features\Help\HelpView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
