@@ -8,6 +8,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <StackPanel>
         <TextBlock Grid.Row="0" Style="{StaticResource SectionTitle}">Connect</TextBlock>
-        <ComboBox ItemsSource="{Binding Ports, Mode=OneWay}"/>
+        <ComboBox ItemsSource="{Binding Ports, Mode=OneWay}"
+                  SelectedItem="{Binding SelectedPort, Mode=TwoWay}"/>
     </StackPanel>
 </UserControl>

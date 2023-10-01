@@ -1,4 +1,6 @@
-﻿namespace TeensyRom.Core.Serial
+﻿using System.Reactive;
+
+namespace TeensyRom.Core.Serial
 {
     /// <summary>
     /// Provides an observable interface to a serial port that can be interacted with
@@ -9,6 +11,11 @@
         /// Connections can be dropped, thus ports can change, so we want to observe those changes.
         /// </summary>
         IObservable<string[]> Ports { get; }
+
+        /// <summary>
+        /// Sets the port to connect to
+        /// </summary>
+        void SetPort(string port);
 
         //TOOD: Add an observable value representing a stream of changes to the status of the serial port connection
         //TODO: Add an observable value representing a stream of data received from the serial port

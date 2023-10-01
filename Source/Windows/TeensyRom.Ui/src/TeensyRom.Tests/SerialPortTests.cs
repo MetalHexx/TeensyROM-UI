@@ -7,16 +7,29 @@ namespace TeensyRom.Tests
 {
     public class SerialPortTests
     {
+        private ConnectViewModel _viewModel;
+        public SerialPortTests()
+        {
+            _viewModel = new ConnectViewModel(new ObservableSerialPort());
+        }
         [Fact]
-        public void Should_Return_Ports()
+        public void Given_PortsExist_Then_PortsShouldMatch()
         {
             //Arrange
             var actualSerialPorts = SerialPort.GetPortNames();
-            var serialService = new ObservableSerialPort();
-            var viewModel = new ConnectViewModel(serialService);
 
             //Assert
-            viewModel.Ports.Should().BeEquivalentTo(actualSerialPorts);
+            _viewModel.Ports.Should().BeEquivalentTo(actualSerialPorts);
+        }
+
+        [Fact]
+        public void Given_PortsExist_Then_FirstPortSelected()
+        {
+            //Arrange
+            var actualSelectedPort = SerialPort.GetPortNames().First();
+
+            //Assert
+            _viewModel.SelectedPort.Should().BeEquivalentTo(actualSelectedPort);
         }
     }
 }
