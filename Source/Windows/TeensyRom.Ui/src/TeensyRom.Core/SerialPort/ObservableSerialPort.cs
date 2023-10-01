@@ -12,6 +12,9 @@ namespace TeensyRom.Core.Serial
         private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         public IObservable<string[]> Ports => _ports.AsObservable();
 
+        private readonly BehaviorSubject<bool> _isConnected = new(false);
+        public IObservable<bool> IsConnected => _isConnected.AsObservable();
+
         private readonly BehaviorSubject<string> _logs = new("Not connected.");
         public IObservable<string> Logs => _logs.AsObservable();
 
@@ -71,10 +74,12 @@ namespace TeensyRom.Core.Serial
             try
             {
                 _serialPort.Open();
+                _isConnected.OnNext(true);
                 _logs.OnNext($"Connection to {_serialPort.PortName} successful.");
             }
             catch (Exception ex)
             {
+                _isConnected.OnNext(false);
                 _logs.OnNext($"Failed to open the serial port: {ex.Message}");
                 throw;
             }

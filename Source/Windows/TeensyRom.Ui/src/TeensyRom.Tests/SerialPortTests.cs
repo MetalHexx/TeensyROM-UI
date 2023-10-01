@@ -98,6 +98,31 @@ namespace TeensyRom.Tests
             _viewModel.Logs.Should().Contain(expectedPongLog);
         }
 
+        [Fact]
+        public void Given_NotConnected_Then_ConnectionStatusIsFalse()
+        {
+            //Arrange            
+            var actualSelectedPort = SerialPort.GetPortNames().First();
+
+            //Assert
+            _viewModel.IsConnected.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Given_Connected_Then_ConnectionStatusIsTrue()
+        {
+            //Arrange            
+            var actualSelectedPort = SerialPort.GetPortNames().First();
+
+            //Act
+            _viewModel.SelectedPort = actualSelectedPort;
+            _viewModel.ConnectCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+
+            //Assert
+            _viewModel.IsConnected.Should().BeTrue();
+        }
+
         public void Dispose()
         {
             _serialPort?.Dispose();

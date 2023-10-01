@@ -33,7 +33,6 @@
                 SelectedItem="{Binding SelectedPort, Mode=TwoWay}"/>
 
             <Button 
-                Grid.Row="3" 
                 Margin="10" 
                 HorizontalAlignment="Left" 
                 Command="{Binding ConnectCommand}" 
@@ -43,7 +42,6 @@
                 ToolTip="Press to connect to the selected port" />
 
             <Button 
-                Grid.Row="3" 
                 Margin="10" 
                 HorizontalAlignment="Left" 
                 Command="{Binding PingCommand}" 
@@ -52,15 +50,18 @@
                 Style="{StaticResource LightButton}" 
                 ToolTip="Press to connect to ping the TeensyROM device" />
 
+            <Label 
+                Margin="10 0 0 0" 
+                Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConvertor}}"
+                Content="Connection Status: Connected"/>
+
+            <Label 
+                Margin="10 0 0 0" 
+                Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
+                Content="Connection Status: Not Connected"/>
+
         </StackPanel>
 
-        
-        
-        
-
-        
-
-        <!-- New Label Added Here -->
         <Label 
             HorizontalAlignment="Left" 
             Margin="10 0 0 0"

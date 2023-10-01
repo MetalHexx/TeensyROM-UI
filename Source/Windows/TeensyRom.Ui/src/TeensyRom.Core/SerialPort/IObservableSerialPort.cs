@@ -13,6 +13,11 @@ namespace TeensyRom.Core.Serial
         IObservable<string[]> Ports { get; }
 
         /// <summary>
+        /// The current connection state
+        /// </summary>
+        IObservable<bool> IsConnected { get; }
+
+        /// <summary>
         /// All the log data from serial port communications
         /// </summary>
         IObservable<string> Logs { get; }

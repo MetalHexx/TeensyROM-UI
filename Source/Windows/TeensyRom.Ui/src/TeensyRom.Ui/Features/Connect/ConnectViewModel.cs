@@ -15,6 +15,9 @@ namespace TeensyRom.Ui.Features.Connect
         [ObservableAsProperty]
         public string[]? Ports { get; }
 
+        [ObservableAsProperty]
+        public bool IsConnected { get; }
+
         [Reactive]
         public string SelectedPort { get; set; }
 
@@ -33,6 +36,7 @@ namespace TeensyRom.Ui.Features.Connect
             _serialService = serialService;
 
             _serialService.Ports.ToPropertyEx(this, vm => vm.Ports);
+            _serialService.IsConnected.ToPropertyEx(this, vm => vm.IsConnected);
 
             ConnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 _serialService.OpenPort(), outputScheduler: ImmediateScheduler.Instance);
