@@ -114,8 +114,10 @@ namespace TeensyRom.Core.Serial
                 _logs.OnNext("You must first connect in order to ping the device.");
                 return Unit.Default;
             }
-            _logs.OnNext($"Pinging device/C64");
+            _logs.OnNext($"Pinging device");
+
             _serialPort.Write(SerialPortConstants.Teensy_Ping_Bytes.ToArray(), 0, 2);            
+            
             return Unit.Default;
         }
 

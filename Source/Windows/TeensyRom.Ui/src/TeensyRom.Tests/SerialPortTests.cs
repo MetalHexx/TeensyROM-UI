@@ -84,7 +84,7 @@ namespace TeensyRom.Tests
         {
             //Arrange            
             var actualSelectedPort = SerialPort.GetPortNames().First();
-            var expectedPingLog = $"Pinging device/C64";
+            var expectedPingLog = $"Pinging device";
             var expectedPongLog = $"> TeensyROM";
 
             //Act
