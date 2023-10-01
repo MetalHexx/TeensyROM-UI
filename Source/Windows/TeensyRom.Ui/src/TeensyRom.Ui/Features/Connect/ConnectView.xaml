@@ -21,15 +21,15 @@
             Style="{StaticResource LightButton}"
             ToolTip="Resource name: MaterialDesignPaperLightButton" />
 
-        <TextBox Height="80"
-                 MinWidth="280"
-                 VerticalAlignment="Stretch"
-                 materialDesign:HintAssist.Hint="Multiline text"
-                 AcceptsReturn="True"
-                 SpellCheck.IsEnabled="True"
-                 Text="{Binding Logs, Mode=OneWay}"
-                 TextWrapping="Wrap"
-                 IsReadOnly="True"
-                 VerticalScrollBarVisibility="Auto" />
+            <TextBox x:Name="LogTextBox" 
+             Height="400"
+             MinWidth="280"                    
+             materialDesign:HintAssist.Hint="Multiline text"
+             AcceptsReturn="True"
+             SpellCheck.IsEnabled="True"
+             Text="{Binding Logs, Mode=OneWay}"
+             TextWrapping="Wrap"
+             IsReadOnly="True"
+             VerticalScrollBarVisibility="Auto" />
     </StackPanel>
 </UserControl>
