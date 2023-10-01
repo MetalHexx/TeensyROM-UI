@@ -109,7 +109,7 @@ namespace TeensyRom.Core.Serial
                 return Unit.Default;
             }
             _logs.OnNext($"Pinging device/C64");
-            _serialPort.Write(SerialPortConstants.Ping_Bytes.ToArray(), 0, 2);            
+            _serialPort.Write(SerialPortConstants.Teensy_Ping_Bytes.ToArray(), 0, 2);            
             return Unit.Default;
         }
 
