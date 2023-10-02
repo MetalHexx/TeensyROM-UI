@@ -1,14 +1,7 @@
 ﻿using FluentAssertions;
-using System;
-using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
 using TeensyRom.Core.File;
 using TeensyRom.Core.Serial;
-using TeensyRom.Ui.Features.Connect;
 using TeensyRom.Ui.Features.FileTransfer;
 
 namespace TeensyRom.Tests
@@ -40,7 +33,7 @@ namespace TeensyRom.Tests
         }
 
         [Fact]
-        public void Given_FileSaved_When_WatcherDetect_Then_ReturnsSaveLog()
+        public void Given_FileSaved_When_WatcherDetectsFile_Then_ReturnsSaveLog()
         {
             //Act
             File.WriteAllText(_testSidFilePath, "Test sid");
@@ -48,11 +41,16 @@ namespace TeensyRom.Tests
 
             //Assert
             _viewModel.Logs.Should().Contain(_testSidFilePath);
+            
         }
 
         public void Dispose()
         {
             _serialPort?.Dispose();
+            _fileWatcher.Dispose();
+            _fileService.Dispose();
+
+            File.Delete(_testSidFilePath);
         }
     }
 }
