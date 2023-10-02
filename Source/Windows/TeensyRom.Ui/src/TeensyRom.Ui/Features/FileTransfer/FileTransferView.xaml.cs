@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,12 @@ namespace TeensyRom.Ui.Features.FileTransfer
         public FileTransferView()
         {
             InitializeComponent();
+
+            var dpd = DependencyPropertyDescriptor.FromProperty(TextBox.TextProperty, typeof(TextBox));
+            if (dpd != null)
+            {
+                dpd.AddValueChanged(LogTextBox, (sender, args) => LogTextBox.ScrollToEnd());
+            }
         }
     }
 }

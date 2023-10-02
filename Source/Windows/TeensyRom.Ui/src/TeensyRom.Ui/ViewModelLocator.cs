@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight.Ioc;
 using MaterialDesignThemes.Wpf;
 using System;
+using TeensyRom.Core.File;
 using TeensyRom.Core.Serial;
 using TeensyRom.Ui.Features.Connect;
 using TeensyRom.Ui.Features.FileTransfer;
@@ -28,6 +29,8 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<DialogHost, DialogHost>();
             SimpleIoc.Default.Register<INavigationService, NavigationService>();
             SimpleIoc.Default.Register<ITeensyObservableSerialPort, TeensyObservableSerialPort>();
+            SimpleIoc.Default.Register<ITeensyFileService, TeensyFileService>();
+            SimpleIoc.Default.Register<IFileWatcher, FileWatcher>();
             SimpleIoc.Default.Register<NavigationHostViewModel>();
             SimpleIoc.Default.Register<ConnectViewModel>();
             SimpleIoc.Default.Register<FileTransferViewModel>();

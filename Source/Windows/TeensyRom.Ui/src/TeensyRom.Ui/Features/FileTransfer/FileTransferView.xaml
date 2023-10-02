@@ -8,20 +8,40 @@
              mc:Ignorable="d" 
              Height="auto" Width="auto">
 
-
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Style="{StaticResource SectionTitle}">File Transfer</TextBlock>
+        <TextBlock 
+            Grid.Row="0" 
+            Style="{StaticResource SectionTitle}" 
+            Margin="10" 
+            Text="File Transfer"/>
 
-        <StackPanel Grid.Row="1">
-            <ContentControl Content="{Binding ProfileList}" />
-        </StackPanel>
+        <Label 
+            HorizontalAlignment="Left" 
+            Margin="10 0 0 0"
+            Grid.Row="1"              
+            Content="Auto-Save Logs:"/>
+        <TextBox 
+            Grid.Row="2" 
+            x:Name="LogTextBox" 
+            Margin="13 0 10 0" 
+            Text="{Binding Logs, Mode=OneWay}" 
+            TextWrapping="Wrap" 
+            IsReadOnly="True" 
+            VerticalScrollBarVisibility="Auto" />
+
 
     </Grid>
+    
+    
 
 
 </UserControl>
