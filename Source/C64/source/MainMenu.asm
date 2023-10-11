@@ -28,7 +28,7 @@
    ;other RAM Registers
    ;$0334-033b is "free space"
    MusicPlaying     = $0335 ;is the music playing?
-   MusicInterrupted = $0336 ;Music muted for item selection
+
    SIDVoicCont      = $0338 ;midi2sid polyphonic voice/envelope controls
    SIDAttDec        = $0339
    SIDSusRel        = $033a
@@ -66,31 +66,51 @@ NoHW
 +  lda #rCtlVanishROM ;Deassert Game & ExROM
    sta wRegControl+IO1Port
 
-   ;load SID to TR RAM
-   lda #rCtlLoadSIDWAIT
-   sta wRegControl+IO1Port
-   jsr WaitForTRWaitMsg
-   ;load SID to C64 RAM, same as PRGLoadStart...
-   lda rRegStrAddrHi+IO1Port
-   sta PtrAddrHi
-   lda rRegStrAddrLo+IO1Port   
-   sta PtrAddrLo
-   ldy #0   ;zero offset
-   
--  lda rRegStrAvailable+IO1Port ;are we done?
-   beq +   ;exit the loop
-   lda rRegStreamData+IO1Port ;read from rRegStreamData+IO1Port increments address & checks for end
-   sta (PtrAddrLo), y 
-   iny
-   bne -
-   inc PtrAddrHi
-   bne -
-   ;good luck if we get to here... Trying to overflow and write to zero page
+   ;Get video standard and TOD frequency
+   ; https://codebase64.org/doku.php?id=base:efficient_tod_initialisation
+   ; Detecting TOD frequency by Silver Dream ! / Thorgal / W.F.M.H.
+   sei             ; accounting for NMIs is not needed when
+   lda #$00        ; used as part of application initialisation
+   sta $dd08       ; TO2TEN start TOD - in case it wasn't running
+-  cmp $dd08       ; TO2TEN wait until tenths
+   beq -           ; register changes its value
+   lda #$ff        ; count from $ffff (65535) down
+   sta $dd04       ; TI2ALO both timer A register
+   sta $dd05       ; TI2AHI set to $ff
+   lda #%00010001  ; bit seven = 0 - 60Hz TOD mode
+   sta $dd0e       ; CI2CRA start the timer
+   lda $dd08       ; TO2TEN
+-  cmp $dd08       ; poll TO2TEN for change
+   beq -
+   lda $dd05       ; TI2AHI expect (approximate) $7f4a $70a6 $3251 $20c0
+   cli
+   ;$7f4a for 60Hz TOD clock and 985248.444(PAL) CPU/CIA clock    10
+   ;$70a6 for 60Hz TOD clock and 1022727.14(NTSC) CPU/CIA clock   11
+   ;$3251 for 50Hz TOD clock and 985248.444(PAL) CPU/CIA clock    00
+   ;$20c0 for 50Hz TOD clock and 1022727.14(NTSC) CPU/CIA clock   01
+   ;convert from MSB timing to: bit 0: 1=NTSC, 0=PAL;    bit 1: 1=60Hz, 0=50Hz
+   cmp #$29
+   bcs +  ;(>29)
+   ldx #%00000001  ;50/NTSC
+   jmp ++
++  cmp #$51
+   bcs +  ;(>51)
+   ldx #%00000000  ;50/PAL
+   jmp ++
++  cmp #$78
+   bcs +  ;(>78)
+   ldx #%00000011  ;60/NTSC
+   jmp ++
++  ldx #%00000010  ;60/PAL
+++ stx wRegVid_TOD_Clks+IO1Port   
 
-+  lda #$00
-   sta MusicInterrupted ;init reg
-   jsr SIDCodeRAM ;Initialize music
-   
+   ;load SID to TR RAM
+   lda #rCtlLoadSIDWAIT ; sends SID Parse messages
+   sta wRegControl+IO1Port
+   jsr WaitForTRDots
+
+   jsr SIDLoadInit
+ 
    jsr ListMenuItems
 
    ;check default registers for music & time settings
@@ -197,6 +217,28 @@ ReadKeyboard:
    bne +
    jsr PrevPage
    jmp HighlightCurrent  
+
++  cmp #'+'  ;increase SID speed
+   bne +
+   ldx rwRegSIDSpeedHi+IO1Port
+   dex   
+   jmp updatespeed  
+
++  cmp #'-'  ;decrease SID speed
+   bne +
+   ldx rwRegSIDSpeedHi+IO1Port
+   inx
+updatespeed
+   stx rwRegSIDSpeedHi+IO1Port
+   stx $dc05  ; =timer Hi, dc04=timer Low
+   ;;print the full timer value
+   ;lda #ChrReturn
+   ;jsr SendChar
+   ;txa
+   ;jsr PrintHexByte
+   ;lda rwRegSIDSpeedLo+IO1Port
+   ;jsr PrintHexByte
+   jmp WaitForJSorKey  
 
 +  cmp #ChrUpArrow ;Up directory
    bne +  
@@ -373,7 +415,6 @@ MenuLineDone
 
 SelectItem:
 ;Execute/select an item from the list
-; Dir, ROM, copy PRG to RAM and run, etc
    lda rwRegCursorItemOnPg+IO1Port 
    sta rwRegSelItemOnPage+IO1Port ;select Item from page
    jsr InverseRow ;unhighlight the current
@@ -393,12 +434,12 @@ SelectItem:
 +  cmp #rtNone ;do nothing for 'none' type
    beq AllDone 
    
+   ;turn off music and clear screen for messaging for remaining types:
    pha ;store the type
    lda MusicPlaying ;turn music off if it's on
    beq +
-   sta MusicInterrupted
    jsr SIDMusicOff     
-+  jsr PrintBanner ;clear screen for messaging
++  jsr PrintBanner
    lda #NameColor
    jsr SendChar
    
@@ -424,10 +465,8 @@ SelectItem:
 
    lda #<MsgFWInProgress  ;In Progress Warning
    ldy #>MsgFWInProgress
-   jsr PrintString 
-   lda #rCtlStartSelItemWAIT ;kick off the update routine
-   sta wRegControl+IO1Port   
-   jsr WaitForTRDots   
+   jsr PrintString  
+   jsr StartSelItem_WaitForTRDots    ;kick off the update routine
 
    ;if we get to this point without rebooting, there's been an error...
    lda #<MsgFWUpdateFailed 
@@ -435,11 +474,18 @@ SelectItem:
    jsr PrintString 
    jsr AnyKeyMsgWait
    jmp CheckMusicContinue
+      
+      
++  cmp #rtFileSID  ;check for .sid file selected
+   bne +
+   jsr StartSelItem_WaitForTRDots
+   ;if succesful, transfer to RAM and start playing
+   jsr SIDLoadInit
+   jmp CheckMusicContinue
     
-   ;not a dir, "none", or hex file, try to start/execute
-+  lda #rCtlStartSelItemWAIT
-   sta wRegControl+IO1Port
-   jsr WaitForTRDots ;if it's a ROM/crt image, it won't return from this unless error
+    
+   ;not a dir, "none", hex file, or SID, try to start/execute
++  jsr StartSelItem_WaitForTRDots ;if it's a ROM/crt image, it won't return from this unless error
 
    lda rRegStrAvailable+IO1Port 
    bne XferCopyRun   ;if it's a PRG (x-fer ready), x-fer it and launch. Won't return!!!
@@ -448,10 +494,8 @@ SelectItem:
    jsr AnyKeyMsgWait   
 
 CheckMusicContinue   
-   lda MusicInterrupted ;turn music back on if it was before...
+   lda MusicPlaying ;turn music back on if it was before...
    beq ListAndDone
-   lda #0
-   sta MusicInterrupted
    jsr SIDMusicOn 
 ListAndDone
    jsr ListMenuItems ; reprint menu
@@ -487,6 +531,9 @@ AnyKeyMsgWait:
    beq -
    rts
 
+StartSelItem_WaitForTRDots:
+   lda #rCtlStartSelItemWAIT ;kick off the update routine
+   sta wRegControl+IO1Port   
 ;WaitForTR* uses acc, X and Y
 WaitForTRDots:  ;prints a dot per second while waiting, doesn't move cursor
    ldy TODSecBCD ;reset dot second counter
@@ -618,14 +665,17 @@ InverseRow:
    asl ;double it to point to word
    tay
    lda TblRowToMemLoc+1,y
-   sta PtrAddrHi
+   sta smcInverseRowSrc+2
+   sta smcInverseRowDest+2
    lda TblRowToMemLoc,y
-   sta PtrAddrLo 
-
+   sta smcInverseRowSrc+1 
+   sta smcInverseRowDest+1 
    ldy #40
--  lda (PtrAddrLo), y 
+smcInverseRowSrc
+-  lda $fffe, y 
    eor #$80 ; toggle reverse 
-   sta (PtrAddrLo),y
+smcInverseRowDest
+   sta $fffe,y
    dey
    bne -
    rts

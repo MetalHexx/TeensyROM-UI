@@ -304,37 +304,94 @@ rcnt
 
 +  jmp M2SUpdateKeyInLoop
 
+SIDLoadInit:
+   ;SID is Prepared to transfer from TR RAM before calling
+   
+   lda rRegStrAvailable+IO1Port 
+   bne +   ;Make sure ready to x-fer
+   jsr AnyKeyMsgWait  ;an error occurred
+   rts
+   
+   ;load SID to C64 RAM, same as PRGLoadStart...
++  lda rRegStreamData+IO1Port
+   sta PtrAddrLo
+   lda rRegStreamData+IO1Port
+   sta PtrAddrHi
+   ldy #0   ;zero offset
+   
+-  lda rRegStrAvailable+IO1Port ;are we done?
+   beq +   ;exit the loop
+   lda rRegStreamData+IO1Port ;read from rRegStreamData+IO1Port increments address & checks for end
+   sta (PtrAddrLo), y 
+   iny
+   bne -
+   inc PtrAddrHi
+   bne -
+   ;good luck if we get to here... Trying to overflow and write to zero page
+   jsr AnyKeyMsgWait
+   rts
+
+   ;self-modifying init jump
++  lda rRegSIDInitLo+IO1Port
+   sta smcSIDInit+1
+   lda rRegSIDInitHi+IO1Port
+   sta smcSIDInit+2
+   
+   ;self-modifying play jump
+   lda rRegSIDPlayLo+IO1Port
+   sta smcSIDPlay+1
+   lda rRegSIDPlayHi+IO1Port
+   sta smcSIDPlay+2
+
+   sei
+   lda #$35; Disable Kernal and BASIC ROMs
+   ;lda #$34; Disable IO, Kernal and BASIC ROMs (RAM only)
+   sta $01
+   lda #$00  ;set to first song in SID
+smcSIDInit
+   jsr $fffe ;Initialize music (self modified code)
+   lda #$37 ; Reset the Kernal and BASIC ROMs
+   sta $01
+   cli
+   
+   lda #rpudMusicMask
+   sta MusicPlaying  ;turn music on if called from load
+   rts
+   
 ToggleSIDMusic:
    lda MusicPlaying
    eor #rpudMusicMask   ;toggle playing status
    sta MusicPlaying
-   beq +
-   jsr SIDMusicOn ;sid is off, turn it on
-   rts
-+  jsr SIDMusicOff ;sid is on, turn it off
-   rts
+   beq SIDMusicOff ;sid is on, turn it off & return
+   jmp SIDMusicOn ;sid is off, turn it on & return
    
-SIDMusicOn:  ;Start SID interrupt
-   lda #$7f    ;disable all ints
-   sta $dc0d   ;CIA1 int ctl
-   lda $dc0d   ;CIA1 int ctl    reading clears
-   sei
-   lda #$01    ;raster compare enable
-   sta $d01a   ;irq mask reg
-   sta $d019   ;ACK any raster IRQs
-   lda #100    ;mid screen
-   sta $d012   ;raster scan line compare reg
-   lda $d011   ;VIC ctl reg fine scrolling/control
-   and #$7f    ;bit 7 is bit 8 of scan line compare
-   sta $d011   ;VIC ctl reg fine scrolling/control
-   lda #<irqRastSID
-   ldx #>irqRastSID
-   sta $314    ;CINV, HW IRQ Int Lo
-   stx $315    ;CINV, HW IRQ Int Hi
-   cli
+; borrowed from cryptoboy code at https://www.lemon64.com/forum/viewtopic.php?t=71980&start=30
+SIDMusicOn:  ;Start SID player Timer/CIA bassed interrupt
+   sei              ; DISABLE MASKABLE INTERRUPTS, AND THEN TURN THEM OFF (BELOW)
+   lda #%01111111   ; BIT 7 (OFF) MEANS THAT ANY 1S WRITTEN TO CIA ICRS TURN THOSE BITS OFF
+   sta $dc0d        ;    CIA#1 INTERRUPT CONTROL REGISTER (IRC): DISABLE ALL INTERRUPTS
+   sta $dd0d        ;    CIA#2 ICR: DISABLE ALL INTERRUPTS
+   lda $dc0d        ; ACK (CLEAR) ANY PENDING CIA1 INTERRUPTS (READING CLEARS 'EM)
+   lda $dd0d        ;    SAME FOR CIA2
+   asl $d019        ; TOSS ANY PENDING VIC INTERRUPTS (WRITING CLEARS 'EM, VIA RMW MAGIC)
+   lda rwRegSIDSpeedLo+IO1Port
+   sta $dc04        ;    CIA#1 TIMER A LO
+   lda rwRegSIDSpeedHi+IO1Port
+   sta $dc05        ;    CIA#1 TIMER A HI
+   lda #<irqCIATimer ; HOOK INTERRUPT ROUTINE (NORMALLY POINTS TO $EA31)
+   sta $0314
+   lda #>irqCIATimer
+   sta $0315
+   lda #%10000001   ; CIA#1 ICR: B0->1 = ENABLE TIMER A INTERRUPT,
+   sta $dc0d        ;    B7->1 = FOR B0-B6, 1 BITS GET SET, AND 0 BITS IGNORED
+   lda $dc0e        ; CIA#1 TIMER A CONTROL REGISTER
+   and #%10000000   ; PRESERVE KERNAL-SET TOD CLOCK NTSC OR PAL SELECTION
+   ora #%00010001   ; START TIMER A,CONTINUOUS RUN MODE, LATCHED VALUE INTO TIMER A COUNTER
+   sta $dc0e        ; Write it back (missing from posted code)
+   cli              ; RESTORE INTERRUPTS, HOOKING COMPLETE
    rts
 
-SIDMusicOff:  ;stop SID interrupt
+SIDMusicOff:  ;stop SID player interrupt
    sei
    lda #<IRQDefault
    ldx #>IRQDefault
@@ -347,10 +404,9 @@ SIDMusicOff:  ;stop SID interrupt
    inc $d019
    lda $dc0d  ;CIA int ctl
    cli 
-   ;jsr SIDCodeRAM  ;turns voices off, but resets song to start
    jsr SIDVoicesOff
-   lda #BorderColor
-   sta BorderColorReg   ;restore border in case we ended in mid region
+   ;lda #BorderColor
+   ;sta BorderColorReg   ;restore border in case we ended in mid region
    rts
 
 SIDVoicesOff:
@@ -360,26 +416,65 @@ SIDVoicesOff:
    sta SIDLoc+rRegSIDVoicCont3-StartSIDRegs 
    rts
    
-irqRastSID:
-   inc $d019   ;ACK raster IRQs
-   inc BorderColorReg ;tweak display border
-   jsr SIDCodeRAM+3 ;Play the music
-   lda #<irqRast2
-   ldx #>irqRast2
-   sta $314    ;CINV, HW IRQ Int Lo
-   stx $315    ;CINV, HW IRQ Int Hi
-   lda #200    ;loweer part of screen
-   sta $d012   ;raster scan line compare reg
-   jmp IRQDefault
+irqCIATimer:
+   lda $dc0d          ; ACK (CLEAR) CIA#1 INTERRUPT
+   ;inc BorderColorReg ;tweak display border
+   lda #$35; Disable Kernal and BASIC ROMs
+   ;lda #$34; Disable IO, Kernal and BASIC ROMs (RAM only)
+   sta $01
+smcSIDPlay
+   jsr $fffe          ;Play the music, self modifying
+   lda #$37 ; Reset the Kernal and BASIC ROMs
+   sta $01
+   ;dec BorderColorReg ;tweak display border
+   jmp IRQDefault    ; EXIT THROUGH THE KERNAL'S 60HZ(?) IRQ HANDLER ROUTINE
 
-irqRast2:
-   inc $d019   ;ACK raster IRQs
-   dec BorderColorReg ;tweak it back
-   lda #<irqRastSID
-   ldx #>irqRastSID
-   sta $314    ;CINV, HW IRQ Int Lo
-   stx $315    ;CINV, HW IRQ Int Hi
-   lda #100    ;upper part of screen
-   sta $d012   ;raster scan line compare reg
-   
-   jmp IRQDefault
+;SIDMusicOn:  ;Start SID player Raster based interrupt
+;   lda #$7f    ;disable all ints
+;   sta $dc0d   ;CIA1 int ctl
+;   lda $dc0d   ;CIA1 int ctl    reading clears
+;   sei
+;   lda #$01    ;raster compare enable
+;   sta $d01a   ;irq mask reg
+;   sta $d019   ;ACK any raster IRQs
+;   lda #100    ;mid screen
+;   sta $d012   ;raster scan line compare reg
+;   lda $d011   ;VIC ctl reg fine scrolling/control
+;   and #$7f    ;bit 7 is bit 8 of scan line compare
+;   sta $d011   ;VIC ctl reg fine scrolling/control
+;   lda #<irqRastSID
+;   ldx #>irqRastSID
+;   sta $314    ;CINV, HW IRQ Int Lo
+;   stx $315    ;CINV, HW IRQ Int Hi
+;   cli
+;   rts
+
+;Raster based interrupts which also allowed synchronized border tweaking
+;irqRastSID:
+;   inc $d019   ;ACK raster IRQs
+;   inc BorderColorReg ;tweak display border
+;   lda #$35; Disable Kernal and BASIC ROMs
+;   ;lda #$34; Disable IO, Kernal and BASIC ROMs (RAM only)
+;   sta $01
+;smcSIDPlay
+;   jsr $fffe ;Play the music, self modifying
+;   lda #$37 ; Reset the Kernal and BASIC ROMs
+;   sta $01
+;   lda #<irqRast2
+;   ldx #>irqRast2
+;   sta $314    ;CINV, HW IRQ Int Lo
+;   stx $315    ;CINV, HW IRQ Int Hi
+;   lda #234    ;loweer part of screen
+;   sta $d012   ;raster scan line compare reg
+;   jmp IRQDefault
+;
+;irqRast2:
+;   inc $d019   ;ACK raster IRQs
+;   dec BorderColorReg ;tweak it back
+;   lda #<irqRastSID
+;   ldx #>irqRastSID
+;   sta $314    ;CINV, HW IRQ Int Lo
+;   stx $315    ;CINV, HW IRQ Int Hi
+;   lda #74    ;upper part of screen
+;   sta $d012   ;raster scan line compare reg
+;   jmp IRQDefault

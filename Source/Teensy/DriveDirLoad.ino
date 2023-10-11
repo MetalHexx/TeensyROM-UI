@@ -139,6 +139,18 @@ void HandleExecution()
  
    if (MenuSelCpy.ItemType == rtFileP00) ParseP00File(&MenuSelCpy); //will update MenuSelCpy.ItemType & .Code_Image, if checks ok
 
+   if (MenuSelCpy.ItemType == rtFileSID) 
+   {
+      XferImage = MenuSelCpy.Code_Image;
+      XferSize = MenuSelCpy.Size;
+      if (!ParseSIDHeader()) return; //Parse SID File 
+      
+      //set up to transfer to C64 RAM
+      
+      
+      return;   //we're done here
+   }
+   
    //has to be distilled down to one of these by this point, only ones supported so far.
    //Emulate ROM or prep PRG tranfer
    uint8_t CartLoaded = false;
@@ -184,10 +196,8 @@ void HandleExecution()
             MenuSelCpy.Size + 256*MenuSelCpy.Code_Image[1]+MenuSelCpy.Code_Image[0]);
          XferImage = MenuSelCpy.Code_Image; 
          XferSize  = MenuSelCpy.Size; 
-         IO1[rRegStrAddrLo] = XferImage[0];
-         IO1[rRegStrAddrHi] = XferImage[1];
+         StreamOffsetAddr = 0; //set to start of data
          IO1[rRegStrAvailable] = 0xff;
-         StreamOffsetAddr = 2; //set to start of data
          break;
       case rtUnknown: //had to have been marked unknown after check at start
          //SendMsgFailed();
@@ -360,20 +370,13 @@ void LoadDirectory(FS *sourceFS)
          strcpy(DriveDirMenu[NumDrvDirMenuItems].Name+1, filename);
          DriveDirMenu[NumDrvDirMenuItems].ItemType = rtDirectory;
       }
-      else //it's a file
+      else //it's a file. copy name and get item type from extension
       {
          DriveDirMenu[NumDrvDirMenuItems].Name = (char*)malloc(strlen(filename)+1);
          strcpy(DriveDirMenu[NumDrvDirMenuItems].Name, filename);
 
-         //convert extension to lower case:
-         char* Extension = DriveDirMenu[NumDrvDirMenuItems].Name + strlen(DriveDirMenu[NumDrvDirMenuItems].Name) - 4;
-         for(uint8_t cnt=1; cnt<=3; cnt++) if(Extension[cnt]>='A' && Extension[cnt]<='Z') Extension[cnt]+=32;
-         
-         if (strcmp(Extension, ".prg")==0) DriveDirMenu[NumDrvDirMenuItems].ItemType = rtFilePrg;
-         else if (strcmp(Extension, ".crt")==0) DriveDirMenu[NumDrvDirMenuItems].ItemType = rtFileCrt;
-         else if (strcmp(Extension, ".hex")==0) DriveDirMenu[NumDrvDirMenuItems].ItemType = rtFileHex;
-         else if (strcmp(Extension, ".p00")==0) DriveDirMenu[NumDrvDirMenuItems].ItemType = rtFileP00;
-         else DriveDirMenu[NumDrvDirMenuItems].ItemType = rtUnknown;
+         DriveDirMenu[NumDrvDirMenuItems].ItemType = 
+            Assoc_Ext_ItemType(DriveDirMenu[NumDrvDirMenuItems].Name, strlen(DriveDirMenu[NumDrvDirMenuItems].Name));
       }
       
       //Serial.printf("%d- %s\n", NumDrvDirMenuItems, DriveDirMenu[NumDrvDirMenuItems].Name); 
@@ -543,6 +546,110 @@ void FreeCrtChips()
       if((uint32_t)CrtChips[cnt].ChipROM >= 0x20200000) free(CrtChips[cnt].ChipROM);
    NumCrtChips = 0;
 }
+
+bool ParseSIDHeader()
+{
+   // XferImage and XferSize are populated w/ SID file info
+   // Need to parse dataOffset (StreamOffsetAddr), loadAddress, 
+   //    initAddress(rRegSIDInitLo/Hi) and playAddress (rRegSIDPlayLo/Hi)
+   // Kick off x-fer (rRegStrAvailable) if successful
+      
+   //https://gist.github.com/cbmeeks/2b107f0a8d36fc461ebb056e94b2f4d6
+   //https://www.lemon64.com/forum/viewtopic.php?t=71980&start=30
+   //https://hvsc.c64.org/
+
+   if (memcmp(XferImage, "PSID", 4) != 0) 
+   {
+      SendMsgPrintfln("PSID not found");
+      return false;
+   }
+   
+   uint16_t sidVersion = toU16(XferImage+0x04);
+   if ( sidVersion<2 || sidVersion>4) 
+   {
+      SendMsgPrintfln("Unexp Version: $%04x", sidVersion);
+      return false;
+   }
+
+   StreamOffsetAddr = toU16(XferImage+0x06); //dataOffset
+   if (StreamOffsetAddr!= 0x7c) 
+   {
+      SendMsgPrintfln("Unexp dataOffset: $%04x", StreamOffsetAddr);
+      return false;
+   }
+   
+   uint16_t LoadAddress = (XferImage[StreamOffsetAddr + 1] << 8) 
+      | XferImage[StreamOffsetAddr]; //little endian, opposite of toU16
+   uint16_t PlayAddress = toU16(XferImage+0x0C);
+   SendMsgPrintfln("SID Loc %04x:%04x", LoadAddress, LoadAddress+XferSize);
+   
+   Printf_dbg("\nInit: %04x", toU16(XferImage+0x0A));
+   Printf_dbg("\nPlay: %04x", PlayAddress);
+
+   //check for conflict with TR code
+   //C64 mem conflict detection:
+   //   MainCodeRAM       = $6000
+   //assume full 8k length ($2000)
+   if (LoadAddress < 0x8000 && LoadAddress+XferSize >= 0x6000)
+   {
+      SendMsgPrintfln("Mem conflict w/ TR app 6000:8000");
+      return false;
+   }
+
+   //check play address
+   if (PlayAddress == 0)
+   {
+      SendMsgPrintfln("Play Address 0 not allowed");
+      return false;
+   }
+  
+   
+
+   //speed: for each song (bit): 0 specifies vertical blank interrupt (50Hz PAL, 60Hz NTSC)
+   //                            1 specifies CIA 1 timer interrupt (default 60Hz)
+   Printf_dbg("\nSpeed reg: %08x", toU32(XferImage+0x12));
+
+   //flags:  Bits 2-3 specify the video standard (clock):
+   char *VStandard[] =
+   {
+      (char*)"Unknown",  //    00 = Unknown, use PAL
+      (char*)"PAL",      //    01 = PAL,
+      (char*)"NTSC",     //    10 = NTSC,
+      (char*)"PAL+NTSC", //    11 = PAL and NTSC, use NTSC
+   };
+   
+   uint8_t CIATimer[4][2] =
+   {   //rwRegSIDSpeedLo/Hi = SONGSPEED/1022730 seconds for NTSC, higher=slower playback (timer)
+      0x4c, 0x25,   // PAL  SID on  PAL machine
+      0x4F, 0xB2,   // PAL  SID on NTSC machine
+      0x3F, 0x50,   // NTSC SID on  PAL machine
+      0x42, 0x95,   // NTSC SID on NTSC machine
+   };
+   
+   //set playback speed based on SID and Machine type
+   uint16_t SidFlags = toU16(XferImage+0x76);
+   Printf_dbg("\nSidFlags: %04x", SidFlags);
+   SidFlags = (SidFlags >> 2) & 3;  //now just PAL/NTSC
+   SendMsgPrintfln("SID Clock: %s", VStandard[SidFlags]);
+
+   //bit 0: 1=NTSC, 0=PAL;    bit 1: 1=60Hz, 0=50Hz
+   Printf_dbg("\nMachine Clocks: %s Vid, %d0Hz TOD clk", 
+      VStandard[(IO1[wRegVid_TOD_Clks] & 1)+1],
+      (IO1[wRegVid_TOD_Clks] & 2)==2 ? 6 : 5 );
+
+   SidFlags = (IO1[wRegVid_TOD_Clks] & 1) | (SidFlags & 2); //now selects from CIATimer
+   Printf_dbg("\nCIA Timer: %02x%02x", CIATimer[SidFlags][0], CIATimer[SidFlags][1]);
+
+   IO1[rwRegSIDSpeedHi] = CIATimer[SidFlags][0];
+   IO1[rwRegSIDSpeedLo] = CIATimer[SidFlags][1];  
+   IO1[rRegSIDInitHi] = XferImage[0x0A];
+   IO1[rRegSIDInitLo] = XferImage[0x0B];
+   IO1[rRegSIDPlayHi] = XferImage[0x0C];
+   IO1[rRegSIDPlayLo] = XferImage[0x0D];
+   
+   IO1[rRegStrAvailable] = 0xff;
+   return true;
+}
  
 void RedirectEmptyDriveDirMenu()
 {
@@ -600,7 +707,7 @@ bool SetTypeFromCRT(StructMenuItem* MyMenuItem, uint8_t EXROM, uint8_t GAME)
    return false;
 }
 
-
+//Big endian byte to int conversions:
 uint32_t toU32(uint8_t* src)
 {
    return
@@ -615,6 +722,27 @@ uint16_t toU16(uint8_t* src)
    return
       ((uint16_t)src[0]<<8 ) + 
       ((uint16_t)src[1]    ) ;
+}
+
+uint8_t Assoc_Ext_ItemType(char * FileName, uint32_t Length)
+{ //returns ItemType from enum regItemTypes
+   if (Length < 4) return rtUnknown;
+
+   char* Extension = FileName + Length - 4;
+   if (Extension[0] != '.') return rtUnknown;
+   
+   Extension++; //skip '.'
+   //convert to lower case:
+   for(uint8_t cnt=0; cnt<3; cnt++) if(Extension[cnt]>='A' && Extension[cnt]<='Z') Extension[cnt]+=32;
+   
+   uint8_t Num = 0;
+   
+   while (Num < sizeof(Ext_ItemType_Assoc)/sizeof(Ext_ItemType_Assoc[0]))
+   {
+      if (strcmp(Extension, Ext_ItemType_Assoc[Num].Extension)==0) return Ext_ItemType_Assoc[Num].ItemType;
+      Num++;
+   }
+   return rtUnknown;
 }
 
 bool AssocHWID_IOH(uint16_t HWType)

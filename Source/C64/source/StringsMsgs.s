@@ -160,11 +160,11 @@ MsgOff:
 MsgWaiting:
    !tx TimeColor, " Waiting:", 0
 MsgTesting:
-   !tx NameColor, "  Test", 0
+   !tx NameColor, "Testing", 0
 MsgPass:
-   !tx "Pass  ", 0
+   !tx "Passed ", 0
 MsgFail:
-   !tx ChrRed, "Fail  ", 0
+   !tx ChrRed, "Failed ", 0
 MsgHasHandler:
    !tx ChrCRSRLeft, AssignedIOHColor, "+", 0
    
@@ -182,4 +182,4 @@ TblItemType: ;must match regItemTypes (rtNone, rtBin16k, etc) order!
    !tx TypeColor, "Crt"  ; rtFileCrt   = 8,
    !tx TypeColor, "Hex"  ; rtFileHex   = 9,
    !tx TypeColor, "P00"  ; rtFileP00   = 10,
-   
+   !tx TypeColor, "SID"  ; rtFileSID   = 11,

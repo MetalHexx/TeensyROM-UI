@@ -3,9 +3,12 @@
 
 *Design by Travis S/Sensorium ([e-mail](mailto:travis@sensoriumembedded.com))* 
 
+**If you have thoughts/input on this project, questions, or features you'd like to see, please consider yourself invited to the [TeensyROM Discord Server](https://discord.gg/2EYYscWmRt)**
+
+**Update: The TeensyROM now has a 3D printable case!  A big thank you to those who contributed.  See details and pictures [here](3D_Print_Case/3D-Printed-Case-ReadMe.md)**
+
 I chose the Teensy 4.1 for this project to take advantage of all its external interface capabilities (USB Host & Device, SD card, Ethernet).  I also wanted to use its many IO pins to do "direct" interfacing so it can be largely software defined. 
 
-I'll continue to publish all PCB design files and source code here for anyone else who is interested.   If you have any input on the project, questions, or features you'd like to see, please send me a note. I'm also interested in any feedback/contributions from other engineers/developers out there.
 
 The HW was designed with medium skilled solder skills in mind.  If you feel it's too advanced to build yourself, I usually have some units for sale or can refer you to others that sell them fully assembled & tested.
 
@@ -21,6 +24,11 @@ The HW was designed with medium skilled solder skills in mind.  If you feel it's
 <BR>
 
 ![TeensyROM pic1](media/v0.2b/v0.2b_angle.jpg)
+
+|![TeensyROM pic1](media/case/case-front-corner.jpg)|![TeensyROM case](media/case/case-rear-corner.jpg)| 
+|:--:|:--:|
+
+
   
 ## TeensyROM Features
 ### Compatable with C64 and C128 machines/variants, NTSC and PAL supported
@@ -57,13 +65,16 @@ The HW was designed with medium skilled solder skills in mind.  If you feel it's
     * **[General Usage document](docs/General_Usage.md)**
     * **[MIDI Usage document](docs/MIDI_Usage.md)**
     * **[Ethernet Usage document](docs/Ethernet_Usage.md)**
+  * **SW Release notes/developnment**
+    * **[Firmware Release history](bin/TeensyROM/FW_Release_History.md)**
+    * **[Win App Release History](bin/WinApp/WinApp_Release_History.md)**
+    * **[Software Build Instructions](Source/BuildInfo.md)**
   * **Hardware/PCB Related**
     * **[TeensyROM Assembly Instructions](PCB/PCB_Assembly.md)**
     * **[PCB Design History](PCB/PCB_History.md)**
     * **[Bill of materials with cost info](https://github.com/SensoriumEmbedded/TeensyROM/raw/main/PCB/v0.2%20archive/TeensyROM%20v0.2b%20BOM.xlsx)**
     * **[PDF Schematic](PCB/v0.2%20archive/TeensyROM_v0.2b_Schem.pdf)**
-  * **Code developnment/modification**
-    * **[Software Build Instructions](Source/BuildInfo.md)**
+
 
 ## Demo Videos:
   * [TeensyROM real-time video/audio capture](https://www.youtube.com/watch?v=e0A-DPZf2GI) of menu navigation and loading/running/emulating various programs/cartridges
