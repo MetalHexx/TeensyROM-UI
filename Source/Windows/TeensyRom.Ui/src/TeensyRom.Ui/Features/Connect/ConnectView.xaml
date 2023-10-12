@@ -99,12 +99,6 @@
 
         </StackPanel>
 
-        <Label 
-            HorizontalAlignment="Left" 
-            Margin="10 0 0 0"
-            Grid.Row="4"              
-            Content="Logs:"/>
-
         <TextBox 
             Grid.Row="5" 
             x:Name="LogTextBox" 
