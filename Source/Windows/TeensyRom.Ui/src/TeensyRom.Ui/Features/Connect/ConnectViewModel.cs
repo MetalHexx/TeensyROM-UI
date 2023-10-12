@@ -33,11 +33,12 @@ namespace TeensyRom.Ui.Features.Connect
         public ReactiveCommand<Unit, Unit> ResetCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ClearLogsCommand { get; set; }
 
-        private readonly ITeensyObservableSerialPort _teensySerial;
-        private readonly StringBuilder _logBuilder = new StringBuilder();
         private readonly IDisposable? _portsSubscription;
         private readonly IDisposable? _selectedPortSubscription;
         private readonly IDisposable? _logsSubscription;
+
+        private readonly ITeensyObservableSerialPort _teensySerial;
+        private readonly StringBuilder _logBuilder = new StringBuilder();
 
         public ConnectViewModel(ITeensyObservableSerialPort teensySerial)
         {
@@ -65,6 +66,7 @@ namespace TeensyRom.Ui.Features.Connect
             ClearLogsCommand = ReactiveCommand.Create<Unit, Unit>(n =>
             {
                 Logs = string.Empty;
+                _logBuilder.Clear();
                 return Unit.Default;
             }, outputScheduler: ImmediateScheduler.Instance);
 
