@@ -40,9 +40,11 @@ namespace TeensyRom.Core.Serial.Abstractions
 
         public void SetPort(string port)
         {
-            if(string.IsNullOrWhiteSpace(port)) 
-                throw new ArgumentException("Cannot set a port to an empty value");
-
+            if(string.IsNullOrWhiteSpace(port))
+            {
+                _logs.OnNext("Set a port to get connected.");
+                return;
+            }
             _serialPort.PortName = port;
         }
 
