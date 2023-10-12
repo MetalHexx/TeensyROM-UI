@@ -64,7 +64,7 @@ namespace TeensyRom.Core.Serial.Abstractions
                     catch (Exception ex)
                     {
                         _isRetryingConnection.OnNext(true);
-                        _logs.OnNext($"Failed to ensure the connection. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
+                        _logs.OnNext($"Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
                         return Observable.Throw<long>(ex);
                     }
                     return Observable.Empty<long>();
@@ -91,7 +91,6 @@ namespace TeensyRom.Core.Serial.Abstractions
             catch (Exception ex)
             {
                 _isConnected.OnNext(false);
-                _logs.OnNext($"Failed to open the serial port: {ex.Message}");
                 throw;
             }
         }
@@ -134,7 +133,7 @@ namespace TeensyRom.Core.Serial.Abstractions
                     }
                     else if (previousHasPorts == false && hasPorts)
                     {
-                        _logs.OnNext("Successfully found a connectable ports.");
+                        _logs.OnNext("Successfully located connectable ports.");
                         return true;
                     }
                     return true;
