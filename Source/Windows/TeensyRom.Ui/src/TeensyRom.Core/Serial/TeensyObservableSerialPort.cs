@@ -106,7 +106,6 @@ namespace TeensyRom.Core.Serial
             byte[] receivedData = new byte[_serialPort.BytesToRead];
             _serialPort.Read(receivedData, 0, receivedData.Length);
 
-            // Output the received bytes in hexadecimal format
             _logs.OnNext("Received Bytes: " + BitConverter.ToString(receivedData));
         }
 
@@ -118,7 +117,6 @@ namespace TeensyRom.Core.Serial
             byte[] receivedData = new byte[_serialPort.BytesToRead];
             _serialPort.Read(receivedData, 0, receivedData.Length);
 
-            // Output the received bytes as a string
             _logs.OnNext("Received String: " + Encoding.ASCII.GetString(receivedData));
         }
 
