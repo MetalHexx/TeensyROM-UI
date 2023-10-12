@@ -18,9 +18,30 @@
 
         <TextBlock 
             Grid.Row="0" 
+            HorizontalAlignment="Left"
             Style="{StaticResource SectionTitle}" 
             Margin="10" 
             Text="Manage Connection"/>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" HorizontalAlignment="Right">
+            <Label 
+                HorizontalAlignment="Right" 
+                Content="Status:"/>
+
+            <Label 
+                HorizontalAlignment="Right" 
+                Foreground="#FF8FF5F5"
+                Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConvertor}}"
+                Content="Connected"/>
+
+            <Label
+                HorizontalAlignment="Right"
+                Foreground="#FFFF4BFF"
+                Margin="10 0 0 0" 
+                Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
+                Content="Not Connected"/>
+
+        </StackPanel>
 
         <StackPanel 
             Grid.Row="1" 
@@ -37,6 +58,7 @@
                 HorizontalAlignment="Left" 
                 Command="{Binding ConnectCommand}" 
                 Content="Connect" 
+                IsEnabled="{Binding IsConnectable}"
                 Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
                 Style="{StaticResource LightButton}" 
                 ToolTip="Press to connect to the selected port" />
@@ -68,15 +90,12 @@
                 Style="{StaticResource LightButton}" 
                 ToolTip="Press to connect to reset the TeensyROM device" />
 
-            <Label 
-                Margin="10 0 0 0" 
-                Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConvertor}}"
-                Content="Connection Status: Connected"/>
-
-            <Label 
-                Margin="10 0 0 0" 
-                Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
-                Content="Connection Status: Not Connected"/>
+            <Button 
+                HorizontalAlignment="Right" 
+                Command="{Binding ClearLogsCommand}" 
+                Content="Clear Logs" 
+                Style="{StaticResource LightButton}" 
+                ToolTip="Clears the the logs" />
 
         </StackPanel>
 

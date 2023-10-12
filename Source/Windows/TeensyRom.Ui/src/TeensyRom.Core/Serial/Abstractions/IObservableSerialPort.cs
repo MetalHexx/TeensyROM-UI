@@ -1,6 +1,6 @@
 ﻿using System.Reactive;
 
-namespace TeensyRom.Core.Serial
+namespace TeensyRom.Core.Serial.Abstractions
 {
     /// <summary>
     /// Provides an observable interface to a serial port that can be interacted with
@@ -16,6 +16,11 @@ namespace TeensyRom.Core.Serial
         /// The current connection state
         /// </summary>
         IObservable<bool> IsConnected { get; }
+
+        /// <summary>
+        /// The current retry connection state
+        /// </summary>
+        IObservable<bool> IsRetryingConnection { get; }
 
         /// <summary>
         /// All the log data from serial port communications
@@ -36,8 +41,12 @@ namespace TeensyRom.Core.Serial
         /// Closes the port
         /// </summary>
         Unit ClosePort();
-
-        //TODO: Add a method to close the port
-        //TODO: Add a method to send file data
+        
+        /// <summary>
+        /// Writes an integer value to the serial ports output buffer
+        /// </summary>
+        /// <param name="intToSend">The integer</param>
+        /// <param name="numBytes">The size of the integer in bytes</param>
+        void SendIntBytes(uint intToSend, short numBytes);
     }
 }

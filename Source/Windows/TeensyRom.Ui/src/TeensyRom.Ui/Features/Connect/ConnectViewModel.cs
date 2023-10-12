@@ -6,11 +6,11 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
-using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.Abstractions;
 
 namespace TeensyRom.Ui.Features.Connect
 {
-    public class ConnectViewModel: ReactiveObject
+    public class ConnectViewModel: ReactiveObject, IDisposable
     {
         [ObservableAsProperty]
         public string[]? Ports { get; }
@@ -18,20 +18,26 @@ namespace TeensyRom.Ui.Features.Connect
         [ObservableAsProperty]
         public bool IsConnected { get; }
 
+        [ObservableAsProperty]
+        public bool IsConnectable { get; }
+
         [Reactive]
-        public string SelectedPort { get; set; }
+        public string SelectedPort { get; set; } = string.Empty;
 
         [Reactive]
         public string Logs { get; set; } = string.Empty;
 
         public ReactiveCommand<Unit, Unit> ConnectCommand { get; set; }
         public ReactiveCommand<Unit, Unit> DisconnectCommand { get; set; }
-
         public ReactiveCommand<Unit, Unit> PingCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ResetCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ClearLogsCommand { get; set; }
 
         private readonly ITeensyObservableSerialPort _teensySerial;
         private readonly StringBuilder _logBuilder = new StringBuilder();
+        private readonly IDisposable? _portsSubscription;
+        private readonly IDisposable? _selectedPortSubscription;
+        private readonly IDisposable? _logsSubscription;
 
         public ConnectViewModel(ITeensyObservableSerialPort teensySerial)
         {
@@ -39,6 +45,10 @@ namespace TeensyRom.Ui.Features.Connect
 
             _teensySerial.Ports.ToPropertyEx(this, vm => vm.Ports);
             _teensySerial.IsConnected.ToPropertyEx(this, vm => vm.IsConnected);
+
+            _teensySerial.IsRetryingConnection
+                .Select(isRetrying => !isRetrying)
+                .ToPropertyEx(this, vm => vm.IsConnectable);
 
             ConnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 _teensySerial.OpenPort(), outputScheduler: ImmediateScheduler.Instance);
@@ -52,19 +62,34 @@ namespace TeensyRom.Ui.Features.Connect
             ResetCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 _teensySerial.ResetDevice(), outputScheduler: ImmediateScheduler.Instance);
 
-            this.WhenAnyValue(x => x.SelectedPort)
+            ClearLogsCommand = ReactiveCommand.Create<Unit, Unit>(n =>
+            {
+                Logs = string.Empty;
+                return Unit.Default;
+            }, outputScheduler: ImmediateScheduler.Instance);
+
+            _portsSubscription = _teensySerial.Ports
+                .Where(ports => ports.Length > 0)
+                .Subscribe(ports => SelectedPort = ports.First());
+
+            _selectedPortSubscription = this.WhenAnyValue(x => x.SelectedPort)
                 .Where(port => port != null)
                 .Subscribe(port => _teensySerial.SetPort(port));
 
-            _teensySerial.Logs.Subscribe(log => 
-            {
-                _logBuilder.AppendLine(log);
-                Logs = _logBuilder.ToString();
-            });
+            _logsSubscription = _teensySerial.Logs
+                .Select(log => _logBuilder.AppendLine(log))
+                .Select(_ => _logBuilder.ToString())
+                .Subscribe(logs => 
+                {
+                    Logs = logs;
+                });
+        }
 
-            SelectedPort = Ports is not null && Ports?.Length == 0
-                ? SelectedPort = ""
-                : Ports![0];
+        public void Dispose()
+        {
+            _portsSubscription?.Dispose();
+            _selectedPortSubscription?.Dispose();
+            _logsSubscription?.Dispose();
         }
     }
 }

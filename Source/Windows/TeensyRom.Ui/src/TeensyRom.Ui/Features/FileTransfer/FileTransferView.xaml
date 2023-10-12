@@ -38,10 +38,7 @@
             IsReadOnly="True" 
             VerticalScrollBarVisibility="Auto" />
 
-
+        <Button Content="Test File Watch Copy" Command="{Binding TestFileCopyCommand}" />
+    
     </Grid>
-    
-    
-
-
 </UserControl>

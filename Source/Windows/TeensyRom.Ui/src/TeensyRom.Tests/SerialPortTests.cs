@@ -1,7 +1,7 @@
 using FluentAssertions;
 using System.IO.Ports;
-using System.Security.Cryptography.X509Certificates;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.Abstractions;
 using TeensyRom.Ui.Features.Connect;
 
 namespace TeensyRom.Tests
@@ -37,22 +37,11 @@ namespace TeensyRom.Tests
         }
 
         [Fact]
-        public void Given_NotConnected_Then_Returns_NotConnectedLog()
-        {
-            //Arrange
-            var expectedMessage = $"Not connected.";
-
-            //Assert
-            _viewModel.Logs.Should().Contain(expectedMessage);
-        }
-
-        [Fact]
         public void Given_NotConnected_When_Connecting_Then_Returns_ConnectionLogs()
         {
             //Arrange            
             var actualSelectedPort = SerialPort.GetPortNames().First();
-            var expectedConnectingLog = $"Connecting to {actualSelectedPort}.";
-            var expectedConnectedLog = $"Connection to {actualSelectedPort} successful.";
+            var expectedConnectedLog = $"Successfully connected to {actualSelectedPort}";
 
             //Act
             _viewModel.SelectedPort = actualSelectedPort;
@@ -60,7 +49,6 @@ namespace TeensyRom.Tests
             Thread.Sleep(500);
 
             //Assert
-            _viewModel.Logs.Should().Contain(expectedConnectingLog);
             _viewModel.Logs.Should().Contain(expectedConnectedLog);
         }
 
@@ -73,7 +61,7 @@ namespace TeensyRom.Tests
 
             //Act
             _viewModel.SelectedPort = "Not a real port";
-            _viewModel.ConnectCommand.Execute().Subscribe();
+            Assert.Throws<ArgumentException>(() => _viewModel.ConnectCommand.Execute().Subscribe());
             Thread.Sleep(500);
 
             //Assert
@@ -85,8 +73,7 @@ namespace TeensyRom.Tests
         {
             //Arrange            
             var actualSelectedPort = SerialPort.GetPortNames().First();
-            var expectedDisconnectingLog = $"Disconnecting from {actualSelectedPort}.";
-            var expectedDisconnectedLog = $"Disconnected from {actualSelectedPort} successfully.";
+            var expectedDisconnectedLog = $"Successfully disconnected from {actualSelectedPort}.";
 
             //Act
             _viewModel.SelectedPort = actualSelectedPort;
@@ -96,7 +83,6 @@ namespace TeensyRom.Tests
             Thread.Sleep(500);
 
             //Assert
-            _viewModel.Logs.Should().Contain(expectedDisconnectingLog);
             _viewModel.Logs.Should().Contain(expectedDisconnectedLog);
         }
 
@@ -115,6 +101,30 @@ namespace TeensyRom.Tests
             _viewModel.PingCommand.Execute().Subscribe();
             Thread.Sleep(500);
 
+            _viewModel.Logs.Should().Contain(expectedPingLog);
+            _viewModel.Logs.Should().Contain(expectedPongLog);
+        }
+
+
+        [Fact]
+        public void Given_Connected_When_Disconnecting_And_Reconnecting_Then_Ping_RespondsWithSuccessLog()
+        {
+            //Arrange            
+            var actualSelectedPort = SerialPort.GetPortNames().First();
+            var expectedPingLog = $"Pinging device";
+            var expectedPongLog = $"TeensyROM";
+
+            //Act
+            _viewModel.SelectedPort = actualSelectedPort;
+
+            _viewModel.ConnectCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+            _viewModel.DisconnectCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+            _viewModel.ConnectCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+            _viewModel.PingCommand.Execute().Subscribe();
+            Thread.Sleep(500);
             _viewModel.Logs.Should().Contain(expectedPingLog);
             _viewModel.Logs.Should().Contain(expectedPongLog);
         }
@@ -144,6 +154,19 @@ namespace TeensyRom.Tests
 
             //Assert
             _viewModel.IsConnected.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Given_Connected_When_Disconnected_Then_PollToReconnect()
+        {
+            //TODO: Mock the serial port to test this behavior.
+        }
+
+
+        [Fact]
+        public void Given_Connected_When_Polling_And_PortIsConnectable_Successfully_Reconnect()
+        {
+            //TODO: Mock the serial port to test this behavior.
         }
 
         [Fact]

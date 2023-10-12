@@ -1,9 +1,10 @@
 ﻿using CommonServiceLocator;
 using GalaSoft.MvvmLight.Ioc;
 using MaterialDesignThemes.Wpf;
-using System;
-using TeensyRom.Core.File;
+using TeensyRom.Core.Files;
+using TeensyRom.Core.Files.Abstractions;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.Abstractions;
 using TeensyRom.Ui.Features.Connect;
 using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.Help;
