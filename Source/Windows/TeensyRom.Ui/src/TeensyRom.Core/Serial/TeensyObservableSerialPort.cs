@@ -89,7 +89,7 @@ namespace TeensyRom.Core.Serial
             if (!GetAck())
             {
                 ReadSerialAsString(msToWait: 500);
-                Console.ReadLine();
+                _logs.OnNext("File transfer failed.");
                 return false;
             }
             _logs.OnNext("File transfer complete!");
