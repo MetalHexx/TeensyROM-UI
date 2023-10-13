@@ -120,18 +120,6 @@ namespace TeensyRom.Core.Serial
             _logs.OnNext("Received String: " + Encoding.ASCII.GetString(receivedData));
         }
 
-        public void SendIntBytes(uint intToSend, short byteLength)
-        {
-            var bytesToSend = BitConverter.GetBytes(intToSend);
-
-            _logs.OnNext($"Sent Bytes: {BitConverter.ToString(bytesToSend)}");
-
-            for (short byteNum = (short)(byteLength - 1); byteNum >= 0; byteNum--)
-            {
-                _serialPort.Write(bytesToSend, byteNum, 1);
-            }
-        }
-
         public bool GetAck()
         {
             WaitForSerialData(numBytes: 2, timeoutMs: 500);
