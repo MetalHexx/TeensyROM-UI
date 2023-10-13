@@ -49,7 +49,7 @@ namespace TeensyRom.Core.Serial.Abstractions
         }
 
         public Unit OpenPort()
-        {
+        {            
             EnsureConnection();
 
             _healthCheckSubscription = Observable
@@ -63,8 +63,7 @@ namespace TeensyRom.Core.Serial.Abstractions
                     }
                     catch (Exception ex)
                     {
-                        _isRetryingConnection.OnNext(true);
-                        _logs.OnNext($"Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
+                        _isRetryingConnection.OnNext(true);                        
                         return Observable.Throw<long>(ex);
                     }
                     return Observable.Empty<long>();
@@ -88,8 +87,9 @@ namespace TeensyRom.Core.Serial.Abstractions
                 _isConnected.OnNext(true);
                 _logs.OnNext($"Successfully connected to {_serialPort.PortName}");
             }
-            catch (Exception ex)
+            catch
             {
+                _logs.OnNext($"Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
                 _isConnected.OnNext(false);
                 throw;
             }
@@ -191,6 +191,8 @@ namespace TeensyRom.Core.Serial.Abstractions
         public void SendIntBytes(uint intToSend, short byteLength)
         {
             var bytesToSend = BitConverter.GetBytes(intToSend);
+
+            _logs.OnNext($"Sent Bytes: {BitConverter.ToString(bytesToSend)}");
 
             for (short byteNum = (short)(byteLength - 1); byteNum >= 0; byteNum--)
             {

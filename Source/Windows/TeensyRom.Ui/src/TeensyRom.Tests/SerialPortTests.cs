@@ -57,7 +57,7 @@ namespace TeensyRom.Tests
         {
             //Arrange            
             var actualSelectedPort = SerialPort.GetPortNames().First();
-            var expectedErrorLog = $"Failed to open the serial port: The given port name (Not a real port) does not resolve to a valid serial port. (Parameter 'portName')";
+            var expectedErrorLog = $"Failed to ensure the connection to Not a real port. Retrying in 5000 ms";
 
             //Act
             _viewModel.SelectedPort = "Not a real port";
