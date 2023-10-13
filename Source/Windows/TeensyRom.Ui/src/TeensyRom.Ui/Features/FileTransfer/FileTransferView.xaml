@@ -1,22 +1,40 @@
-﻿<UserControl x:Class="TeensyRom.Ui.Features.FileTransfer.FileTransferView"
-             xmlns:controls="clr-namespace:TeensyRom.Ui.Controls"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"             
-             mc:Ignorable="d" 
-             Height="auto" Width="auto">
+﻿<UserControl 
+    x:Class="TeensyRom.Ui.Features.FileTransfer.FileTransferView"
+    xmlns:controls="clr-namespace:TeensyRom.Ui.Controls"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
+    xmlns:local="clr-namespace:TeensyRom.Ui.Features.FileTransfer"
+    mc:Ignorable="d" 
+    Height="auto" Width="auto">
+
+    <UserControl.Resources>
+        <!-- Template for Directory -->
+        <HierarchicalDataTemplate x:Key="DirectoryTemplate" DataType="{x:Type local:DirectoryNode}" ItemsSource="{Binding Children}">
+            <TextBlock Text="{Binding Name}" />
+        </HierarchicalDataTemplate>
+
+        <!-- Template for File -->
+        <DataTemplate x:Key="FileTemplate" DataType="{x:Type local:FileNode}">
+            <TextBlock Text="{Binding Name}" />
+        </DataTemplate>
+    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
         <TextBlock 
             Grid.Row="0" 
@@ -24,21 +42,75 @@
             Margin="10" 
             Text="File Transfer"/>
 
-        <Label 
-            HorizontalAlignment="Left" 
-            Margin="10 0 0 0"
-            Grid.Row="1"              
-            Content="Auto-Save Logs:"/>
-        <TextBox 
-            Grid.Row="2" 
-            x:Name="LogTextBox" 
-            Margin="13 0 10 0" 
-            Text="{Binding Logs, Mode=OneWay}" 
-            TextWrapping="Wrap" 
-            IsReadOnly="True" 
-            VerticalScrollBarVisibility="Auto" />
+        <Button Grid.Row="1"  Content="Test File Watch Copy" Command="{Binding TestFileCopyCommand}" />
 
-        <Button Content="Test File Watch Copy" Command="{Binding TestFileCopyCommand}" />
-    
+        <Label 
+            Grid.Row="2" 
+            Grid.Column="0" 
+            Style="{StaticResource LargeLabel}"
+            Content="Local" 
+            HorizontalAlignment="Left"
+            Margin="10"/>
+
+        <Label 
+            Grid.Row="2" 
+            Grid.Column="2" 
+            Style="{StaticResource LargeLabel}"
+            Content="C64" 
+            HorizontalAlignment="Left"
+            Margin="10"/>
+
+        <ScrollViewer Grid.Row="3" Grid.Column="0" VerticalScrollBarVisibility="Auto">
+            <TreeView 
+                Name="sourceTreeView" 
+                MinWidth="220" 
+                PreviewMouseWheel="OnTreeViewPreviewMouseWheel"
+                dd:DragDrop.IsDropTarget="True"
+                dd:DragDrop.DropHandler="{Binding}"
+                dd:DragDrop.IsDragSource="True"
+                ItemsSource="{Binding SourceItems}">
+                <TreeView.ItemTemplateSelector>
+                    <local:NodeTemplateSelector 
+                        DirectoryTemplate="{StaticResource DirectoryTemplate}"
+                        FileTemplate="{StaticResource FileTemplate}" />
+                </TreeView.ItemTemplateSelector>
+            </TreeView>
+        </ScrollViewer>
+
+        <Grid 
+            Grid.Row="3" 
+            Grid.Column="1" 
+            VerticalAlignment="Center">
+            <StackPanel>
+                <Label 
+                    Style="{StaticResource LargeLabel}"
+                    Grid.Row="2" 
+                    Grid.Column="2" 
+                    Content="Drag and Drop -->" 
+                    HorizontalAlignment="Center"                    
+                    Margin="10"/>   
+            </StackPanel>
+        </Grid>
+
+        <ScrollViewer 
+            Grid.Row="3" 
+            Grid.Column="2" 
+            VerticalScrollBarVisibility="Auto">
+            <TreeView
+                Name="targetTreeView" 
+                MinWidth="220" 
+                PreviewMouseWheel="OnTreeViewPreviewMouseWheel"
+                dd:DragDrop.IsDragSource="False"
+                dd:DragDrop.IsDropTarget="True"
+                dd:DragDrop.DropHandler="{Binding}"
+                ItemsSource="{Binding TargetItems}">
+                <TreeView.ItemTemplateSelector>
+                    <local:NodeTemplateSelector 
+                        DirectoryTemplate="{StaticResource DirectoryTemplate}"
+                        FileTemplate="{StaticResource FileTemplate}" />
+                </TreeView.ItemTemplateSelector>
+            </TreeView>
+        </ScrollViewer>
+
     </Grid>
 </UserControl>

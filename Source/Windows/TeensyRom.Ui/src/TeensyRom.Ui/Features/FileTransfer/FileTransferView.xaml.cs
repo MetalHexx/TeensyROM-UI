@@ -25,10 +25,26 @@ namespace TeensyRom.Ui.Features.FileTransfer
         {
             InitializeComponent();
 
-            var dpd = DependencyPropertyDescriptor.FromProperty(TextBox.TextProperty, typeof(TextBox));
-            if (dpd != null)
+            //var dpd = DependencyPropertyDescriptor.FromProperty(TextBox.TextProperty, typeof(TextBox));
+            //if (dpd != null)
+            //{
+            //    dpd.AddValueChanged(LogTextBox, (sender, args) => LogTextBox.ScrollToEnd());
+            //}
+        }
+
+        private void OnTreeViewPreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (!e.Handled)
             {
-                dpd.AddValueChanged(LogTextBox, (sender, args) => LogTextBox.ScrollToEnd());
+                e.Handled = true;
+                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
+                {
+                    RoutedEvent = MouseWheelEvent,
+                    Source = sender
+                };
+
+                var parent = ((Control)sender).Parent as UIElement;
+                parent?.RaiseEvent(eventArg);
             }
         }
     }
