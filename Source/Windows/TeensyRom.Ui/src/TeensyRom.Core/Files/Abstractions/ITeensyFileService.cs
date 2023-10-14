@@ -1,4 +1,5 @@
 ﻿using System.Reactive;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Core.Files.Abstractions
 {
@@ -26,6 +27,6 @@ namespace TeensyRom.Core.Files.Abstractions
         /// <summary>
         /// Sets a user defined watch folder
         /// </summary>
-        void SetWatchFolder(string fullPath);
+        void SetWatchFolder(TeensySettings settings);
     }
 }

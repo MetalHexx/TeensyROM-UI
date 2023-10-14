@@ -52,8 +52,6 @@ namespace TeensyRom.Core.Serial
                 return false;
             }
 
-            var destPath = @"/test-auto-download/";
-
             _logs.OnNext($"Sending Stream Length: {fileInfo.StreamLength}");
             SendIntBytes(fileInfo.StreamLength, 4);
 
@@ -64,7 +62,7 @@ namespace TeensyRom.Core.Serial
             SendIntBytes(TeensyConstants.Sd_Card_Token, 1);
 
             _logs.OnNext($"Sending file path: {fileInfo.FullPath}\0");
-            _serialPort.Write($"{destPath}{fileInfo.Name}\0");
+            _serialPort.Write($"{fileInfo.DestinationPath}{fileInfo.Name}\0");
 
             if (!GetAck())
             {

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.IO;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using TeensyRom.Core.Files.Abstractions;
@@ -39,10 +38,17 @@ namespace TeensyRom.Core.Files
 
         public void SetWatchPath(string path, string fileFilter)
         {
-            _watcher.Path = path;
-            _watcher.NotifyFilter = NotifyFilters.LastWrite;
-            _watcher.Filter = fileFilter;
-            _watcher.EnableRaisingEvents = true;
+            try
+            {
+                _watcher.Path = path;
+                _watcher.NotifyFilter = NotifyFilters.LastWrite;
+                _watcher.Filter = fileFilter;
+                _watcher.EnableRaisingEvents = true;
+            }
+            catch
+            {
+                //Just swallow it.  We'll let the user know in the logs.
+            }
         }
 
         public void Dispose()

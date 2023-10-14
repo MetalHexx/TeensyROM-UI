@@ -3,6 +3,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using TeensyRom.Core.Files.Abstractions;
 using TeensyRom.Core.Serial.Abstractions;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Core.Files
 {
@@ -15,18 +16,29 @@ namespace TeensyRom.Core.Files
         protected readonly Subject<string> _logs = new();
         public IObservable<string> Logs => _logs.AsObservable();
 
+        private readonly ISettingsService _settingsService;
         private readonly IFileWatcher _fileWatcher;
         private readonly ITeensyObservableSerialPort _teensyPort;        
+        private IDisposable _settingsSubscription;
         private IDisposable _fileWatchSubscription;
         private IDisposable _teensyPortLogSubscription;
+        private TeensySettings _settings = new();
 
-        public TeensyFileService(IFileWatcher fileWatcher, ITeensyObservableSerialPort serialPort)
+        public TeensyFileService(ISettingsService settingsService, IFileWatcher fileWatcher, ITeensyObservableSerialPort serialPort)
         {
+            _settingsService = settingsService;
             _fileWatcher = fileWatcher;
-            _teensyPort = serialPort;
-            _fileWatcher.SetWatchPath(GetDefaultBrowserDownloadPath(), "*.sid"); //TODO: Make this configurable in UI
+            _teensyPort = serialPort;            
             _teensyPortLogSubscription = _teensyPort.Logs.Subscribe(_logs.OnNext, _logs.OnError);
+            InitializeSettings();
             InitializeFileWatch();
+        }
+
+        private void InitializeSettings()
+        {
+            _settingsSubscription = _settingsService.Settings
+                .Do(settings => _settings = settings)
+                .Subscribe(settings => SetWatchFolder(settings));
         }
 
         private void InitializeFileWatch()
@@ -40,16 +52,6 @@ namespace TeensyRom.Core.Files
                 .Subscribe(fileInfo => SaveFile(fileInfo));
         }
 
-        /// <summary>
-        /// Grabs the default operating system from the users profile. 
-        /// </summary>
-        /// <returns></returns>
-        private string GetDefaultBrowserDownloadPath()
-        {
-            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            return Path.Combine(userProfile, "Downloads");  //TODO: make this user configurable
-        }
-
         public Unit SaveFile(string path)
         {
             TeensyFileInfo fileInfo;
@@ -57,6 +59,7 @@ namespace TeensyRom.Core.Files
             try
             {                
                 fileInfo = new TeensyFileInfo(path);
+                fileInfo.DestinationPath = _settings.SidStorageLocation;
                 SaveFile(fileInfo);
             }
             catch (FileNotFoundException ex)
@@ -69,6 +72,7 @@ namespace TeensyRom.Core.Files
         public Unit SaveFile(TeensyFileInfo fileInfo)
         {
             _logs.OnNext("Initiating file transfer handshake");
+            fileInfo.DestinationPath = _settings.SidStorageLocation;
 
             if (_teensyPort.SendFile(fileInfo))
             {
@@ -81,14 +85,14 @@ namespace TeensyRom.Core.Files
             return Unit.Default;
         }
 
-        public void SetWatchFolder(string fullPath)
+        public void SetWatchFolder(TeensySettings settings)
         {
-            //TODO: Implement user watch folder preference
-            throw new NotImplementedException();
+            _fileWatcher.SetWatchPath(settings.WatchDirectoryLocation, "*.sid");
         }
 
         public void Dispose()
         {
+            _settingsSubscription?.Dispose();
             _fileWatchSubscription?.Dispose();
             _teensyPortLogSubscription?.Dispose();
             _fileWatcher.Dispose();

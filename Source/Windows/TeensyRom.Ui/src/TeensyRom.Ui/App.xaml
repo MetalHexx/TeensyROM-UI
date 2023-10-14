@@ -6,6 +6,7 @@
     xmlns:Help="clr-namespace:TeensyRom.Ui.Features.Help"
     xmlns:Midi="clr-namespace:TeensyRom.Ui.Features.Midi"
     xmlns:Connect="clr-namespace:TeensyRom.Ui.Features.Connect"
+    xmlns:Settings="clr-namespace:TeensyRom.Ui.Features.Settings"
     
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"           
@@ -33,6 +34,9 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type Connect:ConnectViewModel}">
                 <Connect:ConnectView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type Settings:SettingsViewModel}">
+                <Settings:SettingsView/>
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

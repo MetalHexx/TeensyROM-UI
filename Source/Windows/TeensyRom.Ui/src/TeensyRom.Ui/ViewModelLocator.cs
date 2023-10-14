@@ -5,11 +5,13 @@ using TeensyRom.Core.Files;
 using TeensyRom.Core.Files.Abstractions;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.Abstractions;
+using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Features.Connect;
 using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.Help;
 using TeensyRom.Ui.Features.Midi;
 using TeensyRom.Ui.Features.NavigationHost;
+using TeensyRom.Ui.Features.Settings;
 
 namespace TeensyRom.Ui
 {
@@ -32,9 +34,11 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<ITeensyObservableSerialPort, TeensyObservableSerialPort>();
             SimpleIoc.Default.Register<ITeensyFileService, TeensyFileService>();
             SimpleIoc.Default.Register<IFileWatcher, FileWatcher>();
+            SimpleIoc.Default.Register<ISettingsService, SettingsService>();
             SimpleIoc.Default.Register<NavigationHostViewModel>();
             SimpleIoc.Default.Register<ConnectViewModel>();
             SimpleIoc.Default.Register<FileTransferViewModel>();
+            SimpleIoc.Default.Register<SettingsViewModel>();
             SimpleIoc.Default.Register<HelpViewModel>();
             SimpleIoc.Default.Register<MidiViewModel>();
         }

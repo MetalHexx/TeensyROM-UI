@@ -5,6 +5,7 @@
         Connect,
         FileTransfer,
         Midi,
+        Settings,
         Help        
     }
 }

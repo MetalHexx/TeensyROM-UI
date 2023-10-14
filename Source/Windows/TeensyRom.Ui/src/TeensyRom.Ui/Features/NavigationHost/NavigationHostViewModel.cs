@@ -9,6 +9,7 @@ using System.Linq;
 using TeensyRom.Ui.Features.Help;
 using TeensyRom.Ui.Features.Midi;
 using TeensyRom.Ui.Features.Connect;
+using TeensyRom.Ui.Features.Settings;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -28,15 +29,15 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
         private readonly INavigationService _navService;
 
-        public NavigationHostViewModel(INavigationService navStore, FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help, ConnectViewModel connect)
+        public NavigationHostViewModel(INavigationService navStore, FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
         {
             _navService = navStore;
             RegisterModelProperties();
             RegisterModelCommands();
-            InitializeNavItems(fileTransfer, midi, help, connect);
+            InitializeNavItems(fileTransfer, midi, help, connect, settings);
         }     
 
-        public void InitializeNavItems(FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help, ConnectViewModel connect)
+        public void InitializeNavItems(FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
         {
             _navService.Initialize(NavigationLocation.Connect, new List<NavigationItem>
             {
@@ -60,6 +61,13 @@ namespace TeensyRom.Ui.Features.NavigationHost
                     Type = NavigationLocation.Midi,
                     ViewModel = midi,
                     Icon = "MusicClefTreble"
+                },
+                new NavigationItem
+                {
+                    Name = "Settings",
+                    Type = NavigationLocation.Settings,
+                    ViewModel = settings,
+                    Icon = "Gear"
                 },
                 new NavigationItem
                 {
