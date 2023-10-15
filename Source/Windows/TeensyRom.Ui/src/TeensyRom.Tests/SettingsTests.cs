@@ -8,7 +8,7 @@ namespace TeensyRom.Tests
 {
     public class SettingsTests: IDisposable
     {
-        private readonly string _fileName = "Settings.json";
+        private readonly string _settingsFileName = "Settings.json";
         [Fact]
         public void Given_ApplicationStarts_When_SettingsFileDoesntExist_Then_LoadsDefaultSettings()
         {
@@ -49,7 +49,7 @@ namespace TeensyRom.Tests
                 WatchDirectoryLocation = @"C:\some_nonexistant_location"
             };
             var json = JsonConvert.SerializeObject(savedSettings);
-            File.WriteAllText(_fileName, json);
+            File.WriteAllText(_settingsFileName, json);
 
             var settingsService = new SettingsService();
             var vm = new SettingsViewModel(settingsService);
@@ -77,7 +77,7 @@ namespace TeensyRom.Tests
 
         public void Dispose()
         {
-            if (File.Exists(_fileName))
+            if (File.Exists(_settingsFileName))
             {
                 File.Delete("Settings.json");
             }
