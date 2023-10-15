@@ -87,6 +87,7 @@ namespace TeensyRom.Core.Files
 
         private void TransformDestination(TeensyFileInfo fileInfo)
         {
+            fileInfo.StorageType = _settings.TargetType;
             fileInfo.TargetPath = fileInfo.Type switch
             {
                 TeensyFileType.Sid => _settings.SidTargetPath,

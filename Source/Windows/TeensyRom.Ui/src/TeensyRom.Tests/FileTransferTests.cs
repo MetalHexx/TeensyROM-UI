@@ -20,7 +20,7 @@ namespace TeensyRom.Tests
         private ITeensyFileService _fileService;
 
         private readonly string _settingsFileName = "Settings.json";        
-        private readonly string _testFileName = $"{Guid.NewGuid().ToString().Substring(0, 7)}-test.sid";
+        private readonly string _testFileName = $"{Guid.NewGuid().ToString().Substring(0, 7)}-test";
         private readonly string _fullSourceTestPath = string.Empty;
 
         private readonly string _serialPortName = SerialPort.GetPortNames().First();
@@ -28,6 +28,8 @@ namespace TeensyRom.Tests
         private readonly TeensySettings _settings = new()
         {
             SidTargetPath = "/integration-test-files/sid/",
+            PrgTargetPath = "/integration-test-files/prg/",
+            CrtTargetPath = "/integration-test-files/crt/",
             TargetType = TeensyStorageType.SD,
             WatchDirectoryLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads")
         };
@@ -38,23 +40,20 @@ namespace TeensyRom.Tests
         }
 
         [Fact]
-        public void Given_WatcherDetectsNewFile_When_FileSaved_ToSD_Then_ReturnsSuccess()
+        public void Given_WatcherDetectsNewFile_When_SidSaved_ToSD_Then_ReturnsSuccess()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}";
+            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.sid";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
             var expectedType = $"Type: Sid";
             var storageType = $"Storage Type: SD";
 
-            //$"Name: {Name}\r\n Type: {Type}\r\n Source Path: {FullPath}\r\n Storage Type: {storageType} Target Path: {TargetPath}\r\n Stream Length: {StreamLength}\r\n Checksum: {Checksum}\r\n";
-
-
             _settings.TargetType = TeensyStorageType.SD;
             InitializeViewModel();
 
             //Act
-            File.WriteAllText(_fullSourceTestPath, "Test sid");
+            File.WriteAllText($"{ _fullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
             //Assert
@@ -66,23 +65,128 @@ namespace TeensyRom.Tests
         }
 
         [Fact]
-        public void Given_WatcherDetectsNewFile_When_FileSaved_ToUSB_Then_ReturnsSuccess()
+        public void Given_WatcherDetectsNewFile_When_PrgSaved_ToSD_Then_ReturnsSuccess()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}";
+            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.prg";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
-            _settings.TargetType = TeensyStorageType.USB;
+            var expectedType = $"Type: Prg";
+            var storageType = $"Storage Type: SD";
+
+            _settings.TargetType = TeensyStorageType.SD;
             InitializeViewModel();
 
             //Act
-            File.WriteAllText(_fullSourceTestPath, "Test sid");
+            File.WriteAllText($"{_fullSourceTestPath}.prg", "Test prg");
             Thread.Sleep(1000);
 
             //Assert
             _viewModel.Logs.Should().Contain(fileDetectedText);
             _viewModel.Logs.Should().Contain(initiatedText);
             _viewModel.Logs.Should().Contain(savedText);
+            _viewModel.Logs.Should().Contain(expectedType);
+            _viewModel.Logs.Should().Contain(storageType);
+        }
+
+        [Fact]
+        public void Given_WatcherDetectsNewFile_When_CrtSaved_ToSD_Then_ReturnsSuccess()
+        {
+            //Arrange
+            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.crt";
+            var initiatedText = $"Initiating file transfer handshake";
+            var savedText = $"File transfer complete!";
+            var expectedType = $"Type: Crt";
+            var storageType = $"Storage Type: SD";
+
+            _settings.TargetType = TeensyStorageType.SD;
+            InitializeViewModel();
+
+            //Act
+            File.WriteAllText($"{_fullSourceTestPath}.crt", "Test crt");
+            Thread.Sleep(1000);
+
+            //Assert
+            _viewModel.Logs.Should().Contain(fileDetectedText);
+            _viewModel.Logs.Should().Contain(initiatedText);
+            _viewModel.Logs.Should().Contain(savedText);
+            _viewModel.Logs.Should().Contain(expectedType);
+            _viewModel.Logs.Should().Contain(storageType);
+        }
+
+        [Fact]
+        public void Given_WatcherDetectsNewFile_When_SidSaved_ToUSB_Then_ReturnsSuccess()
+        {
+            //Arrange
+            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.sid";
+            var initiatedText = $"Initiating file transfer handshake";
+            var savedText = $"File transfer complete!";
+            var expectedType = $"Type: Sid";
+            var storageType = $"Storage Type: USB";
+
+            _settings.TargetType = TeensyStorageType.USB;
+            InitializeViewModel();
+
+            //Act
+            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            Thread.Sleep(1000);
+
+            //Assert
+            _viewModel.Logs.Should().Contain(fileDetectedText);
+            _viewModel.Logs.Should().Contain(initiatedText);
+            _viewModel.Logs.Should().Contain(savedText);
+            _viewModel.Logs.Should().Contain(expectedType);
+            _viewModel.Logs.Should().Contain(storageType);
+        }
+
+        [Fact]
+        public void Given_WatcherDetectsNewFile_When_PrgSaved_ToUSB_Then_ReturnsSuccess()
+        {
+            //Arrange
+            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.prg";
+            var initiatedText = $"Initiating file transfer handshake";
+            var savedText = $"File transfer complete!";
+            var expectedType = $"Type: Prg";
+            var storageType = $"Storage Type: USB";
+
+            _settings.TargetType = TeensyStorageType.USB;
+            InitializeViewModel();
+
+            //Act
+            File.WriteAllText($"{_fullSourceTestPath}.prg", "Test prg");
+            Thread.Sleep(1000);
+
+            //Assert
+            _viewModel.Logs.Should().Contain(fileDetectedText);
+            _viewModel.Logs.Should().Contain(initiatedText);
+            _viewModel.Logs.Should().Contain(savedText);
+            _viewModel.Logs.Should().Contain(expectedType);
+            _viewModel.Logs.Should().Contain(storageType);
+        }
+
+        [Fact]
+        public void Given_WatcherDetectsNewFile_When_CrtSaved_ToUSB_Then_ReturnsSuccess()
+        {
+            //Arrange
+            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.crt";
+            var initiatedText = $"Initiating file transfer handshake";
+            var savedText = $"File transfer complete!";
+            var expectedType = $"Type: Crt";
+            var storageType = $"Storage Type: USB";
+
+            _settings.TargetType = TeensyStorageType.USB;
+            InitializeViewModel();
+
+            //Act
+            File.WriteAllText($"{_fullSourceTestPath}.crt", "Test crt");
+            Thread.Sleep(1000);
+
+            //Assert
+            _viewModel.Logs.Should().Contain(fileDetectedText);
+            _viewModel.Logs.Should().Contain(initiatedText);
+            _viewModel.Logs.Should().Contain(savedText);
+            _viewModel.Logs.Should().Contain(expectedType);
+            _viewModel.Logs.Should().Contain(storageType);
         }
 
         private void InitializeViewModel()

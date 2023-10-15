@@ -20,6 +20,8 @@ namespace TeensyRom.Tests
 
             //Assert
             vm.Settings.SidTargetPath.Should().BeEmpty();
+            vm.Settings.PrgTargetPath.Should().BeEmpty();
+            vm.Settings.CrtTargetPath.Should().BeEmpty();            
             vm.Settings.TargetType.Should().Be(TeensyStorageType.SD);
             vm.Settings.WatchDirectoryLocation.Should().Be($"{expectedWatchLocation}");
         }
@@ -66,7 +68,9 @@ namespace TeensyRom.Tests
             //Arrange
             var savedSettings = new TeensySettings()
             {
-                SidTargetPath = "/target/path",
+                SidTargetPath = "/target/sid",
+                PrgTargetPath = "/target/prg",
+                CrtTargetPath = "/target/crt",
                 WatchDirectoryLocation = @"C:\path\to\watch"
             };
             var json = JsonConvert.SerializeObject(savedSettings);
@@ -77,6 +81,8 @@ namespace TeensyRom.Tests
 
             //Assert
             vm.Settings.SidTargetPath.Should().Be(savedSettings.SidTargetPath);
+            vm.Settings.PrgTargetPath.Should().Be(savedSettings.PrgTargetPath);
+            vm.Settings.CrtTargetPath.Should().Be(savedSettings.CrtTargetPath);
             vm.Settings.WatchDirectoryLocation.Should().Be(savedSettings.WatchDirectoryLocation);
 
         }

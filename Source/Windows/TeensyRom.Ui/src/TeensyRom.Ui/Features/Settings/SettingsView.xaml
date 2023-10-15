@@ -16,6 +16,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -26,25 +27,9 @@
             Margin="10" 
             Text="Settings"/>
 
-        <!-- Sid Storage Location -->
-        <Label Grid.Row="1" Content="Sid Storage Location:" />
-        <TextBox Grid.Row="1"
-                 Margin="150,0,0,20"
-                 VerticalAlignment="Top"
-                 materialDesign:HintAssist.Hint="Sid Storage Location"
-                 Text="{Binding Settings.SidTargetPath, Mode=TwoWay}" />
-
-        <!-- Local Watch Directory -->
-        <Label Grid.Row="2" Content="Local Watch Directory:" />
-        <TextBox Grid.Row="2"
-                 Margin="150,0,0,20"
-                 VerticalAlignment="Top"
-                 materialDesign:HintAssist.Hint="Local Watch Directory"
-                 Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}" />
-
         <!-- Storage Type -->
-        <Label Grid.Row="3" Content="Storage Type:" />
-        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="150,0,0,20">
+        <Label Grid.Row="1" Content="Target Storage:" />
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="150,0,0,20">
             <RadioButton Content="SD" 
                          IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.SD}}" />
             <RadioButton Content="USB" 
@@ -52,10 +37,42 @@
                          IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.USB}}" />
         </StackPanel>
 
-        <Button Grid.Row="4" Content="Save Settings" Margin="20" Command="{Binding SaveSettingsCommand}" />
+        <!-- Sid Target Path -->
+        <Label Grid.Row="2" Content="Sid Target Path:" />
+        <TextBox Grid.Row="2"
+                 Margin="150,0,0,20"
+                 VerticalAlignment="Top"
+                 materialDesign:HintAssist.Hint="Sid Target Path"
+                 Text="{Binding Settings.SidTargetPath, Mode=TwoWay}" />
+
+        <!-- Prg Target Path-->
+        <Label Grid.Row="3" Content="Prg Target Path:" />
+        <TextBox Grid.Row="3"
+                 Margin="150,0,0,20"
+                 VerticalAlignment="Top"
+                 materialDesign:HintAssist.Hint="Prg Target Path"
+                 Text="{Binding Settings.PrgTargetPath, Mode=TwoWay}" />
+
+        <!-- Crt Target Path-->
+        <Label Grid.Row="4" Content="Crt Target Path:" />
+        <TextBox Grid.Row="4"
+                 Margin="150,0,0,20"
+                 VerticalAlignment="Top"
+                 materialDesign:HintAssist.Hint="Crt Target Path"
+                 Text="{Binding Settings.CrtTargetPath, Mode=TwoWay}" />
+
+        <!-- Local Watch Directory -->
+        <Label Grid.Row="5" Content="Local Watch Directory:" />
+        <TextBox Grid.Row="5"
+                 Margin="150,0,0,20"
+                 VerticalAlignment="Top"
+                 materialDesign:HintAssist.Hint="Local Watch Directory"
+                 Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}" />        
+
+        <Button Grid.Row="6" Content="Save Settings" Margin="20" Command="{Binding SaveSettingsCommand}" />
 
         <TextBox 
-            Grid.Row="5" 
+            Grid.Row="7" 
             x:Name="LogTextBox" 
             Margin="13 0 10 0" 
             materialDesign:HintAssist.Hint="Logs" 

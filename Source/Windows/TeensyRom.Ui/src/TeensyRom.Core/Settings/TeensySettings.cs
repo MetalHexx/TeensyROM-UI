@@ -6,13 +6,13 @@ namespace TeensyRom.Core.Settings
     /// Used to persist and retrieve user preference from disk.  See: Settings.json in the bin folder
     /// </summary>
     public class TeensySettings
-    {   
-        public string WatchDirectoryLocation { get; set; } = string.Empty;
+    {
         public TeensyStorageType TargetType { get; set; } = TeensyStorageType.SD;
+        public string WatchDirectoryLocation { get; set; } = string.Empty;        
         public string SidTargetPath { get; set; } = string.Empty;
-        public string PrgTargetPath { get; internal set; }
-        public string CrtTargetPath { get; internal set; }
-        public string HexTargetPath { get; internal set; }
+        public string PrgTargetPath { get; set; } = string.Empty;
+        public string CrtTargetPath { get; set; } = string.Empty;
+        public string HexTargetPath { get; set; } = string.Empty;
 
         public TeensySettings()
         {
