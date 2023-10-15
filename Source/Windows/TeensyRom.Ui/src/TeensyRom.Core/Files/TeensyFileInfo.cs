@@ -9,8 +9,16 @@
         private readonly FileInfo _fileInfo;
         public string Name => _fileInfo.Name;
         public string FullPath => _fileInfo.FullName;
-        public string DestinationPath { get; set; } = string.Empty;
-        public StorageType DestinationType { get; set; } = StorageType.SD;
+        public TeensyFileType Type => _fileInfo.Extension switch
+            {
+                ".sid" => TeensyFileType.Sid,
+                ".crt" => TeensyFileType.Crt,
+                ".prg" => TeensyFileType.Prg,
+                ".hex" => TeensyFileType.Hex,
+                _ => TeensyFileType.Unknown
+    };
+        public string TargetPath { get; set; } = string.Empty;
+        public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;
         public byte[] Buffer { get; set; } = new byte[0];
         public uint StreamLength { get; private set; }
         public ushort Checksum { get; private set; }
@@ -42,6 +50,12 @@
             {
                 Checksum += Buffer[num];
             }
+        }
+
+        public override string ToString()
+        {
+            var storageType = StorageType == TeensyStorageType.USB ? "USB" : "SD";
+            return $"\r\nName: {Name}\r\n Type: {Type}\r\n Source Path: {FullPath}\r\n Storage Type: {storageType} Target Path: {TargetPath}\r\n Stream Length: {StreamLength}\r\n Checksum: {Checksum}\r\n";
         }
     }
 }

@@ -27,8 +27,8 @@ namespace TeensyRom.Tests
 
         private readonly TeensySettings _settings = new()
         {
-            SidStorageLocation = "/integration-test-files/",
-            SidStorageType = StorageType.SD,
+            SidTargetPath = "/integration-test-files/sid/",
+            TargetType = TeensyStorageType.SD,
             WatchDirectoryLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads")
         };
 
@@ -44,7 +44,13 @@ namespace TeensyRom.Tests
             var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
-            _settings.SidStorageType = StorageType.SD;
+            var expectedType = $"Type: Sid";
+            var storageType = $"Storage Type: SD";
+
+            //$"Name: {Name}\r\n Type: {Type}\r\n Source Path: {FullPath}\r\n Storage Type: {storageType} Target Path: {TargetPath}\r\n Stream Length: {StreamLength}\r\n Checksum: {Checksum}\r\n";
+
+
+            _settings.TargetType = TeensyStorageType.SD;
             InitializeViewModel();
 
             //Act
@@ -55,6 +61,8 @@ namespace TeensyRom.Tests
             _viewModel.Logs.Should().Contain(fileDetectedText);
             _viewModel.Logs.Should().Contain(initiatedText);
             _viewModel.Logs.Should().Contain(savedText);
+            _viewModel.Logs.Should().Contain(expectedType);
+            _viewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -64,7 +72,7 @@ namespace TeensyRom.Tests
             var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
-            _settings.SidStorageType = StorageType.USB;
+            _settings.TargetType = TeensyStorageType.USB;
             InitializeViewModel();
 
             //Act

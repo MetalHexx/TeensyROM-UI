@@ -19,8 +19,8 @@ namespace TeensyRom.Tests
             expectedWatchLocation = Path.Combine(expectedWatchLocation, "Downloads");
 
             //Assert
-            vm.Settings.SidStorageLocation.Should().BeEmpty();
-            vm.Settings.SidStorageType.Should().Be(StorageType.SD);
+            vm.Settings.SidTargetPath.Should().BeEmpty();
+            vm.Settings.TargetType.Should().Be(TeensyStorageType.SD);
             vm.Settings.WatchDirectoryLocation.Should().Be($"{expectedWatchLocation}");
         }
 
@@ -58,6 +58,27 @@ namespace TeensyRom.Tests
 
             //Assert
             vm.Logs.Should().Contain(expectedLog);            
+        }
+
+        [Fact]
+        public void Given_SettingsFileExists_When_SettingsLoaded_Then_ViewContainsCorrectValues()
+        {
+            //Arrange
+            var savedSettings = new TeensySettings()
+            {
+                SidTargetPath = "/target/path",
+                WatchDirectoryLocation = @"C:\path\to\watch"
+            };
+            var json = JsonConvert.SerializeObject(savedSettings);
+            File.WriteAllText(_settingsFileName, json);
+
+            var settingsService = new SettingsService();
+            var vm = new SettingsViewModel(settingsService);
+
+            //Assert
+            vm.Settings.SidTargetPath.Should().Be(savedSettings.SidTargetPath);
+            vm.Settings.WatchDirectoryLocation.Should().Be(savedSettings.WatchDirectoryLocation);
+
         }
 
         [Fact]

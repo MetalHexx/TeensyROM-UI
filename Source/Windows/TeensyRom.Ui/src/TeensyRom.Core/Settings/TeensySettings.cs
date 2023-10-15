@@ -7,9 +7,12 @@ namespace TeensyRom.Core.Settings
     /// </summary>
     public class TeensySettings
     {   
-        public string SidStorageLocation { get; set; } = string.Empty;
         public string WatchDirectoryLocation { get; set; } = string.Empty;
-        public StorageType SidStorageType { get; set; } = StorageType.SD;
+        public TeensyStorageType TargetType { get; set; } = TeensyStorageType.SD;
+        public string SidTargetPath { get; set; } = string.Empty;
+        public string PrgTargetPath { get; internal set; }
+        public string CrtTargetPath { get; internal set; }
+        public string HexTargetPath { get; internal set; }
 
         public TeensySettings()
         {

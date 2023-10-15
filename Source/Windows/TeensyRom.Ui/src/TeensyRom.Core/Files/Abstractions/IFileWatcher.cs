@@ -14,7 +14,7 @@
         /// <summary>
         /// Configures the watcher given a path a file filer
         /// </summary>
-        /// <param name="fileFilter">For example *.sid</param>
-        void SetWatchPath(string fullPath, string fileFilter);
+        /// <param name="fileTypes">For example *.sid</param>
+        void SetWatchParameters(string fullPath, params string[] fileTypes);
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace TeensyRom.Core.Files
 {
-    public enum StorageType
+    public enum TeensyStorageType
     {
         SD,
         USB

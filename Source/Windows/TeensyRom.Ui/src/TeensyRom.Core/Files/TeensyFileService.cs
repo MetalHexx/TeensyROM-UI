@@ -59,7 +59,6 @@ namespace TeensyRom.Core.Files
             try
             {                
                 fileInfo = new TeensyFileInfo(path);
-                fileInfo.DestinationPath = _settings.SidStorageLocation;
                 SaveFile(fileInfo);
             }
             catch (FileNotFoundException ex)
@@ -72,8 +71,8 @@ namespace TeensyRom.Core.Files
         public Unit SaveFile(TeensyFileInfo fileInfo)
         {
             _logs.OnNext("Initiating file transfer handshake");
-            fileInfo.DestinationPath = _settings.SidStorageLocation;
-            fileInfo.DestinationType = _settings.SidStorageType;
+
+            TransformDestination(fileInfo);
 
             if (_teensyPort.SendFile(fileInfo))
             {
@@ -86,9 +85,21 @@ namespace TeensyRom.Core.Files
             return Unit.Default;
         }
 
+        private void TransformDestination(TeensyFileInfo fileInfo)
+        {
+            fileInfo.TargetPath = fileInfo.Type switch
+            {
+                TeensyFileType.Sid => _settings.SidTargetPath,
+                TeensyFileType.Prg => _settings.PrgTargetPath,
+                TeensyFileType.Crt => _settings.CrtTargetPath,
+                TeensyFileType.Hex => _settings.HexTargetPath,
+                _ => throw new ArgumentException($"Unsupported file type: {fileInfo.Type}")
+            };
+        }
+
         public void SetWatchFolder(TeensySettings settings)
         {
-            _fileWatcher.SetWatchPath(settings.WatchDirectoryLocation, "*.sid");
+            _fileWatcher.SetWatchParameters(settings.WatchDirectoryLocation, ".sid", ".prg", ".crt");
         }
 
         public void Dispose()

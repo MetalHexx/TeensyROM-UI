@@ -11,6 +11,7 @@ namespace TeensyRom.Core.Files
         public IObservable<FileInfo> FileFound => _fileFound.AsObservable();
 
         private readonly FileSystemWatcher _watcher = new();
+        private string[] _fileTypes = Array.Empty<string>();
         private readonly ConcurrentDictionary<string, byte> _processedFiles = new();
         private readonly IDisposable _watchSubscription;
 
@@ -26,23 +27,23 @@ namespace TeensyRom.Core.Files
                 handler => _watcher.Changed -= handler)
                 .Select(evt => evt.EventArgs.FullPath)
                 .Select(filePath => new FileInfo(filePath))
+                .Where(AcceptedType)
                 .Where(NotDupe)                
                 .Subscribe(_fileFound);
         }
+       
+        private bool NotDupe(FileInfo fileInfo) => _processedFiles.TryAdd(fileInfo.Name, 0);
+        private bool AcceptedType(FileInfo fileInfo) => _fileTypes.Any(t => t.Equals(fileInfo.Extension));
 
-        /// <summary>
-        /// Make sure we don't allow dupes.  
-        /// </summary>        
-        private bool NotDupe(FileInfo fileInfo) => _processedFiles.TryAdd(fileInfo.Name, 0); 
-        //TODO: Temporary approach.  This will not work if teensy restarts.  
-
-        public void SetWatchPath(string path, string fileFilter)
+        public void SetWatchParameters(string path, params string[] fileTypes)
         {
+            _fileTypes = fileTypes;
+
             try
             {
                 _watcher.Path = path;
                 _watcher.NotifyFilter = NotifyFilters.LastWrite;
-                _watcher.Filter = fileFilter;
+                _watcher.Filter = "*.*";
                 _watcher.EnableRaisingEvents = true;
             }
             catch

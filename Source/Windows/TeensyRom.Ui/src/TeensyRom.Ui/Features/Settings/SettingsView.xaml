@@ -32,7 +32,7 @@
                  Margin="150,0,0,20"
                  VerticalAlignment="Top"
                  materialDesign:HintAssist.Hint="Sid Storage Location"
-                 Text="{Binding Settings.SidStorageLocation, Mode=TwoWay}" />
+                 Text="{Binding Settings.SidTargetPath, Mode=TwoWay}" />
 
         <!-- Local Watch Directory -->
         <Label Grid.Row="2" Content="Local Watch Directory:" />
@@ -46,10 +46,10 @@
         <Label Grid.Row="3" Content="Storage Type:" />
         <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="150,0,0,20">
             <RadioButton Content="SD" 
-                         IsChecked="{Binding Settings.SidStorageType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:StorageType.SD}}" />
+                         IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.SD}}" />
             <RadioButton Content="USB" 
                          Margin="20,0,0,0" 
-                         IsChecked="{Binding Settings.SidStorageType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:StorageType.USB}}" />
+                         IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.USB}}" />
         </StackPanel>
 
         <Button Grid.Row="4" Content="Save Settings" Margin="20" Command="{Binding SaveSettingsCommand}" />

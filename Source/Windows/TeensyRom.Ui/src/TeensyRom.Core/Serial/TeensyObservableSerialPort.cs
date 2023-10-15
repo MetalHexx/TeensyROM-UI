@@ -59,10 +59,10 @@ namespace TeensyRom.Core.Serial
             SendIntBytes(fileInfo.Checksum, 2);
 
             _logs.OnNext($"Sending SD_nUSB: {TeensyConstants.Sd_Card_Token}");
-            SendIntBytes(GetStorageToken(fileInfo.DestinationType), 1);
+            SendIntBytes(GetStorageToken(fileInfo.StorageType), 1);
 
             _logs.OnNext($"Sending file path: {fileInfo.FullPath}\0");
-            _serialPort.Write($"{fileInfo.DestinationPath}{fileInfo.Name}\0");
+            _serialPort.Write($"{fileInfo.TargetPath}{fileInfo.Name}\0");
 
             if (!GetAck())
             {
@@ -97,12 +97,12 @@ namespace TeensyRom.Core.Serial
             return true;
         }
 
-        public uint GetStorageToken(StorageType type)
+        public uint GetStorageToken(TeensyStorageType type)
         {
             return type switch
             {
-                StorageType.SD => TeensyConstants.Sd_Card_Token,
-                StorageType.USB => TeensyConstants.Usb_Stick_Token,
+                TeensyStorageType.SD => TeensyConstants.Sd_Card_Token,
+                TeensyStorageType.USB => TeensyConstants.Usb_Stick_Token,
                 _ => throw new ArgumentException("Unknown Storage Type")
             };
         }
