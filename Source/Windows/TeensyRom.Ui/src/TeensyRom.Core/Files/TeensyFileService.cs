@@ -73,6 +73,7 @@ namespace TeensyRom.Core.Files
         {
             _logs.OnNext("Initiating file transfer handshake");
             fileInfo.DestinationPath = _settings.SidStorageLocation;
+            fileInfo.DestinationType = _settings.SidStorageType;
 
             if (_teensyPort.SendFile(fileInfo))
             {

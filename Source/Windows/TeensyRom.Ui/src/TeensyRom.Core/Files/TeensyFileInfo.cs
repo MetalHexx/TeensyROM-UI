@@ -10,6 +10,7 @@
         public string Name => _fileInfo.Name;
         public string FullPath => _fileInfo.FullName;
         public string DestinationPath { get; set; } = string.Empty;
+        public StorageType DestinationType { get; set; } = StorageType.SD;
         public byte[] Buffer { get; set; } = new byte[0];
         public uint StreamLength { get; private set; }
         public ushort Checksum { get; private set; }

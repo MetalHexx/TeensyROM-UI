@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Newtonsoft.Json;
 using System.IO.Ports;
 using TeensyRom.Core.Files;
 using TeensyRom.Core.Files.Abstractions;
@@ -17,35 +18,37 @@ namespace TeensyRom.Tests
         private IFileWatcher _fileWatcher;
         private ISettingsService _settingsService;
         private ITeensyFileService _fileService;
-        private string _savePath = string.Empty;
-        private string _testSidFilePath = string.Empty;
-        private readonly string _serialPortName = string.Empty;
+
+        private readonly string _settingsFileName = "Settings.json";        
+        private readonly string _testFileName = $"{Guid.NewGuid().ToString().Substring(0, 7)}-test.sid";
+        private readonly string _fullSourceTestPath = string.Empty;
+
+        private readonly string _serialPortName = SerialPort.GetPortNames().First();
+
+        private readonly TeensySettings _settings = new()
+        {
+            SidStorageLocation = "/integration-test-files/",
+            SidStorageType = StorageType.SD,
+            WatchDirectoryLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads")
+        };
 
         public FileTransferTests()
-        {
-            _teensyPort = new TeensyObservableSerialPort();
-            _fileWatcher = new FileWatcher();
-            _settingsService = new SettingsService();
-            _fileService = new TeensyFileService(_settingsService, _fileWatcher, _teensyPort);
-            _viewModel = new FileTransferViewModel(_fileService);
-
-            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            _savePath = Path.Combine(userProfile, "Downloads");
-            _testSidFilePath = Path.Combine(_savePath, $"{Guid.NewGuid().ToString().Substring(0, 7)}-test.sid");
-            _serialPortName = SerialPort.GetPortNames().First(); 
-            _teensyPort.SetPort(_serialPortName);
-            _teensyPort.OpenPort();
+        {   
+            _fullSourceTestPath = @$"{_settings.WatchDirectoryLocation}\{_testFileName}";
         }
 
         [Fact]
-        public void Given_FileSaved_When_WatcherDetectsFile_Then_ReturnsSaveLog()
+        public void Given_WatcherDetectsNewFile_When_FileSaved_ToSD_Then_ReturnsSuccess()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_testSidFilePath}";
+            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
+            _settings.SidStorageType = StorageType.SD;
+            InitializeViewModel();
+
             //Act
-            File.WriteAllText(_testSidFilePath, "Test sid");
+            File.WriteAllText(_fullSourceTestPath, "Test sid");
             Thread.Sleep(1000);
 
             //Assert
@@ -54,12 +57,55 @@ namespace TeensyRom.Tests
             _viewModel.Logs.Should().Contain(savedText);
         }
 
+        [Fact]
+        public void Given_WatcherDetectsNewFile_When_FileSaved_ToUSB_Then_ReturnsSuccess()
+        {
+            //Arrange
+            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}";
+            var initiatedText = $"Initiating file transfer handshake";
+            var savedText = $"File transfer complete!";
+            _settings.SidStorageType = StorageType.USB;
+            InitializeViewModel();
+
+            //Act
+            File.WriteAllText(_fullSourceTestPath, "Test sid");
+            Thread.Sleep(1000);
+
+            //Assert
+            _viewModel.Logs.Should().Contain(fileDetectedText);
+            _viewModel.Logs.Should().Contain(initiatedText);
+            _viewModel.Logs.Should().Contain(savedText);
+        }
+
+        private void InitializeViewModel()
+        {
+            var json = JsonConvert.SerializeObject(_settings);
+            File.WriteAllText(_settingsFileName, json);
+
+            _teensyPort = new TeensyObservableSerialPort();
+            _fileWatcher = new FileWatcher();
+            _settingsService = new SettingsService();
+            _fileService = new TeensyFileService(_settingsService, _fileWatcher, _teensyPort);
+            _viewModel = new FileTransferViewModel(_fileService);
+            _teensyPort.SetPort(_serialPortName);
+            _teensyPort.OpenPort();
+        }
+
         public void Dispose()
         {
             _teensyPort?.Dispose();
             _fileWatcher.Dispose();
             _fileService.Dispose();
-            File.Delete(_testSidFilePath);
+
+            if (File.Exists(_fullSourceTestPath))
+            {
+                File.Delete(_fullSourceTestPath);
+            }
+
+            if (File.Exists(_settingsFileName))
+            {
+                File.Delete(_settingsFileName);
+            }
         }
     }
 }
