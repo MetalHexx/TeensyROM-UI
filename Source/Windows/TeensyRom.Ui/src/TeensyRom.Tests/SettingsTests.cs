@@ -17,11 +17,13 @@ namespace TeensyRom.Tests
             var vm = new SettingsViewModel(settingsService);
             var expectedWatchLocation = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             expectedWatchLocation = Path.Combine(expectedWatchLocation, "Downloads");
+            Thread.Sleep(1000);
 
             //Assert
-            vm.Settings.SidTargetPath.Should().BeEmpty();
-            vm.Settings.PrgTargetPath.Should().BeEmpty();
-            vm.Settings.CrtTargetPath.Should().BeEmpty();            
+            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Sid).TargetPath.Should().Be("sid");
+            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Prg).TargetPath.Should().Be("prg");
+            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Crt).TargetPath.Should().Be("crt");
+            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Hex).TargetPath.Should().Be("hex");          
             vm.Settings.TargetType.Should().Be(TeensyStorageType.SD);
             vm.Settings.WatchDirectoryLocation.Should().Be($"{expectedWatchLocation}");
         }
@@ -67,11 +69,38 @@ namespace TeensyRom.Tests
         {
             //Arrange
             var savedSettings = new TeensySettings()
-            {
-                SidTargetPath = "/target/sid",
-                PrgTargetPath = "/target/prg",
-                CrtTargetPath = "/target/crt",
-                WatchDirectoryLocation = @"C:\path\to\watch"
+            {                
+                FileTargets = new List<TeensyTarget> 
+                {
+                    new TeensyTarget
+                    {
+                        Type = TeensyFileType.Sid,
+                        DisplayName = "SID",
+                        Extension = ".sid",
+                        TargetPath = "sid-test"
+                    },
+                    new TeensyTarget
+                    {
+                        Type = TeensyFileType.Prg,
+                        DisplayName = "PRG",
+                        Extension = ".prg",
+                        TargetPath = "prg-test"
+                    },
+                    new TeensyTarget
+                    {
+                        Type = TeensyFileType.Crt,
+                        DisplayName = "CRT",
+                        Extension = ".crt",
+                        TargetPath = "crt-test"
+                    },
+                    new TeensyTarget
+                    {
+                        Type = TeensyFileType.Hex,
+                        DisplayName = "HEX",
+                        Extension = ".hex",
+                        TargetPath = "hex-test"
+                    }
+                }
             };
             var json = JsonConvert.SerializeObject(savedSettings);
             File.WriteAllText(_settingsFileName, json);
@@ -80,9 +109,11 @@ namespace TeensyRom.Tests
             var vm = new SettingsViewModel(settingsService);
 
             //Assert
-            vm.Settings.SidTargetPath.Should().Be(savedSettings.SidTargetPath);
-            vm.Settings.PrgTargetPath.Should().Be(savedSettings.PrgTargetPath);
-            vm.Settings.CrtTargetPath.Should().Be(savedSettings.CrtTargetPath);
+            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Sid).TargetPath.Should().Be("sid-test");
+            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Prg).TargetPath.Should().Be("prg-test");
+            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Crt).TargetPath.Should().Be("crt-test");
+            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Hex).TargetPath.Should().Be("hex-test");
+            vm.Settings.FileTargets.Should().HaveCount(4);
             vm.Settings.WatchDirectoryLocation.Should().Be(savedSettings.WatchDirectoryLocation);
 
         }

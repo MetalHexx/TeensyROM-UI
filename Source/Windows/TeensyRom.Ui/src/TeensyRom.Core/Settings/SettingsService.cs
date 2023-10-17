@@ -13,16 +13,16 @@ namespace TeensyRom.Core.Settings
         private BehaviorSubject<string> _logs = new BehaviorSubject<string>(string.Empty);
         public IObservable<TeensySettings> Settings => _settings.AsObservable();
 
-        private BehaviorSubject<TeensySettings> _settings = new BehaviorSubject<TeensySettings>(new());
+        private BehaviorSubject<TeensySettings> _settings;
 
         private const string _settingsFilePath = "Settings.json";
 
         public SettingsService()
         {
-            GetSettings();
+            _settings = new BehaviorSubject<TeensySettings>(GetSettings());
         }
 
-        public TeensySettings GetSettings()
+        private TeensySettings GetSettings()
         {
             try
             {
@@ -38,12 +38,13 @@ namespace TeensyRom.Core.Settings
 
                 ValidateAndLogSettings(settings);
 
-                _settings.OnNext(settings);
                 return settings;
             }
             catch
             {
-                return new TeensySettings();
+                var settings = new TeensySettings();
+                settings.InitializeDefaults();
+                return settings;
             }
         }
         public Unit SaveSettings(TeensySettings settings)

@@ -25,17 +25,13 @@ namespace TeensyRom.Tests
 
         private readonly string _serialPortName = SerialPort.GetPortNames().First();
 
-        private readonly TeensySettings _settings = new()
-        {
-            SidTargetPath = "/integration-test-files/sid/",
-            PrgTargetPath = "/integration-test-files/prg/",
-            CrtTargetPath = "/integration-test-files/crt/",
-            TargetType = TeensyStorageType.SD,
-            WatchDirectoryLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads")
-        };
+        private readonly TeensySettings _settings;
+
 
         public FileTransferTests()
         {   
+            _settings = new TeensySettings();
+            _settings.InitializeDefaults();
             _fullSourceTestPath = @$"{_settings.WatchDirectoryLocation}\{_testFileName}";
         }
 
@@ -50,6 +46,7 @@ namespace TeensyRom.Tests
             var storageType = $"Storage Type: SD";
 
             _settings.TargetType = TeensyStorageType.SD;
+            _settings.TargetRootPath = "/integration-test-files/";
             InitializeViewModel();
 
             //Act
@@ -75,6 +72,7 @@ namespace TeensyRom.Tests
             var storageType = $"Storage Type: SD";
 
             _settings.TargetType = TeensyStorageType.SD;
+            _settings.TargetRootPath = "/integration-test-files/";
             InitializeViewModel();
 
             //Act
@@ -100,10 +98,37 @@ namespace TeensyRom.Tests
             var storageType = $"Storage Type: SD";
 
             _settings.TargetType = TeensyStorageType.SD;
+            _settings.TargetRootPath = "/integration-test-files/";
             InitializeViewModel();
 
             //Act
             File.WriteAllText($"{_fullSourceTestPath}.crt", "Test crt");
+            Thread.Sleep(1000);
+
+            //Assert
+            _viewModel.Logs.Should().Contain(fileDetectedText);
+            _viewModel.Logs.Should().Contain(initiatedText);
+            _viewModel.Logs.Should().Contain(savedText);
+            _viewModel.Logs.Should().Contain(expectedType);
+            _viewModel.Logs.Should().Contain(storageType);
+        }
+
+        [Fact]
+        public void Given_WatcherDetectsNewFile_When_HexSaved_ToSD_Then_ReturnsSuccess()
+        {
+            //Arrange
+            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.hex";
+            var initiatedText = $"Initiating file transfer handshake";
+            var savedText = $"File transfer complete!";
+            var expectedType = $"Type: Hex";
+            var storageType = $"Storage Type: SD";
+
+            _settings.TargetType = TeensyStorageType.SD;
+            _settings.TargetRootPath = "/integration-test-files/";
+            InitializeViewModel();
+
+            //Act
+            File.WriteAllText($"{_fullSourceTestPath}.hex", "Test hex");
             Thread.Sleep(1000);
 
             //Assert
@@ -125,6 +150,7 @@ namespace TeensyRom.Tests
             var storageType = $"Storage Type: USB";
 
             _settings.TargetType = TeensyStorageType.USB;
+            _settings.TargetRootPath = "/integration-test-files/";
             InitializeViewModel();
 
             //Act
@@ -150,6 +176,7 @@ namespace TeensyRom.Tests
             var storageType = $"Storage Type: USB";
 
             _settings.TargetType = TeensyStorageType.USB;
+            _settings.TargetRootPath = "/integration-test-files/";
             InitializeViewModel();
 
             //Act
@@ -175,10 +202,37 @@ namespace TeensyRom.Tests
             var storageType = $"Storage Type: USB";
 
             _settings.TargetType = TeensyStorageType.USB;
+            _settings.TargetRootPath = "/integration-test-files/";
             InitializeViewModel();
 
             //Act
             File.WriteAllText($"{_fullSourceTestPath}.crt", "Test crt");
+            Thread.Sleep(1000);
+
+            //Assert
+            _viewModel.Logs.Should().Contain(fileDetectedText);
+            _viewModel.Logs.Should().Contain(initiatedText);
+            _viewModel.Logs.Should().Contain(savedText);
+            _viewModel.Logs.Should().Contain(expectedType);
+            _viewModel.Logs.Should().Contain(storageType);
+        }
+
+        [Fact]
+        public void Given_WatcherDetectsNewFile_When_HexSaved_ToUSB_Then_ReturnsSuccess()
+        {
+            //Arrange
+            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.hex";
+            var initiatedText = $"Initiating file transfer handshake";
+            var savedText = $"File transfer complete!";
+            var expectedType = $"Type: Hex";
+            var storageType = $"Storage Type: USB";
+
+            _settings.TargetType = TeensyStorageType.USB;
+            _settings.TargetRootPath = "/integration-test-files/";
+            InitializeViewModel();
+
+            //Act
+            File.WriteAllText($"{_fullSourceTestPath}.hex", "Test hex");
             Thread.Sleep(1000);
 
             //Assert

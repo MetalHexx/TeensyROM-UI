@@ -61,8 +61,8 @@ namespace TeensyRom.Core.Serial
             _logs.OnNext($"Sending SD_nUSB: {TeensyConstants.Sd_Card_Token}");
             SendIntBytes(GetStorageToken(fileInfo.StorageType), 1);
 
-            _logs.OnNext($"Sending file path: {fileInfo.FullPath}\0");
-            _serialPort.Write($"{fileInfo.TargetPath}{fileInfo.Name}\0");
+            _logs.OnNext($"Sending to target path: {fileInfo.TargetPath.UnixPathCombine(fileInfo.Name)}");
+            _serialPort.Write($"{fileInfo.TargetPath.UnixPathCombine(fileInfo.Name)}\0");
 
             if (!GetAck())
             {
@@ -71,7 +71,7 @@ namespace TeensyRom.Core.Serial
             }
             _logs.OnNext("File ready for transfer!");
 
-            _logs.OnNext("Sending file");
+            _logs.OnNext($"Sending file: {fileInfo.FullPath}");
             var bytesSent = 0;
 
             while (fileInfo.StreamLength > bytesSent)

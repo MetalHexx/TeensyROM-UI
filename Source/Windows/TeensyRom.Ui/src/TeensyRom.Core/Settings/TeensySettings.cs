@@ -8,15 +8,48 @@ namespace TeensyRom.Core.Settings
     public class TeensySettings
     {
         public TeensyStorageType TargetType { get; set; } = TeensyStorageType.SD;
-        public string WatchDirectoryLocation { get; set; } = string.Empty;        
-        public string SidTargetPath { get; set; } = string.Empty;
-        public string PrgTargetPath { get; set; } = string.Empty;
-        public string CrtTargetPath { get; set; } = string.Empty;
-        public string HexTargetPath { get; set; } = string.Empty;
+        public string WatchDirectoryLocation { get; set; } = string.Empty;
+        public string TargetRootPath { get; set; } = @"/sync/";
+        public List<TeensyTarget> FileTargets { get; set; } = new List<TeensyTarget>();
 
         public TeensySettings()
         {
             GetDefaultBrowserDownloadPath();
+        }
+
+        public void InitializeDefaults()
+        {
+            FileTargets.AddRange(new List<TeensyTarget> 
+            {
+                new TeensyTarget
+                {
+                    Type = TeensyFileType.Sid,
+                    DisplayName = "SID",
+                    Extension = ".sid",
+                    TargetPath = "sid"
+                },
+                new TeensyTarget
+                {
+                    Type = TeensyFileType.Prg,
+                    DisplayName = "PRG",
+                    Extension = ".prg",
+                    TargetPath = "prg"
+                },
+                new TeensyTarget
+                {
+                    Type = TeensyFileType.Crt,
+                    DisplayName = "CRT",
+                    Extension = ".crt",
+                    TargetPath = "crt"
+                },
+                new TeensyTarget
+                {
+                    Type = TeensyFileType.Hex,
+                    DisplayName = "HEX",
+                    Extension = ".hex",
+                    TargetPath = "hex"
+                }
+            });
         }
         
         /// <summary>

@@ -27,9 +27,17 @@
             Margin="10" 
             Text="Settings"/>
 
+        <!-- Local Watch Directory -->
+        <Label Grid.Row="1" Margin="11 0 10 0" Content="Watch Directory:" />
+        <TextBox Grid.Row="1"
+                 Margin="130,0,0,20"
+                 VerticalAlignment="Top"
+                 materialDesign:HintAssist.Hint="Watch Directory"
+                 Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}" />
+
         <!-- Storage Type -->
-        <Label Grid.Row="1" Margin="11 0 10 0"  Content="Target Storage:" />
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="130,0,0,20">
+        <Label Grid.Row="2" Margin="10 0 10 0"  Content="Target Storage:" />
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="130,0,0,20">
             <RadioButton Content="SD" 
                          IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.SD}}" />
             <RadioButton Content="USB" 
@@ -37,42 +45,60 @@
                          IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.USB}}" />
         </StackPanel>
 
-        <!-- Sid Target Path -->
-        <Label Grid.Row="2" Margin="11 0 10 0"  Content="Sid Target Path:" />
-        <TextBox Grid.Row="2"
-                 Margin="130,0,0,20"
-                 VerticalAlignment="Top"
-                 materialDesign:HintAssist.Hint="Sid Target Path"
-                 Text="{Binding Settings.SidTargetPath, Mode=TwoWay}" />
-
-        <!-- Prg Target Path-->
-        <Label Grid.Row="3" Margin="11 0 10 0" Content="Prg Target Path:" />
+        <Label Grid.Row="3" Margin="11 0 10 0" Content="Target Root Path:" />
         <TextBox Grid.Row="3"
                  Margin="130,0,0,20"
                  VerticalAlignment="Top"
-                 materialDesign:HintAssist.Hint="Prg Target Path"
-                 Text="{Binding Settings.PrgTargetPath, Mode=TwoWay}" />
+                 materialDesign:HintAssist.Hint="Target Root"
+                 Text="{Binding Settings.TargetRootPath, Mode=TwoWay}" />
 
-        <!-- Crt Target Path-->
-        <Label Grid.Row="4" Margin="11 0 10 0" Content="Crt Target Path:" />
-        <TextBox Grid.Row="4"
-                 Margin="130,0,0,20"
-                 VerticalAlignment="Top"
-                 materialDesign:HintAssist.Hint="Crt Target Path"
-                 Text="{Binding Settings.CrtTargetPath, Mode=TwoWay}" />
+        <ItemsControl Grid.Row="4" ItemsSource="{Binding Settings.FileTargets}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-        <!-- Local Watch Directory -->
-        <Label Grid.Row="5" Margin="11 0 10 0" Content="Watch Directory:" />
-        <TextBox Grid.Row="5"
-                 Margin="130,0,0,20"
-                 VerticalAlignment="Top"
-                 materialDesign:HintAssist.Hint="Watch Directory"
-                 Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}" />        
+                        <!-- File Type Label -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <Label 
+                                Content="{Binding DisplayName, StringFormat='{}{0} Path:'}" 
+                                VerticalAlignment="Center" />
+                            <Label 
+                                Content="Path:" 
+                                VerticalAlignment="Center" />
+                        </StackPanel>
+                        
 
-        <Button Grid.Row="6" Content="Save Settings" Margin="20" Command="{Binding SaveSettingsCommand}" />
+                        <!-- Value from Target Root Path -->
+                        <TextBlock Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.Settings.TargetRootPath, StringFormat='{}{0}'}"
+                            Margin="5,0" />
+
+                        <!-- Textbox for Input -->
+                        <TextBox Grid.Column="2" 
+                            materialDesign:HintAssist.Hint="{Binding DisplayName, StringFormat='{}{0} Target Path'}"
+                            Text="{Binding TargetPath, Mode=TwoWay}" 
+                            VerticalAlignment="Center" Margin="10,0,0,0" />
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+
+        <Button Grid.Row="5" Content="Save Settings" Margin="20" Command="{Binding SaveSettingsCommand}" />
 
         <TextBox 
-            Grid.Row="7" 
+            Grid.Row="6" 
             x:Name="LogTextBox" 
             Margin="13 0 10 0" 
             materialDesign:HintAssist.Hint="Logs" 

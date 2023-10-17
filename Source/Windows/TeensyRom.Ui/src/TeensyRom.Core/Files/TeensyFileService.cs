@@ -88,19 +88,26 @@ namespace TeensyRom.Core.Files
         private void TransformDestination(TeensyFileInfo fileInfo)
         {
             fileInfo.StorageType = _settings.TargetType;
-            fileInfo.TargetPath = fileInfo.Type switch
+
+            var target = _settings.FileTargets
+                .FirstOrDefault(t => t.Type == fileInfo.Type);
+
+            if(target is null)
             {
-                TeensyFileType.Sid => _settings.SidTargetPath,
-                TeensyFileType.Prg => _settings.PrgTargetPath,
-                TeensyFileType.Crt => _settings.CrtTargetPath,
-                TeensyFileType.Hex => _settings.HexTargetPath,
-                _ => throw new ArgumentException($"Unsupported file type: {fileInfo.Type}")
-            };
+                throw new ArgumentException($"Unsupported file type: {fileInfo.Type}");
+            }
+
+            fileInfo.TargetPath = _settings.TargetRootPath
+                .UnixPathCombine(target.TargetPath)
+                .EnsureUnixPathEnding();
         }
 
         public void SetWatchFolder(TeensySettings settings)
         {
-            _fileWatcher.SetWatchParameters(settings.WatchDirectoryLocation, ".sid", ".prg", ".crt");
+
+            _fileWatcher.SetWatchParameters(
+                settings.WatchDirectoryLocation, 
+                settings.FileTargets.Select(t => t.Extension).ToArray());
         }
 
         public void Dispose()

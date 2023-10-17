@@ -6,8 +6,6 @@ namespace TeensyRom.Core.Settings
     {
         IObservable<TeensySettings> Settings { get; }
         IObservable<string> Logs { get; }
-
-        TeensySettings GetSettings();
         Unit SaveSettings(TeensySettings settings);        
     }
 }
