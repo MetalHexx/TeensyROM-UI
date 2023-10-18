@@ -15,8 +15,8 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
         WindowStartupLocation="CenterScreen"        
         Foreground="White"
-        Width="1200" 
-        Height="800"
+        Width="900" 
+        Height="620"
         
         DataContext="{Binding Main, Source={StaticResource Locator}}">
     

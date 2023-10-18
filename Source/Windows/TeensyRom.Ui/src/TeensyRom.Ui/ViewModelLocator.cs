@@ -1,6 +1,7 @@
 ﻿using CommonServiceLocator;
 using GalaSoft.MvvmLight.Ioc;
 using MaterialDesignThemes.Wpf;
+using System.Windows;
 using TeensyRom.Core.Files;
 using TeensyRom.Core.Files.Abstractions;
 using TeensyRom.Core.Serial;
@@ -41,6 +42,7 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<SettingsViewModel>();
             SimpleIoc.Default.Register<HelpViewModel>();
             SimpleIoc.Default.Register<MidiViewModel>();
+            SimpleIoc.Default.Register(() => Application.Current.Dispatcher);
         }
 
         /// <summary>

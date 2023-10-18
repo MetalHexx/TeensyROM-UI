@@ -16,7 +16,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -27,85 +26,103 @@
             Margin="10" 
             Text="Settings"/>
 
-        <!-- Local Watch Directory -->
-        <Label Grid.Row="1" Margin="11 0 10 0" Content="Watch Directory:" />
-        <TextBox Grid.Row="1"
-                 Margin="130,0,0,20"
-                 VerticalAlignment="Top"
-                 materialDesign:HintAssist.Hint="Watch Directory"
-                 Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}" />
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" ></RowDefinition>
+                <RowDefinition Height="40" ></RowDefinition>
+                <RowDefinition Height="40" ></RowDefinition>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="130"></RowDefinition>
+                <RowDefinition Height="1"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="130"></ColumnDefinition>
+                <ColumnDefinition Width="10"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
 
-        <!-- Storage Type -->
-        <Label Grid.Row="2" Margin="10 0 10 0"  Content="Target Storage:" />
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="130,0,0,20">
-            <RadioButton Content="SD" 
-                         IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.SD}}" />
-            <RadioButton Content="USB" 
-                         Margin="20,0,0,0" 
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" HorizontalAlignment="Right" Content="Watch Directory:" />
+
+            <TextBox Grid.Row="0" Grid.Column="3"                
+                VerticalAlignment="Top"
+                materialDesign:HintAssist.Hint="Watch Directory"
+                Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}" />
+
+            <Label Grid.Row="1" HorizontalAlignment="Right" Content="Target Storage:" />
+
+            <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Horizontal" VerticalAlignment="top" Margin="0 3 0 0">
+
+                <RadioButton 
+                    Content="SD" 
+                    IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.SD}}" />
+
+                <RadioButton Content="USB" 
+                         Margin="10,0,0,0" 
                          IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.USB}}" />
-        </StackPanel>
+            </StackPanel>
 
-        <Label Grid.Row="3" Margin="11 0 10 0" Content="Target Root Path:" />
-        <TextBox Grid.Row="3"
-                 Margin="130,0,0,20"
+            <Label Grid.Row="2" HorizontalAlignment="Right" Content="Target Root Path:" />
+
+            <TextBox Grid.Row="2" Grid.Column="3"
                  VerticalAlignment="Top"
                  materialDesign:HintAssist.Hint="Target Root"
                  Text="{Binding Settings.TargetRootPath, Mode=TwoWay}" />
 
-        <ItemsControl Grid.Row="4" ItemsSource="{Binding Settings.FileTargets}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+            <Label Grid.Row="3" HorizontalAlignment="Right" Content="File Type Paths:" />
 
-                        <!-- File Type Label -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+            <ItemsControl Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" ItemsSource="{Binding Settings.FileTargets}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="85" />
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+
+                            </Grid.ColumnDefinitions>
+
+                            <!-- File Type -->
                             <Label 
-                                Content="{Binding DisplayName, StringFormat='{}{0} Path:'}" 
+                                Content="{Binding DisplayName}"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Right"
+                                ToolTip="The watch directory"/>
+
+                            <!-- Root Path -->
+                            <TextBlock Grid.Column="2"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Foreground="LightBlue"
+                                Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.Settings.TargetRootPath, StringFormat='{}{0}'}"
+                             />
+
+                            <!-- Textbox for Input -->
+                            <TextBox Grid.Column="4" 
+                                materialDesign:HintAssist.Hint="{Binding DisplayName, StringFormat='{}{0} Target Path'}"
+                                Text="{Binding TargetPath, Mode=TwoWay}" 
                                 VerticalAlignment="Center" />
-                            <Label 
-                                Content="Path:" 
-                                VerticalAlignment="Center" />
-                        </StackPanel>
-                        
 
-                        <!-- Value from Target Root Path -->
-                        <TextBlock Grid.Column="1"
-                            VerticalAlignment="Center"
-                            Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.Settings.TargetRootPath, StringFormat='{}{0}'}"
-                            Margin="5,0" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
-                        <!-- Textbox for Input -->
-                        <TextBox Grid.Column="2" 
-                            materialDesign:HintAssist.Hint="{Binding DisplayName, StringFormat='{}{0} Target Path'}"
-                            Text="{Binding TargetPath, Mode=TwoWay}" 
-                            VerticalAlignment="Center" Margin="10,0,0,0" />
-                    </Grid>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        </Grid>
 
+        <Button Grid.Row="5" Width="300" Content="Save Settings" Margin="20" Command="{Binding SaveSettingsCommand}" />
 
-        <Button Grid.Row="5" Content="Save Settings" Margin="20" Command="{Binding SaveSettingsCommand}" />
-
-        <TextBox 
-            Grid.Row="6" 
-            x:Name="LogTextBox" 
-            Margin="13 0 10 0" 
-            materialDesign:HintAssist.Hint="Logs" 
-            Text="{Binding Logs, Mode=OneWay}" 
-            TextWrapping="Wrap" 
-            IsReadOnly="True" 
-            VerticalScrollBarVisibility="Auto" />
+        <materialDesign:Snackbar Grid.Row="6" VerticalAlignment="Top" MessageQueue="{Binding SettingsMessageQueue}" />
 
     </Grid>
 </UserControl>

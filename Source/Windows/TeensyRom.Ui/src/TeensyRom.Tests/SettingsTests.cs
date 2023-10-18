@@ -3,6 +3,8 @@ using TeensyRom.Ui.Features.Settings;
 using FluentAssertions;
 using TeensyRom.Core.Files;
 using Newtonsoft.Json;
+using ReactiveUI;
+using System.Windows.Threading;
 
 namespace TeensyRom.Tests
 {
@@ -14,7 +16,7 @@ namespace TeensyRom.Tests
         {
             //Arrange
             var settingsService = new SettingsService();
-            var vm = new SettingsViewModel(settingsService);
+            var vm = new SettingsViewModel(settingsService, Dispatcher.CurrentDispatcher);
             var expectedWatchLocation = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             expectedWatchLocation = Path.Combine(expectedWatchLocation, "Downloads");
             Thread.Sleep(1000);
@@ -32,8 +34,8 @@ namespace TeensyRom.Tests
         public void Given_UserSavesSettings_When_WatchFolderNotFound_Then_ReturnsErrorLog()
         {
             //Arrange
-            var settingsService = new SettingsService();
-            var vm = new SettingsViewModel(settingsService);
+            var settingsService = new SettingsService();            
+            var vm = new SettingsViewModel(settingsService, Dispatcher.CurrentDispatcher);
             vm.Settings.WatchDirectoryLocation = @"C:\some_nonexistant_location";
             var expectedLog = $"The watch directory '{vm.Settings.WatchDirectoryLocation}' was not found.  Please go create it.";
 
@@ -56,7 +58,7 @@ namespace TeensyRom.Tests
             File.WriteAllText(_settingsFileName, json);
 
             var settingsService = new SettingsService();
-            var vm = new SettingsViewModel(settingsService);
+            var vm = new SettingsViewModel(settingsService, Dispatcher.CurrentDispatcher);
 
             var expectedLog = $"The watch directory '{vm.Settings.WatchDirectoryLocation}' was not found.  Please go create it.";
 
@@ -106,7 +108,7 @@ namespace TeensyRom.Tests
             File.WriteAllText(_settingsFileName, json);
 
             var settingsService = new SettingsService();
-            var vm = new SettingsViewModel(settingsService);
+            var vm = new SettingsViewModel(settingsService, Dispatcher.CurrentDispatcher);
 
             //Assert
             vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Sid).TargetPath.Should().Be("sid-test");
@@ -123,8 +125,8 @@ namespace TeensyRom.Tests
         {
             //Arrange
             var settingsService = new SettingsService();
-            var vm = new SettingsViewModel(settingsService);
-            var expectedLog = "Settings are all valid and saved successfully.";
+            var vm = new SettingsViewModel(settingsService, Dispatcher.CurrentDispatcher);
+            var expectedLog = "Settings saved successfully.";
 
             //Act
             vm.SaveSettingsCommand.Execute().Subscribe();

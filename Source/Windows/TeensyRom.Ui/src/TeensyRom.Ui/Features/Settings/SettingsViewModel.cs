@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using MaterialDesignThemes.Wpf;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui.Features.Settings
@@ -16,6 +18,7 @@ namespace TeensyRom.Ui.Features.Settings
     {
         [Reactive]
         public string Logs { get; set; } = string.Empty;
+        public SnackbarMessageQueue SettingsMessageQueue { get; private set; }
 
         [ObservableAsProperty]
         public TeensySettings Settings { get; set; }
@@ -26,9 +29,11 @@ namespace TeensyRom.Ui.Features.Settings
         private readonly IDisposable _logsSubscription;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public SettingsViewModel(ISettingsService settings)
+        public SettingsViewModel(ISettingsService settings, Dispatcher dispatcher)
         {
             _settingsService = settings;
+
+            SettingsMessageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(3), dispatcher);
 
             _settingsService.Settings.ToPropertyEx(this, vm => vm.Settings);
 
@@ -36,6 +41,8 @@ namespace TeensyRom.Ui.Features.Settings
                 _settingsService.SaveSettings(Settings), outputScheduler: ImmediateScheduler.Instance);
 
             _logsSubscription = _settingsService.Logs
+                .Where(log => !string.IsNullOrWhiteSpace(log))
+                .Do(log => SettingsMessageQueue.Enqueue(log))
                 .Select(log => _logBuilder.AppendLine(log))
                 .Select(_ => _logBuilder.ToString())
                 .Subscribe(logs =>

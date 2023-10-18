@@ -51,7 +51,7 @@ namespace TeensyRom.Core.Settings
         {
             if (!ValidateAndLogSettings(settings)) return Unit.Default;
 
-            _logs.OnNext($"Settings are all valid and saved successfully.");
+            _logs.OnNext($"Settings saved successfully.");
 
             File.WriteAllText(_settingsFilePath, JsonConvert.SerializeObject(settings, Formatting.Indented, new JsonSerializerSettings
             {
