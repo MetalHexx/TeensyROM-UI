@@ -47,11 +47,14 @@
             <TextBox Grid.Row="0" Grid.Column="3"                
                 VerticalAlignment="Top"
                 materialDesign:HintAssist.Hint="Watch Directory"
+                ToolTip="Set up a directory to watch.  When a supported file type is copied to the directory (like your downloads directory) it will automatically save the file to TeensyRom.  See the paths below to configure."
                 Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}" />
 
             <Label Grid.Row="1" HorizontalAlignment="Right" Content="Target Storage:" />
 
-            <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Horizontal" VerticalAlignment="top" Margin="0 3 0 0">
+            <StackPanel 
+                ToolTip="This will determine the default storage type to store files on TeensyRom."
+                Grid.Row="1" Grid.Column="3" Orientation="Horizontal" VerticalAlignment="top" Margin="0 3 0 0">
 
                 <RadioButton 
                     Content="SD" 
@@ -65,13 +68,16 @@
             <Label Grid.Row="2" HorizontalAlignment="Right" Content="Target Root Path:" />
 
             <TextBox Grid.Row="2" Grid.Column="3"
-                 VerticalAlignment="Top"
-                 materialDesign:HintAssist.Hint="Target Root"
-                 Text="{Binding Settings.TargetRootPath, Mode=TwoWay}" />
+                VerticalAlignment="Top"
+                materialDesign:HintAssist.Hint="Target Root"
+                ToolTip="The root path to store files on TeensyRom.  This value will be used as the parent path for the files types below."
+                Text="{Binding Settings.TargetRootPath, Mode=TwoWay}" />
 
             <Label Grid.Row="3" HorizontalAlignment="Right" Content="File Type Paths:" />
 
-            <ItemsControl Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" ItemsSource="{Binding Settings.FileTargets}">
+            <ItemsControl Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" 
+                          ToolTip="You can set the default path to store the file types.  The root path will be prepended to the path you specify on the file type"
+                          ItemsSource="{Binding Settings.FileTargets}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel/>
@@ -120,7 +126,10 @@
 
         </Grid>
 
-        <Button Grid.Row="5" Width="300" Content="Save Settings" Margin="20" Command="{Binding SaveSettingsCommand}" />
+        <Button 
+            Grid.Row="5" Width="300" Margin="20"
+            ToolTip="This will save your settings to disk.  They will be remembered when you re-open the application."
+            Content="Save Settings"  Command="{Binding SaveSettingsCommand}" />
 
         <materialDesign:Snackbar Grid.Row="6" VerticalAlignment="Top" MessageQueue="{Binding SettingsMessageQueue}" />
 
