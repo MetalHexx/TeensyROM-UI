@@ -53,7 +53,7 @@ namespace TeensyRom.Tests
             Thread.Sleep(1000);
 
             //Assert
-            _settingsViewModel.Logs.Should().NotContain(savedText);
+            _fileTransferViewModel.Logs.Should().NotContain(savedText);
         }
 
         [Fact]
@@ -78,6 +78,123 @@ namespace TeensyRom.Tests
             _settingsViewModel.Settings.AutoFileCopyEnabled = true;
             _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
             
+            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            Thread.Sleep(1000);
+
+            //Assert
+            _fileTransferViewModel.Logs.Should().Contain(savedText);
+        }
+
+        [Fact]
+        public void Given_BadFilePath_When_FileSaved_Then_ReturnsError()
+        {
+            //Arrange
+            var errorText = $"Failed to ensure directory";
+
+            _settings.TargetType = TeensyStorageType.SD;
+            _settings.TargetRootPath = "/$^*&#)@--bad/$^*&#)@--path/";
+            _settings.AutoFileCopyEnabled = true;
+            InitializeViewModel();
+
+            //Act
+            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            Thread.Sleep(1000);
+
+            //Assert
+            _fileTransferViewModel.Logs.Should().Contain(errorText);
+        }
+
+        [Fact]
+        public void Given_EmptyRootFilePath_And_EmptyFileTargetPath_When_FileSaved_Then_ReturnsSuccess()
+        {
+            //Arrange
+            var savedText = $"File transfer complete!"; ;
+
+            _settings.TargetType = TeensyStorageType.SD;
+            _settings.AutoFileCopyEnabled = true;
+            InitializeViewModel();
+
+            //Act
+            _settingsViewModel.Settings.TargetRootPath = string.Empty;
+
+            foreach (var target in _settingsViewModel.Settings.FileTargets)
+            {
+                target.TargetPath = string.Empty;
+            }
+            _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+
+            //Act
+            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            Thread.Sleep(1000);
+
+            //Assert
+            _fileTransferViewModel.Logs.Should().Contain(savedText);
+        }
+
+        [Fact]
+        public void Given_NonExistantFileTargetPath_When_FileSaved_Then_ReturnsSuccess()
+        {
+            //Arrange
+            var savedText = $"File transfer complete!"; ;
+
+            _settings.TargetType = TeensyStorageType.SD;
+            _settings.AutoFileCopyEnabled = true;
+            _settings.TargetRootPath = "/integration-test-files/";
+            InitializeViewModel();
+
+            //Act            
+            foreach (var target in _settingsViewModel.Settings.FileTargets)
+            {
+                target.TargetPath = $"{Guid.NewGuid().ToString().Substring(0, 7)}-new-path";
+            }
+            _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+
+            //Act
+            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            Thread.Sleep(1000);
+
+            //Assert
+            _fileTransferViewModel.Logs.Should().Contain(savedText);
+        }
+
+        [Fact]
+        public void Given_EmptyRootFilePath_When_FileSaved_Then_ReturnsSuccess()
+        {
+            //Arrange
+            var savedText = $"File transfer complete!"; ;
+
+            _settings.TargetType = TeensyStorageType.SD;
+            _settings.AutoFileCopyEnabled = true;
+            InitializeViewModel();
+
+            //Act
+            _settingsViewModel.Settings.TargetRootPath = string.Empty;
+
+            _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+
+            //Act
+            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            Thread.Sleep(1000);
+
+            //Assert
+            _fileTransferViewModel.Logs.Should().Contain(savedText);
+        }
+
+        [Fact]
+        public void Given_RootAsRoothPath_When_FileSaved_Then_ReturnsSuccess()
+        {
+            //Arrange
+            var savedText = $"File transfer complete!"; ;
+
+            _settings.TargetType = TeensyStorageType.SD;
+            _settings.TargetRootPath = "/";
+            _settings.AutoFileCopyEnabled = true;
+            InitializeViewModel();
+
+            //Act
             File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 

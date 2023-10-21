@@ -36,9 +36,12 @@ void ServiceSerial()
             case 0x55:  //ping
                Serial.printf("TeensyROM %s ready!\n", strVersionNumber);
                break;
-            case 0xAA: //file x-fer pc->TR
-               ReceiveFile();        
+            case 0xAA: //file x-fer pc->TR.  For backwards compatibility with v1 UI.
+               ReceiveFile();
                break;
+            case 0xBB:  // v2 file x-fer pc->TR.  For use with v2 UI.
+               PostFile();
+               break;             
             case 0xEE: //Reset C64
                Serial.println("Reset cmd received");
                SetUpMainMenuROM();
@@ -394,7 +397,7 @@ void ReceiveFile()
       }
       sourceFS = &SD;   
    }
-   
+ 
    if (sourceFS->exists(FileNamePath))
    {
       SendU16(FailToken);
@@ -579,5 +582,3 @@ FLASHMEM void  getFreeITCM() { // end of CODE ITCM, skip full 32 bits
   for ( uint32_t ii = 0; ii < sizeofFreeITCM; ii++) jj += ptrFreeITCM[ii];
   printf( "ITCM DWORD cnt = %u [#bytes=%u] \n", jj, jj*4);
 }
-
-
