@@ -12,9 +12,14 @@
         IObservable<FileInfo> FileFound { get; }
 
         /// <summary>
-        /// Configures the watcher given a path a file filer
+        /// Enables the watcher with given a path a file filter
         /// </summary>
         /// <param name="fileTypes">For example *.sid</param>
-        void SetWatchParameters(string fullPath, params string[] fileTypes);
+        void Enable(string fullPath, params string[] fileTypes);
+
+        /// <summary>
+        /// Disables the file watcher
+        /// </summary>
+        void Disable();
     }
 }

@@ -23,10 +23,5 @@ namespace TeensyRom.Core.Files.Abstractions
         /// </summary>
         /// <param name="path">Full path to a file</param>        
         Unit SaveFile(string path);
-
-        /// <summary>
-        /// Sets a user defined watch folder
-        /// </summary>
-        void SetWatchFolder(TeensySettings settings);
     }
 }

@@ -1,19 +1,23 @@
 ﻿using FluentAssertions;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Newtonsoft.Json;
 using System.IO.Ports;
+using System.Windows.Threading;
 using TeensyRom.Core.Files;
 using TeensyRom.Core.Files.Abstractions;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.Abstractions;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Features.FileTransfer;
+using TeensyRom.Ui.Features.Settings;
 
 namespace TeensyRom.Tests
 {
     [Collection("SerialPortTests")]
     public class FileTransferTests: IDisposable
     {
-        private FileTransferViewModel _viewModel;
+        private FileTransferViewModel _fileTransferViewModel;
+        private SettingsViewModel _settingsViewModel;
         private ITeensyObservableSerialPort _teensyPort;
         private IFileWatcher _fileWatcher;
         private ISettingsService _settingsService;
@@ -30,9 +34,55 @@ namespace TeensyRom.Tests
 
         public FileTransferTests()
         {   
-            _settings = new TeensySettings();
-            _settings.InitializeDefaults();
+            _settings = new TeensySettings();            
             _fullSourceTestPath = @$"{_settings.WatchDirectoryLocation}\{_testFileName}";
+        }
+
+        [Fact]
+        public void Given_WatcherDisabled_When_FileCopied_Then_FileNotTransferred()
+        {
+            //Arrange
+            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.sid";
+            var savedText = $"File transfer complete!";
+
+            _settings.AutoFileCopyEnabled = false;
+            InitializeViewModel();
+
+            //Act
+            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            Thread.Sleep(1000);
+
+            //Assert
+            _settingsViewModel.Logs.Should().NotContain(savedText);
+        }
+
+        [Fact]
+        public void Given_WatcherEnabled_When_Disabled_And_Reenabled_And_FileCopied_Then_FileSuccessfullyTransferred()
+        {
+            //Arrange
+            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.sid";
+            var initiatedText = $"Initiating file transfer handshake";
+            var savedText = $"File transfer complete!";
+            var expectedType = $"Type: Sid";
+            var storageType = $"Storage Type: SD";
+
+            _settings.TargetType = TeensyStorageType.SD;
+            _settings.TargetRootPath = "/integration-test-files/";
+            _settings.AutoFileCopyEnabled = true;
+            InitializeViewModel();
+
+            //Act            
+            _settingsViewModel.Settings.AutoFileCopyEnabled = false;
+            _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
+            Thread.Sleep(500);
+            _settingsViewModel.Settings.AutoFileCopyEnabled = true;
+            _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
+            
+            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            Thread.Sleep(1000);
+
+            //Assert
+            _fileTransferViewModel.Logs.Should().Contain(savedText);
         }
 
         [Fact]
@@ -47,6 +97,7 @@ namespace TeensyRom.Tests
 
             _settings.TargetType = TeensyStorageType.SD;
             _settings.TargetRootPath = "/integration-test-files/";
+            _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
             //Act
@@ -54,11 +105,11 @@ namespace TeensyRom.Tests
             Thread.Sleep(1000);
 
             //Assert
-            _viewModel.Logs.Should().Contain(fileDetectedText);
-            _viewModel.Logs.Should().Contain(initiatedText);
-            _viewModel.Logs.Should().Contain(savedText);
-            _viewModel.Logs.Should().Contain(expectedType);
-            _viewModel.Logs.Should().Contain(storageType);
+            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fileTransferViewModel.Logs.Should().Contain(savedText);
+            _fileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -73,6 +124,7 @@ namespace TeensyRom.Tests
 
             _settings.TargetType = TeensyStorageType.SD;
             _settings.TargetRootPath = "/integration-test-files/";
+            _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
             //Act
@@ -80,11 +132,11 @@ namespace TeensyRom.Tests
             Thread.Sleep(1000);
 
             //Assert
-            _viewModel.Logs.Should().Contain(fileDetectedText);
-            _viewModel.Logs.Should().Contain(initiatedText);
-            _viewModel.Logs.Should().Contain(savedText);
-            _viewModel.Logs.Should().Contain(expectedType);
-            _viewModel.Logs.Should().Contain(storageType);
+            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fileTransferViewModel.Logs.Should().Contain(savedText);
+            _fileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -99,18 +151,19 @@ namespace TeensyRom.Tests
 
             _settings.TargetType = TeensyStorageType.SD;
             _settings.TargetRootPath = "/integration-test-files/";
+            _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
-            //Act
+            //Act            
             File.WriteAllText($"{_fullSourceTestPath}.crt", "Test crt");
             Thread.Sleep(1000);
 
             //Assert
-            _viewModel.Logs.Should().Contain(fileDetectedText);
-            _viewModel.Logs.Should().Contain(initiatedText);
-            _viewModel.Logs.Should().Contain(savedText);
-            _viewModel.Logs.Should().Contain(expectedType);
-            _viewModel.Logs.Should().Contain(storageType);
+            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fileTransferViewModel.Logs.Should().Contain(savedText);
+            _fileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -125,6 +178,7 @@ namespace TeensyRom.Tests
 
             _settings.TargetType = TeensyStorageType.SD;
             _settings.TargetRootPath = "/integration-test-files/";
+            _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
             //Act
@@ -132,11 +186,11 @@ namespace TeensyRom.Tests
             Thread.Sleep(1000);
 
             //Assert
-            _viewModel.Logs.Should().Contain(fileDetectedText);
-            _viewModel.Logs.Should().Contain(initiatedText);
-            _viewModel.Logs.Should().Contain(savedText);
-            _viewModel.Logs.Should().Contain(expectedType);
-            _viewModel.Logs.Should().Contain(storageType);
+            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fileTransferViewModel.Logs.Should().Contain(savedText);
+            _fileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -151,6 +205,7 @@ namespace TeensyRom.Tests
 
             _settings.TargetType = TeensyStorageType.USB;
             _settings.TargetRootPath = "/integration-test-files/";
+            _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
             //Act
@@ -158,11 +213,11 @@ namespace TeensyRom.Tests
             Thread.Sleep(1000);
 
             //Assert
-            _viewModel.Logs.Should().Contain(fileDetectedText);
-            _viewModel.Logs.Should().Contain(initiatedText);
-            _viewModel.Logs.Should().Contain(savedText);
-            _viewModel.Logs.Should().Contain(expectedType);
-            _viewModel.Logs.Should().Contain(storageType);
+            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fileTransferViewModel.Logs.Should().Contain(savedText);
+            _fileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -177,6 +232,7 @@ namespace TeensyRom.Tests
 
             _settings.TargetType = TeensyStorageType.USB;
             _settings.TargetRootPath = "/integration-test-files/";
+            _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
             //Act
@@ -184,11 +240,11 @@ namespace TeensyRom.Tests
             Thread.Sleep(1000);
 
             //Assert
-            _viewModel.Logs.Should().Contain(fileDetectedText);
-            _viewModel.Logs.Should().Contain(initiatedText);
-            _viewModel.Logs.Should().Contain(savedText);
-            _viewModel.Logs.Should().Contain(expectedType);
-            _viewModel.Logs.Should().Contain(storageType);
+            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fileTransferViewModel.Logs.Should().Contain(savedText);
+            _fileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -203,6 +259,7 @@ namespace TeensyRom.Tests
 
             _settings.TargetType = TeensyStorageType.USB;
             _settings.TargetRootPath = "/integration-test-files/";
+            _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
             //Act
@@ -210,11 +267,11 @@ namespace TeensyRom.Tests
             Thread.Sleep(1000);
 
             //Assert
-            _viewModel.Logs.Should().Contain(fileDetectedText);
-            _viewModel.Logs.Should().Contain(initiatedText);
-            _viewModel.Logs.Should().Contain(savedText);
-            _viewModel.Logs.Should().Contain(expectedType);
-            _viewModel.Logs.Should().Contain(storageType);
+            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fileTransferViewModel.Logs.Should().Contain(savedText);
+            _fileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -229,6 +286,7 @@ namespace TeensyRom.Tests
 
             _settings.TargetType = TeensyStorageType.USB;
             _settings.TargetRootPath = "/integration-test-files/";
+            _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
             //Act
@@ -236,15 +294,17 @@ namespace TeensyRom.Tests
             Thread.Sleep(1000);
 
             //Assert
-            _viewModel.Logs.Should().Contain(fileDetectedText);
-            _viewModel.Logs.Should().Contain(initiatedText);
-            _viewModel.Logs.Should().Contain(savedText);
-            _viewModel.Logs.Should().Contain(expectedType);
-            _viewModel.Logs.Should().Contain(storageType);
+            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fileTransferViewModel.Logs.Should().Contain(savedText);
+            _fileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         private void InitializeViewModel()
         {
+            _settings.InitializeDefaults();
+
             var json = JsonConvert.SerializeObject(_settings);
             File.WriteAllText(_settingsFileName, json);
 
@@ -252,7 +312,8 @@ namespace TeensyRom.Tests
             _fileWatcher = new FileWatcher();
             _settingsService = new SettingsService();
             _fileService = new TeensyFileService(_settingsService, _fileWatcher, _teensyPort);
-            _viewModel = new FileTransferViewModel(_fileService);
+            _fileTransferViewModel = new FileTransferViewModel(_fileService);
+            _settingsViewModel = new SettingsViewModel(_settingsService, Dispatcher.CurrentDispatcher);
             _teensyPort.SetPort(_serialPortName);
             _teensyPort.OpenPort();
         }

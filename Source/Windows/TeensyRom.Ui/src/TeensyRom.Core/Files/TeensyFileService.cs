@@ -31,22 +31,30 @@ namespace TeensyRom.Core.Files
             _teensyPort = serialPort;            
             _teensyPortLogSubscription = _teensyPort.Logs.Subscribe(_logs.OnNext, _logs.OnError);
             InitializeSettings();
-            InitializeFileWatch();
         }
 
         private void InitializeSettings()
         {
             _settingsSubscription = _settingsService.Settings
                 .Do(settings => _settings = settings)
-                .Subscribe(settings => SetWatchFolder(settings));
+                .Subscribe(settings => ToggleFileWatch(settings));
         }
 
-        private void InitializeFileWatch()
+        private void ToggleFileWatch(TeensySettings settings)
         {
-            _fileWatchSubscription = _fileWatcher.FileFound
+            if(settings.AutoFileCopyEnabled is false)
+            {
+                _fileWatcher.Disable();
+                return;
+            }            
+            _fileWatcher.Enable(
+                settings.WatchDirectoryLocation,
+                settings.FileTargets.Select(t => t.Extension).ToArray());
+
+            _fileWatchSubscription ??= _fileWatcher.FileFound
                 .Throttle(TimeSpan.FromMilliseconds(500))
                 .WithLatestFrom(_teensyPort.IsConnected, (f, c) => new { File = f, IsConnected = c })
-                .Where(fc => fc.IsConnected)
+                .Where(fc => fc.IsConnected && settings.AutoFileCopyEnabled)
                 .Select(fc => new TeensyFileInfo(fc.File))
                 .Do(fileInfo => _logs.OnNext($"File detected: {fileInfo.FullPath}"))
                 .Subscribe(fileInfo => SaveFile(fileInfo));
@@ -100,14 +108,6 @@ namespace TeensyRom.Core.Files
             fileInfo.TargetPath = _settings.TargetRootPath
                 .UnixPathCombine(target.TargetPath)
                 .EnsureUnixPathEnding();
-        }
-
-        public void SetWatchFolder(TeensySettings settings)
-        {
-
-            _fileWatcher.SetWatchParameters(
-                settings.WatchDirectoryLocation, 
-                settings.FileTargets.Select(t => t.Extension).ToArray());
         }
 
         public void Dispose()

@@ -11,6 +11,7 @@ namespace TeensyRom.Core.Settings
         public string WatchDirectoryLocation { get; set; } = string.Empty;
         public string TargetRootPath { get; set; } = @"/sync/";
         public List<TeensyTarget> FileTargets { get; set; } = new List<TeensyTarget>();
+        public bool AutoFileCopyEnabled { get; set; }
 
         public TeensySettings()
         {

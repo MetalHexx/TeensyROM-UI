@@ -27,6 +27,7 @@ namespace TeensyRom.Tests
             vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Crt).TargetPath.Should().Be("crt");
             vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Hex).TargetPath.Should().Be("hex");          
             vm.Settings.TargetType.Should().Be(TeensyStorageType.SD);
+            vm.Settings.AutoFileCopyEnabled.Should().BeFalse();
             vm.Settings.WatchDirectoryLocation.Should().Be($"{expectedWatchLocation}");
         }
 
@@ -71,7 +72,8 @@ namespace TeensyRom.Tests
         {
             //Arrange
             var savedSettings = new TeensySettings()
-            {                
+            {          
+                AutoFileCopyEnabled = true,
                 FileTargets = new List<TeensyTarget> 
                 {
                     new TeensyTarget
@@ -116,8 +118,8 @@ namespace TeensyRom.Tests
             vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Crt).TargetPath.Should().Be("crt-test");
             vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Hex).TargetPath.Should().Be("hex-test");
             vm.Settings.FileTargets.Should().HaveCount(4);
+            vm.Settings.AutoFileCopyEnabled.Should().BeTrue();
             vm.Settings.WatchDirectoryLocation.Should().Be(savedSettings.WatchDirectoryLocation);
-
         }
 
         [Fact]

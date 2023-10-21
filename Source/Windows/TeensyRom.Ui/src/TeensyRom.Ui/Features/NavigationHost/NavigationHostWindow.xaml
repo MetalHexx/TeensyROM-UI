@@ -16,7 +16,7 @@
         WindowStartupLocation="CenterScreen"        
         Foreground="White"
         Width="900" 
-        Height="620"
+        Height="679"
         
         DataContext="{Binding Main, Source={StaticResource Locator}}">
     
