@@ -151,7 +151,6 @@ namespace TeensyRom.Tests
             _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
             Thread.Sleep(500);
 
-            //Act
             File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
@@ -175,7 +174,6 @@ namespace TeensyRom.Tests
             _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
             Thread.Sleep(500);
 
-            //Act
             File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
