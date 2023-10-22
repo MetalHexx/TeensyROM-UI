@@ -137,7 +137,7 @@ bool ReceiveFileData(File& myFile, uint32_t len, uint32_t& CheckSum)
 //   App: Send file(length)
 //Teensy: AckToken 0x64CC on Pass,  0x9b7f on Fail
 //send file token has been received, only 2 byte responses until after final response
-void PostFile()
+void PostFileCommand()
 {  
     SendU16(AckToken);
 

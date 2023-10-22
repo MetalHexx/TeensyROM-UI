@@ -40,8 +40,8 @@ void ServiceSerial()
                ReceiveFile();
                break;
             case 0xBB:  // v2 file x-fer pc->TR.  For use with v2 UI.
-               PostFile();
-               break;             
+               PostFileCommand();
+               break;            
             case 0xEE: //Reset C64
                Serial.println("Reset cmd received");
                SetUpMainMenuROM();
