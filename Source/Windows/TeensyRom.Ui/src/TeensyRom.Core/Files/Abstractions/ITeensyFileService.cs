@@ -13,6 +13,8 @@ namespace TeensyRom.Core.Files.Abstractions
         /// </summary>
         IObservable<string> Logs { get; }
 
+        DirectoryContent? GetDirectoryContent(string path, int numItemsToFetch);
+
         /// <summary>
         /// Saves a file to TeensyROM given a TeensyFileInfo
         /// </summary>

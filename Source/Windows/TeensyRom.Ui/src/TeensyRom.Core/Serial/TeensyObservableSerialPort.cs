@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
@@ -95,6 +96,136 @@ namespace TeensyRom.Core.Serial
             EnableAutoReadStream();
 
             return true;
+        }
+
+        public DirectoryContent? GetDirectoryContent(string path, TeensyStorageType storageType, uint skip, uint take)
+        {
+            DisableAutoReadStream();
+
+            _logs.OnNext($"Sending directory listing token: {TeensyConstants.List_Directory_Token}");
+            SendIntBytes(TeensyConstants.List_Directory_Token, 2);
+
+            if (!GetAck())
+            {
+                ReadSerialAsString();
+                return null;
+            }
+
+            _logs.OnNext($"Sending Storage Type: {TeensyConstants.Sd_Card_Token}");
+            SendIntBytes(GetStorageToken(storageType), 1);
+
+            _logs.OnNext($"Sending Skip: {skip}");
+            SendIntBytes(skip, 1);
+
+            _logs.OnNext($"Sending Take: {take}");
+            SendIntBytes(take, 1);
+
+            _logs.OnNext($"Sending path: {path}");
+            _serialPort.Write($"{path}\0");
+
+            if (!WaitForDirectoryStartToken())
+            {
+                ReadSerialAsString(msToWait: 100);
+                return null;
+            }
+            _logs.OnNext("Ready to receive directory content!");
+
+            var directoryContent = ReceiveDirectoryContent();
+
+            if (directoryContent is null)
+            {
+                ReadSerialAsString(msToWait: 100);
+                _logs.OnNext("Failed to receive directory content");
+                return directoryContent;
+            }
+
+            var contentLog = JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented });
+
+            _logs.OnNext(contentLog);
+
+            EnableAutoReadStream();
+
+            return directoryContent;        
+        }
+
+        public DirectoryContent? ReceiveDirectoryContent()
+        {            
+            try
+            {
+                const int bufferSize = 1024;
+                byte[] buffer = new byte[bufferSize];
+                int bytesRead = 0;
+                DateTime startTime = DateTime.Now;
+                TimeSpan timeout = TimeSpan.FromSeconds(10);  // Set to your preferred timeout
+
+                while (true)
+                {
+                    if (DateTime.Now - startTime > timeout)
+                    {
+                        _logs.OnNext("Timeout while receiving directory content");
+                        return null;
+                    }
+
+                    if (_serialPort.BytesToRead > 0)
+                    {
+                        int bytesToRead = Math.Min(bufferSize - bytesRead, _serialPort.BytesToRead);
+                        bytesRead += _serialPort.Read(buffer, bytesRead, bytesToRead);
+
+                        if (bytesRead >= 2)
+                        {
+                            ushort lastToken = (ushort)((buffer[bytesRead - 2] << 8) | buffer[bytesRead - 1]);
+                            if (lastToken == TeensyConstants.Fail_Token)
+                            {
+                                _logs.OnNext("Received fail token while receiving directory content");
+                                return null;  // Or break, depending on your logic
+                            }
+                            else if (lastToken == TeensyConstants.End_Directory_List_Token)
+                            {
+                                _logs.OnNext("Received End Directory List Token");
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Thread.Sleep(50);
+                    }
+                }
+
+                string json = Encoding.ASCII.GetString(buffer, 0, bytesRead - 2);
+                DirectoryContent directoryContents = JsonConvert.DeserializeObject<DirectoryContent>(json);
+
+                return directoryContents;
+            }
+            catch (Exception ex)
+            {
+                _logs.OnNext($"Error: {ex.Message}");  // It's good to log the exception for debugging
+                return null;
+            }
+        }
+
+        public bool WaitForDirectoryStartToken()
+        {
+            WaitForSerialData(numBytes: 2, timeoutMs: 500);
+
+            byte[] recBuf = new byte[2];
+            _serialPort.Read(recBuf, 0, 2);
+            ushort recU16 = ToInt16(recBuf);
+
+            switch (recU16)
+            {
+                case TeensyConstants.Start_Directory_List_Token:
+                    _logs.OnNext("Response: StartDirectoryToken Received");
+                    return true;
+
+                case TeensyConstants.Fail_Token:
+                    _logs.OnNext("Response: Failure Received");
+                    return false;
+
+                default:
+                    _logs.OnNext("Response: Unexpected Response that was not an Ack token - " + recBuf[0].ToString("X2") + ":" + recBuf[1].ToString("X2"));
+                    return false;
+            }
         }
 
         public uint GetStorageToken(TeensyStorageType type)

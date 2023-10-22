@@ -1,6 +1,9 @@
-﻿using System.Reactive;
+﻿using Newtonsoft.Json;
+using System.Drawing;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Text.Json.Nodes;
 using TeensyRom.Core.Files.Abstractions;
 using TeensyRom.Core.Serial.Abstractions;
 using TeensyRom.Core.Settings;
@@ -58,6 +61,8 @@ namespace TeensyRom.Core.Files
                 .Select(fc => new TeensyFileInfo(fc.File))
                 .Do(fileInfo => _logs.OnNext($"File detected: {fileInfo.FullPath}"))
                 .Subscribe(fileInfo => SaveFile(fileInfo));
+
+            _teensyPort.Logs.Subscribe(_logs.OnNext);
         }
 
         public Unit SaveFile(string path)
@@ -78,7 +83,7 @@ namespace TeensyRom.Core.Files
 
         public Unit SaveFile(TeensyFileInfo fileInfo)
         {
-            _logs.OnNext("Initiating file transfer handshake");
+            _logs.OnNext("Initiating file transfer handshake");            
 
             TransformDestination(fileInfo);
 
@@ -108,6 +113,33 @@ namespace TeensyRom.Core.Files
             fileInfo.TargetPath = _settings.TargetRootPath
                 .UnixPathCombine(target.TargetPath)
                 .EnsureUnixPathEnding();
+        }
+
+        public DirectoryContent? GetDirectoryContent(string path, int numItemsToFetch)
+        {
+            DirectoryContent directoryContent = new();
+            uint take = 5;
+
+            for (uint i = 0; i < numItemsToFetch; i += take)
+            {
+                var page = _teensyPort.GetDirectoryContent(path, _settings.TargetType, i, take);
+
+                if(page is null)
+                {
+                    _logs.OnNext("There was an error.  Received a null result from the request");
+                    return directoryContent;
+                }
+                directoryContent.Add(page);
+
+                if (page.TotalCount < take)
+                {
+                    _logs.OnNext($"Reached the end of the directory contents.  Only {directoryContent.TotalCount} / {numItemsToFetch} were fetched.");
+                    break;
+                }
+            }
+            _logs.OnNext($"Received the following directory contents:");
+            _logs.OnNext(JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented}));
+            return directoryContent;
         }
 
         public void Dispose()

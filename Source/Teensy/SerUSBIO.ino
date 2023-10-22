@@ -20,6 +20,8 @@
 void   getFreeITCM();
 //synch with win app:
 #define SendFileToken  0x64AA 
+#define PostFileToken  0x64BB 
+#define ListDirectoryToken 0x64DD
 #define AckToken       0x64CC
 #define FailToken      0x9B7F
 
@@ -41,7 +43,10 @@ void ServiceSerial()
                break;
             case 0xBB:  // v2 file x-fer pc->TR.  For use with v2 UI.
                PostFileCommand();
-               break;            
+               break;
+            case 0xDD:  // v2 directory listing from TR
+                ListDirectoryCommand();
+                break;
             case 0xEE: //Reset C64
                Serial.println("Reset cmd received");
                SetUpMainMenuROM();

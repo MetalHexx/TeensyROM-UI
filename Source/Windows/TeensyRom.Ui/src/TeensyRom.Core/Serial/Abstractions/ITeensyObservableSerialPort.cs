@@ -9,6 +9,11 @@ namespace TeensyRom.Core.Serial.Abstractions
     public interface ITeensyObservableSerialPort : IObservableSerialPort, IDisposable
     {
         /// <summary>
+        /// Gets a directory listing from teensy given a path, storage type, skip and take
+        /// </summary>
+        DirectoryContent? GetDirectoryContent(string path, TeensyStorageType storageType, uint skip, uint take);
+
+        /// <summary>
         /// Sends ping bytes to teensyrom
         /// </summary>        
         Unit PingDevice();

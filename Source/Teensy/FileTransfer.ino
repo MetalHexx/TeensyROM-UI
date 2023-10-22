@@ -1,16 +1,8 @@
 
-#define SendFileToken  0x64AA 
-#define AckToken       0x64CC
-#define FailToken      0x9B7F
-
-bool GetFileParameters(uint32_t &len, uint32_t &CheckSum, uint32_t &SD_nUSB, char FileNamePath[])
-{
-    if (!GetUInt(&len, 4)) return false;
-    if (!GetUInt(&CheckSum, 2)) return false;
-    if (!GetUInt(&SD_nUSB, 1)) return false;
-
-    return true;
-}
+#define AckToken                0x64CC
+#define FailToken               0x9B7F
+#define StartDirectoryListToken 0x5A5A
+#define EndDirectoryListToken   0xA5A5
 
 bool GetPathParameter(char FileNamePath[]) 
 {
@@ -150,14 +142,33 @@ void PostFileCommand()
 {  
     SendU16(AckToken);
 
-    uint32_t len, CheckSum, SD_nUSB;
+    uint32_t fileLength, checksum, storageType;
     char FileNamePath[MaxNamePathLength];
 
-    if (!GetFileParameters(len, CheckSum, SD_nUSB, FileNamePath)) return;
+    if (!GetUInt(&fileLength, 4))
+    {
+        SendU16(FailToken);
+        Serial.println("Error receiving file length value!");
+        return;
+    }
+
+    if (!GetUInt(&checksum, 2))
+    {
+        SendU16(FailToken);
+        Serial.println("Error receiving checksum value!");
+        return;
+    }
+
+    if (!GetUInt(&storageType, 1))
+    {
+        SendU16(FailToken);
+        Serial.println("Error receiving storage type value!");
+        return;
+    }
 
     if (!GetPathParameter(FileNamePath)) return;
     
-    FS *sourceFS = GetStorageDevice(SD_nUSB);
+    FS *sourceFS = GetStorageDevice(storageType);
 
     if (!sourceFS) return;
 
@@ -168,13 +179,134 @@ void PostFileCommand()
       return;
     }
    
-    File myFile = GetFileStream(SD_nUSB, FileNamePath, sourceFS);
+    File fileStream = GetFileStream(storageType, FileNamePath, sourceFS);
 
-    if (!myFile) return;
+    if (!fileStream) return;
    
    SendU16(AckToken);
   
-   if (!ReceiveFileData(myFile, len, CheckSum)) return;
+   if (!ReceiveFileData(fileStream, fileLength, checksum)) return;
    
    SendU16(AckToken);
+}
+
+
+bool SendPagedDirectoryContents(FS& fileStream, const char* directoryPath, int skip, int take)
+{
+    File directory = fileStream.open(directoryPath);
+    if (!directory)
+    {
+        SendU16(FailToken);
+        Serial.printf("Failed to open directory: %s\n", directoryPath);
+        return false;
+    }
+
+    String dirString = "";
+    String fileString = "";
+
+    File directoryItem = directory.openNextFile();
+
+    int currentCount = 0;
+    int addedCount = 0;
+
+    while (directoryItem && addedCount < take)
+    {
+        if (!directoryItem)
+        {
+            Serial.println("No items in the directory.");
+            return false;
+        }
+
+        if (currentCount >= skip)
+        {
+            if (directoryItem.isDirectory())
+            {
+                dirString += "{\"Name\":\"" + String(directoryItem.name()) + "\",\"Path\":\"" + String(directoryPath) + String(directoryItem.name()) + "\"},";
+            }
+            else
+            {
+                fileString += "{\"Name\":\"" + String(directoryItem.name()) + "\",\"Size\":" + String(directoryItem.size()) + ",\"Path\":\"" + String(directoryPath) + String(directoryItem.name()) + "\"},";
+            }
+            addedCount++;
+        }
+
+        currentCount++;
+        directoryItem.close();
+        directoryItem = directory.openNextFile();
+    }
+    directoryItem.close();
+
+    if (dirString.endsWith(",")) {
+        dirString.remove(dirString.length() - 1);
+    }
+    if (fileString.endsWith(",")) {
+        fileString.remove(fileString.length() - 1);
+    }
+
+    String jsonData = "{\"Path\":\"" + String(directoryPath) + "\",\"Directories\":[" + dirString + "],\"Files\":[" + fileString + "]}";
+
+    Serial.print(jsonData);
+
+    return true;
+}
+
+
+// Command: 
+// List Directory Contents on TeensyROM given a take and skip value
+// to faciliate batch processing.
+//
+// Workflow:
+// Receive <-- List Directory Token 0x64DD 
+// Send --> AckToken 0x64CC
+// Receive <-- SD_nUSB(1), Destination Path(MaxNameLength, null terminator), sake(1), skip(1)
+// Send --> StartDirectoryListToken 0x5A5A or FailToken 0x9b7f
+// Send --> Write content as json
+// Send --> EndDirectoryListToken 0xA5A5,  0x9b7f on Fail
+
+void ListDirectoryCommand()
+{
+    SendU16(AckToken);
+
+    uint32_t SD_nUSB, skip, take;
+    char path[MaxNamePathLength];
+
+    if (!GetUInt(&SD_nUSB, 1))
+    {
+        SendU16(FailToken);
+        Serial.println("Error receiving storage type value!");
+        return;
+    }
+    if (!GetUInt(&skip, 1))
+    {
+        SendU16(FailToken);
+        Serial.println("Error receiving skip value!");
+        return;
+    }
+    if (!GetUInt(&take, 1))
+    {
+        SendU16(FailToken);
+        Serial.println("Error receiving take value!");
+        return;
+    }
+    if (!GetPathParameter(path)) 
+    {
+        SendU16(FailToken);
+        Serial.println("Error receiving path value!");
+        return;
+    }
+
+    FS* sourceFS = GetStorageDevice(SD_nUSB);
+
+    if (!sourceFS) 
+    {
+        SendU16(FailToken);
+        Serial.println("Unable to get storage device!");
+        return;
+    }
+
+    SendU16(StartDirectoryListToken);  
+
+    if (!SendPagedDirectoryContents(*sourceFS, path, skip, take)) return;
+
+    SendU16(EndDirectoryListToken);
 }

@@ -22,6 +22,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         public string Logs { get; set; } = string.Empty;
 
         public ReactiveCommand<Unit, Unit> TestFileCopyCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> TestDirectoryListCommand { get; set; }
 
         private readonly ITeensyFileService _fileService;
         private readonly StringBuilder _logBuilder = new StringBuilder();
@@ -35,12 +36,21 @@ namespace TeensyRom.Ui.Features.FileTransfer
             TestFileCopyCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 TestFileCopy(), outputScheduler: ImmediateScheduler.Instance);
 
+            TestDirectoryListCommand = ReactiveCommand.Create<Unit, Unit>(n =>
+                TestDirectoryList(), outputScheduler: ImmediateScheduler.Instance);
+
             _fileService.Logs.Subscribe(log =>
             {
                 _logBuilder.AppendLine(log);
                 Logs = _logBuilder.ToString();
             });
 
+        }
+
+        private Unit TestDirectoryList()
+        {
+            _fileService.GetDirectoryContent("/", 10);
+            return Unit.Default;
         }
 
         private Unit TestFileCopy()
