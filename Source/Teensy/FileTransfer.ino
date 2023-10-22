@@ -3,12 +3,17 @@
 #define AckToken       0x64CC
 #define FailToken      0x9B7F
 
-bool GetFileInfo(uint32_t &len, uint32_t &CheckSum, uint32_t &SD_nUSB, char FileNamePath[])
+bool GetFileParameters(uint32_t &len, uint32_t &CheckSum, uint32_t &SD_nUSB, char FileNamePath[])
 {
     if (!GetUInt(&len, 4)) return false;
     if (!GetUInt(&CheckSum, 2)) return false;
     if (!GetUInt(&SD_nUSB, 1)) return false;
 
+    return true;
+}
+
+bool GetPathParameter(char FileNamePath[]) 
+{
     uint16_t CharNum = 0;
     while (1)
     {
@@ -22,7 +27,6 @@ bool GetFileInfo(uint32_t &len, uint32_t &CheckSum, uint32_t &SD_nUSB, char File
             return false;
         }
     }
-
     return true;
 }
 
@@ -129,14 +133,19 @@ bool ReceiveFileData(File& myFile, uint32_t len, uint32_t& CheckSum)
 }
 
 
-//   App: SendFileToken 0x64BB
-//Teensy: AckToken 0x64CC
-//   App: Send Length(4), CS(2), SD_nUSB(1), 
-//          DestPath/Name(up to MaxNamePathLength, null term)
-//Teensy: AckToken 0x64CC
-//   App: Send file(length)
-//Teensy: AckToken 0x64CC on Pass,  0x9b7f on Fail
-//send file token has been received, only 2 byte responses until after final response
+// Command: 
+// Post File to target directory and storage type on TeensyROM.
+// Automatically creates target directory if missing.
+//
+// Workflow:
+// Receive <-- Post File Token 0x64BB 
+// Send --> AckToken 0x64CC
+// Receive <-- Length(4), Checksum(2), SD_nUSB(1) Destination Path(MaxNameLength, null terminator)
+// Send --> 0x64CC on Pass,  0x9b7f on Fail 
+// Receive <-- File(length)
+// Send --> AckToken 0x64CC on Pass,  0x9b7f on Fail
+//
+// Notes: Once Post File Token Received, responses are 2 bytes in length
 void PostFileCommand()
 {  
     SendU16(AckToken);
@@ -144,7 +153,9 @@ void PostFileCommand()
     uint32_t len, CheckSum, SD_nUSB;
     char FileNamePath[MaxNamePathLength];
 
-    if (!GetFileInfo(len, CheckSum, SD_nUSB, FileNamePath)) return;
+    if (!GetFileParameters(len, CheckSum, SD_nUSB, FileNamePath)) return;
+
+    if (!GetPathParameter(FileNamePath)) return;
     
     FS *sourceFS = GetStorageDevice(SD_nUSB);
 
