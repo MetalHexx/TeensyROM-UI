@@ -64,6 +64,8 @@ namespace TeensyRom.Ui.Features.FileTransfer
             {
                 _settings = settings;
 
+                TargetItems.Clear();
+
                 TargetItems.Add(new()
                 {
                     Name = _settings.TargetRootPath,
