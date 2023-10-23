@@ -32,6 +32,17 @@ namespace TeensyRom.Ui.Features.FileTransfer
             //}
         }
 
+        private void OnTreeViewItemExpanded(object sender, RoutedEventArgs e)
+        {
+            if (e.OriginalSource is TreeViewItem treeViewItem
+                && treeViewItem.DataContext is DirectoryNode directoryNode)
+            {
+                var viewModel = (FileTransferViewModel)DataContext;
+                viewModel.LoadDirectoryContentCommand.Execute(directoryNode).Subscribe();
+                e.Handled = true;
+            }
+        }
+
         private void OnTreeViewPreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (!e.Handled)

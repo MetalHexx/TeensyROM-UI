@@ -10,6 +10,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
     {
         public DataTemplate DirectoryTemplate { get; set; } = new();
         public DataTemplate FileTemplate { get; set; } = new();
+        public DataTemplate EmptyTemplate { get; set; } = new();
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
@@ -17,6 +18,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
             {
                 DirectoryNode _ => DirectoryTemplate,
                 FileNode _ => FileTemplate,
+                EmptyNode _ => EmptyTemplate,
                 _ => base.SelectTemplate(item, container)
             };
         }

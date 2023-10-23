@@ -7,6 +7,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
     /// </summary>
     public class NodeBase : BindableBase
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
     }
 }

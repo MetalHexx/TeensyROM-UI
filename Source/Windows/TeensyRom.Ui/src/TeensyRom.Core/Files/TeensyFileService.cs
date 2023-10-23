@@ -115,28 +115,29 @@ namespace TeensyRom.Core.Files
                 .EnsureUnixPathEnding();
         }
 
-        public DirectoryContent? GetDirectoryContent(string path, int numItemsToFetch)
+        public DirectoryContent? GetDirectoryContent(string path)
         {
             DirectoryContent directoryContent = new();
             uint take = 5;
+            uint skip = 0;
 
-            for (uint i = 0; i < numItemsToFetch; i += take)
+            var hasMorePages = true;
+
+            while(hasMorePages)
             {
-                var page = _teensyPort.GetDirectoryContent(path, _settings.TargetType, i, take);
 
-                if(page is null)
+                var page = _teensyPort.GetDirectoryContent(path, _settings.TargetType, skip, take);
+
+                if (page is null)
                 {
                     _logs.OnNext("There was an error.  Received a null result from the request");
                     return directoryContent;
                 }
                 directoryContent.Add(page);
-
-                if (page.TotalCount < take)
-                {
-                    _logs.OnNext($"Reached the end of the directory contents.  Only {directoryContent.TotalCount} / {numItemsToFetch} were fetched.");
-                    break;
-                }
+                skip += (uint)page.TotalCount;
+                hasMorePages = page.TotalCount == take;
             }
+
             _logs.OnNext($"Received the following directory contents:");
             _logs.OnNext(JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented}));
             return directoryContent;

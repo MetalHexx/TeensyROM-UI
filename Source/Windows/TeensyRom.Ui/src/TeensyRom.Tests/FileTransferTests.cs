@@ -427,7 +427,7 @@ namespace TeensyRom.Tests
             _fileWatcher = new FileWatcher();
             _settingsService = new SettingsService();
             _fileService = new TeensyFileService(_settingsService, _fileWatcher, _teensyPort);
-            _fileTransferViewModel = new FileTransferViewModel(_fileService);
+            _fileTransferViewModel = new FileTransferViewModel(_fileService, _settingsService);
             _settingsViewModel = new SettingsViewModel(_settingsService, Dispatcher.CurrentDispatcher);
             _teensyPort.SetPort(_serialPortName);
             _teensyPort.OpenPort();

@@ -1,21 +1,26 @@
-﻿using GongSolutions.Wpf.DragDrop;
+﻿using DynamicData;
+using GongSolutions.Wpf.DragDrop;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Text;
 using System.Windows;
+using System.Xml.Linq;
 using TeensyRom.Core.Files.Abstractions;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
     public class FileTransferViewModel : ReactiveObject
     {
-        public ObservableCollection<DirectoryNode> SourceItems { get; set; } = new ObservableCollection<DirectoryNode>();
-        public ObservableCollection<DirectoryNode> TargetItems { get; set; } = new ObservableCollection<DirectoryNode>();
+        public ObservableCollection<DirectoryNode> SourceItems { get; set; }
+        public ObservableCollection<DirectoryNode> TargetItems { get; set; }
 
 
         [Reactive]
@@ -23,15 +28,22 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         public ReactiveCommand<Unit, Unit> TestFileCopyCommand { get; set; }
         public ReactiveCommand<Unit, Unit> TestDirectoryListCommand { get; set; }
+        public ReactiveCommand<DirectoryNode, Unit> LoadDirectoryContentCommand { get; set; }
+
 
         private readonly ITeensyFileService _fileService;
+        private readonly ISettingsService _settingsService;
+        private TeensySettings _settings;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public FileTransferViewModel(ITeensyFileService fileService) 
+        public FileTransferViewModel(ITeensyFileService fileService, ISettingsService settingsService) 
         {
             _fileService = fileService;
+            _settingsService = settingsService;
+
+            TargetItems = new ObservableCollection<DirectoryNode>();
+            
             SourceItems = new ObservableCollection<DirectoryNode> { FileTreeTestData.InitializeSourceItems() };
-            TargetItems = new ObservableCollection<DirectoryNode> { FileTreeTestData.InitializeTargetItems() };
 
             TestFileCopyCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 TestFileCopy(), outputScheduler: ImmediateScheduler.Instance);
@@ -39,17 +51,60 @@ namespace TeensyRom.Ui.Features.FileTransfer
             TestDirectoryListCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 TestDirectoryList(), outputScheduler: ImmediateScheduler.Instance);
 
+            LoadDirectoryContentCommand = ReactiveCommand.Create<DirectoryNode>(LoadDirectoryContent);
+
+
             _fileService.Logs.Subscribe(log =>
             {
                 _logBuilder.AppendLine(log);
                 Logs = _logBuilder.ToString();
             });
 
+            _settingsService.Settings.Subscribe(settings => 
+            {
+                _settings = settings;
+
+                TargetItems.Add(new()
+                {
+                    Name = _settings.TargetRootPath,
+                    Path = _settings.TargetRootPath
+                }); 
+            });
+        }
+
+        private void LoadDirectoryContent(DirectoryNode directoryNode)
+        {
+            if (directoryNode.Children.Count > 1) return;
+
+            var directoryContent = _fileService.GetDirectoryContent(directoryNode.Path);
+
+            if (directoryContent is null) return;
+
+            var directoryNodes = directoryContent.Directories.Select(d => new DirectoryNode
+            {
+                Name = d.Name,
+                Path = d.Path
+            }).ToList();                
+
+            var fileNodes = directoryContent.Files.Select(f => new FileNode 
+            { 
+                Name = f.Name, 
+                Path = f.Path, 
+                Size = f.Size 
+            }).ToList();
+
+            var nodes = new List<NodeBase> { directoryNodes, fileNodes };
+
+            if(nodes.Count > 0)
+            {
+                directoryNode.Children.Clear();
+                directoryNode.Children.AddRange(nodes);
+            }
         }
 
         private Unit TestDirectoryList()
         {
-            _fileService.GetDirectoryContent("/", 10);
+            _fileService.GetDirectoryContent("/");
             return Unit.Default;
         }
 

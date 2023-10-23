@@ -21,6 +21,11 @@
         <DataTemplate x:Key="FileTemplate" DataType="{x:Type local:FileNode}">
             <TextBlock Text="{Binding Name}" />
         </DataTemplate>
+
+        <!-- Template for Empty -->
+        <DataTemplate x:Key="EmptyTemplate" DataType="{x:Type local:EmptyNode}">
+            <TextBlock Text="{Binding Name}" />
+        </DataTemplate>
     </UserControl.Resources>
 
     <Grid>
@@ -72,7 +77,8 @@
                 <TreeView.ItemTemplateSelector>
                     <local:NodeTemplateSelector 
                         DirectoryTemplate="{StaticResource DirectoryTemplate}"
-                        FileTemplate="{StaticResource FileTemplate}" />
+                        FileTemplate="{StaticResource FileTemplate}" 
+                        EmptyTemplate="{StaticResource EmptyTemplate}"/>
                 </TreeView.ItemTemplateSelector>
             </TreeView>
         </ScrollViewer>
@@ -99,15 +105,19 @@
             <TreeView
                 Name="targetTreeView" 
                 MinWidth="220" 
-                PreviewMouseWheel="OnTreeViewPreviewMouseWheel"
+                PreviewMouseWheel="OnTreeViewPreviewMouseWheel"                
+                TreeViewItem.Expanded="OnTreeViewItemExpanded"
                 dd:DragDrop.IsDragSource="False"
                 dd:DragDrop.IsDropTarget="True"
                 dd:DragDrop.DropHandler="{Binding}"
-                ItemsSource="{Binding TargetItems}">
+                ItemsSource="{Binding TargetItems}"
+                VirtualizingPanel.IsVirtualizing="True" 
+                VirtualizingPanel.VirtualizationMode="Recycling">
                 <TreeView.ItemTemplateSelector>
                     <local:NodeTemplateSelector 
                         DirectoryTemplate="{StaticResource DirectoryTemplate}"
-                        FileTemplate="{StaticResource FileTemplate}" />
+                        FileTemplate="{StaticResource FileTemplate}" 
+                        EmptyTemplate="{StaticResource EmptyTemplate}"/>
                 </TreeView.ItemTemplateSelector>
             </TreeView>
         </ScrollViewer>

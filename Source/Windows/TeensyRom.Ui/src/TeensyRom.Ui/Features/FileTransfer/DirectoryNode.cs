@@ -1,4 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Documents;
+using TeensyRom.Core.Files;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
@@ -17,7 +20,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         public DirectoryNode()
         {
-            _children = new ObservableCollection<NodeBase>();
+            _children = new ObservableCollection<NodeBase> { new EmptyNode() };
         }
 
         /// <summary>
