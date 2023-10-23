@@ -137,6 +137,13 @@ namespace TeensyRom.Core.Files
                 skip += (uint)page.TotalCount;
                 hasMorePages = page.TotalCount == take;
             }
+            directoryContent.Directories = directoryContent.Directories
+                .OrderBy(d => d.Name)
+                .ToList();
+            
+            directoryContent.Files = directoryContent.Files
+                .OrderBy(d => d.Name)
+                .ToList();
 
             _logs.OnNext($"Received the following directory contents:");
             _logs.OnNext(JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented}));
