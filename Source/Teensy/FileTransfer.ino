@@ -9,12 +9,15 @@ bool GetPathParameter(char FileNamePath[])
     uint16_t CharNum = 0;
     while (1)
     {
-        if (!SerialAvailabeTimeout()) return false;
+        if (!SerialAvailabeTimeout())
+        {
+            Serial.print("Timed out getting path param!\n");
+            return false;
+        }
         FileNamePath[CharNum] = Serial.read();
         if (FileNamePath[CharNum] == 0) break;
         if (++CharNum == MaxNamePathLength)
-        {
-            SendU16(FailToken);
+        {            
             Serial.print("Path too long!\n");
             return false;
         }
@@ -25,8 +28,7 @@ bool GetPathParameter(char FileNamePath[])
 FS* GetStorageDevice(uint32_t SD_nUSB) {
     if (SD_nUSB) {
         if (!SD.begin(BUILTIN_SDCARD)) 
-        {
-            SendU16(FailToken);
+        {            
             Serial.printf("Specified storage device not found: %u\n", SD_nUSB);
             return nullptr;
         }
@@ -166,11 +168,20 @@ void PostFileCommand()
         return;
     }
 
-    if (!GetPathParameter(FileNamePath)) return;
+    if (!GetPathParameter(FileNamePath)) 
+    {
+        SendU16(FailToken);
+        return;
+    }
     
     FS *sourceFS = GetStorageDevice(storageType);
 
-    if (!sourceFS) return;
+    if (!sourceFS)
+    {        
+        SendU16(FailToken);
+        Serial.println("Unable to get storage device!");
+        return;
+    }
 
     if (!EnsureDirectory(FileNamePath, *sourceFS))
     {
