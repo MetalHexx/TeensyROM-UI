@@ -205,55 +205,50 @@ bool SendPagedDirectoryContents(FS& fileStream, const char* directoryPath, int s
     if (!directory)
     {
         SendU16(FailToken);
-        Serial.printf("Failed to open directory: %s\n", directoryPath);
+        Serial.printf_P(PSTR("Failed to open directory: %s\n"), directoryPath);
         return false;
     }
 
-    String dirString = "";
-    String fileString = "";
-
     File directoryItem = directory.openNextFile();
 
-    int currentCount = 0;
-    int addedCount = 0;
-
-    while (directoryItem && addedCount < take)
+    for(int currentCount = 0, addedCount = 0; directoryItem && addedCount < take; currentCount++)
     {
-        if (!directoryItem)
-        {
-            Serial.println("No items in the directory.");
-            return false;
-        }
-
         if (currentCount >= skip)
         {
+            const char* itemName = directoryItem.name();
+
             if (directoryItem.isDirectory())
             {
-                dirString += "{\"Name\":\"" + String(directoryItem.name()) + "\",\"Path\":\"" + String(directoryPath) + String(directoryItem.name()) + "\"},";
+                Serial.print(F("[Dir]{\"Name\":\""));
+                Serial.print(itemName);
+                Serial.print(F("\",\"Path\":\""));
+                Serial.print(directoryPath);
+                Serial.print('/');
+                Serial.print(itemName);
+                Serial.print(F("\"}[/Dir]"));
             }
             else
             {
-                fileString += "{\"Name\":\"" + String(directoryItem.name()) + "\",\"Size\":" + String(directoryItem.size()) + ",\"Path\":\"" + String(directoryPath) + String(directoryItem.name()) + "\"},";
+                Serial.print(F("[File]{\"Name\":\""));
+                Serial.print(itemName);
+                Serial.print(F("\",\"Size\":"));
+                Serial.print(directoryItem.size());
+                Serial.print(F(",\"Path\":\""));
+                Serial.print(directoryPath);
+                Serial.print('/');
+                Serial.print(itemName);
+                Serial.print(F("\"}[/File]"));
             }
+
             addedCount++;
         }
-
-        currentCount++;
         directoryItem.close();
         directoryItem = directory.openNextFile();
     }
-    directoryItem.close();
-
-    if (dirString.endsWith(",")) {
-        dirString.remove(dirString.length() - 1);
+    if (directoryItem) {
+        directoryItem.close();
     }
-    if (fileString.endsWith(",")) {
-        fileString.remove(fileString.length() - 1);
-    }
-
-    String jsonData = "{\"Path\":\"" + String(directoryPath) + "\",\"Directories\":[" + dirString + "],\"Files\":[" + fileString + "]}";
-
-    Serial.print(jsonData);
+    directory.close();
 
     return true;
 }

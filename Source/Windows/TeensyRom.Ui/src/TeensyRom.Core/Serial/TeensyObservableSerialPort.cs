@@ -149,15 +149,13 @@ namespace TeensyRom.Core.Serial
         }
 
         public DirectoryContent? ReceiveDirectoryContent()
-        {            
+        {
+            List<byte> receivedBytes = new List<byte>();
+            DateTime startTime = DateTime.Now;
+            TimeSpan timeout = TimeSpan.FromSeconds(10);
+
             try
             {
-                const int bufferSize = 1024;
-                byte[] buffer = new byte[bufferSize];
-                int bytesRead = 0;
-                DateTime startTime = DateTime.Now;
-                TimeSpan timeout = TimeSpan.FromSeconds(10);  // Set to your preferred timeout
-
                 while (true)
                 {
                     if (DateTime.Now - startTime > timeout)
@@ -168,16 +166,16 @@ namespace TeensyRom.Core.Serial
 
                     if (_serialPort.BytesToRead > 0)
                     {
-                        int bytesToRead = Math.Min(bufferSize - bytesRead, _serialPort.BytesToRead);
-                        bytesRead += _serialPort.Read(buffer, bytesRead, bytesToRead);
+                        byte b = (byte)_serialPort.ReadByte();
+                        receivedBytes.Add(b);
 
-                        if (bytesRead >= 2)
+                        if (receivedBytes.Count >= 2)
                         {
-                            ushort lastToken = (ushort)((buffer[bytesRead - 2] << 8) | buffer[bytesRead - 1]);
+                            ushort lastToken = (ushort)((receivedBytes[^2] << 8) | receivedBytes[^1]);
                             if (lastToken == TeensyConstants.Fail_Token)
                             {
                                 _logs.OnNext("Received fail token while receiving directory content");
-                                return null;  // Or break, depending on your logic
+                                return null;
                             }
                             else if (lastToken == TeensyConstants.End_Directory_List_Token)
                             {
@@ -191,18 +189,51 @@ namespace TeensyRom.Core.Serial
                         Thread.Sleep(50);
                     }
                 }
-
-                string json = Encoding.ASCII.GetString(buffer, 0, bytesRead - 2);
-                DirectoryContent directoryContents = JsonConvert.DeserializeObject<DirectoryContent>(json);
-
-                return directoryContents;
             }
             catch (Exception ex)
             {
-                _logs.OnNext($"Error: {ex.Message}");  // It's good to log the exception for debugging
+                _logs.OnNext($"Error: {ex.Message}");
                 return null;
             }
+
+            try
+            {
+                string data = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
+
+                DirectoryContent directoryContents = new DirectoryContent();
+
+                const string dirToken = "[Dir]";
+                const string dirEndToken = "[/Dir]";
+                const string fileToken = "[File]";
+                const string fileEndToken = "[/File]";
+
+                var directoryChunks = data.Split(new[] { dirEndToken, fileEndToken }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var chunk in directoryChunks)
+                {
+                    switch (chunk)
+                    {
+                        case var item when item.StartsWith(dirToken):
+                            string dirJson = item.Substring(5);
+                            DirectoryItem dirItem = JsonConvert.DeserializeObject<DirectoryItem>(dirJson);
+                            directoryContents.Directories.Add(dirItem);
+                            break;
+
+                        case var item when item.StartsWith(fileToken):
+                            string fileJson = item.Substring(6);
+                            FileItem fileItem = JsonConvert.DeserializeObject<FileItem>(fileJson);
+                            directoryContents.Files.Add(fileItem);
+                            break;
+                    }
+                }
+                return directoryContents;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
+
 
         public bool WaitForDirectoryStartToken()
         {
