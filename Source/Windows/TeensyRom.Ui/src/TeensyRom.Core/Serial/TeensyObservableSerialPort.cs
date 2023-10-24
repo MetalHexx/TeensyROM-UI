@@ -201,13 +201,14 @@ namespace TeensyRom.Core.Serial
 
         public DirectoryContent? ReceiveDirectoryContent()
         {
-            var receivedBytes = GetRawDirectoryData();   
+            var receivedBytes = GetRawDirectoryData();
+            var directoryContent = new DirectoryContent();
 
             try
             {
                 var data = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
 
-                DirectoryContent directoryContents = new DirectoryContent();
+                
 
                 const string dirToken = "[Dir]";
                 const string dirEndToken = "[/Dir]";
@@ -223,23 +224,23 @@ namespace TeensyRom.Core.Serial
                         case var item when item.StartsWith(dirToken):
                             var dirJson = item.Substring(5);
                             var dirItem = JsonConvert.DeserializeObject<DirectoryItem>(dirJson);
-                            directoryContents.Directories.Add(dirItem);
+                            directoryContent.Directories.Add(dirItem);
                             break;
 
                         case var item when item.StartsWith(fileToken):
                             var fileJson = item.Substring(6);
                             var fileItem = JsonConvert.DeserializeObject<FileItem>(fileJson);
-                            directoryContents.Files.Add(fileItem);
+                            directoryContent.Files.Add(fileItem);
                             break;
                     }
                 }
-                return directoryContents;
             }
             catch (Exception ex)
             {
                 _logs.OnNext($"Error parsing directory content from TeensyROM:");
                 _logs.OnNext($"{ex.Message}");
             }
+            return directoryContent;
         }
 
 
