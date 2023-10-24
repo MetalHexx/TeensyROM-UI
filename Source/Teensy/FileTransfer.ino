@@ -65,40 +65,32 @@ bool GetFileStream(uint32_t SD_nUSB, char FileNamePath[], FS* sourceFS, File& fi
 
 bool EnsureDirectory(const char* path, FS& fs)
 {
-    char directoryPath[256];
     const char* lastSlash = strrchr(path, '/');
-    if (lastSlash != nullptr)
-    {
-        size_t directoryLength = lastSlash - path;
-        strncpy(directoryPath, path, directoryLength);
-        directoryPath[directoryLength] = '\0';
-    }
-    else
-    {
-        strcpy(directoryPath, path);
-    }
 
-    if (lastSlash == path || lastSlash == nullptr || directoryPath[0] == '\0')
+    if (lastSlash == path || lastSlash == nullptr)
     {
         return true;
     }
 
-    if (fs.exists(directoryPath))
+    char prevChar = *lastSlash;
+    *(char*)lastSlash = '\0';
+
+    bool result = true;
+
+    if (!fs.exists(path))
     {
-        return true;
+        if (!EnsureDirectory(path, fs))
+        {
+            result = false;
+        }
+        else
+        {
+            result = fs.mkdir(path);
+        }
     }
+    *(char*)lastSlash = prevChar;
 
-    char subPath[256];
-    size_t subPathLength = lastSlash - path;
-    strncpy(subPath, directoryPath, subPathLength);
-    subPath[subPathLength] = '\0';
-
-    if (!EnsureDirectory(subPath, fs))
-    {
-        return false;
-    }
-
-    return fs.mkdir(directoryPath);
+    return result;
 }
 
 bool ReceiveFileData(File& myFile, uint32_t len, uint32_t& CheckSum)
