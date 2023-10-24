@@ -93,7 +93,7 @@ bool EnsureDirectory(const char* path, FS& fs)
     return result;
 }
 
-bool ReceiveFileData(File& myFile, uint32_t len, uint32_t& CheckSum)
+bool ReceiveFileData(File& file, uint32_t len, uint32_t& CheckSum)
 {
     uint32_t bytenum = 0;
     uint8_t ByteIn;
@@ -104,15 +104,14 @@ bool ReceiveFileData(File& myFile, uint32_t len, uint32_t& CheckSum)
         {
             SendU16(FailToken);
             Serial.printf("Rec %lu of %lu bytes\n", bytenum, len);
-            myFile.close();
+            file.close();
             return false;
         }
-        myFile.write(ByteIn = Serial.read());
+        file.write(ByteIn = Serial.read());
         CheckSum -= ByteIn;
         bytenum++;
     }
-
-    myFile.close();
+    file.close();
 
     CheckSum &= 0xffff;
     if (CheckSum != 0)
@@ -121,7 +120,6 @@ bool ReceiveFileData(File& myFile, uint32_t len, uint32_t& CheckSum)
         Serial.printf("CS Failed! RCS:%lu\n", CheckSum);
         return false;
     }
-
     return true;
 }
 
