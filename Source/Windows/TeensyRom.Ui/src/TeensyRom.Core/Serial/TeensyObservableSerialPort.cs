@@ -228,9 +228,10 @@ namespace TeensyRom.Core.Serial
                 }
                 return directoryContents;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                _logs.OnNext($"Error: {ex.Message}");
+                return null;
             }
         }
 
