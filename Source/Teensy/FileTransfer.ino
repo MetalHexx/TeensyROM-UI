@@ -32,9 +32,9 @@ bool GetPathParameter(char FileNamePath[])
     return true;
 }
 
-FS* GetStorageDevice(uint32_t storageType) 
+FS* GetStorageDevice(uint32_t storageType)
 {
-    if(!storageType) &firstPartition;
+    if (!storageType) return &firstPartition;
 
     if (!SD.begin(BUILTIN_SDCARD)) 
     {            
@@ -44,23 +44,23 @@ FS* GetStorageDevice(uint32_t storageType)
     return &SD;
 }
 
-File GetFileStream(uint32_t SD_nUSB, char FileNamePath[], FS* sourceFS)
+bool GetFileStream(uint32_t SD_nUSB, char FileNamePath[], FS* sourceFS, File& file)
 {
     if (sourceFS->exists(FileNamePath))
     {
         SendU16(FailToken);
         Serial.printf("File already exists.\n");
-        return File();     
+        return false;
     }
+    file = sourceFS->open(FileNamePath, FILE_WRITE);
 
-    File myFile = sourceFS->open(FileNamePath, FILE_WRITE);
-    if (!myFile)
+    if (!file)
     {
         SendU16(FailToken);
         Serial.printf("Could not open for write: %s:%s\n", (SD_nUSB ? "SD" : "USB"), FileNamePath);
-        return File();
+        return false;
     }
-    return myFile;
+    return true;
 }
 
 bool EnsureDirectory(const char* path, FS& fs)
@@ -181,7 +181,7 @@ void PostFileCommand()
         return;
     }
     
-    FS *sourceFS = GetStorageDevice(storageType);
+    FS* sourceFS = GetStorageDevice(storageType);
 
     if (!sourceFS)
     {        
@@ -197,9 +197,9 @@ void PostFileCommand()
       return;
     }
    
-    File fileStream = GetFileStream(storageType, FileNamePath, sourceFS);
+    File fileStream;
 
-    if (!fileStream) return;
+    if (!GetFileStream(storageType, FileNamePath, sourceFS, fileStream)) return;
    
    SendU16(AckToken);
   
@@ -287,10 +287,10 @@ void ListDirectoryCommand()
 
     SendU16(AckToken);
 
-    uint32_t SD_nUSB, skip, take;
+    uint32_t storageType, skip, take;
     char path[MaxNamePathLength];
 
-    if (!GetUInt(&SD_nUSB, 1))
+    if (!GetUInt(&storageType, 1))
     {
         SendU16(FailToken);
         Serial.println("Error receiving storage type value!");
@@ -315,10 +315,10 @@ void ListDirectoryCommand()
         return;
     }
 
-    FS* sourceFS = GetStorageDevice(SD_nUSB);
+    FS* sourceFS = GetStorageDevice(storageType);
 
-    if (!sourceFS) 
-    {
+    if (!sourceFS)
+    {        
         SendU16(FailToken);
         Serial.println("Unable to get storage device!");
         return;
