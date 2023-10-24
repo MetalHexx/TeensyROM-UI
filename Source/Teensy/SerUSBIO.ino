@@ -20,8 +20,6 @@
 void   getFreeITCM();
 //synch with win app:
 #define SendFileToken  0x64AA 
-#define PostFileToken  0x64BB 
-#define ListDirectoryToken 0x64DD
 #define AckToken       0x64CC
 #define FailToken      0x9B7F
 

@@ -1,8 +1,6 @@
 
 #define AckToken                0x64CC
 #define FailToken               0x9B7F
-#define StartDirectoryListToken 0x5A5A
-#define EndDirectoryListToken   0xA5A5
 
 bool GetPathParameter(char FileNamePath[]) 
 {
@@ -273,9 +271,11 @@ bool SendPagedDirectoryContents(FS& fileStream, const char* directoryPath, int s
 // Send --> StartDirectoryListToken 0x5A5A or FailToken 0x9b7f
 // Send --> Write content as json
 // Send --> EndDirectoryListToken 0xA5A5,  0x9b7f on Fail
-
 void ListDirectoryCommand()
 {
+    const uint16_t StartDirectoryListToken = 0x5A5A;
+    const uint16_t EndDirectoryListToken = 0xA5A5;
+
     SendU16(AckToken);
 
     uint32_t SD_nUSB, skip, take;
