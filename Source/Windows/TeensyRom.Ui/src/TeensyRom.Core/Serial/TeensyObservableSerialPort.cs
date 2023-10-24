@@ -193,7 +193,8 @@ namespace TeensyRom.Core.Serial
             }
             catch (Exception ex)
             {
-                _logs.OnNext($"Error: {ex.Message}");                
+                _logs.OnNext($"Error getting directory content from TeensyROM:");                
+                _logs.OnNext($"{ex.Message}");
             }
             return receivedBytes;
         }
@@ -236,8 +237,8 @@ namespace TeensyRom.Core.Serial
             }
             catch (Exception ex)
             {
-                _logs.OnNext($"Error: {ex.Message}");
-                return null;
+                _logs.OnNext($"Error parsing directory content from TeensyROM:");
+                _logs.OnNext($"{ex.Message}");
             }
         }
 
