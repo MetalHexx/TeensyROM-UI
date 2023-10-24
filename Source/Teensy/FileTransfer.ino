@@ -32,16 +32,16 @@ bool GetPathParameter(char FileNamePath[])
     return true;
 }
 
-FS* GetStorageDevice(uint32_t SD_nUSB) {
-    if (SD_nUSB) {
-        if (!SD.begin(BUILTIN_SDCARD)) 
-        {            
-            Serial.printf("Specified storage device not found: %u\n", SD_nUSB);
-            return nullptr;
-        }
-        return &SD;
+FS* GetStorageDevice(uint32_t storageType) 
+{
+    if(!storageType) &firstPartition;
+
+    if (!SD.begin(BUILTIN_SDCARD)) 
+    {            
+        Serial.printf("Specified storage device was not found: %u\n", storageType);
+        return nullptr;
     }
-    return &firstPartition;
+    return &SD;
 }
 
 File GetFileStream(uint32_t SD_nUSB, char FileNamePath[], FS* sourceFS)
