@@ -148,11 +148,12 @@ namespace TeensyRom.Core.Serial
             return directoryContent;        
         }
 
-        public DirectoryContent? ReceiveDirectoryContent()
+        public List<byte> GetRawDirectoryData()
         {
-            List<byte> receivedBytes = new List<byte>();
-            DateTime startTime = DateTime.Now;
-            TimeSpan timeout = TimeSpan.FromSeconds(10);
+            var receivedBytes = new List<byte>();
+
+            var startTime = DateTime.Now;
+            var timeout = TimeSpan.FromSeconds(10);
 
             try
             {
@@ -161,21 +162,21 @@ namespace TeensyRom.Core.Serial
                     if (DateTime.Now - startTime > timeout)
                     {
                         _logs.OnNext("Timeout while receiving directory content");
-                        return null;
+                        return receivedBytes;
                     }
 
                     if (_serialPort.BytesToRead > 0)
                     {
-                        byte b = (byte)_serialPort.ReadByte();
+                        var b = (byte)_serialPort.ReadByte();
                         receivedBytes.Add(b);
 
                         if (receivedBytes.Count >= 2)
                         {
-                            ushort lastToken = (ushort)((receivedBytes[^2] << 8) | receivedBytes[^1]);
+                            var lastToken = (ushort)((receivedBytes[^2] << 8) | receivedBytes[^1]);
                             if (lastToken == TeensyConstants.Fail_Token)
                             {
                                 _logs.OnNext("Received fail token while receiving directory content");
-                                return null;
+                                return receivedBytes;
                             }
                             else if (lastToken == TeensyConstants.End_Directory_List_Token)
                             {
@@ -192,13 +193,18 @@ namespace TeensyRom.Core.Serial
             }
             catch (Exception ex)
             {
-                _logs.OnNext($"Error: {ex.Message}");
-                return null;
+                _logs.OnNext($"Error: {ex.Message}");                
             }
+            return receivedBytes;
+        }
+
+        public DirectoryContent? ReceiveDirectoryContent()
+        {
+            var receivedBytes = GetRawDirectoryData();   
 
             try
             {
-                string data = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
+                var data = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
 
                 DirectoryContent directoryContents = new DirectoryContent();
 
@@ -214,14 +220,14 @@ namespace TeensyRom.Core.Serial
                     switch (chunk)
                     {
                         case var item when item.StartsWith(dirToken):
-                            string dirJson = item.Substring(5);
-                            DirectoryItem dirItem = JsonConvert.DeserializeObject<DirectoryItem>(dirJson);
+                            var dirJson = item.Substring(5);
+                            var dirItem = JsonConvert.DeserializeObject<DirectoryItem>(dirJson);
                             directoryContents.Directories.Add(dirItem);
                             break;
 
                         case var item when item.StartsWith(fileToken):
-                            string fileJson = item.Substring(6);
-                            FileItem fileItem = JsonConvert.DeserializeObject<FileItem>(fileJson);
+                            var fileJson = item.Substring(6);
+                            var fileItem = JsonConvert.DeserializeObject<FileItem>(fileJson);
                             directoryContents.Files.Add(fileItem);
                             break;
                     }
