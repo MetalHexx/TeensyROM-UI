@@ -5,20 +5,29 @@
 bool GetPathParameter(char FileNamePath[]) 
 {
     uint16_t CharNum = 0;
-    while (1)
+    char currentChar;
+
+    while (CharNum < MaxNamePathLength)
     {
         if (!SerialAvailabeTimeout())
         {
             Serial.print("Timed out getting path param!\n");
             return false;
         }
-        FileNamePath[CharNum] = Serial.read();
-        if (FileNamePath[CharNum] == 0) break;
-        if (++CharNum == MaxNamePathLength)
-        {            
-            Serial.print("Path too long!\n");
-            return false;
-        }
+        currentChar = Serial.read();
+
+        if (currentChar == 0) break;
+
+        FileNamePath[CharNum] = currentChar;
+
+        CharNum++;
+    }
+    FileNamePath[CharNum] = 0;
+
+    if (CharNum == MaxNamePathLength)
+    {
+        Serial.print("Path too long!\n");
+        return false;
     }
     return true;
 }
