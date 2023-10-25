@@ -2,7 +2,7 @@
 #define AckToken                0x64CC
 #define FailToken               0x9B7F
 
-bool GetPathParameter(char FileNamePath[]) 
+FLASHMEM bool GetPathParameter(char FileNamePath[]) 
 {
     uint16_t CharNum = 0;
     char currentChar;
@@ -32,7 +32,7 @@ bool GetPathParameter(char FileNamePath[])
     return true;
 }
 
-FS* GetStorageDevice(uint32_t storageType)
+FLASHMEM FS* GetStorageDevice(uint32_t storageType)
 {
     if (!storageType) return &firstPartition;
 
@@ -44,7 +44,7 @@ FS* GetStorageDevice(uint32_t storageType)
     return &SD;
 }
 
-bool GetFileStream(uint32_t SD_nUSB, char FileNamePath[], FS* sourceFS, File& file)
+FLASHMEM bool GetFileStream(uint32_t SD_nUSB, char FileNamePath[], FS* sourceFS, File& file)
 {
     if (sourceFS->exists(FileNamePath))
     {
@@ -63,7 +63,7 @@ bool GetFileStream(uint32_t SD_nUSB, char FileNamePath[], FS* sourceFS, File& fi
     return true;
 }
 
-bool EnsureDirectory(const char* path, FS& fs)
+FLASHMEM bool EnsureDirectory(const char* path, FS& fs)
 {
     const char* lastSlash = strrchr(path, '/');
 
@@ -93,7 +93,7 @@ bool EnsureDirectory(const char* path, FS& fs)
     return result;
 }
 
-bool ReceiveFileData(File& file, uint32_t len, uint32_t& CheckSum)
+FLASHMEM bool ReceiveFileData(File& file, uint32_t len, uint32_t& CheckSum)
 {
     uint32_t bytenum = 0;
     uint8_t ByteIn;
@@ -137,7 +137,7 @@ bool ReceiveFileData(File& file, uint32_t len, uint32_t& CheckSum)
 // Send --> AckToken 0x64CC on Pass,  0x9b7f on Fail
 //
 // Notes: Once Post File Token Received, responses are 2 bytes in length
-void PostFileCommand()
+FLASHMEM void PostFileCommand()
 {  
     SendU16(AckToken);
 
@@ -199,13 +199,13 @@ void PostFileCommand()
 }
 
 
-bool SendPagedDirectoryContents(FS& fileStream, const char* directoryPath, int skip, int take)
+FLASHMEM bool SendPagedDirectoryContents(FS& fileStream, const char* directoryPath, int skip, int take)
 {
     File directory = fileStream.open(directoryPath);
     if (!directory)
     {
         SendU16(FailToken);
-        Serial.printf_P(PSTR("Failed to open directory: %s\n"), directoryPath);
+        Serial.printf_P(PSTR("Failed to open directory: %s\n"), directoryPath); //<-- Update all the printf statenebts to use this.
         return false;
     }
 
@@ -265,7 +265,7 @@ bool SendPagedDirectoryContents(FS& fileStream, const char* directoryPath, int s
 // Send --> StartDirectoryListToken 0x5A5A or FailToken 0x9b7f
 // Send --> Write content as json
 // Send --> EndDirectoryListToken 0xA5A5,  0x9b7f on Fail
-void ListDirectoryCommand()
+FLASHMEM void ListDirectoryCommand()
 {
     const uint16_t StartDirectoryListToken = 0x5A5A;
     const uint16_t EndDirectoryListToken = 0xA5A5;
