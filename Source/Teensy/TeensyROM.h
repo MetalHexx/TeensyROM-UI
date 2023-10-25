@@ -17,21 +17,11 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include "ROMs\TeensyROMC64.h" //TeensyROM Menu cart, stored in RAM
-//background music SID, stored in flash (PROGMEM):
-#include "SIDs\SleepDirt_norm_ntsc_1000_6581.sid.h"
-#define SIDforBackground     SleepDirt_norm_ntsc_1000_6581_sid
-//#include "SIDs\Echoes.sid.h"
-//#define SIDforBackground     Echoes_sid
+char strVersionNumber[] = "v0.5.3+"; //*VERSION*
 
-char strVersionNumber[] = "v0.5.2"; //*VERSION*
-
-//Build options:
-//#define HWv0_1_PCB  //work around swapped data bits in v0.1 PCA build
-
-//enable debug messaging at your own risk, can cause emulation interference/fails
+//Build options: enable debug messaging at your own risk, can cause emulation interference/fails
+//#define DbgMsgs_IO    //Serial out messages (Printf_dbg): Swift, MIDI (mostly out), CRT Chip info
 //#define DbgMsgs_M2S   //MIDI2SID MIDI handler messages
-//#define DbgMsgs_IO    //IO messages (Printf_dbg): Swift, MIDI (mostly out), CRT Chip info
 //#define DbgIOTraceLog //Logs Reads/Writes to/from IO1 to BigBuf. Like debug handler but can use for others
 //#define DbgCycAdjLog  //Logs ISR timing adjustments to BigBuf.
 //#define Dbg_SerTimChg //Allow commands over serial that tweak timing parameters.
@@ -39,15 +29,23 @@ char strVersionNumber[] = "v0.5.2"; //*VERSION*
 //#define Dbg_SerLogMem //Allow commands over serial that display log and memory info
 //#define DbgSpecial    //Special case logging to BigBuf
 
-#define RAM_ImageSize       (184*1024)
+#include "ROMs\TeensyROMC64.h" //TeensyROM Menu cart, stored in RAM
 #define BigBufSize          500
 uint16_t BigBufCount = 0;
 uint32_t* BigBuf = NULL;
 
-#ifdef DbgMsgs_IO
+#ifdef DbgMsgs_IO  //Debug msgs mode: Specific background SID, reduced RAM_ImageSize
    #define Printf_dbg Serial.printf
-#else
+   #define RAM_ImageSize       (160*1024)
+   #include "SIDs\Echoes.sid.h"
+   #define SIDforBackground     Echoes_sid
+   
+#else //Normal mode: Specific background SID, maximize RAM_ImageSize
    __attribute__((always_inline)) inline void Printf_dbg(...) {};
+   #define RAM_ImageSize       (184*1024)
+   #include "SIDs\SleepDirt_norm_ntsc_1000_6581.sid.h"
+   #define SIDforBackground     SleepDirt_norm_ntsc_1000_6581_sid
+   
 #endif
 
 #define IOTLRead            0x10000
@@ -168,9 +166,6 @@ uint32_t nS_VICStart  =   210;  //delay from Phi2 falling to look for ROMH.  Too
 __attribute__((always_inline)) inline void DataPortWriteWait(uint8_t Data)
 {
    DataBufEnable; 
-   #ifdef HWv0_1_PCB
-     Data= (Data&0xf9) | ((Data & 0x02)<<1) | ((Data & 0x04)>>1);  //Workaround: Data bits swapped on v0.1 schematic!
-   #endif
    register uint32_t RegBits = (Data & 0x0F) | ((Data & 0xF0) << 12);
    CORE_PIN7_PORTSET = RegBits;
    CORE_PIN7_PORTCLEAR = ~RegBits & GP7_DataMask;
@@ -192,12 +187,7 @@ __attribute__((always_inline)) inline uint8_t DataPortWaitRead()
    register uint32_t DataIn = ReadGPIO7;
    DataBufDisable;
    SetDataPortDirOut; //set data ports to outputs (default)
-   #ifdef HWv0_1_PCB
-      DataIn = ((DataIn & 0x0F) | ((DataIn >> 12) & 0xF0));
-      return (DataIn&0xf9) | ((DataIn & 0x02)<<1) | ((DataIn & 0x04)>>1);   //Workaround: Data bits swapped on v0.1 schematic!
-   #else
-      return ((DataIn & 0x0F) | ((DataIn >> 12) & 0xF0));
-   #endif
+   return ((DataIn & 0x0F) | ((DataIn >> 12) & 0xF0));
 }
 
 enum Phi2ISRStates

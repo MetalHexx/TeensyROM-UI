@@ -23,7 +23,7 @@ void   getFreeITCM();
 //#define AckToken       0x64CC
 //#define FailToken      0x9B7F
 
-void ServiceSerial()
+FLASHMEM void ServiceSerial()
 {
    uint8_t inByte = Serial.read();
    switch (inByte)
@@ -31,6 +31,11 @@ void ServiceSerial()
       case 0x64: //'d' command from app
          if(!SerialAvailabeTimeout()) return;
          inByte = Serial.read(); //READ NEXT BYTE
+         if (CurrentIOHandler != IOH_TeensyROM)
+         {
+            SendU16(FailToken);
+            Serial.print("Busy!\n");
+         }
          switch (inByte)
          {
             case 0x55:  //ping
@@ -50,6 +55,7 @@ void ServiceSerial()
                SetUpMainMenuROM();
                break;
             case 0x67: //Test/debug
+               //for (int a=0; a<256; a++) Serial.printf("\n%3d, // %3d   '%c'", ToPETSCII(a), a, a);
                PrintDebugLog();
                break;
             default:
@@ -175,7 +181,7 @@ void ServiceSerial()
             69,65,83,69,32,67,65,76,76,32,66,65,67,75,32,76,65,84,69,82,46,13,13,13,13,13,13
             };
             
-            for(uint16_t Cnt=0; Cnt<sizeof(inbuf); Cnt++) AddCharToRxQueue(inbuf[Cnt]);
+            for(uint16_t Cnt=0; Cnt<sizeof(inbuf); Cnt++) AddPETSCIICharToRxQueue(inbuf[Cnt]);
          }
          break;
       case 'p':
@@ -255,7 +261,7 @@ void ServiceSerial()
    }
 }
 
-void AddAndCheckSource(StructMenuItem SourceMenu, uint32_t *TotalSize)
+FLASHMEM void AddAndCheckSource(StructMenuItem SourceMenu, uint32_t *TotalSize)
 {
    *TotalSize += SourceMenu.Size;
    Printf_dbg(" $%08x %7d %s\n", (uint32_t)SourceMenu.Code_Image, SourceMenu.Size, SourceMenu.Name);
@@ -263,7 +269,7 @@ void AddAndCheckSource(StructMenuItem SourceMenu, uint32_t *TotalSize)
       Serial.printf("%s is using RAM!!!\n", SourceMenu.Name);
 }
 
-void GetDigits(uint8_t NumDigits, uint32_t *SetInt)
+FLASHMEM void GetDigits(uint8_t NumDigits, uint32_t *SetInt)
 {
    char inStr[NumDigits+1];
    
@@ -281,7 +287,7 @@ void GetDigits(uint8_t NumDigits, uint32_t *SetInt)
    Serial.printf("\nVal Set to: %d\n\n", *SetInt);
 }
 
-void PrintDebugLog()
+FLASHMEM void PrintDebugLog()
 {
    bool LogDatavalid = false;
    
@@ -351,7 +357,7 @@ void PrintDebugLog()
    BigBufCount = 0;
 }
 
-void ReceiveFile()
+FLASHMEM void ReceiveFile()
 { 
    //   App: SendFileToken 0x64AA
    //Teensy: AckToken 0x64CC
@@ -449,7 +455,7 @@ void ReceiveFile()
    SendU16(AckToken); //success!
 }
 
-bool GetUInt(uint32_t *InVal, uint8_t NumBytes)
+FLASHMEM bool GetUInt(uint32_t *InVal, uint8_t NumBytes)
 {
    *InVal=0;
    for(int8_t ByteNum=NumBytes-1; ByteNum>=0; ByteNum--)
@@ -461,13 +467,13 @@ bool GetUInt(uint32_t *InVal, uint8_t NumBytes)
    return true;
 }
 
-void SendU16(uint16_t SendVal)
+FLASHMEM void SendU16(uint16_t SendVal)
 {
    Serial.write((uint8_t)(SendVal & 0xff));
    Serial.write((uint8_t)((SendVal >> 8) & 0xff));
 }
    
-bool SerialAvailabeTimeout()
+FLASHMEM bool SerialAvailabeTimeout()
 {
    uint32_t StartTOMillis = millis();
    
@@ -495,7 +501,7 @@ uint32_t RAM2BytesFree()
   extern "C" uint8_t external_psram_size;
 #endif
   
-void memInfo () 
+FLASHMEM void memInfo () 
 {
   constexpr auto RAM_BASE   = 0x2020'0000;
   constexpr auto RAM_SIZE   = 512 << 10;
