@@ -6,7 +6,7 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
-using TeensyRom.Core.Serial.Abstractions;
+using TeensyRom.Core.Serial.Services;
 
 namespace TeensyRom.Ui.Features.Connect
 {

@@ -3,11 +3,11 @@ using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
-using TeensyRom.Core.Serial.Abstractions;
+using TeensyRom.Core.Serial.Constants;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Extensions;
 
-namespace TeensyRom.Core.Serial
+namespace TeensyRom.Core.Serial.Services
 {
     public class TeensyObservableSerialPort : ObservableSerialPort, ITeensyObservableSerialPort
     {
@@ -43,9 +43,9 @@ namespace TeensyRom.Core.Serial
         {
             DisableAutoReadStream();
 
-            _logs.OnNext($"Sending file transfer token: {TeensyConstants.Send_File_Token}");            
+            _logs.OnNext($"Sending file transfer token: {TeensyConstants.Send_File_Token}");
             SendIntBytes(TeensyConstants.Send_File_Token, 2);
-            
+
             WaitForSerialData(numBytes: 2, timeoutMs: 500);
 
             if (!GetAck())
@@ -146,7 +146,7 @@ namespace TeensyRom.Core.Serial
 
             EnableAutoReadStream();
 
-            return directoryContent;        
+            return directoryContent;
         }
 
         public List<byte> GetRawDirectoryData()
@@ -173,7 +173,7 @@ namespace TeensyRom.Core.Serial
 
                         if (receivedBytes.Count >= 2)
                         {
-                            var lastToken = (ushort)((receivedBytes[^2] << 8) | receivedBytes[^1]);
+                            var lastToken = (ushort)(receivedBytes[^2] << 8 | receivedBytes[^1]);
                             if (lastToken == TeensyConstants.Fail_Token)
                             {
                                 _logs.OnNext("Received fail token while receiving directory content");
@@ -194,7 +194,7 @@ namespace TeensyRom.Core.Serial
             }
             catch (Exception ex)
             {
-                _logs.OnNext($"Error getting directory content from TeensyROM:");                
+                _logs.OnNext($"Error getting directory content from TeensyROM:");
                 _logs.OnNext($"{ex.Message}");
             }
             return receivedBytes;
@@ -209,7 +209,7 @@ namespace TeensyRom.Core.Serial
             {
                 var data = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
 
-                
+
 
                 const string dirToken = "[Dir]";
                 const string dirEndToken = "[/Dir]";

@@ -1,7 +1,7 @@
 using FluentAssertions;
 using System.IO.Ports;
 using TeensyRom.Core.Serial;
-using TeensyRom.Core.Serial.Abstractions;
+using TeensyRom.Core.Serial.Services;
 using TeensyRom.Ui.Features.Connect;
 
 namespace TeensyRom.Tests

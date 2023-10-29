@@ -4,7 +4,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text.Json.Nodes;
-using TeensyRom.Core.Serial.Abstractions;
+using TeensyRom.Core.Serial.Services;
 using TeensyRom.Core.Settings.Entities;
 using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Storage.Entities;

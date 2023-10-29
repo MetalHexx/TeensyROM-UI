@@ -4,7 +4,6 @@ using System.IO.Ports;
 using System.Windows.Threading;
 using TeensyRom.Core.Storage;
 using TeensyRom.Core.Serial;
-using TeensyRom.Core.Serial.Abstractions;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.Settings;
@@ -13,6 +12,7 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Settings.Entities;
 using TeensyRom.Core.Settings.Services;
+using TeensyRom.Core.Serial.Services;
 
 namespace TeensyRom.Tests
 {

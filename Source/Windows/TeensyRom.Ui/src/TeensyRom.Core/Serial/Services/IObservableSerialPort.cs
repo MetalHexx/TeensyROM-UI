@@ -1,6 +1,6 @@
 ﻿using System.Reactive;
 
-namespace TeensyRom.Core.Serial.Abstractions
+namespace TeensyRom.Core.Serial.Services
 {
     /// <summary>
     /// Provides an observable interface to a serial port that can be interacted with
@@ -41,7 +41,7 @@ namespace TeensyRom.Core.Serial.Abstractions
         /// Closes the port
         /// </summary>
         Unit ClosePort();
-        
+
         /// <summary>
         /// Writes an integer value to the serial ports output buffer
         /// </summary>

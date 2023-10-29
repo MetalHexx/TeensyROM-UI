@@ -1,7 +1,7 @@
 ﻿using System.Reactive;
 using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Core.Serial.Abstractions
+namespace TeensyRom.Core.Serial.Services
 {
     /// <summary>
     /// Provides an interface to a teensy specific serial port operations.

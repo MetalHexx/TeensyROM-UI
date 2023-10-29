@@ -2,8 +2,9 @@
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using TeensyRom.Core.Serial.Constants;
 
-namespace TeensyRom.Core.Serial.Abstractions
+namespace TeensyRom.Core.Serial.Services
 {
     /// <summary>
     /// Serial port wrapper to provide access to serial port operations.
@@ -40,7 +41,7 @@ namespace TeensyRom.Core.Serial.Abstractions
 
         public void SetPort(string port)
         {
-            if(string.IsNullOrWhiteSpace(port))
+            if (string.IsNullOrWhiteSpace(port))
             {
                 _logs.OnNext("Set a port to get connected.");
                 return;
@@ -49,7 +50,7 @@ namespace TeensyRom.Core.Serial.Abstractions
         }
 
         public Unit OpenPort()
-        {            
+        {
             EnsureConnection();
 
             _healthCheckSubscription = Observable
@@ -63,7 +64,7 @@ namespace TeensyRom.Core.Serial.Abstractions
                     }
                     catch (Exception ex)
                     {
-                        _isRetryingConnection.OnNext(true);                        
+                        _isRetryingConnection.OnNext(true);
                         return Observable.Throw<long>(ex);
                     }
                     return Observable.Empty<long>();
