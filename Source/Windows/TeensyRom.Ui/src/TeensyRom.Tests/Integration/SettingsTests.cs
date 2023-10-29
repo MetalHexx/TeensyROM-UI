@@ -6,9 +6,9 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Settings.Entities;
 using TeensyRom.Core.Settings.Services;
 
-namespace TeensyRom.Tests
+namespace TeensyRom.Tests.Integration
 {
-    public class SettingsTests: IDisposable
+    public class SettingsTests : IDisposable
     {
         private readonly string _settingsFileName = "Settings.json";
         [Fact]
@@ -25,7 +25,7 @@ namespace TeensyRom.Tests
             vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Sid).TargetPath.Should().Be("sid");
             vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Prg).TargetPath.Should().Be("prg");
             vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Crt).TargetPath.Should().Be("crt");
-            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Hex).TargetPath.Should().Be("hex");          
+            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Hex).TargetPath.Should().Be("hex");
             vm.Settings.TargetType.Should().Be(TeensyStorageType.SD);
             vm.Settings.AutoFileCopyEnabled.Should().BeFalse();
             vm.Settings.WatchDirectoryLocation.Should().Be($"{expectedWatchLocation}");
@@ -35,7 +35,7 @@ namespace TeensyRom.Tests
         public void Given_UserSavesSettings_When_WatchFolderNotFound_Then_ReturnsErrorLog()
         {
             //Arrange
-            var settingsService = new SettingsService();            
+            var settingsService = new SettingsService();
             var vm = new SettingsViewModel(settingsService, Dispatcher.CurrentDispatcher);
             vm.Settings.WatchDirectoryLocation = @"C:\some_nonexistant_location";
             var expectedLog = $"The watch directory '{vm.Settings.WatchDirectoryLocation}' was not found.  Please go create it.";
@@ -64,7 +64,7 @@ namespace TeensyRom.Tests
             var expectedLog = $"The watch directory '{vm.Settings.WatchDirectoryLocation}' was not found.  Please go create it.";
 
             //Assert
-            vm.Logs.Should().Contain(expectedLog);            
+            vm.Logs.Should().Contain(expectedLog);
         }
 
         [Fact]
@@ -72,9 +72,9 @@ namespace TeensyRom.Tests
         {
             //Arrange
             var savedSettings = new TeensySettings()
-            {          
+            {
                 AutoFileCopyEnabled = true,
-                FileTargets = new List<TeensyTarget> 
+                FileTargets = new List<TeensyTarget>
                 {
                     new TeensyTarget
                     {

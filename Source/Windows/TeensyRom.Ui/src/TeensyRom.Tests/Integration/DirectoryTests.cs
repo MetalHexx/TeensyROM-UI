@@ -13,7 +13,7 @@ using TeensyRom.Core.Settings.Entities;
 using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Serial.Services;
 
-namespace TeensyRom.Tests
+namespace TeensyRom.Tests.Integration
 {
     [Collection("SerialPortTests")]
     public class DirectoryTests : IDisposable

@@ -4,10 +4,10 @@ using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.Services;
 using TeensyRom.Ui.Features.Connect;
 
-namespace TeensyRom.Tests
+namespace TeensyRom.Tests.Integration
 {
     [Collection("SerialPortTests")]
-    public class SerialPortTests: IDisposable
+    public class SerialPortTests : IDisposable
     {
         private ConnectViewModel _viewModel;
         private ITeensyObservableSerialPort _serialPort;

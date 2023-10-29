@@ -14,10 +14,10 @@ using TeensyRom.Core.Settings.Entities;
 using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Serial.Services;
 
-namespace TeensyRom.Tests
+namespace TeensyRom.Tests.Integration
 {
     [Collection("SerialPortTests")]
-    public class FileTransferTests: IDisposable
+    public class FileTransferTests : IDisposable
     {
         private FileTransferViewModel _fileTransferViewModel;
         private SettingsViewModel _settingsViewModel;
@@ -26,7 +26,7 @@ namespace TeensyRom.Tests
         private ISettingsService _settingsService;
         private ITeensyFileService _fileService;
 
-        private readonly string _settingsFileName = "Settings.json";        
+        private readonly string _settingsFileName = "Settings.json";
         private readonly string _testFileName = $"{Guid.NewGuid().ToString().Substring(0, 7)}-test";
         private readonly string _fullSourceTestPath = string.Empty;
 
@@ -36,8 +36,8 @@ namespace TeensyRom.Tests
 
 
         public FileTransferTests()
-        {   
-            _settings = new TeensySettings();            
+        {
+            _settings = new TeensySettings();
             _fullSourceTestPath = @$"{_settings.WatchDirectoryLocation}\{_testFileName}";
         }
 
@@ -80,7 +80,7 @@ namespace TeensyRom.Tests
             Thread.Sleep(500);
             _settingsViewModel.Settings.AutoFileCopyEnabled = true;
             _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
-            
+
             File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
@@ -219,7 +219,7 @@ namespace TeensyRom.Tests
             InitializeViewModel();
 
             //Act
-            File.WriteAllText($"{ _fullSourceTestPath}.sid", "Test sid");
+            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
             //Assert
