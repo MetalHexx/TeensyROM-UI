@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using TeensyRom.Core.Files.Abstractions;
+using TeensyRom.Core.Storage.Abstractions;
 
-namespace TeensyRom.Core.Files
+namespace TeensyRom.Core.Storage
 {
     public class FileWatcher : IFileWatcher, IDisposable
     {

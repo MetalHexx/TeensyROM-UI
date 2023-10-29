@@ -2,8 +2,8 @@
 using GalaSoft.MvvmLight.Ioc;
 using MaterialDesignThemes.Wpf;
 using System.Windows;
-using TeensyRom.Core.Files;
-using TeensyRom.Core.Files.Abstractions;
+using TeensyRom.Core.Storage;
+using TeensyRom.Core.Storage.Abstractions;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.Abstractions;
 using TeensyRom.Core.Settings;

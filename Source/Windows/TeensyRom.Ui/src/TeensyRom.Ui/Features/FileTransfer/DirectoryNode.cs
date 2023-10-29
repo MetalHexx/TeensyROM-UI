@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Documents;
-using TeensyRom.Core.Files;
+using TeensyRom.Core.Storage;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {

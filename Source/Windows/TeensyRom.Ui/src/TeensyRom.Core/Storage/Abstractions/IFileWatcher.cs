@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Core.Files.Abstractions
+﻿namespace TeensyRom.Core.Storage.Abstractions
 {
     /// <summary>
     /// Watches a folder and notifies subscribers that a new

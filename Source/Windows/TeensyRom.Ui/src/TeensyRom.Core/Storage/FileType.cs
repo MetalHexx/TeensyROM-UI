@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Core.Files
+﻿namespace TeensyRom.Core.Storage
 {
     public enum TeensyFileType
     {

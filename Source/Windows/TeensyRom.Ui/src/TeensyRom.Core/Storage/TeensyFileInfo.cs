@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Core.Files
+﻿namespace TeensyRom.Core.Storage
 {
     /// <summary>
     /// A wrapper around FileInfo that automatically provides information necessary

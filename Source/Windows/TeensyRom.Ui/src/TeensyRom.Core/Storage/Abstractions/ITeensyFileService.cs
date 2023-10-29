@@ -1,7 +1,7 @@
 ﻿using System.Reactive;
 using TeensyRom.Core.Settings;
 
-namespace TeensyRom.Core.Files.Abstractions
+namespace TeensyRom.Core.Storage.Abstractions
 {
     /// <summary>
     /// Manages file transfers to TeensyROM

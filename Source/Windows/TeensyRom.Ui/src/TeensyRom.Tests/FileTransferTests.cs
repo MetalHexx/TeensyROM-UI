@@ -2,8 +2,8 @@
 using Newtonsoft.Json;
 using System.IO.Ports;
 using System.Windows.Threading;
-using TeensyRom.Core.Files;
-using TeensyRom.Core.Files.Abstractions;
+using TeensyRom.Core.Storage;
+using TeensyRom.Core.Storage.Abstractions;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.Abstractions;
 using TeensyRom.Core.Settings;

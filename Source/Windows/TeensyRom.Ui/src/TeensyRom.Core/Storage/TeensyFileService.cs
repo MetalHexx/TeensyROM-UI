@@ -4,11 +4,11 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text.Json.Nodes;
-using TeensyRom.Core.Files.Abstractions;
+using TeensyRom.Core.Storage.Abstractions;
 using TeensyRom.Core.Serial.Abstractions;
 using TeensyRom.Core.Settings;
 
-namespace TeensyRom.Core.Files
+namespace TeensyRom.Core.Storage
 {
     /// <summary>
     /// Provides file operation capability.  Leverages the file watcher
