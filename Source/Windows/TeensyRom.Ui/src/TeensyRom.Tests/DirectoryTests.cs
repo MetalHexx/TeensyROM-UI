@@ -1,12 +1,6 @@
 ﻿using FluentAssertions;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
-using System.Runtime;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Threading;
 using TeensyRom.Core.Files;
 using TeensyRom.Core.Files.Abstractions;
@@ -15,6 +9,7 @@ using TeensyRom.Core.Serial.Abstractions;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.Settings;
+using NavigationService = TeensyRom.Ui.Features.NavigationHost.NavigationService;
 
 namespace TeensyRom.Tests
 {
@@ -63,7 +58,8 @@ namespace TeensyRom.Tests
             _fileWatcher = new FileWatcher();
             _settingsService = new SettingsService();
             _fileService = new TeensyFileService(_settingsService, _fileWatcher, _teensyPort);
-            _fileTransferViewModel = new FileTransferViewModel(_fileService, _settingsService);
+            var navigationService = new NavigationService();
+            _fileTransferViewModel = new FileTransferViewModel(_fileService, _settingsService, _teensyPort, navigationService);
             _settingsViewModel = new SettingsViewModel(_settingsService, Dispatcher.CurrentDispatcher);
             _teensyPort.SetPort(_serialPortName);
             _teensyPort.OpenPort();

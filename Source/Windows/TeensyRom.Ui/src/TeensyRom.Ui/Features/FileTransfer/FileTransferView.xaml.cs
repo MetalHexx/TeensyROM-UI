@@ -24,26 +24,20 @@ namespace TeensyRom.Ui.Features.FileTransfer
         public FileTransferView()
         {
             InitializeComponent();
-
-            //var dpd = DependencyPropertyDescriptor.FromProperty(TextBox.TextProperty, typeof(TextBox));
-            //if (dpd != null)
-            //{
-            //    dpd.AddValueChanged(LogTextBox, (sender, args) => LogTextBox.ScrollToEnd());
-            //}
         }
 
-        private void OnTreeViewItemExpanded(object sender, RoutedEventArgs e)
+        private void OnListViewSelected(object sender, SelectionChangedEventArgs e)
         {
-            if (e.OriginalSource is TreeViewItem treeViewItem
-                && treeViewItem.DataContext is DirectoryNode directoryNode)
+            var listView = sender as ListView;
+
+            if (listView?.SelectedItem is DirectoryItemVm directoryItem)
             {
                 var viewModel = (FileTransferViewModel)DataContext;
-                viewModel.LoadDirectoryContentCommand.Execute(directoryNode).Subscribe();
-                e.Handled = true;
+                viewModel.LoadDirectoryContentCommand.Execute(directoryItem).Subscribe();
             }
         }
 
-        private void OnTreeViewPreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        private void OnListViewPreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (!e.Handled)
             {
