@@ -121,10 +121,12 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
@@ -134,7 +136,19 @@
             Margin="10" 
             Text="File Transfer"/>
 
-        <Button Grid.Row="1"  Content="Test File Watch Copy" Command="{Binding TestFileCopyCommand}" />
+        <Button 
+            Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
+            ToolTip="Go up a directory"
+            HorizontalAlignment="Left"
+            Margin="10 0 0 0"
+            Grid.Row="1" Grid.Column="1">
+            <materialDesign:PackIcon Kind="ArrowUp" />
+        </Button>
+
+        <TextBox Text="{Binding CurrentDirectory.Path}" 
+            ToolTip="Current Directory.  You can type a direct path and hit enter."
+            HorizontalAlignment="Stretch" VerticalAlignment="Center"
+            Grid.Row="1" Grid.Column="2"></TextBox>
 
         <Label 
             Grid.Row="2" 
@@ -146,7 +160,7 @@
 
         <Label 
             Grid.Row="2" 
-            Grid.Column="2" 
+            Grid.Column="1" 
             Style="{StaticResource LargeLabel}"
             Content="C64" 
             HorizontalAlignment="Left"
@@ -172,9 +186,9 @@
 
             </ListView>
         </ScrollViewer>
-        
-        
-        <ScrollViewer Grid.Row="3" Grid.Column="1" VerticalScrollBarVisibility="Auto">
+
+
+        <ScrollViewer Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Auto">
 
             <ListView 
                 Name="targetListView" 
@@ -197,6 +211,7 @@
 
             </ListView>
         </ScrollViewer>
+
 
 
 
