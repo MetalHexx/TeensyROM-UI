@@ -9,8 +9,6 @@ namespace TeensyRom.Core.Storage.Services
     /// </summary>
     public interface ITeensyFileService : IDisposable
     {
-        DirectoryContent? GetDirectoryContent(string path);
-
         /// <summary>
         /// Saves a file to TeensyROM given a TeensyFileInfo
         /// </summary>

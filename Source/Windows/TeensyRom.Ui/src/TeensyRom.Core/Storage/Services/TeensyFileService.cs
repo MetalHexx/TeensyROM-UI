@@ -1,9 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.Drawing;
-using System.Reactive;
+﻿using System.Reactive;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Text.Json.Nodes;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.Services;
 using TeensyRom.Core.Settings.Entities;
@@ -112,41 +108,6 @@ namespace TeensyRom.Core.Storage
             fileInfo.TargetPath = _settings.TargetRootPath
                 .UnixPathCombine(target.TargetPath)
                 .EnsureUnixPathEnding();
-        }
-
-        public DirectoryContent? GetDirectoryContent(string path)
-        {
-            DirectoryContent directoryContent = new();
-            uint take = 5;
-            uint skip = 0;
-
-            var hasMorePages = true;
-
-            while(hasMorePages)
-            {
-
-                var page = _teensyPort.GetDirectoryContent(path, _settings.TargetType, skip, take);
-
-                if (page is null)
-                {
-                    _logService.Log("There was an error.  Received a null result from the request");
-                    return directoryContent;
-                }
-                directoryContent.Add(page);
-                skip += (uint)page.TotalCount;
-                hasMorePages = page.TotalCount == take;
-            }
-            directoryContent.Directories = directoryContent.Directories
-                .OrderBy(d => d.Name)
-                .ToList();
-            
-            directoryContent.Files = directoryContent.Files
-                .OrderBy(d => d.Name)
-                .ToList();
-
-            _logService.Log($"Received the following directory contents:");
-            _logService.Log(JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented}));
-            return directoryContent;
         }
 
         public void Dispose()

@@ -35,12 +35,14 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
 
         private readonly ITeensyFileService _fileService;
+        private readonly ITeensyDirectoryService _directoryService;
         private readonly ILoggingService _logService;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public FileTransferViewModel(ITeensyFileService fileService, ISettingsService settingsService, ITeensyObservableSerialPort teensyPort, INavigationService nav, ILoggingService logService) 
+        public FileTransferViewModel(ITeensyFileService fileService, ITeensyDirectoryService directoryService, ISettingsService settingsService, ITeensyObservableSerialPort teensyPort, INavigationService nav, ILoggingService logService) 
         {
             _fileService = fileService;
+            _directoryService = directoryService;
             _logService = logService;
             SourceItems = new ObservableCollection<StorageItemVm> { FileTreeTestData.InitializeTestStorageItems() };
 
@@ -88,7 +90,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         private void LoadDirectoryContent(string path)
         {
-            var directoryContent = _fileService.GetDirectoryContent(path);
+            var directoryContent = _directoryService.GetDirectoryContent(path);
 
             if (directoryContent is null) return;
 
@@ -142,7 +144,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         private Unit TestDirectoryList()
         {
-            _fileService.GetDirectoryContent("/");
+            _directoryService.GetDirectoryContent("/");
             return Unit.Default;
         }
 

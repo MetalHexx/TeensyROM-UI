@@ -35,6 +35,7 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<INavigationService, NavigationService>();
             SimpleIoc.Default.Register<ITeensyObservableSerialPort, TeensyObservableSerialPort>();
             SimpleIoc.Default.Register<ITeensyFileService, TeensyFileService>();
+            SimpleIoc.Default.Register<ITeensyDirectoryService, TeensyDirectoryService>();
             SimpleIoc.Default.Register<IFileWatcher, FileWatcher>();
             SimpleIoc.Default.Register<ISettingsService, SettingsService>();
             SimpleIoc.Default.Register<NavigationHostViewModel>();
