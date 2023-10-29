@@ -1,5 +1,6 @@
 ﻿using System.Reactive;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Storage.Entity;
 
 namespace TeensyRom.Core.Storage.Abstractions
 {

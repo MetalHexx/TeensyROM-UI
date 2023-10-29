@@ -1,4 +1,4 @@
-﻿using TeensyRom.Core.Storage;
+﻿using TeensyRom.Core.Storage.Entity;
 
 namespace TeensyRom.Core.Settings
 {

@@ -1,10 +1,10 @@
 ﻿using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Features.Settings;
 using FluentAssertions;
-using TeensyRom.Core.Storage;
 using Newtonsoft.Json;
 using ReactiveUI;
 using System.Windows.Threading;
+using TeensyRom.Core.Storage.Entity;
 
 namespace TeensyRom.Tests
 {

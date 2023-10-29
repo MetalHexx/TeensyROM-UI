@@ -7,6 +7,7 @@ using System.Text.Json.Nodes;
 using TeensyRom.Core.Storage.Abstractions;
 using TeensyRom.Core.Serial.Abstractions;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Storage.Entity;
 
 namespace TeensyRom.Core.Storage
 {

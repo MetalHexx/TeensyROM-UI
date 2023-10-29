@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Core.Storage
+﻿namespace TeensyRom.Core.Storage.Entity
 {
     /// <summary>
     /// A wrapper around FileInfo that automatically provides information necessary
@@ -10,13 +10,13 @@
         public string Name => _fileInfo.Name;
         public string FullPath => _fileInfo.FullName;
         public TeensyFileType Type => _fileInfo.Extension switch
-            {
-                ".sid" => TeensyFileType.Sid,
-                ".crt" => TeensyFileType.Crt,
-                ".prg" => TeensyFileType.Prg,
-                ".hex" => TeensyFileType.Hex,
-                _ => TeensyFileType.Unknown
-    };
+        {
+            ".sid" => TeensyFileType.Sid,
+            ".crt" => TeensyFileType.Crt,
+            ".prg" => TeensyFileType.Prg,
+            ".hex" => TeensyFileType.Hex,
+            _ => TeensyFileType.Unknown
+        };
         public string TargetPath { get; set; } = string.Empty;
         public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;
         public byte[] Buffer { get; set; } = new byte[0];

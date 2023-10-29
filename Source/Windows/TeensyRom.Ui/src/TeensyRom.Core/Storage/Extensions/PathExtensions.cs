@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Core.Storage
+﻿namespace TeensyRom.Core.Storage.Extensions
 {
     public static class PathExtensions
     {
