@@ -23,7 +23,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         public ObservableCollection<StorageItemVm> TargetItems { get; set; } = new();
 
         [Reactive]
-        public DirectoryItemVm CurrentDirectory { get; set; } = new();
+        public DirectoryItemVm? CurrentDirectory { get; set; }
 
 
         [Reactive]
@@ -61,7 +61,14 @@ namespace TeensyRom.Ui.Features.FileTransfer
             teensyPort.IsConnected
                 .Where(isConnected => isConnected is true)
                 .CombineLatest(settingsService.Settings, (isConnected, settings) => settings)
-                .Do(settings => { CurrentDirectory = new() { Name = settings.TargetRootPath, Path = settings.TargetRootPath }; })
+                .Do(settings => 
+                { 
+                    CurrentDirectory ??= new() 
+                    { 
+                        Name = settings.TargetRootPath, 
+                        Path = settings.TargetRootPath 
+                    }; 
+                })
                 .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
                 .Where(sn => sn.currentNav?.Type == NavigationHost.NavigationLocation.FileTransfer)
                 .Where(_ => TargetItems.Count == 0)
