@@ -4,7 +4,7 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using ReactiveUI;
 using System.Windows.Threading;
-using TeensyRom.Core.Storage.Entity;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Tests
 {

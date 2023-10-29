@@ -3,14 +3,14 @@ using Newtonsoft.Json;
 using System.IO.Ports;
 using System.Windows.Threading;
 using TeensyRom.Core.Storage;
-using TeensyRom.Core.Storage.Abstractions;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.Abstractions;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.Settings;
 using NavigationService = TeensyRom.Ui.Features.NavigationHost.NavigationService;
-using TeensyRom.Core.Storage.Entity;
+using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Services;
 
 namespace TeensyRom.Tests
 {

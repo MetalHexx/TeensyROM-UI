@@ -4,7 +4,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
 using TeensyRom.Core.Serial.Abstractions;
-using TeensyRom.Core.Storage.Entity;
+using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Extensions;
 
 namespace TeensyRom.Core.Serial

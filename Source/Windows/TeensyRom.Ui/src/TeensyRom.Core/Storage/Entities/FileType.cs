@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Core.Storage.Entity
+﻿namespace TeensyRom.Core.Storage.Entities
 {
     public enum TeensyFileType
     {

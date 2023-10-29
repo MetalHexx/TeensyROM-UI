@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace TeensyRom.Core.Storage.Entity
+namespace TeensyRom.Core.Storage.Entities
 {
     public class DirectoryContent
     {

@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Core.Storage.Entity
+﻿namespace TeensyRom.Core.Storage.Entities
 {
     /// <summary>
     /// A wrapper around FileInfo that automatically provides information necessary

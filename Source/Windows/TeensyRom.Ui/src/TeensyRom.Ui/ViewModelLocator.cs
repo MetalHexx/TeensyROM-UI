@@ -3,7 +3,6 @@ using GalaSoft.MvvmLight.Ioc;
 using MaterialDesignThemes.Wpf;
 using System.Windows;
 using TeensyRom.Core.Storage;
-using TeensyRom.Core.Storage.Abstractions;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.Abstractions;
 using TeensyRom.Core.Settings;
@@ -13,6 +12,7 @@ using TeensyRom.Ui.Features.Help;
 using TeensyRom.Ui.Features.Midi;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Settings;
+using TeensyRom.Core.Storage.Services;
 
 namespace TeensyRom.Ui
 {
