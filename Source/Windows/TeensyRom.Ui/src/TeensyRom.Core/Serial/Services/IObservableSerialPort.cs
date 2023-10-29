@@ -23,11 +23,6 @@ namespace TeensyRom.Core.Serial.Services
         IObservable<bool> IsRetryingConnection { get; }
 
         /// <summary>
-        /// All the log data from serial port communications
-        /// </summary>
-        IObservable<string> Logs { get; }
-
-        /// <summary>
         /// Sets the port to connect to
         /// </summary>
         void SetPort(string port);

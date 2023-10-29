@@ -4,6 +4,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text.Json.Nodes;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.Services;
 using TeensyRom.Core.Settings.Entities;
 using TeensyRom.Core.Settings.Services;
@@ -19,23 +20,20 @@ namespace TeensyRom.Core.Storage
     /// </summary>
     public class TeensyFileService: ITeensyFileService
     {
-        protected readonly Subject<string> _logs = new();
-        public IObservable<string> Logs => _logs.AsObservable();
-
         private readonly ISettingsService _settingsService;
         private readonly IFileWatcher _fileWatcher;
-        private readonly ITeensyObservableSerialPort _teensyPort;        
+        private readonly ITeensyObservableSerialPort _teensyPort;
+        private readonly ILoggingService _logService;
         private IDisposable _settingsSubscription;
         private IDisposable _fileWatchSubscription;
-        private IDisposable _teensyPortLogSubscription;
         private TeensySettings _settings = new();
 
-        public TeensyFileService(ISettingsService settingsService, IFileWatcher fileWatcher, ITeensyObservableSerialPort serialPort)
+        public TeensyFileService(ISettingsService settingsService, IFileWatcher fileWatcher, ITeensyObservableSerialPort serialPort, ILoggingService logService)
         {
             _settingsService = settingsService;
             _fileWatcher = fileWatcher;
-            _teensyPort = serialPort;            
-            _teensyPortLogSubscription = _teensyPort.Logs.Subscribe(_logs.OnNext, _logs.OnError);
+            _teensyPort = serialPort;
+            _logService = logService;
             InitializeSettings();
         }
 
@@ -62,10 +60,8 @@ namespace TeensyRom.Core.Storage
                 .WithLatestFrom(_teensyPort.IsConnected, (f, c) => new { File = f, IsConnected = c })
                 .Where(fc => fc.IsConnected && settings.AutoFileCopyEnabled)
                 .Select(fc => new TeensyFileInfo(fc.File))
-                .Do(fileInfo => _logs.OnNext($"File detected: {fileInfo.FullPath}"))
+                .Do(fileInfo => _logService.Log($"File detected: {fileInfo.FullPath}"))
                 .Subscribe(fileInfo => SaveFile(fileInfo));
-
-            _teensyPort.Logs.Subscribe(_logs.OnNext);
         }
 
         public Unit SaveFile(string path)
@@ -79,24 +75,24 @@ namespace TeensyRom.Core.Storage
             }
             catch (FileNotFoundException ex)
             {
-                _logs.OnNext(ex.Message);
+                _logService.Log(ex.Message);
             }
             return Unit.Default;
         }
 
         public Unit SaveFile(TeensyFileInfo fileInfo)
         {
-            _logs.OnNext("Initiating file transfer handshake");            
+            _logService.Log("Initiating file transfer handshake");            
 
             TransformDestination(fileInfo);
 
             if (_teensyPort.SendFile(fileInfo))
             {
-                _logs.OnNext($"Saved: {fileInfo}");
+                _logService.Log($"Saved: {fileInfo}");
             }
             else
             {
-                _logs.OnNext($"Failed to save: {fileInfo}");
+                _logService.Log($"Failed to save: {fileInfo}");
             }
             return Unit.Default;
         }
@@ -133,7 +129,7 @@ namespace TeensyRom.Core.Storage
 
                 if (page is null)
                 {
-                    _logs.OnNext("There was an error.  Received a null result from the request");
+                    _logService.Log("There was an error.  Received a null result from the request");
                     return directoryContent;
                 }
                 directoryContent.Add(page);
@@ -148,8 +144,8 @@ namespace TeensyRom.Core.Storage
                 .OrderBy(d => d.Name)
                 .ToList();
 
-            _logs.OnNext($"Received the following directory contents:");
-            _logs.OnNext(JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented}));
+            _logService.Log($"Received the following directory contents:");
+            _logService.Log(JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented}));
             return directoryContent;
         }
 
@@ -157,7 +153,6 @@ namespace TeensyRom.Core.Storage
         {
             _settingsSubscription?.Dispose();
             _fileWatchSubscription?.Dispose();
-            _teensyPortLogSubscription?.Dispose();
             _fileWatcher.Dispose();
         }
     }

@@ -3,7 +3,6 @@ using INavigationService = TeensyRom.Ui.Features.NavigationHost.INavigationServi
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -14,6 +13,7 @@ using System.Text;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Serial.Services;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
@@ -35,12 +35,13 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
 
         private readonly ITeensyFileService _fileService;
+        private readonly ILoggingService _logService;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public FileTransferViewModel(ITeensyFileService fileService, ISettingsService settingsService, ITeensyObservableSerialPort teensyPort, INavigationService nav) 
+        public FileTransferViewModel(ITeensyFileService fileService, ISettingsService settingsService, ITeensyObservableSerialPort teensyPort, INavigationService nav, ILoggingService logService) 
         {
             _fileService = fileService;
-
+            _logService = logService;
             SourceItems = new ObservableCollection<StorageItemVm> { FileTreeTestData.InitializeTestStorageItems() };
 
             TestFileCopyCommand = ReactiveCommand.Create<Unit, Unit>(n =>
@@ -52,7 +53,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
             LoadDirectoryContentCommand = ReactiveCommand.Create<DirectoryItemVm>(LoadDirectoryContent);
 
 
-            _fileService.Logs.Subscribe(log =>
+            _logService.Logs.Subscribe(log =>
             {
                 _logBuilder.AppendLine(log);
                 Logs = _logBuilder.ToString();

@@ -12,6 +12,7 @@ using TeensyRom.Ui.Features.Settings;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Serial.Services;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui
 {
@@ -30,6 +31,7 @@ namespace TeensyRom.Ui
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
 
             SimpleIoc.Default.Register<DialogHost, DialogHost>();
+            SimpleIoc.Default.Register<ILoggingService, LoggingService>();
             SimpleIoc.Default.Register<INavigationService, NavigationService>();
             SimpleIoc.Default.Register<ITeensyObservableSerialPort, TeensyObservableSerialPort>();
             SimpleIoc.Default.Register<ITeensyFileService, TeensyFileService>();

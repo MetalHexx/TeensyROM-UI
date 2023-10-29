@@ -9,11 +9,6 @@ namespace TeensyRom.Core.Storage.Services
     /// </summary>
     public interface ITeensyFileService : IDisposable
     {
-        /// <summary>
-        /// Emits values on activies performed by the file service
-        /// </summary>
-        IObservable<string> Logs { get; }
-
         DirectoryContent? GetDirectoryContent(string path);
 
         /// <summary>

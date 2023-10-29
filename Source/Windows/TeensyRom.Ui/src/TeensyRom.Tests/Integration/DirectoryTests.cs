@@ -12,6 +12,7 @@ using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Settings.Entities;
 using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Serial.Services;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Tests.Integration
 {
@@ -56,13 +57,14 @@ namespace TeensyRom.Tests.Integration
             var json = JsonConvert.SerializeObject(_settings);
             File.WriteAllText(_settingsFileName, json);
 
-            _teensyPort = new TeensyObservableSerialPort();
+            var logService = new LoggingService(); 
+            _teensyPort = new TeensyObservableSerialPort(logService);
             _fileWatcher = new FileWatcher();
-            _settingsService = new SettingsService();
-            _fileService = new TeensyFileService(_settingsService, _fileWatcher, _teensyPort);
+            _settingsService = new SettingsService(logService);
+            _fileService = new TeensyFileService(_settingsService, _fileWatcher, _teensyPort, logService);
             var navigationService = new NavigationService();
-            _fileTransferViewModel = new FileTransferViewModel(_fileService, _settingsService, _teensyPort, navigationService);
-            _settingsViewModel = new SettingsViewModel(_settingsService, Dispatcher.CurrentDispatcher);
+            _fileTransferViewModel = new FileTransferViewModel(_fileService, _settingsService, _teensyPort, navigationService, logService);
+            _settingsViewModel = new SettingsViewModel(_settingsService, Dispatcher.CurrentDispatcher, logService);
             _teensyPort.SetPort(_serialPortName);
             _teensyPort.OpenPort();
         }

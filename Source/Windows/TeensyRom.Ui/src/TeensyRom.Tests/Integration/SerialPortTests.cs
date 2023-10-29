@@ -1,5 +1,6 @@
 using FluentAssertions;
 using System.IO.Ports;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.Services;
 using TeensyRom.Ui.Features.Connect;
@@ -13,8 +14,9 @@ namespace TeensyRom.Tests.Integration
         private ITeensyObservableSerialPort _serialPort;
         public SerialPortTests()
         {
-            _serialPort = new TeensyObservableSerialPort();
-            _viewModel = new ConnectViewModel(_serialPort);
+            var logService = new LoggingService();
+            _serialPort = new TeensyObservableSerialPort(logService);
+            _viewModel = new ConnectViewModel(_serialPort, logService);
         }
         [Fact]
         public void Given_PortsExist_Then_PortsShouldMatch()

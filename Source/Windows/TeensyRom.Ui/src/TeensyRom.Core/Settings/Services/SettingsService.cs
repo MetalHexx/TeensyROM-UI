@@ -2,6 +2,7 @@
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings.Entities;
 using Formatting = Newtonsoft.Json.Formatting;
 
@@ -9,18 +10,17 @@ namespace TeensyRom.Core.Settings.Services
 {
     public class SettingsService : ISettingsService
     {
-        public IObservable<string> Logs => _logs.AsObservable();
-
-        private BehaviorSubject<string> _logs = new BehaviorSubject<string>(string.Empty);
         public IObservable<TeensySettings> Settings => _settings.AsObservable();
 
         private BehaviorSubject<TeensySettings> _settings;
 
         private const string _settingsFilePath = "Settings.json";
+        private readonly ILoggingService _logService;
 
-        public SettingsService()
+        public SettingsService(ILoggingService logService)
         {
-            _settings = new BehaviorSubject<TeensySettings>(GetSettings());
+            _logService = logService;
+            _settings = new BehaviorSubject<TeensySettings>(GetSettings());            
         }
 
         private TeensySettings GetSettings()
@@ -52,7 +52,7 @@ namespace TeensyRom.Core.Settings.Services
         {
             if (!ValidateAndLogSettings(settings)) return Unit.Default;
 
-            _logs.OnNext($"Settings saved successfully.");
+            _logService.Log($"Settings saved successfully.");
             _settings.OnNext(settings);
 
             File.WriteAllText(_settingsFilePath, JsonConvert.SerializeObject(settings, Formatting.Indented, new JsonSerializerSettings
@@ -67,7 +67,7 @@ namespace TeensyRom.Core.Settings.Services
         {
             if (!Directory.Exists(settings.WatchDirectoryLocation))
             {
-                _logs.OnNext($"The watch directory '{settings.WatchDirectoryLocation}' was not found.  Please go create it.");
+                _logService.Log($"The watch directory '{settings.WatchDirectoryLocation}' was not found.  Please go create it.");
                 return false;
             }
             return true;

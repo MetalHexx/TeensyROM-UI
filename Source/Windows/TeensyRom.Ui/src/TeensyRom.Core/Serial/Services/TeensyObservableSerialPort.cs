@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.Constants;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Extensions;
@@ -11,14 +12,19 @@ namespace TeensyRom.Core.Serial.Services
 {
     public class TeensyObservableSerialPort : ObservableSerialPort, ITeensyObservableSerialPort
     {
+        public TeensyObservableSerialPort(ILoggingService logService): base(logService)
+        {
+
+        }
+
         public Unit PingDevice()
         {
             if (!_serialPort.IsOpen)
             {
-                _logs.OnNext("You must first connect in order to ping the device.");
+                _logService.Log("You must first connect in order to ping the device.");
                 return Unit.Default;
             }
-            _logs.OnNext($"Pinging device");
+            _logService.Log($"Pinging device");
 
             _serialPort.Write(TeensyConstants.Ping_Bytes.ToArray(), 0, 2);
 
@@ -29,10 +35,10 @@ namespace TeensyRom.Core.Serial.Services
         {
             if (!_serialPort.IsOpen)
             {
-                _logs.OnNext("You must first connect in order to reset the device.");
+                _logService.Log("You must first connect in order to reset the device.");
                 return Unit.Default;
             }
-            _logs.OnNext($"Resetting device");
+            _logService.Log($"Resetting device");
 
             _serialPort.Write(TeensyConstants.Reset_Bytes.ToArray(), 0, 2);
 
@@ -43,7 +49,7 @@ namespace TeensyRom.Core.Serial.Services
         {
             DisableAutoReadStream();
 
-            _logs.OnNext($"Sending file transfer token: {TeensyConstants.Send_File_Token}");
+            _logService.Log($"Sending file transfer token: {TeensyConstants.Send_File_Token}");
             SendIntBytes(TeensyConstants.Send_File_Token, 2);
 
             WaitForSerialData(numBytes: 2, timeoutMs: 500);
@@ -54,16 +60,16 @@ namespace TeensyRom.Core.Serial.Services
                 return false;
             }
 
-            _logs.OnNext($"Sending Stream Length: {fileInfo.StreamLength}");
+            _logService.Log($"Sending Stream Length: {fileInfo.StreamLength}");
             SendIntBytes(fileInfo.StreamLength, 4);
 
-            _logs.OnNext($"Sending Checksum: {fileInfo.Checksum}");
+            _logService.Log($"Sending Checksum: {fileInfo.Checksum}");
             SendIntBytes(fileInfo.Checksum, 2);
 
-            _logs.OnNext($"Sending SD_nUSB: {TeensyConstants.Sd_Card_Token}");
+            _logService.Log($"Sending SD_nUSB: {TeensyConstants.Sd_Card_Token}");
             SendIntBytes(GetStorageToken(fileInfo.StorageType), 1);
 
-            _logs.OnNext($"Sending to target path: {fileInfo.TargetPath.UnixPathCombine(fileInfo.Name)}");
+            _logService.Log($"Sending to target path: {fileInfo.TargetPath.UnixPathCombine(fileInfo.Name)}");
             _serialPort.Write($"{fileInfo.TargetPath.UnixPathCombine(fileInfo.Name)}\0");
 
             if (!GetAck())
@@ -71,9 +77,9 @@ namespace TeensyRom.Core.Serial.Services
                 ReadSerialAsString(msToWait: 100);
                 return false;
             }
-            _logs.OnNext("File ready for transfer!");
+            _logService.Log("File ready for transfer!");
 
-            _logs.OnNext($"Sending file: {fileInfo.FullPath}");
+            _logService.Log($"Sending file: {fileInfo.FullPath}");
             var bytesSent = 0;
 
             while (fileInfo.StreamLength > bytesSent)
@@ -82,17 +88,17 @@ namespace TeensyRom.Core.Serial.Services
                 if (fileInfo.StreamLength - bytesSent < bytesToSend) bytesToSend = (int)fileInfo.StreamLength - bytesSent;
                 _serialPort.Write(fileInfo.Buffer, bytesSent, bytesToSend);
 
-                _logs.OnNext("*");
+                _logService.Log("*");
                 bytesSent += bytesToSend;
             }
 
             if (!GetAck())
             {
                 ReadSerialAsString(msToWait: 500);
-                _logs.OnNext("File transfer failed.");
+                _logService.Log("File transfer failed.");
                 return false;
             }
-            _logs.OnNext("File transfer complete!");
+            _logService.Log("File transfer complete!");
 
             EnableAutoReadStream();
 
@@ -103,7 +109,7 @@ namespace TeensyRom.Core.Serial.Services
         {
             DisableAutoReadStream();
 
-            _logs.OnNext($"Sending directory listing token: {TeensyConstants.List_Directory_Token}");
+            _logService.Log($"Sending directory listing token: {TeensyConstants.List_Directory_Token}");
             SendIntBytes(TeensyConstants.List_Directory_Token, 2);
 
             if (!GetAck())
@@ -112,16 +118,16 @@ namespace TeensyRom.Core.Serial.Services
                 return null;
             }
 
-            _logs.OnNext($"Sending Storage Type: {TeensyConstants.Sd_Card_Token}");
+            _logService.Log($"Sending Storage Type: {TeensyConstants.Sd_Card_Token}");
             SendIntBytes(GetStorageToken(storageType), 1);
 
-            _logs.OnNext($"Sending Skip: {skip}");
+            _logService.Log($"Sending Skip: {skip}");
             SendIntBytes(skip, 1);
 
-            _logs.OnNext($"Sending Take: {take}");
+            _logService.Log($"Sending Take: {take}");
             SendIntBytes(take, 1);
 
-            _logs.OnNext($"Sending path: {path}");
+            _logService.Log($"Sending path: {path}");
             _serialPort.Write($"{path}\0");
 
             if (!WaitForDirectoryStartToken())
@@ -129,20 +135,20 @@ namespace TeensyRom.Core.Serial.Services
                 ReadSerialAsString(msToWait: 100);
                 return null;
             }
-            _logs.OnNext("Ready to receive directory content!");
+            _logService.Log("Ready to receive directory content!");
 
             var directoryContent = ReceiveDirectoryContent();
 
             if (directoryContent is null)
             {
                 ReadSerialAsString(msToWait: 100);
-                _logs.OnNext("Failed to receive directory content");
+                _logService.Log("Failed to receive directory content");
                 return directoryContent;
             }
 
             var contentLog = JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented });
 
-            _logs.OnNext(contentLog);
+            _logService.Log(contentLog);
 
             EnableAutoReadStream();
 
@@ -162,7 +168,7 @@ namespace TeensyRom.Core.Serial.Services
                 {
                     if (DateTime.Now - startTime > timeout)
                     {
-                        _logs.OnNext("Timeout while receiving directory content");
+                        _logService.Log("Timeout while receiving directory content");
                         return receivedBytes;
                     }
 
@@ -176,12 +182,12 @@ namespace TeensyRom.Core.Serial.Services
                             var lastToken = (ushort)(receivedBytes[^2] << 8 | receivedBytes[^1]);
                             if (lastToken == TeensyConstants.Fail_Token)
                             {
-                                _logs.OnNext("Received fail token while receiving directory content");
+                                _logService.Log("Received fail token while receiving directory content");
                                 return receivedBytes;
                             }
                             else if (lastToken == TeensyConstants.End_Directory_List_Token)
                             {
-                                _logs.OnNext("Received End Directory List Token");
+                                _logService.Log("Received End Directory List Token");
                                 break;
                             }
                         }
@@ -194,8 +200,8 @@ namespace TeensyRom.Core.Serial.Services
             }
             catch (Exception ex)
             {
-                _logs.OnNext($"Error getting directory content from TeensyROM:");
-                _logs.OnNext($"{ex.Message}");
+                _logService.Log($"Error getting directory content from TeensyROM:");
+                _logService.Log($"{ex.Message}");
             }
             return receivedBytes;
         }
@@ -238,8 +244,8 @@ namespace TeensyRom.Core.Serial.Services
             }
             catch (Exception ex)
             {
-                _logs.OnNext($"Error parsing directory content from TeensyROM:");
-                _logs.OnNext($"{ex.Message}");
+                _logService.Log($"Error parsing directory content from TeensyROM:");
+                _logService.Log($"{ex.Message}");
             }
             return directoryContent;
         }
@@ -256,15 +262,15 @@ namespace TeensyRom.Core.Serial.Services
             switch (recU16)
             {
                 case TeensyConstants.Start_Directory_List_Token:
-                    _logs.OnNext("Response: StartDirectoryToken Received");
+                    _logService.Log("Response: StartDirectoryToken Received");
                     return true;
 
                 case TeensyConstants.Fail_Token:
-                    _logs.OnNext("Response: Failure Received");
+                    _logService.Log("Response: Failure Received");
                     return false;
 
                 default:
-                    _logs.OnNext("Response: Unexpected Response that was not an Ack token - " + recBuf[0].ToString("X2") + ":" + recBuf[1].ToString("X2"));
+                    _logService.Log("Response: Unexpected Response that was not an Ack token - " + recBuf[0].ToString("X2") + ":" + recBuf[1].ToString("X2"));
                     return false;
             }
         }
@@ -286,7 +292,7 @@ namespace TeensyRom.Core.Serial.Services
             byte[] receivedData = new byte[_serialPort.BytesToRead];
             _serialPort.Read(receivedData, 0, receivedData.Length);
 
-            _logs.OnNext("Received Bytes: " + BitConverter.ToString(receivedData));
+            _logService.Log("Received Bytes: " + BitConverter.ToString(receivedData));
         }
 
         public void ReadSerialAsString(int msToWait = 0)
@@ -297,7 +303,7 @@ namespace TeensyRom.Core.Serial.Services
             byte[] receivedData = new byte[_serialPort.BytesToRead];
             _serialPort.Read(receivedData, 0, receivedData.Length);
 
-            _logs.OnNext("Received String: " + Encoding.ASCII.GetString(receivedData));
+            _logService.Log("Received String: " + Encoding.ASCII.GetString(receivedData));
         }
 
         public bool GetAck()
@@ -311,15 +317,15 @@ namespace TeensyRom.Core.Serial.Services
             switch (recU16)
             {
                 case TeensyConstants.Ack_Token:
-                    _logs.OnNext("Response: Acknowledgement Token Received");
+                    _logService.Log("Response: Acknowledgement Token Received");
                     return true;
 
                 case TeensyConstants.Fail_Token:
-                    _logs.OnNext("Response: Acknowledgement Failure Received");
+                    _logService.Log("Response: Acknowledgement Failure Received");
                     return false;
 
                 default:
-                    _logs.OnNext("Response: Unexpected Response that was not an Ack token - " + recBuf[0].ToString("X2") + ":" + recBuf[1].ToString("X2"));
+                    _logService.Log("Response: Unexpected Response that was not an Ack token - " + recBuf[0].ToString("X2") + ":" + recBuf[1].ToString("X2"));
                     return false;
             }
         }

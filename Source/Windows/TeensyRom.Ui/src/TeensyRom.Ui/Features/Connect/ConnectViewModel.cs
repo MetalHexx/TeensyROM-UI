@@ -6,6 +6,7 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.Services;
 
 namespace TeensyRom.Ui.Features.Connect
@@ -38,12 +39,13 @@ namespace TeensyRom.Ui.Features.Connect
         private readonly IDisposable? _logsSubscription;
 
         private readonly ITeensyObservableSerialPort _teensySerial;
+        private readonly ILoggingService _logService;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public ConnectViewModel(ITeensyObservableSerialPort teensySerial)
+        public ConnectViewModel(ITeensyObservableSerialPort teensySerial, ILoggingService logService)
         {
             _teensySerial = teensySerial;
-
+            _logService = logService;
             _teensySerial.Ports.ToPropertyEx(this, vm => vm.Ports);
             _teensySerial.IsConnected.ToPropertyEx(this, vm => vm.IsConnected);
 
@@ -78,7 +80,7 @@ namespace TeensyRom.Ui.Features.Connect
                 .Where(port => port != null)
                 .Subscribe(port => _teensySerial.SetPort(port));
 
-            _logsSubscription = _teensySerial.Logs
+            _logsSubscription = _logService.Logs
                 .Select(log => _logBuilder.AppendLine(log))
                 .Select(_ => _logBuilder.ToString())
                 .Subscribe(logs => 

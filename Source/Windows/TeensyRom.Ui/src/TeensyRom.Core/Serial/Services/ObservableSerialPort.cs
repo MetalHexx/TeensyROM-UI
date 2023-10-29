@@ -2,6 +2,7 @@
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.Constants;
 
 namespace TeensyRom.Core.Serial.Services
@@ -16,13 +17,11 @@ namespace TeensyRom.Core.Serial.Services
         public IObservable<string[]> Ports => _ports.AsObservable();
         public IObservable<bool> IsConnected => _isConnected.AsObservable();
         public IObservable<bool> IsRetryingConnection => _isRetryingConnection.AsObservable();
-        public IObservable<string> Logs => _logs.AsObservable();
 
         protected readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         protected readonly BehaviorSubject<bool> _isConnected = new(false);
         protected readonly BehaviorSubject<bool> _isRetryingConnection = new(false);
 
-        protected Subject<string> _logs = new Subject<string>();
         protected Subject<string> _serialData = new Subject<string>();
 
         protected IDisposable? _dataSubscription;
@@ -32,18 +31,20 @@ namespace TeensyRom.Core.Serial.Services
         protected IObservable<byte[]>? _rawSerialBytes;
 
         protected readonly SerialPort _serialPort = new() { BaudRate = 115200 };
+        protected readonly ILoggingService _logService;
 
-        public ObservableSerialPort()
+        public ObservableSerialPort(ILoggingService logService)
         {
+            _logService = logService;
             StartPortPoll();
-            EnableAutoReadStream();
+            EnableAutoReadStream();            
         }
 
         public void SetPort(string port)
         {
             if (string.IsNullOrWhiteSpace(port))
             {
-                _logs.OnNext("Set a port to get connected.");
+                _logService.Log("Set a port to get connected.");
                 return;
             }
             _serialPort.PortName = port;
@@ -86,11 +87,11 @@ namespace TeensyRom.Core.Serial.Services
                 ReadAndLogStaleBuffer();
 
                 _isConnected.OnNext(true);
-                _logs.OnNext($"Successfully connected to {_serialPort.PortName}");
+                _logService.Log($"Successfully connected to {_serialPort.PortName}");
             }
             catch
             {
-                _logs.OnNext($"Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
+                _logService.Log($"Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
                 _isConnected.OnNext(false);
                 throw;
             }
@@ -100,7 +101,7 @@ namespace TeensyRom.Core.Serial.Services
         {
             if (_serialPort.IsOpen) _serialPort.Close();
 
-            _logs.OnNext($"Successfully disconnected from {_serialPort.PortName}.");
+            _logService.Log($"Successfully disconnected from {_serialPort.PortName}.");
             _isConnected.OnNext(false);
 
             _healthCheckSubscription?.Dispose();
@@ -129,12 +130,12 @@ namespace TeensyRom.Core.Serial.Services
                     var ports = SerialPort.GetPortNames();
                     if (!hasPorts)
                     {
-                        _logs.OnNext($"Failed to find connectable ports. Retrying in {SerialPortConstants.Health_Check_Milliseconds}.");
+                        _logService.Log($"Failed to find connectable ports. Retrying in {SerialPortConstants.Health_Check_Milliseconds}.");
                         return false;
                     }
                     else if (previousHasPorts == false && hasPorts)
                     {
-                        _logs.OnNext("Successfully located connectable ports.");
+                        _logService.Log("Successfully located connectable ports.");
                         return true;
                     }
                     return true;
@@ -160,7 +161,7 @@ namespace TeensyRom.Core.Serial.Services
 
             _logSubscription = _rawSerialBytes
                 .Select(bytes => ToLogString(bytes))
-                .Subscribe(_logs.OnNext, _logs.OnError);
+                .Subscribe(_logService.Log);
         }
 
         /// <summary>
@@ -193,7 +194,7 @@ namespace TeensyRom.Core.Serial.Services
         {
             var bytesToSend = BitConverter.GetBytes(intToSend);
 
-            _logs.OnNext($"Sent Bytes: {BitConverter.ToString(bytesToSend)}");
+            _logService.Log($"Sent Bytes: {BitConverter.ToString(bytesToSend)}");
 
             for (short byteNum = (short)(byteLength - 1); byteNum >= 0; byteNum--)
             {
@@ -220,7 +221,7 @@ namespace TeensyRom.Core.Serial.Services
         {
             var bytes = ReadSerialBytes();
             var log = ToLogString(bytes);
-            _logs.OnNext(log);
+            _logService.Log(log);
         }
 
         /// <summary>
@@ -241,7 +242,6 @@ namespace TeensyRom.Core.Serial.Services
             _ports?.Dispose();
             _portRefresherSubscription?.Dispose();
             _healthCheckSubscription?.Dispose();
-            _logs?.Dispose();
             _logSubscription?.Dispose();
             _serialData?.Dispose();
             _dataSubscription?.Dispose();

@@ -10,6 +10,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings.Entities;
 using TeensyRom.Core.Settings.Services;
 
@@ -27,13 +28,14 @@ namespace TeensyRom.Ui.Features.Settings
         public ReactiveCommand<Unit, Unit> SaveSettingsCommand { get; set; }
 
         private readonly ISettingsService _settingsService;
+        private readonly ILoggingService _logService;
         private readonly IDisposable _logsSubscription;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public SettingsViewModel(ISettingsService settings, Dispatcher dispatcher)
+        public SettingsViewModel(ISettingsService settings, Dispatcher dispatcher, ILoggingService logService)
         {
-            _settingsService = settings;
-
+            _logService = logService;
+            _settingsService = settings;            
             SettingsMessageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(3), dispatcher);
 
             _settingsService.Settings.ToPropertyEx(this, vm => vm.Settings);
@@ -41,7 +43,7 @@ namespace TeensyRom.Ui.Features.Settings
             SaveSettingsCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 _settingsService.SaveSettings(Settings), outputScheduler: ImmediateScheduler.Instance);
 
-            _logsSubscription = _settingsService.Logs
+            _logsSubscription = _logService.Logs
                 .Where(log => !string.IsNullOrWhiteSpace(log))
                 .Do(log => SettingsMessageQueue.Enqueue(log))
                 .Select(log => _logBuilder.AppendLine(log))
