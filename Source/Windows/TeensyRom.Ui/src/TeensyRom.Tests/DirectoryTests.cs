@@ -10,6 +10,8 @@ using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.Settings;
 using NavigationService = TeensyRom.Ui.Features.NavigationHost.NavigationService;
 using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Settings.Entities;
+using TeensyRom.Core.Settings.Services;
 
 namespace TeensyRom.Tests
 {

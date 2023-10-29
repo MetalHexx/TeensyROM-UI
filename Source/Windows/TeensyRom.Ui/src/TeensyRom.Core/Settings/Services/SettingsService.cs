@@ -2,9 +2,10 @@
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using TeensyRom.Core.Settings.Entities;
 using Formatting = Newtonsoft.Json.Formatting;
 
-namespace TeensyRom.Core.Settings
+namespace TeensyRom.Core.Settings.Services
 {
     public class SettingsService : ISettingsService
     {

@@ -1,6 +1,6 @@
 ﻿using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Core.Settings
+namespace TeensyRom.Core.Settings.Entities
 {
     /// <summary>
     /// Used to persist and retrieve user preference from disk.  See: Settings.json in the bin folder
@@ -20,7 +20,7 @@ namespace TeensyRom.Core.Settings
 
         public void InitializeDefaults()
         {
-            FileTargets.AddRange(new List<TeensyTarget> 
+            FileTargets.AddRange(new List<TeensyTarget>
             {
                 new TeensyTarget
                 {
@@ -52,7 +52,7 @@ namespace TeensyRom.Core.Settings
                 }
             });
         }
-        
+
         /// <summary>
         /// If the user has no settings file saved yet, we'll default to the 
         /// environmentally defined location for the user profile download directory

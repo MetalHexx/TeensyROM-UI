@@ -10,7 +10,8 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Threading;
-using TeensyRom.Core.Settings;
+using TeensyRom.Core.Settings.Entities;
+using TeensyRom.Core.Settings.Services;
 
 namespace TeensyRom.Ui.Features.Settings
 {

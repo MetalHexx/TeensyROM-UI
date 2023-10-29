@@ -12,8 +12,8 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using TeensyRom.Core.Serial.Abstractions;
-using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Settings.Services;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
