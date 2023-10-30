@@ -1,5 +1,4 @@
 ﻿using DynamicData;
-using INavigationService = TeensyRom.Ui.Features.NavigationHost.INavigationService;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
@@ -17,6 +16,7 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Common;
+using INavigationService = TeensyRom.Ui.Features.NavigationHost.INavigationService;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
