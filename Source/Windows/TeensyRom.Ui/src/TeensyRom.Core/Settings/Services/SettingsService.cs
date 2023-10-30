@@ -48,9 +48,9 @@ namespace TeensyRom.Core.Settings.Services
                 return settings;
             }
         }
-        public Unit SaveSettings(TeensySettings settings)
+        public bool SaveSettings(TeensySettings settings)
         {
-            if (!ValidateAndLogSettings(settings)) return Unit.Default;
+            if (!ValidateAndLogSettings(settings)) return false;
 
             _logService.Log($"Settings saved successfully.");
             _settings.OnNext(settings);
@@ -60,7 +60,7 @@ namespace TeensyRom.Core.Settings.Services
                 TypeNameHandling = TypeNameHandling.Auto,
                 Formatting = Formatting.Indented
             }));
-            return Unit.Default;
+            return true;
         }
 
         public bool ValidateAndLogSettings(TeensySettings settings)

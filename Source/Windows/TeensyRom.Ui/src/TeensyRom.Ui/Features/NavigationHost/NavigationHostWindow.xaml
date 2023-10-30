@@ -139,6 +139,10 @@
                 <materialDesign:Card Grid.Row="1" Padding="10" VerticalAlignment="Stretch">
                     <ContentControl Content="{Binding CurrentViewModel}" />
                 </materialDesign:Card>
+
+                <materialDesign:Snackbar 
+                    MessageQueue="{Binding MessageQueue}" 
+                    Grid.Row="7" VerticalAlignment="Top" />
             </Grid>
 
         </Grid>

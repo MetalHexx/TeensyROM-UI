@@ -6,6 +6,6 @@ namespace TeensyRom.Core.Settings.Services
     public interface ISettingsService
     {
         IObservable<TeensySettings> Settings { get; }
-        Unit SaveSettings(TeensySettings settings);
+        bool SaveSettings(TeensySettings settings);
     }
 }

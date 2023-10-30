@@ -10,6 +10,9 @@ using TeensyRom.Ui.Features.Help;
 using TeensyRom.Ui.Features.Midi;
 using TeensyRom.Ui.Features.Connect;
 using TeensyRom.Ui.Features.Settings;
+using MaterialDesignThemes.Wpf;
+using System.Windows.Threading;
+using System;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -24,14 +27,18 @@ namespace TeensyRom.Ui.Features.NavigationHost
         [ObservableAsProperty]
         public bool IsNavOpen { get; }
 
+        public SnackbarMessageQueue MessageQueue { get; private set; }
+
         public ReactiveCommand<NavigationItem, Unit> NavigateCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> ToggleNavCommand { get; private set; }
 
         private readonly INavigationService _navService;
+        private readonly ISnackbarService _snackbar;
 
-        public NavigationHostViewModel(INavigationService navStore, FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
+        public NavigationHostViewModel(INavigationService navStore, ISnackbarService snackbar, FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
         {
-            _navService = navStore;
+            _navService = navStore;            
+            MessageQueue = snackbar.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
             InitializeNavItems(fileTransfer, midi, help, connect, settings);

@@ -29,7 +29,7 @@ namespace TeensyRom.Ui
         public ViewModelLocator()
         {
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
-
+            SimpleIoc.Default.Register(() => Application.Current.Dispatcher);
             SimpleIoc.Default.Register<DialogHost, DialogHost>();
             SimpleIoc.Default.Register<ILoggingService, LoggingService>();
             SimpleIoc.Default.Register<INavigationService, NavigationService>();
@@ -38,13 +38,14 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<ITeensyDirectoryService, TeensyDirectoryService>();
             SimpleIoc.Default.Register<IFileWatcher, FileWatcher>();
             SimpleIoc.Default.Register<ISettingsService, SettingsService>();
+            SimpleIoc.Default.Register<ISnackbarService, SnackbarService>();
             SimpleIoc.Default.Register<NavigationHostViewModel>();
             SimpleIoc.Default.Register<ConnectViewModel>();
             SimpleIoc.Default.Register<FileTransferViewModel>();
             SimpleIoc.Default.Register<SettingsViewModel>();
             SimpleIoc.Default.Register<HelpViewModel>();
             SimpleIoc.Default.Register<MidiViewModel>();
-            SimpleIoc.Default.Register(() => Application.Current.Dispatcher);
+            
         }
 
         /// <summary>

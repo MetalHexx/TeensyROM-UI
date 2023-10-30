@@ -153,9 +153,5 @@
             Command="{Binding SaveSettingsCommand}" 
             Grid.Row="6" Width="300" Margin="20"/>
 
-        <materialDesign:Snackbar 
-            MessageQueue="{Binding SettingsMessageQueue}" 
-            Grid.Row="7" VerticalAlignment="Top" />
-
     </Grid>
 </UserControl>
