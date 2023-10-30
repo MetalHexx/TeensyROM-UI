@@ -142,7 +142,7 @@
 
                 <materialDesign:Snackbar 
                     MessageQueue="{Binding MessageQueue}" 
-                    Grid.Row="7" VerticalAlignment="Bottom" HorizontalAlignment="Right" />
+                    Grid.Row="7" VerticalAlignment="Bottom" />
             </Grid>
 
         </Grid>
