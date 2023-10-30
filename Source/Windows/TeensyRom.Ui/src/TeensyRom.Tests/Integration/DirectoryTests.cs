@@ -65,8 +65,8 @@ namespace TeensyRom.Tests.Integration
             _fileService = new TeensyFileService(_settingsService, _fileWatcher, _teensyPort, logService);
             var directoryService = new TeensyDirectoryService(_teensyPort, _settingsService, logService);
             var navigationService = new NavigationService();
-            _fileTransferViewModel = new FileTransferViewModel(_fileService, directoryService, _settingsService, _teensyPort, navigationService, logService);
             var snackbar = new SnackbarService(Dispatcher.CurrentDispatcher);
+            _fileTransferViewModel = new FileTransferViewModel(_fileService, directoryService, _settingsService, _teensyPort, navigationService, logService, snackbar);            
             _settingsViewModel = new SettingsViewModel(_settingsService, snackbar, logService);
             _teensyPort.SetPort(_serialPortName);
             _teensyPort.OpenPort();

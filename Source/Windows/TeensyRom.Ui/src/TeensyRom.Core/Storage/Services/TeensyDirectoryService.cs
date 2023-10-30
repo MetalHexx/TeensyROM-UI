@@ -41,7 +41,7 @@ namespace TeensyRom.Core.Storage.Services
                 if (page is null)
                 {
                     _logService.Log("There was an error.  Received a null result from the request");
-                    return directoryContent;
+                    return null;
                 }
                 directoryContent.Add(page);
                 skip += (uint)page.TotalCount;

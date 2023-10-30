@@ -14,6 +14,9 @@ using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Serial.Services;
 using TeensyRom.Core.Logging;
+using TeensyRom.Ui.Features.NavigationHost;
+using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
@@ -37,13 +40,15 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private readonly ITeensyFileService _fileService;
         private readonly ITeensyDirectoryService _directoryService;
         private readonly ILoggingService _logService;
+        private readonly ISnackbarService _snackbar;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public FileTransferViewModel(ITeensyFileService fileService, ITeensyDirectoryService directoryService, ISettingsService settingsService, ITeensyObservableSerialPort teensyPort, INavigationService nav, ILoggingService logService) 
+        public FileTransferViewModel(ITeensyFileService fileService, ITeensyDirectoryService directoryService, ISettingsService settingsService, ITeensyObservableSerialPort teensyPort, INavigationService nav, ILoggingService logService, ISnackbarService snackbar) 
         {
             _fileService = fileService;
             _directoryService = directoryService;
             _logService = logService;
+            _snackbar = snackbar;
             SourceItems = new ObservableCollection<StorageItemVm> { FileTreeTestData.InitializeTestStorageItems() };
 
             TestFileCopyCommand = ReactiveCommand.Create<Unit, Unit>(n =>
@@ -90,9 +95,21 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         private void LoadDirectoryContent(string path)
         {
-            var directoryContent = _directoryService.GetDirectoryContent(path);
+            var directoryContent = new DirectoryContent();
 
-            if (directoryContent is null) return;
+            try
+            {
+                directoryContent = _directoryService.GetDirectoryContent(path);
+            }
+            catch (TeensyException ex)
+            {
+                _snackbar.Enqueue(ex.Message);
+                return;
+            }
+            if (directoryContent is null)
+            {
+                _snackbar.Enqueue("Error receiving directory contents");
+            }
 
             var directoryItems = directoryContent.Directories.Select(d => new DirectoryItemVm
             {

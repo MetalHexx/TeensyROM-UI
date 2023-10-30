@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.Constants;
 using TeensyRom.Core.Storage.Entities;
@@ -169,7 +170,9 @@ namespace TeensyRom.Core.Serial.Services
                     if (DateTime.Now - startTime > timeout)
                     {
                         _logService.Log("Timeout while receiving directory content");
-                        return receivedBytes;
+                        var byteString = string.Empty;
+                        receivedBytes.ForEach(b => byteString += b.ToString());
+                        throw new TimeoutException("Timeout waiting for expected reply from TeensyROM");
                     }
 
                     if (_serialPort.BytesToRead > 0)
@@ -202,6 +205,7 @@ namespace TeensyRom.Core.Serial.Services
             {
                 _logService.Log($"Error getting directory content from TeensyROM:");
                 _logService.Log($"{ex.Message}");
+                throw new TeensyException("Error fetching directory contents from TeensyROM", ex);
             }
             return receivedBytes;
         }
@@ -214,8 +218,6 @@ namespace TeensyRom.Core.Serial.Services
             try
             {
                 var data = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
-
-
 
                 const string dirToken = "[Dir]";
                 const string dirEndToken = "[/Dir]";
@@ -246,6 +248,7 @@ namespace TeensyRom.Core.Serial.Services
             {
                 _logService.Log($"Error parsing directory content from TeensyROM:");
                 _logService.Log($"{ex.Message}");
+                return null;
             }
             return directoryContent;
         }

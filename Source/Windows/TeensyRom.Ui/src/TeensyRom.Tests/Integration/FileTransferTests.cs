@@ -435,8 +435,8 @@ namespace TeensyRom.Tests.Integration
             _settingsService = new SettingsService(logService);
             _fileService = new TeensyFileService(_settingsService, _fileWatcher, _teensyPort, logService);
             var directoryService = new TeensyDirectoryService(_teensyPort, _settingsService, logService);
-            _fileTransferViewModel = new FileTransferViewModel(_fileService, directoryService, _settingsService, _teensyPort, new NavigationService(), logService);
             var snackbar = new SnackbarService(Dispatcher.CurrentDispatcher);
+            _fileTransferViewModel = new FileTransferViewModel(_fileService, directoryService, _settingsService, _teensyPort, new NavigationService(), logService, snackbar);            
             _settingsViewModel = new SettingsViewModel(_settingsService, snackbar, logService);
             _teensyPort.SetPort(_serialPortName);
             _teensyPort.OpenPort();
