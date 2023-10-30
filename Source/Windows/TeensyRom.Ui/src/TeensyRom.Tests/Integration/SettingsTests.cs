@@ -6,20 +6,24 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Settings.Entities;
 using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Logging;
+using MaterialDesignThemes.Wpf;
+using TeensyRom.Ui.Features.NavigationHost;
 
 namespace TeensyRom.Tests.Integration
 {
     public class SettingsTests : IDisposable
     {
         private ILoggingService _logService = new LoggingService();
+        private ISnackbarService _snackbar = new SnackbarService(Dispatcher.CurrentDispatcher);
         private readonly string _settingsFileName = "Settings.json";
+
         [Fact]
         public void Given_ApplicationStarts_When_SettingsFileDoesntExist_Then_LoadsDefaultSettings()
         {
             //Arrange
             var logService = new LoggingService();
             var settingsService = new SettingsService(logService);
-            var vm = new SettingsViewModel(settingsService, Dispatcher.CurrentDispatcher, logService);
+            var vm = new SettingsViewModel(settingsService, _snackbar, logService);
             var expectedWatchLocation = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             expectedWatchLocation = Path.Combine(expectedWatchLocation, "Downloads");
             Thread.Sleep(1000);
@@ -39,7 +43,7 @@ namespace TeensyRom.Tests.Integration
         {
             //Arrange
             var settingsService = new SettingsService(_logService);
-            var vm = new SettingsViewModel(settingsService, Dispatcher.CurrentDispatcher, _logService);
+            var vm = new SettingsViewModel(settingsService, _snackbar, _logService);
             vm.Settings.WatchDirectoryLocation = @"C:\some_nonexistant_location";
             var expectedLog = $"The watch directory '{vm.Settings.WatchDirectoryLocation}' was not found.  Please go create it.";
 
@@ -68,7 +72,7 @@ namespace TeensyRom.Tests.Integration
             });
 
             var settingsService = new SettingsService(_logService);
-            var vm = new SettingsViewModel(settingsService, Dispatcher.CurrentDispatcher, _logService);
+            var vm = new SettingsViewModel(settingsService, _snackbar, _logService);
 
             var expectedLog = $"The watch directory '{vm.Settings.WatchDirectoryLocation}' was not found.  Please go create it.";
 
@@ -119,7 +123,7 @@ namespace TeensyRom.Tests.Integration
             File.WriteAllText(_settingsFileName, json);
 
             var settingsService = new SettingsService(_logService);
-            var vm = new SettingsViewModel(settingsService, Dispatcher.CurrentDispatcher, _logService);
+            var vm = new SettingsViewModel(settingsService, _snackbar, _logService);
 
             //Assert
             vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Sid).TargetPath.Should().Be("sid-test");
@@ -136,7 +140,7 @@ namespace TeensyRom.Tests.Integration
         {
             //Arrange
             var settingsService = new SettingsService(_logService);
-            var vm = new SettingsViewModel(settingsService, Dispatcher.CurrentDispatcher, _logService);
+            var vm = new SettingsViewModel(settingsService, _snackbar, _logService);
             var expectedLog = "Settings saved successfully.";
 
             //Act

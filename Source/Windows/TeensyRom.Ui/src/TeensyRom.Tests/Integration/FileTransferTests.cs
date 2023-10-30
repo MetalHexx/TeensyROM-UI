@@ -14,6 +14,8 @@ using TeensyRom.Core.Settings.Entities;
 using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Serial.Services;
 using TeensyRom.Core.Logging;
+using TeensyRom.Ui.Features.NavigationHost;
+using MaterialDesignThemes.Wpf;
 
 namespace TeensyRom.Tests.Integration
 {
@@ -434,7 +436,8 @@ namespace TeensyRom.Tests.Integration
             _fileService = new TeensyFileService(_settingsService, _fileWatcher, _teensyPort, logService);
             var directoryService = new TeensyDirectoryService(_teensyPort, _settingsService, logService);
             _fileTransferViewModel = new FileTransferViewModel(_fileService, directoryService, _settingsService, _teensyPort, new NavigationService(), logService);
-            _settingsViewModel = new SettingsViewModel(_settingsService, Dispatcher.CurrentDispatcher, logService);
+            var snackbar = new SnackbarService(Dispatcher.CurrentDispatcher);
+            _settingsViewModel = new SettingsViewModel(_settingsService, snackbar, logService);
             _teensyPort.SetPort(_serialPortName);
             _teensyPort.OpenPort();
         }
