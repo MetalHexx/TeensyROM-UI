@@ -233,12 +233,14 @@ namespace TeensyRom.Core.Serial.Services
                         case var item when item.StartsWith(dirToken):
                             var dirJson = item.Substring(5);
                             var dirItem = JsonConvert.DeserializeObject<DirectoryItem>(dirJson);
+                            dirItem.Path = dirItem.Path.Replace("//", "/"); //workaround to save mem on teensy
                             directoryContent.Directories.Add(dirItem);
                             break;
 
                         case var item when item.StartsWith(fileToken):
                             var fileJson = item.Substring(6);
                             var fileItem = JsonConvert.DeserializeObject<FileItem>(fileJson);
+                            fileItem.Path = fileItem.Path.Replace("//", "/"); //workaround to save mem on teensy
                             directoryContent.Files.Add(fileItem);
                             break;
                     }
