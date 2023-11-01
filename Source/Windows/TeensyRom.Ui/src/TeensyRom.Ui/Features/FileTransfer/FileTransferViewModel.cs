@@ -17,6 +17,7 @@ using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Common;
 using INavigationService = TeensyRom.Ui.Features.NavigationHost.INavigationService;
+using TeensyRom.Core.Storage.Extensions;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
@@ -33,6 +34,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         public string Logs { get; set; } = string.Empty;
 
         public ReactiveCommand<Unit, Unit> TestFileCopyCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> LoadParentDirectoryContentCommand { get; set; }
         public ReactiveCommand<Unit, Unit> TestDirectoryListCommand { get; set; }
         public ReactiveCommand<DirectoryItemVm, Unit> LoadDirectoryContentCommand { get; set; }
 
@@ -55,8 +57,10 @@ namespace TeensyRom.Ui.Features.FileTransfer
             TestDirectoryListCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 TestDirectoryList(), outputScheduler: ImmediateScheduler.Instance);
 
-            LoadDirectoryContentCommand = ReactiveCommand.Create<DirectoryItemVm>(LoadDirectoryContent);
+            LoadParentDirectoryContentCommand = ReactiveCommand.Create<Unit, Unit>(n =>
+                LoadParentDirectoryContent(), outputScheduler: ImmediateScheduler.Instance);
 
+            LoadDirectoryContentCommand = ReactiveCommand.Create<DirectoryItemVm>(LoadDirectoryContent);
 
             _logService.Logs.Subscribe(log =>
             {
@@ -88,7 +92,17 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         private void LoadCurrentDirectoryContent()
         {
+            if (CurrentDirectory == null) return;
             LoadDirectoryContent(CurrentDirectory.Path);
+        }
+
+        private Unit LoadParentDirectoryContent()
+        {
+            if (CurrentDirectory is not null)
+            {
+                LoadDirectoryContent(CurrentDirectory.Path.GetParentDirectory());
+            }
+            return Unit.Default;
         }
 
         private void LoadDirectoryContent(string path)

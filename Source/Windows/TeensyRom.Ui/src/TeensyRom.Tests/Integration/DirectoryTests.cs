@@ -74,6 +74,21 @@ namespace TeensyRom.Tests.Integration
             _fileTransferViewModel.CurrentDirectory!.Path.Should().Be(TestConstants.Integration_Test_Existing_Folder);
         }
 
+        [Fact]
+        public void Given_NotInRootPath_When_NavigatingUp_The_ParentFolderContentFetched()
+        {
+            //Arrange
+            _settings.TargetRootPath = TestConstants.Integration_Test_Existing_Folder;
+
+            //Act
+            InitializeViewModel();
+
+            //Assert
+            _fileTransferViewModel.LoadParentDirectoryContentCommand.Execute().Subscribe();
+            _fileTransferViewModel.CurrentDirectory!.Path.Should().Be(TestConstants.Integration_Test_Root_Path);
+
+        }
+
         private void InitializeViewModel()
         {
             _settings.InitializeDefaults();

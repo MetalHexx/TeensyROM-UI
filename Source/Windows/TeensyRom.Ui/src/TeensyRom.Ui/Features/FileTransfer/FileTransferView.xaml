@@ -141,7 +141,8 @@
             ToolTip="Go up a directory"
             HorizontalAlignment="Left"
             Margin="10 0 0 0"
-            Grid.Row="1" Grid.Column="1">
+            Grid.Row="1" Grid.Column="1"
+            Command="{Binding LoadParentDirectoryContentCommand}">
             <materialDesign:PackIcon Kind="ArrowUp" />
         </Button>
 
