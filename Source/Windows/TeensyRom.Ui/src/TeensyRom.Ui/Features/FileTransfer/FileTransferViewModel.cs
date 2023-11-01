@@ -129,36 +129,6 @@ namespace TeensyRom.Ui.Features.FileTransfer
             TargetItems.AddRange(fileNodes);
         }
 
-        //private void LoadDirectoryContent(DirectoryNode directoryNode)
-        //{
-        //    if (directoryNode.Children.Count > 1) return;
-
-        //    var directoryContent = _fileService.GetDirectoryContent(directoryNode.Path);
-
-        //    if (directoryContent is null) return;
-
-        //    var directoryNodes = directoryContent.Directories.Select(d => new DirectoryNode
-        //    {
-        //        Name = d.Name,
-        //        Path = d.Path
-        //    }).ToList();                
-
-        //    var fileNodes = directoryContent.Files.Select(f => new FileNode 
-        //    { 
-        //        Name = f.Name, 
-        //        Path = f.Path, 
-        //        Size = f.Size 
-        //    }).ToList();
-
-        //    var nodes = new List<NodeBase> { directoryNodes, fileNodes };
-
-        //    if(nodes.Count > 0)
-        //    {
-        //        directoryNode.Children.Clear();
-        //        directoryNode.Children.AddRange(nodes);
-        //    }
-        //}
-
         private Unit TestDirectoryList()
         {
             _directoryService.GetDirectoryContent("/");

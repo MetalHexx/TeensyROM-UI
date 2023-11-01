@@ -211,39 +211,5 @@
 
             </ListView>
         </ScrollViewer>
-
-
-
-
-
-
-
-
-
-
-
-        <!--<ScrollViewer 
-            Grid.Row="3" 
-            Grid.Column="2" 
-            VerticalScrollBarVisibility="Auto">
-            <TreeView
-                Name="targetTreeView" 
-                MinWidth="220" 
-                PreviewMouseWheel="OnTreeViewPreviewMouseWheel"                
-                TreeViewItem.Expanded="OnTreeViewItemExpanded"
-                dd:DragDrop.IsDragSource="False"
-                dd:DragDrop.IsDropTarget="True"
-                dd:DragDrop.DropHandler="{Binding}"
-                ItemsSource="{Binding TargetItems}"
-                VirtualizingPanel.IsVirtualizing="True" 
-                VirtualizingPanel.VirtualizationMode="Recycling">
-                <TreeView.ItemTemplateSelector>
-                    <local:NodeTemplateSelector 
-                        DirectoryTemplate="{StaticResource DirectoryTemplate}"
-                        FileTemplate="{StaticResource FileTemplate}" 
-                        EmptyTemplate="{StaticResource EmptyTemplate}"/>
-                </TreeView.ItemTemplateSelector>
-            </TreeView>
-        </ScrollViewer>-->
     </Grid>
 </UserControl>
