@@ -2,9 +2,6 @@
 using Newtonsoft.Json;
 using System.IO.Ports;
 using System.Windows.Threading;
-using TeensyRom.Core.Storage;
-using TeensyRom.Core.Serial;
-using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.Settings;
 using NavigationService = TeensyRom.Ui.Features.NavigationHost.NavigationService;
@@ -14,12 +11,14 @@ using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Serial.Services;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Features.NavigationHost;
+using TeensyRom.Ui.Features.Connect;
 
 namespace TeensyRom.Tests.Integration
 {
     [Collection("SerialPortTests")]
     public class DirectoryTests : IDisposable
     {
+        private ConnectViewModel _connectViewModel;
         private FileTransferViewModel _fileTransferViewModel;
         private SettingsViewModel _settingsViewModel;
         private ITeensyObservableSerialPort _teensyPort;
@@ -41,7 +40,7 @@ namespace TeensyRom.Tests.Integration
         public void POC_Given_Path_When_GetDirectoryListingCalled_ReturnsListing()
         {
             //Arrange 
-            InitializeViewModel();
+            InitializeViewModel();            
 
             //Act
             _fileTransferViewModel.TestDirectoryListCommand.Execute().Subscribe();
@@ -49,6 +48,30 @@ namespace TeensyRom.Tests.Integration
             //Assert
             _fileTransferViewModel.Logs.Should().NotBeEmpty();
 
+        }
+
+        [Fact]
+        public void Given_DefaultRootPathExists_When_FileTransferViewLoads_Then_CurrentDirectoryIsDefault()
+        {
+            //Arrange
+            InitializeViewModel();
+            //Assert
+            _fileTransferViewModel.CurrentDirectory.Path.Should().Be("/sync/");
+        }
+
+        [Fact]
+        public void Given_DirectoriesLoaded_When_DirectoryClicked_Then_CurrentDirectoryChangesToNewPath()
+        {
+            //Arrange
+            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path;
+            InitializeViewModel();            
+            var directoryToSwitchTo = new DirectoryItemVm { Path = TestConstants.Integration_Test_Existing_Folder };
+
+            //Act
+            _fileTransferViewModel.LoadDirectoryContentCommand.Execute(directoryToSwitchTo).Subscribe();
+
+            //Assert
+            _fileTransferViewModel.CurrentDirectory!.Path.Should().Be(TestConstants.Integration_Test_Existing_Folder);
         }
 
         private void InitializeViewModel()
@@ -62,12 +85,12 @@ namespace TeensyRom.Tests.Integration
             _teensyPort = new TeensyObservableSerialPort(logService);
             _fileWatcher = new FileWatcher();
             _settingsService = new SettingsService(logService);
-            _fileService = new TeensyFileService(_settingsService, _fileWatcher, _teensyPort, logService);
             var directoryService = new TeensyDirectoryService(_teensyPort, _settingsService, logService);
             var navigationService = new NavigationService();
             var snackbar = new SnackbarService(Dispatcher.CurrentDispatcher);
-            _fileTransferViewModel = new FileTransferViewModel(_fileService, directoryService, _settingsService, _teensyPort, navigationService, logService, snackbar);            
+            _fileTransferViewModel = new FileTransferViewModel(directoryService, _settingsService, _teensyPort, navigationService, logService, snackbar);            
             _settingsViewModel = new SettingsViewModel(_settingsService, snackbar, logService);
+            _connectViewModel = new ConnectViewModel(_teensyPort, logService);
             _teensyPort.SetPort(_serialPortName);
             _teensyPort.OpenPort();
         }

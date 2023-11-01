@@ -3,8 +3,6 @@ using Newtonsoft.Json;
 using System.IO.Ports;
 using System.Windows.Threading;
 using TeensyRom.Core.Storage;
-using TeensyRom.Core.Serial;
-using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.Settings;
 using NavigationService = TeensyRom.Ui.Features.NavigationHost.NavigationService;
@@ -15,7 +13,6 @@ using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Serial.Services;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Features.NavigationHost;
-using MaterialDesignThemes.Wpf;
 
 namespace TeensyRom.Tests.Integration
 {
@@ -73,7 +70,7 @@ namespace TeensyRom.Tests.Integration
             var storageType = $"Storage Type: SD";
 
             _settings.TargetType = TeensyStorageType.SD;
-            _settings.TargetRootPath = "/integration-test-files/";
+            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
             _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
@@ -146,7 +143,7 @@ namespace TeensyRom.Tests.Integration
 
             _settings.TargetType = TeensyStorageType.SD;
             _settings.AutoFileCopyEnabled = true;
-            _settings.TargetRootPath = "/integration-test-files/";
+            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
             InitializeViewModel();
 
             //Act            
@@ -217,7 +214,7 @@ namespace TeensyRom.Tests.Integration
             var storageType = $"Storage Type: SD";
 
             _settings.TargetType = TeensyStorageType.SD;
-            _settings.TargetRootPath = "/integration-test-files/";
+            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
             _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
@@ -244,7 +241,7 @@ namespace TeensyRom.Tests.Integration
             var storageType = $"Storage Type: SD";
 
             _settings.TargetType = TeensyStorageType.SD;
-            _settings.TargetRootPath = "/integration-test-files/";
+            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
             _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
@@ -271,7 +268,7 @@ namespace TeensyRom.Tests.Integration
             var storageType = $"Storage Type: SD";
 
             _settings.TargetType = TeensyStorageType.SD;
-            _settings.TargetRootPath = "/integration-test-files/";
+            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
             _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
@@ -298,7 +295,7 @@ namespace TeensyRom.Tests.Integration
             var storageType = $"Storage Type: SD";
 
             _settings.TargetType = TeensyStorageType.SD;
-            _settings.TargetRootPath = "/integration-test-files/";
+            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
             _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
@@ -325,7 +322,7 @@ namespace TeensyRom.Tests.Integration
             var storageType = $"Storage Type: USB";
 
             _settings.TargetType = TeensyStorageType.USB;
-            _settings.TargetRootPath = "/integration-test-files/";
+            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
             _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
@@ -352,7 +349,7 @@ namespace TeensyRom.Tests.Integration
             var storageType = $"Storage Type: USB";
 
             _settings.TargetType = TeensyStorageType.USB;
-            _settings.TargetRootPath = "/integration-test-files/";
+            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
             _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
@@ -379,7 +376,7 @@ namespace TeensyRom.Tests.Integration
             var storageType = $"Storage Type: USB";
 
             _settings.TargetType = TeensyStorageType.USB;
-            _settings.TargetRootPath = "/integration-test-files/";
+            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
             _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
@@ -406,7 +403,7 @@ namespace TeensyRom.Tests.Integration
             var storageType = $"Storage Type: USB";
 
             _settings.TargetType = TeensyStorageType.USB;
-            _settings.TargetRootPath = "/integration-test-files/";
+            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
             _settings.AutoFileCopyEnabled = true;
             InitializeViewModel();
 
@@ -436,7 +433,7 @@ namespace TeensyRom.Tests.Integration
             _fileService = new TeensyFileService(_settingsService, _fileWatcher, _teensyPort, logService);
             var directoryService = new TeensyDirectoryService(_teensyPort, _settingsService, logService);
             var snackbar = new SnackbarService(Dispatcher.CurrentDispatcher);
-            _fileTransferViewModel = new FileTransferViewModel(_fileService, directoryService, _settingsService, _teensyPort, new NavigationService(), logService, snackbar);            
+            _fileTransferViewModel = new FileTransferViewModel(directoryService, _settingsService, _teensyPort, new NavigationService(), logService, snackbar);            
             _settingsViewModel = new SettingsViewModel(_settingsService, snackbar, logService);
             _teensyPort.SetPort(_serialPortName);
             _teensyPort.OpenPort();

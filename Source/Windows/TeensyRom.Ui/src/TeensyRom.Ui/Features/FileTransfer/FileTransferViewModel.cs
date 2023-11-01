@@ -42,9 +42,8 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private readonly ISnackbarService _snackbar;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public FileTransferViewModel(ITeensyFileService fileService, ITeensyDirectoryService directoryService, ISettingsService settingsService, ITeensyObservableSerialPort teensyPort, INavigationService nav, ILoggingService logService, ISnackbarService snackbar) 
+        public FileTransferViewModel(ITeensyDirectoryService directoryService, ISettingsService settingsService, ITeensyObservableSerialPort teensyPort, INavigationService nav, ILoggingService logService, ISnackbarService snackbar) 
         {
-            _fileService = fileService;
             _directoryService = directoryService;
             _logService = logService;
             _snackbar = snackbar;
@@ -83,7 +82,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         }
 
         private void LoadDirectoryContent(DirectoryItemVm directoryVm)
-        {
+        {            
             LoadDirectoryContent(directoryVm.Path);
         }
 
@@ -122,6 +121,12 @@ namespace TeensyRom.Ui.Features.FileTransfer
                 Path = f.Path,
                 Size = f.Size
             }).ToList();
+
+            CurrentDirectory = new DirectoryItemVm 
+            {
+                Name = path,
+                Path = path                
+            };
 
             TargetItems.Clear();
             TargetItems.AddRange(directoryItems);
