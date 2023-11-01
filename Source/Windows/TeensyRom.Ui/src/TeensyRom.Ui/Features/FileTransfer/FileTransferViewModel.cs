@@ -37,7 +37,6 @@ namespace TeensyRom.Ui.Features.FileTransfer
         public ReactiveCommand<DirectoryItemVm, Unit> LoadDirectoryContentCommand { get; set; }
 
 
-        private readonly ITeensyFileService _fileService;
         private readonly ITeensyDirectoryService _directoryService;
         private readonly ILoggingService _logService;
         private readonly ISnackbarService _snackbar;
