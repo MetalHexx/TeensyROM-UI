@@ -18,6 +18,7 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Common;
 using INavigationService = TeensyRom.Ui.Features.NavigationHost.INavigationService;
 using TeensyRom.Core.Storage.Extensions;
+using DynamicData.Binding;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
@@ -25,6 +26,9 @@ namespace TeensyRom.Ui.Features.FileTransfer
     {
         public ObservableCollection<StorageItemVm> SourceItems { get; set; } = new();
         public ObservableCollection<StorageItemVm> TargetItems { get; set; } = new();
+
+        [ObservableAsProperty]
+        public bool IsTargetItemsEmpty { get; }
 
         [Reactive]
         public DirectoryItemVm? CurrentDirectory { get; set; }
@@ -83,6 +87,10 @@ namespace TeensyRom.Ui.Features.FileTransfer
                 .Where(sn => sn.currentNav?.Type == NavigationHost.NavigationLocation.FileTransfer)
                 .Where(_ => TargetItems.Count == 0)
                 .Subscribe(_ => LoadCurrentDirectoryContent());
+
+            TargetItems.ObserveCollectionChanges()
+                .Select(targetCol => TargetItems.Count == 0)
+                .ToPropertyEx(this, x => x.IsTargetItemsEmpty);
         }
 
         private void LoadDirectoryContent(DirectoryItemVm directoryVm)

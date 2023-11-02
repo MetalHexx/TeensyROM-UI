@@ -37,7 +37,7 @@ namespace TeensyRom.Tests.Integration
         }
 
         [Fact]
-        public void POC_Given_Path_When_GetDirectoryListingCalled_ReturnsListing()
+        public void POC_GivenPath_When_GetDirectoryListingCalled_ReturnsListing()
         {
             //Arrange 
             InitializeViewModel();            
@@ -56,7 +56,7 @@ namespace TeensyRom.Tests.Integration
             //Arrange
             InitializeViewModel();
             //Assert
-            _fileTransferViewModel.CurrentDirectory.Path.Should().Be("/sync/");
+            _fileTransferViewModel.CurrentDirectory.Path.Should().Be("/sync");
         }
 
         [Fact]
@@ -89,6 +89,20 @@ namespace TeensyRom.Tests.Integration
 
         }
 
+        [Fact]
+        public void Given_TargetEmptyDirectoryExists_When_NavigatingToDirectory_IsTargetEmptyTrue()
+        {
+            //Arrange
+            var directoryToSwitchTo = new DirectoryItemVm { Path = TestConstants.Integration_Test_Existing_Empty_Folder };
+            InitializeViewModel();
+
+            //Act            
+            _fileTransferViewModel.LoadDirectoryContentCommand.Execute(directoryToSwitchTo).Subscribe();
+
+            //Assert
+            _fileTransferViewModel.IsTargetItemsEmpty.Should().BeTrue();
+
+        }
         private void InitializeViewModel()
         {
             _settings.InitializeDefaults();

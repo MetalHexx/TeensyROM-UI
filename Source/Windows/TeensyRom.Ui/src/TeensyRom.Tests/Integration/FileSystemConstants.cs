@@ -10,5 +10,6 @@ namespace TeensyRom.Tests.Integration
     {
         public const string Integration_Test_Root_Path = "/integration-test-files/";
         public const string Integration_Test_Existing_Folder = "/integration-test-files/test-existing-folder/";
+        public const string Integration_Test_Existing_Empty_Folder = "/integration-test-files/test-existing-empty-folder/";        
     }
 }
