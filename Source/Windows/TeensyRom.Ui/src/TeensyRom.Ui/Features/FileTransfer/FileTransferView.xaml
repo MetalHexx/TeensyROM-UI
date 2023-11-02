@@ -194,7 +194,7 @@
             <ListView 
                 Name="targetListView" 
                 PreviewMouseWheel="OnListViewPreviewMouseWheel" 
-                SelectionChanged="OnListViewSelected"
+                MouseDoubleClick="OnListViewDoubleClicked"
                 VirtualizingPanel.IsVirtualizing="True" 
                 VirtualizingPanel.VirtualizationMode="Recycling"
                 dd:DragDrop.IsDropTarget="True"

@@ -26,7 +26,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
             InitializeComponent();
         }
 
-        private void OnListViewSelected(object sender, SelectionChangedEventArgs e)
+        private void OnListViewDoubleClicked(object sender, MouseButtonEventArgs e)
         {
             var listView = sender as ListView;
 
