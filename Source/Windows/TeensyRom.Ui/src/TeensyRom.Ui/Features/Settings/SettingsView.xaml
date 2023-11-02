@@ -122,19 +122,16 @@
 
                             </Grid.ColumnDefinitions>
 
-                            <!-- File Type -->
                             <Label 
                                 Content="{Binding DisplayName}"
                                 ToolTip="The watch directory"
                                 VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
-                            <!-- Root Path -->
                             <TextBlock 
-                                Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.Settings.TargetRootPath, StringFormat='{}{0}'}"
+                                Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.Settings.TargetRootPath, StringFormat=\{0\}/}"
                                 Foreground="LightBlue"
                                 Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
-                            <!-- Textbox for Input -->
                             <TextBox Grid.Column="4" 
                                 materialDesign:HintAssist.Hint="{Binding DisplayName, StringFormat='{}{0} Target Path'}"
                                 Text="{Binding TargetPath, Mode=TwoWay}" 

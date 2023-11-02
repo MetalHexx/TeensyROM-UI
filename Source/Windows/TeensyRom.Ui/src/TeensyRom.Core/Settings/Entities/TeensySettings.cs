@@ -9,7 +9,7 @@ namespace TeensyRom.Core.Settings.Entities
     {
         public TeensyStorageType TargetType { get; set; } = TeensyStorageType.SD;
         public string WatchDirectoryLocation { get; set; } = string.Empty;
-        public string TargetRootPath { get; set; } = @"/sync/";
+        public string TargetRootPath { get; set; } = @"/sync";
         public List<TeensyTarget> FileTargets { get; set; } = new List<TeensyTarget>();
         public bool AutoFileCopyEnabled { get; set; }
 
