@@ -21,6 +21,7 @@ using TeensyRom.Core.Storage.Extensions;
 using DynamicData.Binding;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Transactions;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
@@ -31,6 +32,10 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         [ObservableAsProperty]
         public bool IsTargetItemsEmpty { get; }
+
+        [ObservableAsProperty]
+        public bool CanExecuteTargetLoadCommand { get; } = true;
+
 
         [Reactive]
         public DirectoryItemVm? CurrentDirectory { get; set; }
@@ -98,6 +103,16 @@ namespace TeensyRom.Ui.Features.FileTransfer
             TargetItems.ObserveCollectionChanges()
                 .Select(targetCol => TargetItems.Count == 0)
                 .ToPropertyEx(this, x => x.IsTargetItemsEmpty);
+
+            Observable.Merge(
+                TestFileCopyCommand.IsExecuting,
+                LoadParentDirectoryContentCommand.IsExecuting,
+                TestDirectoryListCommand.IsExecuting,
+                LoadDirectoryContentCommand.IsExecuting)
+            .Select(x => !x)
+            .Throttle(TimeSpan.FromMilliseconds(200))
+            .ToPropertyEx(this, x => x.CanExecuteTargetLoadCommand);
+
         }
 
         private async Task LoadDirectoryContentAsync(DirectoryItemVm directoryVm)
@@ -121,7 +136,9 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         private async Task LoadDirectoryContentAsync(string path)
         {
-            var directoryContent = new DirectoryContent();
+            if (!CanExecuteTargetLoadCommand) return;
+
+            DirectoryContent? directoryContent = null;
 
             try
             {
@@ -130,10 +147,9 @@ namespace TeensyRom.Ui.Features.FileTransfer
             catch (TeensyException ex)
             {
                 _snackbar.Enqueue(ex.Message);
-                return;
             }
             if (directoryContent is null)
-            {
+            {                
                 _snackbar.Enqueue("Error receiving directory contents");
                 return;
             }

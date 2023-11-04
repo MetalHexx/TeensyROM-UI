@@ -48,7 +48,6 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-
                 <materialDesign:PackIcon 
                     Kind="FileDocument" 
                     VerticalAlignment="Center" 
@@ -142,6 +141,7 @@
             HorizontalAlignment="Left"
             Margin="10 0 0 0"
             Grid.Row="1" Grid.Column="1"
+            IsEnabled="{Binding CanExecuteTargetLoadCommand}"
             Command="{Binding LoadParentDirectoryContentCommand}">
             <materialDesign:PackIcon Kind="ArrowUp" />
         </Button>
@@ -207,6 +207,7 @@
                 dd:DragDrop.IsDragSource="False"
                 dd:DragDrop.DropHandler="{Binding}"                
                 ItemsSource="{Binding TargetItems}"
+                IsEnabled="{Binding CanExecuteTargetLoadCommand}"
                 HorizontalContentAlignment="Stretch"
                 MinWidth="220" >
 
