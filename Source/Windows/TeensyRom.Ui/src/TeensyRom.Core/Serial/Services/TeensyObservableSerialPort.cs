@@ -106,54 +106,58 @@ namespace TeensyRom.Core.Serial.Services
             return true;
         }
 
-        public DirectoryContent? GetDirectoryContent(string path, TeensyStorageType storageType, uint skip, uint take)
+        public async Task<DirectoryContent?> GetDirectoryContentAsync(string path, TeensyStorageType storageType, uint skip, uint take)
         {
-            DisableAutoReadStream();
-
-            _logService.Log($"Sending directory listing token: {TeensyConstants.List_Directory_Token}");
-            SendIntBytes(TeensyConstants.List_Directory_Token, 2);
-
-            if (!GetAck())
+            return await Task.Run(() =>
             {
-                ReadSerialAsString();
-                return null;
-            }
+                DisableAutoReadStream();
 
-            _logService.Log($"Sending Storage Type: {TeensyConstants.Sd_Card_Token}");
-            SendIntBytes(GetStorageToken(storageType), 1);
+                _logService.Log($"Sending directory listing token: {TeensyConstants.List_Directory_Token}");
+                SendIntBytes(TeensyConstants.List_Directory_Token, 2);
 
-            _logService.Log($"Sending Skip: {skip}");
-            SendIntBytes(skip, 1);
+                if (!GetAck())
+                {
+                    ReadSerialAsString();
+                    return null;
+                }
 
-            _logService.Log($"Sending Take: {take}");
-            SendIntBytes(take, 1);
+                _logService.Log($"Sending Storage Type: {TeensyConstants.Sd_Card_Token}");
+                SendIntBytes(GetStorageToken(storageType), 1);
 
-            _logService.Log($"Sending path: {path}");
-            _serialPort.Write($"{path}\0");
+                _logService.Log($"Sending Skip: {skip}");
+                SendIntBytes(skip, 1);
 
-            if (!WaitForDirectoryStartToken())
-            {
-                ReadSerialAsString(msToWait: 100);
-                return null;
-            }
-            _logService.Log("Ready to receive directory content!");
+                _logService.Log($"Sending Take: {take}");
+                SendIntBytes(take, 1);
 
-            var directoryContent = ReceiveDirectoryContent();
+                _logService.Log($"Sending path: {path}");
+                _serialPort.Write($"{path}\0");
 
-            if (directoryContent is null)
-            {
-                ReadSerialAsString(msToWait: 100);
-                _logService.Log("Failed to receive directory content");
+                if (!WaitForDirectoryStartToken())
+                {
+                    ReadSerialAsString(msToWait: 100);
+                    return null;
+                }
+                _logService.Log("Ready to receive directory content!");
+
+                var directoryContent = ReceiveDirectoryContent();
+
+                if (directoryContent is null)
+                {
+                    ReadSerialAsString(msToWait: 100);
+                    _logService.Log("Failed to receive directory content");
+                    return directoryContent;
+                }
+
+                var contentLog = JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented });
+
+                _logService.Log(contentLog);
+
+                EnableAutoReadStream();
+
                 return directoryContent;
-            }
 
-            var contentLog = JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented });
-
-            _logService.Log(contentLog);
-
-            EnableAutoReadStream();
-
-            return directoryContent;
+            }).ConfigureAwait(false);
         }
 
         public List<byte> GetRawDirectoryData()

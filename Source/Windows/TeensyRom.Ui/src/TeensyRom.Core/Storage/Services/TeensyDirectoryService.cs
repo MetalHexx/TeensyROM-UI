@@ -26,9 +26,9 @@ namespace TeensyRom.Core.Storage.Services
                 .Subscribe(settings => _settings = settings);
         }
 
-        public DirectoryContent? GetDirectoryContent(string path)
+        public async Task<DirectoryContent?> GetDirectoryContentAsync(string path)
         {
-            DirectoryContent directoryContent = new();
+            DirectoryContent directoryContent = new();            
             uint take = 5;
             uint skip = 0;
 
@@ -36,7 +36,7 @@ namespace TeensyRom.Core.Storage.Services
             while (hasMorePages)
             {
 
-                var page = _teensyPort.GetDirectoryContent(path, _settings.TargetType, skip, take);
+                var page = await _teensyPort.GetDirectoryContentAsync(path, _settings.TargetType, skip, take);
 
                 if (page is null)
                 {

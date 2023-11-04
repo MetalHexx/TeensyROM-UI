@@ -19,6 +19,8 @@ using TeensyRom.Core.Common;
 using INavigationService = TeensyRom.Ui.Features.NavigationHost.INavigationService;
 using TeensyRom.Core.Storage.Extensions;
 using DynamicData.Binding;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
@@ -55,16 +57,21 @@ namespace TeensyRom.Ui.Features.FileTransfer
             _snackbar = snackbar;
             SourceItems = new ObservableCollection<StorageItemVm> { FileTreeTestData.InitializeTestStorageItems() };
 
-            TestFileCopyCommand = ReactiveCommand.Create<Unit, Unit>(n =>
+            TestFileCopyCommand = ReactiveCommand.Create<Unit, Unit>(_ =>
                 TestFileCopy(), outputScheduler: ImmediateScheduler.Instance);
 
-            TestDirectoryListCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                TestDirectoryList(), outputScheduler: ImmediateScheduler.Instance);
+            TestDirectoryListCommand = ReactiveCommand.CreateFromTask(_ => 
+                TestDirectoryListAsync(), outputScheduler: ImmediateScheduler.Instance);
 
-            LoadParentDirectoryContentCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                LoadParentDirectoryContent(), outputScheduler: ImmediateScheduler.Instance);
+            LoadParentDirectoryContentCommand = ReactiveCommand.CreateFromObservable(
+                () => Observable
+                    .StartAsync(LoadParentDirectoryContentAsync)
+                    .ObserveOn(RxApp.MainThreadScheduler));
 
-            LoadDirectoryContentCommand = ReactiveCommand.Create<DirectoryItemVm>(LoadDirectoryContent);
+            LoadDirectoryContentCommand = ReactiveCommand.CreateFromObservable<DirectoryItemVm, Unit>(
+                directoryItem => Observable
+                    .StartAsync(() => LoadDirectoryContentAsync(directoryItem))
+                    .ObserveOn(RxApp.MainThreadScheduler));
 
             _logService.Logs.Subscribe(log =>
             {
@@ -86,40 +93,39 @@ namespace TeensyRom.Ui.Features.FileTransfer
                 .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
                 .Where(sn => sn.currentNav?.Type == NavigationHost.NavigationLocation.FileTransfer)
                 .Where(_ => TargetItems.Count == 0)
-                .Subscribe(_ => LoadCurrentDirectoryContent());
+                .Subscribe(async _ => await LoadCurrentDirectoryContent());
 
             TargetItems.ObserveCollectionChanges()
                 .Select(targetCol => TargetItems.Count == 0)
                 .ToPropertyEx(this, x => x.IsTargetItemsEmpty);
         }
 
-        private void LoadDirectoryContent(DirectoryItemVm directoryVm)
+        private async Task LoadDirectoryContentAsync(DirectoryItemVm directoryVm)
         {            
-            LoadDirectoryContent(directoryVm.Path);
+            await LoadDirectoryContentAsync(directoryVm.Path);
         }
 
-        private void LoadCurrentDirectoryContent()
+        private async Task LoadCurrentDirectoryContent()
         {
             if (CurrentDirectory == null) return;
-            LoadDirectoryContent(CurrentDirectory.Path);
+            await LoadDirectoryContentAsync(CurrentDirectory.Path);
         }
 
-        private Unit LoadParentDirectoryContent()
+        private async Task LoadParentDirectoryContentAsync()
         {
             if (CurrentDirectory is not null)
             {
-                LoadDirectoryContent(CurrentDirectory.Path.GetParentDirectory());
+                await LoadDirectoryContentAsync(CurrentDirectory.Path.GetParentDirectory());
             }
-            return Unit.Default;
         }
 
-        private void LoadDirectoryContent(string path)
+        private async Task LoadDirectoryContentAsync(string path)
         {
             var directoryContent = new DirectoryContent();
 
             try
             {
-                directoryContent = _directoryService.GetDirectoryContent(path);
+                directoryContent = await _directoryService.GetDirectoryContentAsync(path);
             }
             catch (TeensyException ex)
             {
@@ -129,20 +135,25 @@ namespace TeensyRom.Ui.Features.FileTransfer
             if (directoryContent is null)
             {
                 _snackbar.Enqueue("Error receiving directory contents");
+                return;
             }
 
-            var directoryItems = directoryContent.Directories.Select(d => new DirectoryItemVm
-            {
-                Name = d.Name,
-                Path = d.Path
-            }).ToList();
+            var directoryItems = directoryContent.Directories
+                .Select(d => new DirectoryItemVm
+                {
+                    Name = d.Name,
+                    Path = d.Path
+                })
+                .ToList();
 
-            var fileNodes = directoryContent.Files.Select(f => new FileItemVm
-            {
-                Name = f.Name,
-                Path = f.Path,
-                Size = f.Size
-            }).ToList();
+            var fileNodes = directoryContent.Files
+                .Select(f => new FileItemVm
+                {
+                    Name = f.Name,
+                    Path = f.Path,
+                    Size = f.Size
+                })
+                .ToList();
 
             CurrentDirectory = new DirectoryItemVm 
             {
@@ -155,10 +166,9 @@ namespace TeensyRom.Ui.Features.FileTransfer
             TargetItems.AddRange(fileNodes);
         }
 
-        private Unit TestDirectoryList()
+        private async Task TestDirectoryListAsync()
         {
-            _directoryService.GetDirectoryContent("/");
-            return Unit.Default;
+            await _directoryService.GetDirectoryContentAsync("/");            
         }
 
         private Unit TestFileCopy()

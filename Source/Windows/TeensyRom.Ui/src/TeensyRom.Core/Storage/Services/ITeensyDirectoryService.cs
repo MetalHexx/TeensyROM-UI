@@ -4,6 +4,6 @@ namespace TeensyRom.Core.Storage.Services
 {
     public interface ITeensyDirectoryService
     {
-        DirectoryContent? GetDirectoryContent(string path);
+        Task<DirectoryContent?> GetDirectoryContentAsync(string path);
     }
 }

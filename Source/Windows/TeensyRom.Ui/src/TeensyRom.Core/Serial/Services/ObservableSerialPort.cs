@@ -37,7 +37,7 @@ namespace TeensyRom.Core.Serial.Services
         {
             _logService = logService;
             StartPortPoll();
-            EnableAutoReadStream();            
+            EnableAutoReadStream();
         }
 
         public void SetPort(string port)
