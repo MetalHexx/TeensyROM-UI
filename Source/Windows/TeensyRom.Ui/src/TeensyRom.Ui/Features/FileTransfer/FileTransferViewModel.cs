@@ -110,7 +110,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
                     TestDirectoryListCommand.IsExecuting,
                     LoadDirectoryContentCommand.IsExecuting)
                 .Select(x => !x)
-                .Throttle(TimeSpan.FromMilliseconds(200))
+                .Throttle(TimeSpan.FromMilliseconds(100))
                 .ToPropertyEx(this, x => x.CanExecuteTargetLoadCommand);
 
         }
