@@ -153,6 +153,7 @@
 
         <ProgressBar 
             IsIndeterminate="True" 
+            Visibility="{Binding CanExecuteTargetLoadCommand, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
             Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2">            
         </ProgressBar>
 
