@@ -12,6 +12,7 @@ using TeensyRom.Core.Serial.Services;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Connect;
+using System.Reactive.Threading.Tasks;
 
 namespace TeensyRom.Tests.Integration
 {
@@ -37,13 +38,13 @@ namespace TeensyRom.Tests.Integration
         }
 
         [Fact]
-        public void POC_GivenPath_When_GetDirectoryListingCalled_ReturnsListing()
+        public async Task POC_GivenPath_When_GetDirectoryListingCalled_ReturnsListing()
         {
             //Arrange 
-            InitializeViewModel();            
+            InitializeViewModel();
 
             //Act
-            _fileTransferViewModel.TestDirectoryListCommand.Execute().Subscribe();
+            await _fileTransferViewModel.TestDirectoryListCommand.Execute().ToTask();
 
             //Assert
             _fileTransferViewModel.Logs.Should().NotBeEmpty();
@@ -60,7 +61,7 @@ namespace TeensyRom.Tests.Integration
         }
 
         [Fact]
-        public void Given_DirectoriesLoaded_When_DirectoryClicked_Then_CurrentDirectoryChangesToNewPath()
+        public async Task Given_DirectoriesLoaded_When_DirectoryClicked_Then_CurrentDirectoryChangesToNewPath()
         {
             //Arrange
             _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path;
@@ -68,14 +69,14 @@ namespace TeensyRom.Tests.Integration
             var directoryToSwitchTo = new DirectoryItemVm { Path = TestConstants.Integration_Test_Existing_Folder };
 
             //Act
-            _fileTransferViewModel.LoadDirectoryContentCommand.Execute(directoryToSwitchTo).Subscribe();
+            await _fileTransferViewModel.LoadDirectoryContentCommand.Execute(directoryToSwitchTo).ToTask();
 
             //Assert
             _fileTransferViewModel.CurrentDirectory!.Path.Should().Be(TestConstants.Integration_Test_Existing_Folder);
         }
 
         [Fact]
-        public void Given_NotInRootPath_When_NavigatingUp_The_ParentFolderContentFetched()
+        public async Task Given_NotInRootPath_When_NavigatingUp_The_ParentFolderContentFetched()
         {
             //Arrange
             _settings.TargetRootPath = TestConstants.Integration_Test_Existing_Folder;
@@ -84,20 +85,20 @@ namespace TeensyRom.Tests.Integration
             InitializeViewModel();
 
             //Assert
-            _fileTransferViewModel.LoadParentDirectoryContentCommand.Execute().Subscribe();
+            await _fileTransferViewModel.LoadParentDirectoryContentCommand.Execute().ToTask();
             _fileTransferViewModel.CurrentDirectory!.Path.Should().Be(TestConstants.Integration_Test_Root_Path);
 
         }
 
         [Fact]
-        public void Given_TargetEmptyDirectoryExists_When_NavigatingToDirectory_IsTargetEmptyTrue()
+        public async Task Given_TargetEmptyDirectoryExists_When_NavigatingToDirectory_IsTargetEmptyTrue()
         {
             //Arrange
             var directoryToSwitchTo = new DirectoryItemVm { Path = TestConstants.Integration_Test_Existing_Empty_Folder };
             InitializeViewModel();
 
             //Act            
-            _fileTransferViewModel.LoadDirectoryContentCommand.Execute(directoryToSwitchTo).Subscribe();
+            await _fileTransferViewModel.LoadDirectoryContentCommand.Execute(directoryToSwitchTo).ToTask();
 
             //Assert
             _fileTransferViewModel.IsTargetItemsEmpty.Should().BeTrue();
