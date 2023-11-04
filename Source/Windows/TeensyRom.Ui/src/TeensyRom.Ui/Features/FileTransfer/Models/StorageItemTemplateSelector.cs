@@ -1,7 +1,7 @@
 ﻿using System.Windows.Controls;
 using System.Windows;
 
-namespace TeensyRom.Ui.Features.FileTransfer
+namespace TeensyRom.Ui.Features.FileTransfer.Models
 {
     public class StorageItemTemplateSelector : DataTemplateSelector
     {
