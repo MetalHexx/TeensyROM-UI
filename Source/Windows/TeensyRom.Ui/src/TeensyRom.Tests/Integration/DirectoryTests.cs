@@ -67,6 +67,7 @@ namespace TeensyRom.Tests.Integration
             _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path;
             InitializeViewModel();            
             var directoryToSwitchTo = new DirectoryItemVm { Path = TestConstants.Integration_Test_Existing_Folder };
+            Thread.Sleep(1000);
 
             //Act
             await _fileTransferViewModel.LoadDirectoryContentCommand.Execute(directoryToSwitchTo).ToTask();
@@ -80,9 +81,9 @@ namespace TeensyRom.Tests.Integration
         {
             //Arrange
             _settings.TargetRootPath = TestConstants.Integration_Test_Existing_Folder;
-
-            //Act
             InitializeViewModel();
+            Thread.Sleep(100);
+
 
             //Assert
             await _fileTransferViewModel.LoadParentDirectoryContentCommand.Execute().ToTask();
@@ -96,6 +97,7 @@ namespace TeensyRom.Tests.Integration
             //Arrange
             var directoryToSwitchTo = new DirectoryItemVm { Path = TestConstants.Integration_Test_Existing_Empty_Folder };
             InitializeViewModel();
+            Thread.Sleep(1000);
 
             //Act            
             await _fileTransferViewModel.LoadDirectoryContentCommand.Execute(directoryToSwitchTo).ToTask();
