@@ -105,13 +105,13 @@ namespace TeensyRom.Ui.Features.FileTransfer
                 .ToPropertyEx(this, x => x.IsTargetItemsEmpty);
 
             Observable.Merge(
-                TestFileCopyCommand.IsExecuting,
-                LoadParentDirectoryContentCommand.IsExecuting,
-                TestDirectoryListCommand.IsExecuting,
-                LoadDirectoryContentCommand.IsExecuting)
-            .Select(x => !x)
-            .Throttle(TimeSpan.FromMilliseconds(200))
-            .ToPropertyEx(this, x => x.CanExecuteTargetLoadCommand);
+                    TestFileCopyCommand.IsExecuting,
+                    LoadParentDirectoryContentCommand.IsExecuting,
+                    TestDirectoryListCommand.IsExecuting,
+                    LoadDirectoryContentCommand.IsExecuting)
+                .Select(x => !x)
+                .Throttle(TimeSpan.FromMilliseconds(200))
+                .ToPropertyEx(this, x => x.CanExecuteTargetLoadCommand);
 
         }
 
