@@ -120,8 +120,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -150,6 +150,12 @@
             ToolTip="Current Directory.  You can type a direct path and hit enter."
             HorizontalAlignment="Stretch" VerticalAlignment="Center"
             Grid.Row="1" Grid.Column="2"></TextBox>
+
+        <ProgressBar 
+            IsIndeterminate="True" 
+            Visibility="{Binding CanExecuteTargetLoadCommand, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+            Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"
+            Margin="10 0 0 0"/>
 
         <Label 
             Grid.Row="2" 
