@@ -50,59 +50,67 @@ namespace TeensyRom.Core.Serial.Services
         {
             DisableAutoReadStream();
 
-            _logService.Log($"Sending file transfer token: {TeensyConstants.Send_File_Token}");
-            SendIntBytes(TeensyConstants.Send_File_Token, 2);
-
-            WaitForSerialData(numBytes: 2, timeoutMs: 500);
-
-            if (!GetAck())
+            try
             {
-                ReadSerialAsString();
+                _logService.Log($"Sending file transfer token: {TeensyConstants.Send_File_Token}");
+                SendIntBytes(TeensyConstants.Send_File_Token, 2);
+
+                WaitForSerialData(numBytes: 2, timeoutMs: 500);
+
+                if (!GetAck())
+                {
+                    ReadSerialAsString();
+                    throw new TeensyException("Error getting acknowledgement when Send File Token sent");
+                }
+
+                _logService.Log($"Sending Stream Length: {fileInfo.StreamLength}");
+                SendIntBytes(fileInfo.StreamLength, 4);
+
+                _logService.Log($"Sending Checksum: {fileInfo.Checksum}");
+                SendIntBytes(fileInfo.Checksum, 2);
+
+                _logService.Log($"Sending SD_nUSB: {TeensyConstants.Sd_Card_Token}");
+                SendIntBytes(GetStorageToken(fileInfo.StorageType), 1);
+
+                _logService.Log($"Sending to target path: {fileInfo.TargetPath.UnixPathCombine(fileInfo.Name)}");
+                _serialPort.Write($"{fileInfo.TargetPath.UnixPathCombine(fileInfo.Name)}\0");
+
+                if (!GetAck())
+                {
+                    ReadSerialAsString(msToWait: 100);
+                    throw new TeensyException("Error getting acknowledgement when file metadata sent");
+                }
+                _logService.Log("File ready for transfer!");
+
+                _logService.Log($"Sending file: {fileInfo.FullPath}");
+                var bytesSent = 0;
+
+                while (fileInfo.StreamLength > bytesSent)
+                {
+                    var bytesToSend = 16 * 1024;
+                    if (fileInfo.StreamLength - bytesSent < bytesToSend) bytesToSend = (int)fileInfo.StreamLength - bytesSent;
+                    _serialPort.Write(fileInfo.Buffer, bytesSent, bytesToSend);
+
+                    _logService.Log("*");
+                    bytesSent += bytesToSend;
+                }
+
+                if (!GetAck())
+                {
+                    ReadSerialAsString(msToWait: 500);
+                    _logService.Log("File transfer failed.");
+                    throw new TeensyException("Error getting acknowledgement when sending file");
+                }
+                _logService.Log("File transfer complete!");
+            }
+            catch (TeensyException)
+            {
                 return false;
             }
-
-            _logService.Log($"Sending Stream Length: {fileInfo.StreamLength}");
-            SendIntBytes(fileInfo.StreamLength, 4);
-
-            _logService.Log($"Sending Checksum: {fileInfo.Checksum}");
-            SendIntBytes(fileInfo.Checksum, 2);
-
-            _logService.Log($"Sending SD_nUSB: {TeensyConstants.Sd_Card_Token}");
-            SendIntBytes(GetStorageToken(fileInfo.StorageType), 1);
-
-            _logService.Log($"Sending to target path: {fileInfo.TargetPath.UnixPathCombine(fileInfo.Name)}");
-            _serialPort.Write($"{fileInfo.TargetPath.UnixPathCombine(fileInfo.Name)}\0");
-
-            if (!GetAck())
+            finally
             {
-                ReadSerialAsString(msToWait: 100);
-                return false;
+                EnableAutoReadStream();
             }
-            _logService.Log("File ready for transfer!");
-
-            _logService.Log($"Sending file: {fileInfo.FullPath}");
-            var bytesSent = 0;
-
-            while (fileInfo.StreamLength > bytesSent)
-            {
-                var bytesToSend = 16 * 1024;
-                if (fileInfo.StreamLength - bytesSent < bytesToSend) bytesToSend = (int)fileInfo.StreamLength - bytesSent;
-                _serialPort.Write(fileInfo.Buffer, bytesSent, bytesToSend);
-
-                _logService.Log("*");
-                bytesSent += bytesToSend;
-            }
-
-            if (!GetAck())
-            {
-                ReadSerialAsString(msToWait: 500);
-                _logService.Log("File transfer failed.");
-                return false;
-            }
-            _logService.Log("File transfer complete!");
-
-            EnableAutoReadStream();
-
             return true;
         }
 
@@ -110,51 +118,60 @@ namespace TeensyRom.Core.Serial.Services
         {
             return await Task.Run(() =>
             {
-                DisableAutoReadStream();
-
-                _logService.Log($"Sending directory listing token: {TeensyConstants.List_Directory_Token}");
-                SendIntBytes(TeensyConstants.List_Directory_Token, 2);
-
-                if (!GetAck())
+                DirectoryContent? directoryContent = null;
+                try
                 {
-                    ReadSerialAsString();
-                    return null;
+                    DisableAutoReadStream();
+                    _logService.Log($"Sending directory listing token: {TeensyConstants.List_Directory_Token}");
+                    SendIntBytes(TeensyConstants.List_Directory_Token, 2);
+
+                    if (!GetAck())
+                    {
+                        ReadSerialAsString();
+                        throw new TeensyException("Error getting acknowledgement when List Directory Token sent");
+                    }
+
+                    _logService.Log($"Sending Storage Type: {TeensyConstants.Sd_Card_Token}");
+                    SendIntBytes(GetStorageToken(storageType), 1);
+
+                    _logService.Log($"Sending Skip: {skip}");
+                    SendIntBytes(skip, 1);
+
+                    _logService.Log($"Sending Take: {take}");
+                    SendIntBytes(take, 1);
+
+                    _logService.Log($"Sending path: {path}");
+                    _serialPort.Write($"{path}\0");
+
+                    if (!WaitForDirectoryStartToken())
+                    {
+                        ReadSerialAsString(msToWait: 100);
+                        throw new TeensyException("Error waiting for Directory Start Token");
+                    }
+                    _logService.Log("Ready to receive directory content!");
+
+                    directoryContent = ReceiveDirectoryContent();
+
+                    if (directoryContent is null)
+                    {
+                        ReadSerialAsString(msToWait: 100);
+                        _logService.Log("Failed to receive directory content");
+                        throw new TeensyException("Error waiting for Directory Start Token");
+                    }
+
+                    var contentLog = JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented });
+
+                    _logService.Log(contentLog);
                 }
-
-                _logService.Log($"Sending Storage Type: {TeensyConstants.Sd_Card_Token}");
-                SendIntBytes(GetStorageToken(storageType), 1);
-
-                _logService.Log($"Sending Skip: {skip}");
-                SendIntBytes(skip, 1);
-
-                _logService.Log($"Sending Take: {take}");
-                SendIntBytes(take, 1);
-
-                _logService.Log($"Sending path: {path}");
-                _serialPort.Write($"{path}\0");
-
-                if (!WaitForDirectoryStartToken())
+                catch (Exception ex)
                 {
-                    ReadSerialAsString(msToWait: 100);
-                    return null;
+                    _logService.Log("Exception thrown will trying to receive directory content");
+                    _logService.Log(ex.Message);
                 }
-                _logService.Log("Ready to receive directory content!");
-
-                var directoryContent = ReceiveDirectoryContent();
-
-                if (directoryContent is null)
+                finally
                 {
-                    ReadSerialAsString(msToWait: 100);
-                    _logService.Log("Failed to receive directory content");
-                    return directoryContent;
+                    EnableAutoReadStream();                    
                 }
-
-                var contentLog = JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented });
-
-                _logService.Log(contentLog);
-
-                EnableAutoReadStream();
-
                 return directoryContent;
 
             }).ConfigureAwait(false);
