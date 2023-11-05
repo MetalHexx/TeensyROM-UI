@@ -26,38 +26,20 @@ namespace TeensyRom.Core.Storage.Services
                 .Subscribe(settings => _settings = settings);
         }
 
-        public async Task<DirectoryContent?> GetDirectoryContentAsync(string path)
-        {
-            DirectoryContent directoryContent = new();            
-            uint take = 5;
-            uint skip = 0;
+        public DirectoryContent? GetDirectoryContent(string path, uint skip, uint take)
+        {        
 
-            var hasMorePages = true;
-            while (hasMorePages)
+            var content = _teensyPort.GetDirectoryContent(path, _settings.TargetType, skip, take);
+
+            if (content is null)
             {
-
-                var page = await _teensyPort.GetDirectoryContentAsync(path, _settings.TargetType, skip, take);
-
-                if (page is null)
-                {
-                    _logService.Log("There was an error.  Received a null result from the request");
-                    return null;
-                }
-                directoryContent.Add(page);
-                skip += (uint)page.TotalCount;
-                hasMorePages = page.TotalCount == take;
+                _logService.Log("There was an error.  Received a null result from the request");
+                return null;
             }
-            directoryContent.Directories = directoryContent.Directories
-                .OrderBy(d => d.Name)
-                .ToList();
-
-            directoryContent.Files = directoryContent.Files
-                .OrderBy(d => d.Name)
-                .ToList();
 
             _logService.Log($"Received the following directory contents:");
-            _logService.Log(JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented }));
-            return directoryContent;
+            _logService.Log(JsonConvert.SerializeObject(content, new JsonSerializerSettings { Formatting = Formatting.Indented }));
+            return content;
         }        
 
         public void Dispose()

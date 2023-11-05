@@ -11,7 +11,7 @@ namespace TeensyRom.Core.Serial.Services
         /// <summary>
         /// Gets a directory listing from teensy given a path, storage type, skip and take
         /// </summary>
-        Task<DirectoryContent?> GetDirectoryContentAsync(string path, TeensyStorageType storageType, uint skip, uint take);
+        DirectoryContent? GetDirectoryContent(string path, TeensyStorageType storageType, uint skip, uint take);
 
         /// <summary>
         /// Sends ping bytes to teensyrom
