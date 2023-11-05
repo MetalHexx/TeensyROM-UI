@@ -24,6 +24,8 @@ using TeensyRom.Ui.Features.FileTransfer.Models;
 using System.Threading;
 using System.Windows;
 using System.Reactive.Subjects;
+using System.DirectoryServices.ActiveDirectory;
+using System.Runtime.ExceptionServices;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
@@ -61,7 +63,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private readonly ISnackbarService _snackbar;
         private readonly StringBuilder _logBuilder = new StringBuilder();
         
-        private const uint _take = 20;
+        private const uint _take = 50;
         public FileTransferViewModel(ITeensyDirectoryService directoryService, ISettingsService settingsService, ITeensyObservableSerialPort teensyPort, INavigationService nav, ILoggingService logService, ISnackbarService snackbar) 
         {
             _directoryService = directoryService;
@@ -138,34 +140,37 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
             uint skip = 0;
 
-            var directoryContent = LoadDirectoryContent(path, skip);
-
-            if (directoryContent is null) return Unit.Default;
-
-            Application.Current.Dispatcher.Invoke(() =>
+            Task.Run(() =>
             {
-                MapDirectoryContentToView(directoryContent, clearItems: true);
-            });
+                DirectoryContent? directoryContent = null;
+                var firstPage = true;                
 
-            CurrentDirectory = directoryContent;
-
-            Task.Run(async () =>
-            {
-                while (directoryContent.TotalCount == _take)
+                do
                 {
                     directoryContent = LoadDirectoryContent(path, skip);
 
-                    Thread.Sleep(200);
-
                     if (directoryContent is null) return Unit.Default;
+
+                    if (firstPage)
+                    {
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            TargetItems.Clear();
+                        });
+                        firstPage = false;
+                    }
 
                     skip += _take;
 
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        MapDirectoryContentToView(directoryContent, clearItems: false);
+                        MapDirectoryContentToView(directoryContent);
                     });
-                }
+
+                    Thread.Sleep(500);
+                } 
+                while (directoryContent.TotalCount == _take);
+
                 _isLoadingFiles.OnNext(false);
                 return Unit.Default;
             });
@@ -193,7 +198,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
             return directoryContent;
         }
 
-        private void MapDirectoryContentToView(DirectoryContent directoryContent, bool clearItems)
+        private void MapDirectoryContentToView(DirectoryContent directoryContent)
         {
             var newDirectories = directoryContent.Directories
                 .Select(d => new DirectoryItemVm { Name = d.Name, Path = d.Path })
@@ -202,8 +207,6 @@ namespace TeensyRom.Ui.Features.FileTransfer
             var newFiles = directoryContent.Files
                 .Select(f => new FileItemVm { Name = f.Name, Path = f.Path, Size = f.Size })
                 .OrderBy(f => f.Name);
-
-            if (clearItems) TargetItems.Clear();
 
             foreach (var dir in newDirectories)
             {
