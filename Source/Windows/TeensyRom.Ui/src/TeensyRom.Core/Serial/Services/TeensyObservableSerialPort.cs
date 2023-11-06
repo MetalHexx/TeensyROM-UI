@@ -133,10 +133,10 @@ namespace TeensyRom.Core.Serial.Services
                 SendIntBytes(GetStorageToken(storageType), 1);
 
                 _logService.Log($"Sending Skip: {skip}");
-                SendIntBytes(skip, 1);
+                SendIntBytes(skip, 2);
 
                 _logService.Log($"Sending Take: {take}");
-                SendIntBytes(take, 1);
+                SendIntBytes(take, 2);
 
                 _logService.Log($"Sending path: {path}");
                 _serialPort.Write($"{path}\0");
@@ -327,6 +327,17 @@ namespace TeensyRom.Core.Serial.Services
             _serialPort.Read(receivedData, 0, receivedData.Length);
 
             _logService.Log("Received String: " + Encoding.ASCII.GetString(receivedData));
+        }
+
+        public string ReadSerialAsStringTest(int msToWait = 0)
+        {
+            Thread.Sleep(msToWait);
+            if (_serialPort.BytesToRead == 0) return string.Empty;
+
+            byte[] receivedData = new byte[_serialPort.BytesToRead];
+            _serialPort.Read(receivedData, 0, receivedData.Length);
+
+            return "Received String: " + Encoding.ASCII.GetString(receivedData);
         }
 
         public bool GetAck()

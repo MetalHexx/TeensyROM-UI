@@ -198,53 +198,52 @@ FLASHMEM void PostFileCommand()
    SendU16(AckToken);
 }
 
-
 FLASHMEM bool SendPagedDirectoryContents(FS& fileStream, const char* directoryPath, int skip, int take)
 {
     File directory = fileStream.open(directoryPath);
-    if (!directory)
-    {
-        SendU16(FailToken);
-        Serial.printf_P(PSTR("Failed to open directory: %s\n"), directoryPath); //<-- Update all the printf statenebts to use this.
-        return false;
-    }
-
+    
     File directoryItem = directory.openNextFile();
 
-    for(int currentCount = 0, addedCount = 0; directoryItem && addedCount < take; currentCount++)
-    {
-        if (currentCount >= skip)
+    int currentCount = 0; 
+    int pageCount = 0; 
+
+    while(directoryItem && pageCount < take)
+    { 
+      currentCount++;
+      
+      const char* itemName = directoryItem.name();
+
+      if(currentCount >= skip)
+      {
+        pageCount++;
+        
+        if (directoryItem.isDirectory())
         {
-            const char* itemName = directoryItem.name();
-
-            if (directoryItem.isDirectory())
-            {
-                Serial.print(F("[Dir]{\"Name\":\""));
-                Serial.print(itemName);
-                Serial.print(F("\",\"Path\":\""));
-                Serial.print(directoryPath);
-                Serial.print('/');
-                Serial.print(itemName);
-                Serial.print(F("\"}[/Dir]"));
-            }
-            else
-            {
-                Serial.print(F("[File]{\"Name\":\""));
-                Serial.print(itemName);
-                Serial.print(F("\",\"Size\":"));
-                Serial.print(directoryItem.size());
-                Serial.print(F(",\"Path\":\""));
-                Serial.print(directoryPath);
-                Serial.print('/');
-                Serial.print(itemName);
-                Serial.print(F("\"}[/File]"));
-            }
-
-            addedCount++;
+            Serial.print(F("[Dir]{\"Name\":\""));
+            Serial.print(itemName);
+            Serial.print(F("\",\"Path\":\""));
+            Serial.print(directoryPath);
+            Serial.print('/');
+            Serial.print(itemName);
+            Serial.print(F("\"}[/Dir]"));
         }
-        directoryItem.close();
-        directoryItem = directory.openNextFile();
+        else
+        {
+            Serial.print(F("[File]{\"Name\":\""));
+            Serial.print(itemName);
+            Serial.print(F("\",\"Size\":"));
+            Serial.print(directoryItem.size());
+            Serial.print(F(",\"Path\":\""));
+            Serial.print(directoryPath);
+            Serial.print('/');
+            Serial.print(itemName);
+            Serial.print(F("\"}[/File]"));
+        }
+      }
+      directoryItem.close();
+      directoryItem = directory.openNextFile();
     }
+
     if (directoryItem) {
         directoryItem.close();
     }
@@ -281,13 +280,13 @@ FLASHMEM void ListDirectoryCommand()
         Serial.println("Error receiving storage type value!");
         return;
     }
-    if (!GetUInt(&skip, 1))
+    if (!GetUInt(&skip, 2))
     {
         SendU16(FailToken);
         Serial.println("Error receiving skip value!");
         return;
     }
-    if (!GetUInt(&take, 1))
+    if (!GetUInt(&take, 2))
     {
         SendU16(FailToken);
         Serial.println("Error receiving take value!");

@@ -155,6 +155,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
                     {
                         Application.Current.Dispatcher.Invoke(() =>
                         {
+                            CurrentDirectory = directoryContent;
                             TargetItems.Clear();
                         });
                         firstPage = false;
@@ -169,7 +170,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
                     Thread.Sleep(500);
                 } 
-                while (directoryContent.TotalCount == _take);
+                while (directoryContent.TotalCount == _take);                
 
                 _isLoadingFiles.OnNext(false);
                 return Unit.Default;
