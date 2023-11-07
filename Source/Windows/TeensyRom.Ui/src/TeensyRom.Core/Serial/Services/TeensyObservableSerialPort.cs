@@ -158,9 +158,9 @@ namespace TeensyRom.Core.Serial.Services
                 }
                 directoryContent.Path = path;
 
-                var contentLog = JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented });
+                //var contentLog = JsonConvert.SerializeObject(directoryContent, new JsonSerializerSettings { Formatting = Formatting.Indented });
 
-                _logService.Log(contentLog);
+                //_logService.Log(contentLog);
             }
             catch (Exception ex)
             {
