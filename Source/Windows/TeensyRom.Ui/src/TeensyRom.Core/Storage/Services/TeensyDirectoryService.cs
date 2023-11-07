@@ -37,8 +37,8 @@ namespace TeensyRom.Core.Storage.Services
                 return null;
             }
 
-            _logService.Log($"Received the following directory contents:");
-            _logService.Log(JsonConvert.SerializeObject(content, new JsonSerializerSettings { Formatting = Formatting.Indented }));
+            //_logService.Log($"Received the following directory contents:");
+            //_logService.Log(JsonConvert.SerializeObject(content, new JsonSerializerSettings { Formatting = Formatting.Indented }));
             return content;
         }        
 

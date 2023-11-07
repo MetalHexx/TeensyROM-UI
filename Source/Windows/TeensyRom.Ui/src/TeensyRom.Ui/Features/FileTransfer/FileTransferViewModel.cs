@@ -63,7 +63,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private readonly ISnackbarService _snackbar;
         private readonly StringBuilder _logBuilder = new StringBuilder();
         
-        private const uint _take = 50;
+        private const uint _take = 100;
         public FileTransferViewModel(ITeensyDirectoryService directoryService, ISettingsService settingsService, ITeensyObservableSerialPort teensyPort, INavigationService nav, ILoggingService logService, ISnackbarService snackbar) 
         {
             _directoryService = directoryService;

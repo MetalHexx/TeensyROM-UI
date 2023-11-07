@@ -100,12 +100,12 @@
             </Grid>
 
             <DataTemplate.Triggers>
-                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsMouseOver}" Value="True">
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">
                     <Setter TargetName="LaunchButton" Property="Visibility" Value="Visible"/>
                     <Setter TargetName="FavButton" Property="Visibility" Value="Visible"/>
                     <Setter TargetName="DeleteButton" Property="Visibility" Value="Visible"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsMouseOver}" Value="False">
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False">
                     <Setter TargetName="LaunchButton" Property="Visibility" Value="Collapsed"/>
                     <Setter TargetName="FavButton" Property="Visibility" Value="Collapsed"/>
                     <Setter TargetName="DeleteButton" Property="Visibility" Value="Collapsed"/>
@@ -213,6 +213,7 @@
                 MouseDoubleClick="OnListViewDoubleClicked"
                 VirtualizingPanel.IsVirtualizing="True" 
                 VirtualizingPanel.VirtualizationMode="Recycling"
+                VirtualizingPanel.CacheLength="2000"
                 dd:DragDrop.IsDropTarget="True"
                 dd:DragDrop.IsDragSource="False"
                 dd:DragDrop.DropHandler="{Binding}"                
