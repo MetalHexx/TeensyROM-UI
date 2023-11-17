@@ -57,7 +57,7 @@ namespace TeensyRom.Tests.Integration
             //Arrange
             InitializeViewModel();
             //Assert
-            _fileTransferViewModel.CurrentDirectory.Path.Should().Be("/sync");
+            _fileTransferViewModel.CurrentPath.Should().Be("/sync");
         }
 
         [Fact]
@@ -73,7 +73,7 @@ namespace TeensyRom.Tests.Integration
             await _fileTransferViewModel.LoadDirectoryContentCommand.Execute(directoryToSwitchTo).ToTask();
 
             //Assert
-            _fileTransferViewModel.CurrentDirectory!.Path.Should().Be(TestConstants.Integration_Test_Existing_Folder);
+            _fileTransferViewModel.CurrentPath.Should().Be(TestConstants.Integration_Test_Existing_Folder);
         }
 
         [Fact]
@@ -87,7 +87,7 @@ namespace TeensyRom.Tests.Integration
 
             //Assert
             await _fileTransferViewModel.LoadParentDirectoryContentCommand.Execute().ToTask();
-            _fileTransferViewModel.CurrentDirectory!.Path.Should().Be(TestConstants.Integration_Test_Root_Path);
+            _fileTransferViewModel.CurrentPath.Should().Be(TestConstants.Integration_Test_Root_Path);
 
         }
 
@@ -103,7 +103,7 @@ namespace TeensyRom.Tests.Integration
             await _fileTransferViewModel.LoadDirectoryContentCommand.Execute(directoryToSwitchTo).ToTask();
 
             //Assert
-            _fileTransferViewModel.IsTargetItemsEmpty.Should().BeTrue();
+            _fileTransferViewModel.TargetItems.Count.Should().Be(0);
 
         }
         private void InitializeViewModel()
@@ -120,7 +120,7 @@ namespace TeensyRom.Tests.Integration
             var directoryService = new TeensyDirectoryService(_teensyPort, _settingsService, logService);
             var navigationService = new NavigationService();
             var snackbar = new SnackbarService(Dispatcher.CurrentDispatcher);
-            _fileTransferViewModel = new FileTransferViewModel(directoryService, _settingsService, _teensyPort, navigationService, logService, snackbar);            
+            _fileTransferViewModel = new FileTransferViewModel(directoryService, _settingsService, _teensyPort, navigationService, logService, snackbar, Dispatcher.CurrentDispatcher);            
             _settingsViewModel = new SettingsViewModel(_settingsService, snackbar, logService);
             _connectViewModel = new ConnectViewModel(_teensyPort, logService);
             _teensyPort.SetPort(_serialPortName);
