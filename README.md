@@ -23,7 +23,7 @@ The HW was designed with medium skilled solder skills in mind.  If you feel it's
 
 <BR>
 
-![TeensyROM pic1](media/v0.2b/v0.2b_angle.jpg)
+![TeensyROM pic1](media/v0.2c/v0.2c_angle.jpg)
 
 |![TeensyROM pic1](media/case/case-front-corner.jpg)|![TeensyROM case](media/case/case-rear-corner.jpg)| 
 |:--:|:--:|
@@ -62,10 +62,11 @@ The HW was designed with medium skilled solder skills in mind.  If you feel it's
   * Startup, Ethernet, timezone, etc retained after power down.
 
 ## Links to detailed documentation
-  * **Usage Documentats**
-    * **[General Usage document](docs/General_Usage.md)**
-    * **[MIDI Usage document](docs/MIDI_Usage.md)**
-    * **[Ethernet Usage document](docs/Ethernet_Usage.md)**
+  * **Usage Documents**
+    * **[General Usage](docs/General_Usage.md)**
+    * **[MIDI Usage](docs/MIDI_Usage.md)**
+    * **[Ethernet Usage](docs/Ethernet_Usage.md)**
+    * **[TeensyROM Web Browser](docs/Browser_Usage.md)**
   * **SW Release notes/developnment**
     * **[Firmware Release history](bin/TeensyROM/FW_Release_History.md)**
     * **[Win App Release History](bin/WinApp/WinApp_Release_History.md)**
@@ -73,15 +74,16 @@ The HW was designed with medium skilled solder skills in mind.  If you feel it's
   * **Hardware/PCB Related**
     * **[TeensyROM Assembly Instructions](PCB/PCB_Assembly.md)**
     * **[PCB Design History](PCB/PCB_History.md)**
-    * **[Bill of materials with cost info](https://github.com/SensoriumEmbedded/TeensyROM/raw/main/PCB/v0.2%20archive/TeensyROM%20v0.2b%20BOM.xlsx)**
-    * **[PDF Schematic](PCB/v0.2%20archive/TeensyROM_v0.2b_Schem.pdf)**
+    * **[Bill of materials with cost info](https://github.com/SensoriumEmbedded/TeensyROM/raw/main/PCB/v0.2c/TeensyROM%20v0.2c%20BOM.xlsx)**
+    * **[PDF Schematic](https://github.com/SensoriumEmbedded/TeensyROM/raw/main/PCB/v0.2c/TeensyROM_v0.2c_Schem.pdf)**
 
 
 ## Demo Videos:
-  * [TeensyROM real-time video/audio capture](https://www.youtube.com/watch?v=e0A-DPZf2GI) of menu navigation and loading/running/emulating various programs/cartridges
-  * [Demo using Cynthcart and Datel MIDI emulation](https://www.youtube.com/watch?v=-LumhU60d_k) to play with a USB keyboard 
-  * [MIDI ASID Demo:](https://www.youtube.com/watch?v=MU1PgFn0eQc) Stream .SID & .MIDI files directly to your C64/SID
-  * [MIDI2SID Demo ](https://www.youtube.com/watch?v=3BsX_jxIYKY) using MIDI keyboard => TeensyROM => C64/SID
+  * **[This YouTube Playlist](https://www.youtube.com/playlist?list=PL3fTdu8e_1iChAsRr9KjWtC3A8Ql8IaDn)** contains all the latest TeensyROM demo videos, such as: 
+    * Real-time video/audio capture of menu navigation and loading/running/emulating various programs/cartridges
+    * Demo using Cynthcart and Datel MIDI emulation to play with a USB keyboard 
+    * MIDI ASID Demo: Stream .SID & .MIDI files directly to your C64/SID
+    * Web Browser and internet file download demo 
 
 ## Compatibility
 * TeensyROM compatability has been fully validated on **many** different NTSC **and** PAL machines: C64, C64C, SX-64, and C128 
@@ -92,13 +94,15 @@ Component selection was done using parts large enough (SOIC and 0805s at the sma
 **A note about overclocking**
 The Teensy 4.1 is slightly "overclocked" to 816MHz from FW in this design. Per the app, external cooling is not required for this speed.  However, in abundance of caution, a heatsink is specified in the BOM for this project.  In addition, the temperature can be read on the setup screen of the main TeensyROM app. The max spec is 95C, and there is a panic shutdown at 90C.  In my experience, even on a warm day running for hours with no heatsink, the temp doesn't excede 75C.
 
-## Inspiration:
-* **Heather S**: Loving wife through whom all things are possible
-* **Paul D**: Thought provoker, Maker, and Beta tester extraordinaire
-* **Giants with tall shoulders**: SID/SIDEKick, KungFu Flash, VICE
+## Inspiration and Thank-Yous:
+* **Heather S**: Loving wife, continuous encourager
+* **Paul D**: Thought provoker, promoter, Maker, and Beta tester extraordinaire
+* [**Stefan Wessels**](https://github.com/StewBC): Cartridge case design
+* [**MetalHexx**](https://github.com/MetalHexx): Big picture ideas, case support
+* **Giants with tall shoulders**: SID/SIDEKick, KungFu Flash, VICE Team
 
 ## Pictures-screen captures:
-|![TeensyROM pic1](media/v0.2b/v0.2b_top.jpg)|![TeensyROM pic1](media/v0.2b/v0.2b_insitu_USBdrive.jpg)| 
+|![TeensyROM pic1](media/v0.2c/v0.2c_top.jpg)|![TeensyROM pic1](media/v0.2b/v0.2b_insitu_USBdrive.jpg)| 
 |:--:|:--:|
 |![TeensyROM pic1](media/v0.2b/v0.2b_top_loaded.jpg)|![TeensyROM pic1](media/v0.2b/v0.2b_insitu_MIDI.jpg)|
 |![TeensyROM pic1](media/Screen%20captures/Main%20Menu.png)|![TeensyROM pic1](media/Screen%20captures/USB%20Menu.png)|

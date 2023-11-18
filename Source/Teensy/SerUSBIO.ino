@@ -31,11 +31,19 @@ FLASHMEM void ServiceSerial()
       case 0x64: //'d' command from app
          if(!SerialAvailabeTimeout()) return;
          inByte = Serial.read(); //READ NEXT BYTE
+         if (inByte == 0xEE) //Reset C64, only command available when busy
+         {
+            Serial.println("Reset cmd received");
+            SetUpMainMenuROM();
+            return;
+         }
          if (CurrentIOHandler != IOH_TeensyROM)
          {
             SendU16(FailToken);
             Serial.print("Busy!\n");
+            return;
          }
+         
          switch (inByte)
          {
             case 0x55:  //ping
@@ -47,19 +55,16 @@ FLASHMEM void ServiceSerial()
             case 0xBB:  // v2 file x-fer pc->TR.  For use with v2 UI.
                PostFileCommand();
                break;
-            case 0xDD:  // v2 directory listing from TR
-                ListDirectoryCommand();
-                break;
-            case 0xEE: //Reset C64
-               Serial.println("Reset cmd received");
-               SetUpMainMenuROM();
+            case 0x44: //Launch File
+               if(LaunchFile()) Serial.println("Launched!");  
+               else Serial.println("Launch Failed");  
                break;
-            case 0x67: //Test/debug
+            case 0x67: //'dg'Test/debug
                //for (int a=0; a<256; a++) Serial.printf("\n%3d, // %3d   '%c'", ToPETSCII(a), a, a);
                PrintDebugLog();
                break;
             default:
-               Serial.printf("Unk cmd: %02x\n", inByte); 
+               Serial.printf("Unk cmd: 0x64%02x\n", inByte); 
                break;
          }
          break;
@@ -181,11 +186,11 @@ FLASHMEM void ServiceSerial()
             69,65,83,69,32,67,65,76,76,32,66,65,67,75,32,76,65,84,69,82,46,13,13,13,13,13,13
             };
             
-            for(uint16_t Cnt=0; Cnt<sizeof(inbuf); Cnt++) AddPETSCIICharToRxQueue(inbuf[Cnt]);
+            for(uint16_t Cnt=0; Cnt<sizeof(inbuf); Cnt++) AddRawCharToRxQueue(inbuf[Cnt]);
          }
          break;
       case 'p':
-         AddASCIIStrToRxQueueLN("0123456789abcdef");
+         AddToPETSCIIStrToRxQueueLN("0123456789abcdef");
          break;
       case 'k': //kill client connection
          client.stop();
@@ -357,103 +362,130 @@ FLASHMEM void PrintDebugLog()
    BigBufCount = 0;
 }
 
-//FLASHMEM void ReceiveFile()
-//{ 
-//   //   App: SendFileToken 0x64AA
-//   //Teensy: AckToken 0x64CC
-//   //   App: Send Length(4), CS(2), SD_nUSB(1), 
-//   //          DestPath/Name(up to MaxNamePathLength, null term)
-//   //Teensy: AckToken 0x64CC
-//   //   App: Send file(length)
-//   //Teensy: AckToken 0x64CC on Pass,  0x9b7f on Fail
-//   
-//
-//   //send file token has been received, only 2 byte responses until after final response
-//   SendU16(AckToken);
-//   
-//   uint32_t len;
-//   if (!GetUInt(&len, 4)) return;
-//   
-//   uint32_t CheckSum;
-//   if (!GetUInt(&CheckSum, 2)) return;
-//   
-//   uint32_t SD_nUSB;
-//   if (!GetUInt(&SD_nUSB, 1)) return;
-// 
-//   char FileNamePath[MaxNamePathLength];
-//   uint16_t CharNum=0;
-//   while (1) 
-//   {
-//      if(!SerialAvailabeTimeout()) return;
-//      FileNamePath[CharNum] = Serial.read();
-//      if (FileNamePath[CharNum]==0) break;
-//      if (++CharNum == MaxNamePathLength)
-//      {
-//         SendU16(FailToken);
-//         Serial.print("Path too long!\n");  
-//         return;
-//      }
-//   }
-//   
-//   FS *sourceFS = &firstPartition;
-//   if (SD_nUSB)
-//   {
-//      if (!SD.begin(BUILTIN_SDCARD))
-//      {
-//         //SendU16(FailToken); //app will timeout waiting for SD init
-//         Serial.printf("No SD card?\n");  
-//         return;               
-//      }
-//      sourceFS = &SD;   
-//   }
-// 
-//   if (sourceFS->exists(FileNamePath))
-//   {
-//      SendU16(FailToken);
-//      Serial.printf("File already exists.\n");  
-//      return;      
-//   }
-//   
-//   File myFile = sourceFS->open(FileNamePath, FILE_WRITE);
-//   if (!myFile) 
-//   {
-//      SendU16(FailToken);
-//      Serial.printf("Could not open for write: %s:%s\n", (SD_nUSB ? "SD" : "USB"), FileNamePath);  
-//      return;
-//   }
-//   
-//   SendU16(AckToken); //starts file data streaming 
-//   //Serial.printf("Len: %lu  CS: 0x%04x\n %s:%s\n", len, CheckSum, (SD_nUSB ? "SD" : "USB"), FileNamePath);
-//  
-//   uint32_t bytenum = 0;
-//   uint8_t ByteIn;
-//   while(bytenum < len)
-//   {
-//      if(!SerialAvailabeTimeout())
-//      {
-//         SendU16(FailToken);
-//         Serial.printf("Rec %lu of %lu bytes\n", bytenum, len);
-//         myFile.close();
-//         return;
-//      }
-//      //uint8_t ByteIn = Serial.read();
-//      myFile.write(ByteIn = Serial.read());
-//      CheckSum-=ByteIn;
-//      bytenum++;
-//   }  
-//   
-//   myFile.close();
-//   
-//   CheckSum &= 0xffff;
-//   if (CheckSum!=0)
-//   {  //Failed
-//      SendU16(FailToken);
-//      Serial.printf("CS Failed! RCS:%lu\n", CheckSum);
-//      return;
-//   }   
-//   
-//   SendU16(AckToken); //success!
-//}
+FLASHMEM bool LaunchFile()
+{            
+   //   App: LaunchFileToken 0x6444
+   //Teensy: AckToken 0x64CC
+   //   App: Send SD_nUSB(1), DestPath/Name(up to MaxNamePathLength, null term)
+   //Teensy: AckToken 0x64CC on Pass
+
+   //Launch file token has been received, only 2 byte responses until after final response
+   SendU16(AckToken);
+
+   uint32_t SD_nUSB;
+   char FileNamePath[MaxNamePathLength];
+   if (!ReceiveFileName(&SD_nUSB, FileNamePath)) return false;
+
+   if(RemoteLaunch(SD_nUSB !=0 , FileNamePath)) 
+   {
+      SendU16(AckToken);
+      return true;
+   }
+   return false;
+}
+
+FLASHMEM bool ReceiveFileName(uint32_t *SD_nUSB, char *FileNamePath)
+{
+   if (!GetUInt(SD_nUSB, 1)) return false;
+ 
+   uint16_t CharNum=0;
+   while (1) 
+   {
+      if(!SerialAvailabeTimeout()) return false;
+      FileNamePath[CharNum] = Serial.read();
+      if (FileNamePath[CharNum]==0) return true;
+      if (++CharNum == MaxNamePathLength)
+      {
+         SendU16(FailToken);
+         Serial.print("Path too long!\n");  
+         return false;
+      }
+   }
+}
+               
+FLASHMEM void ReceiveFile()
+{ 
+   //   App: SendFileToken 0x64AA
+   //Teensy: AckToken 0x64CC
+   //   App: Send Length(4), CS(2), SD_nUSB(1), 
+   //          DestPath/Name(up to MaxNamePathLength, null term)
+   //Teensy: AckToken 0x64CC
+   //   App: Send file(length)
+   //Teensy: AckToken 0x64CC on Pass,  0x9b7f on Fail
+   
+
+   //send file token has been received, only 2 byte responses until after final response
+   SendU16(AckToken);
+   
+   uint32_t len;
+   if (!GetUInt(&len, 4)) return;
+   
+   uint32_t CheckSum;
+   if (!GetUInt(&CheckSum, 2)) return;
+   
+   uint32_t SD_nUSB;
+   char FileNamePath[MaxNamePathLength];
+   if (!ReceiveFileName(&SD_nUSB, FileNamePath)) return;
+   
+   FS *sourceFS = &firstPartition;
+   if (SD_nUSB)
+   {
+      if (!SD.begin(BUILTIN_SDCARD))
+      {
+         //SendU16(FailToken); //app will timeout waiting for SD init
+         Serial.printf("No SD card?\n");  
+         return;               
+      }
+      sourceFS = &SD;   
+   }
+   
+   if (sourceFS->exists(FileNamePath))
+   {
+      SendU16(FailToken);
+      Serial.printf("File already exists.\n");  
+      return;      
+   }
+   
+   File myFile = sourceFS->open(FileNamePath, FILE_WRITE);
+   if (!myFile) 
+   {
+      SendU16(FailToken);
+      Serial.printf("Could not open for write: %s:%s\n", (SD_nUSB ? "SD" : "USB"), FileNamePath);  
+      return;
+   }
+   
+   SendU16(AckToken); //starts file data streaming 
+   //Serial.printf("Len: %lu  CS: 0x%04x\n %s:%s\n", len, CheckSum, (SD_nUSB ? "SD" : "USB"), FileNamePath);
+  
+   uint32_t bytenum = 0;
+   uint8_t ByteIn;
+   while(bytenum < len)
+   {
+      if(!SerialAvailabeTimeout())
+      {
+         SendU16(FailToken);
+         Serial.printf("Rec %lu of %lu bytes\n", bytenum, len);
+         myFile.close();
+         return;
+      }
+      //uint8_t ByteIn = Serial.read();
+      myFile.write(ByteIn = Serial.read());
+      CheckSum-=ByteIn;
+      bytenum++;
+   }  
+   
+   myFile.close();
+   
+   CheckSum &= 0xffff;
+   if (CheckSum!=0)
+   {  //Failed
+      SendU16(FailToken);
+      Serial.printf("CS Failed! RCS:%lu\n", CheckSum);
+      return;
+   }   
+   
+   SendU16(AckToken); //success!
+}
 
 FLASHMEM bool GetUInt(uint32_t *InVal, uint8_t NumBytes)
 {

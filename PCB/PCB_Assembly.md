@@ -2,7 +2,7 @@
 
 The TeensyROM was designed with hand assembly in mind. While surface mount packages are used, they are the larger types (SOIC IC packages and 0805 passives).  If you feel this is beyond your solder capabilities, assembled units are usually available at a fair price. If there are additional questions, feel free to [contact me](mailto:travis@sensoriumembedded.com).
 
-| ![Top View](/media/v0.2b/v0.2b_top.jpg) | ![Bot View](/media/v0.2b/v0.2b_Bot.jpg) |
+| ![Top View](/media/v0.2c/v0.2c_top.jpg) | ![Bot View](/media/v0.2c/v0.2c_Bot.jpg) |
 |--|--|
 
 - Tools/materials needed: 
@@ -13,8 +13,8 @@ The TeensyROM was designed with hand assembly in mind. While surface mount packa
   - Small knife (ie Exacto)
   - Workspace with good lighting and magnification
   - Computer with USB and the [Teensyduino app](https://www.pjrc.com/teensy/td_download.html)
-  - Parts listed in the [TeensyROM BOM](https://github.com/SensoriumEmbedded/TeensyROM/raw/main/PCB/v0.2%20archive/TeensyROM%20v0.2b%20BOM.xlsx)
-    - Including bare PCB [Link to latest design at OSH Park](https://oshpark.com/shared_projects/m7YLgscM)
+  - Parts listed in the [TeensyROM BOM](https://github.com/SensoriumEmbedded/TeensyROM/raw/main/PCB/v0.2c/TeensyROM%20v0.2c%20BOM.xlsx)
+    - Including bare PCB [Link to latest design at OSH Park](https://oshpark.com/shared_projects/I2BzuXb5)
 
 ## Teensy prep: *Important: complete these in order shown!*  
 - These steps need to be done **before** assembling the TeensyROM and connecting to a C64/128 for the first time.
@@ -51,13 +51,31 @@ The TeensyROM was designed with hand assembly in mind. While surface mount packa
 - **Observe propper polarity:**
   - LED: Square hole=short lead=flat side=Cathode
   - THM capacitors: '+' mark on PCA opposite '-' mark on caps
+    - PCB v0.2c: Neg side has square pad
   
 ### Teensy Heatsink Assembly
 - **BOM item # 16**
-- Use a small amount of thermal glue (preferred) or thermal tape to attach heatsink to center of the microcontroller in the center of the Teensy module.
+- Use thermal tape to attach heatsink to center of the microcontroller on the Teensy module.
 - Make sure the heatsink is not contacting any pins or other components, such as the large capacitor near it.
 
-### **Assembly complete, ready for fun!**
+### Assembly is complete, test out your TeensyROM
+
+| Action/test                       | Signals tested                                    |
+|--|--|
+| Programming Teensy first time	   | USB Device Port (part of prep step)               |
+| Power up, Verify main menu	      | EXROM/ROML, IO1, R/W, Phi2, Data bus, address bus |
+| Verify Main LED on	               | LED orientation, series resistor                  |
+| Read SD card directory	         | SD card port operation                            |
+| Read USB Thumb Drive directory	   | USB Host port signals                             |
+| Synch time via ethernet	         | Ethernet signals                                  |
+| Verify Ethernet LED on	         | Eth LED signal                                    |
+| Run self test	                  | Rapid emulated ROM reads                          |
+| Jupiter Lander	                  | GAME/ROML                                         |
+| Button press, restart	            | Button, Reset signal                              |
+| Run CCGMS/Swiftlink, AT command	| NMI                                               |
+| MIDI USB keyboard to Cynthcart	   | IRQ                                               |
+
+### **Testing complete, ready for fun!**
 
 <br>
 

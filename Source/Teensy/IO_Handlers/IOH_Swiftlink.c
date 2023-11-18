@@ -19,6 +19,8 @@
 
 
 //Network, 6551 ACIA interface emulation
+//with AT Command sub-system and Internet Browser
+
 
 void IO1Hndlr_SwiftLink(uint8_t Address, bool R_Wn);  
 void PollingHndlr_SwiftLink();                           
@@ -37,42 +39,28 @@ stcIOHandlers IOHndlr_SwiftLink =
   &CycleHndlr_SwiftLink,    //called at the end of EVERY c64 cycle
 };
 
-extern volatile uint32_t CycleCountdown;
-extern void EEPreadBuf(uint16_t addr, uint8_t* buf, uint8_t len);
-extern void EEPwriteBuf(uint16_t addr, const uint8_t* buf, uint8_t len);
-void AddBrowserCommandsToRxQueue();
 
-#define NumPageLinkBuffs  9
-#define NumPrevLinkBuffs  8
-
-uint8_t* RxQueue = NULL;  //circular queue to pipe data to the c64 
-char* TxMsg = NULL;  //to hold messages (AT/browser commands) when off line
-char* PageLinkBuff[NumPageLinkBuffs]; //hold links from tags for user selection in browser
-char* PrevLinkBuff[NumPrevLinkBuffs]; //For browse previous
-
-uint8_t  PrevLinkBuffNum;   //where we are in the link history queue
-uint8_t  UsedPageLinkBuffs;   //how many PageLinkBuff elements have been Used
-uint32_t  RxQueueHead, RxQueueTail, TxMsgOffset;
-bool ConnectedToHost, BrowserMode, PagePaused, PrintingHyperlink;
-uint32_t PageCharsReceived;
-uint32_t NMIassertMicros;
-volatile uint8_t SwiftTxBuf, SwiftRxBuf;
-volatile uint8_t SwiftRegStatus, SwiftRegCommand, SwiftRegControl;
-uint8_t PlusCount;
-uint32_t LastTxMillis = millis();
-
+#define NumPageLinkBuffs   99
+#define NumPrevURLQueues   8
+#define MaxURLHostSize     100
+#define MaxURLPathSize     300
 #define MaxTagSize         300
 #define TxMsgMaxSize       128
-#define RxQueueSize       (1024*320) 
-#define C64CycBetweenRx   2300   //stops NMI from re-asserting too quickly. chars missed in large buffs when lower
-#define NMITimeoutnS       300   //if Rx data not read within this time, deassert NMI anyway
+#define BytesPerDot        (25*1024) //dot every 25k when downloading
+#define RxQueueNumBlocks   40 
+#define RxQueueBlockSize   (1024*8) // 40*8k=320k
+#define RxQueueSize        (RxQueueNumBlocks*RxQueueBlockSize) 
+#define C64CycBetweenRx    2300   //stops NMI from re-asserting too quickly. chars missed in large buffs when lower
+#define NMITimeoutnS       300    //if Rx data not read within this time, deassert NMI anyway
+#define Drive_USB          1
+#define Drive_SD           2
 
 // 6551 ACIA interface emulation
 //register locations (IO1, DExx)
-#define IORegSwiftData    0x00   // Swift Emulation Data Reg
-#define IORegSwiftStatus  0x01   // Swift Emulation Status Reg
-#define IORegSwiftCommand 0x02   // Swift Emulation Command Reg
-#define IORegSwiftControl 0x03   // Swift Emulation Control Reg
+#define IORegSwiftData     0x00   // Swift Emulation Data Reg
+#define IORegSwiftStatus   0x01   // Swift Emulation Status Reg
+#define IORegSwiftCommand  0x02   // Swift Emulation Command Reg
+#define IORegSwiftControl  0x03   // Swift Emulation Control Reg
 
 //status reg flags
 #define SwiftStatusIRQ     0x80   // high if ACIA caused interrupt;
@@ -88,21 +76,77 @@ uint32_t LastTxMillis = millis();
 #define SwiftCmndRxIRQEn   0x02   // low if Rx IRQ enabled
 #define SwiftCmndDefault   0xE0   // Default command reg state
 
-//PETSCII Special Symbols
+//PETSCII Colors/Special Symbols
 #define PETSCIIpurple      0x9c
 #define PETSCIIwhite       0x05
 #define PETSCIIlightBlue   0x9a
 #define PETSCIIyellow      0x9e
+#define PETSCIIbrown       0x95
 #define PETSCIIpink        0x96
 #define PETSCIIlightGreen  0x99
+#define PETSCIIgreen       0x1e
+#define PETSCIIlightGrey   0x9b
+#define PETSCIIdarkGrey    0x97
+#define PETSCIIgrey        0x98
 
 #define PETSCIIreturn      0x0d
 #define PETSCIIrvsOn       0x12
 #define PETSCIIrvsOff      0x92
 #define PETSCIIclearScreen 0x93
 #define PETSCIIcursorUp    0x91
+#define PETSCIIhorizBar    0x60
+#define PETSCIIspace       0x20
+#define PETSCIIhiLoChrSet  0x0e
+#define PETSCIIupGfxChrSet 0x8e
 
 #define RxQueueUsed ((RxQueueHead>=RxQueueTail)?(RxQueueHead-RxQueueTail):(RxQueueHead+RxQueueSize-RxQueueTail))
+
+struct stcURLParse
+{
+   char host[MaxURLHostSize];
+   uint16_t port;
+   char path[MaxURLPathSize];
+   char postpath[MaxURLPathSize];
+};
+
+extern volatile uint32_t CycleCountdown;
+extern void EEPreadNBuf(uint16_t addr, uint8_t* buf, uint8_t len);
+extern void EEPwriteNBuf(uint16_t addr, const uint8_t* buf, uint8_t len);
+extern void EEPwriteStr(uint16_t addr, const char* buf);
+extern void EEPreadStr(uint16_t addr, char* buf);
+extern void FreeDriveDirMenu();
+extern uint32_t RAM2BytesFree();
+
+uint8_t* RxQueue[RxQueueNumBlocks];  //circular queue to pipe data to the c64, divided into blocks for better malloc
+char* TxMsg = NULL;  //to hold messages (AT/browser commands) when off line
+char* PageLinkBuff[NumPageLinkBuffs]; //hold links from tags for user selection in browser
+stcURLParse* PrevURLQueue[NumPrevURLQueues]; //For browse previous
+char CurrPageTitle[eepBMTitleSize]; //keep current page title, could move to RAM2
+
+uint8_t  PrevURLQueueNum;   //current/latest in the link history queue
+uint8_t  UsedPageLinkBuffs;   //how many PageLinkBuff elements have been Used
+uint32_t  RxQueueHead, RxQueueTail, TxMsgOffset;
+bool ConnectedToHost, BrowserMode, PagePaused, PrintingHyperlink;
+uint32_t PageCharsReceived;
+uint32_t NMIassertMicros;
+volatile uint8_t SwiftTxBuf, SwiftRxBuf;
+volatile uint8_t SwiftRegStatus, SwiftRegCommand, SwiftRegControl;
+uint8_t PlusCount;
+uint32_t LastTxMillis = millis();
+
+
+// Browser mode: Buffer saved in ASCII from host, converted before sending out
+//               Uses Send...Immediate  commands for direct output
+// AT/regular:   Buffer saved in (usually) PETSCII from host
+//               Uses Add...ToRxQueue for direct output
+
+void ParseHTMLTag();
+void SetEthEEPDefaults();
+void SendBrowserCommandsImmediate();
+void UnPausePage();
+#include "Swift_RxQueue.c"
+#include "Swift_ATcommands.c"
+#include "Swift_Browser.c"
 
 FLASHMEM bool EthernetInit()
 {
@@ -111,7 +155,7 @@ FLASHMEM bool EthernetInit()
    bool retval = true;
    Serial.print("\nEthernet init ");
    
-   EEPreadBuf(eepAdMyMAC, mac, 6);
+   EEPreadNBuf(eepAdMyMAC, mac, 6);
 
    if (EEPROM.read(eepAdDHCPEnabled))
    {
@@ -153,709 +197,34 @@ FLASHMEM void SetEthEEPDefaults()
 {
    EEPROM.write(eepAdDHCPEnabled, 1); //DHCP enabled
    uint8_t buf[6]={0xBE, 0x0C, 0x64, 0xC0, 0xFF, 0xEE};
-   EEPwriteBuf(eepAdMyMAC, buf, 6);
+   EEPwriteNBuf(eepAdMyMAC, buf, 6);
    EEPROM.put(eepAdMyIP       , (uint32_t)IPAddress(192,168,1,10));
    EEPROM.put(eepAdDNSIP      , (uint32_t)IPAddress(192,168,1,1));
    EEPROM.put(eepAdGtwyIP     , (uint32_t)IPAddress(192,168,1,1));
    EEPROM.put(eepAdMaskIP     , (uint32_t)IPAddress(255,255,255,0));
    EEPROM.put(eepAdDHCPTimeout, (uint16_t)9000);
-   EEPROM.put(eepAdDHCPRespTO , (uint16_t)4000);   
-}
-   
-uint8_t PullFromRxQueue()
-{
-  uint8_t c = RxQueue[RxQueueTail++]; 
-  if (RxQueueTail == RxQueueSize) RxQueueTail = 0;
-  //Printf_dbg("Pull H=%d T=%d Char=%c\n", RxQueueHead, RxQueueTail, c);
-  return c;
-}
+   EEPROM.put(eepAdDHCPRespTO , (uint16_t)4000);  
+   EEPROM.write(eepAdDLPathSD_USB, Drive_SD); //default to root of SD card
+   EEPwriteStr(eepAdDLPath, "/"); 
 
-bool ReadyToSendRx()
-{
-   //  if IRQ enabled, 
-   //  and IRQ not set, 
-   //  and enough time has passed
-   //  then C64 is ready to receive...
-   return ((SwiftRegCommand & SwiftCmndRxIRQEn) == 0 && \
-      (SwiftRegStatus & (SwiftStatusRxFull | SwiftStatusIRQ)) == 0 && \
-      CycleCountdown == 0);
-}
-
-bool CheckRxNMITimeout()
-{
-   //Check for Rx NMI timeout: Doesn't happen unless a lot of serial printing enabled (ie DbgMsgs_IO) causing missed reg reads
-   if ((SwiftRegStatus & SwiftStatusIRQ)  && (micros() - NMIassertMicros > NMITimeoutnS))
+   const char * DefBookmarks[eepNumBookmarks][2] =
    {
-     Serial.println("Rx NMI Timeout!");
-     SwiftRegStatus &= ~(SwiftStatusRxFull | SwiftStatusIRQ); //no longer full, ready to receive more
-     SetNMIDeassert;
-     return false;
-   }
-   return true;
-}
-
-void SendRxByte(uint8_t ToSend) 
-{
-   //send character if non-zero, otherwise skip it to save a full c64 char cycle
-   //assumes ReadyToSendRx() is true before calling
-   if(ToSend)
-   {  
-      SwiftRxBuf = ToSend;
-      SwiftRegStatus |= SwiftStatusRxFull | SwiftStatusIRQ;
-      SetNMIAssert;
-      NMIassertMicros = micros();
-   }
-}
-
-void SendPETSCIICharImmediate(char CharToSend)
-{
-   //wait for c64 to be ready or NMI timeout
-   while(!ReadyToSendRx()) if(!CheckRxNMITimeout()) return;
-
-   if (BrowserMode) PageCharsReceived++;
+      "TinyWeb64 @ Sensorium", "http://sensoriumembedded.com/tinyweb64/",
+      "68k.news: Headlines from the Future", "http://68k.news/",
+      "CNN Lite (filtered)", "http://www.frogfind.com/read.php?a=http://lite.cnn.com/",
+      "CBC Lite News (filtered)", "http://www.frogfind.com/read.php?a=http://www.cbc.ca/lite/news",
+      "textfiles.com", "http://textfiles.com/directory.html",
+      "Hyperlinked Text (filtered)", "http://www.frogfind.com/read.php?a=http://sjmulder.nl/en/textonly.html",
+      "legiblenews.com (filtered)", "http://www.frogfind.com/read.php?a=http://legiblenews.com/",
+      "text-only news sites (filtered)", "http://www.frogfind.com/read.php?a=http://greycoder.com/a-list-of-text-only-new-sites",
+      "-unused-", "",
+   };
    
-   SendRxByte(CharToSend);
-}
-
-void SendASCIIStrImmediate(const char* CharsToSend)
-{
-   for(uint16_t CharNum = 0; CharNum < strlen(CharsToSend); CharNum++)
-      SendPETSCIICharImmediate(ToPETSCII(CharsToSend[CharNum]));
-}
-
-void CheckSendRxQueue()
-{  
-   //  if queued Rx data available to send to C64, and C64 is ready, then read/send 1 character to C64...
-   if (RxQueueUsed > 0 && ReadyToSendRx())
+   for (uint8_t BMNum=0; BMNum<eepNumBookmarks; BMNum++)
    {
-      uint8_t ToSend = PullFromRxQueue();
-      //Printf_dbg("RxBuf=%02x: %c\n", ToSend, ToSend); //not recommended
-      
-      if (BrowserMode)
-      {  //browser data is stored in ASCII to preserve tag info, convert rest to PETSCII before sending
-         if(ToSend == '<')
-         { //retrieve and interpret HTML Tag
-            char TagBuf[MaxTagSize];
-            uint16_t BufCnt = 0;
-            ToSend = 0; //default to no char if not set below
-            
-            //pull tag from queue until >, queue empty, or buff max size
-            while (RxQueueUsed > 0)
-            {
-               TagBuf[BufCnt] = PullFromRxQueue();
-               if(TagBuf[BufCnt] == '>') break;
-               if(++BufCnt == MaxTagSize-1) break;
-            }
-            TagBuf[BufCnt] = 0;
-
-            //execute tag, if needed
-            if(strcmp(TagBuf, "br")==0 || strcmp(TagBuf, "li")==0 || strcmp(TagBuf, "p")==0 || strcmp(TagBuf, "/p")==0) 
-            {
-               ToSend = PETSCIIreturn;
-               PageCharsReceived += 40-(PageCharsReceived % 40);
-            }
-            else if(strcmp(TagBuf, "/b")==0) ToSend = PETSCIIwhite; //unbold
-            else if(strcmp(TagBuf, "b")==0) ToSend = PrintingHyperlink ? 0 : PETSCIIyellow; //bold, but don't change hyperlink color
-            else if(strcmp(TagBuf, "eoftag")==0) AddBrowserCommandsToRxQueue();  // special tag to signal complete
-            else if(strncmp(TagBuf, "a href=", 7)==0) 
-            { //start of hyperlink text, save hyperlink
-               //Printf_dbg("LinkTag: %s\n", TagBuf);
-               SendPETSCIICharImmediate(PETSCIIpurple); 
-               SendPETSCIICharImmediate(PETSCIIrvsOn); 
-               if (UsedPageLinkBuffs < NumPageLinkBuffs)
-               {
-                  for(uint16_t CharNum = 8; CharNum < strlen(TagBuf); CharNum++) //skip "a href=\""
-                  { //terminate at first 
-                     if(TagBuf[CharNum]==' ' || 
-                        TagBuf[CharNum]=='\'' ||
-                        TagBuf[CharNum]=='\"' ||
-                        TagBuf[CharNum]=='#') TagBuf[CharNum] = 0; //terminate at space, #, ', or "
-                  }
-                  strcpy(PageLinkBuff[UsedPageLinkBuffs], TagBuf+8); // and from beginning
-                  
-                  Printf_dbg("Link #%d: %s\n", UsedPageLinkBuffs+1, PageLinkBuff[UsedPageLinkBuffs]);
-                  SendPETSCIICharImmediate(ToPETSCII('1' + UsedPageLinkBuffs++));
-               }
-               else SendPETSCIICharImmediate('*');
-               
-               SendPETSCIICharImmediate(PETSCIIlightBlue); 
-               SendPETSCIICharImmediate(PETSCIIrvsOff);
-               //Leave ToSend as 0, can't send again until we wait for prev to complete (ReadyToSendRx)
-               PageCharsReceived++;
-               PrintingHyperlink = true;
-            }
-            else if(strcmp(TagBuf, "/a")==0)
-            { //end of hyperlink text
-               ToSend = PETSCIIwhite; 
-               PrintingHyperlink = false;
-            }
-            else if(strcmp(TagBuf, "/form")==0)
-            { //OK as a standard?   FrogFind specific....
-               ToSend = PETSCIIclearScreen;  // comment these two lines out to 
-               UsedPageLinkBuffs = 0;            //  scroll header instead of clear
-               
-               PageCharsReceived = 0;
-               PagePaused = false;
-            }
-            else Printf_dbg("Unk Tag: <%s>\n", TagBuf);
-            
-         } // '<' (tag) received
-         else 
-         {
-            if(ToSend == 13) ToSend = 0; //ignore return chars
-            else
-            {
-               ToSend = ToPETSCII(ToSend);
-               if (ToSend) PageCharsReceived++; //normal char
-            }
-         }
-      } //BrowserMode
-      
-      SendRxByte(ToSend);
+      EEPwriteStr(eepAdBookmarks+BMNum*(eepBMTitleSize+eepBMURLSize),DefBookmarks[BMNum][0]);
+      EEPwriteStr(eepAdBookmarks+BMNum*(eepBMTitleSize+eepBMURLSize)+eepBMTitleSize,DefBookmarks[BMNum][1]);
    }
-   
-   CheckRxNMITimeout();
-}
-
-void FlushRxQueue()
-{
-   while (RxQueueUsed) CheckSendRxQueue();  
-}
-
-void AddPETSCIICharToRxQueue(uint8_t c)
-{
-  if (RxQueueUsed >= RxQueueSize-1)
-  {
-     Printf_dbg("RxBuff Overflow!");
-     //RxQueueHead = RxQueueTail = 0;
-     ////just in case...
-     //SwiftRegStatus &= ~(SwiftStatusRxFull | SwiftStatusIRQ); //no longer full, ready to receive more
-     //SetNMIDeassert;
-     return;
-  }
-  RxQueue[RxQueueHead++] = c; 
-  if (RxQueueHead == RxQueueSize) RxQueueHead = 0;
-}
-
-void AddStrToRxQueue(const char* s)
-{
-   uint8_t CharNum = 0;
-   //Printf_dbg("PStrToRx(Len=%d): %s\n", strlen(s), s);
-   while(s[CharNum] != 0) AddPETSCIICharToRxQueue(s[CharNum++]);
-}
-
-void AddASCIIStrToRxQueue(const char* s)
-{
-   uint8_t CharNum = 0;
-   //Printf_dbg("AStrToRx(Len=%d): %s\n", strlen(s), s);
-   while(s[CharNum] != 0)
-   {
-      AddPETSCIICharToRxQueue(ToPETSCII(s[CharNum++]));
-   }  
-}
-
-FLASHMEM void AddASCIIStrToRxQueueLN(const char* s)
-{
-   AddASCIIStrToRxQueue(s);
-   AddASCIIStrToRxQueue("\r");
-}
-
-FLASHMEM void AddIPaddrToRxQueueLN(IPAddress ip)
-{
-   char Buf[50];
-   sprintf(Buf, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-   AddASCIIStrToRxQueueLN(Buf);
-}
-
-FLASHMEM void AddMACToRxQueueLN(uint8_t* mac)
-{
-   char Buf[50];
-   sprintf(Buf, " MAC Address: %02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-   AddASCIIStrToRxQueueLN(Buf);
-}
-
-FLASHMEM void AddInvalidFormatToRxQueueLN()
-{
-   AddASCIIStrToRxQueueLN("Invalid Format");
-}
-
-FLASHMEM void AddBrowserCommandsToRxQueue()
-{
-   PageCharsReceived = 0;
-   PagePaused = false;
-
-   SendPETSCIICharImmediate(PETSCIIreturn);
-   SendPETSCIICharImmediate(PETSCIIpurple); 
-   SendPETSCIICharImmediate(PETSCIIrvsOn); 
-   SendASCIIStrImmediate("Browser Commands:\r");
-   SendASCIIStrImmediate("S[Term]: Search    [Link#]: Go to link\r");
-   SendASCIIStrImmediate(" U[URL]: Go to URL       X: Exit\r");
-   SendASCIIStrImmediate(" Return: Continue        B: Back\r");
-   SendPETSCIICharImmediate(PETSCIIlightGreen);
-}
-
-FLASHMEM void AddUpdatedToRxQueueLN()
-{
-   AddASCIIStrToRxQueueLN("Updated");
-}
-
-FLASHMEM void AddDHCPEnDisToRxQueueLN()
-{
-   AddASCIIStrToRxQueue(" DHCP: ");
-   if (EEPROM.read(eepAdDHCPEnabled)) AddASCIIStrToRxQueueLN("Enabled");
-   else AddASCIIStrToRxQueueLN("Disabled");
-}
-  
-FLASHMEM void AddDHCPTimeoutToRxQueueLN()
-{
-   uint16_t invalU16;
-   char buf[50];
-   EEPROM.get(eepAdDHCPTimeout, invalU16);
-   sprintf(buf, " DHCP Timeout: %dmS", invalU16);
-   AddASCIIStrToRxQueueLN(buf);
-}
-  
-FLASHMEM void AddDHCPRespTOToRxQueueLN()
-{
-   uint16_t invalU16;
-   char buf[50];
-   EEPROM.get(eepAdDHCPRespTO, invalU16);
-   sprintf(buf, " DHCP Response Timeout: %dmS", invalU16);
-   AddASCIIStrToRxQueueLN(buf);
-} 
-  
-FLASHMEM void StrToIPToEE(char* Arg, uint8_t EEPaddress)
-{
-   uint8_t octnum =1;
-   IPAddress ip;   
-   
-   AddASCIIStrToRxQueueLN(" IP Addr");
-   ip[0]=atoi(Arg);
-   while(octnum<4)
-   {
-      Arg=strchr(Arg, '.');
-      if(Arg==NULL)
-      {
-         AddInvalidFormatToRxQueueLN();
-         return;
-      }
-      ip[octnum++]=atoi(++Arg);
-   }
-   EEPROM.put(EEPaddress, (uint32_t)ip);
-   AddUpdatedToRxQueueLN();
-   AddASCIIStrToRxQueue("to ");
-   AddIPaddrToRxQueueLN(ip);
-}
-
-
-//_____________________________________AT Commands_____________________________________________________
-
-FLASHMEM void AT_BROWSE(char* CmdArg)
-{  //ATBROWSE   Enter Browser mode
-   AddBrowserCommandsToRxQueue();
-   UsedPageLinkBuffs = 0;
-   BrowserMode = true;
-}
-
-FLASHMEM void AT_DT(char* CmdArg)
-{  //ATDT<HostName>:<Port>   Connect telnet
-   uint16_t  Port = 6400; //default if not defined
-   char* Delim = strstr(CmdArg, ":");
-
-
-   if (Delim != NULL) //port defined, read it
-   {
-      Delim[0]=0; //terminate host name
-      Port = atol(Delim+1);
-      //if (Port==0) AddASCIIStrToRxQueueLN("invalid port #");
-   }
-   
-   char Buf[100];
-   sprintf(Buf, "Trying %s\r\non port %d...", CmdArg, Port);
-   AddASCIIStrToRxQueueLN(Buf);
-   FlushRxQueue();
-   //Printf_dbg("Host name: %s  Port: %d\n", CmdArg, Port);
-   
-   if (client.connect(CmdArg, Port)) AddASCIIStrToRxQueueLN("Done");
-   else AddASCIIStrToRxQueueLN("Failed!");
-}
-
-FLASHMEM void AT_C(char* CmdArg)
-{  //ATC: Connect Ethernet
-   AddASCIIStrToRxQueue("Connect Ethernet ");
-   if (EEPROM.read(eepAdDHCPEnabled)) AddASCIIStrToRxQueue("via DHCP...");
-   else AddASCIIStrToRxQueue("using Static...");
-   FlushRxQueue();
-   
-   if (EthernetInit()==true)
-   {
-      AddASCIIStrToRxQueueLN("Done");
-      
-      byte mac[6]; 
-      Ethernet.MACAddress(mac);
-      AddMACToRxQueueLN(mac);
-      
-      uint32_t ip = Ethernet.localIP();
-      AddASCIIStrToRxQueue(" Local IP: ");
-      AddIPaddrToRxQueueLN(ip);
-
-      ip = Ethernet.subnetMask();
-      AddASCIIStrToRxQueue(" Subnet Mask: ");
-      AddIPaddrToRxQueueLN(ip);
-
-      ip = Ethernet.gatewayIP();
-      AddASCIIStrToRxQueue(" Gateway IP: ");
-      AddIPaddrToRxQueueLN(ip);
-   }
-   else
-   {
-      AddASCIIStrToRxQueueLN("Failed!");
-      if (Ethernet.hardwareStatus() == EthernetNoHardware) AddASCIIStrToRxQueueLN(" HW was not found");
-      else if (Ethernet.linkStatus() == LinkOFF) AddASCIIStrToRxQueueLN(" Cable is not connected");
-   }
-}
-
-FLASHMEM void AT_S(char* CmdArg)
-{
-   uint32_t ip;
-   uint8_t  mac[6];
-   
-   AddASCIIStrToRxQueueLN("General Settings:");
-
-   EEPreadBuf(eepAdMyMAC, mac, 6);
-   AddMACToRxQueueLN(mac);
-   
-   AddDHCPEnDisToRxQueueLN();
-   
-   AddASCIIStrToRxQueueLN("DHCP only:");    
-   AddDHCPTimeoutToRxQueueLN();
-   AddDHCPRespTOToRxQueueLN();
-   
-   AddASCIIStrToRxQueueLN("Static only:");    
-   AddASCIIStrToRxQueue(" My IP: ");
-   EEPROM.get(eepAdMyIP, ip);
-   AddIPaddrToRxQueueLN(ip);
-
-   AddASCIIStrToRxQueue(" DNS IP: ");
-   EEPROM.get(eepAdDNSIP, ip);
-   AddIPaddrToRxQueueLN(ip);
-
-   AddASCIIStrToRxQueue(" Gateway IP: ");
-   EEPROM.get(eepAdGtwyIP, ip);
-   AddIPaddrToRxQueueLN(ip);
-
-   AddASCIIStrToRxQueue(" Subnet Mask: ");
-   EEPROM.get(eepAdMaskIP, ip);
-   AddIPaddrToRxQueueLN(ip);
-
-}
-
-FLASHMEM void AT_RNDMAC(char* CmdArg)
-{
-   uint8_t mac[6];   
-   
-   AddASCIIStrToRxQueueLN("Random MAC Addr");
-   for(uint8_t octnum =0; octnum<6; octnum++) mac[octnum]=random(0,256);
-   mac[0] &= 0xFE; //Unicast
-   mac[0] |= 0x02; //Local Admin
-   EEPwriteBuf(eepAdMyMAC, mac, 6);
-   AddUpdatedToRxQueueLN();
-   AddMACToRxQueueLN(mac);
-}
-
-FLASHMEM void AT_MAC(char* CmdArg)
-{
-   uint8_t octnum =1;
-   uint8_t mac[6];   
-   
-   AddASCIIStrToRxQueueLN("MAC Addr");
-   mac[0]=strtoul(CmdArg, NULL, 16);
-   while(octnum<6)
-   {
-      CmdArg=strchr(CmdArg, ':');
-      if(CmdArg==NULL)
-      {
-         AddInvalidFormatToRxQueueLN();
-         return;
-      }
-      mac[octnum++]=strtoul(++CmdArg, NULL, 16);     
-   }
-   EEPwriteBuf(eepAdMyMAC, mac, 6);
-   AddUpdatedToRxQueueLN();
-   AddMACToRxQueueLN(mac);
-}
-
-FLASHMEM void AT_DHCP(char* CmdArg)
-{
-   if(CmdArg[1]!=0 || CmdArg[0]<'0' || CmdArg[0]>'1')
-   {
-      AddInvalidFormatToRxQueueLN();
-      return;
-   }
-   EEPROM.write(eepAdDHCPEnabled, CmdArg[0]-'0');
-   AddUpdatedToRxQueueLN();
-   AddDHCPEnDisToRxQueueLN();
-}
-
-FLASHMEM void AT_DHCPTIME(char* CmdArg)
-{
-   uint16_t NewTime = atol(CmdArg);
-   if(NewTime==0)
-   {
-      AddInvalidFormatToRxQueueLN();
-      return;
-   }   
-   EEPROM.put(eepAdDHCPTimeout, NewTime);
-   AddUpdatedToRxQueueLN();
-   AddDHCPTimeoutToRxQueueLN();
-}
-
-FLASHMEM void AT_DHCPRESP(char* CmdArg)
-{
-   uint16_t NewTime = atol(CmdArg);
-   if(NewTime==0)
-   {
-      AddInvalidFormatToRxQueueLN();
-      return;
-   }
-   EEPROM.put(eepAdDHCPRespTO, NewTime);
-   AddUpdatedToRxQueueLN();
-   AddDHCPRespTOToRxQueueLN();
-}
-
-FLASHMEM void AT_MYIP(char* CmdArg)
-{
-   AddASCIIStrToRxQueue("My");
-   StrToIPToEE(CmdArg, eepAdMyIP);
-}
-
-FLASHMEM void AT_DNSIP(char* CmdArg)
-{
-   AddASCIIStrToRxQueue("DNS");
-   StrToIPToEE(CmdArg, eepAdDNSIP);
-}
-
-FLASHMEM void AT_GTWYIP(char* CmdArg)
-{
-   AddASCIIStrToRxQueue("Gateway");
-   StrToIPToEE(CmdArg, eepAdGtwyIP);
-}
-
-FLASHMEM void AT_MASKIP(char* CmdArg)
-{
-   AddASCIIStrToRxQueue("Subnet Mask");
-   StrToIPToEE(CmdArg, eepAdMaskIP);
-}
-
-FLASHMEM void AT_DEFAULTS(char* CmdArg)
-{
-   AddUpdatedToRxQueueLN();
-   SetEthEEPDefaults();
-   AT_S(NULL);
-}
-
-FLASHMEM void AT_HELP(char* CmdArg)
-{  //                      1234567890123456789012345678901234567890
-   AddASCIIStrToRxQueueLN("General AT Commands:");
-   AddASCIIStrToRxQueueLN(" AT?   This help menu");
-   AddASCIIStrToRxQueueLN(" AT    Ping");
-   AddASCIIStrToRxQueueLN(" ATC   Connect Ethernet, display info");
-   AddASCIIStrToRxQueueLN(" ATDT<HostName>:<Port>  Connect to host");
-
-   AddASCIIStrToRxQueueLN("Modify saved parameters:");
-   AddASCIIStrToRxQueueLN(" AT+S  Display stored Ethernet settings");
-   AddASCIIStrToRxQueueLN(" AT+DEFAULTS  Set defaults for all ");
-   AddASCIIStrToRxQueueLN(" AT+RNDMAC  MAC address to random value");
-   AddASCIIStrToRxQueueLN(" AT+MAC=<XX:XX:XX:XX:XX:XX>  Set MAC");
-   AddASCIIStrToRxQueueLN(" AT+DHCP=<0:1>  DHCP On(1)/Off(0)");
-
-   AddASCIIStrToRxQueueLN("DHCP mode only: ");
-   AddASCIIStrToRxQueueLN(" AT+DHCPTIME=<D>  DHCP Timeout in mS");
-   AddASCIIStrToRxQueueLN(" AT+DHCPRESP=<D>  DHCP Response Timeout");
-
-   AddASCIIStrToRxQueueLN("Static mode only: ");
-   AddASCIIStrToRxQueueLN(" AT+MYIP=<D.D.D.D>   Local IP address");
-   AddASCIIStrToRxQueueLN(" AT+DNSIP=<D.D.D.D>  DNS IP address");
-   AddASCIIStrToRxQueueLN(" AT+GTWYIP=<D.D.D.D> Gateway IP address");
-   AddASCIIStrToRxQueueLN(" AT+MASKIP=<D.D.D.D> Subnet Mask");
-
-   AddASCIIStrToRxQueueLN("When in connected/on-line mode:");
-   AddASCIIStrToRxQueueLN(" +++   Disconnect from host");
-}
-
-#define MaxATcmdLength   20
-
-struct stcATCommand
-{
-  char Command[MaxATcmdLength];
-  void (*Function)(char*); 
-};
-
-stcATCommand ATCommands[] =
-{
-   "dt"        , &AT_DT,
-   "c"         , &AT_C,
-   "+s"        , &AT_S,
-   "+rndmac"   , &AT_RNDMAC,
-   "+mac="     , &AT_MAC,
-   "+dhcp="    , &AT_DHCP,
-   "+dhcptime=", &AT_DHCPTIME,
-   "+dhcpresp=", &AT_DHCPRESP,
-   "+myip="    , &AT_MYIP,
-   "+dnsip="   , &AT_DNSIP,
-   "+gtwyip="  , &AT_GTWYIP,
-   "+maskip="  , &AT_MASKIP,
-   "+defaults" , &AT_DEFAULTS,
-   "?"         , &AT_HELP,
-   "browse"    , &AT_BROWSE,
-};
-   
-void ProcessATCommand()
-{
-
-   char* CmdMsg = TxMsg; //local copy for manipulation
-      
-   if (strstr(CmdMsg, "at")!=CmdMsg)
-   {
-      AddASCIIStrToRxQueueLN("AT not found");
-      return;
-   }
-   CmdMsg+=2; //move past the AT
-   if(CmdMsg[0]==0) return;  //ping
-   
-   uint16_t Num = 0;
-   while(Num < sizeof(ATCommands)/sizeof(ATCommands[0]))
-   {
-      if (strstr(CmdMsg, ATCommands[Num].Command) == CmdMsg)
-      {
-         CmdMsg+=strlen(ATCommands[Num].Command); //move past the Command
-         while(*CmdMsg==' ') CmdMsg++;  //Allow for spaces after AT command
-         ATCommands[Num].Function(CmdMsg);
-         return;
-      }
-      Num++;
-   }
-   
-   Printf_dbg("Unk Msg: %s CmdMsg: %s\n", TxMsg, CmdMsg);
-   AddASCIIStrToRxQueue("unknown command: ");
-   AddASCIIStrToRxQueueLN(TxMsg);
-}
-
-void WebConnect(const char *PrePend, const char *OrigWebPage, bool DoFilter)
-{
-   char UpdWebPage[MaxTagSize];
-   char ServerName[] = "www.frogfind.com";
-   
-   strcpy(UpdWebPage, PrePend);
-   uint16_t UWPCharNum = strlen(UpdWebPage);
-
-   if (DoFilter)
-   {
-      char HexChar[16] = "01234567890abcdef";
-      
-      ////https://www.eso.org/~ndelmott/url_encode.html
-      for(uint16_t CharNum=0; CharNum <= strlen(OrigWebPage); CharNum++) //include terminator
-      {
-         //already lower case(?)
-         uint8_t NextChar = OrigWebPage[CharNum];
-         if((NextChar >= 'a' && NextChar <= 'z') ||
-            (NextChar >= 'A' && NextChar <= 'Z') ||
-            (NextChar >= '.' && NextChar <= '9') ||  //   ./0123456789
-             NextChar == 0) 
-         {      
-            UpdWebPage[UWPCharNum++] = NextChar;      
-         }
-         else
-         {
-            //encode character (%xx hex val)
-            UpdWebPage[UWPCharNum++] = '%';
-            UpdWebPage[UWPCharNum++] = HexChar[NextChar >> 4];
-            UpdWebPage[UWPCharNum++] = HexChar[NextChar & 0x0f];
-         }
-      }
-   }
-   else strcat(UpdWebPage, OrigWebPage);
- 
-   strcpy(PrevLinkBuff[PrevLinkBuffNum], UpdWebPage); //overwrite previous entry
-   if (++PrevLinkBuffNum == NumPrevLinkBuffs) PrevLinkBuffNum = 0; //wrap around top
- 
-   client.stop();
-   Printf_dbg("Connect: \"%s\"\n", UpdWebPage);
-   RxQueueHead = RxQueueTail = 0; //dump the queue
-   SendASCIIStrImmediate("\rConnecting to: ");
-   SendASCIIStrImmediate(UpdWebPage);
-   SendPETSCIICharImmediate(PETSCIIreturn);
-   
-   if (client.connect(ServerName, 80)) //filter all through FrogFind
-   {
-      client.printf("GET %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", 
-         UpdWebPage, ServerName);
-      
-      //download option will go here...
-	   //Debug: Read full page now to see full size
-      //while (client.connected()) 
-      //{
-      //   while (client.available()) 
-      //   {
-      //      uint8_t c = client.read();
-      //      if(BrowserMode) c = ToPETSCII(c); //incoming browser data is ascii
-      //      AddPETSCIICharToRxQueue(c);
-      //   }
-      //   Printf_dbg("None available: %lu\n", RxQueueUsed);
-      //}
-      //Printf_dbg("Page size: %lu\n", RxQueueUsed);
-   }
-   else AddASCIIStrToRxQueueLN("Connect Failed");
-
-}
-
-void ProcessBrowserCommand()
-{
-   char* CmdMsg = TxMsg; //local copy for manipulation
-   
-   if(strcmp(CmdMsg, "x") ==0) //Exit browse mode
-   {
-      client.stop();
-      BrowserMode = false;
-      RxQueueHead = RxQueueTail = 0; //dump the queue
-      AddASCIIStrToRxQueueLN("\rBrowser mode exit");
-   }
-   else if(strcmp(CmdMsg, "b") ==0) // Back/previous web page
-   {
-      if (PrevLinkBuffNum<2) PrevLinkBuffNum += NumPrevLinkBuffs-2; //wrap around bottom
-      else PrevLinkBuffNum -= 2;
-      
-      Printf_dbg("PrevLink# %d\n", PrevLinkBuffNum);
-      WebConnect("", PrevLinkBuff[PrevLinkBuffNum], false); //no filter
-   }
-   else if(CmdMsg[0] >= '1' && CmdMsg[0] <= '9') //Hyperlink
-   {
-      uint8_t LinkNum = CmdMsg[0] - '1';  //now zero based
-      if (LinkNum < UsedPageLinkBuffs) WebConnect("", PageLinkBuff[LinkNum], false);
-   }
-   else if(CmdMsg[0] == 'u') //URL
-   {
-      CmdMsg++; //past the 'u'
-      while(*CmdMsg==' ') CmdMsg++;  //Allow for spaces after command
-      WebConnect("/read.php?a=http://", CmdMsg, false); //no filter
-   }
-   else if(CmdMsg[0] == 's') //search
-   {
-      CmdMsg++; //past the 's'
-      while(*CmdMsg==' ') CmdMsg++;  //Allow for spaces after command
-      
-      WebConnect("/?q=", CmdMsg, true); //flag for Char Filter
-   }
-   else if(PagePaused) //unrecognized or no command, and paused
-   {  //un-paused
-      SendPETSCIICharImmediate(PETSCIIcursorUp); //Cursor up to overwrite prompt & scroll on
-      //SendPETSCIICharImmediate(PETSCIIclearScreen); //clear screen for next page
-   }
-   
-   SendPETSCIICharImmediate(PETSCIIwhite); 
-   PageCharsReceived = 0; //un-pause on any command, or just return key
-   PagePaused = false;
-   UsedPageLinkBuffs = 0;
 }
 
 //_____________________________________Handlers_____________________________________________________
@@ -868,28 +237,47 @@ FLASHMEM void InitHndlr_SwiftLink()
    SwiftRegControl = 0;
    CycleCountdown=0;
    PlusCount=0;
-   PageCharsReceived = 0;
-   PrevLinkBuffNum = 0;
+   PrevURLQueueNum = 0;
    NMIassertMicros = 0;
    PlusCount=0;
    ConnectedToHost = false;
    BrowserMode = false;
-   PagePaused = false;
+   UnPausePage(); // UsedPageLinkBuffs = 0; PageCharsReceived = 0; PagePaused = false;   
    PrintingHyperlink = false;
    
+   FreeDriveDirMenu(); //clear out drive menu to make space in RAM2
+   // RAM2 usage as of 11/7/23:
+   //    Queues/link buffs (below): 320k+128+29k+5.5k= ~355k total
+   //    RAM2 free w/ ethernet loaded & drive menu cleared: 392k (though will show less if fragmented)
+   Printf_dbg("RAM2 Bytes Free: %lu (%luK)\n\n", RAM2BytesFree(), RAM2BytesFree()/1024);
+
    RxQueueHead = RxQueueTail = TxMsgOffset =0;
-   RxQueue = (uint8_t*)malloc(RxQueueSize);
-   TxMsg = (char*)malloc(TxMsgMaxSize);
-   for(uint8_t cnt=0; cnt<NumPageLinkBuffs; cnt++) PageLinkBuff[cnt] = (char*)malloc(MaxTagSize);
-   for(uint8_t cnt=0; cnt<NumPrevLinkBuffs; cnt++) 
+   
+   for(uint8_t cnt=0; cnt<RxQueueNumBlocks; cnt++) 
    {
-      PrevLinkBuff[cnt] = (char*)malloc(MaxTagSize);
-      strcpy(PrevLinkBuff[cnt], "/read.php?a=http://github.com/SensoriumEmbedded/TeensyROM");
-      //strcpy(PrevLinkBuff[cnt], "/read.php?a=http://SensoriumEmbedded.com/TeensyROM");
-      //strcpy(PrevLinkBuff[cnt], "/?q=TeensyROM");
+      RxQueue[cnt] = (uint8_t*)malloc(RxQueueBlockSize);
+      if(RxQueue[cnt] == NULL) Serial.println("OOM RxQ");
    }
+   TxMsg = (char*)malloc(TxMsgMaxSize);
+   if(TxMsg == NULL) Serial.println("OOM TxQ");
+   
+   for(uint8_t cnt=0; cnt<NumPageLinkBuffs; cnt++)
+   {
+      PageLinkBuff[cnt] = (char*)malloc(MaxTagSize);
+      if(PageLinkBuff[cnt] == NULL) Serial.println("OOM PageLinkBuff");
+   }
+   for(uint8_t cnt=0; cnt<NumPrevURLQueues; cnt++) 
+   {
+      PrevURLQueue[cnt] = (stcURLParse*)malloc(sizeof(stcURLParse));
+      if(PrevURLQueue[cnt] == NULL) Serial.println("OOM PrevURLQueue");
+      PrevURLQueue[cnt]->path[0] = 0;
+      PrevURLQueue[cnt]->postpath[0] = 0;
+      PrevURLQueue[cnt]->host[0] = 0;
+      PrevURLQueue[cnt]->port = 80;
+   }
+   strcpy(CurrPageTitle, "None");
    randomSeed(ARM_DWT_CYCCNT);
-}   
+}
 
 void IO1Hndlr_SwiftLink(uint8_t Address, bool R_Wn)
 {
@@ -952,13 +340,13 @@ void PollingHndlr_SwiftLink()
       ConnectedToHost = client.connected();
       if (BrowserMode)
       {
-         if (!ConnectedToHost) AddStrToRxQueue("*End of Page*<eoftag>");  //add special tag to catch when complete
+         if (!ConnectedToHost) AddRawStrToRxQueue("<eoftag>");  //add special tag to catch when complete
       }
       else
       {
-         AddASCIIStrToRxQueue("\r\r\r*** ");
-         if (ConnectedToHost) AddASCIIStrToRxQueueLN("connected to host");
-         else AddASCIIStrToRxQueueLN("not connected");
+         AddToPETSCIIStrToRxQueue("\r\r\r*** ");
+         if (ConnectedToHost) AddToPETSCIIStrToRxQueueLN("connected to host");
+         else AddToPETSCIIStrToRxQueueLN("not connected");
       }
    }
    
@@ -970,14 +358,14 @@ void PollingHndlr_SwiftLink()
          //Serial.printf("RxIn %d+", RxQueueUsed);
          while (client.available())
          {
-            AddPETSCIICharToRxQueue(client.read());
+            AddRawCharToRxQueue(client.read());
             Cnt++;
          }
          //Serial.printf("%d=%d\n", Cnt, RxQueueUsed);
          if (RxQueueUsed>3000) Serial.printf("Lrg RxQueue add: %d  total: %d\n", Cnt, RxQueueUsed);
       }
    #else
-      while (client.available()) AddPETSCIICharToRxQueue(client.read());
+      while (client.available()) AddRawCharToRxQueue(client.read());
    #endif
    
    //if Tx data available, get it from C64
@@ -1002,11 +390,18 @@ void PollingHndlr_SwiftLink()
       {         
          Printf_dbg("echo %02x: %c -> ", SwiftTxBuf, SwiftTxBuf);
          
-         if(BrowserMode) SendPETSCIICharImmediate(SwiftTxBuf); //echo it now, buffer may be paused or filling
-         else AddPETSCIICharToRxQueue(SwiftTxBuf); //echo it at end of buffer
-         
-         SwiftTxBuf &= 0x7f; //bit 7 is Cap in Graphics mode
-         if (SwiftTxBuf & 0x40) SwiftTxBuf |= 0x20;  //conv to lower case PETSCII
+         if(BrowserMode)
+         {
+            SendPETSCIICharImmediate(SwiftTxBuf); //echo it now, buffer may be paused or filling
+            if (SwiftTxBuf & 0x80) SwiftTxBuf &= 0x7f; //Cap to ascii
+            else if (SwiftTxBuf & 0x40) SwiftTxBuf |= 0x20;  //lower case to ascii
+         }
+         else 
+         {
+            AddRawCharToRxQueue(SwiftTxBuf); //echo it at end of buffer
+            SwiftTxBuf &= 0x7f; //bit 7 is Cap in Graphics mode
+            if (SwiftTxBuf & 0x40) SwiftTxBuf |= 0x20;  //conv to lower case
+         }
          Printf_dbg("%02x: %c\n", SwiftTxBuf);
          
          if (TxMsgOffset && (SwiftTxBuf==0x08 || SwiftTxBuf==0x14)) TxMsgOffset--; //Backspace in ascii  or  Delete in PETSCII
@@ -1017,11 +412,15 @@ void PollingHndlr_SwiftLink()
             SwiftRegStatus |= SwiftStatusTxEmpty; //clear the flag after last SwiftTxBuf access
             TxMsg[TxMsgOffset-1] = 0; //terminate it
             Printf_dbg("TxMsg: %s\n", TxMsg);
-            if(BrowserMode) ProcessBrowserCommand();
+            if(BrowserMode) 
+            {
+               ProcessBrowserCommand();
+               SendPETSCIICharImmediate(PETSCIIwhite); 
+            }
             else
             {
                ProcessATCommand();
-               if (!BrowserMode) AddASCIIStrToRxQueueLN("ok\r");
+               if (!BrowserMode) AddToPETSCIIStrToRxQueueLN("ok\r");
             }
             TxMsgOffset = 0;
          }
@@ -1033,8 +432,9 @@ void PollingHndlr_SwiftLink()
    if(PlusCount==3 && millis()-LastTxMillis>1000) //Must be followed by one second of no characters
    {
       PlusCount=0;
+      while (client.available()) client.read(); //clear client buffer
       client.stop();
-      AddASCIIStrToRxQueueLN("\r*click*");
+      AddToPETSCIIStrToRxQueueLN("\r*click*");
    }
 
    if (PageCharsReceived < 880 || PrintingHyperlink) CheckSendRxQueue();
@@ -1043,11 +443,7 @@ void PollingHndlr_SwiftLink()
       if (!PagePaused)
       {
          PagePaused = true;
-         SendPETSCIICharImmediate(PETSCIIrvsOn);
-         SendPETSCIICharImmediate(PETSCIIpurple);
-         SendASCIIStrImmediate("\rPause (#,S[],U[],X,B,Ret)");
-         SendPETSCIICharImmediate(PETSCIIrvsOff);
-         SendPETSCIICharImmediate(PETSCIIlightGreen);
+         SendCommandSummaryImmediate(true);
       }
    }
 }
