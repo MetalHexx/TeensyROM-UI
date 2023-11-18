@@ -29,5 +29,18 @@
 
             return EnsureUnixPathEnding("/" + parentPath);
         }
+
+        public static string GetUnixFileExtension(this string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return string.Empty;
+
+            int lastDotIndex = path.LastIndexOf('.');
+
+            if (lastDotIndex <= 0)
+                return string.Empty;
+
+            return path.Substring(lastDotIndex).ToLower();
+        }
     }
 }

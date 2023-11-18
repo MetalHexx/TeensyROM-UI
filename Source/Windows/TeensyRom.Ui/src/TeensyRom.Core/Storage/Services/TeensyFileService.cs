@@ -68,6 +68,12 @@ namespace TeensyRom.Core.Storage
                 TargetPath = path 
             };
 
+            if(request.Type == TeensyFileType.Prg || request.Type == TeensyFileType.Crt)
+            {
+                _teensyPort.ResetDevice();
+                Thread.Sleep(3000);
+            }
+
             if (_teensyPort.LaunchFile(request))
             {
                 _logService.Log($"Launched: {path}");
