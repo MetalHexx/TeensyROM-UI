@@ -10,6 +10,13 @@ namespace TeensyRom.Core.Storage.Services
     public interface ITeensyFileService : IDisposable
     {
         /// <summary>
+        /// Launches a file based on the specified remote path
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        Unit LaunchFile(string path);
+
+        /// <summary>
         /// Saves a file to TeensyROM given a TeensyFileInfo
         /// </summary>
         Unit SaveFile(TeensyFileInfo fileInfo);

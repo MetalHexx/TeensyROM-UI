@@ -376,5 +376,46 @@ namespace TeensyRom.Core.Serial.Services
             }
             throw new TimeoutException("Timed out waiting for data to be received");
         }
+
+        public bool LaunchFile(TeensyLaunchFileRequest request)
+        {
+            DisableAutoReadStream();
+
+            try
+            {
+                _logService.Log($"Sending launch file token: {TeensyConstants.Launch_File_Token}");
+                SendIntBytes(TeensyConstants.Launch_File_Token, 2);
+
+                WaitForSerialData(numBytes: 2, timeoutMs: 500);
+
+                if (!GetAck())
+                {
+                    ReadSerialAsString();
+                    throw new TeensyException("Error getting acknowledgement when Launch File Token sent");
+                }
+
+                _logService.Log($"Sending SD_nUSB: {TeensyConstants.Sd_Card_Token}");
+                SendIntBytes(GetStorageToken(request.StorageType), 1);
+
+                _logService.Log($"Sending file launch request path: {request.TargetPath}");
+                _serialPort.Write($"{request.TargetPath}\0");
+
+                if (!GetAck())
+                {
+                    ReadSerialAsString(msToWait: 100);
+                    throw new TeensyException("Error getting acknowledgement when launch path sent");
+                }
+                _logService.Log("Launch file request complete!");
+            }
+            catch (TeensyException)
+            {
+                return false;
+            }
+            finally
+            {
+                EnableAutoReadStream();
+            }
+            return true;
+        }
     }
 }

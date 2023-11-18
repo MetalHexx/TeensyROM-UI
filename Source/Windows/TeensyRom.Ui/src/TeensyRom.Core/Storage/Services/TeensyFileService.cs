@@ -60,6 +60,27 @@ namespace TeensyRom.Core.Storage
                 .Subscribe(fileInfo => SaveFile(fileInfo));
         }
 
+        public Unit LaunchFile(string path)
+        {
+            var request = new TeensyLaunchFileRequest 
+            { 
+                StorageType = _settings.TargetType, 
+                TargetPath = path 
+            };
+
+            if (_teensyPort.LaunchFile(request))
+            {
+                _logService.Log($"Launched: {path}");
+            }
+            else
+            {
+                _logService.Log($"Failed to launch: {path}");
+            }
+            return Unit.Default;
+
+
+        }
+
         public Unit SaveFile(string path)
         {
             TeensyFileInfo fileInfo;

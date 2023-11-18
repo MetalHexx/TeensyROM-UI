@@ -12,6 +12,7 @@ namespace TeensyRom.Core.Serial.Constants
         public const ushort Start_Directory_List_Token = 0x5A5A;
         public const ushort End_Directory_List_Token = 0xA5A5;
 
+        public const ushort Launch_File_Token = 0x6444;
         public const ushort Send_File_Token = 0x64BB;
         public const ushort Legacy_Send_File_Token = 0x64AA;
         public const ushort Ack_Token = 0x64CC;

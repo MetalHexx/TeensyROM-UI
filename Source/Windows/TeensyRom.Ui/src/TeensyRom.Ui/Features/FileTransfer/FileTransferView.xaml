@@ -69,7 +69,9 @@
                         Orientation="Horizontal" 
                         HorizontalAlignment="Right">
                         <Button 
-                            x:Name="LaunchButton"                             
+                            x:Name="LaunchButton"
+                            Command="{Binding DataContext.LaunchFileCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
+                            CommandParameter="{Binding}"
                             IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"                    
                             Visibility="Collapsed"
                             ToolTip="Launch"

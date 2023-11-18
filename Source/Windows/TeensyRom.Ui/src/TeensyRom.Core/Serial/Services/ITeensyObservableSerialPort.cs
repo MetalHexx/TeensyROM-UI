@@ -12,6 +12,12 @@ namespace TeensyRom.Core.Serial.Services
         /// Gets a directory listing from teensy given a path, storage type, skip and take
         /// </summary>
         DirectoryContent? GetDirectoryContent(string path, TeensyStorageType storageType, uint skip, uint take);
+        /// <summary>
+        /// Launches a file on the teensy
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        bool LaunchFile(TeensyLaunchFileRequest request);
 
         /// <summary>
         /// Sends ping bytes to teensyrom
