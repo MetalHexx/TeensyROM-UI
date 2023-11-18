@@ -19,9 +19,9 @@
 
 void   getFreeITCM();
 //synch with win app:
-//#define SendFileToken  0x64AA 
-//#define AckToken       0x64CC
-//#define FailToken      0x9B7F
+#define SendFileToken  0x64AA 
+#define AckToken       0x64CC
+#define FailToken      0x9B7F
 
 FLASHMEM void ServiceSerial()
 {
@@ -55,6 +55,9 @@ FLASHMEM void ServiceSerial()
             case 0xBB:  // v2 file x-fer pc->TR.  For use with v2 UI.
                PostFileCommand();
                break;
+            case 0xDD:  // v2 directory listing from TR
+                ListDirectoryCommand();
+                break;
             case 0x44: //Launch File
                if(LaunchFile()) Serial.println("Launched!");  
                else Serial.println("Launch Failed");  
