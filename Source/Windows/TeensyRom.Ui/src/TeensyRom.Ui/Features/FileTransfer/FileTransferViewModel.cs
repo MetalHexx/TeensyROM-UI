@@ -60,7 +60,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private bool _isMoreItemsLoading = false;
 
         private BehaviorSubject<bool> _isLoadingFiles = new BehaviorSubject<bool>(false);
-        private readonly IGetDirectoryContentCommand _getDirectoryContentCommand;
+        private readonly IGetDirectoryCommand _getDirectoryContentCommand;
         private readonly ISerialPortState _serialPortState;
         private readonly ILaunchFileCommand _launchFileCommand;
         private readonly ILoggingService _logService;
@@ -70,7 +70,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private readonly List<StorageItemVm> _currentItems = new();
         
         private const int _take = 5000;
-        public FileTransferViewModel(IGetDirectoryContentCommand getDirectoryContentCommand, ISettingsService settingsService, ISerialPortState serialPortState, ILaunchFileCommand launchFileCommand, INavigationService nav, ILoggingService logService, ISnackbarService snackbar, Dispatcher dispatcher) 
+        public FileTransferViewModel(IGetDirectoryCommand getDirectoryContentCommand, ISettingsService settingsService, ISerialPortState serialPortState, ILaunchFileCommand launchFileCommand, INavigationService nav, ILoggingService logService, ISnackbarService snackbar, Dispatcher dispatcher) 
         {
             _getDirectoryContentCommand = getDirectoryContentCommand;
             _serialPortState = serialPortState;

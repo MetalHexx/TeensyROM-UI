@@ -23,7 +23,7 @@ namespace TeensyRom.Tests.Integration
         public ISerialPortState SerialState { get; private set; }
         public IFileWatcher FileWatcher { get; private set; }
         public IFileWatchService FileWatchService { get; private set; }        
-        public GetDirectoryContentCommand GetDirectoryContentCommand { get; private set; }
+        public GetDirectoryCommand GetDirectoryContentCommand { get; private set; }
         public SaveFileCommand SaveFileCommand { get; private set; }
         public ResetCommand ResetCommand { get; private set; }
         public LaunchFileCommand LaunchFileCommand { get; private set; }
@@ -48,7 +48,7 @@ namespace TeensyRom.Tests.Integration
             ResetCommand = new ResetCommand(SettingsService, SerialPort, LogService);
             LaunchFileCommand = new LaunchFileCommand(SettingsService, SerialPort, LogService, ResetCommand);
             PingCommand = new PingCommand(SettingsService, SerialPort, LogService);
-            GetDirectoryContentCommand = new GetDirectoryContentCommand(SettingsService, SerialPort, LogService);
+            GetDirectoryContentCommand = new GetDirectoryCommand(SettingsService, SerialPort, LogService);
             SaveFileCommand = new SaveFileCommand(SettingsService, SerialPort, LogService);
             FileWatcher = new FileWatcher();
             FileWatchService = new FileWatchService(SettingsService, FileWatcher, SerialState, LogService, SaveFileCommand);

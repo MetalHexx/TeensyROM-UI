@@ -8,13 +8,13 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public interface IGetDirectoryContentCommand
+    public interface IGetDirectoryCommand
     {
         DirectoryContent? Execute(string path, uint skip, uint take);
     }
-    public class GetDirectoryContentCommand : TeensyCommand, IGetDirectoryContentCommand
+    public class GetDirectoryCommand : TeensyCommand, IGetDirectoryCommand
     {
-        public GetDirectoryContentCommand(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
+        public GetDirectoryCommand(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
             : base(settingsService, serialPort, logService) { }
 
         public DirectoryContent? Execute(string path, uint skip, uint take)

@@ -42,7 +42,7 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<IPingCommand, PingCommand>();
             SimpleIoc.Default.Register<ILaunchFileCommand, LaunchFileCommand>();
             SimpleIoc.Default.Register<IFileWatchService, FileWatchService>();
-            SimpleIoc.Default.Register<IGetDirectoryContentCommand, GetDirectoryContentCommand>();
+            SimpleIoc.Default.Register<IGetDirectoryCommand, GetDirectoryCommand>();
             SimpleIoc.Default.Register<IFileWatcher, FileWatcher>();
             SimpleIoc.Default.Register<ISettingsService, SettingsService>();
             SimpleIoc.Default.Register<ISnackbarService, SnackbarService>();
