@@ -3,7 +3,7 @@ using TeensyRom.Core.Storage.Extensions;
 
 namespace TeensyRom.Core.Storage.Entities
 {
-    public class TeensyLaunchFileRequest
+    public class LaunchFileRequest
     {
         public string TargetPath { get; set; } = string.Empty;
         public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;

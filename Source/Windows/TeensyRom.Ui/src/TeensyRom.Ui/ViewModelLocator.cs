@@ -11,8 +11,10 @@ using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Settings;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Settings.Services;
-using TeensyRom.Core.Serial.Services;
 using TeensyRom.Core.Logging;
+using TeensyRom.Core.Commands.File.LaunchFile;
+using TeensyRom.Core.Commands;
+using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Ui
 {
@@ -33,9 +35,14 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<DialogHost, DialogHost>();
             SimpleIoc.Default.Register<ILoggingService, LoggingService>();
             SimpleIoc.Default.Register<INavigationService, NavigationService>();
-            SimpleIoc.Default.Register<ITeensyObservableSerialPort, TeensyObservableSerialPort>();
-            SimpleIoc.Default.Register<ITeensyFileService, TeensyFileService>();
-            SimpleIoc.Default.Register<ITeensyDirectoryService, TeensyDirectoryService>();
+            SimpleIoc.Default.Register<IObservableSerialPort, ObservableSerialPort>();
+            SimpleIoc.Default.Register<ISerialPortState, SerialPortState>();
+            SimpleIoc.Default.Register<IResetCommand, ResetCommand>();
+            SimpleIoc.Default.Register<ISaveFileCommand, SaveFileCommand>();
+            SimpleIoc.Default.Register<IPingCommand, PingCommand>();
+            SimpleIoc.Default.Register<ILaunchFileCommand, LaunchFileCommand>();
+            SimpleIoc.Default.Register<IFileWatchService, FileWatchService>();
+            SimpleIoc.Default.Register<IGetDirectoryContentCommand, GetDirectoryContentCommand>();
             SimpleIoc.Default.Register<IFileWatcher, FileWatcher>();
             SimpleIoc.Default.Register<ISettingsService, SettingsService>();
             SimpleIoc.Default.Register<ISnackbarService, SnackbarService>();
@@ -45,7 +52,9 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<SettingsViewModel>();
             SimpleIoc.Default.Register<HelpViewModel>();
             SimpleIoc.Default.Register<MidiViewModel>();
-            
+
+            ServiceLocator.Current.GetInstance<IFileWatchService>();
+
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Core.Serial.Constants
+﻿namespace TeensyRom.Core.Serial
 {
     /// <summary>
     /// Serial port configuration constants

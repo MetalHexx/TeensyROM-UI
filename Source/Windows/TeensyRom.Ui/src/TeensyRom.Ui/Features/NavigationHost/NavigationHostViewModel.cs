@@ -13,6 +13,7 @@ using TeensyRom.Ui.Features.Settings;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Threading;
 using System;
+using TeensyRom.Core.Storage;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -33,11 +34,13 @@ namespace TeensyRom.Ui.Features.NavigationHost
         public ReactiveCommand<Unit, Unit> ToggleNavCommand { get; private set; }
 
         private readonly INavigationService _navService;
+        private readonly IFileWatchService _fileWatcherService;
         private readonly ISnackbarService _snackbar;
 
-        public NavigationHostViewModel(INavigationService navStore, ISnackbarService snackbar, FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
+        public NavigationHostViewModel(INavigationService navStore, ISnackbarService snackbar, IFileWatchService fileWatcherService, FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
         {
-            _navService = navStore;            
+            _navService = navStore;
+            _fileWatcherService = fileWatcherService;
             MessageQueue = snackbar.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();

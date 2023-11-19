@@ -8,9 +8,8 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
-using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Settings.Services;
-using TeensyRom.Core.Serial.Services;
+using TeensyRom.Core.Serial;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Core.Storage.Entities;
@@ -19,11 +18,12 @@ using INavigationService = TeensyRom.Ui.Features.NavigationHost.INavigationServi
 using TeensyRom.Core.Storage.Extensions;
 using DynamicData.Binding;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Reactive.Subjects;
 using System.Windows.Threading;
 using System.Collections.Generic;
 using TeensyRom.Ui.Helpers.Messages;
+using TeensyRom.Core.Commands.File.LaunchFile;
+using TeensyRom.Core.Commands;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
@@ -61,8 +61,9 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private bool _isMoreItemsLoading = false;
 
         private BehaviorSubject<bool> _isLoadingFiles = new BehaviorSubject<bool>(false);
-        private readonly ITeensyFileService _fileService;
-        private readonly ITeensyDirectoryService _directoryService;
+        private readonly IGetDirectoryContentCommand _getDirectoryContentCommand;
+        private readonly ISerialPortState _serialPortState;
+        private readonly ILaunchFileCommand _launchFileCommand;
         private readonly ILoggingService _logService;
         private readonly ISnackbarService _snackbar;
         private readonly Dispatcher _dispatcher;
@@ -70,10 +71,11 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private readonly List<StorageItemVm> _currentItems = new();
         
         private const int _take = 5000;
-        public FileTransferViewModel(ITeensyFileService fileService, ITeensyDirectoryService directoryService, ISettingsService settingsService, ITeensyObservableSerialPort teensyPort, INavigationService nav, ILoggingService logService, ISnackbarService snackbar, Dispatcher dispatcher) 
+        public FileTransferViewModel(IGetDirectoryContentCommand getDirectoryContentCommand, ISettingsService settingsService, ISerialPortState serialPortState, ILaunchFileCommand launchFileCommand, INavigationService nav, ILoggingService logService, ISnackbarService snackbar, Dispatcher dispatcher) 
         {
-            _fileService = fileService;
-            _directoryService = directoryService;
+            _getDirectoryContentCommand = getDirectoryContentCommand;
+            _serialPortState = serialPortState;
+            _launchFileCommand = launchFileCommand;
             _logService = logService;
             _snackbar = snackbar;
             _dispatcher = dispatcher;
@@ -93,7 +95,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
                 Logs = _logBuilder.ToString();
             });
 
-            teensyPort.IsConnected
+            _serialPortState.IsConnected
                 .Where(isConnected => isConnected is true)
                 .CombineLatest(settingsService.Settings, (isConnected, settings) => settings)
                 .Do(settings => 
@@ -129,7 +131,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         private Unit LaunchFile(FileItemVm file)
         {
-            _fileService.LaunchFile(file.Path);
+            _launchFileCommand.Execute(file.Path);
             return Unit.Default;
         }
 
@@ -235,7 +237,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
             try
             {
-                directoryContent = _directoryService.GetDirectoryContent(path, skip, take);
+                directoryContent = _getDirectoryContentCommand.Execute(path, skip, take);
             }
             catch (TeensyException ex)
             {
@@ -251,7 +253,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         private Unit TestDirectoryListAsync()
         {
-            _directoryService.GetDirectoryContent("/", 0, 20);
+            _getDirectoryContentCommand.Execute("/", 0, 20);
             return Unit.Default;
         }
     }

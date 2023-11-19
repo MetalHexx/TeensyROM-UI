@@ -4,6 +4,29 @@ using System.Reactive.Subjects;
 
 namespace TeensyRom.Core.Storage.Services
 {
+    /// <summary>
+    /// Watches a folder and notifies subscribers that a new
+    /// file was added to a folder.
+    /// </summary>
+    public interface IFileWatcher : IDisposable
+    {
+        /// <summary>
+        /// Emits values when files are added
+        /// </summary>
+        IObservable<FileInfo> FileFound { get; }
+
+        /// <summary>
+        /// Enables the watcher with given a path a file filter
+        /// </summary>
+        /// <param name="fileTypes">For example *.sid</param>
+        void Enable(string fullPath, params string[] fileTypes);
+
+        /// <summary>
+        /// Disables the file watcher
+        /// </summary>
+        void Disable();
+    }
+
     public class FileWatcher : IFileWatcher, IDisposable
     {
         private readonly Subject<FileInfo> _fileFound = new Subject<FileInfo>();
@@ -29,17 +52,10 @@ namespace TeensyRom.Core.Storage.Services
 
             _watchSubscription ??= InitializeWatcher();
 
-            try
-            {
-                _watcher.Path = path;
-                _watcher.NotifyFilter = NotifyFilters.LastWrite;
-                _watcher.Filter = "*.*";
-                _watcher.EnableRaisingEvents = true;
-            }
-            catch
-            {
-                //Just swallow it.  We'll let the user know in the logs.
-            }
+            _watcher.Path = path;
+            _watcher.NotifyFilter = NotifyFilters.LastWrite;
+            _watcher.Filter = "*.*";
+            _watcher.EnableRaisingEvents = true;
         }
 
         private IDisposable InitializeWatcher()

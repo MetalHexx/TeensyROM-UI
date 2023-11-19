@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace TeensyRom.Core.Serial.Constants
+namespace TeensyRom.Core.Serial
 {
     public static class TeensyConstants
     {

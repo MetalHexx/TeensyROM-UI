@@ -1,91 +1,62 @@
 ﻿using FluentAssertions;
-using Newtonsoft.Json;
-using System.IO.Ports;
-using System.Windows.Threading;
-using TeensyRom.Core.Storage;
-using TeensyRom.Ui.Features.FileTransfer;
-using TeensyRom.Ui.Features.Settings;
-using NavigationService = TeensyRom.Ui.Features.NavigationHost.NavigationService;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Services;
-using TeensyRom.Core.Settings.Entities;
-using TeensyRom.Core.Settings.Services;
-using TeensyRom.Core.Serial.Services;
-using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Features.NavigationHost;
 
 namespace TeensyRom.Tests.Integration
 {
     [Collection("SerialPortTests")]
     public class FileTransferTests : IDisposable
-    {
-        private FileTransferViewModel _fileTransferViewModel;
-        private SettingsViewModel _settingsViewModel;
-        private ITeensyObservableSerialPort _teensyPort;
-        private IFileWatcher _fileWatcher;
-        private ISettingsService _settingsService;
-        private ITeensyFileService _fileService;
-
-        private readonly string _settingsFileName = "Settings.json";
-        private readonly string _testFileName = $"{Guid.NewGuid().ToString().Substring(0, 7)}-test";
-        private readonly string _fullSourceTestPath = string.Empty;
-
-        private readonly string _serialPortName = SerialPort.GetPortNames().First();
-
-        private readonly TeensySettings _settings;
-
-
+    {        
+        private readonly TeensyFixture _fixture;
         public FileTransferTests()
         {
-            _settings = new TeensySettings();
-            _fullSourceTestPath = @$"{_settings.WatchDirectoryLocation}\{_testFileName}";
+            _fixture = new TeensyFixture();
         }
 
         [Fact]
         public void Given_WatcherDisabled_When_FileCopied_Then_FileNotTransferred()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.sid";
+            var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.sid";
             var savedText = $"File transfer complete!";
 
-            _settings.AutoFileCopyEnabled = false;
-            InitializeViewModel();
+            _fixture.Settings.AutoFileCopyEnabled = false;
+            _fixture.Initialize();
 
             //Act
-            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().NotContain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().NotContain(savedText);
         }
 
         [Fact]
         public void Given_WatcherEnabled_When_Disabled_And_Reenabled_And_FileCopied_Then_FileSuccessfullyTransferred()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.sid";
+            var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.sid";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
             var expectedType = $"Type: Sid";
             var storageType = $"Storage Type: SD";
 
-            _settings.TargetType = TeensyStorageType.SD;
-            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
-            _settings.AutoFileCopyEnabled = true;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.SD;
+            _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Initialize();
 
             //Act            
-            _settingsViewModel.Settings.AutoFileCopyEnabled = false;
-            _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
+            _fixture.SettingsViewModel.Settings.AutoFileCopyEnabled = false;
+            _fixture.SettingsViewModel.SaveSettingsCommand.Execute().Subscribe();
             Thread.Sleep(500);
-            _settingsViewModel.Settings.AutoFileCopyEnabled = true;
-            _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
+            _fixture.SettingsViewModel.Settings.AutoFileCopyEnabled = true;
+            _fixture.SettingsViewModel.SaveSettingsCommand.Execute().Subscribe();
 
-            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
         }
 
         [Fact]
@@ -94,17 +65,17 @@ namespace TeensyRom.Tests.Integration
             //Arrange
             var errorText = $"Failed to ensure directory";
 
-            _settings.TargetType = TeensyStorageType.SD;
-            _settings.TargetRootPath = "/$^*&#)@--bad/$^*&#)@--path/";
-            _settings.AutoFileCopyEnabled = true;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.SD;
+            _fixture.Settings.TargetRootPath = "/$^*&#)@--bad/$^*&#)@--path/";
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Initialize();
 
             //Act
-            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(errorText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(errorText);
         }
 
         [Fact]
@@ -113,26 +84,26 @@ namespace TeensyRom.Tests.Integration
             //Arrange
             var savedText = $"File transfer complete!"; ;
 
-            _settings.TargetType = TeensyStorageType.SD;
-            _settings.AutoFileCopyEnabled = true;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.SD;
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Initialize();
 
             //Act
-            _settingsViewModel.Settings.TargetRootPath = string.Empty;
+            _fixture.SettingsViewModel.Settings.TargetRootPath = string.Empty;
 
-            foreach (var target in _settingsViewModel.Settings.FileTargets)
+            foreach (var target in _fixture.SettingsViewModel.Settings.FileTargets)
             {
                 target.TargetPath = string.Empty;
             }
-            _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
+            _fixture.SettingsViewModel.SaveSettingsCommand.Execute().Subscribe();
             Thread.Sleep(500);
 
             //Act
-            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
         }
 
         [Fact]
@@ -141,24 +112,24 @@ namespace TeensyRom.Tests.Integration
             //Arrange
             var savedText = $"File transfer complete!"; ;
 
-            _settings.TargetType = TeensyStorageType.SD;
-            _settings.AutoFileCopyEnabled = true;
-            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.SD;
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
+            _fixture.Initialize();
 
             //Act            
-            foreach (var target in _settingsViewModel.Settings.FileTargets)
+            foreach (var target in _fixture.SettingsViewModel.Settings.FileTargets)
             {
                 target.TargetPath = $"{Guid.NewGuid().ToString().Substring(0, 7)}-new-path";
             }
-            _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
+            _fixture.SettingsViewModel.SaveSettingsCommand.Execute().Subscribe();
             Thread.Sleep(500);
 
-            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
         }
 
         [Fact]
@@ -167,21 +138,21 @@ namespace TeensyRom.Tests.Integration
             //Arrange
             var savedText = $"File transfer complete!"; ;
 
-            _settings.TargetType = TeensyStorageType.SD;
-            _settings.AutoFileCopyEnabled = true;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.SD;
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Initialize();
 
             //Act
-            _settingsViewModel.Settings.TargetRootPath = string.Empty;
+            _fixture.SettingsViewModel.Settings.TargetRootPath = string.Empty;
 
-            _settingsViewModel.SaveSettingsCommand.Execute().Subscribe();
+            _fixture.SettingsViewModel.SaveSettingsCommand.Execute().Subscribe();
             Thread.Sleep(500);
 
-            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
         }
 
         [Fact]
@@ -190,269 +161,247 @@ namespace TeensyRom.Tests.Integration
             //Arrange
             var savedText = $"File transfer complete!"; ;
 
-            _settings.TargetType = TeensyStorageType.SD;
-            _settings.TargetRootPath = "/";
-            _settings.AutoFileCopyEnabled = true;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.SD;
+            _fixture.Settings.TargetRootPath = "/";
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Initialize();
 
             //Act
-            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
         }
 
         [Fact]
         public void Given_WatcherDetectsNewFile_When_SidSaved_ToSD_Then_ReturnsSuccess()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.sid";
+            var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.sid";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
             var expectedType = $"Type: Sid";
             var storageType = $"Storage Type: SD";
 
-            _settings.TargetType = TeensyStorageType.SD;
-            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
-            _settings.AutoFileCopyEnabled = true;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.SD;
+            _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Initialize();
 
             //Act
-            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
-            _fileTransferViewModel.Logs.Should().Contain(savedText);
-            _fileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fileTransferViewModel.Logs.Should().Contain(storageType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
         public void Given_WatcherDetectsNewFile_When_PrgSaved_ToSD_Then_ReturnsSuccess()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.prg";
+            var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.prg";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
             var expectedType = $"Type: Prg";
             var storageType = $"Storage Type: SD";
 
-            _settings.TargetType = TeensyStorageType.SD;
-            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
-            _settings.AutoFileCopyEnabled = true;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.SD;
+            _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Initialize();
 
             //Act
-            File.WriteAllText($"{_fullSourceTestPath}.prg", "Test prg");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.prg", "Test prg");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
-            _fileTransferViewModel.Logs.Should().Contain(savedText);
-            _fileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fileTransferViewModel.Logs.Should().Contain(storageType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
         public void Given_WatcherDetectsNewFile_When_CrtSaved_ToSD_Then_ReturnsSuccess()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.crt";
+            var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.crt";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
             var expectedType = $"Type: Crt";
             var storageType = $"Storage Type: SD";
 
-            _settings.TargetType = TeensyStorageType.SD;
-            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
-            _settings.AutoFileCopyEnabled = true;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.SD;
+            _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Initialize();
 
             //Act            
-            File.WriteAllText($"{_fullSourceTestPath}.crt", "Test crt");
-            Thread.Sleep(1000);
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.crt", "Test crt");
+            Thread.Sleep(2000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
-            _fileTransferViewModel.Logs.Should().Contain(savedText);
-            _fileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fileTransferViewModel.Logs.Should().Contain(storageType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
         public void Given_WatcherDetectsNewFile_When_HexSaved_ToSD_Then_ReturnsSuccess()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.hex";
+            var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.hex";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
             var expectedType = $"Type: Hex";
             var storageType = $"Storage Type: SD";
 
-            _settings.TargetType = TeensyStorageType.SD;
-            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
-            _settings.AutoFileCopyEnabled = true;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.SD;
+            _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Initialize();
 
             //Act
-            File.WriteAllText($"{_fullSourceTestPath}.hex", "Test hex");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.hex", "Test hex");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
-            _fileTransferViewModel.Logs.Should().Contain(savedText);
-            _fileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fileTransferViewModel.Logs.Should().Contain(storageType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
         public void Given_WatcherDetectsNewFile_When_SidSaved_ToUSB_Then_ReturnsSuccess()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.sid";
+            var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.sid";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
             var expectedType = $"Type: Sid";
             var storageType = $"Storage Type: USB";
 
-            _settings.TargetType = TeensyStorageType.USB;
-            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
-            _settings.AutoFileCopyEnabled = true;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.USB;
+            _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Initialize();
 
             //Act
-            File.WriteAllText($"{_fullSourceTestPath}.sid", "Test sid");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.sid", "Test sid");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
-            _fileTransferViewModel.Logs.Should().Contain(savedText);
-            _fileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fileTransferViewModel.Logs.Should().Contain(storageType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
         public void Given_WatcherDetectsNewFile_When_PrgSaved_ToUSB_Then_ReturnsSuccess()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.prg";
+            var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.prg";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
             var expectedType = $"Type: Prg";
             var storageType = $"Storage Type: USB";
 
-            _settings.TargetType = TeensyStorageType.USB;
-            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
-            _settings.AutoFileCopyEnabled = true;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.USB;
+            _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Initialize();
 
             //Act
-            File.WriteAllText($"{_fullSourceTestPath}.prg", "Test prg");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.prg", "Test prg");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
-            _fileTransferViewModel.Logs.Should().Contain(savedText);
-            _fileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fileTransferViewModel.Logs.Should().Contain(storageType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
         public void Given_WatcherDetectsNewFile_When_CrtSaved_ToUSB_Then_ReturnsSuccess()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.crt";
+            var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.crt";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
             var expectedType = $"Type: Crt";
             var storageType = $"Storage Type: USB";
 
-            _settings.TargetType = TeensyStorageType.USB;
-            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
-            _settings.AutoFileCopyEnabled = true;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.USB;
+            _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Initialize();
 
             //Act
-            File.WriteAllText($"{_fullSourceTestPath}.crt", "Test crt");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.crt", "Test crt");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
-            _fileTransferViewModel.Logs.Should().Contain(savedText);
-            _fileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fileTransferViewModel.Logs.Should().Contain(storageType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
         public void Given_WatcherDetectsNewFile_When_HexSaved_ToUSB_Then_ReturnsSuccess()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_settings.WatchDirectoryLocation}\{_testFileName}.hex";
+            var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.hex";
             var initiatedText = $"Initiating file transfer handshake";
             var savedText = $"File transfer complete!";
             var expectedType = $"Type: Hex";
             var storageType = $"Storage Type: USB";
 
-            _settings.TargetType = TeensyStorageType.USB;
-            _settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
-            _settings.AutoFileCopyEnabled = true;
-            InitializeViewModel();
+            _fixture.Settings.TargetType = TeensyStorageType.USB;
+            _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
+            _fixture.Settings.AutoFileCopyEnabled = true;
+            _fixture.Initialize();
 
             //Act
-            File.WriteAllText($"{_fullSourceTestPath}.hex", "Test hex");
+            File.WriteAllText($"{_fixture.FullSourceTestPath}.hex", "Test hex");
             Thread.Sleep(1000);
 
             //Assert
-            _fileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fileTransferViewModel.Logs.Should().Contain(initiatedText);
-            _fileTransferViewModel.Logs.Should().Contain(savedText);
-            _fileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fileTransferViewModel.Logs.Should().Contain(storageType);
-        }
-
-        private void InitializeViewModel()
-        {
-            _settings.InitializeDefaults();
-
-            var json = JsonConvert.SerializeObject(_settings);
-            File.WriteAllText(_settingsFileName, json);
-
-            var logService = new LoggingService();
-            _teensyPort = new TeensyObservableSerialPort(logService);
-            _fileWatcher = new FileWatcher();
-            _settingsService = new SettingsService(logService);
-            _fileService = new TeensyFileService(_settingsService, _fileWatcher, _teensyPort, logService);
-            var directoryService = new TeensyDirectoryService(_teensyPort, _settingsService, logService);
-            var snackbar = new SnackbarService(Dispatcher.CurrentDispatcher);
-            _fileTransferViewModel = new FileTransferViewModel(directoryService, _settingsService, _teensyPort, new NavigationService(), logService, snackbar, Dispatcher.CurrentDispatcher);            
-            _settingsViewModel = new SettingsViewModel(_settingsService, snackbar, logService);
-            _teensyPort.SetPort(_serialPortName);
-            _teensyPort.OpenPort();
+            _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
+            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         public void Dispose()
         {
-            _teensyPort?.Dispose();
-            _fileWatcher.Dispose();
-            _fileService.Dispose();
+            _fixture.Dispose();
 
-            if (File.Exists(_fullSourceTestPath))
+            if (File.Exists(_fixture.FullSourceTestPath))
             {
-                File.Delete(_fullSourceTestPath);
+                File.Delete(_fixture.FullSourceTestPath);
             }
 
-            if (File.Exists(_settingsFileName))
+            if (File.Exists(_fixture.SettingsFileName))
             {
-                File.Delete(_settingsFileName);
+                File.Delete(_fixture.SettingsFileName);
             }
         }
     }

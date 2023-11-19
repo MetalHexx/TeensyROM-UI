@@ -6,8 +6,9 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
+using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Serial.Services;
+using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Ui.Features.Connect
 {
@@ -38,32 +39,36 @@ namespace TeensyRom.Ui.Features.Connect
         private readonly IDisposable? _selectedPortSubscription;
         private readonly IDisposable? _logsSubscription;
 
-        private readonly ITeensyObservableSerialPort _teensySerial;
+        private readonly IPingCommand _pingCommand;
+        private readonly IObservableSerialPort _serialPort;
         private readonly ILoggingService _logService;
+        private readonly IResetCommand _resetCommand;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public ConnectViewModel(ITeensyObservableSerialPort teensySerial, ILoggingService logService)
+        public ConnectViewModel(IPingCommand pingCommand, IObservableSerialPort serialPort, ILoggingService logService, IResetCommand resetCommand)
         {
-            _teensySerial = teensySerial;
+            _pingCommand = pingCommand;
+            _serialPort = serialPort;
             _logService = logService;
-            _teensySerial.Ports.ToPropertyEx(this, vm => vm.Ports);
-            _teensySerial.IsConnected.ToPropertyEx(this, vm => vm.IsConnected);
+            _resetCommand = resetCommand;
+            _serialPort.Ports.ToPropertyEx(this, vm => vm.Ports);
+            _serialPort.IsConnected.ToPropertyEx(this, vm => vm.IsConnected);
 
-            _teensySerial.IsRetryingConnection
+            _serialPort.IsRetryingConnection
                 .Select(isRetrying => !isRetrying)
                 .ToPropertyEx(this, vm => vm.IsConnectable);
 
             ConnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                _teensySerial.OpenPort(), outputScheduler: ImmediateScheduler.Instance);
+                _serialPort.OpenPort(), outputScheduler: ImmediateScheduler.Instance);
 
             DisconnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                _teensySerial.ClosePort(), outputScheduler: ImmediateScheduler.Instance);
+                _serialPort.ClosePort(), outputScheduler: ImmediateScheduler.Instance);
 
             PingCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                _teensySerial.PingDevice(), outputScheduler: ImmediateScheduler.Instance);
+                _pingCommand.Execute(), outputScheduler: ImmediateScheduler.Instance);
 
             ResetCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                _teensySerial.ResetDevice(), outputScheduler: ImmediateScheduler.Instance);
+                _resetCommand.Execute(), outputScheduler: ImmediateScheduler.Instance);
 
             ClearLogsCommand = ReactiveCommand.Create<Unit, Unit>(n =>
             {
@@ -72,13 +77,13 @@ namespace TeensyRom.Ui.Features.Connect
                 return Unit.Default;
             }, outputScheduler: ImmediateScheduler.Instance);
 
-            _portsSubscription = _teensySerial.Ports
+            _portsSubscription = _serialPort.Ports
                 .Where(ports => ports.Length > 0)
                 .Subscribe(ports => SelectedPort = ports.First());
 
             _selectedPortSubscription = this.WhenAnyValue(x => x.SelectedPort)
                 .Where(port => port != null)
-                .Subscribe(port => _teensySerial.SetPort(port));
+                .Subscribe(port => _serialPort.SetPort(port));
 
             _logsSubscription = _logService.Logs
                 .Select(log => _logBuilder.AppendLine(log))
