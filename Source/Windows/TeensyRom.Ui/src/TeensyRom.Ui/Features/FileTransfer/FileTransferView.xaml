@@ -121,7 +121,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -131,12 +130,6 @@
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-
-        <TextBlock 
-            Grid.Row="0" 
-            Style="{StaticResource SectionTitle}" 
-            Margin="10" 
-            Text="File Transfer"/>
 
         <Button 
             Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"

@@ -17,17 +17,9 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock 
-            Grid.Row="0" 
-            HorizontalAlignment="Left"
-            Style="{StaticResource SectionTitle}" 
-            Margin="10" 
-            Text="Settings"/>
-
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40" ></RowDefinition>
                 <RowDefinition Height="40" ></RowDefinition>

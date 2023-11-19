@@ -4,7 +4,7 @@
     xmlns:ui="clr-namespace:TeensyRom.Ui"
     xmlns:FileTransfer="clr-namespace:TeensyRom.Ui.Features.FileTransfer"
     xmlns:Help="clr-namespace:TeensyRom.Ui.Features.Help"
-    xmlns:Midi="clr-namespace:TeensyRom.Ui.Features.Midi"
+    xmlns:Music="clr-namespace:TeensyRom.Ui.Features.Music"
     xmlns:Connect="clr-namespace:TeensyRom.Ui.Features.Connect"
     xmlns:Settings="clr-namespace:TeensyRom.Ui.Features.Settings"
     
@@ -29,8 +29,8 @@
             <DataTemplate DataType="{x:Type Help:HelpViewModel}">
                 <Help:HelpView />
             </DataTemplate>
-            <DataTemplate DataType="{x:Type Midi:MidiViewModel}">
-                <Midi:MidiView />
+            <DataTemplate DataType="{x:Type Music:MusicViewModel}">
+                <Music:MusicView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type Connect:ConnectViewModel}">
                 <Connect:ConnectView/>

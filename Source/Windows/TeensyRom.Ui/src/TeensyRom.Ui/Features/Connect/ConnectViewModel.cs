@@ -9,10 +9,11 @@ using System.Text;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
+using TeensyRom.Ui.Helpers.ViewModel;
 
 namespace TeensyRom.Ui.Features.Connect
 {
-    public class ConnectViewModel: ReactiveObject, IDisposable
+    public class ConnectViewModel: FeatureViewModelBase, IDisposable
     {
         [ObservableAsProperty]
         public string[]? Ports { get; }
@@ -47,6 +48,8 @@ namespace TeensyRom.Ui.Features.Connect
 
         public ConnectViewModel(IPingCommand pingCommand, IObservableSerialPort serialPort, ILoggingService logService, IResetCommand resetCommand)
         {
+            FeatureTitle = "Manage Connection";
+
             _pingCommand = pingCommand;
             _serialPort = serialPort;
             _logService = logService;

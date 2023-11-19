@@ -10,10 +10,11 @@ using System.Windows.Threading;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Features.NavigationHost;
+using TeensyRom.Ui.Helpers.ViewModel;
 
 namespace TeensyRom.Ui.Features.Settings
 {
-    public class SettingsViewModel: ReactiveObject, IDisposable
+    public class SettingsViewModel: FeatureViewModelBase, IDisposable
     {
         [Reactive]
         public string Logs { get; set; } = string.Empty;
@@ -30,6 +31,8 @@ namespace TeensyRom.Ui.Features.Settings
 
         public SettingsViewModel(ISettingsService settings, ISnackbarService snackbar, ILoggingService logService)
         {
+            FeatureTitle = "Settings";
+
             _logService = logService;
             _settingsService = settings;            
 

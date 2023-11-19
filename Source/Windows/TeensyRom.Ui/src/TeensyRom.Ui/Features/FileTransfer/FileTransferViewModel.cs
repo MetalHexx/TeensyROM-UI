@@ -23,11 +23,12 @@ using TeensyRom.Ui.Helpers.Messages;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Settings;
+using TeensyRom.Ui.Helpers.ViewModel;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
 
-    public class FileTransferViewModel : ReactiveObject
+    public class FileTransferViewModel : FeatureViewModelBase
     {
         public ObservableCollection<StorageItemVm> SourceItems { get; set; } = new();
         public ObservableCollection<StorageItemVm> TargetItems { get; set; } = new();
@@ -72,6 +73,8 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private const int _take = 5000;
         public FileTransferViewModel(IGetDirectoryCommand getDirectoryContentCommand, ISettingsService settingsService, ISerialPortState serialPortState, ILaunchFileCommand launchFileCommand, INavigationService nav, ILoggingService logService, ISnackbarService snackbar, Dispatcher dispatcher) 
         {
+            FeatureTitle = "File Transfer";
+
             _getDirectoryContentCommand = getDirectoryContentCommand;
             _serialPortState = serialPortState;
             _launchFileCommand = launchFileCommand;

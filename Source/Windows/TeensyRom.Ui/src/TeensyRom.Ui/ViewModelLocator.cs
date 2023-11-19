@@ -6,9 +6,9 @@ using TeensyRom.Core.Storage;
 using TeensyRom.Ui.Features.Connect;
 using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.Help;
-using TeensyRom.Ui.Features.Midi;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Settings;
+using TeensyRom.Ui.Features.Music;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Commands.File.LaunchFile;
@@ -51,7 +51,7 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<FileTransferViewModel>();
             SimpleIoc.Default.Register<SettingsViewModel>();
             SimpleIoc.Default.Register<HelpViewModel>();
-            SimpleIoc.Default.Register<MidiViewModel>();
+            SimpleIoc.Default.Register<MusicViewModel>();
 
             ServiceLocator.Current.GetInstance<IFileWatchService>();
 

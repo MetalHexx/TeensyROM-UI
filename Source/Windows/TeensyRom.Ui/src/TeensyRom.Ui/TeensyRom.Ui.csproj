@@ -26,7 +26,7 @@
     <Compile Update="Features\Help\HelpView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Features\Midi\MidiView.xaml.cs">
+    <Compile Update="Features\Music\MusicView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

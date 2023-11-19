@@ -7,12 +7,10 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Linq;
 using TeensyRom.Ui.Features.Help;
-using TeensyRom.Ui.Features.Midi;
+using TeensyRom.Ui.Features.Music;
 using TeensyRom.Ui.Features.Connect;
 using TeensyRom.Ui.Features.Settings;
 using MaterialDesignThemes.Wpf;
-using System.Windows.Threading;
-using System;
 using TeensyRom.Core.Storage;
 
 namespace TeensyRom.Ui.Features.NavigationHost
@@ -37,17 +35,20 @@ namespace TeensyRom.Ui.Features.NavigationHost
         private readonly IFileWatchService _fileWatcherService;
         private readonly ISnackbarService _snackbar;
 
-        public NavigationHostViewModel(INavigationService navStore, ISnackbarService snackbar, IFileWatchService fileWatcherService, FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
+        private bool _triggerAnimation;
+        [Reactive] public bool TriggerAnimation { get; set; } = true;
+
+        public NavigationHostViewModel(INavigationService navStore, ISnackbarService snackbar, IFileWatchService fileWatcherService, FileTransferViewModel fileTransfer, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
         {
             _navService = navStore;
             _fileWatcherService = fileWatcherService;
             MessageQueue = snackbar.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
-            InitializeNavItems(fileTransfer, midi, help, connect, settings);
+            InitializeNavItems(fileTransfer, music, help, connect, settings);
         }     
 
-        public void InitializeNavItems(FileTransferViewModel fileTransfer, MidiViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
+        public void InitializeNavItems(FileTransferViewModel fileTransfer, MusicViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
         {
             _navService.Initialize(NavigationLocation.Connect, new List<NavigationItem>
             {
@@ -93,7 +94,12 @@ namespace TeensyRom.Ui.Features.NavigationHost
         {
             NavigateCommand = ReactiveCommand.Create<NavigationItem, Unit>(n =>
             {
+                TriggerAnimation = true;
+
                 _navService.NavigateTo(n.Id);
+                
+                TriggerAnimation = false;
+                
                 return Unit.Default;
             }, outputScheduler: ImmediateScheduler.Instance);
 
