@@ -4,8 +4,7 @@ using System.Text;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
-using TeensyRom.Core.Settings.Entities;
-using TeensyRom.Core.Settings.Services;
+using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands

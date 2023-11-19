@@ -8,14 +8,12 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
-using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Common;
 using INavigationService = TeensyRom.Ui.Features.NavigationHost.INavigationService;
-using TeensyRom.Core.Storage.Extensions;
 using DynamicData.Binding;
 using System.Threading.Tasks;
 using System.Reactive.Subjects;
@@ -24,6 +22,7 @@ using System.Collections.Generic;
 using TeensyRom.Ui.Helpers.Messages;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Commands;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {

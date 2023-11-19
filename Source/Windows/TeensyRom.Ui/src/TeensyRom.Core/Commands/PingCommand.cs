@@ -1,7 +1,7 @@
 ﻿using System.Reactive;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
-using TeensyRom.Core.Settings.Services;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Core.Commands
 {

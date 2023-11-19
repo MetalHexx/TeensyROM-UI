@@ -3,11 +3,9 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using System.Windows.Threading;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Settings.Entities;
-using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Logging;
-using MaterialDesignThemes.Wpf;
 using TeensyRom.Ui.Features.NavigationHost;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Tests.Integration
 {

@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using TeensyRom.Core.Storage.Extensions;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Core.Storage.Entities
 {

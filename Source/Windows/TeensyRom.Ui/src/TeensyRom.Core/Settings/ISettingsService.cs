@@ -1,7 +1,6 @@
 ﻿using System.Reactive;
-using TeensyRom.Core.Settings.Entities;
 
-namespace TeensyRom.Core.Settings.Services
+namespace TeensyRom.Core.Settings
 {
     public interface ISettingsService
     {

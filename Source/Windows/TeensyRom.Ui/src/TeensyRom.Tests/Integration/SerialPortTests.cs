@@ -1,7 +1,5 @@
 using FluentAssertions;
 using System.IO.Ports;
-using TeensyRom.Ui.Features.Connect;
-using TeensyRom.Core.Settings.Services;
 
 namespace TeensyRom.Tests.Integration
 {

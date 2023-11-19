@@ -2,9 +2,8 @@
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
-using TeensyRom.Core.Settings.Services;
+using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Extensions;
 
 namespace TeensyRom.Core.Commands
 {

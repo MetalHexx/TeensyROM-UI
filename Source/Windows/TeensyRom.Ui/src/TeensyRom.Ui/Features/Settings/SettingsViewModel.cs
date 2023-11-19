@@ -8,8 +8,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Windows.Threading;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Settings.Entities;
-using TeensyRom.Core.Settings.Services;
+using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Features.NavigationHost;
 
 namespace TeensyRom.Ui.Features.Settings

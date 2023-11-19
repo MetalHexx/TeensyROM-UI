@@ -10,11 +10,11 @@ using TeensyRom.Ui.Features.Midi;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Settings;
 using TeensyRom.Core.Storage.Services;
-using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui
 {

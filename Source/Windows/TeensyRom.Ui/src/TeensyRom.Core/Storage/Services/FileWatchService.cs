@@ -2,8 +2,7 @@
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
-using TeensyRom.Core.Settings.Entities;
-using TeensyRom.Core.Settings.Services;
+using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 

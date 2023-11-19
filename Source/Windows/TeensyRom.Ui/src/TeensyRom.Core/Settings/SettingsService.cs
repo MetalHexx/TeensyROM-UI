@@ -3,10 +3,9 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Settings.Entities;
 using Formatting = Newtonsoft.Json.Formatting;
 
-namespace TeensyRom.Core.Settings.Services
+namespace TeensyRom.Core.Settings
 {
     public class SettingsService : ISettingsService
     {
@@ -20,7 +19,7 @@ namespace TeensyRom.Core.Settings.Services
         public SettingsService(ILoggingService logService)
         {
             _logService = logService;
-            _settings = new BehaviorSubject<TeensySettings>(GetSettings());            
+            _settings = new BehaviorSubject<TeensySettings>(GetSettings());
         }
 
         private TeensySettings GetSettings()

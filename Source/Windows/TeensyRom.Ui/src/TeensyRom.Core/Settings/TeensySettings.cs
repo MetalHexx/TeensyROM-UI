@@ -1,6 +1,6 @@
 ﻿using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Core.Settings.Entities
+namespace TeensyRom.Core.Settings
 {
     /// <summary>
     /// Used to persist and retrieve user preference from disk.  See: Settings.json in the bin folder

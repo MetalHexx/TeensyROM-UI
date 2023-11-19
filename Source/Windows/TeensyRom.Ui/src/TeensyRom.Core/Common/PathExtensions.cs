@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Core.Storage.Extensions
+﻿namespace TeensyRom.Core.Common
 {
     public static class PathExtensions
     {
@@ -27,7 +27,7 @@
 
             var parentPath = string.Join("/", segments.Take(segments.Length - 1));
 
-            return EnsureUnixPathEnding("/" + parentPath);
+            return ("/" + parentPath).EnsureUnixPathEnding();
         }
 
         public static string GetUnixFileExtension(this string path)

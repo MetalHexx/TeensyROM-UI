@@ -4,14 +4,13 @@ using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
-using TeensyRom.Core.Settings.Entities;
-using TeensyRom.Core.Settings.Services;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Storage;
 using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Settings;
 using TeensyRom.Ui.Features.Connect;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Tests.Integration
 {

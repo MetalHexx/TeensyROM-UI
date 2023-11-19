@@ -1,6 +1,6 @@
 ﻿using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Core.Settings.Entities
+namespace TeensyRom.Core.Settings
 {
     public class TeensyTarget
     {
