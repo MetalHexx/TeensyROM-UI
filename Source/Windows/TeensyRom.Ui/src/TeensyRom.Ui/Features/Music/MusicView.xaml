@@ -7,6 +7,8 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"             
              mc:Ignorable="d" 
              Height="auto" Width="auto">
+    
+    
 
 
     <Grid>
@@ -15,7 +17,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="1">
-            <ContentControl Content="{Binding ProfileList}" />
+            <ContentControl Content="{Binding PlayToolBar}"/>
         </StackPanel>
 
     </Grid>

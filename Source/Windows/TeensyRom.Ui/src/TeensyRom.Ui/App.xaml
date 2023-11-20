@@ -5,6 +5,7 @@
     xmlns:FileTransfer="clr-namespace:TeensyRom.Ui.Features.FileTransfer"
     xmlns:Help="clr-namespace:TeensyRom.Ui.Features.Help"
     xmlns:Music="clr-namespace:TeensyRom.Ui.Features.Music"
+    xmlns:PlayToolbar="clr-namespace:TeensyRom.Ui.Features.Music.PlayToolbar"
     xmlns:Connect="clr-namespace:TeensyRom.Ui.Features.Connect"
     xmlns:Settings="clr-namespace:TeensyRom.Ui.Features.Settings"
     
@@ -29,9 +30,14 @@
             <DataTemplate DataType="{x:Type Help:HelpViewModel}">
                 <Help:HelpView />
             </DataTemplate>
+            
             <DataTemplate DataType="{x:Type Music:MusicViewModel}">
                 <Music:MusicView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type PlayToolbar:PlayToolbarViewModel}">
+                <PlayToolbar:PlayToolbarView/>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type Connect:ConnectViewModel}">
                 <Connect:ConnectView/>
             </DataTemplate>
