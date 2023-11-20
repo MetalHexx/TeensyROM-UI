@@ -121,6 +121,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -131,11 +132,19 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <Label 
+            Grid.Row="0" 
+            Grid.Column="1" 
+            Style="{StaticResource LargeLabel}"
+            Content="C64" 
+            HorizontalAlignment="Left"
+            Margin="10"/>
+
         <Button 
             Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
             ToolTip="Go up a directory"
             HorizontalAlignment="Left"
-            Margin="5 0 0 0"
+            Margin="5 0 0 10"
             Grid.Row="1" Grid.Column="1"
             Command="{Binding LoadParentDirectoryContentCommand}">
             <materialDesign:PackIcon Kind="ArrowUp" />
@@ -143,37 +152,21 @@
 
         <TextBox Text="{Binding CurrentPath}" 
             ToolTip="Current Directory.  You can type a direct path and hit enter."
+            Margin="0 0 0 10"
             HorizontalAlignment="Stretch" VerticalAlignment="Center"
             Grid.Row="1" Grid.Column="2"></TextBox>
 
-        <ProgressBar 
-            IsIndeterminate="True" 
-            Visibility="{Binding IsLoadingFiles, Converter={StaticResource BooleanToVisibilityConverter}}"
-            Margin="0 10 0 0"
-            Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2">            
-        </ProgressBar>
-
         <Label 
-            Grid.Row="2" 
+            Grid.Row="0" 
             Grid.Column="0" 
             Style="{StaticResource LargeLabel}"
             Content="Local" 
             HorizontalAlignment="Left"
-            Margin="10"/>
-
-        <Label 
-            Grid.Row="2" 
-            Grid.Column="1" 
-            Style="{StaticResource LargeLabel}"
-            Content="C64" 
-            HorizontalAlignment="Left"
-            Margin="10"/>
+            Margin="10"/>        
 
         <ScrollViewer             
             Grid.Row="3" Grid.Column="0"  
             VerticalScrollBarVisibility="Auto">
-            
-            
             <ListView 
                 Name="sourceListView" 
                 PreviewMouseWheel="OnListViewPreviewMouseWheel"                
@@ -231,7 +224,7 @@
             HorizontalAlignment="Left"  
             VerticalAlignment="Center"
             Margin="0 10 0 0"
-            Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2">
+            Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2">
 
             <Button 
                 Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
@@ -265,5 +258,12 @@
             <TextBlock VerticalAlignment="Center">/</TextBlock>
             <TextBlock Text="{Binding TotalPages}" VerticalAlignment="Center" Margin="3 0 0 0"></TextBlock>
         </StackPanel>
+        <ProgressBar 
+            IsIndeterminate="True" 
+            Visibility="{Binding IsLoadingFiles, Converter={StaticResource BooleanToVisibilityConverter}}"            
+            Margin="0 0 17 0"
+            VerticalAlignment="Bottom"
+            Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2">
+        </ProgressBar>
     </Grid>
 </UserControl>

@@ -120,10 +120,6 @@
                     </StackPanel>
                 </Grid>
             </StackPanel>
-            
-            <!--<Grid VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="0">
-                
-            </Grid>-->
 
             <Grid Grid.Column="1" Margin="80 20 20 20">
                 <Grid.RowDefinitions>
@@ -137,9 +133,7 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <!-- Title row -->
                             <RowDefinition Height="*"/>
-                            <!-- Content row -->
                         </Grid.RowDefinitions>
 
                         <TextBlock 
