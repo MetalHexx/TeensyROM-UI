@@ -58,8 +58,6 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
                 _logService.Log($"Sending launch file token: {TeensyConstants.Launch_File_Token}");
                 _serialPort.SendIntBytes(TeensyConstants.Launch_File_Token, 2);
 
-                WaitForSerialData(numBytes: 2, timeoutMs: 500);
-
                 if (!GetAck())
                 {
                     ReadSerialAsString();
