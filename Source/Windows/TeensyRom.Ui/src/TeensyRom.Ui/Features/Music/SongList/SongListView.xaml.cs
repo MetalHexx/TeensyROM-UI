@@ -1,26 +1,30 @@
-﻿using ReactiveUI;
-using System;
-using System.Reactive.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 using TeensyRom.Ui.Features.Common.Models;
-using TeensyRom.Ui.Helpers.Messages;
+using TeensyRom.Ui.Features.FileTransfer;
 
-namespace TeensyRom.Ui.Features.FileTransfer
+namespace TeensyRom.Ui.Features.Music.SongList
 {
     /// <summary>
-    /// Interaction logic for FileTransferView.xaml
+    /// Interaction logic for SongListView.xaml
     /// </summary>
-    public partial class FileTransferView : UserControl
+    public partial class SongListView : UserControl
     {
-        public FileTransferView()
+        public SongListView()
         {
             InitializeComponent();
-
-            MessageBus.Current.Listen<ScrollToTopMessage>()
-                  .ObserveOn(RxApp.MainThreadScheduler)
-                  .Subscribe(_ => TargetScrollViewer.ScrollToTop());
         }
 
         private void OnListViewDoubleClicked(object sender, MouseButtonEventArgs e)
@@ -29,8 +33,8 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
             if (listView?.SelectedItem is DirectoryItemVm directoryItem)
             {
-                var viewModel = (FileTransferViewModel)DataContext;
-                viewModel.LoadDirectoryContentCommand.Execute(directoryItem).Subscribe();
+                var viewModel = (SongListViewModel)DataContext;
+                viewModel.LoadDirectoryCommand.Execute(directoryItem).Subscribe();
             }
         }
 

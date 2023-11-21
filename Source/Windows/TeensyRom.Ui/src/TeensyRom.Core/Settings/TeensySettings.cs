@@ -1,4 +1,5 @@
-﻿using TeensyRom.Core.Storage.Entities;
+﻿using TeensyRom.Core.Common;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Settings
 {
@@ -51,6 +52,13 @@ namespace TeensyRom.Core.Settings
                     TargetPath = "hex"
                 }
             });
+        }
+
+        public string GetFileTypePath(TeensyFileType type)
+        {
+            var fileTarget = FileTargets.First(t => t.Type == type);
+
+            return TargetRootPath.UnixPathCombine(fileTarget.TargetPath);
         }
 
         /// <summary>

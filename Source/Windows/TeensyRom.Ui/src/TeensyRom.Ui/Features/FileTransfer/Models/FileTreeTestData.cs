@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using TeensyRom.Ui.Features.Common.Models;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {

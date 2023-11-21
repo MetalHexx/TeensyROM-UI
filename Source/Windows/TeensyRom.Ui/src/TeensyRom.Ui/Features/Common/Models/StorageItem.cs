@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Ui.Features.FileTransfer
+﻿namespace TeensyRom.Ui.Features.Common.Models
 {
     public class StorageItemVm
     {

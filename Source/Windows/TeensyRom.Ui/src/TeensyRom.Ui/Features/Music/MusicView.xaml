@@ -18,6 +18,7 @@
 
         <StackPanel Grid.Row="1">
             <ContentControl Content="{Binding PlayToolBar}"/>
+            <ContentControl Content="{Binding SongList}"/>
         </StackPanel>
 
     </Grid>

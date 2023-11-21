@@ -24,6 +24,7 @@ using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Helpers.ViewModel;
+using TeensyRom.Ui.Features.Common.Models;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {

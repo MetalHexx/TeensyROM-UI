@@ -4,7 +4,7 @@
     {
         Connect,
         FileTransfer,
-        Midi,
+        Music,
         Settings,
         Help        
     }

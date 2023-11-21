@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 using System.Windows;
+using TeensyRom.Ui.Features.Common.Models;
 
 namespace TeensyRom.Ui.Features.FileTransfer.Models
 {

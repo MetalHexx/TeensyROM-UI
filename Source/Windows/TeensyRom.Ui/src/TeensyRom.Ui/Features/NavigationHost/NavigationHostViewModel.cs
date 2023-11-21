@@ -69,7 +69,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
                 new NavigationItem
                 {
                     Name = "Midi Tools",
-                    Type = NavigationLocation.Midi,
+                    Type = NavigationLocation.Music,
                     ViewModel = midi,
                     Icon = "MusicClefTreble"
                 },

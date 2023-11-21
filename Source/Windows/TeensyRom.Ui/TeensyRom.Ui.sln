@@ -9,7 +9,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendC64", "..\..\Win\SendC6
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeensyRom.Core", "src\TeensyRom.Core\TeensyRom.Core.csproj", "{E73DA390-E535-4B33-A7DF-8F83D43DE82E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Tests", "src\TeensyRom.Tests\TeensyRom.Tests.csproj", "{D2122D1C-BFBA-446D-96A5-45FCAA75EAC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeensyRom.Tests", "src\TeensyRom.Tests\TeensyRom.Tests.csproj", "{D2122D1C-BFBA-446D-96A5-45FCAA75EAC3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{368B3443-1DCC-48A4-82EF-F8F1D2E53FBA}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
