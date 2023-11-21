@@ -89,7 +89,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
             var currentIndex = _songs.IndexOf(currentSong);
             var nextSong = currentIndex == 0
                 ? _songs.Last()
-                : _songs[++currentIndex];
+                : _songs[--currentIndex];
 
             LoadSong(nextSong);
         }
