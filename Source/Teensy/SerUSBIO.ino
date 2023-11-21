@@ -17,11 +17,16 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-void   getFreeITCM();
 //synch with win app:
-#define SendFileToken  0x64AA 
-#define AckToken       0x64CC
-#define FailToken      0x9B7F
+#define LaunchFileToken   0x6444
+#define PauseSIDToken     0x6466
+#define SendFileToken     0x64AA 
+#define AckToken          0x64CC
+#define FailToken         0x9B7F
+#define PostFileToken     0x64BB 
+#define GetDirectoryToken 0x64DD 
+
+void   getFreeITCM();
 
 FLASHMEM void ServiceSerial()
 {
@@ -49,18 +54,22 @@ FLASHMEM void ServiceSerial()
             case 0x55:  //ping
                Serial.printf("TeensyROM %s ready!\n", strVersionNumber);
                break;
-            //case 0xAA: //file x-fer pc->TR.  For backwards compatibility with v1 UI.
-            //   ReceiveFile();
-            //   break;
-            case 0xBB:  // v2 file x-fer pc->TR.  For use with v2 UI.
-               PostFileCommand();
+            case 0xAA: //file x-fer pc->TR
+               ReceiveFile();        
                break;
+            case 0xBB:  // v2 file x-fer pc->TR.  For use with v2 UI.
+                PostFileCommand();
+                break;
             case 0xDD:  // v2 directory listing from TR
-                ListDirectoryCommand();
+                GetDirectoryCommand();
                 break;
             case 0x44: //Launch File
                if(LaunchFile()) Serial.println("Launched!");  
                else Serial.println("Launch Failed");  
+               break;
+            case 0x66: //Pause SID
+               if(RemotePauseSID()) SendU16(AckToken);
+               else SendU16(FailToken);
                break;
             case 0x67: //'dg'Test/debug
                //for (int a=0; a<256; a++) Serial.printf("\n%3d, // %3d   '%c'", ToPETSCII(a), a, a);
