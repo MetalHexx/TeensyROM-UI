@@ -16,7 +16,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
         IObservable<SongItemVm> CurrentSong { get; }
         IObservable<SongMode> CurrentSongMode { get; }
         IObservable<TimeSpan> CurrentSongTime { get; }
-        IObservable<PlayState> PlayState { get; }
+        IObservable<PlayState> CurrentPlayState { get; }
 
         bool LoadDirectory(string path);
         bool LoadSong(SongItemVm song);
@@ -31,7 +31,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
         public IObservable<SongItemVm> CurrentSong => _currentSong.AsObservable();
         public IObservable<TimeSpan> CurrentSongTime => _songTime.CurrentTime;
         public IObservable<SongMode> CurrentSongMode => _songMode.AsObservable();
-        public IObservable<PlayState> PlayState => _playState.AsObservable();
+        public IObservable<PlayState> CurrentPlayState => _playState.AsObservable();
         public IObservable<int> Skip => _skip.AsObservable();
         public IObservable<int> Take => _take.AsObservable();
         
@@ -76,7 +76,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
                 return false;
             }
             _currentSong.OnNext(song);
-            _playState.OnNext(PlayToolbar.PlayState.Playing);
+            _playState.OnNext(PlayState.Playing);
 
             _playingSongSubscription?.Dispose();
 
@@ -86,13 +86,21 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
             return true;
         }
         public bool ToggleMusic()
-        {   
-            if (_toggleMusicCommand.Execute())
+        {
+            if (!_toggleMusicCommand.Execute()) return false;
+
+            var playState = GetToggledPlayState();
+
+            if(playState == PlayState.Playing)
             {
-                _playState.OnNext(GetToggledPlayState());
-                return true;
+                _songTime.Start();
             }
-            return false;
+            else
+            {
+                _songTime.Stop();
+            }
+            _playState.OnNext(playState);
+            return true;
         }
 
         public bool PlayPrevious()

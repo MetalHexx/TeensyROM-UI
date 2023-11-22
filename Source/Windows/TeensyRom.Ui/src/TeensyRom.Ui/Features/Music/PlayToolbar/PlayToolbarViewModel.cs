@@ -41,7 +41,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
                 .Select(mode => mode == SongMode.Shuffle)
                 .ToPropertyEx(this, vm => vm.ShuffleModeEnabled);
 
-            _musicState.PlayState
+            _musicState.CurrentPlayState
                 .Select(playState => playState == PlayState.Playing)
                 .ToPropertyEx(this, vm => vm.IsPlaying);
 
