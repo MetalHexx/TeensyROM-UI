@@ -7,52 +7,53 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-        
-        <Button 
+
+        <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+
+            <Button 
             x:Name="PreviousButtonn"
             Command="{Binding PreviousCommand}"  
             ToolTip="Previous"
             Style="{StaticResource PlaybarSkipButton}"
             VerticalAlignment="Top" Margin="10 0 0 0">
-            <materialDesign:PackIcon Kind="SkipPrevious" />
-        </Button>
+                <materialDesign:PackIcon Kind="SkipPrevious" />
+            </Button>
 
 
-        <Button 
+            <Button 
             x:Name="PlayButton"
             Command="{Binding TogglePlayCommand}" 
             Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisibilityConvertor}}"   
             ToolTip="Play"
             Style="{StaticResource PlaybarButton}"
             VerticalAlignment="Top" Margin="10 0 0 0">
-            <materialDesign:PackIcon Kind="Play" />
-        </Button>
+                <materialDesign:PackIcon Kind="Play" />
+            </Button>
 
-        <Button 
+            <Button 
             x:Name="PauseButton"
             Command="{Binding TogglePlayCommand}" 
             Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisibilityConvertor}}"   
             ToolTip="Pause"
             Style="{StaticResource PlaybarButton}"
             VerticalAlignment="Top" Margin="10 0 0 0">
-            <materialDesign:PackIcon Kind="Pause" />
-        </Button>
+                <materialDesign:PackIcon Kind="Pause" />
+            </Button>
 
-        <Button 
+            <Button 
             x:Name="NextButton"
             Command="{Binding NextCommand}"  
             ToolTip="Previous"
             Style="{StaticResource PlaybarSkipButton}"
             VerticalAlignment="Top" Margin="10 0 0 0">
-            <materialDesign:PackIcon Kind="SkipNext" />
-        </Button>
-              
-        <TextBlock Text="{Binding CurrentTime, Mode=OneWay}" VerticalAlignment="Center" Margin="10 0 0 0"/>
-        <TextBlock Text="{Binding Song.Name, Mode=OneWay}" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                <materialDesign:PackIcon Kind="SkipNext" />
+            </Button>
+            <TextBlock Text="{Binding CurrentTime, Mode=OneWay}" VerticalAlignment="Center" Margin="10 0 0 0"/>
+        <Grid>
+            <TextBlock FontFamily="Arial"  Text="{Binding Song.Name, Mode=OneWay}" VerticalAlignment="Center" Margin="10 0 0 0"/>
+        </Grid>
+            
+        </StackPanel>
 
-        
-        
 
-    </StackPanel>
 </UserControl>

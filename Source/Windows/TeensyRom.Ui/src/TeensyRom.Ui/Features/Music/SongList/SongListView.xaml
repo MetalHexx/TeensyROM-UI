@@ -113,29 +113,23 @@
         </DataTemplate>
 
     </UserControl.Resources>
-    
-    <StackPanel>
-        <ScrollViewer 
-            Name="TargetScrollViewer"
-            VerticalScrollBarVisibility="Auto"
-            Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" >
 
-            <ListView 
-                Name="songListView" 
-                PreviewMouseWheel="OnListViewPreviewMouseWheel" 
-                MouseDoubleClick="OnListViewDoubleClicked"
-                VirtualizingStackPanel.IsVirtualizing="True" 
-                VirtualizingStackPanel.VirtualizationMode="Recycling"             
-                ItemsSource="{Binding DirectoryContent}"
-                HorizontalContentAlignment="Stretch"
-                MinWidth="220" >
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ListView Name="songListView"
+                  PreviewMouseWheel="OnListViewPreviewMouseWheel"
+                  MouseDoubleClick="OnListViewDoubleClicked"
+                  VirtualizingStackPanel.IsVirtualizing="True"
+                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                  ItemsSource="{Binding DirectoryContent}"
+                  HorizontalContentAlignment="Stretch"
+                  MinWidth="220">
                 <ListView.ItemTemplateSelector>
                     <models:StorageItemTemplateSelector
-                        DirectoryTemplate="{StaticResource DirectoryTemplate}"
-                        SongTemplate="{StaticResource SongTemplate}"/>
-                </ListView.ItemTemplateSelector>    
-
+                    DirectoryTemplate="{StaticResource DirectoryTemplate}"
+                    SongTemplate="{StaticResource SongTemplate}"/>
+                </ListView.ItemTemplateSelector>
             </ListView>
         </ScrollViewer>
-    </StackPanel>
+    </Grid>
 </UserControl>
