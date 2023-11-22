@@ -4,15 +4,55 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TeensyRom.Ui.Features.Music.PlayToolbar"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <StackPanel Orientation="Horizontal">
-        <Button Command="{Binding PreviousCommand}"  Content="Previous" VerticalAlignment="Top"/>
-        <Button Command="{Binding TogglePlayCommand}" Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisibilityConvertor}}"   Content="Play" VerticalAlignment="Top" Margin="10 0 0 0"/>
-        <Button Command="{Binding TogglePlayCommand}" Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisibilityConvertor}}"   Content="Pause" VerticalAlignment="Top" Margin="10 0 0 0"/>        
-        <Button Command="{Binding NextCommand}"  Content="Next" VerticalAlignment="Top" Margin="10 0 0 0"/>
+    <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+        
+        <Button 
+            x:Name="PreviousButtonn"
+            Command="{Binding PreviousCommand}"  
+            ToolTip="Previous"
+            Style="{StaticResource PlaybarSkipButton}"
+            VerticalAlignment="Top" Margin="10 0 0 0">
+            <materialDesign:PackIcon Kind="SkipPrevious" />
+        </Button>
+
+
+        <Button 
+            x:Name="PlayButton"
+            Command="{Binding TogglePlayCommand}" 
+            Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisibilityConvertor}}"   
+            ToolTip="Play"
+            Style="{StaticResource PlaybarButton}"
+            VerticalAlignment="Top" Margin="10 0 0 0">
+            <materialDesign:PackIcon Kind="Play" />
+        </Button>
+
+        <Button 
+            x:Name="PauseButton"
+            Command="{Binding TogglePlayCommand}" 
+            Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisibilityConvertor}}"   
+            ToolTip="Pause"
+            Style="{StaticResource PlaybarButton}"
+            VerticalAlignment="Top" Margin="10 0 0 0">
+            <materialDesign:PackIcon Kind="Pause" />
+        </Button>
+
+        <Button 
+            x:Name="NextButton"
+            Command="{Binding NextCommand}"  
+            ToolTip="Previous"
+            Style="{StaticResource PlaybarSkipButton}"
+            VerticalAlignment="Top" Margin="10 0 0 0">
+            <materialDesign:PackIcon Kind="SkipNext" />
+        </Button>
+              
         <TextBlock Text="{Binding CurrentTime, Mode=OneWay}" VerticalAlignment="Center" Margin="10 0 0 0"/>
-        <TextBlock Text="{Binding Song.Name, Mode=OneWay}" VerticalAlignment="Center" Margin="10 0 0 0"/>        
+        <TextBlock Text="{Binding Song.Name, Mode=OneWay}" VerticalAlignment="Center" Margin="10 0 0 0"/>
+
+        
+        
 
     </StackPanel>
 </UserControl>

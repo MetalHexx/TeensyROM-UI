@@ -37,14 +37,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
         
 
         private BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
-        private readonly BehaviorSubject<SongItemVm> _currentSong = new(new()
-        {
-            Path = "/sync/sid/Aces_High.sid",
-            ArtistName = "Iron Maiden",
-            SongLength = TimeSpan.FromMinutes(1),
-            Name = "Aces_High.sid"
-
-        });
+        private readonly BehaviorSubject<SongItemVm> _currentSong = new(new());
         private readonly Subject<IEnumerable<StorageItemVm>> _directoryContent = new();
         private readonly BehaviorSubject<int> _take = new(250);
         private readonly BehaviorSubject<int> _skip = new(0);

@@ -13,6 +13,37 @@
         <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
+    <Style x:Key="PlaybarButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
+
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource PrimaryHueDarkBrush}"/>
+                <Setter Property="Foreground" Value="DarkGray"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="False">
+                <Setter Property="Background" Value="{StaticResource PrimaryHueDarkBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+    <Style x:Key="PlaybarSkipButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
+
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="DarkGray"/>
+                <Setter Property="Foreground" Value="{StaticResource PrimaryHueDarkBrush}"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="False">
+                <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="StorageIconButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
 
         <Setter Property="Padding" Value="0"/>
