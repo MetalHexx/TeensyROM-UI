@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Common.Models;
 
 namespace TeensyRom.Ui.Features.Music.State

@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.FileTransfer;
 

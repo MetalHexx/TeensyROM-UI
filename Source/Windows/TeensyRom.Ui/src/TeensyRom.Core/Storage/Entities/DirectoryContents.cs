@@ -15,17 +15,4 @@ namespace TeensyRom.Core.Storage.Entities
             Files.AddRange(content.Files);
         }
     }
-
-    public class DirectoryItem
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Path { get; set; } = string.Empty;
-    }
-
-    public class FileItem
-    {
-        public string Name { get; set; } = string.Empty;
-        public int Size { get; set; }
-        public string Path { get; set; } = string.Empty;
-    }
 }

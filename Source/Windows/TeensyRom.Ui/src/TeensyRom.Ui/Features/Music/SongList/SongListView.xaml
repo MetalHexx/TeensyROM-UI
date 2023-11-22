@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:TeensyRom.Ui.Features.Music.SongList"
              xmlns:music="clr-namespace:TeensyRom.Ui.Features.Music"             
              xmlns:models="clr-namespace:TeensyRom.Ui.Features.Common.Models"
+             xmlns:storage="clr-namespace:TeensyRom.Core.Storage.Entities;assembly=TeensyRom.Core"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -13,7 +14,7 @@
 
         <HierarchicalDataTemplate 
             x:Key="DirectoryTemplate" 
-            DataType="{x:Type models:DirectoryItem}" 
+            DataType="{x:Type storage:DirectoryItem}" 
             ItemsSource="{Binding}">
 
             <Grid x:Name="DirectoryItemPanel">
@@ -38,7 +39,7 @@
 
         </HierarchicalDataTemplate>
 
-        <DataTemplate x:Key="SongTemplate" DataType="{x:Type models:SongItemVm}">
+        <DataTemplate x:Key="SongTemplate" DataType="{x:Type storage:SongItem}">
 
             <Grid x:Name="SongItemPanel">
                 <Grid.ColumnDefinitions>

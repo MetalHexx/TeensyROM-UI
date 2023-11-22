@@ -7,7 +7,8 @@
     xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
     xmlns:local="clr-namespace:TeensyRom.Ui.Features.FileTransfer"
-    xmlns:models="clr-namespace:TeensyRom.Ui.Features.Common.Models"
+    xmlns:storage="clr-namespace:TeensyRom.Core.Storage.Entities;assembly=TeensyRom.Core"
+    xmlns:templates="clr-namespace:TeensyRom.Ui.Features.Common.Models"
     mc:Ignorable="d" 
     Height="auto" Width="auto">
 
@@ -15,7 +16,7 @@
         
         <HierarchicalDataTemplate 
             x:Key="DirectoryTemplate" 
-            DataType="{x:Type models:DirectoryItem}" 
+            DataType="{x:Type storage:DirectoryItem}" 
             ItemsSource="{Binding}">
             
             <Grid x:Name="DirectoryItemPanel">
@@ -40,7 +41,7 @@
 
         </HierarchicalDataTemplate>
 
-        <DataTemplate x:Key="FileTemplate" DataType="{x:Type models:FileItem}">
+        <DataTemplate x:Key="FileTemplate" DataType="{x:Type storage:FileItem}">
             
             <Grid x:Name="FileItemPanel">
                 <Grid.ColumnDefinitions>
@@ -176,7 +177,7 @@
                 MinWidth="220" >
                 
                 <ListView.ItemTemplateSelector>
-                    <models:StorageItemTemplateSelector
+                    <templates:StorageItemTemplateSelector
                         DirectoryTemplate="{StaticResource DirectoryTemplate}"
                         FileTemplate="{StaticResource FileTemplate}"/>
                 </ListView.ItemTemplateSelector>
@@ -209,7 +210,7 @@
                 HorizontalContentAlignment="Stretch"
                 MinWidth="220" >
                 <ListView.ItemTemplateSelector>
-            <models:StorageItemTemplateSelector
+            <templates:StorageItemTemplateSelector
                 DirectoryTemplate="{StaticResource DirectoryTemplate}"
                 FileTemplate="{StaticResource FileTemplate}"/>
         </ListView.ItemTemplateSelector> 

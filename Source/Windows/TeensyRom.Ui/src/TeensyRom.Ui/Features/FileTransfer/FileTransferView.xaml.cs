@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Helpers.Messages;
 

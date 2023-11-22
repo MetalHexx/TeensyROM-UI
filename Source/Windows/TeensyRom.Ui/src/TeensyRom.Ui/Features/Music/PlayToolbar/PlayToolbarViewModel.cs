@@ -4,6 +4,7 @@ using System;
 using System.Reactive;
 using System.Reactive.Linq;
 using TeensyRom.Core.Commands.File.LaunchFile;
+using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Music.State;
 

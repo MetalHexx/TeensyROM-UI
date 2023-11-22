@@ -2,7 +2,7 @@
 using System.Linq;
 using TeensyRom.Core.Common;
 
-namespace TeensyRom.Ui.Features.Common.Models
+namespace TeensyRom.Core.Storage.Entities
 {
     public class DirectoryItem : StorageItem 
     {

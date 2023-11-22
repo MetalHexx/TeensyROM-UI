@@ -53,11 +53,11 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         public ReactiveCommand<Unit, Unit> LoadParentDirectoryContentCommand { get; set; }
         public ReactiveCommand<Unit, Unit> TestDirectoryListCommand { get; set; }
-        public ReactiveCommand<Common.Models.DirectoryItem, Unit> LoadDirectoryContentCommand { get; set; }
+        public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryContentCommand { get; set; }
         public ReactiveCommand<int, Unit> ChangePageSizeCommand { get; set; }
         public ReactiveCommand<Unit, Unit> LoadNextPageCommand { get; set; }
         public ReactiveCommand<Unit, Unit> LoadPrevPageCommand { get; set; }
-        public ReactiveCommand<Common.Models.FileItem, Unit> LaunchFileCommand { get; set; }
+        public ReactiveCommand<FileItem, Unit> LaunchFileCommand { get; set; }
 
         private bool _isMoreItemsLoading = false;
 
@@ -86,11 +86,11 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
             TestDirectoryListCommand = ReactiveCommand.Create<Unit, Unit>(_ => TestDirectoryListAsync(), outputScheduler: ImmediateScheduler.Instance);
             LoadParentDirectoryContentCommand = ReactiveCommand.CreateFromTask(LoadParentDirectory, outputScheduler: RxApp.MainThreadScheduler);
-            LoadDirectoryContentCommand = ReactiveCommand.CreateFromTask<Common.Models.DirectoryItem>(async directory => await LoadNewDirectoryAsync(directory), outputScheduler: RxApp.MainThreadScheduler);
+            LoadDirectoryContentCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(async directory => await LoadNewDirectoryAsync(directory), outputScheduler: RxApp.MainThreadScheduler);
 
             LoadNextPageCommand = ReactiveCommand.CreateFromTask(LoadNextItems, outputScheduler: RxApp.MainThreadScheduler);
             LoadPrevPageCommand = ReactiveCommand.CreateFromTask(LoadPrevItems, outputScheduler: RxApp.MainThreadScheduler);
-            LaunchFileCommand = ReactiveCommand.Create<Common.Models.FileItem, Unit>(file => LaunchFile(file), outputScheduler: ImmediateScheduler.Instance);
+            LaunchFileCommand = ReactiveCommand.Create<FileItem, Unit>(file => LaunchFile(file), outputScheduler: ImmediateScheduler.Instance);
 
             _logService.Logs.Subscribe(log =>
             {
@@ -132,13 +132,13 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         }
 
-        private Unit LaunchFile(Common.Models.FileItem file)
+        private Unit LaunchFile(FileItem file)
         {
             _launchFileCommand.Execute(file.Path);
             return Unit.Default;
         }
 
-        private async Task LoadNewDirectoryAsync(Common.Models.DirectoryItem directoryVm)
+        private async Task LoadNewDirectoryAsync(DirectoryItem directoryVm)
         {            
             await LoadAll(directoryVm.Path);
         }

@@ -16,7 +16,7 @@ namespace TeensyRom.Ui.Features.Music.State
     public class MusicState : IMusicState
     {
         public IObservable<IEnumerable<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
-        public IObservable<SongItemVm> CurrentSong => _currentSong.AsObservable();
+        public IObservable<SongItem> CurrentSong => _currentSong.AsObservable();
         public IObservable<TimeSpan> CurrentSongTime => _songTime.CurrentTime;
         public IObservable<SongMode> CurrentSongMode => _songMode.AsObservable();
         public IObservable<PlayState> CurrentPlayState => _playState.AsObservable();
@@ -25,15 +25,15 @@ namespace TeensyRom.Ui.Features.Music.State
 
 
         private readonly BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
-        private readonly BehaviorSubject<SongItemVm> _currentSong = new(new());
+        private readonly BehaviorSubject<SongItem> _currentSong = new(new());
         private readonly Subject<IEnumerable<StorageItem>> _directoryContent = new();
         private readonly BehaviorSubject<int> _take = new(250);
         private readonly BehaviorSubject<int> _skip = new(0);
         private readonly BehaviorSubject<PlayState> _playState = new(PlayState.Paused);
 
         private readonly List<StorageItem> _storageItems = new();
-        private readonly List<SongItemVm> _songs = new();
-        private Common.Models.DirectoryItem _directoryTree = new();
+        private readonly List<SongItem> _songs = new();
+        private DirectoryItem _directoryTree = new();
 
         private readonly ISongTimer _songTime;
         private readonly ILaunchFileCommand _launchFileCommand;
@@ -55,7 +55,7 @@ namespace TeensyRom.Ui.Features.Music.State
             _settingsService.Settings.Subscribe(settings => 
             {
                 _settings = settings;
-                _directoryTree = new Common.Models.DirectoryItem
+                _directoryTree = new DirectoryItem
                 {
                     Name = _settings.GetFileTypePath(TeensyFileType.Sid),
                     Path = _settings.GetFileTypePath(TeensyFileType.Sid)
@@ -69,7 +69,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public void SetSongMode(SongMode songMode) => _songMode.OnNext(songMode);
 
-        public bool LoadSong(SongItemVm song)
+        public bool LoadSong(SongItem song)
         {
             _songTime.Reset();
             _songTime.Start();
@@ -154,7 +154,7 @@ namespace TeensyRom.Ui.Features.Music.State
                     var trimmedPath = f.Path.Replace($"{defaultSidPath}/hvsc", "");
                     var sidRecord = _musicService.Find(trimmedPath);
 
-                    return new SongItemVm
+                    return new SongItem
                     {
                         ArtistName = sidRecord?.Author ?? "Unknown",
                         Name = sidRecord?.Title ?? f.Name,

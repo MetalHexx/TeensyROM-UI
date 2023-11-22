@@ -25,7 +25,7 @@ namespace TeensyRom.Ui.Features.Music.SongList
         [Reactive] public string CurrentPath { get; set; }
         public ObservableCollection<StorageItem> DirectoryContent { get; } = new();
         public ReactiveCommand<SongItem, Unit> PlayCommand { get; set; }
-        public ReactiveCommand<Common.Models.DirectoryItem, Unit> LoadDirectoryCommand { get; set; }
+        public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }
 
         public SongListViewModel(ISettingsService settingsService, IMusicState musicState, ISerialPortState serialState, INavigationService nav)
         {
@@ -33,7 +33,7 @@ namespace TeensyRom.Ui.Features.Music.SongList
             _serialState = serialState;
            
             PlayCommand = ReactiveCommand.Create<SongItem, Unit>(song => HandlePlayCommand(song));
-            LoadDirectoryCommand = ReactiveCommand.Create<Common.Models.DirectoryItem, Unit>(directory => HandleLoadDirectoryCommand(directory));
+            LoadDirectoryCommand = ReactiveCommand.Create<DirectoryItem, Unit>(directory => HandleLoadDirectoryCommand(directory));
 
             _loadSongsSubscription = _serialState.IsConnected
                 .Where(isConnected => isConnected is true)
@@ -70,7 +70,7 @@ namespace TeensyRom.Ui.Features.Music.SongList
             return Unit.Default;
         }
 
-        public Unit HandleLoadDirectoryCommand(Common.Models.DirectoryItem directory)
+        public Unit HandleLoadDirectoryCommand(DirectoryItem directory)
         {
             _musicState.LoadDirectory(directory.Path);
             return Unit.Default;

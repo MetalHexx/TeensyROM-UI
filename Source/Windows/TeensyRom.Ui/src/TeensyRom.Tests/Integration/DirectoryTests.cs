@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using TeensyRom.Ui.Features.FileTransfer;
 using System.Reactive.Threading.Tasks;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Tests.Integration
 {
@@ -42,7 +43,7 @@ namespace TeensyRom.Tests.Integration
             //Arrange
             _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path;
             _fixture.Initialize();
-            var directoryToSwitchTo = new DirectoryItemVm { Path = TestConstants.Integration_Test_Existing_Folder };
+            var directoryToSwitchTo = new DirectoryItem { Path = TestConstants.Integration_Test_Existing_Folder };
             Thread.Sleep(1000);
 
             //Act
@@ -71,7 +72,7 @@ namespace TeensyRom.Tests.Integration
         public async Task Given_TargetEmptyDirectoryExists_When_NavigatingToDirectory_IsTargetEmptyTrue()
         {
             //Arrange
-            var directoryToSwitchTo = new DirectoryItemVm { Path = TestConstants.Integration_Test_Existing_Empty_Folder };
+            var directoryToSwitchTo = new DirectoryItem { Path = TestConstants.Integration_Test_Existing_Empty_Folder };
             _fixture.Initialize();
             Thread.Sleep(1000);
 

@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Ui.Features.Common.Models
+﻿namespace TeensyRom.Core.Storage.Entities
 {
     public class StorageItem
     {
