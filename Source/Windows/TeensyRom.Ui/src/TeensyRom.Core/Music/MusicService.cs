@@ -1,5 +1,6 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -42,11 +43,6 @@ namespace TeensyRom.Core.Music
                 song.Name = record.Title;
                 song.SongLength = record.SongLengthSpan;
             }
-
-            song.ArtistName = song.ArtistName.Replace("<?>", "");
-
-            if (string.IsNullOrWhiteSpace(song.ArtistName)) song.ArtistName = "Unknown";
-
             return song;
         }
 
@@ -71,6 +67,10 @@ namespace TeensyRom.Core.Music
         {
             foreach (var sid in sids)
             {
+                sid.Value.Author = sid.Value.Author.Replace("<?>", "");
+
+                if (string.IsNullOrWhiteSpace(sid.Value.Author)) sid.Value.Author = "Unknown";
+
                 if (string.IsNullOrEmpty(sid.Value.SongLength))
                 {
                     sid.Value.SongLengthSpan = MusicConstants.DefaultLength;
