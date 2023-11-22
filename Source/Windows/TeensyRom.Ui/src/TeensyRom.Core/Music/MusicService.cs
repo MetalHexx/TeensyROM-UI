@@ -13,12 +13,12 @@ namespace TeensyRom.Core.Music
     public class MusicService : IMusicService
     {
         private readonly string _filePath;
-        private readonly Dictionary<string, SidRecord> _recordsDictionary = new();
+        private readonly Dictionary<string, SidRecord> _songDatabase = new();
 
         public MusicService()
         {
             _filePath = GetSidFilePath(); 
-            _recordsDictionary = ParseSids(ReadCsvFileToDictionary());
+            _songDatabase = ParseSids(ReadCsvFileToDictionary());
         }
 
         private static string GetSidFilePath()
@@ -32,15 +32,22 @@ namespace TeensyRom.Core.Music
             return Path.Combine(currentDirectory, relativePath);
         }
 
-        public SidRecord? Find(string filename)
+        public SongItem EnrichSong(SongItem song, string dbPath)
         {
-            _recordsDictionary.TryGetValue(filename, out var record);
-            return record;
+            _songDatabase.TryGetValue(dbPath, out var record);
+
+            if (record is not null)
+            {
+                song.ArtistName = record.Author;
+                song.Name = record.Title;
+                song.SongLength = record.SongLengthSpan;
+            }
+            return song;
         }
 
         private Dictionary<string, SidRecord> ReadCsvFileToDictionary()
         {
-            if (string.IsNullOrWhiteSpace(_filePath)) return _recordsDictionary;
+            if (string.IsNullOrWhiteSpace(_filePath)) return _songDatabase;
 
             using var reader = new StreamReader(_filePath);
             using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)

@@ -1,7 +1,9 @@
-﻿namespace TeensyRom.Core.Music
+﻿using TeensyRom.Core.Storage.Entities;
+
+namespace TeensyRom.Core.Music
 {
     public interface IMusicService
     {
-        SidRecord? Find(string filePath);
+        SongItem EnrichSong(SongItem song, string path);
     }
 }

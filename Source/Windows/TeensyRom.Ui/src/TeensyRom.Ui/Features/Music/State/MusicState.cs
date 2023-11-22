@@ -148,23 +148,20 @@ namespace TeensyRom.Ui.Features.Music.State
             if (directoryContent is null) return false;
 
             var songs = directoryContent.Files
-                .Select(f =>
+                .Select(file => new SongItem
+                {
+                    ArtistName = "Unknown",
+                    Name = file.Name,
+                    Path = file.Path,
+                    Size = file.Size
+                })
+                .Select(song =>
                 {
                     var defaultSidPath = _settings.GetFileTypePath(TeensyFileType.Sid);
-                    var trimmedPath = f.Path.Replace($"{defaultSidPath}/hvsc", "");
-                    var sidRecord = _musicService.Find(trimmedPath);
-
-                    return new SongItem
-                    {
-                        ArtistName = sidRecord?.Author ?? "Unknown",
-                        Name = sidRecord?.Title ?? f.Name,
-                        Path = f.Path,
-                        Size = f.Size,
-                        SongLength = sidRecord?.SongLengthSpan ?? MusicConstants.DefaultLength
-
-                    };
+                    var trimmedPath = song.Path.Replace($"{defaultSidPath}/hvsc", "");
+                    return _musicService.EnrichSong(song, trimmedPath);
                 })
-                .OrderBy(f => f.Name);
+                .OrderBy(song => song.Name);
 
             var directories = directoryContent.Directories
                 .Select(d => new DirectoryItem
