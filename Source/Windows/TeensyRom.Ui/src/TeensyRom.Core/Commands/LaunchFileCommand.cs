@@ -9,7 +9,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 {
     public interface ILaunchFileCommand
     {
-        Unit Execute(string path);
+        bool Execute(string path);
         bool LaunchFile(LaunchFileRequest request);
     }
 
@@ -22,7 +22,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             _resetCommand = resetCommand;
         }
 
-        public Unit Execute(string path)
+        public bool Execute(string path)
         {
             var request = new LaunchFileRequest
             {
@@ -39,14 +39,11 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             if (LaunchFile(request))
             {
                 _logService.Log($"Launched: {path}");
+                return true;
             }
-            else
-            {
-                _logService.Log($"Failed to launch: {path}");
-            }
-            return Unit.Default;
+            _logService.Log($"Failed to launch: {path}");
 
-
+            return false;
         }
 
         public bool LaunchFile(LaunchFileRequest request)
