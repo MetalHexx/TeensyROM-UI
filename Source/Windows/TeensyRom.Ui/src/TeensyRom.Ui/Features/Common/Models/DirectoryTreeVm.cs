@@ -5,10 +5,8 @@ using TeensyRom.Core.Common;
 
 namespace TeensyRom.Ui.Features.Common.Models
 {
-    public class DirectoryTreeVm
+    public class DirectoryTreeVm: StorageItemVm
     {
-        public string Name { get; set; } = string.Empty;
-        public string Path { get; set; } = string.Empty;
         public List<DirectoryTreeVm> Directories { get; set; } = new List<DirectoryTreeVm>();
 
         public void AddRange(IEnumerable<DirectoryItemVm> newDirectories)
