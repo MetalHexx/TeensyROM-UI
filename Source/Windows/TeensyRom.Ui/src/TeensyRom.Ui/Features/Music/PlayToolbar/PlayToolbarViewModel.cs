@@ -13,6 +13,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
     {
         [ObservableAsProperty] public SongItemVm Song { get; }
         [ObservableAsProperty] public TimeSpan CurrentTime { get; }
+        [ObservableAsProperty] public double CurrentProgress { get; }
         [ObservableAsProperty] public bool ShuffleModeEnabled { get; }
         [ObservableAsProperty] public bool IsPlaying { get; }
 
@@ -41,6 +42,11 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
             _musicState.PlayState
                 .Select(playState => playState == PlayState.Playing)
                 .ToPropertyEx(this, vm => vm.IsPlaying);
+
+            _musicState.CurrentSong
+                .CombineLatest(_musicState.CurrentSongTime,
+                    (song, currentTime) => (double)currentTime.TotalSeconds / (double)song.SongLength.TotalSeconds)
+                .ToPropertyEx(this, x => x.CurrentProgress);
 
             TogglePlayCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleTogglePlayCommand());
             NextCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleNextCommand());
