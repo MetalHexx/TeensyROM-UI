@@ -31,7 +31,7 @@ namespace TeensyRom.Ui.Features.Music.SongList
         {
             var listView = sender as ListView;
 
-            if (listView?.SelectedItem is DirectoryItemVm directoryItem)
+            if (listView?.SelectedItem is DirectoryItem directoryItem)
             {
                 var viewModel = (SongListViewModel)DataContext;
                 viewModel.LoadDirectoryCommand.Execute(directoryItem).Subscribe();

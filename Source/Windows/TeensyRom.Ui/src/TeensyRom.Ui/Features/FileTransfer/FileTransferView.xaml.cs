@@ -27,7 +27,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         {
             var listView = sender as ListView;
 
-            if (listView?.SelectedItem is DirectoryItemVm directoryItem)
+            if (listView?.SelectedItem is DirectoryItem directoryItem)
             {
                 var viewModel = (FileTransferViewModel)DataContext;
                 viewModel.LoadDirectoryContentCommand.Execute(directoryItem).Subscribe();

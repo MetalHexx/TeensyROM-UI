@@ -13,7 +13,7 @@
 
         <HierarchicalDataTemplate 
             x:Key="DirectoryTemplate" 
-            DataType="{x:Type models:DirectoryItemVm}" 
+            DataType="{x:Type models:DirectoryItem}" 
             ItemsSource="{Binding}">
 
             <Grid x:Name="DirectoryItemPanel">

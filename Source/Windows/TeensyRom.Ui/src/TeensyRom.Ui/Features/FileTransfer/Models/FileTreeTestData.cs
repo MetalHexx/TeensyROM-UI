@@ -9,72 +9,72 @@ namespace TeensyRom.Ui.Features.FileTransfer
     /// </summary>
     internal static class FileTreeTestData
     {
-        public static List<StorageItemVm> InitializeTestStorageItems()
+        public static List<StorageItem> InitializeTestStorageItems()
         {
             return new()
             {
-                new DirectoryItemVm
+                new DirectoryItem
                 {
                     Name = "Test DirectoryTest DirectoryTest DirectoryTest DirectoryTest DirectoryTest Directory",
                     Path = "Test Path"
                 },
-                new DirectoryItemVm
+                new DirectoryItem
                 {
                     Name = "Test Directory 2",
                     Path = "Test Path 2"
                 },
-                new DirectoryItemVm
+                new DirectoryItem
                 {
                     Name = "Test Directory 3",
                     Path = "Test Path 3"
                 },
-                new FileItemVm
+                new FileItem
                 {
                     Name = "Test FileTest Test FileTest Test FileTest Test FileTest Test FileTest Test FileTest Test FileTest Test FileTest Test FileTest Test FileTest Test FileTest ",
                     Path = "Test Path"
                 },
-                new FileItemVm
+                new FileItem
                 {
                     Name = "Test File 2",
                     Path = "Test Path 2"
                 },
-                new FileItemVm
+                new FileItem
                 {
                     Name = "Test File 3",
                     Path = "Test Path 3"
                 }
                 ,
-                new FileItemVm
+                new FileItem
                 {
                     Name = "Test File 3",
                     Path = "Test Path 3"
                 }
                 ,
-                new FileItemVm
+                new FileItem
                 {
                     Name = "Test File 3",
                     Path = "Test Path 3"
                 }
                 ,
-                new FileItemVm
+                new FileItem
                 {
                     Name = "Test File 3",
                     Path = "Test Path 3"
                 }
                 ,
-                new FileItemVm
+                new FileItem
                 {
                     Name = "Test File 3",
                     Path = "Test Path 3"
                 }
                 ,
-                new FileItemVm
+                new FileItem
                 {
                     Name = "Test File 3",
                     Path = "Test Path 3"
                 }
                 ,
-                new FileItemVm
+                new FileItem
                 {
                     Name = "Test File 3",
                     Path = "Test Path 3"

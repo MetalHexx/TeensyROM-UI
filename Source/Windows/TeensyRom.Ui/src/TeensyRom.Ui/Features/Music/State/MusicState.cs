@@ -15,7 +15,7 @@ namespace TeensyRom.Ui.Features.Music.State
 {
     public class MusicState : IMusicState
     {
-        public IObservable<IEnumerable<StorageItemVm>> DirectoryContent => _directoryContent.AsObservable();
+        public IObservable<IEnumerable<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
         public IObservable<SongItemVm> CurrentSong => _currentSong.AsObservable();
         public IObservable<TimeSpan> CurrentSongTime => _songTime.CurrentTime;
         public IObservable<SongMode> CurrentSongMode => _songMode.AsObservable();
@@ -26,14 +26,14 @@ namespace TeensyRom.Ui.Features.Music.State
 
         private readonly BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
         private readonly BehaviorSubject<SongItemVm> _currentSong = new(new());
-        private readonly Subject<IEnumerable<StorageItemVm>> _directoryContent = new();
+        private readonly Subject<IEnumerable<StorageItem>> _directoryContent = new();
         private readonly BehaviorSubject<int> _take = new(250);
         private readonly BehaviorSubject<int> _skip = new(0);
         private readonly BehaviorSubject<PlayState> _playState = new(PlayState.Paused);
 
-        private readonly List<StorageItemVm> _storageItems = new();
+        private readonly List<StorageItem> _storageItems = new();
         private readonly List<SongItemVm> _songs = new();
-        private DirectoryItemVm _directoryTree = new();
+        private Common.Models.DirectoryItem _directoryTree = new();
 
         private readonly ISongTimer _songTime;
         private readonly ILaunchFileCommand _launchFileCommand;
@@ -55,7 +55,7 @@ namespace TeensyRom.Ui.Features.Music.State
             _settingsService.Settings.Subscribe(settings => 
             {
                 _settings = settings;
-                _directoryTree = new DirectoryItemVm
+                _directoryTree = new Common.Models.DirectoryItem
                 {
                     Name = _settings.GetFileTypePath(TeensyFileType.Sid),
                     Path = _settings.GetFileTypePath(TeensyFileType.Sid)
@@ -167,7 +167,7 @@ namespace TeensyRom.Ui.Features.Music.State
                 .OrderBy(f => f.Name);
 
             var directories = directoryContent.Directories
-                .Select(d => new DirectoryItemVm
+                .Select(d => new DirectoryItem
                 {
                     Name = d.Name,
                     Path = d.Path

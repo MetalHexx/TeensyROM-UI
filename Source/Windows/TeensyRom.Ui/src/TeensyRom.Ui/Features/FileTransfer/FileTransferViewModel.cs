@@ -31,8 +31,8 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
     public class FileTransferViewModel : FeatureViewModelBase
     {
-        public ObservableCollection<StorageItemVm> SourceItems { get; set; } = new();
-        public ObservableCollection<StorageItemVm> TargetItems { get; set; } = new();
+        public ObservableCollection<StorageItem> SourceItems { get; set; } = new();
+        public ObservableCollection<StorageItem> TargetItems { get; set; } = new();
         public ObservableCollection<int> PageSizes { get; } = new ObservableCollection<int> { 100, 250, 500, 1000, 2000, 5000 };
 
         [ObservableAsProperty] public bool IsTargetItemsEmpty { get; }
@@ -53,11 +53,11 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         public ReactiveCommand<Unit, Unit> LoadParentDirectoryContentCommand { get; set; }
         public ReactiveCommand<Unit, Unit> TestDirectoryListCommand { get; set; }
-        public ReactiveCommand<DirectoryItemVm, Unit> LoadDirectoryContentCommand { get; set; }
+        public ReactiveCommand<Common.Models.DirectoryItem, Unit> LoadDirectoryContentCommand { get; set; }
         public ReactiveCommand<int, Unit> ChangePageSizeCommand { get; set; }
         public ReactiveCommand<Unit, Unit> LoadNextPageCommand { get; set; }
         public ReactiveCommand<Unit, Unit> LoadPrevPageCommand { get; set; }
-        public ReactiveCommand<FileItemVm, Unit> LaunchFileCommand { get; set; }
+        public ReactiveCommand<Common.Models.FileItem, Unit> LaunchFileCommand { get; set; }
 
         private bool _isMoreItemsLoading = false;
 
@@ -69,7 +69,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private readonly ISnackbarService _snackbar;
         private readonly Dispatcher _dispatcher;
         private readonly StringBuilder _logBuilder = new StringBuilder();
-        private readonly List<StorageItemVm> _currentItems = new();
+        private readonly List<StorageItem> _currentItems = new();
         
         private const int _take = 5000;
         public FileTransferViewModel(IGetDirectoryCommand getDirectoryContentCommand, ISettingsService settingsService, ISerialPortState serialPortState, ILaunchFileCommand launchFileCommand, INavigationService nav, ILoggingService logService, ISnackbarService snackbar, Dispatcher dispatcher) 
@@ -82,15 +82,15 @@ namespace TeensyRom.Ui.Features.FileTransfer
             _logService = logService;
             _snackbar = snackbar;
             _dispatcher = dispatcher;
-            SourceItems = new ObservableCollection<StorageItemVm> { FileTreeTestData.InitializeTestStorageItems() };
+            SourceItems = new ObservableCollection<StorageItem> { FileTreeTestData.InitializeTestStorageItems() };
 
             TestDirectoryListCommand = ReactiveCommand.Create<Unit, Unit>(_ => TestDirectoryListAsync(), outputScheduler: ImmediateScheduler.Instance);
             LoadParentDirectoryContentCommand = ReactiveCommand.CreateFromTask(LoadParentDirectory, outputScheduler: RxApp.MainThreadScheduler);
-            LoadDirectoryContentCommand = ReactiveCommand.CreateFromTask<DirectoryItemVm>(async directory => await LoadNewDirectoryAsync(directory), outputScheduler: RxApp.MainThreadScheduler);
+            LoadDirectoryContentCommand = ReactiveCommand.CreateFromTask<Common.Models.DirectoryItem>(async directory => await LoadNewDirectoryAsync(directory), outputScheduler: RxApp.MainThreadScheduler);
 
             LoadNextPageCommand = ReactiveCommand.CreateFromTask(LoadNextItems, outputScheduler: RxApp.MainThreadScheduler);
             LoadPrevPageCommand = ReactiveCommand.CreateFromTask(LoadPrevItems, outputScheduler: RxApp.MainThreadScheduler);
-            LaunchFileCommand = ReactiveCommand.Create<FileItemVm, Unit>(file => LaunchFile(file), outputScheduler: ImmediateScheduler.Instance);
+            LaunchFileCommand = ReactiveCommand.Create<Common.Models.FileItem, Unit>(file => LaunchFile(file), outputScheduler: ImmediateScheduler.Instance);
 
             _logService.Logs.Subscribe(log =>
             {
@@ -132,13 +132,13 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         }
 
-        private Unit LaunchFile(FileItemVm file)
+        private Unit LaunchFile(Common.Models.FileItem file)
         {
             _launchFileCommand.Execute(file.Path);
             return Unit.Default;
         }
 
-        private async Task LoadNewDirectoryAsync(DirectoryItemVm directoryVm)
+        private async Task LoadNewDirectoryAsync(Common.Models.DirectoryItem directoryVm)
         {            
             await LoadAll(directoryVm.Path);
         }
@@ -213,15 +213,15 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
                 if (directoryContent is null) return;
 
-                var batchItems = new List<StorageItemVm>();
+                var batchItems = new List<StorageItem>();
 
                 var directories = directoryContent.Directories
-                    .Select(d => new DirectoryItemVm { Name = d.Name, Path = d.Path })
+                    .Select(d => new DirectoryItem { Name = d.Name, Path = d.Path })
                     .OrderBy(d => d.Name)
                     .ToList();
 
                 var files = directoryContent.Files
-                    .Select(d => new FileItemVm { Name = d.Name, Path = d.Path })
+                    .Select(d => new FileItem { Name = d.Name, Path = d.Path })
                     .OrderBy(d => d.Name);
 
                 _currentItems.Clear();

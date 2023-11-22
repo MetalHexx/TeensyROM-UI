@@ -4,11 +4,11 @@ using TeensyRom.Core.Common;
 
 namespace TeensyRom.Ui.Features.Common.Models
 {
-    public class DirectoryItemVm : StorageItemVm 
+    public class DirectoryItem : StorageItem 
     {
-        public List<DirectoryItemVm> Directories { get; set; } = new List<DirectoryItemVm>();
+        public List<DirectoryItem> Directories { get; set; } = new List<DirectoryItem>();
 
-        public void AddRange(IEnumerable<DirectoryItemVm> newDirectories)
+        public void AddRange(IEnumerable<DirectoryItem> newDirectories)
         {
             var exampleDirectory = newDirectories.FirstOrDefault();
 
@@ -27,7 +27,7 @@ namespace TeensyRom.Ui.Features.Common.Models
             {
                 Directories.AddRange(newDirectories
                     .OrderBy(d => d.Name)
-                    .Select(d => new DirectoryItemVm()
+                    .Select(d => new DirectoryItem()
                     {
                         Name = d.Name,
                         Path = d.Path

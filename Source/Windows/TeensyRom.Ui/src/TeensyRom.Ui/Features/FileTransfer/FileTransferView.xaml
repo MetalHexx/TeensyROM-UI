@@ -15,7 +15,7 @@
         
         <HierarchicalDataTemplate 
             x:Key="DirectoryTemplate" 
-            DataType="{x:Type models:DirectoryItemVm}" 
+            DataType="{x:Type models:DirectoryItem}" 
             ItemsSource="{Binding}">
             
             <Grid x:Name="DirectoryItemPanel">
@@ -40,7 +40,7 @@
 
         </HierarchicalDataTemplate>
 
-        <DataTemplate x:Key="FileTemplate" DataType="{x:Type models:FileItemVm}">
+        <DataTemplate x:Key="FileTemplate" DataType="{x:Type models:FileItem}">
             
             <Grid x:Name="FileItemPanel">
                 <Grid.ColumnDefinitions>

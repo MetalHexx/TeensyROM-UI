@@ -12,7 +12,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
 
     public class PlayToolbarViewModel: ReactiveObject
     {
-        [ObservableAsProperty] public SongItemVm Song { get; }
+        [ObservableAsProperty] public SongItem Song { get; }
         [ObservableAsProperty] public string TotalTime { get; }
         [ObservableAsProperty] public string CurrentTime { get; }
         [ObservableAsProperty] public double CurrentProgress { get; }

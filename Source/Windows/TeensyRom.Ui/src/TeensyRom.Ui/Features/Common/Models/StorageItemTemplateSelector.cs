@@ -14,9 +14,9 @@ namespace TeensyRom.Ui.Features.Common.Models
         {
             return item switch
             {
-                DirectoryItemVm _ => DirectoryTemplate,
-                FileItemVm _ => FileTemplate,
-                SongItemVm _ => SongTemplate,
+                DirectoryItem _ => DirectoryTemplate,
+                FileItem _ => FileTemplate,
+                SongItem _ => SongTemplate,
                 _ => base.SelectTemplate(item, container)
             };
         }

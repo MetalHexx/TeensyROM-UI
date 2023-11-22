@@ -13,8 +13,8 @@ namespace TeensyRom.Ui.Features.FileTransfer.Models
         {
             return item switch
             {
-                DirectoryItemVm _ => DirectoryTemplate,
-                FileItemVm _ => FileTemplate,
+                DirectoryItem _ => DirectoryTemplate,
+                FileItem _ => FileTemplate,
                 _ => base.SelectTemplate(item, container)
             };
         }
