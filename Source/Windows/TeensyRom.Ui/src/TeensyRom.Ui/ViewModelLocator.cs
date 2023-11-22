@@ -45,6 +45,7 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<ILaunchFileCommand, LaunchFileCommand>();
             SimpleIoc.Default.Register<IFileWatchService, FileWatchService>();
             SimpleIoc.Default.Register<IGetDirectoryCommand, GetDirectoryCommand>();
+            SimpleIoc.Default.Register<IToggleMusicCommand, ToggleMusicCommand>();
             SimpleIoc.Default.Register<IFileWatcher, FileWatcher>();
             SimpleIoc.Default.Register<ISettingsService, SettingsService>();
             SimpleIoc.Default.Register<ISnackbarService, SnackbarService>();
