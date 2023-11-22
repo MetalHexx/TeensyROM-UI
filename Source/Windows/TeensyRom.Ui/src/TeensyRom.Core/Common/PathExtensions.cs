@@ -42,5 +42,22 @@
 
             return path.Substring(lastDotIndex).ToLower();
         }
+
+        public static string RemoveLeadingAndTrailingSlash(this string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return path;
+            }
+            if (path.StartsWith("/"))
+            {
+                path = path[1..];
+            }
+            if (path.EndsWith("/"))
+            {
+                path = path[..^1];
+            }
+            return path;
+        }
     }
 }
