@@ -16,11 +16,13 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
         IObservable<SongItemVm> CurrentSong { get; }
         IObservable<SongMode> CurrentSongMode { get; }
         IObservable<TimeSpan> CurrentSongTime { get; }
+        IObservable<PlayState> PlayState { get; }
 
-        Unit LoadDirectory(string path);
-        Unit LoadSong(SongItemVm song);
-        void PlayNext();
-        void PlayPrevious();
+        bool LoadDirectory(string path);
+        bool LoadSong(SongItemVm song);
+        bool PlayNext();
+        bool PlayPrevious();
+        bool ToggleMusic();
     }
 
     public class MusicState : IMusicState
@@ -29,6 +31,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
         public IObservable<SongItemVm> CurrentSong => _currentSong.AsObservable();
         public IObservable<TimeSpan> CurrentSongTime => _songTime.CurrentTime;
         public IObservable<SongMode> CurrentSongMode => _songMode.AsObservable();
+        public IObservable<PlayState> PlayState => _playState.AsObservable();
         public IObservable<int> Skip => _skip.AsObservable();
         public IObservable<int> Take => _take.AsObservable();
         
@@ -45,6 +48,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
         private readonly Subject<IEnumerable<StorageItemVm>> _directoryContent = new();
         private readonly BehaviorSubject<int> _take = new(250);
         private readonly BehaviorSubject<int> _skip = new(0);
+        private readonly BehaviorSubject<PlayState> _playState = new(PlayToolbar.PlayState.Paused);
         private List<StorageItemVm> _storageItems = new List<StorageItemVm>();
         private List<SongItemVm> _songs = new List<SongItemVm>();
 
@@ -52,13 +56,15 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
         private readonly ISongTimer _songTime;
         private readonly ILaunchFileCommand _launchFileCommand;
         private readonly IGetDirectoryCommand _getDirectoryCommand;
+        private readonly IToggleMusicCommand _toggleMusicCommand;
         private IDisposable? _playingSongSubscription;
 
-        public MusicState(ISongTimer songTime, ILaunchFileCommand launchFileCommand, IGetDirectoryCommand getDirectoryCommand)
+        public MusicState(ISongTimer songTime, ILaunchFileCommand launchFileCommand, IGetDirectoryCommand getDirectoryCommand, IToggleMusicCommand toggleMusicCommand)
         {
             _songTime = songTime;
             _launchFileCommand = launchFileCommand;
             _getDirectoryCommand = getDirectoryCommand;
+            _toggleMusicCommand = toggleMusicCommand;
         }
 
         public void SetSkip(int skip) => _skip.OnNext(skip);
@@ -67,23 +73,36 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
 
         public void SetSongMode(SongMode songMode) => _songMode.OnNext(songMode);
 
-        public Unit LoadSong(SongItemVm song)
+        public bool LoadSong(SongItemVm song)
         {
             _songTime.Reset();
             _songTime.Start();
-            _launchFileCommand.Execute(song.Path);            
 
+            if (!_launchFileCommand.Execute(song.Path))
+            {                
+                return false;
+            }
             _currentSong.OnNext(song);
+            _playState.OnNext(PlayToolbar.PlayState.Playing);
 
             _playingSongSubscription?.Dispose();
 
             _playingSongSubscription = Observable.Timer(song.SongLength)
                 .Subscribe(_ => PlayNext());
 
-            return Unit.Default;
+            return true;
+        }
+        public bool ToggleMusic()
+        {   
+            if (_toggleMusicCommand.Execute())
+            {
+                _playState.OnNext(GetToggledPlayState());
+                return true;
+            }
+            return false;
         }
 
-        public void PlayPrevious()
+        public bool PlayPrevious()
         {
             var currentSong = _songs.First(s => s.Path == _currentSong.Value.Path);
             var currentIndex = _songs.IndexOf(currentSong);
@@ -91,10 +110,18 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
                 ? _songs.Last()
                 : _songs[--currentIndex];
 
-            LoadSong(nextSong);
+            if (LoadSong(nextSong))
+            {
+                return true;
+            }
+            return false;
         }
 
-        public void PlayNext()
+        private PlayState GetToggledPlayState() => _playState.Value == PlayToolbar.PlayState.Playing
+                ? PlayToolbar.PlayState.Paused
+                : PlayToolbar.PlayState.Playing;
+
+        public bool PlayNext()
         {
             var currentSong = _songs.First(s => s.Path == _currentSong.Value.Path);
             var currentIndex = _songs.IndexOf(currentSong);
@@ -102,14 +129,18 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
                 ? _songs.First()
                 : _songs[++currentIndex];
 
-            LoadSong(nextSong);
+            if (LoadSong(nextSong))
+            {
+                return true;
+            }
+            return false;
         }
 
-        public Unit LoadDirectory(string path)
+        public bool LoadDirectory(string path)
         {
             var directoryContent = _getDirectoryCommand.Execute(path, 0, 5000);
 
-            if (directoryContent is null) return Unit.Default;
+            if (directoryContent is null) return false;
 
             var songs = directoryContent.Files
                 .Select(f => new SongItemVm
@@ -139,7 +170,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
             _skip.OnNext(0);
 
             _directoryContent.OnNext(_storageItems.Skip(_skip.Value).Take(_take.Value));
-            return Unit.Default;
+            return true;
         }
     }
 }

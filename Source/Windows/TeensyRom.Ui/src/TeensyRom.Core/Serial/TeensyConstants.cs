@@ -7,7 +7,7 @@ namespace TeensyRom.Core.Serial
         public static readonly ReadOnlyCollection<byte> Ping_Bytes = Array.AsReadOnly(new byte[] { 0x64, 0x55 });
         public static readonly ReadOnlyCollection<byte> Reset_Bytes = Array.AsReadOnly(new byte[] { 0x64, 0xEE });
 
-
+        public const ushort PauseMusicToken = 0x6466;
         public const ushort List_Directory_Token = 0x64DD;
         public const ushort Start_Directory_List_Token = 0x5A5A;
         public const ushort End_Directory_List_Token = 0xA5A5;

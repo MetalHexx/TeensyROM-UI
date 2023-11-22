@@ -14,8 +14,9 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
         [ObservableAsProperty] public SongItemVm Song { get; }
         [ObservableAsProperty] public TimeSpan CurrentTime { get; }
         [ObservableAsProperty] public bool ShuffleModeEnabled { get; }
+        [ObservableAsProperty] public bool IsPlaying { get; }
 
-        public  ReactiveCommand<Unit, Unit>  PlayCommand { get; set; }
+        public  ReactiveCommand<Unit, Unit>  TogglePlayCommand { get; set; }
         public  ReactiveCommand<Unit, Unit>  PreviousCommand { get; set; }
         public  ReactiveCommand<Unit, Unit>  NextCommand { get; set; }
 
@@ -37,7 +38,11 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
                 .Select(mode => mode == SongMode.Shuffle)
                 .ToPropertyEx(this, vm => vm.ShuffleModeEnabled);
 
-            PlayCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandlePlayCommand());
+            _musicState.PlayState
+                .Select(playState => playState == PlayState.Playing)
+                .ToPropertyEx(this, vm => vm.IsPlaying);
+
+            TogglePlayCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleTogglePlayCommand());
             NextCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleNextCommand());
             PreviousCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandlePreviousCommand());
         }
@@ -54,16 +59,9 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
             return Unit.Default;
         }
 
-        private Unit HandlePlayCommand()
+        private Unit HandleTogglePlayCommand()
         {
-            _musicState.LoadSong(new()
-            {
-                Path = "/sync/sid/Aces_High.sid",
-                ArtistName = "Iron Maiden",
-                SongLength = TimeSpan.FromMinutes(1),
-                Name = "Aces_High.sid"
-
-            });
+            _musicState.ToggleMusic();
             return Unit.Default;
         }
     }
