@@ -24,15 +24,15 @@ namespace TeensyRom.Ui.Features.Music.State
         public IObservable<int> Take => _take.AsObservable();
 
 
-        private BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
+        private readonly BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
         private readonly BehaviorSubject<SongItemVm> _currentSong = new(new());
         private readonly Subject<IEnumerable<StorageItemVm>> _directoryContent = new();
         private readonly BehaviorSubject<int> _take = new(250);
         private readonly BehaviorSubject<int> _skip = new(0);
         private readonly BehaviorSubject<PlayState> _playState = new(PlayState.Paused);
 
-        private List<StorageItemVm> _storageItems = new();
-        private List<SongItemVm> _songs = new();
+        private readonly List<StorageItemVm> _storageItems = new();
+        private readonly List<SongItemVm> _songs = new();
 
         private readonly ISongTimer _songTime;
         private readonly ILaunchFileCommand _launchFileCommand;
