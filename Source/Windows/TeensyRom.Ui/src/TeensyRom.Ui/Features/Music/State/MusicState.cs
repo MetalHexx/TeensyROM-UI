@@ -33,6 +33,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
         private readonly List<StorageItemVm> _storageItems = new();
         private readonly List<SongItemVm> _songs = new();
+        private DirectoryTreeVm _directoryTree = new();
 
         private readonly ISongTimer _songTime;
         private readonly ILaunchFileCommand _launchFileCommand;
@@ -54,6 +55,11 @@ namespace TeensyRom.Ui.Features.Music.State
             _settingsService.Settings.Subscribe(settings => 
             {
                 _settings = settings;
+                _directoryTree = new DirectoryTreeVm
+                {
+                    Name = _settings.GetFileTypePath(TeensyFileType.Sid),
+                    Path = _settings.GetFileTypePath(TeensyFileType.Sid)
+                };
             });
         }
 
@@ -169,6 +175,7 @@ namespace TeensyRom.Ui.Features.Music.State
                 .OrderBy(d => d.Name);
 
             _storageItems.Clear();
+            _directoryTree.AddRange(directories);
             _storageItems.AddRange(directories);
             _storageItems.AddRange(songs);
             _songs.Clear();
