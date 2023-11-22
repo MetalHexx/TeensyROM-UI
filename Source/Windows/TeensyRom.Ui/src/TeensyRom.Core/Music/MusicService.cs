@@ -42,6 +42,8 @@ namespace TeensyRom.Core.Music
                 song.ArtistName = record.Author;
                 song.Name = record.Title;
                 song.SongLength = record.SongLengthSpan;
+                song.ReleaseInfo = record.Released;
+                song.Comments = record.StilEntry;
             }
             return song;
         }
