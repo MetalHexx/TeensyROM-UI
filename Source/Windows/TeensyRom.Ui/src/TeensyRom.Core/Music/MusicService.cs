@@ -42,6 +42,11 @@ namespace TeensyRom.Core.Music
                 song.Name = record.Title;
                 song.SongLength = record.SongLengthSpan;
             }
+
+            song.ArtistName = song.ArtistName.Replace("<?>", "");
+
+            if (string.IsNullOrWhiteSpace(song.ArtistName)) song.ArtistName = "Unknown";
+
             return song;
         }
 
