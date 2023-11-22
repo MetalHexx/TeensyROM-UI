@@ -65,7 +65,10 @@
             <TextBlock Text="{Binding CurrentTime,  Mode=OneWay}" VerticalAlignment="Center" Margin="10 0 0 0"/>
             <TextBlock Text="/" VerticalAlignment="Center" Margin="5 0 5 0"/>
             <TextBlock Text="{Binding TotalTime,  Mode=OneWay}" VerticalAlignment="Center" Margin="0 0 0 0"/>
-            <TextBlock FontFamily="Arial"  Text="{Binding Song.Name, Mode=OneWay}" VerticalAlignment="Center" Margin="20 0 0 0"/>
+            <TextBlock FontFamily="Arial"  Text="Artist:" VerticalAlignment="Center" Margin="20 0 0 0"/>
+            <TextBlock FontFamily="Arial"  Text="{Binding Song.ArtistName, Mode=OneWay}" VerticalAlignment="Center" Margin="5 0 0 0"/>
+            <TextBlock FontFamily="Arial"  Text="Song:" VerticalAlignment="Center" Margin="20 0 0 0"/>
+            <TextBlock FontFamily="Arial"  Text="{Binding Song.Name, Mode=OneWay}" VerticalAlignment="Center" Margin="5 0 0 0"/>
 
         </StackPanel>
     </Grid>

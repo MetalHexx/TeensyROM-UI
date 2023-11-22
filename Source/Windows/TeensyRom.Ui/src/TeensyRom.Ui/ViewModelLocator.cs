@@ -17,6 +17,8 @@ using TeensyRom.Core.Serial;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Features.Music.PlayToolbar;
 using TeensyRom.Ui.Features.Music.SongList;
+using TeensyRom.Core.Music;
+using TeensyRom.Ui.Features.Music.State;
 
 namespace TeensyRom.Ui
 {
@@ -51,6 +53,7 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<ISnackbarService, SnackbarService>();
             SimpleIoc.Default.Register<ISongTimer, SongTimer>();
             SimpleIoc.Default.Register<IMusicState, MusicState>();
+            SimpleIoc.Default.Register<IMusicService, MusicService>();
             SimpleIoc.Default.Register<NavigationHostViewModel>();
             SimpleIoc.Default.Register<ConnectViewModel>();
             SimpleIoc.Default.Register<FileTransferViewModel>();

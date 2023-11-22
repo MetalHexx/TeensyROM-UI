@@ -2,6 +2,7 @@
 using ReactiveUI.Fody.Helpers;
 using TeensyRom.Ui.Features.Music.PlayToolbar;
 using TeensyRom.Ui.Features.Music.SongList;
+using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Helpers.ViewModel;
 
 namespace TeensyRom.Ui.Features.Music
