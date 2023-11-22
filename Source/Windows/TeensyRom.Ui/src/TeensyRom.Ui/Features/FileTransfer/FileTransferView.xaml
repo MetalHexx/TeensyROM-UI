@@ -73,7 +73,6 @@
                             x:Name="LaunchButton"
                             Command="{Binding DataContext.LaunchFileCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
                             CommandParameter="{Binding}"
-                            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"                    
                             Visibility="Collapsed"
                             ToolTip="Launch"
                             Style="{StaticResource StorageIconButton}">
@@ -81,8 +80,7 @@
                         </Button>
 
                         <Button 
-                            x:Name="FavButton" 
-                            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"                    
+                            x:Name="FavButton"                                                
                             Visibility="Collapsed"
                             ToolTip="Add to favorites"
                             Style="{StaticResource StorageIconButton}">
@@ -90,8 +88,7 @@
                         </Button>
 
                         <Button 
-                            x:Name="DeleteButton" 
-                            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                            x:Name="DeleteButton"
                             Visibility="Collapsed"
                             ToolTip="Delete"                    
                             Style="{StaticResource StorageIconButton}">
