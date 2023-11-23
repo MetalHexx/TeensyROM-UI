@@ -7,9 +7,17 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"             
              mc:Ignorable="d" 
              Height="auto" Width="auto">
-    
-    
 
+    <UserControl.Resources>
+        <Storyboard x:Key="SlideUpStoryboard">
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                             From="100" To="0" Duration="0:0:7.0">
+                <DoubleAnimation.EasingFunction>
+                    <QuinticEase EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -18,10 +26,19 @@
         </Grid.RowDefinitions>
 
         <ContentControl Content="{Binding SongList}" Grid.Row="0" />
-        <Grid Grid.Row="1" Background="#303030">
-            <ContentControl Content="{Binding PlayToolBar}" VerticalAlignment="Center" Grid.Row="1"/>
+
+        <Grid x:Name="ToolBarGrid" Grid.Row="1" Background="#303030" RenderTransformOrigin="0.5,0.5"
+              Visibility="{Binding ShowPlayToolbar, Converter={StaticResource InverseBoolToVisibilityConvertor}}">
+            <Grid.RenderTransform>
+                <TranslateTransform Y="100"/>
+            </Grid.RenderTransform>
+            <ContentControl Content="{Binding PlayToolBar}" VerticalAlignment="Center"/>
+            <Grid.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard Storyboard="{StaticResource SlideUpStoryboard}" />
+                </EventTrigger>
+            </Grid.Triggers>
         </Grid>
     </Grid>
-
 
 </UserControl>
