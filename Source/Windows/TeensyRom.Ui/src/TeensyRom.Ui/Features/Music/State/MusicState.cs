@@ -25,7 +25,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
 
         private readonly BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
-        private readonly BehaviorSubject<SongItem> _currentSong = new(new());
+        private readonly BehaviorSubject<SongItem> _currentSong = new(null);
         private readonly Subject<IEnumerable<StorageItem>> _directoryContent = new();
         private readonly BehaviorSubject<int> _take = new(250);
         private readonly BehaviorSubject<int> _skip = new(0);
@@ -150,7 +150,6 @@ namespace TeensyRom.Ui.Features.Music.State
             var songs = directoryContent.Files
                 .Select(file => new SongItem
                 {
-                    ArtistName = "Unknown",
                     Name = file.Name,
                     Path = file.Path,
                     Size = file.Size
