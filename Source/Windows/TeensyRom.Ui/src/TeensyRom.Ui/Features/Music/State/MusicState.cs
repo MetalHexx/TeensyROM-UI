@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
@@ -15,25 +16,27 @@ namespace TeensyRom.Ui.Features.Music.State
 {
     public class MusicState : IMusicState
     {
+        public IObservable<IEnumerable<StorageItem>> DirectoryTree => _directoryContent.AsObservable();
         public IObservable<IEnumerable<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
-        public IObservable<SongItem> CurrentSong => _currentSong.AsObservable();
-        public IObservable<TimeSpan> CurrentSongTime => _songTime.CurrentTime;
+        public IObservable<SongItem> CurrentSong => _currentSong.AsObservable();        
         public IObservable<SongMode> CurrentSongMode => _songMode.AsObservable();
         public IObservable<PlayState> CurrentPlayState => _playState.AsObservable();
+        public IObservable<TimeSpan> CurrentSongTime => _songTime.CurrentTime;
         public IObservable<int> Skip => _skip.AsObservable();
         public IObservable<int> Take => _take.AsObservable();
 
 
-        private readonly BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
-        private readonly BehaviorSubject<SongItem> _currentSong = new(null);
+        private readonly BehaviorSubject<DirectoryItem> _directoryTree = new(new());
         private readonly Subject<IEnumerable<StorageItem>> _directoryContent = new();
+        private readonly BehaviorSubject<SongItem> _currentSong = new(null);
+        private readonly BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
+        private readonly BehaviorSubject<PlayState> _playState = new(PlayState.Paused);
         private readonly BehaviorSubject<int> _take = new(250);
         private readonly BehaviorSubject<int> _skip = new(0);
-        private readonly BehaviorSubject<PlayState> _playState = new(PlayState.Paused);
+        
 
         private readonly List<StorageItem> _storageItems = new();
         private readonly List<SongItem> _songs = new();
-        private DirectoryItem _directoryTree = new();
 
         private readonly ISongTimer _songTime;
         private readonly ILaunchFileCommand _launchFileCommand;
@@ -52,14 +55,17 @@ namespace TeensyRom.Ui.Features.Music.State
             _toggleMusicCommand = toggleMusicCommand;
             _musicService = musicService;
             _settingsService = settingsService;
-            _settingsService.Settings.Subscribe(settings => 
+            _settingsService.Settings.Subscribe(settings => OnSettingsChanged(settings));
+        }
+
+        private void OnSettingsChanged(TeensySettings settings)
+        {
+            _settings = settings;
+
+            _directoryTree.OnNext(new DirectoryItem
             {
-                _settings = settings;
-                _directoryTree = new DirectoryItem
-                {
-                    Name = _settings.GetFileTypePath(TeensyFileType.Sid),
-                    Path = _settings.GetFileTypePath(TeensyFileType.Sid)
-                };
+                Name = _settings.GetFileTypePath(TeensyFileType.Sid),
+                Path = _settings.GetFileTypePath(TeensyFileType.Sid)
             });
         }
 
@@ -171,15 +177,22 @@ namespace TeensyRom.Ui.Features.Music.State
                 .OrderBy(d => d.Name);
 
             _storageItems.Clear();
-            _directoryTree.AddRange(directories);
+            
+            _directoryTree.Value.AddRange(directories);
+            _directoryTree.OnNext(_directoryTree.Value);
+
             _storageItems.AddRange(directories);
             _storageItems.AddRange(songs);
+
             _songs.Clear();
             _songs.AddRange(songs);
 
             _skip.OnNext(0);
 
-            _directoryContent.OnNext(_storageItems.Skip(_skip.Value).Take(_take.Value));
+            _directoryContent.OnNext( _storageItems
+                .Skip(_skip.Value)
+                .Take(_take.Value));
+
             return true;
         }
     }
