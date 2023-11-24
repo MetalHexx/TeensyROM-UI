@@ -19,6 +19,7 @@ using TeensyRom.Ui.Features.Music.PlayToolbar;
 using TeensyRom.Ui.Features.Music.SongList;
 using TeensyRom.Core.Music;
 using TeensyRom.Ui.Features.Music.State;
+using TeensyRom.Ui.Features.Music.MusicTree;
 
 namespace TeensyRom.Ui
 {
@@ -62,6 +63,7 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<MusicViewModel>();
             SimpleIoc.Default.Register<PlayToolbarViewModel>();
             SimpleIoc.Default.Register<SongListViewModel>();
+            SimpleIoc.Default.Register<MusicTreeViewModel>();
 
             ServiceLocator.Current.GetInstance<IFileWatchService>();
 

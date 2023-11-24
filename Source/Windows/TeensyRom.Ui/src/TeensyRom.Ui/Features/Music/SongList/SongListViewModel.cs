@@ -18,67 +18,32 @@ namespace TeensyRom.Ui.Features.Music.SongList
 {
     public class SongListViewModel: ReactiveObject, IDisposable
     {
-        private readonly IMusicState _musicState;
-        private readonly ISerialPortState _serialState;
-        private IDisposable _loadSongsSubscription;
-
-        [Reactive] public string CurrentPath { get; set; }
-        public ObservableCollection<StorageItem> DirectoryContent { get; } = new();
-        public ReactiveCommand<SongItem, Unit> PlayCommand { get; set; }
+        [ObservableAsProperty] public ObservableCollection<StorageItem> DirectoryContent { get; }
+        [ObservableAsProperty] public bool ShowProgress { get; }
+        public ReactiveCommand<SongItem, bool> PlayCommand { get; set; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }
 
-        public SongListViewModel(ISettingsService settingsService, IMusicState musicState, ISerialPortState serialState, INavigationService nav)
+        private readonly IMusicState _musicState;
+        private IDisposable _directoryTreeSubscription;
+
+        public SongListViewModel(IMusicState musicState)
         {
             _musicState = musicState;
-            _serialState = serialState;
+
+            _musicState.DirectoryLoading
+                .ToPropertyEx(this, x => x.ShowProgress);
            
-            PlayCommand = ReactiveCommand.Create<SongItem, Unit>(song => HandlePlayCommand(song));
-            LoadDirectoryCommand = ReactiveCommand.Create<DirectoryItem, Unit>(directory => HandleLoadDirectoryCommand(directory));
+            PlayCommand = ReactiveCommand.Create<SongItem, bool>(song =>
+                musicState.LoadSong(song), outputScheduler: RxApp.MainThreadScheduler);
 
-            _loadSongsSubscription = _serialState.IsConnected
-                .Where(isConnected => isConnected is true)
-                .CombineLatest(settingsService.Settings, (isConnected, settings) => settings)
-                .Do(settings =>
-                {
-                    CurrentPath = settings.TargetRootPath;
-                })
-                .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
-                .Where(sn => sn.currentNav?.Type == NavigationLocation.Music)
-                .Where(_ => DirectoryContent.Count == 0)
-                .Subscribe(sn => LoadSongs(sn.settings.GetFileTypePath(TeensyFileType.Sid)));
+            LoadDirectoryCommand = ReactiveCommand.CreateFromObservable<DirectoryItem, Unit>(directory =>
+                musicState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler);
 
-            _musicState.DirectoryContent.Subscribe(dc => OnDirectoryContentChanged(dc));
-
+            _musicState.DirectoryContent.ToPropertyEx(this, x => x.DirectoryContent);
         }
-
-        private Unit OnDirectoryContentChanged(IEnumerable<StorageItem> dc)
-        {
-            DirectoryContent.Clear();
-            DirectoryContent.AddRange(dc);
-            return Unit.Default;
-        }
-
-        public Unit LoadSongs(string path)
-        {
-            _musicState.LoadDirectory(path);
-            return Unit.Default;
-        }
-
-        public Unit HandlePlayCommand(SongItem song)
-        {
-            _musicState.LoadSong(song);
-            return Unit.Default;
-        }
-
-        public Unit HandleLoadDirectoryCommand(DirectoryItem directory)
-        {
-            _musicState.LoadDirectory(directory.Path);
-            return Unit.Default;
-        }
-
         public void Dispose()
         {
-            _loadSongsSubscription?.Dispose();
+            _directoryTreeSubscription?.Dispose();
         }
     }
 }

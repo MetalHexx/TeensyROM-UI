@@ -1,45 +1,59 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
 using TeensyRom.Core.Common;
 
 namespace TeensyRom.Core.Storage.Entities
 {
-    public class DirectoryItem : StorageItem 
+    public class DirectoryItem : StorageItem
     {
-        public List<DirectoryItem> Directories { get; set; } = new List<DirectoryItem>();
 
-        public void AddRange(IEnumerable<DirectoryItem> newDirectories)
+        public ObservableCollection<DirectoryItem> Directories { get; set; } = new ObservableCollection<DirectoryItem>();
+
+        public void Insert(IEnumerable<DirectoryItem> newDirectories)
         {
-            var exampleDirectory = newDirectories.FirstOrDefault();
+            if (!newDirectories.Any()) return;
 
-            if (exampleDirectory is null) return;
-
-            var trimmedParentPath = exampleDirectory.Path
+            var parentPath = newDirectories.First().Path
                 .GetParentDirectory()
                 .RemoveLeadingAndTrailingSlash()
                 .ToLower();
 
-            var trimmedCurrentPath = Path
+            var currentPath = Path
                 .RemoveLeadingAndTrailingSlash()
                 .ToLower();
 
-            if (trimmedCurrentPath.Equals(trimmedParentPath))
+            if (currentPath.Equals(parentPath))
             {
-                Directories.AddRange(newDirectories
-                    .OrderBy(d => d.Name)
-                    .Select(d => new DirectoryItem()
-                    {
-                        Name = d.Name,
-                        Path = d.Path
-                    }));
-
+                AddDirectories(newDirectories);
                 return;
             }
+            RecurseDirectories(newDirectories);
+            return;
+        }
+
+        private void RecurseDirectories(IEnumerable<DirectoryItem> newDirectories)
+        {
             foreach (var directory in Directories)
             {
-                directory.AddRange(newDirectories);
+                directory.Insert(newDirectories);
             }
-            return;
+        }
+
+        private void AddDirectories(IEnumerable<DirectoryItem> directories)
+        {
+
+            foreach (var directory in directories)
+            {
+                var notDupe = !Directories.Any(d => d.Path == directory.Path);
+
+                if (notDupe)
+                {
+                    Directories.Add(new DirectoryItem()
+                    {
+                        Name = directory.Name,
+                        Path = directory.Path
+                    });
+                }
+            };            
         }
     }
 }

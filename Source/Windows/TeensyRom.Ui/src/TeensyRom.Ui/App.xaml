@@ -5,6 +5,8 @@
     xmlns:FileTransfer="clr-namespace:TeensyRom.Ui.Features.FileTransfer"
     xmlns:Help="clr-namespace:TeensyRom.Ui.Features.Help"
     xmlns:Music="clr-namespace:TeensyRom.Ui.Features.Music"
+    xmlns:DirectoryTree="clr-namespace:TeensyRom.Ui.Controls.DirectoryTree"
+    xmlns:MusicTree="clr-namespace:TeensyRom.Ui.Features.Music.MusicTree"
     xmlns:PlayToolbar="clr-namespace:TeensyRom.Ui.Features.Music.PlayToolbar"
     xmlns:SongList="clr-namespace:TeensyRom.Ui.Features.Music.SongList"
     xmlns:Connect="clr-namespace:TeensyRom.Ui.Features.Connect"
@@ -24,10 +26,13 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Lime.xaml" />
                 <ResourceDictionary Source="AppResourceDictionary.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            
             <ui:ViewModelLocator x:Key="Locator" d:IsDataSource="True"/>
+            
             <DataTemplate DataType="{x:Type FileTransfer:FileTransferViewModel}">
                 <FileTransfer:FileTransferView />
             </DataTemplate>
+            
             <DataTemplate DataType="{x:Type Help:HelpViewModel}">
                 <Help:HelpView />
             </DataTemplate>
@@ -35,6 +40,16 @@
             <DataTemplate DataType="{x:Type Music:MusicViewModel}">
                 <Music:MusicView />
             </DataTemplate>
+
+            <DataTemplate DataType="{x:Type MusicTree:MusicTreeViewModel}">
+                <MusicTree:MusicTreeView/>
+
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type DirectoryTree:DirectoryTreeViewModel}">
+                <DirectoryTree:DirectoryTreeView/>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type PlayToolbar:PlayToolbarViewModel}">
                 <PlayToolbar:PlayToolbarView/>
             </DataTemplate>
