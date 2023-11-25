@@ -177,6 +177,8 @@ namespace TeensyRom.Core.Serial
         /// </summary>
         public void DisableAutoReadStream()
         {
+            _serialPort.DiscardInBuffer();
+            _serialPort.DiscardOutBuffer();
             if (_logSubscription is not null)
             {
                 _dataSubscription?.Dispose();
