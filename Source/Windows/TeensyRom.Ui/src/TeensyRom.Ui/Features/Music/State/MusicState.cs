@@ -143,6 +143,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public bool PlayNext()
         {
+            //TODO: Fix auto-play bug that throws an exception here if the user has already travelled to another folder where the "next track" no longer exists.
             var currentSong = _songs.First(s => s.Path == _currentSong.Value.Path);
             var currentIndex = _songs.IndexOf(currentSong);
 
