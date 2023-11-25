@@ -90,7 +90,7 @@ namespace TeensyRom.Core.Commands
             var receivedBytes = new List<byte>();
 
             var startTime = DateTime.Now;
-            var timeout = TimeSpan.FromSeconds(10);
+            var timeout = TimeSpan.FromSeconds(1);
 
             try
             {
@@ -98,6 +98,9 @@ namespace TeensyRom.Core.Commands
                 {
                     if (DateTime.Now - startTime > timeout)
                     {
+                        //TODO: Fix the issue where sometimes we're getting a timeout on fetching directioes.
+                        //break;
+
                         _logService.Log("Timeout while receiving directory content");
                         var byteString = string.Empty;
                         receivedBytes.ForEach(b => byteString += b.ToString());
