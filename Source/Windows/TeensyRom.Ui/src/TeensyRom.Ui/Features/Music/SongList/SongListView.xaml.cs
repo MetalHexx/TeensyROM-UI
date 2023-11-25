@@ -30,13 +30,38 @@ namespace TeensyRom.Ui.Features.Music.SongList
 
         private void OnListViewDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            var listView = sender as ListView;
+            ListView? listView = sender as ListView;
 
+            if (TryOpenDirectory(listView)) return;
+
+            TryPlaySong(listView);
+        }
+
+        private void OnListViewClicked(object sender, MouseButtonEventArgs e)
+        {
+            TryPlaySong(sender as ListView);
+        }
+
+        private bool TryPlaySong(ListView? listView)
+        {
+            if (listView?.SelectedItem is SongItem songItem)
+            {
+                var viewModel = (SongListViewModel)DataContext;
+                viewModel.PlayCommand.Execute(songItem).Subscribe();
+                return true;
+            }
+            return false;
+        }
+
+        private bool TryOpenDirectory(ListView? listView)
+        {
             if (listView?.SelectedItem is DirectoryItem directoryItem)
             {
                 var viewModel = (SongListViewModel)DataContext;
                 viewModel.LoadDirectoryCommand.Execute(directoryItem).Subscribe();
+                return true;
             }
+            return false;
         }
 
         private void OnListViewPreviewMouseWheel(object sender, MouseWheelEventArgs e)

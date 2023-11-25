@@ -69,16 +69,6 @@
                         Orientation="Horizontal" 
                         HorizontalAlignment="Right">
                         <Button 
-                            x:Name="LaunchButton"
-                            Command="{Binding DataContext.PlayCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
-                            CommandParameter="{Binding}"                   
-                            Visibility="Collapsed"
-                            ToolTip="Launch"
-                            Style="{StaticResource StorageIconButton}">
-                            <materialDesign:PackIcon Kind="Play" />
-                        </Button>
-
-                        <Button 
                             x:Name="FavButton"                    
                             Visibility="Collapsed"
                             ToolTip="Add to favorites"
@@ -101,12 +91,10 @@
 
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">
-                    <Setter TargetName="LaunchButton" Property="Visibility" Value="Visible"/>
                     <Setter TargetName="FavButton" Property="Visibility" Value="Visible"/>
                     <Setter TargetName="DeleteButton" Property="Visibility" Value="Visible"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False">
-                    <Setter TargetName="LaunchButton" Property="Visibility" Value="Collapsed"/>
                     <Setter TargetName="FavButton" Property="Visibility" Value="Collapsed"/>
                     <Setter TargetName="DeleteButton" Property="Visibility" Value="Collapsed"/>
                 </DataTrigger>
@@ -125,6 +113,7 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <ListView Name="songListView"
                   PreviewMouseWheel="OnListViewPreviewMouseWheel"
+                  MouseLeftButtonUp="OnListViewClicked"
                   MouseDoubleClick="OnListViewDoubleClicked"
                   VirtualizingStackPanel.IsVirtualizing="True"
                   VirtualizingStackPanel.VirtualizationMode="Recycling"
