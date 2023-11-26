@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Music
@@ -75,7 +76,7 @@ namespace TeensyRom.Core.Music
         {
             foreach (var sid in sids)
             {
-                sid.Value.Title = sid.Value.Title.EnsureNotEmpty("Unknown Song");
+                sid.Value.Title = sid.Value.Title.EnsureNotEmpty(sid.Value.Filename.GetFileNameFromPath());
                 sid.Value.Author = sid.Value.Author.EnsureNotEmpty("Unknown Artist");
                 sid.Value.Released = sid.Value.Released.EnsureNotEmpty("No Release Info");
                 sid.Value.StilEntry = sid.Value.StilEntry.EnsureNotEmpty("No Comments");

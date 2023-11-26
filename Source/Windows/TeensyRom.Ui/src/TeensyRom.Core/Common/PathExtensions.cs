@@ -59,5 +59,13 @@
             }
             return path;
         }
+
+        public static string GetFileNameFromPath(this string path)
+        {
+            if (string.IsNullOrEmpty(path)) return string.Empty;
+
+            var segments = path.Split('/');
+            return segments.Length > 0 ? segments[^1] : string.Empty;
+        }
     }
 }
