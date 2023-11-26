@@ -20,8 +20,8 @@ namespace TeensyRom.Ui.Features.Music.State
         IObservable<Unit> LoadDirectory(string path);
         Unit LoadDirectorySync(string path);
         bool LoadSong(SongItem song);
-        bool PlayNext();
-        bool PlayPrevious();
+        void PlayNext();
+        void PlayPrevious();
         bool ToggleMusic();
     }
 }

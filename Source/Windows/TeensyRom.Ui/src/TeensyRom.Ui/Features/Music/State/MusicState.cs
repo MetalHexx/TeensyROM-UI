@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using DynamicData;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,7 +7,9 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.File.LaunchFile;
@@ -14,11 +17,12 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Ui.Controls;
 using TeensyRom.Ui.Features.Common.Models;
 
 namespace TeensyRom.Ui.Features.Music.State
 {
-    public class MusicState : IMusicState
+    public class MusicState : IMusicState, IDisposable
     {
         public IObservable<DirectoryItem> DirectoryTree => _directoryTree.AsObservable();
         public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
@@ -27,20 +31,15 @@ namespace TeensyRom.Ui.Features.Music.State
         public IObservable<SongMode> CurrentSongMode => _songMode.AsObservable();
         public IObservable<PlayState> CurrentPlayState => _playState.AsObservable();
         public IObservable<TimeSpan> CurrentSongTime => _songTime.CurrentTime;
-        public IObservable<int> Skip => _skip.AsObservable();
-        public IObservable<int> Take => _take.AsObservable();
 
         private readonly BehaviorSubject<DirectoryItem> _directoryTree = new(new());
         private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
         private readonly Subject<bool> _directoryLoading = new();
         private readonly BehaviorSubject<SongItem> _currentSong = new(null);
         private readonly BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
-        private readonly BehaviorSubject<PlayState> _playState = new(PlayState.Paused);
-        private readonly BehaviorSubject<int> _take = new(250);
-        private readonly BehaviorSubject<int> _skip = new(0);        
+        private readonly BehaviorSubject<PlayState> _playState = new(PlayState.Paused);     
 
-        private readonly List<StorageItem> _storageItems = new();
-        private readonly List<SongItem> _songs = new();
+        private readonly MusicCache _musicCache = new();
 
         private readonly ISongTimer _songTime;
         private readonly ILaunchFileCommand _launchFileCommand;
@@ -50,6 +49,8 @@ namespace TeensyRom.Ui.Features.Music.State
         private readonly ISettingsService _settingsService;
         private TeensySettings _settings = new();
         private IDisposable? _playingSongSubscription;
+        private TimeSpan? _currentTime;
+        private IDisposable _currentTimeSubscription;
 
         public MusicState(ISongTimer songTime, ILaunchFileCommand launchFileCommand, IGetDirectoryCommand getDirectoryCommand, IToggleMusicCommand toggleMusicCommand, IMusicService musicService, ISettingsService settingsService)
         {
@@ -59,32 +60,40 @@ namespace TeensyRom.Ui.Features.Music.State
             _toggleMusicCommand = toggleMusicCommand;
             _musicService = musicService;
             _settingsService = settingsService;
-            _settingsService.Settings.Subscribe(settings => OnSettingsChanged(settings));          
+            _settingsService.Settings.Subscribe(settings => OnSettingsChanged(settings));
+
+            //TODO: Clean this up later.
+            _currentTimeSubscription = _songTime.CurrentTime.Subscribe(currentTime =>
+            {
+                _currentTime = currentTime;
+            });
         }        
 
         private void OnSettingsChanged(TeensySettings settings)
         {
             _settings = settings;
+            _musicCache.Clear();
+            _directoryContent.OnNext(new ObservableCollection<StorageItem>());
             ResetDirectoryTree();
         }
 
-        private void ResetDirectoryTree() => _directoryTree.OnNext(new DirectoryItem
+        private void ResetDirectoryTree()
         {
-            Name = "Root",  //The view only maps to the directory enumerable at the top level.  So we create a fake root here.
-            Path = _settings.TargetRootPath,
-            Directories = new()
+            var dirItem = new DirectoryItem
             {
-                new DirectoryItem
+                Name = "Root",  //The view only maps to the directory enumerable at the top level.  So we create a fake root here.
+                Path = _settings.TargetRootPath,
+                Directories = new()
                 {
-                    Name = _settings.GetFileTypePath(TeensyFileType.Sid),
-                    Path = _settings.GetFileTypePath(TeensyFileType.Sid)
+                    new DirectoryItem
+                    {
+                        Name = _settings.GetFileTypePath(TeensyFileType.Sid),
+                        Path = _settings.GetFileTypePath(TeensyFileType.Sid)
+                    }
                 }
-            }
-        });
-
-        public void SetSkip(int skip) => _skip.OnNext(skip);
-
-        public void SetTake(int take) => _take.OnNext(take);
+            };
+            _directoryTree.OnNext(dirItem);
+        }
 
         public void SetSongMode(SongMode songMode) => _songMode.OnNext(songMode);
 
@@ -108,6 +117,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
             return true;
         }
+
         public bool ToggleMusic()
         {
             if (!_toggleMusicCommand.Execute()) return false;
@@ -126,37 +136,43 @@ namespace TeensyRom.Ui.Features.Music.State
             return true;
         }
 
-        public bool PlayPrevious()
+        public void PlayPrevious()
         {
-            var currentSong = _songs.First(s => s.Path == _currentSong.Value.Path);
-            var currentIndex = _songs.IndexOf(currentSong);
-            var nextSong = currentIndex == 0
-                ? _songs.Last()
-                : _songs[--currentIndex];
+            var cacheItem = _musicCache.GetBySong(_currentSong.Value.Path);
 
-            return LoadSong(nextSong);
+            if(cacheItem is null || _currentTime >= TimeSpan.FromSeconds(3))
+            {
+                LoadSong(_currentSong.Value);
+                return;
+            }
+            var currentIndex = cacheItem.Songs.IndexOf(_currentSong.Value);
+
+            LoadSong(currentIndex == 0
+                ? cacheItem.Songs.Last()
+                : cacheItem.Songs[--currentIndex]);
+
+        }
+
+        public void PlayNext()
+        {
+            var cacheItem = _musicCache.GetBySong(_currentSong.Value.Path);
+
+            if (cacheItem is null)
+            {
+                LoadSong(_currentSong.Value);
+                return;
+            }
+            var currentIndex = cacheItem.Songs.IndexOf(_currentSong.Value);
+
+            LoadSong(cacheItem.Songs.Count == currentIndex + 1
+                ? cacheItem.Songs.First()
+                : cacheItem.Songs[++currentIndex]);
+
         }
 
         private PlayState GetToggledPlayState() => _playState.Value == PlayState.Playing
                 ? PlayState.Paused
                 : PlayState.Playing;
-
-        public bool PlayNext()
-        {
-            //TODO: Fix auto-play bug that throws an exception here if the user has already travelled to another folder where the "next track" no longer exists.
-            var currentSong = _songs.First(s => s.Path == _currentSong.Value.Path);
-            var currentIndex = _songs.IndexOf(currentSong);
-
-            var nextSong = _storageItems.Count == currentIndex + 1
-                ? _songs.First()
-                : _songs[++currentIndex];
-
-            if (LoadSong(nextSong))
-            {
-                return true;
-            }
-            return false;
-        }
 
         public IObservable<Unit> LoadDirectory(string path)
         {
@@ -171,16 +187,69 @@ namespace TeensyRom.Ui.Features.Music.State
         public Unit LoadDirectorySync(string path)
         {
             _directoryLoading.OnNext(true);
+            var directoryResult = GetDirectory(path);
 
-            var directoryContent = _getDirectoryCommand.Execute(path, 0, 5000);
-
-            if (directoryContent is null)
+            if(directoryResult is null)
             {
                 _directoryLoading.OnNext(false);
                 return Unit.Default;
             }
 
-            var songs = directoryContent.Files
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                _directoryTree.Value.Insert(directoryResult.Directories);
+            });
+            _directoryTree.OnNext(_directoryTree.Value);
+
+            var directoryItems = new ObservableCollection<StorageItem>();
+            directoryItems.AddRange(directoryResult.Directories);
+            directoryItems.AddRange(directoryResult.Songs);
+
+            _directoryContent.OnNext(directoryItems);
+            _directoryTree.OnNext(_directoryTree.Value);
+            _directoryLoading.OnNext(false);
+
+            return Unit.Default;
+        }
+
+        private MusicCacheItem? GetDirectory(string path)
+        {
+            var cacheItem = _musicCache.GetByDirectory(path);
+
+            if (cacheItem != null) return cacheItem;
+
+            var directoryContent = _getDirectoryCommand.Execute(path, 0, 5000);
+
+            if (directoryContent is null) return null;
+
+            var songs = MapAndOrderSongs(directoryContent);
+            var directories = MapAndOrderDirectories(directoryContent);
+
+            cacheItem = new MusicCacheItem
+            {
+                Directories = directories.ToList(),
+                Songs = songs
+            };
+            _musicCache.Insert(path, cacheItem);
+
+            return cacheItem;
+        }
+
+        private static IEnumerable<DirectoryItem> MapAndOrderDirectories(DirectoryContent? directoryContent)
+        {
+            return directoryContent?.Directories
+                .Select(d => new DirectoryItem
+                {
+                    Name = d.Name,
+                    Path = d.Path
+                })
+                .OrderBy(d => d.Name)
+                .ToList() ?? new List<DirectoryItem>();
+        }
+
+        private List<SongItem> MapAndOrderSongs(DirectoryContent? directoryContent)
+        {
+            return directoryContent?.Files
                 .Select(file => new SongItem
                 {
                     Name = file.Name,
@@ -193,42 +262,14 @@ namespace TeensyRom.Ui.Features.Music.State
                     var trimmedPath = song.Path.Replace($"{defaultSidPath}/hvsc", "");
                     return _musicService.EnrichSong(song, trimmedPath);
                 })
-                .OrderBy(song => song.Name);
+                .OrderBy(song => song.Name)
+                .ToList() ?? new List<SongItem>();
+        }
 
-            var directories = directoryContent.Directories
-                .Select(d => new DirectoryItem
-                {
-                    Name = d.Name,
-                    Path = d.Path
-                })
-                .OrderBy(d => d.Name);
-
-            _storageItems.Clear();
-            _songs.Clear();
-            _songs.AddRange(songs);
-
-
-
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                _directoryTree.Value.Insert(directories);
-                _storageItems.AddRange(directories);
-                _storageItems.AddRange(songs);
-            });
-
-            
-
-            _directoryTree.OnNext(_directoryTree.Value);
-            _skip.OnNext(0);
-
-            var dirContent = new ObservableCollection<StorageItem>( _storageItems
-                .Skip(_skip.Value)
-                .Take(_take.Value));
-
-            _directoryContent.OnNext(dirContent);
-            _directoryLoading.OnNext(false);
-
-            return Unit.Default;
+        public void Dispose()
+        {
+            _currentTimeSubscription?.Dispose();
+            _playingSongSubscription?.Dispose();
         }
     }
 }
