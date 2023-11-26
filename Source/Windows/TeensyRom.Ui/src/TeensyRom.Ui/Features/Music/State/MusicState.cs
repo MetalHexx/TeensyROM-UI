@@ -106,9 +106,12 @@ namespace TeensyRom.Ui.Features.Music.State
             {
                 song.IsSelected = true;
 
-                if(_currentSong.Value is not null)
+                var shouldUpdateCurrent = _currentSong.Value is not null 
+                    && song.Path.Equals(_currentSong.Value.Path) == false;
+
+                if (shouldUpdateCurrent)
                 {
-                    _currentSong.Value.IsSelected = false;
+                    _currentSong.Value!.IsSelected = false;
                 }
             });
 
@@ -202,7 +205,9 @@ namespace TeensyRom.Ui.Features.Music.State
             Application.Current.Dispatcher.Invoke(() =>
             {
                 _directoryTree.Value.Insert(directoryResult.Directories);
+                _directoryTree.Value.SelectDirectory(path);
             });
+
             _directoryTree.OnNext(_directoryTree.Value);
 
             var directoryItems = new ObservableCollection<StorageItem>();
