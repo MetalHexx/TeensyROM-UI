@@ -11,7 +11,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-
         <HierarchicalDataTemplate 
             x:Key="DirectoryTemplate" 
             DataType="{x:Type storage:DirectoryItem}" 
@@ -127,12 +126,17 @@
                   ItemsSource="{Binding DirectoryContent}"
                   HorizontalContentAlignment="Stretch"
                   MinWidth="220">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    </Style>
+                </ListView.ItemContainerStyle>
                 <ListView.ItemTemplateSelector>
                     <models:StorageItemTemplateSelector
                     DirectoryTemplate="{StaticResource DirectoryTemplate}"
                     SongTemplate="{StaticResource SongTemplate}"/>
                 </ListView.ItemTemplateSelector>
             </ListView>
-        </ScrollViewer>        
+        </ScrollViewer>
     </Grid>
 </UserControl>

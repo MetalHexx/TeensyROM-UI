@@ -102,6 +102,16 @@ namespace TeensyRom.Ui.Features.Music.State
             {
                 return false;
             }
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                song.IsSelected = true;
+
+                if(_currentSong.Value is not null)
+                {
+                    _currentSong.Value.IsSelected = false;
+                }
+            });
+
             _currentSong.OnNext(song);
 
             _playState.OnNext(PlayState.Playing);
@@ -146,7 +156,6 @@ namespace TeensyRom.Ui.Features.Music.State
             var songToLoad = songIndex == 0
                 ? directoryResult.Songs.Last()
                 : directoryResult.Songs[--songIndex];
-
             LoadSong(songToLoad);
 
         }
@@ -162,10 +171,11 @@ namespace TeensyRom.Ui.Features.Music.State
             }
             var currentIndex = directoryResult.Songs.IndexOf(_currentSong.Value);
 
-            LoadSong(directoryResult.Songs.Count == currentIndex + 1
+            var songToLoad = directoryResult.Songs.Count == currentIndex + 1
                 ? directoryResult.Songs.First()
-                : directoryResult.Songs[++currentIndex]);
-
+                : directoryResult.Songs[++currentIndex];
+            
+            LoadSong(songToLoad);
         }
 
         public IObservable<Unit> LoadDirectory(string path)
