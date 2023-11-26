@@ -5,7 +5,6 @@ namespace TeensyRom.Core.Storage.Entities
 {
     public class DirectoryItem : StorageItem
     {
-
         public ObservableCollection<DirectoryItem> Directories { get; set; } = new ObservableCollection<DirectoryItem>();
 
         public void Insert(IEnumerable<DirectoryItem> newDirectories)
@@ -54,6 +53,19 @@ namespace TeensyRom.Core.Storage.Entities
                     });
                 }
             };            
+        }
+
+        public void SelectDirectory(string directoryPath)
+        {
+            var normalizedTargetPath = directoryPath.RemoveLeadingAndTrailingSlash().ToLower();
+            var normalizedCurrentPath = Path.RemoveLeadingAndTrailingSlash().ToLower();
+
+            IsSelected = normalizedCurrentPath.Equals(normalizedTargetPath);
+
+            foreach (var directory in Directories)
+            {
+                directory.SelectDirectory(directoryPath);
+            }
         }
     }
 }
