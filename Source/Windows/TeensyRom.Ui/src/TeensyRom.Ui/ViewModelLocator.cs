@@ -54,7 +54,7 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<ISnackbarService, SnackbarService>();
             SimpleIoc.Default.Register<ISongTimer, SongTimer>();
             SimpleIoc.Default.Register<IMusicState, MusicState>();
-            SimpleIoc.Default.Register<IMusicService, MusicService>();
+            SimpleIoc.Default.Register<ISidMetadataService, SidMetadataService>();
             SimpleIoc.Default.Register<NavigationHostViewModel>();
             SimpleIoc.Default.Register<ConnectViewModel>();
             SimpleIoc.Default.Register<FileTransferViewModel>();

@@ -45,14 +45,14 @@ namespace TeensyRom.Ui.Features.Music.State
         private readonly ILaunchFileCommand _launchFileCommand;
         private readonly IGetDirectoryCommand _getDirectoryCommand;
         private readonly IToggleMusicCommand _toggleMusicCommand;
-        private readonly IMusicService _musicService;
+        private readonly ISidMetadataService _musicService;
         private readonly ISettingsService _settingsService;
         private TeensySettings _settings = new();
         private IDisposable? _playingSongSubscription;
         private TimeSpan? _currentTime;
         private IDisposable _currentTimeSubscription;
 
-        public MusicState(ISongTimer songTime, ILaunchFileCommand launchFileCommand, IGetDirectoryCommand getDirectoryCommand, IToggleMusicCommand toggleMusicCommand, IMusicService musicService, ISettingsService settingsService)
+        public MusicState(ISongTimer songTime, ILaunchFileCommand launchFileCommand, IGetDirectoryCommand getDirectoryCommand, IToggleMusicCommand toggleMusicCommand, ISidMetadataService musicService, ISettingsService settingsService)
         {
             _songTime = songTime;
             _launchFileCommand = launchFileCommand;

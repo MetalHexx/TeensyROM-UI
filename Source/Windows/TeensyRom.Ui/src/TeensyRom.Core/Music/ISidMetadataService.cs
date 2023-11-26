@@ -2,7 +2,7 @@
 
 namespace TeensyRom.Core.Music
 {
-    public interface IMusicService
+    public interface ISidMetadataService
     {
         SongItem EnrichSong(SongItem song, string path);
     }

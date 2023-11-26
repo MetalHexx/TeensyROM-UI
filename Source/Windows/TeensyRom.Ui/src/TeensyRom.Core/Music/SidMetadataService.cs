@@ -12,12 +12,12 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Music
 {
-    public class MusicService : IMusicService
+    public class SidMetadataService : ISidMetadataService
     {
         private readonly string _filePath;
         private readonly Dictionary<string, SidRecord> _songDatabase = new();
 
-        public MusicService()
+        public SidMetadataService()
         {
             _filePath = GetSidFilePath(); 
             _songDatabase = ParseSids(ReadCsv());
