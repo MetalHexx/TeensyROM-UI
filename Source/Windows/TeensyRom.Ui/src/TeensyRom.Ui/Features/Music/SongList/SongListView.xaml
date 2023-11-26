@@ -117,6 +117,7 @@
             VerticalAlignment="Top">
         </ProgressBar>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
+            
             <ListView Name="songListView"
                 ItemsSource="{Binding DirectoryContent}"
                 SelectionMode="Single"
@@ -125,10 +126,9 @@
                 MouseDoubleClick="OnListViewDoubleClicked"
                 VirtualizingStackPanel.IsVirtualizing="True"
                 VirtualizingStackPanel.VirtualizationMode="Recycling"
-                  
-                   
-                  HorizontalContentAlignment="Stretch"                    
-                  MinWidth="220">
+                HorizontalContentAlignment="Stretch"                    
+                MinWidth="220">
+                
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
                         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
