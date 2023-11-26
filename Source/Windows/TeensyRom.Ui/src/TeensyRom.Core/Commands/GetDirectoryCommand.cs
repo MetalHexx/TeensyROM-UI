@@ -90,7 +90,7 @@ namespace TeensyRom.Core.Commands
             var receivedBytes = new List<byte>();
 
             var startTime = DateTime.Now;
-            var timeout = TimeSpan.FromSeconds(1);
+            var timeout = TimeSpan.FromSeconds(2);
 
             try
             {
@@ -104,6 +104,8 @@ namespace TeensyRom.Core.Commands
                         _logService.Log("Timeout while receiving directory content");
                         var byteString = string.Empty;
                         receivedBytes.ForEach(b => byteString += b.ToString());
+                        var logString = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
+                        _logService.Log(byteString);
                         throw new TimeoutException("Timeout waiting for expected reply from TeensyROM");
                     }
 
