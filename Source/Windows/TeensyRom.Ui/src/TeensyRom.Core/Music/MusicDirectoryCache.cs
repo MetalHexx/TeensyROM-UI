@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using TeensyRom.Core.Common;
 
-namespace TeensyRom.Ui.Features.Music.State
+namespace TeensyRom.Core.Music
 {
-    public class MusicCache: Dictionary<string, MusicCacheItem>
+    public class MusicDirectoryCache: Dictionary<string, MusicDirectory>
     {
-        public void Insert(string path, MusicCacheItem cacheItem)
+        public void Insert(string path, MusicDirectory cacheItem)
         {
             path = path
                 .RemoveLeadingAndTrailingSlash()
@@ -13,7 +13,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
             TryAdd(path, cacheItem);
         }
-        public MusicCacheItem? GetBySong(string path)
+        public MusicDirectory? GetBySong(string path)
         {
             var currentSongDirectory = path
                 .GetParentDirectory()
@@ -25,7 +25,7 @@ namespace TeensyRom.Ui.Features.Music.State
             return item;
         }
 
-        public MusicCacheItem? GetByDirectory(string path)
+        public MusicDirectory? GetByDirectory(string path)
         {
             var currentSongDirectory = path
                 .RemoveLeadingAndTrailingSlash()
