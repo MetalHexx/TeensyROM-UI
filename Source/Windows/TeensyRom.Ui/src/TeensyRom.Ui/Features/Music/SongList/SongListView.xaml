@@ -118,13 +118,16 @@
         </ProgressBar>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <ListView Name="songListView"
-                  PreviewMouseWheel="OnListViewPreviewMouseWheel"
-                  MouseLeftButtonUp="OnListViewClicked"
-                  MouseDoubleClick="OnListViewDoubleClicked"
-                  VirtualizingStackPanel.IsVirtualizing="True"
-                  VirtualizingStackPanel.VirtualizationMode="Recycling"
-                  ItemsSource="{Binding DirectoryContent}"
-                  HorizontalContentAlignment="Stretch"
+                ItemsSource="{Binding DirectoryContent}"
+                SelectionMode="Single"
+                PreviewMouseWheel="OnListViewPreviewMouseWheel"
+                MouseLeftButtonUp="OnListViewClicked"
+                MouseDoubleClick="OnListViewDoubleClicked"
+                VirtualizingStackPanel.IsVirtualizing="True"
+                VirtualizingStackPanel.VirtualizationMode="Recycling"
+                  
+                   
+                  HorizontalContentAlignment="Stretch"                    
                   MinWidth="220">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
