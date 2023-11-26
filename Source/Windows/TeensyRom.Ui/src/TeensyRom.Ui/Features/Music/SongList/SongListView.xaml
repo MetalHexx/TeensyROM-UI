@@ -116,6 +116,7 @@
             Margin="0 0 17 0"
             VerticalAlignment="Top">
         </ProgressBar>
+        
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             
             <ListView Name="songListView"
@@ -134,11 +135,13 @@
                         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
                     </Style>
                 </ListView.ItemContainerStyle>
+                
                 <ListView.ItemTemplateSelector>
                     <models:StorageItemTemplateSelector
                     DirectoryTemplate="{StaticResource DirectoryTemplate}"
                     SongTemplate="{StaticResource SongTemplate}"/>
                 </ListView.ItemTemplateSelector>
+                
             </ListView>
         </ScrollViewer>
     </Grid>
