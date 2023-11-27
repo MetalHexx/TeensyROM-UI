@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Newtonsoft.Json;
+using System.ComponentModel;
 using System.Diagnostics;
 
 namespace TeensyRom.Core.Storage.Entities
@@ -11,6 +12,8 @@ namespace TeensyRom.Core.Storage.Entities
 
         private bool _isSelected;
 
+
+        [JsonIgnore]
         public bool IsSelected
         {
             get => _isSelected;

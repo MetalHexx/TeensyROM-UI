@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
+using System.Reflection;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
@@ -14,30 +10,59 @@ namespace TeensyRom.Core.Music
     {
         void Reset();
         void Dispose();
-        MusicDirectory? GetByDirectory(string path);
         MusicDirectory? GetSongParentDirectory(string path);
         MusicDirectory? GetDirectory(string path);
     }
 
     public class MusicStorageService : IDisposable, IMusicService
-    {
-        private readonly MusicDirectoryCache _musicCache = new();
+    {        
         private readonly ISettingsService _settingsService;
         private readonly ISidMetadataService _metadataService;
         private readonly IGetDirectoryCommand _getDirectoryCommand;
         private TeensySettings _settings = new();
         private IDisposable? _settingsSubscription;
+        private const string _cacheFileName = "TeensyStorageCache.json";
+        private MusicDirectoryCache _musicCache = new();
 
         public MusicStorageService(ISettingsService settings, ISidMetadataService metadataService, IGetDirectoryCommand getDirectoryCommand)
         {
             _settingsService = settings;
             _metadataService = metadataService;
             _getDirectoryCommand = getDirectoryCommand;
+            LoadCacheFromDisk();
             _settingsSubscription = _settingsService.Settings.Subscribe(settings => _settings = settings);
         }
 
+        private string GetFullCachePath() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "", _cacheFileName);
+
         public void Reset() => _musicCache.Clear();
-        public MusicDirectory? GetByDirectory(string path) => _musicCache.GetByDirectory(path);
+        private void LoadCacheFromDisk()
+        {
+            var cacheLocation = GetFullCachePath();
+            if (!File.Exists(cacheLocation)) return;
+
+            using var stream = File.Open(cacheLocation, FileMode.Open, FileAccess.Read);
+            using var reader = new StreamReader(stream);
+            var content = reader.ReadToEnd();
+
+            var cacheFromDisk = JsonConvert.DeserializeObject<MusicDirectoryCache>(content, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto,
+                Formatting = Formatting.Indented
+            });
+            _musicCache = cacheFromDisk;
+        }
+        
+        private void SaveCacheToDisk()
+        {
+            var cacheLocation = GetFullCachePath();
+
+            File.WriteAllText(cacheLocation, JsonConvert.SerializeObject(_musicCache, Formatting.Indented, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto,
+                Formatting = Formatting.Indented
+            }));
+        }
         public MusicDirectory? GetSongParentDirectory(string path) => _musicCache.GetBySong(path);
         public MusicDirectory? GetDirectory(string path)
         {
@@ -58,10 +83,10 @@ namespace TeensyRom.Core.Music
                 Songs = songs
             };
             _musicCache.Insert(path, cacheItem);
+            SaveCacheToDisk();
 
             return cacheItem;
         }
-
         private static IEnumerable<DirectoryItem> MapAndOrderDirectories(DirectoryContent? directoryContent)
         {
             return directoryContent?.Directories
@@ -73,7 +98,6 @@ namespace TeensyRom.Core.Music
                 .OrderBy(d => d.Name)
                 .ToList() ?? new List<DirectoryItem>();
         }
-
         private List<SongItem> MapAndOrderSongs(DirectoryContent? directoryContent)
         {
             return directoryContent?.Files
@@ -83,16 +107,10 @@ namespace TeensyRom.Core.Music
                     Path = file.Path,
                     Size = file.Size
                 })
-                .Select(song =>
-                {
-                    var defaultSidPath = _settings.GetFileTypePath(TeensyFileType.Sid);
-                    var trimmedPath = song.Path.Replace($"{defaultSidPath}/hvsc", "");
-                    return _metadataService.EnrichSong(song, trimmedPath);
-                })
+                .Select(song => _metadataService.EnrichSong(song))
                 .OrderBy(song => song.Name)
                 .ToList() ?? new List<SongItem>();
         }
-
         public void Dispose()
         {
             _settingsSubscription?.Dispose();

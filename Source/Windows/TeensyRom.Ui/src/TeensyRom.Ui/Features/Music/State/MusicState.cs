@@ -68,7 +68,6 @@ namespace TeensyRom.Ui.Features.Music.State
         private void OnSettingsChanged(TeensySettings settings)
         {
             _settings = settings;
-            _musicService.Reset();
             _directoryContent.OnNext(new ObservableCollection<StorageItem>());
             ResetDirectoryTree();
         }

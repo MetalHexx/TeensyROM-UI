@@ -1,4 +1,5 @@
-﻿using TeensyRom.Core.Common;
+﻿using System.Runtime;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Settings
@@ -13,6 +14,7 @@ namespace TeensyRom.Core.Settings
         public string TargetRootPath { get; set; } = @"/sync";
         public List<TeensyTarget> FileTargets { get; set; } = new List<TeensyTarget>();
         public bool AutoFileCopyEnabled { get; set; }
+        public string HvscPath => GetFileTypePath(TeensyFileType.Sid).UnixPathCombine(@"/hvsc");
 
         public TeensySettings()
         {

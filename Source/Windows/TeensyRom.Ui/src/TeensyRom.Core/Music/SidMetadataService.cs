@@ -1,32 +1,48 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime;
 using System.Security.Cryptography;
 using System.Text;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Music
 {
     public interface ISidMetadataService
     {
-        SongItem EnrichSong(SongItem song, string path);
+        SongItem EnrichSong(SongItem song);
     }
 
-    public class SidMetadataService : ISidMetadataService
+    public class SidMetadataService : ISidMetadataService, IDisposable
     {
         private readonly string _filePath;
         private readonly Dictionary<string, SidRecord> _songDatabase = new();
+        private TeensySettings _settings = new();
+        private readonly ISettingsService _settingsService;
+        private IDisposable _settingsSubscription;
 
-        public SidMetadataService()
+        public SidMetadataService(ISettingsService settingsService)
         {
             _filePath = GetSidFilePath(); 
             _songDatabase = ParseSids(ReadCsv());
+
+            _settingsService = settingsService;
+
+            _settingsSubscription = _settingsService.Settings.Subscribe(OnSettingsChanged);
+        }
+
+        private void OnSettingsChanged(TeensySettings settings)
+        {
+            _settings = settings;
         }
 
         private static string GetSidFilePath()
@@ -40,9 +56,14 @@ namespace TeensyRom.Core.Music
             return Path.Combine(currentDirectory, relativePath);
         }
 
-        public SongItem EnrichSong(SongItem song, string dbPath)
+        public SongItem EnrichSong(SongItem song)
         {
-            _songDatabase.TryGetValue(dbPath, out var record);
+            SidRecord? record = null; 
+
+            if (!song.Path.Contains(_settings.HvscPath)) return song;
+            
+            var trimmedPath = song.Path.Replace($"{_settings.HvscPath}", "");
+            _songDatabase.TryGetValue(trimmedPath, out record);
 
             if (record is not null)
             {
@@ -99,6 +120,9 @@ namespace TeensyRom.Core.Music
             return sids;
         }
 
-        
+        public void Dispose()
+        {
+            _settingsSubscription?.Dispose();
+        }
     }
 }
