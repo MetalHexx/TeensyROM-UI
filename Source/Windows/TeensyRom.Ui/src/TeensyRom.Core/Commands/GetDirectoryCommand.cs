@@ -90,7 +90,7 @@ namespace TeensyRom.Core.Commands
             var receivedBytes = new List<byte>();
 
             var startTime = DateTime.Now;
-            var timeout = TimeSpan.FromSeconds(2);
+            var timeout = TimeSpan.FromSeconds(10);
 
             try
             {
