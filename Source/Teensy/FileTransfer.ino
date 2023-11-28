@@ -11,6 +11,7 @@ FLASHMEM bool GetPathParameter(char FileNamePath[])
     {
         if (!SerialAvailabeTimeout())
         {
+            SendU16(FailToken);
             Serial.print("Timed out getting path param!\n");
             return false;
         }
@@ -26,6 +27,7 @@ FLASHMEM bool GetPathParameter(char FileNamePath[])
 
     if (CharNum == MaxNamePathLength)
     {
+        SendU16(FailToken);
         Serial.print("Path too long!\n");
         return false;
     }
@@ -37,7 +39,8 @@ FLASHMEM FS* GetStorageDevice(uint32_t storageType)
     if (!storageType) return &firstPartition;
 
     if (!SD.begin(BUILTIN_SDCARD)) 
-    {            
+    {      
+        SendU16(FailToken);      
         Serial.printf("Specified storage device was not found: %u\n", storageType);
         return nullptr;
     }
@@ -165,20 +168,11 @@ FLASHMEM void PostFileCommand()
         return;
     }
 
-    if (!GetPathParameter(FileNamePath)) 
-    {
-        SendU16(FailToken);
-        return;
-    }
+    if (!GetPathParameter(FileNamePath)) return;
     
     FS* sourceFS = GetStorageDevice(storageType);
 
-    if (!sourceFS)
-    {        
-        SendU16(FailToken);
-        Serial.println("Unable to get storage device!");
-        return;
-    }
+    if (!sourceFS) return;
 
     if (!EnsureDirectory(FileNamePath, *sourceFS))
     {
@@ -301,12 +295,7 @@ FLASHMEM void GetDirectoryCommand()
 
     FS* sourceFS = GetStorageDevice(storageType);
 
-    if (!sourceFS)
-    {        
-        SendU16(FailToken);
-        Serial.println("Unable to get storage device!");
-        return;
-    }
+    if (!sourceFS) return;
 
     SendU16(StartDirectoryListToken);  
 
