@@ -349,7 +349,19 @@ bool ReadClientLine(char* linebuf, uint16_t MaxLen)
    return false;
 }
 
-uint32_t WebConnect(const stcURLParse *DestURL, bool AddToHist)
+void ClearClientStop()
+{  //clear client buffer and stop client
+   while (client.available()) client.read(); 
+   client.stop();
+}
+
+void AddToPrevURLQueue(const stcURLParse *URL) //add URL to the prev queue
+{
+   if (++PrevURLQueueNum == NumPrevURLQueues) PrevURLQueueNum = 0; //inc/wrap around top
+   memcpy(PrevURLQueue[PrevURLQueueNum], URL, sizeof(stcURLParse)); //overwrite previous entry
+}
+
+uint32_t WebConnect(const stcURLParse *DestURL)
 {
    if (DestURL->host[0] == 0)
    {
@@ -357,14 +369,7 @@ uint32_t WebConnect(const stcURLParse *DestURL, bool AddToHist)
       return 0;
    }
    
-   if (AddToHist) //add URL to the prev queue
-   {
-      if (++PrevURLQueueNum == NumPrevURLQueues) PrevURLQueueNum = 0; //inc/wrap around top
-      memcpy(PrevURLQueue[PrevURLQueueNum], DestURL, sizeof(stcURLParse)); //overwrite previous entry
-   }
-   
-   while (client.available()) client.read(); //clear client buffer
-   client.stop();
+   ClearClientStop();
 
    RxQueueHead = RxQueueTail = 0; //dump the queue
    UnPausePage();
@@ -427,8 +432,7 @@ uint32_t WebConnect(const stcURLParse *DestURL, bool AddToHist)
             return Length;
          }
       }
-      while (client.available()) client.read(); //clear client buffer
-      client.stop();
+      ClearClientStop();
    }
 
    SendASCIIErrorStrImmediate("Connect Failed");
@@ -470,10 +474,11 @@ FLASHMEM void DoSearch(const char *Term)
       }
    }
    
-   WebConnect(&URL, true);
+   WebConnect(&URL);
+   AddToPrevURLQueue(&URL);
 }
 
-void DownloadFile(stcURLParse *DestURL)
+void DownloadFile(stcURLParse *DestURL, bool OverWrite)
 {  // Modifies (decodes) FileName
 
    char FileName[MaxURLPathSize]; //local copy for decoded version
@@ -531,12 +536,20 @@ void DownloadFile(stcURLParse *DestURL)
 
    if (sourceFS->exists(FileNamePath))
    {
-      SendASCIIErrorStrImmediate("File already exists");  
-      return;      
+      if (OverWrite)
+      {
+         SendASCIIStrImmediate("File exists, overwriting\r");
+      }
+      else
+      {
+         SendASCIIErrorStrImmediate("File exists, aborting");  
+         return;   
+      }      
    }
    
-   uint32_t Length = WebConnect(DestURL, false);
-
+   uint32_t Length = WebConnect(DestURL);
+   AddToPrevURLQueue(DestURL);
+   
    if (!client.connected() || Length == 0)    
    {
       SendASCIIErrorStrImmediate("No data");  
@@ -594,7 +607,7 @@ void DownloadFile(stcURLParse *DestURL)
 
 FLASHMEM bool ValidModifier(const char cMod)
 {
-   char ValidMods[] = "dfr ";
+   char ValidMods[] = "dofr ";
    for (uint8_t charnum=0; charnum<=strlen(ValidMods); charnum++) // <= to include term check as valid
    {
       if(cMod == ValidMods[charnum]) return true;
@@ -609,8 +622,21 @@ bool isURLFiltered(const stcURLParse *URL)
    return (strcmp(URL->host, "www.frogfind.com")==0); 
 }
 
-FLASHMEM bool DLExtension(const char * Extension)
+FLASHMEM bool DLExtension(const char * Filename)
 {
+   char * Extension = strrchr(Filename, '.');
+   Printf_dbg("*--Ext: ");
+   if (Extension != NULL)
+   {
+      Extension++; //skip the '.'
+      Printf_dbg("%s\n", Extension);
+   }
+   else 
+   {
+      Printf_dbg("none\n");
+      return false;
+   }
+      
    uint8_t ExtNum = 0;
    char ExtLower[strlen(Extension)+1]; //for lower case copy w/ term
    const char DLExts [][5] =
@@ -620,7 +646,7 @@ FLASHMEM bool DLExtension(const char * Extension)
       "sid",
       "hex",
    };   
-   
+
    //copy to lower case local str
    for(uint16_t CharNum=0; CharNum <= strlen(Extension); CharNum++) ExtLower[CharNum] = tolower(Extension[CharNum]);
    
@@ -631,34 +657,25 @@ FLASHMEM bool DLExtension(const char * Extension)
    return false;
 }
 
-void ModWebConnect(stcURLParse *DestURL, char cMod, bool AddToHist)
+void ModWebConnect(stcURLParse *DestURL, char cMod)
 {  //Do WebConnect, apply Modifier argument
    //assumes char already qualified via ValidModifier()
    
    if (cMod == ' ' || cMod == 0) //modifier not specified, check for auto-download
    {
-      char * Extension = strrchr(DestURL->path, '.');
-      Printf_dbg("*--Ext: ");
-      if (Extension != NULL)
-      {
-         Extension++; //skip the '.'
-         Printf_dbg("%s\n", Extension);
-         
-         if(DLExtension(Extension)) cMod = 'd';
-      }
-      else {Printf_dbg("none\n");}
+      if(DLExtension(DestURL->path)) cMod = 'd'; //don't overwrite on auto-download
    }
    
    switch (cMod)
    {
-      case 'd': //download
-         DownloadFile(DestURL);
-         while (client.available()) client.read(); //clear client buffer
-         client.stop();  //in case of unfinished/error, don't read it in as text
+      case 'd': //download, don't overwrite
+      case 'o': //download w/ overwrite
+         DownloadFile(DestURL, (cMod == 'o'));
+         ClearClientStop();  //in case of unfinished/error, don't read it in as text
          break;
          
       case 'f':  //filter via FrogFind
-         if(isURLFiltered(DestURL)) WebConnect(DestURL, AddToHist); //go now if already filtered
+         if(isURLFiltered(DestURL)) WebConnect(DestURL); //go now if already filtered
          else 
          {  //make filtered URL & connect
             stcURLParse URL =
@@ -676,19 +693,19 @@ void ModWebConnect(stcURLParse *DestURL, char cMod, bool AddToHist)
             //  so link patchs will be relative to correct server
             memcpy(DestURL, &URL, sizeof(stcURLParse)); 
             
-            WebConnect(&URL, AddToHist);
+            WebConnect(&URL);
          }
          break;
          
       case 'r': //Raw, no filterring
-         if(!isURLFiltered(DestURL)) WebConnect(DestURL, AddToHist); //go now if already raw
+         if(!isURLFiltered(DestURL)) WebConnect(DestURL); //go now if already raw
          else
          {  //strip off frogfind
             char * ptrURL = strstr(DestURL->postpath, "http");  // "/read.php?a=http://"
             if (ptrURL == NULL)
             {
                SendASCIIErrorStrImmediate("Could not remove filter");
-               WebConnect(DestURL, AddToHist);
+               WebConnect(DestURL);
             }
             else
             {
@@ -699,13 +716,201 @@ void ModWebConnect(stcURLParse *DestURL, char cMod, bool AddToHist)
                //  so link patchs will be relative to correct server
                memcpy(DestURL, &URL, sizeof(stcURLParse)); 
                   
-               WebConnect(&URL, AddToHist);  
+               WebConnect(&URL);  
             }
          }
          break;
       default:   
-         WebConnect(DestURL, AddToHist); //no mod, default to reader, prev defined filterring
+         WebConnect(DestURL); //no mod, default to reader, prev defined filterring
          break;
+   }
+}
+
+FLASHMEM void BC_Bookmarks(char* CmdMsg)   //*CmdMsg == 'b'
+{
+   RxQueueHead = RxQueueTail = 0; //dump the queue         
+   UnPausePage();
+   
+   CmdMsg++; //past the 'b'
+   
+   if (*CmdMsg == 0 || *CmdMsg == 'u') //no modifier or show URLs
+   {  //print bookmark list via buffer
+      char bufURL[eepBMURLSize];
+      char bufTitle[eepBMTitleSize];
+      
+      AddRawStrToRxQueue("<br><b>Saved Bookmarks:</b>"); 
+      for (uint8_t BMNum=0; BMNum < eepNumBookmarks; BMNum++)
+      {
+         if (*CmdMsg == 'u')
+         {
+            AddRawStrToRxQueue("<br><petscii%1e>#"); //green
+            AddRawCharToRxQueue('1'+BMNum);
+            AddRawStrToRxQueue(":");
+         }
+         else AddRawStrToRxQueue("<li>");
+         
+         AddRawStrToRxQueue("<a href=\"");
+         EEPreadStr(eepAdBookmarks+BMNum*(eepBMTitleSize+eepBMURLSize)+eepBMTitleSize,bufURL); //URL
+         Printf_dbg("BM#%d- %s", BMNum, bufURL);
+         AddRawStrToRxQueue(bufURL);
+         AddRawStrToRxQueue("\">");
+         EEPreadStr(eepAdBookmarks+BMNum*(eepBMTitleSize+eepBMURLSize),bufTitle); //Title
+         Printf_dbg("- %s\n", bufTitle);
+         AddRawStrToRxQueue(bufTitle);         
+         AddRawStrToRxQueue("</a>");
+         if (*CmdMsg == 'u')
+         {
+            AddRawStrToRxQueue("<br> ");
+            if(strncmp(bufURL, "http://", 7)==0) AddRawStrToRxQueue(bufURL+7);
+            else AddRawStrToRxQueue(bufURL);
+         }
+      }
+      AddRawStrToRxQueue("<eoftag>");
+   }
+   
+   else if(*CmdMsg >= '1' && *CmdMsg <= '9')
+   {  //jump to bookmark #
+      stcURLParse URL;
+      char buf[eepBMURLSize];
+      uint8_t BMNum = *CmdMsg - '1'; //zero based
+      
+      EEPreadStr(eepAdBookmarks+BMNum*(eepBMTitleSize+eepBMURLSize)+eepBMTitleSize, buf); //URL
+      ParseURL(buf, URL);
+      
+      if(DLExtension(URL.path)) DownloadFile(&URL, true); //overwrite from bookmark
+      else WebConnect(&URL);
+      AddToPrevURLQueue(&URL);
+   }
+   
+   else if(*CmdMsg == 's' && *(CmdMsg+1) >= '1' && *(CmdMsg+1) <= '9')
+   {  //set bookmark # to current
+
+      //re-encode to maximize eeprom usage, but could be too long...
+      char strURL[MaxURLHostSize+MaxURLPathSize+MaxURLPathSize+12]; //   +"HTTP:// & :Prt"
+      
+      sprintf(strURL, "http://%s:%d%s%s",
+         PrevURLQueue[PrevURLQueueNum]->host,
+         PrevURLQueue[PrevURLQueueNum]->port,
+         PrevURLQueue[PrevURLQueueNum]->path,
+         PrevURLQueue[PrevURLQueueNum]->postpath);
+      
+      if (strlen(strURL) >= eepBMURLSize)
+      {
+         SendASCIIErrorStrImmediate("URL too long");
+         return;              
+      }
+      CmdMsg++;
+      uint8_t BMNum = *CmdMsg - '1'; //zero based
+      while(!ReadyToSendRx()) CheckRxNMITimeout(); //Let any outstanding NMIs clear before EEPROM writes (resource hog)
+      EEPwriteStr(eepAdBookmarks+BMNum*(eepBMTitleSize+eepBMURLSize), CurrPageTitle); //Title
+      EEPwriteStr(eepAdBookmarks+BMNum*(eepBMTitleSize+eepBMURLSize)+eepBMTitleSize, strURL); //URL
+      
+      //Send confirmation
+      AddRawStrToRxQueue("<br><b>Bookmark #"); 
+      AddRawCharToRxQueue(*CmdMsg);
+      AddRawStrToRxQueue(" updated to:</b><br>\"");
+      AddRawStrToRxQueue(CurrPageTitle);
+      AddRawStrToRxQueue("\" at<br>");
+      AddRawStrToRxQueue(strURL);
+      AddRawStrToRxQueue("<eoftag>");
+   }
+   else
+   {
+      SendASCIIErrorStrImmediate("Unk Bookmark Mod");
+      return;  
+   }   
+}
+
+FLASHMEM void BC_Downloads(char* CmdMsg)  //*CmdMsg == 'd'
+{
+   uint8_t USB_SD;
+   FS *sourceFS;
+   
+   CmdMsg++; //past the 'd'
+   
+   while(*CmdMsg==' ') CmdMsg++;  //Allow for spaces after command   
+   if (strncmp(CmdMsg, "usb:", 4) == 0)
+   {
+      CmdMsg+=4;
+      USB_SD = Drive_USB;
+      sourceFS = &firstPartition;
+   }
+   else if (strncmp(CmdMsg, "sd:", 3) == 0)
+   {
+      CmdMsg+=3;
+      USB_SD = Drive_SD;
+      if (!SD.begin(BUILTIN_SDCARD))
+      {
+         SendASCIIErrorStrImmediate("SD not present");
+         return;  
+      }
+      sourceFS = &SD; 
+   }
+   else
+   {
+      SendASCIIErrorStrImmediate("sd: or usb: missing");
+      return;  
+   }
+   
+   //check that path exists
+   if (sourceFS->exists(CmdMsg))
+   {
+      if(CmdMsg[strlen(CmdMsg)-1] != '/') strcat(CmdMsg, "/");
+      while(!ReadyToSendRx()) CheckRxNMITimeout(); //Let any outstanding NMIs clear before EEPROM writes (resource hog)
+      EEPROM.write(eepAdDLPathSD_USB, USB_SD);
+      EEPwriteStr(eepAdDLPath, CmdMsg); 
+      
+      SendPETSCIICharImmediate(PETSCIIyellow);
+      SendASCIIStrImmediate("Download path updated\r");
+      SendPETSCIICharImmediate(PETSCIIwhite);
+   }
+   else
+   {
+      SendASCIIErrorStrImmediate("Path not found");
+   }
+}
+
+FLASHMEM void BC_FollowHyperlink(char* CmdMsg)   // *CmdMsg >= '0' && *CmdMsg <= '9'
+{
+   uint8_t CmdMsgVal = atoi(CmdMsg);
+   
+   if (CmdMsgVal > 0 && CmdMsgVal <= UsedPageLinkBuffs)
+   {
+      while (*CmdMsg >='0' && *CmdMsg <='9') CmdMsg++;  //move pointer past numbers
+      if (!ValidModifier(*CmdMsg)) return; 
+      
+      //we have a valid link # to follow...
+      stcURLParse URL;
+      
+      ParseURL(PageLinkBuff[CmdMsgVal-1], URL); //zero based
+
+      if(URL.host[0] == 0) //relative path, use same server/port, append path
+      {         
+         if (URL.path[0] == 0)
+         {
+            SendASCIIErrorStrImmediate("Empty Link");
+            return;  
+         }
+       
+         if(URL.path[0] != '/') //if not root ref, add previous path to beginning
+         {  
+            char temp[MaxURLPathSize];
+            strcpy(temp, URL.path); //store the path temprarily
+            strcpy(URL.path, PrevURLQueue[PrevURLQueueNum]->path); 
+            char * ptrLastSlash = strrchr(URL.path, '/'); // find last slash
+            if (ptrLastSlash != NULL) *(ptrLastSlash+1) = 0; //terminate after last slash
+            strcat(URL.path, temp); //add rel path back to end
+         }
+         URL.port = PrevURLQueue[PrevURLQueueNum]->port;
+         strcpy(URL.host, PrevURLQueue[PrevURLQueueNum]->host);
+         //leave postpath data in-tact
+      }
+      ModWebConnect(&URL, *CmdMsg);
+      AddToPrevURLQueue(&URL);
+   }
+   else
+   {
+      SendASCIIErrorStrImmediate("Link# Unknown");
    }
 }
 
@@ -727,84 +932,12 @@ FLASHMEM void ProcessBrowserCommand()
 	   else  PrevURLQueueNum--;
       
       Printf_dbg("PrevURL# %d\n", PrevURLQueueNum);
-      WebConnect(PrevURLQueue[PrevURLQueueNum], false);
+      WebConnect(PrevURLQueue[PrevURLQueueNum]); //not updating PrevURLQueue
    }
    
    else if(*CmdMsg == 'b') // Bookmark Commands
    {
-      RxQueueHead = RxQueueTail = 0; //dump the queue         
-      UnPausePage();
-      
-      CmdMsg++; //past the 'b'
-      
-      if (*CmdMsg == 0) //no modifier
-      {  //print bookmark list via buffer
-         char buf[eepBMURLSize];
-         
-         AddRawStrToRxQueue("<br><b>Saved Bookmarks:</b>"); 
-         for (uint8_t BMNum=0; BMNum < eepNumBookmarks; BMNum++)
-         {
-            AddRawStrToRxQueue("<li><a href=\"");
-            EEPreadStr(eepAdBookmarks+BMNum*(eepBMTitleSize+eepBMURLSize)+eepBMTitleSize,buf); //URL
-            Printf_dbg("BM#%d- %s", BMNum, buf);
-            AddRawStrToRxQueue(buf);
-            AddRawStrToRxQueue("\">");
-            EEPreadStr(eepAdBookmarks+BMNum*(eepBMTitleSize+eepBMURLSize),buf); //Title
-            Printf_dbg("- %s\n", buf);
-            AddRawStrToRxQueue(buf);         
-            AddRawStrToRxQueue("</a>");
-         }
-         AddRawStrToRxQueue("<eoftag>");
-      }
-      
-      else if(*CmdMsg >= '1' && *CmdMsg <= '9')
-      {  //jump to bookmark #
-         stcURLParse URL;
-         char buf[eepBMURLSize];
-         uint8_t BMNum = *CmdMsg - '1'; //zero based
-         
-         EEPreadStr(eepAdBookmarks+BMNum*(eepBMTitleSize+eepBMURLSize)+eepBMTitleSize, buf); //URL
-         ParseURL(buf, URL);
-         WebConnect(&URL, true);
-      }
-      
-      else if(*CmdMsg == 's' && *(CmdMsg+1) >= '1' && *(CmdMsg+1) <= '9')
-      {  //set bookmark # to current
-   
-         //re-encode to maximize eeprom usage, but could be too long...
-         char strURL[MaxURLHostSize+MaxURLPathSize+MaxURLPathSize+12]; //   +"HTTP:// & :Prt"
-         
-         sprintf(strURL, "http://%s:%d%s%s",
-            PrevURLQueue[PrevURLQueueNum]->host,
-            PrevURLQueue[PrevURLQueueNum]->port,
-            PrevURLQueue[PrevURLQueueNum]->path,
-            PrevURLQueue[PrevURLQueueNum]->postpath);
-         
-         if (strlen(strURL) >= eepBMURLSize)
-         {
-            SendASCIIErrorStrImmediate("URL too long");
-            return;              
-         }
-         CmdMsg++;
-         uint8_t BMNum = *CmdMsg - '1'; //zero based
-         while(!ReadyToSendRx()) CheckRxNMITimeout(); //Let any outstanding NMIs clear before EEPROM writes (resource hog)
-         EEPwriteStr(eepAdBookmarks+BMNum*(eepBMTitleSize+eepBMURLSize), CurrPageTitle); //Title
-         EEPwriteStr(eepAdBookmarks+BMNum*(eepBMTitleSize+eepBMURLSize)+eepBMTitleSize, strURL); //URL
-         
-         //Send confirmation
-         AddRawStrToRxQueue("<br><b>Bookmark #"); 
-         AddRawCharToRxQueue(*CmdMsg);
-         AddRawStrToRxQueue(" updated to:</b><br>\"");
-         AddRawStrToRxQueue(CurrPageTitle);
-         AddRawStrToRxQueue("\" at<br>");
-         AddRawStrToRxQueue(strURL);
-         AddRawStrToRxQueue("<eoftag>");
-      }
-      else
-      {
-         SendASCIIErrorStrImmediate("Unk Bookmark Mod");
-         return;  
-      }
+      BC_Bookmarks(CmdMsg);
    }   
    
    else if(*CmdMsg == 'r') // Reload web page
@@ -813,51 +946,12 @@ FLASHMEM void ProcessBrowserCommand()
       if (!ValidModifier(*CmdMsg)) return; 
       
       Printf_dbg("CurrURL# %d\n", PrevURLQueueNum);
-      ModWebConnect(PrevURLQueue[PrevURLQueueNum], *CmdMsg, false);
+      ModWebConnect(PrevURLQueue[PrevURLQueueNum], *CmdMsg); //no Add To PrevURLQueue
    }
    
    else if(*CmdMsg >= '0' && *CmdMsg <= '9') //Hyperlink #
    {
-      uint8_t CmdMsgVal = atoi(CmdMsg);
-      
-      if (CmdMsgVal > 0 && CmdMsgVal <= UsedPageLinkBuffs)
-      {
-         while (*CmdMsg >='0' && *CmdMsg <='9') CmdMsg++;  //move pointer past numbers
-         if (!ValidModifier(*CmdMsg)) return; 
-         
-         //we have a valid link # to follow...
-         stcURLParse URL;
-         
-         ParseURL(PageLinkBuff[CmdMsgVal-1], URL); //zero based
-
-         if(URL.host[0] == 0) //relative path, use same server/port, append path
-         {         
-            if (URL.path[0] == 0)
-            {
-               SendASCIIErrorStrImmediate("Empty Link");
-               return;  
-            }
-          
-            if(URL.path[0] != '/') //if not root ref, add previous path to beginning
-            {  
-               char temp[MaxURLPathSize];
-               strcpy(temp, URL.path); //store the path temprarily
-               strcpy(URL.path, PrevURLQueue[PrevURLQueueNum]->path); 
-               char * ptrLastSlash = strrchr(URL.path, '/'); // find last slash
-               if (ptrLastSlash != NULL) *(ptrLastSlash+1) = 0; //terminate after last slash
-               strcat(URL.path, temp); //add rel path back to end
-            }
-            URL.port = PrevURLQueue[PrevURLQueueNum]->port;
-            strcpy(URL.host, PrevURLQueue[PrevURLQueueNum]->host);
-            //leave postpath data in-tact
-         }
-         ModWebConnect(&URL, *CmdMsg, true);
-      }
-      else
-      {
-         SendASCIIErrorStrImmediate("Link# Unknown");
-         return;  
-      }
+      BC_FollowHyperlink(CmdMsg);
    }
    
    else if(*CmdMsg == 'u') //URL
@@ -872,7 +966,8 @@ FLASHMEM void ProcessBrowserCommand()
       char httpServer[MaxTagSize] = "http://";
       strcat(httpServer, CmdMsg);
       ParseURL(httpServer, URL);
-      ModWebConnect(&URL, Mod, true);
+      ModWebConnect(&URL, Mod);
+      AddToPrevURLQueue(&URL);
    }
    
    else if(*CmdMsg == 's') //search
@@ -889,58 +984,12 @@ FLASHMEM void ProcessBrowserCommand()
    
    else if(*CmdMsg == 'd') //download path update
    {
-      uint8_t USB_SD;
-      FS *sourceFS;
-      
-      CmdMsg++; //past the 'd'
-      while(*CmdMsg==' ') CmdMsg++;  //Allow for spaces after command   
-      if (strncmp(CmdMsg, "usb:", 4) == 0)
-      {
-         CmdMsg+=4;
-         USB_SD = Drive_USB;
-         sourceFS = &firstPartition;
-      }
-      else if (strncmp(CmdMsg, "sd:", 3) == 0)
-      {
-         CmdMsg+=3;
-         USB_SD = Drive_SD;
-         if (!SD.begin(BUILTIN_SDCARD))
-         {
-            SendASCIIErrorStrImmediate("SD not present");
-            return;  
-         }
-         sourceFS = &SD; 
-      }
-      else
-      {
-         SendASCIIErrorStrImmediate("sd: or usb: missing");
-         return;  
-      }
-      
-      //check that path exists
-      if (sourceFS->exists(CmdMsg))
-      {
-         if(CmdMsg[strlen(CmdMsg)-1] != '/') strcat(CmdMsg, "/");
-         while(!ReadyToSendRx()) CheckRxNMITimeout(); //Let any outstanding NMIs clear before EEPROM writes (resource hog)
-         EEPROM.write(eepAdDLPathSD_USB, USB_SD);
-         EEPwriteStr(eepAdDLPath, CmdMsg); 
-         
-         SendPETSCIICharImmediate(PETSCIIyellow);
-         SendASCIIStrImmediate("Download path updated\r");
-         SendPETSCIICharImmediate(PETSCIIwhite);
-         return;  
-      }
-      else
-      {
-         SendASCIIErrorStrImmediate("Path not found");
-         return;  
-      }
+      BC_Downloads(CmdMsg);
    }
    
    else if(strcmp(CmdMsg, "x") ==0) //Exit browse mode
    {
-      while (client.available()) client.read(); //clear client buffer
-      client.stop();
+      ClearClientStop();
       BrowserMode = false;
       RxQueueHead = RxQueueTail = 0; //dump the queue
       UnPausePage();

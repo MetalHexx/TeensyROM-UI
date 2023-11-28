@@ -148,6 +148,14 @@ void UnPausePage();
 #include "Swift_ATcommands.c"
 #include "Swift_Browser.c"
 
+void FreeSwiftlinkBuffs()
+{
+   for(uint8_t cnt=0; cnt<NumPageLinkBuffs; cnt++) {free(PageLinkBuff[cnt]); PageLinkBuff[cnt]=NULL;}
+   for(uint8_t cnt=0; cnt<NumPrevURLQueues; cnt++) {free(PrevURLQueue[cnt]); PrevURLQueue[cnt]=NULL;}
+   for(uint8_t cnt=0; cnt<RxQueueNumBlocks; cnt++) {free(RxQueue[cnt]); RxQueue[cnt]=NULL;}
+   free(TxMsg); TxMsg = NULL;   
+}
+
 FLASHMEM bool EthernetInit()
 {
    uint32_t beginWait = millis();
@@ -432,8 +440,7 @@ void PollingHndlr_SwiftLink()
    if(PlusCount==3 && millis()-LastTxMillis>1000) //Must be followed by one second of no characters
    {
       PlusCount=0;
-      while (client.available()) client.read(); //clear client buffer
-      client.stop();
+      ClearClientStop();
       AddToPETSCIIStrToRxQueueLN("\r*click*");
    }
 
