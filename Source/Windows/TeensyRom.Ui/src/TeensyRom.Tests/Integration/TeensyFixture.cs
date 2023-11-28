@@ -25,6 +25,7 @@ namespace TeensyRom.Tests.Integration
         public IFileWatchService FileWatchService { get; private set; }        
         public GetDirectoryCommand GetDirectoryContentCommand { get; private set; }
         public SaveFileCommand SaveFileCommand { get; private set; }
+        public CopyFileCommand CopyFileCommand { get; private set; }
         public ResetCommand ResetCommand { get; private set; }
         public LaunchFileCommand LaunchFileCommand { get; private set; }
         public PingCommand PingCommand { get; private set; }
@@ -50,6 +51,7 @@ namespace TeensyRom.Tests.Integration
             PingCommand = new PingCommand(SettingsService, SerialPort, LogService);
             GetDirectoryContentCommand = new GetDirectoryCommand(SettingsService, SerialPort, LogService);
             SaveFileCommand = new SaveFileCommand(SettingsService, SerialPort, LogService);
+            CopyFileCommand = new CopyFileCommand(SettingsService, SerialPort, LogService);
             FileWatcher = new FileWatcher();
             FileWatchService = new FileWatchService(SettingsService, FileWatcher, SerialState, LogService, SaveFileCommand);
             FileTransferViewModel = new FileTransferViewModel(GetDirectoryContentCommand, SettingsService, SerialState, LaunchFileCommand, new NavigationService(), LogService, snackbar, Dispatcher.CurrentDispatcher);
@@ -70,6 +72,16 @@ namespace TeensyRom.Tests.Integration
             ResetCommand?.Dispose();
             LaunchFileCommand?.Dispose();
             FileWatcher?.Dispose();
+
+            if (File.Exists(FullSourceTestPath))
+            {
+                File.Delete(FullSourceTestPath);
+            }
+
+            if (File.Exists(SettingsFileName))
+            {
+                File.Delete(SettingsFileName);
+            }
         }
     }
 }

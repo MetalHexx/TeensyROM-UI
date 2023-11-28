@@ -393,16 +393,6 @@ namespace TeensyRom.Tests.Integration
         public void Dispose()
         {
             _fixture.Dispose();
-
-            if (File.Exists(_fixture.FullSourceTestPath))
-            {
-                File.Delete(_fixture.FullSourceTestPath);
-            }
-
-            if (File.Exists(_fixture.SettingsFileName))
-            {
-                File.Delete(_fixture.SettingsFileName);
-            }
         }
     }
 }
