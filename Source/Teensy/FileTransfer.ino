@@ -303,3 +303,81 @@ FLASHMEM void GetDirectoryCommand()
 
     SendU16(EndDirectoryListToken);
 }
+
+FLASHMEM bool CopyFile(const char* SourcePath, const char* DestinationPath, FS& fs)
+{
+    File sourceFile = fs.open(SourcePath, FILE_READ);
+    if (!sourceFile)
+    {
+        SendU16(FailToken);
+        Serial.printf("Failed to open source file: %s\n", SourcePath);
+        return false;
+    }
+
+    File destinationFile = fs.open(DestinationPath, FILE_WRITE);
+    if (!destinationFile)
+    {
+        SendU16(FailToken);
+        Serial.printf("Failed to open destination file: %s\n", DestinationPath);
+        sourceFile.close();
+        return false;
+    }
+    
+    while (sourceFile.available())
+    {
+        uint8_t buf[64];
+        size_t len = sourceFile.read(buf, sizeof(buf));
+        destinationFile.write(buf, len);
+    }
+
+    sourceFile.close();
+    destinationFile.close();
+
+    return true;
+}
+
+
+// Command: 
+// Copies a command from one folder to the other in the USB/SD storage
+//
+// Workflow:
+// Receive <-- Post File Token 0x64FF 
+// Send --> AckToken 0x64CC
+// Receive <-- Source Path(MaxNameLength, null terminator), Destinationn Path(MaxNameLength, null terminator)
+// Send --> 0x64CC on Pass,  0x9b7f on Fail 
+//
+// Notes: Once Copy File Token Received, responses are 2 bytes in length
+FLASHMEM void CopyFileCommand()
+{  
+    SendU16(AckToken);
+
+    uint32_t storageType;
+    char SourcePath[MaxNamePathLength];
+    char DestinationPath[MaxNamePathLength];
+
+    if (!GetUInt(&storageType, 1))
+    {
+        SendU16(FailToken);
+        Serial.println("Error receiving storage type value!");
+        return;
+    }
+
+    if (!GetPathParameter(SourcePath)) return;
+
+    if (!GetPathParameter(DestinationPath)) return;
+    
+    FS* sourceFS = GetStorageDevice(storageType);
+
+    if (!sourceFS) return;
+
+    if (!EnsureDirectory(DestinationPath, *sourceFS))
+    {
+      SendU16(FailToken);
+      Serial.printf("Failed to ensure directory for: %s\n", DestinationPath);
+      return;
+    }
+  
+    if (!CopyFile(SourcePath, DestinationPath, *sourceFS)) return;
+   
+   SendU16(AckToken);
+}

@@ -20,7 +20,8 @@
 //synch with win app:
 #define LaunchFileToken   0x6444
 #define PauseSIDToken     0x6466
-#define SendFileToken     0x64AA 
+#define SendFileToken     0x64AA
+#define CopyFileToken     0x64FF 
 #define AckToken          0x64CC
 #define FailToken         0x9B7F
 #define PostFileToken     0x64BB 
@@ -65,6 +66,9 @@ FLASHMEM void ServiceSerial()
             case 0xAA: //file x-fer pc->TR
             case 0xBB:  // v2 file x-fer pc->TR.  For use with v2 UI.
                PostFileCommand();
+               break;
+            case 0xFF:
+               CopyFileCommand();
                break;
             case 0xDD:  // v2 directory listing from TR
                GetDirectoryCommand();
