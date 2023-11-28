@@ -29,13 +29,6 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
                 StorageType = _settings.TargetType,
                 TargetPath = path
             };
-
-            if (request.Type == TeensyFileType.Prg || request.Type == TeensyFileType.Crt)
-            {
-                _resetCommand.Execute();
-                Thread.Sleep(3000);
-            }
-
             if (LaunchFile(request))
             {
                 _logService.Log($"Launched: {path}");
