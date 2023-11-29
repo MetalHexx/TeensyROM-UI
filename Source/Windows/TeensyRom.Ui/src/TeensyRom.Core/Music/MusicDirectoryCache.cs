@@ -1,10 +1,16 @@
 ﻿using System.Collections.Generic;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Music
 {
     public class MusicDirectoryCache: Dictionary<string, MusicDirectory>
     {
+        public void Upsert(string path, MusicDirectory directory)
+        {
+            Delete(path);
+            Insert(path, directory);
+        }
         public void Insert(string path, MusicDirectory cacheItem)
         {
             path = path
@@ -13,7 +19,22 @@ namespace TeensyRom.Core.Music
 
             TryAdd(path, cacheItem);
         }
-        public MusicDirectory? GetBySong(string path)
+
+        public void Delete(string path)
+        {
+            var dir = GetByDirectory(path);
+
+            if (dir is null) return;
+
+            Remove(path);
+        }
+        public void Upsert(SongItem song)
+        {
+            var songParentDir = GetParentDirectory(song.Path);
+            songParentDir!.Upsert(song);
+            Upsert(song.Path.GetParentDirectory(), songParentDir);
+        }
+        public MusicDirectory? GetParentDirectory(string path)
         {
             var currentSongDirectory = path
                 .GetParentDirectory()

@@ -73,7 +73,9 @@
                         HorizontalAlignment="Right">                        
 
                         <Button 
-                            x:Name="FavButton"                    
+                            x:Name="FavButton" 
+                            Command="{Binding DataContext.SaveFavoriteCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
+                            CommandParameter="{Binding}"
                             Visibility="Collapsed"
                             ToolTip="Add to favorites"
                             Style="{StaticResource StorageIconButton}">

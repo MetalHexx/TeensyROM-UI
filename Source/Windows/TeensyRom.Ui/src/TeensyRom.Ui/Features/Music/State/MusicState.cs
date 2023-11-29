@@ -42,14 +42,14 @@ namespace TeensyRom.Ui.Features.Music.State
         private readonly ISongTimer _songTime;
         private readonly ILaunchFileCommand _launchFileCommand;
         private readonly IToggleMusicCommand _toggleMusicCommand;
-        private readonly IMusicService _musicService;
+        private readonly IMusicStorageService _musicService;
         private readonly ISettingsService _settingsService;
         private TeensySettings _settings = new();
         private IDisposable? _playingSongSubscription;
         private TimeSpan? _currentTime;
         private IDisposable _currentTimeSubscription;
 
-        public MusicState(ISongTimer songTime, ILaunchFileCommand launchFileCommand, IToggleMusicCommand toggleMusicCommand, IMusicService musicService, ISettingsService settingsService)
+        public MusicState(ISongTimer songTime, ILaunchFileCommand launchFileCommand, IToggleMusicCommand toggleMusicCommand, IMusicStorageService musicService, ISettingsService settingsService)
         {
             _songTime = songTime;
             _launchFileCommand = launchFileCommand;
@@ -122,6 +122,23 @@ namespace TeensyRom.Ui.Features.Music.State
 
             _playingSongSubscription = Observable.Timer(song.SongLength)
                 .Subscribe(_ => PlayNext());
+
+            return true;
+        }
+
+        public bool SaveFavorite(SongItem song)
+        {
+            var favSong = _musicService.SaveFavorite(song);
+            var directoryResult = _musicService.GetDirectory(favSong.Path.GetParentDirectory());
+
+            if (directoryResult is null) return false;
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                _directoryTree.Value.Insert(directoryResult.Directories);
+            });
+
+            _directoryTree.OnNext(_directoryTree.Value);
 
             return true;
         }

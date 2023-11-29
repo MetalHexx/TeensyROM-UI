@@ -21,6 +21,7 @@ namespace TeensyRom.Ui.Features.Music.SongList
         [ObservableAsProperty] public ObservableCollection<StorageItem> DirectoryContent { get; }
         [ObservableAsProperty] public bool ShowProgress { get; }
         public ReactiveCommand<SongItem, bool> PlayCommand { get; set; }
+        public ReactiveCommand<SongItem, bool> SaveFavoriteCommand { get; set; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }
 
         private readonly IMusicState _musicState;
@@ -35,6 +36,9 @@ namespace TeensyRom.Ui.Features.Music.SongList
            
             PlayCommand = ReactiveCommand.Create<SongItem, bool>(song =>
                 musicState.LoadSong(song), outputScheduler: RxApp.MainThreadScheduler);
+
+            SaveFavoriteCommand = ReactiveCommand.Create<SongItem, bool>(song =>
+                musicState.SaveFavorite(song), outputScheduler: RxApp.MainThreadScheduler);
 
             LoadDirectoryCommand = ReactiveCommand.CreateFromObservable<DirectoryItem, Unit>(directory =>
                 musicState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler);

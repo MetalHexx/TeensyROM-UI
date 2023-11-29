@@ -1,41 +1,76 @@
 ﻿using Newtonsoft.Json;
 using System.Reflection;
+using System.Transactions;
 using TeensyRom.Core.Commands;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Music
 {
-    public interface IMusicService
+    public interface IMusicStorageService
     {
-        void Reset();
-        void Dispose();
+        void Reset();        
         MusicDirectory? GetSongParentDirectory(string path);
         MusicDirectory? GetDirectory(string path);
+        SongItem? SaveFavorite(SongItem song);
+        void Dispose();
     }
 
-    public class MusicStorageService : IDisposable, IMusicService
+    public class MusicStorageService : IDisposable, IMusicStorageService
     {        
         private readonly ISettingsService _settingsService;
         private readonly ISidMetadataService _metadataService;
         private readonly IGetDirectoryCommand _getDirectoryCommand;
+        private readonly ICopyFileCommand _copyFileCommand;
         private TeensySettings _settings = new();
         private IDisposable? _settingsSubscription;
-        private const string _cacheFileName = "TeensyStorageCache.json";
+        private const string _cacheFileName = "TeensyStorageCache.json";        
         private MusicDirectoryCache _musicCache = new();
 
-        public MusicStorageService(ISettingsService settings, ISidMetadataService metadataService, IGetDirectoryCommand getDirectoryCommand)
+        public MusicStorageService(ISettingsService settings, ISidMetadataService metadataService, IGetDirectoryCommand getDirectoryCommand, ICopyFileCommand copyFileCommand)
         {
             _settingsService = settings;
             _metadataService = metadataService;
             _getDirectoryCommand = getDirectoryCommand;
+            _copyFileCommand = copyFileCommand;
             LoadCacheFromDisk();
-            _settingsSubscription = _settingsService.Settings.Subscribe(settings => _settings = settings);
+            _settingsSubscription = _settingsService.Settings.Subscribe(OnSettingsChanged);
         }
+
+        private void OnSettingsChanged(TeensySettings settings)
+        {
+            _settings = settings;
+        }
+
+        private string GetFavoritesPath() => _settings
+            .GetFileTypePath(TeensyFileType.Sid)
+            .UnixPathCombine("/playlists/favorites");
 
         private string GetFullCachePath() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "", _cacheFileName);
 
         public void Reset() => _musicCache.Clear();
+
+        public SongItem? SaveFavorite(SongItem song)
+        {
+            var songFileName = song.Path.GetFileNameFromPath();            
+            var targetPath = GetFavoritesPath().UnixPathCombine(songFileName);
+            var copySuccess = _copyFileCommand.Execute(song.Path, targetPath);
+
+            if (!copySuccess) return null;
+
+            song.IsFavorite = true;
+            var favSong = song.Clone();
+            favSong.Path = targetPath;
+
+            _musicCache.Upsert(song);
+            _musicCache.Upsert(favSong);
+
+            SaveCacheToDisk();
+
+            return favSong;
+        }
+
         private void LoadCacheFromDisk()
         {
             var cacheLocation = GetFullCachePath();
@@ -63,7 +98,7 @@ namespace TeensyRom.Core.Music
                 Formatting = Formatting.Indented
             }));
         }
-        public MusicDirectory? GetSongParentDirectory(string path) => _musicCache.GetBySong(path);
+        public MusicDirectory? GetSongParentDirectory(string path) => _musicCache.GetParentDirectory(path);
         public MusicDirectory? GetDirectory(string path)
         {
             var cacheItem = _musicCache.GetByDirectory(path);
