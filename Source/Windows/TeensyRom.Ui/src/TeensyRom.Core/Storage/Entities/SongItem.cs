@@ -1,9 +1,11 @@
 ﻿using System;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Core.Storage.Entities
 {
     public class SongItem : StorageItem
     {
+        public string Id => $"{Size}{Path.GetFileNameFromPath()}";
         public string ArtistName { get; set; } = string.Empty;
         public string ReleaseInfo { get; set; } = string.Empty;
         public string Comments { get; set; } = string.Empty;

@@ -16,9 +16,6 @@ namespace TeensyRom.Core.Settings
         public List<TeensyTarget> FileTargets { get; set; } = new List<TeensyTarget>();
         public bool AutoFileCopyEnabled { get; set; }
 
-        [JsonIgnore]
-        public string HvscPath => GetFileTypePath(TeensyFileType.Sid).UnixPathCombine(@"/hvsc");
-
         public TeensySettings()
         {
             GetDefaultBrowserDownloadPath();

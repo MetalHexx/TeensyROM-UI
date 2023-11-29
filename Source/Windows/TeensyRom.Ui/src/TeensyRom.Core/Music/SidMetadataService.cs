@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime;
 using System.Security.Cryptography;
 using System.Text;
@@ -58,20 +59,15 @@ namespace TeensyRom.Core.Music
 
         public SongItem EnrichSong(SongItem song)
         {
-            SidRecord? record = null; 
+            _songDatabase.TryGetValue(song.Id, out var sidRecord);
 
-            if (!song.Path.Contains(_settings.HvscPath)) return song;
-            
-            var trimmedPath = song.Path.Replace($"{_settings.HvscPath}", "");
-            _songDatabase.TryGetValue(trimmedPath, out record);
-
-            if (record is not null)
+            if (sidRecord is not null)
             {
-                song.ArtistName = record.Author;
-                song.Name = record.Title;
-                song.SongLength = record.SongLengthSpan;
-                song.ReleaseInfo = record.Released;
-                song.Comments = record.StilEntry;
+                song.ArtistName = sidRecord.Author;
+                song.Name = sidRecord.Title;
+                song.SongLength = sidRecord.SongLengthSpan;
+                song.ReleaseInfo = sidRecord.Released;
+                song.Comments = sidRecord.StilEntry;
             }
             return song;
         }
@@ -90,8 +86,21 @@ namespace TeensyRom.Core.Music
             });
 
             csv.Context.RegisterClassMap<SidRecordMap>();
-            return csv.GetRecords<SidRecord>().ToDictionary(record => record.Filename);
+            var records = csv.GetRecords<SidRecord>();
+            return FilterOutDupes(records);       
         }
+
+        private Dictionary<string, SidRecord> FilterOutDupes(IEnumerable<SidRecord> records) => records
+            .Select(r =>
+            {
+                r.Filename = r.Filename.GetFileNameFromPath();
+                return r;
+            })
+            .GroupBy(r => new { r.SizeInBytes, r.Filename })
+            .Where(g => g.Count() == 1)
+            .SelectMany(g => g)
+            .ToList()
+            .ToDictionary(r => $"{r.SizeInBytes}{r.Filename.GetFileNameFromPath()}");
 
         private static Dictionary<string, SidRecord>  ParseSids(Dictionary<string, SidRecord> sids)
         {
