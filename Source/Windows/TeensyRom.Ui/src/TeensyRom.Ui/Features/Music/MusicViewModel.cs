@@ -29,6 +29,7 @@ namespace TeensyRom.Ui.Features.Music
         [Reactive] public PlayToolbarViewModel PlayToolBar { get; set; }       
         [Reactive] public SongListViewModel SongList { get; set; }
         [Reactive] public MusicTreeViewModel MusicTree { get; set; }
+        public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
 
 
         public MusicViewModel(IMusicState musicState, ISerialPortState serialState, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList, MusicTreeViewModel musicTree) 
@@ -41,6 +42,8 @@ namespace TeensyRom.Ui.Features.Music
             _musicState.CurrentSong
                 .Select(s => s is null)
                 .ToPropertyEx(this, x => x.ShowPlayToolbar);
+
+            RefreshCommand = ReactiveCommand.CreateFromObservable<Unit, Unit>( _ => musicState.RefreshDirectory());
 
             _loadSongsSubscription = serialState.IsConnected
                 .Where(isConnected => isConnected is true)

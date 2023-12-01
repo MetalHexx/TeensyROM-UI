@@ -8,13 +8,14 @@ namespace TeensyRom.Core.Settings
     /// <summary>
     /// Used to persist and retrieve user preference from disk.  See: Settings.json in the bin folder
     /// </summary>
-    public class TeensySettings
+    public record TeensySettings
     {
         public TeensyStorageType TargetType { get; set; } = TeensyStorageType.SD;
         public string WatchDirectoryLocation { get; set; } = string.Empty;
         public string TargetRootPath { get; set; } = @"/sync";
         public List<TeensyTarget> FileTargets { get; set; } = new List<TeensyTarget>();
         public bool AutoFileCopyEnabled { get; set; }
+        public bool SaveMusicCacheEnabled { get; set; }        
 
         public TeensySettings()
         {

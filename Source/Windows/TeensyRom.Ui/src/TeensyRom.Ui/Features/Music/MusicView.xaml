@@ -21,7 +21,9 @@
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -29,11 +31,35 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <ContentControl Content="{Binding SongList}" Grid.Row="0" Grid.Column="1" />
-        <ContentControl Content="{Binding MusicTree}" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="0 0 20 0" />
+        <!--<TextBlock 
+            Text="{Binding FeatureTitle}"
+            Style="{StaticResource SectionTitle}" 
+            Grid.Row="0"/>-->
 
-        <Grid x:Name="ToolBarGrid" Grid.Row="1" Grid.ColumnSpan="2" Background="#303030" RenderTransformOrigin="0.5,0.5"
+        <Button 
+            Command="{Binding RefreshCommand}" 
+            ToolTip="Add to favorites"
+            Style="{StaticResource StorageIconButton}" 
+            HorizontalAlignment="Right" VerticalAlignment="Top" 
+            Grid.Row="0" Grid.Column="2">
+            
+            <materialDesign:PackIcon Kind="refresh" />            
+        </Button>
+        
+        <ContentControl Content="{Binding SongList}" 
+            Grid.Row="1" Grid.Column="1" />
+        
+        <ContentControl Content="{Binding MusicTree}" 
+            HorizontalAlignment="Left" 
+            Grid.Row="1" Grid.Column="0" 
+            Margin="0 0 20 0" />
+
+        <Grid x:Name="ToolBarGrid" 
+              Grid.Row="2" Grid.ColumnSpan="2" 
+              Background="#303030" 
+              RenderTransformOrigin="0.5,0.5"
               Visibility="{Binding ShowPlayToolbar, Converter={StaticResource InverseBoolToVisibilityConvertor}}">
+            
             <Grid.RenderTransform>
                 <TranslateTransform Y="100"/>
             </Grid.RenderTransform>

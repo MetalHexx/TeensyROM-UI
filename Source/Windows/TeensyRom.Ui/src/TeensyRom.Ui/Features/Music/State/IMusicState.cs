@@ -16,9 +16,10 @@ namespace TeensyRom.Ui.Features.Music.State
         IObservable<SongMode> CurrentSongMode { get; }
         IObservable<TimeSpan> CurrentSongTime { get; }
         IObservable<PlayState> CurrentPlayState { get; }
-            
+
         IObservable<Unit> LoadDirectory(string path);
         Unit LoadDirectorySync(string path);
+        IObservable<Unit> RefreshDirectory();
         bool LoadSong(SongItem song);
         bool SaveFavorite(SongItem song);
         void PlayNext();

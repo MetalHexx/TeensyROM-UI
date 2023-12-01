@@ -10,9 +10,9 @@ namespace TeensyRom.Core.Music
 {
     public interface IMusicStorageService
     {
-        void Reset();        
-        MusicDirectory? GetSongParentDirectory(string path);
-        MusicDirectory? GetDirectory(string path);
+        void ClearCache();        
+        void ClearCache(string path);
+        MusicDirectory? GetDirectory(string path);        
         SongItem? SaveFavorite(SongItem song);
         void Dispose();
     }
@@ -23,7 +23,7 @@ namespace TeensyRom.Core.Music
         private readonly ISidMetadataService _metadataService;
         private readonly IGetDirectoryCommand _getDirectoryCommand;
         private readonly ICopyFileCommand _copyFileCommand;
-        private TeensySettings _settings = new();
+        private TeensySettings? _settings;
         private IDisposable? _settingsSubscription;
         private const string _cacheFileName = "TeensyStorageCache.json";        
         private MusicDirectoryCache _musicCache = new();
@@ -33,14 +33,28 @@ namespace TeensyRom.Core.Music
             _settingsService = settings;
             _metadataService = metadataService;
             _getDirectoryCommand = getDirectoryCommand;
-            _copyFileCommand = copyFileCommand;
-            LoadCacheFromDisk();
+            _copyFileCommand = copyFileCommand;            
             _settingsSubscription = _settingsService.Settings.Subscribe(OnSettingsChanged);
         }
 
-        private void OnSettingsChanged(TeensySettings settings)
+        private void OnSettingsChanged(TeensySettings newSettings)
         {
-            _settings = settings;
+            if(_settings is null && newSettings.SaveMusicCacheEnabled)
+            {
+                _settings = newSettings;
+                LoadCache();                
+                return;
+            }
+            var shouldDeleteCache = _settings is not null
+                && _settings.SaveMusicCacheEnabled
+                && newSettings.SaveMusicCacheEnabled == false;
+
+            _settings = newSettings;
+
+            if (shouldDeleteCache)
+            {
+                ClearCache();
+            }
         }
 
         private string GetFavoritesPath() => _settings
@@ -49,7 +63,18 @@ namespace TeensyRom.Core.Music
 
         private string GetFullCachePath() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "", _cacheFileName);
 
-        public void Reset() => _musicCache.Clear();
+        public void ClearCache()
+        {
+            _musicCache.Clear();
+
+            var cachePath = GetFullCachePath();
+
+            if (!File.Exists(cachePath)) return;
+
+            File.Delete(cachePath);
+        }
+
+        public void ClearCache(string path) => _musicCache.DeleteDirectoryTree(path);
 
         public SongItem? SaveFavorite(SongItem song)
         {
@@ -63,17 +88,22 @@ namespace TeensyRom.Core.Music
             var favSong = song.Clone();
             favSong.Path = targetPath;
 
-            _musicCache.Upsert(song);
-            _musicCache.Upsert(favSong);
+            _musicCache.UpsertSong(song);
+            _musicCache.UpsertSong(favSong);
 
             SaveCacheToDisk();
 
             return favSong;
         }
 
-        private void LoadCacheFromDisk()
+        private void LoadCache()
         {
+            var saveCacheEnabled = _settings?.SaveMusicCacheEnabled ?? false;
+            
+            if (!saveCacheEnabled) return;
+
             var cacheLocation = GetFullCachePath();
+
             if (!File.Exists(cacheLocation)) return;
 
             using var stream = File.Open(cacheLocation, FileMode.Open, FileAccess.Read);
@@ -90,6 +120,8 @@ namespace TeensyRom.Core.Music
         
         private void SaveCacheToDisk()
         {
+            if (!_settings!.SaveMusicCacheEnabled) return;
+
             var cacheLocation = GetFullCachePath();
 
             File.WriteAllText(cacheLocation, JsonConvert.SerializeObject(_musicCache, Formatting.Indented, new JsonSerializerSettings
@@ -98,7 +130,6 @@ namespace TeensyRom.Core.Music
                 Formatting = Formatting.Indented
             }));
         }
-        public MusicDirectory? GetSongParentDirectory(string path) => _musicCache.GetParentDirectory(path);
         public MusicDirectory? GetDirectory(string path)
         {
             var cacheItem = _musicCache.GetByDirectory(path);
@@ -114,10 +145,12 @@ namespace TeensyRom.Core.Music
 
             cacheItem = new MusicDirectory
             {
+                Path = path,
                 Directories = directories.ToList(),
                 Songs = songs
             };
-            _musicCache.Insert(path, cacheItem);
+
+            _musicCache.UpsertDirectory(path, cacheItem);
             SaveCacheToDisk();
 
             return cacheItem;

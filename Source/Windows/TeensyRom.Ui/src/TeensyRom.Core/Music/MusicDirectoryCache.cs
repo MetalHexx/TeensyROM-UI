@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Reactive.Concurrency;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
 
@@ -6,55 +8,63 @@ namespace TeensyRom.Core.Music
 {
     public class MusicDirectoryCache: Dictionary<string, MusicDirectory>
     {
-        public void Upsert(string path, MusicDirectory directory)
+        public void UpsertDirectory(string path, MusicDirectory directory)
         {
-            Delete(path);
-            Insert(path, directory);
+            DeleteDirectory(path);
+            InsertDirectory(path, directory);
         }
-        public void Insert(string path, MusicDirectory cacheItem)
+        
+        public void UpsertSong(SongItem song)
         {
-            path = path
-                .RemoveLeadingAndTrailingSlash()
-                .ToLower();
+            var path = song.Path.GetParentDirectory();
+            var songParentDir = GetByDirectory(path);
 
-            TryAdd(path, cacheItem);
+            if (songParentDir is null) return;
+
+            songParentDir!.UpsertSong(song);
+            UpsertDirectory(path, songParentDir);
         }
 
-        public void Delete(string path)
+        private void InsertDirectory(string path, MusicDirectory cacheItem)
         {
-            var dir = GetByDirectory(path);
+            var cleanPath = CleanPath(path);
+            TryAdd(cleanPath, cacheItem);
+        }
+
+        public void DeleteDirectory(string path)
+        {
+            var cleanPath = CleanPath(path);
+            var dir = GetByDirectory(cleanPath);
 
             if (dir is null) return;
 
-            Remove(path);
+            Remove(cleanPath);
         }
-        public void Upsert(SongItem song)
-        {
-            var songParentDir = GetParentDirectory(song.Path);
-            songParentDir!.Upsert(song);
-            Upsert(song.Path.GetParentDirectory(), songParentDir);
-        }
-        public MusicDirectory? GetParentDirectory(string path)
-        {
-            var currentSongDirectory = path
-                .GetParentDirectory()
-                .RemoveLeadingAndTrailingSlash()
-                .ToLower();
 
-            if (!TryGetValue(currentSongDirectory, out var item)) return null;
+        public void DeleteDirectoryTree(string path)
+        {
+            var currentDir = GetByDirectory(path);
 
-            return item;
+            if (currentDir is null) return;
+
+            foreach (var directory in currentDir.Directories)
+            {
+                DeleteDirectoryTree(directory.Path);
+            }
+            DeleteDirectory(currentDir.Path);
         }
 
         public MusicDirectory? GetByDirectory(string path)
         {
-            var currentSongDirectory = path
-                .RemoveLeadingAndTrailingSlash()
-                .ToLower();
+            var cleanPath = CleanPath(path);
 
-            if (!TryGetValue(currentSongDirectory, out var item)) return null;
+            if (!TryGetValue(cleanPath, out var item)) return null;
 
             return item;
         }
+
+        private string CleanPath(string path) => path
+            .RemoveLeadingAndTrailingSlash()
+            .ToLower();
     }
 }

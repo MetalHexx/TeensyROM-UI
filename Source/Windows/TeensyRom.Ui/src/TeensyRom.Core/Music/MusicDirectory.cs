@@ -5,10 +5,11 @@ namespace TeensyRom.Core.Music
 {
     public class MusicDirectory
     {
+        public string Path { get; set; } = string.Empty;
         public List<DirectoryItem> Directories { get; set; } = new();
         public List<SongItem> Songs { get; set; } = new();
 
-        public void Upsert(SongItem song)
+        public void UpsertSong(SongItem song)
         {
             var songIndex = Songs.IndexOf(song);
 

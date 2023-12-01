@@ -34,6 +34,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
         private readonly BehaviorSubject<DirectoryItem> _directoryTree = new(new());
         private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
+        private readonly BehaviorSubject<MusicDirectory?> _currentDirectory = new(null);
         private readonly Subject<bool> _directoryLoading = new();
         private readonly BehaviorSubject<SongItem> _currentSong = new(null);
         private readonly BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
@@ -163,7 +164,8 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public void PlayPrevious()
         {
-            var directoryResult = _musicService.GetSongParentDirectory(_currentSong.Value.Path);
+            var parentPath = _currentSong.Value.Path.GetParentDirectory();
+            var directoryResult = _musicService.GetDirectory(parentPath);
 
             if(directoryResult is null || _currentTime >= TimeSpan.FromSeconds(3))
             {
@@ -181,7 +183,8 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public void PlayNext()
         {
-            var directoryResult = _musicService.GetSongParentDirectory(_currentSong.Value.Path);
+            var parentPath = _currentSong.Value.Path.GetParentDirectory();
+            var directoryResult = _musicService.GetDirectory(parentPath);
 
             if (directoryResult is null)
             {
@@ -231,6 +234,7 @@ namespace TeensyRom.Ui.Features.Music.State
             directoryItems.AddRange(directoryResult.Songs);
 
             _directoryContent.OnNext(directoryItems);
+            _currentDirectory.OnNext(directoryResult);
             _directoryTree.OnNext(_directoryTree.Value);
             _directoryLoading.OnNext(false);
 
@@ -245,6 +249,14 @@ namespace TeensyRom.Ui.Features.Music.State
         {
             _currentTimeSubscription?.Dispose();
             _playingSongSubscription?.Dispose();
+        }
+
+        public IObservable<Unit> RefreshDirectory()
+        {
+            if (_currentDirectory.Value is null) return Observable.Empty<Unit>();
+
+            _musicService.ClearCache(_currentDirectory.Value.Path);
+            return LoadDirectory(_currentDirectory.Value.Path); 
         }
     }
 }

@@ -52,7 +52,7 @@ namespace TeensyRom.Core.Settings
             if (!ValidateAndLogSettings(settings)) return false;
 
             _logService.Log($"Settings saved successfully.");
-            _settings.OnNext(settings);
+            _settings.OnNext(settings with { });
 
             File.WriteAllText(_settingsFilePath, JsonConvert.SerializeObject(settings, Formatting.Indented, new JsonSerializerSettings
             {
