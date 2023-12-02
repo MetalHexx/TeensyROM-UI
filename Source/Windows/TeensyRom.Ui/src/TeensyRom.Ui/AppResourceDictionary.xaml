@@ -63,11 +63,12 @@
 
     <Style x:Key="SectionTitle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="20"/>
+        <Setter Property="Margin" Value="10"/>
     </Style>
 
     <Style x:Key="LargeLabel" TargetType="Label">
         <Setter Property="FontSize" Value="17"/>
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Foreground" Value="White"/>        
     </Style>
 
     <Style x:Key="MainTitle" TargetType="TextBlock">

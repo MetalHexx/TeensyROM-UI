@@ -16,7 +16,12 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" HorizontalAlignment="Right">
+        <TextBlock 
+            Text="{Binding FeatureTitle}"
+            Style="{StaticResource SectionTitle}" 
+            Grid.Row="0"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10" HorizontalAlignment="Right">
             <Label 
                 HorizontalAlignment="Right" 
                 Content="Status:"/>
@@ -37,7 +42,7 @@
         </StackPanel>
 
         <StackPanel 
-            Grid.Row="0" 
+            Grid.Row="1" 
             Orientation="Horizontal">
 
             <ComboBox  

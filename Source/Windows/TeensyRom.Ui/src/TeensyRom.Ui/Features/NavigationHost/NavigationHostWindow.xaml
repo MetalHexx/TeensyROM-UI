@@ -129,20 +129,11 @@
 
                 <TextBlock Style="{StaticResource MainTitle}" Margin="0 0 0 10" VerticalAlignment="Top">TeensyROM</TextBlock>
 
-                <materialDesign:Card Grid.Row="1" Padding="10" VerticalAlignment="Stretch">
+                <materialDesign:Card Grid.Row="1" Padding="5" VerticalAlignment="Stretch">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-
-                        <TextBlock 
-                            Text="{Binding CurrentViewModel.FeatureTitle, FallbackValue='Default Feature Title'}"
-                            Style="{StaticResource SectionTitle}" 
-                            Height="25"
-                            Grid.Row="0"
-                            Margin="10" />
-
                         <ContentControl Content="{Binding CurrentViewModel}" Opacity="0" Grid.Row="1">
                             <ContentControl.Style>
                                 <Style TargetType="ContentControl">
