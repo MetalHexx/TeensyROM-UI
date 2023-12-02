@@ -89,7 +89,7 @@
 
             <StackPanel 
                 ToolTip="This will determine the default storage type to store files on TeensyRom."                
-                Grid.Row="5" Grid.Column="3" Orientation="Horizontal" VerticalAlignment="top" Margin="0 3 0 0">
+                Grid.Row="4" Grid.Column="3" Orientation="Horizontal" VerticalAlignment="top" Margin="0 3 0 0">
 
                 <RadioButton 
                     Content="SD" 
