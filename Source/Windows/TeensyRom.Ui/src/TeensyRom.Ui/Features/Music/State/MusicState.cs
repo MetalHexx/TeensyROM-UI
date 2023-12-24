@@ -94,10 +94,8 @@ namespace TeensyRom.Ui.Features.Music.State
         public void SetSongMode(SongMode songMode) => _songMode.OnNext(songMode);
 
         public bool LoadSong(SongItem song)
-        {
-            _songTime.Reset();
-            _songTime.Start();
-
+        {   
+            _songTime.StartNewTimer(song.SongLength);
             if (!_launchFileCommand.Execute(song.Path))
             {
                 return false;
@@ -116,13 +114,11 @@ namespace TeensyRom.Ui.Features.Music.State
             });
 
             _currentSong.OnNext(song);
-
             _playState.OnNext(PlayState.Playing);
+            
 
             _playingSongSubscription?.Dispose();
-
-            _playingSongSubscription = Observable.Timer(song.SongLength)
-                .Subscribe(_ => PlayNext());
+            _playingSongSubscription = _songTime.SongComplete.Subscribe(_ => PlayNext());
 
             return true;
         }
@@ -146,20 +142,30 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public bool ToggleMusic()
         {
-            if (!_toggleMusicCommand.Execute()) return false;
+            TogglePlayState();
 
+            if (!_toggleMusicCommand.Execute())
+            {
+                TogglePlayState();
+                return false;
+            }
+            return true;
+        }
+
+        private PlayState TogglePlayState()
+        {
             var playState = GetToggledPlayState();
 
             if (playState == PlayState.Playing)
             {
-                _songTime.Start();
+                _songTime.ResumeTimer();
             }
             else
             {
-                _songTime.Stop();
+                _songTime.PauseTimer();
             }
             _playState.OnNext(playState);
-            return true;
+            return playState;
         }
 
         public void PlayPrevious()
@@ -177,8 +183,8 @@ namespace TeensyRom.Ui.Features.Music.State
             var songToLoad = songIndex == 0
                 ? directoryResult.Songs.Last()
                 : directoryResult.Songs[--songIndex];
-            LoadSong(songToLoad);
 
+            LoadSong(songToLoad);
         }
 
         public void PlayNext()
