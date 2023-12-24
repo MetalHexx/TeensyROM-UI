@@ -54,7 +54,7 @@ namespace TeensyRom.Ui.Features.Music.State
         private void StartObservables(TimeSpan length)
         {
             _timerSubscription = Observable.Timer(length)
-                .Subscribe(_ => _songComplete.Next());
+                .Subscribe(_ => _songComplete.OnNext(Unit.Default));
 
             _currentTimeSubscription = _timeIntervalObservable
                 .Subscribe(_ => _currentTime = _currentTime.Add(TimeSpan.FromSeconds(1)));
