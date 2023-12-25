@@ -96,10 +96,9 @@ namespace TeensyRom.Ui.Features.Music.State
         public bool LoadSong(SongItem song)
         {   
             _songTime.StartNewTimer(song.SongLength);
-            if (!_launchFileCommand.Execute(song.Path))
-            {
-                return false;
-            }
+            
+            _launchFileCommand.Execute(song.Path); //TODO: When TR fails on a SID, the next song command "fails", but the song still plays.  So I'll ignore the false return value for now.
+
             Application.Current.Dispatcher.Invoke(() =>
             {
                 song.IsSelected = true;
