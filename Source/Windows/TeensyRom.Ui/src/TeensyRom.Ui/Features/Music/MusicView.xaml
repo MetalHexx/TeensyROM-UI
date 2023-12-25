@@ -8,17 +8,6 @@
              mc:Ignorable="d" 
              Height="auto" Width="auto">
 
-    <UserControl.Resources>
-        <Storyboard x:Key="SlideUpStoryboard">
-            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
-                             From="100" To="0" Duration="0:0:7.0">
-                <DoubleAnimation.EasingFunction>
-                    <QuinticEase EasingMode="EaseOut"/>
-                </DoubleAnimation.EasingFunction>
-            </DoubleAnimation>
-        </Storyboard>
-    </UserControl.Resources>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -58,18 +47,8 @@
         <Grid x:Name="ToolBarGrid" 
               Grid.Row="2" Grid.ColumnSpan="2" 
               Background="#303030" 
-              RenderTransformOrigin="0.5,0.5"
               Visibility="{Binding ShowPlayToolbar, Converter={StaticResource InverseBoolToVisibilityConvertor}}">
-            
-            <Grid.RenderTransform>
-                <TranslateTransform Y="100"/>
-            </Grid.RenderTransform>
             <ContentControl Content="{Binding PlayToolBar}" VerticalAlignment="Center"/>
-            <Grid.Triggers>
-                <EventTrigger RoutedEvent="Loaded">
-                    <BeginStoryboard Storyboard="{StaticResource SlideUpStoryboard}" />
-                </EventTrigger>
-            </Grid.Triggers>
         </Grid>
     </Grid>
 
