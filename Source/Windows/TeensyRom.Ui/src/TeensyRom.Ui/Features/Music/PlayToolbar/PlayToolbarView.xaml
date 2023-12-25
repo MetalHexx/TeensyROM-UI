@@ -16,7 +16,6 @@
 
         <ProgressBar 
             Value="{Binding CurrentProgress, Mode=OneWay}"
-            Visibility="{Binding}"
             Maximum="1"
             Grid.Row="0" VerticalAlignment="Top" />
 
