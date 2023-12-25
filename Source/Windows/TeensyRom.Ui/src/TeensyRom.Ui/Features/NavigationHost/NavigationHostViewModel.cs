@@ -26,6 +26,13 @@ namespace TeensyRom.Ui.Features.NavigationHost
         [ObservableAsProperty]
         public bool IsNavOpen { get; }
 
+        [Reactive]
+        public string Title { get; set; } = "TeensyROM";
+
+        //TODO: Track down why I need this property.  I had to put this here to stop a bunch of errors from throwing in the output window.
+        [Reactive]
+        public bool ControlsEnabled { get; set; }
+
         public SnackbarMessageQueue MessageQueue { get; private set; }
 
         public ReactiveCommand<NavigationItem, Unit> NavigateCommand { get; private set; }
