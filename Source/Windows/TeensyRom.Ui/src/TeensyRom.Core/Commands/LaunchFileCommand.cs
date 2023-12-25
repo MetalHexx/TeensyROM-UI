@@ -67,8 +67,9 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
                 }
                 _logService.Log("Launch file request complete!");
             }
-            catch (TeensyException)
+            catch (TeensyException ex)
             {
+                _logService.Log($"Error launching file.  {ex.Message}");
                 return false;
             }
             finally
