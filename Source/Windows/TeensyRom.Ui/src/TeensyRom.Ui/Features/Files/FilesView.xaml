@@ -7,6 +7,14 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-            
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock 
+            Text="{Binding FeatureTitle}"
+            Style="{StaticResource SectionTitle}" 
+            Grid.Row="0"/>
+
     </Grid>
 </UserControl>
