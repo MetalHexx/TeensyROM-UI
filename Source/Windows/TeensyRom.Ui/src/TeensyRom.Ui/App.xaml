@@ -3,6 +3,7 @@
     StartupUri="Features/NavigationHost/NavigationHostWindow.xaml"
     xmlns:ui="clr-namespace:TeensyRom.Ui"
     xmlns:FileTransfer="clr-namespace:TeensyRom.Ui.Features.FileTransfer"
+    xmlns:Files="clr-namespace:TeensyRom.Ui.Features.Files"
     xmlns:Help="clr-namespace:TeensyRom.Ui.Features.Help"
     xmlns:Music="clr-namespace:TeensyRom.Ui.Features.Music"
     xmlns:DirectoryTree="clr-namespace:TeensyRom.Ui.Controls.DirectoryTree"
@@ -32,7 +33,11 @@
             <DataTemplate DataType="{x:Type FileTransfer:FileTransferViewModel}">
                 <FileTransfer:FileTransferView />
             </DataTemplate>
-            
+
+            <DataTemplate DataType="{x:Type Files:FilesViewModel}">
+                <Files:FilesView />
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type Help:HelpViewModel}">
                 <Help:HelpView />
             </DataTemplate>

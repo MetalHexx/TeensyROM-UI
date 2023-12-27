@@ -20,6 +20,7 @@ using TeensyRom.Ui.Features.Music.SongList;
 using TeensyRom.Core.Music;
 using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.Music.MusicTree;
+using TeensyRom.Ui.Features.Files;
 
 namespace TeensyRom.Ui
 {
@@ -60,6 +61,7 @@ namespace TeensyRom.Ui
             SimpleIoc.Default.Register<NavigationHostViewModel>();
             SimpleIoc.Default.Register<ConnectViewModel>();
             SimpleIoc.Default.Register<FileTransferViewModel>();
+            SimpleIoc.Default.Register<FilesViewModel>();
             SimpleIoc.Default.Register<SettingsViewModel>();
             SimpleIoc.Default.Register<HelpViewModel>();
             SimpleIoc.Default.Register<MusicViewModel>();

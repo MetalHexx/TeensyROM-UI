@@ -12,6 +12,7 @@ using TeensyRom.Ui.Features.Connect;
 using TeensyRom.Ui.Features.Settings;
 using MaterialDesignThemes.Wpf;
 using TeensyRom.Core.Storage;
+using TeensyRom.Ui.Features.Files;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -45,17 +46,17 @@ namespace TeensyRom.Ui.Features.NavigationHost
         private bool _triggerAnimation;
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, ISnackbarService snackbar, IFileWatchService fileWatcherService, FileTransferViewModel fileTransfer, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
+        public NavigationHostViewModel(INavigationService navStore, ISnackbarService snackbar, IFileWatchService fileWatcherService, FileTransferViewModel fileTransfer, FilesViewModel files, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
         {
             _navService = navStore;
             _fileWatcherService = fileWatcherService;
             MessageQueue = snackbar.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
-            InitializeNavItems(fileTransfer, music, help, connect, settings);
+            InitializeNavItems(fileTransfer, files, music, help, connect, settings);
         }     
 
-        public void InitializeNavItems(FileTransferViewModel fileTransfer, MusicViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
+        public void InitializeNavItems(FileTransferViewModel fileTransfer, FilesViewModel files, MusicViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
         {
             _navService.Initialize(NavigationLocation.Connect, new List<NavigationItem>
             {
@@ -72,6 +73,13 @@ namespace TeensyRom.Ui.Features.NavigationHost
                     Type = NavigationLocation.FileTransfer,
                     ViewModel = fileTransfer,
                     Icon = "FileArrowLeftRightOutline"
+                },
+                new NavigationItem
+                {
+                    Name = "Files",
+                    Type = NavigationLocation.Files,
+                    ViewModel = files,
+                    Icon = "FileArrowUpDownOutline"
                 },
                 new NavigationItem
                 {

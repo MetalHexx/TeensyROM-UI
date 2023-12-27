@@ -4,6 +4,7 @@
     {
         Connect,
         FileTransfer,
+        Files,
         Music,
         Settings,
         Help        
