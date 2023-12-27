@@ -20,10 +20,9 @@ using TeensyRom.Ui.Helpers.ViewModel;
 
 namespace TeensyRom.Ui.Features.Music
 {
-    public class MusicViewModel : FeatureViewModelBase, IDisposable
+    public class MusicViewModel : FeatureViewModelBase
     {
         private readonly IMusicState _musicState;
-        private IDisposable _loadSongsSubscription;
 
         [ObservableAsProperty] public bool ShowPlayToolbar { get; set; }
         [Reactive] public PlayToolbarViewModel PlayToolBar { get; set; }       
@@ -32,7 +31,7 @@ namespace TeensyRom.Ui.Features.Music
         public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
 
 
-        public MusicViewModel(IMusicState musicState, ISerialPortState serialState, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList, MusicTreeViewModel musicTree) 
+        public MusicViewModel(IMusicState musicState, ISerialPortState serialState, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList, MusicTreeViewModel musicTree)
         {
             FeatureTitle = "Music";
             _musicState = musicState;
@@ -43,14 +42,14 @@ namespace TeensyRom.Ui.Features.Music
                 .Select(s => s is null)
                 .ToPropertyEx(this, x => x.ShowPlayToolbar);
 
-            RefreshCommand = ReactiveCommand.CreateFromObservable<Unit, Unit>( _ => musicState.RefreshDirectory());
+            RefreshCommand = ReactiveCommand.CreateFromObservable<Unit, Unit>(_ => musicState.RefreshDirectory());
 
-            _loadSongsSubscription = serialState.IsConnected
+            serialState.IsConnected
                 .Where(isConnected => isConnected is true)
                 .CombineLatest(settings.Settings, (isConnected, settings) => settings)
                 .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
                 .Where(sn => sn.currentNav?.Type == NavigationLocation.Music)
-                //.Where(_ => DirectoryContent.Count == 0)
+                .Take(1)
                 .Subscribe(sn => LoadSongs(sn.settings.GetFileTypePath(TeensyFileType.Sid)));
         }
 
@@ -58,11 +57,6 @@ namespace TeensyRom.Ui.Features.Music
         {
             _musicState.LoadDirectory(path);
             return Unit.Default;
-        }
-
-        public void Dispose()
-        {
-            _loadSongsSubscription?.Dispose();
         }
     }
 }

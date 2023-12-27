@@ -11,8 +11,8 @@
     <Grid Margin="0 0 10 0">
         
         <TreeView 
+            x:Name="DirectoryTreeControl"
             ItemsSource="{Binding DirectoryTree.Directories}" 
-            SelectedItemChanged="TreeView_SelectedItemChanged" 
             HorizontalAlignment="Left">
             
             <TreeView.Resources>

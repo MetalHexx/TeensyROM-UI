@@ -22,19 +22,32 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
     /// </summary>
     public partial class DirectoryTreeView : UserControl
     {
+        private bool _initialized = false;
         public DirectoryTreeView()
         {
             InitializeComponent();
+            Unloaded += DirectoryTreeView_Unloaded;
+            DirectoryTreeControl.SelectedItemChanged += TreeView_SelectedItemChanged;
+        }
+
+        private void DirectoryTreeView_Unloaded(object sender, RoutedEventArgs e)
+        {
+            DirectoryTreeControl.SelectedItemChanged -= TreeView_SelectedItemChanged;
         }
 
         private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) 
         {
-            var viewModel = (DirectoryTreeViewModel)DataContext;
+            if (!_initialized) //skips initial event caused by data load.  We only want the users explicit selection events.
+            {
+                _initialized = true;
+                return;
+            }
             var treeView = sender as TreeView;
 
             if (treeView?.SelectedItem is DirectoryItem directoryItem)
             {
-                viewModel.DirectorySelectedCommand.Execute(directoryItem).Subscribe();
+                var viewModel = (DirectoryTreeViewModel)DataContext;
+                viewModel.DirectorySelectedCommand.Execute(directoryItem);
             }
         } 
     }
