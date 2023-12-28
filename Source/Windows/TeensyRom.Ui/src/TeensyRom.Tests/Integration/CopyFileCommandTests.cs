@@ -22,7 +22,7 @@ namespace TeensyRom.Tests.Integration
         }
 
         [Fact]
-        public void Given_FileExists_When_CommandCalled_FileCopiedSuccessfully()
+        public async Task Given_FileExists_When_CommandCalled_FileCopiedSuccessfully()
         {
             //Arrange
             var testId = Guid.NewGuid().ToString().Substring(0, 5);
@@ -33,7 +33,7 @@ namespace TeensyRom.Tests.Integration
             _fixture.Initialize(initOpenPort: true);
 
             //Act
-            _fixture.CopyFileCommand.Execute(sourceFilePath, destFilePath);
+            await _fixture.Mediator.Send(new CopyFileRequest(sourceFilePath, destFilePath));
             Thread.Sleep(100);
             var directory = _fixture.GetDirectoryContentCommand.Execute(destParentPath, 0, 1);
 

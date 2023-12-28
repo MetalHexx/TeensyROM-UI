@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MediatR;
+using Newtonsoft.Json;
 using System.Reflection;
 using System.Transactions;
 using TeensyRom.Core.Commands;
@@ -13,7 +14,7 @@ namespace TeensyRom.Core.Music
         void ClearCache();        
         void ClearCache(string path);
         MusicDirectory? GetDirectory(string path);        
-        SongItem? SaveFavorite(SongItem song);
+        Task<SongItem?> SaveFavorite(SongItem song);
         void Dispose();
     }
 
@@ -22,18 +23,18 @@ namespace TeensyRom.Core.Music
         private readonly ISettingsService _settingsService;
         private readonly ISidMetadataService _metadataService;
         private readonly IGetDirectoryCommand _getDirectoryCommand;
-        private readonly ICopyFileCommand _copyFileCommand;
+        private readonly IMediator _mediator;
         private TeensySettings? _settings;
         private IDisposable? _settingsSubscription;
         private const string _cacheFileName = "TeensyStorageCache.json";        
         private MusicDirectoryCache _musicCache = new();
 
-        public MusicStorageService(ISettingsService settings, ISidMetadataService metadataService, IGetDirectoryCommand getDirectoryCommand, ICopyFileCommand copyFileCommand)
+        public MusicStorageService(ISettingsService settings, ISidMetadataService metadataService, IGetDirectoryCommand getDirectoryCommand, IMediator mediator)
         {
             _settingsService = settings;
             _metadataService = metadataService;
             _getDirectoryCommand = getDirectoryCommand;
-            _copyFileCommand = copyFileCommand;            
+            _mediator = mediator;            
             _settingsSubscription = _settingsService.Settings.Subscribe(OnSettingsChanged);
         }
 
@@ -76,11 +77,11 @@ namespace TeensyRom.Core.Music
 
         public void ClearCache(string path) => _musicCache.DeleteDirectoryTree(path);
 
-        public SongItem? SaveFavorite(SongItem song)
+        public async Task<SongItem?> SaveFavorite(SongItem song)
         {
             var songFileName = song.Path.GetFileNameFromPath();            
             var targetPath = GetFavoritesPath().UnixPathCombine(songFileName);
-            var copySuccess = _copyFileCommand.Execute(song.Path, targetPath);
+            var copySuccess = await _mediator.Send(new CopyFileRequest(song.Path, targetPath));
 
             if (!copySuccess) return null;
 

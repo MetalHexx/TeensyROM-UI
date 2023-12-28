@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive;
+using System.Threading.Tasks;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Common.Models;
 
@@ -21,7 +22,7 @@ namespace TeensyRom.Ui.Features.Music.State
         Unit LoadDirectorySync(string path);
         IObservable<Unit> RefreshDirectory();
         bool LoadSong(SongItem song);
-        bool SaveFavorite(SongItem song);
+        Task<bool> SaveFavorite(SongItem song);
         void PlayNext();
         void PlayPrevious();
         bool ToggleMusic();

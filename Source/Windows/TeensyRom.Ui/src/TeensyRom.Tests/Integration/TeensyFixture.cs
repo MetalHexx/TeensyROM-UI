@@ -21,7 +21,7 @@ namespace TeensyRom.Tests.Integration
     public class TeensyFixture: IDisposable
     {
         private readonly IServiceProvider _serviceProvider;
-        private IMediator _mediator;
+        public IMediator Mediator;
 
         public TeensySettings Settings { get; set; } = new TeensySettings();
         public ISettingsService SettingsService { get; private set; }
@@ -32,7 +32,6 @@ namespace TeensyRom.Tests.Integration
         public IFileWatchService FileWatchService { get; private set; }        
         public IGetDirectoryCommand GetDirectoryContentCommand { get; private set; }
         public ISaveFileCommand SaveFileCommand { get; private set; }
-        public ICopyFileCommand CopyFileCommand { get; private set; }
         public IResetCommand ResetCommand { get; private set; }
         public ILaunchFileCommand LaunchFileCommand { get; private set; }
         public SettingsViewModel SettingsViewModel { get; private set; }
@@ -54,7 +53,7 @@ namespace TeensyRom.Tests.Integration
             Settings.InitializeDefaults();
             var json = JsonConvert.SerializeObject(Settings);
             File.WriteAllText(SettingsFileName, json);
-            _mediator = _serviceProvider.GetRequiredService<IMediator>();
+            Mediator = _serviceProvider.GetRequiredService<IMediator>();
             LogService = _serviceProvider.GetRequiredService<ILoggingService>();
             SerialPort = _serviceProvider.GetRequiredService<IObservableSerialPort>();
             SerialState = _serviceProvider.GetRequiredService<ISerialPortState>();
@@ -64,7 +63,6 @@ namespace TeensyRom.Tests.Integration
             FileTransferViewModel = _serviceProvider.GetRequiredService<FileTransferViewModel>();
             ConnectViewModel = _serviceProvider.GetRequiredService<ConnectViewModel>();
             SettingsViewModel = _serviceProvider.GetRequiredService<SettingsViewModel>();
-            CopyFileCommand = _serviceProvider.GetRequiredService<ICopyFileCommand>();
             GetDirectoryContentCommand = _serviceProvider.GetRequiredService<IGetDirectoryCommand>();
             SaveFileCommand = _serviceProvider.GetRequiredService<ISaveFileCommand>();
             ResetCommand = _serviceProvider.GetRequiredService<IResetCommand>();

@@ -1,8 +1,10 @@
-﻿using System;
+﻿using MediatR;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Core.Common;
@@ -13,33 +15,34 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public interface ICopyFileCommand
-    {
-        bool Execute(string sourcePath, string destPath);
-    }
+    public record CopyFileRequest(string SourcePath, string DestPath) : IRequest<bool> { }
 
-    public class CopyFileCommand : TeensyCommand, ICopyFileCommand
+    public class CopyFileHandler : TeensyCommand, IRequestHandler<CopyFileRequest, bool>
     {
-        public CopyFileCommand(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
+
+        public CopyFileHandler(
+            ISettingsService settingsService, 
+            IObservableSerialPort serialPort, 
+            ILoggingService logService) 
             : base(settingsService, serialPort, logService) { }
 
-        public bool Execute(string sourcePath, string destPath)
+        public Task<bool> Handle(CopyFileRequest request, CancellationToken cancellationToken)
         {
             _logService.Log("Initiating file copy handshake");
 
-            if (SendFile(sourcePath, destPath))
+            if (SendFile(request.SourcePath, request.DestPath))
             {
-                _logService.Log($"Copied: {sourcePath} to {destPath}");
-                return true;
+                _logService.Log($"Copied: {request.SourcePath} to {request.DestPath}");
+                return Task.FromResult(true);
             }
             else
             {
-                _logService.Log($"Failed to copy: {sourcePath} to {destPath}");
-                return false;
+                _logService.Log($"Failed to copy: {request.SourcePath} to {request.DestPath}");
+                return Task.FromResult(false);
             }
         }
 
-        public bool SendFile(string sourcePath, string destPath)
+        private bool SendFile(string sourcePath, string destPath)
         {
             _serialPort.DisableAutoReadStream();
 
@@ -61,7 +64,7 @@ namespace TeensyRom.Core.Commands
                 {
                     ReadSerialAsString(msToWait: 100);
                     throw new TeensyException("Error getting acknowledgement of successful file copy");
-                }               
+                }
                 _logService.Log("File transfer complete!");
             }
             catch (Exception ex)

@@ -8,6 +8,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -122,10 +123,14 @@ namespace TeensyRom.Ui.Features.Music.State
             return true;
         }
 
-        public bool SaveFavorite(SongItem song)
+        public async Task<bool> SaveFavorite(SongItem song)
         {
-            var favSong = _musicService.SaveFavorite(song);
-            var directoryResult = _musicService.GetDirectory(favSong.Path.GetParentDirectory());
+            var favSong = await _musicService.SaveFavorite(song);
+            var songParentDir = favSong?.Path.GetParentDirectory();
+
+            if(songParentDir is null) return false;
+            
+            var directoryResult = _musicService.GetDirectory(songParentDir);
 
             if (directoryResult is null) return false;
 
