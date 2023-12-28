@@ -16,10 +16,8 @@
         WindowStartupLocation="CenterScreen"        
         Foreground="White"
         Width="1100" 
-        Height="679"
-        
-        DataContext="{Binding Main, Source={StaticResource Locator}}">
-    
+        Height="679">
+
     <Window.Resources>
         <Storyboard x:Key="OpenMenu">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="GridMenu">
