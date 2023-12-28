@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using MediatR;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Linq;
@@ -39,18 +40,17 @@ namespace TeensyRom.Ui.Features.Connect
         private readonly IDisposable? _portsSubscription;
         private readonly IDisposable? _selectedPortSubscription;
         private readonly IDisposable? _logsSubscription;
-
-        private readonly IPingCommand _pingCommand;
+        private readonly IMediator _mediator;
         private readonly IObservableSerialPort _serialPort;
         private readonly ILoggingService _logService;
         private readonly IResetCommand _resetCommand;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public ConnectViewModel(IPingCommand pingCommand, IObservableSerialPort serialPort, ILoggingService logService, IResetCommand resetCommand)
+        public ConnectViewModel(IMediator mediator, IObservableSerialPort serialPort, ILoggingService logService, IResetCommand resetCommand)
         {
             FeatureTitle = "Manage Connection";
 
-            _pingCommand = pingCommand;
+            _mediator = mediator;
             _serialPort = serialPort;
             _logService = logService;
             _resetCommand = resetCommand;
@@ -61,14 +61,13 @@ namespace TeensyRom.Ui.Features.Connect
                 .Select(isRetrying => !isRetrying)
                 .ToPropertyEx(this, vm => vm.IsConnectable);
 
-            ConnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
+            ConnectCommand = ReactiveCommand.Create<System.Reactive.Unit, Unit>(n =>
                 _serialPort.OpenPort(), outputScheduler: ImmediateScheduler.Instance);
 
             DisconnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 _serialPort.ClosePort(), outputScheduler: ImmediateScheduler.Instance);
 
-            PingCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                _pingCommand.Execute(), outputScheduler: ImmediateScheduler.Instance);
+            PingCommand = ReactiveCommand.CreateFromTask(() => _mediator.Send(new PingRequest()), outputScheduler: RxApp.MainThreadScheduler);
 
             ResetCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 _resetCommand.Execute(), outputScheduler: ImmediateScheduler.Instance);
