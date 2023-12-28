@@ -7,7 +7,7 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands.File.LaunchFile
 {
-    public interface ILaunchFileCommand
+    public interface ILaunchFileCommand : IDisposable
     {
         bool Execute(string path);
         bool LaunchFile(LaunchFileRequest request);

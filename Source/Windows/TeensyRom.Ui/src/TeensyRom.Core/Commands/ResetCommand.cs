@@ -7,7 +7,7 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public interface IResetCommand
+    public interface IResetCommand : IDisposable
     {
         Unit Execute();
     }

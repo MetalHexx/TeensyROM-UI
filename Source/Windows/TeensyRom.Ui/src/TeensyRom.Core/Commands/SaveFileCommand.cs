@@ -7,7 +7,7 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public interface ISaveFileCommand
+    public interface ISaveFileCommand: IDisposable
     {
         Unit Execute(TeensyFileInfo file);
     }
