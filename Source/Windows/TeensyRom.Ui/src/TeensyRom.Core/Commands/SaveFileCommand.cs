@@ -1,4 +1,5 @@
-﻿using System.Reactive;
+﻿using MediatR;
+using System.Reactive;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
@@ -7,30 +8,28 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public interface ISaveFileCommand: IDisposable
+    public record SaveFileCommand(TeensyFileInfo File) : IRequest;
+
+    public class SaveFileCommandHandler : TeensyCommand, IRequestHandler<SaveFileCommand>
     {
-        Unit Execute(TeensyFileInfo file);
-    }
-    public class SaveFileCommand : TeensyCommand, ISaveFileCommand
-    {
-        public SaveFileCommand(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
+        public SaveFileCommandHandler(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
             : base(settingsService, serialPort, logService) { }
 
-        public Unit Execute(TeensyFileInfo file)
+        public Task Handle(SaveFileCommand r, CancellationToken cancellationToken)
         {
             _logService.Log("Initiating file transfer handshake");
 
-            TransformDestination(file);
-
-            if (SendFile(file))
+            TransformDestination(r.File);
+            
+            if (SendFile(r.File))
             {
-                _logService.Log($"Saved: {file}");
+                _logService.Log($"Saved: {r.File}");
             }
             else
             {
-                _logService.Log($"Failed to save: {file}");
+                _logService.Log($"Failed to save: {r.File}");
             }
-            return Unit.Default;
+            return Task.CompletedTask;
         }
 
         private void TransformDestination(TeensyFileInfo fileInfo)

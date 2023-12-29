@@ -1,4 +1,5 @@
-﻿using System.Reactive.Linq;
+﻿using MediatR;
+using System.Reactive.Linq;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
@@ -24,22 +25,18 @@ namespace TeensyRom.Core.Storage
         private readonly ISerialPortState _serialState
             ;
         private readonly ILoggingService _logService;
-        private readonly ISaveFileCommand _saveFileCommand;
+        private readonly IMediator _mediator;
         private IDisposable _settingsSubscription;
         private IDisposable _fileWatchSubscription;
 
-        public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialPortState serialState, ILoggingService logService, ISaveFileCommand saveFileCommand)
+        public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialPortState serialState, ILoggingService logService, IMediator mediator)
         {
             _settingsService = settingsService;
             _fileWatcher = fileWatcher;
             _serialState = serialState;
             _logService = logService;
-            _saveFileCommand = saveFileCommand;
-            InitializeSettings();
-        }
+            _mediator = mediator;
 
-        private void InitializeSettings()
-        {
             _settingsSubscription = _settingsService.Settings
                 .Subscribe(settings => ToggleFileWatch(settings));
         }
@@ -61,7 +58,7 @@ namespace TeensyRom.Core.Storage
                 .Where(fc => fc.IsConnected && settings.AutoFileCopyEnabled)
                 .Select(fc => new TeensyFileInfo(fc.File))
                 .Do(fileInfo => _logService.Log($"File detected: {fileInfo.FullPath}"))
-                .Subscribe(fileInfo => _saveFileCommand.Execute(fileInfo));
+                .Subscribe(async fileInfo => await _mediator.Send(new SaveFileCommand(fileInfo)));
         }
 
         public void Dispose()

@@ -30,7 +30,6 @@ namespace TeensyRom.Tests.Integration
         public ISerialPortState SerialState { get; private set; }
         public IFileWatcher FileWatcher { get; private set; }
         public IFileWatchService FileWatchService { get; private set; }        
-        public ISaveFileCommand SaveFileCommand { get; private set; }
         public SettingsViewModel SettingsViewModel { get; private set; }
         public ConnectViewModel ConnectViewModel { get; private set; }
         public FileTransferViewModel FileTransferViewModel { get; private set; }
@@ -60,7 +59,6 @@ namespace TeensyRom.Tests.Integration
             FileTransferViewModel = _serviceProvider.GetRequiredService<FileTransferViewModel>();
             ConnectViewModel = _serviceProvider.GetRequiredService<ConnectViewModel>();
             SettingsViewModel = _serviceProvider.GetRequiredService<SettingsViewModel>();
-            SaveFileCommand = _serviceProvider.GetRequiredService<ISaveFileCommand>();
             
             if (initOpenPort)
             {
@@ -72,7 +70,6 @@ namespace TeensyRom.Tests.Integration
         public void Dispose()
         {
             SerialPort?.Dispose();
-            SaveFileCommand?.Dispose();
             FileWatcher?.Dispose();
 
             if (File.Exists(FullSourceTestPath))
