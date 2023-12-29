@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using MediatR;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Reactive;
@@ -24,12 +25,10 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
         public  ReactiveCommand<Unit, Unit>  PreviousCommand { get; set; }
         public  ReactiveCommand<Unit, Unit>  NextCommand { get; set; }
 
-        private readonly ILaunchFileCommand _launchFileCommand;
         private readonly IMusicState _musicState;
 
-        public PlayToolbarViewModel(ILaunchFileCommand launchFileCommand, IMusicState musicState)
+        public PlayToolbarViewModel(IMusicState musicState)
         {
-            _launchFileCommand = launchFileCommand;
             _musicState = musicState;
 
             _musicState.CurrentSong

@@ -20,7 +20,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
         Task LoadDirectory(string path);
         Task RefreshDirectory();
-        bool LoadSong(SongItem song);
+        Task<bool> LoadSong(SongItem song);
         Task<bool> SaveFavorite(SongItem song);
         Task PlayNext();
         Task PlayPrevious();

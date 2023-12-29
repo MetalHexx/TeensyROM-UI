@@ -65,7 +65,6 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private BehaviorSubject<bool> _isLoadingFiles = new BehaviorSubject<bool>(false);
         private readonly IMediator _mediator;
         private readonly ISerialPortState _serialPortState;
-        private readonly ILaunchFileCommand _launchFileCommand;
         private readonly ILoggingService _logService;
         private readonly ISnackbarService _snackbar;
         private readonly Dispatcher _dispatcher;
@@ -73,12 +72,11 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private readonly List<StorageItem> _currentItems = new();
         
         private const int _take = 5000;
-        public FileTransferViewModel(IMediator mediator, ISettingsService settingsService, ISerialPortState serialPortState, ILaunchFileCommand launchFileCommand, INavigationService nav, ILoggingService logService, ISnackbarService snackbar, Dispatcher dispatcher) 
+        public FileTransferViewModel(IMediator mediator, ISettingsService settingsService, ISerialPortState serialPortState, INavigationService nav, ILoggingService logService, ISnackbarService snackbar, Dispatcher dispatcher) 
         {
             FeatureTitle = "File Transfer";
             _mediator = mediator;
             _serialPortState = serialPortState;
-            _launchFileCommand = launchFileCommand;
             _logService = logService;
             _snackbar = snackbar;
             _dispatcher = dispatcher;
@@ -90,7 +88,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
             LoadNextPageCommand = ReactiveCommand.CreateFromTask(LoadNextItems, outputScheduler: RxApp.MainThreadScheduler);
             LoadPrevPageCommand = ReactiveCommand.CreateFromTask(LoadPrevItems, outputScheduler: RxApp.MainThreadScheduler);
-            LaunchFileCommand = ReactiveCommand.Create<FileItem, Unit>(file => LaunchFile(file), outputScheduler: ImmediateScheduler.Instance);
+            LaunchFileCommand = ReactiveCommand.CreateFromTask<FileItem>(file => _mediator.Send(new LaunchFileCommand(file.Path)), outputScheduler: ImmediateScheduler.Instance);
 
             _logService.Logs.Subscribe(log =>
             {
@@ -130,12 +128,6 @@ namespace TeensyRom.Ui.Features.FileTransfer
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async _ => await HandlePageSizeChanged());
 
-        }
-
-        private Unit LaunchFile(FileItem file)
-        {
-            _launchFileCommand.Execute(file.Path);
-            return Unit.Default;
         }
 
         private async Task LoadNewDirectoryAsync(DirectoryItem directoryVm)

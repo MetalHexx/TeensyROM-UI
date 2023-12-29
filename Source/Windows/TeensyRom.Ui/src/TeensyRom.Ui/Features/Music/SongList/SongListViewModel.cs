@@ -34,7 +34,7 @@ namespace TeensyRom.Ui.Features.Music.SongList
             _musicState.DirectoryLoading
                 .ToPropertyEx(this, x => x.ShowProgress);
            
-            PlayCommand = ReactiveCommand.Create<SongItem, bool>(song =>
+            PlayCommand = ReactiveCommand.CreateFromTask<SongItem, bool>(song =>
                 musicState.LoadSong(song), outputScheduler: RxApp.MainThreadScheduler);
 
             SaveFavoriteCommand = ReactiveCommand.CreateFromTask<SongItem, bool>(

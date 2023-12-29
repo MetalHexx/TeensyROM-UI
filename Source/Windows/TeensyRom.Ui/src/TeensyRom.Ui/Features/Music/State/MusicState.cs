@@ -1,4 +1,5 @@
 ﻿using DynamicData;
+using MediatR;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,7 @@ namespace TeensyRom.Ui.Features.Music.State
         private readonly BehaviorSubject<PlayState> _playState = new(PlayState.Paused);     
 
         private readonly ISongTimer _songTime;
-        private readonly ILaunchFileCommand _launchFileCommand;
+        private readonly IMediator _mediator;
         private readonly IToggleMusicCommand _toggleMusicCommand;
         private readonly IMusicStorageService _musicService;
         private readonly ISettingsService _settingsService;
@@ -51,10 +52,10 @@ namespace TeensyRom.Ui.Features.Music.State
         private TimeSpan? _currentTime;
         private IDisposable _currentTimeSubscription;
 
-        public MusicState(ISongTimer songTime, ILaunchFileCommand launchFileCommand, IToggleMusicCommand toggleMusicCommand, IMusicStorageService musicService, ISettingsService settingsService)
+        public MusicState(ISongTimer songTime, IMediator mediator, IToggleMusicCommand toggleMusicCommand, IMusicStorageService musicService, ISettingsService settingsService)
         {
             _songTime = songTime;
-            _launchFileCommand = launchFileCommand;
+            _mediator = mediator;
             _toggleMusicCommand = toggleMusicCommand;
             _musicService = musicService;
             _settingsService = settingsService;
@@ -94,11 +95,11 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public void SetSongMode(SongMode songMode) => _songMode.OnNext(songMode);
 
-        public bool LoadSong(SongItem song)
+        public async Task<bool> LoadSong(SongItem song)
         {   
             _songTime.StartNewTimer(song.SongLength);
             
-            _launchFileCommand.Execute(song.Path); //TODO: When TR fails on a SID, the next song command "fails", but the song still plays.  So I'll ignore the false return value for now.
+            await _mediator.Send(new LaunchFileCommand(song.Path)); //TODO: When TR fails on a SID, the next song command "fails", but the song still plays.  So I'll ignore the false return value for now.
 
             Application.Current.Dispatcher.Invoke(() =>
             {

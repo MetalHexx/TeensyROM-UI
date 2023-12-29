@@ -1,4 +1,6 @@
-﻿using System.Reactive;
+﻿using MediatR;
+using System.IO;
+using System.Reactive;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
@@ -7,39 +9,14 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands.File.LaunchFile
 {
-    public interface ILaunchFileCommand : IDisposable
+    public record LaunchFileCommand(string Path) : IRequest<LaunchFileResponse>;
+    public record LaunchFileResponse(bool Success);
+    public class LaunchFileHandler: TeensyCommand, IRequestHandler<LaunchFileCommand, LaunchFileResponse>
     {
-        bool Execute(string path);
-        bool LaunchFile(LaunchFileRequest request);
-    }
+        public LaunchFileHandler(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService) 
+            : base(settingsService, serialPort, logService) { }
 
-    public class LaunchFileCommand : TeensyCommand, ILaunchFileCommand
-    {
-        private readonly IResetCommand _resetCommand;
-
-        public LaunchFileCommand(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService, IResetCommand resetCommand) : base(settingsService, serialPort, logService)
-        {
-            _resetCommand = resetCommand;
-        }
-
-        public bool Execute(string path)
-        {
-            var request = new LaunchFileRequest
-            {
-                StorageType = _settings.TargetType,
-                TargetPath = path
-            };
-            if (LaunchFile(request))
-            {
-                _logService.Log($"Launched: {path}");
-                return true;
-            }
-            _logService.Log($"Failed to launch: {path}");
-
-            return false;
-        }
-
-        public bool LaunchFile(LaunchFileRequest request)
+        public Task<LaunchFileResponse> Handle(LaunchFileCommand request, CancellationToken cancellationToken)
         {
             _serialPort.DisableAutoReadStream();
 
@@ -55,10 +32,10 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
                 }
 
                 _logService.Log($"Sending SD_nUSB: {TeensyConstants.Sd_Card_Token}");
-                _serialPort.SendIntBytes(GetStorageToken(request.StorageType), 1);
+                _serialPort.SendIntBytes(GetStorageToken(_settings.TargetType), 1);
 
-                _logService.Log($"Sending file launch request path: {request.TargetPath}");
-                _serialPort.Write($"{request.TargetPath}\0");
+                _logService.Log($"Sending file launch request path: {request.Path}");
+                _serialPort.Write($"{request.Path}\0");
 
                 if (!GetAck())
                 {
@@ -70,13 +47,13 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             catch (TeensyException ex)
             {
                 _logService.Log($"Error launching file.  {ex.Message}");
-                return false;
+                return Task.FromResult(new LaunchFileResponse(false));
             }
             finally
             {
                 _serialPort.EnableAutoReadStream();
             }
-            return true;
+            return Task.FromResult(new LaunchFileResponse(true));
         }
     }
 }

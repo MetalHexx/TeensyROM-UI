@@ -37,7 +37,6 @@ namespace TeensyRom.Ui
             services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();
             services.AddSingleton<IResetCommand, ResetCommand>();
             services.AddSingleton<ISaveFileCommand, SaveFileCommand>();
-            services.AddSingleton<ILaunchFileCommand, LaunchFileCommand>();
             services.AddSingleton<IFileWatchService, FileWatchService>();
             services.AddSingleton<IToggleMusicCommand, ToggleMusicCommand>();
             services.AddSingleton<IFileWatcher, FileWatcher>();
