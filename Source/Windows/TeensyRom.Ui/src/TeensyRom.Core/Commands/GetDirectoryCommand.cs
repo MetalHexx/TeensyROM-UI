@@ -10,9 +10,9 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public record GetDirectoryRequest(string Path, uint Skip, uint Take) : IRequest<GetDirectoryResponse> { }
+    public record GetDirectoryCommand(string Path, uint Skip, uint Take) : IRequest<GetDirectoryResponse> { }
     public record GetDirectoryResponse(DirectoryContent? DirectoryContent);
-    public class GetDirectoryHandler : TeensyCommand, IRequestHandler<GetDirectoryRequest, GetDirectoryResponse>
+    public class GetDirectoryHandler : TeensyCommand, IRequestHandler<GetDirectoryCommand, GetDirectoryResponse>
     {
         public GetDirectoryHandler(
             ISettingsService settingsService,
@@ -20,7 +20,7 @@ namespace TeensyRom.Core.Commands
             ILoggingService logService)
             : base(settingsService, serialPort, logService) { }
 
-        public Task<GetDirectoryResponse> Handle(GetDirectoryRequest r, CancellationToken x)
+        public Task<GetDirectoryResponse> Handle(GetDirectoryCommand r, CancellationToken x)
         {
             return Task.Run(() =>
             {

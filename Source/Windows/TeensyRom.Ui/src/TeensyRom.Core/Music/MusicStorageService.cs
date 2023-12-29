@@ -135,7 +135,7 @@ namespace TeensyRom.Core.Music
 
             if (cacheItem != null) return cacheItem;
 
-            var response = await _mediator.Send(new GetDirectoryRequest(path, 0, 5000)); //TODO: Do something about this hardcoded take 5000
+            var response = await _mediator.Send(new GetDirectoryCommand(path, 0, 5000)); //TODO: Do something about this hardcoded take 5000
 
             if (response is null) return null;
 

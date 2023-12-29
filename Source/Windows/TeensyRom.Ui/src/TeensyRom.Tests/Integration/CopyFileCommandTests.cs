@@ -35,7 +35,7 @@ namespace TeensyRom.Tests.Integration
             //Act
             await _fixture.Mediator.Send(new CopyFileCommand(sourceFilePath, destFilePath));
             Thread.Sleep(100);
-            var response = await _fixture.Mediator.Send(new GetDirectoryRequest(destParentPath, 0, 1));
+            var response = await _fixture.Mediator.Send(new GetDirectoryCommand(destParentPath, 0, 1));
 
             //Assert
             response.DirectoryContent!.Files.First().Path.Should().Be(destFilePath);
