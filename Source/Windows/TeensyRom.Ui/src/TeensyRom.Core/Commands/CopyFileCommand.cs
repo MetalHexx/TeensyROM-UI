@@ -15,9 +15,9 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public record CopyFileRequest(string SourcePath, string DestPath) : IRequest<bool> { }
+    public record CopyFileCommand(string SourcePath, string DestPath) : IRequest<bool> { }
 
-    public class CopyFileHandler : TeensyCommand, IRequestHandler<CopyFileRequest, bool>
+    public class CopyFileHandler : TeensyCommand, IRequestHandler<CopyFileCommand, bool>
     {
 
         public CopyFileHandler(
@@ -26,7 +26,7 @@ namespace TeensyRom.Core.Commands
             ILoggingService logService) 
             : base(settingsService, serialPort, logService) { }
 
-        public Task<bool> Handle(CopyFileRequest request, CancellationToken cancellationToken)
+        public Task<bool> Handle(CopyFileCommand request, CancellationToken cancellationToken)
         {
             _logService.Log("Initiating file copy handshake");
 

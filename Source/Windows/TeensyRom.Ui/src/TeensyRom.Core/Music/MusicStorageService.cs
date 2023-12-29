@@ -79,7 +79,7 @@ namespace TeensyRom.Core.Music
         {
             var songFileName = song.Path.GetFileNameFromPath();            
             var targetPath = GetFavoritesPath().UnixPathCombine(songFileName);
-            var copySuccess = await _mediator.Send(new CopyFileRequest(song.Path, targetPath));
+            var copySuccess = await _mediator.Send(new CopyFileCommand(song.Path, targetPath));
 
             if (!copySuccess) return null;
 
