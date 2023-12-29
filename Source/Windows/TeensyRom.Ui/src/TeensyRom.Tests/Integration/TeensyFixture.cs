@@ -31,7 +31,6 @@ namespace TeensyRom.Tests.Integration
         public IFileWatcher FileWatcher { get; private set; }
         public IFileWatchService FileWatchService { get; private set; }        
         public ISaveFileCommand SaveFileCommand { get; private set; }
-        public IResetCommand ResetCommand { get; private set; }
         public SettingsViewModel SettingsViewModel { get; private set; }
         public ConnectViewModel ConnectViewModel { get; private set; }
         public FileTransferViewModel FileTransferViewModel { get; private set; }
@@ -62,7 +61,6 @@ namespace TeensyRom.Tests.Integration
             ConnectViewModel = _serviceProvider.GetRequiredService<ConnectViewModel>();
             SettingsViewModel = _serviceProvider.GetRequiredService<SettingsViewModel>();
             SaveFileCommand = _serviceProvider.GetRequiredService<ISaveFileCommand>();
-            ResetCommand = _serviceProvider.GetRequiredService<IResetCommand>();
             
             if (initOpenPort)
             {
@@ -75,7 +73,6 @@ namespace TeensyRom.Tests.Integration
         {
             SerialPort?.Dispose();
             SaveFileCommand?.Dispose();
-            ResetCommand?.Dispose();
             FileWatcher?.Dispose();
 
             if (File.Exists(FullSourceTestPath))

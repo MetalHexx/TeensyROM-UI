@@ -43,17 +43,15 @@ namespace TeensyRom.Ui.Features.Connect
         private readonly IMediator _mediator;
         private readonly IObservableSerialPort _serialPort;
         private readonly ILoggingService _logService;
-        private readonly IResetCommand _resetCommand;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public ConnectViewModel(IMediator mediator, IObservableSerialPort serialPort, ILoggingService logService, IResetCommand resetCommand)
+        public ConnectViewModel(IMediator mediator, IObservableSerialPort serialPort, ILoggingService logService)
         {
             FeatureTitle = "Manage Connection";
 
             _mediator = mediator;
             _serialPort = serialPort;
             _logService = logService;
-            _resetCommand = resetCommand;
             _serialPort.Ports.ToPropertyEx(this, vm => vm.Ports);
             _serialPort.IsConnected.ToPropertyEx(this, vm => vm.IsConnected);
 
@@ -67,10 +65,9 @@ namespace TeensyRom.Ui.Features.Connect
             DisconnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 _serialPort.ClosePort(), outputScheduler: ImmediateScheduler.Instance);
 
-            PingCommand = ReactiveCommand.CreateFromTask(() => _mediator.Send(new PingRequest()), outputScheduler: RxApp.MainThreadScheduler);
+            PingCommand = ReactiveCommand.CreateFromTask(() => _mediator.Send(new PingCommand()), outputScheduler: RxApp.MainThreadScheduler);
 
-            ResetCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                _resetCommand.Execute(), outputScheduler: ImmediateScheduler.Instance);
+            ResetCommand = ReactiveCommand.CreateFromTask(n =>_mediator.Send(new ResetCommand()), outputScheduler: ImmediateScheduler.Instance);
 
             ClearLogsCommand = ReactiveCommand.Create<Unit, Unit>(n =>
             {

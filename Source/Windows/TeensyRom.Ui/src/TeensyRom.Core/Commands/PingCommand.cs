@@ -6,14 +6,14 @@ using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Core.Commands
 {
-    public class PingRequest : IRequest { }
+    public class PingCommand : IRequest { }
 
-    public class PingCommand : TeensyCommand, IRequestHandler<PingRequest>
+    public class PingCommandHandler : TeensyCommand, IRequestHandler<PingCommand>
     {
-        public PingCommand(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
+        public PingCommandHandler(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
             : base(settingsService, serialPort, logService) { }
 
-        public Task Handle(PingRequest request, CancellationToken cancellationToken)
+        public Task Handle(PingCommand request, CancellationToken cancellationToken)
         {
             if (!_serialPort.IsOpen)
             {
