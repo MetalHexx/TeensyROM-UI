@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using MediatR;
+using System.Drawing;
 using System.Reactive;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
@@ -7,16 +8,13 @@ using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Core.Commands
 {
-    public interface IToggleMusicCommand
+    public record ToggleMusicCommand() : IRequest;
+    public class ToggleMusicHandler : TeensyCommand, IRequestHandler<ToggleMusicCommand>
     {
-        bool Execute();
-    }
-    public class ToggleMusicCommand : TeensyCommand, IToggleMusicCommand
-    {
-        public ToggleMusicCommand(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
+        public ToggleMusicHandler(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
             : base(settingsService, serialPort, logService) { }
 
-        public bool Execute()
+        public Task Handle(ToggleMusicCommand request, CancellationToken cancellationToken)
         {
             _logService.Log("Sending music pause command");
             _serialPort.DisableAutoReadStream();
@@ -24,14 +22,14 @@ namespace TeensyRom.Core.Commands
             _serialPort.SendIntBytes(TeensyConstants.PauseMusicToken, 2);
 
             if (!GetAck())
-            {                
+            {
                 ReadSerialAsString(msToWait: 100);
                 _logService.Log("Error getting acknowledgement of pause music command");
                 _serialPort.EnableAutoReadStream();
-                return false;
+                return Task.CompletedTask;
             }
             _serialPort.EnableAutoReadStream();
-            return true;
+            return Task.CompletedTask;
         }
     }
 }

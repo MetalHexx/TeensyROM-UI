@@ -44,7 +44,6 @@ namespace TeensyRom.Ui.Features.Music.State
 
         private readonly ISongTimer _songTime;
         private readonly IMediator _mediator;
-        private readonly IToggleMusicCommand _toggleMusicCommand;
         private readonly IMusicStorageService _musicService;
         private readonly ISettingsService _settingsService;
         private TeensySettings _settings = new();
@@ -52,11 +51,10 @@ namespace TeensyRom.Ui.Features.Music.State
         private TimeSpan? _currentTime;
         private IDisposable _currentTimeSubscription;
 
-        public MusicState(ISongTimer songTime, IMediator mediator, IToggleMusicCommand toggleMusicCommand, IMusicStorageService musicService, ISettingsService settingsService)
+        public MusicState(ISongTimer songTime, IMediator mediator, IMusicStorageService musicService, ISettingsService settingsService)
         {
             _songTime = songTime;
             _mediator = mediator;
-            _toggleMusicCommand = toggleMusicCommand;
             _musicService = musicService;
             _settingsService = settingsService;
             _settingsService.Settings.Subscribe(settings => OnSettingsChanged(settings));
@@ -145,16 +143,10 @@ namespace TeensyRom.Ui.Features.Music.State
             return true;
         }
 
-        public bool ToggleMusic()
+        public async Task ToggleMusic()
         {
             TogglePlayState();
-
-            if (!_toggleMusicCommand.Execute())
-            {
-                TogglePlayState();
-                return false;
-            }
-            return true;
+            await _mediator.Send(new ToggleMusicCommand());
         }
 
         private PlayState TogglePlayState()

@@ -24,6 +24,6 @@ namespace TeensyRom.Ui.Features.Music.State
         Task<bool> SaveFavorite(SongItem song);
         Task PlayNext();
         Task PlayPrevious();
-        bool ToggleMusic();
+        Task ToggleMusic();
     }
 }
