@@ -41,7 +41,7 @@ namespace TeensyRom.Ui.Features.Music.SongList
                 musicState.SaveFavorite, 
                 outputScheduler: RxApp.MainThreadScheduler);
 
-            LoadDirectoryCommand = ReactiveCommand.CreateFromObservable<DirectoryItem, Unit>(directory =>
+            LoadDirectoryCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(directory =>
                 musicState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler);
 
             _musicState.DirectoryContent.ToPropertyEx(this, x => x.DirectoryContent);

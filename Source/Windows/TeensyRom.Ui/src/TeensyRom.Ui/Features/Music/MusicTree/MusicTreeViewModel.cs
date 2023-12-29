@@ -20,8 +20,8 @@ namespace TeensyRom.Ui.Features.Music.MusicTree
         {
             DirectoryTreeViewModel = new DirectoryTreeViewModel(musicState.DirectoryTree);
 
-            DirectoryTreeViewModel.DirectorySelectedCommand = ReactiveCommand.CreateFromObservable<DirectoryItem, Unit>(directory => 
-                musicState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler);
+            DirectoryTreeViewModel.DirectorySelectedCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(async (directory) => 
+                await musicState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler);
         }
     }
 }

@@ -130,7 +130,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
             if(songParentDir is null) return false;
             
-            var directoryResult = _musicService.GetDirectory(songParentDir);
+            var directoryResult = await _musicService.GetDirectory(songParentDir);
 
             if (directoryResult is null) return false;
 
@@ -172,10 +172,10 @@ namespace TeensyRom.Ui.Features.Music.State
             return playState;
         }
 
-        public void PlayPrevious()
+        public async Task PlayPrevious()
         {
             var parentPath = _currentSong.Value.Path.GetParentDirectory();
-            var directoryResult = _musicService.GetDirectory(parentPath);
+            var directoryResult = await _musicService.GetDirectory(parentPath);
 
             if(directoryResult is null || _currentTime >= TimeSpan.FromSeconds(3))
             {
@@ -191,10 +191,10 @@ namespace TeensyRom.Ui.Features.Music.State
             LoadSong(songToLoad);
         }
 
-        public void PlayNext()
+        public async Task PlayNext()
         {
             var parentPath = _currentSong.Value.Path.GetParentDirectory();
-            var directoryResult = _musicService.GetDirectory(parentPath);
+            var directoryResult = await _musicService.GetDirectory(parentPath);
 
             if (directoryResult is null)
             {
@@ -210,25 +210,15 @@ namespace TeensyRom.Ui.Features.Music.State
             LoadSong(songToLoad);
         }
 
-        public IObservable<Unit> LoadDirectory(string path)
-        {
-            return Observable.Start(() =>
-            {
-                return LoadDirectorySync(path);
-
-            }, RxApp.TaskpoolScheduler)
-            .ObserveOn(RxApp.MainThreadScheduler);
-        }
-
-        public Unit LoadDirectorySync(string path)
+        public async Task LoadDirectory(string path)
         {
             _directoryLoading.OnNext(true);
-            var directoryResult = _musicService.GetDirectory(path);
+            var directoryResult = await _musicService.GetDirectory(path);
 
-            if(directoryResult is null)
+            if (directoryResult is null)
             {
                 _directoryLoading.OnNext(false);
-                return Unit.Default;
+                return;
             }
 
             Application.Current.Dispatcher.Invoke(() =>
@@ -248,7 +238,7 @@ namespace TeensyRom.Ui.Features.Music.State
             _directoryTree.OnNext(_directoryTree.Value);
             _directoryLoading.OnNext(false);
 
-            return Unit.Default;
+            return;
         }
 
         private PlayState GetToggledPlayState() => _playState.Value == PlayState.Playing
@@ -261,12 +251,12 @@ namespace TeensyRom.Ui.Features.Music.State
             _playingSongSubscription?.Dispose();
         }
 
-        public IObservable<Unit> RefreshDirectory()
+        public async Task RefreshDirectory()
         {
-            if (_currentDirectory.Value is null) return Observable.Empty<Unit>();
+            if (_currentDirectory.Value is null) return;
 
             _musicService.ClearCache(_currentDirectory.Value.Path);
-            return LoadDirectory(_currentDirectory.Value.Path); 
+            await LoadDirectory(_currentDirectory.Value.Path);
         }
     }
 }

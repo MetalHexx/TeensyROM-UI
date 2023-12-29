@@ -42,7 +42,7 @@ namespace TeensyRom.Ui.Features.Music
                 .Select(s => s is null)
                 .ToPropertyEx(this, x => x.ShowPlayToolbar);
 
-            RefreshCommand = ReactiveCommand.CreateFromObservable<Unit, Unit>(_ => musicState.RefreshDirectory());
+            RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.RefreshDirectory());
 
             serialState.IsConnected
                 .Where(isConnected => isConnected is true)

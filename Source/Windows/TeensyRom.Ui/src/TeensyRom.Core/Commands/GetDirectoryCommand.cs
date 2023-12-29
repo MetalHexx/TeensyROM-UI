@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using MediatR;
+using Newtonsoft.Json;
+using System.IO;
 using System.Text;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
@@ -8,25 +10,29 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public interface IGetDirectoryCommand
+    public record GetDirectoryRequest(string Path, uint Skip, uint Take) : IRequest<GetDirectoryResponse> { }
+    public record GetDirectoryResponse(DirectoryContent? DirectoryContent);
+    public class GetDirectoryHandler : TeensyCommand, IRequestHandler<GetDirectoryRequest, GetDirectoryResponse>
     {
-        DirectoryContent? Execute(string path, uint skip, uint take);
-    }
-    public class GetDirectoryCommand : TeensyCommand, IGetDirectoryCommand
-    {
-        public GetDirectoryCommand(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
+        public GetDirectoryHandler(
+            ISettingsService settingsService,
+            IObservableSerialPort serialPort,
+            ILoggingService logService)
             : base(settingsService, serialPort, logService) { }
 
-        public DirectoryContent? Execute(string path, uint skip, uint take)
+        public Task<GetDirectoryResponse> Handle(GetDirectoryRequest r, CancellationToken x)
         {
-            var content = GetDirectoryContent(path, _settings.TargetType, skip, take);
-
-            if (content is null)
+            return Task.Run(() =>
             {
-                _logService.Log("There was an error.  Received a null result from the request");
-                return null;
-            }
-            return content;
+                var content = GetDirectoryContent(r.Path, _settings.TargetType, r.Skip, r.Take);
+
+                if (content is null)
+                {
+                    _logService.Log("There was an error.  Received a null result from the request");
+                    return new GetDirectoryResponse(null);
+                }
+                return new GetDirectoryResponse(content);
+            });
         }
 
         public DirectoryContent? GetDirectoryContent(string path, TeensyStorageType storageType, uint skip, uint take)

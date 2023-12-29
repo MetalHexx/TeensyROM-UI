@@ -30,7 +30,6 @@ namespace TeensyRom.Tests.Integration
         public ISerialPortState SerialState { get; private set; }
         public IFileWatcher FileWatcher { get; private set; }
         public IFileWatchService FileWatchService { get; private set; }        
-        public IGetDirectoryCommand GetDirectoryContentCommand { get; private set; }
         public ISaveFileCommand SaveFileCommand { get; private set; }
         public IResetCommand ResetCommand { get; private set; }
         public ILaunchFileCommand LaunchFileCommand { get; private set; }
@@ -63,7 +62,6 @@ namespace TeensyRom.Tests.Integration
             FileTransferViewModel = _serviceProvider.GetRequiredService<FileTransferViewModel>();
             ConnectViewModel = _serviceProvider.GetRequiredService<ConnectViewModel>();
             SettingsViewModel = _serviceProvider.GetRequiredService<SettingsViewModel>();
-            GetDirectoryContentCommand = _serviceProvider.GetRequiredService<IGetDirectoryCommand>();
             SaveFileCommand = _serviceProvider.GetRequiredService<ISaveFileCommand>();
             ResetCommand = _serviceProvider.GetRequiredService<IResetCommand>();
             LaunchFileCommand = _serviceProvider.GetRequiredService<ILaunchFileCommand>();

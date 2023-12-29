@@ -25,6 +25,7 @@ using TeensyRom.Core.Commands;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Helpers.ViewModel;
 using TeensyRom.Ui.Features.Common.Models;
+using MediatR;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
@@ -62,7 +63,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private bool _isMoreItemsLoading = false;
 
         private BehaviorSubject<bool> _isLoadingFiles = new BehaviorSubject<bool>(false);
-        private readonly IGetDirectoryCommand _getDirectoryContentCommand;
+        private readonly IMediator _mediator;
         private readonly ISerialPortState _serialPortState;
         private readonly ILaunchFileCommand _launchFileCommand;
         private readonly ILoggingService _logService;
@@ -72,11 +73,10 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private readonly List<StorageItem> _currentItems = new();
         
         private const int _take = 5000;
-        public FileTransferViewModel(IGetDirectoryCommand getDirectoryContentCommand, ISettingsService settingsService, ISerialPortState serialPortState, ILaunchFileCommand launchFileCommand, INavigationService nav, ILoggingService logService, ISnackbarService snackbar, Dispatcher dispatcher) 
+        public FileTransferViewModel(IMediator mediator, ISettingsService settingsService, ISerialPortState serialPortState, ILaunchFileCommand launchFileCommand, INavigationService nav, ILoggingService logService, ISnackbarService snackbar, Dispatcher dispatcher) 
         {
             FeatureTitle = "File Transfer";
-
-            _getDirectoryContentCommand = getDirectoryContentCommand;
+            _mediator = mediator;
             _serialPortState = serialPortState;
             _launchFileCommand = launchFileCommand;
             _logService = logService;
@@ -84,7 +84,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
             _dispatcher = dispatcher;
             SourceItems = new ObservableCollection<StorageItem> { FileTreeTestData.InitializeTestStorageItems() };
 
-            TestDirectoryListCommand = ReactiveCommand.Create<Unit, Unit>(_ => TestDirectoryListAsync(), outputScheduler: ImmediateScheduler.Instance);
+            TestDirectoryListCommand = ReactiveCommand.CreateFromTask(_ => TestDirectoryListAsync(), outputScheduler: ImmediateScheduler.Instance);
             LoadParentDirectoryContentCommand = ReactiveCommand.CreateFromTask(LoadParentDirectory, outputScheduler: RxApp.MainThreadScheduler);
             LoadDirectoryContentCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(async directory => await LoadNewDirectoryAsync(directory), outputScheduler: RxApp.MainThreadScheduler);
 
@@ -203,11 +203,11 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         private Task LoadAll(string path)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
                 CurrentPageNumber = 1;
                 _isLoadingFiles.OnNext(true);
-                var directoryContent = LoadDirectoryContent(path, 0, 5000);
+                var directoryContent = await LoadDirectoryContent(path, 0, 5000);
 
                 CurrentPath = directoryContent?.Path;
 
@@ -234,29 +234,29 @@ namespace TeensyRom.Ui.Features.FileTransfer
             });
         }
 
-        private DirectoryContent? LoadDirectoryContent(string path, uint skip, uint take)
+        private async Task<DirectoryContent?> LoadDirectoryContent(string path, uint skip, uint take)
         {
-            DirectoryContent? directoryContent = null;
+            GetDirectoryResponse? response = null;
 
             try
             {
-                directoryContent = _getDirectoryContentCommand.Execute(path, skip, take);
+                response = await _mediator.Send(new GetDirectoryRequest(path, skip, take));
             }
             catch (TeensyException ex)
             {
                 _snackbar.Enqueue(ex.Message);
                 return null;
             }
-            if (directoryContent is null)
+            if (response.DirectoryContent is null)
             {                
                 _snackbar.Enqueue("Error receiving directory contents");
             }
-            return directoryContent;
+            return response.DirectoryContent;
         }
 
-        private Unit TestDirectoryListAsync()
+        private async Task<Unit> TestDirectoryListAsync()
         {
-            _getDirectoryContentCommand.Execute("/", 0, 20);
+            await _mediator.Send(new GetDirectoryRequest("/", 0, 20));
             return Unit.Default;
         }
     }

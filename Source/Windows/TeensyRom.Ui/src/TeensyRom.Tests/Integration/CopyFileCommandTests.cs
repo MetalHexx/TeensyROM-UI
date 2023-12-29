@@ -35,10 +35,10 @@ namespace TeensyRom.Tests.Integration
             //Act
             await _fixture.Mediator.Send(new CopyFileRequest(sourceFilePath, destFilePath));
             Thread.Sleep(100);
-            var directory = _fixture.GetDirectoryContentCommand.Execute(destParentPath, 0, 1);
+            var response = await _fixture.Mediator.Send(new GetDirectoryRequest(destParentPath, 0, 1));
 
             //Assert
-            directory.Files.First().Path.Should().Be(destFilePath);
+            response.DirectoryContent!.Files.First().Path.Should().Be(destFilePath);
         }
 
         public void Dispose()

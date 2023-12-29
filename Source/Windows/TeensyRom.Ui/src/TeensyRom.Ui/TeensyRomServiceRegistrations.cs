@@ -39,7 +39,6 @@ namespace TeensyRom.Ui
             services.AddSingleton<ISaveFileCommand, SaveFileCommand>();
             services.AddSingleton<ILaunchFileCommand, LaunchFileCommand>();
             services.AddSingleton<IFileWatchService, FileWatchService>();
-            services.AddSingleton<IGetDirectoryCommand, GetDirectoryCommand>();
             services.AddSingleton<IToggleMusicCommand, ToggleMusicCommand>();
             services.AddSingleton<IFileWatcher, FileWatcher>();
             services.AddSingleton<ISettingsService, SettingsService>();

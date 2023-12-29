@@ -13,7 +13,7 @@ namespace TeensyRom.Core.Music
     {
         void ClearCache();        
         void ClearCache(string path);
-        MusicDirectory? GetDirectory(string path);        
+        Task<MusicDirectory?> GetDirectory(string path);        
         Task<SongItem?> SaveFavorite(SongItem song);
         void Dispose();
     }
@@ -22,18 +22,16 @@ namespace TeensyRom.Core.Music
     {        
         private readonly ISettingsService _settingsService;
         private readonly ISidMetadataService _metadataService;
-        private readonly IGetDirectoryCommand _getDirectoryCommand;
         private readonly IMediator _mediator;
         private TeensySettings? _settings;
         private IDisposable? _settingsSubscription;
         private const string _cacheFileName = "TeensyStorageCache.json";        
         private MusicDirectoryCache _musicCache = new();
 
-        public MusicStorageService(ISettingsService settings, ISidMetadataService metadataService, IGetDirectoryCommand getDirectoryCommand, IMediator mediator)
+        public MusicStorageService(ISettingsService settings, ISidMetadataService metadataService, IMediator mediator)
         {
             _settingsService = settings;
             _metadataService = metadataService;
-            _getDirectoryCommand = getDirectoryCommand;
             _mediator = mediator;            
             _settingsSubscription = _settingsService.Settings.Subscribe(OnSettingsChanged);
         }
@@ -131,18 +129,18 @@ namespace TeensyRom.Core.Music
                 Formatting = Formatting.Indented
             }));
         }
-        public MusicDirectory? GetDirectory(string path)
+        public async Task<MusicDirectory?> GetDirectory(string path)
         {
             var cacheItem = _musicCache.GetByDirectory(path);
 
             if (cacheItem != null) return cacheItem;
 
-            var directoryContent = _getDirectoryCommand.Execute(path, 0, 5000); //TODO: Do something about this hardcoded take 5000
+            var response = await _mediator.Send(new GetDirectoryRequest(path, 0, 5000)); //TODO: Do something about this hardcoded take 5000
 
-            if (directoryContent is null) return null;
+            if (response is null) return null;
 
-            var songs = MapAndOrderSongs(directoryContent);
-            var directories = MapAndOrderDirectories(directoryContent);
+            var songs = MapAndOrderSongs(response.DirectoryContent);
+            var directories = MapAndOrderDirectories(response.DirectoryContent);
 
             cacheItem = new MusicDirectory
             {
