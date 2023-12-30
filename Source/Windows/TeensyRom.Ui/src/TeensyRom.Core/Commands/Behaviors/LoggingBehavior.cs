@@ -39,9 +39,9 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         
         foreach (var property in properties)
         {
-            sb.Append($"{property.Name}: {property.GetValue(request)?.ToString() ?? "<null>"}\r\n");
+            sb.Append($"=> {property.Name}: {property.GetValue(request)?.ToString() ?? "<null>"}\r\n");
         }
-        return $"with properties: \r\n {sb.ToString().TrimEnd(',', ' ')}";
+        return $"\r\n{sb.ToString().TrimEnd(',', ' ')}";
     }
 
     private string FormatResponse(TResponse response) => string.IsNullOrWhiteSpace(response.Error)

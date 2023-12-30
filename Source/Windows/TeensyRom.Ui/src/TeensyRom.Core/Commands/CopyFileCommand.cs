@@ -34,16 +34,9 @@ namespace TeensyRom.Core.Commands
 
         public Task<CopyFileResult> Handle(CopyFileCommand request, CancellationToken cancellationToken)
         {
-            _logService.Log($"Sending copy file token: {TeensyConstants.Copy_File_Token}");
             _serialPort.SendIntBytes(TeensyConstants.Copy_File_Token, 2);
-
-            _logService.Log($"Sending SD_nUSB: {TeensyConstants.Sd_Card_Token}");
             _serialPort.SendIntBytes(GetStorageToken(_settings.TargetType), 1);
-
-            _logService.Log($"Sending source path: {request.SourcePath}");
             _serialPort.Write($"{request.SourcePath}\0");
-
-            _logService.Log($"Sending destination path: {request.DestPath}");
             _serialPort.Write($"{request.DestPath}\0");
 
             if (!GetAck())
