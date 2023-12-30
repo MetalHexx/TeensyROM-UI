@@ -1,6 +1,10 @@
 ﻿using MediatR;
+using System.Collections.Generic;
+using System;
 using System.ComponentModel;
+using System.Net.NetworkInformation;
 using System.Reactive;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Settings;
@@ -19,10 +23,7 @@ namespace TeensyRom.Core.Commands
         {
             if (!_serialPort.IsOpen)
             {
-                return Task.FromResult(new PingResult 
-                {
-                    Error = "You must first connect in order to ping the device."
-                });
+                throw new TeensyException("You must first connect in order to ping the device.");
             }
             _serialPort.Write(TeensyConstants.Ping_Bytes.ToArray(), 0, 2);
 
