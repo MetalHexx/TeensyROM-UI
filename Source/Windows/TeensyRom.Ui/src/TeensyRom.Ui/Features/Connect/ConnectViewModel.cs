@@ -33,7 +33,7 @@ namespace TeensyRom.Ui.Features.Connect
 
         public ReactiveCommand<Unit, Unit> ConnectCommand { get; set; }
         public ReactiveCommand<Unit, Unit> DisconnectCommand { get; set; }
-        public ReactiveCommand<Unit, Unit> PingCommand { get; set; }
+        public ReactiveCommand<Unit, PingResult> PingCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ResetCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ClearLogsCommand { get; set; }
 
