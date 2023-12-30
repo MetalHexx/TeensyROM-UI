@@ -177,10 +177,9 @@ namespace TeensyRom.Tests.Integration
         public void Given_Connected_When_ResetClicked_Then_LogsReset()
         {
             //Arrange
-            var expectedLog1 = "Resetting device";
-            var expectedLog2 = "Reset cmd received";
-            var expectedLog3 = "Loading IO handler: TeensyROM";
-            var expectedLog4 = "Resetting C64";
+            var expectedLog1 = "Reset cmd received";
+            var expectedLog2 = "Loading IO handler: TeensyROM";
+            var expectedLog3 = "Resetting C64";
             _fixture.Initialize(initOpenPort: true);
             Thread.Sleep(1000);
 
@@ -193,7 +192,6 @@ namespace TeensyRom.Tests.Integration
             _fixture.ConnectViewModel.Logs.Should().Contain(expectedLog1);
             _fixture.ConnectViewModel.Logs.Should().Contain(expectedLog2);
             _fixture.ConnectViewModel.Logs.Should().Contain(expectedLog3);
-            _fixture.ConnectViewModel.Logs.Should().Contain(expectedLog4);
         }
 
         public void Dispose()

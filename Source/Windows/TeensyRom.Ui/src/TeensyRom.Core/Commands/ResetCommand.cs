@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using System.IO;
 using System.Reactive;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Settings;
@@ -20,10 +21,8 @@ namespace TeensyRom.Core.Commands
         {
             if (!_serialPort.IsOpen)
             {
-                _logService.Log("You must first connect in order to reset the device.");
+                throw new TeensyException("You must first connect in order to reset the device.");
             }
-            _logService.Log($"Resetting device");
-
             _serialPort.Write(TeensyConstants.Reset_Bytes.ToArray(), 0, 2);
             return Task.CompletedTask;
         }
