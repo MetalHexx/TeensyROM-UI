@@ -89,8 +89,8 @@ namespace TeensyRom.Tests.Integration
         public void Given_Connected_When_Pinged_RespondsWithSuccessLog()
         {
             //Arrange            
-            var expectedPingLog = $"Pinging device";
-            var expectedPongLog = $"TeensyROM";
+            var expectedPingLog = $"PingCommand Started";
+            var expectedPongLog = $"PingCommand Completed (Success)";
             _fixture.Initialize(initOpenPort: true);
 
             //Act
@@ -107,8 +107,8 @@ namespace TeensyRom.Tests.Integration
         public void Given_Connected_When_Disconnecting_And_Reconnecting_Then_Ping_RespondsWithSuccessLog()
         {
             //Arrange            
-            var expectedPingLog = $"Pinging device";
-            var expectedPongLog = $"TeensyROM";
+            var expectedPingLog = $"PingCommand Started";
+            var expectedPongLog = $"PingCommand Completed (Success)";
             _fixture.Initialize(initOpenPort: true);
 
             //Act
