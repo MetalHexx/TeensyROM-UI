@@ -21,7 +21,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
     {
         var requestType = typeof(TRequest).Name;
 
-        _logService.Log($"{requestType} Started {FormatRequest(request)}\r\n");
+        _logService.Log($"{requestType} Started {FormatRequest(request)}");
 
         var response = await next();
 
