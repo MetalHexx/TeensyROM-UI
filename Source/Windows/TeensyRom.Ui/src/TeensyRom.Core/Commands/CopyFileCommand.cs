@@ -15,9 +15,15 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public record CopyFileCommand(string SourcePath, string DestPath) : IRequest<bool> { }
+    public class CopyFileCommand : IRequest<CopyFileResult> 
+    {
+        public string SourcePath { get; init; } = string.Empty;
+        public string DestPath { get; init; } = string.Empty;
+    }
 
-    public class CopyFileHandler : TeensyCommand, IRequestHandler<CopyFileCommand, bool>
+    public class CopyFileResult : CommandResult { }
+
+    public class CopyFileHandler : TeensyCommand, IRequestHandler<CopyFileCommand, CopyFileResult>
     {
 
         public CopyFileHandler(
@@ -26,57 +32,31 @@ namespace TeensyRom.Core.Commands
             ILoggingService logService) 
             : base(settingsService, serialPort, logService) { }
 
-        public Task<bool> Handle(CopyFileCommand request, CancellationToken cancellationToken)
-        {
-            _logService.Log("Initiating file copy handshake");
-
-            if (SendFile(request.SourcePath, request.DestPath))
-            {
-                _logService.Log($"Copied: {request.SourcePath} to {request.DestPath}");
-                return Task.FromResult(true);
-            }
-            else
-            {
-                _logService.Log($"Failed to copy: {request.SourcePath} to {request.DestPath}");
-                return Task.FromResult(false);
-            }
-        }
-
-        private bool SendFile(string sourcePath, string destPath)
+        public Task<CopyFileResult> Handle(CopyFileCommand request, CancellationToken cancellationToken)
         {
             _serialPort.DisableAutoReadStream();
+            
+            _logService.Log($"Sending copy file token: {TeensyConstants.Copy_File_Token}");
+            _serialPort.SendIntBytes(TeensyConstants.Copy_File_Token, 2);
 
-            try
+            _logService.Log($"Sending SD_nUSB: {TeensyConstants.Sd_Card_Token}");
+            _serialPort.SendIntBytes(GetStorageToken(_settings.TargetType), 1);
+
+            _logService.Log($"Sending source path: {request.SourcePath}");
+            _serialPort.Write($"{request.SourcePath}\0");
+
+            _logService.Log($"Sending destination path: {request.DestPath}");
+            _serialPort.Write($"{request.DestPath}\0");
+
+            if (!GetAck())
             {
-                _logService.Log($"Sending copy file token: {TeensyConstants.Copy_File_Token}");
-                _serialPort.SendIntBytes(TeensyConstants.Copy_File_Token, 2);
-
-                _logService.Log($"Sending SD_nUSB: {TeensyConstants.Sd_Card_Token}");
-                _serialPort.SendIntBytes(GetStorageToken(_settings.TargetType), 1);
-
-                _logService.Log($"Sending source path: {sourcePath}");
-                _serialPort.Write($"{sourcePath}\0");
-
-                _logService.Log($"Sending destination path: {destPath}");
-                _serialPort.Write($"{destPath}\0");
-
-                if (!GetAck())
-                {
-                    ReadSerialAsString(msToWait: 100);
-                    throw new TeensyException("Error getting acknowledgement of successful file copy");
-                }
-                _logService.Log("File transfer complete!");
+                ReadSerialAsString(msToWait: 100);
+                return Task.FromResult(new CopyFileResult { Error = "Error getting acknowledgement of successful file copy" });
             }
-            catch (Exception ex)
-            {
-                _logService.Log($"Got an exception trying to perform the file copy operation: {ex}");
-                return false;
-            }
-            finally
-            {
-                _serialPort.EnableAutoReadStream();
-            }
-            return true;
+            _logService.Log("File transfer complete!");
+
+            _serialPort.EnableAutoReadStream();
+            return Task.FromResult(new CopyFileResult());
         }
     }
 }
