@@ -23,6 +23,7 @@ using TeensyRom.Ui.Main;
 using TeensyRom.Core;
 using System.Windows;
 using System.Windows.Threading;
+using MediatR;
 
 namespace TeensyRom.Ui
 {
@@ -56,6 +57,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<MusicTreeViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());
+            services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
         }
     }
 }
