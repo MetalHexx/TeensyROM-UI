@@ -51,51 +51,33 @@ namespace TeensyRom.Core.Commands
         public DirectoryContent? GetDirectoryContent(string path, TeensyStorageType storageType, uint skip, uint take)
         {
             DirectoryContent? directoryContent = null;
-            try
+
+            _serialPort.SendIntBytes(TeensyConstants.List_Directory_Token, 2);
+
+            if (!GetAck())
             {
-                _logService.Log($"Sending directory listing token: {TeensyConstants.List_Directory_Token}");
-                _serialPort.SendIntBytes(TeensyConstants.List_Directory_Token, 2);
-
-                if (!GetAck())
-                {
-                    ReadSerialAsString();
-                    throw new TeensyException("Error getting acknowledgement when List Directory Token sent");
-                }
-
-                _logService.Log($"Sending Storage Type: {TeensyConstants.Sd_Card_Token}");
-                _serialPort.SendIntBytes(GetStorageToken(storageType), 1);
-
-                _logService.Log($"Sending Skip: {skip}");
-                _serialPort.SendIntBytes(skip, 2);
-
-                _logService.Log($"Sending Take: {take}");
-                _serialPort.SendIntBytes(take, 2);
-
-                _logService.Log($"Sending path: {path}");
-                _serialPort.Write($"{path}\0");
-
-                if (!WaitForDirectoryStartToken())
-                {
-                    ReadSerialAsString(msToWait: 100);
-                    throw new TeensyException("Error waiting for Directory Start Token");
-                }
-                _logService.Log("Ready to receive directory content!");
-
-                directoryContent = ReceiveDirectoryContent();
-
-                if (directoryContent is null)
-                {
-                    ReadSerialAsString(msToWait: 100);
-                    _logService.Log("Failed to receive directory content");
-                    throw new TeensyException("Error waiting for Directory Start Token");
-                }
-                directoryContent.Path = path;
+                ReadSerialAsString();
+                throw new TeensyException("Error getting acknowledgement when List Directory Token sent");
             }
-            catch (Exception ex)
+            _serialPort.SendIntBytes(GetStorageToken(storageType), 1);
+            _serialPort.SendIntBytes(skip, 2);
+            _serialPort.SendIntBytes(take, 2);
+            _serialPort.Write($"{path}\0");
+
+            if (!WaitForDirectoryStartToken())
             {
-                _logService.Log("Exception thrown will trying to receive directory content");
-                _logService.Log(ex.Message);
+                ReadSerialAsString(msToWait: 100);
+                throw new TeensyException("Error waiting for Directory Start Token");
             }
+            directoryContent = ReceiveDirectoryContent();
+
+            if (directoryContent is null)
+            {
+                ReadSerialAsString(msToWait: 100);
+                throw new TeensyException("Error waiting for Directory Start Token");
+            }
+            directoryContent.Path = path;
+
             return directoryContent;
         }
 
@@ -106,54 +88,39 @@ namespace TeensyRom.Core.Commands
             var startTime = DateTime.Now;
             var timeout = TimeSpan.FromSeconds(10);
 
-            try
+            while (true)
             {
-                while (true)
+                if (DateTime.Now - startTime > timeout)
                 {
-                    if (DateTime.Now - startTime > timeout)
+                    var byteString = string.Empty;
+                    receivedBytes.ForEach(b => byteString += b.ToString());
+                    var logString = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
+                    _logService.Log(byteString);
+                    throw new TeensyException("Timeout waiting for expected reply from TeensyROM");
+                }
+
+                if (_serialPort.BytesToRead > 0)
+                {
+                    var b = (byte)_serialPort.ReadByte();
+                    receivedBytes.Add(b);
+
+                    if (receivedBytes.Count >= 2)
                     {
-                        //TODO: Fix the issue where sometimes we're getting a timeout on fetching directioes.
-                        //break;
-
-                        _logService.Log("Timeout while receiving directory content");
-                        var byteString = string.Empty;
-                        receivedBytes.ForEach(b => byteString += b.ToString());
-                        var logString = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
-                        _logService.Log(byteString);
-                        throw new TimeoutException("Timeout waiting for expected reply from TeensyROM");
-                    }
-
-                    if (_serialPort.BytesToRead > 0)
-                    {
-                        var b = (byte)_serialPort.ReadByte();
-                        receivedBytes.Add(b);
-
-                        if (receivedBytes.Count >= 2)
+                        var lastToken = (ushort)(receivedBytes[^2] << 8 | receivedBytes[^1]);
+                        if (lastToken == TeensyConstants.Fail_Token)
                         {
-                            var lastToken = (ushort)(receivedBytes[^2] << 8 | receivedBytes[^1]);
-                            if (lastToken == TeensyConstants.Fail_Token)
-                            {
-                                _logService.Log("Received fail token while receiving directory content");
-                                return receivedBytes;
-                            }
-                            else if (lastToken == TeensyConstants.End_Directory_List_Token)
-                            {
-                                _logService.Log("Received End Directory List Token");
-                                break;
-                            }
+                            throw new TeensyException("Received fail token while receiving directory content");
+                        }
+                        else if (lastToken == TeensyConstants.End_Directory_List_Token)
+                        {
+                            break;
                         }
                     }
-                    else
-                    {
-                        Thread.Sleep(50);
-                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                _logService.Log($"Error getting directory content from TeensyROM:");
-                _logService.Log($"{ex.Message}");
-                throw new TeensyException("Error fetching directory contents from TeensyROM", ex);
+                else
+                {
+                    Thread.Sleep(50);
+                }
             }
             return receivedBytes;
         }
@@ -202,7 +169,6 @@ namespace TeensyRom.Core.Commands
             }
             return directoryContent;
         }
-
 
         public bool WaitForDirectoryStartToken()
         {
