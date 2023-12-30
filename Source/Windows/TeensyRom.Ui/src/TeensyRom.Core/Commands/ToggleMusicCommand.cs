@@ -17,8 +17,6 @@ namespace TeensyRom.Core.Commands
 
         public Task<ToggleMusicResponse> Handle(ToggleMusicCommand request, CancellationToken cancellationToken)
         {
-            _logService.Log("Sending music pause command");
-
             _serialPort.SendIntBytes(TeensyConstants.PauseMusicToken, 2);
 
             if (!GetAck())
