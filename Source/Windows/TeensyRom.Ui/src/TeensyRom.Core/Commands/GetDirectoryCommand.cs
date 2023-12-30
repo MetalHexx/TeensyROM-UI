@@ -10,8 +10,16 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public record GetDirectoryCommand(string Path, uint Skip, uint Take) : IRequest<GetDirectoryResponse> { }
-    public record GetDirectoryResponse(DirectoryContent? DirectoryContent);
+    public class GetDirectoryCommand : IRequest<GetDirectoryResponse> 
+    {
+        public string Path { get; init; } = string.Empty;
+        public uint Skip { get; init; }
+        public uint Take { get; init; }
+    }
+    public class GetDirectoryResponse : CommandResult
+    {
+        public DirectoryContent? DirectoryContent { get; set; }
+    }
     public class GetDirectoryHandler : TeensyCommand, IRequestHandler<GetDirectoryCommand, GetDirectoryResponse>
     {
         public GetDirectoryHandler(
@@ -28,10 +36,15 @@ namespace TeensyRom.Core.Commands
 
                 if (content is null)
                 {
-                    _logService.Log("There was an error.  Received a null result from the request");
-                    return new GetDirectoryResponse(null);
+                    return new GetDirectoryResponse 
+                    { 
+                        Error = "There was an error.  Received a null result from the request" 
+                    };
                 }
-                return new GetDirectoryResponse(content);
+                return new GetDirectoryResponse 
+                { 
+                    DirectoryContent = content 
+                };
             });
         }
 
