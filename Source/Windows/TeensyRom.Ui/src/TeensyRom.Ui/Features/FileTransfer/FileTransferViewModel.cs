@@ -220,7 +220,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
                 _currentItems.AddRange(directories);
                 _currentItems.AddRange(files);                
 
-                LoadBatch(CurrentPageNumber);
+                await LoadBatch(CurrentPageNumber);
 
                 _isLoadingFiles.OnNext(false);
             });
@@ -232,7 +232,12 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
             try
             {
-                response = await _mediator.Send(new GetDirectoryCommand(path, skip, take));
+                response = await _mediator.Send(new GetDirectoryCommand 
+                {
+                    Path = path,
+                    Skip = skip,
+                    Take = take
+                });
             }
             catch (TeensyException ex)
             {
@@ -248,7 +253,12 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         private async Task<Unit> TestDirectoryListAsync()
         {
-            await _mediator.Send(new GetDirectoryCommand("/", 0, 20));
+            await _mediator.Send(new GetDirectoryCommand 
+            {
+                Path = "/",
+                Skip = 0,
+                Take = 20
+            });
             return Unit.Default;
         }
     }
