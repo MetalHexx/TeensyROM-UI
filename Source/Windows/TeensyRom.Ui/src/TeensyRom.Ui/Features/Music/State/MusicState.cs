@@ -97,7 +97,7 @@ namespace TeensyRom.Ui.Features.Music.State
         {   
             _songTime.StartNewTimer(song.SongLength);
             
-            await _mediator.Send(new LaunchFileCommand(song.Path)); //TODO: When TR fails on a SID, the next song command "fails", but the song still plays.  So I'll ignore the false return value for now.
+            await _mediator.Send(new LaunchFileCommand { Path = song.Path }); //TODO: When TR fails on a SID, the next song command "fails", but the song still plays.  So I'll ignore the false return value for now.
 
             Application.Current.Dispatcher.Invoke(() =>
             {

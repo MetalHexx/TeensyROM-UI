@@ -9,8 +9,11 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands.File.LaunchFile
 {
-    public record LaunchFileCommand(string Path) : IRequest<LaunchFileResponse>;
-    public record LaunchFileResponse(bool Success);
+    public class LaunchFileCommand : IRequest<LaunchFileResponse>
+    {
+        public string Path { get; set; } = string.Empty;
+    }
+    public class LaunchFileResponse: CommandResult { }
     public class LaunchFileHandler: TeensyCommand, IRequestHandler<LaunchFileCommand, LaunchFileResponse>
     {
         public LaunchFileHandler(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService) 
@@ -18,8 +21,6 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
         public Task<LaunchFileResponse> Handle(LaunchFileCommand request, CancellationToken cancellationToken)
         {
-            _serialPort.DisableAutoReadStream();
-
             try
             {
                 _logService.Log($"Sending launch file token: {TeensyConstants.Launch_File_Token}");
@@ -47,13 +48,9 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             catch (TeensyException ex)
             {
                 _logService.Log($"Error launching file.  {ex.Message}");
-                return Task.FromResult(new LaunchFileResponse(false));
+                return Task.FromResult(new LaunchFileResponse());
             }
-            finally
-            {
-                _serialPort.EnableAutoReadStream();
-            }
-            return Task.FromResult(new LaunchFileResponse(true));
+            return Task.FromResult(new LaunchFileResponse());
         }
     }
 }

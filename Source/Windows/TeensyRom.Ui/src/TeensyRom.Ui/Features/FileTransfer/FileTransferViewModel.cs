@@ -82,13 +82,18 @@ namespace TeensyRom.Ui.Features.FileTransfer
             _dispatcher = dispatcher;
             SourceItems = new ObservableCollection<StorageItem> { FileTreeTestData.InitializeTestStorageItems() };
 
-            TestDirectoryListCommand = ReactiveCommand.CreateFromTask(_ => TestDirectoryListAsync(), outputScheduler: ImmediateScheduler.Instance);
+            TestDirectoryListCommand = ReactiveCommand.CreateFromTask(TestDirectoryListAsync, outputScheduler: ImmediateScheduler.Instance);
             LoadParentDirectoryContentCommand = ReactiveCommand.CreateFromTask(LoadParentDirectory, outputScheduler: RxApp.MainThreadScheduler);
-            LoadDirectoryContentCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(async directory => await LoadNewDirectoryAsync(directory), outputScheduler: RxApp.MainThreadScheduler);
+            LoadDirectoryContentCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(
+                LoadNewDirectoryAsync,
+                outputScheduler: RxApp.MainThreadScheduler);
 
             LoadNextPageCommand = ReactiveCommand.CreateFromTask(LoadNextItems, outputScheduler: RxApp.MainThreadScheduler);
             LoadPrevPageCommand = ReactiveCommand.CreateFromTask(LoadPrevItems, outputScheduler: RxApp.MainThreadScheduler);
-            LaunchFileCommand = ReactiveCommand.CreateFromTask<FileItem>(file => _mediator.Send(new LaunchFileCommand(file.Path)), outputScheduler: ImmediateScheduler.Instance);
+
+            LaunchFileCommand = ReactiveCommand.CreateFromTask<FileItem>(file => 
+                _mediator.Send(new LaunchFileCommand { Path = file.Path }), 
+                outputScheduler: ImmediateScheduler.Instance);
 
             _logService.Logs.Subscribe(log =>
             {
@@ -106,7 +111,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
                 .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
                 .Where(sn => sn.currentNav?.Type == NavigationLocation.FileTransfer)
                 .Where(_ => TargetItems.Count == 0)
-                .Subscribe(_ => LoadCurrentDirectory());
+                .Subscribe(async _ => await LoadCurrentDirectory());
 
             TargetItems.ObserveCollectionChanges()
                 .Select(targetCol => TargetItems.Count == 0)

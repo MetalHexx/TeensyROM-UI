@@ -17,7 +17,6 @@ namespace TeensyRom.Core.Commands
         public Task Handle(ToggleMusicCommand request, CancellationToken cancellationToken)
         {
             _logService.Log("Sending music pause command");
-            _serialPort.DisableAutoReadStream();
 
             _serialPort.SendIntBytes(TeensyConstants.PauseMusicToken, 2);
 
@@ -28,7 +27,6 @@ namespace TeensyRom.Core.Commands
                 _serialPort.EnableAutoReadStream();
                 return Task.CompletedTask;
             }
-            _serialPort.EnableAutoReadStream();
             return Task.CompletedTask;
         }
     }

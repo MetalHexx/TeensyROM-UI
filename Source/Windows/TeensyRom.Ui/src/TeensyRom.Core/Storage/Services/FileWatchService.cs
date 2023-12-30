@@ -58,7 +58,10 @@ namespace TeensyRom.Core.Storage
                 .Where(fc => fc.IsConnected && settings.AutoFileCopyEnabled)
                 .Select(fc => new TeensyFileInfo(fc.File))
                 .Do(fileInfo => _logService.Log($"File detected: {fileInfo.FullPath}"))
-                .Subscribe(async fileInfo => await _mediator.Send(new SaveFileCommand(fileInfo)));
+                .Subscribe(async fileInfo => await _mediator.Send(new SaveFileCommand
+                {
+                    File = fileInfo
+                }));
         }
 
         public void Dispose()

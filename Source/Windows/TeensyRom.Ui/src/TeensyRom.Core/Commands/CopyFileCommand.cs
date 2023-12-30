@@ -34,8 +34,6 @@ namespace TeensyRom.Core.Commands
 
         public Task<CopyFileResult> Handle(CopyFileCommand request, CancellationToken cancellationToken)
         {
-            _serialPort.DisableAutoReadStream();
-            
             _logService.Log($"Sending copy file token: {TeensyConstants.Copy_File_Token}");
             _serialPort.SendIntBytes(TeensyConstants.Copy_File_Token, 2);
 
@@ -51,11 +49,10 @@ namespace TeensyRom.Core.Commands
             if (!GetAck())
             {
                 ReadSerialAsString(msToWait: 100);
-                return Task.FromResult(new CopyFileResult { Error = "Error getting acknowledgement of successful file copy" });
+                throw new TeensyException("Error getting acknowledgement of successful file copy");
             }
             _logService.Log("File transfer complete!");
 
-            _serialPort.EnableAutoReadStream();
             return Task.FromResult(new CopyFileResult());
         }
     }

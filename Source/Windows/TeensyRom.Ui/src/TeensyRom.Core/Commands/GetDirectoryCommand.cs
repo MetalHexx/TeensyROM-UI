@@ -53,7 +53,6 @@ namespace TeensyRom.Core.Commands
             DirectoryContent? directoryContent = null;
             try
             {
-                _serialPort.DisableAutoReadStream();
                 _logService.Log($"Sending directory listing token: {TeensyConstants.List_Directory_Token}");
                 _serialPort.SendIntBytes(TeensyConstants.List_Directory_Token, 2);
 
@@ -96,10 +95,6 @@ namespace TeensyRom.Core.Commands
             {
                 _logService.Log("Exception thrown will trying to receive directory content");
                 _logService.Log(ex.Message);
-            }
-            finally
-            {
-                _serialPort.EnableAutoReadStream();
             }
             return directoryContent;
         }

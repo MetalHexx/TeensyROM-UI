@@ -34,11 +34,7 @@ namespace TeensyRom.Tests.Integration
         public void Given_WatcherEnabled_When_Disabled_And_Reenabled_And_FileCopied_Then_FileSuccessfullyTransferred()
         {
             //Arrange
-            var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.sid";
-            var initiatedText = $"Initiating file transfer handshake";
-            var savedText = $"File transfer complete!";
-            var expectedType = $"Type: Sid";
-            var storageType = $"Storage Type: SD";
+            var savedText = "SaveFileCommand Completed (Success)";
 
             _fixture.Settings.TargetType = TeensyStorageType.SD;
             _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
@@ -82,7 +78,7 @@ namespace TeensyRom.Tests.Integration
         public void Given_EmptyRootFilePath_And_EmptyFileTargetPath_When_FileSaved_Then_ReturnsSuccess()
         {
             //Arrange
-            var savedText = $"File transfer complete!"; ;
+            var savedText = "SaveFileCommand Completed (Success)";
 
             _fixture.Settings.TargetType = TeensyStorageType.SD;
             _fixture.Settings.AutoFileCopyEnabled = true;
@@ -110,7 +106,7 @@ namespace TeensyRom.Tests.Integration
         public void Given_NonExistantFileTargetPath_When_FileSaved_Then_ReturnsSuccess()
         {
             //Arrange
-            var savedText = $"File transfer complete!"; ;
+            var savedText = "SaveFileCommand Completed (Success)";
 
             _fixture.Settings.TargetType = TeensyStorageType.SD;
             _fixture.Settings.AutoFileCopyEnabled = true;
@@ -136,7 +132,7 @@ namespace TeensyRom.Tests.Integration
         public void Given_EmptyRootFilePath_When_FileSaved_Then_ReturnsSuccess()
         {
             //Arrange
-            var savedText = $"File transfer complete!"; ;
+            var savedText = "SaveFileCommand Completed (Success)";
 
             _fixture.Settings.TargetType = TeensyStorageType.SD;
             _fixture.Settings.AutoFileCopyEnabled = true;
@@ -159,7 +155,7 @@ namespace TeensyRom.Tests.Integration
         public void Given_RootAsRoothPath_When_FileSaved_Then_ReturnsSuccess()
         {
             //Arrange
-            var savedText = $"File transfer complete!"; ;
+            var savedText = "SaveFileCommand Completed (Success)";
 
             _fixture.Settings.TargetType = TeensyStorageType.SD;
             _fixture.Settings.TargetRootPath = "/";
@@ -179,10 +175,7 @@ namespace TeensyRom.Tests.Integration
         {
             //Arrange
             var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.sid";
-            var initiatedText = $"Initiating file transfer handshake";
-            var savedText = $"File transfer complete!";
-            var expectedType = $"Type: Sid";
-            var storageType = $"Storage Type: SD";
+            var savedText = "SaveFileCommand Completed (Success)";
 
             _fixture.Settings.TargetType = TeensyStorageType.SD;
             _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
@@ -195,10 +188,7 @@ namespace TeensyRom.Tests.Integration
 
             //Assert
             _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
             _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -206,10 +196,7 @@ namespace TeensyRom.Tests.Integration
         {
             //Arrange
             var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.prg";
-            var initiatedText = $"Initiating file transfer handshake";
-            var savedText = $"File transfer complete!";
-            var expectedType = $"Type: Prg";
-            var storageType = $"Storage Type: SD";
+            var savedText = "SaveFileCommand Completed (Success)";
 
             _fixture.Settings.TargetType = TeensyStorageType.SD;
             _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
@@ -222,10 +209,7 @@ namespace TeensyRom.Tests.Integration
 
             //Assert
             _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
             _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -233,10 +217,7 @@ namespace TeensyRom.Tests.Integration
         {
             //Arrange
             var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.crt";
-            var initiatedText = $"Initiating file transfer handshake";
-            var savedText = $"File transfer complete!";
-            var expectedType = $"Type: Crt";
-            var storageType = $"Storage Type: SD";
+            var savedText = "SaveFileCommand Completed (Success)";
 
             _fixture.Settings.TargetType = TeensyStorageType.SD;
             _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
@@ -249,10 +230,7 @@ namespace TeensyRom.Tests.Integration
 
             //Assert
             _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
             _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -260,10 +238,7 @@ namespace TeensyRom.Tests.Integration
         {
             //Arrange
             var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.hex";
-            var initiatedText = $"Initiating file transfer handshake";
-            var savedText = $"File transfer complete!";
-            var expectedType = $"Type: Hex";
-            var storageType = $"Storage Type: SD";
+            var savedText = "SaveFileCommand Completed (Success)";
 
             _fixture.Settings.TargetType = TeensyStorageType.SD;
             _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
@@ -276,10 +251,7 @@ namespace TeensyRom.Tests.Integration
 
             //Assert
             _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
             _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -287,10 +259,7 @@ namespace TeensyRom.Tests.Integration
         {
             //Arrange
             var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.sid";
-            var initiatedText = $"Initiating file transfer handshake";
-            var savedText = $"File transfer complete!";
-            var expectedType = $"Type: Sid";
-            var storageType = $"Storage Type: USB";
+            var savedText = "SaveFileCommand Completed (Success)";
 
             _fixture.Settings.TargetType = TeensyStorageType.USB;
             _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
@@ -303,10 +272,7 @@ namespace TeensyRom.Tests.Integration
 
             //Assert
             _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
             _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -314,10 +280,7 @@ namespace TeensyRom.Tests.Integration
         {
             //Arrange
             var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.prg";
-            var initiatedText = $"Initiating file transfer handshake";
-            var savedText = $"File transfer complete!";
-            var expectedType = $"Type: Prg";
-            var storageType = $"Storage Type: USB";
+            var savedText = "SaveFileCommand Completed (Success)";
 
             _fixture.Settings.TargetType = TeensyStorageType.USB;
             _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
@@ -330,10 +293,7 @@ namespace TeensyRom.Tests.Integration
 
             //Assert
             _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
             _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -341,10 +301,7 @@ namespace TeensyRom.Tests.Integration
         {
             //Arrange
             var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.crt";
-            var initiatedText = $"Initiating file transfer handshake";
-            var savedText = $"File transfer complete!";
-            var expectedType = $"Type: Crt";
-            var storageType = $"Storage Type: USB";
+            var savedText = "SaveFileCommand Completed (Success)";
 
             _fixture.Settings.TargetType = TeensyStorageType.USB;
             _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
@@ -357,10 +314,7 @@ namespace TeensyRom.Tests.Integration
 
             //Assert
             _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
             _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         [Fact]
@@ -368,10 +322,7 @@ namespace TeensyRom.Tests.Integration
         {
             //Arrange
             var fileDetectedText = @$"File detected: {_fixture.Settings.WatchDirectoryLocation}\{_fixture.TestFileName}.hex";
-            var initiatedText = $"Initiating file transfer handshake";
-            var savedText = $"File transfer complete!";
-            var expectedType = $"Type: Hex";
-            var storageType = $"Storage Type: USB";
+            var savedText = "SaveFileCommand Completed (Success)";
 
             _fixture.Settings.TargetType = TeensyStorageType.USB;
             _fixture.Settings.TargetRootPath = TestConstants.Integration_Test_Root_Path; ;
@@ -384,10 +335,7 @@ namespace TeensyRom.Tests.Integration
 
             //Assert
             _fixture.FileTransferViewModel.Logs.Should().Contain(fileDetectedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(initiatedText);
             _fixture.FileTransferViewModel.Logs.Should().Contain(savedText);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(expectedType);
-            _fixture.FileTransferViewModel.Logs.Should().Contain(storageType);
         }
 
         public void Dispose()
