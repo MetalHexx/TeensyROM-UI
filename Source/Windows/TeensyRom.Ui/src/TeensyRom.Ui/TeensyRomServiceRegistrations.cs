@@ -56,8 +56,9 @@ namespace TeensyRom.Ui
             services.AddSingleton<SongListViewModel>();
             services.AddSingleton<MusicTreeViewModel>();
             services.AddSingleton<MainWindow>();
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());    
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+            services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
         }
     }
 }
