@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Newtonsoft.Json;
+using System.Reactive.Linq;
 using System.Text;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial;
@@ -15,7 +16,7 @@ namespace TeensyRom.Core.Commands
 
         public GetDirectoryHandler(IObservableSerialPort serialPort, ISettingsService settings)
         {
-            settings.Settings.Subscribe(s => _settings = s);
+            settings.Settings.Take(1).Subscribe(s => _settings = s);
             _serialPort = serialPort;
         }
 
