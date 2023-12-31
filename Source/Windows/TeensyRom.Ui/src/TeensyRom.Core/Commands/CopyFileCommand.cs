@@ -35,7 +35,7 @@ namespace TeensyRom.Core.Commands
         public Task<CopyFileResult> Handle(CopyFileCommand request, CancellationToken cancellationToken)
         {
             _serialPort.SendIntBytes(TeensyConstants.Copy_File_Token, 2);
-            _serialPort.SendIntBytes(GetStorageToken(_settings.TargetType), 1);
+            _serialPort.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
             _serialPort.Write($"{request.SourcePath}\0");
             _serialPort.Write($"{request.DestPath}\0");
 

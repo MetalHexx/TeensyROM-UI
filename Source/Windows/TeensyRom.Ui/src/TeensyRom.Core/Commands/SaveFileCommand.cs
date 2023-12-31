@@ -36,7 +36,7 @@ namespace TeensyRom.Core.Commands
             }
             _serialPort.SendIntBytes(r.File.StreamLength, 4);
             _serialPort.SendIntBytes(r.File.Checksum, 2);
-            _serialPort.SendIntBytes(GetStorageToken(r.File.StorageType), 1);
+            _serialPort.SendIntBytes(r.File.StorageType.GetStorageToken(), 1);
             _serialPort.Write($"{r.File.TargetPath.UnixPathCombine(r.File.Name)}\0");
 
             if (!GetAck())

@@ -59,7 +59,7 @@ namespace TeensyRom.Core.Commands
                 _serialPort.ReadSerialAsString();
                 throw new TeensyException("Error getting acknowledgement when List Directory Token sent");
             }
-            _serialPort.SendIntBytes(GetStorageToken(storageType), 1);
+            _serialPort.SendIntBytes(storageType.GetStorageToken(), 1);
             _serialPort.SendIntBytes(skip, 2);
             _serialPort.SendIntBytes(take, 2);
             _serialPort.Write($"{path}\0");

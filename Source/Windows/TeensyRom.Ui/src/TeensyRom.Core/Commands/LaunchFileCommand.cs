@@ -28,7 +28,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
                 _serialPort.ReadSerialAsString();
                 throw new TeensyException("Error getting acknowledgement when Launch File Token sent");
             }
-            _serialPort.SendIntBytes(GetStorageToken(_settings.TargetType), 1);
+            _serialPort.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
             _serialPort.Write($"{request.Path}\0");
 
             if (!GetAck())

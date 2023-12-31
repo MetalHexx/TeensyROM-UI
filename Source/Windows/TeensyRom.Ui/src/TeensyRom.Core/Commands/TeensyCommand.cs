@@ -56,16 +56,6 @@ namespace TeensyRom.Core.Commands
             }
         }
 
-        public uint GetStorageToken(TeensyStorageType type)
-        {
-            return type switch
-            {
-                TeensyStorageType.SD => TeensyConstants.Sd_Card_Token,
-                TeensyStorageType.USB => TeensyConstants.Usb_Stick_Token,
-                _ => throw new ArgumentException("Unknown Storage Type")
-            };
-        }
-
         public void Dispose()
         {
             _settingsSubscription?.Dispose();
