@@ -2,6 +2,7 @@
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {

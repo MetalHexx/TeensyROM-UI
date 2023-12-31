@@ -4,9 +4,8 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TeensyRom.Core.Serial;
 
-namespace TeensyRom.Core.Common
+namespace TeensyRom.Core.Serial
 {
     public static class TeensySerialExtensions
     {

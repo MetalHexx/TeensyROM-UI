@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Core.Serial;
-using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Core.Common
+namespace TeensyRom.Core.Storage.Entities
 {
-    public static class TeensyStorageTypeExtensions
+    public static class StorageTypeExtensions
     {
         public static uint GetStorageToken(this TeensyStorageType type)
         {
