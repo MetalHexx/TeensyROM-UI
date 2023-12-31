@@ -24,6 +24,7 @@ using TeensyRom.Core;
 using System.Windows;
 using System.Windows.Threading;
 using MediatR;
+using TeensyRom.Core.Music.Sid;
 
 namespace TeensyRom.Ui
 {

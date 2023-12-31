@@ -16,7 +16,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Core.Music
+namespace TeensyRom.Core.Music.Sid
 {
     public interface ISidMetadataService
     {
@@ -33,7 +33,7 @@ namespace TeensyRom.Core.Music
 
         public SidMetadataService(ISettingsService settingsService)
         {
-            _filePath = GetSidFilePath(); 
+            _filePath = GetSidFilePath();
             _songDatabase = ParseSids(ReadCsv());
 
             _settingsService = settingsService;
@@ -52,7 +52,7 @@ namespace TeensyRom.Core.Music
 
             if (currentDirectory is null) return string.Empty;
 
-            var relativePath = @"Music\SIDlist_79_UTF8.csv";
+            var relativePath = @"Music\Sid\SIDlist_79_UTF8.csv";
 
             return Path.Combine(currentDirectory, relativePath);
         }
@@ -87,7 +87,7 @@ namespace TeensyRom.Core.Music
 
             csv.Context.RegisterClassMap<SidRecordMap>();
             var records = csv.GetRecords<SidRecord>();
-            return FilterOutDupes(records);       
+            return FilterOutDupes(records);
         }
 
         private Dictionary<string, SidRecord> FilterOutDupes(IEnumerable<SidRecord> records) => records
@@ -102,7 +102,7 @@ namespace TeensyRom.Core.Music
             .ToList()
             .ToDictionary(r => $"{r.SizeInBytes}{r.Filename.GetFileNameFromPath()}");
 
-        private static Dictionary<string, SidRecord>  ParseSids(Dictionary<string, SidRecord> sids)
+        private static Dictionary<string, SidRecord> ParseSids(Dictionary<string, SidRecord> sids)
         {
             foreach (var sid in sids)
             {

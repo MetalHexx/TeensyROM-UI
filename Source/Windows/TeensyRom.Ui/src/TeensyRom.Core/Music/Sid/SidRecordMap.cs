@@ -1,6 +1,6 @@
 ﻿using CsvHelper.Configuration;
 
-namespace TeensyRom.Core.Music
+namespace TeensyRom.Core.Music.Sid
 {
     public sealed class SidRecordMap : ClassMap<SidRecord>
     {

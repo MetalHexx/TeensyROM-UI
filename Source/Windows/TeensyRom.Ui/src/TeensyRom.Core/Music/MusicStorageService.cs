@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Transactions;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
