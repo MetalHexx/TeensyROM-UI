@@ -233,7 +233,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
 
         private async Task<DirectoryContent?> LoadDirectoryContent(string path, uint skip, uint take)
         {
-            GetDirectoryResponse? response = null;
+            GetDirectoryResult? response = null;
 
             try
             {

@@ -8,7 +8,7 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public class GetDirectoryHandler : IRequestHandler<GetDirectoryCommand, GetDirectoryResponse>
+    public class GetDirectoryHandler : IRequestHandler<GetDirectoryCommand, GetDirectoryResult>
     {
         private TeensySettings _settings;
         private readonly IObservableSerialPort _serialPort;
@@ -19,7 +19,7 @@ namespace TeensyRom.Core.Commands
             _serialPort = serialPort;
         }
 
-        public Task<GetDirectoryResponse> Handle(GetDirectoryCommand r, CancellationToken x)
+        public Task<GetDirectoryResult> Handle(GetDirectoryCommand r, CancellationToken x)
         {
             return Task.Run(() =>
             {
@@ -27,12 +27,12 @@ namespace TeensyRom.Core.Commands
 
                 if (content is null)
                 {
-                    return new GetDirectoryResponse 
+                    return new GetDirectoryResult 
                     { 
                         Error = "There was an error.  Received a null result from the request" 
                     };
                 }
-                return new GetDirectoryResponse 
+                return new GetDirectoryResult 
                 { 
                     DirectoryContent = content 
                 };

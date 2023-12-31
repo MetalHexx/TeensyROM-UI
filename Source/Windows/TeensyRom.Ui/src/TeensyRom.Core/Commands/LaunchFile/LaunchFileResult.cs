@@ -1,4 +1,4 @@
 ﻿namespace TeensyRom.Core.Commands.File.LaunchFile
 {
-    public class LaunchFileResponse: CommandResult { }
+    public class LaunchFileResult: CommandResult { }
 }
