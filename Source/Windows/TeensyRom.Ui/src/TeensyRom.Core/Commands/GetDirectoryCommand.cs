@@ -56,7 +56,7 @@ namespace TeensyRom.Core.Commands
 
             if (!GetAck())
             {
-                ReadSerialAsString();
+                _serialPort.ReadSerialAsString();
                 throw new TeensyException("Error getting acknowledgement when List Directory Token sent");
             }
             _serialPort.SendIntBytes(GetStorageToken(storageType), 1);
@@ -66,14 +66,14 @@ namespace TeensyRom.Core.Commands
 
             if (!WaitForDirectoryStartToken())
             {
-                ReadSerialAsString(msToWait: 100);
+                _serialPort.ReadSerialAsString(msToWait: 100);
                 throw new TeensyException("Error waiting for Directory Start Token");
             }
             directoryContent = ReceiveDirectoryContent();
 
             if (directoryContent is null)
             {
-                ReadSerialAsString(msToWait: 100);
+                _serialPort.ReadSerialAsString(msToWait: 100);
                 throw new TeensyException("Error waiting for Directory Start Token");
             }
             directoryContent.Path = path;

@@ -2,6 +2,7 @@
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Text;
 using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Core.Serial
@@ -191,13 +192,24 @@ namespace TeensyRom.Core.Serial
         /// <summary>
         /// Reads the available bytes in the buffer
         /// </summary>
-        protected byte[] ReadSerialBytes()
+        public byte[] ReadSerialBytes()
         {
             if (_serialPort.BytesToRead == 0) return Array.Empty<byte>();
 
             var data = new byte[_serialPort.BytesToRead];
             _serialPort.Read(data, 0, data.Length);
             return data;
+        }
+
+        public void ReadSerialAsString(int msToWait = 0)
+        {
+            Thread.Sleep(msToWait);
+            if (_serialPort.BytesToRead == 0) return;
+
+            byte[] receivedData = new byte[_serialPort.BytesToRead];
+            _serialPort.Read(receivedData, 0, receivedData.Length);
+
+            _logService.Log("Received String: " + Encoding.ASCII.GetString(receivedData));
         }
 
         public void SendIntBytes(uint intToSend, short byteLength)

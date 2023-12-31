@@ -31,7 +31,7 @@ namespace TeensyRom.Core.Commands
 
             if (!GetAck())
             {
-                ReadSerialAsString();
+                _serialPort.ReadSerialAsString();
                 throw new TeensyException("Error getting acknowledgement when Send File Token sent");
             }
             _serialPort.SendIntBytes(r.File.StreamLength, 4);
@@ -41,7 +41,7 @@ namespace TeensyRom.Core.Commands
 
             if (!GetAck())
             {
-                ReadSerialAsString(msToWait: 100);
+                _serialPort.ReadSerialAsString(msToWait: 100);
                 throw new TeensyException("Error getting acknowledgement when file metadata sent");
             }
             var bytesSent = 0;
@@ -58,7 +58,7 @@ namespace TeensyRom.Core.Commands
 
             if (!GetAck())
             {
-                ReadSerialAsString(msToWait: 500);
+                _serialPort.ReadSerialAsString(msToWait: 500);
                 _logService.Log("File transfer failed.");
                 throw new TeensyException("Error getting acknowledgement when sending file");
             }

@@ -41,7 +41,7 @@ namespace TeensyRom.Core.Commands
 
             if (!GetAck())
             {
-                ReadSerialAsString(msToWait: 100);
+                _serialPort.ReadSerialAsString(msToWait: 100);
                 throw new TeensyException("Error getting acknowledgement of successful file copy");
             }
             _logService.Log("File transfer complete!");

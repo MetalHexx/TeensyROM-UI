@@ -69,17 +69,6 @@ namespace TeensyRom.Core.Commands
             }
         }
 
-        protected void ReadSerialAsString(int msToWait = 0)
-        {
-            Thread.Sleep(msToWait);
-            if (_serialPort.BytesToRead == 0) return;
-
-            byte[] receivedData = new byte[_serialPort.BytesToRead];
-            _serialPort.Read(receivedData, 0, receivedData.Length);
-
-            _logService.Log("Received String: " + Encoding.ASCII.GetString(receivedData));
-        }
-
         public uint GetStorageToken(TeensyStorageType type)
         {
             return type switch
