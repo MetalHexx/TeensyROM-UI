@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Newtonsoft.Json;
 using System.IO;
+using System.IO.Ports;
+using System.Runtime;
 using System.Text;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
@@ -20,13 +22,16 @@ namespace TeensyRom.Core.Commands
     {
         public DirectoryContent? DirectoryContent { get; set; }
     }
-    public class GetDirectoryHandler : TeensyCommand, IRequestHandler<GetDirectoryCommand, GetDirectoryResponse>
+    public class GetDirectoryHandler : IRequestHandler<GetDirectoryCommand, GetDirectoryResponse>
     {
-        public GetDirectoryHandler(
-            ISettingsService settingsService,
-            IObservableSerialPort serialPort,
-            ILoggingService logService)
-            : base(settingsService, serialPort, logService) { }
+        private TeensySettings _settings;
+        private readonly IObservableSerialPort _serialPort;
+
+        public GetDirectoryHandler(IObservableSerialPort serialPort, ISettingsService settings)
+        {
+            settings.Settings.Subscribe(s => _settings = s);
+            _serialPort = serialPort;
+        }
 
         public Task<GetDirectoryResponse> Handle(GetDirectoryCommand r, CancellationToken x)
         {
@@ -95,7 +100,6 @@ namespace TeensyRom.Core.Commands
                     var byteString = string.Empty;
                     receivedBytes.ForEach(b => byteString += b.ToString());
                     var logString = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
-                    _logService.Log(byteString);
                     throw new TeensyException("Timeout waiting for expected reply from TeensyROM");
                 }
 
@@ -130,42 +134,33 @@ namespace TeensyRom.Core.Commands
             var receivedBytes = GetRawDirectoryData();
             var directoryContent = new DirectoryContent();
 
-            try
+            var data = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
+
+            const string dirToken = "[Dir]";
+            const string dirEndToken = "[/Dir]";
+            const string fileToken = "[File]";
+            const string fileEndToken = "[/File]";
+
+            var directoryChunks = data.Split(new[] { dirEndToken, fileEndToken }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var chunk in directoryChunks)
             {
-                var data = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
-
-                const string dirToken = "[Dir]";
-                const string dirEndToken = "[/Dir]";
-                const string fileToken = "[File]";
-                const string fileEndToken = "[/File]";
-
-                var directoryChunks = data.Split(new[] { dirEndToken, fileEndToken }, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (var chunk in directoryChunks)
+                switch (chunk)
                 {
-                    switch (chunk)
-                    {
-                        case var item when item.StartsWith(dirToken):
-                            var dirJson = item.Substring(5);
-                            var dirItem = JsonConvert.DeserializeObject<DirectoryItem>(dirJson);
-                            dirItem.Path = dirItem.Path.Replace("//", "/"); //workaround to save mem on teensy
-                            directoryContent.Directories.Add(dirItem);
-                            break;
+                    case var item when item.StartsWith(dirToken):
+                        var dirJson = item.Substring(5);
+                        var dirItem = JsonConvert.DeserializeObject<DirectoryItem>(dirJson);
+                        dirItem.Path = dirItem.Path.Replace("//", "/"); //workaround to save mem on teensy
+                        directoryContent.Directories.Add(dirItem);
+                        break;
 
-                        case var item when item.StartsWith(fileToken):
-                            var fileJson = item.Substring(6);
-                            var fileItem = JsonConvert.DeserializeObject<FileItem>(fileJson);
-                            fileItem.Path = fileItem.Path.Replace("//", "/"); //workaround to save mem on teensy
-                            directoryContent.Files.Add(fileItem);
-                            break;
-                    }
+                    case var item when item.StartsWith(fileToken):
+                        var fileJson = item.Substring(6);
+                        var fileItem = JsonConvert.DeserializeObject<FileItem>(fileJson);
+                        fileItem.Path = fileItem.Path.Replace("//", "/"); //workaround to save mem on teensy
+                        directoryContent.Files.Add(fileItem);
+                        break;
                 }
-            }
-            catch (Exception ex)
-            {
-                _logService.Log($"Error parsing directory content from TeensyROM:");
-                _logService.Log($"{ex.Message}");
-                return null;
             }
             return directoryContent;
         }

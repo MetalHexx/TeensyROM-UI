@@ -14,11 +14,8 @@ namespace TeensyRom.Core.Commands
     public class PingCommand : IRequest<PingResult> { }
     public class PingResult : CommandResult { }
 
-    public class PingCommandHandler : TeensyCommand, IRequestHandler<PingCommand, PingResult>
+    public class PingCommandHandler(IObservableSerialPort _serialPort) : IRequestHandler<PingCommand, PingResult>
     {
-        public PingCommandHandler(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
-            : base(settingsService, serialPort, logService) { }
-
         public Task<PingResult> Handle(PingCommand request, CancellationToken cancellationToken)
         {
             if (!_serialPort.IsOpen)

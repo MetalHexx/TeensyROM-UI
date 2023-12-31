@@ -23,14 +23,16 @@ namespace TeensyRom.Core.Commands
 
     public class CopyFileResult : CommandResult { }
 
-    public class CopyFileHandler : TeensyCommand, IRequestHandler<CopyFileCommand, CopyFileResult>
+    public class CopyFileHandler : IRequestHandler<CopyFileCommand, CopyFileResult>
     {
+        private readonly IObservableSerialPort _serialPort;
+        private TeensySettings _settings;
 
-        public CopyFileHandler(
-            ISettingsService settingsService, 
-            IObservableSerialPort serialPort, 
-            ILoggingService logService) 
-            : base(settingsService, serialPort, logService) { }
+        public CopyFileHandler(IObservableSerialPort serialPort, ISettingsService settings)
+        {
+            settings.Settings.Subscribe(s => _settings = s);
+            _serialPort = serialPort;
+        }
 
         public Task<CopyFileResult> Handle(CopyFileCommand request, CancellationToken cancellationToken)
         {
@@ -44,8 +46,6 @@ namespace TeensyRom.Core.Commands
                 _serialPort.ReadSerialAsString(msToWait: 100);
                 throw new TeensyException("Error getting acknowledgement of successful file copy");
             }
-            _logService.Log("File transfer complete!");
-
             return Task.FromResult(new CopyFileResult());
         }
     }

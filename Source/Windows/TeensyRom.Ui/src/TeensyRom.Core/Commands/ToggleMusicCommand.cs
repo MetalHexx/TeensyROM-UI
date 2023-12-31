@@ -10,11 +10,8 @@ namespace TeensyRom.Core.Commands
 {
     public class ToggleMusicCommand() : IRequest<ToggleMusicResponse>;
     public class ToggleMusicResponse() : CommandResult;
-    public class ToggleMusicHandler : TeensyCommand, IRequestHandler<ToggleMusicCommand, ToggleMusicResponse>
+    public class ToggleMusicHandler(IObservableSerialPort _serialPort) :  IRequestHandler<ToggleMusicCommand, ToggleMusicResponse>
     {
-        public ToggleMusicHandler(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
-            : base(settingsService, serialPort, logService) { }
-
         public Task<ToggleMusicResponse> Handle(ToggleMusicCommand request, CancellationToken cancellationToken)
         {
             _serialPort.SendIntBytes(TeensyToken.PauseMusic, 2);

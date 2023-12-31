@@ -16,10 +16,16 @@ namespace TeensyRom.Core.Commands
 
     public class SaveFileResult : CommandResult { }
 
-    public class SaveFileCommandHandler : TeensyCommand, IRequestHandler<SaveFileCommand, SaveFileResult>
+    public class SaveFileCommandHandler : IRequestHandler<SaveFileCommand, SaveFileResult>
     {
-        public SaveFileCommandHandler(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
-            : base(settingsService, serialPort, logService) { }
+        private TeensySettings _settings;
+        private readonly IObservableSerialPort _serialPort;
+
+        public SaveFileCommandHandler(IObservableSerialPort serialPort, ISettingsService settings)
+        {
+            settings.Settings.Subscribe(s => _settings = s);
+            _serialPort = serialPort;
+        }
 
         public Task<SaveFileResult> Handle(SaveFileCommand r, CancellationToken cancellationToken)
         {
@@ -52,14 +58,12 @@ namespace TeensyRom.Core.Commands
                 if (r.File.StreamLength - bytesSent < bytesToSend) bytesToSend = (int)r.File.StreamLength - bytesSent;
                 _serialPort.Write(r.File.Buffer, bytesSent, bytesToSend);
 
-                _logService.Log("*");
                 bytesSent += bytesToSend;
             }
 
             if (_serialPort.GetAck() != TeensyToken.Ack)
             {
                 _serialPort.ReadSerialAsString(msToWait: 500);
-                _logService.Log("File transfer failed.");
                 throw new TeensyException("Error getting acknowledgement when sending file");
             }
             return Task.FromResult(new SaveFileResult());

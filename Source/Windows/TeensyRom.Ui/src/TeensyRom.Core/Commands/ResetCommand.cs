@@ -11,12 +11,8 @@ namespace TeensyRom.Core.Commands
 {
     public record ResetCommand : IRequest { }
 
-    public class ResetCommandHandler : TeensyCommand, IRequestHandler<ResetCommand>
+    public class ResetCommandHandler(IObservableSerialPort _serialPort) : IRequestHandler<ResetCommand>
     {
-        public ResetCommandHandler(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService)
-            : base(settingsService, serialPort, logService) { }
-
-
         public Task Handle(ResetCommand request, CancellationToken cancellationToken)
         {
             if (!_serialPort.IsOpen)

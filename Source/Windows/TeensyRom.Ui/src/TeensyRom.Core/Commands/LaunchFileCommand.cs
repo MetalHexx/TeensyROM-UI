@@ -14,10 +14,16 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
         public string Path { get; set; } = string.Empty;
     }
     public class LaunchFileResponse: CommandResult { }
-    public class LaunchFileHandler: TeensyCommand, IRequestHandler<LaunchFileCommand, LaunchFileResponse>
+    public class LaunchFileHandler: IRequestHandler<LaunchFileCommand, LaunchFileResponse>
     {
-        public LaunchFileHandler(ISettingsService settingsService, IObservableSerialPort serialPort, ILoggingService logService) 
-            : base(settingsService, serialPort, logService) { }
+        private TeensySettings _settings;
+        private readonly IObservableSerialPort _serialPort;
+
+        public LaunchFileHandler(IObservableSerialPort serialPort, ISettingsService settings)
+        {
+            settings.Settings.Subscribe(s => _settings = s);
+            _serialPort = serialPort;
+        }
 
         public Task<LaunchFileResponse> Handle(LaunchFileCommand request, CancellationToken cancellationToken)
         {
