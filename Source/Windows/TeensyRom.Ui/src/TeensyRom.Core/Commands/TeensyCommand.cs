@@ -32,22 +32,9 @@ namespace TeensyRom.Core.Commands
                 .Subscribe(settings => _settings = settings);
         }
 
-        protected void WaitForSerialData(int numBytes, int timeoutMs)
-        {
-            var sw = new Stopwatch();
-            sw.Start();
-
-            while (sw.ElapsedMilliseconds < timeoutMs)
-            {
-                if (_serialPort.BytesToRead >= numBytes) return;
-                Thread.Sleep(10);
-            }
-            throw new TimeoutException("Timed out waiting for data to be received");
-        }
-
         protected bool GetAck()
         {
-            WaitForSerialData(numBytes: 2, timeoutMs: 500);
+            _serialPort.WaitForSerialData(numBytes: 2, timeoutMs: 500);
 
             byte[] recBuf = new byte[2];
             _serialPort.Read(recBuf, 0, 2);

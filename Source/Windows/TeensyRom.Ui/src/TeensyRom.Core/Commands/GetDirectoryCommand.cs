@@ -172,7 +172,7 @@ namespace TeensyRom.Core.Commands
 
         public bool WaitForDirectoryStartToken()
         {
-            WaitForSerialData(numBytes: 2, timeoutMs: 500);
+            _serialPort.WaitForSerialData(numBytes: 2, timeoutMs: 500);
 
             byte[] recBuf = new byte[2];
             _serialPort.Read(recBuf, 0, 2);

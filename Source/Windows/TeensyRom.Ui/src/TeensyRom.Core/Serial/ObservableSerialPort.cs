@@ -1,4 +1,5 @@
-﻿using System.IO.Ports;
+﻿using System.Diagnostics;
+using System.IO.Ports;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -222,6 +223,19 @@ namespace TeensyRom.Core.Serial
             {
                 _serialPort.Write(bytesToSend, byteNum, 1);
             }
+        }
+
+        public void WaitForSerialData(int numBytes, int timeoutMs)
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+
+            while (sw.ElapsedMilliseconds < timeoutMs)
+            {
+                if (_serialPort.BytesToRead >= numBytes) return;
+                Thread.Sleep(10);
+            }
+            throw new TimeoutException("Timed out waiting for data to be received");
         }
 
         /// <summary>

@@ -27,7 +27,7 @@ namespace TeensyRom.Core.Commands
 
             _serialPort.SendIntBytes(TeensyConstants.Send_File_Token, 2);
 
-            WaitForSerialData(numBytes: 2, timeoutMs: 500);
+            _serialPort.WaitForSerialData(numBytes: 2, timeoutMs: 500);
 
             if (!GetAck())
             {
