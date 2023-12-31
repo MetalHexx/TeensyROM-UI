@@ -21,9 +21,9 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
         public Task<LaunchFileResponse> Handle(LaunchFileCommand request, CancellationToken cancellationToken)
         {
-            _serialPort.SendIntBytes(TeensyConstants.Launch_File_Token, 2);
+            _serialPort.SendIntBytes(TeensyToken.LaunchFile, 2);
 
-            if (!GetAck())
+            if (_serialPort.GetAck() != TeensyToken.Ack)
             {
                 _serialPort.ReadSerialAsString();
                 throw new TeensyException("Error getting acknowledgement when Launch File Token sent");
@@ -31,7 +31,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             _serialPort.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
             _serialPort.Write($"{request.Path}\0");
 
-            if (!GetAck())
+            if (_serialPort.GetAck() != TeensyToken.Ack)
             {
                 _serialPort.ReadSerialAsString(msToWait: 100);
                 throw new TeensyException("Error getting acknowledgement when launch path sent");

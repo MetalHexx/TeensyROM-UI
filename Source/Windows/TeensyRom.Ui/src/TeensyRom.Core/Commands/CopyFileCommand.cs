@@ -34,12 +34,12 @@ namespace TeensyRom.Core.Commands
 
         public Task<CopyFileResult> Handle(CopyFileCommand request, CancellationToken cancellationToken)
         {
-            _serialPort.SendIntBytes(TeensyConstants.Copy_File_Token, 2);
+            _serialPort.SendIntBytes(TeensyToken.CopyFile.Value, 2);
             _serialPort.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
             _serialPort.Write($"{request.SourcePath}\0");
             _serialPort.Write($"{request.DestPath}\0");
 
-            if (!GetAck())
+            if (_serialPort.GetAck() != TeensyToken.Ack)
             {
                 _serialPort.ReadSerialAsString(msToWait: 100);
                 throw new TeensyException("Error getting acknowledgement of successful file copy");

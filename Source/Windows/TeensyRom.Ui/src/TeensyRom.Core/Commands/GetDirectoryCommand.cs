@@ -52,9 +52,9 @@ namespace TeensyRom.Core.Commands
         {
             DirectoryContent? directoryContent = null;
 
-            _serialPort.SendIntBytes(TeensyConstants.List_Directory_Token, 2);
+            _serialPort.SendIntBytes(TeensyToken.ListDirectory, 2);
 
-            if (!GetAck())
+            if (_serialPort.GetAck() != TeensyToken.Ack)
             {
                 _serialPort.ReadSerialAsString();
                 throw new TeensyException("Error getting acknowledgement when List Directory Token sent");
@@ -64,7 +64,7 @@ namespace TeensyRom.Core.Commands
             _serialPort.SendIntBytes(take, 2);
             _serialPort.Write($"{path}\0");
 
-            if (!WaitForDirectoryStartToken())
+            if (WaitForDirectoryStartToken() != TeensyToken.StartDirectoryList)
             {
                 _serialPort.ReadSerialAsString(msToWait: 100);
                 throw new TeensyException("Error waiting for Directory Start Token");
@@ -107,11 +107,11 @@ namespace TeensyRom.Core.Commands
                     if (receivedBytes.Count >= 2)
                     {
                         var lastToken = (ushort)(receivedBytes[^2] << 8 | receivedBytes[^1]);
-                        if (lastToken == TeensyConstants.Fail_Token)
+                        if (lastToken == TeensyToken.Fail)
                         {
                             throw new TeensyException("Received fail token while receiving directory content");
                         }
-                        else if (lastToken == TeensyConstants.End_Directory_List_Token)
+                        else if (lastToken == TeensyToken.EndDirectoryList)
                         {
                             break;
                         }
@@ -170,7 +170,7 @@ namespace TeensyRom.Core.Commands
             return directoryContent;
         }
 
-        public bool WaitForDirectoryStartToken()
+        public TeensyToken WaitForDirectoryStartToken()
         {
             _serialPort.WaitForSerialData(numBytes: 2, timeoutMs: 500);
 
@@ -178,20 +178,12 @@ namespace TeensyRom.Core.Commands
             _serialPort.Read(recBuf, 0, 2);
             ushort recU16 = recBuf.ToInt16();
 
-            switch (recU16)
+            return recU16 switch
             {
-                case TeensyConstants.Start_Directory_List_Token:
-                    _logService.Log("Response: StartDirectoryToken Received");
-                    return true;
-
-                case TeensyConstants.Fail_Token:
-                    _logService.Log("Response: Failure Received");
-                    return false;
-
-                default:
-                    _logService.Log("Response: Unexpected Response that was not an Ack token - " + recBuf[0].ToString("X2") + ":" + recBuf[1].ToString("X2"));
-                    return false;
-            }
+                var _ when recU16 == TeensyToken.StartDirectoryList.Value => TeensyToken.StartDirectoryList,
+                var _ when recU16 == TeensyToken.Fail.Value => TeensyToken.Fail,
+                _ => TeensyToken.Unnknown,
+            };
         }
     }
 }
