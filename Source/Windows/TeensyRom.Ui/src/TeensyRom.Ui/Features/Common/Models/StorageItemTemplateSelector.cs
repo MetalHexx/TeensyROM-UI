@@ -2,6 +2,7 @@
 using System.Windows;
 using TeensyRom.Ui.Features.Music;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Ui.Features.Common.Models
 {
@@ -16,10 +17,16 @@ namespace TeensyRom.Ui.Features.Common.Models
             return item switch
             {
                 DirectoryItem _ => DirectoryTemplate,
+                FileItem fileItem when IsSongItem(fileItem) => SongTemplate,
                 FileItem _ => FileTemplate,
-                SongItem _ => SongTemplate,
-                _ => base.SelectTemplate(item, container)
+                _ => base.SelectTemplate(item, container),
             };
+        }
+
+        private bool IsSongItem(FileItem fileItem)
+        {
+            var fileType = fileItem.Path.GetUnixFileExtension().GetFileType();
+            return fileType == TeensyFileType.Sid;
         }
     }
 }
