@@ -25,7 +25,7 @@ namespace TeensyRom.Core.Commands
             {
                 throw new TeensyException("You must first connect in order to ping the device.");
             }
-            _serialPort.Write(TeensyConstants.Ping_Bytes.ToArray(), 0, 2);
+            _serialPort.Write(TeensyByteToken.Ping_Bytes.ToArray(), 0, 2);
 
             return Task.FromResult(new PingResult());
         }

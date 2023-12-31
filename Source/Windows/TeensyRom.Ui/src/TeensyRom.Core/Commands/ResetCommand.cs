@@ -23,7 +23,7 @@ namespace TeensyRom.Core.Commands
             {
                 throw new TeensyException("You must first connect in order to reset the device.");
             }
-            _serialPort.Write(TeensyConstants.Reset_Bytes.ToArray(), 0, 2);
+            _serialPort.Write(TeensyByteToken.Reset_Bytes.ToArray(), 0, 2);
             return Task.CompletedTask;
         }
     }
