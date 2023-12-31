@@ -14,8 +14,8 @@ namespace TeensyRom.Core.Common
         {
             return type switch
             {
-                TeensyStorageType.SD => TeensyConstants.Sd_Card_Token,
-                TeensyStorageType.USB => TeensyConstants.Usb_Stick_Token,
+                TeensyStorageType.SD => TeensyStorageToken.SdCard,
+                TeensyStorageType.USB => TeensyStorageToken.UsbStick,
                 _ => throw new ArgumentException("Unknown Storage Type")
             };
         }
