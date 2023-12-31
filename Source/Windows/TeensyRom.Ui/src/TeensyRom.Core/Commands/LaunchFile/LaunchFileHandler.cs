@@ -21,19 +21,10 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
         {
             _serialPort.SendIntBytes(TeensyToken.LaunchFile, 2);
 
-            if (_serialPort.GetAck() != TeensyToken.Ack)
-            {
-                _serialPort.ReadSerialAsString();
-                throw new TeensyException("Error getting acknowledgement when Launch File Token sent");
-            }
+            _serialPort.HandleAck();
             _serialPort.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
             _serialPort.Write($"{request.Path}\0");
-
-            if (_serialPort.GetAck() != TeensyToken.Ack)
-            {
-                _serialPort.ReadSerialAsString(msToWait: 100);
-                throw new TeensyException("Error getting acknowledgement when launch path sent");
-            }
+            _serialPort.HandleAck();
             return Task.FromResult(new LaunchFileResult());
         }
     }

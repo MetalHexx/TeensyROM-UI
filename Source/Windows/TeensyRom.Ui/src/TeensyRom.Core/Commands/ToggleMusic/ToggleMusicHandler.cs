@@ -9,12 +9,7 @@ namespace TeensyRom.Core.Commands
         public Task<ToggleMusicResult> Handle(ToggleMusicCommand request, CancellationToken cancellationToken)
         {
             _serialPort.SendIntBytes(TeensyToken.PauseMusic, 2);
-
-            if (_serialPort.GetAck() != TeensyToken.Ack)
-            {
-                _serialPort.ReadSerialAsString(msToWait: 100);
-                throw new TeensyException("Error getting acknowledgement when pause music token sent");
-            }
+            _serialPort.HandleAck();
             return Task.FromResult(new ToggleMusicResult());
         }
     }

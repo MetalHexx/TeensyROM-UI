@@ -23,12 +23,7 @@ namespace TeensyRom.Core.Commands
             _serialPort.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
             _serialPort.Write($"{request.SourcePath}\0");
             _serialPort.Write($"{request.DestPath}\0");
-
-            if (_serialPort.GetAck() != TeensyToken.Ack)
-            {
-                _serialPort.ReadSerialAsString(msToWait: 100);
-                throw new TeensyException("Error getting acknowledgement of successful file copy");
-            }
+            _serialPort.HandleAck();
             return Task.FromResult(new CopyFileResult());
         }
     }

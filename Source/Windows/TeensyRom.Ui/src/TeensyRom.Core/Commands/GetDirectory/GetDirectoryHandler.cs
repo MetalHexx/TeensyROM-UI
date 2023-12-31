@@ -45,11 +45,7 @@ namespace TeensyRom.Core.Commands
 
             _serialPort.SendIntBytes(TeensyToken.ListDirectory, 2);
 
-            if (_serialPort.GetAck() != TeensyToken.Ack)
-            {
-                _serialPort.ReadSerialAsString();
-                throw new TeensyException("Error getting acknowledgement when List Directory Token sent");
-            }
+            _serialPort.HandleAck();
             _serialPort.SendIntBytes(storageType.GetStorageToken(), 1);
             _serialPort.SendIntBytes(skip, 2);
             _serialPort.SendIntBytes(take, 2);

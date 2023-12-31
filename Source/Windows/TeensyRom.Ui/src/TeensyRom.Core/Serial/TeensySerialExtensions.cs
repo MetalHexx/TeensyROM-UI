@@ -4,11 +4,28 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Core.Serial
 {
     public static class TeensySerialExtensions
     {
+        public static void HandleAck(this IObservableSerialPort _serialPort)
+        {
+            var response = _serialPort.GetAck();
+
+            if (response != TeensyToken.Ack)
+            {
+                _serialPort.ReadSerialAsString();
+                
+                var responseString = response switch
+                {
+                    var _ when response == TeensyToken.Fail => "Fail",
+                    _ => "Unknown",
+                };
+                throw new TeensyException($"Received {responseString} Ack Token");
+            }
+        }
         public static TeensyToken GetAck(this IObservableSerialPort _serialPort)
         {
             _serialPort.WaitForSerialData(numBytes: 2, timeoutMs: 500);

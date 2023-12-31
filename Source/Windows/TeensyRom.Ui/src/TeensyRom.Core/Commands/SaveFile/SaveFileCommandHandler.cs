@@ -25,21 +25,13 @@ namespace TeensyRom.Core.Commands
 
             _serialPort.WaitForSerialData(numBytes: 2, timeoutMs: 500);
 
-            if (_serialPort.GetAck() != TeensyToken.Ack)
-            {
-                _serialPort.ReadSerialAsString();
-                throw new TeensyException("Error getting acknowledgement when Send File Token sent");
-            }
+            _serialPort.HandleAck();
             _serialPort.SendIntBytes(r.File.StreamLength, 4);
             _serialPort.SendIntBytes(r.File.Checksum, 2);
             _serialPort.SendIntBytes(r.File.StorageType.GetStorageToken(), 1);
             _serialPort.Write($"{r.File.TargetPath.UnixPathCombine(r.File.Name)}\0");
+            _serialPort.HandleAck();
 
-            if (_serialPort.GetAck() != TeensyToken.Ack)
-            {
-                _serialPort.ReadSerialAsString(msToWait: 100);
-                throw new TeensyException("Error getting acknowledgement when file metadata sent");
-            }
             var bytesSent = 0;
 
             while (r.File.StreamLength > bytesSent)
@@ -50,12 +42,7 @@ namespace TeensyRom.Core.Commands
 
                 bytesSent += bytesToSend;
             }
-
-            if (_serialPort.GetAck() != TeensyToken.Ack)
-            {
-                _serialPort.ReadSerialAsString(msToWait: 500);
-                throw new TeensyException("Error getting acknowledgement when sending file");
-            }
+            _serialPort.HandleAck();
             return Task.FromResult(new SaveFileResult());
         }
 
