@@ -14,7 +14,7 @@ namespace TeensyRom.Core.Music
     {
         void ClearCache();        
         void ClearCache(string path);
-        Task<MusicDirectory?> GetDirectory(string path);        
+        Task<FileDirectory?> GetDirectory(string path);        
         Task<SongItem?> SaveFavorite(SongItem song);
         void Dispose();
     }
@@ -27,7 +27,7 @@ namespace TeensyRom.Core.Music
         private TeensySettings? _settings;
         private IDisposable? _settingsSubscription;
         private const string _cacheFileName = "TeensyStorageCache.json";        
-        private MusicDirectoryCache _musicCache = new();
+        private FileDirectoryCache _fileDirectoryCache = new();
 
         public MusicStorageService(ISettingsService settings, ISidMetadataService metadataService, IMediator mediator)
         {
@@ -65,7 +65,7 @@ namespace TeensyRom.Core.Music
 
         public void ClearCache()
         {
-            _musicCache.Clear();
+            _fileDirectoryCache.Clear();
 
             var cachePath = GetFullCachePath();
 
@@ -74,7 +74,7 @@ namespace TeensyRom.Core.Music
             File.Delete(cachePath);
         }
 
-        public void ClearCache(string path) => _musicCache.DeleteDirectoryTree(path);
+        public void ClearCache(string path) => _fileDirectoryCache.DeleteDirectoryTree(path);
 
         public async Task<SongItem?> SaveFavorite(SongItem song)
         {
@@ -92,8 +92,8 @@ namespace TeensyRom.Core.Music
             var favSong = song.Clone();
             favSong.Path = targetPath;
 
-            _musicCache.UpsertSong(song);
-            _musicCache.UpsertSong(favSong);
+            _fileDirectoryCache.UpsertFile(song);
+            _fileDirectoryCache.UpsertFile(favSong);
 
             SaveCacheToDisk();
 
@@ -114,12 +114,12 @@ namespace TeensyRom.Core.Music
             using var reader = new StreamReader(stream);
             var content = reader.ReadToEnd();
 
-            var cacheFromDisk = JsonConvert.DeserializeObject<MusicDirectoryCache>(content, new JsonSerializerSettings
+            var cacheFromDisk = JsonConvert.DeserializeObject<FileDirectoryCache>(content, new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,
                 Formatting = Formatting.Indented
             });
-            _musicCache = cacheFromDisk;
+            _fileDirectoryCache = cacheFromDisk;
         }
         
         private void SaveCacheToDisk()
@@ -128,15 +128,15 @@ namespace TeensyRom.Core.Music
 
             var cacheLocation = GetFullCachePath();
 
-            File.WriteAllText(cacheLocation, JsonConvert.SerializeObject(_musicCache, Formatting.Indented, new JsonSerializerSettings
+            File.WriteAllText(cacheLocation, JsonConvert.SerializeObject(_fileDirectoryCache, Formatting.Indented, new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,
                 Formatting = Formatting.Indented
             }));
         }
-        public async Task<MusicDirectory?> GetDirectory(string path)
+        public async Task<FileDirectory?> GetDirectory(string path)
         {
-            var cacheItem = _musicCache.GetByDirectory(path);
+            var cacheItem = _fileDirectoryCache.GetByDirectory(path);
 
             if (cacheItem != null) return cacheItem;
 
@@ -152,14 +152,14 @@ namespace TeensyRom.Core.Music
             var songs = MapAndOrderSongs(response.DirectoryContent);
             var directories = MapAndOrderDirectories(response.DirectoryContent);
 
-            cacheItem = new MusicDirectory
+            cacheItem = new FileDirectory
             {
                 Path = path,
                 Directories = directories.ToList(),
-                Songs = songs
+                Files = songs.Cast<FileItem>().ToList()
             };
 
-            _musicCache.UpsertDirectory(path, cacheItem);
+            _fileDirectoryCache.UpsertDirectory(path, cacheItem);
             SaveCacheToDisk();
 
             return cacheItem;

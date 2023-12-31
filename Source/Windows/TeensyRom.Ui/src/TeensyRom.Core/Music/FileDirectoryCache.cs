@@ -6,26 +6,26 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Music
 {
-    public class MusicDirectoryCache: Dictionary<string, MusicDirectory>
+    public class FileDirectoryCache : Dictionary<string, FileDirectory>
     {
-        public void UpsertDirectory(string path, MusicDirectory directory)
+        public void UpsertDirectory(string path, FileDirectory directory)
         {
             DeleteDirectory(path);
             InsertDirectory(path, directory);
         }
         
-        public void UpsertSong(SongItem song)
+        public void UpsertFile(FileItem fileItem)
         {
-            var path = song.Path.GetParentDirectory();
-            var songParentDir = GetByDirectory(path);
+            var path = fileItem.Path.GetParentDirectory();
+            var fileParentDir = GetByDirectory(path);
 
-            if (songParentDir is null) return;
+            if (fileParentDir is null) return;
 
-            songParentDir!.UpsertSong(song);
-            UpsertDirectory(path, songParentDir);
+            fileParentDir!.UpsertFile(fileItem);
+            UpsertDirectory(path, fileParentDir);
         }
 
-        private void InsertDirectory(string path, MusicDirectory cacheItem)
+        private void InsertDirectory(string path, FileDirectory cacheItem)
         {
             var cleanPath = CleanPath(path);
             TryAdd(cleanPath, cacheItem);
@@ -54,7 +54,7 @@ namespace TeensyRom.Core.Music
             DeleteDirectory(currentDir.Path);
         }
 
-        public MusicDirectory? GetByDirectory(string path)
+        public FileDirectory? GetByDirectory(string path)
         {
             var cleanPath = CleanPath(path);
 
@@ -63,7 +63,7 @@ namespace TeensyRom.Core.Music
             return item;
         }
 
-        private string CleanPath(string path) => path
+        private static string CleanPath(string path) => path
             .RemoveLeadingAndTrailingSlash()
             .ToLower();
     }

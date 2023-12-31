@@ -36,7 +36,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
         private readonly BehaviorSubject<DirectoryItem> _directoryTree = new(new());
         private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
-        private readonly BehaviorSubject<MusicDirectory?> _currentDirectory = new(null);
+        private readonly BehaviorSubject<FileDirectory?> _currentDirectory = new(null);
         private readonly Subject<bool> _directoryLoading = new();
         private readonly BehaviorSubject<SongItem> _currentSong = new(null);
         private readonly BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
@@ -175,13 +175,13 @@ namespace TeensyRom.Ui.Features.Music.State
                 LoadSong(_currentSong.Value);
                 return;
             }
-            var songIndex = directoryResult.Songs.IndexOf(_currentSong.Value);
+            var songIndex = directoryResult.Files.IndexOf(_currentSong.Value);
 
             var songToLoad = songIndex == 0
-                ? directoryResult.Songs.Last()
-                : directoryResult.Songs[--songIndex];
+                ? directoryResult.Files.Last()
+                : directoryResult.Files[--songIndex];
 
-            LoadSong(songToLoad);
+            LoadSong(songToLoad as SongItem);
         }
 
         public async Task PlayNext()
@@ -194,13 +194,13 @@ namespace TeensyRom.Ui.Features.Music.State
                 LoadSong(_currentSong.Value);
                 return;
             }
-            var currentIndex = directoryResult.Songs.IndexOf(_currentSong.Value);
+            var currentIndex = directoryResult.Files.IndexOf(_currentSong.Value);
 
-            var songToLoad = directoryResult.Songs.Count == currentIndex + 1
-                ? directoryResult.Songs.First()
-                : directoryResult.Songs[++currentIndex];
+            var songToLoad = directoryResult.Files.Count == currentIndex + 1
+                ? directoryResult.Files.First()
+                : directoryResult.Files[++currentIndex];
             
-            LoadSong(songToLoad);
+            LoadSong(songToLoad as SongItem);
         }
 
         public async Task LoadDirectory(string path)
@@ -224,7 +224,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
             var directoryItems = new ObservableCollection<StorageItem>();
             directoryItems.AddRange(directoryResult.Directories);
-            directoryItems.AddRange(directoryResult.Songs);
+            directoryItems.AddRange(directoryResult.Files);
 
             _directoryContent.OnNext(directoryItems);
             _currentDirectory.OnNext(directoryResult);

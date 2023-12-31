@@ -3,22 +3,22 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Music
 {
-    public class MusicDirectory
+    public class FileDirectory
     {
         public string Path { get; set; } = string.Empty;
         public List<DirectoryItem> Directories { get; set; } = new();
-        public List<SongItem> Songs { get; set; } = new();
+        public List<FileItem> Files { get; set; } = new();
 
-        public void UpsertSong(SongItem song)
+        public void UpsertFile(FileItem fileItem)
         {
-            var songIndex = Songs.IndexOf(song);
+            var fileIndex = Files.IndexOf(fileItem);
 
-            if (songIndex == -1)
+            if (fileIndex == -1)
             {
-                Insert(song);
+                Insert(fileItem);
                 return;
             }
-            Songs[songIndex] = song;
+            Files[fileIndex] = fileItem;
         }
 
         public void Upsert(DirectoryItem directory)
@@ -36,13 +36,13 @@ namespace TeensyRom.Core.Music
         public void Insert(DirectoryItem directory)
         {
             Directories.Add(directory);
-            Directories = Directories.OrderBy(s => s.Name).ToList();
+            Directories = [.. Directories.OrderBy(s => s.Name)];
         }
 
-        public void Insert(SongItem song)
+        public void Insert(FileItem song)
         {
-            Songs.Add(song);
-            Songs = Songs.OrderBy(s => s.Name).ToList();
+            Files.Add(song);
+            Files = [.. Files.OrderBy(s => s.Name)];
         }
     }
 }
