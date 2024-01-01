@@ -25,6 +25,7 @@ using System.Windows;
 using System.Windows.Threading;
 using MediatR;
 using TeensyRom.Core.Music.Sid;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui
 {
@@ -45,7 +46,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IMusicState, MusicState>();
             services.AddSingleton<IFileState, FileState>();
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
-            services.AddSingleton<IMusicStorageService, MusicStorageService>();
+            services.AddSingleton<ICachedStorageService<SongItem>, MusicStorageService>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<ConnectViewModel>();
             services.AddSingleton<FileTransferViewModel>();

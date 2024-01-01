@@ -1,86 +1,32 @@
 ﻿using MediatR;
-using Newtonsoft.Json;
-using System.Reflection;
 using System.Transactions;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Services;
 
 namespace TeensyRom.Core.Music
 {
-    public interface IMusicStorageService
-    {
-        void ClearCache();        
-        void ClearCache(string path);
-        Task<FileDirectory?> GetDirectory(string path);        
-        Task<SongItem?> SaveFavorite(SongItem song);
-        void Dispose();
-    }
-
-    public class MusicStorageService : IDisposable, IMusicStorageService
+    public class MusicStorageService : CachedStorageService<SongItem>
     {        
-        private readonly ISettingsService _settingsService;
         private readonly ISidMetadataService _metadataService;
-        private readonly IMediator _mediator;
-        private TeensySettings? _settings;
-        private IDisposable? _settingsSubscription;
-        private const string _cacheFileName = "TeensyStorageCache.json";        
-        private FileDirectoryCache _fileDirectoryCache = new();
 
-        public MusicStorageService(ISettingsService settings, ISidMetadataService metadataService, IMediator mediator)
+        public MusicStorageService(ISettingsService settings, ISidMetadataService metadataService, IMediator mediator) : base(settings, mediator)
         {
-            _settingsService = settings;
             _metadataService = metadataService;
-            _mediator = mediator;            
-            _settingsSubscription = _settingsService.Settings.Subscribe(OnSettingsChanged);
         }
 
-        private void OnSettingsChanged(TeensySettings newSettings)
-        {
-            if(_settings is null && newSettings.SaveMusicCacheEnabled)
-            {
-                _settings = newSettings;
-                LoadCache();                
-                return;
-            }
-            var shouldDeleteCache = _settings is not null
-                && _settings.SaveMusicCacheEnabled
-                && newSettings.SaveMusicCacheEnabled == false;
-
-            _settings = newSettings;
-
-            if (shouldDeleteCache)
-            {
-                ClearCache();
-            }
-        }
-
-        private string GetFavoritesPath() => _settings
+        protected override string GetFavoritesPath() => _settings
             .GetFileTypePath(TeensyFileType.Sid)
             .UnixPathCombine("/playlists/favorites");
 
-        private string GetFullCachePath() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "", _cacheFileName);
-
-        public void ClearCache()
+        public override async Task<SongItem?> SaveFavorite(SongItem song)
         {
-            _fileDirectoryCache.Clear();
-
-            var cachePath = GetFullCachePath();
-
-            if (!File.Exists(cachePath)) return;
-
-            File.Delete(cachePath);
-        }
-
-        public void ClearCache(string path) => _fileDirectoryCache.DeleteDirectoryTree(path);
-
-        public async Task<SongItem?> SaveFavorite(SongItem song)
-        {
-            var songFileName = song.Path.GetFileNameFromPath();            
+            var songFileName = song.Path.GetFileNameFromPath();
             var targetPath = GetFavoritesPath().UnixPathCombine(songFileName);
-            var result = await _mediator.Send(new CopyFileCommand 
+            var result = await _mediator.Send(new CopyFileCommand
             {
                 SourcePath = song.Path,
                 DestPath = targetPath
@@ -100,82 +46,7 @@ namespace TeensyRom.Core.Music
             return favSong;
         }
 
-        private void LoadCache()
-        {
-            var saveCacheEnabled = _settings?.SaveMusicCacheEnabled ?? false;
-            
-            if (!saveCacheEnabled) return;
-
-            var cacheLocation = GetFullCachePath();
-
-            if (!File.Exists(cacheLocation)) return;
-
-            using var stream = File.Open(cacheLocation, FileMode.Open, FileAccess.Read);
-            using var reader = new StreamReader(stream);
-            var content = reader.ReadToEnd();
-
-            var cacheFromDisk = JsonConvert.DeserializeObject<FileDirectoryCache>(content, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Auto,
-                Formatting = Formatting.Indented
-            });
-            _fileDirectoryCache = cacheFromDisk;
-        }
-        
-        private void SaveCacheToDisk()
-        {
-            if (!_settings!.SaveMusicCacheEnabled) return;
-
-            var cacheLocation = GetFullCachePath();
-
-            File.WriteAllText(cacheLocation, JsonConvert.SerializeObject(_fileDirectoryCache, Formatting.Indented, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Auto,
-                Formatting = Formatting.Indented
-            }));
-        }
-        public async Task<FileDirectory?> GetDirectory(string path)
-        {
-            var cacheItem = _fileDirectoryCache.GetByDirectory(path);
-
-            if (cacheItem != null) return cacheItem;
-
-            var response = await _mediator.Send(new GetDirectoryCommand
-            {
-                Path = path,
-                Skip = 0,
-                Take = 5000 //TODO: Do something about this hardcoded take 5000
-            });
-
-            if (response is null) return null;
-
-            var songs = MapAndOrderSongs(response.DirectoryContent);
-            var directories = MapAndOrderDirectories(response.DirectoryContent);
-
-            cacheItem = new FileDirectory
-            {
-                Path = path,
-                Directories = directories.ToList(),
-                Files = songs.Cast<FileItem>().ToList()
-            };
-
-            _fileDirectoryCache.UpsertDirectory(path, cacheItem);
-            SaveCacheToDisk();
-
-            return cacheItem;
-        }
-        private static IEnumerable<DirectoryItem> MapAndOrderDirectories(DirectoryContent? directoryContent)
-        {
-            return directoryContent?.Directories
-                .Select(d => new DirectoryItem
-                {
-                    Name = d.Name,
-                    Path = d.Path
-                })
-                .OrderBy(d => d.Name)
-                .ToList() ?? new List<DirectoryItem>();
-        }
-        private List<SongItem> MapAndOrderSongs(DirectoryContent? directoryContent)
+        protected override List<SongItem> MapAndOrderFiles(DirectoryContent? directoryContent)
         {
             return directoryContent?.Files
                 .Select(file => new SongItem
@@ -186,11 +57,7 @@ namespace TeensyRom.Core.Music
                 })
                 .Select(song => _metadataService.EnrichSong(song))
                 .OrderBy(song => song.Name)
-                .ToList() ?? new List<SongItem>();
-        }
-        public void Dispose()
-        {
-            _settingsSubscription?.Dispose();
+                .ToList() ?? [];
         }
     }
 }

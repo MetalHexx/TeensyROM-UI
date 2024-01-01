@@ -19,6 +19,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls;
 using TeensyRom.Ui.Features.Common.Models;
 
@@ -44,14 +45,14 @@ namespace TeensyRom.Ui.Features.Music.State
 
         private readonly ISongTimer _songTime;
         private readonly IMediator _mediator;
-        private readonly IMusicStorageService _musicService;
+        private readonly ICachedStorageService<SongItem> _musicService;
         private readonly ISettingsService _settingsService;
         private TeensySettings _settings = new();
         private IDisposable? _playingSongSubscription;
         private TimeSpan? _currentTime;
         private IDisposable _currentTimeSubscription;
 
-        public MusicState(ISongTimer songTime, IMediator mediator, IMusicStorageService musicService, ISettingsService settingsService)
+        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService<SongItem> musicService, ISettingsService settingsService)
         {
             _songTime = songTime;
             _mediator = mediator;
