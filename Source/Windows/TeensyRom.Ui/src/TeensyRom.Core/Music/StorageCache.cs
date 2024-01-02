@@ -6,18 +6,18 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Music
 {
-    public class FileDirectoryCache : Dictionary<string, FileDirectory>
+    public class StorageCache : Dictionary<string, StorageCacheItem>
     {
-        public void UpsertDirectory(string path, FileDirectory directory)
+        public void UpsertDirectory(string path, StorageCacheItem directory)
         {
-            DeleteDirectory(path);
-            InsertDirectory(path, directory);
+            Delete(path);
+            Insert(path, directory);
         }
         
         public void UpsertFile(FileItem fileItem)
         {
             var path = fileItem.Path.GetParentDirectory();
-            var fileParentDir = GetByDirectory(path);
+            var fileParentDir = Get(path);
 
             if (fileParentDir is null) return;
 
@@ -25,36 +25,36 @@ namespace TeensyRom.Core.Music
             UpsertDirectory(path, fileParentDir);
         }
 
-        private void InsertDirectory(string path, FileDirectory cacheItem)
+        private void Insert(string path, StorageCacheItem cacheItem)
         {
             var cleanPath = CleanPath(path);
             TryAdd(cleanPath, cacheItem);
         }
 
-        public void DeleteDirectory(string path)
+        public void Delete(string path)
         {
             var cleanPath = CleanPath(path);
-            var dir = GetByDirectory(cleanPath);
+            var dir = Get(cleanPath);
 
             if (dir is null) return;
 
             Remove(cleanPath);
         }
 
-        public void DeleteDirectoryTree(string path)
+        public void DeleteWithChildren(string path)
         {
-            var currentDir = GetByDirectory(path);
+            var currentDir = Get(path);
 
             if (currentDir is null) return;
 
             foreach (var directory in currentDir.Directories)
             {
-                DeleteDirectoryTree(directory.Path);
+                DeleteWithChildren(directory.Path);
             }
-            DeleteDirectory(currentDir.Path);
+            Delete(currentDir.Path);
         }
 
-        public FileDirectory? GetByDirectory(string path)
+        public StorageCacheItem? Get(string path)
         {
             var cleanPath = CleanPath(path);
 

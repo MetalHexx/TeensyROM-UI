@@ -7,7 +7,7 @@ namespace TeensyRom.Core.Storage.Services
     {
         void ClearCache();
         void ClearCache(string path);
-        Task<FileDirectory?> GetDirectory(string path);
+        Task<StorageCacheItem?> GetDirectory(string path);
         Task<FileItem?> SaveFavorite(FileItem item);
     }
 }
