@@ -64,7 +64,7 @@ namespace TeensyRom.Core.Music.Sid
             if (sidRecord is not null)
             {
                 song.ArtistName = sidRecord.Author;
-                song.Name = sidRecord.Title;
+                song.SongName = sidRecord.Title;
                 song.SongLength = sidRecord.SongLengthSpan;
                 song.ReleaseInfo = sidRecord.Released;
                 song.Comments = sidRecord.StilEntry;

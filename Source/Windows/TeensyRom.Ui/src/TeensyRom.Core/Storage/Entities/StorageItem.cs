@@ -12,7 +12,6 @@ namespace TeensyRom.Core.Storage.Entities
 
         private bool _isSelected;
 
-
         [JsonIgnore]
         public bool IsSelected
         {

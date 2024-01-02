@@ -45,14 +45,14 @@ namespace TeensyRom.Ui.Features.Music.State
 
         private readonly ISongTimer _songTime;
         private readonly IMediator _mediator;
-        private readonly ICachedStorageService<SongItem> _musicService;
+        private readonly ICachedStorageService _musicService;
         private readonly ISettingsService _settingsService;
         private TeensySettings _settings = new();
         private IDisposable? _playingSongSubscription;
         private TimeSpan? _currentTime;
         private IDisposable _currentTimeSubscription;
 
-        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService<SongItem> musicService, ISettingsService settingsService)
+        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService musicService, ISettingsService settingsService)
         {
             _songTime = songTime;
             _mediator = mediator;

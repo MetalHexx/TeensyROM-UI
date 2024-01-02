@@ -46,7 +46,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IMusicState, MusicState>();
             services.AddSingleton<IFileState, FileState>();
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
-            services.AddSingleton<ICachedStorageService<SongItem>, MusicStorageService>();
+            services.AddSingleton<ICachedStorageService, CachedStorageService>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<ConnectViewModel>();
             services.AddSingleton<FileTransferViewModel>();

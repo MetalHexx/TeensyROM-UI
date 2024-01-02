@@ -64,6 +64,23 @@ namespace TeensyRom.Core.Settings
             return TargetRootPath.UnixPathCombine(fileTarget.TargetPath);
         }
 
+        public string GetFavoritePath(TeensyFileType type) 
+        {
+            return type switch
+            {
+                TeensyFileType.Sid => GetFileTypePath(TeensyFileType.Sid)
+                    .UnixPathCombine("/playlists/favorites"),
+
+                TeensyFileType.Prg => GetFileTypePath(TeensyFileType.Prg)
+                    .UnixPathCombine("/favorites"),
+
+                TeensyFileType.Crt => GetFileTypePath(TeensyFileType.Crt)
+                    .UnixPathCombine("/favorites"),
+
+                _ => throw new TeensyException("This file type is not supported for favoriting")
+            }; ;
+        }
+
         /// <summary>
         /// If the user has no settings file saved yet, we'll default to the 
         /// environmentally defined location for the user profile download directory

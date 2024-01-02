@@ -2,24 +2,28 @@
 using Newtonsoft.Json;
 using System.Reflection;
 using TeensyRom.Core.Commands;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Music;
+using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Storage.Services
 {
-    public abstract class CachedStorageService<T> : ICachedStorageService<T> where T : FileItem
+    public class CachedStorageService : ICachedStorageService
     {
         protected readonly ISettingsService _settingsService;
-        protected readonly IMediator _mediator;
-        protected TeensySettings? _settings;
-        protected IDisposable? _settingsSubscription;
-        protected const string _cacheFileName = "TeensyStorageCache.json";
-        protected FileDirectoryCache _fileDirectoryCache = new();
+        private readonly ISidMetadataService _metadataService;
+        private readonly IMediator _mediator;
+        private TeensySettings _settings;
+        private IDisposable? _settingsSubscription;
+        private const string _cacheFileName = "TeensyStorageCache.json";
+        private FileDirectoryCache _fileDirectoryCache = new();
 
-        public CachedStorageService(ISettingsService settings, IMediator mediator)
+        public CachedStorageService(ISettingsService settings, ISidMetadataService metadataService, IMediator mediator)
         {
             _settingsService = settings;
+            _metadataService = metadataService;
             _mediator = mediator;
             _settingsSubscription = _settingsService.Settings.Subscribe(OnSettingsChanged);
         }
@@ -43,14 +47,37 @@ namespace TeensyRom.Core.Storage.Services
                 ClearCache();
             }
         }
+        
+        public async Task<FileItem?> SaveFavorite(FileItem fileItem)
+        {
+            var favPath = _settings.GetFavoritePath(fileItem.FileType);
 
-        /// <summary>
-        /// Override per storage file type
-        /// </summary>
-        /// <returns>Path to favorites</returns>
-        protected abstract string GetFavoritesPath();
-        protected abstract List<T> MapAndOrderFiles(DirectoryContent? directoryContent);
-        public abstract Task<T?> SaveFavorite(T item);
+            var result = await _mediator.Send(new CopyFileCommand
+            {
+                SourcePath = fileItem.Path,
+                DestPath = favPath.UnixPathCombine(fileItem.Name)
+            });
+
+            var favItem = fileItem switch
+            {
+                SongItem s => s.Clone(),
+                FileItem f => f.Clone(),
+                _ => throw new TeensyException("Unknown file type")
+            };
+
+            if (!result.IsSuccess) return null;
+
+            fileItem.IsFavorite = true;
+            
+            favItem.Path = favPath.UnixPathCombine(favItem.Name);
+
+            _fileDirectoryCache.UpsertFile(fileItem);
+            _fileDirectoryCache.UpsertFile(favItem);
+
+            SaveCacheToDisk();
+
+            return favItem;
+        }
         protected string GetFullCachePath() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "", _cacheFileName);
         public void ClearCache()
         {
@@ -136,6 +163,26 @@ namespace TeensyRom.Core.Storage.Services
                 })
                 .OrderBy(d => d.Name)
                 .ToList() ?? new List<DirectoryItem>();
+        }
+
+        private List<FileItem> MapAndOrderFiles(DirectoryContent? directoryContent)
+        {
+            return directoryContent?.Files
+                .Select(file =>
+                {
+                    if (file.FileType is not TeensyFileType.Sid) return file;
+
+                    var song = new SongItem
+                    {
+                        Name = file.Name,
+                        Path = file.Path,
+                        Size = file.Size,
+                    };
+                    _metadataService.EnrichSong(song);
+                    return song;
+                })
+                .OrderBy(song => song.Name)
+                .ToList() ?? [];
         }
         public void Dispose() => _settingsSubscription?.Dispose();
     }
