@@ -9,11 +9,6 @@ using ReactiveUI;
 
 namespace TeensyRom.Ui.Controls.DirectoryTree
 {
-    public class DirectorySelectedMessage(DirectoryNodeViewModel selectedDirectory)
-    {
-        public DirectoryNodeViewModel SelectedDirectory { get; private set; } = selectedDirectory;
-    }
-
     public class DirectoryNodeViewModel : ReactiveObject
     {
         [Reactive]
