@@ -11,12 +11,9 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
 {
     public class DirectoryNodeViewModel : ReactiveObject
     {
-        [Reactive]
-        public string Path { get; set; } = string.Empty;
-        [Reactive]
-        public string Name { get; set; } = string.Empty;
-        [Reactive]
-        public bool IsSelected { get; set; }
+        [Reactive] public string Path { get; set; } = string.Empty;
+        [Reactive] public string Name { get; set; } = string.Empty;
+        [Reactive] public bool IsSelected { get; set; }
         public ObservableCollection<DirectoryNodeViewModel> Directories { get; set; } = new ObservableCollection<DirectoryNodeViewModel>();
 
         public void Insert(IEnumerable<DirectoryItem> newDirectories)
@@ -51,7 +48,6 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
 
         private void AddDirectories(IEnumerable<DirectoryItem> directories)
         {
-
             foreach (var directory in directories)
             {
                 var notDupe = !Directories.Any(d => d.Path == directory.Path);
