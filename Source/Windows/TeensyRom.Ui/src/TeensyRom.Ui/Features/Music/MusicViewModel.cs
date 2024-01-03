@@ -10,8 +10,8 @@ using TeensyRom.Core.Commands;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
-using TeensyRom.Ui.Features.Music.MusicTree;
 using TeensyRom.Ui.Features.Music.PlayToolbar;
 using TeensyRom.Ui.Features.Music.SongList;
 using TeensyRom.Ui.Features.Music.State;
@@ -27,17 +27,16 @@ namespace TeensyRom.Ui.Features.Music
         [ObservableAsProperty] public bool ShowPlayToolbar { get; set; }
         [Reactive] public PlayToolbarViewModel PlayToolBar { get; set; }       
         [Reactive] public SongListViewModel SongList { get; set; }
-        [Reactive] public MusicTreeViewModel MusicTree { get; set; }
+        [Reactive] public DirectoryTreeViewModel MusicTree { get; set; }
         public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
 
 
-        public MusicViewModel(IMusicState musicState, ISerialPortState serialState, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList, MusicTreeViewModel musicTree)
+        public MusicViewModel(IMusicState musicState, ISerialPortState serialState, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList)
         {
             FeatureTitle = "Music";
             _musicState = musicState;
             PlayToolBar = playToolBar;
             SongList = songList;
-            MusicTree = musicTree;
             _musicState.CurrentSong
                 .Select(s => s is null)
                 .ToPropertyEx(this, x => x.ShowPlayToolbar);
@@ -51,6 +50,12 @@ namespace TeensyRom.Ui.Features.Music
                 .Where(sn => sn.currentNav?.Type == NavigationLocation.Music)
                 .Take(1)
                 .Subscribe(sn => LoadSongs(sn.settings.GetFileTypePath(TeensyFileType.Sid)));
+
+            MusicTree = new(musicState.DirectoryTree)
+            {
+                DirectorySelectedCommand = ReactiveCommand.CreateFromTask<DirectoryNodeViewModel>(async (directory) =>
+                await musicState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler)
+            };
         }
 
         public Unit LoadSongs(string path)

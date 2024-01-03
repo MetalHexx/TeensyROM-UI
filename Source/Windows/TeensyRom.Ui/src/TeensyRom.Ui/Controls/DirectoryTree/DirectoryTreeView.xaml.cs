@@ -44,10 +44,10 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
             }
             var treeView = sender as TreeView;
 
-            if (treeView?.SelectedItem is DirectoryItem directoryItem)
+            if (treeView?.SelectedItem is DirectoryNodeViewModel directoryNode)
             {
                 var viewModel = (DirectoryTreeViewModel)DataContext;
-                viewModel.DirectorySelectedCommand.Execute(directoryItem);
+                viewModel.DirectorySelectedCommand.Execute(directoryNode);
             }
         } 
     }

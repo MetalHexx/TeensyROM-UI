@@ -4,13 +4,14 @@ using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Threading.Tasks;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
 
 namespace TeensyRom.Ui.Features.Music.State
 {
     public interface IMusicState
     {
-        IObservable<DirectoryItem> DirectoryTree { get; }
+        IObservable<DirectoryNodeViewModel> DirectoryTree { get; }
         IObservable<ObservableCollection<StorageItem>> DirectoryContent { get; }
         IObservable<bool> DirectoryLoading { get; }
         IObservable<SongItem> CurrentSong { get; }

@@ -21,13 +21,14 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls;
+using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
 
 namespace TeensyRom.Ui.Features.Music.State
 {
     public class MusicState : IMusicState, IDisposable
     {
-        public IObservable<DirectoryItem> DirectoryTree => _directoryTree.AsObservable();
+        public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryTree.AsObservable();
         public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
         public IObservable<bool> DirectoryLoading => _directoryLoading.AsObservable();
         public IObservable<SongItem> CurrentSong => _currentSong.AsObservable();        
@@ -35,7 +36,7 @@ namespace TeensyRom.Ui.Features.Music.State
         public IObservable<PlayState> CurrentPlayState => _playState.AsObservable();
         public IObservable<TimeSpan> CurrentSongTime => _songTime.CurrentTime;
 
-        private readonly BehaviorSubject<DirectoryItem> _directoryTree = new(new());
+        private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
         private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
         private readonly BehaviorSubject<StorageCacheItem?> _currentDirectory = new(null);
         private readonly Subject<bool> _directoryLoading = new();
@@ -76,13 +77,13 @@ namespace TeensyRom.Ui.Features.Music.State
 
         private void ResetDirectoryTree()
         {
-            var dirItem = new DirectoryItem
+            var dirItem = new DirectoryNodeViewModel
             {
                 Name = "Root",  //The view only maps to the directory enumerable at the top level.  So we create a fake root here.
                 Path = _settings.TargetRootPath,
                 Directories = new()
                 {
-                    new DirectoryItem
+                    new DirectoryNodeViewModel
                     {
                         Name = _settings.GetFileTypePath(TeensyFileType.Sid),
                         Path = _settings.GetFileTypePath(TeensyFileType.Sid)

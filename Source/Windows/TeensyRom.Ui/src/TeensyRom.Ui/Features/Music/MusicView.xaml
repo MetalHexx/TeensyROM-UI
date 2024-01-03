@@ -38,7 +38,7 @@
         
         <ContentControl Content="{Binding SongList}" 
             Grid.Row="1" Grid.Column="1" />
-        
+
         <ContentControl Content="{Binding MusicTree}" 
             HorizontalAlignment="Left" 
             Grid.Row="1" Grid.Column="0" 

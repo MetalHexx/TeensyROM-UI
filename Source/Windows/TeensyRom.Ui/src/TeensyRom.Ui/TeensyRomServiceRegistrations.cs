@@ -12,7 +12,6 @@ using TeensyRom.Ui.Features.Files.State;
 using TeensyRom.Ui.Features.Files;
 using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.Help;
-using TeensyRom.Ui.Features.Music.MusicTree;
 using TeensyRom.Ui.Features.Music.PlayToolbar;
 using TeensyRom.Ui.Features.Music.SongList;
 using TeensyRom.Ui.Features.Music.State;
@@ -56,7 +55,6 @@ namespace TeensyRom.Ui
             services.AddSingleton<MusicViewModel>();
             services.AddSingleton<PlayToolbarViewModel>();
             services.AddSingleton<SongListViewModel>();
-            services.AddSingleton<MusicTreeViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(DisableSerialPollBehavior<,>));

@@ -6,7 +6,6 @@
     xmlns:Help="clr-namespace:TeensyRom.Ui.Features.Help"
     xmlns:Music="clr-namespace:TeensyRom.Ui.Features.Music"
     xmlns:DirectoryTree="clr-namespace:TeensyRom.Ui.Controls.DirectoryTree"
-    xmlns:MusicTree="clr-namespace:TeensyRom.Ui.Features.Music.MusicTree"
     xmlns:PlayToolbar="clr-namespace:TeensyRom.Ui.Features.Music.PlayToolbar"
     xmlns:SongList="clr-namespace:TeensyRom.Ui.Features.Music.SongList"
     xmlns:Connect="clr-namespace:TeensyRom.Ui.Features.Connect"
@@ -39,14 +38,9 @@
             <DataTemplate DataType="{x:Type Help:HelpViewModel}">
                 <Help:HelpView />
             </DataTemplate>
-            
+
             <DataTemplate DataType="{x:Type Music:MusicViewModel}">
                 <Music:MusicView />
-            </DataTemplate>
-
-            <DataTemplate DataType="{x:Type MusicTree:MusicTreeViewModel}">
-                <MusicTree:MusicTreeView/>
-
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type DirectoryTree:DirectoryTreeViewModel}">

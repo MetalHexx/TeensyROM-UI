@@ -1,25 +1,22 @@
 ﻿using ReactiveUI.Fody.Helpers;
 using ReactiveUI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TeensyRom.Core.Storage.Entities;
 using System.Reactive;
 using System.Reactive.Subjects;
-using System.Reactive.Linq;
 
 namespace TeensyRom.Ui.Controls.DirectoryTree
 {
     public class DirectoryTreeViewModel : ReactiveObject
-    {        
-        [ObservableAsProperty] public DirectoryItem DirectoryTree { get; }
-        public ReactiveCommand<DirectoryItem, Unit> DirectorySelectedCommand { get; set; }
+    {
+        [ObservableAsProperty] public DirectoryNodeViewModel RootDirectory { get; }
 
-        public DirectoryTreeViewModel(IObservable<DirectoryItem> directoryTreeObservable)
+        public ReactiveCommand<DirectoryNodeViewModel, Unit> DirectorySelectedCommand { get; set; }
+
+        public DirectoryTreeViewModel(IObservable<DirectoryNodeViewModel> directoryTreeObservable)
         {
-            directoryTreeObservable.ToPropertyEx(this, x => x.DirectoryTree);
+            directoryTreeObservable.ToPropertyEx(this, x => x.RootDirectory);
         }
     }
 }
