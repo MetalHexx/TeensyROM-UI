@@ -12,7 +12,6 @@ namespace TeensyRom.Core.Settings
     {
         public TeensyStorageType TargetType { get; set; } = TeensyStorageType.SD;
         public string WatchDirectoryLocation { get; set; } = string.Empty;
-        public string TargetRootPath { get; set; } = @"/sync";
         public List<TeensyTarget> FileTargets { get; set; } = new List<TeensyTarget>();
         public bool AutoFileCopyEnabled { get; set; }
         public bool SaveMusicCacheEnabled { get; set; }        
@@ -59,9 +58,7 @@ namespace TeensyRom.Core.Settings
 
         public string GetFileTypePath(TeensyFileType type)
         {
-            var fileTarget = FileTargets.First(t => t.Type == type);
-
-            return TargetRootPath.UnixPathCombine(fileTarget.TargetPath);
+            return FileTargets.First(t => t.Type == type).TargetPath;
         }
 
         public string GetFavoritePath(TeensyFileType type) 

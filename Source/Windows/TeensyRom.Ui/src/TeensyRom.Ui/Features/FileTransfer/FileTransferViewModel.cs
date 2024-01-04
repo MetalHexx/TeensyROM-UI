@@ -48,7 +48,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         //    set => this.RaiseAndSetIfChanged(ref _totalPages, value); 
         //}
         [Reactive] public int TotalPages { get; set; }
-        [Reactive] public string? CurrentPath { get; set; }
+        [Reactive] public string? CurrentPath { get; set; } = "/";
         [Reactive] public string Logs { get; set; } = string.Empty;
         [Reactive] public int PageSize { get; set; } = 250;
 
@@ -104,10 +104,6 @@ namespace TeensyRom.Ui.Features.FileTransfer
             _serialPortState.IsConnected
                 .Where(isConnected => isConnected is true)
                 .CombineLatest(settingsService.Settings, (isConnected, settings) => settings)
-                .Do(settings => 
-                {
-                    CurrentPath = settings.TargetRootPath;
-                })
                 .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
                 .Where(sn => sn.currentNav?.Type == NavigationLocation.FileTransfer)
                 .Where(_ => TargetItems.Count == 0)

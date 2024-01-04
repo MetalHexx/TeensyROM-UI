@@ -52,16 +52,7 @@ namespace TeensyRom.Ui.Features.Files.State
         {
             var dirItem = new DirectoryNodeViewModel
             {
-                Name = "",  //The view only maps to the directory enumerable at the top level.  So we create a fake root here.
-                Path = "",
-                Directories = new()
-                {
-                    new DirectoryNodeViewModel
-                    {
-                        Name = _settings.TargetRootPath,
-                        Path = _settings.TargetRootPath
-                    }
-                }
+                Directories = []
             };
             _directoryTree.OnNext(dirItem);
         }

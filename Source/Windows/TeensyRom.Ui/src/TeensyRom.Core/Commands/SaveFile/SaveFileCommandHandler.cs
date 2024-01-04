@@ -56,8 +56,7 @@ namespace TeensyRom.Core.Commands
 
             if (target is null) throw new TeensyException($"Unsupported file type: {fileInfo.Type}");
 
-            fileInfo.TargetPath = _settings.TargetRootPath
-                .UnixPathCombine(target.TargetPath)
+            fileInfo.TargetPath = target.TargetPath
                 .EnsureUnixPathEnding();
         }
     }

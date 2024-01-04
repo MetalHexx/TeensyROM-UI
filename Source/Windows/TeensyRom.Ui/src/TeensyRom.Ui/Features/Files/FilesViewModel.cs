@@ -35,9 +35,8 @@ namespace TeensyRom.Ui.Features.Files
                 .CombineLatest(settings.Settings, (isConnected, settings) => settings)
                 .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
                 .Where(sn => sn.currentNav?.Type == NavigationLocation.Files)
-                .Select(sn => sn.settings.TargetRootPath)
                 .Take(1)
-                .Subscribe(r => _fileState.LoadDirectory(r));
+                .Subscribe(r => _fileState.LoadDirectory("/"));
 
             DirectoryTree = new(fileState.DirectoryTree)
             {

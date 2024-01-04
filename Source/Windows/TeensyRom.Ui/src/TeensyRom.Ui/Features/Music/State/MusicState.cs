@@ -79,16 +79,8 @@ namespace TeensyRom.Ui.Features.Music.State
         {
             var dirItem = new DirectoryNodeViewModel
             {
-                Name = "Root",  //The view only maps to the directory enumerable at the top level.  So we create a fake root here.
-                Path = _settings.TargetRootPath,
-                Directories = new()
-                {
-                    new DirectoryNodeViewModel
-                    {
-                        Name = _settings.GetFileTypePath(TeensyFileType.Sid),
-                        Path = _settings.GetFileTypePath(TeensyFileType.Sid)
-                    }
-                }
+                Path = _settings.GetFileTypePath(TeensyFileType.Sid),
+                Directories = []
             };
             _directoryTree.OnNext(dirItem);
         }

@@ -26,7 +26,6 @@
                 <RowDefinition Height="40" ></RowDefinition>
                 <RowDefinition Height="40" ></RowDefinition>
                 <RowDefinition Height="40" ></RowDefinition>
-                <RowDefinition Height="40" ></RowDefinition>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="130"></RowDefinition>
                 <RowDefinition Height="1"></RowDefinition>
@@ -102,24 +101,13 @@
             </StackPanel>
 
             <Label 
-                Content="Target Root Path:"
-                Grid.Row="5" HorizontalAlignment="Right"/>
-
-            <TextBox                
-                materialDesign:HintAssist.Hint="Target Root"
-                ToolTip="The root path to store files on TeensyRom.  This value will be used as the parent path for the files types below."
-                Text="{Binding Settings.TargetRootPath, Mode=TwoWay}" 
-                VerticalAlignment="Top" 
-                Grid.Row="5" Grid.Column="3"/>
-
-            <Label 
                 Content="File Type Paths:" 
-                Grid.Row="6" HorizontalAlignment="Right"/>
+                Grid.Row="5" HorizontalAlignment="Right"/>
 
             <ItemsControl  
                 ToolTip="You can set the default path to store the file types.  The root path will be prepended to the path you specify on the file type"
                 ItemsSource="{Binding Settings.FileTargets}"
-                Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top">
+                Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel/>
@@ -134,7 +122,6 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="85" />
                                 <ColumnDefinition Width="5" />
-                                <ColumnDefinition Width="40" />
                                 <ColumnDefinition Width="10" />
                                 <ColumnDefinition Width="*" />
 
@@ -145,12 +132,7 @@
                                 ToolTip="The watch directory"
                                 VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
-                            <TextBlock 
-                                Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.Settings.TargetRootPath, StringFormat=\{0\}/}"
-                                Foreground="LightBlue"
-                                Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-
-                            <TextBox Grid.Column="4" 
+                            <TextBox Grid.Column="3" 
                                 materialDesign:HintAssist.Hint="{Binding DisplayName, StringFormat='{}{0} Target Path'}"
                                 Text="{Binding TargetPath, Mode=TwoWay}" 
                                 VerticalAlignment="Center" />
@@ -166,7 +148,7 @@
             ToolTip="This will save your settings to disk.  They will be remembered when you re-open the application."
             Content="Save Settings"  
             Command="{Binding SaveSettingsCommand}" 
-            Grid.Row="7" Width="300" Margin="20"/>
-
+            HorizontalAlignment="Left"
+            Grid.Row="7" Width="150" Margin="20"/>
     </Grid>
 </UserControl>
