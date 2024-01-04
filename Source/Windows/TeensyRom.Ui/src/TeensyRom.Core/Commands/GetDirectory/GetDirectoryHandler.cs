@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Reactive.Linq;
 using System.Text;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
@@ -13,31 +14,52 @@ namespace TeensyRom.Core.Commands
     {
         private TeensySettings _settings;
         private readonly IObservableSerialPort _serialPort;
+        private readonly ILoggingService _logService;
 
-        public GetDirectoryHandler(IObservableSerialPort serialPort, ISettingsService settings)
+        public GetDirectoryHandler(IObservableSerialPort serialPort, ISettingsService settings, ILoggingService logService)
         {
             settings.Settings.Take(1).Subscribe(s => _settings = s);
             _serialPort = serialPort;
+            _logService = logService;
         }
 
+        //TODO: refactor skip / take mechanism
         public Task<GetDirectoryResult> Handle(GetDirectoryCommand r, CancellationToken x)
         {
             return Task.Run(() =>
             {
-                var content = GetDirectoryContent(r.Path, _settings.TargetType, r.Skip, r.Take);
+                var aggregatedContent = new DirectoryContent();
+                uint totalItemsToFetch = r.Take;
+                uint itemsFetched = 0;
+                uint currentSkip = r.Skip;
+                const int chunkSize = 50;
 
-                if (content is null)
+                while (itemsFetched < totalItemsToFetch)
                 {
-                    return new GetDirectoryResult 
-                    { 
-                        Error = "There was an error.  Received a null result from the request" 
-                    };
+                    var itemsToFetch = Math.Min(chunkSize, totalItemsToFetch - itemsFetched);
+
+                    var content = GetDirectoryContent(r.Path, _settings.TargetType, currentSkip, itemsToFetch);
+
+                    if (content is null)
+                    {
+                        throw new TeensyException("There was an error. Received a null result from the request");
+                    }
+
+                    aggregatedContent.Add(content);
+                    itemsFetched += (uint)content.TotalCount;
+                    currentSkip += itemsToFetch;
+
+                    if (content.TotalCount < itemsToFetch)
+                    {
+                        break;
+                    }
                 }
-                return new GetDirectoryResult 
-                { 
-                    DirectoryContent = content 
+
+                return new GetDirectoryResult
+                {
+                    DirectoryContent = aggregatedContent
                 };
-            });
+            }, x);
         }
 
         public DirectoryContent? GetDirectoryContent(string path, TeensyStorageType storageType, uint skip, uint take)
@@ -80,10 +102,7 @@ namespace TeensyRom.Core.Commands
             {
                 if (DateTime.Now - startTime > timeout)
                 {
-                    var byteString = string.Empty;
-                    receivedBytes.ForEach(b => byteString += b.ToString());
-                    var logString = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
-                    throw new TeensyException("Timeout waiting for expected reply from TeensyROM");
+                    throw new TeensyException($"Timeout waiting for expected reply from TeensyROM -- Received Bytes:\r\n{GetLogString(receivedBytes)}");
                 }
 
                 if (_serialPort.BytesToRead > 0)
@@ -96,7 +115,7 @@ namespace TeensyRom.Core.Commands
                         var lastToken = (ushort)(receivedBytes[^2] << 8 | receivedBytes[^1]);
                         if (lastToken == TeensyToken.Fail)
                         {
-                            throw new TeensyException("Received fail token while receiving directory content");
+                            throw new TeensyException($"Received fail token while receiving directory content -- Received Bytes:\r\n{GetLogString(receivedBytes)}");
                         }
                         else if (lastToken == TeensyToken.EndDirectoryList)
                         {
@@ -109,7 +128,16 @@ namespace TeensyRom.Core.Commands
                     Thread.Sleep(50);
                 }
             }
+            _logService.Log($"Received Directory Content:\r\n{GetLogString(receivedBytes)}");
             return receivedBytes;
+        }
+
+        private string GetLogString(List<byte> receivedBytes)
+        {
+            var byteString = string.Empty;
+            receivedBytes.ForEach(b => byteString += b.ToString());
+            var logString = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
+            return logString;
         }
 
         public DirectoryContent? ReceiveDirectoryContent()
