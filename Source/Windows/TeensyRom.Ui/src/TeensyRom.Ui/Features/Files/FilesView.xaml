@@ -3,18 +3,50 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TeensyRom.Ui.Features.Files"
+             xmlns:local="clr-namespace:TeensyRom.Ui.Features.Files" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
         <TextBlock 
             Text="{Binding FeatureTitle}"
             Style="{StaticResource SectionTitle}" 
             Grid.Row="0"/>
+
+        <!--<Button 
+            Command="{Binding RefreshCommand}" 
+            ToolTip="Add to favorites"
+            Style="{StaticResource StorageIconButton}" 
+            Margin="0,-10,-8,0"
+            HorizontalAlignment="Right" VerticalAlignment="Top" 
+            Grid.Row="0" Grid.Column="2">
+
+            <materialDesign:PackIcon Kind="refresh" />
+        </Button>
+
+        <ContentControl Content="{Binding SongList}" 
+            Grid.Row="1" Grid.Column="1" />-->
+
+        <ContentControl Content="{Binding DirectoryTree}" 
+            HorizontalAlignment="Left" 
+            Grid.Row="1" Grid.Column="0" 
+            Margin="0 0 20 0" />
+
+        <!--<Grid x:Name="ToolBarGrid" 
+            Grid.Row="2" Grid.ColumnSpan="2" 
+            Background="#303030" 
+            Visibility="{Binding ShowPlayToolbar, Converter={StaticResource InverseBoolToVisibilityConvertor}}">
+            
+            <ContentControl Content="{Binding PlayToolBar}" VerticalAlignment="Center"/>
+        </Grid>-->
 
     </Grid>
 </UserControl>
