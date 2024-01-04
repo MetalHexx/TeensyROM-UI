@@ -128,7 +128,6 @@ namespace TeensyRom.Core.Commands
                     Thread.Sleep(50);
                 }
             }
-            _logService.Log($"Received Directory Content:\r\n{GetLogString(receivedBytes)}");
             return receivedBytes;
         }
 
