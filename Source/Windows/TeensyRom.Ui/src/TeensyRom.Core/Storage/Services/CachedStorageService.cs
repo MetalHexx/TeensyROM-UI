@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using Newtonsoft.Json;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Reflection;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Common;
@@ -12,6 +14,7 @@ namespace TeensyRom.Core.Storage.Services
 {
     public class CachedStorageService : ICachedStorageService
     {
+        public IObservable<string> DirectoryUpdated => _directoryUpdated.AsObservable();
         protected readonly ISettingsService _settingsService;
         private readonly ISidMetadataService _metadataService;
         private readonly IMediator _mediator;
@@ -19,6 +22,7 @@ namespace TeensyRom.Core.Storage.Services
         private IDisposable? _settingsSubscription;
         private const string _cacheFileName = "TeensyStorageCache.json";
         private StorageCache _storageCache = new();
+        private Subject<string> _directoryUpdated = new();
 
         public CachedStorageService(ISettingsService settings, ISidMetadataService metadataService, IMediator mediator)
         {
@@ -78,7 +82,7 @@ namespace TeensyRom.Core.Storage.Services
 
             return favItem;
         }
-        protected string GetFullCachePath() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "", _cacheFileName);
+        private string GetFullCachePath() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "", _cacheFileName);
         public void ClearCache()
         {
             _storageCache.Clear();
@@ -90,7 +94,7 @@ namespace TeensyRom.Core.Storage.Services
             File.Delete(cachePath);
         }
         public void ClearCache(string path) => _storageCache.DeleteWithChildren(path);
-        protected void LoadCache()
+        private void LoadCache()
         {
             var saveCacheEnabled = _settings?.SaveMusicCacheEnabled ?? false;
 
@@ -111,7 +115,7 @@ namespace TeensyRom.Core.Storage.Services
             });
             _storageCache = cacheFromDisk;
         }
-        protected void SaveCacheToDisk()
+        private void SaveCacheToDisk()
         {
             if (!_settings!.SaveMusicCacheEnabled) return;
 
@@ -183,6 +187,24 @@ namespace TeensyRom.Core.Storage.Services
                 })
                 .OrderBy(song => song.Name)
                 .ToList() ?? [];
+        }
+
+        public async Task SaveFile(TeensyFileInfo fileInfo)
+        {
+            var result = await _mediator.Send(new SaveFileCommand
+            {
+                File = fileInfo
+            });
+            if (!result.IsSuccess) return;
+
+            var fullRemotePath = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name);
+
+            var storageItem = fullRemotePath.ToStorageItem();
+
+            if(storageItem is SongItem song) _metadataService.EnrichSong(song);
+            if(storageItem is FileItem file) _storageCache.UpsertFile(file);
+
+            _directoryUpdated.OnNext(fullRemotePath);
         }
         public void Dispose() => _settingsSubscription?.Dispose();
     }

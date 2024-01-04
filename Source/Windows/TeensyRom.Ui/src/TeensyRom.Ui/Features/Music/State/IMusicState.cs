@@ -20,11 +20,11 @@ namespace TeensyRom.Ui.Features.Music.State
         IObservable<PlayState> CurrentPlayState { get; }
 
         Task LoadDirectory(string path);
-        Task RefreshDirectory();
+        Task RefreshDirectory(bool bustCache = true);
         Task<bool> LoadSong(SongItem song);
         Task<bool> SaveFavorite(SongItem song);
         Task PlayNext();
         Task PlayPrevious();
-        Task ToggleMusic();
+        Task ToggleMusic();        
     }
 }

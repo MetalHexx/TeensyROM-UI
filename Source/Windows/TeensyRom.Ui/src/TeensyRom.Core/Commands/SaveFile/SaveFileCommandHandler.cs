@@ -49,6 +49,8 @@ namespace TeensyRom.Core.Commands
 
         private void TransformDestination(TeensyFileInfo fileInfo)
         {
+            if(!string.IsNullOrWhiteSpace(fileInfo.TargetPath)) return;
+
             fileInfo.StorageType = _settings.TargetType;
 
             var target = _settings.FileTargets

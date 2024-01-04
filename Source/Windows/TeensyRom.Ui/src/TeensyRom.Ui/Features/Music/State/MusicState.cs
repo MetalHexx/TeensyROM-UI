@@ -66,6 +66,10 @@ namespace TeensyRom.Ui.Features.Music.State
             {
                 _currentTime = currentTime;
             });
+
+            musicService.DirectoryUpdated
+                .Where(path => path.Equals(_currentDirectory.Value?.Path))
+                .Subscribe(async _ => await RefreshDirectory(bustCache: false));
         }        
 
         private void OnSettingsChanged(TeensySettings settings)
@@ -238,11 +242,12 @@ namespace TeensyRom.Ui.Features.Music.State
             _playingSongSubscription?.Dispose();
         }
 
-        public async Task RefreshDirectory()
+        public async Task RefreshDirectory(bool bustCache = true)
         {
             if (_currentDirectory.Value is null) return;
 
-            _musicService.ClearCache(_currentDirectory.Value.Path);
+            if(bustCache) _musicService.ClearCache(_currentDirectory.Value.Path);
+
             await LoadDirectory(_currentDirectory.Value.Path);
         }
     }

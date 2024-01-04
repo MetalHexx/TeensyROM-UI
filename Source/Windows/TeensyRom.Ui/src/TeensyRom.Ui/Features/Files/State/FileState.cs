@@ -3,6 +3,7 @@ using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -11,6 +12,7 @@ using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
@@ -33,12 +35,13 @@ namespace TeensyRom.Ui.Features.Files.State
         private readonly ICachedStorageService _storageService;
         private readonly ISettingsService _settingsService;
         private TeensySettings _settings = new();
+        private IDisposable _settingsSubscription;
 
         public FileState(ICachedStorageService storageService, ISettingsService settingsService)
         {
             _storageService = storageService;
             _settingsService = settingsService;
-            _settingsService.Settings.Subscribe(settings => OnSettingsChanged(settings));
+            _settingsSubscription = _settingsService.Settings.Subscribe(settings => OnSettingsChanged(settings));
 
         }
         private void OnSettingsChanged(TeensySettings settings)
@@ -89,16 +92,26 @@ namespace TeensyRom.Ui.Features.Files.State
             return;
         }
 
-        public async Task RefreshDirectory()
+        public async Task RefreshDirectory(bool bustCache = true)
         {
             if (_currentDirectory.Value is null) return;
 
-            _storageService.ClearCache(_currentDirectory.Value.Path);
+            if (bustCache) _storageService.ClearCache(_currentDirectory.Value.Path);
+
             await LoadDirectory(_currentDirectory.Value.Path);
         }
+
+        public async Task StoreFile(string sourcePath)
+        {
+            var fileInfo = new TeensyFileInfo(sourcePath);
+            fileInfo.TargetPath = _currentDirectory.Value!.Path;
+            await _storageService.SaveFile(fileInfo);
+            await RefreshDirectory(bustCache: false);
+        }
+
         public void Dispose()
         {
-            throw new NotImplementedException();
+            _settingsSubscription?.Dispose();
         }
     }
 }
