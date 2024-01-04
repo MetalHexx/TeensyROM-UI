@@ -104,8 +104,10 @@ namespace TeensyRom.Ui.Features.FileTransfer
             _serialPortState.IsConnected
                 .Where(isConnected => isConnected is true)
                 .CombineLatest(settingsService.Settings, (isConnected, settings) => settings)
-                .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
-                .Where(sn => sn.currentNav?.Type == NavigationLocation.FileTransfer)
+                .Select(s => s.TargetRootPath)
+                .Do(root => CurrentPath = root)
+                .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => currentNav)
+                .Where(nav => nav?.Type == NavigationLocation.FileTransfer)
                 .Where(_ => TargetItems.Count == 0)
                 .Subscribe(async _ => await LoadCurrentDirectory());
 

@@ -34,7 +34,7 @@ namespace TeensyRom.Tests.Integration
             //Arrange
             _fixture.Initialize();
             //Assert
-            _fixture.FileTransferViewModel.CurrentPath.Should().Be("/sync");
+            _fixture.FileTransferViewModel.CurrentPath.Should().Be("/");
         }
 
         [Fact]
