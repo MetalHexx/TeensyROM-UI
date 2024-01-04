@@ -3,6 +3,7 @@
     xmlns:ui="clr-namespace:TeensyRom.Ui"
     xmlns:FileTransfer="clr-namespace:TeensyRom.Ui.Features.FileTransfer"
     xmlns:Files="clr-namespace:TeensyRom.Ui.Features.Files"
+    xmlns:DirectoryContent="clr-namespace:TeensyRom.Ui.Features.Files.DirectoryContent"
     xmlns:Help="clr-namespace:TeensyRom.Ui.Features.Help"
     xmlns:Music="clr-namespace:TeensyRom.Ui.Features.Music"
     xmlns:DirectoryTree="clr-namespace:TeensyRom.Ui.Controls.DirectoryTree"
@@ -33,6 +34,10 @@
 
             <DataTemplate DataType="{x:Type Files:FilesViewModel}">
                 <Files:FilesView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type DirectoryContent:DirectoryContentViewModel}">
+                <DirectoryContent:DirectoryContentView/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type Help:HelpViewModel}">

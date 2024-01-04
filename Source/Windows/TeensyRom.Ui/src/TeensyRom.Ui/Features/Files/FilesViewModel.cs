@@ -12,6 +12,7 @@ using TeensyRom.Core.Serial;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Ui.Features.Files.DirectoryContent;
 using TeensyRom.Ui.Features.Files.State;
 using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.NavigationHost;
@@ -22,12 +23,14 @@ namespace TeensyRom.Ui.Features.Files
     public class FilesViewModel : FeatureViewModelBase
     {
         [Reactive] public DirectoryTreeViewModel DirectoryTree { get; set; }
+        [Reactive] public DirectoryContentViewModel DirectoryContent { get; set; }
 
         private readonly IFileState _fileState;
 
-        public FilesViewModel(ISettingsService settings, INavigationService nav, ISerialPortState serialState, IFileState fileState)
+        public FilesViewModel(ISettingsService settings, INavigationService nav, ISerialPortState serialState, IFileState fileState, DirectoryContentViewModel directoryContent)
         {
-            FeatureTitle = "Files";
+            FeatureTitle = "Files";            
+            DirectoryContent = directoryContent;
             _fileState = fileState;
 
             serialState.IsConnected

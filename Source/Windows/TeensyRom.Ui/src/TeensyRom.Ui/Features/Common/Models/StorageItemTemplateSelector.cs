@@ -17,16 +17,10 @@ namespace TeensyRom.Ui.Features.Common.Models
             return item switch
             {
                 DirectoryItem _ => DirectoryTemplate,
-                FileItem fileItem when IsSongItem(fileItem) => SongTemplate,
+                SongItem => SongTemplate,
                 FileItem _ => FileTemplate,
                 _ => base.SelectTemplate(item, container),
             };
-        }
-
-        private bool IsSongItem(FileItem fileItem)
-        {
-            var fileType = fileItem.Path.GetUnixFileExtension().GetFileType();
-            return fileType == TeensyFileType.Sid;
         }
     }
 }

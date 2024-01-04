@@ -30,15 +30,16 @@
             Grid.Row="0" Grid.Column="2">
 
             <materialDesign:PackIcon Kind="refresh" />
-        </Button>
-
-        <ContentControl Content="{Binding SongList}" 
-            Grid.Row="1" Grid.Column="1" />-->
+        </Button>-->
+        
 
         <ContentControl Content="{Binding DirectoryTree}" 
             HorizontalAlignment="Left" 
             Grid.Row="1" Grid.Column="0" 
             Margin="0 0 20 0" />
+
+        <ContentControl Content="{Binding DirectoryContent}" 
+            Grid.Row="1" Grid.Column="1" />
 
         <!--<Grid x:Name="ToolBarGrid" 
             Grid.Row="2" Grid.ColumnSpan="2" 
