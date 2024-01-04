@@ -21,7 +21,7 @@
             Style="{StaticResource SectionTitle}" 
             Grid.Row="0"/>
 
-        <!--<Button 
+        <Button 
             Command="{Binding RefreshCommand}" 
             ToolTip="Add to favorites"
             Style="{StaticResource StorageIconButton}" 
@@ -30,7 +30,7 @@
             Grid.Row="0" Grid.Column="2">
 
             <materialDesign:PackIcon Kind="refresh" />
-        </Button>-->
+        </Button>
         
 
         <ContentControl Content="{Binding DirectoryTree}" 

@@ -12,5 +12,6 @@ namespace TeensyRom.Ui.Features.Files.State
         IObservable<ObservableCollection<StorageItem>> DirectoryContent { get; }
         IObservable<bool> DirectoryLoading { get; }
         Task LoadDirectory(string path);
+        Task RefreshDirectory();
     }
 }

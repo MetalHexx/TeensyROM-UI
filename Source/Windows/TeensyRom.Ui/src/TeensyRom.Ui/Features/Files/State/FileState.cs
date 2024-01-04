@@ -88,6 +88,14 @@ namespace TeensyRom.Ui.Features.Files.State
 
             return;
         }
+
+        public async Task RefreshDirectory()
+        {
+            if (_currentDirectory.Value is null) return;
+
+            _storageService.ClearCache(_currentDirectory.Value.Path);
+            await LoadDirectory(_currentDirectory.Value.Path);
+        }
         public void Dispose()
         {
             throw new NotImplementedException();
