@@ -19,13 +19,17 @@
 
 //synch with win app:
 #define LaunchFileToken   0x6444
+#define PingToken         0x6455
 #define PauseSIDToken     0x6466
+#define DebugToken        0x6467
+#define FailToken         0x9B7F
+#define PostFileToken     0x64BB
 #define SendFileToken     0x64AA
 #define CopyFileToken     0x64FF 
 #define AckToken          0x64CC
-#define FailToken         0x9B7F
-#define PostFileToken     0x64BB 
-#define GetDirectoryToken 0x64DD 
+#define GetDirectoryToken 0x64DD
+#define ResetC64Token     0x64EE
+
 
 void   getFreeITCM();
 
