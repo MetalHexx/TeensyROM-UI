@@ -95,6 +95,12 @@
                     <Setter TargetName="FavButton" Property="Visibility" Value="Collapsed"/>
                     <Setter TargetName="DeleteButton" Property="Visibility" Value="Collapsed"/>
                 </DataTrigger>
+                <DataTrigger Binding="{Binding IsFavorite}" Value="True">
+                    <Setter TargetName="FavButton" Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsFavorite}" Value="False">
+                    <Setter TargetName="FavButton" Property="IsEnabled" Value="True"/>
+                </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
 
