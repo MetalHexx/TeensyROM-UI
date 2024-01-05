@@ -94,16 +94,24 @@ namespace TeensyRom.Core.Settings
 
         public string GetFileTypePath(TeensyFileType type)
         {
-            var target = FileTargets.FirstOrDefault(t => t.Type == type) ?? throw new TeensyException($"Unsupported file type: {type}");
-            var library = Libraries.FirstOrDefault(l => l.Type == target.LibraryType) ?? throw new TeensyException($"Unsupported library type: {target.LibraryType}");
+            var target = FileTargets.FirstOrDefault(t => t.Type == type) 
+                ?? throw new TeensyException($"Unsupported file type: {type}");
+
+            var library = Libraries.FirstOrDefault(l => l.Type == target.LibraryType) 
+                ?? throw new TeensyException($"Unsupported library type: {target.LibraryType}");
+
             return library.Path;
         }
 
         public string GetLibraryPath(TeensyLibraryType type)
         {
-            var library = Libraries.FirstOrDefault(l => l.Type == type) ?? throw new TeensyException($"Unsupported library type: {type}");
+            var library = Libraries.FirstOrDefault(l => l.Type == type) 
+                ?? throw new TeensyException($"Unsupported library type: {type}");
+
             return library.Path;
         }
+
+        public List<string> GetFavoritePaths() => FileTargets.Select(t => GetFavoritePath(t.Type)).ToList();
 
         public string GetFavoritePath(TeensyFileType type) 
         {
@@ -116,6 +124,9 @@ namespace TeensyRom.Core.Settings
                     .UnixPathCombine("/favorites"),
 
                 TeensyFileType.Crt => GetFileTypePath(TeensyFileType.Crt)
+                    .UnixPathCombine("/favorites"),
+
+                TeensyFileType.Hex => GetFileTypePath(TeensyFileType.Hex)
                     .UnixPathCombine("/favorites"),
 
                 _ => throw new TeensyException("This file type is not supported for favoriting")

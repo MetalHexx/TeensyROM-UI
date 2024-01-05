@@ -115,7 +115,36 @@ namespace TeensyRom.Core.Storage.Services
                 Formatting = Formatting.Indented
             });
             _storageCache = cacheFromDisk;
+            EnsureFavorites();
         }
+
+        public void EnsureFavorites()
+        {
+            List<FileItem> favsToFavorite = GetFavoriteItemsFromCache();
+
+            favsToFavorite.ForEach(f => f.IsFavorite = true);
+
+            _storageCache
+                .SelectMany(c => c.Value.Files)
+                .Where(f => !f.IsFavorite && favsToFavorite.Any(fav => fav.Name == f.Name))
+                .ToList()
+                .ForEach(f => f.IsFavorite = true);
+        }
+
+        public List<FileItem> GetFavoriteItemsFromCache()
+        {
+            List<FileItem> favs = [];
+
+            foreach (var target in _settings.GetFavoritePaths())
+            {
+                favs.AddRange(_storageCache
+                    .Where(c => c.Key.Contains(target))
+                    .SelectMany(c => c.Value.Files)
+                    .ToList());
+            }
+            return favs;
+        }
+
         private void SaveCacheToDisk()
         {
             if (!_settings!.SaveMusicCacheEnabled) return;
@@ -153,11 +182,29 @@ namespace TeensyRom.Core.Storage.Services
                 Files = songs.Cast<FileItem>().ToList()
             };
 
+            var favPaths = _settings.GetFavoritePaths();
+
+            if (favPaths.Any(path.Contains)) FavCacheItems(cacheItem);
+
+            EnsureFavorites(cacheItem);
             _storageCache.UpsertDirectory(path, cacheItem);
             SaveCacheToDisk();
 
             return cacheItem;
         }
+
+        private static void FavCacheItems(StorageCacheItem? cacheItem) => cacheItem.Files.ForEach(f => f.IsFavorite = true);
+
+        public void EnsureFavorites(StorageCacheItem item) 
+        {
+            var favs = GetFavoriteItemsFromCache();
+            favs.ForEach(f => f.IsFavorite = true);
+
+            item.Files.Where(item => favs.Any(fav => fav.Name == item.Name))
+                .ToList()
+                .ForEach(f => f.IsFavorite = true);
+        }
+
         private static IEnumerable<DirectoryItem> MapAndOrderDirectories(DirectoryContent? directoryContent)
         {
             return directoryContent?.Directories
