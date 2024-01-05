@@ -51,14 +51,16 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
             _fileState.DirectoryContent.ToPropertyEx(this, x => x.DirectoryContent);
         }
 
-        private Task OnFileDrop(DragEventArgs e)
+        private async Task OnFileDrop(DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 var files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                return _fileState.StoreFile(files[0]);
+                foreach (var file in files)
+                {
+                    await _fileState.StoreFile(file);
+                }
             }
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -69,14 +71,7 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
             var availableFormats = e.Data.GetFormats();
             System.Diagnostics.Debug.WriteLine("Available formats: " + string.Join(", ", availableFormats));
 
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effects = DragDropEffects.Copy;
-            }
-            else
-            {
-                e.Effects = DragDropEffects.None;
-            }
+            e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
             e.Handled = true;
         }
         public void Dispose()
