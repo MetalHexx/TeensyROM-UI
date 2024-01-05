@@ -64,7 +64,8 @@
                         <Button 
                             x:Name="LaunchButton"
                             Command="{Binding DataContext.LaunchCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
-                            CommandParameter="{Binding}"                   
+                            CommandParameter="{Binding}"  
+                            Visibility="Collapsed"
                             ToolTip="Launch"
                             Style="{StaticResource StorageIconButton}">
                             <materialDesign:PackIcon Kind="Play" />
