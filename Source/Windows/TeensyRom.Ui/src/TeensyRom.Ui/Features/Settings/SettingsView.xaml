@@ -108,7 +108,7 @@
 
             <ItemsControl  
                 ToolTip="You can set the default path to store the file types.  The root path will be prepended to the path you specify on the file type"
-                ItemsSource="{Binding Settings.FileTargets}"
+                ItemsSource="{Binding Settings.Libraries}"
                 Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -130,13 +130,13 @@
                             </Grid.ColumnDefinitions>
 
                             <Label 
-                                Content="{Binding DisplayName}"
-                                ToolTip="Library paths"
+                                Content="{Binding DisplayName, StringFormat='{}{0}:'}"
+                                ToolTip="These library paths will be the starting paths for the music and programs view.  Auto-transfer will store files in /auto-transfer folder relative to this path."
                                 VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
                             <TextBox Grid.Column="3" 
                                 materialDesign:HintAssist.Hint="{Binding DisplayName, StringFormat='{}{0} Target Path'}"
-                                Text="{Binding TargetPath, Mode=TwoWay}" 
+                                Text="{Binding Path, Mode=TwoWay}" 
                                 VerticalAlignment="Center" />
 
                         </Grid>

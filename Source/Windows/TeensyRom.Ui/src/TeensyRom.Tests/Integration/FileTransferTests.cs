@@ -87,10 +87,6 @@ namespace TeensyRom.Tests.Integration
             //Act
             _fixture.SettingsViewModel.Settings.TargetRootPath = string.Empty;
 
-            foreach (var target in _fixture.SettingsViewModel.Settings.FileTargets)
-            {
-                target.TargetPath = string.Empty;
-            }
             _fixture.SettingsViewModel.SaveSettingsCommand.Execute().Subscribe();
             Thread.Sleep(500);
 
@@ -114,9 +110,9 @@ namespace TeensyRom.Tests.Integration
             _fixture.Initialize();
 
             //Act            
-            foreach (var target in _fixture.SettingsViewModel.Settings.FileTargets)
+            foreach (var target in _fixture.SettingsViewModel.Settings.Libraries)
             {
-                target.TargetPath = $"{Guid.NewGuid().ToString().Substring(0, 7)}-new-path";
+                target.Path = $"{Guid.NewGuid().ToString().Substring(0, 7)}-new-path";
             }
             _fixture.SettingsViewModel.SaveSettingsCommand.Execute().Subscribe();
             Thread.Sleep(500);

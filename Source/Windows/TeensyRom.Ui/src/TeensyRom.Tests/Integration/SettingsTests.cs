@@ -27,10 +27,11 @@ namespace TeensyRom.Tests.Integration
             Thread.Sleep(1000);
 
             //Assert
-            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Sid).TargetPath.Should().Be("sid");
-            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Prg).TargetPath.Should().Be("prg");
-            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Crt).TargetPath.Should().Be("crt");
-            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Hex).TargetPath.Should().Be("hex");
+            vm.Settings.GetFileTypePath(TeensyFileType.Sid).Should().Be("libraries/music");
+            vm.Settings.GetFileTypePath(TeensyFileType.Prg).Should().Be("libraries/programs");
+            vm.Settings.GetFileTypePath(TeensyFileType.Crt).Should().Be("libraries/programs");
+            vm.Settings.GetFileTypePath(TeensyFileType.Hex).Should().Be("libraries/hex");
+
             vm.Settings.TargetType.Should().Be(TeensyStorageType.SD);
             vm.Settings.AutoFileCopyEnabled.Should().BeFalse();
             vm.Settings.WatchDirectoryLocation.Should().Be($"{expectedWatchLocation}");
@@ -90,32 +91,53 @@ namespace TeensyRom.Tests.Integration
                     new TeensyTarget
                     {
                         Type = TeensyFileType.Sid,
+                        LibraryType = TeensyLibraryType.Music,
                         DisplayName = "SID",
-                        Extension = ".sid",
-                        TargetPath = "sid-test"
+                        Extension = ".sid"
                     },
                     new TeensyTarget
                     {
                         Type = TeensyFileType.Prg,
+                        LibraryType = TeensyLibraryType.Programs,
                         DisplayName = "PRG",
-                        Extension = ".prg",
-                        TargetPath = "prg-test"
+                        Extension = ".prg"
                     },
                     new TeensyTarget
                     {
                         Type = TeensyFileType.Crt,
+                        LibraryType = TeensyLibraryType.Programs,
                         DisplayName = "CRT",
-                        Extension = ".crt",
-                        TargetPath = "crt-test"
+                        Extension = ".crt"
                     },
                     new TeensyTarget
                     {
                         Type = TeensyFileType.Hex,
+                        LibraryType = TeensyLibraryType.Hex,
                         DisplayName = "HEX",
-                        Extension = ".hex",
-                        TargetPath = "hex-test"
+                        Extension = ".hex"
                     }
-                }
+                },
+                Libraries =
+                [
+                    new TeensyLibrary
+                    {
+                        Type = TeensyLibraryType.Music,
+                        DisplayName = "Music",
+                        Path = "test/libraries/music"
+                    },
+                    new TeensyLibrary
+                    {
+                        Type = TeensyLibraryType.Programs,
+                        DisplayName = "Programs",
+                        Path = "test/libraries/programs"
+                    },
+                    new TeensyLibrary
+                    {
+                        Type = TeensyLibraryType.Hex,
+                        DisplayName = "Hex",
+                        Path = "test/libraries/hex"
+                    }
+                ]
             };
             var json = JsonConvert.SerializeObject(savedSettings);
             File.WriteAllText(_settingsFileName, json);
@@ -124,10 +146,11 @@ namespace TeensyRom.Tests.Integration
             var vm = new SettingsViewModel(settingsService, _snackbar, _logService);
 
             //Assert
-            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Sid).TargetPath.Should().Be("sid-test");
-            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Prg).TargetPath.Should().Be("prg-test");
-            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Crt).TargetPath.Should().Be("crt-test");
-            vm.Settings.FileTargets.First(t => t.Type == TeensyFileType.Hex).TargetPath.Should().Be("hex-test");
+            vm.Settings.GetFileTypePath(TeensyFileType.Sid).Should().Be("test/libraries/music");
+            vm.Settings.GetFileTypePath(TeensyFileType.Prg).Should().Be("test/libraries/programs");
+            vm.Settings.GetFileTypePath(TeensyFileType.Crt).Should().Be("test/libraries/programs");
+            vm.Settings.GetFileTypePath(TeensyFileType.Hex).Should().Be("test/libraries/hex");
+
             vm.Settings.FileTargets.Should().HaveCount(4);
             vm.Settings.AutoFileCopyEnabled.Should().BeTrue();
             vm.Settings.WatchDirectoryLocation.Should().Be(savedSettings.WatchDirectoryLocation);

@@ -49,7 +49,7 @@ namespace TeensyRom.Ui.Features.Music
                 .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
                 .Where(sn => sn.currentNav?.Type == NavigationLocation.Music)
                 .Take(1)
-                .Subscribe(sn => LoadSongs(sn.settings.GetFileTypePath(TeensyFileType.Sid)));
+                .Subscribe(sn => LoadSongs(sn.settings.GetLibraryPath(TeensyLibraryType.Music)));
 
             MusicTree = new(musicState.DirectoryTree)
             {

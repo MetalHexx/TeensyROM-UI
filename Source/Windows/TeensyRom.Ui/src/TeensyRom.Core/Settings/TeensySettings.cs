@@ -5,6 +5,18 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Settings
 {
+    public enum TeensyLibraryType
+    {
+        Programs,
+        Music,
+        Hex
+    }
+    public class TeensyLibrary
+    {
+        public TeensyLibraryType Type { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
+    }
     /// <summary>
     /// Used to persist and retrieve user preference from disk.  See: Settings.json in the bin folder
     /// </summary>
@@ -14,6 +26,8 @@ namespace TeensyRom.Core.Settings
         public string WatchDirectoryLocation { get; set; } = string.Empty;
         public string TargetRootPath { get; set; } = @"/";
         public List<TeensyTarget> FileTargets { get; set; } = [];
+        public List<TeensyLibrary> Libraries { get; set; } = [];
+        public string AutoTransferPath { get; set; } = "/auto-transfer";
         public bool AutoFileCopyEnabled { get; set; }
         public bool SaveMusicCacheEnabled { get; set; }        
 
@@ -24,42 +38,71 @@ namespace TeensyRom.Core.Settings
 
         public void InitializeDefaults()
         {
+            Libraries.AddRange(new List<TeensyLibrary>
+            {
+                new TeensyLibrary
+                {
+                    Type = TeensyLibraryType.Music,
+                    DisplayName = "Music",
+                    Path = "libraries/music"
+                },
+                new TeensyLibrary
+                {
+                    Type = TeensyLibraryType.Programs,
+                    DisplayName = "Programs",
+                    Path = "libraries/programs"
+                },
+                new TeensyLibrary
+                {
+                    Type = TeensyLibraryType.Hex,
+                    DisplayName = "Hex",
+                    Path = "libraries/hex"
+                }
+            });
             FileTargets.AddRange(new List<TeensyTarget>
             {
                 new TeensyTarget
                 {
                     Type = TeensyFileType.Sid,
+                    LibraryType = TeensyLibraryType.Music,
                     DisplayName = "SID",
-                    Extension = ".sid",
-                    TargetPath = "libraries/music"
+                    Extension = ".sid"
                 },
                 new TeensyTarget
                 {
                     Type = TeensyFileType.Prg,
+                    LibraryType = TeensyLibraryType.Programs,
                     DisplayName = "PRG",
-                    Extension = ".prg",
-                    TargetPath = "libraries/programs"
+                    Extension = ".prg"
                 },
                 new TeensyTarget
                 {
                     Type = TeensyFileType.Crt,
+                    LibraryType = TeensyLibraryType.Programs,
                     DisplayName = "CRT",
-                    Extension = ".crt",
-                    TargetPath = "libraries/programs"
+                    Extension = ".crt"
                 },
                 new TeensyTarget
                 {
                     Type = TeensyFileType.Hex,
+                    LibraryType = TeensyLibraryType.Hex,
                     DisplayName = "HEX",
-                    Extension = ".hex",
-                    TargetPath = "libraries/hex"
+                    Extension = ".hex"
                 }
             });
         }
 
         public string GetFileTypePath(TeensyFileType type)
         {
-            return FileTargets.First(t => t.Type == type).TargetPath;
+            var target = FileTargets.FirstOrDefault(t => t.Type == type) ?? throw new TeensyException($"Unsupported file type: {type}");
+            var library = Libraries.FirstOrDefault(l => l.Type == target.LibraryType) ?? throw new TeensyException($"Unsupported library type: {target.LibraryType}");
+            return library.Path;
+        }
+
+        public string GetLibraryPath(TeensyLibraryType type)
+        {
+            var library = Libraries.FirstOrDefault(l => l.Type == type) ?? throw new TeensyException($"Unsupported library type: {type}");
+            return library.Path;
         }
 
         public string GetFavoritePath(TeensyFileType type) 

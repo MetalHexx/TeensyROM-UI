@@ -83,7 +83,7 @@ namespace TeensyRom.Ui.Features.Music.State
         {
             var dirItem = new DirectoryNodeViewModel
             {
-                Path = _settings.GetFileTypePath(TeensyFileType.Sid),
+                Path = _settings.GetLibraryPath(TeensyLibraryType.Music),
                 Directories = []
             };
             _directoryTree.OnNext(dirItem);
