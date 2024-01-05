@@ -161,7 +161,12 @@ namespace TeensyRom.Core.Storage.Services
         {
             var cacheItem = _storageCache.Get(path);
 
-            if (cacheItem != null) return cacheItem;
+            if (cacheItem != null)
+            {
+                EnsureFavorites();
+                SaveCacheToDisk();
+                return cacheItem;
+            }
 
             var response = await _mediator.Send(new GetDirectoryCommand
             {
@@ -185,25 +190,15 @@ namespace TeensyRom.Core.Storage.Services
             var favPaths = _settings.GetFavoritePaths();
 
             if (favPaths.Any(path.Contains)) FavCacheItems(cacheItem);
-
-            EnsureFavorites(cacheItem);
+            
             _storageCache.UpsertDirectory(path, cacheItem);
+            EnsureFavorites();
             SaveCacheToDisk();
 
             return cacheItem;
         }
 
         private static void FavCacheItems(StorageCacheItem? cacheItem) => cacheItem.Files.ForEach(f => f.IsFavorite = true);
-
-        public void EnsureFavorites(StorageCacheItem item) 
-        {
-            var favs = GetFavoriteItemsFromCache();
-            favs.ForEach(f => f.IsFavorite = true);
-
-            item.Files.Where(item => favs.Any(fav => fav.Name == item.Name))
-                .ToList()
-                .ForEach(f => f.IsFavorite = true);
-        }
 
         private static IEnumerable<DirectoryItem> MapAndOrderDirectories(DirectoryContent? directoryContent)
         {
