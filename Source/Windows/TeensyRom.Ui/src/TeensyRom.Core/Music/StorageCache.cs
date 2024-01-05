@@ -88,7 +88,6 @@ namespace TeensyRom.Core.Music
         }
 
         private static string CleanPath(string path) => path
-            .RemoveLeadingAndTrailingSlash()
-            .ToLower();
+            .RemoveLeadingAndTrailingSlash();
     }
 }
