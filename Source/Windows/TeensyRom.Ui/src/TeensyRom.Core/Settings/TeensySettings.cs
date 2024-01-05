@@ -31,28 +31,28 @@ namespace TeensyRom.Core.Settings
                     Type = TeensyFileType.Sid,
                     DisplayName = "SID",
                     Extension = ".sid",
-                    TargetPath = "sid"
+                    TargetPath = "libraries/music"
                 },
                 new TeensyTarget
                 {
                     Type = TeensyFileType.Prg,
                     DisplayName = "PRG",
                     Extension = ".prg",
-                    TargetPath = "prg"
+                    TargetPath = "libraries/programs"
                 },
                 new TeensyTarget
                 {
                     Type = TeensyFileType.Crt,
                     DisplayName = "CRT",
                     Extension = ".crt",
-                    TargetPath = "crt"
+                    TargetPath = "libraries/programs"
                 },
                 new TeensyTarget
                 {
                     Type = TeensyFileType.Hex,
                     DisplayName = "HEX",
                     Extension = ".hex",
-                    TargetPath = "hex"
+                    TargetPath = "libraries/hex"
                 }
             });
         }

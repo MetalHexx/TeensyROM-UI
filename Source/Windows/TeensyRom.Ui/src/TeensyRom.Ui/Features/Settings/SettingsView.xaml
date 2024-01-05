@@ -43,8 +43,8 @@
                 Grid.Row="0"/>
 
             <Label 
-                Content="Save Music Cache:"
-                ToolTip="Saves the music cache to disk for increased performance over time.  Be sure to use the refresh button if storage is altered outside of the app."
+                Content="Persist File Cache:"
+                ToolTip="Enabling this will save the file cache to the disk and will be restored when re-starting the UI.  Enabling this will increase app performance and reliability."
                 Grid.Row="1" HorizontalAlignment="Right"/>
 
             <StackPanel 
@@ -54,7 +54,7 @@
                 Margin="0 4 0 0">
                 <CheckBox                  
                     Content="Enabled"                
-                    ToolTip="Saves the music cache to disk for increased performance over time.  Be sure to use the refresh button if storage is altered outside of the app."
+                    ToolTip="Enabling this will save the file cache to the disk and will be restored when re-starting the UI.  Enabling this will increase app performance and reliability."
                     IsChecked="{Binding Settings.SaveMusicCacheEnabled, Mode=TwoWay}" 
                     VerticalAlignment="Top" Margin="0 0 0 0"/>
             </StackPanel>
@@ -83,11 +83,12 @@
                 Grid.Row="3" Grid.Column="3" VerticalAlignment="Top"/>
 
             <Label 
-                Content="Target Storage:"
+                Content="Default Storage:"
+                ToolTip="This will determine the default storage type to use in TeensyRom.  This will affect the library views and auto-transfer functionality."
                 Grid.Row="4" HorizontalAlignment="Right"/>
 
             <StackPanel 
-                ToolTip="This will determine the default storage type to store files on TeensyRom."                
+                ToolTip="This will determine the default storage type to use in TeensyRom.  This will affect the library views and auto-transfer functionality."                
                 Grid.Row="4" Grid.Column="3" Orientation="Horizontal" VerticalAlignment="top" Margin="0 3 0 0">
 
                 <RadioButton 
@@ -101,7 +102,8 @@
             </StackPanel>
 
             <Label 
-                Content="File Type Paths:" 
+                Content="Library Paths:" 
+                ToolTip="This will determine which folders use when going to the game or program views as well as where auto-transfer functionality saves files."
                 Grid.Row="5" HorizontalAlignment="Right"/>
 
             <ItemsControl  
@@ -129,7 +131,7 @@
 
                             <Label 
                                 Content="{Binding DisplayName}"
-                                ToolTip="The watch directory"
+                                ToolTip="Library paths"
                                 VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
                             <TextBox Grid.Column="3" 
