@@ -47,15 +47,6 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!--<Button 
-                    x:Name="LaunchButton"
-                    Command="{Binding DataContext.PlayCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
-                    CommandParameter="{Binding}"                   
-                    ToolTip="Launch"
-                    Style="{StaticResource StorageIconButton}">
-                    <materialDesign:PackIcon Kind="Play" />
-                </Button>-->
-
                 <TextBlock 
                     Text="{Binding Name}" 
                     TextTrimming="CharacterEllipsis"
@@ -97,12 +88,10 @@
 
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">
-                    <!--<Setter TargetName="LaunchButton" Property="Visibility" Value="Visible"/>-->
                     <Setter TargetName="FavButton" Property="Visibility" Value="Visible"/>
                     <Setter TargetName="DeleteButton" Property="Visibility" Value="Visible"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False">
-                    <!--<Setter TargetName="LaunchButton" Property="Visibility" Value="Collapsed"/>-->
                     <Setter TargetName="FavButton" Property="Visibility" Value="Collapsed"/>
                     <Setter TargetName="DeleteButton" Property="Visibility" Value="Collapsed"/>
                 </DataTrigger>
