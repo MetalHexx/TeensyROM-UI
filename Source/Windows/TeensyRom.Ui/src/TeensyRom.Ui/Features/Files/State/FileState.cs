@@ -12,6 +12,7 @@ using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Settings;
@@ -35,13 +36,15 @@ namespace TeensyRom.Ui.Features.Files.State
 
         private readonly ICachedStorageService _storageService;
         private readonly ISettingsService _settingsService;
+        private readonly IMediator _mediator;
         private TeensySettings _settings = new();
         private IDisposable _settingsSubscription;
 
-        public FileState(ICachedStorageService storageService, ISettingsService settingsService)
+        public FileState(ICachedStorageService storageService, ISettingsService settingsService, IMediator mediator)
         {
             _storageService = storageService;
             _settingsService = settingsService;
+            _mediator = mediator;
             _settingsSubscription = _settingsService.Settings.Subscribe(settings => OnSettingsChanged(settings));
 
         }
@@ -146,5 +149,7 @@ namespace TeensyRom.Ui.Features.Files.State
         {
             _settingsSubscription?.Dispose();
         }
+
+        public Task LaunchFile(FileItem file) => _mediator.Send(new LaunchFileCommand { Path = file.Path });
     }
 }

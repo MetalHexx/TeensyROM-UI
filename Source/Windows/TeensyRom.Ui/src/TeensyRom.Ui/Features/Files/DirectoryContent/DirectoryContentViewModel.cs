@@ -19,7 +19,8 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
     {
         [ObservableAsProperty] public ObservableCollection<StorageItem> DirectoryContent { get; }
         [ObservableAsProperty] public bool ShowProgress { get; }
-        public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }
+        public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }        
+        public ReactiveCommand<FileItem, Unit> LaunchCommand { get; set; }
         public ReactiveCommand<DragEventArgs, Unit> FileDropCommand { get; private set; }
         public ReactiveCommand<DragEventArgs, Unit> DragOverCommand { get; }
 
@@ -32,10 +33,13 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
             _fileState = fileState;
 
             _fileState.DirectoryLoading
-                .ToPropertyEx(this, x => x.ShowProgress);
+                .ToPropertyEx(this, x => x.ShowProgress);            
 
             LoadDirectoryCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(directory =>
                 fileState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler);
+
+            LaunchCommand = ReactiveCommand.CreateFromTask<FileItem>(file =>
+                _fileState.LaunchFile(file), outputScheduler: RxApp.MainThreadScheduler);
 
             FileDropCommand = ReactiveCommand.CreateFromTask<DragEventArgs>(OnFileDrop);
             DragOverCommand = ReactiveCommand.Create<DragEventArgs>(OnDragOver);

@@ -15,6 +15,7 @@ namespace TeensyRom.Ui.Features.Files.State
         IObservable<bool> DirectoryLoading { get; }
         Task LoadDirectory(string path);
         Task StoreFiles(IEnumerable<FileCopyItem> files);
+        Task LaunchFile(FileItem file);
         Task RefreshDirectory(bool bustCache = true);
     }
 }
