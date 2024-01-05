@@ -16,13 +16,37 @@ namespace TeensyRom.Core.Music
         
         public void UpsertFile(FileItem fileItem)
         {
-            var path = fileItem.Path.GetParentDirectory();
-            var fileParentDir = Get(path);
-
-            if (fileParentDir is null) return;
+            var fileParentDir = EnsureParents(fileItem.Path);            
 
             fileParentDir!.UpsertFile(fileItem);
-            UpsertDirectory(path, fileParentDir);
+            UpsertDirectory(fileParentDir.Path, fileParentDir);
+        }
+
+        public StorageCacheItem EnsureParents(string path)
+        {
+            var parentPath = CleanPath(path.GetUnixParentPath());
+            var fileParentDir = Get(parentPath);
+
+            if (fileParentDir is null)
+            {
+                fileParentDir = new StorageCacheItem
+                {
+                    Path = parentPath,
+                    Directories = [],
+                    Files = []
+                };
+                Insert(fileParentDir.Path, fileParentDir);
+            }
+            if(string.IsNullOrWhiteSpace(parentPath)) return fileParentDir;
+
+            var grandParent = EnsureParents(parentPath);
+
+            grandParent.InsertSubdirectory(new DirectoryItem
+            {
+                Name = fileParentDir.Path.GetLastDirectoryFromPath(),
+                Path = fileParentDir.Path,
+            });
+            return fileParentDir;
         }
 
         private void Insert(string path, StorageCacheItem cacheItem)

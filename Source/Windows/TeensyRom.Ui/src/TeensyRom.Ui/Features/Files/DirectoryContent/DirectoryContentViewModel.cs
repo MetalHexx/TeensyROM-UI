@@ -11,6 +11,7 @@ using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.Files.State;
 using System.Windows;
 using System.Windows.Input;
+using System.IO;
 
 namespace TeensyRom.Ui.Features.Files.DirectoryContent
 {
@@ -18,8 +19,6 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
     {
         [ObservableAsProperty] public ObservableCollection<StorageItem> DirectoryContent { get; }
         [ObservableAsProperty] public bool ShowProgress { get; }
-        public ReactiveCommand<SongItem, bool> PlayCommand { get; set; }
-        public ReactiveCommand<SongItem, bool> SaveFavoriteCommand { get; set; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }
         public ReactiveCommand<DragEventArgs, Unit> FileDropCommand { get; private set; }
         public ReactiveCommand<DragEventArgs, Unit> DragOverCommand { get; }
@@ -35,13 +34,6 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
             _fileState.DirectoryLoading
                 .ToPropertyEx(this, x => x.ShowProgress);
 
-            //PlayCommand = ReactiveCommand.CreateFromTask<SongItem, bool>(song =>
-            //    fileState.LoadSong(song), outputScheduler: RxApp.MainThreadScheduler);
-
-            //SaveFavoriteCommand = ReactiveCommand.CreateFromTask<SongItem, bool>(
-            //    fileState.SaveFavorite,
-            //    outputScheduler: RxApp.MainThreadScheduler);
-
             LoadDirectoryCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(directory =>
                 fileState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler);
 
@@ -51,32 +43,64 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
             _fileState.DirectoryContent.ToPropertyEx(this, x => x.DirectoryContent);
         }
 
-        private async Task OnFileDrop(DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                foreach (var file in files)
-                {
-                    await _fileState.StoreFile(file);
-                }
-            }
-        }
-
         /// <summary>
-        /// Ensures only file types are draggable onto the UI
+        /// Ensures only file drops are draggable onto the UI
         /// </summary>
         private void OnDragOver(DragEventArgs e)
-        {
-            var availableFormats = e.Data.GetFormats();
-            System.Diagnostics.Debug.WriteLine("Available formats: " + string.Join(", ", availableFormats));
-
+        {            
             e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
             e.Handled = true;
         }
+
+        private Task OnFileDrop(DragEventArgs e)
+        {
+            var filePaths = new List<FileCopyItem>();
+
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var items = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                foreach (var item in items)
+                {
+                    if (File.Exists(item))
+                    {
+                        filePaths.Add(new FileCopyItem { Path = item });
+                    }
+                    else if (Directory.Exists(item))
+                    {
+                        ProcessDirectoryAsync(item, filePaths);
+                    }
+                }
+                return _fileState.StoreFiles(filePaths);
+            }
+            return Task.CompletedTask;
+        }
+
+        private static void ProcessDirectoryAsync(string directoryPath, List<FileCopyItem> filePaths)
+        {
+            filePaths.AddRange(Directory
+                .GetFiles(directoryPath)
+                .Select(path => new FileCopyItem 
+                { 
+                    Path = path, 
+                    InSubdirectory = true 
+                }));
+
+            foreach (var subdirectory in Directory.GetDirectories(directoryPath))
+            {
+                ProcessDirectoryAsync(subdirectory, filePaths);
+            }
+        }
+
         public void Dispose()
         {
             _directoryTreeSubscription?.Dispose();
         }
+    }
+
+    public class FileCopyItem
+    {
+        public string Path { get; set; } = string.Empty;
+        public bool InSubdirectory { get; set; }
     }
 }

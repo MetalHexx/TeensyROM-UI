@@ -148,7 +148,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         {            
             if (CurrentPath is null) return;
 
-            await LoadAll(CurrentPath.GetParentDirectory());
+            await LoadAll(CurrentPath.GetUnixParentPath());
         }
 
         private async Task HandlePageSizeChanged()

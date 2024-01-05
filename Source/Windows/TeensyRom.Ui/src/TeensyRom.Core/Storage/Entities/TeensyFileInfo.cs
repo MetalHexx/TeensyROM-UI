@@ -9,6 +9,7 @@
         private readonly FileInfo _fileInfo;
         public string Name => _fileInfo.Name;
         public string FullPath => _fileInfo.FullName;
+        public long Size => _fileInfo.Length;
         public TeensyFileType Type => _fileInfo.Extension.GetFileType();
         public string TargetPath { get; set; } = string.Empty;
         public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;

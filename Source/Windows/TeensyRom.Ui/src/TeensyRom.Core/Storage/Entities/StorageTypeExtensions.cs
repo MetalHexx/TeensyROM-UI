@@ -11,20 +11,13 @@ namespace TeensyRom.Core.Storage.Entities
 {
     public static class StorageFileExtensions
     {
-        public static StorageItem ToStorageItem(this string path)
+        public static StorageItem ToStorageItem(this TeensyFileInfo fileInfo)
         {
-            if(string.IsNullOrWhiteSpace(path)) throw new TeensyException("Path is empty");
-
-            var extension = path.GetUnixFileExtension();
-            var name = path.GetFileNameFromPath();
-
-            if (string.IsNullOrWhiteSpace(extension)) return new DirectoryItem { Name = name, Path = path }; //TODO: Check this logic later.
-
-            return extension.GetFileType() switch {                 
-                TeensyFileType.Sid => new SongItem { Name = name, Path = path},
-                TeensyFileType.Crt => new FileItem { Name = name, Path = path },
-                TeensyFileType.Prg => new FileItem { Name = name, Path = path },
-                TeensyFileType.Hex => new FileItem { Name = name, Path = path },
+            return fileInfo.Type switch {                 
+                TeensyFileType.Sid => new SongItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+                TeensyFileType.Crt => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+                TeensyFileType.Prg => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+                TeensyFileType.Hex => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
                 _ => throw new TeensyException("Unknown file type")
             };
         }

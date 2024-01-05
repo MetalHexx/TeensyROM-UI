@@ -18,6 +18,7 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Ui.Features.Files.DirectoryContent;
 
 namespace TeensyRom.Ui.Features.Files.State
 {
@@ -101,12 +102,44 @@ namespace TeensyRom.Ui.Features.Files.State
             await LoadDirectory(_currentDirectory.Value.Path);
         }
 
-        public async Task StoreFile(string sourcePath)
+        public async Task StoreFiles(IEnumerable<FileCopyItem> files)
         {
-            var fileInfo = new TeensyFileInfo(sourcePath);
-            fileInfo.TargetPath = _currentDirectory.Value!.Path;
-            await _storageService.SaveFile(fileInfo);
+            var commonParent = GetCommonBasePath(files.Select(i => i.Path));
+            var directoryOnly = files.All(i => i.InSubdirectory);
+
+            foreach (var file in files)
+            {
+                var fileInfo = new TeensyFileInfo(file.Path);
+
+                var finalPath = directoryOnly
+                    ? Directory.GetParent(commonParent)?.FullName
+                    : commonParent;
+
+                var relativePath = fileInfo.FullPath
+                    .Replace(finalPath!, string.Empty)
+                    .ToUnixPath()
+                    .GetUnixParentPath();
+                
+                fileInfo.TargetPath = _currentDirectory.Value!.Path.UnixPathCombine(relativePath);
+                await _storageService.SaveFile(fileInfo);
+            }
             await RefreshDirectory(bustCache: false);
+        }
+
+        private static string GetCommonBasePath(IEnumerable<string> directories)
+        {
+            if (!directories.Any()) return string.Empty;
+
+            string commonPath = directories.First();
+
+            foreach (string path in directories)
+            {
+                while (!path.StartsWith(commonPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    commonPath = commonPath.Substring(0, commonPath.LastIndexOf(Path.DirectorySeparatorChar));
+                }
+            }
+            return commonPath;
         }
 
         public void Dispose()

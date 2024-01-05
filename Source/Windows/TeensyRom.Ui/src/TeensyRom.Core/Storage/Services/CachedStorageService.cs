@@ -197,14 +197,12 @@ namespace TeensyRom.Core.Storage.Services
             });
             if (!result.IsSuccess) return;
 
-            var fullRemotePath = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name);
-
-            var storageItem = fullRemotePath.ToStorageItem();
+            var storageItem = fileInfo.ToStorageItem();
 
             if(storageItem is SongItem song) _metadataService.EnrichSong(song);
-            if(storageItem is FileItem file) _storageCache.UpsertFile(file);
+            if(storageItem is FileItem file) _storageCache.UpsertFile(file); 
 
-            _directoryUpdated.OnNext(fullRemotePath);
+            _directoryUpdated.OnNext(storageItem.Path);
         }
         public void Dispose() => _settingsSubscription?.Dispose();
     }

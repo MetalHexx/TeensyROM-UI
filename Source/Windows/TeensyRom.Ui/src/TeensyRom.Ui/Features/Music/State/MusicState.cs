@@ -123,7 +123,7 @@ namespace TeensyRom.Ui.Features.Music.State
         public async Task<bool> SaveFavorite(SongItem song)
         {
             var favSong = await _musicService.SaveFavorite(song);
-            var songParentDir = favSong?.Path.GetParentDirectory();
+            var songParentDir = favSong?.Path.GetUnixParentPath();
 
             if(songParentDir is null) return false;
             
@@ -165,7 +165,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public async Task PlayPrevious()
         {
-            var parentPath = _currentSong.Value.Path.GetParentDirectory();
+            var parentPath = _currentSong.Value.Path.GetUnixParentPath();
             var directoryResult = await _musicService.GetDirectory(parentPath);
 
             if(directoryResult is null || _currentTime >= TimeSpan.FromSeconds(3))
@@ -184,7 +184,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public async Task PlayNext()
         {
-            var parentPath = _currentSong.Value.Path.GetParentDirectory();
+            var parentPath = _currentSong.Value.Path.GetUnixParentPath();
             var directoryResult = await _musicService.GetDirectory(parentPath);
 
             if (directoryResult is null)

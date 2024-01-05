@@ -4,6 +4,12 @@ namespace TeensyRom.Core.Storage.Entities
 {
     public class FileItem : StorageItem 
     {
+        public FileItem() { }
+        public FileItem(string path)
+        {
+            Path = path;
+            Name = Path.GetFileNameFromPath();            
+        }
         public TeensyFileType FileType => Path.GetUnixFileExtension().GetFileType();
 
         public FileItem Clone()

@@ -21,7 +21,7 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
             if (!newDirectories.Any()) return;
 
             var parentPath = newDirectories.First().Path
-                .GetParentDirectory()
+                .GetUnixParentPath()
                 .RemoveLeadingAndTrailingSlash()
                 .ToLower();
 

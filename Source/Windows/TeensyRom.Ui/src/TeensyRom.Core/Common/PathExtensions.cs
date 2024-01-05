@@ -3,6 +3,7 @@
     public static class PathExtensions
     {
         public static string EnsureUnixPathEnding(this string path) => path.EndsWith("/") ? path : path + "/";
+        public static string ToUnixPath(this string path) => path.Replace("\\", "/");
         public static string UnixPathCombine(this string path, params string[] paths)
         {
             if (!path.EndsWith("/"))
@@ -13,7 +14,7 @@
             return combined.Replace("//", "/");
         }
 
-        public static string GetParentDirectory(this string path)
+        public static string GetUnixParentPath(this string path)
         {
             if (string.IsNullOrEmpty(path) || path == "/") return "/";
 
@@ -61,6 +62,14 @@
         }
 
         public static string GetFileNameFromPath(this string path)
+        {
+            if (string.IsNullOrEmpty(path)) return string.Empty;
+
+            var segments = path.Split('/');
+            return segments.Length > 0 ? segments[^1] : string.Empty;
+        }
+
+        public static string GetLastDirectoryFromPath(this string path)
         {
             if (string.IsNullOrEmpty(path)) return string.Empty;
 
