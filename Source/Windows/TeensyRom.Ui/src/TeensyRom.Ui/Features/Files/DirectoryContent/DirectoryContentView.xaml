@@ -69,7 +69,16 @@
                             ToolTip="Launch"
                             Style="{StaticResource StorageIconButton}">
                             <materialDesign:PackIcon Kind="Play" />
-                        </Button>   
+                        </Button>
+                        <Button 
+                            x:Name="FavButton" 
+                            Command="{Binding DataContext.SaveFavoriteCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
+                            CommandParameter="{Binding}"
+                            Visibility="Collapsed"
+                            ToolTip="Add to favorites"
+                            Style="{StaticResource StorageIconButton}">
+                            <materialDesign:PackIcon Kind="Heart" />
+                        </Button>
                         <Button 
                             x:Name="DeleteButton" 
                             IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
@@ -96,6 +105,19 @@
                 </DataTrigger>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False">
                     <Setter TargetName="LaunchButton" Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">
+                    <Setter TargetName="FavButton" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False">
+                    <Setter TargetName="FavButton" Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding IsFavorite}" Value="True">
+                    <Setter TargetName="FavButton" Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsFavorite}" Value="False">
+                    <Setter TargetName="FavButton" Property="IsEnabled" Value="True"/>
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>

@@ -17,5 +17,6 @@ namespace TeensyRom.Ui.Features.Files.State
         Task StoreFiles(IEnumerable<FileCopyItem> files);
         Task LaunchFile(FileItem file);
         Task RefreshDirectory(bool bustCache = true);
+        Task SaveFavorite(FileItem file);
     }
 }

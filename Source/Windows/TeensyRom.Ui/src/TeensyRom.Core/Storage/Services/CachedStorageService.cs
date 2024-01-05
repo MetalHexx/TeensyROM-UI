@@ -72,6 +72,7 @@ namespace TeensyRom.Core.Storage.Services
             if (!result.IsSuccess) return null;
 
             fileItem.IsFavorite = true;
+            favItem.IsFavorite = true;
             
             favItem.Path = favPath.UnixPathCombine(favItem.Name);
 

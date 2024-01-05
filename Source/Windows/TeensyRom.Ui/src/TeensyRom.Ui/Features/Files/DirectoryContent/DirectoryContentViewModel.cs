@@ -21,6 +21,7 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
         [ObservableAsProperty] public bool ShowProgress { get; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }        
         public ReactiveCommand<FileItem, Unit> LaunchCommand { get; set; }
+        public ReactiveCommand<FileItem, Unit> SaveFavoriteCommand { get; set; }
         public ReactiveCommand<DragEventArgs, Unit> FileDropCommand { get; private set; }
         public ReactiveCommand<DragEventArgs, Unit> DragOverCommand { get; }
 
@@ -40,6 +41,9 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
 
             LaunchCommand = ReactiveCommand.CreateFromTask<FileItem>(file =>
                 _fileState.LaunchFile(file), outputScheduler: RxApp.MainThreadScheduler);
+
+            SaveFavoriteCommand = ReactiveCommand.CreateFromTask<FileItem>(
+                _fileState.SaveFavorite, outputScheduler: RxApp.MainThreadScheduler);
 
             FileDropCommand = ReactiveCommand.CreateFromTask<DragEventArgs>(OnFileDrop);
             DragOverCommand = ReactiveCommand.Create<DragEventArgs>(OnDragOver);

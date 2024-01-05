@@ -18,15 +18,15 @@ namespace TeensyRom.Core.Music
 
         public void UpsertFile(FileItem fileItem)
         {
-            var fileIndex = Files.IndexOf(fileItem);
+            var existingFileIndex = Files.FindIndex(f => f.Name == fileItem.Name);
 
-            if (fileIndex == -1)
+            if (existingFileIndex == -1)
             {
                 Files.Add(fileItem);
                 Files = [.. Files.OrderBy(s => s.Name)];
                 return;
             }
-            Files[fileIndex] = fileItem;
+            Files[existingFileIndex] = fileItem;
         }
 
         public void InsertSubdirectory(DirectoryItem directory)

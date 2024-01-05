@@ -151,5 +151,32 @@ namespace TeensyRom.Ui.Features.Files.State
         }
 
         public Task LaunchFile(FileItem file) => _mediator.Send(new LaunchFileCommand { Path = file.Path });
+
+        public async Task SaveFavorite(FileItem file)
+        {
+            var favFile = await _storageService.SaveFavorite(file);
+            var parentDir = favFile?.Path.GetUnixParentPath();
+
+            if (parentDir is null) return;
+
+            var directoryResult = await _storageService.GetDirectory(parentDir);
+
+            if (directoryResult is null) return;
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                _directoryTree.Value.Insert(directoryResult.Directories);
+            });
+
+            _directoryTree.OnNext(_directoryTree.Value);
+
+            var favParentPath = favFile?.Path.GetUnixParentPath().GetUnixParentPath().RemoveLeadingAndTrailingSlash();
+            var currentPath = _currentDirectory.Value?.Path.RemoveLeadingAndTrailingSlash();
+
+            if (favParentPath == currentPath) 
+            {
+                await RefreshDirectory(bustCache: false);
+            }
+        }
     }
 }
