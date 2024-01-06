@@ -86,8 +86,8 @@ namespace TeensyRom.Ui.Features.Music.State
 
             var dirItem = new DirectoryNodeViewModel
             {
-                Name = string.Empty,
-                Path = string.Empty,
+                Name = "Fake Root",  //Fake root required since UI view binds to enumerable
+                Path = "Fake Root",
                 Directories = 
                 [
                     new DirectoryNodeViewModel
