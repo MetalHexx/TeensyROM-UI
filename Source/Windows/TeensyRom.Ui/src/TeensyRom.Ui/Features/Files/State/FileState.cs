@@ -51,7 +51,7 @@ namespace TeensyRom.Ui.Features.Files.State
         private void OnSettingsChanged(TeensySettings settings)
         {
             _settings = settings;
-            _directoryContent.OnNext(new ObservableCollection<StorageItem>());
+            _directoryContent.OnNext([]);
             ResetDirectoryTree();
         }
 
