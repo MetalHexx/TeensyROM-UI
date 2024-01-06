@@ -86,7 +86,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
             var dirItem = new DirectoryNodeViewModel
             {
-                Name = "Fake Root",  //Fake root required since UI view binds to enumerable
+                Name = "Fake Root",  //TODO: Fake root required since UI view binds to enumerable -- design could use improvement
                 Path = "Fake Root",
                 Directories = 
                 [
