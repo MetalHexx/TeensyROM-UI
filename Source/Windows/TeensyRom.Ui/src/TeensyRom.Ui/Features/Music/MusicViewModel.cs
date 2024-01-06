@@ -49,19 +49,13 @@ namespace TeensyRom.Ui.Features.Music
                 .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
                 .Where(sn => sn.currentNav?.Type == NavigationLocation.Music)
                 .Take(1)
-                .Subscribe(sn => LoadSongs(sn.settings.GetLibraryPath(TeensyLibraryType.Music)));
+                .Subscribe(sn => _musicState.LoadDirectory(sn.settings.GetLibraryPath(TeensyLibraryType.Music)));
 
             MusicTree = new(musicState.DirectoryTree)
             {
                 DirectorySelectedCommand = ReactiveCommand.CreateFromTask<DirectoryNodeViewModel>(async (directory) =>
                 await musicState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler)
             };
-        }
-
-        public Unit LoadSongs(string path)
-        {
-            _musicState.LoadDirectory(path);
-            return Unit.Default;
         }
     }
 }
