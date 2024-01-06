@@ -16,14 +16,14 @@ namespace TeensyRom.Core.Serial
 
             if (response != TeensyToken.Ack)
             {
-                _serialPort.ReadSerialAsString();
+                var dataString = _serialPort.ReadSerialAsString();
                 
                 var responseString = response switch
                 {
                     var _ when response == TeensyToken.Fail => "Fail",
                     _ => "Unknown",
                 };
-                throw new TeensyException($"Received {responseString} Ack Token");
+                throw new TeensyException($"Received {responseString} Ack Token with data: {dataString}");
             }
         }
         public static TeensyToken GetAck(this IObservableSerialPort _serialPort)

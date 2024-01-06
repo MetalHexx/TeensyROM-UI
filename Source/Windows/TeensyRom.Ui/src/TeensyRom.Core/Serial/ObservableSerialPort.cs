@@ -202,15 +202,17 @@ namespace TeensyRom.Core.Serial
             return data;
         }
 
-        public void ReadSerialAsString(int msToWait = 0)
+        public string ReadSerialAsString(int msToWait = 0)
         {
             Thread.Sleep(msToWait);
-            if (_serialPort.BytesToRead == 0) return;
+            if (_serialPort.BytesToRead == 0) return string.Empty;
 
             byte[] receivedData = new byte[_serialPort.BytesToRead];
             _serialPort.Read(receivedData, 0, receivedData.Length);
 
-            _logService.Log("Received String: " + Encoding.ASCII.GetString(receivedData));
+            var dataString = Encoding.ASCII.GetString(receivedData);
+            _logService.Log($"Received String: {dataString} ");
+            return dataString;
         }
 
         public void SendIntBytes(uint intToSend, short byteLength)

@@ -79,7 +79,7 @@ namespace TeensyRom.Core.Serial
         /// </summary>
         void EnableAutoReadStream();
         int ReadByte();
-        void ReadSerialAsString(int msToWait = 0);
+        string ReadSerialAsString(int msToWait = 0);
         byte[] ReadSerialBytes();
         void WaitForSerialData(int numBytes, int timeoutMs);
     }
