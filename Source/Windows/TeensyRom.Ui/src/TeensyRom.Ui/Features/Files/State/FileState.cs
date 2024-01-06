@@ -57,9 +57,20 @@ namespace TeensyRom.Ui.Features.Files.State
 
         private void ResetDirectoryTree()
         {
+            var musicLibraryPath = _settings.GetLibraryPath(TeensyLibraryType.Music);
+
             var dirItem = new DirectoryNodeViewModel
             {
-                Directories = []
+                Name = "Fake Root",  //Fake root required since UI view binds to enumerable
+                Path = "Fake Root",
+                Directories =
+                [
+                    new DirectoryNodeViewModel
+                    {
+                        Name = "/",
+                        Directories = []
+                    }
+                ]
             };
             _directoryTree.OnNext(dirItem);
         }
