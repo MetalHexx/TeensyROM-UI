@@ -66,7 +66,7 @@
             <TextBlock Text="{Binding TotalTime,  Mode=OneWay}" VerticalAlignment="Center" Margin="0 0 0 0"/>
             
             <StackPanel Margin="30 3 0 0">
-                <TextBlock FontFamily="Arial" FontSize="18"  Text="{Binding Song.Name, Mode=OneWay}" VerticalAlignment="Center"/>
+                <TextBlock FontFamily="Arial" FontSize="18"  Text="{Binding Song.SongName, Mode=OneWay}" VerticalAlignment="Center"/>
 
                 <StackPanel Orientation="Horizontal" Margin="0 5 10 0">
                     <TextBlock FontFamily="Arial"  Text="{Binding Song.ArtistName, Mode=OneWay}" VerticalAlignment="Center"/>
