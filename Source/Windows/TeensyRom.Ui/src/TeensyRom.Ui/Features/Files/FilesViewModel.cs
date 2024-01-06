@@ -30,7 +30,7 @@ namespace TeensyRom.Ui.Features.Files
 
         public FilesViewModel(ISettingsService settings, INavigationService nav, ISerialPortState serialState, IFileState fileState, DirectoryContentViewModel directoryContent)
         {
-            FeatureTitle = "Files";            
+            FeatureTitle = "File Explorer";            
             DirectoryContent = directoryContent;
             _fileState = fileState;
 
