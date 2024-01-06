@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.DeleteFile;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
 using Xunit;
 
@@ -30,7 +31,10 @@ namespace TeensyRom.Tests.Integration
             await _fixture.Mediator.Send(new SaveFileCommand { File = testFile });
 
             // Act
-            var delResult = await _fixture.Mediator.Send(new DeleteFileCommand { File = testFile });
+            var delResult = await _fixture.Mediator.Send(new DeleteFileCommand 
+            { 
+                Path = testFile.TargetPath.UnixPathCombine(testFile.Name) 
+            });
 
             // Assert
             var response = await _fixture.Mediator.Send(new GetDirectoryCommand
@@ -39,7 +43,6 @@ namespace TeensyRom.Tests.Integration
                 Skip = 0,
                 Take = 10
             });
-
             response.DirectoryContent!.Files.Should().NotContain(f => f.Name == testFile.Name);
         }
     }

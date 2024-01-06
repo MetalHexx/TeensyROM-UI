@@ -12,7 +12,8 @@ namespace TeensyRom.Core.Commands.DeleteFile
 {
     public class DeleteFileCommand : IRequest<DeleteFileResult>
     {
-        public TeensyFileInfo File { get; init; } = default!;
+        public string Path{ get; init; } = string.Empty;
+        public TeensyStorageType StorageType { get; set; }
     }
 
     public class DeleteFileResult : CommandResult { }
@@ -31,8 +32,8 @@ namespace TeensyRom.Core.Commands.DeleteFile
             _serialPort.SendIntBytes(TeensyToken.DeleteFile, 2);
 
             _serialPort.HandleAck();
-            _serialPort.SendIntBytes(r.File.StorageType.GetStorageToken(), 1);
-            _serialPort.Write($"{r.File.TargetPath.UnixPathCombine(r.File.Name)}\0");
+            _serialPort.SendIntBytes(r.StorageType.GetStorageToken(), 1);
+            _serialPort.Write($"{r.Path}\0");
             _serialPort.HandleAck();
 
             return Task.FromResult(new DeleteFileResult());
