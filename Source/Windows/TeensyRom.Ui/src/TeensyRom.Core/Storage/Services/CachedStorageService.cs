@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using TeensyRom.Core.Commands;
+using TeensyRom.Core.Commands.DeleteFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Music.Sid;
@@ -94,7 +95,7 @@ namespace TeensyRom.Core.Storage.Services
 
             File.Delete(cachePath);
         }
-        public void ClearCache(string path) => _storageCache.DeleteWithChildren(path);
+        public void ClearCache(string path) => _storageCache.DeleteDirectoryWithChildren(path);
         private void LoadCache()
         {
             var saveCacheEnabled = _settings?.SaveMusicCacheEnabled ?? false;
@@ -246,6 +247,16 @@ namespace TeensyRom.Core.Storage.Services
             if(storageItem is FileItem file) _storageCache.UpsertFile(file); 
 
             _directoryUpdated.OnNext(storageItem.Path);
+        }
+
+        public async Task DeleteFile(string path, TeensyStorageType storageType)
+        {
+            await _mediator.Send(new DeleteFileCommand 
+            { 
+                Path = path, 
+                StorageType = storageType 
+            });
+            _storageCache.DeleteFile(path);
         }
         public void Dispose() => _settingsSubscription?.Dispose();
     }

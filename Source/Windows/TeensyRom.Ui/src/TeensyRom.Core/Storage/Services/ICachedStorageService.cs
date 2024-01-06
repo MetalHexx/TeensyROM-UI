@@ -12,5 +12,6 @@ namespace TeensyRom.Core.Storage.Services
         Task<StorageCacheItem?> GetDirectory(string path);
         Task<FileItem?> SaveFavorite(FileItem item);
         Task SaveFile(TeensyFileInfo fileInfo);
+        Task DeleteFile(string path, TeensyStorageType storageType);
     }
 }

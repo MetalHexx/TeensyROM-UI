@@ -39,5 +39,14 @@ namespace TeensyRom.Core.Music
             Directories = [.. Directories.OrderBy(d => d.Name)];
             return;
         }
+
+        public void DeleteFile(string path)
+        {
+            var fileToRemove = Files.Find(f => f.Path == path);
+
+            if(fileToRemove is null) return;
+
+            Files.Remove(fileToRemove);
+        }
     }
 }

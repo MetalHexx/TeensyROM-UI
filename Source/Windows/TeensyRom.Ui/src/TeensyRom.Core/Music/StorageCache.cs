@@ -10,7 +10,7 @@ namespace TeensyRom.Core.Music
     {
         public void UpsertDirectory(string path, StorageCacheItem directory)
         {
-            Delete(path);
+            DeleteDirectory(path);
             Insert(path, directory);
         }
         
@@ -55,7 +55,7 @@ namespace TeensyRom.Core.Music
             TryAdd(cleanPath, cacheItem);
         }
 
-        public void Delete(string path)
+        public void DeleteDirectory(string path)
         {
             var cleanPath = CleanPath(path);
             var dir = Get(cleanPath);
@@ -65,7 +65,7 @@ namespace TeensyRom.Core.Music
             Remove(cleanPath);
         }
 
-        public void DeleteWithChildren(string path)
+        public void DeleteDirectoryWithChildren(string path)
         {
             var currentDir = Get(path);
 
@@ -73,9 +73,9 @@ namespace TeensyRom.Core.Music
 
             foreach (var directory in currentDir.Directories)
             {
-                DeleteWithChildren(directory.Path);
+                DeleteDirectoryWithChildren(directory.Path);
             }
-            Delete(currentDir.Path);
+            DeleteDirectory(currentDir.Path);
         }
 
         public StorageCacheItem? Get(string path)
@@ -85,6 +85,17 @@ namespace TeensyRom.Core.Music
             if (!TryGetValue(cleanPath, out var item)) return null;
 
             return item;
+        }
+
+        public void DeleteFile(string path)
+        {
+            var cleanPath = CleanPath(path);
+            var parentPath = cleanPath.GetUnixParentPath();
+            var parentDir = Get(parentPath);
+
+            if (parentDir is null) return;
+
+            parentDir.DeleteFile(path);
         }
 
         private static string CleanPath(string path) => path
