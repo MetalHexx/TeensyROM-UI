@@ -81,7 +81,8 @@
                         </Button>
                         <Button 
                             x:Name="DeleteButton" 
-                            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                            Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
+                            CommandParameter="{Binding}" 
                             Visibility="Collapsed"
                             ToolTip="Delete"                    
                             Style="{StaticResource StorageIconButton}">

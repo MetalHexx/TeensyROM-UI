@@ -189,5 +189,11 @@ namespace TeensyRom.Ui.Features.Files.State
                 await RefreshDirectory(bustCache: false);
             }
         }
+
+        public async Task DeleteFile(FileItem file)
+        {
+            await _storageService.DeleteFile(file.Path, _settings.TargetType);
+            await RefreshDirectory(bustCache: false);
+        }
     }
 }
