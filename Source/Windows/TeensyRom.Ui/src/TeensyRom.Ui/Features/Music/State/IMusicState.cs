@@ -26,6 +26,7 @@ namespace TeensyRom.Ui.Features.Music.State
         Task DeleteFile(FileItem file);
         Task PlayNext();
         Task PlayPrevious();
-        Task ToggleMusic();        
+        Task ToggleMusic();
+        Task PlayRandom();
     }
 }

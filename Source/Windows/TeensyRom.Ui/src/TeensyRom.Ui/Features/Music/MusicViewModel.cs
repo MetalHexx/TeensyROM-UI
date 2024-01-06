@@ -29,6 +29,7 @@ namespace TeensyRom.Ui.Features.Music
         [Reactive] public SongListViewModel SongList { get; set; }
         [Reactive] public DirectoryTreeViewModel MusicTree { get; set; }
         public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
 
 
         public MusicViewModel(IMusicState musicState, ISerialPortState serialState, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList)
@@ -42,6 +43,7 @@ namespace TeensyRom.Ui.Features.Music
                 .ToPropertyEx(this, x => x.ShowPlayToolbar);
 
             RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.RefreshDirectory());
+            PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.PlayRandom());
 
             serialState.IsConnected
                 .Where(isConnected => isConnected is true)

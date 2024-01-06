@@ -25,16 +25,31 @@
             Style="{StaticResource SectionTitle}"            
             Grid.Row="0"/>
 
-        <Button 
-            Command="{Binding RefreshCommand}" 
-            ToolTip="Add to favorites"
-            Style="{StaticResource StorageIconButton}" 
-            Margin="0,-10,-8,0"
+        <StackPanel Orientation="Horizontal"
             HorizontalAlignment="Right" VerticalAlignment="Top" 
             Grid.Row="0" Grid.Column="2">
-            
-            <materialDesign:PackIcon Kind="refresh" />            
-        </Button>
+
+            <Button 
+                Command="{Binding PlayRandomCommand}" 
+                ToolTip="I'm feeling lucky!"
+                Style="{StaticResource StorageIconButton}" 
+                Margin="0,-10,-8,0">
+
+                <materialDesign:PackIcon Kind="Dice5" />
+            </Button>
+
+            <Button 
+                Command="{Binding RefreshCommand}" 
+                ToolTip="Add to favorites"
+                Style="{StaticResource StorageIconButton}" 
+                Margin="0,-10,-8,0">
+
+                <materialDesign:PackIcon Kind="refresh" />
+            </Button>
+
+        </StackPanel>
+
+        
         
         <ContentControl Content="{Binding SongList}" 
             Grid.Row="1" Grid.Column="1" />

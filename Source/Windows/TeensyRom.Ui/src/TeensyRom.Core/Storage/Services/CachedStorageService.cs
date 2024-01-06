@@ -263,5 +263,7 @@ namespace TeensyRom.Core.Storage.Services
                 .ForEach(f => f.IsFavorite = false);
         }
         public void Dispose() => _settingsSubscription?.Dispose();
+
+        public FileItem? GetRandomFile(TeensyFileType fileType) => _storageCache.GetRandom(fileType);
     }
 }

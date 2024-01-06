@@ -107,5 +107,13 @@ namespace TeensyRom.Core.Music
 
         private static string CleanPath(string path) => path
             .RemoveLeadingAndTrailingSlash();
+
+        internal FileItem? GetRandom(params TeensyFileType[] fileTypes)
+        {
+            return this.SelectMany(c => c.Value.Files)
+                       .Where(f => fileTypes.Contains(f.FileType))
+                       .OrderBy(f => Guid.NewGuid())
+                       .FirstOrDefault();
+        }
     }
 }

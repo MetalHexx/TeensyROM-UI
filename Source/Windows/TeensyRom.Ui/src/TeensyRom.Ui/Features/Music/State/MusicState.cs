@@ -268,5 +268,16 @@ namespace TeensyRom.Ui.Features.Music.State
             await _musicService.DeleteFile(file, _settings.TargetType);
             await RefreshDirectory(bustCache: false);
         }
+
+        public async Task PlayRandom() 
+        {
+            var song = _musicService.GetRandomFile(TeensyFileType.Sid);
+
+            if(song is SongItem songItem)
+            {
+                await LoadDirectory(songItem.Path.GetUnixParentPath());
+                await LoadSong(songItem);
+            }
+        }
     }
 }
