@@ -381,3 +381,66 @@ FLASHMEM void CopyFileCommand()
    
    SendU16(AckToken);
 }
+
+FLASHMEM void DeleteFile(const char* filePath, FS& fileSystem)
+{
+  if (!fileSystem.exists(filePath))
+  {
+    SendU16(FailToken);
+    Serial.printf("File not found: %s\n", filePath);
+    return;
+  }
+
+  if (fileSystem.remove(filePath))
+  {
+    SendU16(AckToken);
+    return;
+  }
+  else
+  {
+    SendU16(FailToken);
+    Serial.printf("Failed to delete file: %s\n", filePath);
+    return;
+  }
+}
+
+// Command: 
+// Delete a file from the specified storage device on TeensyROM.
+//
+// Workflow:
+// Receive <-- Delete File Token (e.g., 0x64EE) 
+// Send --> AckToken 0x64CC
+// Receive <-- SD_nUSB(1), File Path(MaxNameLength, null terminator)
+// Send --> 0x64CC on Pass, 0x9b7f on Fail 
+//
+// Notes: Once Delete File Token Received, responses are 2 bytes in length
+FLASHMEM void DeleteFileCommand()
+{
+    SendU16(AckToken);
+
+    uint32_t storageType;
+    char FilePath[MaxNamePathLength];
+
+    if (!GetUInt(&storageType, 1))
+    {
+        SendU16(FailToken);
+        Serial.println("Error receiving storage type!");
+        return;
+    }
+
+    if (!GetPathParameter(FilePath))
+    {
+        SendU16(FailToken);
+        Serial.println("Error receiving path!");
+        return;
+    }
+
+    FS* sourceFS = GetStorageDevice(storageType);
+    if (!sourceFS)
+    {
+        SendU16(FailToken);
+        Serial.println("Error getting storage device!");
+    }
+    
+    DeleteFile(FilePath, *sourceFS);
+}
