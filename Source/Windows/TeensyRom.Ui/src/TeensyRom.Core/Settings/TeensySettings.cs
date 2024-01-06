@@ -29,7 +29,7 @@ namespace TeensyRom.Core.Settings
         public List<TeensyLibrary> Libraries { get; set; } = [];
         public string AutoTransferPath { get; set; } = "/auto-transfer";
         public bool AutoFileCopyEnabled { get; set; }
-        public bool SaveMusicCacheEnabled { get; set; }        
+        public bool SaveMusicCacheEnabled { get; set; } = true;        
 
         public TeensySettings()
         {
