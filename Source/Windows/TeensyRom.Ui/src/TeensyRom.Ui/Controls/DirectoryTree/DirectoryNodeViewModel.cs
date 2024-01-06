@@ -14,6 +14,7 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
         [Reactive] public string Path { get; set; } = string.Empty;
         [Reactive] public string Name { get; set; } = string.Empty;
         [Reactive] public bool IsSelected { get; set; }
+        [Reactive] public bool IsExpanded { get; set; }
         public ObservableCollection<DirectoryNodeViewModel> Directories { get; set; } = new ObservableCollection<DirectoryNodeViewModel>();
 
         public void Insert(IEnumerable<DirectoryItem> newDirectories)
@@ -31,7 +32,8 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
 
             if (currentPath.Equals(parentPath))
             {
-                AddDirectories(newDirectories);
+                AddDirectories(newDirectories);  
+                IsExpanded = true;
                 return;
             }
             RecurseDirectories(newDirectories);

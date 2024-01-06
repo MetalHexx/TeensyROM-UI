@@ -19,7 +19,7 @@
                     <Setter Property="materialDesign:TreeViewAssist.ExpanderSize" Value="20" />
                     <Setter Property="materialDesign:TreeViewAssist.ShowSelection" Value="True" />
                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                    <Setter Property="IsExpanded" Value="True" />
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                 </Style>
 
                 <HierarchicalDataTemplate 

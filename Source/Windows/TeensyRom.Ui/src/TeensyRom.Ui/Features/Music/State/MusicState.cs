@@ -9,6 +9,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -59,7 +60,7 @@ namespace TeensyRom.Ui.Features.Music.State
             _mediator = mediator;
             _musicService = musicService;
             _settingsService = settingsService;
-            _settingsService.Settings.Subscribe(settings => OnSettingsChanged(settings));
+            _settingsService.Settings.Subscribe(OnSettingsChanged);
 
             //TODO: Clean this up later.
             _currentTimeSubscription = _songTime.CurrentTime.Subscribe(currentTime =>
@@ -81,10 +82,21 @@ namespace TeensyRom.Ui.Features.Music.State
 
         private void ResetDirectoryTree()
         {
+            var musicLibraryPath = _settings.GetLibraryPath(TeensyLibraryType.Music);
+
             var dirItem = new DirectoryNodeViewModel
             {
-                Path = _settings.GetLibraryPath(TeensyLibraryType.Music),
-                Directories = []
+                Name = string.Empty,
+                Path = string.Empty,
+                Directories = 
+                [
+                    new DirectoryNodeViewModel
+                    {
+                        Name = musicLibraryPath,
+                        Path = musicLibraryPath,
+                        Directories = []
+                    }
+                ]
             };
             _directoryTree.OnNext(dirItem);
         }
