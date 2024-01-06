@@ -265,7 +265,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public async Task DeleteFile(FileItem file)
         {
-            await _musicService.DeleteFile(file.Path, _settings.TargetType);
+            await _musicService.DeleteFile(file, _settings.TargetType);
             await RefreshDirectory(bustCache: false);
         }
     }

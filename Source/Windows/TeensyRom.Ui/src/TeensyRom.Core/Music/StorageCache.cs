@@ -98,6 +98,13 @@ namespace TeensyRom.Core.Music
             parentDir.DeleteFile(path);
         }
 
+        public List<FileItem> FindFile(string name) 
+        {
+            return this.SelectMany(c => c.Value.Files)
+                .Where(f => f.Name.Equals(name))
+                .ToList();
+        }
+
         private static string CleanPath(string path) => path
             .RemoveLeadingAndTrailingSlash();
     }

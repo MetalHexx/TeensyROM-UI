@@ -192,7 +192,7 @@ namespace TeensyRom.Ui.Features.Files.State
 
         public async Task DeleteFile(FileItem file)
         {
-            await _storageService.DeleteFile(file.Path, _settings.TargetType);
+            await _storageService.DeleteFile(file, _settings.TargetType);
             await RefreshDirectory(bustCache: false);
         }
     }

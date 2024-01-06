@@ -249,14 +249,18 @@ namespace TeensyRom.Core.Storage.Services
             _directoryUpdated.OnNext(storageItem.Path);
         }
 
-        public async Task DeleteFile(string path, TeensyStorageType storageType)
+        public async Task DeleteFile(FileItem file, TeensyStorageType storageType)
         {
             await _mediator.Send(new DeleteFileCommand 
             { 
-                Path = path, 
+                Path = file.Path, 
                 StorageType = storageType 
             });
-            _storageCache.DeleteFile(path);
+            _storageCache.DeleteFile(file.Path);
+
+            _storageCache
+                .FindFile(file.Name)
+                .ForEach(f => f.IsFavorite = false);
         }
         public void Dispose() => _settingsSubscription?.Dispose();
     }
