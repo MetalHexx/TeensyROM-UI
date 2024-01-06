@@ -15,6 +15,8 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using TeensyRom.Core;
 using TeensyRom.Ui;
+using System.Text;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Tests.Integration
 {
@@ -23,6 +25,7 @@ namespace TeensyRom.Tests.Integration
         private readonly IServiceProvider _serviceProvider;
         public IMediator Mediator;
 
+        public const string IntegrationTestPath = "/integration-tests";
         public TeensySettings Settings { get; set; } = new TeensySettings();
         public ISettingsService SettingsService { get; private set; }
         public ILoggingService LogService { get; private set; }
@@ -66,6 +69,43 @@ namespace TeensyRom.Tests.Integration
                 SerialPort.OpenPort();
             }
         }
+
+        public TeensyFileInfo CreateTeensyFileInfo(
+            TeensyFileType fileType = TeensyFileType.Sid,
+            string? targetPath = null,
+            TeensyStorageType storageType = TeensyStorageType.SD)
+        {
+            string extension = GetFileExtension(fileType);
+            string tempFileName = $"{Guid.NewGuid().ToString().Substring(0, 7)}{extension}";
+            string tempFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
+
+            // Generate default content
+            string defaultContent = "Default content for testing.";
+            File.WriteAllText(tempFilePath, defaultContent);
+
+            var fileInfo = new TeensyFileInfo(tempFilePath)
+            {
+                TargetPath = targetPath ?? string.Empty,
+                StorageType = storageType
+            };
+
+            File.Delete(fileInfo.FullPath);
+
+            return fileInfo;
+        }
+
+        private string GetFileExtension(TeensyFileType fileType)
+        {
+            return fileType switch
+            {
+                TeensyFileType.Sid => ".sid",
+                TeensyFileType.Crt => ".crt",
+                TeensyFileType.Prg => ".prg",
+                TeensyFileType.Hex => ".hex",
+                _ => ".tmp", // default extension for Unknown or other types
+            };
+        }
+
 
         public void Dispose()
         {
