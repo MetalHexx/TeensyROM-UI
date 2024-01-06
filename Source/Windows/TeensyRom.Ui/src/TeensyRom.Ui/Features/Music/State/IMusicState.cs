@@ -23,6 +23,7 @@ namespace TeensyRom.Ui.Features.Music.State
         Task RefreshDirectory(bool bustCache = true);
         Task<bool> LoadSong(SongItem song);
         Task<bool> SaveFavorite(SongItem song);
+        Task DeleteFile(FileItem file);
         Task PlayNext();
         Task PlayPrevious();
         Task ToggleMusic();        
