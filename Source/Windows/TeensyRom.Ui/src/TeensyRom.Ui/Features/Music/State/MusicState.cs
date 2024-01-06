@@ -127,7 +127,7 @@ namespace TeensyRom.Ui.Features.Music.State
             
 
             _playingSongSubscription?.Dispose();
-            _playingSongSubscription = _songTime.SongComplete.Subscribe(_ => PlayNext());
+            _playingSongSubscription = _songTime.SongComplete.Subscribe(async _ => await PlayNext());
 
             return true;
         }
@@ -182,7 +182,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
             if(directoryResult is null || _currentTime >= TimeSpan.FromSeconds(3))
             {
-                LoadSong(_currentSong.Value);
+                await LoadSong(_currentSong.Value);
                 return;
             }
             var songIndex = directoryResult.Files.IndexOf(_currentSong.Value);
@@ -191,7 +191,7 @@ namespace TeensyRom.Ui.Features.Music.State
                 ? directoryResult.Files.Last()
                 : directoryResult.Files[--songIndex];
 
-            LoadSong(songToLoad as SongItem);
+            await LoadSong((songToLoad as SongItem)!);
         }
 
         public async Task PlayNext()
@@ -201,7 +201,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
             if (directoryResult is null)
             {
-                LoadSong(_currentSong.Value);
+                await LoadSong(_currentSong.Value);
                 return;
             }
             var currentIndex = directoryResult.Files.IndexOf(_currentSong.Value);
@@ -210,7 +210,7 @@ namespace TeensyRom.Ui.Features.Music.State
                 ? directoryResult.Files.First()
                 : directoryResult.Files[++currentIndex];
             
-            LoadSong(songToLoad as SongItem);
+            await LoadSong(songToLoad as SongItem);
         }
 
         public async Task LoadDirectory(string path)
