@@ -13,6 +13,6 @@ namespace TeensyRom.Core.Storage.Services
         Task<FileItem?> SaveFavorite(FileItem file);
         Task SaveFile(TeensyFileInfo fileInfo);
         Task DeleteFile(FileItem file, TeensyStorageType storageType);
-        FileItem? GetRandomFile(TeensyFileType fileType);
+        FileItem? GetRandomFile(params TeensyFileType[] fileTypes);
     }
 }

@@ -110,6 +110,10 @@ namespace TeensyRom.Core.Music
 
         internal FileItem? GetRandom(params TeensyFileType[] fileTypes)
         {
+            if (fileTypes.Length == 0) 
+            {
+                fileTypes = Enum.GetValues(typeof(TeensyFileType)).Cast<TeensyFileType>().ToArray();
+            }
             return this.SelectMany(c => c.Value.Files)
                        .Where(f => fileTypes.Contains(f.FileType))
                        .OrderBy(f => Guid.NewGuid())

@@ -19,5 +19,6 @@ namespace TeensyRom.Ui.Features.Files.State
         Task RefreshDirectory(bool bustCache = true);
         Task SaveFavorite(FileItem file);
         Task DeleteFile(FileItem file);
+        Task PlayRandom();
     }
 }

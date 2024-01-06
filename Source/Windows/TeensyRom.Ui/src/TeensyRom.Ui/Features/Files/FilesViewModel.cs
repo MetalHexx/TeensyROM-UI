@@ -25,6 +25,7 @@ namespace TeensyRom.Ui.Features.Files
         [Reactive] public DirectoryTreeViewModel DirectoryTree { get; set; }
         [Reactive] public DirectoryContentViewModel DirectoryContent { get; set; }
         public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
 
         private readonly IFileState _fileState;
 
@@ -35,6 +36,7 @@ namespace TeensyRom.Ui.Features.Files
             _fileState = fileState;
 
             RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.RefreshDirectory());
+            PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.PlayRandom());
 
             serialState.IsConnected
                 .Where(isConnected => isConnected is true)
