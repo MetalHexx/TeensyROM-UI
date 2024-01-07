@@ -23,6 +23,7 @@ namespace TeensyRom.Ui.Features.Files
 {
     public class FilesViewModel : FeatureViewModelBase
     {
+        [ObservableAsProperty] public bool PagingEnabled { get; }
         [Reactive] public DirectoryTreeViewModel DirectoryTree { get; set; }
         [Reactive] public DirectoryContentViewModel DirectoryContent { get; set; }
         [Reactive] public PagingViewModel Paging { get; set; }
@@ -36,6 +37,8 @@ namespace TeensyRom.Ui.Features.Files
             FeatureTitle = "File Explorer";            
             DirectoryContent = directoryContent;
             _fileState = fileState;
+
+            fileState.PagingEnabled.ToPropertyEx(this, x => x.PagingEnabled);
 
             RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.RefreshDirectory());
             PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.PlayRandom());

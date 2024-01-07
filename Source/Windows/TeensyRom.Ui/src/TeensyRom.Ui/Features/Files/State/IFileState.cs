@@ -16,6 +16,8 @@ namespace TeensyRom.Ui.Features.Files.State
         IObservable<DirectoryNodeViewModel> DirectoryTree { get; }
         IObservable<ObservableCollection<StorageItem>> DirectoryContent { get; }
         IObservable<bool> DirectoryLoading { get; }
+        IObservable<bool> PagingEnabled { get; }
+
         Task LoadDirectory(string path, string? filePathToSelect = null);
         Task StoreFiles(IEnumerable<FileCopyItem> files);
         Task LaunchFile(FileItem file);

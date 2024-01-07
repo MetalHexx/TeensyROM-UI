@@ -57,7 +57,7 @@
             Grid.Row="1" Grid.Column="1" />
 
         <ContentControl Content="{Binding Paging}" 
-            Grid.Row="2" Grid.Column="1" />
+            Grid.Row="2" Grid.Column="1" Visibility="{Binding PagingEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"/>
 
         <!--<Grid x:Name="ToolBarGrid" 
             Grid.Row="2" Grid.ColumnSpan="2" 

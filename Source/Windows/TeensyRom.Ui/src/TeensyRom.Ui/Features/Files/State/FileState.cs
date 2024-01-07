@@ -32,6 +32,7 @@ namespace TeensyRom.Ui.Features.Files.State
         public IObservable<int> CurrentPage => _currentPage.AsObservable();
         public IObservable<int> TotalPages => _totalPages.AsObservable();
         public IObservable<int> PageSize => _pageSize.AsObservable();
+        public IObservable<bool> PagingEnabled => _pagingEnabled.AsObservable();
 
         private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
         private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
@@ -43,6 +44,7 @@ namespace TeensyRom.Ui.Features.Files.State
         private readonly BehaviorSubject<int> _currentPage = new(1);
         private readonly BehaviorSubject<int> _totalPages = new(1);
         private readonly BehaviorSubject<int> _pageSize = new(250);
+        private readonly BehaviorSubject<bool> _pagingEnabled = new(false);
 
         private readonly ICachedStorageService _storageService;
         private readonly ISettingsService _settingsService;
@@ -139,6 +141,7 @@ namespace TeensyRom.Ui.Features.Files.State
             directoryItems.AddRange(items.Skip(skip).Take(_pageSize.Value));
 
             _totalPages.OnNext((int)Math.Ceiling((double)items.Count / _pageSize.Value));
+            _pagingEnabled.OnNext(_totalPages.Value > 1);
             _directoryContent.OnNext(directoryItems);
             _currentDirectory.OnNext(directoryResult);
             _directoryTree.OnNext(_directoryTree.Value);
