@@ -10,6 +10,9 @@ namespace TeensyRom.Ui.Features.Files.State
 {
     public interface IFileState
     {
+        IObservable<int> CurrentPage { get; }
+        IObservable<int> TotalPages { get; }
+        IObservable<int> PageSize { get; }
         IObservable<DirectoryNodeViewModel> DirectoryTree { get; }
         IObservable<ObservableCollection<StorageItem>> DirectoryContent { get; }
         IObservable<bool> DirectoryLoading { get; }
@@ -20,5 +23,8 @@ namespace TeensyRom.Ui.Features.Files.State
         Task SaveFavorite(FileItem file);
         Task DeleteFile(FileItem file);
         Task PlayRandom();
+        Task NextPage();
+        Task PreviousPage();
+        Task SetPageSize(int pageSize);
     }
 }

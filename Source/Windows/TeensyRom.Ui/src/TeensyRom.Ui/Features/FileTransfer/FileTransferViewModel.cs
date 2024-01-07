@@ -237,9 +237,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
             {
                 response = await _mediator.Send(new GetDirectoryCommand 
                 {
-                    Path = path,
-                    Skip = skip,
-                    Take = take
+                    Path = path
                 });
             }
             catch (TeensyException ex)
@@ -258,9 +256,7 @@ namespace TeensyRom.Ui.Features.FileTransfer
         {
             await _mediator.Send(new GetDirectoryCommand 
             {
-                Path = "/",
-                Skip = 0,
-                Take = 20
+                Path = "/"
             });
             return Unit.Default;
         }

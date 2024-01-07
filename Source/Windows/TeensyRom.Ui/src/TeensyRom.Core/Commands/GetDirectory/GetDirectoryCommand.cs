@@ -9,7 +9,5 @@ namespace TeensyRom.Core.Commands
     public class GetDirectoryCommand : IRequest<GetDirectoryResult> 
     {
         public string Path { get; init; } = string.Empty;
-        public uint Skip { get; init; }
-        public uint Take { get; init; }
     }
 }

@@ -9,6 +9,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -28,17 +29,26 @@ namespace TeensyRom.Ui.Features.Files.State
         public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryTree.AsObservable();
         public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
         public IObservable<bool> DirectoryLoading => _directoryLoading.AsObservable();
+        public IObservable<int> CurrentPage => _currentPage.AsObservable();
+        public IObservable<int> TotalPages => _totalPages.AsObservable();
+        public IObservable<int> PageSize => _pageSize.AsObservable();
 
         private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
         private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
         private readonly Subject<bool> _directoryLoading = new();
         private readonly BehaviorSubject<StorageCacheItem?> _currentDirectory = new(null);
 
+        private string _currentPath = string.Empty;
+        private readonly BehaviorSubject<int> _currentPage = new(1);
+        private readonly BehaviorSubject<int> _totalPages = new(1);
+        private readonly BehaviorSubject<int> _pageSize = new(250);
+
         private readonly ICachedStorageService _storageService;
         private readonly ISettingsService _settingsService;
         private readonly IMediator _mediator;
         private TeensySettings _settings = new();
         private IDisposable _settingsSubscription;
+        private int _skip => (_currentPage.Value - 1) * _pageSize.Value;
 
         public FileState(ICachedStorageService storageService, ISettingsService settingsService, IMediator mediator)
         {
@@ -54,7 +64,6 @@ namespace TeensyRom.Ui.Features.Files.State
             _directoryContent.OnNext([]);
             ResetDirectoryTree();
         }
-
         private void ResetDirectoryTree()
         {
             var musicLibraryPath = _settings.GetLibraryPath(TeensyLibraryType.Music);
@@ -78,6 +87,11 @@ namespace TeensyRom.Ui.Features.Files.State
 
         public async Task LoadDirectory(string path)
         {
+            if(_currentPath != path)
+            {
+                _currentPath = path;                   
+                _currentPage.OnNext(1);
+            }
             _directoryLoading.OnNext(true);
             var directoryResult = await _storageService.GetDirectory(path);
 
@@ -95,9 +109,15 @@ namespace TeensyRom.Ui.Features.Files.State
 
             _directoryTree.OnNext(_directoryTree.Value);
 
+            var items = new List<StorageItem>();
+            items.AddRange(directoryResult.Directories);
+            items.AddRange(directoryResult.Files);
+
+            _totalPages.OnNext((int)Math.Ceiling((double)items.Count / _pageSize.Value));
+
             var directoryItems = new ObservableCollection<StorageItem>();
-            directoryItems.AddRange(directoryResult.Directories);
-            directoryItems.AddRange(directoryResult.Files);
+
+            directoryItems.AddRange(items.Skip(_skip).Take(_pageSize.Value));
 
             _directoryContent.OnNext(directoryItems);
             _currentDirectory.OnNext(directoryResult);
@@ -205,6 +225,31 @@ namespace TeensyRom.Ui.Features.Files.State
                 await LoadDirectory(file.Path.GetUnixParentPath());
                 await LaunchFile(file);
             }
+        }
+
+        public Task NextPage()
+        {
+            if (_currentPage.Value == _totalPages.Value)
+            {
+                return Task.CompletedTask;
+            }
+            _currentPage.OnNext(_currentPage.Value + 1);
+            return LoadDirectory(_currentPath);
+        }
+
+        public Task PreviousPage()
+        {
+            if(_currentPage.Value > 1)
+            {
+                _currentPage.OnNext(_currentPage.Value - 1);
+            }
+            return LoadDirectory(_currentPath);
+        }
+
+        public Task SetPageSize(int pageSize)
+        {
+            _pageSize.OnNext(pageSize);
+            return LoadDirectory(_currentPath);
         }
     }
 }

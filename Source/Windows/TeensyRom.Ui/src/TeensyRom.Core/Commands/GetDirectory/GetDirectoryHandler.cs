@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Newtonsoft.Json;
+using System.IO;
 using System.Reactive.Linq;
 using System.Text;
 using TeensyRom.Core.Common;
@@ -14,81 +15,46 @@ namespace TeensyRom.Core.Commands
     {
         private TeensySettings _settings;
         private readonly IObservableSerialPort _serialPort;
-        private readonly ILoggingService _logService;
 
-        public GetDirectoryHandler(IObservableSerialPort serialPort, ISettingsService settings, ILoggingService logService)
+        public GetDirectoryHandler(IObservableSerialPort serialPort, ISettingsService settings)
         {
             settings.Settings.Take(1).Subscribe(s => _settings = s);
             _serialPort = serialPort;
-            _logService = logService;
         }
 
-        //TODO: refactor skip / take mechanism
         public Task<GetDirectoryResult> Handle(GetDirectoryCommand r, CancellationToken x)
         {
             return Task.Run(() =>
             {
-                var aggregatedContent = new DirectoryContent();
-                uint totalItemsToFetch = r.Take;
-                uint itemsFetched = 0;
-                uint currentSkip = r.Skip;
-                const int chunkSize = 50;
+                DirectoryContent? directoryContent = null;
 
-                while (itemsFetched < totalItemsToFetch)
+                _serialPort.SendIntBytes(TeensyToken.ListDirectory, 2);
+
+                _serialPort.HandleAck();
+                _serialPort.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
+                _serialPort.SendIntBytes(0, 2);
+                _serialPort.SendIntBytes(9999, 2);
+                _serialPort.Write($"{r.Path}\0");
+
+                if (WaitForDirectoryStartToken() != TeensyToken.StartDirectoryList)
                 {
-                    var itemsToFetch = Math.Min(chunkSize, totalItemsToFetch - itemsFetched);
-
-                    var content = GetDirectoryContent(r.Path, _settings.TargetType, currentSkip, itemsToFetch);
-
-                    if (content is null)
-                    {
-                        throw new TeensyException("There was an error. Received a null result from the request");
-                    }
-
-                    aggregatedContent.Add(content);
-                    itemsFetched += (uint)content.TotalCount;
-                    currentSkip += itemsToFetch;
-
-                    if (content.TotalCount < itemsToFetch)
-                    {
-                        break;
-                    }
+                    _serialPort.ReadSerialAsString(msToWait: 100);
+                    throw new TeensyException("Error waiting for Directory Start Token");
                 }
+                directoryContent = ReceiveDirectoryContent();
+
+                if (directoryContent is null)
+                {
+                    _serialPort.ReadSerialAsString(msToWait: 100);
+                    throw new TeensyException("Error waiting for Directory Start Token");
+                }
+                directoryContent.Path = r.Path;
 
                 return new GetDirectoryResult
                 {
-                    DirectoryContent = aggregatedContent
+                    DirectoryContent = directoryContent
                 };
             }, x);
-        }
-
-        public DirectoryContent? GetDirectoryContent(string path, TeensyStorageType storageType, uint skip, uint take)
-        {
-            DirectoryContent? directoryContent = null;
-
-            _serialPort.SendIntBytes(TeensyToken.ListDirectory, 2);
-
-            _serialPort.HandleAck();
-            _serialPort.SendIntBytes(storageType.GetStorageToken(), 1);
-            _serialPort.SendIntBytes(skip, 2);
-            _serialPort.SendIntBytes(take, 2);
-            _serialPort.Write($"{path}\0");
-
-            if (WaitForDirectoryStartToken() != TeensyToken.StartDirectoryList)
-            {
-                _serialPort.ReadSerialAsString(msToWait: 100);
-                throw new TeensyException("Error waiting for Directory Start Token");
-            }
-            directoryContent = ReceiveDirectoryContent();
-
-            if (directoryContent is null)
-            {
-                _serialPort.ReadSerialAsString(msToWait: 100);
-                throw new TeensyException("Error waiting for Directory Start Token");
-            }
-            directoryContent.Path = path;
-
-            return directoryContent;
         }
 
         public List<byte> GetRawDirectoryData()
@@ -107,28 +73,27 @@ namespace TeensyRom.Core.Commands
 
                 if (_serialPort.BytesToRead > 0)
                 {
-                    var b = (byte)_serialPort.ReadByte();
-                    receivedBytes.Add(b);
+                    byte[] buffer = new byte[_serialPort.BytesToRead];
+                    int bytesRead = _serialPort.Read(buffer, 0, buffer.Length);
+                    receivedBytes.AddRange(buffer.Take(bytesRead));
 
-                    if (receivedBytes.Count >= 2)
+                    ushort lastToken = CheckForLastToken(receivedBytes);
+                    if (lastToken == TeensyToken.Fail.Value || lastToken == TeensyToken.EndDirectoryList.Value)
                     {
-                        var lastToken = (ushort)(receivedBytes[^2] << 8 | receivedBytes[^1]);
-                        if (lastToken == TeensyToken.Fail)
-                        {
-                            throw new TeensyException($"Received fail token while receiving directory content -- Received Bytes:\r\n{GetLogString(receivedBytes)}");
-                        }
-                        else if (lastToken == TeensyToken.EndDirectoryList)
-                        {
-                            break;
-                        }
+                        break;
                     }
-                }
-                else
-                {
-                    Thread.Sleep(50);
                 }
             }
             return receivedBytes;
+        }
+
+        private ushort CheckForLastToken(List<byte> receivedBytes)
+        {
+            if (receivedBytes.Count >= 2)
+            {
+                return (ushort)(receivedBytes[^2] << 8 | receivedBytes[^1]);
+            }
+            return 0;
         }
 
         private string GetLogString(List<byte> receivedBytes)

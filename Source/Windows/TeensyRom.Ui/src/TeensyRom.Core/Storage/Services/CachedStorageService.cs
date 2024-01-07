@@ -171,9 +171,7 @@ namespace TeensyRom.Core.Storage.Services
 
             var response = await _mediator.Send(new GetDirectoryCommand
             {
-                Path = path,
-                Skip = 0,
-                Take = 5000 //TODO: Do something about this hardcoded take 5000
+                Path = path
             });
 
             if (response is null) return null;

@@ -41,9 +41,7 @@ namespace TeensyRom.Tests.Integration
             Thread.Sleep(100);
             var response = await _fixture.Mediator.Send(new GetDirectoryCommand 
             {
-                Path = destParentPath,
-                Skip = 0,
-                Take = 1
+                Path = destParentPath
             });
 
             //Assert

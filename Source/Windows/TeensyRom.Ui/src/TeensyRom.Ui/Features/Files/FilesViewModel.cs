@@ -13,6 +13,7 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Files.DirectoryContent;
+using TeensyRom.Ui.Features.Files.Paging;
 using TeensyRom.Ui.Features.Files.State;
 using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.NavigationHost;
@@ -24,6 +25,7 @@ namespace TeensyRom.Ui.Features.Files
     {
         [Reactive] public DirectoryTreeViewModel DirectoryTree { get; set; }
         [Reactive] public DirectoryContentViewModel DirectoryContent { get; set; }
+        [Reactive] public PagingViewModel Paging { get; set; }
         public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
 
@@ -52,6 +54,8 @@ namespace TeensyRom.Ui.Features.Files
                 DirectorySelectedCommand = ReactiveCommand.CreateFromTask<DirectoryNodeViewModel>(async (directory) =>
                 await _fileState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler)
             };
+
+            Paging = new(fileState); 
         }
     }
 }

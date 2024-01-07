@@ -39,9 +39,7 @@ namespace TeensyRom.Tests.Integration
             // Assert
             var response = await _fixture.Mediator.Send(new GetDirectoryCommand
             {
-                Path = testFile.TargetPath,
-                Skip = 0,
-                Take = 10
+                Path = testFile.TargetPath
             });
             response.DirectoryContent!.Files.Should().NotContain(f => f.Name == testFile.Name);
         }
