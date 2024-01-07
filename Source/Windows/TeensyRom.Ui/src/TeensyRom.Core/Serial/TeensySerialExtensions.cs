@@ -20,10 +20,11 @@ namespace TeensyRom.Core.Serial
                 
                 var responseString = response switch
                 {
-                    var _ when response == TeensyToken.Fail => "Fail",
+                    var _ when response == TeensyToken.Fail => "Fail Token",
                     _ => "Unknown",
                 };
-                throw new TeensyException($"Received {responseString} Ack Token with data: {dataString}");
+                if(dataString.Length == 0) dataString = "No Data";
+                throw new TeensyException($"Received unexpected response from TR ({responseString}) with data: {dataString}");
             }
         }
         public static TeensyToken GetAck(this IObservableSerialPort _serialPort)
