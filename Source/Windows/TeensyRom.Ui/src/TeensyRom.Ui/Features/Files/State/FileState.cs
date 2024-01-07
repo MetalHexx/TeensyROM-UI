@@ -93,6 +93,7 @@ namespace TeensyRom.Ui.Features.Files.State
                 _currentPage.OnNext(1);
             }
             _directoryLoading.OnNext(true);
+
             var directoryResult = await _storageService.GetDirectory(path);
 
             if (directoryResult is null)
@@ -249,6 +250,7 @@ namespace TeensyRom.Ui.Features.Files.State
         public Task SetPageSize(int pageSize)
         {
             _pageSize.OnNext(pageSize);
+            _currentPage.OnNext(1);
             return LoadDirectory(_currentPath);
         }
     }
