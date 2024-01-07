@@ -26,6 +26,7 @@ using MediatR;
 using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Files.DirectoryContent;
+using TeensyRom.Core.Commands.Behaviors;
 
 namespace TeensyRom.Ui
 {
@@ -41,6 +42,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IFileWatchService, FileWatchService>();
             services.AddSingleton<IFileWatcher, FileWatcher>();
             services.AddSingleton<ISettingsService, SettingsService>();
+            services.AddSingleton<ICommandErrorService, CommandErrorService>();
             services.AddSingleton<ISnackbarService, SnackbarService>();
             services.AddSingleton<ISongTimer, SongTimer>();
             services.AddSingleton<IMusicState, MusicState>();
