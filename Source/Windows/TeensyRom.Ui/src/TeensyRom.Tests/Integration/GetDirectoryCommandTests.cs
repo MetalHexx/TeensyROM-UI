@@ -7,6 +7,8 @@ using TeensyRom.Core.Commands.DeleteFile;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
+using FluentAssertions;
+using System.Diagnostics;
 
 namespace TeensyRom.Tests.Integration
 {
@@ -21,17 +23,19 @@ namespace TeensyRom.Tests.Integration
         }
 
         [Fact]
-        public async Task Give_FilesExist_ReturnsFiles()
+        public async Task Given_OneLoad64FilesExist_ReturnsFiles()
         {
-
-
-            // Assert
+            // Arrange
             _fixture.Initialize(initOpenPort: true);
+
+            // Act
             var response = await _fixture.Mediator.Send(new GetDirectoryCommand
             {
                 Path = "/libraries/programs/oneload64"
             });
 
+            // Assert
+            response.DirectoryContent!.TotalCount.Should().BeGreaterThan(0);
         }
     }
 }
