@@ -37,6 +37,7 @@ namespace TeensyRom.Ui.Features.Files.State
         private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
         private readonly Subject<bool> _directoryLoading = new();
         private readonly BehaviorSubject<StorageCacheItem?> _currentDirectory = new(null);
+        private FileItem? _currentFile = null;
 
         private string _currentPath = string.Empty;
         private readonly BehaviorSubject<int> _currentPage = new(1);
@@ -84,8 +85,7 @@ namespace TeensyRom.Ui.Features.Files.State
             _directoryTree.OnNext(dirItem);
         }
 
-
-        public async Task LoadDirectory(string path)
+        public async Task LoadDirectory(string path, string? filePathToSelect = null)
         {
             if(_currentPath != path)
             {
@@ -114,12 +114,31 @@ namespace TeensyRom.Ui.Features.Files.State
             items.AddRange(directoryResult.Directories);
             items.AddRange(directoryResult.Files);
 
-            _totalPages.OnNext((int)Math.Ceiling((double)items.Count / _pageSize.Value));
 
             var directoryItems = new ObservableCollection<StorageItem>();
 
-            directoryItems.AddRange(items.Skip(_skip).Take(_pageSize.Value));
+            var skip = _skip;
+            
+            if (filePathToSelect is not null)
+            {
+                var fileToSelect = items.FirstOrDefault(i => i.Path == filePathToSelect);
+                if (fileToSelect != null)
+                {
+                    items.Where(items => items is FileItem)
+                         .ToList()
+                         .ForEach(i => i.IsSelected = false);                    
 
+                    fileToSelect.IsSelected = true;
+                    var selectedList = items.Select(f => $"{f.IsSelected} - {f.Name}").ToList();
+                    int fileIndex = items.IndexOf(fileToSelect);
+                    _currentPage.OnNext((int)Math.Ceiling((double)(fileIndex + 1) / _pageSize.Value));
+                    skip = (_currentPage.Value - 1) * _pageSize.Value;
+                }
+            }
+
+            directoryItems.AddRange(items.Skip(skip).Take(_pageSize.Value));
+
+            _totalPages.OnNext((int)Math.Ceiling((double)items.Count / _pageSize.Value));
             _directoryContent.OnNext(directoryItems);
             _currentDirectory.OnNext(directoryResult);
             _directoryTree.OnNext(_directoryTree.Value);
@@ -219,13 +238,12 @@ namespace TeensyRom.Ui.Features.Files.State
 
         public async Task PlayRandom()
         {
-            var song = _storageService.GetRandomFile();
+            var file = _storageService.GetRandomFile();
+            
+            if (file is null) return;
 
-            if (song is FileItem file)
-            {
-                await LoadDirectory(file.Path.GetUnixParentPath());
-                await LaunchFile(file);
-            }
+            await LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
+            await LaunchFile(file);
         }
 
         public Task NextPage()

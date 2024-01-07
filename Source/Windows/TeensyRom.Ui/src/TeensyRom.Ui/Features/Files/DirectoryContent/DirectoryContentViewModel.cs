@@ -17,6 +17,7 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
 {
     public class DirectoryContentViewModel : ReactiveObject, IDisposable
     {
+        [Reactive] public FileItem? SelectedFile { get; set; }
         [ObservableAsProperty] public ObservableCollection<StorageItem> DirectoryContent { get; }
         [ObservableAsProperty] public bool ShowProgress { get; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }        

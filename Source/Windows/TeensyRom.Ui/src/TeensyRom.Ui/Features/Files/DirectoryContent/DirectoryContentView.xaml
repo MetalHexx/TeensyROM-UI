@@ -37,7 +37,7 @@
 
         </HierarchicalDataTemplate>
 
-        <DataTemplate x:Key="FileTemplate" DataType="{x:Type storage:StorageItem}">
+        <DataTemplate x:Key="FileTemplate" DataType="{x:Type storage:FileItem}">
 
             <Grid x:Name="SongItemPanel">
                 <Grid.ColumnDefinitions>
@@ -97,23 +97,16 @@
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">
                     <Setter TargetName="DeleteButton" Property="Visibility" Value="Visible"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False">
-                    <Setter TargetName="DeleteButton" Property="Visibility" Value="Collapsed"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">
                     <Setter TargetName="LaunchButton" Property="Visibility" Value="Visible"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False">
-                    <Setter TargetName="LaunchButton" Property="Visibility" Value="Collapsed"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">
                     <Setter TargetName="FavButton" Property="Visibility" Value="Visible"/>
                 </DataTrigger>
+                
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False">
+                    <Setter TargetName="DeleteButton" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="LaunchButton" Property="Visibility" Value="Collapsed"/>
                     <Setter TargetName="FavButton" Property="Visibility" Value="Collapsed"/>
                 </DataTrigger>
-
+                
                 <DataTrigger Binding="{Binding IsFavorite}" Value="True">
                     <Setter TargetName="FavButton" Property="IsEnabled" Value="False"/>
                 </DataTrigger>
@@ -140,7 +133,7 @@
                 AllowDrop="True"
                 local:FileDragDropBehavior.FileDropCommand="{Binding FileDropCommand}"
                 local:FileDragDropBehavior.DragOverCommand="{Binding DragOverCommand}"
-                SelectionMode="Extended"
+                SelectionMode="Single"
                 PreviewMouseWheel="OnListViewPreviewMouseWheel"
                 MouseDoubleClick="OnListViewDoubleClicked"
                 VirtualizingStackPanel.IsVirtualizing="True"
@@ -150,7 +143,7 @@
 
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
-                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=OneWay}" />
                         </Style>
                     </ListView.ItemContainerStyle>
 
