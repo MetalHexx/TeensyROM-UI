@@ -28,13 +28,13 @@
 
             <Label 
                 HorizontalAlignment="Right" 
-                Foreground="{StaticResource PrimaryHueLightBrush}"
+                Foreground="{StaticResource EnabledColor}"
                 Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConvertor}}"
                 Content="Connected"/>
 
             <Label
                 HorizontalAlignment="Right"
-                Foreground="{StaticResource PrimaryHueDarkBrush}"
+                Foreground="{StaticResource PrimaryHueLightBrush}"
                 Margin="10 0 0 0" 
                 Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
                 Content="Not Connected"/>
