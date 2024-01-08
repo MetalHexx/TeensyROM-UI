@@ -7,6 +7,20 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="ShuffleModeButtonStyle" TargetType="Button" BasedOn="{StaticResource PlaybarPrevSkipButton}">
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding ShuffleModeEnabled}" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource EnabledColor}"/>
+                </DataTrigger>
+                
+                <DataTrigger Binding="{Binding ShuffleModeEnabled}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -19,66 +33,67 @@
             Maximum="1"
             Grid.Row="0" VerticalAlignment="Top" />
 
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0 10 0 10">
+        <Grid Grid.Row="1" Margin="10 10 0 10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
+            <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Top">
+                <Button x:Name="PreviousButton"
+                        Command="{Binding PreviousCommand}"  
+                        ToolTip="Previous"
+                        Style="{StaticResource PlaybarPrevSkipButton}">
+                    <materialDesign:PackIcon Kind="SkipPrevious" />
+                </Button>
 
+                <Button x:Name="PlayButton"
+                        Command="{Binding TogglePlayCommand}" 
+                        Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisibilityConvertor}}"   
+                        ToolTip="Play"
+                        Style="{StaticResource PlaybarButton}">
+                    <materialDesign:PackIcon Kind="Play" />
+                </Button>
 
-            <Button 
-                x:Name="PreviousButtonn"
-                Command="{Binding PreviousCommand}"  
-                ToolTip="Previous"
-                Style="{StaticResource PlaybarSkipButton}"
-                VerticalAlignment="Top" Margin="10 0 0 0">
-                <materialDesign:PackIcon Kind="SkipPrevious" />
-            </Button>
+                <Button x:Name="PauseButton"
+                        Command="{Binding TogglePlayCommand}" 
+                        Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisibilityConvertor}}"   
+                        ToolTip="Pause"
+                        Style="{StaticResource PlaybarButton}">
+                    <materialDesign:PackIcon Kind="Pause" />
+                </Button>
 
-
-            <Button 
-                x:Name="PlayButton"
-                Command="{Binding TogglePlayCommand}" 
-                Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisibilityConvertor}}"   
-                ToolTip="Play"
-                Style="{StaticResource PlaybarButton}"
-                VerticalAlignment="Top" Margin="10 0 0 0">
-                <materialDesign:PackIcon Kind="Play" />
-            </Button>
-
-            <Button 
-                x:Name="PauseButton"
-                Command="{Binding TogglePlayCommand}" 
-                Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisibilityConvertor}}"   
-                ToolTip="Pause"
-                Style="{StaticResource PlaybarButton}"
-                VerticalAlignment="Top" Margin="10 0 0 0">
-                <materialDesign:PackIcon Kind="Pause" />
-            </Button>
-
-            <Button 
-                x:Name="NextButton"
-                Command="{Binding NextCommand}"  
-                ToolTip="Previous"
-                Style="{StaticResource PlaybarSkipButton}"
-                VerticalAlignment="Top" Margin="10 0 0 0">
-                <materialDesign:PackIcon Kind="SkipNext" />
-            </Button>
-            <TextBlock Text="{Binding CurrentTime,  Mode=OneWay}" VerticalAlignment="Center" Margin="10 0 0 0"/>
-            <TextBlock Text="/" VerticalAlignment="Center" Margin="5 0 5 0"/>
-            <TextBlock Text="{Binding TotalTime,  Mode=OneWay}" VerticalAlignment="Center" Margin="0 0 0 0"/>
-            
-            <StackPanel Margin="30 3 0 0">
-                <TextBlock FontFamily="Arial" FontSize="18"  Text="{Binding Song.SongName, Mode=OneWay}" VerticalAlignment="Center"/>
-
-                <StackPanel Orientation="Horizontal" Margin="0 5 10 0">
-                    <TextBlock FontFamily="Arial"  Text="{Binding Song.ArtistName, Mode=OneWay}" VerticalAlignment="Center"/>
-                    <TextBlock FontFamily="Arial"  Text="•" VerticalAlignment="Center" Margin="10 0 10 0"/>
-                    <TextBlock FontFamily="Arial"  Text="{Binding Song.ReleaseInfo, Mode=OneWay}" VerticalAlignment="Center"/>
-                </StackPanel>
-                                
-                
+                <Button x:Name="NextButton"
+                        Command="{Binding NextCommand}"  
+                        ToolTip="Next"
+                        Style="{StaticResource PlaybarPrevSkipButton}">
+                    <materialDesign:PackIcon Kind="SkipNext" />
+                </Button>
+                <TextBlock Text="{Binding CurrentTime,  Mode=OneWay}" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                <TextBlock Text="/" VerticalAlignment="Center" Margin="5 0 5 0"/>
+                <TextBlock Text="{Binding TotalTime,  Mode=OneWay}" VerticalAlignment="Center" Margin="0 0 0 0"/>
             </StackPanel>
-            
-            
 
-        </StackPanel>
+            <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="30 3 0 0">
+                <TextBlock FontFamily="Arial" FontSize="18" Text="{Binding Song.SongName, Mode=OneWay}" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" Margin="0 5 10 0">
+                    <TextBlock FontFamily="Arial" Text="{Binding Song.ArtistName, Mode=OneWay}" VerticalAlignment="Center"/>
+                    <TextBlock FontFamily="Arial" Text="•" VerticalAlignment="Center" Margin="10 0 10 0"/>
+                    <TextBlock FontFamily="Arial" Text="{Binding Song.ReleaseInfo, Mode=OneWay}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </StackPanel>
+
+            <Button x:Name="ShuffleModeButton"
+                Grid.Column="2"
+                Command="{Binding ToggleShuffleCommand}"  
+                ToolTip="Enable Shuffle Mode. This will play songs across your entire music collection if it's been cached."
+                Style="{StaticResource ShuffleModeButtonStyle}"
+                HorizontalAlignment="Right" 
+                VerticalAlignment="Top" 
+                Margin="10 0 10 0">
+                <materialDesign:PackIcon Kind="Shuffle"/>
+            </Button>
+        </Grid>
     </Grid>
 </UserControl>

@@ -101,7 +101,16 @@ namespace TeensyRom.Ui.Features.Music.State
             _directoryTree.OnNext(dirItem);
         }
 
-        public void SetSongMode(SongMode songMode) => _songMode.OnNext(songMode);
+        public Unit ToggleShuffleMode() 
+        {
+            if(_songMode.Value == SongMode.Shuffle)
+            {
+                _songMode.OnNext(SongMode.Next);
+                return Unit.Default;
+            }
+            _songMode.OnNext(SongMode.Shuffle);
+            return Unit.Default;
+        }
 
         public async Task<bool> LoadSong(SongItem song)
         {   
@@ -127,7 +136,15 @@ namespace TeensyRom.Ui.Features.Music.State
             
 
             _playingSongSubscription?.Dispose();
-            _playingSongSubscription = _songTime.SongComplete.Subscribe(async _ => await PlayNext());
+            _playingSongSubscription = _songTime.SongComplete.Subscribe(async _ => 
+            {
+                if (_songMode.Value == SongMode.Shuffle)
+                {
+                    await PlayRandom();
+                    return;
+                }
+                await PlayNext();
+            });
 
             return true;
         }
@@ -177,6 +194,11 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public async Task PlayPrevious()
         {
+            if(_songMode.Value == SongMode.Shuffle)
+            {
+                await PlayRandom();  //TODO: Keep track of the music history so we can go back to the last random song.
+                return;
+            }
             var parentPath = _currentSong.Value.Path.GetUnixParentPath();
             var directoryResult = await _musicService.GetDirectory(parentPath);
 
@@ -196,6 +218,11 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public async Task PlayNext()
         {
+            if (_songMode.Value == SongMode.Shuffle)
+            {
+                await PlayRandom();
+                return;
+            }
             var parentPath = _currentSong.Value.Path.GetUnixParentPath();
             var directoryResult = await _musicService.GetDirectory(parentPath);
 

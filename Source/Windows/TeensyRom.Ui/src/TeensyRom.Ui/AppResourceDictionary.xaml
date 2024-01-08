@@ -13,10 +13,12 @@
         <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
+    <SolidColorBrush x:Key="EnabledColor" Color="#7FDBD6"/>
+
     <Style x:Key="PlaybarButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
 
         <Setter Property="Padding" Value="0"/>
-        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Margin" Value="5 0 5 0"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource PrimaryHueDarkBrush}"/>
@@ -29,10 +31,10 @@
         </Style.Triggers>
     </Style>
     
-    <Style x:Key="PlaybarSkipButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
+    <Style x:Key="PlaybarPrevSkipButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
 
         <Setter Property="Padding" Value="0"/>
-        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Margin" Value="5 0 5 0"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="DarkGray"/>
