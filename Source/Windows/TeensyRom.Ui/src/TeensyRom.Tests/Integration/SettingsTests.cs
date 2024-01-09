@@ -6,13 +6,15 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Commands.Behaviors;
 
 namespace TeensyRom.Tests.Integration
 {
     public class SettingsTests : IDisposable
     {
         private ILoggingService _logService = new LoggingService();
-        private ISnackbarService _snackbar = new SnackbarService(Dispatcher.CurrentDispatcher);
+        private ICommandErrorService _commandErrorService = new CommandErrorService();
+        private ISnackbarService _snackbar;
         private readonly string _settingsFileName = "Settings.json";
 
         [Fact]
@@ -22,6 +24,7 @@ namespace TeensyRom.Tests.Integration
             var logService = new LoggingService();
             var settingsService = new SettingsService(logService);
             var vm = new SettingsViewModel(settingsService, _snackbar, logService);
+            _snackbar = new SnackbarService(Dispatcher.CurrentDispatcher, _commandErrorService);
             var expectedWatchLocation = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             expectedWatchLocation = Path.Combine(expectedWatchLocation, "Downloads");
             Thread.Sleep(1000);

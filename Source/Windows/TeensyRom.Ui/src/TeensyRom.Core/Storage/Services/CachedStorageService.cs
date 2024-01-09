@@ -174,26 +174,31 @@ namespace TeensyRom.Core.Storage.Services
                 Path = path
             });
 
-            if (response is null) return null;
+            if (response.DirectoryContent is null) return null;            
 
-            var songs = MapAndOrderFiles(response.DirectoryContent);
-            var directories = MapAndOrderDirectories(response.DirectoryContent);
+            cacheItem = SaveDirectoryToCache(response.DirectoryContent);
+            EnsureFavorites();
+            return cacheItem;
+        }
+
+        private StorageCacheItem SaveDirectoryToCache(DirectoryContent dirContent)
+        {
+            StorageCacheItem? cacheItem;
+            var songs = MapAndOrderFiles(dirContent);
+            var directories = MapAndOrderDirectories(dirContent);
 
             cacheItem = new StorageCacheItem
             {
-                Path = path,
+                Path = dirContent.Path,
                 Directories = directories.ToList(),
                 Files = songs.Cast<FileItem>().ToList()
             };
 
             var favPaths = _settings.GetFavoritePaths();
 
-            if (favPaths.Any(path.Contains)) FavCacheItems(cacheItem);
-            
-            _storageCache.UpsertDirectory(path, cacheItem);
-            EnsureFavorites();
-            SaveCacheToDisk();
+            if (favPaths.Any(dirContent.Path.Contains)) FavCacheItems(cacheItem);
 
+            _storageCache.UpsertDirectory(dirContent.Path, cacheItem);            
             return cacheItem;
         }
 
@@ -263,5 +268,20 @@ namespace TeensyRom.Core.Storage.Services
         public void Dispose() => _settingsSubscription?.Dispose();
 
         public FileItem? GetRandomFile(params TeensyFileType[] fileTypes) => _storageCache.GetRandom(fileTypes);
+
+        public async Task CacheAll()
+        {
+            var allContent = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = "/" });
+
+            foreach (var directory in allContent.DirectoryContent)
+            {
+                if(directory is not null)
+                {
+                    SaveDirectoryToCache(directory);
+                }
+            }
+            EnsureFavorites();
+            SaveCacheToDisk();
+        }
     }
 }

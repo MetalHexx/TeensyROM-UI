@@ -274,5 +274,12 @@ namespace TeensyRom.Ui.Features.Files.State
             _currentPage.OnNext(1);
             return LoadDirectory(_currentPath);
         }
+
+        public async Task CacheAll()
+        {
+            _directoryLoading.OnNext(true);            
+            await _storageService.CacheAll();
+            _directoryLoading.OnNext(false);
+        }
     }
 }

@@ -29,6 +29,7 @@ namespace TeensyRom.Ui.Features.Files
         [Reactive] public PagingViewModel Paging { get; set; }
         public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> CacheAllCommand { get; set; }
 
         private readonly IFileState _fileState;
 
@@ -42,6 +43,7 @@ namespace TeensyRom.Ui.Features.Files
 
             RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.RefreshDirectory());
             PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.PlayRandom());
+            CacheAllCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.CacheAll());
 
             serialState.IsConnected
                 .Where(isConnected => isConnected is true)

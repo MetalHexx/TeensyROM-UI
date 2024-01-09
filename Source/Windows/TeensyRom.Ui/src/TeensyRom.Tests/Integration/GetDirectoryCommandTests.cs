@@ -37,5 +37,26 @@ namespace TeensyRom.Tests.Integration
             // Assert
             response.DirectoryContent!.TotalCount.Should().BeGreaterThan(0);
         }
+
+        [Fact]
+        public async Task Given_FilesExist_And_RootDirectoryFetch_Returns_LotsOfFiles()
+        {
+            // Arrange
+            _fixture.Initialize(initOpenPort: true);
+
+            Console.WriteLine("Starting GetDirectoryCommandTests.Given_FilesExist_ReturnsAllFiles");
+
+            var stopeWatch = new Stopwatch();
+            stopeWatch.Start();
+            // Act
+            var response = await _fixture.Mediator.Send(new GetDirectoryRecursiveCommand
+            {
+                Path = "/"
+            });
+            stopeWatch.Stop();
+
+            // Assert
+            response.DirectoryContent!.Count.Should().BeGreaterThan(0);
+        }
     }
 }
