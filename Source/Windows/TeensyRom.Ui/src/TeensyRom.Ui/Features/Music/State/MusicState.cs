@@ -17,7 +17,6 @@ using System.Windows.Threading;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
-using TeensyRom.Core.Music;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;

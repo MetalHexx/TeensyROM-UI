@@ -2,7 +2,7 @@
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Core.Music
+namespace TeensyRom.Core.Storage.Services
 {
     public class StorageCacheItem
     {
@@ -44,7 +44,7 @@ namespace TeensyRom.Core.Music
         {
             var fileToRemove = Files.Find(f => f.Path == path);
 
-            if(fileToRemove is null) return;
+            if (fileToRemove is null) return;
 
             Files.Remove(fileToRemove);
         }

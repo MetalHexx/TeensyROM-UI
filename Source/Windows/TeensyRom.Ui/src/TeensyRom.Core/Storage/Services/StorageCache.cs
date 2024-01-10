@@ -4,7 +4,7 @@ using System.Reactive.Concurrency;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Core.Music
+namespace TeensyRom.Core.Storage.Services
 {
     public class StorageCache : Dictionary<string, StorageCacheItem>
     {
@@ -13,10 +13,10 @@ namespace TeensyRom.Core.Music
             DeleteDirectory(path);
             Insert(path, directory);
         }
-        
+
         public void UpsertFile(FileItem fileItem)
         {
-            var fileParentDir = EnsureParents(fileItem.Path);            
+            var fileParentDir = EnsureParents(fileItem.Path);
 
             fileParentDir!.UpsertFile(fileItem);
             UpsertDirectory(fileParentDir.Path, fileParentDir);
@@ -37,7 +37,7 @@ namespace TeensyRom.Core.Music
                 };
                 Insert(fileParentDir.Path, fileParentDir);
             }
-            if(string.IsNullOrWhiteSpace(parentPath)) return fileParentDir;
+            if (string.IsNullOrWhiteSpace(parentPath)) return fileParentDir;
 
             var grandParent = EnsureParents(parentPath);
 
@@ -98,7 +98,7 @@ namespace TeensyRom.Core.Music
             parentDir.DeleteFile(path);
         }
 
-        public List<FileItem> FindFile(string name) 
+        public List<FileItem> FindFile(string name)
         {
             return this.SelectMany(c => c.Value.Files)
                 .Where(f => f.Name.Equals(name))
@@ -110,7 +110,7 @@ namespace TeensyRom.Core.Music
 
         internal FileItem? GetRandom(params TeensyFileType[] fileTypes)
         {
-            if (fileTypes.Length == 0) 
+            if (fileTypes.Length == 0)
             {
                 fileTypes = Enum.GetValues(typeof(TeensyFileType))
                     .Cast<TeensyFileType>()
