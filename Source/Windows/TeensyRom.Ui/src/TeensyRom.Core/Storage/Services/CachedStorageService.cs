@@ -1,11 +1,13 @@
 ﻿using MediatR;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.DeleteFile;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Settings;
@@ -105,7 +107,13 @@ namespace TeensyRom.Core.Storage.Services
             var cacheLocation = GetFullCachePath();
 
             if (!File.Exists(cacheLocation)) return;
+            LoadCacheFromDisk(cacheLocation);
+            EnsureFavorites();
+            SaveCacheToDisk();
+        }
 
+        private void LoadCacheFromDisk(string cacheLocation)
+        {
             using var stream = File.Open(cacheLocation, FileMode.Open, FileAccess.Read);
             using var reader = new StreamReader(stream);
             var content = reader.ReadToEnd();
@@ -116,7 +124,6 @@ namespace TeensyRom.Core.Storage.Services
                 Formatting = Formatting.Indented
             });
             _storageCache = cacheFromDisk;
-            EnsureFavorites();
         }
 
         public void EnsureFavorites()
@@ -164,8 +171,6 @@ namespace TeensyRom.Core.Storage.Services
 
             if (cacheItem != null)
             {
-                EnsureFavorites();
-                SaveCacheToDisk();
                 return cacheItem;
             }
 
@@ -177,7 +182,6 @@ namespace TeensyRom.Core.Storage.Services
             if (response.DirectoryContent is null) return null;            
 
             cacheItem = SaveDirectoryToCache(response.DirectoryContent);
-            EnsureFavorites();
             return cacheItem;
         }
 
