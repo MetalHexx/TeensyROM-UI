@@ -112,12 +112,16 @@ namespace TeensyRom.Core.Music
         {
             if (fileTypes.Length == 0) 
             {
-                fileTypes = Enum.GetValues(typeof(TeensyFileType)).Cast<TeensyFileType>().ToArray();
+                fileTypes = Enum.GetValues(typeof(TeensyFileType))
+                    .Cast<TeensyFileType>()
+                    .Where(f => f is not TeensyFileType.Hex and TeensyFileType.Unknown)
+                    .ToArray();
             }
-            return this.SelectMany(c => c.Value.Files)
-                       .Where(f => fileTypes.Contains(f.FileType))
-                       .OrderBy(f => Guid.NewGuid())
-                       .FirstOrDefault();
+            var selection = this.SelectMany(c => c.Value.Files)
+                .Where(f => fileTypes.Contains(f.FileType))
+                .ToArray();
+
+            return selection[new Random().Next(selection.Length - 1)];
         }
     }
 }
