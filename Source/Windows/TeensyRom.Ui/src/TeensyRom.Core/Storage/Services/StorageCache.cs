@@ -114,7 +114,7 @@ namespace TeensyRom.Core.Storage.Services
             {
                 fileTypes = Enum.GetValues(typeof(TeensyFileType))
                     .Cast<TeensyFileType>()
-                    .Where(f => f is not TeensyFileType.Hex and TeensyFileType.Unknown)
+                    .Where(f => f is not TeensyFileType.Hex && f is not TeensyFileType.Unknown)
                     .ToArray();
             }
             var selection = this.SelectMany(c => c.Value.Files)
