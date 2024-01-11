@@ -282,7 +282,7 @@ namespace TeensyRom.Core.Storage.Services
 
             return selection[new Random().Next(selection.Length - 1)];
         }
-        public IEnumerable<SongItem> SearchMusic(string searchText)
+        public IEnumerable<SongItem> SearchMusic(string searchText, int maxNumResults = 250)
         {
             var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -300,8 +300,10 @@ namespace TeensyRom.Core.Storage.Services
                     )
                 })
                 .Where(result => result.Score > 0)
+                .OrderBy(result => result.Song.SongName)
                 .OrderByDescending(result => result.Score)
-                .Select(result => result.Song);
+                .Select(result => result.Song)
+                .Take(maxNumResults);
         }
 
         public async Task CacheAll()

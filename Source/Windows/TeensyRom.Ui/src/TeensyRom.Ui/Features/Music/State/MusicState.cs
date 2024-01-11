@@ -368,11 +368,13 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public Unit SearchMusic(string searchText)
         {
+            _directoryLoading.OnNext(true);
             var searchResult = _musicService.SearchMusic(searchText);
 
             if (searchResult is null) return Unit.Default;
 
             _directoryContent.OnNext(new ObservableCollection<StorageItem>(searchResult));
+            _directoryLoading.OnNext(false);
             return Unit.Default;
         }
 
