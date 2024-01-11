@@ -270,8 +270,18 @@ namespace TeensyRom.Core.Storage.Services
         }
         public void Dispose() => _settingsSubscription?.Dispose();
 
-        public FileItem? GetRandomFile(params TeensyFileType[] fileTypes) => _storageCache.GetRandom(fileTypes);
+        public FileItem? GetRandomFile(params TeensyFileType[] fileTypes) 
+        {
+            if (fileTypes.Length == 0)
+            {
+                fileTypes = TeensyFileTypeExtensions.GetLaunchFileTypes();
+            }
+            var selection = _storageCache.SelectMany(c => c.Value.Files)
+                .Where(f => fileTypes.Contains(f.FileType))
+                .ToArray();
 
+            return selection[new Random().Next(selection.Length - 1)];
+        }
         public async Task CacheAll()
         {
             var allContent = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = "/" });

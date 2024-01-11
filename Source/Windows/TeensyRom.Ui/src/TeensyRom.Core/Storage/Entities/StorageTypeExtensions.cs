@@ -9,6 +9,16 @@ using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Core.Storage.Entities
 {
+    public static class TeensyFileTypeExtensions
+    {
+        public static TeensyFileType[] GetLaunchFileTypes()
+        {
+            return Enum.GetValues(typeof(TeensyFileType))
+                .Cast<TeensyFileType>()
+                .Where(f => f != TeensyFileType.Hex && f != TeensyFileType.Unknown)
+                .ToArray();
+        }
+    }
     public static class StorageFileExtensions
     {
         public static StorageItem ToStorageItem(this TeensyFileInfo fileInfo)

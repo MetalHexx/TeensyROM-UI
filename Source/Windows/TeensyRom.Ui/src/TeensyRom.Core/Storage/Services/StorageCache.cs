@@ -117,20 +117,15 @@ namespace TeensyRom.Core.Storage.Services
         private static string CleanPath(string path) => path
             .RemoveLeadingAndTrailingSlash();
 
-        internal FileItem? GetRandom(params TeensyFileType[] fileTypes)
+        internal IEnumerable<SongItem> Search(string keyword)
         {
-            if (fileTypes.Length == 0)
-            {
-                fileTypes = Enum.GetValues(typeof(TeensyFileType))
-                    .Cast<TeensyFileType>()
-                    .Where(f => f is not TeensyFileType.Hex && f is not TeensyFileType.Unknown)
-                    .ToArray();
-            }
-            var selection = this.SelectMany(c => c.Value.Files)
-                .Where(f => fileTypes.Contains(f.FileType))
-                .ToArray();
-
-            return selection[new Random().Next(selection.Length - 1)];
+            return this
+                .SelectMany(c => c.Value.Files)
+                .OfType<SongItem>()
+                .Where(song =>
+                    song.ArtistName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                    song.SongName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                    song.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
