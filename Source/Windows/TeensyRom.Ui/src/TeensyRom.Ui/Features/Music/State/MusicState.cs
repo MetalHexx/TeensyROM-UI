@@ -48,20 +48,21 @@ namespace TeensyRom.Ui.Features.Music.State
         private readonly IMediator _mediator;
         private readonly ICachedStorageService _musicService;
         private readonly ISettingsService _settingsService;
+        private readonly ILaunchHistory _launchHistory;
         private TeensySettings _settings = new();
         private IDisposable? _playingSongSubscription;
         private TimeSpan? _currentTime;
         private IDisposable _currentTimeSubscription;
 
-        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService musicService, ISettingsService settingsService)
+        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService musicService, ISettingsService settingsService, ILaunchHistory launchHistory)
         {
             _songTime = songTime;
             _mediator = mediator;
             _musicService = musicService;
             _settingsService = settingsService;
+            _launchHistory = launchHistory;
             _settingsService.Settings.Subscribe(OnSettingsChanged);
 
-            //TODO: Clean this up later.
             _currentTimeSubscription = _songTime.CurrentTime.Subscribe(currentTime =>
             {
                 _currentTime = currentTime;
@@ -111,8 +112,14 @@ namespace TeensyRom.Ui.Features.Music.State
             return Unit.Default;
         }
 
-        public async Task<bool> LoadSong(SongItem song)
-        {   
+        public async Task<bool> LoadSong(SongItem song, bool clearHistory = true)
+        {
+            if (clearHistory) 
+            {
+                _launchHistory.Clear();
+                _songMode.OnNext(SongMode.Next);
+            }
+
             _songTime.StartNewTimer(song.SongLength);
             
             await _mediator.Send(new LaunchFileCommand { Path = song.Path }); //TODO: When TR fails on a SID, the next song command "fails", but the song still plays.  So I'll ignore the false return value for now.
@@ -191,17 +198,22 @@ namespace TeensyRom.Ui.Features.Music.State
             return playState;
         }
 
-        public async Task PlayPrevious()
+        public Task PlayPrevious()
         {
-            if(_songMode.Value == SongMode.Shuffle)
+            return _songMode.Value switch
             {
-                await PlayRandom();  //TODO: Keep track of the music history so we can go back to the last random song.
-                return;
-            }
+                SongMode.Next => PlayPreviousInDirectory(),
+                SongMode.Shuffle =>  PlayPreviousShuffle(),
+                _ => throw new NotImplementedException()
+            };
+        }
+
+        private async Task PlayPreviousInDirectory()
+        {
             var parentPath = _currentSong.Value.Path.GetUnixParentPath();
             var directoryResult = await _musicService.GetDirectory(parentPath);
 
-            if(directoryResult is null || _currentTime >= TimeSpan.FromSeconds(3))
+            if (directoryResult is null || _currentTime >= TimeSpan.FromSeconds(3))
             {
                 await LoadSong(_currentSong.Value);
                 return;
@@ -215,13 +227,32 @@ namespace TeensyRom.Ui.Features.Music.State
             await LoadSong((songToLoad as SongItem)!);
         }
 
-        public async Task PlayNext()
+        public async Task PlayPreviousShuffle()
         {
-            if (_songMode.Value == SongMode.Shuffle)
+            var song = _launchHistory.GetPrevious(TeensyFileType.Sid);
+
+            if (song is SongItem songItem)
             {
-                await PlayRandom();
+                await LoadDirectory(songItem.Path.GetUnixParentPath());
+                await LoadSong(songItem, clearHistory: false);
                 return;
             }
+            await LoadSong(_currentSong.Value, clearHistory: false);
+            return;
+        }
+
+        public Task PlayNext()
+        {
+            return _songMode.Value switch
+            {
+                SongMode.Next => PlayNextInDirectory(),
+                SongMode.Shuffle => PlayNextShuffle(),
+                _ => throw new NotImplementedException()
+            };
+        }
+
+        private async Task PlayNextInDirectory()
+        {
             var parentPath = _currentSong.Value.Path.GetUnixParentPath();
             var directoryResult = await _musicService.GetDirectory(parentPath);
 
@@ -235,8 +266,30 @@ namespace TeensyRom.Ui.Features.Music.State
             var songToLoad = directoryResult.Files.Count == currentIndex + 1
                 ? directoryResult.Files.First()
                 : directoryResult.Files[++currentIndex];
+
+            if (songToLoad is SongItem songItem)
+            {
+                await LoadSong(songItem);
+                return;
+            }
+            await LoadSong(_currentSong.Value);
+        }
+
+        private async Task PlayNextShuffle()
+        {
+            var song = _launchHistory.GetNext(TeensyFileType.Sid);
+
+            if (song is SongItem songItem)
+            {
+                await LoadDirectory(songItem.Path.GetUnixParentPath());
+                await LoadSong(songItem, clearHistory: false);
+                return;
+            }
+            var newSong = await PlayRandom();
             
-            await LoadSong(songToLoad as SongItem);
+            if (newSong is null) return;
+            
+            return;
         }
 
         public async Task LoadDirectory(string path)
@@ -295,15 +348,22 @@ namespace TeensyRom.Ui.Features.Music.State
             await RefreshDirectory(bustCache: false);
         }
 
-        public async Task PlayRandom() 
+        public async Task<SongItem?> PlayRandom() 
         {
             var song = _musicService.GetRandomFile(TeensyFileType.Sid);
 
             if(song is SongItem songItem)
             {
                 await LoadDirectory(songItem.Path.GetUnixParentPath());
-                await LoadSong(songItem);
+                await LoadSong(songItem, clearHistory: false);
+
+                if(_songMode.Value != SongMode.Shuffle) ToggleShuffleMode();
+
+                _launchHistory.Add(songItem!);
+
+                return songItem;
             }
+            return null;
         }
     }
 }

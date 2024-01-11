@@ -1,11 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Reactive.Concurrency;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TeensyRom.Core.Storage.Services
 {
+    /// <summary>
+    /// - random automatically puts you into shuffle mode
+    /// - clicking next in shuffle mode will be added to a history list to remember your previous track
+    /// - hitting previous in shuffle mode will now bring to the previous item in the history list
+    /// - hitting previous in shuffle mode when you're at the beginning of the history will do nothing.
+    /// - clicking a song in your current directory will pull you out of shuffle mode and clear history.Clicking next or previous will go to the next or previous song in the current directory.
+    /// </summary>
     public class StorageCache : Dictionary<string, StorageCacheItem>
     {
         public void UpsertDirectory(string path, StorageCacheItem directory)
