@@ -25,11 +25,11 @@
             Style="{StaticResource SectionTitle}"            
             Grid.Row="0"/>
 
+        <ContentControl Content="{Binding Search}" Grid.Row="0" Grid.Column="1"/>
+
         <StackPanel Orientation="Horizontal"
             HorizontalAlignment="Right" VerticalAlignment="Top" 
-            Grid.Row="0" Grid.Column="2">
-
-            <ContentControl Content="{Binding Search}" Margin="0, -2,10,0"/>
+            Grid.Row="0" Grid.Column="2">            
 
             <Button 
                 Command="{Binding PlayRandomCommand}" 

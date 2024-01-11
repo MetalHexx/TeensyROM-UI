@@ -289,14 +289,19 @@ namespace TeensyRom.Core.Storage.Services
             return _storageCache
                 .SelectMany(c => c.Value.Files)
                 .OfType<SongItem>()
-                .Where(song =>
-                    searchTerms.Any(term =>
+                .Select(song => new
+                {
+                    Song = song,
+                    Score = searchTerms.Count(term =>
                         song.ArtistName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                         song.SongName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                        song.Name.Contains(term, StringComparison.OrdinalIgnoreCase) || 
+                        song.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                         song.Path.Contains(term, StringComparison.OrdinalIgnoreCase)
                     )
-                );
+                })
+                .Where(result => result.Score > 0)
+                .OrderByDescending(result => result.Score)
+                .Select(result => result.Song);
         }
 
         public async Task CacheAll()

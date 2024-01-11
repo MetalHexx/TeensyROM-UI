@@ -11,13 +11,13 @@
     <StackPanel Orientation="Horizontal">
 
         <TextBox 
-            ToolTip="Searches music and finds the text contained in the artist name, song name, path, or file name.  Will only return items that have been cached."
+            ToolTip="Type 1 or more words (at least 3 characters) to search for songs that have been cached.  Terms are matched against artist name, song name, path, or file name.  The term just needs to be contained in a field.  The more terms that match the fields, the higher the relevancy.  Search results are ordered by relevancy."
             materialDesign:HintAssist.Hint="Search"
             IsEnabled="{Binding Settings.AutoFileCopyEnabled}"
             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"  
             Width="200"
             VerticalAlignment="Top"
-            Margin="0 4 -2 0"/>
+            Margin="12 11 -2 0"/>
 
         <Button 
             Command="{Binding ClearSearchCommand}" 
@@ -25,7 +25,7 @@
             ToolTip="Clear search"
             Style="{StaticResource StorageIconButton}" 
             VerticalAlignment="Center"            
-            Margin="-35, -6,-24, 0">
+            Margin="-45, 0,-24, 0">
 
             <materialDesign:PackIcon Kind="Close" />
         </Button>
