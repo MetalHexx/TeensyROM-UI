@@ -115,17 +115,6 @@ namespace TeensyRom.Core.Storage.Services
         }
 
         private static string CleanPath(string path) => path
-            .RemoveLeadingAndTrailingSlash();
-
-        internal IEnumerable<SongItem> Search(string keyword)
-        {
-            return this
-                .SelectMany(c => c.Value.Files)
-                .OfType<SongItem>()
-                .Where(song =>
-                    song.ArtistName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                    song.SongName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                    song.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase));
-        }
+            .RemoveLeadingAndTrailingSlash();   
     }
 }

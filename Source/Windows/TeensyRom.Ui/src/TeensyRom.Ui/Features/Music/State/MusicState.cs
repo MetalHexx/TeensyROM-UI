@@ -365,5 +365,20 @@ namespace TeensyRom.Ui.Features.Music.State
             }
             return null;
         }
+
+        public Unit SearchMusic(string searchText)
+        {
+            var searchResult = _musicService.SearchMusic(searchText);
+
+            if (searchResult is null) return Unit.Default;
+
+            _directoryContent.OnNext(new ObservableCollection<StorageItem>(searchResult));
+            return Unit.Default;
+        }
+
+        public Task ClearSearch()
+        {
+            return LoadDirectory(_currentDirectory.Value?.Path ?? "/");
+        }
     }
 }

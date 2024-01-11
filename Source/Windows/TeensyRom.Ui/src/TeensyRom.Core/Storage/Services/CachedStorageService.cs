@@ -282,6 +282,23 @@ namespace TeensyRom.Core.Storage.Services
 
             return selection[new Random().Next(selection.Length - 1)];
         }
+        public IEnumerable<SongItem> SearchMusic(string searchText)
+        {
+            var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            return _storageCache
+                .SelectMany(c => c.Value.Files)
+                .OfType<SongItem>()
+                .Where(song =>
+                    searchTerms.Any(term =>
+                        song.ArtistName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        song.SongName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        song.Name.Contains(term, StringComparison.OrdinalIgnoreCase) || 
+                        song.Path.Contains(term, StringComparison.OrdinalIgnoreCase)
+                    )
+                );
+        }
+
         public async Task CacheAll()
         {
             var allContent = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = "/" });

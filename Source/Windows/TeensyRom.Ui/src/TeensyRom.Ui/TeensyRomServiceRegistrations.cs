@@ -27,6 +27,7 @@ using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Files.DirectoryContent;
 using TeensyRom.Core.Commands.Behaviors;
+using TeensyRom.Ui.Features.Music.Search;
 
 namespace TeensyRom.Ui
 {
@@ -60,6 +61,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<MusicViewModel>();
             services.AddSingleton<PlayToolbarViewModel>();
             services.AddSingleton<SongListViewModel>();
+            services.AddSingleton<SearchViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(DisableSerialPollBehavior<,>));

@@ -13,6 +13,7 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Music.PlayToolbar;
+using TeensyRom.Ui.Features.Music.Search;
 using TeensyRom.Ui.Features.Music.SongList;
 using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.NavigationHost;
@@ -27,17 +28,18 @@ namespace TeensyRom.Ui.Features.Music
         [ObservableAsProperty] public bool ShowPlayToolbar { get; set; }
         [Reactive] public PlayToolbarViewModel PlayToolBar { get; set; }       
         [Reactive] public SongListViewModel SongList { get; set; }
+        [Reactive] public SearchViewModel Search { get; set; }
         [Reactive] public DirectoryTreeViewModel MusicTree { get; set; }
         public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
 
-
-        public MusicViewModel(IMusicState musicState, ISerialPortState serialState, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList)
+        public MusicViewModel(IMusicState musicState, ISerialPortState serialState, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList, SearchViewModel search)
         {
             FeatureTitle = "Music";
             _musicState = musicState;
             PlayToolBar = playToolBar;
             SongList = songList;
+            Search = search;
             _musicState.CurrentSong
                 .Select(s => s is null)
                 .ToPropertyEx(this, x => x.ShowPlayToolbar);

@@ -28,6 +28,8 @@ namespace TeensyRom.Ui.Features.Music.State
         Task PlayPrevious();
         Task ToggleMusic();
         Task<SongItem?> PlayRandom();
+        Unit SearchMusic(string keyword);
+        Task ClearSearch();
         Unit ToggleShuffleMode();
     }
 }

@@ -29,6 +29,8 @@
             HorizontalAlignment="Right" VerticalAlignment="Top" 
             Grid.Row="0" Grid.Column="2">
 
+            <ContentControl Content="{Binding Search}" Margin="0, -2,10,0"/>
+
             <Button 
                 Command="{Binding PlayRandomCommand}" 
                 ToolTip="I'm feeling lucky!"
@@ -48,8 +50,6 @@
             </Button>
 
         </StackPanel>
-
-        
         
         <ContentControl Content="{Binding SongList}" 
             Grid.Row="1" Grid.Column="1" />

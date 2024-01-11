@@ -10,6 +10,7 @@
     xmlns:DirectoryTree="clr-namespace:TeensyRom.Ui.Controls.DirectoryTree"
     xmlns:PlayToolbar="clr-namespace:TeensyRom.Ui.Features.Music.PlayToolbar"
     xmlns:SongList="clr-namespace:TeensyRom.Ui.Features.Music.SongList"
+    xmlns:Search="clr-namespace:TeensyRom.Ui.Features.Music.Search"
     xmlns:Connect="clr-namespace:TeensyRom.Ui.Features.Connect"
     xmlns:Settings="clr-namespace:TeensyRom.Ui.Features.Settings"
     
@@ -63,6 +64,10 @@
 
             <DataTemplate DataType="{x:Type SongList:SongListViewModel}">
                 <SongList:SongListView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type Search:SearchViewModel}">
+                <Search:SearchView/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type Connect:ConnectViewModel}">
