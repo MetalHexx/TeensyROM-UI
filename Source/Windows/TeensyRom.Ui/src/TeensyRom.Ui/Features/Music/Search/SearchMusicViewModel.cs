@@ -29,7 +29,7 @@ namespace TeensyRom.Ui.Features.Music.Search
 
             _searchSubscription = this.WhenAnyValue(x => x.SearchText)
                 .Throttle(TimeSpan.FromMilliseconds(500))
-                .Where(searchText => !string.IsNullOrWhiteSpace(searchText) && searchText.Length > 3)
+                .Where(searchText => !string.IsNullOrWhiteSpace(searchText) && searchText.Length > 2)
                 .Subscribe(searchText => 
                 {
                     ShowClearSearch = true;
