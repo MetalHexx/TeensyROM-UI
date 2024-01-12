@@ -50,7 +50,7 @@
 
             <Button 
                 Command="{Binding RefreshCommand}" 
-                ToolTip="Add to favorites"
+                ToolTip="Refreshes the current directory."
                 Style="{StaticResource StorageIconButton}">
 
                 <materialDesign:PackIcon Kind="refresh" />
