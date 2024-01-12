@@ -40,7 +40,7 @@
             <TextBlock 
                 Text="{Binding FeatureTitle}"
                 Style="{StaticResource SectionTitle}" 
-                Grid.Row="0"/>
+                Grid.Row="0" Margin="0 0 0 10"/>
 
             <Label 
                 Content="Persist File Cache:"
