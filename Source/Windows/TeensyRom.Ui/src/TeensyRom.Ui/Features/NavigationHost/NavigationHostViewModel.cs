@@ -13,43 +13,32 @@ using TeensyRom.Ui.Features.Settings;
 using MaterialDesignThemes.Wpf;
 using TeensyRom.Core.Storage;
 using TeensyRom.Ui.Features.Files;
+using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
     public class NavigationHostViewModel : ReactiveObject
     {
-        [ObservableAsProperty]
-        public object CurrentViewModel { get; }
-
-        [ObservableAsProperty]
-        public object NavigationItems { get; }
-
-        [ObservableAsProperty]
-        public bool IsNavOpen { get; }
-
-        [Reactive]
-        public string Title { get; set; } = "TeensyROM";
-
+        [ObservableAsProperty] public object CurrentViewModel { get; }
+        [ObservableAsProperty] public object NavigationItems { get; }
+        [ObservableAsProperty] public bool IsNavOpen { get; }
+        [ObservableAsProperty] public bool SerialBusy { get; }
+        [Reactive] public string Title { get; set; } = "TeensyROM";
         //TODO: Track down why I need this property.  I had to put this here to stop a bunch of errors from throwing in the output window.
-        [Reactive]
-        public bool ControlsEnabled { get; set; }
-
+        [Reactive] public bool ControlsEnabled { get; set; }
         public SnackbarMessageQueue MessageQueue { get; private set; }
-
         public ReactiveCommand<NavigationItem, Unit> NavigateCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> ToggleNavCommand { get; private set; }
 
         private readonly INavigationService _navService;
-        private readonly IFileWatchService _fileWatcherService;
-        private readonly ISnackbarService _snackbar;
+        private readonly ISerialPortState _serialState;
 
-        private bool _triggerAnimation;
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, ISnackbarService snackbar, IFileWatchService fileWatcherService, FileTransferViewModel fileTransfer, FilesViewModel files, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
+        public NavigationHostViewModel(INavigationService navStore, ISnackbarService snackbar, FileTransferViewModel fileTransfer, FilesViewModel files, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, ISerialPortState serialState)
         {
             _navService = navStore;
-            _fileWatcherService = fileWatcherService;
+            _serialState = serialState;
             MessageQueue = snackbar.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
@@ -69,17 +58,10 @@ namespace TeensyRom.Ui.Features.NavigationHost
                 },
                 new NavigationItem
                 {
-                    Name = "File Transfer",
-                    Type = NavigationLocation.FileTransfer,
-                    ViewModel = fileTransfer,
-                    Icon = "FileArrowLeftRightOutline"
-                },
-                new NavigationItem
-                {
-                    Name = "Files",
+                    Name = "File Explorer",
                     Type = NavigationLocation.Files,
                     ViewModel = files,
-                    Icon = "FileArrowUpDownOutline"
+                    Icon = "FileArrowLeftRightOutline"
                 },
                 new NavigationItem
                 {
@@ -120,6 +102,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
             ToggleNavCommand = ReactiveCommand.Create<Unit, Unit>(n =>
                 _navService.ToggleNav(), outputScheduler: ImmediateScheduler.Instance);
+
         }
 
         private void RegisterModelProperties()
@@ -133,6 +116,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
                 .ToPropertyEx(this, vm => vm.NavigationItems);
 
             _navService.IsNavOpen.ToPropertyEx(this, vm => vm.IsNavOpen);
+            _serialState.IsBusy.ToPropertyEx(this, vm => vm.SerialBusy);
         }
     }
 }

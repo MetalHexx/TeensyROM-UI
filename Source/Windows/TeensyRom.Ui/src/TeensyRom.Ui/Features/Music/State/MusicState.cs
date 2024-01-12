@@ -30,7 +30,6 @@ namespace TeensyRom.Ui.Features.Music.State
     {
         public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryTree.AsObservable();
         public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
-        public IObservable<bool> DirectoryLoading => _directoryLoading.AsObservable();
         public IObservable<SongItem> CurrentSong => _currentSong.AsObservable();        
         public IObservable<SongMode> CurrentSongMode => _songMode.AsObservable();
         public IObservable<PlayState> CurrentPlayState => _playState.AsObservable();
@@ -39,7 +38,6 @@ namespace TeensyRom.Ui.Features.Music.State
         private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
         private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
         private readonly BehaviorSubject<StorageCacheItem?> _currentDirectory = new(null);
-        private readonly Subject<bool> _directoryLoading = new();
         private readonly BehaviorSubject<SongItem> _currentSong = new(null);
         private readonly BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
         private readonly BehaviorSubject<PlayState> _playState = new(PlayState.Paused);     
@@ -294,12 +292,10 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public async Task LoadDirectory(string path)
         {
-            _directoryLoading.OnNext(true);
             var directoryResult = await _musicService.GetDirectory(path);
 
             if (directoryResult is null)
             {
-                _directoryLoading.OnNext(false);
                 return;
             }
 
@@ -318,7 +314,6 @@ namespace TeensyRom.Ui.Features.Music.State
             _directoryContent.OnNext(directoryItems);
             _currentDirectory.OnNext(directoryResult);
             _directoryTree.OnNext(_directoryTree.Value);
-            _directoryLoading.OnNext(false);
 
             return;
         }
@@ -368,13 +363,11 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public Unit SearchMusic(string searchText)
         {
-            _directoryLoading.OnNext(true);
             var searchResult = _musicService.SearchMusic(searchText);
 
             if (searchResult is null) return Unit.Default;
 
             _directoryContent.OnNext(new ObservableCollection<StorageItem>(searchResult));
-            _directoryLoading.OnNext(false);
             return Unit.Default;
         }
 
@@ -385,9 +378,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public async Task CacheAll()
         {
-            _directoryLoading.OnNext(true);
             await _musicService.CacheAll();
-            _directoryLoading.OnNext(false);
         }
     }
 }

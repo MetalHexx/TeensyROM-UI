@@ -15,10 +15,12 @@ namespace TeensyRom.Core.Serial
     /// </summary>
     public class ObservableSerialPort : IObservableSerialPort
     {
+        public IObservable<bool> IsBusy => _isBusy.AsObservable();
         public IObservable<string[]> Ports => _ports.AsObservable();
         public IObservable<bool> IsConnected => _isConnected.AsObservable();
         public IObservable<bool> IsRetryingConnection => _isRetryingConnection.AsObservable();
 
+        protected readonly BehaviorSubject<bool> _isBusy = new(false);
         protected readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         protected readonly BehaviorSubject<bool> _isConnected = new(false);
         protected readonly BehaviorSubject<bool> _isRetryingConnection = new(false);
@@ -33,7 +35,6 @@ namespace TeensyRom.Core.Serial
 
         public readonly SerialPort _serialPort = new() { BaudRate = 115200 };
         protected readonly ILoggingService _logService;
-
         public bool IsOpen => _serialPort.IsOpen;
         public int BytesToRead => _serialPort.BytesToRead;
         public string[] GetPortNames() => SerialPort.GetPortNames();
@@ -172,6 +173,8 @@ namespace TeensyRom.Core.Serial
             _logSubscription = _rawSerialBytes
                 .Select(bytes => ToLogString(bytes))
                 .Subscribe(_logService.Log);
+
+            _isBusy.OnNext(false);
         }
 
         /// <summary>
@@ -179,6 +182,8 @@ namespace TeensyRom.Core.Serial
         /// </summary>
         public void DisableAutoReadStream()
         {
+            _isBusy.OnNext(true);
+
             _serialPort.DiscardInBuffer();
             _serialPort.DiscardOutBuffer();
             if (_logSubscription is not null)

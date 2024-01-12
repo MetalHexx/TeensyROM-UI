@@ -83,8 +83,6 @@
                         <ItemsControl x:Name="ProfileList" ItemsSource="{Binding NavigationItems}" Foreground="{DynamicResource PrimaryHueLightBrush}" Margin="0 10">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-
-
                                     <Button 
                                         Command="{Binding ElementName=ProfileList, Path=DataContext.NavigateCommand}" 
                                         CommandParameter="{Binding}" 
@@ -125,14 +123,15 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Style="{StaticResource MainTitle}" Margin="0 0 0 10" VerticalAlignment="Top">TeensyROM</TextBlock>
+                <TextBlock Style="{StaticResource MainTitle}" Margin="0 -10 0 10" VerticalAlignment="Top">TeensyROM</TextBlock>
 
-                <materialDesign:Card Grid.Row="1" Padding="5" VerticalAlignment="Stretch">
+                <materialDesign:Card Grid.Row="1" Padding="0 0 0 0" VerticalAlignment="Stretch">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <ContentControl Content="{Binding CurrentViewModel}" Opacity="0" Grid.Row="1">
+                        <ContentControl Content="{Binding CurrentViewModel}" Opacity="0" Grid.Row="0" Margin="10">
                             <ContentControl.Style>
                                 <Style TargetType="ContentControl">
                                     <Style.Triggers>
@@ -150,6 +149,17 @@
                                 </Style>
                             </ContentControl.Style>
                         </ContentControl>
+
+                        <ProgressBar
+                            Visibility="{Binding SerialBusy, Converter={StaticResource BoolToVisibilityConvertor}}"
+                            IsIndeterminate="True"
+                            VerticalAlignment="Bottom"
+                            HorizontalAlignment="Stretch"
+                            Height="5" 
+                            Panel.ZIndex="1"                            
+                            Margin="0">                            
+                        </ProgressBar>
+                        
                     </Grid>
                 </materialDesign:Card>
 

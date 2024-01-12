@@ -49,6 +49,23 @@
     <Style x:Key="StorageIconButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
 
         <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="10"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Width" Value="30"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="DarkGray"/>
+                <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="False">
+                <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="CornerButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
+
+        <Setter Property="Padding" Value="0"/>
         <Setter Property="Margin" Value="0"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
@@ -65,7 +82,21 @@
 
     <Style x:Key="SectionTitle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="20"/>
-        <Setter Property="Margin" Value="10"/>
+        <Setter Property="Margin" Value="0 0 0 0"/>
+    </Style>
+
+    <Style x:Key="SearchButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="-35, -25, 0, 0"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="DarkGray"/>
+                <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="False">
+                <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}"/>
+            </Trigger>
+        </Style.Triggers>        
     </Style>
 
     <Style x:Key="LargeLabel" TargetType="Label">

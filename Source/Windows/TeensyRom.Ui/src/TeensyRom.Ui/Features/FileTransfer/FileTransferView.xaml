@@ -129,43 +129,45 @@
                     Margin="5,0" Width="24" Height="24" Grid.Column="0"/>
 
                 <TextBlock 
-            Text="{Binding Name}" 
-            TextTrimming="CharacterEllipsis"
-            Style="{StaticResource MaterialDesignBody2TextBlock}" 
-            Margin="5,0" VerticalAlignment="Center"  Grid.Column="1"/>
+                    Text="{Binding Name}" 
+                    TextTrimming="CharacterEllipsis"
+                    Style="{StaticResource MaterialDesignBody2TextBlock}" 
+                    Margin="5,0" VerticalAlignment="Center"  Grid.Column="1"/>
 
                 <StackPanel 
-            Orientation="Vertical" 
-            Grid.Column="2" 
-            HorizontalAlignment="Stretch" 
-            VerticalAlignment="Stretch">
+                    Orientation="Vertical" 
+                    Grid.Column="2" 
+                    HorizontalAlignment="Stretch" 
+                    VerticalAlignment="Stretch">
 
                     <StackPanel 
-                Orientation="Horizontal" 
-                HorizontalAlignment="Right">
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Right" Margin="10 10 10 100">
                         <Button 
-                    x:Name="LaunchButton"
-                    Command="{Binding DataContext.LaunchFileCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
-                    CommandParameter="{Binding}"
-                    Visibility="Collapsed"
-                    ToolTip="Launch"
-                    Style="{StaticResource StorageIconButton}">
+                            x:Name="LaunchButton"
+                            Command="{Binding DataContext.LaunchFileCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
+                            CommandParameter="{Binding}"
+                            Visibility="Collapsed"
+                            ToolTip="Launch"
+                            Style="{StaticResource StorageIconButton}"
+                            Margin="0 0 0 0">
+                            
                             <materialDesign:PackIcon Kind="Play" />
                         </Button>
 
                         <Button 
-                    x:Name="FavButton"                                                
-                    Visibility="Collapsed"
-                    ToolTip="Add to favorites"
-                    Style="{StaticResource StorageIconButton}">
+                            x:Name="FavButton"                                                
+                            Visibility="Collapsed"
+                            ToolTip="Add to favorites"
+                            Style="{StaticResource StorageIconButton}">
                             <materialDesign:PackIcon Kind="Heart" />
                         </Button>
 
                         <Button 
-                    x:Name="DeleteButton"
-                    Visibility="Collapsed"
-                    ToolTip="Delete"                    
-                    Style="{StaticResource StorageIconButton}">
+                            x:Name="DeleteButton"
+                            Visibility="Collapsed"
+                            ToolTip="Delete"                    
+                            Style="{StaticResource StorageIconButton}">
                             <materialDesign:PackIcon Kind="Trash" />
                         </Button>
                     </StackPanel>

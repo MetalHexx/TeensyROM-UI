@@ -19,7 +19,6 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
     {
         [Reactive] public FileItem? SelectedFile { get; set; }
         [ObservableAsProperty] public ObservableCollection<StorageItem> DirectoryContent { get; }
-        [ObservableAsProperty] public bool ShowProgress { get; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }        
         public ReactiveCommand<FileItem, Unit> LaunchCommand { get; set; }
         public ReactiveCommand<FileItem, Unit> SaveFavoriteCommand { get; set; }
@@ -33,10 +32,7 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
 
         public DirectoryContentViewModel(IFileState fileState)
         {
-            _fileState = fileState;
-
-            _fileState.DirectoryLoading
-                .ToPropertyEx(this, x => x.ShowProgress);            
+            _fileState = fileState;           
 
             LoadDirectoryCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(directory =>
                 fileState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler);

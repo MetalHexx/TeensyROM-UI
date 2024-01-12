@@ -27,7 +27,6 @@ namespace TeensyRom.Ui.Features.Files.State
     {
         public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryTree.AsObservable();
         public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
-        public IObservable<bool> DirectoryLoading => _directoryLoading.AsObservable();
         public IObservable<int> CurrentPage => _currentPage.AsObservable();
         public IObservable<int> TotalPages => _totalPages.AsObservable();
         public IObservable<int> PageSize => _pageSize.AsObservable();
@@ -35,7 +34,6 @@ namespace TeensyRom.Ui.Features.Files.State
 
         private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
         private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
-        private readonly Subject<bool> _directoryLoading = new();
         private readonly BehaviorSubject<StorageCacheItem?> _currentDirectory = new(null);
         private FileItem? _currentFile = null;
 
@@ -93,13 +91,11 @@ namespace TeensyRom.Ui.Features.Files.State
                 _currentPath = path;                   
                 _currentPage.OnNext(1);
             }
-            _directoryLoading.OnNext(true);
 
             var directoryResult = await _storageService.GetDirectory(path);
 
             if (directoryResult is null)
             {
-                _directoryLoading.OnNext(false);
                 return;
             }
 
@@ -144,7 +140,6 @@ namespace TeensyRom.Ui.Features.Files.State
             _directoryContent.OnNext(directoryItems);
             _currentDirectory.OnNext(directoryResult);
             _directoryTree.OnNext(_directoryTree.Value);
-            _directoryLoading.OnNext(false);
 
             return;
         }
@@ -275,21 +270,17 @@ namespace TeensyRom.Ui.Features.Files.State
         }
 
         public async Task CacheAll()
-        {
-            _directoryLoading.OnNext(true);            
+        {          
             await _storageService.CacheAll();
-            _directoryLoading.OnNext(false);
         }
 
         public Unit SearchFiles(string searchText)
         {
-            _directoryLoading.OnNext(true);
             var searchResult = _storageService.SearchMusic(searchText);
 
             if (searchResult is null) return Unit.Default;
 
             _directoryContent.OnNext(new ObservableCollection<StorageItem>(searchResult));
-            _directoryLoading.OnNext(false);
             return Unit.Default;
         }
 

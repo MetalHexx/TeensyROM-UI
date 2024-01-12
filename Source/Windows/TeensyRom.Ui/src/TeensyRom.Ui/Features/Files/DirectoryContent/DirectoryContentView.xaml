@@ -119,13 +119,6 @@
     </UserControl.Resources>
 
     <Grid>
-        <ProgressBar 
-            IsIndeterminate="True" 
-            Visibility="{Binding ShowProgress, Converter={StaticResource BooleanToVisibilityConverter}}"            
-            Margin="0 0 17 0"
-            VerticalAlignment="Top">
-        </ProgressBar>
-
         <ScrollViewer VerticalScrollBarVisibility="Auto">
 
             <ListView Name="songListView"

@@ -8,6 +8,11 @@ namespace TeensyRom.Core.Serial
     public interface IObservableSerialPort : IDisposable
     {
         /// <summary>
+        /// Set to true when the serial port is busy and cannot be accessed
+        /// </summary>
+        IObservable<bool> IsBusy { get; }
+
+        /// <summary>
         /// Connections can be dropped, thus ports can change, so we want to observe those changes.
         /// </summary>
         IObservable<string[]> Ports { get; }
@@ -20,7 +25,7 @@ namespace TeensyRom.Core.Serial
         /// <summary>
         /// The current retry connection state
         /// </summary>
-        IObservable<bool> IsRetryingConnection { get; }
+        IObservable<bool> IsRetryingConnection { get; }        
 
         /// <summary>
         /// Checks to see if the serial port is open

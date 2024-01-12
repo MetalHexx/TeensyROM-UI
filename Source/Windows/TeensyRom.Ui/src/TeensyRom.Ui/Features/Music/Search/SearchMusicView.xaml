@@ -15,16 +15,14 @@
             materialDesign:HintAssist.Hint="Search"
             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"  
             Width="200"
-            VerticalAlignment="Top"
-            Margin="12 11 -2 0"/>
+            VerticalAlignment="Top"/>
 
         <Button 
             Command="{Binding ClearSearchCommand}" 
             Visibility="{Binding ShowClearSearch, Converter={StaticResource BoolToVisibilityConvertor}}"
             ToolTip="Clear search"
-            Style="{StaticResource StorageIconButton}" 
-            VerticalAlignment="Center"            
-            Margin="-45, 0,-24, 0">
+            Style="{StaticResource SearchButton}" 
+            VerticalAlignment="Center">
 
             <materialDesign:PackIcon Kind="Close" />
         </Button>

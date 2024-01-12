@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -25,7 +26,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
         }
         private BehaviorSubject<bool> _isNavOpen;
 
-        public NavigationService()
+        public NavigationService(ISerialPortState serialPortState)
         {
             _isNavOpen = new BehaviorSubject<bool>(false);
             _navigationItems = new BehaviorSubject<List<NavigationItem>>(new List<NavigationItem>());

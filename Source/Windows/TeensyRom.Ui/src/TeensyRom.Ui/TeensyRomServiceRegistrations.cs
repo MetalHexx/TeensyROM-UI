@@ -66,9 +66,9 @@ namespace TeensyRom.Ui
             services.AddSingleton<SearchMusicViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            
-            services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(DisableSerialPollBehavior<,>));
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
+            services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(SerialBehavior<,>)); 
         }
     }
 }

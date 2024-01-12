@@ -13,7 +13,6 @@ namespace TeensyRom.Ui.Features.Music.State
     {
         IObservable<DirectoryNodeViewModel> DirectoryTree { get; }
         IObservable<ObservableCollection<StorageItem>> DirectoryContent { get; }
-        IObservable<bool> DirectoryLoading { get; }
         IObservable<SongItem> CurrentSong { get; }
         IObservable<SongMode> CurrentSongMode { get; }
         IObservable<TimeSpan> CurrentSongTime { get; }
