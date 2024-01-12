@@ -382,5 +382,12 @@ namespace TeensyRom.Ui.Features.Music.State
         {
             return LoadDirectory(_currentDirectory.Value?.Path ?? "/");
         }
+
+        public async Task CacheAll()
+        {
+            _directoryLoading.OnNext(true);
+            await _musicService.CacheAll();
+            _directoryLoading.OnNext(false);
+        }
     }
 }

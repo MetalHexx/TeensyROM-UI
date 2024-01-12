@@ -31,5 +31,6 @@ namespace TeensyRom.Ui.Features.Music.State
         Unit SearchMusic(string keyword);
         Task ClearSearch();
         Unit ToggleShuffleMode();
+        Task CacheAll();
     }
 }

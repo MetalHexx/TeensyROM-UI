@@ -12,6 +12,7 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
+using TeensyRom.Ui.Features.Files.State;
 using TeensyRom.Ui.Features.Music.PlayToolbar;
 using TeensyRom.Ui.Features.Music.Search;
 using TeensyRom.Ui.Features.Music.SongList;
@@ -32,6 +33,7 @@ namespace TeensyRom.Ui.Features.Music
         [Reactive] public DirectoryTreeViewModel MusicTree { get; set; }
         public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> CacheAllCommand { get; set; }
 
         public MusicViewModel(IMusicState musicState, ISerialPortState serialState, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList, SearchMusicViewModel search)
         {
@@ -46,6 +48,7 @@ namespace TeensyRom.Ui.Features.Music
 
             RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.RefreshDirectory());
             PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.PlayRandom());
+            CacheAllCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.CacheAll());
 
             serialState.IsConnected
                 .Where(isConnected => isConnected is true)
