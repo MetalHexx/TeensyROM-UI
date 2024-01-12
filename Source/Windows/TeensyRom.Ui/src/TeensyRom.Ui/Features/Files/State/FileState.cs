@@ -276,7 +276,7 @@ namespace TeensyRom.Ui.Features.Files.State
 
         public Unit SearchFiles(string searchText)
         {
-            var searchResult = _storageService.SearchMusic(searchText);
+            var searchResult = _storageService.SearchFiles(searchText);
 
             if (searchResult is null) return Unit.Default;
 

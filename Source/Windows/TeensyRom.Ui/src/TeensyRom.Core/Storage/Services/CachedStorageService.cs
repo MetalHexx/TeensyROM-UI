@@ -313,6 +313,7 @@ namespace TeensyRom.Core.Storage.Services
             return _storageCache
                 .SelectMany(c => c.Value.Files)
                 .OfType<FileItem>()
+                .Where(f => TeensyFileTypeExtensions.GetLaunchFileTypes().Contains(f.FileType))
                 .Select(song => new
                 {
                     File = song,
