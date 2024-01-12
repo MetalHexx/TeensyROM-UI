@@ -14,7 +14,9 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Files.DirectoryContent;
 using TeensyRom.Ui.Features.Files.Paging;
+using TeensyRom.Ui.Features.Files.Search;
 using TeensyRom.Ui.Features.Files.State;
+using TeensyRom.Ui.Features.Music.Search;
 using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Helpers.ViewModel;
@@ -26,6 +28,7 @@ namespace TeensyRom.Ui.Features.Files
         [ObservableAsProperty] public bool PagingEnabled { get; }
         [Reactive] public DirectoryTreeViewModel DirectoryTree { get; set; }
         [Reactive] public DirectoryContentViewModel DirectoryContent { get; set; }
+        [Reactive] public SearchFilesViewModel Search { get; set; }
         [Reactive] public PagingViewModel Paging { get; set; }
         public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
@@ -33,10 +36,11 @@ namespace TeensyRom.Ui.Features.Files
 
         private readonly IFileState _fileState;
 
-        public FilesViewModel(ISettingsService settings, INavigationService nav, ISerialPortState serialState, IFileState fileState, DirectoryContentViewModel directoryContent)
+        public FilesViewModel(ISettingsService settings, INavigationService nav, ISerialPortState serialState, IFileState fileState, DirectoryContentViewModel directoryContent, SearchFilesViewModel search)
         {
             FeatureTitle = "File Explorer";            
             DirectoryContent = directoryContent;
+            Search = search;
             _fileState = fileState;
 
             fileState.PagingEnabled.ToPropertyEx(this, x => x.PagingEnabled);

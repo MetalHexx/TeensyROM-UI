@@ -280,5 +280,22 @@ namespace TeensyRom.Ui.Features.Files.State
             await _storageService.CacheAll();
             _directoryLoading.OnNext(false);
         }
+
+        public Unit SearchFiles(string searchText)
+        {
+            _directoryLoading.OnNext(true);
+            var searchResult = _storageService.SearchMusic(searchText);
+
+            if (searchResult is null) return Unit.Default;
+
+            _directoryContent.OnNext(new ObservableCollection<StorageItem>(searchResult));
+            _directoryLoading.OnNext(false);
+            return Unit.Default;
+        }
+
+        public Task ClearSearch()
+        {
+            return LoadDirectory(_currentDirectory.Value?.Path ?? "/");
+        }
     }
 }

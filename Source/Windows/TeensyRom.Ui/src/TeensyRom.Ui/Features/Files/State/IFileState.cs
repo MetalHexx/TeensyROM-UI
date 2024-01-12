@@ -29,5 +29,7 @@ namespace TeensyRom.Ui.Features.Files.State
         Task PreviousPage();
         Task SetPageSize(int pageSize);
         Task CacheAll();
+        Unit SearchFiles(string keyword);
+        Task ClearSearch();
     }
 }

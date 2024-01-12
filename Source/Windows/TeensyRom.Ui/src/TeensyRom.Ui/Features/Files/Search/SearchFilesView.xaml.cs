@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TeensyRom.Ui.Features.Music.Search
+namespace TeensyRom.Ui.Features.Files.Search
 {
     /// <summary>
-    /// Interaction logic for SearchView.xaml
+    /// Interaction logic for SearchFilesView.xaml
     /// </summary>
-    public partial class SearchView : UserControl
+    public partial class SearchFilesView : UserControl
     {
-        public SearchView()
+        public SearchFilesView()
         {
             InitializeComponent();
         }

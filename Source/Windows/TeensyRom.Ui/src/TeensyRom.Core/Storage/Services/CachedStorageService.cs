@@ -306,6 +306,26 @@ namespace TeensyRom.Core.Storage.Services
                 .Take(maxNumResults);
         }
 
+        public IEnumerable<FileItem> SearchFiles(string searchText)
+        {
+            var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            return _storageCache
+                .SelectMany(c => c.Value.Files)
+                .OfType<FileItem>()
+                .Select(song => new
+                {
+                    File = song,
+                    Score = searchTerms.Count(term =>
+                        song.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        song.Path.Contains(term, StringComparison.OrdinalIgnoreCase)
+                    )
+                })
+                .Where(result => result.Score > 0)
+                .OrderByDescending(result => result.Score)
+                .Select(result => result.File);
+        }
+
         public async Task CacheAll()
         {
             var allContent = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = "/" });
@@ -319,6 +339,6 @@ namespace TeensyRom.Core.Storage.Services
             }
             EnsureFavorites();
             SaveCacheToDisk();
-        }
+        }        
     }
 }

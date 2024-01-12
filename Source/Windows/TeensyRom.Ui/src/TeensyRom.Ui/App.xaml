@@ -3,6 +3,7 @@
     xmlns:ui="clr-namespace:TeensyRom.Ui"
     xmlns:FileTransfer="clr-namespace:TeensyRom.Ui.Features.FileTransfer"
     xmlns:Files="clr-namespace:TeensyRom.Ui.Features.Files"
+    xmlns:SearchFiles="clr-namespace:TeensyRom.Ui.Features.Files.Search"
     xmlns:Paging="clr-namespace:TeensyRom.Ui.Features.Files.Paging"
     xmlns:DirectoryContent="clr-namespace:TeensyRom.Ui.Features.Files.DirectoryContent"
     xmlns:Help="clr-namespace:TeensyRom.Ui.Features.Help"
@@ -10,7 +11,7 @@
     xmlns:DirectoryTree="clr-namespace:TeensyRom.Ui.Controls.DirectoryTree"
     xmlns:PlayToolbar="clr-namespace:TeensyRom.Ui.Features.Music.PlayToolbar"
     xmlns:SongList="clr-namespace:TeensyRom.Ui.Features.Music.SongList"
-    xmlns:Search="clr-namespace:TeensyRom.Ui.Features.Music.Search"
+    xmlns:SearchMusic="clr-namespace:TeensyRom.Ui.Features.Music.Search"
     xmlns:Connect="clr-namespace:TeensyRom.Ui.Features.Connect"
     xmlns:Settings="clr-namespace:TeensyRom.Ui.Features.Settings"
     
@@ -36,6 +37,10 @@
 
             <DataTemplate DataType="{x:Type Files:FilesViewModel}">
                 <Files:FilesView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type SearchFiles:SearchFilesViewModel}">
+                <SearchFiles:SearchFilesView/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type Paging:PagingViewModel}">
@@ -66,8 +71,8 @@
                 <SongList:SongListView/>
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type Search:SearchViewModel}">
-                <Search:SearchView/>
+            <DataTemplate DataType="{x:Type SearchMusic:SearchMusicViewModel}">
+                <SearchMusic:SearchMusicView/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type Connect:ConnectViewModel}">

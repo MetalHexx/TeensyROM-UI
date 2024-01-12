@@ -1,17 +1,17 @@
-﻿using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
+﻿using ReactiveUI.Fody.Helpers;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TeensyRom.Core.Storage.Entities;
+using System.Reactive.Linq;
 using TeensyRom.Ui.Features.Music.State;
+using TeensyRom.Ui.Features.Files.State;
 
-namespace TeensyRom.Ui.Features.Music.Search
+namespace TeensyRom.Ui.Features.Files.Search
 {
-    public class SearchViewModel : ReactiveObject, IDisposable
+    public class SearchFilesViewModel : ReactiveObject, IDisposable
     {
         [Reactive] public string SearchText { get; set; } = string.Empty;
         [Reactive] public bool ShowClearSearch { get; set; } = false;
@@ -19,28 +19,27 @@ namespace TeensyRom.Ui.Features.Music.Search
         private IDisposable? _searchSubscription;
         private IDisposable? _clearSearchSubscription;
 
-        public SearchViewModel(IMusicState musicState)
+        public SearchFilesViewModel(IFileState fileState)
         {
-            ClearSearchCommand = ReactiveCommand.CreateFromTask(() => 
+            ClearSearchCommand = ReactiveCommand.CreateFromTask(() =>
             {
                 SearchText = string.Empty;
-                return musicState.ClearSearch();
+                return fileState.ClearSearch();
             });
 
             _searchSubscription = this.WhenAnyValue(x => x.SearchText)
                 .Throttle(TimeSpan.FromMilliseconds(500))
                 .Where(searchText => !string.IsNullOrWhiteSpace(searchText) && searchText.Length > 3)
-                .Subscribe(searchText => 
+                .Subscribe(searchText =>
                 {
                     ShowClearSearch = true;
-                    musicState.SearchMusic(searchText);
+                    fileState.SearchFiles(searchText);
                 });
 
             _clearSearchSubscription = this.WhenAnyValue(x => x.SearchText)
                 .Where(string.IsNullOrWhiteSpace)
                 .Subscribe(_ => ShowClearSearch = false);
         }
-
         public void Dispose()
         {
             _searchSubscription?.Dispose();
