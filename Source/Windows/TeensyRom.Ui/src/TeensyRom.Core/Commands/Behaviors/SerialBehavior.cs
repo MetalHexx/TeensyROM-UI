@@ -28,21 +28,20 @@ public class SerialBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, T
 
         try
         {
-            if (_isBusy)
-            {
-                throw new TeensyException("Serial port is busy. Slow down and wait for the current command to complete. :)");
-            }
+            //if (_isBusy)
+            //{
+            //    throw new TeensyException("Serial port is busy. Slow down and wait for the current command to complete. :)");
+            //}
 
             _serialPort.DisableAutoReadStream();
 
             var response = await next();
 
-            _serialPort.EnableAutoReadStream();
-
             return response;
         }
         finally
         {
+            _serialPort.EnableAutoReadStream();
             _semaphore.Release();
         }
     }
