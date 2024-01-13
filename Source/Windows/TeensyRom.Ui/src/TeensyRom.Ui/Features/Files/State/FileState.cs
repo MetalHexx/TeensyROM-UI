@@ -1,4 +1,5 @@
 ﻿using DynamicData;
+using MaterialDesignThemes.Wpf;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Files.DirectoryContent;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Files.State
 {
@@ -46,15 +48,17 @@ namespace TeensyRom.Ui.Features.Files.State
         private readonly ICachedStorageService _storageService;
         private readonly ISettingsService _settingsService;
         private readonly IMediator _mediator;
+        private readonly IAlertService _alert;
         private TeensySettings _settings = new();
         private IDisposable _settingsSubscription;
         private int _skip => (_currentPage.Value - 1) * _pageSize.Value;
 
-        public FileState(ICachedStorageService storageService, ISettingsService settingsService, IMediator mediator)
+        public FileState(ICachedStorageService storageService, ISettingsService settingsService, IMediator mediator, IAlertService alert)
         {
             _storageService = storageService;
             _settingsService = settingsService;
             _mediator = mediator;
+            _alert = alert;
             _settingsSubscription = _settingsService.Settings.Subscribe(settings => OnSettingsChanged(settings));
 
         }
@@ -236,8 +240,12 @@ namespace TeensyRom.Ui.Features.Files.State
         public async Task PlayRandom()
         {
             var file = _storageService.GetRandomFile();
-            
-            if (file is null) return;
+
+            if (file is null)
+            {
+                _alert.Enqueue("Random search requires visiting at least one directory with files in it first.  Try the cache button next to the dice for best results.");
+                return;
+            }
 
             await LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
             await LaunchFile(file);

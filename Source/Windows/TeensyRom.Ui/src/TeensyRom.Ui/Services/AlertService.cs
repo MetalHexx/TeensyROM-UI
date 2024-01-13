@@ -3,13 +3,13 @@ using System;
 using System.Windows.Threading;
 using TeensyRom.Core.Commands.Behaviors;
 
-namespace TeensyRom.Ui.Features.NavigationHost
+namespace TeensyRom.Ui.Services
 {
-    public class SnackbarService : ISnackbarService
+    public class AlertService : IAlertService
     {
         public SnackbarMessageQueue MessageQueue { get; private set; }
 
-        public SnackbarService(Dispatcher dispatcher, ICommandErrorService commandErrorService)
+        public AlertService(Dispatcher dispatcher, ICommandErrorService commandErrorService)
         {
             MessageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(3), dispatcher);
 

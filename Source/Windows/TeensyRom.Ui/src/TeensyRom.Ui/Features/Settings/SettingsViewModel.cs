@@ -9,8 +9,8 @@ using System.Text;
 using System.Windows.Threading;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
-using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Helpers.ViewModel;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Settings
 {
@@ -29,7 +29,7 @@ namespace TeensyRom.Ui.Features.Settings
         private readonly IDisposable _logsSubscription;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public SettingsViewModel(ISettingsService settings, ISnackbarService snackbar, ILoggingService logService)
+        public SettingsViewModel(ISettingsService settings, IAlertService alert, ILoggingService logService)
         {
             FeatureTitle = "Settings";
 
@@ -43,11 +43,11 @@ namespace TeensyRom.Ui.Features.Settings
                 var success = _settingsService.SaveSettings(Settings);
                 if (success)
                 {
-                    snackbar.Enqueue("Settings saved successfully.");
+                    alert.Enqueue("Settings saved successfully.");
                 }
                 else
                 {
-                    snackbar.Enqueue("Error saving settings");
+                    alert.Enqueue("Error saving settings");
                 }
                 return Unit.Default;
             }, outputScheduler: ImmediateScheduler.Instance);

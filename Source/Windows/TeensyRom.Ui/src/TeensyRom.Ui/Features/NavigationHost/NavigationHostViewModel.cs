@@ -14,6 +14,7 @@ using MaterialDesignThemes.Wpf;
 using TeensyRom.Core.Storage;
 using TeensyRom.Ui.Features.Files;
 using TeensyRom.Core.Serial;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -35,11 +36,11 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, ISnackbarService snackbar, FileTransferViewModel fileTransfer, FilesViewModel files, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, ISerialPortState serialState)
+        public NavigationHostViewModel(INavigationService navStore, IAlertService alert, FileTransferViewModel fileTransfer, FilesViewModel files, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, ISerialPortState serialState)
         {
             _navService = navStore;
             _serialState = serialState;
-            MessageQueue = snackbar.MessageQueue;
+            MessageQueue = alert.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
             InitializeNavItems(fileTransfer, files, music, help, connect, settings);

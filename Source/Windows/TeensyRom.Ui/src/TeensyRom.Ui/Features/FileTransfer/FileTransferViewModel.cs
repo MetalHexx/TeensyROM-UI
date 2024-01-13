@@ -26,6 +26,7 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Helpers.ViewModel;
 using TeensyRom.Ui.Features.Common.Models;
 using MediatR;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.FileTransfer
 {
@@ -66,19 +67,19 @@ namespace TeensyRom.Ui.Features.FileTransfer
         private readonly IMediator _mediator;
         private readonly ISerialPortState _serialPortState;
         private readonly ILoggingService _logService;
-        private readonly ISnackbarService _snackbar;
+        private readonly IAlertService _alert;
         private readonly Dispatcher _dispatcher;
         private readonly StringBuilder _logBuilder = new StringBuilder();
         private readonly List<StorageItem> _currentItems = new();
         
         private const int _take = 5000;
-        public FileTransferViewModel(IMediator mediator, ISettingsService settingsService, ISerialPortState serialPortState, INavigationService nav, ILoggingService logService, ISnackbarService snackbar, Dispatcher dispatcher) 
+        public FileTransferViewModel(IMediator mediator, ISettingsService settingsService, ISerialPortState serialPortState, INavigationService nav, ILoggingService logService, IAlertService alert, Dispatcher dispatcher) 
         {
             FeatureTitle = "File Transfer";
             _mediator = mediator;
             _serialPortState = serialPortState;
             _logService = logService;
-            _snackbar = snackbar;
+            _alert = alert;
             _dispatcher = dispatcher;
             SourceItems = new ObservableCollection<StorageItem> { FileTreeTestData.InitializeTestStorageItems() };
 
@@ -242,12 +243,12 @@ namespace TeensyRom.Ui.Features.FileTransfer
             }
             catch (TeensyException ex)
             {
-                _snackbar.Enqueue(ex.Message);
+                _alert.Enqueue(ex.Message);
                 return null;
             }
             if (response.DirectoryContent is null)
             {                
-                _snackbar.Enqueue("Error receiving directory contents");
+                _alert.Enqueue("Error receiving directory contents");
             }
             return response.DirectoryContent;
         }

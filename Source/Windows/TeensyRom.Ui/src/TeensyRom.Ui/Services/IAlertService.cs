@@ -1,8 +1,8 @@
 ﻿using MaterialDesignThemes.Wpf;
 
-namespace TeensyRom.Ui.Features.NavigationHost
+namespace TeensyRom.Ui.Services
 {
-    public interface ISnackbarService
+    public interface IAlertService
     {
         SnackbarMessageQueue MessageQueue { get; }
         void Enqueue(string message);

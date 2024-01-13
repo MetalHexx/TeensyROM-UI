@@ -23,6 +23,7 @@ using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Music.State
 {
@@ -47,18 +48,20 @@ namespace TeensyRom.Ui.Features.Music.State
         private readonly ICachedStorageService _musicService;
         private readonly ISettingsService _settingsService;
         private readonly ILaunchHistory _launchHistory;
+        private readonly IAlertService _alert;
         private TeensySettings _settings = new();
         private IDisposable? _playingSongSubscription;
         private TimeSpan? _currentTime;
         private IDisposable _currentTimeSubscription;
 
-        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService musicService, ISettingsService settingsService, ILaunchHistory launchHistory)
+        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService musicService, ISettingsService settingsService, ILaunchHistory launchHistory, IAlertService alert)
         {
             _songTime = songTime;
             _mediator = mediator;
             _musicService = musicService;
             _settingsService = settingsService;
             _launchHistory = launchHistory;
+            _alert = alert;
             _settingsService.Settings.Subscribe(OnSettingsChanged);
 
             _currentTimeSubscription = _songTime.CurrentTime.Subscribe(currentTime =>
@@ -358,6 +361,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
                 return songItem;
             }
+            _alert.Enqueue("Random search requires visiting at least one directory with music in it first.  Try the cache button next to the dice for best results.");
             return null;
         }
 

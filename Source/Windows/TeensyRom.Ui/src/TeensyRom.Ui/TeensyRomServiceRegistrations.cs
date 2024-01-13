@@ -29,6 +29,7 @@ using TeensyRom.Ui.Features.Files.DirectoryContent;
 using TeensyRom.Core.Commands.Behaviors;
 using TeensyRom.Ui.Features.Music.Search;
 using TeensyRom.Ui.Features.Files.Search;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui
 {
@@ -45,7 +46,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IFileWatcher, FileWatcher>();
             services.AddSingleton<ISettingsService, SettingsService>();
             services.AddSingleton<ICommandErrorService, CommandErrorService>();
-            services.AddSingleton<ISnackbarService, SnackbarService>();
+            services.AddSingleton<IAlertService, AlertService>();
             services.AddSingleton<ISongTimer, SongTimer>();
             services.AddSingleton<ILaunchHistory,  LaunchHistory>();
             services.AddSingleton<IMusicState, MusicState>();
