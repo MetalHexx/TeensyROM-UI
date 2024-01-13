@@ -10,7 +10,7 @@ namespace TeensyRom.Core.Serial
         /// <summary>
         /// Set to true when the serial port is busy and cannot be accessed
         /// </summary>
-        IObservable<bool> IsBusy { get; }
+        IObservable<bool> IsLocked { get; }
 
         /// <summary>
         /// Connections can be dropped, thus ports can change, so we want to observe those changes.
@@ -73,16 +73,15 @@ namespace TeensyRom.Core.Serial
         void SendIntBytes(uint intToSend, short numBytes);
 
         /// <summary>
-        /// Disables the polling read to allow you to safely perform more complex
-        /// serial communication without interruption.
+        /// Marks the serial port as locked and gives the caller exclusive access to the port.
+        /// Auto-polling behavior is disabled while the port is locked.
         /// </summary>
-        void DisableAutoReadStream();
-        int Read(byte[] buffer, int offset, int count);
-
+        void Lock();
         /// <summary>
-        /// Begins automatically polling the serial port to read data returned by device
-        /// </summary>
-        void EnableAutoReadStream();
+        /// Removes the lock on the serial port and engages the auto-polling behavior.
+        /// </summary>        
+        void Unlock();
+        int Read(byte[] buffer, int offset, int count);
         int ReadByte();
         string ReadSerialAsString(int msToWait = 0);
         byte[] ReadSerialBytes();

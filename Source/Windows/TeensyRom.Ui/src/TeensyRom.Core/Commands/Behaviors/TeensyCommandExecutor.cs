@@ -29,12 +29,12 @@ namespace TeensyRom.Core.Commands.Behaviors
 
             try
             {
-                _serialPort.DisableAutoReadStream();
+                _serialPort.Lock();
                 await action();
             }
             finally
             {
-                _serialPort.EnableAutoReadStream();
+                _serialPort.Unlock();
                 _semaphore.Release();
             }
         }

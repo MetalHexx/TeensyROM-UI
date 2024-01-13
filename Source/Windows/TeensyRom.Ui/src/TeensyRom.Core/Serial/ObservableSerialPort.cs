@@ -15,12 +15,12 @@ namespace TeensyRom.Core.Serial
     /// </summary>
     public class ObservableSerialPort : IObservableSerialPort
     {
-        public IObservable<bool> IsBusy => _isBusy.AsObservable();
+        public IObservable<bool> IsLocked => _isLocked.AsObservable();
         public IObservable<string[]> Ports => _ports.AsObservable();
         public IObservable<bool> IsConnected => _isConnected.AsObservable();
         public IObservable<bool> IsRetryingConnection => _isRetryingConnection.AsObservable();
 
-        protected readonly BehaviorSubject<bool> _isBusy = new(false);
+        protected readonly BehaviorSubject<bool> _isLocked = new(false);
         protected readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         protected readonly BehaviorSubject<bool> _isConnected = new(false);
         protected readonly BehaviorSubject<bool> _isRetryingConnection = new(false);
@@ -48,7 +48,7 @@ namespace TeensyRom.Core.Serial
         {
             _logService = logService;
             StartPortPoll();
-            EnableAutoReadStream();
+            Unlock();
         }
 
         public void SetPort(string port)
@@ -158,7 +158,7 @@ namespace TeensyRom.Core.Serial
         /// Toggle the automatic serial port read poll.  Useful when performing
         /// timing sensitive operations that might get disrupted by the polling.
         /// </summary>
-        public void EnableAutoReadStream()
+        public void Unlock()
         {
             _rawSerialBytes = Observable.FromEventPattern<SerialDataReceivedEventHandler, SerialDataReceivedEventArgs>
             (
@@ -174,15 +174,15 @@ namespace TeensyRom.Core.Serial
                 .Select(bytes => ToLogString(bytes))
                 .Subscribe(_logService.Log);
 
-            _isBusy.OnNext(false);
+            _isLocked.OnNext(false);
         }
 
         /// <summary>
         /// Disable the auto read stream.  Useful when performing timing sensitive transactions.
         /// </summary>
-        public void DisableAutoReadStream()
+        public void Lock()
         {
-            _isBusy.OnNext(true);
+            _isLocked.OnNext(true);
 
             _serialPort.DiscardInBuffer();
             _serialPort.DiscardOutBuffer();

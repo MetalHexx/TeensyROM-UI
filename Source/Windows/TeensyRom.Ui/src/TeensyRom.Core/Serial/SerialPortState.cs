@@ -10,7 +10,7 @@
 
     public class SerialPortState(IObservableSerialPort _serialPort) : ISerialPortState
     {
-        public IObservable<bool> IsBusy => _serialPort.IsBusy;
+        public IObservable<bool> IsBusy => _serialPort.IsLocked;
         public IObservable<bool> IsConnected => _serialPort.IsConnected;
         public IObservable<string[]> Ports => _serialPort.Ports;
         public IObservable<bool> IsRetryingConnection => _serialPort.IsRetryingConnection;
