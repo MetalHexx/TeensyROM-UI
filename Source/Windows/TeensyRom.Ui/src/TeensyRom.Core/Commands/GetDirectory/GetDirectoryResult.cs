@@ -2,7 +2,7 @@
 
 namespace TeensyRom.Core.Commands
 {
-    public class GetDirectoryResult : CommandResult
+    public class GetDirectoryResult : TeensyCommandResult
     {
         public DirectoryContent? DirectoryContent { get; set; }
     }

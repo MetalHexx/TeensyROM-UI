@@ -6,7 +6,7 @@ using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Core.Commands
 {
-    public class GetDirectoryCommand : IRequest<GetDirectoryResult> 
+    public class GetDirectoryCommand : IRequest<GetDirectoryResult>
     {
         public string Path { get; init; } = string.Empty;
     }

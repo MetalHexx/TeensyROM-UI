@@ -1,4 +1,4 @@
 ﻿namespace TeensyRom.Core.Commands
 {
-    public class ResetResult : CommandResult { }
+    public class ResetResult : TeensyCommandResult { }
 }

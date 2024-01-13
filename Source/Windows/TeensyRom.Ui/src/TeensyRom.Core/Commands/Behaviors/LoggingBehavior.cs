@@ -4,11 +4,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TeensyRom.Core.Commands;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 
 public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
-    where TResponse : CommandResult
+    where TResponse : TeensyCommandResult
 {
     private readonly ILoggingService _logService;
 
@@ -39,7 +40,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         
         foreach (var property in properties)
         {
-            sb.Append($"=> {property.Name}: {property.GetValue(request)?.ToString() ?? "<null>"}\r\n");
+            sb.AppendWithLimit($"=> {property.Name}: {property.GetValue(request)?.ToString() ?? "<null>"}\r\n");
         }
         return $"\r\n{sb.ToString().TrimEnd(',', ' ')}";
     }

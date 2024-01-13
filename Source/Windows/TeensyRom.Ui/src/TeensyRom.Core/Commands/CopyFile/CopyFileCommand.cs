@@ -12,7 +12,7 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public class CopyFileCommand : IRequest<CopyFileResult> 
+    public class CopyFileCommand : IRequest<CopyFileResult>
     {
         public string SourcePath { get; init; } = string.Empty;
         public string DestPath { get; init; } = string.Empty;

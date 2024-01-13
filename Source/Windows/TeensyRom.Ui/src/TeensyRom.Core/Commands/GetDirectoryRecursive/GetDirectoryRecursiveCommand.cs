@@ -6,7 +6,7 @@ using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Core.Commands
 {
-    public class GetDirectoryRecursiveCommand : IRequest<GetDirectoryRecursiveResult> 
+    public class GetDirectoryRecursiveCommand : IRequest<GetDirectoryRecursiveResult>
     {
         public string Path { get; init; } = string.Empty;
     }

@@ -1,4 +1,4 @@
 ﻿namespace TeensyRom.Core.Commands
 {
-    public class SaveFileResult : CommandResult { }
+    public class SaveFileResult : TeensyCommandResult { }
 }

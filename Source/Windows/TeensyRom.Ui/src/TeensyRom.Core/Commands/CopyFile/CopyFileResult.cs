@@ -1,4 +1,4 @@
 ﻿namespace TeensyRom.Core.Commands
 {
-    public class CopyFileResult : CommandResult { }
+    public class CopyFileResult : TeensyCommandResult { }
 }

@@ -1,4 +1,4 @@
 ﻿namespace TeensyRom.Core.Commands
 {
-    public class ToggleMusicResult() : CommandResult;
+    public class ToggleMusicResult() : TeensyCommandResult;
 }

@@ -16,7 +16,7 @@ namespace TeensyRom.Core.Commands.DeleteFile
         public TeensyStorageType StorageType { get; set; }
     }
 
-    public class DeleteFileResult : CommandResult { }
+    public class DeleteFileResult : TeensyCommandResult { }
 
     public class DeleteFileCommandHandler : IRequestHandler<DeleteFileCommand, DeleteFileResult>
     {

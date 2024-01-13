@@ -4,7 +4,7 @@ using TeensyRom.Core.Logging;
 
 public class ExceptionBehavior<TRequest, TResponse>(IAlertService alert) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
-    where TResponse : CommandResult, new()
+    where TResponse : TeensyCommandResult, new()
 {
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {

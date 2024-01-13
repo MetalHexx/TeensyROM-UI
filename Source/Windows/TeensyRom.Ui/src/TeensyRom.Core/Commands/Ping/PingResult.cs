@@ -1,4 +1,4 @@
 ﻿namespace TeensyRom.Core.Commands
 {
-    public class PingResult : CommandResult { }
+    public class PingResult : TeensyCommandResult { }
 }
