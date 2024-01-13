@@ -64,7 +64,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<SongListViewModel>();
             services.AddSingleton<SearchMusicViewModel>();
             services.AddSingleton<MainWindow>();
-            services.AddSingleton<ISemaphoreSerialBlocker, SemaphoreSerialBlocker>();
+            services.AddSingleton<ITeensyCommandExecutor, TeensyCommandExecutor>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
