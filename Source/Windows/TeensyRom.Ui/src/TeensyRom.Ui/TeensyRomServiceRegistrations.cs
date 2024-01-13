@@ -10,7 +10,6 @@ using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Features.Connect;
 using TeensyRom.Ui.Features.Files.State;
 using TeensyRom.Ui.Features.Files;
-using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.Help;
 using TeensyRom.Ui.Features.Music.PlayToolbar;
 using TeensyRom.Ui.Features.Music.SongList;
@@ -45,8 +44,8 @@ namespace TeensyRom.Ui
             services.AddSingleton<IFileWatchService, FileWatchService>();
             services.AddSingleton<IFileWatcher, FileWatcher>();
             services.AddSingleton<ISettingsService, SettingsService>();
-            services.AddSingleton<ICommandErrorService, CommandErrorService>();
             services.AddSingleton<IAlertService, AlertService>();
+            services.AddSingleton<ISnackbarService, SnackbarService>();
             services.AddSingleton<ISongTimer, SongTimer>();
             services.AddSingleton<ILaunchHistory,  LaunchHistory>();
             services.AddSingleton<IMusicState, MusicState>();
@@ -55,7 +54,6 @@ namespace TeensyRom.Ui
             services.AddSingleton<ICachedStorageService, CachedStorageService>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<ConnectViewModel>();
-            services.AddSingleton<FileTransferViewModel>();
             services.AddSingleton<FilesViewModel>();
             services.AddSingleton<SearchFilesViewModel>();
             services.AddSingleton<DirectoryContentViewModel>();
@@ -66,6 +64,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<SongListViewModel>();
             services.AddSingleton<SearchMusicViewModel>();
             services.AddSingleton<MainWindow>();
+            services.AddSingleton<ISemaphoreSerialBlocker, SemaphoreSerialBlocker>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));

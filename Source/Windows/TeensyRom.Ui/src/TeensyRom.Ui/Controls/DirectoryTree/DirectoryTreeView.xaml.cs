@@ -13,7 +13,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Ui.Features.FileTransfer;
 
 namespace TeensyRom.Ui.Controls.DirectoryTree
 {

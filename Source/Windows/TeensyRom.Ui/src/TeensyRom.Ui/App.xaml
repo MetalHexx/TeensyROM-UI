@@ -1,7 +1,6 @@
 ﻿<Application 
     x:Class="TeensyRom.Ui.App"
     xmlns:ui="clr-namespace:TeensyRom.Ui"
-    xmlns:FileTransfer="clr-namespace:TeensyRom.Ui.Features.FileTransfer"
     xmlns:Files="clr-namespace:TeensyRom.Ui.Features.Files"
     xmlns:SearchFiles="clr-namespace:TeensyRom.Ui.Features.Files.Search"
     xmlns:Paging="clr-namespace:TeensyRom.Ui.Features.Files.Paging"
@@ -30,10 +29,6 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Lime.xaml" />
                 <ResourceDictionary Source="AppResourceDictionary.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-
-            <DataTemplate DataType="{x:Type FileTransfer:FileTransferViewModel}">
-                <FileTransfer:FileTransferView />
-            </DataTemplate>
 
             <DataTemplate DataType="{x:Type Files:FilesViewModel}">
                 <Files:FilesView />
