@@ -1,15 +1,15 @@
 ﻿using MaterialDesignThemes.Wpf;
 using System;
 using System.Windows.Threading;
-using TeensyRom.Core.Commands.Behaviors;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui.Services
 {
-    public class AlertService : IAlertService
+    public class SnackbarService : ISnackbarService
     {
         public SnackbarMessageQueue MessageQueue { get; private set; }
 
-        public AlertService(Dispatcher dispatcher, ICommandErrorService commandErrorService)
+        public SnackbarService(Dispatcher dispatcher, IAlertService commandErrorService)
         {
             MessageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(3), dispatcher);
 

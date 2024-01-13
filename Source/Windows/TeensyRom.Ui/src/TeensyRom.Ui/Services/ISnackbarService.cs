@@ -2,7 +2,7 @@
 
 namespace TeensyRom.Ui.Services
 {
-    public interface IAlertService
+    public interface ISnackbarService
     {
         SnackbarMessageQueue MessageQueue { get; }
         void Enqueue(string message);

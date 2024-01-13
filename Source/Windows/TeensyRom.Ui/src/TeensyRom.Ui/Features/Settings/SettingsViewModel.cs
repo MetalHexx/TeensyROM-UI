@@ -29,7 +29,7 @@ namespace TeensyRom.Ui.Features.Settings
         private readonly IDisposable _logsSubscription;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public SettingsViewModel(ISettingsService settings, IAlertService alert, ILoggingService logService)
+        public SettingsViewModel(ISettingsService settings, ISnackbarService alert, ILoggingService logService)
         {
             FeatureTitle = "Settings";
 

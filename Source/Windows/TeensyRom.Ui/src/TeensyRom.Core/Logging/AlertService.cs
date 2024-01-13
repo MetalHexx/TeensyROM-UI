@@ -6,20 +6,14 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TeensyRom.Core.Commands.Behaviors
+namespace TeensyRom.Core.Logging
 {
-    public interface ICommandErrorService
-    {
-        IObservable<string> CommandErrors { get; }
 
-        void PublishError(string error);
-    }
-
-    public class CommandErrorService : ICommandErrorService
+    public class AlertService : IAlertService
     {
         public IObservable<string> CommandErrors => _commandErrors.AsObservable();
         private readonly Subject<string> _commandErrors = new();
-        public void PublishError(string error)
+        public void Publish(string error)
         {
             _commandErrors.OnNext(error);
         }

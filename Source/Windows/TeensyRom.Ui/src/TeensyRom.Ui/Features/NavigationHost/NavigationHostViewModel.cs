@@ -1,6 +1,5 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
-using TeensyRom.Ui.Features.FileTransfer;
 using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -36,17 +35,17 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, IAlertService alert, FileTransferViewModel fileTransfer, FilesViewModel files, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, ISerialPortState serialState)
+        public NavigationHostViewModel(INavigationService navStore, ISnackbarService alert, FilesViewModel files, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, ISerialPortState serialState)
         {
             _navService = navStore;
             _serialState = serialState;
             MessageQueue = alert.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
-            InitializeNavItems(fileTransfer, files, music, help, connect, settings);
+            InitializeNavItems(files, music, help, connect, settings);
         }     
 
-        public void InitializeNavItems(FileTransferViewModel fileTransfer, FilesViewModel files, MusicViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
+        public void InitializeNavItems(FilesViewModel files, MusicViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
         {
             _navService.Initialize(NavigationLocation.Connect, new List<NavigationItem>
             {

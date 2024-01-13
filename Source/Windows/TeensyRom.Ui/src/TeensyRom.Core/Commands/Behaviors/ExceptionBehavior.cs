@@ -1,9 +1,8 @@
 ﻿using MediatR;
 using TeensyRom.Core.Commands;
-using TeensyRom.Core.Commands.Behaviors;
 using TeensyRom.Core.Logging;
 
-public class ExceptionBehavior<TRequest, TResponse>(ICommandErrorService errorService) : IPipelineBehavior<TRequest, TResponse>
+public class ExceptionBehavior<TRequest, TResponse>(IAlertService alert) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
     where TResponse : CommandResult, new()
 {
@@ -16,7 +15,7 @@ public class ExceptionBehavior<TRequest, TResponse>(ICommandErrorService errorSe
         }
         catch (Exception ex)
         {
-            errorService.PublishError(ex.Message);
+            alert.Publish(ex.Message);
             return new TResponse
             {
                 IsSuccess = false,

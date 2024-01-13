@@ -48,12 +48,12 @@ namespace TeensyRom.Ui.Features.Files.State
         private readonly ICachedStorageService _storageService;
         private readonly ISettingsService _settingsService;
         private readonly IMediator _mediator;
-        private readonly IAlertService _alert;
+        private readonly ISnackbarService _alert;
         private TeensySettings _settings = new();
         private IDisposable _settingsSubscription;
         private int _skip => (_currentPage.Value - 1) * _pageSize.Value;
 
-        public FileState(ICachedStorageService storageService, ISettingsService settingsService, IMediator mediator, IAlertService alert)
+        public FileState(ICachedStorageService storageService, ISettingsService settingsService, IMediator mediator, ISnackbarService alert)
         {
             _storageService = storageService;
             _settingsService = settingsService;
