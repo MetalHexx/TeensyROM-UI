@@ -169,7 +169,7 @@ namespace TeensyRom.Core.Storage.Services
             var cacheItem = _storageCache.Get(path);
 
             if (cacheItem != null)
-            {
+            {                
                 return cacheItem;
             }
 
@@ -181,6 +181,7 @@ namespace TeensyRom.Core.Storage.Services
             if (response.DirectoryContent is null) return null;            
 
             cacheItem = SaveDirectoryToCache(response.DirectoryContent);
+            SaveCacheToDisk();
             return cacheItem;
         }
 
@@ -279,6 +280,8 @@ namespace TeensyRom.Core.Storage.Services
             var selection = _storageCache.SelectMany(c => c.Value.Files)
                 .Where(f => fileTypes.Contains(f.FileType))
                 .ToArray();
+
+            if (selection.Length == 0) return null;
 
             return selection[new Random().Next(selection.Length - 1)];
         }
