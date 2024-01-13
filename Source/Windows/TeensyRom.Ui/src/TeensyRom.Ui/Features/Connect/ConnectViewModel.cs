@@ -8,6 +8,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using TeensyRom.Core.Commands;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Ui.Helpers.ViewModel;
@@ -85,7 +86,7 @@ namespace TeensyRom.Ui.Features.Connect
                 .Subscribe(port => _serialPort.SetPort(port));
 
             _logsSubscription = _logService.Logs
-                .Select(log => _logBuilder.AppendLine(log))
+                .Select(log => _logBuilder.AppendLineRolling(log))
                 .Select(_ => _logBuilder.ToString())
                 .Subscribe(logs => 
                 {

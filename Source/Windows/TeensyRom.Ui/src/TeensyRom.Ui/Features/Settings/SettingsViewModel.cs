@@ -7,6 +7,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using System.Windows.Threading;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Helpers.ViewModel;
@@ -54,7 +55,7 @@ namespace TeensyRom.Ui.Features.Settings
 
             _logsSubscription = _logService.Logs
                 .Where(log => !string.IsNullOrWhiteSpace(log))
-                .Select(log => _logBuilder.AppendLine(log))
+                .Select(log => _logBuilder.AppendLineRolling(log))
                 .Select(_ => _logBuilder.ToString())
                 .Subscribe(logs =>
                 {
