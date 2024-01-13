@@ -11,6 +11,7 @@ namespace TeensyRom.Core.Storage.Services
         Task<StorageCacheItem?> GetDirectory(string path);
         Task<FileItem?> SaveFavorite(FileItem file);
         Task SaveFile(TeensyFileInfo fileInfo);
+        Task QueuedSaveFile(TeensyFileInfo fileInfo);
         Task DeleteFile(FileItem file, TeensyStorageType storageType);
         FileItem? GetRandomFile(params TeensyFileType[] fileTypes);
         IEnumerable<SongItem> SearchMusic(string searchText, int maxNumResults = 250);

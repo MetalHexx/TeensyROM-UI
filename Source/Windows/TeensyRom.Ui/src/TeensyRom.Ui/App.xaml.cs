@@ -5,6 +5,9 @@ using System.Windows;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Main;
 using System.Reflection;
+using TeensyRom.Core.Storage;
+using TeensyRom.Core.Settings;
+using System.Reactive.Threading.Tasks;
 
 namespace TeensyRom.Ui
 {
@@ -25,6 +28,7 @@ namespace TeensyRom.Ui
             var mainViewModel = _serviceProvider.GetRequiredService<NavigationHostViewModel>();
             mainWindow.DataContext = mainViewModel;
             mainWindow.Show();
+            _ = _serviceProvider.GetRequiredService<IFileWatchService>(); //triggers file watch service to construct and start
         }
     }
 }

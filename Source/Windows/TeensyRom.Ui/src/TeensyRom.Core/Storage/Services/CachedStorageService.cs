@@ -256,6 +256,22 @@ namespace TeensyRom.Core.Storage.Services
             _directoryUpdated.OnNext(storageItem.Path);
         }
 
+        public async Task QueuedSaveFile(TeensyFileInfo fileInfo)
+        {
+            var result = await _mediator.Send(new QueuedSaveFileCommand
+            {
+                File = fileInfo
+            });
+            if (!result.IsSuccess) return;
+
+            var storageItem = fileInfo.ToStorageItem();
+
+            if (storageItem is SongItem song) _metadataService.EnrichSong(song);
+            if (storageItem is FileItem file) _storageCache.UpsertFile(file);
+
+            _directoryUpdated.OnNext(storageItem.Path);
+        }
+
         public async Task DeleteFile(FileItem file, TeensyStorageType storageType)
         {
             await _mediator.Send(new DeleteFileCommand 
@@ -343,6 +359,6 @@ namespace TeensyRom.Core.Storage.Services
             }
             EnsureFavorites();
             SaveCacheToDisk();
-        }        
+        }
     }
 }

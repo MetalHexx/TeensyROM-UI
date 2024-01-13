@@ -11,19 +11,23 @@ namespace TeensyRom.Core.Commands.Behaviors
 {
     public interface ITeensyCommandExecutor
     {
-        Task Execute(Func<Task> action);
+        Task Execute(Func<Task> action, bool queued);
     }
 
-    public class TeensyCommandExecutor(IObservableSerialPort serialPort) : ITeensyCommandExecutor
+    public class TeensyCommandExecutor(IObservableSerialPort serialPort, IAlertService alert) : ITeensyCommandExecutor
     {
         private static readonly SemaphoreSlim _semaphore = new(1, 1);
         private readonly IObservableSerialPort _serialPort = serialPort;
+        private readonly IAlertService _alert = alert;
 
-        public async Task Execute(Func<Task> action)
+        public async Task Execute(Func<Task> action, bool queued)
         {
+
             if(_semaphore.CurrentCount == 0)
             {
-                throw new TeensyException("TR is busy with your previous command.  Try again soon.");
+                if(queued is false) throw new TeensyException("TR is busy with your previous command.  Try again soon.");
+
+                _alert.Publish("Teensy is busy with another operation, your command will be queued.");
             }
             await _semaphore.WaitAsync();
 
@@ -31,6 +35,7 @@ namespace TeensyRom.Core.Commands.Behaviors
             {
                 _serialPort.Lock();
                 await action();
+                Thread.Sleep(200); //To give TR a chance to be ready to for next command in case UI is spamming commands.
             }
             finally
             {

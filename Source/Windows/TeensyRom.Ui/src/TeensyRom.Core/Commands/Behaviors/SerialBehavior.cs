@@ -11,7 +11,7 @@ using TeensyRom.Core.Serial;
 /// </summary>
 public class SerialBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
-    where TResponse : CommandResult, new()
+    where TResponse : TeensyCommandResult, new()
 {
     private readonly ITeensyCommandExecutor _executor;
 
@@ -24,10 +24,13 @@ public class SerialBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, T
     {
         TResponse response = default!;
 
+        var shouldQueue = request is IQueuedTeensyCommand;
+
         await _executor.Execute(async () =>
         {
             response = await next();
-        });
+        }, shouldQueue);
+
         return response;
     }
 }
