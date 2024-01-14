@@ -101,7 +101,7 @@ namespace TeensyRom.Core.Serial
                 _log.InternalSuccess($"Successfully connected to {_serialPort.PortName}");
             }
             catch
-            {
+            {   
                 _log.InternalError($"Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
                 _isConnected.OnNext(false);
                 throw;
@@ -142,11 +142,13 @@ namespace TeensyRom.Core.Serial
                     if (!hasPorts)
                     {
                         _log.InternalError($"Failed to find connectable ports. Retrying in {SerialPortConstants.Health_Check_Milliseconds}.");
+                        _isRetryingConnection.OnNext(true);
                         return false;
                     }
                     else if (previousHasPorts == false && hasPorts)
                     {
                         _log.InternalSuccess("Successfully located connectable ports.");
+                        _isRetryingConnection.OnNext(false);
                         return true;
                     }
                     return true;
