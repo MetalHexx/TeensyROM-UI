@@ -43,6 +43,7 @@ namespace TeensyRom.Ui.Features.Connect
         private readonly IObservableSerialPort _serialPort;
         private readonly ILoggingService _logService;
         private readonly StringBuilder _logBuilder = new StringBuilder();
+        private readonly int _maxLogEntries = 10000;
 
         public ConnectViewModel(IMediator mediator, IObservableSerialPort serialPort, ILoggingService logService)
         {
@@ -83,8 +84,15 @@ namespace TeensyRom.Ui.Features.Connect
                 .Subscribe(port => _serialPort.SetPort(port));
 
             _logsSubscription = logService.Logs
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(Logs.Add);
+                .ObserveOn(RxApp.MainThreadScheduler)                
+                .Subscribe(logMessage =>
+                {
+                    Logs.Add(logMessage);
+                    if (Logs.Count > _maxLogEntries)
+                    {
+                        Logs.RemoveAt(0);
+                    }
+                });
         }
 
         public void Dispose()
