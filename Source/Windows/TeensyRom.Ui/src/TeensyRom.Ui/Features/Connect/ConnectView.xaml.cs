@@ -24,12 +24,6 @@ namespace TeensyRom.Ui.Features.Connect
         public ConnectView()
         {
             InitializeComponent();
-
-            DependencyPropertyDescriptor dpd = DependencyPropertyDescriptor.FromProperty(TextBox.TextProperty, typeof(TextBox));
-            if (dpd != null)
-            {
-                dpd.AddValueChanged(LogTextBox, (sender, args) => LogTextBox.ScrollToEnd());
-            }
         }
     }
 }

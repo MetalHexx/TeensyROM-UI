@@ -14,11 +14,11 @@ namespace TeensyRom.Core.Settings
         private BehaviorSubject<TeensySettings> _settings;
 
         private const string _settingsFilePath = "Settings.json";
-        private readonly ILoggingService _logService;
+        private readonly ILoggingService _log;
 
-        public SettingsService(ILoggingService logService)
+        public SettingsService(ILoggingService log)
         {
-            _logService = logService;
+            _log = log;
             _settings = new BehaviorSubject<TeensySettings>(GetSettings());
         }
 
@@ -51,7 +51,7 @@ namespace TeensyRom.Core.Settings
         {
             if (!ValidateAndLogSettings(settings)) return false;
 
-            _logService.Log($"Settings saved successfully.");
+            _log.InternalSuccess($"Settings saved successfully.");
             _settings.OnNext(settings with { });
 
             File.WriteAllText(_settingsFilePath, JsonConvert.SerializeObject(settings, Formatting.Indented, new JsonSerializerSettings
@@ -66,7 +66,7 @@ namespace TeensyRom.Core.Settings
         {
             if (!Directory.Exists(settings.WatchDirectoryLocation))
             {
-                _logService.Log($"The watch directory '{settings.WatchDirectoryLocation}' was not found.  Please go create it.");
+                _log.InternalError($"The watch directory '{settings.WatchDirectoryLocation}' was not found.  Please go create it.");
                 return false;
             }
             return true;

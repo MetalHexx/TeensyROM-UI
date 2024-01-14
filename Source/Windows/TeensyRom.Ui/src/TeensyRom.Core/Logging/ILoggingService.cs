@@ -1,8 +1,16 @@
-﻿namespace TeensyRom.Core.Logging
+﻿using System.Drawing;
+
+namespace TeensyRom.Core.Logging
 {
     public interface ILoggingService
     {
         IObservable<string> Logs { get; }
-        void Log(string message);
+
+        void External(string message);
+        void ExternalSuccess(string message);
+        void ExternalError(string message);
+        void Internal(string message);
+        void InternalError(string message);
+        void InternalSuccess(string message);
     }
 }

@@ -1,14 +1,14 @@
-﻿using MediatR;
+﻿using DynamicData;
+using MediatR;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using TeensyRom.Core.Commands;
-using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Ui.Helpers.ViewModel;
@@ -25,12 +25,10 @@ namespace TeensyRom.Ui.Features.Connect
 
         [ObservableAsProperty]
         public bool IsConnectable { get; }
+        public ObservableCollection<string> Logs { get; } = [];
 
         [Reactive]
-        public string SelectedPort { get; set; } = string.Empty;
-
-        [Reactive]
-        public string Logs { get; set; } = string.Empty;
+        public string SelectedPort { get; set; } = string.Empty;        
 
         public ReactiveCommand<Unit, Unit> ConnectCommand { get; set; }
         public ReactiveCommand<Unit, Unit> DisconnectCommand { get; set; }
@@ -72,8 +70,7 @@ namespace TeensyRom.Ui.Features.Connect
 
             ClearLogsCommand = ReactiveCommand.Create<Unit, Unit>(n =>
             {
-                Logs = string.Empty;
-                _logBuilder.Clear();
+                Logs.Clear();
                 return Unit.Default;
             }, outputScheduler: ImmediateScheduler.Instance);
 
@@ -85,13 +82,9 @@ namespace TeensyRom.Ui.Features.Connect
                 .Where(port => port != null)
                 .Subscribe(port => _serialPort.SetPort(port));
 
-            _logsSubscription = _logService.Logs
-                .Select(log => _logBuilder.AppendLineRolling(log))
-                .Select(_ => _logBuilder.ToString())
-                .Subscribe(logs => 
-                {
-                    Logs = logs;
-                });
+            _logsSubscription = logService.Logs
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(Logs.Add);
         }
 
         public void Dispose()

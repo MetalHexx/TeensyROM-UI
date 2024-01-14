@@ -22,16 +22,22 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
     {
         var requestType = typeof(TRequest).Name;
 
-        _logService.Log($"{requestType} Started {FormatRequest(request)}");
+        _logService.Internal($"{requestType} Started {LoggingBehavior<TRequest, TResponse>.FormatRequest(request)}");
 
         var response = await next();
 
-        _logService.Log($"{requestType} Completed {FormatResponse(response)}\r\n");
+        if (IsSuccess(response))
+        {
+            _logService.InternalSuccess($"{requestType} Completed {FormatResponse(response)}");
+            return response;
+        }
+            
+        _logService.InternalError($"{requestType} Completed {FormatResponse(response)}");
 
         return response;
     }
 
-    private string FormatRequest(TRequest request)
+    private static string FormatRequest(TRequest request)
     {
         var properties = request.GetType().GetProperties();
         var sb = new StringBuilder();
@@ -42,10 +48,12 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         {
             sb.AppendWithLimit($"=> {property.Name}: {property.GetValue(request)?.ToString() ?? "<null>"}\r\n");
         }
-        return $"\r\n{sb.ToString().TrimEnd(',', ' ')}";
+        return $"{sb.ToString().DropLastComma()}";
     }
 
     private string FormatResponse(TResponse response) => string.IsNullOrWhiteSpace(response.Error)
             ? "(Success)"
             : $"(Failure) => {response.Error}";
+
+    private bool IsSuccess(TResponse response) => string.IsNullOrWhiteSpace(response.Error);
 }

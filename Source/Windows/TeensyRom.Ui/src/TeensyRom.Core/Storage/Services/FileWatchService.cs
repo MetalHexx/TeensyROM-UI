@@ -58,7 +58,7 @@ namespace TeensyRom.Core.Storage
                 .WithLatestFrom(_serialState.IsConnected, (f, c) => new { File = f, IsConnected = c })
                 .Where(fc => fc.IsConnected && settings.AutoFileCopyEnabled)
                 .Select(fc => new TeensyFileInfo(fc.File))
-                .Do(fileInfo => _logService.Log($"File detected: {fileInfo.FullPath}"))
+                .Do(fileInfo => _logService.Internal($"File detected: {fileInfo.FullPath}"))
                 .Subscribe(async fileInfo => await _storageService.QueuedSaveFile(fileInfo));
         }
 
