@@ -228,7 +228,8 @@ namespace TeensyRom.Core.Serial
         {
             var bytesToSend = BitConverter.GetBytes(intToSend);
 
-            _log.Internal($"Sent Bytes: {BitConverter.ToString(bytesToSend)}");
+            //TODO: Add verbose option.
+            //_log.Internal($"Sent Bytes: {BitConverter.ToString(bytesToSend)}");
 
             for (short byteNum = (short)(byteLength - 1); byteNum >= 0; byteNum--)
             {
