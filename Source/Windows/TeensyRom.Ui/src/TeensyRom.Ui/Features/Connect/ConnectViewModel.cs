@@ -43,7 +43,7 @@ namespace TeensyRom.Ui.Features.Connect
         private readonly IObservableSerialPort _serialPort;
         private readonly ILoggingService _logService;
         private readonly StringBuilder _logBuilder = new StringBuilder();
-        private readonly int _maxLogEntries = 10000;
+        private readonly int _maxLogEntries = 1000;
 
         public ConnectViewModel(IMediator mediator, IObservableSerialPort serialPort, ILoggingService logService)
         {
