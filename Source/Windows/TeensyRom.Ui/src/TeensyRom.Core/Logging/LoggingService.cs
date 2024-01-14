@@ -11,34 +11,23 @@ namespace TeensyRom.Core.Logging
         public IObservable<string> Logs => _logs.AsObservable();
         protected Subject<string> _logs = new();
 
-        public void Log(string message)
+        public void Log(string message, string hExColor)
         {
             var sb = new StringBuilder();
 
             _logs.OnNext(message
-                .SplitAtNewlines()
+                .SplitAtCarriageReturn()
+                .Select(line => line.WithColor(hExColor))
                 .Aggregate(sb, (acc, line) => acc.AppendWithLimit(line))
                 .ToString()
                 .DropLastNewLine());
         }
 
-        public void Log(string message, Color color)
-        {
-            var sb = new StringBuilder();
-
-            _logs.OnNext(message
-                .SplitAtNewlines()
-                .Select(line => line.WithColor(color))
-                .Aggregate(sb, (acc, line) => acc.AppendWithLimit(line))
-                .ToString()
-                .DropLastNewLine());
-        }
-
-        public void Internal(string message) => Log(message, Color.Yellow);
-        public void InternalSuccess(string message) => Log(message, Color.Magenta);
-        public void InternalError(string message) => Log(message, Color.Cyan);
-        public void External(string message) => Log($"TR: {message}", Color.SkyBlue);
-        public void ExternalSuccess(string message) => Log($"TR: {message}", Color.Green);
-        public void ExternalError(string message) => Log($"TR: {message}", Color.Red);
+        public void Internal(string message) => Log(message, "#b39ddb"); //lavendar
+        public void InternalSuccess(string message) => Log(message, "#86c691"); //green
+        public void InternalError(string message) => Log(message, "#cc666c"); //soft red
+        public void External(string message) => Log($"[TR]: {message}", "#7FDBD6"); //teensy blue
+        public void ExternalSuccess(string message) => Log($"[TR]: {message}", "#86c691"); //green
+        public void ExternalError(string message) => Log($"[TR]: {message}", "#cc666c"); //soft red
     }
 }

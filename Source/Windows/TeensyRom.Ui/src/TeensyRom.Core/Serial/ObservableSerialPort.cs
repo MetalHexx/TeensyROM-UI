@@ -220,7 +220,7 @@ namespace TeensyRom.Core.Serial
 
             if (string.IsNullOrWhiteSpace(dataString)) return string.Empty;
 
-            _log.External($"(ASCII): {dataString} ");
+            _log.External($"{dataString}");
             return dataString;
         }
 

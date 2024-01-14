@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Newtonsoft.Json;
 using System.IO;
+using System.Net.WebSockets;
 using System.Reactive.Linq;
 using System.Text;
 using TeensyRom.Core.Common;
@@ -15,11 +16,13 @@ namespace TeensyRom.Core.Commands
     {
         private TeensySettings _settings;
         private readonly IObservableSerialPort _serialPort;
+        private readonly ILoggingService _log;
 
-        public GetDirectoryRecursiveHandler(IObservableSerialPort serialPort, ISettingsService settings)
+        public GetDirectoryRecursiveHandler(IObservableSerialPort serialPort, ISettingsService settings, ILoggingService log)
         {
             settings.Settings.Take(1).Subscribe(s => _settings = s);
             _serialPort = serialPort;
+            _log = log;
         }
 
         public Task<GetDirectoryRecursiveResult> Handle(GetDirectoryRecursiveCommand r, CancellationToken x)
@@ -27,13 +30,16 @@ namespace TeensyRom.Core.Commands
             return Task.Run(() =>
             {
                 var result = new GetDirectoryRecursiveResult();
-                GetDirectoryContent(r.Path, result);
+                StringBuilder sb = new();
+                GetDirectoryContent(r.Path, result, sb);                
                 return result;
             }, x);
         }
 
-        private void GetDirectoryContent(string path, GetDirectoryRecursiveResult result)
-        {
+        private void GetDirectoryContent(string path, GetDirectoryRecursiveResult result, StringBuilder directoryLogs)
+        {            
+            Log($"=> Fetching: {path}", directoryLogs);
+
             DirectoryContent? directoryContent;
 
             _serialPort.SendIntBytes(TeensyToken.ListDirectory, 2);
@@ -58,11 +64,22 @@ namespace TeensyRom.Core.Commands
             }
             directoryContent.Path = path;
 
-            result.DirectoryContent.Add(directoryContent);
+            result.DirectoryContent.Add(directoryContent);                        
 
-            foreach(var directory in directoryContent.Directories)
+            foreach (var directory in directoryContent.Directories)
             {
-                GetDirectoryContent(directory.Path, result);
+                GetDirectoryContent(directory.Path, result, directoryLogs);
+            }
+        }
+
+        private void Log(string path, StringBuilder directoryLogs)
+        {
+            directoryLogs.AppendLine(path);
+
+            if (directoryLogs.Length > 2000)
+            {
+                _log.Internal(directoryLogs.ToString());
+                directoryLogs.Clear();
             }
         }
 

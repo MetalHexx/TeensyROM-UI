@@ -10,7 +10,7 @@ namespace TeensyRom.Core.Common
 {
     public static class StringExtensions
     {
-        public static List<string> SplitAtNewlines(this string message)
+        public static List<string> SplitAtCarriageReturn(this string message)
         {
             string[] delimiters = ["\r\n", "\n", "\r"];
             string[] parts = message.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
