@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -24,11 +25,15 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
         _logService.Internal($"{requestType} Started {LoggingBehavior<TRequest, TResponse>.FormatRequest(request)}");
 
+        var sw = Stopwatch.StartNew(); 
+
         var response = await next();
+
+        sw.Stop();
 
         if (IsSuccess(response))
         {
-            _logService.InternalSuccess($"{requestType} Completed {FormatResponse(response)}");
+            _logService.InternalSuccess($"{requestType} Completed in {sw.ElapsedMilliseconds}ms {FormatResponse(response)}");
             return response;
         }
             
