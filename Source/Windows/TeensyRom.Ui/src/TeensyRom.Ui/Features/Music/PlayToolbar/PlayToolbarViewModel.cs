@@ -5,6 +5,7 @@ using System;
 using System.Reactive;
 using System.Reactive.Linq;
 using TeensyRom.Core.Commands.File.LaunchFile;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Music.State;
@@ -26,6 +27,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
         public  ReactiveCommand<Unit, Unit>  NextCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ToggleShuffleCommand { get; set; }
         public ReactiveCommand<Unit, bool> FavoriteCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> NavigateToSongDirCommand { get; set; }        
 
         private readonly IMusicState _musicState;
 
@@ -65,6 +67,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
             PreviousCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandlePreviousCommand());
             ToggleShuffleCommand = ReactiveCommand.Create<Unit, Unit>(_ => musicState.ToggleShuffleMode());
             FavoriteCommand = ReactiveCommand.CreateFromTask(_ => musicState.SaveFavorite(Song!));
+            NavigateToSongDirCommand = ReactiveCommand.CreateFromTask(_ => musicState.LoadDirectory(Song!.Path.GetUnixParentPath()!));
         }
 
         private Unit HandlePreviousCommand()

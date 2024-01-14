@@ -62,9 +62,20 @@
             </StackPanel>
 
             <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="30 3 0 0">
-                <TextBlock FontFamily="Arial" FontSize="18" Text="{Binding Song.SongName, Mode=OneWay}" VerticalAlignment="Center"/>
-                <StackPanel Orientation="Horizontal" Margin="0 5 10 0">
-                    
+                <Button
+                    Content="{Binding Song.SongName, Mode=OneWay}"
+                    Command="{Binding NavigateToSongDirCommand}"
+                    HorizontalContentAlignment="Left"
+                    ToolTip="Navigate to the song directory"
+                    FontFamily="Arial" FontSize="18"
+                    Foreground="White"
+                    Style="{StaticResource MaterialDesignFlatButton}"
+                    Padding="5 0 5 0"
+                    Margin="0 0 0 -7"                    
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Left">
+                </Button>
+                <StackPanel Orientation="Horizontal" Margin="5 5 10 0">
                     <TextBlock FontFamily="Arial" Text="{Binding Song.ArtistName, Mode=OneWay}" VerticalAlignment="Center"/>
                     <TextBlock FontFamily="Arial" Text="•" VerticalAlignment="Center" Margin="10 0 10 0"/>
                     <TextBlock FontFamily="Arial" Text="{Binding Song.ReleaseInfo, Mode=OneWay}" VerticalAlignment="Center"/>
