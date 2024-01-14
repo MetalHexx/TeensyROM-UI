@@ -7,20 +7,6 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <UserControl.Resources>
-        <Style x:Key="ShuffleModeButtonStyle" TargetType="Button" BasedOn="{StaticResource PlaybarPrevSkipButton}">
-            <Style.Triggers>
-
-                <DataTrigger Binding="{Binding ShuffleModeEnabled}" Value="True">
-                    <Setter Property="Foreground" Value="{StaticResource EnabledColor}"/>
-                </DataTrigger>
-                
-                <DataTrigger Binding="{Binding ShuffleModeEnabled}" Value="False">
-                    <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>

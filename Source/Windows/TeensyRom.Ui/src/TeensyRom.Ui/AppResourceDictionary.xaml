@@ -46,6 +46,22 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="ShuffleModeButtonStyle" TargetType="Button" BasedOn="{StaticResource PlaybarPrevSkipButton}">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="10"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Width" Value="30"/>
+        <Style.Triggers> 
+            <DataTrigger Binding="{Binding ShuffleModeEnabled}" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource EnabledColor}"/>
+            </DataTrigger>
+
+            <DataTrigger Binding="{Binding ShuffleModeEnabled}" Value="False">
+                <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="StorageIconButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
 
         <Setter Property="Padding" Value="0"/>
