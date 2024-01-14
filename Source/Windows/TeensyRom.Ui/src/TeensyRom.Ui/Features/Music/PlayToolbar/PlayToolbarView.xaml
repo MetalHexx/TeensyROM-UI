@@ -78,22 +78,37 @@
             <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="30 3 0 0">
                 <TextBlock FontFamily="Arial" FontSize="18" Text="{Binding Song.SongName, Mode=OneWay}" VerticalAlignment="Center"/>
                 <StackPanel Orientation="Horizontal" Margin="0 5 10 0">
+                    
                     <TextBlock FontFamily="Arial" Text="{Binding Song.ArtistName, Mode=OneWay}" VerticalAlignment="Center"/>
                     <TextBlock FontFamily="Arial" Text="•" VerticalAlignment="Center" Margin="10 0 10 0"/>
                     <TextBlock FontFamily="Arial" Text="{Binding Song.ReleaseInfo, Mode=OneWay}" VerticalAlignment="Center"/>
                 </StackPanel>
             </StackPanel>
 
-            <Button x:Name="ShuffleModeButton"
-                Grid.Column="2"
-                Command="{Binding ToggleShuffleCommand}"  
-                ToolTip="Enable Shuffle Mode. This will play songs across your entire music collection if it's been cached."
-                Style="{StaticResource ShuffleModeButtonStyle}"
-                HorizontalAlignment="Right" 
-                VerticalAlignment="Top" 
+            <StackPanel 
+                Grid.Column="2" 
+                Orientation="Horizontal"
+                HorizontalAlignment="Right" VerticalAlignment="Top" 
                 Margin="10 0 10 0">
-                <materialDesign:PackIcon Kind="Shuffle"/>
-            </Button>
+
+                <Button x:Name="FavoriteButton"
+                    Command="{Binding FavoriteCommand}"  
+                    IsEnabled="{Binding Song.IsFavorite, Converter={StaticResource BooleanInverterConverter}, Mode=OneWay}"
+                    ToolTip="Add to favorites"
+                    Style="{StaticResource StorageIconButton}"    >
+                    <materialDesign:PackIcon Kind="heart"/>
+                </Button>
+
+                <Button x:Name="ShuffleModeButton"
+                    Command="{Binding ToggleShuffleCommand}"  
+                    ToolTip="Enable Shuffle Mode. This will play songs across your entire music collection if it's been cached."
+                    Style="{StaticResource ShuffleModeButtonStyle}"    >
+                    <materialDesign:PackIcon Kind="Shuffle"/>
+                </Button>
+
+            </StackPanel>
+
+            
         </Grid>
     </Grid>
 </UserControl>

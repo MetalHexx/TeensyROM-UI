@@ -25,6 +25,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
         public  ReactiveCommand<Unit, Unit>  PreviousCommand { get; set; }
         public  ReactiveCommand<Unit, Unit>  NextCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ToggleShuffleCommand { get; set; }
+        public ReactiveCommand<Unit, bool> FavoriteCommand { get; set; }
 
         private readonly IMusicState _musicState;
 
@@ -63,6 +64,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
             NextCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleNextCommand());
             PreviousCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandlePreviousCommand());
             ToggleShuffleCommand = ReactiveCommand.Create<Unit, Unit>(_ => musicState.ToggleShuffleMode());
+            FavoriteCommand = ReactiveCommand.CreateFromTask(_ => musicState.SaveFavorite(Song!));
         }
 
         private Unit HandlePreviousCommand()
