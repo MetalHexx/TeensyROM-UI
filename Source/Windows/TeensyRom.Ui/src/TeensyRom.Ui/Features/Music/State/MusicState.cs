@@ -76,7 +76,7 @@ namespace TeensyRom.Ui.Features.Music.State
                 .Where(path => path.Equals(_currentDirectory.Value?.Path))
                 .Subscribe(async _ => await RefreshDirectory(bustCache: false));
 
-            _programLaunchedSubscription = globalState.ProgramLaunched
+            _programLaunchedSubscription = globalState.FileViewLaunched
                 .WithLatestFrom(_playState, (file, playState) => playState)
                 .Where(playState => playState == PlayState.Playing)
                 .Subscribe(async _ => await ToggleMusic());

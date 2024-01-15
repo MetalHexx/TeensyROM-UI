@@ -14,11 +14,11 @@ namespace TeensyRom.Ui.Features.Global
 {
     public interface IGlobalState
     {
-        IObservable<FileItem> ProgramLaunched { get; }
+        IObservable<FileItem> FileViewLaunched { get; }
     }
 
     public class GlobalState(IFileState fileState) : IGlobalState
     {
-        public IObservable<FileItem> ProgramLaunched => fileState.ProgramLaunched;
+        public IObservable<FileItem> FileViewLaunched => fileState.FileViewLaunch;
     }
 }

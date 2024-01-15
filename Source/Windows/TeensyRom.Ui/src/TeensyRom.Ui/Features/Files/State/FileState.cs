@@ -33,7 +33,7 @@ namespace TeensyRom.Ui.Features.Files.State
         public IObservable<int> TotalPages => _totalPages.AsObservable();
         public IObservable<int> PageSize => _pageSize.AsObservable();
         public IObservable<bool> PagingEnabled => _pagingEnabled.AsObservable();
-        public IObservable<FileItem> ProgramLaunched => _programLaunched.AsObservable();
+        public IObservable<FileItem> FileViewLaunch => _programLaunched.AsObservable();
 
         private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
         private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
@@ -206,8 +206,7 @@ namespace TeensyRom.Ui.Features.Files.State
 
         public Task LaunchFile(FileItem file)
         {
-            if(file is not SongItem) _programLaunched.OnNext(file.Clone());
-
+            _programLaunched.OnNext(file.Clone());
             return _mediator.Send(new LaunchFileCommand { Path = file.Path });
         }
 
