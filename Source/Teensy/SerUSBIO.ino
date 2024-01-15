@@ -402,9 +402,9 @@ FLASHMEM void LaunchFile()
    char FileNamePath[MaxNamePathLength];
    if (ReceiveFileName(&SD_nUSB, FileNamePath))
    {
-      RemoteLaunch(SD_nUSB !=0 , FileNamePath);
       SendU16(AckToken);
-   }
+      RemoteLaunch(SD_nUSB !=0 , FileNamePath);  //somewhere here, the "Resetting C64"
+   }   
 }
 
 FLASHMEM bool ReceiveFileName(uint32_t *SD_nUSB, char *FileNamePath)
