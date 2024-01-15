@@ -29,6 +29,7 @@ using TeensyRom.Core.Commands.Behaviors;
 using TeensyRom.Ui.Features.Music.Search;
 using TeensyRom.Ui.Features.Files.Search;
 using TeensyRom.Ui.Services;
+using TeensyRom.Ui.Features.Global;
 
 namespace TeensyRom.Ui
 {
@@ -50,6 +51,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<ILaunchHistory,  LaunchHistory>();
             services.AddSingleton<IMusicState, MusicState>();
             services.AddSingleton<IFileState, FileState>();
+            services.AddSingleton<IGlobalState, GlobalState>();
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
             services.AddSingleton<ICachedStorageService, CachedStorageService>();
             services.AddSingleton<NavigationHostViewModel>();

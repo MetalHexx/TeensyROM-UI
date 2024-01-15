@@ -23,6 +23,7 @@ using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
+using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Music.State
@@ -50,11 +51,13 @@ namespace TeensyRom.Ui.Features.Music.State
         private readonly ILaunchHistory _launchHistory;
         private readonly ISnackbarService _alert;
         private TeensySettings _settings = new();
-        private IDisposable? _playingSongSubscription;
         private TimeSpan? _currentTime;
+        private IDisposable? _playingSongSubscription;
+        private IDisposable _programLaunchedSubscription;
+        
         private IDisposable _currentTimeSubscription;
 
-        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService musicService, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert)
+        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService musicService, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, IGlobalState globalState)
         {
             _songTime = songTime;
             _mediator = mediator;
@@ -72,6 +75,11 @@ namespace TeensyRom.Ui.Features.Music.State
             musicService.DirectoryUpdated
                 .Where(path => path.Equals(_currentDirectory.Value?.Path))
                 .Subscribe(async _ => await RefreshDirectory(bustCache: false));
+
+            _programLaunchedSubscription = globalState.ProgramLaunched
+                .WithLatestFrom(_playState, (file, playState) => playState)
+                .Where(playState => playState == PlayState.Playing)
+                .Subscribe(async _ => await ToggleMusic());
         }        
 
         private void OnSettingsChanged(TeensySettings settings)
@@ -179,8 +187,9 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public async Task ToggleMusic()
         {
-            TogglePlayState();
-            await _mediator.Send(new ToggleMusicCommand());
+            var result = await _mediator.Send(new ToggleMusicCommand());
+            if (!result.IsSuccess) return;
+            TogglePlayState();            
         }
 
         private PlayState TogglePlayState()
@@ -325,12 +334,6 @@ namespace TeensyRom.Ui.Features.Music.State
                 ? PlayState.Paused
                 : PlayState.Playing;
 
-        public void Dispose()
-        {
-            _currentTimeSubscription?.Dispose();
-            _playingSongSubscription?.Dispose();
-        }
-
         public async Task RefreshDirectory(bool bustCache = true)
         {
             if (_currentDirectory.Value is null) return;
@@ -383,6 +386,12 @@ namespace TeensyRom.Ui.Features.Music.State
         public async Task CacheAll()
         {
             await _musicService.CacheAll();
+        }
+        public void Dispose()
+        {
+            _currentTimeSubscription?.Dispose();
+            _playingSongSubscription?.Dispose();
+            _programLaunchedSubscription?.Dispose();
         }
     }
 }

@@ -26,13 +26,14 @@ using TeensyRom.Ui.Services;
 namespace TeensyRom.Ui.Features.Files.State
 {
     public class FileState : IFileState, IDisposable
-    {
+    {   
         public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryTree.AsObservable();
         public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
         public IObservable<int> CurrentPage => _currentPage.AsObservable();
         public IObservable<int> TotalPages => _totalPages.AsObservable();
         public IObservable<int> PageSize => _pageSize.AsObservable();
         public IObservable<bool> PagingEnabled => _pagingEnabled.AsObservable();
+        public IObservable<FileItem> ProgramLaunched => _programLaunched.AsObservable();
 
         private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
         private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
@@ -44,6 +45,7 @@ namespace TeensyRom.Ui.Features.Files.State
         private readonly BehaviorSubject<int> _totalPages = new(1);
         private readonly BehaviorSubject<int> _pageSize = new(250);
         private readonly BehaviorSubject<bool> _pagingEnabled = new(false);
+        private Subject<FileItem> _programLaunched = new();
 
         private readonly ICachedStorageService _storageService;
         private readonly ISettingsService _settingsService;
@@ -202,7 +204,12 @@ namespace TeensyRom.Ui.Features.Files.State
             _settingsSubscription?.Dispose();
         }
 
-        public Task LaunchFile(FileItem file) => _mediator.Send(new LaunchFileCommand { Path = file.Path });
+        public Task LaunchFile(FileItem file)
+        {
+            if(file is not SongItem) _programLaunched.OnNext(file.Clone());
+
+            return _mediator.Send(new LaunchFileCommand { Path = file.Path });
+        }
 
         public async Task SaveFavorite(FileItem file)
         {
