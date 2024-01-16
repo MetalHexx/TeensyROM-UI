@@ -1,8 +1,11 @@
 ﻿using DynamicData;
+using DynamicData.Kernel;
 using MediatR;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Concurrency;
@@ -16,85 +19,81 @@ using TeensyRom.Ui.Helpers.ViewModel;
 
 namespace TeensyRom.Ui.Features.Connect
 {
-    public class ConnectViewModel: FeatureViewModelBase, IDisposable
+    public class ConnectViewModel: FeatureViewModelBase
     {
+        [ObservableAsProperty] public string[]? Ports { get; }
         [Reactive] public bool IsConnected { get; set; }
-
         [Reactive] public bool IsConnectable { get; set; }
         [Reactive] public string SelectedPort { get; set; } = string.Empty;
-
-        [ObservableAsProperty] public string[]? Ports { get; }
-        public ObservableCollection<string> Logs { get; } = [];
-
         public ReactiveCommand<Unit, Unit> ConnectCommand { get; set; }
         public ReactiveCommand<Unit, Unit> DisconnectCommand { get; set; }
         public ReactiveCommand<Unit, PingResult> PingCommand { get; set; }
         public ReactiveCommand<Unit, ResetResult> ResetCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ClearLogsCommand { get; set; }
+        public ObservableCollection<string> Logs { get; } = [];
 
-        private readonly IDisposable? _portsSubscription;
-        private readonly IDisposable? _selectedPortSubscription;
-        private readonly IDisposable? _logsSubscription;
-        private readonly IMediator _mediator;
-        private readonly ILoggingService _logService;
-        private readonly StringBuilder _logBuilder = new StringBuilder();
-        private readonly int _maxLogEntries = 1000;
-
-        public ConnectViewModel(IMediator mediator, ISerialStateContext serialState, ILoggingService logService)
+        public ConnectViewModel(IMediator m, ISerialStateContext serial, ILoggingService logService)
         {
             FeatureTitle = "Manage Connection";
 
-            _mediator = mediator;
-            _logService = logService;
-            serialState.Ports.ToPropertyEx(this, vm => vm.Ports);
+            serial.Ports.ToPropertyEx(this, vm => vm.Ports);
 
-            serialState.WhenAnyValue(x => x.CurrentState).Subscribe(state =>
-            {
-                IsConnected = state is SerialConnectedState;
-                IsConnectable = state is SerialConnectableState;
-            });
-
-            ConnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                serialState.OpenPort(), outputScheduler: ImmediateScheduler.Instance);
-
-            DisconnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                serialState.ClosePort(), outputScheduler: ImmediateScheduler.Instance);
-
-            PingCommand = ReactiveCommand.CreateFromTask(() => _mediator.Send(new PingCommand()), outputScheduler: RxApp.MainThreadScheduler);
-
-            ResetCommand = ReactiveCommand.CreateFromTask(n =>_mediator.Send(new ResetCommand()), outputScheduler: ImmediateScheduler.Instance);
-
-            ClearLogsCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-            {
-                Logs.Clear();
-                return Unit.Default;
-            }, outputScheduler: ImmediateScheduler.Instance);
-
-            _portsSubscription = serialState.Ports
+            serial.Ports
                 .Where(ports => ports.Length > 0)
                 .Subscribe(ports => SelectedPort = ports.First());
 
-            _selectedPortSubscription = this.WhenAnyValue(x => x.SelectedPort)
+            this.WhenAnyValue(x => x.SelectedPort)
                 .Where(port => port != null)
-                .Subscribe(port => serialState.SetPort(port));
+                .Subscribe(port => serial.SetPort(port));
 
-            _logsSubscription = logService.Logs
-                .ObserveOn(RxApp.MainThreadScheduler)                
+            ConnectCommand = ReactiveCommand.Create<Unit, Unit>(
+                execute: n => serial.OpenPort(),
+                canExecute: this.WhenAnyValue(x => x.IsConnectable),
+                outputScheduler: ImmediateScheduler.Instance);
+
+            DisconnectCommand = ReactiveCommand.Create<Unit, Unit>(
+                execute: n => serial.ClosePort(),
+                canExecute: this.WhenAnyValue(x => x.IsConnected),
+                outputScheduler: ImmediateScheduler.Instance);
+
+            PingCommand = ReactiveCommand.CreateFromTask(
+                execute: () => m.Send(new PingCommand()),
+                canExecute: this.WhenAnyValue(x => x.IsConnected),
+                outputScheduler: ImmediateScheduler.Instance);
+
+            ResetCommand = ReactiveCommand.CreateFromTask(
+                execute: () => m.Send(new ResetCommand()), 
+                canExecute: this.WhenAnyValue(x => x.IsConnected),
+                outputScheduler: ImmediateScheduler.Instance);
+
+            ClearLogsCommand = ReactiveCommand.Create<Unit, Unit>(
+                execute: _ =>
+                {
+                    Logs.Clear();
+                    return Unit.Default;
+                },
+                outputScheduler: ImmediateScheduler.Instance);
+
+            serial
+                .WhenAnyValue(x => x.CurrentState)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(state =>
+                {
+                    IsConnected = state is SerialConnectedState;
+                    IsConnectable = state is SerialConnectableState;
+                });
+
+            logService.Logs
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(logMessage =>
                 {
                     Logs.Add(logMessage);
-                    if (Logs.Count > _maxLogEntries)
+
+                    if (Logs.Count > 1000)
                     {
                         Logs.RemoveAt(0);
                     }
                 });
-        }
-
-        public void Dispose()
-        {
-            _portsSubscription?.Dispose();
-            _selectedPortSubscription?.Dispose();
-            _logsSubscription?.Dispose();
         }
     }
 }
