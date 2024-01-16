@@ -32,7 +32,6 @@ namespace TeensyRom.Core.Serial
         protected readonly ILoggingService _log;
         private readonly ISerialStateContext _serialState;
         public int BytesToRead => _serialPort.BytesToRead;
-        public string[] GetPortNames() => SerialPort.GetPortNames();
         public void Write(string text) => _serialPort.Write(text);
         public void Write(byte[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);
         public void Write(char[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);

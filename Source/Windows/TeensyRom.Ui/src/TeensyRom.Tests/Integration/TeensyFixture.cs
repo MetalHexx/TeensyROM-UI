@@ -55,17 +55,15 @@ namespace TeensyRom.Tests.Integration
             Mediator = _serviceProvider.GetRequiredService<IMediator>();
             LogService = _serviceProvider.GetRequiredService<ILoggingService>();
             SerialPort = _serviceProvider.GetRequiredService<IObservableSerialPort>();
-            SerialState = _serviceProvider.GetRequiredService<ISerialPortState>();
             SettingsService = _serviceProvider.GetRequiredService<ISettingsService>();
             FileWatcher = _serviceProvider.GetRequiredService<IFileWatcher>();
             FileWatchService = _serviceProvider.GetRequiredService<IFileWatchService>();
-            FileTransferViewModel = _serviceProvider.GetRequiredService<FileTransferViewModel>();
             ConnectViewModel = _serviceProvider.GetRequiredService<ConnectViewModel>();
             SettingsViewModel = _serviceProvider.GetRequiredService<SettingsViewModel>();
             
             if (initOpenPort)
             {
-                SerialPort.SetPort(SerialPort.GetPortNames().First());
+                SerialPort.SetPort(System.IO.Ports.SerialPort.GetPortNames().First());
                 SerialPort.OpenPort();
             }
         }
