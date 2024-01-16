@@ -8,6 +8,7 @@ using System.Reflection;
 using TeensyRom.Core.Storage;
 using TeensyRom.Core.Settings;
 using System.Reactive.Threading.Tasks;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Ui
 {

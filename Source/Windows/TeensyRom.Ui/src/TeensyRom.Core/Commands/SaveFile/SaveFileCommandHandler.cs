@@ -2,6 +2,7 @@
 using System.Reactive.Linq;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
@@ -10,28 +11,28 @@ namespace TeensyRom.Core.Commands
     public class SaveFileCommandHandler : IRequestHandler<SaveFileCommand, SaveFileResult>
     {
         private TeensySettings _settings;
-        private readonly IObservableSerialPort _serialPort;
+        private readonly ISerialStateContext _serialState;
 
-        public SaveFileCommandHandler(IObservableSerialPort serialPort, ISettingsService settings)
+        public SaveFileCommandHandler(ISerialStateContext serialState, ISettingsService settings)
         {
             settings.Settings.Take(1).Subscribe(s => _settings = s);
-            _serialPort = serialPort;
+            _serialState = serialState;
         }
 
         public Task<SaveFileResult> Handle(SaveFileCommand r, CancellationToken cancellationToken)
         {
             TransformDestination(r.File);
 
-            _serialPort.SendIntBytes(TeensyToken.SendFile, 2);
+            _serialState.SendIntBytes(TeensyToken.SendFile, 2);
 
-            _serialPort.WaitForSerialData(numBytes: 2, timeoutMs: 500);
+            _serialState.WaitForSerialData(numBytes: 2, timeoutMs: 500);
 
-            _serialPort.HandleAck();
-            _serialPort.SendIntBytes(r.File.StreamLength, 4);
-            _serialPort.SendIntBytes(r.File.Checksum, 2);
-            _serialPort.SendIntBytes(r.File.StorageType.GetStorageToken(), 1);
-            _serialPort.Write($"{r.File.TargetPath.UnixPathCombine(r.File.Name)}\0");
-            _serialPort.HandleAck();
+            _serialState.HandleAck();
+            _serialState.SendIntBytes(r.File.StreamLength, 4);
+            _serialState.SendIntBytes(r.File.Checksum, 2);
+            _serialState.SendIntBytes(r.File.StorageType.GetStorageToken(), 1);
+            _serialState.Write($"{r.File.TargetPath.UnixPathCombine(r.File.Name)}\0");
+            _serialState.HandleAck();
 
             var bytesSent = 0;
 
@@ -39,11 +40,11 @@ namespace TeensyRom.Core.Commands
             {
                 var bytesToSend = 16 * 1024;
                 if (r.File.StreamLength - bytesSent < bytesToSend) bytesToSend = (int)r.File.StreamLength - bytesSent;
-                _serialPort.Write(r.File.Buffer, bytesSent, bytesToSend);
+                _serialState.Write(r.File.Buffer, bytesSent, bytesToSend);
 
                 bytesSent += bytesToSend;
             }
-            _serialPort.HandleAck();
+            _serialState.HandleAck();
             return Task.FromResult(new SaveFileResult());
         }
 

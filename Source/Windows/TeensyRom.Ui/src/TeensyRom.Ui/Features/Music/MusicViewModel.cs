@@ -8,6 +8,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
@@ -35,7 +36,7 @@ namespace TeensyRom.Ui.Features.Music
         public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
         public ReactiveCommand<Unit, Unit> CacheAllCommand { get; set; }
 
-        public MusicViewModel(IMusicState musicState, ISerialPortState serialState, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList, SearchMusicViewModel search)
+        public MusicViewModel(IMusicState musicState, ISerialStateContext serialState, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList, SearchMusicViewModel search)
         {
             FeatureTitle = "Music";
             _musicState = musicState;
@@ -50,8 +51,8 @@ namespace TeensyRom.Ui.Features.Music
             PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.PlayRandom());
             CacheAllCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.CacheAll());
 
-            serialState.IsConnected
-                .Where(isConnected => isConnected is true)
+            settings.Settings
+                .Where(_ => serialState.CurrentState is SerialConnectedState)
                 .CombineLatest(settings.Settings, (isConnected, settings) => settings)
                 .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
                 .Where(sn => sn.currentNav?.Type == NavigationLocation.Music)

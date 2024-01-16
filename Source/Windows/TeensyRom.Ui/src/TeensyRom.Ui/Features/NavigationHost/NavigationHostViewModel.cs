@@ -14,6 +14,7 @@ using TeensyRom.Core.Storage;
 using TeensyRom.Ui.Features.Files;
 using TeensyRom.Core.Serial;
 using TeensyRom.Ui.Services;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -22,7 +23,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
         [ObservableAsProperty] public object CurrentViewModel { get; }
         [ObservableAsProperty] public object NavigationItems { get; }
         [ObservableAsProperty] public bool IsNavOpen { get; }
-        [ObservableAsProperty] public bool SerialBusy { get; }
+        [Reactive] public bool SerialBusy { get; set; }
         [Reactive] public string Title { get; set; } = "TeensyROM";
         //TODO: Track down why I need this property.  I had to put this here to stop a bunch of errors from throwing in the output window.
         [Reactive] public bool ControlsEnabled { get; set; }
@@ -31,11 +32,11 @@ namespace TeensyRom.Ui.Features.NavigationHost
         public ReactiveCommand<Unit, Unit> ToggleNavCommand { get; private set; }
 
         private readonly INavigationService _navService;
-        private readonly ISerialPortState _serialState;
+        private readonly ISerialStateContext _serialState;
 
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, ISnackbarService alert, FilesViewModel files, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, ISerialPortState serialState)
+        public NavigationHostViewModel(INavigationService navStore, ISnackbarService alert, FilesViewModel files, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, ISerialStateContext serialState)
         {
             _navService = navStore;
             _serialState = serialState;
@@ -116,7 +117,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
                 .ToPropertyEx(this, vm => vm.NavigationItems);
 
             _navService.IsNavOpen.ToPropertyEx(this, vm => vm.IsNavOpen);
-            _serialState.IsBusy.ToPropertyEx(this, vm => vm.SerialBusy);
+            SerialBusy = _serialState.CurrentState is SerialBusyState;
         }
     }
 }

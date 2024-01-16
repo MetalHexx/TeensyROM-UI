@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
@@ -36,7 +37,7 @@ namespace TeensyRom.Ui.Features.Files
 
         private readonly IFileState _fileState;
 
-        public FilesViewModel(ISettingsService settings, INavigationService nav, ISerialPortState serialState, IFileState fileState, DirectoryContentViewModel directoryContent, SearchFilesViewModel search)
+        public FilesViewModel(ISettingsService settings, INavigationService nav, ISerialStateContext serialState, IFileState fileState, DirectoryContentViewModel directoryContent, SearchFilesViewModel search)
         {
             FeatureTitle = "File Explorer";            
             DirectoryContent = directoryContent;
@@ -49,9 +50,8 @@ namespace TeensyRom.Ui.Features.Files
             PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.PlayRandom());
             CacheAllCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.CacheAll());
 
-            serialState.IsConnected
-                .Where(isConnected => isConnected is true)
-                .CombineLatest(settings.Settings, (isConnected, settings) => settings)
+            settings.Settings
+                .Where(isConnected => serialState.CurrentState is SerialConnectedState)
                 .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
                 .Where(sn => sn.currentNav?.Type == NavigationLocation.Files)
                 .Select(sn => sn.settings.TargetRootPath)

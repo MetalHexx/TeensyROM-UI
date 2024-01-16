@@ -7,6 +7,7 @@ using System.Text;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
@@ -15,13 +16,13 @@ namespace TeensyRom.Core.Commands
     public class GetDirectoryRecursiveHandler : IRequestHandler<GetDirectoryRecursiveCommand, GetDirectoryRecursiveResult>
     {
         private TeensySettings _settings;
-        private readonly IObservableSerialPort _serialPort;
+        private readonly ISerialStateContext _serialState;
         private readonly ILoggingService _log;
 
-        public GetDirectoryRecursiveHandler(IObservableSerialPort serialPort, ISettingsService settings, ILoggingService log)
+        public GetDirectoryRecursiveHandler(ISerialStateContext serialState, ISettingsService settings, ILoggingService log)
         {
             settings.Settings.Take(1).Subscribe(s => _settings = s);
-            _serialPort = serialPort;
+            _serialState = serialState;
             _log = log;
         }
 
@@ -42,24 +43,24 @@ namespace TeensyRom.Core.Commands
 
             DirectoryContent? directoryContent;
 
-            _serialPort.SendIntBytes(TeensyToken.ListDirectory, 2);
+            _serialState.SendIntBytes(TeensyToken.ListDirectory, 2);
 
-            _serialPort.HandleAck();
-            _serialPort.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
-            _serialPort.SendIntBytes(0, 2);
-            _serialPort.SendIntBytes(9999, 2);
-            _serialPort.Write($"{path}\0");
+            _serialState.HandleAck();
+            _serialState.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
+            _serialState.SendIntBytes(0, 2);
+            _serialState.SendIntBytes(9999, 2);
+            _serialState.Write($"{path}\0");
 
             if (WaitForDirectoryStartToken() != TeensyToken.StartDirectoryList)
             {
-                _serialPort.ReadSerialAsString(msToWait: 100);
+                _serialState.ReadSerialAsString(msToWait: 100);
                 throw new TeensyException("Error waiting for Directory Start Token");
             }
             directoryContent = ReceiveDirectoryContent();
 
             if (directoryContent is null)
             {
-                _serialPort.ReadSerialAsString(msToWait: 100);
+                _serialState.ReadSerialAsString(msToWait: 100);
                 throw new TeensyException("Error waiting for Directory Start Token");
             }
             directoryContent.Path = path;
@@ -97,11 +98,11 @@ namespace TeensyRom.Core.Commands
                     throw new TeensyException($"Timeout waiting for expected reply from TeensyROM -- Received Bytes:\r\n{GetLogString(receivedBytes)}");
                 }
 
-                if (_serialPort.BytesToRead > 0)
+                if (_serialState.BytesToRead > 0)
                 {
                     Console.WriteLine("Still reading");
-                    byte[] buffer = new byte[_serialPort.BytesToRead];
-                    int bytesRead = _serialPort.Read(buffer, 0, buffer.Length);
+                    byte[] buffer = new byte[_serialState.BytesToRead];
+                    int bytesRead = _serialState.Read(buffer, 0, buffer.Length);
                     receivedBytes.AddRange(buffer.Take(bytesRead));
 
                     ushort lastToken = CheckForLastToken(receivedBytes);
@@ -169,10 +170,10 @@ namespace TeensyRom.Core.Commands
 
         public TeensyToken WaitForDirectoryStartToken()
         {
-            _serialPort.WaitForSerialData(numBytes: 2, timeoutMs: 500);
+            _serialState.WaitForSerialData(numBytes: 2, timeoutMs: 500);
 
             byte[] recBuf = new byte[2];
-            _serialPort.Read(recBuf, 0, 2);
+            _serialState.Read(recBuf, 0, 2);
             ushort recU16 = recBuf.ToInt16();
 
             return recU16 switch

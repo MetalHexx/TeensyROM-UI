@@ -2,6 +2,7 @@
 using System.Reactive.Linq;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
@@ -10,22 +11,22 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
     public class LaunchFileHandler: IRequestHandler<LaunchFileCommand, LaunchFileResult>
     {
         private TeensySettings _settings;
-        private readonly IObservableSerialPort _serialPort;
+        private readonly ISerialStateContext _serialState;
 
-        public LaunchFileHandler(IObservableSerialPort serialPort, ISettingsService settings)
+        public LaunchFileHandler(ISerialStateContext serialState, ISettingsService settings)
         {
             settings.Settings.Take(1).Subscribe(s => _settings = s);
-            _serialPort = serialPort;
+            _serialState = serialState;
         }
 
         public Task<LaunchFileResult> Handle(LaunchFileCommand request, CancellationToken cancellationToken)
         {
-            _serialPort.SendIntBytes(TeensyToken.LaunchFile, 2);
+            _serialState.SendIntBytes(TeensyToken.LaunchFile, 2);
 
-            _serialPort.HandleAck();
-            _serialPort.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
-            _serialPort.Write($"{request.Path}\0");
-            _serialPort.HandleAck();
+            _serialState.HandleAck();
+            _serialState.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
+            _serialState.Write($"{request.Path}\0");
+            _serialState.HandleAck();
             return Task.FromResult(new LaunchFileResult());
         }
     }

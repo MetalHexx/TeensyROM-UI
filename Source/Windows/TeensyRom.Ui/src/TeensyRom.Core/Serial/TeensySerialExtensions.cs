@@ -5,18 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Core.Serial
 {
     public static class TeensySerialExtensions
     {
-        public static void HandleAck(this IObservableSerialPort _serialPort)
+        public static void HandleAck(this ISerialStateContext serialState)
         {
-            var response = _serialPort.GetAck();
+            var response = serialState.GetAck();
 
             if (response != TeensyToken.Ack)
             {
-                var dataString = _serialPort.ReadSerialAsString();
+                var dataString = serialState.ReadSerialAsString();
                 
                 var responseString = response switch
                 {
@@ -27,12 +28,12 @@ namespace TeensyRom.Core.Serial
                 throw new TeensyException($"Received unexpected response from TR ({responseString}) with data: {dataString}");
             }
         }
-        public static TeensyToken GetAck(this IObservableSerialPort _serialPort)
+        public static TeensyToken GetAck(this ISerialStateContext serialState)
         {
-            _serialPort.WaitForSerialData(numBytes: 2, timeoutMs: 500);
+            serialState.WaitForSerialData(numBytes: 2, timeoutMs: 500);
 
             byte[] recBuf = new byte[2];
-            _serialPort.Read(recBuf, 0, 2);
+            serialState.Read(recBuf, 0, 2);
             ushort recU16 = BitConverter.ToUInt16(recBuf, 0);
 
             return recU16 switch

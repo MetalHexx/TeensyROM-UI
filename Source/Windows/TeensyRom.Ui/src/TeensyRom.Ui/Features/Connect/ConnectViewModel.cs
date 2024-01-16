@@ -11,24 +11,20 @@ using System.Text;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Helpers.ViewModel;
 
 namespace TeensyRom.Ui.Features.Connect
 {
     public class ConnectViewModel: FeatureViewModelBase, IDisposable
     {
-        [ObservableAsProperty]
-        public string[]? Ports { get; }
+        [Reactive] public bool IsConnected { get; set; }
 
-        [ObservableAsProperty]
-        public bool IsConnected { get; }
+        [Reactive] public bool IsConnectable { get; set; }
+        [Reactive] public string SelectedPort { get; set; } = string.Empty;
 
-        [ObservableAsProperty]
-        public bool IsConnectable { get; }
+        [ObservableAsProperty] public string[]? Ports { get; }
         public ObservableCollection<string> Logs { get; } = [];
-
-        [Reactive]
-        public string SelectedPort { get; set; } = string.Empty;        
 
         public ReactiveCommand<Unit, Unit> ConnectCommand { get; set; }
         public ReactiveCommand<Unit, Unit> DisconnectCommand { get; set; }
@@ -40,30 +36,29 @@ namespace TeensyRom.Ui.Features.Connect
         private readonly IDisposable? _selectedPortSubscription;
         private readonly IDisposable? _logsSubscription;
         private readonly IMediator _mediator;
-        private readonly IObservableSerialPort _serialPort;
         private readonly ILoggingService _logService;
         private readonly StringBuilder _logBuilder = new StringBuilder();
         private readonly int _maxLogEntries = 1000;
 
-        public ConnectViewModel(IMediator mediator, IObservableSerialPort serialPort, ILoggingService logService)
+        public ConnectViewModel(IMediator mediator, ISerialStateContext serialState, ILoggingService logService)
         {
             FeatureTitle = "Manage Connection";
 
             _mediator = mediator;
-            _serialPort = serialPort;
             _logService = logService;
-            _serialPort.Ports.ToPropertyEx(this, vm => vm.Ports);
-            _serialPort.IsConnected.ToPropertyEx(this, vm => vm.IsConnected);
+            serialState.Ports.ToPropertyEx(this, vm => vm.Ports);
 
-            _serialPort.IsRetryingConnection
-                .Select(isRetrying => !isRetrying)
-                .ToPropertyEx(this, vm => vm.IsConnectable);
+            serialState.WhenAnyValue(x => x.CurrentState).Subscribe(state =>
+            {
+                IsConnected = state is SerialConnectedState;
+                IsConnectable = state is SerialConnectableState;
+            });
 
-            ConnectCommand = ReactiveCommand.Create<System.Reactive.Unit, Unit>(n =>
-                _serialPort.OpenPort(), outputScheduler: ImmediateScheduler.Instance);
+            ConnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
+                serialState.OpenPort(), outputScheduler: ImmediateScheduler.Instance);
 
             DisconnectCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                _serialPort.ClosePort(), outputScheduler: ImmediateScheduler.Instance);
+                serialState.ClosePort(), outputScheduler: ImmediateScheduler.Instance);
 
             PingCommand = ReactiveCommand.CreateFromTask(() => _mediator.Send(new PingCommand()), outputScheduler: RxApp.MainThreadScheduler);
 
@@ -75,13 +70,13 @@ namespace TeensyRom.Ui.Features.Connect
                 return Unit.Default;
             }, outputScheduler: ImmediateScheduler.Instance);
 
-            _portsSubscription = _serialPort.Ports
+            _portsSubscription = serialState.Ports
                 .Where(ports => ports.Length > 0)
                 .Subscribe(ports => SelectedPort = ports.First());
 
             _selectedPortSubscription = this.WhenAnyValue(x => x.SelectedPort)
                 .Where(port => port != null)
-                .Subscribe(port => _serialPort.SetPort(port));
+                .Subscribe(port => serialState.SetPort(port));
 
             _logsSubscription = logService.Logs
                 .ObserveOn(RxApp.MainThreadScheduler)                

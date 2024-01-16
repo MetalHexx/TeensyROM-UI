@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Core.Commands.Behaviors
 {
@@ -14,10 +15,10 @@ namespace TeensyRom.Core.Commands.Behaviors
         Task Execute(Func<Task> action, bool queued);
     }
 
-    public class TeensyCommandExecutor(IObservableSerialPort serialPort, IAlertService alert) : ITeensyCommandExecutor
+    public class TeensyCommandExecutor(ISerialStateContext serialState, IAlertService alert) : ITeensyCommandExecutor
     {
         private static readonly SemaphoreSlim _semaphore = new(1, 1);
-        private readonly IObservableSerialPort _serialPort = serialPort;
+        private readonly ISerialStateContext _serialState = serialState;
         private readonly IAlertService _alert = alert;
 
         public async Task Execute(Func<Task> action, bool queued)
@@ -33,13 +34,13 @@ namespace TeensyRom.Core.Commands.Behaviors
 
             try
             {
-                _serialPort.Lock();
+                _serialState.Lock();
                 await action();
-                Thread.Sleep(200); //To give TR a chance to be ready to for next command in case UI is spamming commands.
+                _serialState.ReadSerialAsString(10);
             }
             finally
             {
-                _serialPort.Unlock();
+                _serialState.Unlock();
                 _semaphore.Release();
             }
         }

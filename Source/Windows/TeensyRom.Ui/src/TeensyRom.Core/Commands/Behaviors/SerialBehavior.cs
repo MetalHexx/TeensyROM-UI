@@ -5,6 +5,7 @@ using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.Behaviors;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 
 /// <summary>
 /// Disables the serial read auto-poll behavior for the duration of the command and reneables it after.
@@ -15,7 +16,7 @@ public class SerialBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, T
 {
     private readonly ITeensyCommandExecutor _executor;
 
-    public SerialBehavior(IObservableSerialPort serialPort, ITeensyCommandExecutor executor)
+    public SerialBehavior(ITeensyCommandExecutor executor)
     {
         _executor = executor;
     }

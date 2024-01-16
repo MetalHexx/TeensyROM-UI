@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands.DeleteFile
@@ -20,21 +21,21 @@ namespace TeensyRom.Core.Commands.DeleteFile
 
     public class DeleteFileCommandHandler : IRequestHandler<DeleteFileCommand, DeleteFileResult>
     {
-        private readonly IObservableSerialPort _serialPort;
+        private readonly ISerialStateContext _serialState;
 
-        public DeleteFileCommandHandler(IObservableSerialPort serialPort)
+        public DeleteFileCommandHandler(ISerialStateContext serialState)
         {
-            _serialPort = serialPort;
+            _serialState = serialState;
         }
 
         public Task<DeleteFileResult> Handle(DeleteFileCommand r, CancellationToken cancellationToken)
         {
-            _serialPort.SendIntBytes(TeensyToken.DeleteFile, 2);
+            _serialState.SendIntBytes(TeensyToken.DeleteFile, 2);
 
-            _serialPort.HandleAck();
-            _serialPort.SendIntBytes(r.StorageType.GetStorageToken(), 1);
-            _serialPort.Write($"{r.Path}\0");
-            _serialPort.HandleAck();
+            _serialState.HandleAck();
+            _serialState.SendIntBytes(r.StorageType.GetStorageToken(), 1);
+            _serialState.Write($"{r.Path}\0");
+            _serialState.HandleAck();
 
             return Task.FromResult(new DeleteFileResult());
         }

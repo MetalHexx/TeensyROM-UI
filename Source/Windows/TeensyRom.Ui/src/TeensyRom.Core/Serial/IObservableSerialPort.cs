@@ -21,11 +21,7 @@ namespace TeensyRom.Core.Serial
         /// The current connection state
         /// </summary>
         IObservable<bool> IsConnected { get; }
-
-        /// <summary>
-        /// The current retry connection state
-        /// </summary>
-        IObservable<bool> IsRetryingConnection { get; }        
+       
 
         /// <summary>
         /// Checks to see if the serial port is open
@@ -53,7 +49,7 @@ namespace TeensyRom.Core.Serial
         /// <summary>
         /// Sets the port to connect to
         /// </summary>
-        void SetPort(string port);
+        Unit SetPort(string port);
 
         /// <summary>
         /// Opens the port with the current set port

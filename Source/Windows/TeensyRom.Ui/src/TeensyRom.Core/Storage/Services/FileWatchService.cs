@@ -3,6 +3,7 @@ using System.Reactive.Linq;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
@@ -22,7 +23,7 @@ namespace TeensyRom.Core.Storage
     {
         private readonly ISettingsService _settingsService;
         private readonly IFileWatcher _fileWatcher;
-        private readonly ISerialPortState _serialState
+        private readonly ISerialStateContext _serialState
             ;
         private readonly ILoggingService _logService;
         private readonly ICachedStorageService _storageService;
@@ -30,7 +31,7 @@ namespace TeensyRom.Core.Storage
         private IDisposable _settingsSubscription;
         private IDisposable _fileWatchSubscription;
 
-        public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialPortState serialState, ILoggingService logService, ICachedStorageService storageService)
+        public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialStateContext serialState, ILoggingService logService, ICachedStorageService storageService)
         {
             _settingsService = settingsService;
             _fileWatcher = fileWatcher;
@@ -55,9 +56,8 @@ namespace TeensyRom.Core.Storage
 
             _fileWatchSubscription ??= _fileWatcher.FileFound
                 .Throttle(TimeSpan.FromMilliseconds(500))
-                .WithLatestFrom(_serialState.IsConnected, (f, c) => new { File = f, IsConnected = c })
-                .Where(fc => fc.IsConnected && settings.AutoFileCopyEnabled)
-                .Select(fc => new TeensyFileInfo(fc.File))
+                .Where(f => _serialState.CurrentState is SerialConnectedState && settings.AutoFileCopyEnabled)
+                .Select(f => new TeensyFileInfo(f))
                 .Do(fileInfo => _logService.Internal($"File detected: {fileInfo.FullPath}"))
                 .Subscribe(async fileInfo => await _storageService.QueuedSaveFile(fileInfo));
         }

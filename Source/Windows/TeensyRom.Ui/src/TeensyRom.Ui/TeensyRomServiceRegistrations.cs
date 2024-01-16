@@ -30,6 +30,7 @@ using TeensyRom.Ui.Features.Music.Search;
 using TeensyRom.Ui.Features.Files.Search;
 using TeensyRom.Ui.Services;
 using TeensyRom.Ui.Features.Global;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Ui
 {
@@ -39,9 +40,7 @@ namespace TeensyRom.Ui
         {
             services.AddSingleton(dispatcher);
             services.AddSingleton<INavigationService, NavigationService>();
-            services.AddSingleton<ISerialPortState, SerialPortState>();
             services.AddSingleton<ILoggingService, LoggingService>();
-            services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();
             services.AddSingleton<IFileWatchService, FileWatchService>();
             services.AddSingleton<IFileWatcher, FileWatcher>();
             services.AddSingleton<ISettingsService, SettingsService>();
@@ -52,6 +51,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IMusicState, MusicState>();
             services.AddSingleton<IFileState, FileState>();
             services.AddSingleton<IGlobalState, GlobalState>();
+            services.AddSingleton<ISerialStateContext, SerialStateContext>();
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
             services.AddSingleton<ICachedStorageService, CachedStorageService>();
             services.AddSingleton<NavigationHostViewModel>();

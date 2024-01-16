@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
 using TeensyRom.Core.Logging;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Core.Serial
 {
@@ -18,12 +19,10 @@ namespace TeensyRom.Core.Serial
         public IObservable<bool> IsLocked => _isLocked.AsObservable();
         public IObservable<string[]> Ports => _ports.AsObservable();
         public IObservable<bool> IsConnected => _isConnected.AsObservable();
-        public IObservable<bool> IsRetryingConnection => _isRetryingConnection.AsObservable();
 
         protected readonly BehaviorSubject<bool> _isLocked = new(false);
         protected readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         protected readonly BehaviorSubject<bool> _isConnected = new(false);
-        protected readonly BehaviorSubject<bool> _isRetryingConnection = new(false);
 
         protected Subject<string> _serialData = new Subject<string>();
 
@@ -35,6 +34,8 @@ namespace TeensyRom.Core.Serial
 
         public readonly SerialPort _serialPort = new() { BaudRate = 115200 };
         protected readonly ILoggingService _log;
+        private readonly ISerialStateContext _serialState;
+
         public bool IsOpen => _serialPort.IsOpen;
         public int BytesToRead => _serialPort.BytesToRead;
         public string[] GetPortNames() => SerialPort.GetPortNames();
@@ -44,26 +45,28 @@ namespace TeensyRom.Core.Serial
         public int Read(byte[] buffer, int offset, int count) => _serialPort.Read(buffer, offset, count);
         public int ReadByte() => _serialPort.ReadByte();
 
-        public ObservableSerialPort(ILoggingService log)
+        public ObservableSerialPort(ILoggingService log, ISerialStateContext serialState)
         {
             _log = log;
+            _serialState = serialState;
             StartPortPoll();
-            Unlock();
         }
 
-        public void SetPort(string port)
+        public Unit SetPort(string port)
         {
             if (string.IsNullOrWhiteSpace(port))
             {
                 _log.InternalError("Set a port to get connected.");
-                return;
+                return Unit.Default;
             }
             _serialPort.PortName = port;
+            return Unit.Default;
         }
 
         public Unit OpenPort()
         {
             EnsureConnection();
+            _serialState.TransitionTo(typeof(SerialConnectedState));
 
             _healthCheckSubscription = Observable
                 .Interval(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds))
@@ -72,11 +75,11 @@ namespace TeensyRom.Core.Serial
                     try
                     {
                         EnsureConnection();
-                        _isRetryingConnection.OnNext(false);
+                        if (_serialState.CurrentState is SerialConnectionLostState) _serialState.Handle();
                     }
                     catch (Exception ex)
                     {
-                        _isRetryingConnection.OnNext(true);
+                        _serialState.TransitionTo(typeof(SerialConnectionLostState));
                         return Observable.Throw<long>(ex);
                     }
                     return Observable.Empty<long>();
@@ -112,6 +115,8 @@ namespace TeensyRom.Core.Serial
         {
             if (_serialPort.IsOpen) _serialPort.Close();
 
+            _serialState.TransitionTo(typeof(SerialConnectableState));
+
             _log.InternalSuccess($"Successfully disconnected from {_serialPort.PortName}.");
             _isConnected.OnNext(false);
 
@@ -131,29 +136,31 @@ namespace TeensyRom.Core.Serial
         /// </summary>
         private void StartPortPoll()
         {
-            var initialHasPorts = _ports.Value.Length > 0;
+            var initialPorts = SerialPort.GetPortNames();
+
+            if(initialPorts.Length > 0) _serialState.TransitionTo(typeof(SerialConnectableState));
 
             _portRefresherSubscription = Observable
                 .Interval(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds))
-                .Select(_ => SerialPort.GetPortNames().Length > 0)
-                .Scan(initialHasPorts, (previousHasPorts, hasPorts) =>
+                .Select(_ => SerialPort.GetPortNames())
+                .Scan(initialPorts, (previousPorts, currentPorts) =>
                 {
-                    var ports = SerialPort.GetPortNames();
-                    if (!hasPorts)
+                    var previousHasPorts = previousPorts.Length > 0;
+                    var currentHasPorts = currentPorts.Length > 0;
+
+                    if (currentPorts.Length == 0)
                     {
                         _log.InternalError($"Failed to find connectable ports. Retrying in {SerialPortConstants.Health_Check_Milliseconds}.");
-                        _isRetryingConnection.OnNext(true);
-                        return false;
+                        _serialState.TransitionTo(typeof(SerialStartState));
                     }
-                    else if (previousHasPorts == false && hasPorts)
+                    else if (!previousHasPorts && currentPorts.Length > 0)
                     {
                         _log.InternalSuccess("Successfully located connectable ports.");
-                        _isRetryingConnection.OnNext(false);
-                        return true;
+                        _serialState.TransitionTo(typeof(SerialConnectableState));
                     }
-                    return true;
+                    return currentPorts;
                 })
-                .Subscribe(_ => _ports.OnNext(SerialPort.GetPortNames()));
+                .Subscribe(_ports.OnNext);
         }
 
         /// <summary>
@@ -177,6 +184,8 @@ namespace TeensyRom.Core.Serial
                 .Where(log => !string.IsNullOrWhiteSpace(log))
                 .Subscribe(_log.External);
 
+            _serialState.TransitionToPreviousState();
+
             _isLocked.OnNext(false);
         }
 
@@ -185,10 +194,13 @@ namespace TeensyRom.Core.Serial
         /// </summary>
         public void Lock()
         {
+            _serialState.TransitionTo(typeof(SerialBusyState));
+
             _isLocked.OnNext(true);
 
             _serialPort.DiscardInBuffer();
             _serialPort.DiscardOutBuffer();
+
             if (_logSubscription is not null)
             {
                 _dataSubscription?.Dispose();
