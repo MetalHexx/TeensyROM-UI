@@ -17,17 +17,15 @@ namespace TeensyRom.Core.Serial
     public class ObservableSerialPort : IObservableSerialPort
     {
         public IObservable<string[]> Ports => _ports.AsObservable();
+        private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
 
-        protected readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
+        private IDisposable? _dataSubscription;
+        private IDisposable? _logSubscription;
+        private IDisposable? _healthCheckSubscription;
+        private IDisposable? _portRefresherSubscription;
 
-        protected IDisposable? _dataSubscription;
-        protected IDisposable? _logSubscription;
-        protected IDisposable? _healthCheckSubscription;
-        protected IDisposable? _portRefresherSubscription;
-        protected IObservable<byte[]>? _rawSerialBytes;
-
-        public readonly SerialPort _serialPort = new() { BaudRate = 115200 };
-        protected readonly ILoggingService _log;
+        private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
+        private readonly ILoggingService _log;
         private readonly ISerialStateContext _serialState;
         public int BytesToRead => _serialPort.BytesToRead;
         public void Write(string text) => _serialPort.Write(text);
@@ -156,20 +154,18 @@ namespace TeensyRom.Core.Serial
         /// </summary>
         public void Unlock()
         {
-            _rawSerialBytes = Observable.FromEventPattern<SerialDataReceivedEventHandler, SerialDataReceivedEventArgs>
+            _logSubscription = Observable.FromEventPattern<SerialDataReceivedEventHandler, SerialDataReceivedEventArgs>
             (
                 handler => _serialPort.DataReceived += handler,
                 handler => _serialPort.DataReceived -= handler
             )
-                .Select(serialEvent => ReadSerialBytes())
-                .Where(bytes => bytes.Length > 0)
-                .Publish()
-                .RefCount();
-
-            _logSubscription = _rawSerialBytes
-                .Select(ToLogString)
-                .Where(log => !string.IsNullOrWhiteSpace(log))
-                .Subscribe(_log.External);
+            .Select(serialEvent => ReadSerialBytes())
+            .Where(bytes => bytes.Length > 0)
+            .Select(ToLogString)
+            .Where(log => !string.IsNullOrWhiteSpace(log))
+            .Publish()
+            .RefCount()
+            .Subscribe(_log.External);
 
             _serialState.TransitionTo(typeof(SerialConnectedState));
         }
