@@ -11,11 +11,6 @@ namespace TeensyRom.Core.Serial
         /// Connections can be dropped, thus ports can change, so we want to observe those changes.
         /// </summary>
         IObservable<string[]> Ports { get; }
-
-        /// <summary>
-        /// Checks to see if the serial port is open
-        /// </summary>
-        bool IsOpen { get; }
         int BytesToRead { get; }
         string[] GetPortNames();
 

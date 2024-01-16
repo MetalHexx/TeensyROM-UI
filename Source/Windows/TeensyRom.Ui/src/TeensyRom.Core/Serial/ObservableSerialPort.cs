@@ -31,8 +31,6 @@ namespace TeensyRom.Core.Serial
         public readonly SerialPort _serialPort = new() { BaudRate = 115200 };
         protected readonly ILoggingService _log;
         private readonly ISerialStateContext _serialState;
-
-        public bool IsOpen => _serialPort.IsOpen;
         public int BytesToRead => _serialPort.BytesToRead;
         public string[] GetPortNames() => SerialPort.GetPortNames();
         public void Write(string text) => _serialPort.Write(text);
