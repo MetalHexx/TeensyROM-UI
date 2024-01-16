@@ -20,8 +20,6 @@ namespace TeensyRom.Core.Serial
 
         protected readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
 
-        protected Subject<string> _serialData = new Subject<string>();
-
         protected IDisposable? _dataSubscription;
         protected IDisposable? _logSubscription;
         protected IDisposable? _healthCheckSubscription;
@@ -293,7 +291,6 @@ namespace TeensyRom.Core.Serial
             _portRefresherSubscription?.Dispose();
             _healthCheckSubscription?.Dispose();
             _logSubscription?.Dispose();
-            _serialData?.Dispose();
             _dataSubscription?.Dispose();
         }
     }
