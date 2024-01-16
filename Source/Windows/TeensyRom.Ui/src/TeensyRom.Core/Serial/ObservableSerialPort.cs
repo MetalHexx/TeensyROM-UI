@@ -16,10 +16,8 @@ namespace TeensyRom.Core.Serial
     /// </summary>
     public class ObservableSerialPort : IObservableSerialPort
     {
-        public IObservable<bool> IsLocked => _isLocked.AsObservable();
         public IObservable<string[]> Ports => _ports.AsObservable();
 
-        protected readonly BehaviorSubject<bool> _isLocked = new(false);
         protected readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
 
         protected Subject<string> _serialData = new Subject<string>();
@@ -178,9 +176,7 @@ namespace TeensyRom.Core.Serial
                 .Where(log => !string.IsNullOrWhiteSpace(log))
                 .Subscribe(_log.External);
 
-            _serialState.TransitionToPreviousState();
-
-            _isLocked.OnNext(false);
+            _serialState.TransitionTo(typeof(SerialConnectedState));
         }
 
         /// <summary>
@@ -189,8 +185,6 @@ namespace TeensyRom.Core.Serial
         public void Lock()
         {
             _serialState.TransitionTo(typeof(SerialBusyState));
-
-            _isLocked.OnNext(true);
 
             _serialPort.DiscardInBuffer();
             _serialPort.DiscardOutBuffer();
