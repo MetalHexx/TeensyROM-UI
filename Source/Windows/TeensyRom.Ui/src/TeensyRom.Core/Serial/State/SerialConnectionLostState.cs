@@ -9,7 +9,7 @@
 
         public override void Handle(SerialStateContext context)
         {
-            context.TransitionToPreviousState();
+            context.TransitionTo(typeof(SerialConnectedState));
         }
     }
 }

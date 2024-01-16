@@ -11,7 +11,7 @@
 
         public override void Handle(SerialStateContext context)
         {
-            throw new NotImplementedException();
+            return;
         }
     }
 }

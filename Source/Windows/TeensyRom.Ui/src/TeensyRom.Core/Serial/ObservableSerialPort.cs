@@ -64,7 +64,7 @@ namespace TeensyRom.Core.Serial
                     try
                     {
                         EnsureConnection();
-                        if (_serialState.CurrentState is SerialConnectionLostState) _serialState.Handle();
+                        _serialState.Handle();
                     }
                     catch (Exception ex)
                     {
