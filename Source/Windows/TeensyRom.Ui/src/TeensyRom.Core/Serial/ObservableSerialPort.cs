@@ -18,11 +18,9 @@ namespace TeensyRom.Core.Serial
     {
         public IObservable<bool> IsLocked => _isLocked.AsObservable();
         public IObservable<string[]> Ports => _ports.AsObservable();
-        public IObservable<bool> IsConnected => _isConnected.AsObservable();
 
         protected readonly BehaviorSubject<bool> _isLocked = new(false);
         protected readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
-        protected readonly BehaviorSubject<bool> _isConnected = new(false);
 
         protected Subject<string> _serialData = new Subject<string>();
 
@@ -99,14 +97,11 @@ namespace TeensyRom.Core.Serial
                 _serialPort.Open();
 
                 ReadAndLogStaleBuffer();
-
-                _isConnected.OnNext(true);
                 _log.InternalSuccess($"Successfully connected to {_serialPort.PortName}");
             }
             catch
             {   
                 _log.InternalError($"Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
-                _isConnected.OnNext(false);
                 throw;
             }
         }
@@ -118,7 +113,6 @@ namespace TeensyRom.Core.Serial
             _serialState.TransitionTo(typeof(SerialConnectableState));
 
             _log.InternalSuccess($"Successfully disconnected from {_serialPort.PortName}.");
-            _isConnected.OnNext(false);
 
             _healthCheckSubscription?.Dispose();
 
