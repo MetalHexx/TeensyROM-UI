@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TeensyRom.Core.Serial.State
 {
-    public abstract class SerialState
+    public interface ISerialState
     {
         public abstract void Handle(SerialStateContext context);
         public abstract bool CanTransitionTo(Type nextStateType);

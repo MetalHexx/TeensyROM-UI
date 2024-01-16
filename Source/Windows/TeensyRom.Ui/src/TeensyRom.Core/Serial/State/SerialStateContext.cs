@@ -8,11 +8,11 @@ namespace TeensyRom.Core.Serial.State
     public class SerialStateContext : ReactiveObject, ISerialStateContext
     {
         [Reactive]
-        public SerialState CurrentState { get; private set; }
-        public SerialState? PreviousState { get; private set; }
+        public ISerialState CurrentState { get; private set; }
+        public ISerialState? PreviousState { get; private set; }
         public IObservable<string[]> Ports => _serialPort.Ports;
 
-        private readonly Dictionary<Type, SerialState> _states = new()
+        private readonly Dictionary<Type, ISerialState> _states = new()
         {
                 { typeof(SerialStartState), new SerialStartState() },
                 { typeof(SerialConnectableState), new SerialConnectableState() },

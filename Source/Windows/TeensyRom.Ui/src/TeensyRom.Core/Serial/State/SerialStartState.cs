@@ -1,13 +1,13 @@
 ﻿namespace TeensyRom.Core.Serial.State
 {
-    public class SerialStartState : SerialState
+    public class SerialStartState : ISerialState
     {
-        public override bool CanTransitionTo(Type nextStateType)
+        public bool CanTransitionTo(Type nextStateType)
         {
             return nextStateType == typeof(SerialConnectableState);
         }
 
-        public override void Handle(SerialStateContext context)
+        public void Handle(SerialStateContext context)
         {
             throw new NotImplementedException();
         }

@@ -5,7 +5,7 @@ namespace TeensyRom.Core.Serial.State
 {
     public interface ISerialStateContext
     {
-        SerialState CurrentState { get; }
+        ISerialState CurrentState { get; }
         IObservable<string[]> Ports { get; }
         int BytesToRead { get; }
 
