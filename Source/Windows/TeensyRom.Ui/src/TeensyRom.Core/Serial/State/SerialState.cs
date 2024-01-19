@@ -30,6 +30,7 @@ namespace TeensyRom.Core.Serial.State
         public virtual string ReadSerialAsString(int msToWait = 0) => throw new TeensyStateException(ExceptionMessage);
         public virtual byte[] ReadSerialBytes() => throw new TeensyStateException(ExceptionMessage);
         public virtual void WaitForSerialData(int numBytes, int timeoutMs) => throw new TeensyStateException(ExceptionMessage);
+        public virtual void StartPortPoll() => throw new TeensyStateException(ExceptionMessage);
         public virtual void Dispose() => _serialPort.Dispose();
         protected string ExceptionMessage => $"Cannot read from port in state: {this.GetType().Name}";
         IObservable<Type> IObservableSerialPort.State => throw new NotImplementedException();

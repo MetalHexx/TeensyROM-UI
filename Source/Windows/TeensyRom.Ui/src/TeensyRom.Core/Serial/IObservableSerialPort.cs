@@ -66,5 +66,6 @@ namespace TeensyRom.Core.Serial
         string ReadSerialAsString(int msToWait = 0);
         byte[] ReadSerialBytes();
         void WaitForSerialData(int numBytes, int timeoutMs);
+        void StartPortPoll();
     }
 }

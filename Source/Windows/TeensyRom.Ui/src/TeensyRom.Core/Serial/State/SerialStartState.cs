@@ -10,6 +10,7 @@ namespace TeensyRom.Core.Serial.State
         {
             return nextStateType == typeof(SerialConnectableState);
         }
+        public override void StartPortPoll() => _serialPort.StartPortPoll();
         public override Unit SetPort(string port) => _serialPort.SetPort(port);
     }
 }

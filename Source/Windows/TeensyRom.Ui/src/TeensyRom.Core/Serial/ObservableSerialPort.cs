@@ -27,7 +27,7 @@ namespace TeensyRom.Core.Serial
 
         private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
         private readonly ILoggingService _log;
-        private readonly ReplaySubject<Type> _state = new(bufferSize: 1);
+        private readonly Subject<Type> _state = new();
         public int BytesToRead => _serialPort.BytesToRead;
         public void Write(string text) => _serialPort.Write(text);
         public void Write(byte[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);
@@ -38,7 +38,6 @@ namespace TeensyRom.Core.Serial
         public ObservableSerialPort(ILoggingService log)
         {
             _log = log;
-            StartPortPoll();
         }
 
         public Unit SetPort(string port)
@@ -119,7 +118,7 @@ namespace TeensyRom.Core.Serial
         /// when recovering from a connection loss.
         /// </remarks>
         /// </summary>
-        private void StartPortPoll()
+        public void StartPortPoll()
         {
             var initialPorts = SerialPort.GetPortNames();
 

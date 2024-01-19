@@ -28,6 +28,7 @@ namespace TeensyRom.Core.Serial.State
             };
             CurrentState = _states[typeof(SerialStartState)];
             _stateSubscription = _serialPort.State.Subscribe(TransitionTo);
+            _serialPort.StartPortPoll();
         }
 
         public void TransitionTo(Type nextStateType)
@@ -52,22 +53,17 @@ namespace TeensyRom.Core.Serial.State
         public Unit SetPort(string port) => CurrentState.SetPort( port);
         public void Lock() => CurrentState.Lock();
         public void Unlock() => CurrentState.Unlock();
-
         public void SendIntBytes(uint intToSend, short byteLength) => CurrentState.SendIntBytes(intToSend, byteLength);
         public void Write(string text) => CurrentState.Write(text);
-
         public void Write(char[] buffer, int offset, int count) => CurrentState.Write(buffer, offset, count);
         public void Write(byte[] buffer, int offset, int count) => CurrentState.Write(buffer, offset, count);
-
         public void WaitForSerialData(int numBytes, int timeoutMs) => CurrentState.WaitForSerialData(numBytes, timeoutMs);
         public string ReadSerialAsString(int msToWait = 0) => CurrentState.ReadSerialAsString(msToWait);
         public int BytesToRead => CurrentState.BytesToRead;
         public int Read(byte[] buffer, int offset, int count) => CurrentState.Read(buffer, offset, count);
-
         public int ReadByte() => CurrentState.ReadByte();
-
         public byte[] ReadSerialBytes() => CurrentState.ReadSerialBytes();
-
+        public void StartPortPoll() => CurrentState.StartPortPoll();
         public void Dispose()
         {
             foreach (var state in _states.Values)
@@ -77,7 +73,6 @@ namespace TeensyRom.Core.Serial.State
             _serialPort.Dispose();
             _stateSubscription.Dispose();
         }
-
         IObservable<Type> IObservableSerialPort.State => throw new NotImplementedException();
     }
 }
