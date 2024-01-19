@@ -51,6 +51,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IMusicState, MusicState>();
             services.AddSingleton<IFileState, FileState>();
             services.AddSingleton<IGlobalState, GlobalState>();
+            services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();
             services.AddSingleton<ISerialStateContext, SerialStateContext>();
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
             services.AddSingleton<ICachedStorageService, CachedStorageService>();

@@ -1,15 +1,20 @@
-﻿namespace TeensyRom.Core.Serial.State
+﻿using System.Reactive;
+using TeensyRom.Core.Common;
+using TeensyRom.Core.Logging;
+
+namespace TeensyRom.Core.Serial.State
 {
-    public class SerialStartState : ISerialState
+    public class SerialStartState(IObservableSerialPort _serialPort) : SerialState(_serialPort)
     {
-        public bool CanTransitionTo(Type nextStateType)
+        public override bool CanTransitionTo(Type nextStateType)
         {
             return nextStateType == typeof(SerialConnectableState);
         }
 
-        public void Handle(SerialStateContext context)
+        public override void Handle(SerialStateContext context)
         {
             throw new NotImplementedException();
         }
+        public override Unit SetPort(string port) => _serialPort.SetPort(port);
     }
 }

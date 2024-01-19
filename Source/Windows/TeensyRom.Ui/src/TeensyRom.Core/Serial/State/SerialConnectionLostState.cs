@@ -1,13 +1,16 @@
-﻿namespace TeensyRom.Core.Serial.State
+﻿using TeensyRom.Core.Logging;
+
+namespace TeensyRom.Core.Serial.State
 {
-    public class SerialConnectionLostState : ISerialState
+    public class SerialConnectionLostState : SerialState
     {
-        public bool CanTransitionTo(Type nextStateType)
+        public SerialConnectionLostState(IObservableSerialPort serialPort) : base(serialPort) { }        
+        public override bool CanTransitionTo(Type nextStateType)
         {
             return nextStateType == typeof(SerialConnectedState);
         }
 
-        public void Handle(SerialStateContext context)
+        public override void Handle(SerialStateContext context)
         {
             context.TransitionTo(typeof(SerialConnectedState));
         }

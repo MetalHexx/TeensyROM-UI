@@ -32,7 +32,7 @@ namespace TeensyRom.Ui.Features.Connect
         public ReactiveCommand<Unit, Unit> ClearLogsCommand { get; set; }
         public ObservableCollection<string> Logs { get; } = [];
 
-        public ConnectViewModel(IMediator m, ISerialStateContext serial, ILoggingService logService)
+        public ConnectViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log)
         {
             FeatureTitle = "Manage Connection";
 
@@ -57,12 +57,12 @@ namespace TeensyRom.Ui.Features.Connect
                 outputScheduler: ImmediateScheduler.Instance);
 
             PingCommand = ReactiveCommand.CreateFromTask(
-                execute: () => m.Send(new PingCommand()),
+                execute: () => mediator.Send(new PingCommand()),
                 canExecute: this.WhenAnyValue(x => x.IsConnected),
                 outputScheduler: ImmediateScheduler.Instance);
 
             ResetCommand = ReactiveCommand.CreateFromTask(
-                execute: () => m.Send(new ResetCommand()), 
+                execute: () => mediator.Send(new ResetCommand()), 
                 canExecute: this.WhenAnyValue(x => x.IsConnected),
                 outputScheduler: ImmediateScheduler.Instance);
 
@@ -83,7 +83,7 @@ namespace TeensyRom.Ui.Features.Connect
                     IsConnectable = state is SerialConnectableState;
                 });
 
-            logService.Logs
+            log.Logs
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(logMessage =>
                 {

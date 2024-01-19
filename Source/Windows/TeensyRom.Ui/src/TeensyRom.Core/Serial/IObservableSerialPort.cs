@@ -12,6 +12,7 @@ namespace TeensyRom.Core.Serial
         /// </summary>
         IObservable<string[]> Ports { get; }
         int BytesToRead { get; }
+        IObservable<Type> State { get; }
 
         /// <summary>
         /// Writes text to the serial port

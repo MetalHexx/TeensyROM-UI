@@ -36,7 +36,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, ISnackbarService alert, FilesViewModel files, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, ISerialStateContext serialState)
+        public NavigationHostViewModel(INavigationService navStore, ISerialStateContext serialState, ISnackbarService alert, FilesViewModel files, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
         {
             _navService = navStore;
             _serialState = serialState;

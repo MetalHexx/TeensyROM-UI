@@ -5,42 +5,30 @@ using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Core.Serial.State
 {
-    public class SerialStateContext : ReactiveObject, ISerialStateContext
+    public class SerialStateContext : ReactiveObject, ISerialStateContext, IObservableSerialPort
     {
-        [Reactive]
-        public ISerialState CurrentState { get; private set; }
-        public ISerialState? PreviousState { get; private set; }
-        public IObservable<string[]> Ports => _serialPort.Ports;
-
-        private readonly Dictionary<Type, ISerialState> _states = new()
-        {
-                { typeof(SerialStartState), new SerialStartState() },
-                { typeof(SerialConnectableState), new SerialConnectableState() },
-                { typeof(SerialConnectedState), new SerialConnectedState() },
-                { typeof(SerialBusyState), new SerialBusyState() },
-                { typeof(SerialConnectionLostState), new SerialConnectionLostState() }
-        };
+        [Reactive] public SerialState CurrentState { get; private set; }
+        public IObservable<string[]> Ports => CurrentState.Ports;
+        private readonly Dictionary<Type, SerialState> _states;
+        private readonly IObservableSerialPort _serialPort;
         private readonly ILoggingService _log;
-        private IObservableSerialPort _serialPort;
+        private readonly IDisposable _stateSubscription;
 
-        public SerialStateContext(ILoggingService log)
+        public SerialStateContext(IObservableSerialPort serialPort, ILoggingService log)
         {
-            CurrentState = _states[typeof(SerialStartState)];
             _log = log;
-            _serialPort = new ObservableSerialPort(_log, this);
-        }
-
-        public void TransitionToPreviousState() 
-        {
-            if (PreviousState != null)
+            _serialPort = serialPort;            
+            _states = new()
             {
-                TransitionTo(PreviousState.GetType());
-                return;
-            }
-            _log.InternalError($"Unable to transition from {CurrentState.GetType().Name} because the previous state is unknown");
+                    { typeof(SerialStartState), new SerialStartState(serialPort) },
+                    { typeof(SerialConnectableState), new SerialConnectableState(serialPort) },
+                    { typeof(SerialConnectedState), new SerialConnectedState(serialPort) },
+                    { typeof(SerialBusyState), new SerialBusyState(serialPort) },
+                    { typeof(SerialConnectionLostState), new SerialConnectionLostState(serialPort) }
+            };
+            CurrentState = _states[typeof(SerialStartState)];
+            _stateSubscription = _serialPort.State.Subscribe(TransitionTo);
         }
-
-        public void Handle() => CurrentState.Handle(this);
 
         public void TransitionTo(Type nextStateType)
         {
@@ -52,7 +40,6 @@ namespace TeensyRom.Core.Serial.State
 
             if (CurrentState.CanTransitionTo(nextStateType))
             {
-                PreviousState = CurrentState;
                 CurrentState = _states[nextStateType];
                 _log.Internal($"Transitioned to state: {CurrentState.GetType().Name}");
                 return;
@@ -60,21 +47,37 @@ namespace TeensyRom.Core.Serial.State
             _log.InternalError($"Transition to {nextStateType.Name} is not allowed from {CurrentState.GetType().Name}");
         }
 
-        public Unit OpenPort() => _serialPort.OpenPort();
-        public Unit ClosePort() => _serialPort.ClosePort();
-        public Unit SetPort(string port) => _serialPort.SetPort( port);
-        public void Lock() => _serialPort.Lock();
-        public void Unlock() => _serialPort.Unlock();
+        public Unit OpenPort() => CurrentState.OpenPort();
+        public Unit ClosePort() => CurrentState.ClosePort();
+        public Unit SetPort(string port) => CurrentState.SetPort( port);
+        public void Lock() => CurrentState.Lock();
+        public void Unlock() => CurrentState.Unlock();
 
-        public void SendIntBytes(uint intToSend, short byteLength) => _serialPort.SendIntBytes(intToSend, byteLength);
-        public void Write(string text) => _serialPort.Write(text);
+        public void SendIntBytes(uint intToSend, short byteLength) => CurrentState.SendIntBytes(intToSend, byteLength);
+        public void Write(string text) => CurrentState.Write(text);
 
-        public void Write(char[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);
-        public void Write(byte[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);
+        public void Write(char[] buffer, int offset, int count) => CurrentState.Write(buffer, offset, count);
+        public void Write(byte[] buffer, int offset, int count) => CurrentState.Write(buffer, offset, count);
 
-        public void WaitForSerialData(int numBytes, int timeoutMs) => _serialPort.WaitForSerialData(numBytes, timeoutMs);
-        public string ReadSerialAsString(int msToWait = 0) => _serialPort.ReadSerialAsString(msToWait);
-        public int BytesToRead => _serialPort.BytesToRead;
-        public int Read(byte[] buffer, int offset, int count) => _serialPort.Read(buffer, offset, count);
+        public void WaitForSerialData(int numBytes, int timeoutMs) => CurrentState.WaitForSerialData(numBytes, timeoutMs);
+        public string ReadSerialAsString(int msToWait = 0) => CurrentState.ReadSerialAsString(msToWait);
+        public int BytesToRead => CurrentState.BytesToRead;
+        public int Read(byte[] buffer, int offset, int count) => CurrentState.Read(buffer, offset, count);
+
+        public int ReadByte() => CurrentState.ReadByte();
+
+        public byte[] ReadSerialBytes() => CurrentState.ReadSerialBytes();
+
+        public void Dispose()
+        {
+            foreach (var state in _states.Values)
+            {
+                state.Dispose();
+            }
+            _serialPort.Dispose();
+            _stateSubscription.Dispose();
+        }
+
+        IObservable<Type> IObservableSerialPort.State => throw new NotImplementedException();
     }
 }
