@@ -9,12 +9,6 @@ namespace TeensyRom.Core.Serial.State
             return nextStateType == typeof(SerialConnectedState)
                 || nextStateType == typeof(SerialConnectionLostState);
         }
-
-        public override void Handle(SerialStateContext context)
-        {
-            throw new NotImplementedException();
-        }
-
         public override int BytesToRead { get; }
         public override void Write(string text) => _serialPort.Write(text);
         public override void Write(byte[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);   

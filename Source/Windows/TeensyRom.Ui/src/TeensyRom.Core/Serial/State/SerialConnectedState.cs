@@ -12,10 +12,6 @@ namespace TeensyRom.Core.Serial.State
                 || nextStateType == typeof(SerialBusyState)
                 || nextStateType == typeof(SerialConnectionLostState);
         }
-        public override void Handle(SerialStateContext context)
-        {
-            return;
-        }
         public override Unit ClosePort() => _serialPort.ClosePort();
         public override void Lock() => _serialPort.Lock();
     }
