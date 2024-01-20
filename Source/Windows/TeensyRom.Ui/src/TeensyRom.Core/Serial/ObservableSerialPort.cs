@@ -20,13 +20,10 @@ namespace TeensyRom.Core.Serial
         public IObservable<string[]> Ports => _ports.AsObservable();
         private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
 
-        private IDisposable? _logSubscription;
-        private IDisposable? _healthCheckSubscription;
-        private IDisposable? _portRefresherSubscription;
-
         private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
         private readonly ILoggingService _log;
         private readonly Subject<Type> _state = new();
+
         public int BytesToRead => _serialPort.BytesToRead;
         public void Write(string text) => _serialPort.Write(text);
         public void Write(byte[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);
@@ -48,6 +45,24 @@ namespace TeensyRom.Core.Serial
             }
             _serialPort.PortName = port;
             return Unit.Default;
+        }
+
+        private void EnsureConnection()
+        {
+            if (_serialPort.IsOpen) return;
+
+            try
+            {
+                _serialPort.Open();
+
+                ReadAndLogStaleBuffer();
+                _log.InternalSuccess($"Successfully connected to {_serialPort.PortName}");
+            }
+            catch
+            {
+                _log.InternalError($"Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
+                throw;
+            }
         }
 
         public Unit OpenPort()
@@ -75,24 +90,6 @@ namespace TeensyRom.Core.Serial
                 .Subscribe();
 
             return Unit.Default;
-        }
-
-        protected void EnsureConnection()
-        {
-            if (_serialPort.IsOpen) return;
-
-            try
-            {
-                _serialPort.Open();
-
-                ReadAndLogStaleBuffer();
-                _log.InternalSuccess($"Successfully connected to {_serialPort.PortName}");
-            }
-            catch
-            {   
-                _log.InternalError($"Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
-                throw;
-            }
         }
 
         public Unit ClosePort()
@@ -152,7 +149,7 @@ namespace TeensyRom.Core.Serial
         /// </summary>
         public void Unlock()
         {
-            _logSubscription = Observable.FromEventPattern<SerialDataReceivedEventHandler, SerialDataReceivedEventArgs>
+            _serialEventSubscription = Observable.FromEventPattern<SerialDataReceivedEventHandler, SerialDataReceivedEventArgs>
             (
                 handler => _serialPort.DataReceived += handler,
                 handler => _serialPort.DataReceived -= handler
@@ -178,10 +175,10 @@ namespace TeensyRom.Core.Serial
             _serialPort.DiscardInBuffer();
             _serialPort.DiscardOutBuffer();
 
-            if (_logSubscription is not null)
+            if (_serialEventSubscription is not null)
             {
-                _logSubscription.Dispose();
-                _logSubscription = null;
+                _serialEventSubscription.Dispose();
+                _serialEventSubscription = null;
                 return;
             }
         }
@@ -241,18 +238,6 @@ namespace TeensyRom.Core.Serial
         }
 
         /// <summary>
-        /// Helper to flush the I/O buffers
-        /// </summary>
-        protected void Flush()
-        {
-            if (_serialPort.IsOpen)
-            {
-                _serialPort.DiscardInBuffer();
-                _serialPort.DiscardOutBuffer();
-            }
-        }
-
-        /// <summary>
         /// Helper to quily read stream and write log
         /// </summary>
         protected void ReadAndLogStaleBuffer()
@@ -264,11 +249,6 @@ namespace TeensyRom.Core.Serial
 
             _log.External(log);
         }
-
-        /// <summary>
-        /// Converts bytes to an integer
-        /// </summary>
-        protected static ushort ToInt16(byte[] bytes) => (ushort)(bytes[1] * 256 + bytes[0]);
 
         /// <summary>
         /// Outputs bytes as a string for log output
@@ -283,7 +263,11 @@ namespace TeensyRom.Core.Serial
             _ports?.Dispose();
             _portRefresherSubscription?.Dispose();
             _healthCheckSubscription?.Dispose();
-            _logSubscription?.Dispose();
+            _serialEventSubscription?.Dispose();
         }
+
+        private IDisposable? _serialEventSubscription;
+        private IDisposable? _healthCheckSubscription;
+        private IDisposable? _portRefresherSubscription;
     }
 }
