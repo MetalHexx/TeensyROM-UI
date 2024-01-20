@@ -51,10 +51,9 @@ namespace TeensyRom.Ui.Features.Music
             PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.PlayRandom());
             CacheAllCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.CacheAll());
 
-            settings.Settings
-                .Where(_ => serialState.CurrentState is SerialConnectedState)
-                .CombineLatest(settings.Settings, (isConnected, settings) => settings)
+            settings.Settings                
                 .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
+                .Where(_ => serialState.CurrentState is SerialConnectedState)
                 .Where(sn => sn.currentNav?.Type == NavigationLocation.Music)
                 .Take(1)
                 .Subscribe(sn => _musicState.LoadDirectory(sn.settings.GetLibraryPath(TeensyLibraryType.Music)));
