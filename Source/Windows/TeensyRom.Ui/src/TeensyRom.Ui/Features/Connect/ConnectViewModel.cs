@@ -46,6 +46,15 @@ namespace TeensyRom.Ui.Features.Connect
                 .Where(port => port != null)
                 .Subscribe(port => serial.SetPort(port));
 
+            serial
+                .WhenAnyValue(x => x.CurrentState)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(state =>
+                {
+                    IsConnected = state is SerialConnectedState;
+                    IsConnectable = state is SerialConnectableState;
+                });
+
             ConnectCommand = ReactiveCommand.Create<Unit, Unit>(
                 execute: n => serial.OpenPort(),
                 canExecute: this.WhenAnyValue(x => x.IsConnectable),
@@ -73,15 +82,6 @@ namespace TeensyRom.Ui.Features.Connect
                     return Unit.Default;
                 },
                 outputScheduler: ImmediateScheduler.Instance);
-
-            serial
-                .WhenAnyValue(x => x.CurrentState)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(state =>
-                {
-                    IsConnected = state is SerialConnectedState;
-                    IsConnectable = state is SerialConnectableState;
-                });
 
             log.Logs
                 .ObserveOn(RxApp.MainThreadScheduler)
