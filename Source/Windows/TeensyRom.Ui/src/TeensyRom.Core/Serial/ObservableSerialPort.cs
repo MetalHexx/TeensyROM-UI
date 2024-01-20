@@ -20,7 +20,6 @@ namespace TeensyRom.Core.Serial
         public IObservable<string[]> Ports => _ports.AsObservable();
         private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
 
-        private IDisposable? _dataSubscription;
         private IDisposable? _logSubscription;
         private IDisposable? _healthCheckSubscription;
         private IDisposable? _portRefresherSubscription;
@@ -181,7 +180,6 @@ namespace TeensyRom.Core.Serial
 
             if (_logSubscription is not null)
             {
-                _dataSubscription?.Dispose();
                 _logSubscription.Dispose();
                 _logSubscription = null;
                 return;
@@ -286,7 +284,6 @@ namespace TeensyRom.Core.Serial
             _portRefresherSubscription?.Dispose();
             _healthCheckSubscription?.Dispose();
             _logSubscription?.Dispose();
-            _dataSubscription?.Dispose();
         }
     }
 }
