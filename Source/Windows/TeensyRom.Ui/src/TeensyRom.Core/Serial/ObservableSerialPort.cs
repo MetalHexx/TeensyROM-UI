@@ -1,5 +1,4 @@
-﻿using ReactiveUI;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO.Ports;
 using System.Reactive;
 using System.Reactive.Linq;
