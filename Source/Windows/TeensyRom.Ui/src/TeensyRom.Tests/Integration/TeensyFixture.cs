@@ -6,7 +6,6 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Storage;
-using TeensyRom.Ui.Features.FileTransfer;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Settings;
 using TeensyRom.Ui.Features.Connect;
@@ -30,12 +29,10 @@ namespace TeensyRom.Tests.Integration
         public ISettingsService SettingsService { get; private set; }
         public ILoggingService LogService { get; private set; }
         public IObservableSerialPort SerialPort { get; private set; }
-        public ISerialPortState SerialState { get; private set; }
         public IFileWatcher FileWatcher { get; private set; }
         public IFileWatchService FileWatchService { get; private set; }        
         public SettingsViewModel SettingsViewModel { get; private set; }
         public ConnectViewModel ConnectViewModel { get; private set; }
-        public FileTransferViewModel FileTransferViewModel { get; private set; }
         public readonly string SettingsFileName = "Settings.json";
         public readonly string TestFileName = $"{Guid.NewGuid().ToString().Substring(0, 7)}-test";
         public string FullSourceTestPath => @$"{Settings.WatchDirectoryLocation}\{TestFileName}";
