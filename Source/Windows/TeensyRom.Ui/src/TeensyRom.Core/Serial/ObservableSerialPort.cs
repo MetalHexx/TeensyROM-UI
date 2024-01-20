@@ -143,10 +143,7 @@ namespace TeensyRom.Core.Serial
                 .Subscribe(_ports.OnNext);
         }
 
-        /// <summary>
-        /// Toggle the automatic serial port read poll.  Useful when performing
-        /// timing sensitive operations that might get disrupted by the polling.
-        /// </summary>
+        
         public void Unlock()
         {
             _serialEventSubscription = Observable.FromEventPattern<SerialDataReceivedEventHandler, SerialDataReceivedEventArgs>
@@ -188,7 +185,7 @@ namespace TeensyRom.Core.Serial
         /// </summary>
         public byte[] ReadSerialBytes()
         {
-            if (_serialPort.BytesToRead == 0) return Array.Empty<byte>();
+            if (_serialPort.BytesToRead == 0) return [];
 
             var data = new byte[_serialPort.BytesToRead];
             _serialPort.Read(data, 0, data.Length);
