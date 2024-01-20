@@ -50,10 +50,10 @@ namespace TeensyRom.Ui.Features.Files
             PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.PlayRandom());
             CacheAllCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.CacheAll());
 
-            settings.Settings
-                .Where(isConnected => serialState.CurrentState is SerialConnectedState)
+            settings.Settings                
                 .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
                 .Where(sn => sn.currentNav?.Type == NavigationLocation.Files)
+                .Where(_ => serialState.CurrentState is SerialConnectedState)
                 .Select(sn => sn.settings.TargetRootPath)
                 .Take(1)
                 .Subscribe(root => _fileState.LoadDirectory(root));
