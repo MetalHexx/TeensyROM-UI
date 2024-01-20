@@ -20,11 +20,11 @@ namespace TeensyRom.Core.Serial.State
             _serialPort = serialPort;            
             _states = new()
             {
-                    { typeof(SerialStartState), new SerialStartState(serialPort) },
-                    { typeof(SerialConnectableState), new SerialConnectableState(serialPort) },
-                    { typeof(SerialConnectedState), new SerialConnectedState(serialPort) },
-                    { typeof(SerialBusyState), new SerialBusyState(serialPort) },
-                    { typeof(SerialConnectionLostState), new SerialConnectionLostState(serialPort) }
+                { typeof(SerialStartState), new SerialStartState(serialPort) },
+                { typeof(SerialConnectableState), new SerialConnectableState(serialPort) },
+                { typeof(SerialConnectedState), new SerialConnectedState(serialPort) },
+                { typeof(SerialBusyState), new SerialBusyState(serialPort) },
+                { typeof(SerialConnectionLostState), new SerialConnectionLostState(serialPort) }
             };
             CurrentState = _states[typeof(SerialStartState)];
             _stateSubscription = _serialPort.State.Subscribe(TransitionTo);
