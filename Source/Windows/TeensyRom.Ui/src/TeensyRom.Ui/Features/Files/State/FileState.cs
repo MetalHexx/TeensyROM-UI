@@ -1,6 +1,7 @@
 ﻿using DynamicData;
 using MaterialDesignThemes.Wpf;
 using MediatR;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,11 +17,13 @@ using System.Threading.Tasks;
 using System.Windows;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Files.DirectoryContent;
+using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Files.State
@@ -51,24 +54,28 @@ namespace TeensyRom.Ui.Features.Files.State
         private readonly ISettingsService _settingsService;
         private readonly IMediator _mediator;
         private readonly ISnackbarService _alert;
-        private TeensySettings _settings = new();
+        private TeensySettings _settings;
         private IDisposable _settingsSubscription;
         private int _skip => (_currentPage.Value - 1) * _pageSize.Value;
 
-        public FileState(ICachedStorageService storageService, ISettingsService settingsService, IMediator mediator, ISnackbarService alert)
+        public FileState(ICachedStorageService storageService, ISettingsService settingsService, IMediator mediator, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav)
         {
             _storageService = storageService;
             _settingsService = settingsService;
             _mediator = mediator;
             _alert = alert;
-            _settingsSubscription = _settingsService.Settings.Subscribe(settings => OnSettingsChanged(settings));
 
-        }
-        private void OnSettingsChanged(TeensySettings settings)
-        {
-            _settings = settings;
-            _directoryContent.OnNext([]);
-            ResetDirectoryTree();
+            _settingsSubscription = _settingsService.Settings
+                .Do(settings => _settings = settings)
+                .CombineLatest(serialContext.CurrentState, nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
+                .Where(state => state.serial is SerialConnectedState)
+                .Where(state => state.navView?.Type == NavigationLocation.Files)
+                .Select(state => (state.settings.TargetRootPath, state.settings.TargetType))
+                .DistinctUntilChanged()                
+                .Select(storage => storage.TargetRootPath)
+                .Do(_ => ResetDirectoryTree())              
+                .Subscribe(async path => await LoadDirectory(path)); 
+
         }
         private void ResetDirectoryTree()
         {

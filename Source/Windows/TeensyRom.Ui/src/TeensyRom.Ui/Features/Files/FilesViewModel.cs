@@ -37,7 +37,7 @@ namespace TeensyRom.Ui.Features.Files
 
         private readonly IFileState _fileState;
 
-        public FilesViewModel(ISettingsService settings, INavigationService nav, ISerialStateContext serialState, IFileState fileState, DirectoryContentViewModel directoryContent, SearchFilesViewModel search)
+        public FilesViewModel(ISettingsService settings, INavigationService nav, ISerialStateContext serialContext, IFileState fileState, DirectoryContentViewModel directoryContent, SearchFilesViewModel search)
         {
             FeatureTitle = "File Explorer";            
             DirectoryContent = directoryContent;
@@ -49,14 +49,6 @@ namespace TeensyRom.Ui.Features.Files
             RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.RefreshDirectory());
             PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.PlayRandom());
             CacheAllCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.CacheAll());
-
-            settings.Settings                
-                .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
-                .Where(sn => sn.currentNav?.Type == NavigationLocation.Files)
-                .Where(_ => serialState.CurrentState is SerialConnectedState)
-                .Select(sn => sn.settings.TargetRootPath)
-                .Take(1)
-                .Subscribe(root => _fileState.LoadDirectory(root));
 
             DirectoryTree = new(fileState.DirectoryTree)
             {
