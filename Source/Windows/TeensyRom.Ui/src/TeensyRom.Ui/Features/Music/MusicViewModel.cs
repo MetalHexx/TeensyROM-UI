@@ -36,7 +36,7 @@ namespace TeensyRom.Ui.Features.Music
         public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
         public ReactiveCommand<Unit, Unit> CacheAllCommand { get; set; }
 
-        public MusicViewModel(IMusicState musicState, ISerialStateContext serialState, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList, SearchMusicViewModel search)
+        public MusicViewModel(IMusicState musicState, ISerialStateContext serialContext, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList, SearchMusicViewModel search)
         {
             FeatureTitle = "Music";
             _musicState = musicState;
@@ -50,13 +50,6 @@ namespace TeensyRom.Ui.Features.Music
             RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.RefreshDirectory());
             PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.PlayRandom());
             CacheAllCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.CacheAll());
-
-            settings.Settings                
-                .CombineLatest(nav.SelectedNavigationView, (settings, currentNav) => (settings, currentNav))
-                .Where(_ => serialState.CurrentState is SerialConnectedState)
-                .Where(sn => sn.currentNav?.Type == NavigationLocation.Music)
-                .Take(1)
-                .Subscribe(sn => _musicState.LoadDirectory(sn.settings.GetLibraryPath(TeensyLibraryType.Music)));
 
             MusicTree = new(musicState.DirectoryTree)
             {

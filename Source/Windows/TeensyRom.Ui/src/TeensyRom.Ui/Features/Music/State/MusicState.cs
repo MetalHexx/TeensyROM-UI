@@ -17,6 +17,7 @@ using System.Windows.Threading;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
@@ -24,6 +25,7 @@ using TeensyRom.Ui.Controls;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Global;
+using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Music.State
@@ -54,10 +56,11 @@ namespace TeensyRom.Ui.Features.Music.State
         private TimeSpan? _currentTime;
         private IDisposable? _playingSongSubscription;
         private IDisposable _programLaunchedSubscription;
-        
+        private IDisposable _settingsSubscription;
+
         private IDisposable _currentTimeSubscription;
 
-        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService musicService, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, IGlobalState globalState)
+        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService musicService, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, IGlobalState globalState, ISerialStateContext serialContext, INavigationService nav)
         {
             _songTime = songTime;
             _mediator = mediator;
@@ -66,6 +69,17 @@ namespace TeensyRom.Ui.Features.Music.State
             _launchHistory = launchHistory;
             _alert = alert;
             _settingsService.Settings.Subscribe(OnSettingsChanged);
+
+            _settingsSubscription = _settingsService.Settings
+                .Do(settings => _settings = settings)
+                .CombineLatest(serialContext.CurrentState, nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
+                .Where(state => state.serial is SerialConnectedState)
+                .Where(state => state.navView?.Type == NavigationLocation.Music)
+                .Select(state => (path: state.settings.GetLibraryPath(TeensyLibraryType.Music), state.settings.TargetType))
+                .DistinctUntilChanged()
+                .Select(storage => storage.path)
+                .Do(_ => ResetDirectoryTree())
+                .Subscribe(async path => await LoadDirectory(path));
 
             _currentTimeSubscription = _songTime.CurrentTime.Subscribe(currentTime =>
             {
@@ -389,6 +403,7 @@ namespace TeensyRom.Ui.Features.Music.State
         }
         public void Dispose()
         {
+            _settingsSubscription?.Dispose();
             _currentTimeSubscription?.Dispose();
             _playingSongSubscription?.Dispose();
             _programLaunchedSubscription?.Dispose();
