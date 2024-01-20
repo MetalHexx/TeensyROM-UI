@@ -23,7 +23,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
         [ObservableAsProperty] public object CurrentViewModel { get; }
         [ObservableAsProperty] public object NavigationItems { get; }
         [ObservableAsProperty] public bool IsNavOpen { get; }
-        [Reactive] public bool SerialBusy { get; set; }
+        [ObservableAsProperty] public bool SerialBusy { get; set; }
         [Reactive] public string Title { get; set; } = "TeensyROM";
         //TODO: Track down why I need this property.  I had to put this here to stop a bunch of errors from throwing in the output window.
         [Reactive] public bool ControlsEnabled { get; set; }
@@ -32,14 +32,14 @@ namespace TeensyRom.Ui.Features.NavigationHost
         public ReactiveCommand<Unit, Unit> ToggleNavCommand { get; private set; }
 
         private readonly INavigationService _navService;
-        private readonly ISerialStateContext _serialState;
+        private readonly ISerialStateContext _serialContext;
 
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
         public NavigationHostViewModel(INavigationService navStore, ISerialStateContext serialState, ISnackbarService alert, FilesViewModel files, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
         {
             _navService = navStore;
-            _serialState = serialState;
+            _serialContext = serialState;
             MessageQueue = alert.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
@@ -117,7 +117,10 @@ namespace TeensyRom.Ui.Features.NavigationHost
                 .ToPropertyEx(this, vm => vm.NavigationItems);
 
             _navService.IsNavOpen.ToPropertyEx(this, vm => vm.IsNavOpen);
-            SerialBusy = _serialState.CurrentState is SerialBusyState;
+
+            _serialContext.CurrentState
+                .Select(s => s is SerialBusyState)
+                .ToPropertyEx(this, vm => vm.SerialBusy);
         }
     }
 }
