@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using ReactiveUI;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -22,7 +23,7 @@ namespace TeensyRom.Core.Serial
 
         private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
         private readonly ILoggingService _log;
-        private readonly Subject<Type> _state = new();
+        private readonly BehaviorSubject<Type> _state = new(typeof(SerialStartState));
 
         public int BytesToRead => _serialPort.BytesToRead;
         public void Write(string text) => _serialPort.Write(text);
@@ -77,7 +78,11 @@ namespace TeensyRom.Core.Serial
                     try
                     {
                         EnsureConnection();
-                        _state.OnNext(typeof(SerialConnectedState));
+
+                        if (_state.Value == typeof(SerialConnectionLostState))
+                        {
+                            _state.OnNext(typeof(SerialConnectedState));
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -123,6 +128,7 @@ namespace TeensyRom.Core.Serial
             _portRefresherSubscription = Observable
                 .Interval(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds))
                 .Select(_ => SerialPort.GetPortNames())
+                .DistinctUntilChanged()
                 .Scan(initialPorts, (previousPorts, currentPorts) =>
                 {
                     var previousHasPorts = previousPorts.Length > 0;

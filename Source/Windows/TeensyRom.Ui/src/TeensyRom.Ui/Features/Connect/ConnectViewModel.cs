@@ -22,8 +22,8 @@ namespace TeensyRom.Ui.Features.Connect
     public class ConnectViewModel: FeatureViewModelBase
     {
         [ObservableAsProperty] public string[]? Ports { get; }
-        [Reactive] public bool IsConnected { get; set; }
-        [Reactive] public bool IsConnectable { get; set; }
+        [ObservableAsProperty] public bool IsConnected { get; set; }
+        [ObservableAsProperty] public bool IsConnectable { get; set; }
         [Reactive] public string SelectedPort { get; set; } = string.Empty;
         public ReactiveCommand<Unit, Unit> ConnectCommand { get; set; }
         public ReactiveCommand<Unit, Unit> DisconnectCommand { get; set; }
@@ -46,14 +46,15 @@ namespace TeensyRom.Ui.Features.Connect
                 .Where(port => port != null)
                 .Subscribe(port => serial.SetPort(port));
 
-            serial
-                .WhenAnyValue(x => x.CurrentState)
+            serial.CurrentState
+                .Select(state => state is SerialConnectedState)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(state =>
-                {
-                    IsConnected = state is SerialConnectedState;
-                    IsConnectable = state is SerialConnectableState;
-                });
+                .ToPropertyEx(this, vm => vm.IsConnected);
+
+            serial.CurrentState
+                .Select(state => state is SerialConnectableState)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToPropertyEx(this, vm => vm.IsConnectable);
 
             ConnectCommand = ReactiveCommand.Create<Unit, Unit>(
                 execute: n => serial.OpenPort(),

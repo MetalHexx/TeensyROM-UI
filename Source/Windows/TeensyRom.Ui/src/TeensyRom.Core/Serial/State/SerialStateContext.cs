@@ -1,14 +1,17 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Core.Serial.State
 {
-    public class SerialStateContext : ReactiveObject, ISerialStateContext, IObservableSerialPort
+    public class SerialStateContext : ISerialStateContext, IObservableSerialPort
     {
-        [Reactive] public SerialState CurrentState { get; private set; }
-        public IObservable<string[]> Ports => CurrentState.Ports;
+        public IObservable<SerialState> CurrentState => _currentState.AsObservable();
+        private readonly BehaviorSubject<SerialState> _currentState;
+        public IObservable<string[]> Ports => _serialPort.Ports;
         private readonly Dictionary<Type, SerialState> _states;
         private readonly IObservableSerialPort _serialPort;
         private readonly ILoggingService _log;
@@ -26,44 +29,44 @@ namespace TeensyRom.Core.Serial.State
                 { typeof(SerialBusyState), new SerialBusyState(serialPort) },
                 { typeof(SerialConnectionLostState), new SerialConnectionLostState(serialPort) }
             };
-            CurrentState = _states[typeof(SerialStartState)];
+            _currentState = new(_states[typeof(SerialStartState)]);
             _stateSubscription = _serialPort.State.Subscribe(TransitionTo);
             _serialPort.StartPortPoll();
         }
 
         public void TransitionTo(Type nextStateType)
         {
-            if (nextStateType == CurrentState.GetType())
+            if (nextStateType == _currentState.Value.GetType())
             {
-                _log.Internal($"Already in a {CurrentState.GetType().Name}");
+                _log.Internal($"Already in a {_currentState.Value.GetType().Name}");
                 return;
             }
 
-            if (CurrentState.CanTransitionTo(nextStateType))
+            if (_currentState.Value.CanTransitionTo(nextStateType))
             {
-                CurrentState = _states[nextStateType];
-                _log.Internal($"Transitioned to state: {CurrentState.GetType().Name}");
+                _currentState.OnNext(_states[nextStateType]);
+                _log.Internal($"Transitioned to state: {_currentState.Value.GetType().Name}");
                 return;
             }
-            _log.InternalError($"Transition to {nextStateType.Name} is not allowed from {CurrentState.GetType().Name}");
+            _log.InternalError($"Transition to {nextStateType.Name} is not allowed from {_currentState.Value.GetType().Name}");
         }
 
-        public Unit OpenPort() => CurrentState.OpenPort();
-        public Unit ClosePort() => CurrentState.ClosePort();
-        public Unit SetPort(string port) => CurrentState.SetPort( port);
-        public void Lock() => CurrentState.Lock();
-        public void Unlock() => CurrentState.Unlock();
-        public void SendIntBytes(uint intToSend, short byteLength) => CurrentState.SendIntBytes(intToSend, byteLength);
-        public void Write(string text) => CurrentState.Write(text);
-        public void Write(char[] buffer, int offset, int count) => CurrentState.Write(buffer, offset, count);
-        public void Write(byte[] buffer, int offset, int count) => CurrentState.Write(buffer, offset, count);
-        public void WaitForSerialData(int numBytes, int timeoutMs) => CurrentState.WaitForSerialData(numBytes, timeoutMs);
-        public string ReadSerialAsString(int msToWait = 0) => CurrentState.ReadSerialAsString(msToWait);
-        public int BytesToRead => CurrentState.BytesToRead;
-        public int Read(byte[] buffer, int offset, int count) => CurrentState.Read(buffer, offset, count);
-        public int ReadByte() => CurrentState.ReadByte();
-        public byte[] ReadSerialBytes() => CurrentState.ReadSerialBytes();
-        public void StartPortPoll() => CurrentState.StartPortPoll();
+        public Unit OpenPort() => _currentState.Value.OpenPort();
+        public Unit ClosePort() => _currentState.Value.ClosePort();
+        public Unit SetPort(string port) => _currentState.Value.SetPort( port);
+        public void Lock() => _currentState.Value.Lock();
+        public void Unlock() => _currentState.Value.Unlock();
+        public void SendIntBytes(uint intToSend, short byteLength) => _currentState.Value.SendIntBytes(intToSend, byteLength);
+        public void Write(string text) => _currentState.Value.Write(text);
+        public void Write(char[] buffer, int offset, int count) => _currentState.Value.Write(buffer, offset, count);
+        public void Write(byte[] buffer, int offset, int count) => _currentState.Value.Write(buffer, offset, count);
+        public void WaitForSerialData(int numBytes, int timeoutMs) => _currentState.Value.WaitForSerialData(numBytes, timeoutMs);
+        public string ReadSerialAsString(int msToWait = 0) => _currentState.Value.ReadSerialAsString(msToWait);
+        public int BytesToRead => _currentState.Value.BytesToRead;
+        public int Read(byte[] buffer, int offset, int count) => _currentState.Value.Read(buffer, offset, count);
+        public int ReadByte() => _currentState.Value.ReadByte();
+        public byte[] ReadSerialBytes() => _currentState.Value.ReadSerialBytes();
+        public void StartPortPoll() => _currentState.Value.StartPortPoll();
         public void Dispose()
         {
             foreach (var state in _states.Values)

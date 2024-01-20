@@ -58,7 +58,8 @@ namespace TeensyRom.Core.Serial
         /// </summary>
         void Lock();
         /// <summary>
-        /// Removes the lock on the serial port and engages the auto-polling behavior.
+        /// Removes the lock on the serial port and automatically reads and logs
+        /// the serial port on an interval.
         /// </summary>        
         void Unlock();
         int Read(byte[] buffer, int offset, int count);
