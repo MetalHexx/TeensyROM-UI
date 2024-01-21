@@ -36,14 +36,14 @@ namespace TeensyRom.Core.Serial.State
         {
             if (nextStateType == _currentState.Value.GetType())
             {
-                _log.Internal($"Already in a {_currentState.Value.GetType().Name}");
+                //_log.Internal($"Already in a {_currentState.Value.GetType().Name}");
                 return;
             }
 
             if (_currentState.Value.CanTransitionTo(nextStateType))
             {
                 _currentState.OnNext(_states[nextStateType]);
-                _log.Internal($"Transitioned to state: {_currentState.Value.GetType().Name}");
+                //_log.Internal($"Transitioned to state: {_currentState.Value.GetType().Name}");
                 return;
             }
             _log.InternalError($"Transition to {nextStateType.Name} is not allowed from {_currentState.Value.GetType().Name}");
