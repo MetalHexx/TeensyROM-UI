@@ -15,6 +15,7 @@ using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
+using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Helpers.ViewModel;
 
 namespace TeensyRom.Ui.Features.Connect
@@ -24,7 +25,9 @@ namespace TeensyRom.Ui.Features.Connect
         [ObservableAsProperty] public string[]? Ports { get; }
         [ObservableAsProperty] public bool IsConnected { get; set; }
         [ObservableAsProperty] public bool IsConnectable { get; set; }
+
         [Reactive] public string SelectedPort { get; set; } = string.Empty;
+
         public ReactiveCommand<Unit, Unit> ConnectCommand { get; set; }
         public ReactiveCommand<Unit, Unit> DisconnectCommand { get; set; }
         public ReactiveCommand<Unit, PingResult> PingCommand { get; set; }
@@ -32,13 +35,14 @@ namespace TeensyRom.Ui.Features.Connect
         public ReactiveCommand<Unit, Unit> ClearLogsCommand { get; set; }
         public ObservableCollection<string> Logs { get; } = [];
 
-        public ConnectViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log)
+        public ConnectViewModel(IMediator mediator, ISerialStateContext serial, IGlobalState globalState, ILoggingService log)
         {
             FeatureTitle = "Manage Connection";
 
             serial.Ports.ToPropertyEx(this, vm => vm.Ports);
 
             serial.Ports
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(ports => ports.Length > 0)
                 .Subscribe(ports => SelectedPort = ports.First());
 
@@ -46,35 +50,34 @@ namespace TeensyRom.Ui.Features.Connect
                 .Where(port => port != null)
                 .Subscribe(port => serial.SetPort(port));
 
-            serial.CurrentState
-                .Select(state => state is SerialConnectedState)
+            globalState.SerialConnected
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToPropertyEx(this, vm => vm.IsConnected);
 
             serial.CurrentState
-                .Select(state => state is SerialConnectableState)
                 .ObserveOn(RxApp.MainThreadScheduler)
+                .Select(state => state is SerialConnectableState)                
                 .ToPropertyEx(this, vm => vm.IsConnectable);
 
             ConnectCommand = ReactiveCommand.Create<Unit, Unit>(
                 execute: n => serial.OpenPort(),
                 canExecute: this.WhenAnyValue(x => x.IsConnectable),
-                outputScheduler: ImmediateScheduler.Instance);
+                outputScheduler: RxApp.MainThreadScheduler);
 
             DisconnectCommand = ReactiveCommand.Create<Unit, Unit>(
                 execute: n => serial.ClosePort(),
                 canExecute: this.WhenAnyValue(x => x.IsConnected),
-                outputScheduler: ImmediateScheduler.Instance);
+                outputScheduler: RxApp.MainThreadScheduler);
 
             PingCommand = ReactiveCommand.CreateFromTask(
                 execute: () => mediator.Send(new PingCommand()),
                 canExecute: this.WhenAnyValue(x => x.IsConnected),
-                outputScheduler: ImmediateScheduler.Instance);
+                outputScheduler: RxApp.MainThreadScheduler);
 
             ResetCommand = ReactiveCommand.CreateFromTask(
                 execute: () => mediator.Send(new ResetCommand()), 
                 canExecute: this.WhenAnyValue(x => x.IsConnected),
-                outputScheduler: ImmediateScheduler.Instance);
+                outputScheduler: RxApp.MainThreadScheduler);
 
             ClearLogsCommand = ReactiveCommand.Create<Unit, Unit>(
                 execute: _ =>
@@ -82,7 +85,7 @@ namespace TeensyRom.Ui.Features.Connect
                     Logs.Clear();
                     return Unit.Default;
                 },
-                outputScheduler: ImmediateScheduler.Instance);
+                outputScheduler: RxApp.MainThreadScheduler);
 
             log.Logs
                 .ObserveOn(RxApp.MainThreadScheduler)
