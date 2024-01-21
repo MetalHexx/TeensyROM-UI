@@ -14,15 +14,14 @@ namespace TeensyRom.Core.Serial
     /// Provides observables that can be used to monitor serial activity. 
     /// Resiliency routines are employed to recover from a disconnection.
     /// </summary>
-    public class ObservableSerialPort : IObservableSerialPort
+    public class ObservableSerialPort(ILoggingService _log) : IObservableSerialPort
     {
         public IObservable<Type> State => _state.AsObservable();
         public IObservable<string[]> Ports => _ports.AsObservable();
-        private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
 
-        private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
-        private readonly ILoggingService _log;
+        private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         private readonly BehaviorSubject<Type> _state = new(typeof(SerialStartState));
+        private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
 
         public int BytesToRead => _serialPort.BytesToRead;
         public void Write(string text) => _serialPort.Write(text);
@@ -30,11 +29,6 @@ namespace TeensyRom.Core.Serial
         public void Write(char[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);
         public int Read(byte[] buffer, int offset, int count) => _serialPort.Read(buffer, offset, count);
         public int ReadByte() => _serialPort.ReadByte();
-
-        public ObservableSerialPort(ILoggingService log)
-        {
-            _log = log;
-        }
 
         public Unit SetPort(string port)
         {
@@ -109,15 +103,6 @@ namespace TeensyRom.Core.Serial
             return Unit.Default;
         }
 
-        /// <summary>
-        /// Polls the serial port and provides an observable for the currently available ports.
-        /// 
-        /// <remarks>
-        /// When ports are not found, a error log will sent on an interval to let the user know.  
-        /// To avoid spamming success, we keep track of the previous state and only do so 
-        /// when recovering from a connection loss.
-        /// </remarks>
-        /// </summary>
         public void StartPortPoll()
         {
             var initialPorts = SerialPort.GetPortNames();
@@ -148,7 +133,6 @@ namespace TeensyRom.Core.Serial
                 .Subscribe(_ports.OnNext);
         }
 
-        
         public void Unlock()
         {
             _serialEventSubscription = Observable.FromEventPattern<SerialDataReceivedEventHandler, SerialDataReceivedEventArgs>
@@ -167,9 +151,6 @@ namespace TeensyRom.Core.Serial
             _state.OnNext(typeof(SerialConnectedState));
         }
 
-        /// <summary>
-        /// Disable the auto read stream.  Useful when performing timing sensitive transactions.
-        /// </summary>
         public void Lock()
         {
             _state.OnNext(typeof(SerialBusyState));
@@ -240,9 +221,9 @@ namespace TeensyRom.Core.Serial
         }
 
         /// <summary>
-        /// Helper to quily read stream and write log
+        /// Once operations are completed, this method will read and log any remaining bytes in the buffer.
         /// </summary>
-        protected void ReadAndLogStaleBuffer()
+        private void ReadAndLogStaleBuffer()
         {
             var bytes = ReadSerialBytes();
             var log = ToLogString(bytes);
@@ -255,7 +236,7 @@ namespace TeensyRom.Core.Serial
         /// <summary>
         /// Outputs bytes as a string for log output
         /// </summary>
-        protected static string ToLogString(byte[] bytes) => new(bytes.Select(b => (char)b).ToArray());
+        private static string ToLogString(byte[] bytes) => new(bytes.Select(b => (char)b).ToArray());
 
         public void Dispose()
         {

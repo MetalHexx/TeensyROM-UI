@@ -11,7 +11,15 @@ namespace TeensyRom.Core.Serial
         /// Connections can be dropped, thus ports can change, so we want to observe those changes.
         /// </summary>
         IObservable<string[]> Ports { get; }
+
+        /// <summary>
+        /// Number of bytes available to read from the serial port
+        /// </summary>
         int BytesToRead { get; }
+
+        /// <summary>
+        /// Emits serial port state changes 
+        /// </summary>
         IObservable<Type> State { get; }
 
         /// <summary>
@@ -57,16 +65,44 @@ namespace TeensyRom.Core.Serial
         /// Auto-polling behavior is disabled while the port is locked.
         /// </summary>
         void Lock();
+        
         /// <summary>
         /// Removes the lock on the serial port and automatically reads and logs
         /// the serial port on an interval.
         /// </summary>        
         void Unlock();
+        
+        /// <summary>
+        /// Reads the buffer from the serial port
+        /// </summary>
         int Read(byte[] buffer, int offset, int count);
+        
+        /// <summary>
+        /// Reads a byte from the serial port
+        /// </summary>        
         int ReadByte();
+
+        /// <summary>
+        /// Waits a specified number of milliseconds and then reads the serial port as a string
+        /// </summary>        
         string ReadSerialAsString(int msToWait = 0);
+        
+        /// <summary>
+        /// Reads the serial port as a byte array
+        /// </summary>
         byte[] ReadSerialBytes();
+
+        /// <summary>
+        /// Waits for a specified number of bytes to be available to read from the serial port
+        /// </summary>
+        /// <param name="numBytes"></param>
+        /// <param name="timeoutMs">Total time to wait before a timeout exception is thrown</param>
+        /// cref="TimeoutException">Thrown if the timeout is reached before the specified number of bytes are available</cref>
         void WaitForSerialData(int numBytes, int timeoutMs);
+
+        /// <summary>
+        /// Starts polling the serial port for available ports
+        /// </summary>
         void StartPortPoll();
     }
 }
