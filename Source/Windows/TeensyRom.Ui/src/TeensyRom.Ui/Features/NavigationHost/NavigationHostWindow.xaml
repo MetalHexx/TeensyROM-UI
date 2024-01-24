@@ -51,9 +51,9 @@
     </Window.Triggers>
 
     <materialDesign:DialogHost
+        Identifier="RootDialog"
         HorizontalAlignment="Stretch"
         VerticalAlignment="Stretch"
-        IsOpen="{Binding IsSample4DialogOpen}"
         CloseOnClickAway="True">
 
         <Grid>
