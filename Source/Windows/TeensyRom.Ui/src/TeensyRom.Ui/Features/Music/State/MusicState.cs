@@ -51,7 +51,6 @@ namespace TeensyRom.Ui.Features.Music.State
         private readonly ICachedStorageService _musicService;
         private readonly ISettingsService _settingsService;
         private readonly ILaunchHistory _launchHistory;
-        private readonly IDialogService _dialog;
         private readonly ISnackbarService _alert;
         private TeensySettings _settings = new();
         private TimeSpan? _currentTime;
@@ -61,14 +60,13 @@ namespace TeensyRom.Ui.Features.Music.State
 
         private IDisposable _currentTimeSubscription;
 
-        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService musicService, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, IGlobalState globalState, ISerialStateContext serialContext, INavigationService nav, IDialogService dialog)
+        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService musicService, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, IGlobalState globalState, ISerialStateContext serialContext, INavigationService nav)
         {
             _songTime = songTime;
             _mediator = mediator;
             _musicService = musicService;
             _settingsService = settingsService;
             _launchHistory = launchHistory;
-            _dialog = dialog;
             _alert = alert;
             _settingsService.Settings.Subscribe(OnSettingsChanged);
 
@@ -399,14 +397,7 @@ namespace TeensyRom.Ui.Features.Music.State
             return LoadDirectory(_currentDirectory.Value?.Path ?? "/");
         }
 
-        public async Task CacheAll()
-        {
-            var confirm = await _dialog.ShowConfirmation($"Cache All \r\rThis will read all the files on your {_settings.TargetType} and save them to a local cache. Doing this will enable rich discovery of music and programs as it index all your files for search, random play and shuffle features.\r\rThis may take a few minutes if you have a lot of files from libraries like OneLoad64 or HSVC on your {_settings.TargetType} storage.\r\rProceed?");
-
-            if (!confirm) return;
-            
-            await _musicService.CacheAll();
-        }
+        public Task CacheAll() => _musicService.CacheAll();
 
         public void Dispose()
         {

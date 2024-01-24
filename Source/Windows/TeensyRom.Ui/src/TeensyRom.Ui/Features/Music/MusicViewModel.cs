@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
@@ -21,6 +22,7 @@ using TeensyRom.Ui.Features.Music.SongList;
 using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Helpers.ViewModel;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Music
 {
@@ -38,12 +40,20 @@ namespace TeensyRom.Ui.Features.Music
         public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
         public ReactiveCommand<Unit, Unit> CacheAllCommand { get; set; }
 
-        public MusicViewModel(IMusicState musicState, IGlobalState globalState, ISettingsService settings, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList, SearchMusicViewModel search)
+        private TeensySettings _settings;
+        private readonly IMusicState _musicState;
+        private readonly IDialogService _dialog;
+
+        public MusicViewModel(IMusicState musicState, IGlobalState globalState, IDialogService dialog, ISettingsService settingsService, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList, SearchMusicViewModel search)
         {
             FeatureTitle = "Music";
+            _musicState = musicState;
+            _dialog = dialog;
             PlayToolBar = playToolBar;
             SongList = songList;
             Search = search;
+
+            settingsService.Settings.Subscribe(s => _settings = s);
 
             musicState.CurrentSong
                 .Select(s => s is null)
@@ -53,13 +63,22 @@ namespace TeensyRom.Ui.Features.Music
             
             RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.RefreshDirectory());
             PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.PlayRandom());
-            CacheAllCommand = ReactiveCommand.CreateFromTask<Unit>(_ => musicState.CacheAll());
+            CacheAllCommand = ReactiveCommand.CreateFromTask(HandleCacheAll);
 
             MusicTree = new(musicState.DirectoryTree)
             {
                 DirectorySelectedCommand = ReactiveCommand.CreateFromTask<DirectoryNodeViewModel>(async (directory) =>
                 await musicState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler)
             };
+        }
+
+        private async Task HandleCacheAll()
+        {
+            var confirm = await _dialog.ShowConfirmation($"Cache All \r\rThis will read all the files on your {_settings.TargetType} and save them to a local cache. Doing this will enable rich discovery of music and programs as it index all your files for search, random play and shuffle features.\r\rThis may take a few minutes if you have a lot of files from libraries like OneLoad64 or HSVC on your {_settings.TargetType} storage.\r\rProceed?");
+
+            if (!confirm) return;
+
+            await _musicState.CacheAll();
         }
     }
 }

@@ -2,9 +2,12 @@
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
+using System.DirectoryServices.ActiveDirectory;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Core.Commands;
@@ -22,6 +25,7 @@ using TeensyRom.Ui.Features.Music.Search;
 using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Helpers.ViewModel;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Files
 {
@@ -38,20 +42,24 @@ namespace TeensyRom.Ui.Features.Files
         public ReactiveCommand<Unit, Unit> CacheAllCommand { get; set; }
 
         private readonly IFileState _fileState;
+        private readonly IDialogService _dialog;
+        private TeensySettings _settings;
 
-        public FilesViewModel(IGlobalState globalState, IFileState fileState, DirectoryContentViewModel directoryContent, SearchFilesViewModel search)
+        public FilesViewModel(IGlobalState globalState, IFileState fileState, ISettingsService settingsService, IDialogService dialog, DirectoryContentViewModel directoryContent, SearchFilesViewModel search)
         {
             FeatureTitle = "File Explorer";            
             DirectoryContent = directoryContent;
             Search = search;
+            _dialog = dialog;
             _fileState = fileState;
-
+            
+            settingsService.Settings.Subscribe(s => _settings = s);
             globalState.SerialConnected.ToPropertyEx(this, x => x.FilesAvailable);
             fileState.PagingEnabled.ToPropertyEx(this, x => x.PagingEnabled);
 
-            RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.RefreshDirectory());
-            PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.PlayRandom());
-            CacheAllCommand = ReactiveCommand.CreateFromTask<Unit>(_ => fileState.CacheAll());
+            RefreshCommand = ReactiveCommand.CreateFromTask(_ => fileState.RefreshDirectory());
+            PlayRandomCommand = ReactiveCommand.CreateFromTask(_ => fileState.PlayRandom());
+            CacheAllCommand = ReactiveCommand.CreateFromTask(HandleCacheAll);
 
             DirectoryTree = new(fileState.DirectoryTree)
             {
@@ -60,6 +68,15 @@ namespace TeensyRom.Ui.Features.Files
             };
 
             Paging = new(fileState); 
+        }
+
+        private async Task HandleCacheAll()
+        {
+            var confirm = await _dialog.ShowConfirmation($"Cache All \r\rThis will read all the files on your {_settings.TargetType} and save them to a local cache. Doing this will enable rich discovery of music and programs as it index all your files for search, random play and shuffle features.\r\rThis may take a few minutes if you have a lot of files from libraries like OneLoad64 or HSVC on your {_settings.TargetType} storage.\r\rProceed?");
+            
+            if (!confirm) return;
+
+            await _fileState.CacheAll();
         }
     }
 }

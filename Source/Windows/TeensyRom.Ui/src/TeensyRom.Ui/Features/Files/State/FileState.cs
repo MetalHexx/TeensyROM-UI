@@ -54,18 +54,16 @@ namespace TeensyRom.Ui.Features.Files.State
         private readonly ISettingsService _settingsService;
         private readonly IMediator _mediator;
         private readonly ISnackbarService _alert;
-        private readonly IDialogService _dialog;
         private TeensySettings _settings;
         private IDisposable _settingsSubscription;
         private int _skip => (_currentPage.Value - 1) * _pageSize.Value;
 
-        public FileState(ICachedStorageService storageService, ISettingsService settingsService, IMediator mediator, ISnackbarService alert, IDialogService dialog, ISerialStateContext serialContext, INavigationService nav)
+        public FileState(ICachedStorageService storageService, ISettingsService settingsService, IMediator mediator, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav)
         {
             _storageService = storageService;
             _settingsService = settingsService;
             _mediator = mediator;
             _alert = alert;
-            _dialog = dialog;
             _settingsSubscription = _settingsService.Settings
                 .Do(settings => _settings = settings)
                 .CombineLatest(serialContext.CurrentState, nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
@@ -291,14 +289,7 @@ namespace TeensyRom.Ui.Features.Files.State
             return LoadDirectory(_currentPath);
         }
 
-        public async Task CacheAll()
-        {
-            var confirm = await _dialog.ShowConfirmation($"Cache All \r\rThis will read all the files on your {_settings.TargetType} and save them to a local cache. Doing this will enable rich discovery of music and programs as it index all your files for search, random play and shuffle features.\r\rThis may take a few minutes if you have a lot of files from libraries like OneLoad64 or HSVC on your {_settings.TargetType} storage.\r\rProceed?");
-
-            if (!confirm) return;
-
-            await _storageService.CacheAll();
-        }
+        public Task CacheAll() => _storageService.CacheAll();
 
         public Unit SearchFiles(string searchText)
         {
