@@ -46,6 +46,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<ISettingsService, SettingsService>();
             services.AddSingleton<IAlertService, AlertService>();
             services.AddSingleton<ISnackbarService, SnackbarService>();
+            services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<ISongTimer, SongTimer>();
             services.AddSingleton<ILaunchHistory,  LaunchHistory>();
             services.AddSingleton<IMusicState, MusicState>();
