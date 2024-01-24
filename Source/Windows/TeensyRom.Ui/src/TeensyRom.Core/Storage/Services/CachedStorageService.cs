@@ -20,17 +20,19 @@ namespace TeensyRom.Core.Storage.Services
         protected readonly ISettingsService _settingsService;
         private readonly ISidMetadataService _metadataService;
         private readonly IMediator _mediator;
+        private readonly IAlertService _alert;
         private TeensySettings _settings;
         private IDisposable? _settingsSubscription;
         private const string _cacheFileName = "TeensyStorageCache.json";
         private StorageCache _storageCache = new();
         private Subject<string> _directoryUpdated = new();
 
-        public CachedStorageService(ISettingsService settings, ISidMetadataService metadataService, IMediator mediator)
+        public CachedStorageService(ISettingsService settings, ISidMetadataService metadataService, IMediator mediator, IAlertService alert)
         {
             _settingsService = settings;
             _metadataService = metadataService;
             _mediator = mediator;
+            _alert = alert;
             _settingsSubscription = _settingsService.Settings.Subscribe(OnSettingsChanged);
         }
 
@@ -347,7 +349,7 @@ namespace TeensyRom.Core.Storage.Services
         }
 
         public async Task CacheAll()
-        {
+        {   
             var allContent = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = "/" });
 
             foreach (var directory in allContent.DirectoryContent)
@@ -359,6 +361,8 @@ namespace TeensyRom.Core.Storage.Services
             }
             EnsureFavorites();
             SaveCacheToDisk();
+
+            _alert.Publish($"Cache all completed for {_settings.TargetType} storage.");
         }
     }
 }
