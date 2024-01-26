@@ -12,6 +12,8 @@ using TeensyRom.Ui.Features.Files.State;
 using System.Windows;
 using System.Windows.Input;
 using System.IO;
+using TeensyRom.Ui.Services;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui.Features.Files.DirectoryContent
 {
@@ -28,12 +30,15 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
 
 
         private readonly IFileState _fileState;
+        private readonly IDialogService _dialog;
+        private readonly IAlertService _alert;
         private IDisposable _directoryTreeSubscription;
 
-        public DirectoryContentViewModel(IFileState fileState)
+        public DirectoryContentViewModel(IFileState fileState, IDialogService dialog, IAlertService alert)
         {
-            _fileState = fileState;           
-
+            _fileState = fileState;
+            _dialog = dialog;
+            _alert = alert;
             LoadDirectoryCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(directory =>
                 fileState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler);
 
@@ -44,7 +49,7 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
                 _fileState.SaveFavorite, outputScheduler: RxApp.MainThreadScheduler);
 
             DeleteCommand = ReactiveCommand.CreateFromTask<FileItem>(
-                _fileState.DeleteFile, outputScheduler: RxApp.MainThreadScheduler);
+                HandleDelete, outputScheduler: RxApp.MainThreadScheduler);
 
             FileDropCommand = ReactiveCommand.CreateFromTask<DragEventArgs>(OnFileDrop);
             DragOverCommand = ReactiveCommand.Create<DragEventArgs>(OnDragOver);
@@ -101,15 +106,22 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
             }
         }
 
+        private async Task<Unit> HandleDelete(FileItem fileItem)
+        {
+            var confirmed = await _dialog.ShowConfirmation($"Are you sure you want to delete {fileItem.Path}?");
+
+            if (!confirmed) return Unit.Default;
+
+            await _fileState.DeleteFile(fileItem);
+
+            _alert.Publish($"{fileItem.Path} has been deleted.");
+
+            return Unit.Default;
+        }
+
         public void Dispose()
         {
             _directoryTreeSubscription?.Dispose();
         }
-    }
-
-    public class FileCopyItem
-    {
-        public string Path { get; set; } = string.Empty;
-        public bool InSubdirectory { get; set; }
     }
 }
