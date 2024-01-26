@@ -64,11 +64,5 @@ namespace TeensyRom.Ui.Features.NavigationHost
                 _selectedNavigation.OnNext(navItem);
             }
         }
-
-        public Unit ToggleNav()
-        {
-            _isNavOpen.OnNext(!_isNavOpen.Value);
-            return Unit.Default;
-        }
     }
 }

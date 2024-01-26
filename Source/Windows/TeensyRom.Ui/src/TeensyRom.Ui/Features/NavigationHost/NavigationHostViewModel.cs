@@ -21,15 +21,15 @@ namespace TeensyRom.Ui.Features.NavigationHost
     public class NavigationHostViewModel : ReactiveObject
     {
         [ObservableAsProperty] public object CurrentViewModel { get; }
-        [ObservableAsProperty] public object NavigationItems { get; }
-        [ObservableAsProperty] public bool IsNavOpen { get; }
+        [ObservableAsProperty] public object NavigationItems { get; }        
         [ObservableAsProperty] public bool SerialBusy { get; set; }
         [Reactive] public string Title { get; set; } = "TeensyROM";
-        //TODO: Track down why I need this property.  I had to put this here to stop a bunch of errors from throwing in the output window.
-        [Reactive] public bool ControlsEnabled { get; set; }
+        [Reactive] public bool IsNavOpen { get; set; }
+        [Reactive] public bool ControlsEnabled { get; set; } //TODO: Track down why I need this property.  I had to put this here to stop a bunch of errors from throwing in the output window.
         public SnackbarMessageQueue MessageQueue { get; private set; }
         public ReactiveCommand<NavigationItem, Unit> NavigateCommand { get; private set; }
-        public ReactiveCommand<Unit, Unit> ToggleNavCommand { get; private set; }
+        public ReactiveCommand<Unit, Unit> OpenNavCommand { get; private set; }
+        public ReactiveCommand<Unit, Unit> CloseNavCommand { get; private set; }
 
         private readonly INavigationService _navService;
         private readonly ISerialStateContext _serialContext;
@@ -94,15 +94,36 @@ namespace TeensyRom.Ui.Features.NavigationHost
             {
                 TriggerAnimation = true;
 
-                _navService.NavigateTo(n.Id);
+                _navService.NavigateTo(n.Id);                
                 
                 TriggerAnimation = false;
-                
+
+                if (IsNavOpen)
+                {
+                    IsNavOpen = false;
+                    MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Closed });
+                }
+
                 return Unit.Default;
             }, outputScheduler: ImmediateScheduler.Instance);
 
-            ToggleNavCommand = ReactiveCommand.Create<Unit, Unit>(n =>
-                _navService.ToggleNav(), outputScheduler: ImmediateScheduler.Instance);
+            OpenNavCommand = ReactiveCommand.Create<Unit, Unit>(
+                execute: n => 
+                {
+                    IsNavOpen = true;
+                    MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Opened });
+                    return Unit.Default;
+                },
+                outputScheduler: ImmediateScheduler.Instance);
+
+            CloseNavCommand = ReactiveCommand.Create<Unit, Unit>(
+                execute: n =>
+                {
+                    IsNavOpen = false;
+                    MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Closed });
+                    return Unit.Default;
+                },
+                outputScheduler: ImmediateScheduler.Instance);
 
         }
 
@@ -115,8 +136,6 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
             _navService.NavigationItems
                 .ToPropertyEx(this, vm => vm.NavigationItems);
-
-            _navService.IsNavOpen.ToPropertyEx(this, vm => vm.IsNavOpen);
 
             _serialContext.CurrentState
                 .Select(s => s is SerialBusyState)

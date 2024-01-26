@@ -12,6 +12,7 @@
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto" 
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
+        xmlns:interactivity="http://schemas.microsoft.com/xaml/behaviors"
         WindowStartupLocation="CenterScreen"        
         Foreground="White"
         Width="1100" 
@@ -23,31 +24,14 @@
                 <EasingDoubleKeyFrame KeyTime="0" Value="60"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="200"/>
             </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Opacity)" Storyboard.TargetName="Overlay">
-                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0.5"/>
-            </DoubleAnimationUsingKeyFrames>
         </Storyboard>
         <Storyboard x:Key="CloseMenu">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="GridMenu">
                 <EasingDoubleKeyFrame KeyTime="0" Value="200"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="60"/>
             </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Opacity)" Storyboard.TargetName="Overlay">
-                <EasingDoubleKeyFrame KeyTime="0" Value="0.5"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0"/>
-            </DoubleAnimationUsingKeyFrames>
         </Storyboard>
     </Window.Resources>
-
-    <Window.Triggers>
-        <EventTrigger RoutedEvent="ButtonBase.Click" SourceName="ButtonOpenMenu">
-            <BeginStoryboard Storyboard="{StaticResource OpenMenu}"/>
-        </EventTrigger>
-        <EventTrigger RoutedEvent="ButtonBase.Click" SourceName="ButtonCloseMenu">
-            <BeginStoryboard Storyboard="{StaticResource CloseMenu}"/>
-        </EventTrigger>
-    </Window.Triggers>
 
     <materialDesign:DialogHost
         Identifier="RootDialog"
@@ -56,15 +40,27 @@
         CloseOnClickAway="True">
 
         <Grid>
-            <StackPanel Orientation="Horizontal" Panel.ZIndex="1">
-                <Border x:Name="Overlay" Background="#AA000000" Opacity="0" Visibility="Collapsed" Grid.ColumnSpan="2"/>
+
+            <Rectangle 
+                Visibility="{Binding IsNavOpen, Converter={StaticResource BoolToVisibilityConvertor}}"
+                x:Name="Overlay" Fill="#66000000" Grid.Row="0" RadiusX="5" RadiusY="5" Margin="0 0 0 0" Panel.ZIndex="1">
+                <interactivity:Interaction.Triggers>
+                    <interactivity:EventTrigger EventName="MouseLeftButtonDown">
+                        <interactivity:InvokeCommandAction Command="{Binding CloseNavCommand}" />
+                    </interactivity:EventTrigger>
+                </interactivity:Interaction.Triggers>
+            </Rectangle>
+
+            <materialDesign:PackIcon Foreground="{DynamicResource PrimaryHueLightBrush}" Kind="ArrowLeft" Width="25" Height="25"/>
+            
+            <StackPanel Orientation="Horizontal" Panel.ZIndex="1">                
                 
                 <Grid x:Name="GridMenu" Width="60" HorizontalAlignment="Left" Background="{DynamicResource MaterialDesignCardBackground}" Opacity="1">
                     <StackPanel>
                         <Grid Height="60" Background="{DynamicResource PrimaryHueDarkBrush}">
 
                             <Button x:Name="ButtonCloseMenu" 
-                                    Command="{Binding ToggleNavCommand}"
+                                    Command="{Binding CloseNavCommand}"
                                     Visibility="{Binding IsNavOpen, Converter={StaticResource BoolToVisibilityConvertor}}"
                                     Width="60" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" VerticalAlignment="Top" HorizontalAlignment="Right" >
 
@@ -72,7 +68,7 @@
                             </Button>
 
                             <Button x:Name="ButtonOpenMenu"
-                                    Command="{Binding ToggleNavCommand}"
+                                    Command="{Binding OpenNavCommand}"
                                     Visibility="{Binding IsNavOpen, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
                                     Width="60" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" VerticalAlignment="Top" HorizontalAlignment="Right">
 

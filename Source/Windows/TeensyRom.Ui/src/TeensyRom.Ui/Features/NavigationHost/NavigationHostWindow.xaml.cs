@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,9 +10,11 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TeensyRom.Ui.Features.NavigationHost;
 
 namespace TeensyRom.Ui.Main
 {
@@ -23,6 +26,21 @@ namespace TeensyRom.Ui.Main
         public MainWindow()
         {
             InitializeComponent();
+
+            MessageBus.Current.Listen<NavAnimationMessage>().Subscribe(message =>
+                {
+                    switch (message.NavMenuState)
+                    {
+                        case NavMenuState.Opened:
+                            BeginStoryboard((Storyboard)FindResource("OpenMenu"));
+                            break;
+                        case NavMenuState.Closed:
+                            BeginStoryboard((Storyboard)FindResource("CloseMenu"));
+                            break;
+                        default:
+                            break;
+                    }
+                });
         }
     }
 }

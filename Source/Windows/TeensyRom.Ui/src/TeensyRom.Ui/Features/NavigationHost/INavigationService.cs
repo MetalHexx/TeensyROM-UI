@@ -8,9 +8,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
     {
         IObservable<List<NavigationItem>> NavigationItems { get; }
         IObservable<NavigationItem> SelectedNavigationView { get; }
-        IObservable<bool> IsNavOpen { get; }
         Unit NavigateTo(Guid locationId);
-        Unit ToggleNav();
         void Initialize(NavigationLocation startingLocation, List<NavigationItem> navItems);
     }
 }
