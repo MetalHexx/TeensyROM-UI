@@ -61,7 +61,7 @@ namespace TeensyRom.Ui.Features.Music.SongList
 
             if (!confirmed) return Unit.Default;
 
-            var success = _musicState.DeleteFile(fileItem);
+            await _musicState.DeleteFile(fileItem);
 
             _alert.Publish($"{fileItem.Path} has been deleted.");
 
