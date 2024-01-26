@@ -29,13 +29,13 @@ namespace TeensyRom.Ui.Features.Settings
 
         private readonly ISettingsService _settingsService;
         private readonly ICachedStorageService _storage;
-        private readonly ISnackbarService _alert;
+        private readonly IAlertService _alert;
         private readonly IDialogService _dialog;
         private readonly ILoggingService _logService;
         private readonly IDisposable _logsSubscription;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public SettingsViewModel(ISettingsService settings, ICachedStorageService storage, ISnackbarService alert, IDialogService dialog, ILoggingService logService)
+        public SettingsViewModel(ISettingsService settings, ICachedStorageService storage, IAlertService alert, IDialogService dialog, ILoggingService logService)
         {
             FeatureTitle = "Settings";
 
@@ -69,12 +69,12 @@ namespace TeensyRom.Ui.Features.Settings
             var success = _settingsService.SaveSettings(Settings);
             if (success)
             {
-                _alert.Enqueue("Settings saved successfully.");
+                _alert.Publish("Settings saved successfully.");
                 _storage.ClearCache();
             }
             else
             {
-                _alert.Enqueue("Error saving settings");
+                _alert.Publish("Error saving settings");
             }
             return Unit.Default;
         }
