@@ -59,6 +59,7 @@ namespace TeensyRom.Core.Serial.State
         public void Write(char[] buffer, int offset, int count) => _currentState.Value.Write(buffer, offset, count);
         public void Write(byte[] buffer, int offset, int count) => _currentState.Value.Write(buffer, offset, count);
         public void WaitForSerialData(int numBytes, int timeoutMs) => _currentState.Value.WaitForSerialData(numBytes, timeoutMs);
+        public string ReadAndLogSerialAsString(int msToWait = 0) => _currentState.Value.ReadAndLogSerialAsString(msToWait);
         public string ReadSerialAsString(int msToWait = 0) => _currentState.Value.ReadSerialAsString(msToWait);
         public int BytesToRead => _currentState.Value.BytesToRead;
         public int Read(byte[] buffer, int offset, int count) => _currentState.Value.Read(buffer, offset, count);

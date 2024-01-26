@@ -39,14 +39,14 @@ namespace TeensyRom.Core.Commands
 
                 if (WaitForDirectoryStartToken() != TeensyToken.StartDirectoryList)
                 {
-                    _serialState.ReadSerialAsString(msToWait: 100);
+                    _serialState.ReadAndLogSerialAsString(msToWait: 100);
                     throw new TeensyException("Error waiting for Directory Start Token");
                 }
                 directoryContent = ReceiveDirectoryContent();
 
                 if (directoryContent is null)
                 {
-                    _serialState.ReadSerialAsString(msToWait: 100);
+                    _serialState.ReadAndLogSerialAsString(msToWait: 100);
                     throw new TeensyException("Error waiting for Directory Start Token");
                 }
                 directoryContent.Path = r.Path;

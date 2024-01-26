@@ -27,6 +27,7 @@ namespace TeensyRom.Core.Serial.State
         public virtual void Unlock() => throw new TeensyStateException(ExceptionMessage);
         public virtual int Read(byte[] buffer, int offset, int count) => throw new TeensyStateException(ExceptionMessage);
         public virtual int ReadByte() => throw new TeensyStateException(ExceptionMessage);
+        public virtual string ReadAndLogSerialAsString(int msToWait = 0) => throw new TeensyStateException(ExceptionMessage);
         public virtual string ReadSerialAsString(int msToWait = 0) => throw new TeensyStateException(ExceptionMessage);
         public virtual byte[] ReadSerialBytes() => throw new TeensyStateException(ExceptionMessage);
         public virtual void WaitForSerialData(int numBytes, int timeoutMs) => throw new TeensyStateException(ExceptionMessage);

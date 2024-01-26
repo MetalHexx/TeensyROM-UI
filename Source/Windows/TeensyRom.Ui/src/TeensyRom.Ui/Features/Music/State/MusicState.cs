@@ -145,7 +145,14 @@ namespace TeensyRom.Ui.Features.Music.State
 
             _songTime.StartNewTimer(song.SongLength);
             
-            await _mediator.Send(new LaunchFileCommand { Path = song.Path }); //TODO: When TR fails on a SID, the next song command "fails", but the song still plays.  So I'll ignore the false return value for now.
+            var result = await _mediator.Send(new LaunchFileCommand { Path = song.Path }); //TODO: When TR fails on a SID, the next song command "fails", but the song still plays.  So I'll ignore the false return value for now.
+
+            if(result.LaunchResult is LaunchFileResultType.SidError)
+            {
+                _alert.Enqueue("Incompatible SID detected (see logs).  Attempting to play the next track.");
+                await PlayNext();
+                return false;
+            }
 
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -277,6 +284,11 @@ namespace TeensyRom.Ui.Features.Music.State
 
         private async Task PlayNextInDirectory()
         {
+            if(_currentSong.Value == null)
+            {
+                await PlayRandom();
+                return;
+            }
             var parentPath = _currentSong.Value.Path.GetUnixParentPath();
             var directoryResult = await _musicService.GetDirectory(parentPath);
 

@@ -178,6 +178,17 @@ namespace TeensyRom.Core.Serial
             return data;
         }
 
+        public string ReadAndLogSerialAsString(int msToWait = 0)
+        {
+            var dataString = ReadSerialAsString(msToWait);
+
+            if (!string.IsNullOrWhiteSpace(dataString)) 
+            {
+                _log.External($"{dataString}");
+            }
+            return dataString;
+        }
+
         public string ReadSerialAsString(int msToWait = 0)
         {
             Thread.Sleep(msToWait);
@@ -190,7 +201,6 @@ namespace TeensyRom.Core.Serial
 
             if (string.IsNullOrWhiteSpace(dataString)) return string.Empty;
 
-            _log.External($"{dataString}");
             return dataString;
         }
 

@@ -210,10 +210,15 @@ namespace TeensyRom.Ui.Features.Files.State
             _settingsSubscription?.Dispose();
         }
 
-        public Task LaunchFile(FileItem file)
+        public async Task LaunchFile(FileItem file)
         {
             _programLaunched.OnNext(file.Clone());
-            return _mediator.Send(new LaunchFileCommand { Path = file.Path });
+            var result = await _mediator.Send(new LaunchFileCommand { Path = file.Path });
+
+            if(result.LaunchResult == LaunchFileResultType.SidError)
+            {
+                _alert.Enqueue("Incompatible SID detected (see logs).");
+            }
         }
 
         public async Task SaveFavorite(FileItem file)

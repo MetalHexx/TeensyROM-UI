@@ -84,8 +84,14 @@ namespace TeensyRom.Core.Serial
 
         /// <summary>
         /// Waits a specified number of milliseconds and then reads the serial port as a string
-        /// </summary>        
+        /// </summary> 
         string ReadSerialAsString(int msToWait = 0);
+
+        /// <summary>
+        /// Waits a specified number of milliseconds and then reads the serial port as a string.
+        /// Results also recorded to the output log.
+        /// </summary>        
+        string ReadAndLogSerialAsString(int msToWait = 0);
         
         /// <summary>
         /// Reads the serial port as a byte array

@@ -17,7 +17,7 @@ namespace TeensyRom.Core.Serial
 
             if (response != TeensyToken.Ack)
             {
-                var dataString = serialState.ReadSerialAsString();
+                var dataString = serialState.ReadAndLogSerialAsString();
                 
                 var responseString = response switch
                 {

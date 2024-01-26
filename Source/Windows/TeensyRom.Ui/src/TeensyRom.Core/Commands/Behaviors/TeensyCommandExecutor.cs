@@ -36,7 +36,7 @@ namespace TeensyRom.Core.Commands.Behaviors
             {
                 _serialState.Lock();
                 await action();
-                _serialState.ReadSerialAsString(10);
+                _serialState.ReadAndLogSerialAsString(10);
             }
             finally
             {
