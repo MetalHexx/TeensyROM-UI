@@ -51,7 +51,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         
         foreach (var property in properties)
         {
-            sb.AppendWithLimit($"=> {property.Name}: {property.GetValue(request)?.ToString() ?? "<null>"}\r\n");
+            sb.AppendWithLimit($"\r\n=> {property.Name}: {property.GetValue(request)?.ToString() ?? "<null>"}");
         }
         return $"{sb.ToString().DropLastComma()}";
     }
