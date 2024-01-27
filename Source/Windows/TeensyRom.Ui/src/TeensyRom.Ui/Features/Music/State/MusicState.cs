@@ -147,13 +147,6 @@ namespace TeensyRom.Ui.Features.Music.State
             
             var result = await _mediator.Send(new LaunchFileCommand { Path = song.Path }); //TODO: When TR fails on a SID, the next song command "fails", but the song still plays.  So I'll ignore the false return value for now.
 
-            if(result.LaunchResult is LaunchFileResultType.SidError)
-            {
-                _alert.Enqueue("Incompatible SID detected (see logs).  Attempting to play the next track.");
-                await PlayNext();
-                return false;
-            }
-
             Application.Current.Dispatcher.Invoke(() =>
             {
                 song.IsSelected = true;
@@ -181,6 +174,13 @@ namespace TeensyRom.Ui.Features.Music.State
                 }
                 await PlayNext();
             });
+
+            if (result.LaunchResult is LaunchFileResultType.SidError)
+            {
+                _alert.Enqueue("Incompatible SID detected (see logs).  Attempting to play the next track.");
+                await PlayNext();
+                return false;
+            }
 
             return true;
         }
