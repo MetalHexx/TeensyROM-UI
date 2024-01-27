@@ -80,8 +80,8 @@ MainCopyToRAM
    sty PtrAddrLo 
    ldx #>EndMainCode
    
-   lda #>MainCodeRAM
-   ldy #<MainCodeRAM   
+   lda #>MainCodeRAMStart
+   ldy #<MainCodeRAMStart   
    sta Ptr2AddrHi
    sty Ptr2AddrLo 
 
@@ -97,11 +97,11 @@ MainCopyToRAM
    cpx PtrAddrHi
    bne -
 
-   jmp MainCodeRAM
+   jmp MainCodeRAMStart
 
 MsgCartBanner:    
    !tx ChrClear, ChrToLower, ChrPurple, ChrRvsOn
-   !tx "     *** Sensorium Embedded 2023 ***    "  ;*VERSION*
+   !tx "     *** Sensorium Embedded 2024 ***    "  ;*VERSION*
    !tx ChrRvsOff, ChrBlack, 0 ;hide sid load msg
       
 MainCode = *

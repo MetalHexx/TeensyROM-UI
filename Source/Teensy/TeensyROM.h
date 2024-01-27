@@ -17,7 +17,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-char strVersionNumber[] = "v0.5.9"; //*VERSION*
+char strVersionNumber[] = "v0.5.10+"; //*VERSION*
 
 //Build options: enable debug messaging at your own risk, can cause emulation interference/fails
 //#define DbgMsgs_IO    //Serial out messages (Printf_dbg): Swift, MIDI (mostly out), CRT Chip info
@@ -68,7 +68,6 @@ uint32_t* BigBuf = NULL;
 #define UpDirString         "/.. <Up Dir>"
 #define NTSCBusFreq         1022730
 #define PALBusFreq          985250
-#define IO1_Size            256
                             
 #define eepMagicNum         0xfeed6405 // 01: 6/22/23  net settings added 
                                        // 02: 9/07/23  Joy2 speed added
@@ -98,6 +97,22 @@ enum InternalEEPROMmap
    eepAdBookmarks     =163, // (75+225)*9     Bookmark Titles and Full Paths
    //Max size = 4284 (4k, emulated in flash)
 };
+
+//synch with win app:
+//all commands must start with 0x64
+#define LaunchFileToken   0x6444
+#define PingToken         0x6455
+#define PauseSIDToken     0x6466
+#define DebugToken        0x6467
+#define SendFileToken     0x64AA
+#define PostFileToken     0x64BB
+#define CopyFileToken     0x64FF
+#define DeleteFileToken   0x64CF
+#define AckToken          0x64CC
+#define GetDirectoryToken 0x64DD
+#define ResetC64Token     0x64EE
+#define FailToken         0x9B7F
+
 
 volatile uint32_t StartCycCnt, LastCycCnt=0;
    

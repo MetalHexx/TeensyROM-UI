@@ -56,8 +56,11 @@ enum IO1_Registers  //offset from 0xDE00
    wRegVid_TOD_Clks    = 28 , // C64/128 Video Standard and TOD clock frequencies
    wRegIRQ_ACK         = 29 , // IRQ Ack from C64 app
    rwRegIRQ_CMD        = 30 , // IRQ Command from TeensyROM
+   rwRegCodeStartPage  = 31 , // TR Code Start page in C64 RAM
+   rwRegCodeLastPage   = 32 , // TR Code last page used in C64 RAM
 
-   StartSIDRegs        = 31 , // start of SID Regs, matching SID Reg order ($D400)
+   // These are used for the MIDI2SID app, keep in synch or make separate handler
+   StartSIDRegs        = 64 , // start of SID Regs, matching SID Reg order ($D400)
    rRegSIDFreqLo1      = StartSIDRegs +  0, 
    rRegSIDFreqHi1      = StartSIDRegs +  1,
    rRegSIDDutyLo1      = StartSIDRegs +  2,
@@ -96,6 +99,7 @@ enum IO1_Registers  //offset from 0xDE00
    rRegSIDOutOfVoices  = StartSIDRegs + 38,
    rRegSIDStringTerm   = StartSIDRegs + 39,
 
+   IO1Size             = StartSIDRegs + 40, //last entry, sets size
 };
 
 enum RegIRQCommands       //rwRegIRQ_CMD, echoed to wRegIRQ_ACK

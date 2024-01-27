@@ -570,6 +570,7 @@ FLASHMEM void SIDLoadError(const char* ErrMsg)
 {
    strcat(StrSIDInfo, "Error: ");
    strcat(StrSIDInfo, ErrMsg);
+   SendU16(FailToken);
    SendMsgPrintfln(ErrMsg);
 }
 
@@ -606,8 +607,11 @@ FLASHMEM bool ParseSIDHeader(const char *filename)
 
    if (memcmp(XferImage, "PSID", 4) != 0) 
    {
-      SIDLoadError("PSID not found");
-      return false;
+      if (memcmp(XferImage, "RSID", 4) != 0) 
+      {
+         SIDLoadError("PSID/RSID not found");
+         return false;
+      }
    }
    
    uint16_t sidVersion = toU16(XferImage+0x04);
@@ -637,28 +641,27 @@ FLASHMEM bool ParseSIDHeader(const char *filename)
       | XferImage[StreamOffsetAddr]; //little endian, opposite of toU16
       
    uint16_t PlayAddress = toU16(XferImage+0x0C);
-   SendMsgPrintfln("SID Loc %04x:%04x", LoadAddress, LoadAddress+XferSize);
+   uint16_t InitAddress = toU16(XferImage+0x0A);
+   SendMsgPrintfln("SID Loc %04x:%04x, Play=%04x", LoadAddress, LoadAddress+XferSize, PlayAddress);
    
-   Printf_dbg("\nInit: %04x", toU16(XferImage+0x0A));
+   Printf_dbg("\nInit: %04x", InitAddress);
    Printf_dbg("\nPlay: %04x", PlayAddress);
+   Printf_dbg("\nTR Code: %02x00:%02xff", IO1[rwRegCodeStartPage], IO1[rwRegCodeLastPage]);
 
-   //check for conflict with TR code
-   //C64 mem conflict detection:
-   //   MainCodeRAM       = $6000
-   //assume full 8k length ($2000)
-   if (LoadAddress < 0x8000 && LoadAddress+XferSize >= 0x6000)
+   //check for conflict with IO1 space:   
+   if (LoadAddress < 0xdf00 && LoadAddress+XferSize >= 0xde00)
+   {
+      SIDLoadError("IO1 mem conflict");
+      return false;
+   }
+
+   //check for RAM conflict with TR code:   
+   if (LoadAddress < (IO1[rwRegCodeLastPage]+1)*256 && LoadAddress+XferSize >= IO1[rwRegCodeStartPage]*256)
    {
       SIDLoadError("Mem conflict w/ TR app");
       return false;
    }
 
-   //check play address
-   if (PlayAddress == 0)
-   {
-      SIDLoadError("Play Address is Zero");
-      return false;
-   }
-  
    //speed: for each song (bit): 0 specifies vertical blank interrupt (50Hz PAL, 60Hz NTSC)
    //                            1 specifies CIA 1 timer interrupt (default 60Hz)
    Printf_dbg("\nSpeed reg: %08x", toU32(XferImage+0x12));
@@ -669,13 +672,13 @@ FLASHMEM bool ParseSIDHeader(const char *filename)
       "Unknown",  //    00 = Unknown, use PAL
       "PAL",      //    01 = PAL,
       "NTSC",     //    10 = NTSC,
-      "PAL+NTSC", //    11 = PAL and NTSC, use NTSC
+      "Either",   //    11 = PAL and NTSC, use NTSC
    };
    
    const uint8_t CIATimer[4][2] =
    {   //rRegSIDDefSpeedLo/Hi = SONGSPEED/1022730 seconds for NTSC, higher=slower playback (timer)
        //verified with o-scope on IRQ line using a Kawari machine 12/24/23
-      0x4c, 0xC7,   // PAL  SID on  PAL machine 50.13Hz IRQ rate
+      0x4C, 0xC7,   // PAL  SID on  PAL machine 50.13Hz IRQ rate
       0x4F, 0xB2,   // PAL  SID on NTSC machine 50.13Hz IRQ rate
       0x40, 0x58,   // NTSC SID on  PAL machine 59.81Hz IRQ rate
       0x42, 0xC6,   // NTSC SID on NTSC machine 59.81Hz IRQ rate
@@ -687,8 +690,11 @@ FLASHMEM bool ParseSIDHeader(const char *filename)
    SidFlags = (SidFlags >> 2) & 3;  //now just PAL/NTSC
    SendMsgPrintfln("SID Clock: %s", VStandard[SidFlags]);
    
-   strcat(StrSIDInfo, " Clk: "); 
-   strcat(StrSIDInfo, VStandard[SidFlags]); 
+   char TechBuf[40];
+   strcat(StrSIDInfo, "Tech: "); //1+6
+   sprintf(TechBuf, "%04x:%04x i=%04x p=%04x %s", LoadAddress, LoadAddress+(uint16_t)XferSize, InitAddress, PlayAddress, VStandard[SidFlags]);
+   strcat(StrSIDInfo, TechBuf); //24 + 7 max ("Unknown")
+  
 
    //bit 0: 1=NTSC, 0=PAL;    bit 1: 1=60Hz, 0=50Hz
    char MainsFreq[2] = {(IO1[wRegVid_TOD_Clks] & 2)==2 ? '6' : '5' , 0};

@@ -2,7 +2,8 @@
 #define AckToken                0x64CC
 #define FailToken               0x9B7F
 
-FLASHMEM bool GetPathParameter(char FileNamePath[]) 
+
+FLASHMEM bool GetPathParameter(char FileNamePath[])
 {
     uint16_t CharNum = 0;
     char currentChar;
@@ -38,9 +39,9 @@ FLASHMEM FS* GetStorageDevice(uint32_t storageType)
 {
     if (!storageType) return &firstPartition;
 
-    if (!SD.begin(BUILTIN_SDCARD)) 
-    {      
-        SendU16(FailToken);      
+    if (!SD.begin(BUILTIN_SDCARD))
+    {
+        SendU16(FailToken);
         Serial.printf("Specified storage device was not found: %u\n", storageType);
         return nullptr;
     }
@@ -141,7 +142,7 @@ FLASHMEM bool ReceiveFileData(File& file, uint32_t len, uint32_t& CheckSum)
 //
 // Notes: Once Post File Token Received, responses are 2 bytes in length
 FLASHMEM void PostFileCommand()
-{  
+{
     SendU16(AckToken);
 
     uint32_t fileLength, checksum, storageType;
@@ -169,73 +170,73 @@ FLASHMEM void PostFileCommand()
     }
 
     if (!GetPathParameter(FileNamePath)) return;
-    
+
     FS* sourceFS = GetStorageDevice(storageType);
 
     if (!sourceFS) return;
 
     if (!EnsureDirectory(FileNamePath, *sourceFS))
     {
-      SendU16(FailToken);
-      Serial.printf("Failed to ensure directory for: %s\n", FileNamePath);
-      return;
+        SendU16(FailToken);
+        Serial.printf("Failed to ensure directory for: %s\n", FileNamePath);
+        return;
     }
-   
+
     File fileStream;
 
     if (!GetFileStream(storageType, FileNamePath, sourceFS, fileStream)) return;
-   
-   SendU16(AckToken);
-  
-   if (!ReceiveFileData(fileStream, fileLength, checksum)) return;
-   
-   SendU16(AckToken);
+
+    SendU16(AckToken);
+
+    if (!ReceiveFileData(fileStream, fileLength, checksum)) return;
+
+    SendU16(AckToken);
 }
 
 FLASHMEM bool SendPagedDirectoryContents(FS& fileStream, const char* directoryPath, int skip, int take)
 {
     File directory = fileStream.open(directoryPath);
-    
+
     File directoryItem = directory.openNextFile();
 
-    int currentCount = 0; 
-    int pageCount = 0; 
+    int currentCount = 0;
+    int pageCount = 0;
 
-    while(directoryItem && pageCount < take)
-    { 
-      currentCount++;
-      
-      const char* itemName = directoryItem.name();
+    while (directoryItem && pageCount < take)
+    {
+        currentCount++;
 
-      if(currentCount >= skip)
-      {
-        pageCount++;
-        
-        if (directoryItem.isDirectory())
+        const char* itemName = directoryItem.name();
+
+        if (currentCount >= skip)
         {
-            Serial.print(F("[Dir]{\"Name\":\""));
-            Serial.print(itemName);
-            Serial.print(F("\",\"Path\":\""));
-            Serial.print(directoryPath);
-            Serial.print('/');
-            Serial.print(itemName);
-            Serial.print(F("\"}[/Dir]"));
+            pageCount++;
+
+            if (directoryItem.isDirectory())
+            {
+                Serial.print(F("[Dir]{\"Name\":\""));
+                Serial.print(itemName);
+                Serial.print(F("\",\"Path\":\""));
+                Serial.print(directoryPath);
+                Serial.print('/');
+                Serial.print(itemName);
+                Serial.print(F("\"}[/Dir]"));
+            }
+            else
+            {
+                Serial.print(F("[File]{\"Name\":\""));
+                Serial.print(itemName);
+                Serial.print(F("\",\"Size\":"));
+                Serial.print(directoryItem.size());
+                Serial.print(F(",\"Path\":\""));
+                Serial.print(directoryPath);
+                Serial.print('/');
+                Serial.print(itemName);
+                Serial.print(F("\"}[/File]"));
+            }
         }
-        else
-        {
-            Serial.print(F("[File]{\"Name\":\""));
-            Serial.print(itemName);
-            Serial.print(F("\",\"Size\":"));
-            Serial.print(directoryItem.size());
-            Serial.print(F(",\"Path\":\""));
-            Serial.print(directoryPath);
-            Serial.print('/');
-            Serial.print(itemName);
-            Serial.print(F("\"}[/File]"));
-        }
-      }
-      directoryItem.close();
-      directoryItem = directory.openNextFile();
+        directoryItem.close();
+        directoryItem = directory.openNextFile();
     }
 
     if (directoryItem) {
@@ -286,7 +287,7 @@ FLASHMEM void GetDirectoryCommand()
         Serial.println("Error receiving take value!");
         return;
     }
-    if (!GetPathParameter(path)) 
+    if (!GetPathParameter(path))
     {
         SendU16(FailToken);
         Serial.println("Error receiving path value!");
@@ -368,61 +369,8 @@ FLASHMEM void CopyFileCommand()
     
     FS* sourceFS = GetStorageDevice(storageType);
 
-    if (!sourceFS) return;
-
-    if (!EnsureDirectory(DestinationPath, *sourceFS))
-    {
-      SendU16(FailToken);
-      Serial.printf("Failed to ensure directory for: %s\n", DestinationPath);
-      return;
-    }
-  
-    if (!CopyFile(SourcePath, DestinationPath, *sourceFS)) return;
-   
-   SendU16(AckToken);
-}
-
-FLASHMEM void DeleteFile(const char* filePath, FS& fileSystem)
-{
-  if (!fileSystem.exists(filePath))
-  {
-    SendU16(FailToken);
-    Serial.printf("File not found: %s\n", filePath);
-    return;
-  }
-
-  if (fileSystem.remove(filePath))
-  {
-    SendU16(AckToken);
-    return;
-  }
-  else
-  {
-    SendU16(FailToken);
-    Serial.printf("Failed to delete file: %s\n", filePath);
-    return;
-  }
-}
-
-// Command: 
-// Delete a file from the specified storage device on TeensyROM.
-//
-// Workflow:
-// Receive <-- Delete File Token (e.g., 0x64EE) 
-// Send --> AckToken 0x64CC
-// Receive <-- SD_nUSB(1), File Path(MaxNameLength, null terminator)
-// Send --> 0x64CC on Pass, 0x9b7f on Fail 
-//
-// Notes: Once Delete File Token Received, responses are 2 bytes in length
-FLASHMEM void DeleteFileCommand()
-{
-    SendU16(AckToken);
-
-    uint32_t storageType;
-    char FilePath[MaxNamePathLength];
-
-    if (!GetUInt(&storageType, 1))
-    {
+    if (!sourceFS)
+    {        
         SendU16(FailToken);
         Serial.println("Error receiving storage type!");
         return;
@@ -441,6 +389,6 @@ FLASHMEM void DeleteFileCommand()
         SendU16(FailToken);
         Serial.println("Error getting storage device!");
     }
-    
+
     DeleteFile(FilePath, *sourceFS);
 }

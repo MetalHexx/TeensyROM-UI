@@ -72,6 +72,16 @@ FLASHMEM void SendCommandSummaryImmediate(bool Paused)
    SendPETSCIICharImmediate(PETSCIIlightGreen);   
 }
 
+#define ModColor    PETSCIIpink
+#define TxtColor    PETSCIIgreen
+#define CmdColor    PETSCIIwhite
+   
+FLASHMEM void SendColonSpaceImmediate()
+{
+   SendPETSCIICharImmediate(TxtColor); 
+   SendASCIIStrImmediate(": ");
+}
+
 FLASHMEM void SendBrowserCommandsImmediate()
 {
    SendPETSCIICharImmediate(PETSCIIhiLoChrSet);
@@ -79,25 +89,101 @@ FLASHMEM void SendBrowserCommandsImmediate()
    SendPETSCIICharImmediate(PETSCIIpurple); 
    SendPETSCIICharImmediate(PETSCIIrvsOn); 
    SendASCIIStrImmediate("Browser Commands:\r");
-   SendPETSCIICharImmediate(PETSCIIgreen); 
-   SendASCIIStrImmediate("S [Term]: Search         Bx: Bookmarks\rU");
-   SendPETSCIICharImmediate(PETSCIIpink); 
+   
+   
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("S [Term]");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("Search    ");
+   
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("Return");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("Continue\r");
+   
+   
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("U");
+   SendPETSCIICharImmediate(ModColor); 
    SendASCIIStrImmediate("m");
-   SendPETSCIICharImmediate(PETSCIIgreen); 
-   SendASCIIStrImmediate(" [URL]: Go to URL  Return: Continue\r[Link#]");
-   SendPETSCIICharImmediate(PETSCIIpink); 
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate(" [URL]");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("Go to URL ");
+   
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("DS d:p");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("Set DL dir\r");
+   
+   
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("[Link#]");
+   SendPETSCIICharImmediate(ModColor); 
    SendASCIIStrImmediate("m");
-   SendPETSCIICharImmediate(PETSCIIgreen); 
-   SendASCIIStrImmediate(": Go to link  D d:p: Set DL dir\r      R");
-   SendPETSCIICharImmediate(PETSCIIpink); 
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("Go to Link#");
+   
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("    D");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("DL dir List\r");
+   
+   
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("      R");
+   SendPETSCIICharImmediate(ModColor); 
    SendASCIIStrImmediate("m");
-   SendPETSCIICharImmediate(PETSCIIgreen); 
-   SendASCIIStrImmediate(": Reload page     X: Exit\r");
-   SendASCIIStrImmediate("       P: Prev Page       ?: This List\r");
-   SendPETSCIICharImmediate(PETSCIIpink); 
-   SendASCIIStrImmediate("m");
-   //SendPETSCIICharImmediate(PETSCIIpurple); 
-   SendASCIIStrImmediate("=(D)ownload,(F)ilter,(R)aw,(none)deflt\r");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("Reload page    ");
+   
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("X");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("Exit\r");
+   
+   
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("       P");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("Prev Page      ");
+   
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("?");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("This List\r");
+
+
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("       B");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("Bookmark List ");
+
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("B#");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("Go to bkmk#\r");
+   
+
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("      BU");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("Bookmark List w/URLs\r");
+   
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("     BS#");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("Set Bookmark # to Current URL\r");
+   
+   
+   SendPETSCIICharImmediate(CmdColor); 
+   SendASCIIStrImmediate("BR# [name]");
+   SendColonSpaceImmediate();
+   SendASCIIStrImmediate("Rename Bookmark #\r");
+   
+   
+   SendPETSCIICharImmediate(ModColor); 
+   SendASCIIStrImmediate("m(modifiers):\r(D)ownload,(F)ilter,(R)aw,(none)default\r");
    SendPETSCIICharImmediate(PETSCIIlightGreen);
 }
 
@@ -177,9 +263,42 @@ void UnPausePage()
    PagePaused = false;   
 }
 
+void ParseEntityReference()
+{ // '&' has been received, retrieve and interpret Entity Reference
+  // https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
+   
+   //pull from queue until ';', queue empty, or max size
+   const uint8_t MaxEntRefSize = 20;
+   char EntRef[MaxEntRefSize];
+   uint16_t BufCnt = 0;
+   uint8_t NextChar;
+  
+   while (RxQueueUsed > 0 && BufCnt < MaxEntRefSize-1)
+   {
+      NextChar = PullFromRxQueue();
+      if(NextChar == ';') break;         
+      EntRef[BufCnt++] = NextChar;
+   }
+   EntRef[BufCnt] = 0;  //terminate it
+   if(NextChar != ';') 
+   {
+      //end not found, print it verbatim and return
+      SendASCIIStrImmediate(EntRef);
+      return;
+   }      
+   
+   //  Valid EntRef found
+   if(strcmp(EntRef, "gt")==0) SendPETSCIICharImmediate('>'); //unbold
+   else if(strcmp(EntRef, "nbsp")==0) SendPETSCIICharImmediate(' '); //unbold
+   
+   //there are MANY more...
+   else Printf_dbg("Unk ER: &%s;\n", EntRef);  
+   
+}
+
 void ParseHTMLTag()
-{ //retrieve and interpret HTML Tag
-  //https://www.w3schools.com/tags/
+{ // '<' has been received, retrieve and interpret HTML Tag
+  // https://www.w3schools.com/tags/
   
    //pull tag from queue until '>', or queue empty
    char TagBuf[MaxTagSize];
@@ -200,7 +319,7 @@ void ParseHTMLTag()
    TagBuf[BufCnt] = 0;  //terminate it
    
    //check for known tags and do formatting, etc
-   if(strcmp(TagBuf, "br")==0 || strcmp(TagBuf, "p")==0 || strcmp(TagBuf, "/p")==0 || strcmp(TagBuf, "/ul")==0) 
+   if(strcmp(TagBuf, "br")==0 || strcmp(TagBuf, "p")==0 || strcmp(TagBuf, "/p")==0 || strcmp(TagBuf, "/ul")==0 || strcmp(TagBuf, "tr")==0) 
    {
       SendPETSCIICharImmediate(PETSCIIreturn);
    }
@@ -285,6 +404,7 @@ void ParseHTMLTag()
          UsedPageLinkBuffs++;
          
          if (UsedPageLinkBuffs > 9) SendPETSCIICharImmediate('0' + UsedPageLinkBuffs/10);
+         else SendPETSCIICharImmediate(' ');
          SendPETSCIICharImmediate('0' + (UsedPageLinkBuffs%10));
       }
       else SendPETSCIICharImmediate('*');
@@ -302,7 +422,9 @@ void ParseHTMLTag()
    
    else if(strcmp(TagBuf, "html")==0) //Start of HTML
    {
+   #ifndef DbgMsgs_IO  //don't clear the screen when debug enabled
       SendPETSCIICharImmediate(PETSCIIclearScreen);
+   #endif
       UnPausePage();
    }
    //else Printf_dbg("Unk Tag: <%s>\n", TagBuf);  //There can be a lot of these...
