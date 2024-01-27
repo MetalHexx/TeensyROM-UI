@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Reflection;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.DeleteFile;
+using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Music.Sid;
@@ -60,11 +61,28 @@ namespace TeensyRom.Core.Storage.Services
         {
             var favPath = _settings.GetFavoritePath(fileItem.FileType);
 
-            var result = await _mediator.Send(new CopyFileCommand
+            var favCommand = new FavoriteFileCommand
             {
                 SourcePath = fileItem.Path,
                 DestPath = favPath.UnixPathCombine(fileItem.Name)
-            });
+            };
+
+            var favoriteResult = await _mediator.Send(favCommand);
+
+            if (favoriteResult.IsBusy)
+            {
+                _alert.Publish($"TR was reset to save the favorite.  Re-launching {fileItem.Name}.");
+                await _mediator.Send(new ResetCommand());                
+                favoriteResult = await _mediator.Send(favCommand);
+                await Task.Delay(3500);
+                await _mediator.Send(new LaunchFileCommand { Path = fileItem.Name });
+            }
+            if(!favoriteResult.IsSuccess)
+            {
+                _alert.Publish($"There was an error favoriting {fileItem.Name}.");
+                return null;
+            }
+            _alert.Publish($"{fileItem.Name} has been favorited.  A copy was placed in {favPath}");
 
             var favItem = fileItem switch
             {
@@ -73,7 +91,7 @@ namespace TeensyRom.Core.Storage.Services
                 _ => throw new TeensyException("Unknown file type")
             };
 
-            if (!result.IsSuccess) return null;
+            if (!favoriteResult.IsSuccess) return null;
 
             fileItem.IsFavorite = true;
             favItem.IsFavorite = true;
