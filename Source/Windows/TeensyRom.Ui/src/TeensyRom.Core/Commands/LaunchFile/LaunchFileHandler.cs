@@ -40,7 +40,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
         private LaunchFileResultType ParseResponse(string response)
         {
-            var sidError = new[] { "PSID not found", "Mem conflict w/ TR app" };
+            var sidError = new[] { "PSID not found", "Mem conflict w/ TR app", "PSID/RSID not found", "IO1 mem conflict", "Unexpected Version", "Unexpected Data Offset" };
 
             if (sidError.Any(response.Contains))
             {
