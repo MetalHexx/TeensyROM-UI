@@ -217,7 +217,7 @@ namespace TeensyRom.Ui.Features.Files.State
 
             if(result.LaunchResult == LaunchFileResultType.SidError)
             {
-                _alert.Enqueue("Incompatible SID detected (see logs).");
+                _alert.Enqueue($"{file.Name} is currently unsupported (see logs).");
             }
         }
 

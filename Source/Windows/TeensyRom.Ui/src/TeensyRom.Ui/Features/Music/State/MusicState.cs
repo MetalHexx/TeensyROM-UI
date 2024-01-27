@@ -177,7 +177,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
             if (result.LaunchResult is LaunchFileResultType.SidError)
             {
-                _alert.Enqueue("Incompatible SID detected (see logs).  Attempting to play the next track.");
+                _alert.Enqueue($"{song.Name} is currently unsupported (see logs).  Skipping to the next track.");
                 await PlayNext();
                 return false;
             }
