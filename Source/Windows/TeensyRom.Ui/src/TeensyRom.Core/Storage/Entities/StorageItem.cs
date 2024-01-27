@@ -40,6 +40,20 @@ namespace TeensyRom.Core.Storage.Entities
             }
         }
 
+        private bool _isCompatible = true;
+        public bool IsCompatible
+        {
+            get => _isCompatible;
+            set
+            {
+                if (_isCompatible != value)
+                {
+                    _isCompatible = value;
+                    OnPropertyChanged(nameof(IsCompatible));
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {

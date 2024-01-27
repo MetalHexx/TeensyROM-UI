@@ -178,6 +178,7 @@ namespace TeensyRom.Ui.Features.Music.State
             if (result.LaunchResult is LaunchFileResultType.SidError)
             {
                 _alert.Enqueue($"{song.Name} is currently unsupported (see logs).  Skipping to the next track.");
+                _musicService.MarkIncompatible(song);
                 await PlayNext();
                 return false;
             }

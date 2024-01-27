@@ -217,6 +217,7 @@ namespace TeensyRom.Ui.Features.Files.State
 
             if(result.LaunchResult == LaunchFileResultType.SidError)
             {
+                _storageService.MarkIncompatible(file);
                 _alert.Enqueue($"{file.Name} is currently unsupported (see logs).");
             }
         }

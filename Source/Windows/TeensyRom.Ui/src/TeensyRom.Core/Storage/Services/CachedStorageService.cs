@@ -87,6 +87,15 @@ namespace TeensyRom.Core.Storage.Services
 
             return favItem;
         }
+
+        public void MarkIncompatible(FileItem fileItem)
+        {
+            fileItem.IsCompatible = false;
+            _storageCache.UpsertFile(fileItem);
+
+            SaveCacheToDisk();
+        }
+
         private string GetFullCachePath() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "", _cacheFileName);
         public void ClearCache()
         {

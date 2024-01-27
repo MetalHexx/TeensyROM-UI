@@ -47,11 +47,16 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock 
-                    Text="{Binding Name}" 
-                    TextTrimming="CharacterEllipsis"
-                    Style="{StaticResource MaterialDesignBody2TextBlock}" 
-                    Margin="5,0" VerticalAlignment="Center"  Grid.Column="1"/>
+                <StackPanel Orientation="Horizontal" Grid.Column="1">
+                    <TextBlock                         
+                        Text="{Binding Name}" 
+                        TextTrimming="CharacterEllipsis"
+                        Style="{StaticResource MaterialDesignBody2TextBlock}" 
+                        Margin="5,0" VerticalAlignment="Center" />
+                    <materialDesign:PackIcon x:Name="IncompatibleIcon" ToolTip="Sorry, this sid is currently incompatible with TeensyROM.  Try again in the future." Kind="EmoticonConfused" Visibility="Collapsed" VerticalAlignment="Center" />
+                </StackPanel>
+
+                
 
                 <StackPanel 
                     Orientation="Vertical" 
@@ -61,7 +66,7 @@
 
                     <StackPanel 
                         Orientation="Horizontal" 
-                        HorizontalAlignment="Right">                        
+                        HorizontalAlignment="Right">
 
                         <Button 
                             x:Name="FavButton" 
@@ -102,6 +107,14 @@
                 <DataTrigger Binding="{Binding IsFavorite}" Value="False">
                     <Setter TargetName="FavButton" Property="IsEnabled" Value="True"/>
                 </DataTrigger>
+
+                <DataTrigger Binding="{Binding IsCompatible}" Value="False">
+                    <Setter TargetName="IncompatibleIcon" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsCompatible}" Value="True">
+                    <Setter TargetName="IncompatibleIcon" Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+
             </DataTemplate.Triggers>
         </DataTemplate>
 
