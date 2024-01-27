@@ -56,8 +56,11 @@ namespace TeensyRom.Core.Storage
 
             _fileWatchSubscription ??= _fileWatcher.FileFound
                 .Throttle(TimeSpan.FromMilliseconds(500))
-                .Where(f => _serialState.CurrentState is SerialConnectedState && settings.AutoFileCopyEnabled)
-                .Select(f => new TeensyFileInfo(f))
+                .CombineLatest(_serialState.CurrentState, (file, serialState) => (file, serialState))                
+                .Where(fileSerial => fileSerial.serialState is SerialConnectedState && settings.AutoFileCopyEnabled)
+                .Select(fileSerial => fileSerial.file)
+                .DistinctUntilChanged()
+                .Select(file => new TeensyFileInfo(file))
                 .Do(fileInfo => _logService.Internal($"File detected: {fileInfo.FullPath}"))
                 .Subscribe(async fileInfo => await _storageService.QueuedSaveFile(fileInfo));
         }

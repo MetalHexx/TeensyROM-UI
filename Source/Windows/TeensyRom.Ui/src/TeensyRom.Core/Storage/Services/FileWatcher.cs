@@ -4,28 +4,6 @@ using System.Reactive.Subjects;
 
 namespace TeensyRom.Core.Storage.Services
 {
-    /// <summary>
-    /// Watches a folder and notifies subscribers that a new
-    /// file was added to a folder.
-    /// </summary>
-    public interface IFileWatcher : IDisposable
-    {
-        /// <summary>
-        /// Emits values when files are added
-        /// </summary>
-        IObservable<FileInfo> FileFound { get; }
-
-        /// <summary>
-        /// Enables the watcher with given a path a file filter
-        /// </summary>
-        /// <param name="fileTypes">For example *.sid</param>
-        void Enable(string fullPath, params string[] fileTypes);
-
-        /// <summary>
-        /// Disables the file watcher
-        /// </summary>
-        void Disable();
-    }
 
     public class FileWatcher : IFileWatcher, IDisposable
     {
@@ -36,9 +14,6 @@ namespace TeensyRom.Core.Storage.Services
         private string[] _fileTypes = Array.Empty<string>();
         private readonly ConcurrentDictionary<string, byte> _processedFiles = new();
         private IDisposable _watchSubscription;
-
-        private bool NotDupe(FileInfo fileInfo) => _processedFiles.TryAdd(fileInfo.Name, 0);
-        private bool AcceptedType(FileInfo fileInfo) => _fileTypes.Any(t => t.Equals(fileInfo.Extension));
 
         public void Disable()
         {
@@ -65,12 +40,15 @@ namespace TeensyRom.Core.Storage.Services
                 handler => _watcher.Changed -= handler)
                 .Where(_ => _watchSubscription is not null)
                 .Select(evt => evt.EventArgs.FullPath)
+                .DistinctUntilChanged()
                 .Select(filePath => new FileInfo(filePath))
                 .Where(AcceptedType)
                 .Where(NotDupe)
                 .Subscribe(_fileFound);
         }
 
+        private bool NotDupe(FileInfo fileInfo) => _processedFiles.TryAdd(fileInfo.Name, 0);
+        private bool AcceptedType(FileInfo fileInfo) => _fileTypes.Any(t => t.Equals(fileInfo.Extension));
         public void Dispose()
         {
             _watchSubscription?.Dispose();
