@@ -76,5 +76,19 @@
             var segments = path.Split('/');
             return segments.Length > 0 ? segments[^1] : string.Empty;
         }
+
+        public static string ReplaceExtension(this string path, string newExtension)
+        {
+            if (newExtension.StartsWith(".")) newExtension = newExtension[1..];
+
+            if (string.IsNullOrEmpty(path)) return string.Empty;
+
+            var segments = path.Split('.');
+            if (segments.Length > 0)
+            {
+                segments[^1] = newExtension;
+            }
+            return string.Join('.', segments);
+        }
     }
 }
