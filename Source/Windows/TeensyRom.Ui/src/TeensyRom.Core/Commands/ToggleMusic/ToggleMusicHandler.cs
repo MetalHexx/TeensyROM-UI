@@ -10,8 +10,27 @@ namespace TeensyRom.Core.Commands
         public Task<ToggleMusicResult> Handle(ToggleMusicCommand request, CancellationToken cancellationToken)
         {
             _serialState.SendIntBytes(TeensyToken.PauseMusic, 2);
-            _serialState.HandleAck();
+
+            try
+            {
+                _serialState.HandleAck();
+            }
+            catch (TeensyException ex)
+            {
+                if (ParseBusyResponse(ex.Message))
+                {
+                    return Task.FromResult(new ToggleMusicResult
+                    {
+                        IsSuccess = false,
+                        IsBusy = true
+                    });
+
+                }
+                throw;
+            }
             return Task.FromResult(new ToggleMusicResult());
         }
+
+        private bool ParseBusyResponse(string response) => response.Contains("Busy") ? true : false;
     }
 }
