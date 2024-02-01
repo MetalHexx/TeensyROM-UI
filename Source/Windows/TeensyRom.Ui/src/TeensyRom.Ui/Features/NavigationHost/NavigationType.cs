@@ -6,6 +6,7 @@
         FileTransfer,
         Files,
         Music,
+        Games,
         Settings,
         Help        
     }

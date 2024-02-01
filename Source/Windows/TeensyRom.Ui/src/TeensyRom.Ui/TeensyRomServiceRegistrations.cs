@@ -31,6 +31,13 @@ using TeensyRom.Ui.Features.Files.Search;
 using TeensyRom.Ui.Services;
 using TeensyRom.Ui.Features.Global;
 using TeensyRom.Core.Serial.State;
+using TeensyRom.Ui.Features.Games;
+using TeensyRom.Ui.Features.Games.GameToolbar;
+using TeensyRom.Ui.Features.Games.GameList;
+using TeensyRom.Ui.Features.Games.Search;
+using TeensyRom.Ui.Features.Games.State;
+using TeensyRom.Ui.Features.Games.GameInfo;
+using TeensyRom.Core.Games;
 
 namespace TeensyRom.Ui
 {
@@ -47,13 +54,16 @@ namespace TeensyRom.Ui
             services.AddSingleton<IAlertService, AlertService>();
             services.AddSingleton<ISnackbarService, SnackbarService>();
             services.AddSingleton<IDialogService, DialogService>();
-            services.AddSingleton<ISongTimer, SongTimer>();
+            services.AddSingleton<Features.Music.State.ISongTimer, Features.Music.State.SongTimer>();
+            services.AddSingleton<Features.Games.State.ISongTimer, Features.Games.State.SongTimer>();
             services.AddSingleton<ILaunchHistory,  LaunchHistory>();
             services.AddSingleton<IMusicState, MusicState>();
+            services.AddSingleton<IGameState, GameState>();
             services.AddSingleton<IFileState, FileState>();
             services.AddSingleton<IGlobalState, GlobalState>();
             services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();
             services.AddSingleton<ISerialStateContext, SerialStateContext>();
+            services.AddSingleton<IGameMetadataService, GameMetadataService>();
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
             services.AddSingleton<ICachedStorageService, CachedStorageService>();
             services.AddSingleton<NavigationHostViewModel>();
@@ -64,9 +74,15 @@ namespace TeensyRom.Ui
             services.AddSingleton<SettingsViewModel>();
             services.AddSingleton<HelpViewModel>();
             services.AddSingleton<MusicViewModel>();
+            services.AddSingleton<GamesViewModel>();
             services.AddSingleton<PlayToolbarViewModel>();
             services.AddSingleton<SongListViewModel>();
             services.AddSingleton<SearchMusicViewModel>();
+            services.AddSingleton<GamesViewModel>();
+            services.AddSingleton<GameToolbarViewModel>();
+            services.AddSingleton<GameListViewModel>();
+            services.AddSingleton<GameInfoViewModel>();
+            services.AddSingleton<SearchGamesViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddSingleton<ITeensyCommandExecutor, TeensyCommandExecutor>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            

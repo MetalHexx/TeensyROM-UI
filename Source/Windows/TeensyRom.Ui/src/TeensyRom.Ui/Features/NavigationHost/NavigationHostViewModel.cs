@@ -15,6 +15,7 @@ using TeensyRom.Ui.Features.Files;
 using TeensyRom.Core.Serial;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Serial.State;
+using TeensyRom.Ui.Features.Games;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -36,17 +37,17 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, ISerialStateContext serialState, ISnackbarService alert, FilesViewModel files, MusicViewModel music, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
+        public NavigationHostViewModel(INavigationService navStore, ISerialStateContext serialState, ISnackbarService alert, FilesViewModel files, MusicViewModel music, GamesViewModel games, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
         {
             _navService = navStore;
             _serialContext = serialState;
             MessageQueue = alert.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
-            InitializeNavItems(files, music, help, connect, settings);
+            InitializeNavItems(files, music, games, help, connect, settings);
         }     
 
-        public void InitializeNavItems(FilesViewModel files, MusicViewModel midi, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
+        public void InitializeNavItems(FilesViewModel files, MusicViewModel midi, GamesViewModel games, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
         {
             _navService.Initialize(NavigationLocation.Connect, new List<NavigationItem>
             {
@@ -70,6 +71,13 @@ namespace TeensyRom.Ui.Features.NavigationHost
                     Type = NavigationLocation.Music,
                     ViewModel = midi,
                     Icon = "MusicClefTreble"
+                },
+                new NavigationItem
+                {
+                    Name = "Games",
+                    Type = NavigationLocation.Games,
+                    ViewModel = games,
+                    Icon = "Ghost"
                 },
                 new NavigationItem
                 {

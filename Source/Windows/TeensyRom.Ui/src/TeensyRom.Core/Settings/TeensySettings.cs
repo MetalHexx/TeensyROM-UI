@@ -27,7 +27,9 @@ namespace TeensyRom.Core.Settings
         public string TargetRootPath { get; set; } = @"/";
         public List<TeensyTarget> FileTargets { get; set; } = [];
         public List<TeensyLibrary> Libraries { get; set; } = [];
-        public string AutoTransferPath { get; set; } = "/auto-transfer";
+        public string GameLoadingScreenPath { get; set; } = string.Empty;
+        public string GameScreenshotPath { get; set; } = string.Empty;
+        public string AutoTransferPath { get; set; } = "auto-transfer";
         public bool AutoFileCopyEnabled { get; set; }
         public bool SaveMusicCacheEnabled { get; set; } = true;        
 

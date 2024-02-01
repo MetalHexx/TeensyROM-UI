@@ -120,7 +120,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Style="{StaticResource MainTitle}" Margin="0 -10 0 10" VerticalAlignment="Top">TeensyROM</TextBlock>
+                <TextBlock Text="{Binding Title}" Style="{StaticResource MainTitle}" Margin="0 -10 0 10" VerticalAlignment="Top"/>
 
                 <materialDesign:Card Grid.Row="1" Padding="0 0 0 0" VerticalAlignment="Stretch">
                     <Grid>

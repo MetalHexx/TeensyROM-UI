@@ -36,7 +36,7 @@ namespace TeensyRom.Ui.Features.Files.State
         public IObservable<int> TotalPages => _totalPages.AsObservable();
         public IObservable<int> PageSize => _pageSize.AsObservable();
         public IObservable<bool> PagingEnabled => _pagingEnabled.AsObservable();
-        public IObservable<FileItem> FileViewLaunch => _programLaunched.AsObservable();
+        public IObservable<FileItem> FileLaunched => _programLaunched.AsObservable();
 
         private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
         private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();

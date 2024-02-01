@@ -90,10 +90,14 @@ namespace TeensyRom.Ui.Features.Music.State
                 .Where(path => path.Equals(_currentDirectory.Value?.Path))
                 .Subscribe(async _ => await RefreshDirectory(bustCache: false));
 
-            _programLaunchedSubscription = globalState.FileViewLaunched
+            _programLaunchedSubscription = globalState.ProgramLaunched
                 .WithLatestFrom(_playState, (file, playState) => playState)
                 .Where(playState => playState == PlayState.Playing)
-                .Subscribe(async _ => await ToggleMusic());
+                .Subscribe(async _ => 
+                {
+                    await _mediator.Send(new ToggleMusicCommand());
+                    TogglePlayState();
+                });
         }        
 
         private void OnSettingsChanged(TeensySettings settings)
@@ -210,7 +214,12 @@ namespace TeensyRom.Ui.Features.Music.State
         public async Task ToggleMusic()
         {
             var result = await _mediator.Send(new ToggleMusicCommand());
-            if (!result.IsSuccess) return;
+
+            if(result.IsBusy)
+            {
+                await LoadSong(_currentSong.Value!);
+                return;
+            }
             TogglePlayState();            
         }
 

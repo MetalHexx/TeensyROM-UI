@@ -1,12 +1,12 @@
-﻿<UserControl x:Class="TeensyRom.Ui.Features.Files.DirectoryContent.DirectoryContentView"
+﻿<UserControl x:Class="TeensyRom.Ui.Features.Games.GameList.GameListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TeensyRom.Ui.Features.Files.DirectoryContent"
+             xmlns:local="clr-namespace:TeensyRom.Ui.Features.Games.GameList"             
              xmlns:models="clr-namespace:TeensyRom.Ui.Features.Common.Models"
              xmlns:storage="clr-namespace:TeensyRom.Core.Storage.Entities;assembly=TeensyRom.Core"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -37,7 +37,7 @@
 
         </HierarchicalDataTemplate>
 
-        <DataTemplate x:Key="FileTemplate" DataType="{x:Type storage:FileItem}">
+        <DataTemplate x:Key="GameTemplate" DataType="{x:Type storage:GameItem}">
 
             <Grid x:Name="SongItemPanel">
                 <Grid.ColumnDefinitions>
@@ -52,7 +52,7 @@
                         TextTrimming="CharacterEllipsis"
                         Style="{StaticResource MaterialDesignBody2TextBlock}" 
                         Margin="5,0" VerticalAlignment="Center" />
-                    <materialDesign:PackIcon x:Name="IncompatibleIcon" ToolTip="Sorry, this file is currently incompatible with TeensyROM.  Try again in the future." Kind="EmoticonConfused" Visibility="Collapsed" VerticalAlignment="Center" />
+                    <materialDesign:PackIcon x:Name="IncompatibleIcon" ToolTip="Sorry, this sid is currently incompatible with TeensyROM.  Try again in the future." Kind="EmoticonConfused" Visibility="Collapsed" VerticalAlignment="Center" />
                 </StackPanel>
 
                 <StackPanel 
@@ -64,15 +64,17 @@
                     <StackPanel 
                         Orientation="Horizontal" 
                         HorizontalAlignment="Right">
+
                         <Button 
-                            x:Name="LaunchButton"
-                            Command="{Binding DataContext.LaunchCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
+                            x:Name="PlayButton"
+                            Command="{Binding DataContext.PlayCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
                             CommandParameter="{Binding}"  
                             Visibility="Collapsed"
                             ToolTip="Launch"
                             Style="{StaticResource StorageIconButton}">
                             <materialDesign:PackIcon Kind="Play" />
                         </Button>
+
                         <Button 
                             x:Name="FavButton" 
                             Command="{Binding DataContext.SaveFavoriteCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
@@ -82,6 +84,7 @@
                             Style="{StaticResource StorageIconButton}">
                             <materialDesign:PackIcon Kind="Heart" />
                         </Button>
+
                         <Button 
                             x:Name="DeleteButton" 
                             Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
@@ -91,7 +94,6 @@
                             Style="{StaticResource StorageIconButton}">
                             <materialDesign:PackIcon Kind="Trash" />
                         </Button>
-                        
                     </StackPanel>
                 </StackPanel>
 
@@ -99,17 +101,15 @@
 
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">
-                    <Setter TargetName="DeleteButton" Property="Visibility" Value="Visible"/>
-                    <Setter TargetName="LaunchButton" Property="Visibility" Value="Visible"/>
                     <Setter TargetName="FavButton" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="DeleteButton" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="PlayButton" Property="Visibility" Value="Visible"/>
                 </DataTrigger>
-                
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False">
-                    <Setter TargetName="DeleteButton" Property="Visibility" Value="Collapsed"/>
-                    <Setter TargetName="LaunchButton" Property="Visibility" Value="Collapsed"/>
                     <Setter TargetName="FavButton" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="DeleteButton" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="PlayButton" Property="Visibility" Value="Collapsed"/>
                 </DataTrigger>
-                
                 <DataTrigger Binding="{Binding IsFavorite}" Value="True">
                     <Setter TargetName="FavButton" Property="IsEnabled" Value="False"/>
                 </DataTrigger>
@@ -123,39 +123,37 @@
                 <DataTrigger Binding="{Binding IsCompatible}" Value="True">
                     <Setter TargetName="IncompatibleIcon" Property="Visibility" Value="Collapsed"/>
                 </DataTrigger>
+
             </DataTemplate.Triggers>
         </DataTemplate>
 
     </UserControl.Resources>
 
     <Grid>
+
         <ScrollViewer VerticalScrollBarVisibility="Auto">
 
             <ListView Name="songListView"
                 ItemsSource="{Binding DirectoryContent}"
-                AllowDrop="True"
-                local:FileDragDropBehavior.FileDropCommand="{Binding FileDropCommand}"
-                local:FileDragDropBehavior.DragOverCommand="{Binding DragOverCommand}"
                 SelectionMode="Single"
                 PreviewMouseWheel="OnListViewPreviewMouseWheel"
                 MouseDoubleClick="OnListViewDoubleClicked"
+                MouseLeftButtonUp="OnListViewClicked"
                 VirtualizingStackPanel.IsVirtualizing="True"
                 VirtualizingStackPanel.VirtualizationMode="Recycling"
                 HorizontalContentAlignment="Stretch"                    
                 MinWidth="220">
 
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
-                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=OneWay}" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    </Style>
+                </ListView.ItemContainerStyle>
 
                 <ListView.ItemTemplateSelector>
                     <models:StorageItemTemplateSelector
-                        DirectoryTemplate="{StaticResource DirectoryTemplate}"
-                        FileTemplate="{StaticResource FileTemplate}"
-                        SongTemplate="{StaticResource FileTemplate}"
-                        GameTemplate="{StaticResource FileTemplate}"/>
+                    DirectoryTemplate="{StaticResource DirectoryTemplate}"
+                    GameTemplate="{StaticResource GameTemplate}"/>
                 </ListView.ItemTemplateSelector>
 
             </ListView>

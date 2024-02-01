@@ -208,13 +208,36 @@ namespace TeensyRom.Core.Serial
         {
             var bytesToSend = BitConverter.GetBytes(intToSend);
 
-            //TODO: Add verbose option.
-            //_log.Internal($"Sent Bytes: {BitConverter.ToString(bytesToSend)}");
-
             for (short byteNum = (short)(byteLength - 1); byteNum >= 0; byteNum--)
             {
                 _serialPort.Write(bytesToSend, byteNum, 1);
             }
+        }
+
+        public uint ReadIntBytes(short byteLength)
+        {
+            byte[] receivedBytes = new byte[byteLength];
+            int bytesReadTotal = 0;
+
+            while (bytesReadTotal < byteLength)
+            {
+                int bytesRead = _serialPort.Read(receivedBytes, bytesReadTotal, byteLength - bytesReadTotal);
+                if (bytesRead == 0)
+                {
+                    throw new TimeoutException("Timeout while reading bytes from serial port.");
+                }
+                bytesReadTotal += bytesRead;
+            }
+
+            uint result = 0;
+
+            // Reconstruct the uint value in little-endian order
+            for (short byteNum = 0; byteNum < byteLength; byteNum++)
+            {
+                result |= (uint)(receivedBytes[byteNum] << (8 * byteNum));
+            }
+
+            return result;
         }
 
         public void WaitForSerialData(int numBytes, int timeoutMs)

@@ -23,6 +23,7 @@ namespace TeensyRom.Core.Serial.State
         public virtual Unit OpenPort() => throw new TeensyStateException(ExceptionMessage);
         public virtual Unit ClosePort() => throw new TeensyStateException(ExceptionMessage);
         public virtual void SendIntBytes(uint intToSend, short numBytes) => throw new TeensyStateException(ExceptionMessage);
+        public virtual uint ReadIntBytes(short byteLength) => throw new TeensyStateException(ExceptionMessage);
         public virtual void Lock() => throw new TeensyStateException(ExceptionMessage);
         public virtual void Unlock() => throw new TeensyStateException(ExceptionMessage);
         public virtual int Read(byte[] buffer, int offset, int count) => throw new TeensyStateException(ExceptionMessage);
@@ -33,6 +34,7 @@ namespace TeensyRom.Core.Serial.State
         public virtual void WaitForSerialData(int numBytes, int timeoutMs) => throw new TeensyStateException(ExceptionMessage);
         public virtual void StartPortPoll() => throw new TeensyStateException(ExceptionMessage);
         public virtual void Dispose() => _serialPort.Dispose();
+
         protected string ExceptionMessage => $"Cannot perform serial operations in: {this.GetType().Name}";
         IObservable<Type> IObservableSerialPort.State => throw new NotImplementedException();
     }

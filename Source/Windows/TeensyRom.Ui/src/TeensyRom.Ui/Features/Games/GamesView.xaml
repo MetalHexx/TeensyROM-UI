@@ -1,0 +1,87 @@
+﻿<UserControl x:Class="TeensyRom.Ui.Features.Games.GamesView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:TeensyRom.Ui.Features.Games"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"             
+    mc:Ignorable="d" 
+    Height="auto" Width="auto">
+
+    <Grid>
+        <Grid Visibility="{Binding GamesAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock 
+            Text="{Binding FeatureTitle}"
+            Style="{StaticResource SectionTitle}"            
+            Grid.Row="0"/>
+
+            <ContentControl Content="{Binding Search}" Grid.Row="0" Grid.Column="1"/>
+
+            <StackPanel Orientation="Horizontal"
+            HorizontalAlignment="Right" VerticalAlignment="Top"
+            Grid.Row="0" Grid.Column="2"
+            Margin="0 -15 -15 10">
+
+                <Button 
+                Command="{Binding PlayRandomCommand}" 
+                ToolTip="I'm feeling lucky!"
+                Style="{StaticResource StorageIconButton}">
+
+                    <materialDesign:PackIcon Kind="Dice5" />
+                </Button>
+
+                <Button 
+                Command="{Binding CacheAllCommand}" 
+                ToolTip="Caches all files.  This will increase performance and make files and music available for search, random play and shuffle play mode."
+                Style="{StaticResource StorageIconButton}">
+
+                    <materialDesign:PackIcon Kind="DatabaseImport" />
+                </Button>
+
+                <Button 
+                Command="{Binding RefreshCommand}" 
+                ToolTip="Refreshes the current directory."
+                Style="{StaticResource StorageIconButton}">
+
+                    <materialDesign:PackIcon Kind="refresh" />
+                </Button>
+
+            </StackPanel>
+
+            <ContentControl Content="{Binding GamesTree}" 
+                HorizontalAlignment="Left" 
+                Grid.Row="1" Grid.Column="0" 
+                Margin="0 0 20 0" />
+
+            <ContentControl Content="{Binding GameList}" 
+                Grid.Row="1" Grid.Column="1" />
+
+            <ContentControl Content="{Binding GameInfo}"
+                Grid.Row="1" Grid.Column="2" />
+
+            <Grid x:Name="ToolBarGrid" 
+              Grid.Row="2" Grid.ColumnSpan="3" 
+              Background="#303030" 
+              Visibility="{Binding ShowToolbar, Converter={StaticResource InverseBoolToVisibilityConvertor}}">
+                <ContentControl Content="{Binding GameToolBar}" VerticalAlignment="Center"/>
+            </Grid>
+        </Grid>
+        <TextBlock Text="Music is unavailable, check your connection."
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Visibility="{Binding GamesAvailable, Converter={StaticResource InverseBoolToVisibilityConvertor}}"/>
+    </Grid>
+
+</UserControl>

@@ -9,22 +9,22 @@ using System.Threading.Tasks;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Files.State;
+using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Music.State;
 
 namespace TeensyRom.Ui.Features.Global
 {
     public interface IGlobalState
     {
-        IObservable<FileItem> FileViewLaunched { get; }
+        IObservable<FileItem> ProgramLaunched { get; }
         IObservable<bool> SerialConnected { get; }
     }
 
-    public class GlobalState(IFileState fileState, ISerialStateContext serialContext) : IGlobalState
+    public class GlobalState(IFileState fileState, IGameState gameState, ISerialStateContext serialContext) : IGlobalState
     {
-        public IObservable<FileItem> FileViewLaunched => fileState.FileViewLaunch;
+        public IObservable<FileItem> ProgramLaunched => fileState.FileLaunched.Merge(gameState.GameLaunched);
 
-        public IObservable<bool> SerialConnected => serialContext.CurrentState
-            .Select(state => state is SerialBusyState or SerialConnectedState);
+        public IObservable<bool> SerialConnected => serialContext.CurrentState.Select(state => state is SerialBusyState or SerialConnectedState);
 
     }
 }

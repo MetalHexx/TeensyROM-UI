@@ -1,0 +1,102 @@
+﻿<UserControl x:Class="TeensyRom.Ui.Features.Games.GameToolbar.GameToolbarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TeensyRom.Ui.Features.Games.GameToolbar"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="1" Margin="10 10 0 10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Top">
+                <Button x:Name="PreviousButton"
+                        Command="{Binding PreviousCommand}"  
+                        ToolTip="Previous"
+                        Style="{StaticResource PlaybarPrevSkipButton}">
+                    <materialDesign:PackIcon Kind="SkipPrevious" />
+                </Button>
+
+                <Button x:Name="PlayButton"
+                        Command="{Binding TogglePlayCommand}" 
+                        Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisibilityConvertor}}"   
+                        ToolTip="Play"
+                        Style="{StaticResource PlaybarButton}">
+                    <materialDesign:PackIcon Kind="Play" />
+                </Button>
+
+                <Button x:Name="PauseButton"
+                        Command="{Binding TogglePlayCommand}" 
+                        Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisibilityConvertor}}"   
+                        ToolTip="Pause"
+                        Style="{StaticResource PlaybarButton}">
+                    <materialDesign:PackIcon Kind="Stop" />
+                </Button>
+
+                <Button x:Name="NextButton"
+                        Command="{Binding NextCommand}"  
+                        ToolTip="Next"
+                        Style="{StaticResource PlaybarPrevSkipButton}">
+                    <materialDesign:PackIcon Kind="SkipNext" />
+                </Button>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="30 3 0 0">
+                <Button
+                    Content="{Binding Game.Name, Mode=OneWay}"
+                    Command="{Binding NavigateToGameDirCommand}"
+                    HorizontalContentAlignment="Left"
+                    ToolTip="Navigate to the game directory"
+                    FontFamily="Arial" FontSize="18"
+                    Foreground="White"
+                    Style="{StaticResource MaterialDesignFlatButton}"
+                    Padding="5 0 5 0"
+                    Height="25"
+                    Margin="0 0 0 -3"                    
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Left">
+                </Button>
+                <StackPanel Orientation="Horizontal" Margin="5 5 10 0">
+                    <TextBlock FontFamily="Arial" Text="{Binding Game.Name, Mode=OneWay}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel 
+                Grid.Column="2" 
+                Orientation="Horizontal"
+                HorizontalAlignment="Right" VerticalAlignment="Top" 
+                Margin="10 0 10 0">
+
+                <Button x:Name="FavoriteButton"
+                    Command="{Binding FavoriteCommand}"  
+                    IsEnabled="{Binding Game.IsFavorite, Converter={StaticResource BooleanInverterConverter}, Mode=OneWay}"
+                    ToolTip="Add to favorites"
+                    Style="{StaticResource StorageIconButton}"    >
+                    <materialDesign:PackIcon Kind="heart"/>
+                </Button>
+
+                <Button x:Name="ShuffleModeButton"
+                    Command="{Binding ToggleShuffleCommand}"  
+                    ToolTip="Enable Shuffle Mode. This will play random games across your entire game collection if it's been cached."
+                    Style="{StaticResource ShuffleModeButtonStyle}"    >
+                    <materialDesign:PackIcon Kind="Shuffle"/>
+                </Button>
+
+            </StackPanel>
+
+
+        </Grid>
+    </Grid>
+</UserControl>

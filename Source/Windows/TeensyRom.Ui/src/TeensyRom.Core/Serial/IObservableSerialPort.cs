@@ -61,6 +61,13 @@ namespace TeensyRom.Core.Serial
         void SendIntBytes(uint intToSend, short numBytes);
 
         /// <summary>
+        /// Reads an integer value from the serial port
+        /// </summary>
+        /// <param name="byteLength">The length of the byte</param>
+        /// <returns>The integer value read from the serial port</returns>
+        uint ReadIntBytes(short byteLength);
+
+        /// <summary>
         /// Marks the serial port as locked and gives the caller exclusive access to the port.
         /// Auto-polling behavior is disabled while the port is locked.
         /// </summary>
@@ -109,6 +116,6 @@ namespace TeensyRom.Core.Serial
         /// <summary>
         /// Starts polling the serial port for available ports
         /// </summary>
-        void StartPortPoll();
+        void StartPortPoll();        
     }
 }

@@ -55,6 +55,7 @@ namespace TeensyRom.Core.Serial.State
         public void Lock() => _currentState.Value.Lock();
         public void Unlock() => _currentState.Value.Unlock();
         public void SendIntBytes(uint intToSend, short byteLength) => _currentState.Value.SendIntBytes(intToSend, byteLength);
+        public uint ReadIntBytes(short byteLength) => _currentState.Value.ReadIntBytes(byteLength);
         public void Write(string text) => _currentState.Value.Write(text);
         public void Write(char[] buffer, int offset, int count) => _currentState.Value.Write(buffer, offset, count);
         public void Write(byte[] buffer, int offset, int count) => _currentState.Value.Write(buffer, offset, count);

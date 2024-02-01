@@ -8,6 +8,7 @@ using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.DeleteFile;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Games;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Settings;
@@ -19,7 +20,8 @@ namespace TeensyRom.Core.Storage.Services
     {
         public IObservable<string> DirectoryUpdated => _directoryUpdated.AsObservable();
         protected readonly ISettingsService _settingsService;
-        private readonly ISidMetadataService _metadataService;
+        private readonly IGameMetadataService _gameMetadata;
+        private readonly ISidMetadataService _sidMetadata;
         private readonly IMediator _mediator;
         private readonly IAlertService _alert;
         private TeensySettings _settings;
@@ -27,11 +29,15 @@ namespace TeensyRom.Core.Storage.Services
         private const string _cacheFileName = "TeensyStorageCache.json";
         private StorageCache _storageCache = new();
         private Subject<string> _directoryUpdated = new();
+        private string _gameArtPath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), @"Games\Art");
+        private string _loadingScreenPath => Path.Combine(_gameArtPath, "LoadingScreens");
+        private string _gamePlayScreenPath => Path.Combine(_gameArtPath, "Screenshots");
 
-        public CachedStorageService(ISettingsService settings, ISidMetadataService metadataService, IMediator mediator, IAlertService alert)
+        public CachedStorageService(ISettingsService settings, IGameMetadataService gameMetadata, ISidMetadataService sidMetadata, IMediator mediator, IAlertService alert)
         {
             _settingsService = settings;
-            _metadataService = metadataService;
+            _gameMetadata = gameMetadata;
+            _sidMetadata = sidMetadata;
             _mediator = mediator;
             _alert = alert;
             _settingsSubscription = _settingsService.Settings.Subscribe(OnSettingsChanged);
@@ -74,8 +80,8 @@ namespace TeensyRom.Core.Storage.Services
                 _alert.Publish($"TR was reset to save the favorite.  Re-launching {fileItem.Name}.");
                 await _mediator.Send(new ResetCommand());                
                 favoriteResult = await _mediator.Send(favCommand);
-                await Task.Delay(3500);
-                await _mediator.Send(new LaunchFileCommand { Path = fileItem.Name });
+                await Task.Delay(5000);
+                await _mediator.Send(new LaunchFileCommand { Path = fileItem.Path });
             }
             if(!favoriteResult.IsSuccess)
             {
@@ -87,7 +93,8 @@ namespace TeensyRom.Core.Storage.Services
             var favItem = fileItem switch
             {
                 SongItem s => s.Clone(),
-                FileItem f => f.Clone(),
+                GameItem g => g.Clone(),
+                FileItem f => f.Clone(),                
                 _ => throw new TeensyException("Unknown file type")
             };
 
@@ -254,20 +261,35 @@ namespace TeensyRom.Core.Storage.Services
             return directoryContent?.Files
                 .Select(file =>
                 {
-                    if (file.FileType is not TeensyFileType.Sid) return file;
-
-                    var song = new SongItem
+                    if (file.FileType is TeensyFileType.Sid) 
                     {
-                        Name = file.Name,
-                        Path = file.Path,
-                        Size = file.Size,
-                    };
-                    _metadataService.EnrichSong(song);
-                    return song;
+                        var song = new SongItem
+                        {
+                            Name = file.Name,
+                            Path = file.Path,
+                            Size = file.Size,
+                        };
+                        _sidMetadata.EnrichSong(song);
+                        return song;
+                    }
+                    if (file.FileType is TeensyFileType.Crt or TeensyFileType.Prg)
+                    {
+                        var game = new GameItem
+                        {
+                            Name = file.Name,
+                            Path = file.Path,
+                            Size = file.Size                            
+                        };
+                        _gameMetadata.EnrichGame(game);
+                        return game;
+                    }
+                    return file;
                 })
-                .OrderBy(song => song.Name)
+                .OrderBy(file => file.Name)
                 .ToList() ?? [];
         }
+
+        private string GetGameArtPath(FileItem file, string parentPath) => Path.Combine(parentPath, file.Name.ReplaceExtension(".png"));
 
         public async Task SaveFile(TeensyFileInfo fileInfo)
         {
@@ -279,8 +301,9 @@ namespace TeensyRom.Core.Storage.Services
 
             var storageItem = fileInfo.ToStorageItem();
 
-            if(storageItem is SongItem song) _metadataService.EnrichSong(song);
-            if(storageItem is FileItem file) _storageCache.UpsertFile(file); 
+            if (storageItem is SongItem song) _sidMetadata.EnrichSong(song);
+            if (storageItem is GameItem game) _gameMetadata.EnrichGame(game);
+            if (storageItem is FileItem file) _storageCache.UpsertFile(file); 
 
             _directoryUpdated.OnNext(storageItem.Path);
         }
@@ -295,7 +318,8 @@ namespace TeensyRom.Core.Storage.Services
 
             var storageItem = fileInfo.ToStorageItem();
 
-            if (storageItem is SongItem song) _metadataService.EnrichSong(song);
+            if (storageItem is SongItem song) _sidMetadata.EnrichSong(song);
+            if (storageItem is GameItem game) _gameMetadata.EnrichGame(game);
             if (storageItem is FileItem file) _storageCache.UpsertFile(file);
 
             _directoryUpdated.OnNext(storageItem.Path);

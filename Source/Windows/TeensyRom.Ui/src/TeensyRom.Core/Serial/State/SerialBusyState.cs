@@ -14,6 +14,7 @@ namespace TeensyRom.Core.Serial.State
         public override void Write(byte[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);   
         public override void Write(char[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);
         public override void SendIntBytes(uint intToSend, short numBytes) => _serialPort.SendIntBytes(intToSend, numBytes);
+        public override uint ReadIntBytes(short byteLength) => _serialPort.ReadIntBytes(byteLength);
         public override void Unlock() => _serialPort.Unlock();
         public override int Read(byte[] buffer, int offset, int count) => _serialPort.Read(buffer, offset, count);
         public override int ReadByte() => _serialPort.ReadByte();

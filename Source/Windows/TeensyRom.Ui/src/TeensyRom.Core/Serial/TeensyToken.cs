@@ -11,6 +11,7 @@ namespace TeensyRom.Core.Serial
         public static readonly TeensyToken LaunchFile = new(0x6444, nameof(LaunchFile));
         public static readonly TeensyToken SendFile = new(0x64BB, nameof(SendFile));
         public static readonly TeensyToken CopyFile = new(0x64FF, nameof(CopyFile));
+        public static readonly TeensyToken GetFile = new(0x64B0, nameof(GetFile));
         public static readonly TeensyToken DeleteFile = new(0x64CF, nameof(DeleteFile));
         public static readonly TeensyToken LegacySendFile = new(0x64AA, nameof(LegacySendFile));
         public static readonly TeensyToken Ack = new(0x64CC, nameof(Ack));
