@@ -28,7 +28,7 @@ namespace TeensyRom.Core.Storage.Entities
                 TeensyFileType.Crt => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
                 TeensyFileType.Prg => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
                 TeensyFileType.Hex => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                _ => throw new TeensyException("Unknown file type")
+                _ => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
             };
         }
     }
