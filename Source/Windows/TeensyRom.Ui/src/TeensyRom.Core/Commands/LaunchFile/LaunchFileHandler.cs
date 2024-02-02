@@ -29,7 +29,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             _serialState.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
             _serialState.Write($"{request.Path}\0");
             _serialState.HandleAck();
-            var response = _serialState.ReadSerialAsString(100);
+            var response = _serialState.ReadSerialAsString(200);
             var resultType = ParseResponse(response);
 
             return Task.FromResult(new LaunchFileResult
