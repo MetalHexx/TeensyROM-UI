@@ -26,27 +26,8 @@ namespace TeensyRom.Core.Commands
             _serialState.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
             _serialState.Write($"{request.SourcePath}\0");
             _serialState.Write($"{request.DestPath}\0");
-
-            try
-            {
-                _serialState.HandleAck();
-            }
-            catch (TeensyException ex)
-            {
-                if (ParseBusyResponse(ex.Message))
-                {
-                    return Task.FromResult(new FavoriteFileResult
-                    {
-                        IsSuccess = false,
-                        IsBusy = true
-                    });
-
-                }
-                throw;
-            }
+            _serialState.HandleAck();
             return Task.FromResult(new FavoriteFileResult());
         }
-
-        private bool ParseBusyResponse(string response) => response.Contains("Busy") ? true : false;
     }
 }
