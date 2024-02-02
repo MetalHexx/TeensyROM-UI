@@ -217,6 +217,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
             if(result.IsBusy)
             {
+                _alert.Enqueue("Toggle music failed. Re-launching the current song.");
                 await LoadSong(_currentSong.Value!);
                 return;
             }
