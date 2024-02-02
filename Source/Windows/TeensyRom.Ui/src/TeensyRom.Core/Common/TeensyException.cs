@@ -12,5 +12,7 @@ namespace TeensyRom.Core.Common
         public TeensyException(string message, Exception ex) : base(message, ex) { }
     }
 
+    public class TeensyBusyException(string message) : TeensyException(message) { }
+
     public class TeensyStateException(string message) : Exception(message) { }
 }

@@ -15,18 +15,22 @@ namespace TeensyRom.Core.Serial
         {
             var response = serialState.GetAck();
 
-            if (response != TeensyToken.Ack)
+            if (response == TeensyToken.Ack) return;
+
+            var rawResponse = serialState.ReadAndLogSerialAsString();
+
+            if (rawResponse.Contains("Busy!"))
             {
-                var dataString = serialState.ReadAndLogSerialAsString();
-                
-                var responseString = response switch
-                {
-                    var _ when response == TeensyToken.Fail => "Fail Token",
-                    _ => "Unknown",
-                };
-                if(dataString.Length == 0) dataString = "No Data";
-                throw new TeensyException($"Received unexpected response from TR ({responseString}) with data: {dataString}");
+                throw new TeensyBusyException($"TeensyROM is currently busy and could not perform the requested operation.");
             }
+            var responseString = response switch
+            {
+                var token when token == TeensyToken.Fail => "Fail Token",
+                _ => "Unknown",
+            };
+            if (rawResponse.Length == 0) rawResponse = "No Data";
+
+            throw new TeensyException($"Received unexpected response from TR ({responseString}) with data: {rawResponse}");
         }
         public static TeensyToken GetAck(this ISerialStateContext serialState)
         {
