@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using TeensyRom.Core.Commands;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 
 public class ExceptionBehavior<TRequest, TResponse>(IAlertService alert) : IPipelineBehavior<TRequest, TResponse>
@@ -13,9 +14,20 @@ public class ExceptionBehavior<TRequest, TResponse>(IAlertService alert) : IPipe
         {
             response = await next();
         }
+        catch (TeensyBusyException ex)
+        {
+            alert.Publish(ex.Message);
+            return new TResponse
+            {
+                IsSuccess = false,
+                IsBusy = true,
+                Error = ex.Message 
+            };
+        }
         catch (Exception ex)
         {
             alert.Publish(ex.Message);
+
             return new TResponse
             {
                 IsSuccess = false,
