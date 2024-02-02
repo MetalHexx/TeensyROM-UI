@@ -361,7 +361,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
         public Unit SearchGames(string searchText)
         {
-            var searchResult = _storage.SearchFiles(searchText);
+            var searchResult = _storage.SearchPrograms(searchText);
 
             if (searchResult is null) return Unit.Default;
 

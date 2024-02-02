@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
@@ -359,6 +360,7 @@ namespace TeensyRom.Core.Storage.Services
             var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             return _storageCache
+                .Where(NotFavoriteFilter)
                 .SelectMany(c => c.Value.Files)
                 .OfType<SongItem>()
                 .Select(song => new
@@ -383,6 +385,7 @@ namespace TeensyRom.Core.Storage.Services
             var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             return _storageCache
+                .Where(NotFavoriteFilter)
                 .SelectMany(c => c.Value.Files)
                 .OfType<FileItem>()
                 .Where(f => TeensyFileTypeExtensions.GetLaunchFileTypes().Contains(f.FileType))
@@ -398,6 +401,31 @@ namespace TeensyRom.Core.Storage.Services
                 .OrderByDescending(result => result.Score)
                 .Select(result => result.File);
         }
+
+        public IEnumerable<FileItem> SearchPrograms(string searchText)
+        {
+            var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            return _storageCache
+                .Where(NotFavoriteFilter)
+                .SelectMany(c => c.Value.Files)
+                .OfType<FileItem>()
+                .Where(f => f.FileType is TeensyFileType.Crt or TeensyFileType.Prg)
+                .Select(song => new
+                {
+                    File = song,
+                    Score = searchTerms.Count(term =>
+                        song.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        song.Path.Contains(term, StringComparison.OrdinalIgnoreCase)
+                    )
+                })
+                .Where(result => result.Score > 0)
+                .OrderByDescending(result => result.Score)
+                .Select(result => result.File);
+        }
+
+        Func<KeyValuePair<string, StorageCacheItem>, bool> NotFavoriteFilter => 
+            kvp => !_settings.GetFavoritePaths().Any(favPath => kvp.Key.Contains(favPath));
 
         public async Task CacheAll()
         {   

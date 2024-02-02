@@ -18,5 +18,6 @@ namespace TeensyRom.Core.Storage.Services
         IEnumerable<FileItem> SearchFiles(string searchText);
         Task CacheAll();
         void MarkIncompatible(FileItem fileItem);
+        IEnumerable<FileItem> SearchPrograms(string searchText);
     }
 }
