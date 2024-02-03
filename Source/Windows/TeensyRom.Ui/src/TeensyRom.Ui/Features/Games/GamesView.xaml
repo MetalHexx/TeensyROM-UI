@@ -76,9 +76,10 @@
                 Grid.Row="1" Grid.Column="2" />
 
             <Grid x:Name="ToolBarGrid" 
-              Grid.Row="3" Grid.ColumnSpan="3" 
-              Background="#303030" 
-              Visibility="{Binding ShowToolbar, Converter={StaticResource InverseBoolToVisibilityConvertor}}">
+                Grid.Row="3" Grid.ColumnSpan="3" 
+                Background="#303030" 
+                Visibility="{Binding ShowToolbar, Converter={StaticResource InverseBoolToVisibilityConvertor}}">
+                
                 <ContentControl Content="{Binding GameToolBar}" VerticalAlignment="Center"/>
             </Grid>
         </Grid>
