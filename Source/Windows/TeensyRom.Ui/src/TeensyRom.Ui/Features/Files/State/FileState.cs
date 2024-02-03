@@ -64,9 +64,8 @@ namespace TeensyRom.Ui.Features.Files.State
                 .Where(state => state.navView?.Type == NavigationLocation.Files)
                 .Select(state => (state.settings.TargetRootPath, state.settings.TargetType))
                 .DistinctUntilChanged()
-                .Do(state => _directoryState.ResetDirectoryTree(_settings!.GetLibraryPath(TeensyLibraryType.Music)))
-                .Select(storage => storage.TargetRootPath)                             
-                .Subscribe(async path => await _directoryState.LoadDirectory(path)); 
+                .Do(state => _directoryState.ResetDirectoryTree(state.TargetRootPath))                          
+                .Subscribe(async state => await _directoryState.LoadDirectory(state.TargetRootPath)); 
         }
         
         public Task RefreshDirectory(bool bustCache = true) => _directoryState.RefreshDirectory(bustCache);
@@ -140,7 +139,6 @@ namespace TeensyRom.Ui.Features.Files.State
             _directoryState.UpdateDirectory(directoryResult);
 
             var favParentPath = favFile?.Path
-                .GetUnixParentPath()
                 .GetUnixParentPath()
                 .RemoveLeadingAndTrailingSlash();
 
