@@ -49,10 +49,10 @@ namespace TeensyRom.Ui.Features.Files.State
         private IDisposable _settingsSubscription;
         
 
-        public FileState(ICachedStorageService storageService, ISettingsService settingsService, IMediator mediator, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav)
+        public FileState(ICachedStorageService storage, ISettingsService settingsService, IMediator mediator, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav)
         {
-            _directoryState = new DirectoryState(storageService);
-            _storageService = storageService;
+            _directoryState = new DirectoryState(storage);
+            _storageService = storage;
             _settingsService = settingsService;
             _mediator = mediator;
             _alert = alert;
