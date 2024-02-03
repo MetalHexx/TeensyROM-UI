@@ -21,6 +21,7 @@ namespace TeensyRom.Ui.Features.Games.State
         IObservable<int> CurrentPage { get; }
         IObservable<int> TotalPages { get; }
         IObservable<bool> PagingEnabled { get; }
+        IObservable<bool> SearchEnabled { get; }
 
         Task LoadDirectory(string path, string? filePathToSelect = null);
         Task RefreshDirectory(bool bustCache = true);

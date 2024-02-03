@@ -23,6 +23,7 @@ using DynamicData;
 using System.Reflection;
 using System.IO;
 using TeensyRom.Ui.Features.Common.State;
+using System.Runtime.CompilerServices;
 
 namespace TeensyRom.Ui.Features.Games.State
 {
@@ -38,11 +39,14 @@ namespace TeensyRom.Ui.Features.Games.State
         public IObservable<GameMode> CurrentGameMode => _gameMode.AsObservable();
         public IObservable<GameStateType> CurrentPlayState => _playState.AsObservable();
         public IObservable<GameItem> GameLaunched => _gameLaunched.AsObservable();
+        public IObservable<bool> SearchEnabled => _searchEnabled.AsObservable();
 
         private readonly BehaviorSubject<GameItem> _runningGame = new(null);
         private readonly BehaviorSubject<GameItem> _selectedGame = new(null);
         private readonly BehaviorSubject<GameMode> _gameMode = new(GameMode.Next);
         private readonly BehaviorSubject<GameStateType> _playState = new(GameStateType.Paused);
+        private readonly BehaviorSubject<bool> _searchEnabled = new(false);
+
         private Subject<GameItem> _gameLaunched = new();
 
         private DirectoryState _directoryState;
@@ -300,10 +304,15 @@ namespace TeensyRom.Ui.Features.Games.State
             if (searchResult is null) return Unit.Default;
 
             _directoryState.SetSearchResults(searchResult);
+            _searchEnabled.OnNext(true);
             return Unit.Default;
         }
 
-        public Task ClearSearch() => _directoryState.ClearSearchResults();
+        public Task ClearSearch()
+        {
+            _searchEnabled.OnNext(false);
+            return _directoryState.ClearSearchResults();            
+        }
         public Task CacheAll() => _storage.CacheAll();
         public Task NextPage() => _directoryState.GoToNextPage();
         public Task PreviousPage() => _directoryState.GoToPreviousPage();

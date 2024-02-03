@@ -13,13 +13,14 @@ namespace TeensyRom.Ui.Features.Games.Search
     public class SearchGamesViewModel : ReactiveObject, IDisposable
     {
         [Reactive] public string SearchText { get; set; } = string.Empty;
-        [Reactive] public bool ShowClearSearch { get; set; } = false;
+        [ObservableAsProperty] public bool ShowClearSearch { get; }
         public ReactiveCommand<Unit, Unit> ClearSearchCommand { get; private set; }
         private IDisposable? _searchSubscription;
-        private IDisposable? _clearSearchSubscription;
 
         public SearchGamesViewModel(IGameState gameState)
         {
+            gameState.SearchEnabled.ToPropertyEx(this, x => x.ShowClearSearch);
+
             ClearSearchCommand = ReactiveCommand.CreateFromTask(() =>
             {
                 SearchText = string.Empty;
@@ -31,19 +32,14 @@ namespace TeensyRom.Ui.Features.Games.Search
                 .Where(searchText => !string.IsNullOrWhiteSpace(searchText) && searchText.Length > 2)
                 .Subscribe(searchText =>
                 {
-                    ShowClearSearch = true;
+                    //ShowClearSearch = true;
                     gameState.SearchGames(searchText);
                 });
-
-            _clearSearchSubscription = this.WhenAnyValue(x => x.SearchText)
-                .Where(string.IsNullOrWhiteSpace)
-                .Subscribe(_ => ShowClearSearch = false);
         }
 
         public void Dispose()
         {
             _searchSubscription?.Dispose();
-            _clearSearchSubscription?.Dispose();
         }
     }
 }
