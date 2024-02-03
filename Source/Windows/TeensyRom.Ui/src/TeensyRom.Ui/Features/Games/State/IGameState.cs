@@ -19,7 +19,7 @@ namespace TeensyRom.Ui.Features.Games.State
         IObservable<GameItem> GameLaunched { get; }
         IObservable<GameItem> SelectedGame { get; }
 
-        Task LoadDirectory(string path);
+        Task LoadDirectory(string path, string? filePathToSelect = null);
         Task RefreshDirectory(bool bustCache = true);
         Task<bool> LoadGame(GameItem game, bool clearHistory = true);
         Task<bool> SaveFavorite(GameItem game);

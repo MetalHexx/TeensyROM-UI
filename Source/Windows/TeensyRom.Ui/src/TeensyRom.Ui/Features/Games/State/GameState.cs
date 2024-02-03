@@ -22,28 +22,27 @@ using TeensyRom.Core.Common;
 using DynamicData;
 using System.Reflection;
 using System.IO;
+using TeensyRom.Ui.Features.Common.State;
 
 namespace TeensyRom.Ui.Features.Games.State
 {
     public class GameState : IGameState, IDisposable
     {
-        public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryTree.AsObservable();
-        public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
+        public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryState.DirectoryTree;
+        public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryState.DirectoryContent;
         public IObservable<GameItem> RunningGame => _runningGame.AsObservable();
         public IObservable<GameItem> SelectedGame => _selectedGame.AsObservable();
         public IObservable<GameMode> CurrentGameMode => _gameMode.AsObservable();
         public IObservable<GameStateType> CurrentPlayState => _playState.AsObservable();
         public IObservable<GameItem> GameLaunched => _gameLaunched.AsObservable();
 
-        private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
-        private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
-        private readonly BehaviorSubject<StorageCacheItem?> _currentDirectory = new(null);
         private readonly BehaviorSubject<GameItem> _runningGame = new(null);
         private readonly BehaviorSubject<GameItem> _selectedGame = new(null);
         private readonly BehaviorSubject<GameMode> _gameMode = new(GameMode.Next);
         private readonly BehaviorSubject<GameStateType> _playState = new(GameStateType.Paused);
         private Subject<GameItem> _gameLaunched = new();
 
+        private DirectoryState _directoryState;
         private readonly IMediator _mediator;
         private readonly ICachedStorageService _storage;
         private readonly ISettingsService _settingsService;
@@ -56,12 +55,12 @@ namespace TeensyRom.Ui.Features.Games.State
 
         public GameState(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav)
         {
+            _directoryState = new DirectoryState(storage);
             _mediator = mediator;
             _storage = storage;
             _settingsService = settingsService;
             _launchHistory = launchHistory;
             _alert = alert;
-            _settingsService.Settings.Subscribe(OnSettingsChanged);
 
             _settingsSubscription = _settingsService.Settings
                 .Do(settings => _settings = settings)
@@ -71,41 +70,16 @@ namespace TeensyRom.Ui.Features.Games.State
                 .Select(state => (path: state.settings.GetLibraryPath(TeensyLibraryType.Programs), state.settings.TargetType))
                 .DistinctUntilChanged()
                 .Select(storage => storage.path)
-                .Do(_ => ResetDirectoryTree())
-                .Subscribe(async path => await LoadDirectory(path));
+                .Do(state => _directoryState.ResetDirectoryTree(_settings!.GetLibraryPath(TeensyLibraryType.Programs)))
+                .Subscribe(async path => await _directoryState.LoadDirectory(path));
 
             storage.DirectoryUpdated
-                .Where(path => path.Equals(_currentDirectory.Value?.Path))
+                .Where(path => path.Equals(_directoryState.GetCurrentPath()))
                 .Subscribe(async _ => await RefreshDirectory(bustCache: false));
         }
 
-        private void OnSettingsChanged(TeensySettings settings)
-        {
-            _settings = settings;
-            _directoryContent.OnNext(new ObservableCollection<StorageItem>());
-            ResetDirectoryTree();
-        }
-
-        private void ResetDirectoryTree()
-        {
-            var programLibraryPath = _settings.GetLibraryPath(TeensyLibraryType.Programs);
-
-            var dirItem = new DirectoryNodeViewModel
-            {
-                Name = "Fake Root",  //TODO: Fake root required since UI view binds to enumerable -- design could use improvement
-                Path = "Fake Root",
-                Directories =
-                [
-                    new DirectoryNodeViewModel
-                    {
-                        Name = programLibraryPath,
-                        Path = programLibraryPath,
-                        Directories = []
-                    }
-                ]
-            };
-            _directoryTree.OnNext(dirItem);
-        }
+        public Task RefreshDirectory(bool bustCache = true) => _directoryState.RefreshDirectory(bustCache);
+        public Task LoadDirectory(string path, string? filePathToSelect = null) => _directoryState.LoadDirectory(path, filePathToSelect);
 
         public Unit ToggleShuffleMode()
         {
@@ -154,8 +128,6 @@ namespace TeensyRom.Ui.Features.Games.State
             return true;
         }
 
-        private string GetGameArtPath(GameItem game, string parentPath) => Path.Combine(parentPath, game.Name.ReplaceExtension(".png"));
-
         public async Task<bool> SaveFavorite(GameItem game)
         {
             var favGame = await _storage.SaveFavorite(game);
@@ -167,12 +139,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (directoryResult is null) return false;
 
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                _directoryTree.Value.Insert(directoryResult.Directories);
-            });
-
-            _directoryTree.OnNext(_directoryTree.Value);
+            _directoryState.UpdateDirectory(directoryResult);
 
             return true;
         }
@@ -229,7 +196,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (game is not null)
             {
-                await LoadDirectory(game.Path.GetUnixParentPath());
+                await _directoryState.LoadDirectory(game.Path.GetUnixParentPath());
                 await LoadGame(game, clearHistory: false);
                 return;
             }
@@ -282,7 +249,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (game is not null)
             {
-                await LoadDirectory(game.Path.GetUnixParentPath());
+                await _directoryState.LoadDirectory(game.Path.GetUnixParentPath());
                 await LoadGame(game, clearHistory: false);
                 return;
             }
@@ -292,47 +259,11 @@ namespace TeensyRom.Ui.Features.Games.State
 
             return;
         }
-
-        public async Task LoadDirectory(string path)
-        {
-            var directoryResult = await _storage.GetDirectory(path);
-
-            if (directoryResult is null)
-            {
-                return;
-            }
-
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                _directoryTree.Value.Insert(directoryResult.Directories);
-                _directoryTree.Value.SelectDirectory(path);
-            });
-
-            _directoryTree.OnNext(_directoryTree.Value);
-
-            var directoryItems = new ObservableCollection<StorageItem>();
-            directoryItems.AddRange(directoryResult.Directories);
-            directoryItems.AddRange(directoryResult.Files);
-
-            _directoryContent.OnNext(directoryItems);
-            _currentDirectory.OnNext(directoryResult);
-            _directoryTree.OnNext(_directoryTree.Value);
-
-            return;
-        }
+        
 
         private GameStateType GetToggledPlayState() => _playState.Value == GameStateType.Playing
                 ? GameStateType.Paused
                 : GameStateType.Playing;
-
-        public async Task RefreshDirectory(bool bustCache = true)
-        {
-            if (_currentDirectory.Value is null) return;
-
-            if (bustCache) _storage.ClearCache(_currentDirectory.Value.Path);
-
-            await LoadDirectory(_currentDirectory.Value.Path);
-        }
 
         public async Task DeleteFile(GameItem game)
         {
@@ -346,7 +277,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (game is not null)
             {
-                await LoadDirectory(game.Path.GetUnixParentPath());
+                await _directoryState.LoadDirectory(game.Path.GetUnixParentPath());
                 await LoadGame(game, clearHistory: false);
 
                 if (_gameMode.Value != GameMode.Shuffle) ToggleShuffleMode();
@@ -365,15 +296,11 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (searchResult is null) return Unit.Default;
 
-            _directoryContent.OnNext(new ObservableCollection<StorageItem>(searchResult));
+            _directoryState.SetSearchResults(searchResult);
             return Unit.Default;
         }
 
-        public Task ClearSearch()
-        {
-            return LoadDirectory(_currentDirectory.Value?.Path ?? "/");
-        }
-
+        public Task ClearSearch() => _directoryState.ClearSearchResults();
         public Task CacheAll() => _storage.CacheAll();
 
         public void Dispose()
