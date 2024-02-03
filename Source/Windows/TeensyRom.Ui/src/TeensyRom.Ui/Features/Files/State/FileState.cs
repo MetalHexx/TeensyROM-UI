@@ -22,7 +22,7 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
-using TeensyRom.Ui.Features.Common.Models;
+using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Files.DirectoryContent;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
@@ -40,7 +40,7 @@ namespace TeensyRom.Ui.Features.Files.State
 
         private Subject<FileItem> _programLaunched = new();
 
-        private DirectoryState _directoryState;
+        private readonly DirectoryState _directoryState;
         private readonly ICachedStorageService _storageService;
         private readonly ISettingsService _settingsService;
         private readonly IMediator _mediator;

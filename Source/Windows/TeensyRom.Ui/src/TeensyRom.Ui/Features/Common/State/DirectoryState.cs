@@ -16,7 +16,7 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
 
-namespace TeensyRom.Ui.Features.Common.Models
+namespace TeensyRom.Ui.Features.Common.State
 {
     public class DirectoryState(ICachedStorageService _storageService)
     {
