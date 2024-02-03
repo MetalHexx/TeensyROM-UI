@@ -15,6 +15,7 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -67,12 +68,15 @@
 
             <ContentControl Content="{Binding GameList}" 
                 Grid.Row="1" Grid.Column="1" />
+            
+            <ContentControl Content="{Binding Paging}" 
+                Grid.Row="2" Grid.Column="1" Visibility="{Binding PagingEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"/>
 
             <ContentControl Content="{Binding GameInfo}"
                 Grid.Row="1" Grid.Column="2" />
 
             <Grid x:Name="ToolBarGrid" 
-              Grid.Row="2" Grid.ColumnSpan="3" 
+              Grid.Row="3" Grid.ColumnSpan="3" 
               Background="#303030" 
               Visibility="{Binding ShowToolbar, Converter={StaticResource InverseBoolToVisibilityConvertor}}">
                 <ContentControl Content="{Binding GameToolBar}" VerticalAlignment="Center"/>

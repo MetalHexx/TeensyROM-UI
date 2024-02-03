@@ -28,6 +28,9 @@ namespace TeensyRom.Ui.Features.Games.State
 {
     public class GameState : IGameState, IDisposable
     {
+        public IObservable<int> CurrentPage => _directoryState.CurrentPage;
+        public IObservable<int> TotalPages => _directoryState.TotalPages;
+        public IObservable<bool> PagingEnabled => _directoryState.PagingEnabled;
         public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryState.DirectoryTree;
         public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryState.DirectoryContent;
         public IObservable<GameItem> RunningGame => _runningGame.AsObservable();
@@ -277,7 +280,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (game is not null)
             {
-                await _directoryState.LoadDirectory(game.Path.GetUnixParentPath());
+                await _directoryState.LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
                 await LoadGame(game, clearHistory: false);
 
                 if (_gameMode.Value != GameMode.Shuffle) ToggleShuffleMode();
@@ -302,6 +305,9 @@ namespace TeensyRom.Ui.Features.Games.State
 
         public Task ClearSearch() => _directoryState.ClearSearchResults();
         public Task CacheAll() => _storage.CacheAll();
+        public Task NextPage() => _directoryState.GoToNextPage();
+        public Task PreviousPage() => _directoryState.GoToPreviousPage();
+        public Task SetPageSize(int pageSize) => _directoryState.SetPageSize(pageSize);
 
         public void Dispose()
         {

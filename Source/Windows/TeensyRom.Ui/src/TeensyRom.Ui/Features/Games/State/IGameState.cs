@@ -18,6 +18,9 @@ namespace TeensyRom.Ui.Features.Games.State
         IObservable<GameStateType> CurrentPlayState { get; }
         IObservable<GameItem> GameLaunched { get; }
         IObservable<GameItem> SelectedGame { get; }
+        IObservable<int> CurrentPage { get; }
+        IObservable<int> TotalPages { get; }
+        IObservable<bool> PagingEnabled { get; }
 
         Task LoadDirectory(string path, string? filePathToSelect = null);
         Task RefreshDirectory(bool bustCache = true);
@@ -33,5 +36,8 @@ namespace TeensyRom.Ui.Features.Games.State
         Unit ToggleShuffleMode();
         Task CacheAll();
         Unit SetSelectedGame(GameItem game);
+        Task NextPage();
+        Task PreviousPage();
+        Task SetPageSize(int pageSize);
     }
 }

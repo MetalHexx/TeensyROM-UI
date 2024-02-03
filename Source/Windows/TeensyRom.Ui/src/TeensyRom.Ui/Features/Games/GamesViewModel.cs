@@ -2,6 +2,7 @@
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -9,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Ui.Controls.Paging;
+using TeensyRom.Ui.Features.Files.State;
 using TeensyRom.Ui.Features.Games.GameInfo;
 using TeensyRom.Ui.Features.Games.GameList;
 using TeensyRom.Ui.Features.Games.GameToolbar;
@@ -25,12 +28,14 @@ namespace TeensyRom.Ui.Features.Games
     {
         [ObservableAsProperty] public bool GamesAvailable { get; set; }
         [ObservableAsProperty] public bool ShowToolbar { get; set; }
-       
+        [ObservableAsProperty] public bool PagingEnabled { get; }
+
         [Reactive] public SearchGamesViewModel Search { get; set; }
         [Reactive] public DirectoryTreeViewModel GamesTree { get; set; }
         [Reactive] public GameListViewModel GameList { get; set; }
         [Reactive] public GameInfoViewModel GameInfo { get; set; }
         [Reactive] public GameToolbarViewModel GameToolBar { get; set; }
+        [Reactive] public PagingViewModel Paging { get; set; }
 
         public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
@@ -56,6 +61,7 @@ namespace TeensyRom.Ui.Features.Games
                 .ToPropertyEx(this, x => x.ShowToolbar);
 
             globalState.SerialConnected.ToPropertyEx(this, x => x.GamesAvailable);
+            gameState.PagingEnabled.ToPropertyEx(this, x => x.PagingEnabled);
 
             RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(_ => gameState.RefreshDirectory());
             PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => gameState.PlayRandom());
@@ -65,6 +71,13 @@ namespace TeensyRom.Ui.Features.Games
             {
                 DirectorySelectedCommand = ReactiveCommand.CreateFromTask<DirectoryNodeViewModel>(async (directory) =>
                 await gameState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler)
+            };
+
+            Paging = new(gameState.CurrentPage, gameState.TotalPages)
+            {
+                NextPageCommand = ReactiveCommand.CreateFromTask(_ => gameState.NextPage()),
+                PreviousPageCommand = ReactiveCommand.CreateFromTask(_ => gameState.PreviousPage()),
+                PageSizeCommand = ReactiveCommand.CreateFromTask<int>(size => gameState.SetPageSize(size))
             };
         }
 
