@@ -47,7 +47,8 @@ namespace TeensyRom.Ui.Features.Common.State
                 [
                     new DirectoryNodeViewModel
                     {
-                        Name = "/",
+                        Name = rootPath,
+                        Path = rootPath,
                         Directories = []
                     }
                 ]
