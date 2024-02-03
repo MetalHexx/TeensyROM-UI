@@ -3,7 +3,7 @@
     xmlns:ui="clr-namespace:TeensyRom.Ui"
     xmlns:Files="clr-namespace:TeensyRom.Ui.Features.Files"
     xmlns:SearchFiles="clr-namespace:TeensyRom.Ui.Features.Files.Search"
-    xmlns:Paging="clr-namespace:TeensyRom.Ui.Features.Files.Paging"
+    xmlns:Paging="clr-namespace:TeensyRom.Ui.Controls.Paging"
     xmlns:DirectoryContent="clr-namespace:TeensyRom.Ui.Features.Files.DirectoryContent"
     xmlns:Help="clr-namespace:TeensyRom.Ui.Features.Help"
     xmlns:Music="clr-namespace:TeensyRom.Ui.Features.Music"

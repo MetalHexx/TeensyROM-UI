@@ -16,8 +16,8 @@ using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Ui.Controls.Paging;
 using TeensyRom.Ui.Features.Files.DirectoryContent;
-using TeensyRom.Ui.Features.Files.Paging;
 using TeensyRom.Ui.Features.Files.Search;
 using TeensyRom.Ui.Features.Files.State;
 using TeensyRom.Ui.Features.Global;
@@ -67,7 +67,12 @@ namespace TeensyRom.Ui.Features.Files
                 await _fileState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler)
             };
 
-            Paging = new(fileState); 
+            Paging = new(fileState.CurrentPage, fileState.TotalPages)
+            {
+                NextPageCommand = ReactiveCommand.CreateFromTask(_ => fileState.NextPage()),
+                PreviousPageCommand = ReactiveCommand.CreateFromTask(_ => fileState.PreviousPage()),
+                PageSizeCommand = ReactiveCommand.CreateFromTask<int>(size => fileState.SetPageSize(size))
+            };
         }
 
         private async Task HandleCacheAll()

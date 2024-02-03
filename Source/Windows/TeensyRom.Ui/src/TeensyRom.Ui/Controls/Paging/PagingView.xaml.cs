@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TeensyRom.Ui.Features.Files.Paging
+namespace TeensyRom.Ui.Controls.Paging
 {
     public partial class PagingView : UserControl
     {
