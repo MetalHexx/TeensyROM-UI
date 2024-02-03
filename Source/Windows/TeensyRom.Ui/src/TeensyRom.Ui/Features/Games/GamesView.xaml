@@ -83,7 +83,7 @@
                 <ContentControl Content="{Binding GameToolBar}" VerticalAlignment="Center"/>
             </Grid>
         </Grid>
-        <TextBlock Text="Music is unavailable, check your connection."
+        <TextBlock Text="Games are unavailable, check your connection."
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
                    Visibility="{Binding GamesAvailable, Converter={StaticResource InverseBoolToVisibilityConvertor}}"/>
