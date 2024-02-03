@@ -5,18 +5,18 @@ using System.Threading.Tasks;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Files.DirectoryContent;
+using TeensyRom.Ui.Features.Common.Models;
 
 namespace TeensyRom.Ui.Features.Files.State
 {
     public interface IFileState
-    {
-        IObservable<int> CurrentPage { get; }
-        IObservable<int> TotalPages { get; }
-        IObservable<int> PageSize { get; }
+    {   
         IObservable<DirectoryNodeViewModel> DirectoryTree { get; }
         IObservable<ObservableCollection<StorageItem>> DirectoryContent { get; }
         IObservable<FileItem> FileLaunched { get; }
-        IObservable<bool> PagingEnabled { get; }        
+        IObservable<int> CurrentPage { get; }
+        IObservable<int> TotalPages { get; }
+        IObservable<bool> PagingEnabled { get; }
 
         Task LoadDirectory(string path, string? filePathToSelect = null);
         Task StoreFiles(IEnumerable<FileCopyItem> files);

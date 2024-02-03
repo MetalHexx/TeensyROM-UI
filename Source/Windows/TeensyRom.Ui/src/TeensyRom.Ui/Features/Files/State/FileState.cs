@@ -22,6 +22,7 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Files.DirectoryContent;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
@@ -29,142 +30,47 @@ using TeensyRom.Ui.Services;
 namespace TeensyRom.Ui.Features.Files.State
 {
     public class FileState : IFileState, IDisposable
-    {   
-        public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryTree.AsObservable();
-        public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
-        public IObservable<int> CurrentPage => _currentPage.AsObservable();
-        public IObservable<int> TotalPages => _totalPages.AsObservable();
-        public IObservable<int> PageSize => _pageSize.AsObservable();
-        public IObservable<bool> PagingEnabled => _pagingEnabled.AsObservable();
+    {
         public IObservable<FileItem> FileLaunched => _programLaunched.AsObservable();
+        public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryState.DirectoryTree;
+        public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryState.DirectoryContent;
+        public IObservable<int> CurrentPage => _directoryState.CurrentPage;
+        public IObservable<int> TotalPages => _directoryState.TotalPages;
+        public IObservable<bool> PagingEnabled => _directoryState.PagingEnabled;
 
-        private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
-        private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
-        private readonly BehaviorSubject<StorageCacheItem?> _currentDirectory = new(null);
-        private FileItem? _currentFile = null;
-
-        private string _currentPath = string.Empty;
-        private readonly BehaviorSubject<int> _currentPage = new(1);
-        private readonly BehaviorSubject<int> _totalPages = new(1);
-        private readonly BehaviorSubject<int> _pageSize = new(250);
-        private readonly BehaviorSubject<bool> _pagingEnabled = new(false);
         private Subject<FileItem> _programLaunched = new();
 
+        private DirectoryState _directoryState;
         private readonly ICachedStorageService _storageService;
         private readonly ISettingsService _settingsService;
         private readonly IMediator _mediator;
         private readonly ISnackbarService _alert;
         private TeensySettings _settings;
         private IDisposable _settingsSubscription;
-        private int _skip => (_currentPage.Value - 1) * _pageSize.Value;
+        
 
         public FileState(ICachedStorageService storageService, ISettingsService settingsService, IMediator mediator, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav)
         {
+            _directoryState = new DirectoryState(storageService);
             _storageService = storageService;
             _settingsService = settingsService;
             _mediator = mediator;
             _alert = alert;
+
             _settingsSubscription = _settingsService.Settings
                 .Do(settings => _settings = settings)
                 .CombineLatest(serialContext.CurrentState, nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
                 .Where(state => state.serial is SerialConnectedState)
                 .Where(state => state.navView?.Type == NavigationLocation.Files)
                 .Select(state => (state.settings.TargetRootPath, state.settings.TargetType))
-                .DistinctUntilChanged()                
-                .Select(storage => storage.TargetRootPath)
-                .Do(_ => ResetDirectoryTree())              
-                .Subscribe(async path => await LoadDirectory(path)); 
-
+                .DistinctUntilChanged()
+                .Do(state => _directoryState.ResetDirectoryTree(_settings!.GetLibraryPath(TeensyLibraryType.Music)))
+                .Select(storage => storage.TargetRootPath)                             
+                .Subscribe(async path => await _directoryState.LoadDirectory(path)); 
         }
-        private void ResetDirectoryTree()
-        {
-            var musicLibraryPath = _settings.GetLibraryPath(TeensyLibraryType.Music);
-
-            var dirItem = new DirectoryNodeViewModel
-            {
-                Name = "Fake Root",  //TODO: Fake root required since UI view binds to enumerable -- design could use improvement
-                Path = "Fake Root",
-                Directories =
-                [
-                    new DirectoryNodeViewModel
-                    {
-                        Name = "/",
-                        Directories = []
-                    }
-                ]
-            };
-            _directoryTree.OnNext(dirItem);
-        }
-
-        public async Task LoadDirectory(string path, string? filePathToSelect = null)
-        {
-            if(_currentPath != path)
-            {
-                _currentPath = path;                   
-                _currentPage.OnNext(1);
-            }
-
-            var directoryResult = await _storageService.GetDirectory(path);
-
-            if (directoryResult is null)
-            {
-                return;
-            }
-
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                _directoryTree.Value.Insert(directoryResult.Directories);
-                _directoryTree.Value.SelectDirectory(path);
-            });
-
-            _directoryTree.OnNext(_directoryTree.Value);
-
-            var items = new List<StorageItem>();
-            items.AddRange(directoryResult.Directories);
-            items.AddRange(directoryResult.Files);
-
-
-            var directoryItems = new ObservableCollection<StorageItem>();
-
-            var skip = _skip;
-            
-            if (filePathToSelect is not null)
-            {
-                var fileToSelect = items.FirstOrDefault(i => i.Path == filePathToSelect);
-                if (fileToSelect != null)
-                {
-                    items.Where(items => items is FileItem)
-                         .ToList()
-                         .ForEach(i => i.IsSelected = false);                    
-
-                    fileToSelect.IsSelected = true;
-                    var selectedList = items.Select(f => $"{f.IsSelected} - {f.Name}").ToList();
-                    int fileIndex = items.IndexOf(fileToSelect);
-                    _currentPage.OnNext((int)Math.Ceiling((double)(fileIndex + 1) / _pageSize.Value));
-                    skip = (_currentPage.Value - 1) * _pageSize.Value;
-                }
-            }
-
-            directoryItems.AddRange(items.Skip(skip).Take(_pageSize.Value));
-
-            _totalPages.OnNext((int)Math.Ceiling((double)items.Count / _pageSize.Value));
-            _pagingEnabled.OnNext(_totalPages.Value > 1);
-            _directoryContent.OnNext(directoryItems);
-            _currentDirectory.OnNext(directoryResult);
-            _directoryTree.OnNext(_directoryTree.Value);
-
-            return;
-        }
-
-        public async Task RefreshDirectory(bool bustCache = true)
-        {
-            if (_currentDirectory.Value is null) return;
-
-            if (bustCache) _storageService.ClearCache(_currentDirectory.Value.Path);
-
-            await LoadDirectory(_currentDirectory.Value.Path);
-        }
-
+        
+        public Task RefreshDirectory(bool bustCache = true) => _directoryState.RefreshDirectory(bustCache);
+        public Task LoadDirectory(string path, string? filePathToSelect = null) => _directoryState.LoadDirectory(path, filePathToSelect);
         public async Task StoreFiles(IEnumerable<FileCopyItem> files)
         {
             var commonParent = GetCommonBasePath(files.Select(i => i.Path));
@@ -183,7 +89,10 @@ namespace TeensyRom.Ui.Features.Files.State
                     .ToUnixPath()
                     .GetUnixParentPath();
                 
-                fileInfo.TargetPath = _currentDirectory.Value!.Path.UnixPathCombine(relativePath);
+                fileInfo.TargetPath = _directoryState
+                    .GetCurrentPath()
+                    .UnixPathCombine(relativePath);
+
                 await _storageService.SaveFile(fileInfo);
             }
             await RefreshDirectory(bustCache: false);
@@ -203,11 +112,6 @@ namespace TeensyRom.Ui.Features.Files.State
                 }
             }
             return commonPath;
-        }
-
-        public void Dispose()
-        {
-            _settingsSubscription?.Dispose();
         }
 
         public async Task LaunchFile(FileItem file)
@@ -233,15 +137,16 @@ namespace TeensyRom.Ui.Features.Files.State
 
             if (directoryResult is null) return;
 
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                _directoryTree.Value.Insert(directoryResult.Directories);
-            });
+            _directoryState.UpdateDirectory(directoryResult);
 
-            _directoryTree.OnNext(_directoryTree.Value);
+            var favParentPath = favFile?.Path
+                .GetUnixParentPath()
+                .GetUnixParentPath()
+                .RemoveLeadingAndTrailingSlash();
 
-            var favParentPath = favFile?.Path.GetUnixParentPath().GetUnixParentPath().RemoveLeadingAndTrailingSlash();
-            var currentPath = _currentDirectory.Value?.Path.RemoveLeadingAndTrailingSlash();
+            var currentPath = _directoryState
+                .GetCurrentPath()
+                .RemoveLeadingAndTrailingSlash();
 
             if (favParentPath == currentPath) 
             {
@@ -264,38 +169,9 @@ namespace TeensyRom.Ui.Features.Files.State
                 _alert.Enqueue("Random search requires visiting at least one directory with files in it first.  Try the cache button next to the dice for best results.");
                 return;
             }
-
-            await LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
+            await _directoryState.LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
             await LaunchFile(file);
         }
-
-        public Task NextPage()
-        {
-            if (_currentPage.Value == _totalPages.Value)
-            {
-                return Task.CompletedTask;
-            }
-            _currentPage.OnNext(_currentPage.Value + 1);
-            return LoadDirectory(_currentPath);
-        }
-
-        public Task PreviousPage()
-        {
-            if(_currentPage.Value > 1)
-            {
-                _currentPage.OnNext(_currentPage.Value - 1);
-            }
-            return LoadDirectory(_currentPath);
-        }
-
-        public Task SetPageSize(int pageSize)
-        {
-            _pageSize.OnNext(pageSize);
-            _currentPage.OnNext(1);
-            return LoadDirectory(_currentPath);
-        }
-
-        public Task CacheAll() => _storageService.CacheAll();
 
         public Unit SearchFiles(string searchText)
         {
@@ -303,13 +179,19 @@ namespace TeensyRom.Ui.Features.Files.State
 
             if (searchResult is null) return Unit.Default;
 
-            _directoryContent.OnNext(new ObservableCollection<StorageItem>(searchResult));
+            _directoryState.SetSearchResults(searchResult);
             return Unit.Default;
         }
 
-        public Task ClearSearch()
+        public Task ClearSearch() => _directoryState.ClearSearchResults();
+        public Task CacheAll() => _storageService.CacheAll();
+        public Task NextPage() => _directoryState.GoToNextPage();
+        public Task PreviousPage() => _directoryState.GoToPreviousPage();
+        public Task SetPageSize(int pageSize) => _directoryState.SetPageSize(pageSize);
+
+        public void Dispose()
         {
-            return LoadDirectory(_currentDirectory.Value?.Path ?? "/");
+            _settingsSubscription?.Dispose();
         }
     }
 }
