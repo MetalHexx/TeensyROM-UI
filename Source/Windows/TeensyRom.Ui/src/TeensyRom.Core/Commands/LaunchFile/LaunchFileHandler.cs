@@ -41,7 +41,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
         private LaunchFileResultType ParseResponse(string response)
         {
             var sidError = new[] { "PSID not found", "Mem conflict w/ TR app", "PSID/RSID not found", "IO1 mem conflict", "Unexpected Version", "Unexpected Data Offset" };
-            var programError = new[] { "Not enough room" };
+            var programError = new[] { "Not enough room", "Unsupported HW Type" };
 
             if (sidError.Any(response.Contains))
             {
