@@ -9,6 +9,8 @@ using TeensyRom.Core.Storage.Entities;
 using System.Reactive.Linq;
 using TeensyRom.Core.Common;
 using TeensyRom.Ui.Features.Games.State;
+using TeensyRom.Ui.Features.Files.State;
+using TeensyRom.Ui.Features.Games.State.NewState;
 
 namespace TeensyRom.Ui.Features.Games.GameToolbar
 {
@@ -16,57 +18,64 @@ namespace TeensyRom.Ui.Features.Games.GameToolbar
     {
         [ObservableAsProperty] public  GameItem Game { get; }
         [ObservableAsProperty] public bool ShuffleModeEnabled { get; }
+        [ObservableAsProperty] public bool EnableShuffleModeButton { get; }
         [ObservableAsProperty] public bool IsPlaying { get; }
 
-        public ReactiveCommand<Unit, Unit> TogglePlayCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> PlayCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> StopCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PreviousCommand { get; set; }
         public ReactiveCommand<Unit, Unit> NextCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ToggleShuffleCommand { get; set; }
-        public ReactiveCommand<Unit, bool> FavoriteCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> FavoriteCommand { get; set; }
         public ReactiveCommand<Unit, Unit> NavigateToGameDirCommand { get; set; }
 
-        private readonly IGameState _gameState;
+        private readonly IFilePlayer _gameState;
 
-        public GameToolbarViewModel(IGameState musicState)
+        public GameToolbarViewModel(IFilePlayer gameState)
         {
-            _gameState = musicState;
+            _gameState = gameState;
 
-            _gameState.RunningGame
-                .Where(s => s is not null)
-                .ToPropertyEx(this, s => s.Game);
+            _gameState.RunningGame.ToPropertyEx(this, s => s.Game);
 
-            _gameState.CurrentGameMode
-                .Select(mode => mode == GameMode.Shuffle)
+            _gameState.NextMode
+                .Select(mode => mode == NextPreviousMode.Shuffle)
                 .ToPropertyEx(this, vm => vm.ShuffleModeEnabled);
 
-            _gameState.CurrentPlayState
+            _gameState.PlayState
                 .Select(playState => playState == GameStateType.Playing)
                 .ToPropertyEx(this, vm => vm.IsPlaying);
 
-            TogglePlayCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleTogglePlayCommand());
-            NextCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleNextCommand());
-            PreviousCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandlePreviousCommand());
-            ToggleShuffleCommand = ReactiveCommand.Create<Unit, Unit>(_ => musicState.ToggleShuffleMode());
-            FavoriteCommand = ReactiveCommand.CreateFromTask(_ => musicState.SaveFavorite(Game!));
-            NavigateToGameDirCommand = ReactiveCommand.CreateFromTask(_ => musicState.LoadDirectory(Game!.Path.GetUnixParentPath()!));
-        }
+            _gameState.CurrentState
+                .Select(state => state is not SearchPlayState)
+                .ToPropertyEx(this, vm => vm.EnableShuffleModeButton);
 
-        private Unit HandlePreviousCommand()
-        {
-            _gameState.PlayPrevious();
-            return Unit.Default;
-        }
+            PlayCommand = ReactiveCommand.CreateFromTask(
+                execute: async () => await gameState.PlayGame(Game!),
+                outputScheduler: RxApp.MainThreadScheduler);
 
-        private Unit HandleNextCommand()
-        {
-            _gameState.PlayNext();
-            return Unit.Default;
-        }
+            StopCommand = ReactiveCommand.CreateFromTask(
+                execute: gameState.StopGame,
+                outputScheduler: RxApp.MainThreadScheduler);
 
-        private Unit HandleTogglePlayCommand()
-        {
-            _gameState.ToggleGame();
-            return Unit.Default;
+            NextCommand = ReactiveCommand.CreateFromTask(
+                execute: gameState.PlayNext,
+                outputScheduler: RxApp.MainThreadScheduler);
+
+            PreviousCommand = ReactiveCommand.CreateFromTask(
+                execute: gameState.PlayPrevious,
+                outputScheduler: RxApp.MainThreadScheduler);
+
+            ToggleShuffleCommand = ReactiveCommand.Create<Unit, Unit>(
+                execute: _ => gameState.ToggleShuffleMode(),
+                outputScheduler: RxApp.MainThreadScheduler);
+
+            FavoriteCommand = ReactiveCommand.CreateFromTask(
+                execute: _ => gameState.SaveFavorite(Game!), 
+                outputScheduler: RxApp.MainThreadScheduler);
+
+            NavigateToGameDirCommand = ReactiveCommand.CreateFromTask(
+                execute: _ => gameState.LoadDirectory(Game!.Path.GetUnixParentPath()!),
+                outputScheduler: RxApp.MainThreadScheduler);
         }
     }
 }

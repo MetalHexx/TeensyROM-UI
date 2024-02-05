@@ -130,8 +130,12 @@
     </UserControl.Resources>
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="0">
 
             <ListView Name="songListView"
                 ItemsSource="{Binding DirectoryContent}"
@@ -158,5 +162,8 @@
 
             </ListView>
         </ScrollViewer>
+        <ContentControl Content="{Binding Paging}" 
+            Visibility="{Binding ShowPaging, Converter={StaticResource BoolToVisibilityConvertor}}"
+            Grid.Row="1"/>
     </Grid>
 </UserControl>

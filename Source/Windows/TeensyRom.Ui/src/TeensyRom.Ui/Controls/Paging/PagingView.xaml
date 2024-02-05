@@ -6,30 +6,33 @@
              xmlns:local="clr-namespace:TeensyRom.Ui.Controls.Paging" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+
     <StackPanel 
         Orientation="Horizontal"
         HorizontalAlignment="Left"  
         VerticalAlignment="Center"
-        Margin="0 10 0 10"
+        Margin="0 2 0 10"
         Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2">
 
         <Button 
-            Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
+            Command="{Binding PreviousPageCommand}"
+            IsEnabled="{Binding ShowPrevious}"
+            Style="{StaticResource MaterialDesignIconForegroundButton}"
             Height="30" Width="30"
             ToolTip="Previous Page"
             VerticalAlignment="Center"
-            Margin="5,0,10,0"
-            Command="{Binding PreviousPageCommand}">
+            Margin="5,0,10,0">
             <materialDesign:PackIcon Kind="ArrowLeft" />
         </Button>
 
         <Button 
-            Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
+            Command="{Binding NextPageCommand}"
+            IsEnabled="{Binding ShowNext}"
+            Style="{StaticResource MaterialDesignIconForegroundButton}"
             Height="30" Width="30"
             ToolTip="Next Page"
             VerticalAlignment="Center"
-            Margin="0 0 15 0"
-            Command="{Binding NextPageCommand}">
+            Margin="0 0 15 0">
             <materialDesign:PackIcon Kind="ArrowRight" />
         </Button>
 
@@ -38,7 +41,7 @@
         <ComboBox 
             ItemsSource="{Binding PageSizes}"
             SelectedValue="{Binding PageSize, Mode=TwoWay}"
-            Margin="0 0 0 0"
+            Margin="0 0 10 0"
             Width="50" VerticalAlignment="Center">
         </ComboBox>
 

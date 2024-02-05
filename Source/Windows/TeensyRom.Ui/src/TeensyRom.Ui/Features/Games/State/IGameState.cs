@@ -14,7 +14,7 @@ namespace TeensyRom.Ui.Features.Games.State
         IObservable<DirectoryNodeViewModel> DirectoryTree { get; }
         IObservable<ObservableCollection<StorageItem>> DirectoryContent { get; }
         IObservable<GameItem> RunningGame { get; }
-        IObservable<GameMode> CurrentGameMode { get; }
+        IObservable<NextPreviousMode> CurrentGameMode { get; }
         IObservable<GameStateType> CurrentPlayState { get; }
         IObservable<GameItem> GameLaunched { get; }
         IObservable<GameItem> SelectedGame { get; }

@@ -3,6 +3,7 @@
     public enum LaunchFileResultType
     {
         Success,
-        SidError
+        SidError,
+        ProgramError
     }
 }

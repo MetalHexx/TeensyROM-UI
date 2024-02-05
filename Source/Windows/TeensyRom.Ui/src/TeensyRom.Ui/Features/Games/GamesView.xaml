@@ -9,84 +9,111 @@
     Height="auto" Width="auto">
 
     <Grid>
-        <Grid Visibility="{Binding GamesAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Games are unavailable, check your connection."
+           HorizontalAlignment="Center"
+           VerticalAlignment="Center"
+           Visibility="{Binding GamesAvailable, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
+           Grid.RowSpan="3"/>
+
+        <Grid Visibility="{Binding GamesAvailable, Converter={StaticResource BoolToVisibilityConvertor}}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="420"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-
+            
             <TextBlock 
-            Text="{Binding FeatureTitle}"
-            Style="{StaticResource SectionTitle}"            
-            Grid.Row="0"/>
+                Text="{Binding FeatureTitle}"
+                Style="{StaticResource SectionTitle}"            
+                Grid.Column="0"/>
 
-            <ContentControl Content="{Binding Search}" Grid.Row="0" Grid.Column="1"/>
+            <ContentControl 
+                Content="{Binding Search}"
+                HorizontalAlignment="Left"
+                Grid.Column="1"/>
 
-            <StackPanel Orientation="Horizontal"
-            HorizontalAlignment="Right" VerticalAlignment="Top"
-            Grid.Row="0" Grid.Column="2"
-            Margin="0 -15 -15 10">
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Grid.Column="2"
+                Margin="0 -15 -15 10">
 
                 <Button 
-                Command="{Binding PlayRandomCommand}" 
-                ToolTip="I'm feeling lucky!"
-                Style="{StaticResource StorageIconButton}">
+                    Command="{Binding PlayRandomCommand}" 
+                    ToolTip="I'm feeling lucky!"
+                    Style="{StaticResource StorageIconButton}">
 
                     <materialDesign:PackIcon Kind="Dice5" />
                 </Button>
 
                 <Button 
-                Command="{Binding CacheAllCommand}" 
-                ToolTip="Caches all files.  This will increase performance and make files and music available for search, random play and shuffle play mode."
-                Style="{StaticResource StorageIconButton}">
+                    Command="{Binding CacheAllCommand}" 
+                    ToolTip="Caches all files.  This will increase performance and make files and music available for search, random play and shuffle play mode."
+                    Style="{StaticResource StorageIconButton}">
 
                     <materialDesign:PackIcon Kind="DatabaseImport" />
                 </Button>
 
                 <Button 
-                Command="{Binding RefreshCommand}" 
-                ToolTip="Refreshes the current directory."
-                Style="{StaticResource StorageIconButton}">
+                    Command="{Binding RefreshCommand}" 
+                    ToolTip="Refreshes the current directory."
+                    Style="{StaticResource StorageIconButton}">
 
                     <materialDesign:PackIcon Kind="refresh" />
                 </Button>
 
             </StackPanel>
+        </Grid>
 
-            <ContentControl Content="{Binding GamesTree}" 
+        <Grid Grid.Row="1" Visibility="{Binding GamesAvailable, Converter={StaticResource BoolToVisibilityConvertor}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <ContentControl 
+                Content="{Binding GamesTree}" 
+                Visibility="{Binding ShowTree, Converter={StaticResource BoolToVisibilityConvertor}}"
                 HorizontalAlignment="Left" 
-                Grid.Row="1" Grid.Column="0" 
+                Grid.Row="0"
+                Grid.Column="0" 
                 Margin="0 0 20 0" />
 
-            <ContentControl Content="{Binding GameList}" 
-                Grid.Row="1" Grid.Column="1" />
-            
-            <ContentControl Content="{Binding Paging}" 
-                Grid.Row="2" Grid.Column="1" Visibility="{Binding PagingEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"/>
+            <ContentControl 
+                Content="{Binding GameList}"  Grid.Row="0"
+                Grid.Column="1"/>
 
-            <ContentControl Content="{Binding GameInfo}"
-                Grid.Row="1" Grid.Column="2" />
+            <ContentControl 
+                Content="{Binding GameInfo}"
+                Grid.Row="0" 
+                Grid.Column="2" />
 
             <Grid x:Name="ToolBarGrid" 
-                Grid.Row="3" Grid.ColumnSpan="3" 
+                Grid.Row="2" Grid.ColumnSpan="3" 
                 Background="#303030" 
-                Visibility="{Binding ShowToolbar, Converter={StaticResource InverseBoolToVisibilityConvertor}}">
-                
+                Visibility="{Binding ShowToolbar, Converter={StaticResource BoolToVisibilityConvertor}}">
+
                 <ContentControl Content="{Binding GameToolBar}" VerticalAlignment="Center"/>
             </Grid>
+
+
         </Grid>
-        <TextBlock Text="Games are unavailable, check your connection."
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   Visibility="{Binding GamesAvailable, Converter={StaticResource InverseBoolToVisibilityConvertor}}"/>
+
     </Grid>
 
 </UserControl>

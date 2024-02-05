@@ -30,15 +30,15 @@
                 </Button>
 
                 <Button x:Name="PlayButton"
-                        Command="{Binding TogglePlayCommand}" 
+                        Command="{Binding PlayCommand}" 
                         Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisibilityConvertor}}"   
                         ToolTip="Play"
                         Style="{StaticResource PlaybarButton}">
                     <materialDesign:PackIcon Kind="Play" />
                 </Button>
 
-                <Button x:Name="PauseButton"
-                        Command="{Binding TogglePlayCommand}" 
+                <Button x:Name="StopButton"
+                        Command="{Binding StopCommand}" 
                         Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisibilityConvertor}}"   
                         ToolTip="Pause"
                         Style="{StaticResource PlaybarButton}">
@@ -89,6 +89,7 @@
 
                 <Button x:Name="ShuffleModeButton"
                     Command="{Binding ToggleShuffleCommand}"  
+                    IsEnabled="{Binding EnableShuffleModeButton, Mode=OneWay}"
                     ToolTip="Enable Shuffle Mode. This will play random games across your entire game collection if it's been cached."
                     Style="{StaticResource ShuffleModeButtonStyle}"    >
                     <materialDesign:PackIcon Kind="Shuffle"/>

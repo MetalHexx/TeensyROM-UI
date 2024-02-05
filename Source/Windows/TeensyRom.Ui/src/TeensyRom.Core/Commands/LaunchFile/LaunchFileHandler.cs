@@ -29,7 +29,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             _serialState.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
             _serialState.Write($"{request.Path}\0");
             _serialState.HandleAck();
-            var response = _serialState.ReadSerialAsString(200);
+            var response = _serialState.ReadSerialAsString(400);
             var resultType = ParseResponse(response);
 
             return Task.FromResult(new LaunchFileResult
@@ -41,11 +41,17 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
         private LaunchFileResultType ParseResponse(string response)
         {
             var sidError = new[] { "PSID not found", "Mem conflict w/ TR app", "PSID/RSID not found", "IO1 mem conflict", "Unexpected Version", "Unexpected Data Offset" };
+            var programError = new[] { "Not enough room" };
 
             if (sidError.Any(response.Contains))
             {
-                _log.ExternalError($"Failed to launch file: \r\n{response}");
+                _log.ExternalError($"Failed to launch sid: \r\n{response}");
                 return LaunchFileResultType.SidError;
+            }
+            if (programError.Any(response.Contains))
+            {
+                _log.ExternalError($"Failed to launch program: \r\n{response}");
+                return LaunchFileResultType.ProgramError;
             }
             _log.External(response);
             return LaunchFileResultType.Success;

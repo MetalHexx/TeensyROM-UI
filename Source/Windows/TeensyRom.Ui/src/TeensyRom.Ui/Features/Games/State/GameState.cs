@@ -36,16 +36,17 @@ namespace TeensyRom.Ui.Features.Games.State
         public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryState.DirectoryContent;
         public IObservable<GameItem> RunningGame => _runningGame.AsObservable();
         public IObservable<GameItem> SelectedGame => _selectedGame.AsObservable();
-        public IObservable<GameMode> CurrentGameMode => _gameMode.AsObservable();
+        public IObservable<NextPreviousMode> CurrentGameMode => _gameMode.AsObservable();
         public IObservable<GameStateType> CurrentPlayState => _playState.AsObservable();
         public IObservable<GameItem> GameLaunched => _gameLaunched.AsObservable();
         public IObservable<bool> SearchEnabled => _searchEnabled.AsObservable();
 
         private readonly BehaviorSubject<GameItem> _runningGame = new(null);
         private readonly BehaviorSubject<GameItem> _selectedGame = new(null);
-        private readonly BehaviorSubject<GameMode> _gameMode = new(GameMode.Next);
-        private readonly BehaviorSubject<GameStateType> _playState = new(GameStateType.Paused);
+        private readonly BehaviorSubject<NextPreviousMode> _gameMode = new(NextPreviousMode.Next);
+        private readonly BehaviorSubject<GameStateType> _playState = new(GameStateType.Stopped);
         private readonly BehaviorSubject<bool> _searchEnabled = new(false);
+        private List<FileItem> _searchResults = [];
 
         private Subject<GameItem> _gameLaunched = new();
 
@@ -58,7 +59,7 @@ namespace TeensyRom.Ui.Features.Games.State
         private TeensySettings _settings = new();
 
         private IDisposable _settingsSubscription;
-        private IDisposable _currentTimeSubscription;        
+        private IDisposable _currentTimeSubscription;
 
         public GameState(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav)
         {
@@ -78,24 +79,32 @@ namespace TeensyRom.Ui.Features.Games.State
                 .DistinctUntilChanged()
                 .Select(storage => storage.path)
                 .Do(state => _directoryState.ResetDirectoryTree(_settings!.GetLibraryPath(TeensyLibraryType.Programs)))
-                .Subscribe(async path => await _directoryState.LoadDirectory(path));
+                .Subscribe(async path => await LoadDirectory(path));
 
             storage.DirectoryUpdated
                 .Where(path => path.Equals(_directoryState.GetCurrentPath()))
                 .Subscribe(async _ => await RefreshDirectory(bustCache: false));
         }
 
-        public Task RefreshDirectory(bool bustCache = true) => _directoryState.RefreshDirectory(bustCache);
-        public Task LoadDirectory(string path, string? filePathToSelect = null) => _directoryState.LoadDirectory(path, filePathToSelect);
+        public Task RefreshDirectory(bool bustCache = true)
+        {
+            _searchEnabled.OnNext(false);
+            return _directoryState.RefreshDirectory(bustCache);
+        }
+        public Task LoadDirectory(string path, string? filePathToSelect = null)
+        {
+            _searchEnabled.OnNext(false);
+            return _directoryState.LoadDirectory(path, filePathToSelect);
+        }
 
         public Unit ToggleShuffleMode()
         {
-            if (_gameMode.Value == GameMode.Shuffle)
+            if (_gameMode.Value == NextPreviousMode.Shuffle)
             {
-                _gameMode.OnNext(GameMode.Next);
+                _gameMode.OnNext(NextPreviousMode.Next);
                 return Unit.Default;
             }
-            _gameMode.OnNext(GameMode.Shuffle);
+            _gameMode.OnNext(NextPreviousMode.Shuffle);
             return Unit.Default;
         }
 
@@ -110,7 +119,7 @@ namespace TeensyRom.Ui.Features.Games.State
             if (clearHistory)
             {
                 _launchHistory.Clear();
-                _gameMode.OnNext(GameMode.Next);
+                _gameMode.OnNext(NextPreviousMode.Next);
             }
 
             _gameLaunched.OnNext(game);
@@ -172,8 +181,8 @@ namespace TeensyRom.Ui.Features.Games.State
         {
             return _gameMode.Value switch
             {
-                GameMode.Next => PlayPreviousInDirectory(),
-                GameMode.Shuffle => PlayPreviousShuffle(),
+                NextPreviousMode.Next => PlayPreviousInDirectory(),
+                NextPreviousMode.Shuffle => PlayPreviousShuffle(),
                 _ => throw new NotImplementedException()
             };
         }
@@ -203,7 +212,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (game is not null)
             {
-                await _directoryState.LoadDirectory(game.Path.GetUnixParentPath());
+                await LoadDirectory(game.Path.GetUnixParentPath());
                 await LoadGame(game, clearHistory: false);
                 return;
             }
@@ -215,14 +224,20 @@ namespace TeensyRom.Ui.Features.Games.State
         {
             return _gameMode.Value switch
             {
-                GameMode.Next => PlayNextInDirectory(),
-                GameMode.Shuffle => PlayNextShuffle(),
+                NextPreviousMode.Next => PlayNextInDirectory(),
+                NextPreviousMode.Shuffle => PlayNextShuffle(),
                 _ => throw new NotImplementedException()
             };
         }
 
         private async Task PlayNextInDirectory()
         {
+            if (_searchEnabled.Value) 
+            {
+                await PlayNextInSearch();
+                return;
+            }
+
             if (_runningGame.Value == null)
             {
                 await PlayRandom();
@@ -250,13 +265,32 @@ namespace TeensyRom.Ui.Features.Games.State
             await LoadGame(_runningGame.Value);
         }
 
+        private async Task PlayNextInSearch()
+        {
+            var currentItem = _searchResults.FirstOrDefault(i => i.Path.Equals(_runningGame.Value.Path));
+            var currentIndex = _searchResults.IndexOf(currentItem);
+
+            var file = _searchResults.Count == currentIndex + 1
+                ? _searchResults.First()
+                : _searchResults[++currentIndex];
+
+            if (file is GameItem game)
+            {
+                await LoadGame(game);
+                return;
+            }
+            await LoadGame(_runningGame.Value);
+        }
+
         private async Task PlayNextShuffle()
         {
+            if(_searchEnabled.Value) _searchEnabled.OnNext(false);
+
             var game = _launchHistory.GetNext(TeensyFileType.Crt, TeensyFileType.Prg) as GameItem;
 
             if (game is not null)
             {
-                await _directoryState.LoadDirectory(game.Path.GetUnixParentPath());
+                await LoadDirectory(game.Path.GetUnixParentPath());
                 await LoadGame(game, clearHistory: false);
                 return;
             }
@@ -269,7 +303,7 @@ namespace TeensyRom.Ui.Features.Games.State
         
 
         private GameStateType GetToggledPlayState() => _playState.Value == GameStateType.Playing
-                ? GameStateType.Paused
+                ? GameStateType.Stopped
                 : GameStateType.Playing;
 
         public async Task DeleteFile(GameItem game)
@@ -279,15 +313,15 @@ namespace TeensyRom.Ui.Features.Games.State
         }
 
         public async Task<GameItem?> PlayRandom()
-        {
+        {            
             var game = _storage.GetRandomFile(TeensyFileType.Crt, TeensyFileType.Prg) as GameItem;
 
             if (game is not null)
             {
-                await _directoryState.LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
+                await LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
                 await LoadGame(game, clearHistory: false);
 
-                if (_gameMode.Value != GameMode.Shuffle) ToggleShuffleMode();
+                if (_gameMode.Value != NextPreviousMode.Shuffle) ToggleShuffleMode();
 
                 _launchHistory.Add(game!);
 
@@ -302,6 +336,10 @@ namespace TeensyRom.Ui.Features.Games.State
             var searchResult = _storage.SearchPrograms(searchText);
 
             if (searchResult is null) return Unit.Default;
+
+            if (_gameMode.Value == NextPreviousMode.Shuffle) ToggleShuffleMode();
+
+            _searchResults = searchResult.ToList();
 
             _directoryState.SetSearchResults(searchResult);
             _searchEnabled.OnNext(true);

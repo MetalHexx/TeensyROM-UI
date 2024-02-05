@@ -9,47 +9,63 @@ using System.Threading.Tasks;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Services;
-using TeensyRom.Ui.Features.Games.State;
+using System.CodeDom.Compiler;
+using TeensyRom.Ui.Features.Games.State.NewState;
+using TeensyRom.Ui.Controls.Paging;
 
 namespace TeensyRom.Ui.Features.Games.GameList
 {
     public class GameListViewModel : ReactiveObject, IDisposable
     {
         [ObservableAsProperty] public ObservableCollection<StorageItem> DirectoryContent { get; }
-        public ReactiveCommand<GameItem, bool> PlayCommand { get; set; }
+        [ObservableAsProperty] public bool ShowPaging { get; }
+        [Reactive] public PagingViewModel Paging { get; set; }
+        public ReactiveCommand<GameItem, Unit> PlayCommand { get; set; }
         public ReactiveCommand<GameItem, Unit> SelectCommand { get; set; }
-        public ReactiveCommand<GameItem, bool> SaveFavoriteCommand { get; set; }
+        public ReactiveCommand<GameItem, Unit> SaveFavoriteCommand { get; set; }
         public ReactiveCommand<GameItem, Unit> DeleteCommand { get; set; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }
 
-        private readonly IGameState _gameState;
+        private readonly IFilePlayer _gameState;
         private readonly IAlertService _alert;
         private readonly IDialogService _dialog;
         private IDisposable _directoryTreeSubscription;
 
-        public GameListViewModel(IGameState gameState, IAlertService alert, IDialogService dialog)
+        public GameListViewModel(IFilePlayer gameState, IAlertService alert, IDialogService dialog)
         {
             _gameState = gameState;
             _alert = alert;
             _dialog = dialog;
 
-            PlayCommand = ReactiveCommand.CreateFromTask<GameItem, bool>(game =>
-                gameState.LoadGame(game), outputScheduler: RxApp.MainThreadScheduler);
+            PlayCommand = ReactiveCommand.CreateFromTask<GameItem>(
+                execute: gameState.PlayGame, 
+                outputScheduler: RxApp.MainThreadScheduler);
 
-            SelectCommand = ReactiveCommand.Create<GameItem, Unit>(gameState.SetSelectedGame, outputScheduler: RxApp.MainThreadScheduler);
+            SelectCommand = ReactiveCommand.Create<GameItem, Unit>(
+                execute: gameState.SetSelectedGame, 
+                outputScheduler: RxApp.MainThreadScheduler);
 
-            SaveFavoriteCommand = ReactiveCommand.CreateFromTask<GameItem, bool>(
-                gameState.SaveFavorite,
+            SaveFavoriteCommand = ReactiveCommand.CreateFromTask<GameItem>(
+                execute: gameState.SaveFavorite,
                 outputScheduler: RxApp.MainThreadScheduler);
 
             DeleteCommand = ReactiveCommand.CreateFromTask<GameItem>(
-                execute: HandleDelete,
+                execute:  HandleDelete,
                 outputScheduler: RxApp.MainThreadScheduler);
 
-            LoadDirectoryCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(directory =>
-                gameState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler);
+            LoadDirectoryCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(
+                execute: directory => gameState.LoadDirectory(directory.Path), 
+                outputScheduler: RxApp.MainThreadScheduler);
 
             _gameState.DirectoryContent.ToPropertyEx(this, x => x.DirectoryContent);
+            gameState.PagingEnabled.ToPropertyEx(this, x => x.ShowPaging);
+
+            Paging = new(gameState.CurrentPage, gameState.TotalPages)
+            {
+                NextPageCommand = ReactiveCommand.Create<Unit, Unit>(_ => gameState.NextPage()),
+                PreviousPageCommand = ReactiveCommand.Create<Unit, Unit>(_ => gameState.PreviousPage()),
+                PageSizeCommand = ReactiveCommand.Create<int, Unit>(gameState.SetPageSize)
+            };
         }
 
         private async Task<Unit> HandleDelete(GameItem fileItem)

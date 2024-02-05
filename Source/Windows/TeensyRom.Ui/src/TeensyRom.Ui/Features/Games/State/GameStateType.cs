@@ -9,6 +9,6 @@ namespace TeensyRom.Ui.Features.Games.State
     public enum GameStateType
     {
         Playing,
-        Paused
+        Stopped
     }
 }

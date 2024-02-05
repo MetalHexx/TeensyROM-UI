@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TeensyRom.Ui.Features.Games.State
 {
-    public enum GameMode
+    public enum NextPreviousMode
     {
         Next,
         Shuffle

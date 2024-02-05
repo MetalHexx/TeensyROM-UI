@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Windows;
 using TeensyRom.Core.Games;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Ui.Features.Games.State;
+using TeensyRom.Ui.Features.Games.State.NewState;
 
 namespace TeensyRom.Ui.Features.Games.GameInfo
 {
@@ -20,7 +20,7 @@ namespace TeensyRom.Ui.Features.Games.GameInfo
         [ObservableAsProperty]public ImageSource CroppedLoadingScreen { get; }
         [ObservableAsProperty] public ImageSource CroppedScreenshot { get; }
 
-        public GameInfoViewModel(IGameState gameState, IGameMetadataService gameMetadata)
+        public GameInfoViewModel(IFilePlayer gameState, IGameMetadataService gameMetadata)
         {
             gameState.SelectedGame
                 .Where(game => game != null)
@@ -30,13 +30,11 @@ namespace TeensyRom.Ui.Features.Games.GameInfo
 
             gameState.SelectedGame
                 .Where(game => game != null)
-                .Do(gameMetadata.GetGameScreens)
                 .Select(game => game is GameItem gameItem ? gameItem.Screens.LoadingScreenLocalPath : string.Empty)
                 .ToPropertyEx(this, x => x.LoadingScreenPath);
 
             gameState.SelectedGame
                 .Where(game => game != null)
-                .Do(gameMetadata.GetGameScreens)
                 .Select(game => game is GameItem gameItem ? gameItem.Screens.ScreenshotLocalPath : string.Empty)
                 .ToPropertyEx(this, x => x.ScreenshotPath);
 

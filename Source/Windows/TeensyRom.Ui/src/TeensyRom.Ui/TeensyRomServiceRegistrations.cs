@@ -38,6 +38,7 @@ using TeensyRom.Ui.Features.Games.Search;
 using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Games.GameInfo;
 using TeensyRom.Core.Games;
+using TeensyRom.Ui.Features.Games.State.NewState;
 
 namespace TeensyRom.Ui
 {
@@ -59,6 +60,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<ILaunchHistory,  LaunchHistory>();
             services.AddSingleton<IMusicState, MusicState>();
             services.AddSingleton<IGameState, GameState>();
+            services.AddSingleton<IFilePlayer, FilePlayer>();
             services.AddSingleton<IFileState, FileState>();
             services.AddSingleton<IGlobalState, GlobalState>();
             services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();

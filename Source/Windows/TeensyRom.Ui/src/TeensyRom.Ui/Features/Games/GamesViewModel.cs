@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using MaterialDesignColors;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ using TeensyRom.Ui.Features.Games.GameInfo;
 using TeensyRom.Ui.Features.Games.GameList;
 using TeensyRom.Ui.Features.Games.GameToolbar;
 using TeensyRom.Ui.Features.Games.Search;
-using TeensyRom.Ui.Features.Games.State;
+using TeensyRom.Ui.Features.Games.State.NewState;
 using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Helpers.ViewModel;
@@ -28,7 +29,8 @@ namespace TeensyRom.Ui.Features.Games
     {
         [ObservableAsProperty] public bool GamesAvailable { get; set; }
         [ObservableAsProperty] public bool ShowToolbar { get; set; }
-        [ObservableAsProperty] public bool PagingEnabled { get; }
+        [ObservableAsProperty] public bool ShowPaging { get; }
+        [ObservableAsProperty] public bool ShowTree { get; }
 
         [Reactive] public SearchGamesViewModel Search { get; set; }
         [Reactive] public DirectoryTreeViewModel GamesTree { get; set; }
@@ -42,42 +44,80 @@ namespace TeensyRom.Ui.Features.Games
         public ReactiveCommand<Unit, Unit> CacheAllCommand { get; set; }
 
         private TeensySettings _settings;
-        private readonly IGameState _gameState;
+        private readonly IFilePlayer _gameState;
         private readonly IDialogService _dialog;
 
-        public GamesViewModel(IGameState gameState, IGlobalState globalState, IDialogService dialog, ISettingsService settingsService, GameToolbarViewModel toolbar, GameListViewModel gameList, SearchGamesViewModel search, GameInfoViewModel gameInfo)
+        public GamesViewModel(IFilePlayer gameState, IGlobalState globalState, IDialogService dialog, ISettingsService settingsService, GameToolbarViewModel toolbar, GameListViewModel gameList, GameInfoViewModel gameInfo)
         {
             FeatureTitle = "Games";
             _gameState = gameState;
             _dialog = dialog;
             GameToolBar = toolbar;
-            GameList = gameList;
-            Search = search;
+            GameList = gameList;            
             GameInfo = gameInfo;
             settingsService.Settings.Subscribe(s => _settings = s);
 
+            gameState.CurrentState
+                .Select(s => s is not SearchPlayState)
+                .ToPropertyEx(this, x => x.ShowTree);
+
             gameState.RunningGame
-                .Select(s => s is null)
+                .Select(g => g is not null)
                 .ToPropertyEx(this, x => x.ShowToolbar);
 
             globalState.SerialConnected.ToPropertyEx(this, x => x.GamesAvailable);
-            gameState.PagingEnabled.ToPropertyEx(this, x => x.PagingEnabled);
+            gameState.PagingEnabled.ToPropertyEx(this, x => x.ShowPaging);
 
-            RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(_ => gameState.RefreshDirectory());
-            PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(_ => gameState.PlayRandom());
-            CacheAllCommand = ReactiveCommand.CreateFromTask(HandleCacheAll);
+            RefreshCommand = ReactiveCommand.CreateFromTask<Unit>( 
+                execute: _ => gameState.RefreshDirectory(), 
+                outputScheduler: RxApp.MainThreadScheduler);
+
+            PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(
+                execute: _ => gameState.PlayRandom(),
+                outputScheduler: RxApp.MainThreadScheduler);
+
+            CacheAllCommand = ReactiveCommand.CreateFromTask(
+                execute: HandleCacheAll,
+                outputScheduler: RxApp.MainThreadScheduler);
 
             GamesTree = new(gameState.DirectoryTree)
             {
-                DirectorySelectedCommand = ReactiveCommand.CreateFromTask<DirectoryNodeViewModel>(async (directory) =>
-                await gameState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler)
+                DirectorySelectedCommand = ReactiveCommand.CreateFromTask<DirectoryNodeViewModel>(
+                    execute: async (directory) => await gameState.LoadDirectory(directory.Path), 
+                    outputScheduler: RxApp.MainThreadScheduler)
             };
 
             Paging = new(gameState.CurrentPage, gameState.TotalPages)
             {
-                NextPageCommand = ReactiveCommand.CreateFromTask(_ => gameState.NextPage()),
-                PreviousPageCommand = ReactiveCommand.CreateFromTask(_ => gameState.PreviousPage()),
-                PageSizeCommand = ReactiveCommand.CreateFromTask<int>(size => gameState.SetPageSize(size))
+                NextPageCommand = ReactiveCommand.Create<Unit, Unit>(
+                    execute: _ => gameState.NextPage(),
+                    outputScheduler: RxApp.MainThreadScheduler),
+
+                PreviousPageCommand = ReactiveCommand.Create<Unit, Unit>(
+                    execute: _ => gameState.PreviousPage(),
+                    outputScheduler: RxApp.MainThreadScheduler),
+
+                PageSizeCommand = ReactiveCommand.Create<int, Unit>(
+                    execute: gameState.SetPageSize,
+                    outputScheduler: RxApp.MainThreadScheduler)
+            };
+
+            var searchEnabled = gameState.CurrentState
+                .Select(s => s is SearchPlayState);
+
+            Search = new(searchEnabled)
+            {
+                SearchCommand = ReactiveCommand.Create<string, Unit>(
+                    execute: gameState.SearchGames,
+                    outputScheduler: RxApp.MainThreadScheduler),
+
+                ClearSearchCommand = ReactiveCommand.CreateFromTask(
+                    execute: () => 
+                    {
+                        Search!.SearchText = string.Empty;
+                        return gameState.ClearSearch();
+                    },
+                    outputScheduler: RxApp.MainThreadScheduler)
             };
         }
 
