@@ -30,7 +30,6 @@ namespace TeensyRom.Ui.Features.Games
         [ObservableAsProperty] public bool GamesAvailable { get; set; }
         [ObservableAsProperty] public bool ShowToolbar { get; set; }
         [ObservableAsProperty] public bool ShowPaging { get; }
-        [ObservableAsProperty] public bool ShowTree { get; }
 
         [Reactive] public SearchGamesViewModel Search { get; set; }
         [Reactive] public DirectoryTreeViewModel GamesTree { get; set; }
@@ -56,10 +55,6 @@ namespace TeensyRom.Ui.Features.Games
             GameList = gameList;            
             GameInfo = gameInfo;
             settingsService.Settings.Subscribe(s => _settings = s);
-
-            gameState.CurrentState
-                .Select(s => s is not SearchPlayState)
-                .ToPropertyEx(this, x => x.ShowTree);
 
             gameState.RunningGame
                 .Select(g => g is not null)

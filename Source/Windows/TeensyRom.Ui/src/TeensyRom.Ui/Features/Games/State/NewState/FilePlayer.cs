@@ -26,7 +26,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         public IObservable<int> CurrentPage => _currentPage.AsObservable();
         public IObservable<int> TotalPages => _totalPages.AsObservable();
         public IObservable<bool> PagingEnabled => _pagingEnabled.AsObservable();
-        public IObservable<DirectoryNodeViewModel?> DirectoryTree => _directoryTree.AsObservable();
+        public IObservable<DirectoryNodeViewModel?> DirectoryTree => _tree.DirectoryTree.AsObservable();
         public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
         public IObservable<GameItem> RunningGame => _runningGame.AsObservable();
         public IObservable<GameItem> SelectedGame => _selectedGame.AsObservable();
@@ -39,7 +39,6 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         private readonly BehaviorSubject<int> _currentPage = new(1);
         private readonly BehaviorSubject<int> _totalPages = new(1);
         private readonly BehaviorSubject<bool> _pagingEnabled = new(false);
-        private readonly BehaviorSubject<DirectoryNodeViewModel?> _directoryTree = new(null);
         private readonly BehaviorSubject<ObservableCollection<StorageItem>> _directoryContent = new([]);
         private readonly BehaviorSubject<GameItem> _runningGame = new(null);
         private readonly BehaviorSubject<GameItem> _selectedGame = new(null);
@@ -55,12 +54,13 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         private readonly ILaunchHistory _launchHistory;
         private readonly ISerialStateContext _serialContext;
         private readonly INavigationService _nav;
+        private readonly IGameDirectoryTreeState _tree;
         private readonly Dictionary<Type, PlayerState> _states;
         private readonly List<IDisposable> _stateSubscriptions = new();
 
         public PlayerState State { get; set; }
 
-        public FilePlayer(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav)
+        public FilePlayer(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IGameDirectoryTreeState tree)
         {
             _mediator = mediator;
             _storage = storage;
@@ -68,11 +68,12 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
             _launchHistory = launchHistory;
             _serialContext = serialContext;
             _nav = nav;
+            _tree = tree;
             _states = new()
             {
-                { typeof(DirectoryPlayState), new DirectoryPlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav) },
-                { typeof(ShufflePlayState), new ShufflePlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav) },
-                { typeof(SearchPlayState), new SearchPlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav) }
+                { typeof(DirectoryPlayState), new DirectoryPlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) },
+                { typeof(ShufflePlayState), new ShufflePlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) },
+                { typeof(SearchPlayState), new SearchPlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) }
             };
             SubscribeToStateObservables();
             _currentState = new(_states[typeof(DirectoryPlayState)]);
@@ -87,7 +88,6 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
                 [
                     state.Value.DirectoryState.Select(s => s.CurrentPage).Subscribe(_currentPage.OnNext),
                     state.Value.DirectoryState.Select(s => s.DirectoryContent).Subscribe(_directoryContent.OnNext),
-                    state.Value.DirectoryState.Select(s => s.DirectoryTree).Subscribe(_directoryTree.OnNext),
                     state.Value.DirectoryState.Select(s => s.PagingEnabled).Subscribe(_pagingEnabled.OnNext),
                     state.Value.DirectoryState.Select(s => s.TotalPages).Subscribe(_totalPages.OnNext),
                     state.Value.SelectedGame.Subscribe(_selectedGame.OnNext),
@@ -123,15 +123,11 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
             }
             return false;
         }
-        public Task LoadDirectory(string path, string? filePathToSelect = null)
+        public async Task LoadDirectory(string path, string? filePathToSelect = null)
         {
-            var success = TryTransitionTo(typeof(DirectoryPlayState));
+            if (_currentState.Value is SearchPlayState) await ClearSearch();
 
-            if (success)
-            {
-                return _currentState.Value.LoadDirectory(path, filePathToSelect);
-            }
-            return Task.CompletedTask;
+            await _currentState.Value.LoadDirectory(path, filePathToSelect);            
         }
         public Task RefreshDirectory(bool bustCache = true)
         {

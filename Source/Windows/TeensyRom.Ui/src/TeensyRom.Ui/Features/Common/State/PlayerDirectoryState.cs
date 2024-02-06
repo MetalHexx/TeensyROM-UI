@@ -13,10 +13,9 @@ using TeensyRom.Ui.Controls.DirectoryTree;
 
 namespace TeensyRom.Ui.Features.Common.State
 {
-    public class PlayerDirectoryState
+    public class PlayerDirectoryState(IDirectoryTreeState _tree) 
     {
         public string CurrentPath { get; private set; } = string.Empty;
-        public DirectoryNodeViewModel DirectoryTree { get; private set; } = new();
         public ObservableCollection<StorageItem> DirectoryContent { get; private set; } = new();
         public int CurrentPage { get; private set; } = 1;
         public int TotalPages { get; private set; } = 1;
@@ -25,30 +24,14 @@ namespace TeensyRom.Ui.Features.Common.State
         private int _skip => (CurrentPage - 1) * PageSize;
         private StorageCacheItem? _cacheItem;
 
-        public void ResetDirectoryTree(string rootPath)
-        {
-            DirectoryTree = new DirectoryNodeViewModel
-            {
-                Name = "Fake Root",  //TODO: Fake root required since UI view binds to enumerable -- design could use improvement
-                Path = "Fake Root",
-                Directories =
-                [
-                    new DirectoryNodeViewModel
-                    {
-                        Name = rootPath,
-                        Path = rootPath,
-                        Directories = []
-                    }
-                ]
-            };
-        }
+        public void ResetDirectoryTree(string rootPath) => _tree.ResetDirectoryTree(rootPath);
 
         public void SetSearchResults(IEnumerable<StorageItem> items)
         {
             DirectoryContent = new ObservableCollection<StorageItem>(items);
         }
 
-        public void LoadDirectory() 
+        public void LoadDirectory()
         {
             LoadDirectory(_cacheItem);
         }
@@ -65,8 +48,8 @@ namespace TeensyRom.Ui.Features.Common.State
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                DirectoryTree.Insert(cacheItem.Directories);
-                DirectoryTree.SelectDirectory(cacheItem.Path);
+                _tree.Insert(cacheItem.Directories);
+                _tree.SelectDirectory(cacheItem.Path);
             });
 
             var fullDirectory = new List<StorageItem>();
@@ -107,15 +90,6 @@ namespace TeensyRom.Ui.Features.Common.State
             DirectoryContent = directoryItems;
         }
 
-        public void SelectDirectory(string path, StorageCacheItem? directoryResult)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                DirectoryTree.Insert(directoryResult.Directories);
-                DirectoryTree.SelectDirectory(path);
-            });            
-        }
-
         public void ClearSelection()
         {
             DirectoryContent.ToList().ForEach(i => i.IsSelected = false);
@@ -125,8 +99,8 @@ namespace TeensyRom.Ui.Features.Common.State
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                DirectoryTree.Insert(directoryResult.Directories);
-            });            
+                _tree.Insert(directoryResult!.Directories);
+            });
         }
 
         public void GoToNextPage()

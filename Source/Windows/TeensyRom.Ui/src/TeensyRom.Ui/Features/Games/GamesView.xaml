@@ -87,8 +87,7 @@
             </Grid.ColumnDefinitions>
 
             <ContentControl 
-                Content="{Binding GamesTree}" 
-                Visibility="{Binding ShowTree, Converter={StaticResource BoolToVisibilityConvertor}}"
+                Content="{Binding GamesTree}"
                 HorizontalAlignment="Left" 
                 Grid.Row="0"
                 Grid.Column="0" 

@@ -14,11 +14,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using TeensyRom.Core.Commands;
+using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
+using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.NavigationHost;
@@ -43,18 +45,20 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         protected readonly ISettingsService _settingsService;
         protected readonly ILaunchHistory _launchHistory;
         protected readonly ISnackbarService _alert;
+        private readonly IDirectoryTreeState _tree;
         protected readonly FilePlayer _playerContext;
         protected readonly IMediator _mediator;
         protected IDisposable _settingsSubscription;
         protected TeensySettings _settings;
 
-        public PlayerState(FilePlayer playerContext, IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav)
+        public PlayerState(FilePlayer playerContext, IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree)
         {
-            _directoryState = new(new PlayerDirectoryState());
+            _directoryState = new(new PlayerDirectoryState(tree));
             _storage = storage;
             _settingsService = settingsService;
             _launchHistory = launchHistory;
             _alert = alert;
+            _tree = tree;
             _playerContext = playerContext;
             _mediator = mediator;
             _playerContext = playerContext;
@@ -66,14 +70,31 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         //TODO: Move these toolbar functions to another state
         public virtual Task CacheAll() => _storage.CacheAll();
 
-        public virtual Task ClearSearch() => throw new TeensyStateException(ExceptionMessage);
+        public virtual Task ClearSearch() => throw new TeensyStateException(InvalidStateExceptionMessage);
 
         public virtual async Task DeleteFile(GameItem game) => await _storage.DeleteFile(game, _settings.TargetType);
 
-        public virtual Task LoadDirectory(string path, string? filePathToSelect = null) => throw new TeensyStateException(ExceptionMessage);
-
-        public virtual Task PlayGame(GameItem game)
+        public virtual async Task LoadDirectory(string path, string? filePathToSelect = null)
         {
+            var cacheItem = await _storage.GetDirectory(path);
+
+            if (cacheItem == null) return;
+
+            _directoryState.Value.LoadDirectory(cacheItem, filePathToSelect);
+            _directoryState.OnNext(_directoryState.Value);
+        }
+
+        public virtual async Task PlayGame(GameItem game)
+        {
+            var result = await _mediator.Send(new LaunchFileCommand { Path = game.Path });
+
+            if (result.LaunchResult is LaunchFileResultType.ProgramError)
+            {
+                _alert.Enqueue($"{game.Name} is currently unsupported (see logs).  Skipping to the next game.");
+                _storage.MarkIncompatible(game);
+                await PlayNext();
+                return;
+            }
             Application.Current.Dispatcher.Invoke(() =>
             {
                 game.IsSelected = true;
@@ -87,8 +108,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
                 }
             });
             _runningGame.OnNext(game);
-            _gameState.OnNext(GameStateType.Playing);
-            return Task.CompletedTask;
+            _gameState.OnNext(GameStateType.Playing);            
         }
 
         public virtual Task StopGame() 
@@ -97,13 +117,13 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
             return _mediator.Send(new ResetCommand());
         }
 
-        public virtual Task PlayNext() => throw new TeensyStateException(ExceptionMessage);
+        public virtual Task PlayNext() => throw new TeensyStateException(InvalidStateExceptionMessage);
 
-        public virtual Task PlayPrevious() => throw new TeensyStateException(ExceptionMessage);
+        public virtual Task PlayPrevious() => throw new TeensyStateException(InvalidStateExceptionMessage);
 
-        public virtual Task<GameItem?> PlayRandom() => throw new TeensyStateException(ExceptionMessage);
+        public virtual Task<GameItem?> PlayRandom() => throw new TeensyStateException(InvalidStateExceptionMessage);
 
-        public virtual Task RefreshDirectory(bool bustCache = true) => throw new TeensyStateException(ExceptionMessage);
+        public virtual Task RefreshDirectory(bool bustCache = true) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
         public virtual void ResetDirectoryTree(string path)
         {
@@ -125,7 +145,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
             _directoryState.Value.LoadDirectory(directoryResult);
         }
 
-        public virtual Unit SearchGames(string searchText) => throw new TeensyStateException(ExceptionMessage);
+        public virtual Unit SearchGames(string searchText) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
         public virtual Unit SetSelectedGame(GameItem game)
         {
@@ -142,7 +162,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
             return Unit.Default;
         }
 
-        public virtual Unit ToggleShuffleMode() => throw new TeensyStateException(ExceptionMessage);
+        public virtual Unit ToggleShuffleMode() => throw new TeensyStateException(InvalidStateExceptionMessage);
 
         public virtual Unit NextPage()
         {
@@ -162,6 +182,6 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
             _directoryState.OnNext(_directoryState.Value);
             return Unit.Default;
         }
-        private string ExceptionMessage => $"Cannot perform this operation from: {GetType().Name}";
+        protected string InvalidStateExceptionMessage => $"Cannot perform this operation from: {GetType().Name}";
     }
 }

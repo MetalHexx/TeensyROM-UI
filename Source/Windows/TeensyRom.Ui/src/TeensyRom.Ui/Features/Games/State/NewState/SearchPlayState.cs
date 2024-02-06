@@ -11,6 +11,7 @@ using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
+using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
@@ -19,7 +20,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
 {
     public class SearchPlayState : PlayerState
     {
-        public SearchPlayState(FilePlayer playerContext, IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav) : base(playerContext, mediator, storage, settingsService, launchHistory, alert, serialContext, nav) { }
+        public SearchPlayState(FilePlayer playerContext, IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree) : base(playerContext, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) { }
 
         public override bool CanTransitionTo(Type nextStateType)
         {
@@ -29,19 +30,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
 
         public override void Handle() => _directoryState.OnNext(_directoryState.Value);
 
-        public override async Task PlayGame(GameItem game)
-        {
-            var result = await _mediator.Send(new LaunchFileCommand { Path = game.Path });
-
-            if (result.LaunchResult is LaunchFileResultType.ProgramError)
-            {
-                _alert.Enqueue($"{game.Name} is currently unsupported (see logs).  Skipping to the next game.");
-                _storage.MarkIncompatible(game);
-                await base.PlayGame(game);
-                await PlayNext();
-                return;
-            }            
-        }
+        public override async Task LoadDirectory(string path, string? filePathToSelect = null) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
         public override Task ClearSearch()
         {

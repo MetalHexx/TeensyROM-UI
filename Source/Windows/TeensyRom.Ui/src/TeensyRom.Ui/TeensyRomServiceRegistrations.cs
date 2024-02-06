@@ -39,6 +39,7 @@ using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Games.GameInfo;
 using TeensyRom.Core.Games;
 using TeensyRom.Ui.Features.Games.State.NewState;
+using TeensyRom.Ui.Controls.DirectoryTree;
 
 namespace TeensyRom.Ui
 {
@@ -68,6 +69,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IGameMetadataService, GameMetadataService>();
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
             services.AddSingleton<ICachedStorageService, CachedStorageService>();
+            services.AddSingleton<IGameDirectoryTreeState, GameDirectoryTreeState>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<ConnectViewModel>();
             services.AddSingleton<FilesViewModel>();
