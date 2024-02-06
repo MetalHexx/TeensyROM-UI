@@ -3,5 +3,5 @@
 namespace TeensyRom.Ui.Features.Games.State
 {
     public interface IGameDirectoryTreeState : IDirectoryTreeState { }
-    public sealed class GameDirectoryState : DirectoryTreeState, IGameDirectoryTreeState { }
+    public sealed class GameTreeState : DirectoryTreeState, IGameDirectoryTreeState { }
 }

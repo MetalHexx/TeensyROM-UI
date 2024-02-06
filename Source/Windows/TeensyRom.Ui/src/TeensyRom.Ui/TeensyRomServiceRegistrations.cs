@@ -66,7 +66,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IGameMetadataService, GameMetadataService>();
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
             services.AddSingleton<ICachedStorageService, CachedStorageService>();
-            services.AddSingleton<IGameDirectoryTreeState, GameDirectoryState>();
+            services.AddSingleton<IGameDirectoryTreeState, GameTreeState>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<ConnectViewModel>();
             services.AddSingleton<FilesViewModel>();

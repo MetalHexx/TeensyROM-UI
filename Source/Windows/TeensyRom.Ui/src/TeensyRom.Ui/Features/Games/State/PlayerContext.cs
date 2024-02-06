@@ -45,7 +45,7 @@ namespace TeensyRom.Ui.Features.Games.State
         private Subject<GameItem> _launchedGame = new();
         private IDisposable _settingsSubscription;
         private TeensySettings _settings;
-        private readonly DirectoryState _directoryState;
+        private readonly Common.State.DirectoryState _directoryState;
         private readonly IMediator _mediator;
         private readonly ICachedStorageService _storage;
         private readonly ISettingsService _settingsService;

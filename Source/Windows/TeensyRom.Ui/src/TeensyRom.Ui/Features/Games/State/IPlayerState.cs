@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Ui.Features.Common.State;
 
 namespace TeensyRom.Ui.Features.Games.State
 {
     public interface IPlayerState
     {
-        IObservable<PlayerDirectoryState> DirectoryState { get; }
+        IObservable<DirectoryState> DirectoryState { get; }
         IObservable<GameItem> LaunchedGame { get; }
         IObservable<GameItem> SelectedGame { get; }
 

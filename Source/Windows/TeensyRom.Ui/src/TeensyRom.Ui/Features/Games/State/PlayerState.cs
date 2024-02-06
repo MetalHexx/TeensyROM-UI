@@ -21,7 +21,6 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
-using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
@@ -30,12 +29,12 @@ namespace TeensyRom.Ui.Features.Games.State
 {
     public abstract class PlayerState : IPlayerState
     {
-        public IObservable<PlayerDirectoryState> DirectoryState => _directoryState.AsObservable();
+        public IObservable<DirectoryState> DirectoryState => _directoryState.AsObservable();
         public IObservable<GameItem> LaunchedGame => _runningGame.AsObservable();
         public IObservable<GameItem> SelectedGame => _selectedGame.AsObservable();
         public IObservable<PlayPausedState> PlayState => _gameState.AsObservable();
 
-        protected BehaviorSubject<PlayerDirectoryState> _directoryState;
+        protected BehaviorSubject<DirectoryState> _directoryState;
         protected BehaviorSubject<GameItem> _runningGame = new(null!);
         protected BehaviorSubject<GameItem> _selectedGame = new(null!);
         protected BehaviorSubject<PlayPausedState> _gameState = new(PlayPausedState.Stopped);
@@ -51,7 +50,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
         public PlayerState(PlayerContext playerContext, IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree)
         {
-            _directoryState = new(new PlayerDirectoryState(tree));
+            _directoryState = new(new DirectoryState());
             _storage = storage;
             _settingsService = settingsService;
             _launchHistory = launchHistory;
@@ -78,7 +77,14 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (cacheItem == null) return;
 
-            _directoryState.Value.LoadDirectory(cacheItem, filePathToSelect);
+            _directoryState.Value.LoadDirectory(cacheItem.ToList(), cacheItem.Path, filePathToSelect);
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                _tree.Insert(cacheItem.Directories);
+                _tree.SelectDirectory(cacheItem.Path);
+            });
+
             _directoryState.OnNext(_directoryState.Value);
         }
 
@@ -123,9 +129,9 @@ namespace TeensyRom.Ui.Features.Games.State
 
         public virtual Task RefreshDirectory(bool bustCache = true) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
-        public virtual void ResetDirectoryTree(string path)
+        public virtual void ResetDirectoryTree(string rootPath)
         {
-            _directoryState.Value.ResetDirectoryTree(path);
+            _tree.ResetDirectoryTree(rootPath);
             _directoryState.OnNext(_directoryState.Value);
         }
 
@@ -140,7 +146,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (directoryResult is null) return;
 
-            _directoryState.Value.LoadDirectory(directoryResult);
+            _directoryState.Value.LoadDirectory(directoryResult.ToList(), directoryResult.Path);
         }
 
         public virtual Unit SearchGames(string searchText) => throw new TeensyStateException(InvalidStateExceptionMessage);

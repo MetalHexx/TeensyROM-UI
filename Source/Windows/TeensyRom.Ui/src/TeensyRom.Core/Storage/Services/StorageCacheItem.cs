@@ -48,5 +48,14 @@ namespace TeensyRom.Core.Storage.Services
 
             Files.Remove(fileToRemove);
         }
+
+        public List<StorageItem> ToList()
+        {
+            var directoryList = new List<StorageItem>();
+            directoryList.AddRange(Directories);
+            directoryList.AddRange(Files);
+
+            return directoryList;
+        }
     }
 }

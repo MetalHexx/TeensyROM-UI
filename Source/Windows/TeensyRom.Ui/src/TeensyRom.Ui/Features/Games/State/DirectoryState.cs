@@ -11,56 +11,29 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
 
-namespace TeensyRom.Ui.Features.Common.State
+namespace TeensyRom.Ui.Features.Games.State
 {
-    public class PlayerDirectoryState(IDirectoryTreeState _tree) 
+    public class DirectoryState
     {
-        public string CurrentPath { get; private set; } = string.Empty;
+        public string? CurrentPath { get; private set; } = string.Empty;
         public ObservableCollection<StorageItem> DirectoryContent { get; private set; } = new();
         public int CurrentPage { get; private set; } = 1;
         public int TotalPages { get; private set; } = 1;
         public int PageSize { get; private set; } = 100;
         public bool PagingEnabled { get; private set; } = false;
         private int _skip => (CurrentPage - 1) * PageSize;
-        private StorageCacheItem? _cacheItem;
+        private List<StorageItem> _fullDirectory = [];
 
-        public void ResetDirectoryTree(string rootPath) => _tree.ResetDirectoryTree(rootPath);
-
-        public void SetSearchResults(IEnumerable<StorageItem> items)
+        public void LoadDirectory(List<StorageItem> fullDirectory, string? path = null, string? filePathToSelect = null)
         {
-            DirectoryContent = new ObservableCollection<StorageItem>(items);
-        }
+            _fullDirectory = fullDirectory;
 
-        public void LoadDirectory()
-        {
-            LoadDirectory(_cacheItem);
-        }
-
-        public void LoadDirectory(StorageCacheItem cacheItem, string? filePathToSelect = null)
-        {
-            _cacheItem = cacheItem;
-
-            if (CurrentPath != cacheItem.Path)
+            if (CurrentPath != path || path is null)
             {
-                CurrentPath = cacheItem.Path;
+                CurrentPath = path;
                 CurrentPage = 1;
             }
 
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                _tree.Insert(cacheItem.Directories);
-                _tree.SelectDirectory(cacheItem.Path);
-            });
-
-            var fullDirectory = new List<StorageItem>();
-            fullDirectory.AddRange(cacheItem.Directories);
-            fullDirectory.AddRange(cacheItem.Files);
-
-            LoadDirectory(fullDirectory, filePathToSelect);
-        }
-
-        public void LoadDirectory(List<StorageItem> fullDirectory, string? filePathToSelect = null)
-        {
             var directoryItems = new ObservableCollection<StorageItem>();
 
             var skip = _skip;
@@ -95,21 +68,13 @@ namespace TeensyRom.Ui.Features.Common.State
             DirectoryContent.ToList().ForEach(i => i.IsSelected = false);
         }
 
-        public void UpdateDirectory(StorageCacheItem? directoryResult)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                _tree.Insert(directoryResult!.Directories);
-            });
-        }
-
         public void GoToNextPage()
         {
             if (CurrentPage < TotalPages)
             {
                 CurrentPage++;
             }
-            LoadDirectory();
+            LoadDirectory(_fullDirectory);
         }
 
         public void GoToPreviousPage()
@@ -118,14 +83,14 @@ namespace TeensyRom.Ui.Features.Common.State
             {
                 CurrentPage--;
             }
-            LoadDirectory();
+            LoadDirectory(_fullDirectory);
         }
 
         public void SetPageSize(int size)
         {
             PageSize = size;
             CurrentPage = 1;
-            LoadDirectory();
+            LoadDirectory(_fullDirectory);
         }
     }
 }

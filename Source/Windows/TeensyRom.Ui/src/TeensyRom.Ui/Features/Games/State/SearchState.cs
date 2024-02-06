@@ -35,7 +35,6 @@ namespace TeensyRom.Ui.Features.Games.State
         public override Task ClearSearch()
         {
             _directoryState.Value.ClearSelection();
-            _directoryState.Value.LoadDirectory([]);
             _directoryState.OnNext(_directoryState.Value);
             return Task.CompletedTask;
         }
@@ -91,7 +90,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (searchResult is null) return Unit.Default;
 
-            _directoryState.Value.LoadDirectory(searchResult, null);
+            _directoryState.Value.LoadDirectory(searchResult, "Search Results:");
 
             var firstGame = searchResult.FirstOrDefault();
 

@@ -101,7 +101,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (directoryResult is null) return;
 
-            _directoryState.Value.LoadDirectory(directoryResult);
+            _directoryState.Value.LoadDirectory(directoryResult.ToList(), directoryResult.Path);
         }
     }
 }
