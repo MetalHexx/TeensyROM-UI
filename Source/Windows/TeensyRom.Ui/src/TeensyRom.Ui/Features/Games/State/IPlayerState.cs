@@ -11,8 +11,6 @@ namespace TeensyRom.Ui.Features.Games.State
         IObservable<DirectoryState> DirectoryState { get; }
         IObservable<GameItem> LaunchedGame { get; }
         IObservable<GameItem> SelectedGame { get; }
-
-        Task CacheAll();
         bool CanTransitionTo(Type nextStateType);
         Task ClearSearch();
         Task DeleteFile(GameItem game);

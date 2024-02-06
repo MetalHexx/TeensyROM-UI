@@ -63,10 +63,6 @@ namespace TeensyRom.Ui.Features.Games.State
 
         public abstract bool CanTransitionTo(Type nextStateType);
         public abstract void Handle();
-
-        //TODO: Move these toolbar functions to another state
-        public virtual Task CacheAll() => _storage.CacheAll();
-
         public virtual Task ClearSearch() => throw new TeensyStateException(InvalidStateExceptionMessage);
 
         public virtual async Task DeleteFile(GameItem game) => await _storage.DeleteFile(game, _settings.TargetType);

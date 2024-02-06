@@ -180,7 +180,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             return Unit.Default;
         }
-        public Task CacheAll() => _currentState.Value.CacheAll();
+        public Task CacheAll() => _storage.CacheAll();
         public Unit SetSelectedGame(GameItem game) => _currentState.Value.SetSelectedGame(game);
         public Unit NextPage() => _currentState.Value.NextPage();
         public Unit PreviousPage() => _currentState.Value.PreviousPage();
