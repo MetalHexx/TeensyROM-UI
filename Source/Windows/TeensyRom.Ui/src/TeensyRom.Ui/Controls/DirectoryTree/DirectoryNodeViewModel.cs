@@ -17,6 +17,19 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
         [Reactive] public bool IsExpanded { get; set; }
         public ObservableCollection<DirectoryNodeViewModel> Directories { get; set; } = new ObservableCollection<DirectoryNodeViewModel>();
 
+        public void SelectDirectory(string directoryPath)
+        {
+            var normalizedTargetPath = directoryPath.RemoveLeadingAndTrailingSlash().ToLower();
+            var normalizedCurrentPath = Path.RemoveLeadingAndTrailingSlash().ToLower();
+
+            IsSelected = normalizedCurrentPath.Equals(normalizedTargetPath);
+
+            foreach (var directory in Directories)
+            {
+                directory.SelectDirectory(directoryPath);
+            }
+        }
+
         public void Insert(IEnumerable<DirectoryItem> newDirectories)
         {
             if (!newDirectories.Any()) return;
@@ -63,19 +76,6 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
                     });
                 }
             };
-        }
-
-        public void SelectDirectory(string directoryPath)
-        {
-            var normalizedTargetPath = directoryPath.RemoveLeadingAndTrailingSlash().ToLower();
-            var normalizedCurrentPath = Path.RemoveLeadingAndTrailingSlash().ToLower();
-
-            IsSelected = normalizedCurrentPath.Equals(normalizedTargetPath);
-
-            foreach (var directory in Directories)
-            {
-                directory.SelectDirectory(directoryPath);
-            }
         }
     }
 }
