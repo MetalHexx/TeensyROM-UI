@@ -56,11 +56,9 @@ namespace TeensyRom.Ui
             services.AddSingleton<IAlertService, AlertService>();
             services.AddSingleton<ISnackbarService, SnackbarService>();
             services.AddSingleton<IDialogService, DialogService>();
-            services.AddSingleton<Features.Music.State.ISongTimer, Features.Music.State.SongTimer>();
-            services.AddSingleton<Features.Games.State.ISongTimer, Features.Games.State.SongTimer>();
+            services.AddSingleton<ISongTimer, SongTimer>();
             services.AddSingleton<ILaunchHistory,  LaunchHistory>();
             services.AddSingleton<IMusicState, MusicState>();
-            services.AddSingleton<IGameState, GameState>();
             services.AddSingleton<IPlayerContext, PlayerContext>();
             services.AddSingleton<IFileState, FileState>();
             services.AddSingleton<IGlobalState, GlobalState>();

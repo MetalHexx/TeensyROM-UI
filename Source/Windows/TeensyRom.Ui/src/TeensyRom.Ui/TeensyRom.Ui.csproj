@@ -8,14 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Features\Games\State\GameTimer" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Features\Games\State\GameTimer" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="CommonServiceLocator" Version="2.0.7" />
     <PackageReference Include="gong-wpf-dragdrop" Version="3.2.1" />
     <PackageReference Include="MaterialDesignColors" Version="2.1.4" />
