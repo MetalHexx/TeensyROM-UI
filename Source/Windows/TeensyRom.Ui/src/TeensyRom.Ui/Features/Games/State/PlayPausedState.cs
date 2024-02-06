@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TeensyRom.Ui.Features.Games.State
 {
-    public enum GameStateType
+    public enum PlayPausedState
     {
         Playing,
         Stopped

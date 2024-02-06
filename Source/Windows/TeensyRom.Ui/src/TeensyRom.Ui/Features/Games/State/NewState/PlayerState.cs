@@ -33,12 +33,12 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         public IObservable<PlayerDirectoryState> DirectoryState => _directoryState.AsObservable();
         public IObservable<GameItem> LaunchedGame => _runningGame.AsObservable();
         public IObservable<GameItem> SelectedGame => _selectedGame.AsObservable(); 
-        public IObservable<GameStateType> PlayState => _gameState.AsObservable();
+        public IObservable<PlayPausedState> PlayState => _gameState.AsObservable();
 
         protected BehaviorSubject<PlayerDirectoryState> _directoryState;
         protected BehaviorSubject<GameItem> _runningGame = new(null!);
         protected BehaviorSubject<GameItem> _selectedGame = new(null!);
-        protected BehaviorSubject<GameStateType> _gameState = new(GameStateType.Stopped);
+        protected BehaviorSubject<PlayPausedState> _gameState = new(PlayPausedState.Stopped);
         protected readonly ICachedStorageService _storage;
         protected readonly ISettingsService _settingsService;
         protected readonly ILaunchHistory _launchHistory;
@@ -106,12 +106,12 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
                 }
             });
             _runningGame.OnNext(game);
-            _gameState.OnNext(GameStateType.Playing);            
+            _gameState.OnNext(PlayPausedState.Playing);            
         }
 
         public virtual Task StopGame() 
         {   
-            _gameState.OnNext(GameStateType.Stopped);
+            _gameState.OnNext(PlayPausedState.Stopped);
             return _mediator.Send(new ResetCommand());
         }
 

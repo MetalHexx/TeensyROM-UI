@@ -9,7 +9,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
     public interface IPlayerContext
     {
         IObservable<int> CurrentPage { get; }
-        IObservable<GameStateType> PlayState { get; }
+        IObservable<PlayPausedState> PlayState { get; }
         IObservable<PlayerState> CurrentState { get; }
         IObservable<ObservableCollection<StorageItem>> DirectoryContent { get; }
         IObservable<DirectoryNodeViewModel?> DirectoryTree { get; }

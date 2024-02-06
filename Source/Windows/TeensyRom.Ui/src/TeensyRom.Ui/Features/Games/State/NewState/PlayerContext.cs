@@ -30,7 +30,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
         public IObservable<GameItem> RunningGame => _runningGame.AsObservable();
         public IObservable<GameItem> SelectedGame => _selectedGame.AsObservable();
-        public IObservable<GameStateType> PlayState => _playState.AsObservable();
+        public IObservable<PlayPausedState> PlayState => _playState.AsObservable();
         public IObservable<GameItem> GameLaunched => _launchedGame.AsObservable();
 
         private readonly BehaviorSubject<PlayerState> _currentState;
@@ -41,7 +41,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         private readonly BehaviorSubject<ObservableCollection<StorageItem>> _directoryContent = new([]);
         private readonly BehaviorSubject<GameItem> _runningGame = new(null);
         private readonly BehaviorSubject<GameItem> _selectedGame = new(null);
-        private readonly BehaviorSubject<GameStateType> _playState = new(GameStateType.Stopped);
+        private readonly BehaviorSubject<PlayPausedState> _playState = new(PlayPausedState.Stopped);
         private Subject<GameItem> _launchedGame = new();
         private IDisposable _settingsSubscription;
         private TeensySettings _settings;

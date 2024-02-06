@@ -42,7 +42,7 @@ namespace TeensyRom.Ui.Features.Games.GameToolbar
                 .ToPropertyEx(this, vm => vm.ShuffleModeEnabled);
 
             _gameState.PlayState
-                .Select(playState => playState == GameStateType.Playing)
+                .Select(playState => playState == PlayPausedState.Playing)
                 .ToPropertyEx(this, vm => vm.IsPlaying);
 
             _gameState.CurrentState
