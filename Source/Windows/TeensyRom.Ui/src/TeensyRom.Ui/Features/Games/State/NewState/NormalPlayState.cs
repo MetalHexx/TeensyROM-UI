@@ -15,14 +15,14 @@ using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Games.State.NewState
 {
-    public class DirectoryPlayState : PlayerState
+    public class NormalPlayState : PlayerState
     {
-        public DirectoryPlayState(FilePlayer playerContext, IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree) : base(playerContext, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) { }
+        public NormalPlayState(PlayerContext playerContext, IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree) : base(playerContext, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) { }
 
         public override bool CanTransitionTo(Type nextStateType)
         {
-            return nextStateType == typeof(ShufflePlayState)
-                || nextStateType == typeof(SearchPlayState);
+            return nextStateType == typeof(ShuffleState)
+                || nextStateType == typeof(SearchState);
         }
 
         public override void Handle() 

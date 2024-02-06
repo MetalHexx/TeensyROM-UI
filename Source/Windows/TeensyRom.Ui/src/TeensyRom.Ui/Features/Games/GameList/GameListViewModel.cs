@@ -26,12 +26,12 @@ namespace TeensyRom.Ui.Features.Games.GameList
         public ReactiveCommand<GameItem, Unit> DeleteCommand { get; set; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }
 
-        private readonly IFilePlayer _gameState;
+        private readonly IPlayerContext _gameState;
         private readonly IAlertService _alert;
         private readonly IDialogService _dialog;
         private IDisposable _directoryTreeSubscription;
 
-        public GameListViewModel(IFilePlayer gameState, IAlertService alert, IDialogService dialog)
+        public GameListViewModel(IPlayerContext gameState, IAlertService alert, IDialogService dialog)
         {
             _gameState = gameState;
             _alert = alert;

@@ -61,7 +61,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<ILaunchHistory,  LaunchHistory>();
             services.AddSingleton<IMusicState, MusicState>();
             services.AddSingleton<IGameState, GameState>();
-            services.AddSingleton<IFilePlayer, FilePlayer>();
+            services.AddSingleton<IPlayerContext, PlayerContext>();
             services.AddSingleton<IFileState, FileState>();
             services.AddSingleton<IGlobalState, GlobalState>();
             services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();
@@ -69,7 +69,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IGameMetadataService, GameMetadataService>();
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
             services.AddSingleton<ICachedStorageService, CachedStorageService>();
-            services.AddSingleton<IGameDirectoryTreeState, GameDirectoryTreeState>();
+            services.AddSingleton<IGameDirectoryTreeState, GameDirectoryState>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<ConnectViewModel>();
             services.AddSingleton<FilesViewModel>();

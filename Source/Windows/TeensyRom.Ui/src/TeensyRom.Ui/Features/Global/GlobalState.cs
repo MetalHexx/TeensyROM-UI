@@ -20,7 +20,7 @@ namespace TeensyRom.Ui.Features.Global
         IObservable<bool> SerialConnected { get; }
     }
 
-    public class GlobalState(IFileState fileState, IFilePlayer gameState, ISerialStateContext serialContext) : IGlobalState
+    public class GlobalState(IFileState fileState, IPlayerContext gameState, ISerialStateContext serialContext) : IGlobalState
     {
         public IObservable<FileItem> ProgramLaunched => fileState.FileLaunched.Merge(gameState.GameLaunched);
 

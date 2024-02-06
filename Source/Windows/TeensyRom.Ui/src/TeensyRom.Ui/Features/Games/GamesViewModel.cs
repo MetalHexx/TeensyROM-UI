@@ -43,10 +43,10 @@ namespace TeensyRom.Ui.Features.Games
         public ReactiveCommand<Unit, Unit> CacheAllCommand { get; set; }
 
         private TeensySettings _settings;
-        private readonly IFilePlayer _gameState;
+        private readonly IPlayerContext _gameState;
         private readonly IDialogService _dialog;
 
-        public GamesViewModel(IFilePlayer gameState, IGlobalState globalState, IDialogService dialog, ISettingsService settingsService, GameToolbarViewModel toolbar, GameListViewModel gameList, GameInfoViewModel gameInfo)
+        public GamesViewModel(IPlayerContext gameState, IGlobalState globalState, IDialogService dialog, ISettingsService settingsService, GameToolbarViewModel toolbar, GameListViewModel gameList, GameInfoViewModel gameInfo)
         {
             FeatureTitle = "Games";
             _gameState = gameState;
@@ -98,7 +98,7 @@ namespace TeensyRom.Ui.Features.Games
             };
 
             var searchEnabled = gameState.CurrentState
-                .Select(s => s is SearchPlayState);
+                .Select(s => s is SearchState);
 
             Search = new(searchEnabled)
             {

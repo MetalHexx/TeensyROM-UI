@@ -29,9 +29,9 @@ namespace TeensyRom.Ui.Features.Games.GameToolbar
         public ReactiveCommand<Unit, Unit> FavoriteCommand { get; set; }
         public ReactiveCommand<Unit, Unit> NavigateToGameDirCommand { get; set; }
 
-        private readonly IFilePlayer _gameState;
+        private readonly IPlayerContext _gameState;
 
-        public GameToolbarViewModel(IFilePlayer gameState)
+        public GameToolbarViewModel(IPlayerContext gameState)
         {
             _gameState = gameState;
 
@@ -46,7 +46,7 @@ namespace TeensyRom.Ui.Features.Games.GameToolbar
                 .ToPropertyEx(this, vm => vm.IsPlaying);
 
             _gameState.CurrentState
-                .Select(state => state is not SearchPlayState)
+                .Select(state => state is not SearchState)
                 .ToPropertyEx(this, vm => vm.EnableShuffleModeButton);
 
             PlayCommand = ReactiveCommand.CreateFromTask(

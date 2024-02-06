@@ -20,7 +20,7 @@ namespace TeensyRom.Ui.Features.Games.GameInfo
         [ObservableAsProperty]public ImageSource CroppedLoadingScreen { get; }
         [ObservableAsProperty] public ImageSource CroppedScreenshot { get; }
 
-        public GameInfoViewModel(IFilePlayer gameState, IGameMetadataService gameMetadata)
+        public GameInfoViewModel(IPlayerContext gameState, IGameMetadataService gameMetadata)
         {
             gameState.SelectedGame
                 .Where(game => game != null)

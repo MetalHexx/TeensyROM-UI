@@ -20,7 +20,7 @@ using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Games.State.NewState
 {
-    public class FilePlayer : IFilePlayer
+    public class PlayerContext : IPlayerContext
     {
         public IObservable<PlayerState> CurrentState => _currentState.AsObservable();
         public IObservable<int> CurrentPage => _currentPage.AsObservable();
@@ -58,9 +58,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         private readonly Dictionary<Type, PlayerState> _states;
         private readonly List<IDisposable> _stateSubscriptions = new();
 
-        public PlayerState State { get; set; }
-
-        public FilePlayer(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IGameDirectoryTreeState tree)
+        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IGameDirectoryTreeState tree)
         {
             _mediator = mediator;
             _storage = storage;
@@ -71,12 +69,12 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
             _tree = tree;
             _states = new()
             {
-                { typeof(DirectoryPlayState), new DirectoryPlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) },
-                { typeof(ShufflePlayState), new ShufflePlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) },
-                { typeof(SearchPlayState), new SearchPlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) }
+                { typeof(NormalPlayState), new NormalPlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) },
+                { typeof(ShuffleState), new ShuffleState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) },
+                { typeof(SearchState), new SearchState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) }
             };
             SubscribeToStateObservables();
-            _currentState = new(_states[typeof(DirectoryPlayState)]);
+            _currentState = new(_states[typeof(NormalPlayState)]);
 
         }
 
@@ -125,13 +123,13 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         }
         public async Task LoadDirectory(string path, string? filePathToSelect = null)
         {
-            if (_currentState.Value is SearchPlayState) await ClearSearch();
+            if (_currentState.Value is SearchState) await ClearSearch();
 
             await _currentState.Value.LoadDirectory(path, filePathToSelect);            
         }
         public Task RefreshDirectory(bool bustCache = true)
         {
-            var success = TryTransitionTo(typeof(DirectoryPlayState));
+            var success = TryTransitionTo(typeof(NormalPlayState));
 
             if (success)
             {
@@ -147,7 +145,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         public Task StopGame() => _currentState.Value.StopGame();
         public Task<GameItem?> PlayRandom()
         {
-            var success = TryTransitionTo(typeof(ShufflePlayState));
+            var success = TryTransitionTo(typeof(ShuffleState));
 
             if (success)
             {
@@ -157,7 +155,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         }
         public Unit SearchGames(string keyword)
         {
-            var success = TryTransitionTo(typeof(SearchPlayState));
+            var success = TryTransitionTo(typeof(SearchState));
 
             if (success)
             {
@@ -167,7 +165,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         }
         public async Task ClearSearch()
         {
-            if (_currentState.Value is SearchPlayState)
+            if (_currentState.Value is SearchState)
             {
                 await _currentState.Value.ClearSearch();
                 TryTransitionTo(_previousState.GetType());
@@ -175,13 +173,13 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         }
         public Unit ToggleShuffleMode()
         {
-            if(_currentState.Value is ShufflePlayState)
+            if(_currentState.Value is ShuffleState)
             {
                 _currentState.Value.ToggleShuffleMode();
-                TryTransitionTo(typeof(DirectoryPlayState));
+                TryTransitionTo(typeof(NormalPlayState));
                 return Unit.Default;
             }
-            var success = TryTransitionTo(typeof(ShufflePlayState));
+            var success = TryTransitionTo(typeof(ShuffleState));
 
             if (success)
             {

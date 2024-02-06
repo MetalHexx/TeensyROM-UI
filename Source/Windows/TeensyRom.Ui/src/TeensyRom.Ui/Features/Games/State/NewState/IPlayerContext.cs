@@ -6,7 +6,7 @@ using TeensyRom.Ui.Controls.DirectoryTree;
 
 namespace TeensyRom.Ui.Features.Games.State.NewState
 {
-    public interface IFilePlayer
+    public interface IPlayerContext
     {
         IObservable<NextPreviousMode> NextMode { get; }
         IObservable<int> CurrentPage { get; }
@@ -18,9 +18,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         IObservable<bool> PagingEnabled { get; }
         IObservable<GameItem> RunningGame { get; }
         IObservable<GameItem> SelectedGame { get; }
-        PlayerState State { get; set; }
         IObservable<int> TotalPages { get; }
-
         Task CacheAll();
         Task ClearSearch();
         Task DeleteFile(GameItem file);
