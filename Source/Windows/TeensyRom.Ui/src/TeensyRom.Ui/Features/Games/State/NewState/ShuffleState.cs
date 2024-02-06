@@ -103,16 +103,5 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
 
             _directoryState.Value.LoadDirectory(directoryResult);
         }
-
-        public override Unit ToggleShuffleMode()
-        {
-            if(_nextMode.Value == NextPreviousMode.Shuffle)
-            {
-                _nextMode.OnNext(NextPreviousMode.Next);
-                return Unit.Default;
-            }
-            _nextMode.OnNext(NextPreviousMode.Shuffle);
-            return Unit.Default;
-        }
     }
 }

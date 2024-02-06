@@ -37,8 +37,8 @@ namespace TeensyRom.Ui.Features.Games.GameToolbar
 
             _gameState.RunningGame.ToPropertyEx(this, s => s.Game);
 
-            _gameState.NextMode
-                .Select(mode => mode == NextPreviousMode.Shuffle)
+            _gameState.CurrentState
+                .Select(state => state is ShuffleState)
                 .ToPropertyEx(this, vm => vm.ShuffleModeEnabled);
 
             _gameState.PlayState

@@ -8,7 +8,6 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
 {
     public interface IPlayerContext
     {
-        IObservable<NextPreviousMode> NextMode { get; }
         IObservable<int> CurrentPage { get; }
         IObservable<GameStateType> PlayState { get; }
         IObservable<PlayerState> CurrentState { get; }

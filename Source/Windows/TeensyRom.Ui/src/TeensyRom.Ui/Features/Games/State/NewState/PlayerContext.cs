@@ -30,7 +30,6 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
         public IObservable<GameItem> RunningGame => _runningGame.AsObservable();
         public IObservable<GameItem> SelectedGame => _selectedGame.AsObservable();
-        public IObservable<NextPreviousMode> NextMode => _nextMode.AsObservable();
         public IObservable<GameStateType> PlayState => _playState.AsObservable();
         public IObservable<GameItem> GameLaunched => _launchedGame.AsObservable();
 
@@ -42,7 +41,6 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         private readonly BehaviorSubject<ObservableCollection<StorageItem>> _directoryContent = new([]);
         private readonly BehaviorSubject<GameItem> _runningGame = new(null);
         private readonly BehaviorSubject<GameItem> _selectedGame = new(null);
-        private readonly BehaviorSubject<NextPreviousMode> _nextMode = new(NextPreviousMode.Next);
         private readonly BehaviorSubject<GameStateType> _playState = new(GameStateType.Stopped);
         private Subject<GameItem> _launchedGame = new();
         private IDisposable _settingsSubscription;
@@ -92,7 +90,6 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
                     state.Value.LaunchedGame.Where(g => g is not null).Subscribe(_runningGame.OnNext),
                     state.Value.LaunchedGame.Subscribe(_launchedGame.OnNext),
                     state.Value.PlayState.Subscribe(_playState.OnNext),
-                    state.Value.NextMode.Subscribe(_nextMode.OnNext),
                 ]);
             }
 
@@ -175,16 +172,11 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         {
             if(_currentState.Value is ShuffleState)
             {
-                _currentState.Value.ToggleShuffleMode();
                 TryTransitionTo(typeof(NormalPlayState));
                 return Unit.Default;
             }
-            var success = TryTransitionTo(typeof(ShuffleState));
+            TryTransitionTo(typeof(ShuffleState));
 
-            if (success)
-            {
-                return _currentState.Value.ToggleShuffleMode();
-            }
             return Unit.Default;
         }
         public Task CacheAll() => _currentState.Value.CacheAll();

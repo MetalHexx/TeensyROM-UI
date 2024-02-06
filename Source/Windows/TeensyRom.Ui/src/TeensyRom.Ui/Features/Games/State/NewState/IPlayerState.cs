@@ -31,6 +31,5 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         Unit SearchGames(string searchText);
         Unit SetPageSize(int pageSize);
         Unit SetSelectedGame(GameItem game);
-        Unit ToggleShuffleMode();
     }
 }

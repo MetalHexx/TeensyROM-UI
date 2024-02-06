@@ -34,13 +34,11 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         public IObservable<GameItem> LaunchedGame => _runningGame.AsObservable();
         public IObservable<GameItem> SelectedGame => _selectedGame.AsObservable(); 
         public IObservable<GameStateType> PlayState => _gameState.AsObservable();
-        public IObservable<NextPreviousMode> NextMode => _nextMode.AsObservable();
 
         protected BehaviorSubject<PlayerDirectoryState> _directoryState;
         protected BehaviorSubject<GameItem> _runningGame = new(null!);
         protected BehaviorSubject<GameItem> _selectedGame = new(null!);
         protected BehaviorSubject<GameStateType> _gameState = new(GameStateType.Stopped);
-        protected BehaviorSubject<NextPreviousMode> _nextMode = new(State.NextPreviousMode.Next);
         protected readonly ICachedStorageService _storage;
         protected readonly ISettingsService _settingsService;
         protected readonly ILaunchHistory _launchHistory;
@@ -161,8 +159,6 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
             _selectedGame.OnNext(game);
             return Unit.Default;
         }
-
-        public virtual Unit ToggleShuffleMode() => throw new TeensyStateException(InvalidStateExceptionMessage);
 
         public virtual Unit NextPage()
         {
