@@ -129,12 +129,6 @@ namespace TeensyRom.Ui.Features.Games.State
 
         public virtual Task RefreshDirectory(bool bustCache = true) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
-        public virtual void ResetDirectoryTree(string rootPath)
-        {
-            _tree.ResetDirectoryTree(rootPath);
-            _directoryState.OnNext(_directoryState.Value);
-        }
-
         public virtual async Task SaveFavorite(GameItem game)
         {
             var favGame = await _storage.SaveFavorite(game);

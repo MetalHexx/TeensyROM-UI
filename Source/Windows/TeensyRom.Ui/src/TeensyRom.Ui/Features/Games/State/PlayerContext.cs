@@ -101,7 +101,7 @@ namespace TeensyRom.Ui.Features.Games.State
                 .Select(state => (path: state.settings.GetLibraryPath(TeensyLibraryType.Programs), state.settings.TargetType))
                 .DistinctUntilChanged()
                 .Select(storage => storage.path)
-                .Do(state => _currentState.Value.ResetDirectoryTree(_settings!.GetLibraryPath(TeensyLibraryType.Programs)))
+                .Do(state => _tree.ResetDirectoryTree(_settings!.GetLibraryPath(TeensyLibraryType.Programs)))
                 .Subscribe(async path => await _currentState.Value.LoadDirectory(path));
         }
 
@@ -120,9 +120,10 @@ namespace TeensyRom.Ui.Features.Games.State
         }
         public async Task LoadDirectory(string path, string? filePathToSelect = null)
         {
-            if (_currentState.Value is SearchState) await ClearSearch();
+            await _states[typeof(NormalPlayState)].LoadDirectory(path, filePathToSelect);
+            await _states[typeof(ShuffleState)].LoadDirectory(path, filePathToSelect);
 
-            await _currentState.Value.LoadDirectory(path, filePathToSelect);
+            if (_currentState.Value is SearchState) await ClearSearch();
         }
         public Task RefreshDirectory(bool bustCache = true)
         {
