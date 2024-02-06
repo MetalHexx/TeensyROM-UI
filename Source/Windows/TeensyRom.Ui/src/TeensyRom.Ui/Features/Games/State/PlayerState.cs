@@ -26,13 +26,13 @@ using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 
-namespace TeensyRom.Ui.Features.Games.State.NewState
+namespace TeensyRom.Ui.Features.Games.State
 {
     public abstract class PlayerState : IPlayerState
     {
         public IObservable<PlayerDirectoryState> DirectoryState => _directoryState.AsObservable();
         public IObservable<GameItem> LaunchedGame => _runningGame.AsObservable();
-        public IObservable<GameItem> SelectedGame => _selectedGame.AsObservable(); 
+        public IObservable<GameItem> SelectedGame => _selectedGame.AsObservable();
         public IObservable<PlayPausedState> PlayState => _gameState.AsObservable();
 
         protected BehaviorSubject<PlayerDirectoryState> _directoryState;
@@ -106,11 +106,11 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
                 }
             });
             _runningGame.OnNext(game);
-            _gameState.OnNext(PlayPausedState.Playing);            
+            _gameState.OnNext(PlayPausedState.Playing);
         }
 
-        public virtual Task StopGame() 
-        {   
+        public virtual Task StopGame()
+        {
             _gameState.OnNext(PlayPausedState.Stopped);
             return _mediator.Send(new ResetCommand());
         }

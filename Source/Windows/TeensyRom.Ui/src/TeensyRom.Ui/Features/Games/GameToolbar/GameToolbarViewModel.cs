@@ -10,7 +10,6 @@ using System.Reactive.Linq;
 using TeensyRom.Core.Common;
 using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Files.State;
-using TeensyRom.Ui.Features.Games.State.NewState;
 
 namespace TeensyRom.Ui.Features.Games.GameToolbar
 {

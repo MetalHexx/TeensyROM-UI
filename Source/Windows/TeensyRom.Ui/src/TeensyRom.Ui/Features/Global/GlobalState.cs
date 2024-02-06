@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Files.State;
-using TeensyRom.Ui.Features.Games.State.NewState;
+using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Music.State;
 
 namespace TeensyRom.Ui.Features.Global

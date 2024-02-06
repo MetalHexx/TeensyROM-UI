@@ -10,8 +10,8 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Services;
 using System.CodeDom.Compiler;
-using TeensyRom.Ui.Features.Games.State.NewState;
 using TeensyRom.Ui.Controls.Paging;
+using TeensyRom.Ui.Features.Games.State;
 
 namespace TeensyRom.Ui.Features.Games.GameList
 {

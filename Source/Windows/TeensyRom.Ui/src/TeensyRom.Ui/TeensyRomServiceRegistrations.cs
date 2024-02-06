@@ -38,7 +38,6 @@ using TeensyRom.Ui.Features.Games.Search;
 using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Games.GameInfo;
 using TeensyRom.Core.Games;
-using TeensyRom.Ui.Features.Games.State.NewState;
 using TeensyRom.Ui.Controls.DirectoryTree;
 
 namespace TeensyRom.Ui

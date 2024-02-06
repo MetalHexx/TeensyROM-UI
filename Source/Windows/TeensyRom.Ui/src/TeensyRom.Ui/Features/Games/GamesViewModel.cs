@@ -17,7 +17,7 @@ using TeensyRom.Ui.Features.Games.GameInfo;
 using TeensyRom.Ui.Features.Games.GameList;
 using TeensyRom.Ui.Features.Games.GameToolbar;
 using TeensyRom.Ui.Features.Games.Search;
-using TeensyRom.Ui.Features.Games.State.NewState;
+using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Helpers.ViewModel;

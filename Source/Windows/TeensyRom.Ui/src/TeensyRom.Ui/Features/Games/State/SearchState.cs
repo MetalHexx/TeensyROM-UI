@@ -16,7 +16,7 @@ using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 
-namespace TeensyRom.Ui.Features.Games.State.NewState
+namespace TeensyRom.Ui.Features.Games.State
 {
     public class SearchState : PlayerState
     {
@@ -95,7 +95,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
 
             var firstGame = searchResult.FirstOrDefault();
 
-            if(firstGame is GameItem game)
+            if (firstGame is GameItem game)
             {
                 _selectedGame.OnNext(game);
             }

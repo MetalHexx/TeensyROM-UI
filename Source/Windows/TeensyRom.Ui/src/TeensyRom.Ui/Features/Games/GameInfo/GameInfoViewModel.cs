@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Windows;
 using TeensyRom.Core.Games;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Ui.Features.Games.State.NewState;
+using TeensyRom.Ui.Features.Games.State;
 
 namespace TeensyRom.Ui.Features.Games.GameInfo
 {

@@ -18,7 +18,7 @@ using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 
-namespace TeensyRom.Ui.Features.Games.State.NewState
+namespace TeensyRom.Ui.Features.Games.State
 {
     public class PlayerContext : IPlayerContext
     {
@@ -122,7 +122,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         {
             if (_currentState.Value is SearchState) await ClearSearch();
 
-            await _currentState.Value.LoadDirectory(path, filePathToSelect);            
+            await _currentState.Value.LoadDirectory(path, filePathToSelect);
         }
         public Task RefreshDirectory(bool bustCache = true)
         {
@@ -170,7 +170,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
         }
         public Unit ToggleShuffleMode()
         {
-            if(_currentState.Value is ShuffleState)
+            if (_currentState.Value is ShuffleState)
             {
                 TryTransitionTo(typeof(NormalPlayState));
                 return Unit.Default;

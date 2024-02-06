@@ -13,7 +13,7 @@ using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 
-namespace TeensyRom.Ui.Features.Games.State.NewState
+namespace TeensyRom.Ui.Features.Games.State
 {
     public class ShuffleState : PlayerState
     {
@@ -25,7 +25,7 @@ namespace TeensyRom.Ui.Features.Games.State.NewState
                 || nextStateType == typeof(SearchState);
         }
 
-        public override void Handle() 
+        public override void Handle()
         {
             _directoryState.OnNext(_directoryState.Value);
 

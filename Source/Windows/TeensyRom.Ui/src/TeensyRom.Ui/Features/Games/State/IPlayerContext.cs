@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
 
-namespace TeensyRom.Ui.Features.Games.State.NewState
+namespace TeensyRom.Ui.Features.Games.State
 {
     public interface IPlayerContext
     {
