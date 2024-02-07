@@ -13,9 +13,8 @@ namespace TeensyRom.Ui.Features.Games.State
         IObservable<PlayerState> CurrentState { get; }
         IObservable<ObservableCollection<StorageItem>> DirectoryContent { get; }
         IObservable<DirectoryNodeViewModel?> DirectoryTree { get; }
-        IObservable<GameItem> GameLaunched { get; }
         IObservable<bool> PagingEnabled { get; }
-        IObservable<GameItem> RunningGame { get; }
+        IObservable<GameItem> LaunchedGame { get; }
         IObservable<GameItem> SelectedGame { get; }
         IObservable<int> TotalPages { get; }
         Task CacheAll();

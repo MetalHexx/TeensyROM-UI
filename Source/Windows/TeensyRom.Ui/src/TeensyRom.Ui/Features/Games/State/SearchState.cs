@@ -28,80 +28,40 @@ namespace TeensyRom.Ui.Features.Games.State
                 || nextStateType == typeof(ShuffleState);
         }
 
-        public override void Handle() => _directoryState.OnNext(_directoryState.Value);
-
-        public override async Task LoadDirectory(string path, string? filePathToSelect = null) => throw new TeensyStateException(InvalidStateExceptionMessage);
-
-        public override Task ClearSearch()
+        public override async Task<GameItem?> GetNext(GameItem currentGame, DirectoryState directoryState)
         {
-            _directoryState.Value.ClearSelection();
-            _directoryState.OnNext(_directoryState.Value);
-            return Task.CompletedTask;
-        }
+            await Task.CompletedTask;
 
-        public override async Task PlayNext()
-        {
-            var currentItem = _directoryState.Value.DirectoryContent
-                .FirstOrDefault(i => i.Path.Equals(_runningGame.Value.Path));
+            var currentIndex = directoryState.DirectoryContent.IndexOf(currentGame);
 
-            if (currentItem is null) return;
+            var nextGame = directoryState.DirectoryContent.Count == currentIndex + 1
+                ? directoryState.DirectoryContent.First()
+                : directoryState.DirectoryContent[++currentIndex];
 
-            var currentIndex = _directoryState.Value.DirectoryContent.IndexOf(currentItem);
-
-            var nextGame = _directoryState.Value.DirectoryContent.Count == currentIndex + 1
-                ? _directoryState.Value.DirectoryContent.First()
-                : _directoryState.Value.DirectoryContent[++currentIndex];
-
-            if (nextGame.Path == currentItem.Path) return;
+            if (nextGame.Path == currentGame.Path) return null;
 
             if (nextGame is GameItem game)
             {
-                await PlayGame(game);
-                return;
+                return game;                
             }
-            await PlayGame(_runningGame.Value);
+            return currentGame;
         }
 
-        public override async Task PlayPrevious()
+        public override async Task<GameItem?> GetPrevious(GameItem currentGame, DirectoryState directoryState)
         {
-            var currentItem = _directoryState.Value.DirectoryContent
-                .FirstOrDefault(i => i.Path.Equals(_runningGame.Value.Path));
+            await Task.CompletedTask;
 
-            var currentIndex = _directoryState.Value.DirectoryContent.IndexOf(currentItem);
+            var currentIndex = directoryState.DirectoryContent.IndexOf(currentGame);
 
-            var file = _directoryState.Value.DirectoryContent.Count == 0
-                ? _directoryState.Value.DirectoryContent.Last()
-                : _directoryState.Value.DirectoryContent[--currentIndex];
+            var file = directoryState.DirectoryContent.Count == 0
+                ? directoryState.DirectoryContent.Last()
+                : directoryState.DirectoryContent[--currentIndex];
 
             if (file is GameItem game)
             {
-                await PlayGame(game);
-                return;
+                return game;                
             }
-            await PlayGame(_runningGame.Value);
-        }
-
-        public override Unit SearchGames(string searchText)
-        {
-            var searchResult = _storage.SearchPrograms(searchText)
-                .Cast<StorageItem>()
-                .Take(100)
-                .ToList();
-
-            if (searchResult is null) return Unit.Default;
-
-            _directoryState.Value.LoadDirectory(searchResult, "Search Results:");
-
-            var firstGame = searchResult.FirstOrDefault();
-
-            if (firstGame is GameItem game)
-            {
-                _selectedGame.OnNext(game);
-            }
-
-            _directoryState.OnNext(_directoryState.Value);
-
-            return Unit.Default;
+            return currentGame;
         }
     }
 }

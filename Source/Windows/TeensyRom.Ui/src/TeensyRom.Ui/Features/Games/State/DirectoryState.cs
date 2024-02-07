@@ -14,8 +14,7 @@ using TeensyRom.Ui.Controls.DirectoryTree;
 namespace TeensyRom.Ui.Features.Games.State
 {
     public class DirectoryState
-    {
-        public string? CurrentPath { get; private set; } = string.Empty;
+    {        
         public ObservableCollection<StorageItem> DirectoryContent { get; private set; } = new();
         public int CurrentPage { get; private set; } = 1;
         public int TotalPages { get; private set; } = 1;
@@ -24,15 +23,16 @@ namespace TeensyRom.Ui.Features.Games.State
         private int _skip => (CurrentPage - 1) * PageSize;
         private List<StorageItem> _fullDirectory = [];
 
+
+        public void LoadNewDirectory(List<StorageItem> fullDirectory, string? path = null, string? filePathToSelect = null)
+        {
+            CurrentPage = 1;
+            LoadDirectory(fullDirectory, path, filePathToSelect);
+        }
+
         public void LoadDirectory(List<StorageItem> fullDirectory, string? path = null, string? filePathToSelect = null)
         {
             _fullDirectory = fullDirectory;
-
-            if (CurrentPath != path || path is null)
-            {
-                CurrentPath = path;
-                CurrentPage = 1;
-            }
 
             var directoryItems = new ObservableCollection<StorageItem>();
 
@@ -66,6 +66,20 @@ namespace TeensyRom.Ui.Features.Games.State
         public void ClearSelection()
         {
             DirectoryContent.ToList().ForEach(i => i.IsSelected = false);
+        }
+
+        public GameItem? SelectFirst()
+        {
+            var firstItem = DirectoryContent
+                .Where(item => item is GameItem)
+                .Cast<GameItem>()
+                .FirstOrDefault();
+
+            if (firstItem is not null)
+            {
+                firstItem.IsSelected = true;
+            }
+            return firstItem;
         }
 
         public void GoToNextPage()

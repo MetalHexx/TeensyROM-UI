@@ -93,11 +93,7 @@ namespace TeensyRom.Ui.Features.Music.State
             _programLaunchedSubscription = globalState.ProgramLaunched
                 .WithLatestFrom(_playState, (file, playState) => playState)
                 .Where(playState => playState == PlayState.Playing)
-                .Subscribe(async _ => 
-                {
-                    await _mediator.Send(new ToggleMusicCommand());
-                    TogglePlayState();
-                });
+                .Subscribe(_ => TogglePlayState());
         }        
 
         private void OnSettingsChanged(TeensySettings settings)

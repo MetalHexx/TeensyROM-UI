@@ -25,43 +25,34 @@ namespace TeensyRom.Ui.Features.Games.State
                 || nextStateType == typeof(SearchState);
         }
 
-        public override void Handle()
-        {
-            _directoryState.OnNext(_directoryState.Value);
-
-            if (_selectedGame.Value is not null) SetSelectedGame(_selectedGame.Value);
-        }
-
-        public override async Task PlayNext()
+        public override async Task<GameItem?> GetNext(GameItem currentGame, DirectoryState directoryState)
         {
             var game = _launchHistory.GetNext(TeensyFileType.Crt, TeensyFileType.Prg) as GameItem;
 
             if (game is not null)
             {
-                await LoadDirectory(game.Path.GetUnixParentPath());
-                await PlayGame(game);
+                await _playerContext.LoadDirectory(game.Path.GetUnixParentPath());
+                await _playerContext.PlayGame(game);
                 _selectedGame.OnNext(game!);
-
-                return;
+                return game;
             }
             var randomGame = await PlayRandom();
             _selectedGame.OnNext(randomGame!);
+            return randomGame;
         }
 
-        public override async Task PlayPrevious()
+        public override async Task<GameItem?> GetPrevious(GameItem currentGame, DirectoryState directoryState)
         {
             var game = _launchHistory.GetPrevious(TeensyFileType.Prg, TeensyFileType.Crt) as GameItem;
 
             if (game is not null)
             {
-                await LoadDirectory(game.Path.GetUnixParentPath());
-                await PlayGame(game);
+                await _playerContext.LoadDirectory(game.Path.GetUnixParentPath());
                 _selectedGame.OnNext(game!);
-                return;
+                return game;
             }
-            await PlayGame(_runningGame.Value);
-            _selectedGame.OnNext(_runningGame.Value);
-            return;
+            _selectedGame.OnNext(currentGame);
+            return currentGame;
         }
 
         public override async Task<GameItem?> PlayRandom()
@@ -70,8 +61,8 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (game is not null)
             {
-                await LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
-                await PlayGame(game);
+                await _playerContext.LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
+                await _playerContext.PlayGame(game);
 
                 _launchHistory.Add(game!);
 
@@ -79,29 +70,6 @@ namespace TeensyRom.Ui.Features.Games.State
             }
             _alert.Enqueue("Random search requires visiting at least one directory with programs in it first.  Try the cache button next to the dice for best results.");
             return null;
-        }
-
-        public override Task RefreshDirectory(bool bustCache = true)
-        {
-            if (string.IsNullOrWhiteSpace(_directoryState.Value.CurrentPath)) return Task.CompletedTask;
-
-            if (bustCache) _storage.ClearCache(_directoryState.Value.CurrentPath);
-
-            return LoadDirectory(_directoryState.Value.CurrentPath);
-        }
-
-        public override async Task SaveFavorite(GameItem game)
-        {
-            var favGame = await _storage.SaveFavorite(game);
-            var gameParentDir = favGame?.Path.GetUnixParentPath();
-
-            if (gameParentDir is null) return;
-
-            var directoryResult = await _storage.GetDirectory(gameParentDir);
-
-            if (directoryResult is null) return;
-
-            _directoryState.Value.LoadDirectory(directoryResult.ToList(), directoryResult.Path);
         }
     }
 }

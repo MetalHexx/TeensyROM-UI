@@ -25,21 +25,14 @@ namespace TeensyRom.Ui.Features.Games.State
                 || nextStateType == typeof(SearchState);
         }
 
-        public override void Handle()
+        public override async Task<GameItem?> GetNext(GameItem currentGame, DirectoryState directoryState)
         {
-            _directoryState.OnNext(_directoryState.Value);
-
-            if (_selectedGame.Value is not null) SetSelectedGame(_selectedGame.Value);
-        }
-
-        public override async Task PlayNext()
-        {
-            var parentPath = _runningGame.Value.Path.GetUnixParentPath();
+            var parentPath = currentGame.Path.GetUnixParentPath();
             var directoryResult = await _storage.GetDirectory(parentPath);
 
-            if (directoryResult is null) return;
+            if (directoryResult is null) return null;
 
-            var currentIndex = directoryResult.Files.IndexOf(_runningGame.Value);
+            var currentIndex = directoryResult.Files.IndexOf(currentGame);
 
             var nextFile = directoryResult.Files.Count == currentIndex + 1
                 ? directoryResult.Files.First()
@@ -47,43 +40,32 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (nextFile is GameItem game)
             {
-                if (game.Path == _runningGame.Value.Path) return;
+                if (game.Path == currentGame.Path) return null;
 
                 _selectedGame.OnNext(game);
-                await PlayGame(game);
-                return;
+                return game;
             }
-            await PlayGame(_runningGame.Value);
+            return null;
         }
 
-        public override async Task PlayPrevious()
+        public override async Task<GameItem?> GetPrevious(GameItem currentGame, DirectoryState directoryState)
         {
-            var parentPath = _runningGame.Value.Path.GetUnixParentPath();
+            var parentPath = currentGame.Path.GetUnixParentPath();
             var directoryResult = await _storage.GetDirectory(parentPath);
 
             if (directoryResult is null)
             {
-                await PlayGame(_runningGame.Value);
-                _selectedGame.OnNext(_runningGame.Value);
-                return;
+                _selectedGame.OnNext(currentGame);
+                return currentGame;                
             }
-            var gameIndex = directoryResult.Files.IndexOf(_runningGame.Value);
+            var gameIndex = directoryResult.Files.IndexOf(currentGame);
 
             var game = gameIndex == 0
                 ? directoryResult.Files.Last() as GameItem
                 : directoryResult.Files[--gameIndex] as GameItem;
-
-            await PlayGame(game!);
+            
             _selectedGame.OnNext(game!);
-        }
-
-        public override Task RefreshDirectory(bool bustCache = true)
-        {
-            if (string.IsNullOrWhiteSpace(_directoryState.Value.CurrentPath)) return Task.CompletedTask;
-
-            if (bustCache) _storage.ClearCache(_directoryState.Value.CurrentPath);
-
-            return LoadDirectory(_directoryState.Value.CurrentPath);
+            return game!;            
         }
     }
 }

@@ -56,7 +56,7 @@ namespace TeensyRom.Ui.Features.Games
             GameInfo = gameInfo;
             settingsService.Settings.Subscribe(s => _settings = s);
 
-            gameState.RunningGame
+            gameState.LaunchedGame
                 .Select(g => g is not null)
                 .ToPropertyEx(this, x => x.ShowToolbar);
 
