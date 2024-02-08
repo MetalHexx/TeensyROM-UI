@@ -14,9 +14,11 @@
     <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
-    <PackageReference Include="ReactiveUI" Version="19.5.1" />
-    <PackageReference Include="ReactiveUI.Fody" Version="19.5.1" />
-    <PackageReference Include="ReactiveUI.WPF" Version="19.5.1" />
+    <PackageReference Include="ReactiveUI" Version="19.5.41" />
+    <PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />
+	  <PackageReference Include="ReactiveUI.WPF" Version="19.5.41">
+		  <NoWarn>NU1701</NoWarn>
+	  </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
