@@ -17,8 +17,8 @@ jobs:
     runs-on: windows-latest  
 
     env:
-      Solution_Name: TeensyRom.Ui
-      Project_Name: TeensyRom.Ui    
+      Solution_Name: Source/Windows/TeensyRom.Ui/TeensyRom.Ui.sln
+      Project_Name: Source/Windows/TeensyRom.Ui/src/TeensyRom.Ui/TeensyRom.Ui.csproj  
 
     steps:
     - name: Checkout
