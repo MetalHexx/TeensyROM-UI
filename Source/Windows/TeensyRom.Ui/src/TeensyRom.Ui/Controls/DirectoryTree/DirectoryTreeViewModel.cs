@@ -14,7 +14,7 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
 
         public ReactiveCommand<DirectoryNodeViewModel, Unit>? DirectorySelectedCommand { get; init; }
 
-        public DirectoryTreeViewModel(IObservable<DirectoryNodeViewModel> directoryTreeObservable)
+        public DirectoryTreeViewModel(IObservable<DirectoryNodeViewModel?> directoryTreeObservable)
         {
             directoryTreeObservable.ToPropertyEx(this, x => x.RootDirectory);
         }

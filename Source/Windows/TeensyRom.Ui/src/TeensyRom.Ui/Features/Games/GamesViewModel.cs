@@ -42,7 +42,7 @@ namespace TeensyRom.Ui.Features.Games
         public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
         public ReactiveCommand<Unit, Unit> CacheAllCommand { get; set; }
 
-        private TeensySettings _settings;
+        private TeensySettings _settings = null!;
         private readonly IPlayerContext _gameState;
         private readonly IDialogService _dialog;
 

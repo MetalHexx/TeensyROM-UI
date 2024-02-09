@@ -22,17 +22,17 @@ namespace TeensyRom.Tests.Integration
     public class TeensyFixture: IDisposable
     {
         private readonly IServiceProvider _serviceProvider;
-        public IMediator Mediator;
+        public IMediator Mediator = null!;
 
         public const string IntegrationTestPath = "/integration-tests";
         public TeensySettings Settings { get; set; } = new TeensySettings();
-        public ISettingsService SettingsService { get; private set; }
-        public ILoggingService LogService { get; private set; }
-        public IObservableSerialPort SerialPort { get; private set; }
-        public IFileWatcher FileWatcher { get; private set; }
-        public IFileWatchService FileWatchService { get; private set; }        
-        public SettingsViewModel SettingsViewModel { get; private set; }
-        public ConnectViewModel ConnectViewModel { get; private set; }
+        public ISettingsService SettingsService { get; private set; } = null!;
+        public ILoggingService LogService { get; private set; } = null!;
+        public IObservableSerialPort SerialPort { get; private set; } = null!;
+        public IFileWatcher FileWatcher { get; private set; } = null!;
+        public IFileWatchService FileWatchService { get; private set; } = null!;
+        public SettingsViewModel SettingsViewModel { get; private set; } = null!;
+        public ConnectViewModel ConnectViewModel { get; private set; } = null!;
         public readonly string SettingsFileName = "Settings.json";
         public readonly string TestFileName = $"{Guid.NewGuid().ToString().Substring(0, 7)}-test";
         public string FullSourceTestPath => @$"{Settings.WatchDirectoryLocation}\{TestFileName}";

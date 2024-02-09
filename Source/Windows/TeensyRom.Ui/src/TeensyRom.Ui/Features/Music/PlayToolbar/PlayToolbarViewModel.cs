@@ -15,9 +15,9 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
 
     public class PlayToolbarViewModel: ReactiveObject
     {
-        [ObservableAsProperty] public SongItem Song { get; }
-        [ObservableAsProperty] public string TotalTime { get; }
-        [ObservableAsProperty] public string CurrentTime { get; }
+        [ObservableAsProperty] public SongItem? Song { get; }
+        [ObservableAsProperty] public string TotalTime { get; } = string.Empty;
+        [ObservableAsProperty] public string CurrentTime { get; } = string.Empty;
         [ObservableAsProperty] public double CurrentProgress { get; }
         [ObservableAsProperty] public bool ShuffleModeEnabled { get; }
         [ObservableAsProperty] public bool IsPlaying { get; }        

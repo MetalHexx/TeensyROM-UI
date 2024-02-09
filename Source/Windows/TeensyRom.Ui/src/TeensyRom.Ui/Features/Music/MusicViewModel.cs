@@ -40,7 +40,7 @@ namespace TeensyRom.Ui.Features.Music
         public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
         public ReactiveCommand<Unit, Unit> CacheAllCommand { get; set; }
 
-        private TeensySettings _settings;
+        private TeensySettings _settings = null!;
         private readonly IMusicState _musicState;
         private readonly IDialogService _dialog;
 

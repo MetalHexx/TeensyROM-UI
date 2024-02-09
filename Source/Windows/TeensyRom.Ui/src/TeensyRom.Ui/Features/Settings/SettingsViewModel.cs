@@ -22,7 +22,7 @@ namespace TeensyRom.Ui.Features.Settings
     {
         [Reactive] public string Logs { get; set; } = string.Empty;
         [ObservableAsProperty] public bool IsDirty { get; }
-        [ObservableAsProperty] public TeensySettings Settings { get; set; }
+        [ObservableAsProperty] public TeensySettings? Settings { get; }
         public Interaction<string, bool> ConfirmSave { get; } = new Interaction<string, bool>();
 
         public ReactiveCommand<Unit, Unit> SaveSettingsCommand { get; set; }
@@ -66,7 +66,7 @@ namespace TeensyRom.Ui.Features.Settings
 
             if (!confirmed) return Unit.Default;
 
-            var success = _settingsService.SaveSettings(Settings);
+            var success = _settingsService.SaveSettings(Settings!);
             if (success)
             {
                 _alert.Publish("Settings saved successfully.");

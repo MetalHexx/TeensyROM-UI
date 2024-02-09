@@ -14,8 +14,8 @@ namespace TeensyRom.Ui.Features.Games.Search
     {
         [Reactive] public string SearchText { get; set; } = string.Empty;
         [ObservableAsProperty] public bool ShowClearSearch { get; }
-        public ReactiveCommand<Unit, Unit> ClearSearchCommand { get; set; }
-        public ReactiveCommand<string, Unit> SearchCommand { get; set; }
+        public ReactiveCommand<Unit, Unit>? ClearSearchCommand { get; set; }
+        public ReactiveCommand<string, Unit>? SearchCommand { get; set; }
         private IDisposable? _searchSubscription;
 
         public SearchGamesViewModel(IObservable<bool> searchEnabled)

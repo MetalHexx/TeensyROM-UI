@@ -15,7 +15,7 @@ namespace TeensyRom.Ui.Features.Games.GameToolbar
 {
     public class GameToolbarViewModel : ReactiveObject
     {
-        [ObservableAsProperty] public  GameItem Game { get; }
+        [ObservableAsProperty] public  GameItem? Game { get; }
         [ObservableAsProperty] public bool ShuffleModeEnabled { get; }
         [ObservableAsProperty] public bool EnableShuffleModeButton { get; }
         [ObservableAsProperty] public bool IsPlaying { get; }

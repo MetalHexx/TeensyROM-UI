@@ -11,8 +11,8 @@ namespace TeensyRom.Ui.Helpers
             if (value == null || parameter == null)
                 return false;
 
-            string enumValueString = value.ToString();
-            string targetValueString = parameter.ToString();
+            string enumValueString = value?.ToString() ?? string.Empty;
+            string targetValueString = parameter?.ToString() ?? string.Empty;
             return enumValueString.Equals(targetValueString, StringComparison.OrdinalIgnoreCase);
         }
 
@@ -22,7 +22,7 @@ namespace TeensyRom.Ui.Helpers
                 return null;
 
             bool useValue = (bool)value;
-            string targetValueString = parameter.ToString();
+            string targetValueString = parameter?.ToString() ?? string.Empty;
             return useValue ? Enum.Parse(targetType, targetValueString) : Binding.DoNothing;
         }
     }

@@ -37,19 +37,17 @@ namespace TeensyRom.Ui.Features.Games.State
         protected readonly ISettingsService _settingsService;
         protected readonly ILaunchHistory _launchHistory;
         protected readonly ISnackbarService _alert;
-        private readonly IDirectoryTreeState _tree;
         protected readonly PlayerContext _playerContext;
         protected readonly IMediator _mediator;
-        protected IDisposable _settingsSubscription;
-        protected TeensySettings _settings;
+        protected IDisposable? _settingsSubscription;
+        protected TeensySettings _settings = null!;
 
-        public PlayerState(PlayerContext playerContext, IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree)
+        public PlayerState(PlayerContext playerContext, IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert)
         {
             _storage = storage;
             _settingsService = settingsService;
             _launchHistory = launchHistory;
             _alert = alert;
-            _tree = tree;
             _playerContext = playerContext;
             _mediator = mediator;
             _playerContext = playerContext;
