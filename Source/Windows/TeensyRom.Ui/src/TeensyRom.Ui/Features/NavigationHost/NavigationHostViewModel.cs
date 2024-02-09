@@ -21,16 +21,16 @@ namespace TeensyRom.Ui.Features.NavigationHost
 {
     public class NavigationHostViewModel : ReactiveObject
     {
-        [ObservableAsProperty] public object CurrentViewModel { get; }
-        [ObservableAsProperty] public object NavigationItems { get; }        
+        [ObservableAsProperty] public object? CurrentViewModel { get; }
+        [ObservableAsProperty] public object? NavigationItems { get; }        
         [ObservableAsProperty] public bool SerialBusy { get; set; }
         [Reactive] public string Title { get; set; } = "TeensyROM";
         [Reactive] public bool IsNavOpen { get; set; }
         [Reactive] public bool ControlsEnabled { get; set; } //TODO: Track down why I need this property.  I had to put this here to stop a bunch of errors from throwing in the output window.
         public SnackbarMessageQueue MessageQueue { get; private set; }
-        public ReactiveCommand<NavigationItem, Unit> NavigateCommand { get; private set; }
-        public ReactiveCommand<Unit, Unit> OpenNavCommand { get; private set; }
-        public ReactiveCommand<Unit, Unit> CloseNavCommand { get; private set; }
+        public ReactiveCommand<NavigationItem, Unit>? NavigateCommand { get; private set; }
+        public ReactiveCommand<Unit, Unit>? OpenNavCommand { get; private set; }
+        public ReactiveCommand<Unit, Unit>? CloseNavCommand { get; private set; }
 
         private readonly INavigationService _navService;
         private readonly ISerialStateContext _serialContext;
@@ -51,43 +51,37 @@ namespace TeensyRom.Ui.Features.NavigationHost
         {
             _navService.Initialize(NavigationLocation.Connect, new List<NavigationItem>
             {
-                new NavigationItem
-                {
+                new() {
                     Name = "Connect",
                     Type = NavigationLocation.Connect,
                     ViewModel = connect,
                     Icon = "LanConnect"
                 },
-                new NavigationItem
-                {
+                new() {
                     Name = "File Explorer",
                     Type = NavigationLocation.Files,
                     ViewModel = files,
                     Icon = "FileArrowLeftRightOutline"
                 },
-                new NavigationItem
-                {
+                new() {
                     Name = "Music Player",
                     Type = NavigationLocation.Music,
                     ViewModel = midi,
                     Icon = "MusicClefTreble"
                 },
-                new NavigationItem
-                {
+                new() {
                     Name = "Games",
                     Type = NavigationLocation.Games,
                     ViewModel = games,
                     Icon = "Ghost"
                 },
-                new NavigationItem
-                {
+                new() {
                     Name = "Settings",
                     Type = NavigationLocation.Settings,
                     ViewModel = settings,
                     Icon = "Gear"
                 },
-                new NavigationItem
-                {
+                new() {
                     Name = "Help",
                     Type = NavigationLocation.Help,
                     ViewModel = help,
