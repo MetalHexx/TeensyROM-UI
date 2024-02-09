@@ -15,9 +15,9 @@ using TeensyRom.Ui.Features.Games.State;
 
 namespace TeensyRom.Ui.Features.Games.GameList
 {
-    public class GameListViewModel : ReactiveObject, IDisposable
+    public class GameListViewModel : ReactiveObject
     {
-        [ObservableAsProperty] public ObservableCollection<StorageItem> DirectoryContent { get; }
+        [ObservableAsProperty] public ObservableCollection<StorageItem>? DirectoryContent { get; }
         [ObservableAsProperty] public bool ShowPaging { get; }
         [Reactive] public PagingViewModel Paging { get; set; }
         public ReactiveCommand<GameItem, Unit> PlayCommand { get; set; }
@@ -29,7 +29,6 @@ namespace TeensyRom.Ui.Features.Games.GameList
         private readonly IPlayerContext _gameState;
         private readonly IAlertService _alert;
         private readonly IDialogService _dialog;
-        private IDisposable _directoryTreeSubscription;
 
         public GameListViewModel(IPlayerContext gameState, IAlertService alert, IDialogService dialog)
         {
@@ -79,10 +78,6 @@ namespace TeensyRom.Ui.Features.Games.GameList
             _alert.Publish($"{fileItem.Path} has been deleted.");
 
             return Unit.Default;
-        }
-        public void Dispose()
-        {
-            _directoryTreeSubscription?.Dispose();
         }
     }
 }

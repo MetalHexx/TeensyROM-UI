@@ -42,7 +42,7 @@ namespace TeensyRom.Ui.Features.Music.State
         private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
         private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
         private readonly BehaviorSubject<StorageCacheItem?> _currentDirectory = new(null);
-        private readonly BehaviorSubject<SongItem> _currentSong = new(null);
+        private readonly BehaviorSubject<SongItem> _currentSong = new(null!);
         private readonly BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
         private readonly BehaviorSubject<PlayState> _playState = new(PlayState.Paused);     
 

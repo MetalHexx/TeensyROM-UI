@@ -14,11 +14,11 @@ namespace TeensyRom.Ui.Features.Games.GameInfo
 {
     public class GameInfoViewModel : ReactiveObject
     {
-        [ObservableAsProperty] public string GameName { get; private set; }
-        [ObservableAsProperty]public string LoadingScreenPath { get; }
-        [ObservableAsProperty]public string ScreenshotPath { get; }
-        [ObservableAsProperty]public ImageSource CroppedLoadingScreen { get; }
-        [ObservableAsProperty] public ImageSource CroppedScreenshot { get; }
+        [ObservableAsProperty] public string? GameName { get; private set; }
+        [ObservableAsProperty] public string? LoadingScreenPath { get; }
+        [ObservableAsProperty] public string? ScreenshotPath { get; }
+        [ObservableAsProperty] public ImageSource? CroppedLoadingScreen { get; }
+        [ObservableAsProperty] public ImageSource? CroppedScreenshot { get; }
 
         public GameInfoViewModel(IPlayerContext gameState, IGameMetadataService gameMetadata)
         {
@@ -39,11 +39,11 @@ namespace TeensyRom.Ui.Features.Games.GameInfo
                 .ToPropertyEx(this, x => x.ScreenshotPath);
 
             this.WhenAnyValue(x => x.LoadingScreenPath)
-                .Select(path => CreateImageSource(path))
+                .Select(path => CreateImageSource(path!))
                 .ToPropertyEx(this, x => x.CroppedLoadingScreen);
 
             this.WhenAnyValue(x => x.ScreenshotPath)
-                .Select(path => CreateImageSource(path, 32, 36))
+                .Select(path => CreateImageSource(path!, 32, 36))
                 .ToPropertyEx(this, x => x.CroppedScreenshot);
         }
 
@@ -64,7 +64,7 @@ namespace TeensyRom.Ui.Features.Games.GameInfo
                 var croppedBitmap = new CroppedBitmap(bitmap, rect);
                 return croppedBitmap;
             }
-            catch (Exception ex)
+            catch
             {
                 return null;
             }

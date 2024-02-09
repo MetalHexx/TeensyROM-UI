@@ -17,10 +17,10 @@ using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui.Features.Files.DirectoryContent
 {
-    public class DirectoryContentViewModel : ReactiveObject, IDisposable
+    public class DirectoryContentViewModel : ReactiveObject
     {
         [Reactive] public FileItem? SelectedFile { get; set; }
-        [ObservableAsProperty] public ObservableCollection<StorageItem> DirectoryContent { get; }
+        [ObservableAsProperty] public ObservableCollection<StorageItem>? DirectoryContent { get; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }        
         public ReactiveCommand<FileItem, Unit> LaunchCommand { get; set; }
         public ReactiveCommand<FileItem, Unit> SaveFavoriteCommand { get; set; }
@@ -32,7 +32,6 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
         private readonly IFileState _fileState;
         private readonly IDialogService _dialog;
         private readonly IAlertService _alert;
-        private IDisposable _directoryTreeSubscription;
 
         public DirectoryContentViewModel(IFileState fileState, IDialogService dialog, IAlertService alert)
         {
@@ -117,11 +116,6 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
             _alert.Publish($"{fileItem.Path} has been deleted.");
 
             return Unit.Default;
-        }
-
-        public void Dispose()
-        {
-            _directoryTreeSubscription?.Dispose();
         }
     }
 }

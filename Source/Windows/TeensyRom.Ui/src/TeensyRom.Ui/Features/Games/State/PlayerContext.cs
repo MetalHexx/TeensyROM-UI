@@ -37,15 +37,15 @@ namespace TeensyRom.Ui.Features.Games.State
         public IObservable<PlayPausedState> PlayState => _playState.AsObservable();
         private string _currentPath = string.Empty;
 
-        private PlayerState _previousState;
+        private PlayerState? _previousState;
         private readonly BehaviorSubject<PlayerState> _currentState;        
-        private readonly BehaviorSubject<GameItem> _launchedGame = new(null);
-        private readonly BehaviorSubject<GameItem> _selectedGame = new(null);
+        private readonly BehaviorSubject<GameItem> _launchedGame = new(null!);
+        private readonly BehaviorSubject<GameItem> _selectedGame = new(null!);
         private readonly BehaviorSubject<PlayPausedState> _playState = new(PlayPausedState.Stopped);
         protected BehaviorSubject<DirectoryState> _directoryState = new(new());
 
-        private IDisposable _settingsSubscription;
-        private TeensySettings _settings;        
+        private IDisposable? _settingsSubscription;
+        private TeensySettings _settings = null!;        
         private readonly IMediator _mediator;
         private readonly ICachedStorageService _storage;
         private readonly ISettingsService _settingsService;
@@ -115,7 +115,17 @@ namespace TeensyRom.Ui.Features.Games.State
         }
         public async Task LoadDirectory(string path, string? filePathToSelect = null)
         {
-            if (_currentState.Value is SearchState) TryTransitionTo(_previousState.GetType());
+            if (_currentState.Value is SearchState) 
+            {
+                if(_previousState is not null)
+                {
+                    TryTransitionTo(_previousState.GetType());
+                }
+                else
+                {
+                    TryTransitionTo(typeof(NormalPlayState));
+                }                
+            }
 
             var cacheItem = await _storage.GetDirectory(path);
 

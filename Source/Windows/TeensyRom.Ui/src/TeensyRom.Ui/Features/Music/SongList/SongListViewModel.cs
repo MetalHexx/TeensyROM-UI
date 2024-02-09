@@ -19,9 +19,9 @@ using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Music.SongList
 {
-    public class SongListViewModel: ReactiveObject, IDisposable
+    public class SongListViewModel: ReactiveObject
     {
-        [ObservableAsProperty] public ObservableCollection<StorageItem> DirectoryContent { get; }
+        [ObservableAsProperty] public ObservableCollection<StorageItem>? DirectoryContent { get; }
         public ReactiveCommand<SongItem, bool> PlayCommand { get; set; }
         public ReactiveCommand<SongItem, bool> SaveFavoriteCommand { get; set; }
         public ReactiveCommand<FileItem, Unit> DeleteCommand { get; set; }
@@ -30,7 +30,6 @@ namespace TeensyRom.Ui.Features.Music.SongList
         private readonly IMusicState _musicState;
         private readonly IAlertService _alert;
         private readonly IDialogService _dialog;
-        private IDisposable _directoryTreeSubscription;
 
         public SongListViewModel(IMusicState musicState, IAlertService alert, IDialogService dialog)
         {
@@ -66,10 +65,6 @@ namespace TeensyRom.Ui.Features.Music.SongList
             _alert.Publish($"{fileItem.Path} has been deleted.");
 
             return Unit.Default;
-        }
-        public void Dispose()
-        {
-            _directoryTreeSubscription?.Dispose();
         }
     }
 }

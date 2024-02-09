@@ -23,13 +23,11 @@ namespace TeensyRom.Core.Storage
     {
         private readonly ISettingsService _settingsService;
         private readonly IFileWatcher _fileWatcher;
-        private readonly ISerialStateContext _serialState
-            ;
+        private readonly ISerialStateContext _serialState;
         private readonly ILoggingService _logService;
         private readonly ICachedStorageService _storageService;
-        private readonly IMediator _mediator;
-        private IDisposable _settingsSubscription;
-        private IDisposable _fileWatchSubscription;
+        private IDisposable? _settingsSubscription = null!;
+        private IDisposable? _fileWatchSubscription = null!;
 
         public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialStateContext serialState, ILoggingService logService, ICachedStorageService storageService)
         {
@@ -69,7 +67,7 @@ namespace TeensyRom.Core.Storage
         {
             _settingsSubscription?.Dispose();
             _fileWatchSubscription?.Dispose();
-            _fileWatcher.Dispose();
+            _fileWatcher?.Dispose();
         }
     }
 }
