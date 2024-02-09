@@ -40,7 +40,7 @@ jobs:
       run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-restore
 
     - name: Publish Application
-      run: dotnet publish ${{ env.Project_Path }}${{ env.Project_Name }} -c ${{ matrix.configuration }} --self-contained true -r win-x64 --no-build -o ${{ github.workspace }}\published\
+      run: dotnet publish ${{ env.Project_Path }}${{ env.Project_Name }} -c ${{ matrix.configuration }} --self-contained true -r win-x64 -o ${{ github.workspace }}\published\
 
     - name: Archive Build Artifacts
       run: 7z a ${{ env.Publish_File_Name }} ${{ github.workspace }}\published\*
