@@ -18,7 +18,9 @@ jobs:
 
     env:
       Solution_Name: Source/Windows/TeensyRom.Ui/TeensyRom.Ui.sln
-      Project_Name: Source/Windows/TeensyRom.Ui/src/TeensyRom.Ui/TeensyRom.Ui.csproj  
+      Project_Path: Source/Windows/TeensyRom.Ui/src/TeensyRom.Ui/
+      Project_Name: TeensyRom.Ui.csproj  
+      Publish_File_Name: tr-ui-${{ github.run_number }}.zip
 
     steps:
     - name: Checkout
@@ -26,16 +28,27 @@ jobs:
       with:
         fetch-depth: 0
 
-    # Install the .NET SDK
     - name: Install .NET 8
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
 
-    # Restore NuGet packages
     - name: Restore NuGet packages
       run: dotnet restore ${{ env.Solution_Name }}
 
-    # Build the application
     - name: Build the application
       run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-restore
+
+    - name: Publish the application
+      run: dotnet publish ${{ env.Project_Path }}${{ env.Project_Name }} --configuration ${{ matrix.configuration }} --self-contained -r win-x64 --no-build --output ${{ env.Project_Path }}/bin/${{ matrix.configuration }}/net8
+
+    - name: Archive build artifacts
+      run: 7z a ${{ env.Publish_File_Name }} ${{ env.Project_Path }}/bin/${{ matrix.configuration }}/net8/*
+      shell: pwsh
+
+    - name: Create and Upload Release
+      uses: softprops/action-gh-release@v1
+      with:
+       files: ${{ env.Published_File_Name }}
+      env:
+       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
