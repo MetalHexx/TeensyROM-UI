@@ -52,7 +52,7 @@ jobs:
        $date = Get-Date -Format "yyyyMMdd-HHmmss"
        $sha = "${{ github.sha }}"
        $tag = "v$date-$sha".Substring(0,15)
-       echo "TAG={$tag}" >> $GITHUB_OUTPUT
+       echo "TAG=$tag" >> $GITHUB_OUTPUT
       shell: pwsh
 
     - name: Create and Upload Release
