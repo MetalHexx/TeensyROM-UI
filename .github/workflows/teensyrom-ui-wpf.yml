@@ -46,6 +46,14 @@ jobs:
       run: 7z a ${{ env.Publish_File_Name }} ${{ github.workspace }}\published\*
       shell: pwsh
 
+    - name: Create Tag
+      run: |
+        $date = Get-Date -Format "yyyyMMdd-HHmmss"
+        $sha = "${{ github.sha }}"
+        $tag = "v$date-$sha".Substring(0,15)
+        echo "RELEASE_TAG=$tag" >> $GITHUB_ENV
+      shell: pwsh
+
     - name: Create and Upload Release
       uses: softprops/action-gh-release@v1
       with:
