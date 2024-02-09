@@ -57,6 +57,7 @@ jobs:
     - name: Create and Upload Release
       uses: softprops/action-gh-release@v1
       with:
+       tag_name: ${{ env.RELEASE_TAG }}
        files: ${{ env.Publish_File_Name }}
       env:
        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
