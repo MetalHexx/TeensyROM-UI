@@ -47,11 +47,12 @@ jobs:
       shell: pwsh
 
     - name: Create Tag
+      id: create_tag
       run: |
-        $date = Get-Date -Format "yyyyMMdd-HHmmss"
-        $sha = "${{ github.sha }}"
-        $tag = "v$date-$sha".Substring(0,15)
-        echo "RELEASE_TAG=$tag" >> $GITHUB_ENV
+       $date = Get-Date -Format "yyyyMMdd-HHmmss"
+       $sha = "${{ github.sha }}"
+       $tag = "v$date-$sha".Substring(0,15)
+       echo "::set-output name=tag::$tag"
       shell: pwsh
 
     - name: Create and Upload Release
@@ -59,5 +60,5 @@ jobs:
       env:
        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-       tag_name: ${{ env.RELEASE_TAG }}
+       tag_name: ${{ steps.create_tag.outputs.tag }}
        files: ${{ env.Publish_File_Name }}
