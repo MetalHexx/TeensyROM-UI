@@ -47,7 +47,7 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
             if (treeView?.SelectedItem is DirectoryNodeViewModel directoryNode)
             {
                 var viewModel = (DirectoryTreeViewModel)DataContext;
-                viewModel.DirectorySelectedCommand.Execute(directoryNode);
+                viewModel.DirectorySelectedCommand!.Execute(directoryNode);
             }
         } 
     }

@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Media;
+using System;
 
 namespace TeensyRom.Ui.Features.Connect
 {
@@ -32,6 +33,12 @@ namespace TeensyRom.Ui.Features.Connect
         private static void OnTextCollectionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var behavior = d as RichTextBindingBehavior;
+
+            if (behavior == null)
+            {
+                throw new Exception("Was not able to cast the dependency object to a RichTextBindingBehavior");
+            }
+
             if (e.OldValue is ObservableCollection<string> oldCollection)
             {
                 oldCollection.CollectionChanged -= behavior.OnCollectionChanged;
