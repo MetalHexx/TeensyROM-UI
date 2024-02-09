@@ -14,7 +14,7 @@ namespace TeensyRom.Core.Commands
 {
     public class GetDirectoryHandler : IRequestHandler<GetDirectoryCommand, GetDirectoryResult>
     {
-        private TeensySettings _settings;
+        private TeensySettings _settings = null!;
         private readonly ISerialStateContext _serialState;
 
         public GetDirectoryHandler(ISerialStateContext serialState, ISettingsService settings)
@@ -126,6 +126,8 @@ namespace TeensyRom.Core.Commands
                     case var item when item.StartsWith(dirToken):
                         var dirJson = item.Substring(5);
                         var dirItem = JsonConvert.DeserializeObject<DirectoryItem>(dirJson);
+                        if (dirItem is null) continue;
+
                         dirItem.Path = dirItem.Path.Replace("//", "/"); //workaround to save mem on teensy
                         directoryContent.Directories.Add(dirItem);
                         break;
@@ -133,6 +135,8 @@ namespace TeensyRom.Core.Commands
                     case var item when item.StartsWith(fileToken):
                         var fileJson = item.Substring(6);
                         var fileItem = JsonConvert.DeserializeObject<FileItem>(fileJson);
+                        if(fileItem is null) continue;
+
                         fileItem.Path = fileItem.Path.Replace("//", "/"); //workaround to save mem on teensy
                         directoryContent.Files.Add(fileItem);
                         break;

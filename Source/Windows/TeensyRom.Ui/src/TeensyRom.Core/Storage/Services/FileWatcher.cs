@@ -13,7 +13,7 @@ namespace TeensyRom.Core.Storage.Services
         private readonly FileSystemWatcher _watcher = new();
         private string[] _fileTypes = Array.Empty<string>();
         private readonly ConcurrentDictionary<string, byte> _processedFiles = new();
-        private IDisposable _watchSubscription;
+        private IDisposable? _watchSubscription;
 
         public void Disable()
         {

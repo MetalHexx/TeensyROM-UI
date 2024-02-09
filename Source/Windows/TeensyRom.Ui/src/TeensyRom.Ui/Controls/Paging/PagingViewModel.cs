@@ -20,9 +20,9 @@ namespace TeensyRom.Ui.Controls.Paging
         [ObservableAsProperty] public bool ShowPrevious { get; }
         public ObservableCollection<int> PageSizes { get; } = [100, 250, 500, 1000, 2000, 5000];
 
-        public ReactiveCommand<Unit, Unit> NextPageCommand { get; set; }
-        public ReactiveCommand<Unit, Unit> PreviousPageCommand { get; set; }
-        public ReactiveCommand<int, Unit> PageSizeCommand { get; set; }
+        public ReactiveCommand<Unit, Unit>? NextPageCommand { get; init; }
+        public ReactiveCommand<Unit, Unit>? PreviousPageCommand { get; init; }
+        public ReactiveCommand<int, Unit>? PageSizeCommand { get; init; }
 
         public PagingViewModel(IObservable<int> currentPage, IObservable<int> totalPages)
         {

@@ -45,7 +45,7 @@ namespace TeensyRom.Ui.Features.Files.State
         private readonly ISettingsService _settingsService;
         private readonly IMediator _mediator;
         private readonly ISnackbarService _alert;
-        private TeensySettings _settings;
+        private TeensySettings _settings = null!;
         private IDisposable _settingsSubscription;
         
 

@@ -35,17 +35,29 @@ namespace TeensyRom.Core.Settings
                     TypeNameHandling = TypeNameHandling.Auto,
                     Formatting = Formatting.Indented
                 });
-
+                if(settings == null)
+                {
+                    throw new Exception("Settings file was empty or corrupt.");
+                }
+                if(settings is null)
+                {
+                    return InitDefaultSettings();
+                }
                 ValidateAndLogSettings(settings);
 
                 return settings;
             }
             catch
             {
-                var settings = new TeensySettings();
-                settings.InitializeDefaults();
-                return settings;
+                return InitDefaultSettings();
             }
+        }
+
+        private TeensySettings InitDefaultSettings()
+        {
+            var settings = new TeensySettings();
+            settings.InitializeDefaults();
+            return settings;
         }
         public bool SaveSettings(TeensySettings settings)
         {

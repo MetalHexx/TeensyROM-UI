@@ -10,9 +10,9 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
 {
     public class DirectoryTreeViewModel : ReactiveObject
     {
-        [ObservableAsProperty] public DirectoryNodeViewModel RootDirectory { get; }
+        [ObservableAsProperty] public DirectoryNodeViewModel? RootDirectory { get; }
 
-        public ReactiveCommand<DirectoryNodeViewModel, Unit> DirectorySelectedCommand { get; set; }
+        public ReactiveCommand<DirectoryNodeViewModel, Unit>? DirectorySelectedCommand { get; init; }
 
         public DirectoryTreeViewModel(IObservable<DirectoryNodeViewModel> directoryTreeObservable)
         {

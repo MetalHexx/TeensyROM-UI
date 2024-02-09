@@ -11,7 +11,7 @@ namespace TeensyRom.Core.Commands
     public class CopyFileHandler : IRequestHandler<CopyFileCommand, CopyFileResult>
     {
         private readonly ISerialStateContext _serialState;
-        private TeensySettings _settings;
+        private TeensySettings _settings = null!;
 
         public CopyFileHandler(ISerialStateContext serialState, ISettingsService settings)
         {

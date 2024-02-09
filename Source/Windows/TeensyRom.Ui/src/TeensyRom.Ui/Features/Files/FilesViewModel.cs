@@ -43,7 +43,7 @@ namespace TeensyRom.Ui.Features.Files
 
         private readonly IFileState _fileState;
         private readonly IDialogService _dialog;
-        private TeensySettings _settings;
+        private TeensySettings _settings = null!;
 
         public FilesViewModel(IGlobalState globalState, IFileState fileState, ISettingsService settingsService, IDialogService dialog, DirectoryContentViewModel directoryContent, SearchFilesViewModel search)
         {

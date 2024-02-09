@@ -11,7 +11,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 {
     public class LaunchFileHandler: IRequestHandler<LaunchFileCommand, LaunchFileResult>
     {
-        private TeensySettings _settings;
+        private TeensySettings _settings = null!;
         private readonly ISerialStateContext _serialState;
         private readonly ILoggingService _log;
 

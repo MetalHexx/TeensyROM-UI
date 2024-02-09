@@ -24,7 +24,7 @@ namespace TeensyRom.Core.Games
         
         private readonly IMediator _mediator;
         private readonly IAlertService _alert;
-        private TeensySettings _settings;
+        private TeensySettings _settings = null!;
         private IDisposable _settingsSubscription;
         private GameCache? _gameCache;
 

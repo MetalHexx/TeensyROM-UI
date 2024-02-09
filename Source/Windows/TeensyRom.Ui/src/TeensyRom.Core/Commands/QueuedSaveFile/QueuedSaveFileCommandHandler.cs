@@ -10,7 +10,7 @@ namespace TeensyRom.Core.Commands
 {
     public class QueuedSaveFileCommandHandler : IRequestHandler<QueuedSaveFileCommand, QueuedSaveFileResult>
     {
-        private TeensySettings _settings;
+        private TeensySettings _settings = null!;
         private readonly ISerialStateContext _serialState;
 
         public QueuedSaveFileCommandHandler(ISerialStateContext serialState, ISettingsService settings)

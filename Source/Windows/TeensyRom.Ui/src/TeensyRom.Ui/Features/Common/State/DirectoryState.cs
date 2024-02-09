@@ -134,17 +134,7 @@ namespace TeensyRom.Ui.Features.Common.State
             return;
         }
 
-        public void SelectDirectory(string path, StorageCacheItem? directoryResult)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                _directoryTree.Value.Insert(directoryResult.Directories);
-                _directoryTree.Value.SelectDirectory(path);
-            });
-            _directoryTree.OnNext(_directoryTree.Value);
-        }
-
-        public void UpdateDirectory(StorageCacheItem? directoryResult)
+        public void UpdateDirectory(StorageCacheItem directoryResult)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {

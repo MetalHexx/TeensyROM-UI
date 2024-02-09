@@ -25,7 +25,7 @@ namespace TeensyRom.Core.Storage.Services
         private readonly ISidMetadataService _sidMetadata;
         private readonly IMediator _mediator;
         private readonly IAlertService _alert;
-        private TeensySettings _settings;
+        private TeensySettings _settings = null!;
         private IDisposable? _settingsSubscription;
         private const string _cacheFileName = "TeensyStorageCache.json";
         private StorageCache _storageCache = new();
@@ -159,6 +159,8 @@ namespace TeensyRom.Core.Storage.Services
                 TypeNameHandling = TypeNameHandling.Auto,
                 Formatting = Formatting.Indented
             });
+            if(cacheFromDisk is null) return;
+
             _storageCache = cacheFromDisk;
         }
 
@@ -243,7 +245,7 @@ namespace TeensyRom.Core.Storage.Services
             return cacheItem;
         }
 
-        private static void FavCacheItems(StorageCacheItem? cacheItem) => cacheItem.Files.ForEach(f => f.IsFavorite = true);
+        private static void FavCacheItems(StorageCacheItem cacheItem) => cacheItem.Files.ForEach(f => f.IsFavorite = true);
 
         private static IEnumerable<DirectoryItem> MapAndOrderDirectories(DirectoryContent? directoryContent)
         {
