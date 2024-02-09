@@ -40,15 +40,15 @@ jobs:
       run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-restore
 
     - name: Publish the application
-      run: dotnet publish ${{ env.Project_Path }}${{ env.Project_Name }} --configuration ${{ matrix.configuration }} --self-contained -r win-x64 --no-build --output ${{ env.Project_Path }}/bin/${{ matrix.configuration }}/net8
+      run: dotnet publish ${{ env.Project_Path }}${{ env.Project_Name }} -c ${{ matrix.configuration }} --self-contained true -r win-x64 --no-build -o ${{ github.workspace }}/published/
 
     - name: Archive build artifacts
-      run: 7z a ${{ env.Publish_File_Name }} ${{ env.Project_Path }}/bin/${{ matrix.configuration }}/net8/*
+      run: 7z a ${{ env.Publish_File_Name }} ${{ github.workspace }}/published/*
       shell: pwsh
 
     - name: Create and Upload Release
       uses: softprops/action-gh-release@v1
       with:
-       files: ${{ env.Published_File_Name }}
+       files: ${{ env.Publish_File_Name }}
       env:
        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
