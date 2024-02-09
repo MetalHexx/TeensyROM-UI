@@ -36,13 +36,13 @@ jobs:
     - name: Restore NuGet packages
       run: dotnet restore ${{ env.Solution_Name }}
 
-    - name: Build the application
+    - name: Build Application
       run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-restore
 
-    - name: Publish the application
+    - name: Publish Application
       run: dotnet publish ${{ env.Project_Path }}${{ env.Project_Name }} -c ${{ matrix.configuration }} --self-contained true -r win-x64 --no-build -o ${{ github.workspace }}/published/
 
-    - name: Archive build artifacts
+    - name: Archive Build Artifacts
       run: 7z a ${{ env.Publish_File_Name }} ${{ github.workspace }}/published/*
       shell: pwsh
 
