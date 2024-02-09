@@ -32,13 +32,10 @@ namespace TeensyRom.Ui.Features.Connect
 
         private static void OnTextCollectionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var behavior = d as RichTextBindingBehavior;
-
-            if (behavior == null)
+            if (d is not RichTextBindingBehavior behavior)
             {
                 throw new Exception("Was not able to cast the dependency object to a RichTextBindingBehavior");
             }
-
             if (e.OldValue is ObservableCollection<string> oldCollection)
             {
                 oldCollection.CollectionChanged -= behavior.OnCollectionChanged;
@@ -50,7 +47,7 @@ namespace TeensyRom.Ui.Features.Connect
             behavior.UpdateRichTextBox();
         }
 
-        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             UpdateRichTextBox();
         }
