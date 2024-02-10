@@ -1,0 +1,50 @@
+name: Build WPF Application
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Release]
+
+    env:
+      Solution_Name: Source/Windows/TeensyRom.Ui/TeensyRom.Ui.sln
+      Project_Path: Source/Windows/TeensyRom.Ui/src/TeensyRom.Ui/
+      Project_Name: TeensyRom.Ui.csproj
+      Publish_File_Name: tr-ui-${{ github.run_number }}.zip
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore NuGet packages
+        run: dotnet restore ${{ env.Solution_Name }}
+
+      - name: Build Application
+        run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-restore
+
+      - name: Publish Application
+        run: dotnet publish ${{ env.Project_Path }}${{ env.Project_Name }} -c ${{ matrix.configuration }} --self-contained true -r win-x64 -o ${{ github.workspace }}\published\
+
+      - name: Archive Build Artifacts
+        run: 7z a ${{ env.Publish_File_Name }} ${{ github.workspace }}\published\*
+        shell: pwsh
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-build-artifact
+          path: ${{ env.Publish_File_Name }}
