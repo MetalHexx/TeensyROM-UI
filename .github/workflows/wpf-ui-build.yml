@@ -37,7 +37,7 @@ jobs:
         run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-restore
 
       - name: Publish Application
-        run: dotnet publish ${{ env.Project_Path }}${{ env.Project_Name }} -c ${{ matrix.configuration }} --self-contained true -r win-x64 -o ${{ github.workspace }}\published\
+        run: dotnet publish ${{ env.Project_Path }}${{ env.Project_Name }} -c ${{ matrix.configuration }} -r win-x64 -o ${{ github.workspace }}\published\
 
       - name: Archive Build Artifacts
         run: 7z a ${{ env.Publish_File_Name }} ${{ github.workspace }}\published\*
@@ -48,3 +48,13 @@ jobs:
         with:
           name: ui-build-artifact
           path: ${{ env.Publish_File_Name }}
+
+      - name: Create Tag
+        run: |
+          $date = Get-Date -Format "yyyyMMdd-HHmmss"
+          $tag = "build-$date"
+          git tag $tag
+          git push origin $tag
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
