@@ -109,8 +109,9 @@
 
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        </ItemsControl>                        
                     </StackPanel>
+                    <TextBlock Text="{Binding Version}" Visibility="{Binding IsNavOpen, Converter={StaticResource BoolToVisibilityConvertor}}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0 0 0 10" Foreground="DarkGray"/>                    
                 </Grid>
             </StackPanel>
 
@@ -120,7 +121,14 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="{Binding Title}" Style="{StaticResource MainTitle}" Margin="0 -10 0 10" VerticalAlignment="Top"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding Title}" Style="{StaticResource MainTitle}" Margin="0 -10 0 10" VerticalAlignment="Top" Grid.Column="0"/>
+                    <TextBlock Text="{Binding Version}" HorizontalAlignment="Right" Grid.Column="1" Foreground="DarkGray"/>
+                </Grid>
 
                 <materialDesign:Card Grid.Row="1" Padding="0 0 0 0" VerticalAlignment="Stretch">
                     <Grid>

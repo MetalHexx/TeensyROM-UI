@@ -16,11 +16,13 @@ using TeensyRom.Core.Serial;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Features.Games;
+using System.Reflection;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
     public class NavigationHostViewModel : ReactiveObject
     {
+        public string Version => GetVersion();
         [ObservableAsProperty] public object? CurrentViewModel { get; }
         [ObservableAsProperty] public object? NavigationItems { get; }        
         [ObservableAsProperty] public bool SerialBusy { get; set; }
@@ -142,6 +144,14 @@ namespace TeensyRom.Ui.Features.NavigationHost
             _serialContext.CurrentState
                 .Select(s => s is SerialBusyState)
                 .ToPropertyEx(this, vm => vm.SerialBusy);
+        }
+
+        public static string GetVersion()
+        {
+            string version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown version";
+            var plusIndex = version.IndexOf('+');
+            version = plusIndex > -1 ? version.Substring(0, plusIndex) : version;
+            return $"v{version}";
         }
     }
 }
