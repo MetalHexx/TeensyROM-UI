@@ -26,7 +26,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Extract Version from csproj
+    - name: Extract Version From .csproj
       id: extract_version
       run: |
         $csprojPath = "${{ github.workspace }}/${{ env.Project_Path }}/${{ env.Project_Name }}"
@@ -34,7 +34,7 @@ jobs:
         $version = $csproj.Project.PropertyGroup.Version
         echo "VERSION=$version" >> $env:GITHUB_OUTPUT
         echo "FILENAME=tr-ui-$version.zip" >> $env:GITHUB_OUTPUT
-        shell: pwsh
+      shell: pwsh
 
     - name: Install .NET 8
       uses: actions/setup-dotnet@v4
