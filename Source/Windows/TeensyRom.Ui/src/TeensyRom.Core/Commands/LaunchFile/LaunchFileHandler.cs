@@ -22,20 +22,21 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             _log = log;
         }
 
-        public Task<LaunchFileResult> Handle(LaunchFileCommand request, CancellationToken cancellationToken)
+        public async Task<LaunchFileResult> Handle(LaunchFileCommand request, CancellationToken cancellationToken)
         {
             _serialState.SendIntBytes(TeensyToken.LaunchFile, 2);
             _serialState.HandleAck();
             _serialState.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
             _serialState.Write($"{request.Path}\0");
             _serialState.HandleAck();
-            var response = _serialState.ReadSerialAsString(400);
+            await Task.Delay(400);
+            var response = _serialState.ReadSerialAsString(0);
             var resultType = ParseResponse(response);
 
-            return Task.FromResult(new LaunchFileResult
+            return new LaunchFileResult
             {
                 LaunchResult = resultType
-            });
+            };
         }
 
         private LaunchFileResultType ParseResponse(string response)
