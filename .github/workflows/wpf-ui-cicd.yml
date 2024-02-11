@@ -33,7 +33,7 @@ jobs:
         [xml]$csproj = Get-Content $csprojPath
         $version = $csproj.Project.PropertyGroup.Version
         echo "Extracted version: $version"
-        echo "VERSION=$version" >> $env:GITHUB_ENV
+        echo "VERSION=$version" >> $env:GITHUB_ENV"
         echo "FILENAME=tr-ui-$version.zip" >> $env:GITHUB_ENV"
         shell: pwsh
 
