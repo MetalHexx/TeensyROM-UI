@@ -61,6 +61,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IPlayerContext, PlayerContext>();
             services.AddSingleton<IFileState, FileState>();
             services.AddSingleton<IGlobalState, GlobalState>();
+            services.AddSingleton<ISerialWrapper, SerialWrapper>();
             services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();
             services.AddSingleton<ISerialStateContext, SerialStateContext>();
             services.AddSingleton<IGameMetadataService, GameMetadataService>();

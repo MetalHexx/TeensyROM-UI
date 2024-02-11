@@ -14,14 +14,14 @@ namespace TeensyRom.Core.Serial
     /// Provides observables that can be used to monitor serial activity. 
     /// Resiliency routines are employed to recover from a disconnection.
     /// </summary>
-    public class ObservableSerialPort(ILoggingService _log) : IObservableSerialPort
+    public class ObservableSerialPort(ILoggingService _log, ISerialWrapper serialPort) : IObservableSerialPort
     {
         public IObservable<Type> State => _state.AsObservable();
         public IObservable<string[]> Ports => _ports.AsObservable();
 
         private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         private readonly BehaviorSubject<Type> _state = new(typeof(SerialStartState));
-        private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
+        private readonly ISerialWrapper _serialPort = serialPort;
 
         public int BytesToRead => _serialPort.BytesToRead;
         public void Write(string text) => _serialPort.Write(text);
