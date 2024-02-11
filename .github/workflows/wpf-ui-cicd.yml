@@ -32,7 +32,6 @@ jobs:
         $csprojPath = "${{ github.workspace }}/${{ env.Project_Path }}/${{ env.Project_Name }}"
         [xml]$csproj = Get-Content $csprojPath
         $version = $csproj.Project.PropertyGroup.Version
-        echo "Extracted version: $version"
         echo "VERSION=$version" >> $env:GITHUB_OUTPUT
         echo "FILENAME=tr-ui-$version.zip" >> $env:GITHUB_OUTPUT
         shell: pwsh
