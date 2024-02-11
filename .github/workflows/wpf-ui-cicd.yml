@@ -26,6 +26,17 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Extract Version from csproj
+      id: extract_version
+      run: |
+        $csprojPath = "${{ github.workspace }}/${{ env.Project_Path }}/${{ env.Project_Name }}"
+        [xml]$csproj = Get-Content $csprojPath
+        $version = $csproj.Project.PropertyGroup.Version
+        echo "Extracted version: $version"
+        echo "VERSION=$version" >> $env:$GITHUB_ENV
+        wcho "FILENAME=tr-ui-$version.zip" >> $env:$GITHUB_ENV"
+        shell: pwsh
+
     - name: Install .NET 8
       uses: actions/setup-dotnet@v4
       with:
@@ -41,16 +52,7 @@ jobs:
       run: dotnet publish ${{ env.Project_Path }}${{ env.Project_Name }} -c ${{ matrix.configuration }} --self-contained true -r win-x64 -o ${{ github.workspace }}\published\
 
     - name: Archive Build Artifacts
-      run: 7z a ${{ env.Publish_File_Name }} ${{ github.workspace }}\published\*
-      shell: pwsh
-
-    - name: Create Tag
-      id: create_tag
-      run: |
-       $date = Get-Date -Format "yyyyMMdd-HHmmss"
-       $sha = "${{ github.sha }}"
-       $tag = "v$date-$sha".Substring(0,15)
-       echo "TAG=$tag" >> $env:GITHUB_OUTPUT
+      run: 7z a ${{ env.FILENAME }} ${{ github.workspace }}\published\*
       shell: pwsh
 
     - name: Create and Upload Release
@@ -58,5 +60,5 @@ jobs:
       env:
        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-       tag_name: ${{ steps.create_tag.outputs.TAG }}
-       files: ${{ env.Publish_File_Name }}
+       tag_name: ${{ env.VERSION }}
+       files: ${{ env.FILENAME }}
