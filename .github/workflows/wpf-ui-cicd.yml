@@ -34,7 +34,7 @@ jobs:
         $version = $csproj.Project.PropertyGroup.Version
         echo "Extracted version: $version"
         echo "VERSION=$version" >> $env:$GITHUB_ENV
-        wcho "FILENAME=tr-ui-$version.zip" >> $env:$GITHUB_ENV"
+        wcho "FILENAME=tr-ui-$version.zip" >> $env:GITHUB_ENV"
         shell: pwsh
 
     - name: Install .NET 8
