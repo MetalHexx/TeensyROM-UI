@@ -22,16 +22,15 @@ namespace TeensyRom.Ui.Features.Games.State
         public bool PagingEnabled { get; private set; } = false;
         private int _skip => (CurrentPage - 1) * PageSize;
         private List<StorageItem> _fullDirectory = [];
-
-
-        public void LoadNewDirectory(List<StorageItem> fullDirectory, string? path = null, string? filePathToSelect = null)
-        {
-            CurrentPage = 1;
-            LoadDirectory(fullDirectory, path, filePathToSelect);
-        }
+        private string? _currentPath;
 
         public void LoadDirectory(List<StorageItem> fullDirectory, string? path = null, string? filePathToSelect = null)
         {
+            if (path is not null && path != _currentPath)
+            {
+                CurrentPage = 1;
+                _currentPath = path ?? string.Empty;
+            }
             _fullDirectory = fullDirectory;
 
             var directoryItems = new ObservableCollection<StorageItem>();
