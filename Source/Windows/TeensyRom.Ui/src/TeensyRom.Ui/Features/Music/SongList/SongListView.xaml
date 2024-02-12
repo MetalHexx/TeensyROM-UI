@@ -127,6 +127,7 @@
             <ListView Name="songListView"
                 ItemsSource="{Binding DirectoryContent}"
                 SelectionMode="Single"
+                SelectionChanged="OnListViewView_SelectionChanged"
                 PreviewMouseWheel="OnListViewPreviewMouseWheel"
                 MouseLeftButtonUp="OnListViewClicked"
                 MouseDoubleClick="OnListViewDoubleClicked"

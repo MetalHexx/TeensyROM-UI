@@ -78,5 +78,14 @@ namespace TeensyRom.Ui.Features.Music.SongList
                 parent?.RaiseEvent(eventArg);
             }
         }
+
+        private void OnListViewView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var listView = sender as ListView;
+            if (listView != null && listView.SelectedItem != null)
+            {
+                listView.ScrollIntoView(listView.SelectedItem);
+            }
+        }
     }
 }
