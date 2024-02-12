@@ -212,10 +212,7 @@ namespace TeensyRom.Ui.Features.Games.State
         {
             var game = await _currentState.Value.GetPrevious(_launchedGame.Value, _directoryState.Value);
 
-            if (game is not null)
-            {
-                await PlayGame(game);
-            }
+            if (game is not null) await PlayGame(game);
         }
         public Task StopGame() 
         {

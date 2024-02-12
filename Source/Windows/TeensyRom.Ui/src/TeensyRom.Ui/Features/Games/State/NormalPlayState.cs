@@ -43,6 +43,7 @@ namespace TeensyRom.Ui.Features.Games.State
             {
                 if (game.Path == currentGame.Path) return null;
 
+                await _playerContext.LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
                 return game;
             }
             return null;
@@ -62,8 +63,11 @@ namespace TeensyRom.Ui.Features.Games.State
             var game = gameIndex == 0
                 ? directoryResult.Files.Last() as GameItem
                 : directoryResult.Files[--gameIndex] as GameItem;
-            
-            return game!;            
+
+            if (game is null) return null;
+
+            await _playerContext.LoadDirectory(game.Path.GetUnixParentPath(), game.Path);            
+            return game;            
         }
     }
 }
