@@ -268,8 +268,13 @@ namespace TeensyRom.Ui.Features.Games.State
         public async Task ClearSearch()
         {
             _directoryState.Value.ClearSelection();
-            var firstItem = _directoryState.Value.SelectFirst();
             await LoadDirectory(_currentPath);            
+            var firstItem = _directoryState.Value.SelectFirst();
+
+            if (firstItem is not null)
+            {
+                _selectedGame.OnNext(firstItem);
+            }
         }
         public Unit ToggleShuffleMode()
         {
