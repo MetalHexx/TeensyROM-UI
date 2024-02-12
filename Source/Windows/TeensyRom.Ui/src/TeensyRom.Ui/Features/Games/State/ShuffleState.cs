@@ -31,14 +31,16 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (game is not null)
             {
-                await _playerContext.LoadDirectory(game.Path.GetUnixParentPath());
-                await _playerContext.PlayGame(game);
-                _selectedGame.OnNext(game!);
+                await _playerContext.LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
                 return game;
             }
-            var randomGame = await PlayRandom();
-            _selectedGame.OnNext(randomGame!);
-            return randomGame;
+            var randomGame = _storage.GetRandomFile(TeensyFileType.Prg, TeensyFileType.Crt);
+            
+            if(randomGame is not null)
+            {
+                await _playerContext.LoadDirectory(randomGame.Path.GetUnixParentPath(), randomGame.Path);
+            }
+            return randomGame as GameItem;            
         }
 
         public override async Task<GameItem?> GetPrevious(GameItem currentGame, DirectoryState directoryState)
@@ -47,29 +49,10 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (game is not null)
             {
-                await _playerContext.LoadDirectory(game.Path.GetUnixParentPath());
-                _selectedGame.OnNext(game!);
-                return game;
-            }
-            _selectedGame.OnNext(currentGame);
-            return currentGame;
-        }
-
-        public override async Task<GameItem?> PlayRandom()
-        {
-            var game = _storage.GetRandomFile(TeensyFileType.Crt, TeensyFileType.Prg) as GameItem;
-
-            if (game is not null)
-            {
                 await _playerContext.LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
-                await _playerContext.PlayGame(game);
-
-                _launchHistory.Add(game!);
-
                 return game;
             }
-            _alert.Enqueue("Random search requires visiting at least one directory with programs in it first.  Try the cache button next to the dice for best results.");
-            return null;
+            return currentGame;
         }
     }
 }

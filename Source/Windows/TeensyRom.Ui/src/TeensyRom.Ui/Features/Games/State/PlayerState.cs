@@ -29,9 +29,7 @@ namespace TeensyRom.Ui.Features.Games.State
 {
     public abstract class PlayerState : IPlayerState
     {
-        public IObservable<GameItem> SelectedGame => _selectedGame.AsObservable();
         public IObservable<PlayPausedState> PlayState => _gameState.AsObservable();
-        protected BehaviorSubject<GameItem> _selectedGame = new(null!);
         protected BehaviorSubject<PlayPausedState> _gameState = new(PlayPausedState.Stopped);
         protected readonly ICachedStorageService _storage;
         protected readonly ISettingsService _settingsService;
@@ -67,8 +65,6 @@ namespace TeensyRom.Ui.Features.Games.State
         public virtual Task<GameItem?> GetNext(GameItem currentGame, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
         public virtual Task<GameItem?> GetPrevious(GameItem currentGame, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
-
-        public virtual Task<GameItem?> PlayRandom() => throw new TeensyStateException(InvalidStateExceptionMessage);
 
         public virtual Task RefreshDirectory(bool bustCache = true) => throw new TeensyStateException(InvalidStateExceptionMessage);
 

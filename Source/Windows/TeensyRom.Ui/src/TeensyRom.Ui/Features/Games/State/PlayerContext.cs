@@ -75,7 +75,6 @@ namespace TeensyRom.Ui.Features.Games.State
             };
             SubscribeToStateObservables();
             _currentState = new(_states[typeof(NormalPlayState)]);
-
         }
 
         private void SubscribeToStateObservables()
@@ -84,7 +83,6 @@ namespace TeensyRom.Ui.Features.Games.State
             {
                 _stateSubscriptions.AddRange(
                 [
-                    state.Value.SelectedGame.Subscribe(_selectedGame.OnNext),
                     state.Value.PlayState.Subscribe(_playState.OnNext),
                 ]);
             }
@@ -126,13 +124,12 @@ namespace TeensyRom.Ui.Features.Games.State
                     TryTransitionTo(typeof(NormalPlayState));
                 }                
             }
-
             var cacheItem = await _storage.GetDirectory(path);
 
             if (cacheItem == null) return;
 
             _directoryState.Value.ClearSelection();
-            _directoryState.Value.LoadNewDirectory(cacheItem.ToList(), cacheItem.Path, filePathToSelect);
+            _directoryState.Value.LoadDirectory(cacheItem.ToList(), cacheItem.Path, filePathToSelect);
             var firstItem = _directoryState.Value.SelectFirst();
 
             if (firstItem is not null) _selectedGame.OnNext(firstItem);
@@ -170,7 +167,10 @@ namespace TeensyRom.Ui.Features.Games.State
             {
                 _alert.Enqueue($"{game.Name} is currently unsupported (see logs).  Skipping to the next game.");
                 _storage.MarkIncompatible(game);
-                await _currentState.Value.GetNext(_launchedGame.Value, _directoryState.Value);
+                var nextGame = await _currentState.Value.GetNext(_launchedGame.Value, _directoryState.Value);
+
+                if (nextGame is not null) await PlayGame(nextGame);
+
                 return;
             }
             Application.Current.Dispatcher.Invoke((Action)(() =>
@@ -186,6 +186,7 @@ namespace TeensyRom.Ui.Features.Games.State
                 }
             }));
             _launchedGame.OnNext(game);
+            _selectedGame.OnNext(game);
             _playState.OnNext(PlayPausedState.Playing);
         }
 
@@ -223,15 +224,27 @@ namespace TeensyRom.Ui.Features.Games.State
             }
         }
         public Task StopGame() => _currentState.Value.StopGame();
-        public Task<GameItem?> PlayRandom()
+
+        public async Task<GameItem?> PlayRandom()
         {
             var success = TryTransitionTo(typeof(ShuffleState));
 
-            if (success)
+            if (!success) return null;
+
+            var game = _storage.GetRandomFile(TeensyFileType.Crt, TeensyFileType.Prg) as GameItem;
+
+            if (game is not null)
             {
-                return _currentState.Value.PlayRandom();
+                await LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
+                await PlayGame(game);
+
+                _launchHistory.Add(game!);
+
+                return game;
             }
-            return Task.FromResult(null as GameItem);
+            _alert.Enqueue("Random search requires visiting at least one directory with programs in it first.  Try the cache button next to the dice for best results.");
+
+            return null;
         }
         public Unit SearchGames(string searchText)
         {

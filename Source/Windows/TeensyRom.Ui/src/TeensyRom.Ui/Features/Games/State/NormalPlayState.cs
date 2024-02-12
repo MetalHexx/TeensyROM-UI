@@ -42,7 +42,6 @@ namespace TeensyRom.Ui.Features.Games.State
             {
                 if (game.Path == currentGame.Path) return null;
 
-                _selectedGame.OnNext(game);
                 return game;
             }
             return null;
@@ -55,7 +54,6 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (directoryResult is null)
             {
-                _selectedGame.OnNext(currentGame);
                 return currentGame;                
             }
             var gameIndex = directoryResult.Files.IndexOf(currentGame);
@@ -64,7 +62,6 @@ namespace TeensyRom.Ui.Features.Games.State
                 ? directoryResult.Files.Last() as GameItem
                 : directoryResult.Files[--gameIndex] as GameItem;
             
-            _selectedGame.OnNext(game!);
             return game!;            
         }
     }
