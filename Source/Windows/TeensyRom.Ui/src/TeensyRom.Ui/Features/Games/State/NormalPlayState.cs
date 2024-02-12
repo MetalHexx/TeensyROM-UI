@@ -26,7 +26,7 @@ namespace TeensyRom.Ui.Features.Games.State
                 || nextStateType == typeof(SearchState);
         }
 
-        public override async Task<GameItem?> GetNext(GameItem currentGame, DirectoryState directoryState)
+        public override async Task<FileItem?> GetNext(FileItem currentGame, DirectoryState directoryState)
         {
             var parentPath = currentGame.Path.GetUnixParentPath();
             var directoryResult = await _storage.GetDirectory(parentPath);
@@ -49,7 +49,7 @@ namespace TeensyRom.Ui.Features.Games.State
             return null;
         }
 
-        public override async Task<GameItem?> GetPrevious(GameItem currentGame, DirectoryState directoryState)
+        public override async Task<FileItem?> GetPrevious(FileItem currentGame, DirectoryState directoryState)
         {
             var parentPath = currentGame.Path.GetUnixParentPath();
             var directoryResult = await _storage.GetDirectory(parentPath);
@@ -61,8 +61,8 @@ namespace TeensyRom.Ui.Features.Games.State
             var gameIndex = directoryResult.Files.IndexOf(currentGame);
 
             var game = gameIndex == 0
-                ? directoryResult.Files.Last() as GameItem
-                : directoryResult.Files[--gameIndex] as GameItem;
+                ? directoryResult.Files.Last()
+                : directoryResult.Files[--gameIndex];
 
             if (game is null) return null;
 

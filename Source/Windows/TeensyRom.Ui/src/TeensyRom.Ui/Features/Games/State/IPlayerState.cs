@@ -11,10 +11,10 @@ namespace TeensyRom.Ui.Features.Games.State
     {
         bool CanTransitionTo(Type nextStateType);
         Task ClearSearch();
-        Task DeleteFile(GameItem game);
-        Task<GameItem?> GetNext(GameItem currentGame, DirectoryState directoryState);
+        Task DeleteFile(FileItem game);
+        Task<FileItem?> GetNext(FileItem currentGame, DirectoryState directoryState);
         Task StopGame();
-        Task<GameItem?> GetPrevious(GameItem currentGame, DirectoryState directoryState);
+        Task<FileItem?> GetPrevious(FileItem currentGame, DirectoryState directoryState);
         Task RefreshDirectory(bool bustCache = true);
     }
 }

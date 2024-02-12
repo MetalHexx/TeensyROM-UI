@@ -24,6 +24,7 @@ namespace TeensyRom.Ui.Features.Games.GameInfo
         {
             gameState.SelectedGame
                 .Where(game => game != null)
+                .Cast<GameItem>()
                 .Do(gameMetadata.GetGameScreens)
                 .Select(game => game.Name[..game.Name.LastIndexOf('.')])
                 .ToPropertyEx(this, x => x.GameName);

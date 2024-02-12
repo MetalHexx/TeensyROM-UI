@@ -30,7 +30,7 @@ namespace TeensyRom.Ui.Features.Games.State
                 || nextStateType == typeof(ShuffleState);
         }
 
-        public override async Task<GameItem?> GetNext(GameItem currentGame, DirectoryState directoryState)
+        public override async Task<FileItem?> GetNext(FileItem currentGame, DirectoryState directoryState)
         {
             await Task.CompletedTask;
 
@@ -42,14 +42,14 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (nextGame.Path == currentGame.Path) return null;
 
-            if (nextGame is GameItem game)
+            if (nextGame is FileItem game)
             {
                 return game;                
             }
             return currentGame;
         }
 
-        public override async Task<GameItem?> GetPrevious(GameItem currentGame, DirectoryState directoryState)
+        public override async Task<FileItem?> GetPrevious(FileItem currentGame, DirectoryState directoryState)
         {
             await Task.CompletedTask;
 
@@ -59,7 +59,7 @@ namespace TeensyRom.Ui.Features.Games.State
                 ? directoryState.DirectoryContent.Last()
                 : directoryState.DirectoryContent[--currentIndex];
 
-            if (file is GameItem game)
+            if (file is FileItem game)
             {
                 return game;                
             }

@@ -34,15 +34,15 @@ namespace TeensyRom.Ui.Features.Games.State
         public IObservable<bool> PagingEnabled => _directoryState.Select(d => d.PagingEnabled);
         public IObservable<DirectoryNodeViewModel?> DirectoryTree => _tree.DirectoryTree.AsObservable();
         public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryState.Select(d => d.DirectoryContent);
-        public IObservable<GameItem> LaunchedGame => _launchedGame.AsObservable();
-        public IObservable<GameItem> SelectedGame => _selectedGame.AsObservable();
+        public IObservable<FileItem> LaunchedGame => _launchedGame.AsObservable();
+        public IObservable<FileItem> SelectedGame => _selectedGame.AsObservable();
         public IObservable<PlayPausedState> PlayState => _playState.AsObservable();
         private string _currentPath = string.Empty;
 
         private PlayerState? _previousState;
         private readonly BehaviorSubject<PlayerState> _currentState;        
-        private readonly BehaviorSubject<GameItem> _launchedGame = new(null!);
-        private readonly BehaviorSubject<GameItem> _selectedGame = new(null!);
+        private readonly BehaviorSubject<FileItem> _launchedGame = new(null!);
+        private readonly BehaviorSubject<FileItem> _selectedGame = new(null!);
         private readonly BehaviorSubject<PlayPausedState> _playState = new(PlayPausedState.Stopped);
         protected BehaviorSubject<DirectoryState> _directoryState = new(new());
 
@@ -124,9 +124,6 @@ namespace TeensyRom.Ui.Features.Games.State
 
             _directoryState.Value.ClearSelection();
             _directoryState.Value.LoadDirectory(cacheItem.ToList(), cacheItem.Path, filePathToSelect);
-            var firstItem = _directoryState.Value.SelectFirst();
-
-            if (firstItem is not null) _selectedGame.OnNext(firstItem);
             
             _currentPath = cacheItem.Path;            
 
@@ -153,7 +150,7 @@ namespace TeensyRom.Ui.Features.Games.State
             return Task.CompletedTask;
         }
 
-        public virtual async Task PlayGame(GameItem game)
+        public virtual async Task PlayGame(FileItem game)
         {
             var result = await _mediator.Send(new LaunchFileCommand { Path = game.Path });
 
@@ -167,7 +164,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
                 return;
             }
-            Application.Current.Dispatcher.Invoke((Action)(() =>
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 game.IsSelected = true;
 
@@ -178,13 +175,13 @@ namespace TeensyRom.Ui.Features.Games.State
                 {
                     _launchedGame.Value!.IsSelected = false;
                 }
-            }));
+            });
             _launchedGame.OnNext(game);
             _selectedGame.OnNext(game);
             _playState.OnNext(PlayPausedState.Playing);
         }
 
-        public virtual async Task SaveFavorite(GameItem game)
+        public virtual async Task SaveFavorite(FileItem game)
         {
             var favGame = await _storage.SaveFavorite(game);
             var gameParentDir = favGame?.Path.GetUnixParentPath();
@@ -198,7 +195,7 @@ namespace TeensyRom.Ui.Features.Games.State
             _directoryState.Value.LoadDirectory(directoryResult.ToList(), directoryResult.Path);
         }
 
-        public Task DeleteFile(GameItem file) => _currentState.Value.DeleteFile(file);
+        public Task DeleteFile(FileItem file) => _currentState.Value.DeleteFile(file);
         public async Task PlayNext()
         {
             var game = await _currentState.Value.GetNext(_launchedGame.Value, _directoryState.Value);
@@ -220,13 +217,13 @@ namespace TeensyRom.Ui.Features.Games.State
             return _currentState.Value.StopGame();
         }
 
-        public async Task<GameItem?> PlayRandom()
+        public async Task<FileItem?> PlayRandom()
         {
             var success = TryTransitionTo(typeof(ShuffleState));
 
             if (!success) return null;
 
-            var game = _storage.GetRandomFile(TeensyFileType.Crt, TeensyFileType.Prg) as GameItem;
+            var game = _storage.GetRandomFile(TeensyFileType.Crt, TeensyFileType.Prg) as FileItem;
 
             if (game is not null)
             {
@@ -271,7 +268,8 @@ namespace TeensyRom.Ui.Features.Games.State
         public async Task ClearSearch()
         {
             _directoryState.Value.ClearSelection();
-            await LoadDirectory(_currentPath);
+            var firstItem = _directoryState.Value.SelectFirst();
+            await LoadDirectory(_currentPath);            
         }
         public Unit ToggleShuffleMode()
         {
@@ -285,7 +283,7 @@ namespace TeensyRom.Ui.Features.Games.State
             return Unit.Default;
         }
         public Task CacheAll() => _storage.CacheAll();
-        public Unit SetSelectedGame(GameItem game)
+        public Unit SetSelectedGame(FileItem game)
         {
             game.IsSelected = true;
 

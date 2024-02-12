@@ -34,7 +34,9 @@ namespace TeensyRom.Ui.Features.Games.GameToolbar
         {
             _gameState = gameState;
 
-            _gameState.LaunchedGame.ToPropertyEx(this, s => s.Game);
+            _gameState.LaunchedGame
+                .Cast<GameItem>()
+                .ToPropertyEx(this, s => s.Game);
 
             _gameState.CurrentState
                 .Select(state => state is ShuffleState)

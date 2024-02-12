@@ -54,7 +54,7 @@ namespace TeensyRom.Ui.Features.Games.State
         public abstract bool CanTransitionTo(Type nextStateType);
         public virtual Task ClearSearch() => throw new TeensyStateException(InvalidStateExceptionMessage);
 
-        public virtual async Task DeleteFile(GameItem game) => await _storage.DeleteFile(game, _settings.TargetType);
+        public virtual async Task DeleteFile(FileItem game) => await _storage.DeleteFile(game, _settings.TargetType);
 
         public virtual Task StopGame()
         {
@@ -62,9 +62,9 @@ namespace TeensyRom.Ui.Features.Games.State
             return _mediator.Send(new ResetCommand());
         }
 
-        public virtual Task<GameItem?> GetNext(GameItem currentGame, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
+        public virtual Task<FileItem?> GetNext(FileItem currentGame, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
-        public virtual Task<GameItem?> GetPrevious(GameItem currentGame, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
+        public virtual Task<FileItem?> GetPrevious(FileItem currentGame, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
         public virtual Task RefreshDirectory(bool bustCache = true) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
