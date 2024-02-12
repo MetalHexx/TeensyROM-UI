@@ -137,9 +137,10 @@
 
         <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="0">
 
-            <ListView Name="songListView"
+            <ListView Name="gameListView"
                 ItemsSource="{Binding DirectoryContent}"
-                SelectionMode="Single"
+                SelectionMode="Single"             
+                SelectionChanged="GameListViewView_SelectionChanged"
                 PreviewMouseWheel="OnListViewPreviewMouseWheel"
                 MouseDoubleClick="OnListViewDoubleClicked"
                 MouseLeftButtonUp="OnListViewClicked"

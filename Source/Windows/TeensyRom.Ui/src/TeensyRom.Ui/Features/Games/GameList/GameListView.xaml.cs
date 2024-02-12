@@ -89,5 +89,14 @@ namespace TeensyRom.Ui.Features.Games.GameList
                 parent?.RaiseEvent(eventArg);
             }
         }
+
+        private void GameListViewView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var listView = sender as ListView;
+            if (listView != null && listView.SelectedItem != null)
+            {
+                listView.ScrollIntoView(listView.SelectedItem);
+            }
+        }
     }
 }
