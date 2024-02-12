@@ -29,7 +29,6 @@ namespace TeensyRom.Ui.Features.Games.State
 {
     public abstract class PlayerState : IPlayerState
     {
-        public IObservable<PlayPausedState> PlayState => _gameState.AsObservable();
         protected BehaviorSubject<PlayPausedState> _gameState = new(PlayPausedState.Stopped);
         protected readonly ICachedStorageService _storage;
         protected readonly ISettingsService _settingsService;

@@ -79,14 +79,6 @@ namespace TeensyRom.Ui.Features.Games.State
 
         private void SubscribeToStateObservables()
         {
-            foreach (var state in _states)
-            {
-                _stateSubscriptions.AddRange(
-                [
-                    state.Value.PlayState.Subscribe(_playState.OnNext),
-                ]);
-            }
-
             _settingsSubscription = _settingsService.Settings
                 .Do(settings => _settings = settings)
                 .CombineLatest(_serialContext.CurrentState, _nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
@@ -223,7 +215,11 @@ namespace TeensyRom.Ui.Features.Games.State
                 await PlayGame(game);
             }
         }
-        public Task StopGame() => _currentState.Value.StopGame();
+        public Task StopGame() 
+        {
+            _playState.OnNext(PlayPausedState.Stopped);
+            return _currentState.Value.StopGame();
+        }
 
         public async Task<GameItem?> PlayRandom()
         {
