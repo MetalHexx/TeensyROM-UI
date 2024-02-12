@@ -25,13 +25,24 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
         public DirectoryTreeView()
         {
             InitializeComponent();
-            Unloaded += DirectoryTreeView_Unloaded;
-            DirectoryTreeControl.SelectedItemChanged += TreeView_SelectedItemChanged;
+            Unloaded += DirectoryTreeView_Unloaded;            
+            DirectoryTreeControl.MouseLeftButtonUp += TreeView_MouseLeftButtonUp;
+        }
+
+        private void TreeView_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var treeView = sender as TreeView;
+
+            if (treeView?.SelectedItem is DirectoryNodeViewModel directoryNode)
+            {
+                var viewModel = (DirectoryTreeViewModel)DataContext;
+                viewModel.DirectorySelectedCommand!.Execute(directoryNode);
+            }
         }
 
         private void DirectoryTreeView_Unloaded(object sender, RoutedEventArgs e)
         {
-            DirectoryTreeControl.SelectedItemChanged -= TreeView_SelectedItemChanged;
+            DirectoryTreeControl.MouseLeftButtonUp -= TreeView_MouseLeftButtonUp;
         }
 
         private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) 
