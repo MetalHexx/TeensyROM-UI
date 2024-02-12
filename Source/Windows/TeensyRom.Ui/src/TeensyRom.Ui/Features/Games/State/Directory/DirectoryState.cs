@@ -11,10 +11,10 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
 
-namespace TeensyRom.Ui.Features.Games.State
+namespace TeensyRom.Ui.Features.Games.State.Directory
 {
     public class DirectoryState
-    {        
+    {
         public ObservableCollection<StorageItem> DirectoryContent { get; private set; } = new();
         public int CurrentPage { get; private set; } = 1;
         public int TotalPages { get; private set; } = 1;
