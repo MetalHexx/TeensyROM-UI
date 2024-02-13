@@ -4,6 +4,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
 
@@ -19,7 +20,7 @@ namespace TeensyRom.Core.Serial
         public IObservable<Type> State => _state.AsObservable();
         public IObservable<string[]> Ports => _ports.AsObservable();
 
-        private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
+        private readonly BehaviorSubject<string[]> _ports = new(["COM3", "COM4"]);
         private readonly BehaviorSubject<Type> _state = new(typeof(SerialStartState));
         private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
 
@@ -105,14 +106,14 @@ namespace TeensyRom.Core.Serial
 
         public void StartPortPoll()
         {
-            var initialPorts = SerialPort.GetPortNames();
+            string[] initialPorts = SerialPort.GetPortNames();
 
-            if(initialPorts.Length > 0) _state.OnNext(typeof(SerialConnectableState));
+            if (initialPorts.Length > 0) _state.OnNext(typeof(SerialConnectableState));
 
             _portRefresherSubscription = Observable
                 .Interval(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds))
                 .Select(_ => SerialPort.GetPortNames())
-                .DistinctUntilChanged()
+                .DistinctUntilChanged(new StringArrayEqualityComparer())
                 .Scan(initialPorts, (previousPorts, currentPorts) =>
                 {
                     var previousHasPorts = previousPorts.Length > 0;
@@ -129,7 +130,7 @@ namespace TeensyRom.Core.Serial
                         _state.OnNext(typeof(SerialConnectableState));
                     }
                     return currentPorts;
-                })
+                })                
                 .Subscribe(_ports.OnNext);
         }
 
