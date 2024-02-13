@@ -68,6 +68,8 @@ namespace TeensyRom.Core.Music.Sid
                 song.SongLength = sidRecord.SongLengthSpan;
                 song.ReleaseInfo = sidRecord.Released;
                 song.Comments = sidRecord.StilEntry;
+                song.MetadataSource = "HVSC";
+                song.ShareUrl = $"https://deepsid.chordian.net/?file={sidRecord.Filepath}";
             }
             return song;
         }
@@ -93,6 +95,7 @@ namespace TeensyRom.Core.Music.Sid
         private Dictionary<string, SidRecord> FilterOutDupes(IEnumerable<SidRecord> records) => records
             .Select(r =>
             {
+                r.Filepath = r.Filename;
                 r.Filename = r.Filename.GetFileNameFromPath();
                 return r;
             })

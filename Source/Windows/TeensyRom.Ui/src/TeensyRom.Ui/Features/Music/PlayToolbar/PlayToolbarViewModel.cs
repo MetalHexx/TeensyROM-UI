@@ -4,8 +4,10 @@ using ReactiveUI.Fody.Helpers;
 using System;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Windows;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Music.State;
@@ -20,6 +22,7 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
         [ObservableAsProperty] public string CurrentTime { get; } = string.Empty;
         [ObservableAsProperty] public double CurrentProgress { get; }
         [ObservableAsProperty] public bool ShuffleModeEnabled { get; }
+        [ObservableAsProperty] public bool ShareVisible { get; }
         [ObservableAsProperty] public bool IsPlaying { get; }        
 
         public  ReactiveCommand<Unit, Unit>  TogglePlayCommand { get; set; }
@@ -27,14 +30,16 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
         public  ReactiveCommand<Unit, Unit>  NextCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ToggleShuffleCommand { get; set; }
         public ReactiveCommand<Unit, bool> FavoriteCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ShareCommand { get; set; }
         public ReactiveCommand<Unit, Unit> NavigateToSongDirCommand { get; set; }        
 
         private readonly IMusicState _musicState;
+        private readonly IAlertService _alert;
 
-        public PlayToolbarViewModel(IMusicState musicState)
+        public PlayToolbarViewModel(IMusicState musicState, IAlertService alert)
         {
             _musicState = musicState;
-
+            _alert = alert;
             _musicState.CurrentSong
                 .Where(s => s is not null)
                 .ToPropertyEx(this, s => s.Song);
@@ -42,6 +47,11 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
             _musicState.CurrentSongTime
                 .Select(t => t.ToString(@"mm\:ss"))
                 .ToPropertyEx(this, vm => vm.CurrentTime);
+
+            _musicState.CurrentSong
+                .Where(s => s is not null)
+                .Select(s => !string.IsNullOrEmpty(s.ShareUrl))
+                .ToPropertyEx(this, vm => vm.ShareVisible);
 
             _musicState.CurrentSongMode
                 .Select(mode => mode == SongMode.Shuffle)
@@ -67,7 +77,15 @@ namespace TeensyRom.Ui.Features.Music.PlayToolbar
             PreviousCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandlePreviousCommand());
             ToggleShuffleCommand = ReactiveCommand.Create<Unit, Unit>(_ => musicState.ToggleShuffleMode());
             FavoriteCommand = ReactiveCommand.CreateFromTask(_ => musicState.SaveFavorite(Song!));
+            ShareCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleShareCommand());
             NavigateToSongDirCommand = ReactiveCommand.CreateFromTask(_ => musicState.LoadDirectory(Song!.Path.GetUnixParentPath()!));
+        }
+
+        private Unit HandleShareCommand() 
+        {   
+            Clipboard.SetText(Song!.ShareUrl);
+            _alert.Publish("Share URL copied to clipboard.");
+            return Unit.Default;
         }
 
         private Unit HandlePreviousCommand()

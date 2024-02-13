@@ -89,6 +89,14 @@
                 HorizontalAlignment="Right" VerticalAlignment="Top" 
                 Margin="10 0 10 0">
 
+                <Button x:Name="ShareButton"
+                    Command="{Binding ShareCommand}"  
+                    Visibility="{Binding ShareVisible, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
+                    ToolTip="Copies a shareable web link to clipboard"
+                    Style="{StaticResource StorageIconButton}"    >
+                    <materialDesign:PackIcon Kind="Share"/>
+                </Button>
+
                 <Button x:Name="FavoriteButton"
                     Command="{Binding FavoriteCommand}"  
                     IsEnabled="{Binding Song.IsFavorite, Converter={StaticResource BooleanInverterConverter}, Mode=OneWay}"
