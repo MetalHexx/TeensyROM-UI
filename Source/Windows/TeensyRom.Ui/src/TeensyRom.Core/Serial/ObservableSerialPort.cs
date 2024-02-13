@@ -20,7 +20,7 @@ namespace TeensyRom.Core.Serial
         public IObservable<Type> State => _state.AsObservable();
         public IObservable<string[]> Ports => _ports.AsObservable();
 
-        private readonly BehaviorSubject<string[]> _ports = new(["COM3", "COM4"]);
+        private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         private readonly BehaviorSubject<Type> _state = new(typeof(SerialStartState));
         private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
 
