@@ -17,6 +17,7 @@ using TeensyRom.Ui.Services;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Features.Games;
 using System.Reflection;
+using System;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -143,6 +144,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
             _serialContext.CurrentState
                 .Select(s => s is SerialBusyState)
+                .Throttle(TimeSpan.FromMilliseconds(1000))
                 .ToPropertyEx(this, vm => vm.SerialBusy);
         }
 

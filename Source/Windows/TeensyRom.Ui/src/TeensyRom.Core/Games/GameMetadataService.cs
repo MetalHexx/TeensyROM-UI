@@ -116,6 +116,8 @@ namespace TeensyRom.Core.Games
             game.Screens.LoadingScreenRemotePath = loadingScreen?.RemotePath ?? string.Empty;
             game.Screens.ScreenshotLocalPath = screenshot?.LocalPath ?? string.Empty;
             game.Screens.ScreenshotRemotePath = screenshot?.RemotePath ?? string.Empty;
+
+            GetGameScreens(game);
         }
 
         private void LoadCacheFromDisk()
@@ -162,7 +164,7 @@ namespace TeensyRom.Core.Games
 
             if (!hasPathsConfigured) return;
                 
-            _alert.Publish($"Fetching game metadata.");
+            _alert.Publish($"Caching game art file locations.");
 
             _gameCache = new GameCache
             {
@@ -184,12 +186,12 @@ namespace TeensyRom.Core.Games
             });
             if (!response.IsSuccess)
             {
-                _alert.Publish($"There was an issue receiving game metadata at {path}.");
+                _alert.Publish($"There was an issue receiving the game art file info in {path}.");
                 return [];
             }
             if (response.DirectoryContent?.Files is null || response.DirectoryContent.Files.Count == 0)
             {
-                _alert.Publish($"No game metadata found at {path}.");
+                _alert.Publish($"No game art found at {path}.");
                 return [];
             }
             return response.DirectoryContent.Files.Select(f => new GameCacheItem

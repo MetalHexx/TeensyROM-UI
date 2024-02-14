@@ -430,19 +430,23 @@ namespace TeensyRom.Core.Storage.Services
             kvp => !_settings.GetFavoritePaths().Any(favPath => kvp.Key.Contains(favPath));
 
         public async Task CacheAll()
-        {   
+        {
+            _alert.Publish($"Starting cache all operation.  This may take several minutes.");
             var allContent = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = "/" });
+            _alert.Publish($"Enriching music and games with extra metadata and screen images.");
 
-            foreach (var directory in allContent.DirectoryContent)
+            await Task.Run(() => 
             {
-                if(directory is not null)
+                foreach (var directory in allContent.DirectoryContent)
                 {
-                    SaveDirectoryToCache(directory);
+                    if (directory is not null)
+                    {
+                        SaveDirectoryToCache(directory);
+                    }
                 }
-            }
-            EnsureFavorites();
-            SaveCacheToDisk();
-
+                EnsureFavorites();
+                SaveCacheToDisk();
+            });
             _alert.Publish($"Cache all completed for {_settings.TargetType} storage.");
         }
     }
