@@ -74,7 +74,7 @@ namespace TeensyRom.Ui.Features.Music
 
         private async Task HandleCacheAll()
         {
-            var confirm = await _dialog.ShowConfirmation($"Cache All \r\rThis will read all the files on your {_settings.TargetType} and save them to a local cache. Doing this will enable rich discovery of music and programs as it index all your files for search, random play and shuffle features.\r\rThis may take a few minutes if you have a lot of files from libraries like OneLoad64 or HSVC on your {_settings.TargetType} storage.\r\rProceed?");
+            var confirm = await _dialog.ShowConfirmation($"Cache All \r\rCreates a local index of all the files stored on your {_settings.TargetType} storage.  This will enable rich discovery of music and programs though search and file launch randomization.\r\rThis may take a few minutes if you have a lot of files from libraries like OneLoad64 or HSVC on your {_settings.TargetType} storage.  \r\rProceed?");
 
             if (!confirm) return;
 
