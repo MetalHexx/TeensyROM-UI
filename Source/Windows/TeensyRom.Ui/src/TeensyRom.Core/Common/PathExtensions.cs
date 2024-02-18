@@ -90,5 +90,14 @@
             }
             return string.Join('.', segments);
         }
+
+        public static string[] ToPathArray(this string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return [];
+            }
+            return path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+        }
     }
 }

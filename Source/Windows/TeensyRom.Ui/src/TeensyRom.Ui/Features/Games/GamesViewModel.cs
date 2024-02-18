@@ -9,7 +9,10 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using TeensyRom.Core.Common;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
+using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Controls.Paging;
 using TeensyRom.Ui.Features.Files.State;
@@ -30,7 +33,9 @@ namespace TeensyRom.Ui.Features.Games
         [ObservableAsProperty] public bool GamesAvailable { get; set; }
         [ObservableAsProperty] public bool ShowToolbar { get; set; }
         [ObservableAsProperty] public bool ShowPaging { get; }
+        [ObservableAsProperty] public bool SearchActive { get; }
 
+        [Reactive] public DirectoryChipsViewModel DirectoryChips { get; set; }
         [Reactive] public SearchGamesViewModel Search { get; set; }
         [Reactive] public DirectoryTreeViewModel GamesTree { get; set; }
         [Reactive] public GameListViewModel GameList { get; set; }
@@ -46,7 +51,7 @@ namespace TeensyRom.Ui.Features.Games
         private readonly IPlayerContext _gameState;
         private readonly IDialogService _dialog;
 
-        public GamesViewModel(IPlayerContext gameState, IGlobalState globalState, IDialogService dialog, ISettingsService settingsService, GameToolbarViewModel toolbar, GameListViewModel gameList, GameInfoViewModel gameInfo)
+        public GamesViewModel(IPlayerContext gameState, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, GameToolbarViewModel toolbar, GameListViewModel gameList, GameInfoViewModel gameInfo)
         {
             FeatureTitle = "Games";
             _gameState = gameState;
@@ -54,14 +59,32 @@ namespace TeensyRom.Ui.Features.Games
             GameToolBar = toolbar;
             GameList = gameList;            
             GameInfo = gameInfo;
-            settingsService.Settings.Subscribe(s => _settings = s);
+
+            var gamesLibaryPath = settingsService.Settings.Select(s => s.Libraries.FirstOrDefault(l => l.Type == TeensyLibraryType.Programs)?.Path ?? "");
+            var chipsObservable = gamesLibaryPath.CombineLatest(gameState.CurrentPath, (libraryPath, currentPath) => currentPath.Replace(libraryPath, ""));
+
+            settingsService.Settings.Subscribe(s => 
+            {
+                _settings = s;
+                var libPath = s.Libraries.FirstOrDefault(l => l.Type == TeensyLibraryType.Programs)?.Path ?? "";
+
+                DirectoryChips = new DirectoryChipsViewModel(
+                    path: gameState.CurrentPath,
+                    basePath: libPath,
+                    onClick: async path => await gameState.LoadDirectory(path),
+                    onCopy: () => alert.Publish("Path copied to clipboard"));
+            });
+
+            globalState.SerialConnected.ToPropertyEx(this, x => x.GamesAvailable);
+            gameState.PagingEnabled.ToPropertyEx(this, x => x.ShowPaging);
 
             gameState.LaunchedGame
                 .Select(g => g is not null)
                 .ToPropertyEx(this, x => x.ShowToolbar);
 
-            globalState.SerialConnected.ToPropertyEx(this, x => x.GamesAvailable);
-            gameState.PagingEnabled.ToPropertyEx(this, x => x.ShowPaging);
+            gameState.CurrentState
+                .Select(state => state is SearchState)
+                .ToPropertyEx(this, x => x.SearchActive);
 
             RefreshCommand = ReactiveCommand.CreateFromTask<Unit>( 
                 execute: _ => gameState.RefreshDirectory(), 

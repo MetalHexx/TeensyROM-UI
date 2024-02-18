@@ -8,6 +8,7 @@ namespace TeensyRom.Ui.Features.Games.State
 {
     public interface IPlayerContext
     {
+        IObservable<string> CurrentPath { get; }
         IObservable<int> CurrentPage { get; }
         IObservable<PlayPausedState> PlayState { get; }
         IObservable<PlayerState> CurrentState { get; }

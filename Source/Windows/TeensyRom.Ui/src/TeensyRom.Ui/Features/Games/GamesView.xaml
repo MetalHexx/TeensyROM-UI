@@ -9,12 +9,6 @@
     Height="auto" Width="auto">
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
         <TextBlock Text="Games are unavailable, check your connection."
            HorizontalAlignment="Center"
            VerticalAlignment="Center"
@@ -23,29 +17,40 @@
 
         <Grid Visibility="{Binding GamesAvailable, Converter={StaticResource BoolToVisibilityConvertor}}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="250"/>
-                <ColumnDefinition Width="420"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition MinWidth="500" Width="auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            
+
             <TextBlock 
                 Text="{Binding FeatureTitle}"
                 Style="{StaticResource SectionTitle}"            
                 Grid.Column="0"/>
 
-            <ContentControl 
-                Content="{Binding Search}"
-                HorizontalAlignment="Left"
-                Grid.Column="1"/>
+            <Grid Visibility="{Binding SearchActive, Converter={StaticResource InverseBoolToVisibilityConvertor}}" Grid.Row="0" Grid.Column="1" Margin="0 0 0 0">
+                <ContentControl Content="{Binding DirectoryChips}"/>
+            </Grid>
+
+            <Grid Visibility="{Binding SearchActive, Converter={StaticResource BoolToVisibilityConvertor}}" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1" Margin="0 9 0 0">
+                <TextBlock>Search Results:</TextBlock>
+            </Grid>
 
             <StackPanel 
                 Orientation="Horizontal"
                 HorizontalAlignment="Right" VerticalAlignment="Top"
+                Grid.Row="0"
                 Grid.Column="2"
-                Margin="0 -15 -15 10">
+                Margin="0 -10 -12 0">
+
+                <ContentControl                 
+                    Content="{Binding Search}"
+                    HorizontalAlignment="Right"
+                    Margin="0 14 0 0"/>
 
                 <Button 
                     Command="{Binding PlayRandomCommand}" 
@@ -72,34 +77,21 @@
                 </Button>
 
             </StackPanel>
-        </Grid>
-
-        <Grid Grid.Row="1" Visibility="{Binding GamesAvailable, Converter={StaticResource BoolToVisibilityConvertor}}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
 
             <ContentControl 
                 Content="{Binding GamesTree}"
                 HorizontalAlignment="Left" 
-                Grid.Row="0"
+                Grid.Row="1"
                 Grid.Column="0" 
                 Margin="0 0 20 0" />
 
             <ContentControl 
-                Content="{Binding GameList}"  Grid.Row="0"
+                Content="{Binding GameList}"  Grid.Row="1"
                 Grid.Column="1"/>
 
             <ContentControl 
                 Content="{Binding GameInfo}"
-                Grid.Row="0" 
+                Grid.Row="1" 
                 Grid.Column="2" />
 
             <Grid x:Name="ToolBarGrid" 
@@ -109,10 +101,7 @@
 
                 <ContentControl Content="{Binding GameToolBar}" VerticalAlignment="Center"/>
             </Grid>
-
-
         </Grid>
-
     </Grid>
 
 </UserControl>

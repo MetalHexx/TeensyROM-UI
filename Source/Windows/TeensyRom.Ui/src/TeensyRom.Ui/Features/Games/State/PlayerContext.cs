@@ -28,6 +28,7 @@ namespace TeensyRom.Ui.Features.Games.State
 {
     public class PlayerContext : IPlayerContext
     {
+        public IObservable<string> CurrentPath => _directoryState.Select(d => d.CurrentPath);
         public IObservable<PlayerState> CurrentState => _currentState.AsObservable();
         public IObservable<int> CurrentPage => _directoryState.Select(d => d.CurrentPage);
         public IObservable<int> TotalPages => _directoryState.Select(d => d.TotalPages);

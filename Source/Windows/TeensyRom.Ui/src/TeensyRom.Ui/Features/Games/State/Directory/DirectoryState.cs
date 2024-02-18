@@ -16,6 +16,7 @@ namespace TeensyRom.Ui.Features.Games.State.Directory
     public class DirectoryState
     {
         public ObservableCollection<StorageItem> DirectoryContent { get; private set; } = new();
+        public string CurrentPath => _currentPath ?? string.Empty;
         public int CurrentPage { get; private set; } = 1;
         public int TotalPages { get; private set; } = 1;
         public int PageSize { get; private set; } = 100;

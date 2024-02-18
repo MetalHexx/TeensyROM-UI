@@ -16,6 +16,7 @@
     xmlns:GameList="clr-namespace:TeensyRom.Ui.Features.Games.GameList"
     xmlns:SearchMusic="clr-namespace:TeensyRom.Ui.Features.Music.Search"
     xmlns:SearchGames="clr-namespace:TeensyRom.Ui.Features.Games.Search"
+    xmlns:DirectoryChips="clr-namespace:TeensyRom.Ui.Controls.DirectoryChips"
     xmlns:Connect="clr-namespace:TeensyRom.Ui.Features.Connect"
     xmlns:Settings="clr-namespace:TeensyRom.Ui.Features.Settings"
     
@@ -100,6 +101,10 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type Settings:SettingsViewModel}">
                 <Settings:SettingsView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type DirectoryChips:DirectoryChipsViewModel}">
+                <DirectoryChips:DirectoryChipsView/>
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

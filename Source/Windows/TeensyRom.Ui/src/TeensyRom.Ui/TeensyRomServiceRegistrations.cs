@@ -40,6 +40,7 @@ using TeensyRom.Ui.Features.Games.GameInfo;
 using TeensyRom.Core.Games;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Games.State.Directory;
+using TeensyRom.Ui.Controls.DirectoryChips;
 
 namespace TeensyRom.Ui
 {
