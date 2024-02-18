@@ -68,7 +68,7 @@ namespace TeensyRom.Ui
             {
                 lock (filePath)
                 {
-                    File.AppendAllText(filePath, $"Exception: {ex}{Environment.NewLine}");
+                    File.AppendAllText(filePath, $"{DateTime.Now}{Environment.NewLine}Exception: {ex}{Environment.NewLine}{Environment.NewLine}");
                 }
             }
             catch (Exception logEx)
