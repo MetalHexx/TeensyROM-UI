@@ -35,7 +35,7 @@ namespace TeensyRom.Ui.Features.Games
         [ObservableAsProperty] public bool ShowPaging { get; }
         [ObservableAsProperty] public bool SearchActive { get; }
 
-        [Reactive] public DirectoryChipsViewModel DirectoryChips { get; set; }
+        [Reactive] public DirectoryChipsViewModel DirectoryChips { get; set; } = null!;
         [Reactive] public SearchGamesViewModel Search { get; set; }
         [Reactive] public DirectoryTreeViewModel GamesTree { get; set; }
         [Reactive] public GameListViewModel GameList { get; set; }
