@@ -72,7 +72,8 @@ namespace TeensyRom.Ui.Features.Games
                     path: gameState.CurrentPath,
                     basePath: libPath,
                     onClick: async path => await gameState.LoadDirectory(path),
-                    onCopy: () => alert.Publish("Path copied to clipboard"));
+                    //onCopy: () => alert.Publish("Path copied to clipboard"),
+                    onCopy: () => throw new Exception("testing unhandled exceptions"));
             });
 
             globalState.SerialConnected.ToPropertyEx(this, x => x.GamesAvailable);
