@@ -27,13 +27,10 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock 
-                Text="{Binding FeatureTitle}"
-                Style="{StaticResource SectionTitle}"  
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                Grid.Row="0" Grid.Column="0"
-                Margin="10 0 0 0"/>
+            <ContentControl 
+                Content="{Binding Title}" 
+                Margin="10 0 0 0"
+                Grid.Row="0" Grid.Column="0"/>
 
             <ContentControl 
                 Content="{Binding DirectoryChips}" 

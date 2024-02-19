@@ -16,6 +16,7 @@ using TeensyRom.Ui.Controls.CornerToolbar;
 using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Controls.Paging;
 using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Features.Files.State;
@@ -44,18 +45,20 @@ namespace TeensyRom.Ui.Features.Games
         [Reactive] public GameToolbarViewModel GameToolBar { get; set; }
         [Reactive] public PagingViewModel Paging { get; set; }
         [Reactive] public CornerToolbarViewModel CornerToolbar { get; set; }
+        [Reactive] public FeatureTitleViewModel Title { get; set; }
 
         private TeensySettings _settings = null!;
         private readonly IPlayerContext _gameState;
         private readonly IDialogService _dialog;
 
         public GamesViewModel(IPlayerContext gameState, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, GameToolbarViewModel toolbar, GameInfoViewModel gameInfo)
-        {
-            FeatureTitle = "Games";
+        {   
             _gameState = gameState;
             _dialog = dialog;
             GameToolBar = toolbar;
             GameInfo = gameInfo;
+            FeatureTitle = "Games";
+            Title = new FeatureTitleViewModel(FeatureTitle);
             GameList = new DirectoryListViewModel
             (
                 gameState.DirectoryContent,
