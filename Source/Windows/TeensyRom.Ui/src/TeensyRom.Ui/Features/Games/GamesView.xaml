@@ -23,39 +23,54 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
-                <ColumnDefinition MinWidth="500" Width="auto"/>
+                <ColumnDefinition Width="1.32*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <TextBlock 
                 Text="{Binding FeatureTitle}"
-                Style="{StaticResource SectionTitle}"            
-                Grid.Column="0"/>
+                Style="{StaticResource SectionTitle}"  
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Grid.Row="0" Grid.Column="0"
+                Margin="10 0 0 0"/>
 
-            <Grid Visibility="{Binding SearchActive, Converter={StaticResource InverseBoolToVisibilityConvertor}}" Grid.Row="0" Grid.Column="1" Margin="0 0 0 0">
-                <ContentControl Content="{Binding DirectoryChips}"/>
-            </Grid>
+            <ContentControl 
+                Content="{Binding DirectoryChips}" 
+                Visibility="{Binding SearchActive, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
+                HorizontalAlignment="Stretch"
+                Margin="10 0 0 0"
+                Grid.Row="0" Grid.Column="1"/>
 
-            <Grid Visibility="{Binding SearchActive, Converter={StaticResource BoolToVisibilityConvertor}}" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1" Margin="0 9 0 0">
-                <TextBlock>Search Results:</TextBlock>
-            </Grid>
+            <Border 
+                Visibility="{Binding SearchActive, Converter={StaticResource BoolToVisibilityConvertor}}" 
+                Style="{StaticResource ToolbarBorder}"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Stretch" 
+                Grid.Row="0" Grid.Column="1"
+                Margin="10 0 0 0">
 
-            <StackPanel 
-                Orientation="Horizontal"
-                HorizontalAlignment="Right" VerticalAlignment="Top"
-                Grid.Row="0"
-                Grid.Column="2"
-                Margin="0 -10 -12 0">
+                <TextBlock FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0">
+                    Search Results:
+                </TextBlock>
+            </Border>
 
-                <ContentControl                 
-                    Content="{Binding Search}"
-                    HorizontalAlignment="Right"
-                    Margin="0 14 0 0"/>
+            <Grid Grid.Row="0" Grid.Column="2" Margin="10 0 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <ContentControl Content="{Binding Search}" Grid.Column="0"/>
 
                 <Button 
                     Command="{Binding PlayRandomCommand}" 
                     ToolTip="I'm feeling lucky!"
-                    Style="{StaticResource StorageIconButton}">
+                    Style="{StaticResource StorageIconButton}"
+                    Grid.Column="1"
+                    Margin="10 0 0 0">
 
                     <materialDesign:PackIcon Kind="Dice5" />
                 </Button>
@@ -63,7 +78,9 @@
                 <Button 
                     Command="{Binding CacheAllCommand}" 
                     ToolTip="Caches all files.  This will increase performance and make files and music available for search, random play and shuffle play mode."
-                    Style="{StaticResource StorageIconButton}">
+                    Style="{StaticResource StorageIconButton}"
+                    Margin="10 0 0 0"
+                    Grid.Column="2">
 
                     <materialDesign:PackIcon Kind="DatabaseImport" />
                 </Button>
@@ -71,33 +88,34 @@
                 <Button 
                     Command="{Binding RefreshCommand}" 
                     ToolTip="Refreshes the current directory."
-                    Style="{StaticResource StorageIconButton}">
+                    Style="{StaticResource StorageIconButton}"
+                    Grid.Column="3"
+                    Margin="10 0 0 0">
 
                     <materialDesign:PackIcon Kind="refresh" />
                 </Button>
-
-            </StackPanel>
+            </Grid>
 
             <ContentControl 
                 Content="{Binding GamesTree}"
                 HorizontalAlignment="Left" 
-                Grid.Row="1"
-                Grid.Column="0" 
-                Margin="0 0 20 0" />
+                Grid.Row="1" Grid.Column="0" 
+                Margin="0 10 0 0" />
 
             <ContentControl 
-                Content="{Binding GameList}"  Grid.Row="1"
-                Grid.Column="1"/>
+                Content="{Binding GameList}"  
+                Grid.Row="1" Grid.Column="1"
+                Margin="10 10 0 0"/>
 
             <ContentControl 
                 Content="{Binding GameInfo}"
-                Grid.Row="1" 
-                Grid.Column="2" />
+                Grid.Row="1" Grid.Column="2"
+                Margin="10 10 0 0"/>
 
-            <Grid x:Name="ToolBarGrid" 
+            <Grid x:Name="ToolBarGrid"                 
+                Visibility="{Binding ShowToolbar, Converter={StaticResource BoolToVisibilityConvertor}}"
                 Grid.Row="2" Grid.ColumnSpan="3" 
-                Background="#303030" 
-                Visibility="{Binding ShowToolbar, Converter={StaticResource BoolToVisibilityConvertor}}">
+                Background="#303030" >
 
                 <ContentControl Content="{Binding GameToolBar}" VerticalAlignment="Center"/>
             </Grid>

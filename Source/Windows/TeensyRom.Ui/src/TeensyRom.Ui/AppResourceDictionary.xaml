@@ -32,6 +32,15 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+
+    <Style x:Key="ToolbarBorder" TargetType="Border">
+        <Setter Property="BorderBrush" Value="DarkGray"/>
+        <Setter Property="BorderThickness" Value="0.2"/>
+        <Setter Property="CornerRadius" Value="5"/>
+        <Setter Property="Padding" Value="0 0 5 0"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Height" Value="45"/>
+    </Style>
     
     <Style x:Key="PlaybarPrevSkipButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
 
@@ -67,7 +76,6 @@
     <Style x:Key="StorageIconButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
 
         <Setter Property="Padding" Value="0"/>
-        <Setter Property="Margin" Value="10"/>
         <Setter Property="Height" Value="30"/>
         <Setter Property="Width" Value="30"/>
         <Style.Triggers>

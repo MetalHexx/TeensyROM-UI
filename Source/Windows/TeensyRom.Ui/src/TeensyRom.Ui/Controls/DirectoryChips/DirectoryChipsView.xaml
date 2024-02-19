@@ -6,50 +6,54 @@
              xmlns:local="clr-namespace:TeensyRom.Ui.Controls.DirectoryChips"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">       
-            
-        
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Top">        
-        <Border BorderBrush="DarkGray" BorderThickness="0.2" CornerRadius="5" Padding="5" Margin="0 0 0 0" MinWidth="500">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+             d:DesignHeight="450" d:DesignWidth="800">
 
-                <materialDesign:PackIcon Kind="FolderOutline" Width ="20" Height="30" Foreground="{StaticResource PrimaryHueLightBrush}" VerticalAlignment="Center" Grid.Column ="0" Margin="0 0 5 0"/>
 
-                <ItemsControl ItemsSource="{Binding PathItems}" Grid.Column="1">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Button Content="{Binding}" 
+    <Border Style="{StaticResource ToolbarBorder}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+
+            <materialDesign:PackIcon 
+                Kind="FolderOutline" 
+                Foreground="{StaticResource PrimaryHueLightBrush}"
+                Width ="20" Height="30" 
+                VerticalAlignment="Center" 
+                Grid.Column ="0" 
+                Margin="10 0 10 0"/>
+
+            <ItemsControl ItemsSource="{Binding PathItems}" Grid.Column="1">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Content="{Binding}" 
                                 Command="{Binding DataContext.PathItemClickCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:DirectoryChipsView}}}"
                                 CommandParameter="{Binding}"
                                 Style="{StaticResource MaterialDesignFlatLightButton}" 
                                 Padding="0 0 0 0"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
 
-                <Button                     
+            <Button                     
                     Command="{Binding CopyCommand}" 
                     ToolTip="Copies the path to the clipboard"
                     Style="{StaticResource TinyIconButton}"
                     HorizontalAlignment="Right"
                     Grid.Column="2">
-                    <materialDesign:PackIcon Kind="ContentCopy" Height="15"/>
-                </Button>
+                <materialDesign:PackIcon Kind="ContentCopy" Height="15"/>
+            </Button>
 
-            </Grid>                
-        </Border>
-    </StackPanel>
-    
-    
+        </Grid>
+    </Border>
+
+
 
 </UserControl>

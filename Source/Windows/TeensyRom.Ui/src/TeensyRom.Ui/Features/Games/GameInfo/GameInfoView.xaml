@@ -18,32 +18,29 @@
 
 
             <TextBlock Grid.Row="0" 
-        Text="{Binding GameName}" 
-        FontSize="20" 
-        FontWeight="Bold" 
-        HorizontalAlignment="Left" 
-        VerticalAlignment="Top" 
-        Margin="10,10,0,10"/>
+                Text="{Binding GameName}" 
+                FontSize="20" 
+                FontWeight="Bold" 
+                HorizontalAlignment="Left" 
+                VerticalAlignment="Top"/>
 
             <Image Grid.Row="1" 
-        Source="{Binding CroppedLoadingScreen}" 
-        Visibility="{Binding CroppedLoadingScreen, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
-        Stretch="Uniform" 
-        MaxHeight="800"
-        MaxWidth="600"
-        HorizontalAlignment="Left"
-        VerticalAlignment="Top"
-        Margin="10,10,0,10"/>
+                Source="{Binding CroppedLoadingScreen}" 
+                Visibility="{Binding CroppedLoadingScreen, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
+                Stretch="Uniform" 
+
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="0 10 0 0"/>
 
             <Image Grid.Row="2" 
-        Source="{Binding CroppedScreenshot}" 
-        Visibility="{Binding CroppedScreenshot, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
-        Stretch="Uniform" 
-        MaxHeight="800"
-        MaxWidth="600"
-        HorizontalAlignment="Left"
-        VerticalAlignment="Top"
-        Margin="10,10,0,10"/>
+                Source="{Binding CroppedScreenshot}" 
+                Visibility="{Binding CroppedScreenshot, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
+                Stretch="Uniform" 
+
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="0 10 0 0"/>
         </Grid>
     </ScrollViewer>
     
