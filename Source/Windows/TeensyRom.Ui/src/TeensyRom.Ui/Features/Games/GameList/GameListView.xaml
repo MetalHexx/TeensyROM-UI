@@ -71,7 +71,8 @@
                             CommandParameter="{Binding}"  
                             Visibility="Collapsed"
                             ToolTip="Launch"
-                            Style="{StaticResource StorageIconButton}">
+                            Style="{StaticResource StorageIconButton}"
+                            Margin="10 0 0 0 ">
                             <materialDesign:PackIcon Kind="Play" />
                         </Button>
 
@@ -81,7 +82,8 @@
                             CommandParameter="{Binding}"
                             Visibility="Collapsed"
                             ToolTip="Add to favorites"
-                            Style="{StaticResource StorageIconButton}">
+                            Style="{StaticResource StorageIconButton}"
+                            Margin="10 0 0 0">
                             <materialDesign:PackIcon Kind="Heart" />
                         </Button>
 
@@ -91,7 +93,8 @@
                             CommandParameter="{Binding}" 
                             Visibility="Collapsed"
                             ToolTip="Delete"                    
-                            Style="{StaticResource StorageIconButton}">
+                            Style="{StaticResource StorageIconButton}"
+                            Margin="10 0 0 0">
                             <materialDesign:PackIcon Kind="Trash" />
                         </Button>
                     </StackPanel>

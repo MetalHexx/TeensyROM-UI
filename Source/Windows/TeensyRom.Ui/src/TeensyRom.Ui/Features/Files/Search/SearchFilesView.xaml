@@ -21,10 +21,10 @@
             Command="{Binding ClearSearchCommand}" 
             Visibility="{Binding ShowClearSearch, Converter={StaticResource BoolToVisibilityConvertor}}"
             ToolTip="Clear search"
-            Style="{StaticResource SearchButton}"  
+            Style="{StaticResource TinyIconButton}"  
             VerticalAlignment="Center">
 
-            <materialDesign:PackIcon Kind="Close" />
+            <materialDesign:PackIcon Kind="Close" Height="15"/>
         </Button>
 
     </StackPanel>
