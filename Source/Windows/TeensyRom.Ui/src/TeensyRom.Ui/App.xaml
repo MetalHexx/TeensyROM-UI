@@ -15,7 +15,7 @@
     xmlns:SongList="clr-namespace:TeensyRom.Ui.Features.Music.SongList"
     xmlns:GameList="clr-namespace:TeensyRom.Ui.Features.Games.GameList"
     xmlns:SearchMusic="clr-namespace:TeensyRom.Ui.Features.Music.Search"
-    xmlns:SearchGames="clr-namespace:TeensyRom.Ui.Features.Games.Search"
+    xmlns:Search="clr-namespace:TeensyRom.Ui.Controls.Search"
     xmlns:DirectoryChips="clr-namespace:TeensyRom.Ui.Controls.DirectoryChips"
     xmlns:Connect="clr-namespace:TeensyRom.Ui.Features.Connect"
     xmlns:Settings="clr-namespace:TeensyRom.Ui.Features.Settings"
@@ -92,8 +92,8 @@
                 <SearchMusic:SearchMusicView/>
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type SearchGames:SearchGamesViewModel}">
-                <SearchGames:SearchGamesView/>
+            <DataTemplate DataType="{x:Type Search:SearchViewModel}">
+                <Search:SearchView/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type Connect:ConnectViewModel}">

@@ -38,4 +38,8 @@
     </Compile>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Games\Search\" />
+  </ItemGroup>
+
 </Project>

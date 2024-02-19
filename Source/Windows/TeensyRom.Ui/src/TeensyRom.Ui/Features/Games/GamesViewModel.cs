@@ -15,11 +15,11 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Controls.Paging;
+using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Features.Files.State;
 using TeensyRom.Ui.Features.Games.GameInfo;
 using TeensyRom.Ui.Features.Games.GameList;
 using TeensyRom.Ui.Features.Games.GameToolbar;
-using TeensyRom.Ui.Features.Games.Search;
 using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Features.NavigationHost;
@@ -36,7 +36,7 @@ namespace TeensyRom.Ui.Features.Games
         [ObservableAsProperty] public bool SearchActive { get; }
 
         [Reactive] public DirectoryChipsViewModel DirectoryChips { get; set; } = null!;
-        [Reactive] public SearchGamesViewModel Search { get; set; }
+        [Reactive] public SearchViewModel Search { get; set; }
         [Reactive] public DirectoryTreeViewModel GamesTree { get; set; }
         [Reactive] public GameListViewModel GameList { get; set; }
         [Reactive] public GameInfoViewModel GameInfo { get; set; }

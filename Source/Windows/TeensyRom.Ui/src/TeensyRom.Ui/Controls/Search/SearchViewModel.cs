@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 using System.Reactive.Linq;
 using TeensyRom.Ui.Features.Games.State;
 
-namespace TeensyRom.Ui.Features.Games.Search
+namespace TeensyRom.Ui.Controls.Search
 {
-    public class SearchGamesViewModel : ReactiveObject, IDisposable
+    public class SearchViewModel : ReactiveObject, IDisposable
     {
         [Reactive] public string SearchText { get; set; } = string.Empty;
         [ObservableAsProperty] public bool ShowClearSearch { get; }
@@ -18,7 +18,7 @@ namespace TeensyRom.Ui.Features.Games.Search
         public ReactiveCommand<string, Unit>? SearchCommand { get; set; }
         private IDisposable? _searchSubscription;
 
-        public SearchGamesViewModel(IObservable<bool> searchEnabled)
+        public SearchViewModel(IObservable<bool> searchEnabled)
         {
             searchEnabled
                 .Do(enabled => SearchText = enabled ? SearchText : string.Empty)
