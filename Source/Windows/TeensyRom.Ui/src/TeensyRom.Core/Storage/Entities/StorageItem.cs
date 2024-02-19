@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace TeensyRom.Core.Storage.Entities
 {
-    public class StorageItem: INotifyPropertyChanged
+    public class StorageItem : INotifyPropertyChanged, IStorageItem
     {
         public string Name { get; set; } = string.Empty;
         public string Path { get; set; } = string.Empty;

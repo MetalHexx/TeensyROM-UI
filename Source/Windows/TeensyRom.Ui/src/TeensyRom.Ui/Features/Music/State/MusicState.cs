@@ -33,14 +33,14 @@ namespace TeensyRom.Ui.Features.Music.State
     public class MusicState : IMusicState, IDisposable
     {
         public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryTree.AsObservable();
-        public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
+        public IObservable<ObservableCollection<IStorageItem>> DirectoryContent => _directoryContent.AsObservable();
         public IObservable<SongItem> CurrentSong => _currentSong.AsObservable();        
         public IObservable<SongMode> CurrentSongMode => _songMode.AsObservable();
         public IObservable<PlayState> CurrentPlayState => _playState.AsObservable();
         public IObservable<TimeSpan> CurrentSongTime => _songTime.CurrentTime;
 
         private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
-        private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
+        private readonly Subject<ObservableCollection<IStorageItem>> _directoryContent = new();
         private readonly BehaviorSubject<StorageCacheItem?> _currentDirectory = new(null);
         private readonly BehaviorSubject<SongItem> _currentSong = new(null!);
         private readonly BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
@@ -99,7 +99,7 @@ namespace TeensyRom.Ui.Features.Music.State
         private void OnSettingsChanged(TeensySettings settings)
         {
             _settings = settings;
-            _directoryContent.OnNext(new ObservableCollection<StorageItem>());
+            _directoryContent.OnNext(new ObservableCollection<IStorageItem>());
             ResetDirectoryTree();
         }
 
@@ -352,7 +352,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
             _directoryTree.OnNext(_directoryTree.Value);
 
-            var directoryItems = new ObservableCollection<StorageItem>();
+            var directoryItems = new ObservableCollection<IStorageItem>();
             directoryItems.AddRange(directoryResult.Directories);
             directoryItems.AddRange(directoryResult.Files);
 
@@ -376,7 +376,7 @@ namespace TeensyRom.Ui.Features.Music.State
             await LoadDirectory(_currentDirectory.Value.Path);
         }
 
-        public async Task DeleteFile(FileItem file)
+        public async Task DeleteFile(IFileItem file)
         {
             await _musicService.DeleteFile(file, _settings.TargetType);
             await RefreshDirectory(bustCache: false);
@@ -407,7 +407,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
             if (searchResult is null) return Unit.Default;
 
-            _directoryContent.OnNext(new ObservableCollection<StorageItem>(searchResult));
+            _directoryContent.OnNext(new ObservableCollection<IStorageItem>(searchResult));
             return Unit.Default;
         }
 

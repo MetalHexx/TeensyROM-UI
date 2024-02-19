@@ -26,14 +26,14 @@ namespace TeensyRom.Ui.Features.Games.State
                 || nextStateType == typeof(SearchState);
         }
 
-        public override async Task<FileItem?> GetNext(FileItem currentGame, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentLaunchable, DirectoryState directoryState)
         {
-            var parentPath = currentGame.Path.GetUnixParentPath();
+            var parentPath = currentLaunchable.Path.GetUnixParentPath();
             var directoryResult = await _storage.GetDirectory(parentPath);
 
             if (directoryResult is null) return null;
 
-            var currentIndex = directoryResult.Files.IndexOf(currentGame);
+            var currentIndex = directoryResult.Files.IndexOf(currentLaunchable);
 
             var nextFile = directoryResult.Files.Count == currentIndex + 1
                 ? directoryResult.Files.First()
@@ -41,7 +41,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (nextFile is GameItem game)
             {
-                if (game.Path == currentGame.Path) return null;
+                if (game.Path == currentLaunchable.Path) return null;
 
                 await _playerContext.LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
                 return game;
@@ -49,20 +49,21 @@ namespace TeensyRom.Ui.Features.Games.State
             return null;
         }
 
-        public override async Task<FileItem?> GetPrevious(FileItem currentGame, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentGame, DirectoryState directoryState)
         {
             var parentPath = currentGame.Path.GetUnixParentPath();
             var directoryResult = await _storage.GetDirectory(parentPath);
+            var launchableItems = directoryResult?.Files.OfType<ILaunchableItem>().ToList();
 
-            if (directoryResult is null)
+            if (launchableItems is null)
             {
                 return currentGame;                
             }
-            var gameIndex = directoryResult.Files.IndexOf(currentGame);
+            var gameIndex = launchableItems.IndexOf(currentGame);
 
             var game = gameIndex == 0
-                ? directoryResult.Files.Last()
-                : directoryResult.Files[--gameIndex];
+                ? launchableItems.Last()
+                : launchableItems[--gameIndex];
 
             if (game is null) return null;
 

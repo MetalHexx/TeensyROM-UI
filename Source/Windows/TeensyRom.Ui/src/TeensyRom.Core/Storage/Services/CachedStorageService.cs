@@ -64,34 +64,34 @@ namespace TeensyRom.Core.Storage.Services
             }
         }
         
-        public async Task<FileItem?> SaveFavorite(FileItem fileItem)
+        public async Task<ILaunchableItem?> SaveFavorite(ILaunchableItem launchItem)
         {
-            var favPath = _settings.GetFavoritePath(fileItem.FileType);
+            var favPath = _settings.GetFavoritePath(launchItem.FileType);
 
             var favCommand = new FavoriteFileCommand
             {
-                SourcePath = fileItem.Path,
-                DestPath = favPath.UnixPathCombine(fileItem.Name)
+                SourcePath = launchItem.Path,
+                DestPath = favPath.UnixPathCombine(launchItem.Name)
             };
 
             var favoriteResult = await _mediator.Send(favCommand);
 
             if (favoriteResult.IsBusy)
             {
-                _alert.Publish($"TR was reset to save the favorite.  Re-launching {fileItem.Name}.");
+                _alert.Publish($"TR was reset to save the favorite.  Re-launching {launchItem.Name}.");
                 await _mediator.Send(new ResetCommand());                
                 favoriteResult = await _mediator.Send(favCommand);
                 await Task.Delay(5000);
-                await _mediator.Send(new LaunchFileCommand { Path = fileItem.Path });
+                await _mediator.Send(new LaunchFileCommand { Path = launchItem.Path });
             }
             if(!favoriteResult.IsSuccess)
             {
-                _alert.Publish($"There was an error favoriting {fileItem.Name}.");
+                _alert.Publish($"There was an error favoriting {launchItem.Name}.");
                 return null;
             }
-            _alert.Publish($"{fileItem.Name} has been favorited.  A copy was placed in {favPath}");
+            _alert.Publish($"{launchItem.Name} has been favorited.  A copy was placed in {favPath}");
 
-            var favItem = fileItem switch
+            var favItem = launchItem switch
             {
                 SongItem s => s.Clone(),
                 GameItem g => g.Clone(),
@@ -101,23 +101,23 @@ namespace TeensyRom.Core.Storage.Services
 
             if (!favoriteResult.IsSuccess) return null;
 
-            fileItem.IsFavorite = true;
+            launchItem.IsFavorite = true;
             favItem.IsFavorite = true;
             
             favItem.Path = favPath.UnixPathCombine(favItem.Name);
 
-            _storageCache.UpsertFile(fileItem);
+            _storageCache.UpsertFile(launchItem);
             _storageCache.UpsertFile(favItem);
 
             SaveCacheToDisk();
 
-            return favItem;
+            return favItem as ILaunchableItem;
         }
 
-        public void MarkIncompatible(FileItem fileItem)
+        public void MarkIncompatible(ILaunchableItem launchItem)
         {
-            fileItem.IsCompatible = false;
-            _storageCache.UpsertFile(fileItem);
+            launchItem.IsCompatible = false;
+            _storageCache.UpsertFile(launchItem);
 
             SaveCacheToDisk();
         }
@@ -166,7 +166,7 @@ namespace TeensyRom.Core.Storage.Services
 
         public void EnsureFavorites()
         {
-            List<FileItem> favsToFavorite = GetFavoriteItemsFromCache();
+            List<ILaunchableItem> favsToFavorite = GetFavoriteItemsFromCache();
 
             favsToFavorite.ForEach(f => f.IsFavorite = true);
 
@@ -177,16 +177,17 @@ namespace TeensyRom.Core.Storage.Services
                 .ForEach(f => f.IsFavorite = true);
         }
 
-        public List<FileItem> GetFavoriteItemsFromCache()
+        public List<ILaunchableItem> GetFavoriteItemsFromCache()
         {
-            List<FileItem> favs = [];
+            List<ILaunchableItem> favs = [];
 
             foreach (var target in _settings.GetFavoritePaths())
             {
                 favs.AddRange(_storageCache
                     .Where(c => c.Key.Contains(target))
                     .SelectMany(c => c.Value.Files)
-                    .ToList());
+                    .ToList()
+                    .Cast<ILaunchableItem>());
             }
             return favs;
         }
@@ -227,14 +228,14 @@ namespace TeensyRom.Core.Storage.Services
         private StorageCacheItem SaveDirectoryToCache(DirectoryContent dirContent)
         {
             StorageCacheItem? cacheItem;
-            var songs = MapAndOrderFiles(dirContent);
+            var files = MapAndOrderFiles(dirContent);
             var directories = MapAndOrderDirectories(dirContent);
 
             cacheItem = new StorageCacheItem
             {
                 Path = dirContent.Path,
                 Directories = directories.ToList(),
-                Files = songs.Cast<FileItem>().ToList()
+                Files = files
             };
 
             var favPaths = _settings.GetFavoritePaths();
@@ -259,7 +260,7 @@ namespace TeensyRom.Core.Storage.Services
                 .ToList() ?? new List<DirectoryItem>();
         }
 
-        private List<FileItem> MapAndOrderFiles(DirectoryContent? directoryContent)
+        private List<IFileItem> MapAndOrderFiles(DirectoryContent? directoryContent)
         {
             return directoryContent?.Files
                 .Select(file =>
@@ -291,8 +292,6 @@ namespace TeensyRom.Core.Storage.Services
                 .OrderBy(file => file.Name)
                 .ToList() ?? [];
         }
-
-        private string GetGameArtPath(FileItem file, string parentPath) => Path.Combine(parentPath, file.Name.ReplaceExtension(".png"));
 
         public async Task SaveFile(TeensyFileInfo fileInfo)
         {
@@ -328,8 +327,8 @@ namespace TeensyRom.Core.Storage.Services
             _directoryUpdated.OnNext(storageItem.Path);
         }
 
-        public async Task DeleteFile(FileItem file, TeensyStorageType storageType)
-        {
+        public async Task DeleteFile(IFileItem file, TeensyStorageType storageType)
+        {      
             await _mediator.Send(new DeleteFileCommand 
             { 
                 Path = file.Path, 
@@ -343,7 +342,7 @@ namespace TeensyRom.Core.Storage.Services
         }
         public void Dispose() => _settingsSubscription?.Dispose();
 
-        public FileItem? GetRandomFile(params TeensyFileType[] fileTypes) 
+        public ILaunchableItem? GetRandomFile(params TeensyFileType[] fileTypes) 
         {
             if (fileTypes.Length == 0)
             {
@@ -351,6 +350,7 @@ namespace TeensyRom.Core.Storage.Services
             }
             var selection = _storageCache.SelectMany(c => c.Value.Files)
                 .Where(f => fileTypes.Contains(f.FileType))
+                .OfType<ILaunchableItem>()                
                 .ToArray();
 
             if (selection.Length == 0) return null;
@@ -382,14 +382,14 @@ namespace TeensyRom.Core.Storage.Services
                 .Take(maxNumResults);
         }
 
-        public IEnumerable<FileItem> SearchFiles(string searchText)
+        public IEnumerable<ILaunchableItem> SearchFiles(string searchText)
         {
             var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             return _storageCache
                 .Where(NotFavoriteFilter)
                 .SelectMany(c => c.Value.Files)
-                .OfType<FileItem>()
+                .OfType<ILaunchableItem>()
                 .Where(f => TeensyFileTypeExtensions.GetLaunchFileTypes().Contains(f.FileType))
                 .Select(song => new
                 {
@@ -404,21 +404,21 @@ namespace TeensyRom.Core.Storage.Services
                 .Select(result => result.File);
         }
 
-        public IEnumerable<FileItem> SearchPrograms(string searchText)
+        public IEnumerable<GameItem> SearchGames(string searchText)
         {
             var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             return _storageCache
                 .Where(NotFavoriteFilter)
                 .SelectMany(c => c.Value.Files)
-                .OfType<FileItem>()
+                .OfType<GameItem>()
                 .Where(f => f.FileType is TeensyFileType.Crt or TeensyFileType.Prg)
-                .Select(song => new
+                .Select(game => new
                 {
-                    File = song,
+                    File = game,
                     Score = searchTerms.Count(term =>
-                        song.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                        song.Path.Contains(term, StringComparison.OrdinalIgnoreCase)
+                        game.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        game.Path.Contains(term, StringComparison.OrdinalIgnoreCase)
                     )
                 })
                 .Where(result => result.Score > 0)

@@ -25,7 +25,7 @@ namespace TeensyRom.Ui.Features.Common.State
         public IObservable<int> TotalPages => _totalPages.AsObservable();
         public IObservable<int> PageSize => _pageSize.AsObservable();
         public IObservable<bool> PagingEnabled => _pagingEnabled.AsObservable();
-        public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryContent.AsObservable();
+        public IObservable<ObservableCollection<IStorageItem>> DirectoryContent => _directoryContent.AsObservable();
 
         private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
         private readonly BehaviorSubject<int> _currentPage = new(1);
@@ -33,8 +33,8 @@ namespace TeensyRom.Ui.Features.Common.State
         private readonly BehaviorSubject<int> _pageSize = new(250);
         private readonly BehaviorSubject<bool> _pagingEnabled = new(false);
         private int _skip => (_currentPage.Value - 1) * _pageSize.Value;
-        private List<StorageItem> _directoryItems = [];
-        private readonly Subject<ObservableCollection<StorageItem>> _directoryContent = new();
+        private List<IStorageItem> _directoryItems = [];
+        private readonly Subject<ObservableCollection<IStorageItem>> _directoryContent = new();
         private string _currentDirectoryPath = string.Empty;
 
         public void ResetDirectoryTree(string rootPath)
@@ -56,9 +56,9 @@ namespace TeensyRom.Ui.Features.Common.State
             _directoryTree.OnNext(dirItem);
         }
 
-        public void SetSearchResults(IEnumerable<StorageItem> items)
+        public void SetSearchResults(IEnumerable<IStorageItem> items)
         {
-            _directoryContent.OnNext(new ObservableCollection<StorageItem>(items));
+            _directoryContent.OnNext(new ObservableCollection<IStorageItem>(items));
         }
 
         public Task ClearSearchResults() => LoadDirectory(_currentDirectoryPath ?? "/");
@@ -97,12 +97,12 @@ namespace TeensyRom.Ui.Features.Common.State
 
             _directoryTree.OnNext(_directoryTree.Value);
 
-            var fullDirectory = new List<StorageItem>();
+            var fullDirectory = new List<IStorageItem>();
             fullDirectory.AddRange(directoryResult.Directories);
-            fullDirectory.AddRange(directoryResult.Files);
+            fullDirectory.AddRange(directoryResult.Files.ToList());
 
 
-            var directoryItems = new ObservableCollection<StorageItem>();
+            var directoryItems = new ObservableCollection<IStorageItem>();
 
             var skip = _skip;
 
@@ -112,7 +112,7 @@ namespace TeensyRom.Ui.Features.Common.State
 
                 if (fileToSelect != null)
                 {
-                    fullDirectory.Where(items => items is FileItem)
+                    fullDirectory.Where(items => items is IFileItem)
                          .ToList()
                          .ForEach(i => i.IsSelected = false);
 

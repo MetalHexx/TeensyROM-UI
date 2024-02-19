@@ -30,11 +30,14 @@ namespace TeensyRom.Ui.Features.Games.State
                 || nextStateType == typeof(ShuffleState);
         }
 
-        public override async Task<FileItem?> GetNext(FileItem currentGame, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentGame, DirectoryState directoryState)
         {
             await Task.CompletedTask;
 
-            var currentIndex = directoryState.DirectoryContent.IndexOf(currentGame);
+            var currentIndex = directoryState.DirectoryContent
+                .OfType<ILaunchableItem>()
+                .ToList()
+                .IndexOf(currentGame);
 
             var nextGame = directoryState.DirectoryContent.Count == currentIndex + 1
                 ? directoryState.DirectoryContent.First()
@@ -42,24 +45,31 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (nextGame.Path == currentGame.Path) return null;
 
-            if (nextGame is FileItem game)
+            if (nextGame is ILaunchableItem game)
             {
                 return game;                
             }
             return currentGame;
         }
 
-        public override async Task<FileItem?> GetPrevious(FileItem currentGame, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentGame, DirectoryState directoryState)
         {
             await Task.CompletedTask;
 
-            var currentIndex = directoryState.DirectoryContent.IndexOf(currentGame);
+            var currentIndex = directoryState.DirectoryContent
+                .OfType<ILaunchableItem>()
+                .ToList()
+                .IndexOf(currentGame);
 
-            var file = directoryState.DirectoryContent.Count == 0
-                ? directoryState.DirectoryContent.Last()
-                : directoryState.DirectoryContent[--currentIndex];
+            IStorageItem file;
 
-            if (file is FileItem game)
+            if (directoryState.DirectoryContent.Count == 0) return null;
+
+            file = currentIndex > 0
+                ? directoryState.DirectoryContent[--currentIndex]
+                : directoryState.DirectoryContent.Last();
+
+            if (file is ILaunchableItem game)
             {
                 return game;                
             }

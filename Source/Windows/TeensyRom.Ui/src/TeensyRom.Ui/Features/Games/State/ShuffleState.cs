@@ -26,9 +26,9 @@ namespace TeensyRom.Ui.Features.Games.State
                 || nextStateType == typeof(SearchState);
         }
 
-        public override async Task<FileItem?> GetNext(FileItem currentGame, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentGame, DirectoryState directoryState)
         {
-            var game = _launchHistory.GetNext(TeensyFileType.Crt, TeensyFileType.Prg) as FileItem;
+            var game = _launchHistory.GetNext(TeensyFileType.Crt, TeensyFileType.Prg);
 
             if (game is not null)
             {
@@ -39,12 +39,13 @@ namespace TeensyRom.Ui.Features.Games.State
             
             if(randomGame is not null)
             {
+                _launchHistory.Add(randomGame);
                 await _playerContext.LoadDirectory(randomGame.Path.GetUnixParentPath(), randomGame.Path);
             }
-            return randomGame as FileItem;            
+            return randomGame;            
         }
 
-        public override async Task<FileItem?> GetPrevious(FileItem currentGame, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentGame, DirectoryState directoryState)
         {
             var game = _launchHistory.GetPrevious(TeensyFileType.Prg, TeensyFileType.Crt);
 

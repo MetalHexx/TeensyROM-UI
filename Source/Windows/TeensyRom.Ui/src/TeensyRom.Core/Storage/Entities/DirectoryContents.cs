@@ -7,7 +7,7 @@ namespace TeensyRom.Core.Storage.Entities
         public string Path { get; set; } = string.Empty;
         public int TotalCount => Directories.Count() + Files.Count();
         public List<DirectoryItem> Directories { get; set; } = new();
-        public List<FileItem> Files { get; set; } = new();
+        public List<IFileItem> Files { get; set; } = new();
 
         public void Add(DirectoryContent content)
         {

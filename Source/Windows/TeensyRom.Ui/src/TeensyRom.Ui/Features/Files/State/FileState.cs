@@ -31,14 +31,14 @@ namespace TeensyRom.Ui.Features.Files.State
 {
     public class FileState : IFileState, IDisposable
     {
-        public IObservable<FileItem> FileLaunched => _programLaunched.AsObservable();
+        public IObservable<ILaunchableItem> FileLaunched => _programLaunched.AsObservable();
         public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryState.DirectoryTree;
-        public IObservable<ObservableCollection<StorageItem>> DirectoryContent => _directoryState.DirectoryContent;
+        public IObservable<ObservableCollection<IStorageItem>> DirectoryContent => _directoryState.DirectoryContent;
         public IObservable<int> CurrentPage => _directoryState.CurrentPage;
         public IObservable<int> TotalPages => _directoryState.TotalPages;
         public IObservable<bool> PagingEnabled => _directoryState.PagingEnabled;
 
-        private Subject<FileItem> _programLaunched = new();
+        private Subject<ILaunchableItem> _programLaunched = new();
 
         private readonly DirectoryState _directoryState;
         private readonly ICachedStorageService _storageService;
@@ -113,19 +113,23 @@ namespace TeensyRom.Ui.Features.Files.State
             return commonPath;
         }
 
-        public async Task LaunchFile(FileItem file)
+        public async Task LaunchFile(ILaunchableItem file)
         {
-            _programLaunched.OnNext(file.Clone());
-            var result = await _mediator.Send(new LaunchFileCommand { Path = file.Path });
+            var launchable = file.Clone() as ILaunchableItem;
+
+            if(launchable is null) return;
+
+            _programLaunched.OnNext(launchable);
+            var result = await _mediator.Send(new LaunchFileCommand { Path = launchable.Path });
 
             if(result.LaunchResult == LaunchFileResultType.SidError)
             {
-                _storageService.MarkIncompatible(file);
-                _alert.Enqueue($"{file.Name} is currently unsupported (see logs).");
+                _storageService.MarkIncompatible(launchable);
+                _alert.Enqueue($"{launchable.Name} is currently unsupported (see logs).");
             }
         }
 
-        public async Task SaveFavorite(FileItem file)
+        public async Task SaveFavorite(ILaunchableItem file)
         {
             var favFile = await _storageService.SaveFavorite(file);
             var parentDir = favFile?.Path.GetUnixParentPath();
@@ -152,7 +156,7 @@ namespace TeensyRom.Ui.Features.Files.State
             }
         }
 
-        public async Task DeleteFile(FileItem file)
+        public async Task DeleteFile(IFileItem file)
         {
             await _storageService.DeleteFile(file, _settings.TargetType);
             await RefreshDirectory(bustCache: false);

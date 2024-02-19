@@ -12,18 +12,18 @@ namespace TeensyRom.Ui.Features.Files.State
     public interface IFileState
     {   
         IObservable<DirectoryNodeViewModel> DirectoryTree { get; }
-        IObservable<ObservableCollection<StorageItem>> DirectoryContent { get; }
-        IObservable<FileItem> FileLaunched { get; }
+        IObservable<ObservableCollection<IStorageItem>> DirectoryContent { get; }
+        IObservable<ILaunchableItem> FileLaunched { get; }
         IObservable<int> CurrentPage { get; }
         IObservable<int> TotalPages { get; }
         IObservable<bool> PagingEnabled { get; }
 
         Task LoadDirectory(string path, string? filePathToSelect = null);
         Task StoreFiles(IEnumerable<FileCopyItem> files);
-        Task LaunchFile(FileItem file);
+        Task LaunchFile(ILaunchableItem file);
         Task RefreshDirectory(bool bustCache = true);
-        Task SaveFavorite(FileItem file);
-        Task DeleteFile(FileItem file);
+        Task SaveFavorite(ILaunchableItem file);
+        Task DeleteFile(IFileItem file);
         Task PlayRandom();
         Task NextPage();
         Task PreviousPage();

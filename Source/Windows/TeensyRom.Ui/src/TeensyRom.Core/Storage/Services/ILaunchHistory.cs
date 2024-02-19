@@ -4,9 +4,9 @@ namespace TeensyRom.Core.Storage.Services
 {
     public interface ILaunchHistory
     {
-        void Add(FileItem fileItem);
+        void Add(ILaunchableItem fileItem);
         void Clear();
-        FileItem? GetNext(params TeensyFileType[] types);
-        FileItem? GetPrevious(params TeensyFileType[] types);
+        ILaunchableItem? GetNext(params TeensyFileType[] types);
+        ILaunchableItem? GetPrevious(params TeensyFileType[] types);
     }
 }

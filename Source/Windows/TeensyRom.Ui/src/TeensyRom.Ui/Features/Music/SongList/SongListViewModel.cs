@@ -21,10 +21,10 @@ namespace TeensyRom.Ui.Features.Music.SongList
 {
     public class SongListViewModel: ReactiveObject
     {
-        [ObservableAsProperty] public ObservableCollection<StorageItem>? DirectoryContent { get; }
+        [ObservableAsProperty] public ObservableCollection<IStorageItem>? DirectoryContent { get; }
         public ReactiveCommand<SongItem, bool> PlayCommand { get; set; }
         public ReactiveCommand<SongItem, bool> SaveFavoriteCommand { get; set; }
-        public ReactiveCommand<FileItem, Unit> DeleteCommand { get; set; }
+        public ReactiveCommand<IFileItem, Unit> DeleteCommand { get; set; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }
 
         private readonly IMusicState _musicState;
@@ -44,7 +44,7 @@ namespace TeensyRom.Ui.Features.Music.SongList
                 musicState.SaveFavorite, 
                 outputScheduler: RxApp.MainThreadScheduler);
 
-            DeleteCommand = ReactiveCommand.CreateFromTask<FileItem>(
+            DeleteCommand = ReactiveCommand.CreateFromTask<IFileItem>(
                 execute: HandleDelete, 
                 outputScheduler: RxApp.MainThreadScheduler);
 
@@ -54,7 +54,7 @@ namespace TeensyRom.Ui.Features.Music.SongList
             _musicState.DirectoryContent.ToPropertyEx(this, x => x.DirectoryContent);
         }
 
-        private async Task<Unit> HandleDelete(FileItem fileItem)
+        private async Task<Unit> HandleDelete(IFileItem fileItem)
         {
             var confirmed = await _dialog.ShowConfirmation($"Are you sure you want to delete {fileItem.Path}?");
 

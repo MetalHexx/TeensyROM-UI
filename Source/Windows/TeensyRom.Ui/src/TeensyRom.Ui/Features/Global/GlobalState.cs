@@ -16,13 +16,13 @@ namespace TeensyRom.Ui.Features.Global
 {
     public interface IGlobalState
     {
-        IObservable<FileItem> ProgramLaunched { get; }
+        IObservable<ILaunchableItem> ProgramLaunched { get; }
         IObservable<bool> SerialConnected { get; }
     }
 
     public class GlobalState(IFileState fileState, IPlayerContext gameState, ISerialStateContext serialContext) : IGlobalState
     {
-        public IObservable<FileItem> ProgramLaunched => fileState.FileLaunched.Merge(gameState.LaunchedGame);
+        public IObservable<ILaunchableItem> ProgramLaunched => fileState.FileLaunched.Merge(gameState.LaunchedGame);
         public IObservable<bool> SerialConnected => serialContext.CurrentState.Select(state => state is SerialBusyState or SerialConnectedState);
 
     }

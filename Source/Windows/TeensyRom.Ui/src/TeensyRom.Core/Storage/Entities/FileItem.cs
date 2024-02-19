@@ -2,7 +2,7 @@
 
 namespace TeensyRom.Core.Storage.Entities
 {
-    public class FileItem : StorageItem 
+    public class FileItem : StorageItem, IFileItem
     {
         public string Id => $"{Size}{Path.GetFileNameFromPath()}";
         public string ShareUrl { get; set; }
@@ -11,7 +11,7 @@ namespace TeensyRom.Core.Storage.Entities
         public FileItem(string path)
         {
             Path = path;
-            Name = Path.GetFileNameFromPath();            
+            Name = Path.GetFileNameFromPath();
         }
         public TeensyFileType FileType => Path.GetUnixFileExtension().GetFileType();
 

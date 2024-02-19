@@ -31,31 +31,31 @@ namespace TeensyRom.Ui.Controls.DirectoryList
 
             if (TryOpenDirectory(listView)) return;
 
-            TryPlayGame(listView);
+            TryLaunch(listView);
         }
 
         private void OnListViewClicked(object sender, MouseButtonEventArgs e)
         {
-            TrySelectGame(sender as ListView);
+            TrySelect(sender as ListView);
         }
 
-        private bool TrySelectGame(ListView? listView)
+        private bool TrySelect(ListView? listView)
         {
-            if (listView?.SelectedItem is GameItem fileItem)
+            if (listView?.SelectedItem is ILaunchableItem launchItem)
             {
                 var viewModel = (DirectoryListViewModel)DataContext;
-                viewModel.SelectCommand.Execute(fileItem).Subscribe();
+                viewModel.SelectCommand.Execute(launchItem).Subscribe();
                 return true;
             }
             return false;
         }
 
-        private bool TryPlayGame(ListView? listView)
+        private bool TryLaunch(ListView? listView)
         {
-            if (listView?.SelectedItem is GameItem fileItem)
+            if (listView?.SelectedItem is ILaunchableItem launchable)
             {
                 var viewModel = (DirectoryListViewModel)DataContext;
-                viewModel.PlayCommand.Execute(fileItem).Subscribe();
+                viewModel.PlayCommand.Execute(launchable).Subscribe();
                 return true;
             }
             return false;

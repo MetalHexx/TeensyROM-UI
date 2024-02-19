@@ -58,7 +58,23 @@ namespace TeensyRom.Ui.Features.Games
             _dialog = dialog;
             GameToolBar = toolbar;
             GameInfo = gameInfo;
-            GameList = new DirectoryListViewModel(gameState, alert, dialog);
+            GameList = new DirectoryListViewModel
+            (
+                gameState.DirectoryContent,
+                gameState.PagingEnabled,
+                gameState.CurrentPage,
+                gameState.TotalPages,
+                gameState.PlayGame, 
+                gameState.SetSelectedGame, 
+                gameState.SaveFavorite, 
+                gameState.DeleteFile, 
+                gameState.LoadDirectory,
+                gameState.NextPage,
+                gameState.PreviousPage,
+                gameState.SetPageSize,
+                alert, 
+                dialog
+            );
 
             var gamesLibaryPath = settingsService.Settings.Select(s => s.Libraries.FirstOrDefault(l => l.Type == TeensyLibraryType.Programs)?.Path ?? "");
             var chipsObservable = gamesLibaryPath.CombineLatest(gameState.CurrentPath, (libraryPath, currentPath) => currentPath.Replace(libraryPath, ""));

@@ -1,4 +1,4 @@
 ﻿namespace TeensyRom.Core.Storage.Entities
 {
-    public interface ILaunchableItem { }
+    public interface ILaunchableItem : IFileItem { }
 }

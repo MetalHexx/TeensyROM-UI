@@ -23,7 +23,7 @@ namespace TeensyRom.Core.Storage.Services
             Insert(path, directory);
         }
 
-        public void UpsertFile(FileItem fileItem)
+        public void UpsertFile(IFileItem fileItem)
         {
             var fileParentDir = EnsureParents(fileItem.Path);
 
@@ -107,7 +107,7 @@ namespace TeensyRom.Core.Storage.Services
             parentDir.DeleteFile(path);
         }
 
-        public List<FileItem> FindFile(string name)
+        public List<IFileItem> FindFile(string name)
         {
             return this.SelectMany(c => c.Value.Files)
                 .Where(f => f.Name.Equals(name))

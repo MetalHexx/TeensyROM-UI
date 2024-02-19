@@ -8,7 +8,7 @@ namespace TeensyRom.Core.Storage.Services
     {
         public string Path { get; set; } = string.Empty;
         public List<DirectoryItem> Directories { get; set; } = new();
-        public List<FileItem> Files { get; set; } = new();
+        public List<IFileItem> Files { get; set; } = new();
 
         public StorageCacheItem() { }
         public StorageCacheItem(string path)
@@ -16,7 +16,7 @@ namespace TeensyRom.Core.Storage.Services
             Path = path;
         }
 
-        public void UpsertFile(FileItem fileItem)
+        public void UpsertFile(IFileItem fileItem)
         {
             var existingFileIndex = Files.FindIndex(f => f.Name == fileItem.Name);
 
@@ -49,9 +49,9 @@ namespace TeensyRom.Core.Storage.Services
             Files.Remove(fileToRemove);
         }
 
-        public List<StorageItem> ToList()
+        public List<IStorageItem> ToList()
         {
-            var directoryList = new List<StorageItem>();
+            var directoryList = new List<IStorageItem>();
             directoryList.AddRange(Directories);
             directoryList.AddRange(Files);
 

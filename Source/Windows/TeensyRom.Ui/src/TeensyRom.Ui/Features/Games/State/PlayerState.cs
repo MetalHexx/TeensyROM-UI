@@ -28,7 +28,7 @@ using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Games.State
 {
-    public abstract class PlayerState : IPlayerState
+    public abstract class PlayerState : IPlayerState, IDisposable
     {
         protected BehaviorSubject<PlayPausedState> _gameState = new(PlayPausedState.Stopped);
         protected readonly ICachedStorageService _storage;
@@ -49,12 +49,14 @@ namespace TeensyRom.Ui.Features.Games.State
             _playerContext = playerContext;
             _mediator = mediator;
             _playerContext = playerContext;
+
+            _settingsSubscription = settingsService.Settings.Subscribe(settings => _settings = settings);
         }
 
         public abstract bool CanTransitionTo(Type nextStateType);
         public virtual Task ClearSearch() => throw new TeensyStateException(InvalidStateExceptionMessage);
 
-        public virtual async Task DeleteFile(FileItem game) => await _storage.DeleteFile(game, _settings.TargetType);
+        public virtual async Task DeleteFile(IFileItem game) => await _storage.DeleteFile(game, _settings.TargetType);
 
         public virtual Task StopGame()
         {
@@ -62,12 +64,15 @@ namespace TeensyRom.Ui.Features.Games.State
             return _mediator.Send(new ResetCommand());
         }
 
-        public virtual Task<FileItem?> GetNext(FileItem currentGame, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
+        public virtual Task<ILaunchableItem?> GetNext(ILaunchableItem currentGame, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
-        public virtual Task<FileItem?> GetPrevious(FileItem currentGame, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
-
-        public virtual Task RefreshDirectory(bool bustCache = true) => throw new TeensyStateException(InvalidStateExceptionMessage);
+        public virtual Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentGame, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
         protected string InvalidStateExceptionMessage => $"Cannot perform this operation from: {GetType().Name}";
+
+        public void Dispose()
+        {
+            _settingsSubscription?.Dispose();
+        }
     }
 }

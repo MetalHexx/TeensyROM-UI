@@ -10,10 +10,10 @@ namespace TeensyRom.Core.Storage.Services
 {
     public class LaunchHistory : ILaunchHistory
     {
-        private readonly List<Tuple<int, FileItem>> _history = [];
+        private readonly List<Tuple<int, ILaunchableItem>> _history = [];
         private int _currentIndex = -1;
 
-        public void Add(FileItem fileItem) 
+        public void Add(ILaunchableItem fileItem) 
         {
             if (_currentIndex < _history.Count - 1) 
             {
@@ -24,7 +24,7 @@ namespace TeensyRom.Core.Storage.Services
         }
         public void Clear() => _history.Clear();
 
-        public FileItem? GetPrevious(params TeensyFileType[] types)
+        public ILaunchableItem? GetPrevious(params TeensyFileType[] types)
         {
             var filteredList = FilterByTypes(types);
 
@@ -36,7 +36,7 @@ namespace TeensyRom.Core.Storage.Services
             return filteredList[currentFilteredIndex].Item2;
         }
 
-        public FileItem? GetNext(params TeensyFileType[] types)
+        public ILaunchableItem? GetNext(params TeensyFileType[] types)
         {
             var filteredList = FilterByTypes(types);
 
@@ -48,7 +48,7 @@ namespace TeensyRom.Core.Storage.Services
             return filteredList[currentFilteredIndex].Item2;
         }
 
-        private List<Tuple<int, FileItem>> FilterByTypes(TeensyFileType[] types) => _history
+        private List<Tuple<int, ILaunchableItem>> FilterByTypes(TeensyFileType[] types) => _history
             .Where(tuple => types.Contains(tuple.Item2.FileType))
             .ToList();
     }

@@ -15,17 +15,17 @@ namespace TeensyRom.Ui.Features.Games.State.Directory
 {
     public class DirectoryState
     {
-        public ObservableCollection<StorageItem> DirectoryContent { get; private set; } = new();
+        public ObservableCollection<IStorageItem> DirectoryContent { get; private set; } = new();
         public string CurrentPath => _currentPath ?? string.Empty;
         public int CurrentPage { get; private set; } = 1;
         public int TotalPages { get; private set; } = 1;
         public int PageSize { get; private set; } = 100;
         public bool PagingEnabled { get; private set; } = false;
         private int _skip => (CurrentPage - 1) * PageSize;
-        private List<StorageItem> _fullDirectory = [];
+        private List<IStorageItem> _fullDirectory = [];
         private string? _currentPath;
 
-        public void LoadDirectory(List<StorageItem> fullDirectory, string? path = null, string? filePathToSelect = null)
+        public void LoadDirectory(List<IStorageItem> fullDirectory, string? path = null, string? filePathToSelect = null)
         {
             if (path is not null && path != _currentPath)
             {
@@ -34,7 +34,7 @@ namespace TeensyRom.Ui.Features.Games.State.Directory
             }
             _fullDirectory = fullDirectory;
 
-            var directoryItems = new ObservableCollection<StorageItem>();
+            var directoryItems = new ObservableCollection<IStorageItem>();
 
             var skip = _skip;
 
@@ -44,7 +44,7 @@ namespace TeensyRom.Ui.Features.Games.State.Directory
 
                 if (fileToSelect != null)
                 {
-                    fullDirectory.Where(items => items is FileItem)
+                    fullDirectory.Where(items => items is IFileItem)
                          .ToList()
                          .ForEach(i => i.IsSelected = false);
 

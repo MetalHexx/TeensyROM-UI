@@ -11,10 +11,9 @@ namespace TeensyRom.Ui.Features.Games.State
     {
         bool CanTransitionTo(Type nextStateType);
         Task ClearSearch();
-        Task DeleteFile(FileItem game);
-        Task<FileItem?> GetNext(FileItem currentGame, DirectoryState directoryState);
+        Task DeleteFile(IFileItem game);
+        Task<ILaunchableItem?> GetNext(ILaunchableItem currentGame, DirectoryState directoryState);
         Task StopGame();
-        Task<FileItem?> GetPrevious(FileItem currentGame, DirectoryState directoryState);
-        Task RefreshDirectory(bool bustCache = true);
+        Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentGame, DirectoryState directoryState);
     }
 }

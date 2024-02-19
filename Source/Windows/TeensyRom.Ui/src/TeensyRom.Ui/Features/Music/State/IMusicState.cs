@@ -12,7 +12,7 @@ namespace TeensyRom.Ui.Features.Music.State
     public interface IMusicState
     {
         IObservable<DirectoryNodeViewModel> DirectoryTree { get; }
-        IObservable<ObservableCollection<StorageItem>> DirectoryContent { get; }
+        IObservable<ObservableCollection<IStorageItem>> DirectoryContent { get; }
         IObservable<SongItem> CurrentSong { get; }
         IObservable<SongMode> CurrentSongMode { get; }
         IObservable<TimeSpan> CurrentSongTime { get; }
@@ -22,7 +22,7 @@ namespace TeensyRom.Ui.Features.Music.State
         Task RefreshDirectory(bool bustCache = true);
         Task<bool> LoadSong(SongItem song, bool clearHistory = true);
         Task<bool> SaveFavorite(SongItem song);
-        Task DeleteFile(FileItem file);
+        Task DeleteFile(IFileItem file);
         Task PlayNext();
         Task PlayPrevious();
         Task ToggleMusic();

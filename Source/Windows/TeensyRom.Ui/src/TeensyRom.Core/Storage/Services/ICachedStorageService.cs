@@ -9,15 +9,15 @@ namespace TeensyRom.Core.Storage.Services
         void ClearCache();
         void ClearCache(string path);
         Task<StorageCacheItem?> GetDirectory(string path);
-        Task<FileItem?> SaveFavorite(FileItem file);
+        Task<ILaunchableItem?> SaveFavorite(ILaunchableItem file);
         Task SaveFile(TeensyFileInfo fileInfo);
         Task QueuedSaveFile(TeensyFileInfo fileInfo);
-        Task DeleteFile(FileItem file, TeensyStorageType storageType);
-        FileItem? GetRandomFile(params TeensyFileType[] fileTypes);
+        Task DeleteFile(IFileItem file, TeensyStorageType storageType);
+        ILaunchableItem? GetRandomFile(params TeensyFileType[] fileTypes);
         IEnumerable<SongItem> SearchMusic(string searchText, int maxNumResults = 250);
-        IEnumerable<FileItem> SearchFiles(string searchText);
+        IEnumerable<ILaunchableItem> SearchFiles(string searchText);
         Task CacheAll();
-        void MarkIncompatible(FileItem fileItem);
-        IEnumerable<FileItem> SearchPrograms(string searchText);
+        void MarkIncompatible(ILaunchableItem launchItem);
+        IEnumerable<GameItem> SearchGames(string searchText);
     }
 }

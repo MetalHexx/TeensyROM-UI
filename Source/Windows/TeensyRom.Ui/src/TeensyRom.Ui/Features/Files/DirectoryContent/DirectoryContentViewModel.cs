@@ -19,12 +19,12 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
 {
     public class DirectoryContentViewModel : ReactiveObject
     {
-        [Reactive] public FileItem? SelectedFile { get; set; }
-        [ObservableAsProperty] public ObservableCollection<StorageItem>? DirectoryContent { get; }
+        [Reactive] public IFileItem? SelectedFile { get; set; }
+        [ObservableAsProperty] public ObservableCollection<IStorageItem>? DirectoryContent { get; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }        
-        public ReactiveCommand<FileItem, Unit> LaunchCommand { get; set; }
-        public ReactiveCommand<FileItem, Unit> SaveFavoriteCommand { get; set; }
-        public ReactiveCommand<FileItem, Unit> DeleteCommand { get; set; }
+        public ReactiveCommand<ILaunchableItem, Unit> LaunchCommand { get; set; }
+        public ReactiveCommand<ILaunchableItem, Unit> SaveFavoriteCommand { get; set; }
+        public ReactiveCommand<IFileItem, Unit> DeleteCommand { get; set; }
         public ReactiveCommand<DragEventArgs, Unit> FileDropCommand { get; private set; }
         public ReactiveCommand<DragEventArgs, Unit> DragOverCommand { get; }
 
@@ -41,13 +41,13 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
             LoadDirectoryCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(directory =>
                 fileState.LoadDirectory(directory.Path), outputScheduler: RxApp.MainThreadScheduler);
 
-            LaunchCommand = ReactiveCommand.CreateFromTask<FileItem>(file =>
+            LaunchCommand = ReactiveCommand.CreateFromTask<ILaunchableItem>(file =>
                 _fileState.LaunchFile(file), outputScheduler: RxApp.MainThreadScheduler);
 
-            SaveFavoriteCommand = ReactiveCommand.CreateFromTask<FileItem>(
+            SaveFavoriteCommand = ReactiveCommand.CreateFromTask<ILaunchableItem>(
                 _fileState.SaveFavorite, outputScheduler: RxApp.MainThreadScheduler);
 
-            DeleteCommand = ReactiveCommand.CreateFromTask<FileItem>(
+            DeleteCommand = ReactiveCommand.CreateFromTask<IFileItem>(
                 HandleDelete, outputScheduler: RxApp.MainThreadScheduler);
 
             FileDropCommand = ReactiveCommand.CreateFromTask<DragEventArgs>(OnFileDrop);
@@ -105,7 +105,7 @@ namespace TeensyRom.Ui.Features.Files.DirectoryContent
             }
         }
 
-        private async Task<Unit> HandleDelete(FileItem fileItem)
+        private async Task<Unit> HandleDelete(IFileItem fileItem)
         {
             var confirmed = await _dialog.ShowConfirmation($"Are you sure you want to delete {fileItem.Path}?");
 
