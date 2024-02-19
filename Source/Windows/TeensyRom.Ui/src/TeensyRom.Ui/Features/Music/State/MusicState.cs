@@ -81,7 +81,7 @@ namespace TeensyRom.Ui.Features.Music.State
                 .Do(_ => ResetDirectoryTree())
                 .Subscribe(async path => await LoadDirectory(path));
 
-            _currentTimeSubscription = _songTime.CurrentTime.Subscribe(currentTime =>
+            _currentTimeSubscription = _songTime.CurrentTime.ObserveOn(RxApp.MainThreadScheduler).Subscribe(currentTime =>
             {
                 _currentTime = currentTime;
             });
