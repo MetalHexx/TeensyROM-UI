@@ -4,12 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TeensyRom.Ui.Features.Games.GameList"             
-             xmlns:models="clr-namespace:TeensyRom.Ui.Features.Common.Models"
+             xmlns:template="clr-namespace:TeensyRom.Ui.Features.Games.GameList"
              xmlns:storage="clr-namespace:TeensyRom.Core.Storage.Entities;assembly=TeensyRom.Core"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
+        
         <HierarchicalDataTemplate 
             x:Key="DirectoryTemplate" 
             DataType="{x:Type storage:DirectoryItem}" 
@@ -37,7 +38,7 @@
 
         </HierarchicalDataTemplate>
 
-        <DataTemplate x:Key="GameTemplate" DataType="{x:Type storage:GameItem}">
+        <DataTemplate x:Key="LaunchableTemplate" DataType="{x:Type storage:ILaunchableItem}">
 
             <Grid x:Name="SongItemPanel">
                 <Grid.ColumnDefinitions>
@@ -130,6 +131,25 @@
             </DataTemplate.Triggers>
         </DataTemplate>
 
+        <DataTemplate x:Key="FileTemplate" DataType="{x:Type storage:FileItem}">
+
+            <Grid x:Name="FileItemPanel">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="1">
+                    <TextBlock                         
+                        Text="{Binding Name}" 
+                        TextTrimming="CharacterEllipsis"
+                        Style="{StaticResource MaterialDesignBody2TextBlock}" 
+                        Margin="5,0" VerticalAlignment="Center" />
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
     </UserControl.Resources>
 
     <Grid>
@@ -159,9 +179,10 @@
                 </ListView.ItemContainerStyle>
 
                 <ListView.ItemTemplateSelector>
-                    <models:StorageItemTemplateSelector
-                    DirectoryTemplate="{StaticResource DirectoryTemplate}"
-                    GameTemplate="{StaticResource GameTemplate}"/>
+                    <template:StorageItemTemplateSelector
+                        DirectoryTemplate="{StaticResource DirectoryTemplate}"
+                        FileTemplate="{StaticResource FileTemplate}"
+                        LaunchableTemplate="{StaticResource LaunchableTemplate}"/>
                 </ListView.ItemTemplateSelector>
 
             </ListView>

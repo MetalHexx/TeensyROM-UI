@@ -3,7 +3,7 @@ using TeensyRom.Core.Common;
 
 namespace TeensyRom.Core.Storage.Entities
 {
-    public class SongItem : FileItem
+    public class SongItem : FileItem, ILaunchableItem
     {   
         public string SongName { get; set; } = string.Empty;
         public string ArtistName { get; set; } = string.Empty;
