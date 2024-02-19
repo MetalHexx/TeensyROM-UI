@@ -22,7 +22,7 @@ namespace TeensyRom.Ui.Controls.CornerToolbar
         public CornerToolbarViewModel(Func<Task> cacheAllFunc, Func<Task> launchRandomFunc, Func<bool, Task> refreshDirFunc, IDialogService dialog, TeensyStorageType storageType)
         {
             RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(
-                execute: _ => refreshDirFunc(false),
+                execute: _ => refreshDirFunc(true),
                 outputScheduler: RxApp.MainThreadScheduler);
 
             PlayRandomCommand = ReactiveCommand.CreateFromTask(
