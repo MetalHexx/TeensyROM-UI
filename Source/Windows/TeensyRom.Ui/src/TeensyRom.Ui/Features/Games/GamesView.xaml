@@ -59,41 +59,12 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
 
                 <ContentControl Content="{Binding Search}" Grid.Column="0"/>
 
-                <Button 
-                    Command="{Binding PlayRandomCommand}" 
-                    ToolTip="I'm feeling lucky!"
-                    Style="{StaticResource StorageIconButton}"
-                    Grid.Column="1"
-                    Margin="10 0 0 0">
+                <ContentControl Content="{Binding CornerToolbar}" Grid.Column="1" Margin="10 0 0 0"/>
 
-                    <materialDesign:PackIcon Kind="Dice5" />
-                </Button>
-
-                <Button 
-                    Command="{Binding CacheAllCommand}" 
-                    ToolTip="Caches all files.  This will increase performance and make files and music available for search, random play and shuffle play mode."
-                    Style="{StaticResource StorageIconButton}"
-                    Margin="10 0 0 0"
-                    Grid.Column="2">
-
-                    <materialDesign:PackIcon Kind="DatabaseImport" />
-                </Button>
-
-                <Button 
-                    Command="{Binding RefreshCommand}" 
-                    ToolTip="Refreshes the current directory."
-                    Style="{StaticResource StorageIconButton}"
-                    Grid.Column="3"
-                    Margin="10 0 0 0">
-
-                    <materialDesign:PackIcon Kind="refresh" />
-                </Button>
             </Grid>
 
             <ContentControl 

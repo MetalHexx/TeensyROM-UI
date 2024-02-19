@@ -12,6 +12,7 @@ using System.Windows.Media;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
+using TeensyRom.Ui.Controls.CornerToolbar;
 using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Controls.DirectoryTree;
@@ -42,10 +43,7 @@ namespace TeensyRom.Ui.Features.Games
         [Reactive] public GameInfoViewModel GameInfo { get; set; }
         [Reactive] public GameToolbarViewModel GameToolBar { get; set; }
         [Reactive] public PagingViewModel Paging { get; set; }
-
-        public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
-        public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
-        public ReactiveCommand<Unit, Unit> CacheAllCommand { get; set; }
+        [Reactive] public CornerToolbarViewModel CornerToolbar { get; set; }
 
         private TeensySettings _settings = null!;
         private readonly IPlayerContext _gameState;
@@ -89,6 +87,15 @@ namespace TeensyRom.Ui.Features.Games
                     basePath: libPath,
                     onClick: async path => await gameState.LoadDirectory(path),
                     onCopy: () => alert.Publish("Path copied to clipboard"));
+
+                CornerToolbar = new CornerToolbarViewModel
+                (
+                    gameState.CacheAll,
+                    gameState.PlayRandom,
+                    gameState.RefreshDirectory,
+                    dialog,
+                    _settings.TargetType
+                );
             });
 
             globalState.SerialConnected.ToPropertyEx(this, x => x.GamesAvailable);
@@ -101,18 +108,6 @@ namespace TeensyRom.Ui.Features.Games
             gameState.CurrentState
                 .Select(state => state is SearchState)
                 .ToPropertyEx(this, x => x.SearchActive);
-
-            RefreshCommand = ReactiveCommand.CreateFromTask<Unit>( 
-                execute: _ => gameState.RefreshDirectory(), 
-                outputScheduler: RxApp.MainThreadScheduler);
-
-            PlayRandomCommand = ReactiveCommand.CreateFromTask<Unit>(
-                execute: _ => gameState.PlayRandom(),
-                outputScheduler: RxApp.MainThreadScheduler);
-
-            CacheAllCommand = ReactiveCommand.CreateFromTask(
-                execute: HandleCacheAll,
-                outputScheduler: RxApp.MainThreadScheduler);
 
             GamesTree = new(gameState.DirectoryTree)
             {

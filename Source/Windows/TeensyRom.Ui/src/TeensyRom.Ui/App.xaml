@@ -19,6 +19,7 @@
     xmlns:DirectoryChips="clr-namespace:TeensyRom.Ui.Controls.DirectoryChips"
     xmlns:Connect="clr-namespace:TeensyRom.Ui.Features.Connect"
     xmlns:Settings="clr-namespace:TeensyRom.Ui.Features.Settings"
+    xmlns:CornerToolbar="clr-namespace:TeensyRom.Ui.Controls.CornerToolbar"
     
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"           
@@ -99,6 +100,7 @@
             <DataTemplate DataType="{x:Type Connect:ConnectViewModel}">
                 <Connect:ConnectView/>
             </DataTemplate>
+            
             <DataTemplate DataType="{x:Type Settings:SettingsViewModel}">
                 <Settings:SettingsView/>
             </DataTemplate>
@@ -106,6 +108,11 @@
             <DataTemplate DataType="{x:Type DirectoryChips:DirectoryChipsViewModel}">
                 <DirectoryChips:DirectoryChipsView/>
             </DataTemplate>
+
+            <DataTemplate DataType="{x:Type CornerToolbar:CornerToolbarViewModel}">
+                <CornerToolbar:CornerToolbarView/>
+            </DataTemplate>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>
