@@ -39,6 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Features\Games\GameList\" />
     <Folder Include="Features\Games\Search\" />
   </ItemGroup>
 

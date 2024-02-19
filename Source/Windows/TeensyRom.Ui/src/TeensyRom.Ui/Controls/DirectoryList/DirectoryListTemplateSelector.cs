@@ -4,9 +4,9 @@ using TeensyRom.Ui.Features.Music;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Common;
 
-namespace TeensyRom.Ui.Features.Games.GameList
+namespace TeensyRom.Ui.Controls.DirectoryList
 {
-    public class StorageItemTemplateSelector : DataTemplateSelector
+    public class DirectoryListTemplateSelector : DataTemplateSelector
     {
         public DataTemplate DirectoryTemplate { get; set; } = new();
         public DataTemplate FileTemplate { get; set; } = new();
@@ -19,7 +19,7 @@ namespace TeensyRom.Ui.Features.Games.GameList
             return item switch
             {
                 DirectoryItem _ => DirectoryTemplate,
-                ILaunchableItem _ => LaunchableTemplate,                
+                ILaunchableItem _ => LaunchableTemplate,
                 FileItem _ => FileTemplate,
                 _ => base.SelectTemplate(item, container),
             };

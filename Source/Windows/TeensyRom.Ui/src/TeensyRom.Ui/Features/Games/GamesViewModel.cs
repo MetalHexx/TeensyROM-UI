@@ -13,12 +13,12 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Controls.DirectoryChips;
+using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Controls.Paging;
 using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Features.Files.State;
 using TeensyRom.Ui.Features.Games.GameInfo;
-using TeensyRom.Ui.Features.Games.GameList;
 using TeensyRom.Ui.Features.Games.GameToolbar;
 using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Global;
@@ -38,7 +38,7 @@ namespace TeensyRom.Ui.Features.Games
         [Reactive] public DirectoryChipsViewModel DirectoryChips { get; set; } = null!;
         [Reactive] public SearchViewModel Search { get; set; }
         [Reactive] public DirectoryTreeViewModel GamesTree { get; set; }
-        [Reactive] public GameListViewModel GameList { get; set; }
+        [Reactive] public DirectoryListViewModel GameList { get; set; }
         [Reactive] public GameInfoViewModel GameInfo { get; set; }
         [Reactive] public GameToolbarViewModel GameToolBar { get; set; }
         [Reactive] public PagingViewModel Paging { get; set; }
@@ -51,14 +51,14 @@ namespace TeensyRom.Ui.Features.Games
         private readonly IPlayerContext _gameState;
         private readonly IDialogService _dialog;
 
-        public GamesViewModel(IPlayerContext gameState, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, GameToolbarViewModel toolbar, GameListViewModel gameList, GameInfoViewModel gameInfo)
+        public GamesViewModel(IPlayerContext gameState, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, GameToolbarViewModel toolbar, GameInfoViewModel gameInfo)
         {
             FeatureTitle = "Games";
             _gameState = gameState;
             _dialog = dialog;
             GameToolBar = toolbar;
-            GameList = gameList;            
             GameInfo = gameInfo;
+            GameList = new DirectoryListViewModel(gameState, alert, dialog);
 
             var gamesLibaryPath = settingsService.Settings.Select(s => s.Libraries.FirstOrDefault(l => l.Type == TeensyLibraryType.Programs)?.Path ?? "");
             var chipsObservable = gamesLibaryPath.CombineLatest(gameState.CurrentPath, (libraryPath, currentPath) => currentPath.Replace(libraryPath, ""));

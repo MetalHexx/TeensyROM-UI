@@ -13,9 +13,9 @@ using System.CodeDom.Compiler;
 using TeensyRom.Ui.Controls.Paging;
 using TeensyRom.Ui.Features.Games.State;
 
-namespace TeensyRom.Ui.Features.Games.GameList
+namespace TeensyRom.Ui.Controls.DirectoryList
 {
-    public class GameListViewModel : ReactiveObject
+    public class DirectoryListViewModel : ReactiveObject
     {
         [ObservableAsProperty] public ObservableCollection<StorageItem>? DirectoryContent { get; }
         [ObservableAsProperty] public bool ShowPaging { get; }
@@ -30,18 +30,18 @@ namespace TeensyRom.Ui.Features.Games.GameList
         private readonly IAlertService _alert;
         private readonly IDialogService _dialog;
 
-        public GameListViewModel(IPlayerContext gameState, IAlertService alert, IDialogService dialog)
+        public DirectoryListViewModel(IPlayerContext gameState, IAlertService alert, IDialogService dialog)
         {
             _gameState = gameState;
             _alert = alert;
             _dialog = dialog;
 
             PlayCommand = ReactiveCommand.CreateFromTask<GameItem>(
-                execute: gameState.PlayGame, 
+                execute: gameState.PlayGame,
                 outputScheduler: RxApp.MainThreadScheduler);
 
             SelectCommand = ReactiveCommand.Create<GameItem, Unit>(
-                execute: gameState.SetSelectedGame, 
+                execute: gameState.SetSelectedGame,
                 outputScheduler: RxApp.MainThreadScheduler);
 
             SaveFavoriteCommand = ReactiveCommand.CreateFromTask<GameItem>(
@@ -49,11 +49,11 @@ namespace TeensyRom.Ui.Features.Games.GameList
                 outputScheduler: RxApp.MainThreadScheduler);
 
             DeleteCommand = ReactiveCommand.CreateFromTask<GameItem>(
-                execute:  HandleDelete,
+                execute: HandleDelete,
                 outputScheduler: RxApp.MainThreadScheduler);
 
             LoadDirectoryCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(
-                execute: directory => gameState.LoadDirectory(directory.Path), 
+                execute: directory => gameState.LoadDirectory(directory.Path),
                 outputScheduler: RxApp.MainThreadScheduler);
 
             _gameState.DirectoryContent.ToPropertyEx(this, x => x.DirectoryContent);

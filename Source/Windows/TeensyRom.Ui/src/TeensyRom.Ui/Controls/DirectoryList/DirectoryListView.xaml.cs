@@ -13,16 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Features.Music.SongList;
 
-namespace TeensyRom.Ui.Features.Games.GameList
+namespace TeensyRom.Ui.Controls.DirectoryList
 {
-    /// <summary>
-    /// Interaction logic for GamesListView.xaml
-    /// </summary>
-    public partial class GameListView : UserControl
+    public partial class DirectoryListView : UserControl
     {
-        public GameListView()
+        public DirectoryListView()
         {
             InitializeComponent();
         }
@@ -45,7 +43,7 @@ namespace TeensyRom.Ui.Features.Games.GameList
         {
             if (listView?.SelectedItem is GameItem fileItem)
             {
-                var viewModel = (GameListViewModel)DataContext;
+                var viewModel = (DirectoryListViewModel)DataContext;
                 viewModel.SelectCommand.Execute(fileItem).Subscribe();
                 return true;
             }
@@ -56,7 +54,7 @@ namespace TeensyRom.Ui.Features.Games.GameList
         {
             if (listView?.SelectedItem is GameItem fileItem)
             {
-                var viewModel = (GameListViewModel)DataContext;
+                var viewModel = (DirectoryListViewModel)DataContext;
                 viewModel.PlayCommand.Execute(fileItem).Subscribe();
                 return true;
             }
@@ -67,7 +65,7 @@ namespace TeensyRom.Ui.Features.Games.GameList
         {
             if (listView?.SelectedItem is DirectoryItem directoryItem)
             {
-                var viewModel = (GameListViewModel)DataContext;
+                var viewModel = (DirectoryListViewModel)DataContext;
                 viewModel.LoadDirectoryCommand.Execute(directoryItem).Subscribe();
                 return true;
             }
@@ -90,7 +88,7 @@ namespace TeensyRom.Ui.Features.Games.GameList
             }
         }
 
-        private void GameListViewView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void DirectoryListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var listView = sender as ListView;
             if (listView != null && listView.SelectedItem != null)

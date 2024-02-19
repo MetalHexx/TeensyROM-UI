@@ -13,7 +13,7 @@
     xmlns:PlayToolbar="clr-namespace:TeensyRom.Ui.Features.Music.PlayToolbar"
     xmlns:GameToolbar="clr-namespace:TeensyRom.Ui.Features.Games.GameToolbar"
     xmlns:SongList="clr-namespace:TeensyRom.Ui.Features.Music.SongList"
-    xmlns:GameList="clr-namespace:TeensyRom.Ui.Features.Games.GameList"
+    xmlns:DirectoryList="clr-namespace:TeensyRom.Ui.Controls.DirectoryList"
     xmlns:SearchMusic="clr-namespace:TeensyRom.Ui.Features.Music.Search"
     xmlns:Search="clr-namespace:TeensyRom.Ui.Controls.Search"
     xmlns:DirectoryChips="clr-namespace:TeensyRom.Ui.Controls.DirectoryChips"
@@ -84,8 +84,8 @@
                 <SongList:SongListView/>
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type GameList:GameListViewModel}">
-                <GameList:GameListView/>
+            <DataTemplate DataType="{x:Type DirectoryList:DirectoryListViewModel}">
+                <DirectoryList:DirectoryListView/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type SearchMusic:SearchMusicViewModel}">

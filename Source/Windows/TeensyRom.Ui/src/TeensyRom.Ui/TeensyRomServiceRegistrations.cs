@@ -33,7 +33,6 @@ using TeensyRom.Ui.Features.Global;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Features.Games;
 using TeensyRom.Ui.Features.Games.GameToolbar;
-using TeensyRom.Ui.Features.Games.GameList;
 using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Games.GameInfo;
 using TeensyRom.Core.Games;
@@ -41,6 +40,7 @@ using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Games.State.Directory;
 using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.Search;
+using TeensyRom.Ui.Controls.DirectoryList;
 
 namespace TeensyRom.Ui
 {
@@ -83,7 +83,6 @@ namespace TeensyRom.Ui
             services.AddSingleton<SearchMusicViewModel>();
             services.AddSingleton<GamesViewModel>();
             services.AddSingleton<GameToolbarViewModel>();
-            services.AddSingleton<GameListViewModel>();
             services.AddSingleton<GameInfoViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddSingleton<ITeensyCommandExecutor, TeensyCommandExecutor>();
