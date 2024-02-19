@@ -19,6 +19,7 @@ using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Controls.Paging;
 using TeensyRom.Ui.Controls.Search;
+using TeensyRom.Ui.Controls.SearchResultsToolbar;
 using TeensyRom.Ui.Features.Files.State;
 using TeensyRom.Ui.Features.Games.GameInfo;
 using TeensyRom.Ui.Features.Games.GameToolbar;
@@ -46,6 +47,7 @@ namespace TeensyRom.Ui.Features.Games
         [Reactive] public PagingViewModel Paging { get; set; }
         [Reactive] public CornerToolbarViewModel CornerToolbar { get; set; }
         [Reactive] public FeatureTitleViewModel Title { get; set; }
+        [Reactive] public SearchResultsToolbarViewModel SearchResultsToolbar { get; set; } = new();
 
         private TeensySettings _settings = null!;
         private readonly IPlayerContext _gameState;

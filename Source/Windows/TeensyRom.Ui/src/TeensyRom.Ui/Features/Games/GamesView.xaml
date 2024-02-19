@@ -39,18 +39,12 @@
                 Margin="10 0 0 0"
                 Grid.Row="0" Grid.Column="1"/>
 
-            <Border 
-                Visibility="{Binding SearchActive, Converter={StaticResource BoolToVisibilityConvertor}}" 
-                Style="{StaticResource ToolbarBorder}"
-                VerticalAlignment="Center"
-                HorizontalAlignment="Stretch" 
-                Grid.Row="0" Grid.Column="1"
-                Margin="10 0 0 0">
-
-                <TextBlock FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0">
-                    Search Results:
-                </TextBlock>
-            </Border>
+            <ContentControl
+                Content="{Binding SearchResultsToolbar}"
+                Visibility="{Binding SearchActive, Converter={StaticResource BoolToVisibilityConvertor}}"
+                HorizontalAlignment="Stretch"                
+                Margin="10 0 0 0"
+                Grid.Row="0" Grid.Column="1"/>
 
             <Grid Grid.Row="0" Grid.Column="2" Margin="10 0 0 0">
                 <Grid.ColumnDefinitions>
