@@ -36,7 +36,7 @@
 
                 <Button x:Name="PlayButton"
                     Command="{Binding TogglePlayCommand}" 
-                    Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisibilityConvertor}}"   
+                    Visibility="{Binding EnablePlayButton, Converter={StaticResource BoolToVisibilityConvertor}}"   
                     ToolTip="Play"
                     Style="{StaticResource PlaybarButton}">
                     <materialDesign:PackIcon Kind="Play" />
@@ -44,7 +44,7 @@
 
                 <Button x:Name="PauseButton"
                     Command="{Binding TogglePlayCommand}" 
-                    Visibility="{Binding IsPaused, Converter={StaticResource BoolToVisibilityConvertor}}"   
+                    Visibility="{Binding EnablePauseButton, Converter={StaticResource BoolToVisibilityConvertor}}"   
                     ToolTip="Pause"
                     Style="{StaticResource PlaybarButton}">
                     <materialDesign:PackIcon Kind="Pause" />
@@ -52,7 +52,7 @@
 
                 <Button x:Name="Stop"
                     Command="{Binding TogglePlayCommand}" 
-                    Visibility="{Binding IsStopped, Converter={StaticResource BoolToVisibilityConvertor}}"   
+                    Visibility="{Binding EnableStopButton, Converter={StaticResource BoolToVisibilityConvertor}}"   
                     ToolTip="Stop"
                     Style="{StaticResource PlaybarButton}">
                     <materialDesign:PackIcon Kind="Stop" />

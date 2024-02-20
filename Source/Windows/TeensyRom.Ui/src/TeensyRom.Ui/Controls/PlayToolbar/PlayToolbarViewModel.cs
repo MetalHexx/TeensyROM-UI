@@ -17,18 +17,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 {
     public class PlayToolbarViewModel : ReactiveObject
     {
-        private readonly IAlertService _alert;
-
-        [Reactive] public bool ProgressEnabled {get; set;}        
+        [Reactive] public bool ProgressEnabled {get; set;}
+        [Reactive] public bool EnablePlayButton { get; set; }
+        [Reactive] public bool EnablePauseButton { get; set; }
+        [Reactive] public bool EnableStopButton { get; set; }
         [ObservableAsProperty] public ILaunchableItem? File { get; }
         [ObservableAsProperty] public TimeProgressViewModel? Progress { get; } = null;
         [ObservableAsProperty] public string CurrentTime { get; } = string.Empty;
         [ObservableAsProperty] public double CurrentProgress { get; }
         [ObservableAsProperty] public bool ShuffleModeEnabled { get; }
-        [ObservableAsProperty] public bool ShareVisible { get; }
-        [ObservableAsProperty] public bool IsPlaying { get; }        
-        [ObservableAsProperty] public bool IsPaused { get; }        
-        [ObservableAsProperty] public bool IsStopped { get; }
+        [ObservableAsProperty] public bool ShareVisible { get; }        
         [ObservableAsProperty] public bool ShowCreator { get; }
         [ObservableAsProperty] public bool ShowReleaseInfo { get; }
         [ObservableAsProperty] public bool ShowReleaseCreatorSeperator { get; }
@@ -40,7 +38,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<Unit, Unit> ToggleShuffleCommand { get; set; }
         public ReactiveCommand<Unit, Unit> FavoriteCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ShareCommand { get; set; }
-        public ReactiveCommand<Unit, Unit> NavigateToFileDirCommand { get; set; }        
+        public ReactiveCommand<Unit, Unit> NavigateToFileDirCommand { get; set; }
+        private readonly IAlertService _alert;
 
         public PlayToolbarViewModel(
             IObservable<ILaunchableItem> file, 
@@ -52,6 +51,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             Func<Task> playNext, 
             Func<ILaunchableItem, Task> saveFav,
             Func<string, Task> loadDirectory,
+            PlayToggleOption toggleOption, 
             IAlertService alert)
         {
             _alert = alert;
@@ -75,15 +75,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Select(item => !string.IsNullOrWhiteSpace(item.ReleaseInfo) && !string.IsNullOrWhiteSpace(item.Creator))
                 .ToPropertyEx(this, vm => vm.ShowReleaseCreatorSeperator);
 
-            if (progress is not null)
-            {
-                ProgressEnabled = true;
-
-                progress
-                    .Where(time => time is not null)
-                    .ToPropertyEx(this, vm => vm.Progress);
-            }
-
             file
                 .Where(s => s is not null)
                 .Select(s => !string.IsNullOrEmpty(s.ShareUrl))
@@ -94,8 +85,27 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ToPropertyEx(this, vm => vm.ShuffleModeEnabled);
 
             fileState
-                .Select(fileState => fileState.PlayState == PlayState.Playing)
-                .ToPropertyEx(this, vm => vm.IsPlaying);
+                .Where(state => state.PlayState != PlayState.Playing)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ =>
+                {
+                    EnablePauseButton = false;
+                    EnableStopButton = false;
+                    EnablePlayButton = true;
+                });
+
+            var playToggle = fileState
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(state => state.PlayState == PlayState.Playing)                
+                .Do(_ => EnablePlayButton = false);
+
+            playToggle
+                .Where(_ => toggleOption == PlayToggleOption.Stop)
+                .Subscribe(_ => EnableStopButton = true);
+
+            playToggle
+                .Where(_ => toggleOption == PlayToggleOption.Pause)
+                .Subscribe(_ => EnablePauseButton = true);
 
             TogglePlayCommand = ReactiveCommand.CreateFromTask(togglePlay);
             NextCommand = ReactiveCommand.CreateFromTask(playNext);

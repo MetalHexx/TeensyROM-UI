@@ -63,6 +63,7 @@ namespace TeensyRom.Ui.Features.Music
                 _musicState.PlayNext,
                 _musicState.SaveFavorite,
                 _musicState.LoadDirectory,
+                PlayToggleOption.Pause,
                 alert
             );
 
