@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TeensyRom.Ui.Features.Music.PlayToolbar
+namespace TeensyRom.Ui.Controls.PlayToolbar
 {
     /// <summary>
     /// Interaction logic for PlayToolbarView.xaml

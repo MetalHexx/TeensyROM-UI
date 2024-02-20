@@ -22,8 +22,8 @@ namespace TeensyRom.Ui.Features.Music.SongList
     public class SongListViewModel: ReactiveObject
     {
         [ObservableAsProperty] public ObservableCollection<IStorageItem>? DirectoryContent { get; }
-        public ReactiveCommand<SongItem, bool> PlayCommand { get; set; }
-        public ReactiveCommand<SongItem, bool> SaveFavoriteCommand { get; set; }
+        public ReactiveCommand<SongItem, Unit> PlayCommand { get; set; }
+        public ReactiveCommand<SongItem, Unit> SaveFavoriteCommand { get; set; }
         public ReactiveCommand<IFileItem, Unit> DeleteCommand { get; set; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }
 
@@ -37,10 +37,11 @@ namespace TeensyRom.Ui.Features.Music.SongList
             _alert = alert;
             _dialog = dialog;
 
-            PlayCommand = ReactiveCommand.CreateFromTask<SongItem, bool>(song =>
-                musicState.LoadSong(song), outputScheduler: RxApp.MainThreadScheduler);
+            PlayCommand = ReactiveCommand.CreateFromTask<SongItem>(
+                execute: song => musicState.LoadSong(song), 
+                outputScheduler: RxApp.MainThreadScheduler);
 
-            SaveFavoriteCommand = ReactiveCommand.CreateFromTask<SongItem, bool>(
+            SaveFavoriteCommand = ReactiveCommand.CreateFromTask<SongItem>(
                 musicState.SaveFavorite, 
                 outputScheduler: RxApp.MainThreadScheduler);
 

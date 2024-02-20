@@ -369,14 +369,14 @@ namespace TeensyRom.Core.Storage.Services
                 {
                     Song = song,
                     Score = searchTerms.Count(term =>
-                        song.ArtistName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                        song.SongName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        song.Creator.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        song.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                         song.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                         song.Path.Contains(term, StringComparison.OrdinalIgnoreCase)
                     )
                 })
                 .Where(result => result.Score > 0)
-                .OrderBy(result => result.Song.SongName)
+                .OrderBy(result => result.Song.Title)
                 .OrderByDescending(result => result.Score)
                 .Select(result => result.Song)
                 .Take(maxNumResults);

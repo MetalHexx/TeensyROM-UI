@@ -63,11 +63,11 @@ namespace TeensyRom.Core.Music.Sid
 
             if (sidRecord is not null)
             {
-                song.ArtistName = sidRecord.Author;
-                song.SongName = sidRecord.Title;
+                song.Creator = sidRecord.Author;
+                song.Title = sidRecord.Title;
                 song.SongLength = sidRecord.SongLengthSpan;
                 song.ReleaseInfo = sidRecord.Released;
-                song.Comments = sidRecord.StilEntry;
+                song.Description = sidRecord.StilEntry;
                 song.MetadataSource = "HVSC";
                 song.ShareUrl = $"https://deepsid.chordian.net/?file={sidRecord.Filepath}";
             }

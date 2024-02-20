@@ -10,7 +10,7 @@
     xmlns:Games="clr-namespace:TeensyRom.Ui.Features.Games"
     xmlns:GameInfo="clr-namespace:TeensyRom.Ui.Features.Games.GameInfo"
     xmlns:DirectoryTree="clr-namespace:TeensyRom.Ui.Controls.DirectoryTree"
-    xmlns:PlayToolbar="clr-namespace:TeensyRom.Ui.Features.Music.PlayToolbar"
+    xmlns:PlayToolbar="clr-namespace:TeensyRom.Ui.Controls.PlayToolbar"
     xmlns:GameToolbar="clr-namespace:TeensyRom.Ui.Features.Games.GameToolbar"
     xmlns:SongList="clr-namespace:TeensyRom.Ui.Features.Music.SongList"
     xmlns:DirectoryList="clr-namespace:TeensyRom.Ui.Controls.DirectoryList"

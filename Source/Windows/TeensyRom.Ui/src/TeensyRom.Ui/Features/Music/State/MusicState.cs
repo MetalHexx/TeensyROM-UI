@@ -1,4 +1,5 @@
-﻿using DynamicData;
+﻿using Accessibility;
+using DynamicData;
 using MediatR;
 using ReactiveUI;
 using System;
@@ -24,6 +25,8 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls;
 using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Ui.Controls.PlayToolbar;
+using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
@@ -35,16 +38,23 @@ namespace TeensyRom.Ui.Features.Music.State
         public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryTree.AsObservable();
         public IObservable<ObservableCollection<IStorageItem>> DirectoryContent => _directoryContent.AsObservable();
         public IObservable<SongItem> CurrentSong => _currentSong.AsObservable();        
-        public IObservable<SongMode> CurrentSongMode => _songMode.AsObservable();
-        public IObservable<PlayState> CurrentPlayState => _playState.AsObservable();
-        public IObservable<TimeSpan> CurrentSongTime => _songTime.CurrentTime;
+        public IObservable<LaunchItemState> LaunchState  => _launchState.AsObservable();
+        public IObservable<TimeProgressViewModel> Time => _songTime.CurrentTime
+            .CombineLatest(_currentSong, (time, song) => (time, song))
+            .Where(songTime => songTime.song is not null)
+            .Select(songTime => new TimeProgressViewModel(songTime.song.SongLength, songTime.time))
+            .AsObservable();
 
         private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new());
         private readonly Subject<ObservableCollection<IStorageItem>> _directoryContent = new();
         private readonly BehaviorSubject<StorageCacheItem?> _currentDirectory = new(null);
         private readonly BehaviorSubject<SongItem> _currentSong = new(null!);
-        private readonly BehaviorSubject<SongMode> _songMode = new(SongMode.Next);
-        private readonly BehaviorSubject<PlayState> _playState = new(PlayState.Paused);     
+
+        private readonly BehaviorSubject<LaunchItemState> _launchState = new(new() 
+        { 
+            PlayState = PlayState.Paused, 
+            PlayMode = PlayMode.Normal  
+        });   
 
         private readonly ISongTimer _songTime;
         private readonly IMediator _mediator;
@@ -91,8 +101,8 @@ namespace TeensyRom.Ui.Features.Music.State
                 .Subscribe(async _ => await RefreshDirectory(bustCache: false));
 
             _programLaunchedSubscription = globalState.ProgramLaunched
-                .WithLatestFrom(_playState, (file, playState) => playState)
-                .Where(playState => playState == PlayState.Playing)
+                .WithLatestFrom(_launchState, (file, launchState) => launchState)
+                .Where(launchState => launchState.PlayState == PlayState.Playing)
                 .Subscribe(_ => TogglePlayState());
         }        
 
@@ -126,30 +136,47 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public Unit ToggleShuffleMode() 
         {
-            if(_songMode.Value == SongMode.Shuffle)
+            if(_launchState.Value.PlayMode == PlayMode.Shuffle)
             {
-                _songMode.OnNext(SongMode.Next);
+                _launchState.OnNext(new() 
+                {
+                    PlayMode = PlayMode.Normal,
+                    PlayState = _launchState.Value.PlayState
+                });
                 return Unit.Default;
             }
-            _songMode.OnNext(SongMode.Shuffle);
+            _launchState.OnNext(new()
+            {
+                PlayMode = PlayMode.Shuffle,
+                PlayState = _launchState.Value.PlayState
+            });
             return Unit.Default;
         }
 
-        public async Task<bool> LoadSong(SongItem song, bool clearHistory = true)
+        public async Task LoadSong(ILaunchableItem launchItem, bool clearHistory = true)
         {
+            var song = launchItem as SongItem;
+
+            if(song is null) return;
+
             if (clearHistory) 
             {
                 _launchHistory.Clear();
-                _songMode.OnNext(SongMode.Next);
+
+                _launchState.OnNext(new()
+                {
+                    PlayMode = PlayMode.Normal,
+                    PlayState = _launchState.Value.PlayState
+                });
             }
 
             _songTime.StartNewTimer(song.SongLength);
             
-            var result = await _mediator.Send(new LaunchFileCommand { Path = song.Path }); //TODO: When TR fails on a SID, the next song command "fails", but the song still plays.  So I'll ignore the false return value for now.
+            var result = await _mediator.Send(new LaunchFileCommand { Path = song!.Path }); //TODO: When TR fails on a SID, the next song command "fails", but the song still plays.  So I'll ignore the false return value for now.
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                song.IsSelected = true;
+                song!.IsSelected = true;
 
                 var shouldUpdateCurrent = _currentSong.Value is not null 
                     && song.Path.Equals(_currentSong.Value.Path) == false;
@@ -160,14 +187,18 @@ namespace TeensyRom.Ui.Features.Music.State
                 }
             });
 
-            _currentSong.OnNext(song);
-            _playState.OnNext(PlayState.Playing);
-            
+            _currentSong.OnNext(song!);
+
+            _launchState.OnNext(new()
+            {
+                PlayMode = _launchState.Value.PlayMode,
+                PlayState = PlayState.Playing
+            });
 
             _playingSongSubscription?.Dispose();
             _playingSongSubscription = _songTime.SongComplete.Subscribe(async _ => 
             {
-                if (_songMode.Value == SongMode.Shuffle)
+                if (_launchState.Value.PlayMode == PlayMode.Shuffle)
                 {
                     await PlayRandom();
                     return;
@@ -177,25 +208,23 @@ namespace TeensyRom.Ui.Features.Music.State
 
             if (result.LaunchResult is LaunchFileResultType.SidError)
             {
-                _alert.Enqueue($"{song.Name} is currently unsupported (see logs).  Skipping to the next track.");
+                _alert.Enqueue($"{song!.Name} is currently unsupported (see logs).  Skipping to the next track.");
                 _musicService.MarkIncompatible(song);
                 await PlayNext();
-                return false;
+                return;
             }
-
-            return true;
         }
 
-        public async Task<bool> SaveFavorite(SongItem song)
+        public async Task SaveFavorite(ILaunchableItem song)
         {
             var favSong = await _musicService.SaveFavorite(song);
             var songParentDir = favSong?.Path.GetUnixParentPath();
 
-            if(songParentDir is null) return false;
+            if(songParentDir is null) return;
             
             var directoryResult = await _musicService.GetDirectory(songParentDir);
 
-            if (directoryResult is null) return false;
+            if (directoryResult is null) return;
 
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -204,7 +233,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
             _directoryTree.OnNext(_directoryTree.Value);
 
-            return true;
+            return;
         }
 
         public async Task ToggleMusic()
@@ -232,16 +261,20 @@ namespace TeensyRom.Ui.Features.Music.State
             {
                 _songTime.PauseTimer();
             }
-            _playState.OnNext(playState);
+            _launchState.OnNext(new()
+            {
+                PlayMode = _launchState.Value.PlayMode,
+                PlayState = playState
+            });
             return playState;
         }
 
         public Task PlayPrevious()
         {
-            return _songMode.Value switch
+            return _launchState.Value.PlayMode switch
             {
-                SongMode.Next => PlayPreviousInDirectory(),
-                SongMode.Shuffle =>  PlayPreviousShuffle(),
+                PlayMode.Normal => PlayPreviousInDirectory(),
+                PlayMode.Shuffle =>  PlayPreviousShuffle(),
                 _ => throw new NotImplementedException()
             };
         }
@@ -281,10 +314,10 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public Task PlayNext()
         {
-            return _songMode.Value switch
+            return _launchState.Value.PlayMode switch
             {
-                SongMode.Next => PlayNextInDirectory(),
-                SongMode.Shuffle => PlayNextShuffle(),
+                PlayMode.Normal => PlayNextInDirectory(),
+                PlayMode.Shuffle => PlayNextShuffle(),
                 _ => throw new NotImplementedException()
             };
         }
@@ -363,7 +396,7 @@ namespace TeensyRom.Ui.Features.Music.State
             return;
         }
 
-        private PlayState GetToggledPlayState() => _playState.Value == PlayState.Playing
+        private PlayState GetToggledPlayState() => _launchState.Value.PlayState == PlayState.Playing
                 ? PlayState.Paused
                 : PlayState.Playing;
 
@@ -391,7 +424,7 @@ namespace TeensyRom.Ui.Features.Music.State
                 await LoadDirectory(songItem.Path.GetUnixParentPath());
                 await LoadSong(songItem, clearHistory: false);
 
-                if(_songMode.Value != SongMode.Shuffle) ToggleShuffleMode();
+                if(_launchState.Value.PlayMode != PlayMode.Shuffle) ToggleShuffleMode();
 
                 _launchHistory.Add(songItem!);
 

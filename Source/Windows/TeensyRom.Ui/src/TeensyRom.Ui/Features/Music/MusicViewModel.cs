@@ -8,15 +8,16 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using TeensyRom.Core.Commands;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Files.State;
 using TeensyRom.Ui.Features.Global;
-using TeensyRom.Ui.Features.Music.PlayToolbar;
 using TeensyRom.Ui.Features.Music.Search;
 using TeensyRom.Ui.Features.Music.SongList;
 using TeensyRom.Ui.Features.Music.State;
@@ -44,14 +45,26 @@ namespace TeensyRom.Ui.Features.Music
         private readonly IMusicState _musicState;
         private readonly IDialogService _dialog;
 
-        public MusicViewModel(IMusicState musicState, IGlobalState globalState, IDialogService dialog, ISettingsService settingsService, INavigationService nav, PlayToolbarViewModel playToolBar, SongListViewModel songList, SearchMusicViewModel search)
+        public MusicViewModel(IMusicState musicState, IGlobalState globalState, IDialogService dialog, ISettingsService settingsService, INavigationService nav, IAlertService alert, SongListViewModel songList, SearchMusicViewModel search)
         {
             FeatureTitle = "Music";
             _musicState = musicState;
             _dialog = dialog;
-            PlayToolBar = playToolBar;
             SongList = songList;
             Search = search;
+            PlayToolBar = new PlayToolbarViewModel
+            (
+                _musicState.CurrentSong,
+                _musicState.LaunchState,
+                _musicState.Time,
+                _musicState.ToggleShuffleMode,
+                _musicState.ToggleMusic,
+                _musicState.PlayPrevious,
+                _musicState.PlayNext,
+                _musicState.SaveFavorite,
+                _musicState.LoadDirectory,
+                alert
+            );
 
             settingsService.Settings.Subscribe(s => _settings = s);
 

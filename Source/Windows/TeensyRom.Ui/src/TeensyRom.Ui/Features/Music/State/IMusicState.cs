@@ -5,7 +5,9 @@ using System.Reactive;
 using System.Threading.Tasks;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Features.Common.Models;
+using TeensyRom.Ui.Features.Common.State;
 
 namespace TeensyRom.Ui.Features.Music.State
 {
@@ -14,14 +16,13 @@ namespace TeensyRom.Ui.Features.Music.State
         IObservable<DirectoryNodeViewModel> DirectoryTree { get; }
         IObservable<ObservableCollection<IStorageItem>> DirectoryContent { get; }
         IObservable<SongItem> CurrentSong { get; }
-        IObservable<SongMode> CurrentSongMode { get; }
-        IObservable<TimeSpan> CurrentSongTime { get; }
-        IObservable<PlayState> CurrentPlayState { get; }
+        IObservable<TimeProgressViewModel> Time { get; }
+        IObservable<LaunchItemState> LaunchState { get; }
 
         Task LoadDirectory(string path);
         Task RefreshDirectory(bool bustCache = true);
-        Task<bool> LoadSong(SongItem song, bool clearHistory = true);
-        Task<bool> SaveFavorite(SongItem song);
+        Task LoadSong(ILaunchableItem song, bool clearHistory = true);
+        Task SaveFavorite(ILaunchableItem song);
         Task DeleteFile(IFileItem file);
         Task PlayNext();
         Task PlayPrevious();

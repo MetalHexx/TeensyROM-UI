@@ -11,7 +11,6 @@ using TeensyRom.Ui.Features.Connect;
 using TeensyRom.Ui.Features.Files.State;
 using TeensyRom.Ui.Features.Files;
 using TeensyRom.Ui.Features.Help;
-using TeensyRom.Ui.Features.Music.PlayToolbar;
 using TeensyRom.Ui.Features.Music.SongList;
 using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.Music;
@@ -78,7 +77,6 @@ namespace TeensyRom.Ui
             services.AddSingleton<HelpViewModel>();
             services.AddSingleton<MusicViewModel>();
             services.AddSingleton<GamesViewModel>();
-            services.AddSingleton<PlayToolbarViewModel>();
             services.AddSingleton<SongListViewModel>();
             services.AddSingleton<SearchMusicViewModel>();
             services.AddSingleton<GamesViewModel>();
