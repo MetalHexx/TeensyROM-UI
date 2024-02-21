@@ -302,7 +302,7 @@ namespace TeensyRom.Ui.Features.Music.State
         {
             var song = _launchHistory.GetPrevious(TeensyFileType.Sid);
 
-            if (song is SongItem songItem)
+            if (_currentTime <= TimeSpan.FromSeconds(3) && song is SongItem songItem)
             {
                 await LoadDirectory(songItem.Path.GetUnixParentPath());
                 await LoadSong(songItem, clearHistory: false);
