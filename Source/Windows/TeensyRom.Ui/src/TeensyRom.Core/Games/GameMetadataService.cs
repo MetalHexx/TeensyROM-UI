@@ -116,7 +116,8 @@ namespace TeensyRom.Core.Games
             game.Screens.LoadingScreenRemotePath = loadingScreen?.RemotePath ?? string.Empty;
             game.Screens.ScreenshotLocalPath = screenshot?.LocalPath ?? string.Empty;
             game.Screens.ScreenshotRemotePath = screenshot?.RemotePath ?? string.Empty;
-
+            game.MetadataSource = "OneLoad64";
+            game.Title = game.Name[..game.Name.LastIndexOf('.')];
             GetGameScreens(game);
         }
 

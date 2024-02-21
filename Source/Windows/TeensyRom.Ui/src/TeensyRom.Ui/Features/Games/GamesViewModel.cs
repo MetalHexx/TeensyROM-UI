@@ -18,11 +18,12 @@ using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Controls.Paging;
+using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.SearchResultsToolbar;
+using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Files.State;
 using TeensyRom.Ui.Features.Games.GameInfo;
-using TeensyRom.Ui.Features.Games.GameToolbar;
 using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Features.NavigationHost;
@@ -43,9 +44,9 @@ namespace TeensyRom.Ui.Features.Games
         [Reactive] public DirectoryTreeViewModel GamesTree { get; set; }
         [Reactive] public DirectoryListViewModel GameList { get; set; }
         [Reactive] public GameInfoViewModel GameInfo { get; set; }
-        [Reactive] public GameToolbarViewModel GameToolBar { get; set; }
+        [Reactive] public PlayToolbarViewModel PlayToolbar { get; set; }
         [Reactive] public PagingViewModel Paging { get; set; }
-        [Reactive] public CornerToolbarViewModel CornerToolbar { get; set; }
+        [Reactive] public CornerToolbarViewModel CornerToolbar { get; set; } = null!;
         [Reactive] public FeatureTitleViewModel Title { get; set; }
         [Reactive] public SearchResultsToolbarViewModel SearchResultsToolbar { get; set; } = new();
 
@@ -53,11 +54,10 @@ namespace TeensyRom.Ui.Features.Games
         private readonly IPlayerContext _gameState;
         private readonly IDialogService _dialog;
 
-        public GamesViewModel(IPlayerContext gameState, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, GameToolbarViewModel toolbar, GameInfoViewModel gameInfo)
+        public GamesViewModel(IPlayerContext gameState, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, GameInfoViewModel gameInfo)
         {   
             _gameState = gameState;
             _dialog = dialog;
-            GameToolBar = toolbar;
             GameInfo = gameInfo;
             FeatureTitle = "Games";
             Title = new FeatureTitleViewModel(FeatureTitle);
@@ -77,7 +77,7 @@ namespace TeensyRom.Ui.Features.Games
                 gameState.SetPageSize,
                 alert, 
                 dialog
-            );
+            );            
 
             var gamesLibaryPath = settingsService.Settings.Select(s => s.Libraries.FirstOrDefault(l => l.Type == TeensyLibraryType.Programs)?.Path ?? "");
             var chipsObservable = gamesLibaryPath.CombineLatest(gameState.CurrentPath, (libraryPath, currentPath) => currentPath.Replace(libraryPath, ""));
@@ -113,6 +113,27 @@ namespace TeensyRom.Ui.Features.Games
             gameState.CurrentState
                 .Select(state => state is SearchState)
                 .ToPropertyEx(this, x => x.SearchActive);
+
+            var launchState = gameState.CurrentState
+                .Select(state => GetPlayMode(state))
+                .CombineLatest(gameState.PlayingState, (mode, state) => (mode, state))
+                .Select(stateMode => new LaunchItemState { PlayState = stateMode.state, PlayMode = stateMode.mode });
+
+            PlayToolbar = new PlayToolbarViewModel
+            (
+                gameState.LaunchedGame,
+                launchState,
+                null,
+                gameState.ToggleShuffleMode,
+                gameState.ToggleGame,
+                gameState.PlayPrevious,
+                gameState.PlayNext,
+                gameState.SaveFavorite,
+                gameState.LoadDirectory,
+                PlayToggleOption.Stop,
+                alert
+            );
+
 
             GamesTree = new(gameState.DirectoryTree)
             {
@@ -163,5 +184,12 @@ namespace TeensyRom.Ui.Features.Games
 
             await _gameState.CacheAll();
         }
+
+        private PlayMode GetPlayMode(PlayerState state) => state switch
+        {
+            NormalPlayState _ => PlayMode.Normal,
+            ShuffleState _ => PlayMode.Shuffle,
+            _ => PlayMode.Normal
+        };
     }
 }

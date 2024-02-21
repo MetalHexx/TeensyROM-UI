@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using System.Windows;
 using System.Windows.Input;
+using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial.State;
@@ -37,14 +39,15 @@ namespace TeensyRom.Ui.Features.Games.State
         public IObservable<ObservableCollection<IStorageItem>> DirectoryContent => _directoryState.Select(d => d.DirectoryContent);
         public IObservable<ILaunchableItem> LaunchedGame => _launchedGame.AsObservable();
         public IObservable<ILaunchableItem> SelectedGame => _selectedGame.AsObservable();
-        public IObservable<PlayPausedState> PlayState => _playState.AsObservable();
+        public IObservable<PlayState> PlayingState => _playingState.AsObservable();
+
         private string _currentPath = string.Empty;
 
         private PlayerState? _previousState;
         private readonly BehaviorSubject<PlayerState> _currentState;        
         private readonly BehaviorSubject<ILaunchableItem> _launchedGame = new(null!);
         private readonly BehaviorSubject<ILaunchableItem> _selectedGame = new(null!);
-        private readonly BehaviorSubject<PlayPausedState> _playState = new(PlayPausedState.Stopped);
+        private readonly BehaviorSubject<PlayState> _playingState = new(PlayState.Stopped);
         protected BehaviorSubject<DirectoryState> _directoryState = new(new());
 
         private IDisposable? _settingsSubscription;
@@ -106,6 +109,10 @@ namespace TeensyRom.Ui.Features.Games.State
             }
             return false;
         }
+        public Task LoadDirectory(string path)
+        {
+            return LoadDirectory(path, null);
+        }
         public async Task LoadDirectory(string path, string? filePathToSelect = null)
         {
             if (_currentState.Value is SearchState) 
@@ -151,6 +158,18 @@ namespace TeensyRom.Ui.Features.Games.State
             return Task.CompletedTask;
         }
 
+        public async Task ToggleGame()
+        {
+            if (_playingState.Value is PlayState.Playing)
+            {
+                _playingState.OnNext(PlayState.Stopped);
+                await StopGame();                
+                return;
+            }
+            _playingState.OnNext(PlayState.Playing);
+            await PlayGame(_launchedGame.Value);
+        }
+
         public virtual async Task PlayGame(ILaunchableItem game)
         {
             var result = await _mediator.Send(new LaunchFileCommand { Path = game.Path });
@@ -179,7 +198,7 @@ namespace TeensyRom.Ui.Features.Games.State
             });
             _launchedGame.OnNext(game);
             _selectedGame.OnNext(game);
-            _playState.OnNext(PlayPausedState.Playing);
+            _playingState.OnNext(PlayState.Playing);
         }
 
         public virtual async Task SaveFavorite(ILaunchableItem game)
@@ -223,7 +242,7 @@ namespace TeensyRom.Ui.Features.Games.State
         }
         public Task StopGame() 
         {
-            _playState.OnNext(PlayPausedState.Stopped);
+            _playingState.OnNext(PlayState.Stopped);
             return _currentState.Value.StopGame();
         }
 

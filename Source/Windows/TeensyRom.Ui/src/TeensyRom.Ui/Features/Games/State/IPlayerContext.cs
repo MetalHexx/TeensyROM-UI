@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Ui.Features.Common.State;
 
 namespace TeensyRom.Ui.Features.Games.State
 {
@@ -10,7 +11,7 @@ namespace TeensyRom.Ui.Features.Games.State
     {
         IObservable<string> CurrentPath { get; }
         IObservable<int> CurrentPage { get; }
-        IObservable<PlayPausedState> PlayState { get; }
+        IObservable<PlayState> PlayingState { get; }
         IObservable<PlayerState> CurrentState { get; }
         IObservable<ObservableCollection<IStorageItem>> DirectoryContent { get; }
         IObservable<DirectoryNodeViewModel?> DirectoryTree { get; }
@@ -21,8 +22,10 @@ namespace TeensyRom.Ui.Features.Games.State
         Task CacheAll();
         Task ClearSearch();
         Task DeleteFile(IFileItem file);
+        Task LoadDirectory(string path);
         Task LoadDirectory(string path, string? filePathToSelect = null);
         Task PlayGame(ILaunchableItem game);
+        Task ToggleGame();
         Unit NextPage();
         Task PlayNext();
         Task PlayPrevious();

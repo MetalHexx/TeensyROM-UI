@@ -16,11 +16,12 @@ using TeensyRom.Ui.Features.Common.State;
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
     public class PlayToolbarViewModel : ReactiveObject
-    {
-        [Reactive] public bool ProgressEnabled {get; set;}
+    {   
         [Reactive] public bool EnablePlayButton { get; set; }
         [Reactive] public bool EnablePauseButton { get; set; }
         [Reactive] public bool EnableStopButton { get; set; }
+        [ObservableAsProperty] public bool ShowTitleOnly { get; }
+        [ObservableAsProperty] public bool ProgressEnabled { get; }
         [ObservableAsProperty] public ILaunchableItem? File { get; }
         [ObservableAsProperty] public TimeProgressViewModel? Progress { get; } = null;
         [ObservableAsProperty] public string CurrentTime { get; } = string.Empty;
@@ -43,8 +44,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         public PlayToolbarViewModel(
             IObservable<ILaunchableItem> file, 
-            IObservable<LaunchItemState> fileState, 
-            IObservable<TimeProgressViewModel>? progress, 
+            IObservable<LaunchItemState> playState, 
+            IObservable<TimeProgressViewModel>? timeState, 
             Func<Unit> toggleMode, 
             Func<Task> togglePlay,
             Func<Task> playPrevious, 
@@ -60,31 +61,35 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(item => item is not null)
                 .ToPropertyEx(this, s => s.File);
 
-            file
+            var showReleaseInfo = file
                 .Where(item => item is not null)
-                .Select(item => !string.IsNullOrWhiteSpace(item.ReleaseInfo))
-                .ToPropertyEx(this, vm => vm.ShowReleaseInfo);
+                .Select(item => !string.IsNullOrWhiteSpace(item.ReleaseInfo));
 
-            file
-                .Where(item => item is not null)
-                .Select(item => !string.IsNullOrWhiteSpace(item.Creator))
-                .ToPropertyEx(this, vm => vm.ShowCreator);
+            showReleaseInfo.ToPropertyEx(this, vm => vm.ShowReleaseInfo);
 
-            file
+            var showCreatorInfo = file
                 .Where(item => item is not null)
-                .Select(item => !string.IsNullOrWhiteSpace(item.ReleaseInfo) && !string.IsNullOrWhiteSpace(item.Creator))
+                .Select(item => !string.IsNullOrWhiteSpace(item.Creator));
+
+            showCreatorInfo.ToPropertyEx(this, vm => vm.ShowCreator);
+
+            showReleaseInfo.CombineLatest(showCreatorInfo, (release, creator) => release && creator)
                 .ToPropertyEx(this, vm => vm.ShowReleaseCreatorSeperator);
+
+            showReleaseInfo.CombineLatest(showCreatorInfo, (release, creator) => !(release && creator))
+                .Select(x => x)
+                .ToPropertyEx(this, vm => vm.ShowTitleOnly);
 
             file
                 .Where(s => s is not null)
                 .Select(s => !string.IsNullOrEmpty(s.ShareUrl))
                 .ToPropertyEx(this, vm => vm.ShareVisible);
 
-            fileState
+            playState
                 .Select(state => state.PlayMode == PlayMode.Shuffle)
                 .ToPropertyEx(this, vm => vm.ShuffleModeEnabled);
 
-            fileState
+            playState
                 .Where(state => state.PlayState != PlayState.Playing)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
@@ -94,7 +99,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     EnablePlayButton = true;
                 });
 
-            var playToggle = fileState
+            var playToggle = playState
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(state => state.PlayState == PlayState.Playing)                
                 .Do(_ => EnablePlayButton = false);
@@ -107,14 +112,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => toggleOption == PlayToggleOption.Pause)
                 .Subscribe(_ => EnablePauseButton = true);
 
-            if (progress is not null)
-            {
-                ProgressEnabled = true;
+            timeState?
+                .Select(time => time is not null)
+                .ToPropertyEx(this, vm => vm.ProgressEnabled);
 
-                progress
-                    .Where(time => time is not null)
-                    .ToPropertyEx(this, vm => vm.Progress);
-            }
+            timeState?
+                .Where(time => time is not null)
+                .ToPropertyEx(this, vm => vm.Progress);
 
             TogglePlayCommand = ReactiveCommand.CreateFromTask(togglePlay);
             NextCommand = ReactiveCommand.CreateFromTask(playNext);

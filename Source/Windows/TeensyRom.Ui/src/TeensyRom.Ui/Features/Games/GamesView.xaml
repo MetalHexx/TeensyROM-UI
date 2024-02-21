@@ -79,7 +79,7 @@
                 Grid.Row="2" Grid.ColumnSpan="3" 
                 Background="#303030" >
 
-                <ContentControl Content="{Binding GameToolBar}" VerticalAlignment="Center"/>
+                <ContentControl Content="{Binding PlayToolbar}" VerticalAlignment="Center"/>
             </Grid>
         </Grid>
     </Grid>

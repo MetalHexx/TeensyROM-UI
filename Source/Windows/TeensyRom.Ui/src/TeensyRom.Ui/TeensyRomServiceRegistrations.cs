@@ -31,7 +31,6 @@ using TeensyRom.Ui.Services;
 using TeensyRom.Ui.Features.Global;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Features.Games;
-using TeensyRom.Ui.Features.Games.GameToolbar;
 using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Games.GameInfo;
 using TeensyRom.Core.Games;
@@ -80,7 +79,6 @@ namespace TeensyRom.Ui
             services.AddSingleton<SongListViewModel>();
             services.AddSingleton<SearchMusicViewModel>();
             services.AddSingleton<GamesViewModel>();
-            services.AddSingleton<GameToolbarViewModel>();
             services.AddSingleton<GameInfoViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddSingleton<ITeensyCommandExecutor, TeensyCommandExecutor>();

@@ -25,12 +25,13 @@ using TeensyRom.Ui.Features.Games.State.Directory;
 using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
+using PlayState = TeensyRom.Ui.Features.Common.State.PlayState;
 
 namespace TeensyRom.Ui.Features.Games.State
 {
     public abstract class PlayerState : IPlayerState, IDisposable
     {
-        protected BehaviorSubject<PlayPausedState> _gameState = new(PlayPausedState.Stopped);
+        protected BehaviorSubject<PlayState> _gameState = new(PlayState.Stopped);
         protected readonly ICachedStorageService _storage;
         protected readonly ISettingsService _settingsService;
         protected readonly ILaunchHistory _launchHistory;
@@ -60,7 +61,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
         public virtual Task StopGame()
         {
-            _gameState.OnNext(PlayPausedState.Stopped);
+            _gameState.OnNext(PlayState.Stopped);
             return _mediator.Send(new ResetCommand());
         }
 
