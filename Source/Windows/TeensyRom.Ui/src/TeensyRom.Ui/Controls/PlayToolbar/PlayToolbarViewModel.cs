@@ -107,6 +107,15 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => toggleOption == PlayToggleOption.Pause)
                 .Subscribe(_ => EnablePauseButton = true);
 
+            if (progress is not null)
+            {
+                ProgressEnabled = true;
+
+                progress
+                    .Where(time => time is not null)
+                    .ToPropertyEx(this, vm => vm.Progress);
+            }
+
             TogglePlayCommand = ReactiveCommand.CreateFromTask(togglePlay);
             NextCommand = ReactiveCommand.CreateFromTask(playNext);
             PreviousCommand = ReactiveCommand.CreateFromTask(playPrevious);
