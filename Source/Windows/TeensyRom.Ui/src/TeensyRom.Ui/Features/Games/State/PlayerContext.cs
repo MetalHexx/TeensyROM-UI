@@ -255,43 +255,38 @@ namespace TeensyRom.Ui.Features.Games.State
 
             var file = _storage.GetRandomFile(FileTypes);
 
-            if (file is not null)
+            if (file is null)
             {
-                await LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
-                await PlayFile(file);
+                _alert.Enqueue("Random search requires visiting at least one directory with programs in it first.  Try the cache button next to the dice for best results.");
+                return null;
+            }            
+            await LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
+            await PlayFile(file);
+            _launchHistory.Add(file!);
 
-                _launchHistory.Add(file!);
-
-                return file;
-            }
-            _alert.Enqueue("Random search requires visiting at least one directory with programs in it first.  Try the cache button next to the dice for best results.");
-
-            return null;
+            return file;
         }
         public Unit SearchFiles(string searchText)
         {
             var success = TryTransitionTo(typeof(SearchState));
 
-            if (success)
-            {
-                var searchResult = _storage.SearchGames(searchText)
+            if (!success) return Unit.Default;
+
+            var searchResult = _storage.SearchGames(searchText)
                 .Cast<IStorageItem>()
                 .Take(100)
                 .ToList();
 
-                if (searchResult is null) return Unit.Default;
+            if (searchResult is null) return Unit.Default;
                 
-                _directoryState.Value.ClearSelection();
-                _directoryState.Value.LoadDirectory(searchResult, "Search Results:");
-                var firstItem = _directoryState.Value.SelectFirst();
+            _directoryState.Value.ClearSelection();
+            _directoryState.Value.LoadDirectory(searchResult, "Search Results:");
+            var firstItem = _directoryState.Value.SelectFirst();
                
-                if(firstItem is not null)
-                {
-                    _selectedFile.OnNext(firstItem);
-                }
+            if(firstItem is not null) _selectedFile.OnNext(firstItem);
 
-                _directoryState.OnNext(_directoryState.Value);
-            }
+            _directoryState.OnNext(_directoryState.Value);
+
             return Unit.Default;
         }
 
