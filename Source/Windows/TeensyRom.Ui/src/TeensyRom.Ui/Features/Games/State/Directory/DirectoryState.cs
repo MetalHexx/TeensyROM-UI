@@ -68,11 +68,11 @@ namespace TeensyRom.Ui.Features.Games.State.Directory
             DirectoryContent.ToList().ForEach(i => i.IsSelected = false);
         }
 
-        public GameItem? SelectFirst()
+        public ILaunchableItem? SelectFirst()
         {
             var firstItem = DirectoryContent
-                .Where(item => item is GameItem)
-                .Cast<GameItem>()
+                .Where(item => item is ILaunchableItem)
+                .Cast<ILaunchableItem>()
                 .FirstOrDefault();
 
             if (firstItem is not null)

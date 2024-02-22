@@ -22,21 +22,23 @@ namespace TeensyRom.Ui.Features.Games.GameInfo
 
         public GameInfoViewModel(IPlayerContext gameState, IGameMetadataService gameMetadata)
         {
-            gameState.SelectedGame
+            gameState.SelectedFile
                 .Where(game => game != null)
-                .Cast<GameItem>()
+                .OfType<GameItem>()
                 .Do(gameMetadata.GetGameScreens)
                 .Select(game => game.Name[..game.Name.LastIndexOf('.')])
                 .ToPropertyEx(this, x => x.GameName);
 
-            gameState.SelectedGame
+            gameState.SelectedFile
                 .Where(game => game != null)
-                .Select(game => game is GameItem gameItem ? gameItem.Screens.LoadingScreenLocalPath : string.Empty)
+                .OfType<GameItem>()
+                .Select(game => game.Screens.LoadingScreenLocalPath)
                 .ToPropertyEx(this, x => x.LoadingScreenPath);
 
-            gameState.SelectedGame
+            gameState.SelectedFile
                 .Where(game => game != null)
-                .Select(game => game is GameItem gameItem ? gameItem.Screens.ScreenshotLocalPath : string.Empty)
+                .OfType<GameItem>()
+                .Select(game => game.Screens.ScreenshotLocalPath)
                 .ToPropertyEx(this, x => x.ScreenshotPath);
 
             this.WhenAnyValue(x => x.LoadingScreenPath)

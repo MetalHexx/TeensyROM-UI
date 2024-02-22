@@ -26,35 +26,35 @@ namespace TeensyRom.Ui.Features.Games.State
                 || nextStateType == typeof(SearchState);
         }
 
-        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentGame, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, DirectoryState directoryState)
         {
-            var game = _launchHistory.GetNext(TeensyFileType.Crt, TeensyFileType.Prg);
+            var nextFile = _launchHistory.GetNext(TeensyFileType.Crt, TeensyFileType.Prg);
 
-            if (game is not null)
+            if (nextFile is not null)
             {
-                await _playerContext.LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
-                return game;
+                await _playerContext.LoadDirectory(nextFile.Path.GetUnixParentPath(), nextFile.Path);
+                return nextFile;
             }
-            var randomGame = _storage.GetRandomFile(TeensyFileType.Prg, TeensyFileType.Crt);
+            var randomFile = _storage.GetRandomFile(TeensyFileType.Prg, TeensyFileType.Crt);
             
-            if(randomGame is not null)
+            if(randomFile is not null)
             {
-                _launchHistory.Add(randomGame);
-                await _playerContext.LoadDirectory(randomGame.Path.GetUnixParentPath(), randomGame.Path);
+                _launchHistory.Add(randomFile);
+                await _playerContext.LoadDirectory(randomFile.Path.GetUnixParentPath(), randomFile.Path);
             }
-            return randomGame;            
+            return randomFile;            
         }
 
-        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentGame, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, DirectoryState directoryState)
         {
-            var game = _launchHistory.GetPrevious(TeensyFileType.Prg, TeensyFileType.Crt);
+            var file = _launchHistory.GetPrevious(TeensyFileType.Prg, TeensyFileType.Crt);
 
-            if (game is not null)
+            if (file is not null)
             {
-                await _playerContext.LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
-                return game;
+                await _playerContext.LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
+                return file;
             }
-            return currentGame;
+            return currentFile;
         }
     }
 }

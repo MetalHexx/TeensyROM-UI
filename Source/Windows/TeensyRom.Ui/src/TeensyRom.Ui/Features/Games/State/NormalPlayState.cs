@@ -39,36 +39,36 @@ namespace TeensyRom.Ui.Features.Games.State
                 ? directoryResult.Files.First()
                 : directoryResult.Files[++currentIndex];
 
-            if (nextFile is GameItem game)
+            if (nextFile is ILaunchableItem f)
             {
-                if (game.Path == currentLaunchable.Path) return null;
+                if (f.Path == currentLaunchable.Path) return null;
 
-                await _playerContext.LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
-                return game;
+                await _playerContext.LoadDirectory(f.Path.GetUnixParentPath(), f.Path);
+                return f;
             }
             return null;
         }
 
-        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentGame, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, DirectoryState directoryState)
         {
-            var parentPath = currentGame.Path.GetUnixParentPath();
+            var parentPath = currentFile.Path.GetUnixParentPath();
             var directoryResult = await _storage.GetDirectory(parentPath);
             var launchableItems = directoryResult?.Files.OfType<ILaunchableItem>().ToList();
 
             if (launchableItems is null)
             {
-                return currentGame;                
+                return currentFile;                
             }
-            var gameIndex = launchableItems.IndexOf(currentGame);
+            var index = launchableItems.IndexOf(currentFile);
 
-            var game = gameIndex == 0
+            var nextFile = index == 0
                 ? launchableItems.Last()
-                : launchableItems[--gameIndex];
+                : launchableItems[--index];
 
-            if (game is null) return null;
+            if (nextFile is null) return null;
 
-            await _playerContext.LoadDirectory(game.Path.GetUnixParentPath(), game.Path);            
-            return game;            
+            await _playerContext.LoadDirectory(nextFile.Path.GetUnixParentPath(), nextFile.Path);            
+            return nextFile;            
         }
     }
 }

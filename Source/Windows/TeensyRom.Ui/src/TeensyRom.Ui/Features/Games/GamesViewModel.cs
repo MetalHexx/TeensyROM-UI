@@ -50,80 +50,80 @@ namespace TeensyRom.Ui.Features.Games
 
         private TeensySettings _settings = null!;
 
-        public GamesViewModel(IPlayerContext gameState, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, GameInfoViewModel gameInfo)
+        public GamesViewModel(IPlayerContext player, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, GameInfoViewModel fileInfo)
         {   
-            FileInfo = gameInfo;
+            FileInfo = fileInfo;
             FeatureTitle = "Games";
             Title = new FeatureTitleViewModel(FeatureTitle);
 
             globalState.SerialConnected.ToPropertyEx(this, x => x.IsConnected);
 
-            gameState.LaunchedGame
+            player.LaunchedFile
                 .Select(g => g is not null)
                 .ToPropertyEx(this, x => x.PlayToolbarActive);
 
-            gameState.CurrentState
+            player.CurrentState
                 .Select(state => state is SearchState)
                 .ToPropertyEx(this, x => x.SearchActive);
 
-            var launchState = gameState.CurrentState
+            var launchState = player.CurrentState
                 .Select(state => GetPlayMode(state))
-                .CombineLatest(gameState.PlayingState, (mode, state) => (mode, state))
+                .CombineLatest(player.PlayingState, (mode, state) => (mode, state))
                 .Select(stateMode => new LaunchItemState { PlayState = stateMode.state, PlayMode = stateMode.mode });
 
             PlayToolbar = new PlayToolbarViewModel
             (
-                gameState.LaunchedGame,
+                player.LaunchedFile,
                 launchState,
                 null,
-                gameState.ToggleShuffleMode,
-                gameState.ToggleGame,
-                gameState.PlayPrevious,
-                gameState.PlayNext,
-                gameState.SaveFavorite,
-                gameState.LoadDirectory,
+                player.ToggleShuffleMode,
+                player.ToggleFile,
+                player.PlayPrevious,
+                player.PlayNext,
+                player.SaveFavorite,
+                player.LoadDirectory,
                 PlayToggleOption.Stop,
                 alert
             );
 
             DirectoryList = new DirectoryListViewModel
             (
-                gameState.DirectoryContent,
-                gameState.PagingEnabled,
-                gameState.CurrentPage,
-                gameState.TotalPages,
-                gameState.PlayGame, 
-                gameState.SetSelectedGame, 
-                gameState.SaveFavorite, 
-                gameState.DeleteFile, 
-                gameState.LoadDirectory,
-                gameState.NextPage,
-                gameState.PreviousPage,
-                gameState.SetPageSize,
+                player.DirectoryContent,
+                player.PagingEnabled,
+                player.CurrentPage,
+                player.TotalPages,
+                player.PlayFile, 
+                player.SelectFile, 
+                player.SaveFavorite, 
+                player.DeleteFile, 
+                player.LoadDirectory,
+                player.NextPage,
+                player.PreviousPage,
+                player.SetPageSize,
                 alert, 
                 dialog
             );
 
-            DirectoryTree = new(gameState.DirectoryTree)
+            DirectoryTree = new(player.DirectoryTree)
             {
                 DirectorySelectedCommand = ReactiveCommand.CreateFromTask<DirectoryNodeViewModel>(
-                    execute: async (directory) => await gameState.LoadDirectory(directory.Path),
+                    execute: async (directory) => await player.LoadDirectory(directory.Path),
                     outputScheduler: RxApp.MainThreadScheduler)
             };
 
-            var searchActive = gameState.CurrentState.Select(s => s is SearchState);
+            var searchActive = player.CurrentState.Select(s => s is SearchState);
 
             Search = new(searchActive)
             {
                 SearchCommand = ReactiveCommand.Create<string, Unit>(
-                    execute: gameState.SearchGames,
+                    execute: player.SearchFiles,
                     outputScheduler: RxApp.MainThreadScheduler),
 
                 ClearSearchCommand = ReactiveCommand.CreateFromTask(
                     execute: () =>
                     {
                         Search!.SearchText = string.Empty;
-                        return gameState.ClearSearch();
+                        return player.ClearSearch();
                     },
                     outputScheduler: RxApp.MainThreadScheduler)
             };
@@ -134,16 +134,16 @@ namespace TeensyRom.Ui.Features.Games
                 var libPath = s.Libraries.FirstOrDefault(l => l.Type == TeensyLibraryType.Programs)?.Path ?? "";
 
                 DirectoryChips = new DirectoryChipsViewModel(
-                    path: gameState.CurrentPath,
+                    path: player.CurrentPath,
                     basePath: libPath,
-                    onClick: async path => await gameState.LoadDirectory(path),
+                    onClick: async path => await player.LoadDirectory(path),
                     onCopy: () => alert.Publish("Path copied to clipboard"));
 
                 CornerToolbar = new CornerToolbarViewModel
                 (
-                    gameState.CacheAll,
-                    gameState.PlayRandom,
-                    gameState.RefreshDirectory,
+                    player.CacheAll,
+                    player.PlayRandom,
+                    player.RefreshDirectory,
                     dialog,
                     _settings.TargetType
                 );

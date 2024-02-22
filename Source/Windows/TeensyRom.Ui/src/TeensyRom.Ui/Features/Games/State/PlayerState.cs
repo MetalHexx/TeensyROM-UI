@@ -31,7 +31,7 @@ namespace TeensyRom.Ui.Features.Games.State
 {
     public abstract class PlayerState : IPlayerState, IDisposable
     {
-        protected BehaviorSubject<PlayState> _gameState = new(PlayState.Stopped);
+        protected BehaviorSubject<PlayState> _playState = new(PlayState.Stopped);
         protected readonly ICachedStorageService _storage;
         protected readonly ISettingsService _settingsService;
         protected readonly ILaunchHistory _launchHistory;
@@ -57,17 +57,17 @@ namespace TeensyRom.Ui.Features.Games.State
         public abstract bool CanTransitionTo(Type nextStateType);
         public virtual Task ClearSearch() => throw new TeensyStateException(InvalidStateExceptionMessage);
 
-        public virtual async Task DeleteFile(IFileItem game) => await _storage.DeleteFile(game, _settings.TargetType);
+        public virtual async Task DeleteFile(IFileItem file) => await _storage.DeleteFile(file, _settings.TargetType);
 
-        public virtual Task StopGame()
+        public virtual Task StopFile()
         {
-            _gameState.OnNext(PlayState.Stopped);
+            _playState.OnNext(PlayState.Stopped);
             return _mediator.Send(new ResetCommand());
         }
 
-        public virtual Task<ILaunchableItem?> GetNext(ILaunchableItem currentGame, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
+        public virtual Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
-        public virtual Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentGame, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
+        public virtual Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
         protected string InvalidStateExceptionMessage => $"Cannot perform this operation from: {GetType().Name}";
 

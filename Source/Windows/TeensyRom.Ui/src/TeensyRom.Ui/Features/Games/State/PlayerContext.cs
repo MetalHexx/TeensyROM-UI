@@ -37,16 +37,16 @@ namespace TeensyRom.Ui.Features.Games.State
         public IObservable<bool> PagingEnabled => _directoryState.Select(d => d.PagingEnabled);
         public IObservable<DirectoryNodeViewModel?> DirectoryTree => _tree.DirectoryTree.AsObservable();
         public IObservable<ObservableCollection<IStorageItem>> DirectoryContent => _directoryState.Select(d => d.DirectoryContent);
-        public IObservable<ILaunchableItem> LaunchedGame => _launchedGame.AsObservable();
-        public IObservable<ILaunchableItem> SelectedGame => _selectedGame.AsObservable();
+        public IObservable<ILaunchableItem> LaunchedFile => _launchedFile.AsObservable();
+        public IObservable<ILaunchableItem> SelectedFile => _selectedFile.AsObservable();
         public IObservable<PlayState> PlayingState => _playingState.AsObservable();
 
         private string _currentPath = string.Empty;
 
         private PlayerState? _previousState;
         private readonly BehaviorSubject<PlayerState> _currentState;        
-        private readonly BehaviorSubject<ILaunchableItem> _launchedGame = new(null!);
-        private readonly BehaviorSubject<ILaunchableItem> _selectedGame = new(null!);
+        private readonly BehaviorSubject<ILaunchableItem> _launchedFile = new(null!);
+        private readonly BehaviorSubject<ILaunchableItem> _selectedFile = new(null!);
         private readonly BehaviorSubject<PlayState> _playingState = new(PlayState.Stopped);
         protected BehaviorSubject<DirectoryState> _directoryState = new(new());
 
@@ -158,57 +158,57 @@ namespace TeensyRom.Ui.Features.Games.State
             return Task.CompletedTask;
         }
 
-        public async Task ToggleGame()
+        public async Task ToggleFile()
         {
             if (_playingState.Value is PlayState.Playing)
             {
                 _playingState.OnNext(PlayState.Stopped);
-                await StopGame();                
+                await StopFile();                
                 return;
             }
             _playingState.OnNext(PlayState.Playing);
-            await PlayGame(_launchedGame.Value);
+            await PlayFile(_launchedFile.Value);
         }
 
-        public virtual async Task PlayGame(ILaunchableItem game)
+        public virtual async Task PlayFile(ILaunchableItem file)
         {
-            var result = await _mediator.Send(new LaunchFileCommand { Path = game.Path });
+            var result = await _mediator.Send(new LaunchFileCommand { Path = file.Path });
 
             if (result.LaunchResult is LaunchFileResultType.ProgramError)
             {
-                _alert.Enqueue($"{game.Name} is currently unsupported (see logs).  Skipping to the next game.");
-                _storage.MarkIncompatible(game);
-                var nextGame = await _currentState.Value.GetNext(_launchedGame.Value, _directoryState.Value);
+                _alert.Enqueue($"{file.Name} is currently unsupported (see logs).  Skipping to the next game.");
+                _storage.MarkIncompatible(file);
+                var nextFile = await _currentState.Value.GetNext(_launchedFile.Value, _directoryState.Value);
 
-                if (nextGame is not null) await PlayGame(nextGame);
+                if (nextFile is not null) await PlayFile(nextFile);
 
                 return;
             }
             Application.Current.Dispatcher.Invoke(() =>
             {
-                game.IsSelected = true;
+                file.IsSelected = true;
 
-                var shouldUpdateCurrent = _launchedGame.Value is not null
-                    && game.Path.Equals(_launchedGame.Value.Path) == false;
+                var shouldUpdateCurrent = _launchedFile.Value is not null
+                    && file.Path.Equals(_launchedFile.Value.Path) == false;
 
                 if (shouldUpdateCurrent)
                 {
-                    _launchedGame.Value!.IsSelected = false;
+                    _launchedFile.Value!.IsSelected = false;
                 }
             });
-            _launchedGame.OnNext(game);
-            _selectedGame.OnNext(game);
+            _launchedFile.OnNext(file);
+            _selectedFile.OnNext(file);
             _playingState.OnNext(PlayState.Playing);
         }
 
-        public virtual async Task SaveFavorite(ILaunchableItem game)
+        public virtual async Task SaveFavorite(ILaunchableItem file)
         {
-            var favGame = await _storage.SaveFavorite(game);
-            var gameParentDir = favGame?.Path.GetUnixParentPath();
+            var favFile = await _storage.SaveFavorite(file);
+            var parentDir = favFile?.Path.GetUnixParentPath();
 
-            if (gameParentDir is null) return;
+            if (parentDir is null) return;
 
-            var directoryResult = await _storage.GetDirectory(gameParentDir);
+            var directoryResult = await _storage.GetDirectory(parentDir);
 
             if (directoryResult is null) return;
 
@@ -227,23 +227,23 @@ namespace TeensyRom.Ui.Features.Games.State
         }
         public async Task PlayNext()
         {
-            var game = await _currentState.Value.GetNext(_launchedGame.Value, _directoryState.Value);
+            var file = await _currentState.Value.GetNext(_launchedFile.Value, _directoryState.Value);
 
-            if(game is not null)
+            if(file is not null)
             {
-                await PlayGame(game);
+                await PlayFile(file);
             }
         }
         public async Task PlayPrevious()
         {
-            var game = await _currentState.Value.GetPrevious(_launchedGame.Value, _directoryState.Value);
+            var file = await _currentState.Value.GetPrevious(_launchedFile.Value, _directoryState.Value);
 
-            if (game is not null) await PlayGame(game);
+            if (file is not null) await PlayFile(file);
         }
-        public Task StopGame() 
+        public Task StopFile() 
         {
             _playingState.OnNext(PlayState.Stopped);
-            return _currentState.Value.StopGame();
+            return _currentState.Value.StopFile();
         }
 
         public async Task<ILaunchableItem?> PlayRandom()
@@ -252,22 +252,22 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (!success) return null;
 
-            var game = _storage.GetRandomFile(TeensyFileType.Crt, TeensyFileType.Prg);
+            var file = _storage.GetRandomFile(TeensyFileType.Crt, TeensyFileType.Prg);
 
-            if (game is not null)
+            if (file is not null)
             {
-                await LoadDirectory(game.Path.GetUnixParentPath(), game.Path);
-                await PlayGame(game);
+                await LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
+                await PlayFile(file);
 
-                _launchHistory.Add(game!);
+                _launchHistory.Add(file!);
 
-                return game;
+                return file;
             }
             _alert.Enqueue("Random search requires visiting at least one directory with programs in it first.  Try the cache button next to the dice for best results.");
 
             return null;
         }
-        public Unit SearchGames(string searchText)
+        public Unit SearchFiles(string searchText)
         {
             var success = TryTransitionTo(typeof(SearchState));
 
@@ -286,7 +286,7 @@ namespace TeensyRom.Ui.Features.Games.State
                
                 if(firstItem is not null)
                 {
-                    _selectedGame.OnNext(firstItem);
+                    _selectedFile.OnNext(firstItem);
                 }
 
                 _directoryState.OnNext(_directoryState.Value);
@@ -302,7 +302,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (firstItem is not null)
             {
-                _selectedGame.OnNext(firstItem);
+                _selectedFile.OnNext(firstItem);
             }
         }
         public Unit ToggleShuffleMode()
@@ -317,18 +317,18 @@ namespace TeensyRom.Ui.Features.Games.State
             return Unit.Default;
         }
         public Task CacheAll() => _storage.CacheAll();
-        public Unit SetSelectedGame(ILaunchableItem game)
+        public Unit SelectFile(ILaunchableItem file)
         {
-            game.IsSelected = true;
+            file.IsSelected = true;
 
-            var shouldUpdateCurrent = _selectedGame.Value is not null
-                && game.Path.Equals(_selectedGame.Value.Path) == false;
+            var shouldUpdateCurrent = _selectedFile.Value is not null
+                && file.Path.Equals(_selectedFile.Value.Path) == false;
 
             if (shouldUpdateCurrent)
             {
-                _selectedGame.Value!.IsSelected = false;
+                _selectedFile.Value!.IsSelected = false;
             }
-            _selectedGame.OnNext(game);
+            _selectedFile.OnNext(file);
             return Unit.Default;
         }
         public virtual Unit NextPage()
