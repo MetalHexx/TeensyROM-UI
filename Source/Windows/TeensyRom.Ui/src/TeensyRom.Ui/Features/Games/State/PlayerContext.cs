@@ -264,9 +264,17 @@ namespace TeensyRom.Ui.Features.Games.State
             }            
             await LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
             await PlayFile(file);
-            _launchHistory.Add(file!);
+            UpdateHistory(file);
 
             return file;
+        }
+
+        public void UpdateHistory(ILaunchableItem fileToLoad)
+        {
+            var isNotConsecutiveDuplicate = _launchedFile.Value is null 
+                || !fileToLoad.Path.Equals(_launchedFile.Value.Path, StringComparison.OrdinalIgnoreCase);
+
+            if (isNotConsecutiveDuplicate) _launchHistory.Add(fileToLoad);
         }
         public Unit SearchFiles(string searchText)
         {
