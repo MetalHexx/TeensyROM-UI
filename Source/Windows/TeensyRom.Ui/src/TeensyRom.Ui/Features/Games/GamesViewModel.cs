@@ -49,13 +49,9 @@ namespace TeensyRom.Ui.Features.Games
         [Reactive] public SearchResultsToolbarViewModel SearchResultsToolbar { get; set; } = new();
 
         private TeensySettings _settings = null!;
-        private readonly IPlayerContext _gameState;
-        private readonly IDialogService _dialog;
 
         public GamesViewModel(IPlayerContext gameState, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, GameInfoViewModel gameInfo)
         {   
-            _gameState = gameState;
-            _dialog = dialog;
             FileInfo = gameInfo;
             FeatureTitle = "Games";
             Title = new FeatureTitleViewModel(FeatureTitle);
@@ -106,7 +102,31 @@ namespace TeensyRom.Ui.Features.Games
                 gameState.SetPageSize,
                 alert, 
                 dialog
-            );            
+            );
+
+            DirectoryTree = new(gameState.DirectoryTree)
+            {
+                DirectorySelectedCommand = ReactiveCommand.CreateFromTask<DirectoryNodeViewModel>(
+                    execute: async (directory) => await gameState.LoadDirectory(directory.Path),
+                    outputScheduler: RxApp.MainThreadScheduler)
+            };
+
+            var searchActive = gameState.CurrentState.Select(s => s is SearchState);
+
+            Search = new(searchActive)
+            {
+                SearchCommand = ReactiveCommand.Create<string, Unit>(
+                    execute: gameState.SearchGames,
+                    outputScheduler: RxApp.MainThreadScheduler),
+
+                ClearSearchCommand = ReactiveCommand.CreateFromTask(
+                    execute: () =>
+                    {
+                        Search!.SearchText = string.Empty;
+                        return gameState.ClearSearch();
+                    },
+                    outputScheduler: RxApp.MainThreadScheduler)
+            };
 
             settingsService.Settings.Subscribe(s => 
             {
@@ -128,30 +148,6 @@ namespace TeensyRom.Ui.Features.Games
                     _settings.TargetType
                 );
             });
-
-            DirectoryTree = new(gameState.DirectoryTree)
-            {
-                DirectorySelectedCommand = ReactiveCommand.CreateFromTask<DirectoryNodeViewModel>(
-                    execute: async (directory) => await gameState.LoadDirectory(directory.Path), 
-                    outputScheduler: RxApp.MainThreadScheduler)
-            };
-
-            var searchActive = gameState.CurrentState.Select(s => s is SearchState);
-
-            Search = new(searchActive)
-            {
-                SearchCommand = ReactiveCommand.Create<string, Unit>(
-                    execute: gameState.SearchGames,
-                    outputScheduler: RxApp.MainThreadScheduler),
-
-                ClearSearchCommand = ReactiveCommand.CreateFromTask(
-                    execute: () => 
-                    {
-                        Search!.SearchText = string.Empty;
-                        return gameState.ClearSearch();
-                    },
-                    outputScheduler: RxApp.MainThreadScheduler)
-            };
         }
 
         private static PlayMode GetPlayMode(PlayerState state) => state switch
