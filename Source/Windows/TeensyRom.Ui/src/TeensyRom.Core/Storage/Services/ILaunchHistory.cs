@@ -6,6 +6,7 @@ namespace TeensyRom.Core.Storage.Services
     {
         void Add(ILaunchableItem fileItem);
         void Clear();
+        void ClearForwardHistory();
         ILaunchableItem? GetNext(params TeensyFileType[] types);
         ILaunchableItem? GetPrevious(params TeensyFileType[] types);
     }

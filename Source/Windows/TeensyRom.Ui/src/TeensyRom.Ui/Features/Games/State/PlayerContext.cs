@@ -257,6 +257,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if(!success) return _launchedFile.Value;
 
+            _launchHistory.ClearForwardHistory();
             await PlayNext();
             return _launchedFile.Value;
         }

@@ -17,12 +17,14 @@ namespace TeensyRom.Core.Storage.Services
         {
             if (_currentIndex < _history.Count - 1) 
             {
-                _history.RemoveRange(_currentIndex + 1, _history.Count - _currentIndex - 1);
+                ClearForwardHistory();
             }
             _currentIndex = _history.Count;
             _history.Add(new(_currentIndex, fileItem));
         }
         public void Clear() => _history.Clear();
+
+        public void ClearForwardHistory() => _history.RemoveRange(_currentIndex + 1, _history.Count - _currentIndex - 1);
 
         public ILaunchableItem? GetPrevious(params TeensyFileType[] types)
         {
