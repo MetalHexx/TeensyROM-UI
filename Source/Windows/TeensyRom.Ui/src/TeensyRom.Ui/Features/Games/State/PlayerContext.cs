@@ -40,7 +40,7 @@ namespace TeensyRom.Ui.Features.Games.State
         public IObservable<ILaunchableItem> LaunchedFile => _launchedFile.AsObservable();
         public IObservable<ILaunchableItem> SelectedFile => _selectedFile.AsObservable();
         public IObservable<PlayState> PlayingState => _playingState.AsObservable();
-        private readonly List<TeensyFileType> _fileTypes = [TeensyFileType.Sid];
+        private readonly List<TeensyFileType> _fileTypes = [TeensyFileType.Crt, TeensyFileType.Prg];
 
         private string _currentPath = string.Empty;
 
@@ -173,6 +173,8 @@ namespace TeensyRom.Ui.Features.Games.State
 
         public virtual async Task PlayFile(ILaunchableItem file)
         {
+            if(file is null) return;
+
             var result = await _mediator.Send(new LaunchFileCommand { Path = file.Path });
 
             if (result.LaunchResult is LaunchFileResultType.ProgramError)
@@ -201,7 +203,7 @@ namespace TeensyRom.Ui.Features.Games.State
             _selectedFile.OnNext(file);
             _playingState.OnNext(PlayState.Playing);
         }
-
+        
         public virtual async Task SaveFavorite(ILaunchableItem file)
         {
             var favFile = await _storage.SaveFavorite(file);
