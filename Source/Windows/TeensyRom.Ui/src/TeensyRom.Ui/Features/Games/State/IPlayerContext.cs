@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.State;
@@ -9,6 +11,7 @@ namespace TeensyRom.Ui.Features.Games.State
 {
     public interface IPlayerContext
     {
+        TeensyFileType[] FileTypes { get; }
         IObservable<string> CurrentPath { get; }
         IObservable<int> CurrentPage { get; }
         IObservable<PlayState> PlayingState { get; }
@@ -38,6 +41,6 @@ namespace TeensyRom.Ui.Features.Games.State
         Unit SelectFile(ILaunchableItem file);
         Task StopFile();
         Unit ToggleShuffleMode();
-        bool TryTransitionTo(Type nextStateType);
+        bool TryTransitionTo(Type nextStateType);        
     }
 }

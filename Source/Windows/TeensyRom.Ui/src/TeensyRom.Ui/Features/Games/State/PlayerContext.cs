@@ -40,6 +40,7 @@ namespace TeensyRom.Ui.Features.Games.State
         public IObservable<ILaunchableItem> LaunchedFile => _launchedFile.AsObservable();
         public IObservable<ILaunchableItem> SelectedFile => _selectedFile.AsObservable();
         public IObservable<PlayState> PlayingState => _playingState.AsObservable();
+        private readonly List<TeensyFileType> _fileTypes = [TeensyFileType.Sid];
 
         private string _currentPath = string.Empty;
 
@@ -252,7 +253,7 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (!success) return null;
 
-            var file = _storage.GetRandomFile(TeensyFileType.Crt, TeensyFileType.Prg);
+            var file = _storage.GetRandomFile(FileTypes);
 
             if (file is not null)
             {
@@ -349,5 +350,7 @@ namespace TeensyRom.Ui.Features.Games.State
             _directoryState.OnNext(_directoryState.Value);
             return Unit.Default;
         }
+
+        public TeensyFileType[] FileTypes => _fileTypes.Select(f => f).ToArray();
     }
 }
