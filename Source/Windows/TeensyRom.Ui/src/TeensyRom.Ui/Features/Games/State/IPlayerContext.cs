@@ -33,6 +33,7 @@ namespace TeensyRom.Ui.Features.Games.State
         Task PlayNext();
         Task PlayPrevious();
         Task<ILaunchableItem?> PlayRandom();
+        void UpdateHistory(ILaunchableItem fileToLoad);
         Unit PreviousPage();
         Task RefreshDirectory(bool bustCache = true);
         Task SaveFavorite(ILaunchableItem file);

@@ -39,7 +39,7 @@ namespace TeensyRom.Ui.Features.Games.State
             
             if(randomFile is not null)
             {
-                _launchHistory.Add(randomFile);
+                _playerContext.UpdateHistory(randomFile);
                 await _playerContext.LoadDirectory(randomFile.Path.GetUnixParentPath(), randomFile.Path);
             }
             return randomFile;            

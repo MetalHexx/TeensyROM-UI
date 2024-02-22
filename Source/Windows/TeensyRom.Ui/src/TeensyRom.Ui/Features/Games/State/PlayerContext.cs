@@ -232,10 +232,12 @@ namespace TeensyRom.Ui.Features.Games.State
         {
             var file = await _currentState.Value.GetNext(_launchedFile.Value, _directoryState.Value);
 
-            if(file is not null)
+            if (file is null)
             {
-                await PlayFile(file);
+                _alert.Enqueue("Random search requires visiting at least one directory with files in it first.  Try clicking the cache all button.");
+                return;
             }
+            await PlayFile(file);
         }
         public async Task PlayPrevious()
         {
@@ -253,20 +255,10 @@ namespace TeensyRom.Ui.Features.Games.State
         {
             var success = TryTransitionTo(typeof(ShuffleState));
 
-            if (!success) return null;
+            if(!success) return _launchedFile.Value;
 
-            var file = _storage.GetRandomFile(FileTypes);
-
-            if (file is null)
-            {
-                _alert.Enqueue("Random search requires visiting at least one directory with programs in it first.  Try the cache button next to the dice for best results.");
-                return null;
-            }            
-            await LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
-            await PlayFile(file);
-            UpdateHistory(file);
-
-            return file;
+            await PlayNext();
+            return _launchedFile.Value;
         }
 
         public void UpdateHistory(ILaunchableItem fileToLoad)
