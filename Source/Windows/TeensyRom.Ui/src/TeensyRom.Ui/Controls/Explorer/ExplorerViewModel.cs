@@ -15,12 +15,12 @@ using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Controls.FeatureTitle;
+using TeensyRom.Ui.Controls.FileInfo;
 using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.SearchResultsToolbar;
 using TeensyRom.Ui.Features.Common.Config;
 using TeensyRom.Ui.Features.Common.State;
-using TeensyRom.Ui.Features.Games.GameInfo;
 using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Services;
@@ -37,7 +37,7 @@ namespace TeensyRom.Ui.Controls.Explorer
         [Reactive] public SearchViewModel Search { get; set; }
         [Reactive] public DirectoryTreeViewModel DirectoryTree { get; set; }
         [Reactive] public DirectoryListViewModel DirectoryList { get; set; }
-        [Reactive] public GameInfoViewModel FileInfo { get; set; }
+        [Reactive] public FileInfoViewModel FileInfo { get; set; }
         [Reactive] public PlayToolbarViewModel PlayToolbar { get; set; }
         [Reactive] public CornerToolbarViewModel CornerToolbar { get; set; } = null!;
         [Reactive] public FeatureTitleViewModel Title { get; set; }
@@ -48,7 +48,7 @@ namespace TeensyRom.Ui.Controls.Explorer
         public ExplorerViewModel(string viewName, IPlayerContext player, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, IGameMetadataService metadata, IExplorerViewConfig config)
         {            
             Title = new FeatureTitleViewModel(viewName);
-            FileInfo = new GameInfoViewModel(player, metadata);
+            FileInfo = new FileInfoViewModel(player, metadata);
 
             globalState.SerialConnected.ToPropertyEx(this, x => x.IsConnected);
 

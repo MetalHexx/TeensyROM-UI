@@ -10,24 +10,24 @@ using TeensyRom.Core.Games;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Games.State;
 
-namespace TeensyRom.Ui.Features.Games.GameInfo
+namespace TeensyRom.Ui.Controls.FileInfo
 {
-    public class GameInfoViewModel : ReactiveObject
+    public class FileInfoViewModel : ReactiveObject
     {
-        [ObservableAsProperty] public string? GameName { get; private set; }
+        [ObservableAsProperty] public string? Title { get; private set; }
         [ObservableAsProperty] public string? LoadingScreenPath { get; }
         [ObservableAsProperty] public string? ScreenshotPath { get; }
         [ObservableAsProperty] public ImageSource? CroppedLoadingScreen { get; }
         [ObservableAsProperty] public ImageSource? CroppedScreenshot { get; }
 
-        public GameInfoViewModel(IPlayerContext context, IGameMetadataService gameMetadata)
+        public FileInfoViewModel(IPlayerContext context, IGameMetadataService gameMetadata)
         {
             context.SelectedFile
                 .Where(game => game != null)
                 .OfType<GameItem>()
                 .Do(gameMetadata.GetGameScreens)
                 .Select(game => game.Name[..game.Name.LastIndexOf('.')])
-                .ToPropertyEx(this, x => x.GameName);
+                .ToPropertyEx(this, x => x.Title);
 
             context.SelectedFile
                 .Where(game => game != null)

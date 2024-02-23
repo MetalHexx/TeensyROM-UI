@@ -25,7 +25,6 @@ using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.SearchResultsToolbar;
 using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Files.State;
-using TeensyRom.Ui.Features.Games.GameInfo;
 using TeensyRom.Ui.Features.Games.State;
 using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Features.NavigationHost;

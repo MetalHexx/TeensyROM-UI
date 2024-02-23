@@ -8,7 +8,7 @@
     xmlns:Help="clr-namespace:TeensyRom.Ui.Features.Help"
     xmlns:Music="clr-namespace:TeensyRom.Ui.Features.Music"
     xmlns:Games="clr-namespace:TeensyRom.Ui.Features.Games"
-    xmlns:GameInfo="clr-namespace:TeensyRom.Ui.Features.Games.GameInfo"
+    xmlns:FileInfo="clr-namespace:TeensyRom.Ui.Controls.FileInfo"
     xmlns:DirectoryTree="clr-namespace:TeensyRom.Ui.Controls.DirectoryTree"
     xmlns:PlayToolbar="clr-namespace:TeensyRom.Ui.Controls.PlayToolbar"
     xmlns:SongList="clr-namespace:TeensyRom.Ui.Features.Music.SongList"
@@ -67,8 +67,8 @@
                 <Games:GamesView/>
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type GameInfo:GameInfoViewModel}">
-                <GameInfo:GameInfoView/>
+            <DataTemplate DataType="{x:Type FileInfo:FileInfoViewModel}">
+                <FileInfo:FileInfoView/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type DirectoryTree:DirectoryTreeViewModel}">

@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TeensyRom.Ui.Features.Games.GameInfo
+namespace TeensyRom.Ui.Controls.FileInfo
 {
     /// <summary>
     /// Interaction logic for GameInfoView.xaml
     /// </summary>
-    public partial class GameInfoView : UserControl
+    public partial class FileInfoView : UserControl
     {
-        public GameInfoView()
+        public FileInfoView()
         {
             InitializeComponent();
         }
