@@ -40,7 +40,7 @@ namespace TeensyRom.Ui.Features.Games.State
         public IObservable<ILaunchableItem> LaunchedFile => _launchedFile.AsObservable();
         public IObservable<ILaunchableItem> SelectedFile => _selectedFile.AsObservable();
         public IObservable<PlayState> PlayingState => _playingState.AsObservable();
-        private readonly List<TeensyFileType> _fileTypes = [TeensyFileType.Crt, TeensyFileType.Prg];
+        private readonly List<TeensyFileType> _fileTypes = [];
 
         private string _currentPath = string.Empty;
 
@@ -64,7 +64,7 @@ namespace TeensyRom.Ui.Features.Games.State
         private readonly Dictionary<Type, PlayerState> _states;
         private readonly List<IDisposable> _stateSubscriptions = new();
 
-        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IGameDirectoryTreeState tree)
+        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IGameDirectoryTreeState tree, List<TeensyFileType> fileTypes)
         {
             _mediator = mediator;
             _storage = storage;
@@ -74,6 +74,7 @@ namespace TeensyRom.Ui.Features.Games.State
             _serialContext = serialContext;
             _nav = nav;
             _tree = tree;
+            _fileTypes = fileTypes;
             _states = new()
             {
                 { typeof(NormalPlayState), new NormalPlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) },
@@ -248,7 +249,7 @@ namespace TeensyRom.Ui.Features.Games.State
         public Task StopFile() 
         {
             _playingState.OnNext(PlayState.Stopped);
-            return _currentState.Value.StopFile();
+            return _mediator.Send(new ResetCommand());
         }
 
         public async Task<ILaunchableItem?> PlayRandom()

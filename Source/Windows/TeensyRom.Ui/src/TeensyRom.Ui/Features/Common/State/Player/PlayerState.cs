@@ -50,20 +50,10 @@ namespace TeensyRom.Ui.Features.Games.State
             _playerContext = playerContext;
             _mediator = mediator;
             _playerContext = playerContext;
-
             _settingsSubscription = settingsService.Settings.Subscribe(settings => _settings = settings);
         }
 
         public abstract bool CanTransitionTo(Type nextStateType);
-        public virtual Task ClearSearch() => throw new TeensyStateException(InvalidStateExceptionMessage);
-
-        public virtual async Task DeleteFile(IFileItem file) => await _storage.DeleteFile(file, _settings.TargetType);
-
-        public virtual Task StopFile()
-        {
-            _playState.OnNext(PlayState.Stopped);
-            return _mediator.Send(new ResetCommand());
-        }
 
         public virtual Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
 

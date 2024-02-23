@@ -20,22 +20,22 @@ namespace TeensyRom.Ui.Features.Games.GameInfo
         [ObservableAsProperty] public ImageSource? CroppedLoadingScreen { get; }
         [ObservableAsProperty] public ImageSource? CroppedScreenshot { get; }
 
-        public GameInfoViewModel(IPlayerContext gameState, IGameMetadataService gameMetadata)
+        public GameInfoViewModel(IPlayerContext context, IGameMetadataService gameMetadata)
         {
-            gameState.SelectedFile
+            context.SelectedFile
                 .Where(game => game != null)
                 .OfType<GameItem>()
                 .Do(gameMetadata.GetGameScreens)
                 .Select(game => game.Name[..game.Name.LastIndexOf('.')])
                 .ToPropertyEx(this, x => x.GameName);
 
-            gameState.SelectedFile
+            context.SelectedFile
                 .Where(game => game != null)
                 .OfType<GameItem>()
                 .Select(game => game.Screens.LoadingScreenLocalPath)
                 .ToPropertyEx(this, x => x.LoadingScreenPath);
 
-            gameState.SelectedFile
+            context.SelectedFile
                 .Where(game => game != null)
                 .OfType<GameItem>()
                 .Select(game => game.Screens.ScreenshotLocalPath)

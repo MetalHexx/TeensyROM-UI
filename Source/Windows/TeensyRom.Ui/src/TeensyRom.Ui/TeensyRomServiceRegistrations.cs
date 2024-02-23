@@ -58,7 +58,6 @@ namespace TeensyRom.Ui
             services.AddSingleton<ISongTimer, SongTimer>();
             services.AddSingleton<ILaunchHistory,  LaunchHistory>();
             services.AddSingleton<IMusicState, MusicState>();
-            services.AddSingleton<IPlayerContext, PlayerContext>();
             services.AddSingleton<IFileState, FileState>();
             services.AddSingleton<IGlobalState, GlobalState>();
             services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();
@@ -67,6 +66,8 @@ namespace TeensyRom.Ui
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
             services.AddSingleton<ICachedStorageService, CachedStorageService>();
             services.AddSingleton<IGameDirectoryTreeState, GameTreeState>();
+            services.AddSingleton<IGamePlayerContext, GamePlayerContext>();
+            services.AddSingleton<IGameViewConfig, GameViewConfig>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<ConnectViewModel>();
             services.AddSingleton<FilesViewModel>();
@@ -79,7 +80,6 @@ namespace TeensyRom.Ui
             services.AddSingleton<SongListViewModel>();
             services.AddSingleton<SearchMusicViewModel>();
             services.AddSingleton<GamesViewModel>();
-            services.AddSingleton<GameInfoViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddSingleton<ITeensyCommandExecutor, TeensyCommandExecutor>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            

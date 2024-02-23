@@ -21,6 +21,7 @@
     xmlns:CornerToolbar="clr-namespace:TeensyRom.Ui.Controls.CornerToolbar"
     xmlns:FeatureTitle="clr-namespace:TeensyRom.Ui.Controls.FeatureTitle"
     xmlns:SearchResultsToolbar="clr-namespace:TeensyRom.Ui.Controls.SearchResultsToolbar"
+    xmlns:Explorer="clr-namespace:TeensyRom.Ui.Controls.Explorer"
     
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"           
@@ -116,6 +117,10 @@
 
             <DataTemplate DataType="{x:Type SearchResultsToolbar:SearchResultsToolbarViewModel}">
                 <SearchResultsToolbar:SearchResultsToolbarView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type Explorer:ExplorerViewModel}">
+                <Explorer:ExplorerView/>
             </DataTemplate>
 
         </ResourceDictionary>
