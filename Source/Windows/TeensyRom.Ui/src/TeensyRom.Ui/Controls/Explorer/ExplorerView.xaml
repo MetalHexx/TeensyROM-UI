@@ -25,7 +25,9 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Hello"/>
+            <ContentControl 
+                Content="{Binding Title}" 
+                Grid.Row="0" Grid.Column="0"/>
 
             <ContentControl 
                 Content="{Binding DirectoryChips}" 

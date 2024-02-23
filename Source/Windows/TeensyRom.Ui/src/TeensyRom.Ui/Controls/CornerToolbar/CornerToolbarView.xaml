@@ -6,44 +6,46 @@
              xmlns:local="clr-namespace:TeensyRom.Ui.Controls.CornerToolbar"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d">
-    
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto"/>
-        </Grid.ColumnDefinitions>
 
-        <ContentControl Content="{Binding Search}" Grid.Column="0"/>
+    <Border Style="{StaticResource ToolbarBorder}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
 
-        <Button 
+            <ContentControl Content="{Binding Search}" Grid.Column="0"/>
+
+            <Button 
             Command="{Binding PlayRandomCommand}" 
             ToolTip="I'm feeling lucky!"
             Style="{StaticResource StorageIconButton}"
             Grid.Column="0"
             Margin="10 0 0 0">
 
-            <materialDesign:PackIcon Kind="Dice5" />
-        </Button>
+                <materialDesign:PackIcon Kind="Dice5" />
+            </Button>
 
-        <Button 
+            <Button 
             Command="{Binding CacheAllCommand}" 
             ToolTip="Caches all files.  This will increase performance and make files and music available for search, random play and shuffle play mode."
             Style="{StaticResource StorageIconButton}"
             Margin="10 0 0 0"
             Grid.Column="1">
 
-            <materialDesign:PackIcon Kind="DatabaseImport" />
-        </Button>
+                <materialDesign:PackIcon Kind="DatabaseImport" />
+            </Button>
 
-        <Button 
+            <Button 
             Command="{Binding RefreshCommand}" 
             ToolTip="Refreshes the current directory."
             Style="{StaticResource StorageIconButton}"
             Grid.Column="2"
             Margin="10 0 0 0">
 
-            <materialDesign:PackIcon Kind="refresh" />
-        </Button>
-    </Grid>
+                <materialDesign:PackIcon Kind="refresh" />
+            </Button>
+        </Grid>
+    </Border>
 </UserControl>
