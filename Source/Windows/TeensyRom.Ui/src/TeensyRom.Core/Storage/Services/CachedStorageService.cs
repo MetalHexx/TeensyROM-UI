@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -267,12 +268,7 @@ namespace TeensyRom.Core.Storage.Services
                 {
                     if (file.FileType is TeensyFileType.Sid) 
                     {
-                        var song = new SongItem
-                        {
-                            Name = file.Name,
-                            Path = file.Path,
-                            Size = file.Size,
-                        };
+                        var song = new SongItem { Name = file.Name, Title = file.Name, Path = file.Path, Size = file.Size };
                         _sidMetadata.EnrichSong(song);
                         return song;
                     }
@@ -282,15 +278,15 @@ namespace TeensyRom.Core.Storage.Services
                         {
                             Name = file.Name,
                             Path = file.Path,
-                            Size = file.Size                            
+                            Size = file.Size
                         };
                         _gameMetadata.EnrichGame(game);
                         return game;
                     }
                     return file;
                 })
-                .OrderBy(file => file.Name)
-                .ToList() ?? [];
+            .OrderBy(file => file.Name)
+            .ToList() ?? [];
         }
 
         public async Task SaveFile(TeensyFileInfo fileInfo)
@@ -357,6 +353,31 @@ namespace TeensyRom.Core.Storage.Services
 
             return selection[new Random().Next(selection.Length - 1)];
         }
+
+        public IEnumerable<ILaunchableItem> Search(string searchText, params TeensyFileType[] fileTypes)
+        {
+            var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            return _storageCache
+                .Where(NotFavoriteFilter)
+                .SelectMany(c => c.Value.Files)
+                .Where(f => fileTypes.Contains(f.FileType))
+                .OfType<ILaunchableItem>()
+                .Select(file => new
+                {
+                    File = file,
+                    Score = searchTerms.Count(term =>
+                        file.Creator.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        file.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        file.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        file.Path.Contains(term, StringComparison.OrdinalIgnoreCase))
+                })
+                .Where(result => result.Score > 0)
+                .OrderBy(result => result.File.Title)
+                .OrderByDescending(result => result.Score)
+                .Select(result => result.File);                
+        }
+
         public IEnumerable<SongItem> SearchMusic(string searchText, int maxNumResults = 250)
         {
             var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
