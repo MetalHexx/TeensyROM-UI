@@ -24,7 +24,7 @@ namespace TeensyRom.Core.Storage.Entities
         public static StorageItem ToStorageItem(this TeensyFileInfo fileInfo)
         {
             return fileInfo.Type switch {                 
-                TeensyFileType.Sid => new SongItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+                TeensyFileType.Sid => new SongItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
                 TeensyFileType.Crt => new GameItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
                 TeensyFileType.Prg => new GameItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
                 TeensyFileType.Hex => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
