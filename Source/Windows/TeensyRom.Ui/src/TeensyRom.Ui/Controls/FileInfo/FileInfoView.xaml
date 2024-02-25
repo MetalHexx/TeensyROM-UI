@@ -9,20 +9,25 @@
              d:DesignHeight="450" d:DesignWidth="800">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid>
+        <Grid Visibility="{Binding SelectedFile, Converter={StaticResource NullOrEmptyToVisibilityConverter}}">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-
-            <TextBlock Grid.Row="0" 
-                Text="{Binding Title}" 
-                FontSize="20" 
-                FontWeight="Bold" 
-                HorizontalAlignment="Left" 
-                VerticalAlignment="Top"/>
+            <StackPanel Grid.Row="0" Orientation="Vertical">
+                <TextBlock 
+                    Text="{Binding SelectedFile.Title}"                     
+                    FontWeight="Bold" FontSize="24" Foreground="{StaticResource EnabledColor}" />
+                <TextBlock Text="{Binding SelectedFile.Creator}" 
+                    Visibility="{Binding SelectedFile.Creator, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
+                    FontStyle="Italic" FontSize="14" Foreground="Gray" />
+            </StackPanel>
+            
 
             <Image Grid.Row="1" 
                 Source="{Binding CroppedLoadingScreen}" 
@@ -35,12 +40,43 @@
 
             <Image Grid.Row="2" 
                 Source="{Binding CroppedScreenshot}" 
+                   
                 Visibility="{Binding CroppedScreenshot, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
                 Stretch="Uniform" 
 
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Margin="0 10 0 0"/>
+
+            <Grid Grid.Row="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border 
+                    Grid.Row="1" 
+                    Visibility="{Binding SelectedFile.Description, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
+                    Background="{DynamicResource MaterialDesignPaper}" 
+                    Padding="10" Margin="0 10 0 0" CornerRadius="10">
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <TextBlock Text="{Binding SelectedFile.Description, FallbackValue='Description'}" TextWrapping="Wrap" Foreground="WhiteSmoke" />
+                    </ScrollViewer>
+                </Border>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0 10 0 10" HorizontalAlignment="Left">
+                    <TextBlock Text="{Binding SelectedFile.ReleaseInfo, FallbackValue='Release Info'}" Foreground="Gray" 
+                        Visibility="{Binding SelectedFile.ReleaseInfo, Converter={StaticResource NullOrEmptyToVisibilityConverter}}" />
+                    <TextBlock Text=" • " Foreground="Gray" 
+                        Visibility="{Binding SelectedFile.ReleaseInfo, Converter={StaticResource NullOrEmptyToVisibilityConverter}}" />
+
+                    <TextBlock Text="Source: " Foreground="Gray"/>
+                    <TextBlock Text="{Binding SelectedFile.MetadataSource, FallbackValue='Metadata Source'}" Foreground="Gray" 
+                        Visibility="{Binding SelectedFile.MetadataSource, Converter={StaticResource NullOrEmptyToVisibilityConverter}}" />
+                </StackPanel>
+            </Grid>
         </Grid>
     </ScrollViewer>
     

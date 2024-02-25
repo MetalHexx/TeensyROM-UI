@@ -5,17 +5,17 @@ using System.Windows.Data;
 
 namespace TeensyRom.Ui.Helpers
 {
-    public class NullOrEmptyToVisibilityConverter : IValueConverter
+    public class InverseNullOrEmptyToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is string) 
+            if (value is string)
             {
-                return string.IsNullOrWhiteSpace(value as string) ? Visibility.Collapsed : Visibility.Visible;
+                return string.IsNullOrWhiteSpace(value as string) ? Visibility.Visible : Visibility.Collapsed;
             }
-            if(value is null) return Visibility.Collapsed;
+            if (value is null) return Visibility.Visible;
 
-            return Visibility.Visible;
+            return Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

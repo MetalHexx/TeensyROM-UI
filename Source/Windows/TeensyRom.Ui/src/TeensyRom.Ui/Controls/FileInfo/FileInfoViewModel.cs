@@ -19,25 +19,32 @@ namespace TeensyRom.Ui.Controls.FileInfo
         [ObservableAsProperty] public string? ScreenshotPath { get; }
         [ObservableAsProperty] public ImageSource? CroppedLoadingScreen { get; }
         [ObservableAsProperty] public ImageSource? CroppedScreenshot { get; }
+        [ObservableAsProperty] public ILaunchableItem? SelectedFile { get; }
 
         public FileInfoViewModel(IPlayerContext context, IGameMetadataService gameMetadata)
         {
-            context.SelectedFile
-                .Where(game => game != null)
-                .OfType<GameItem>()
-                .Do(gameMetadata.GetGameScreens)
-                .Select(game => game.Name[..game.Name.LastIndexOf('.')])
+            var selectedFile = context.SelectedFile;
+
+            selectedFile
+                .Where(type => type is not GameItem)
+                .Select(file => file?.Title ?? string.Empty)
                 .ToPropertyEx(this, x => x.Title);
 
-            context.SelectedFile
-                .Where(game => game != null)
-                .OfType<GameItem>()
+            context.SelectedFile.ToPropertyEx(this, x => x.SelectedFile);
+
+            var selectedGame = selectedFile.OfType<GameItem>();
+
+            //selectedGame
+            //    .Select(file => file.Title[..file.Title.LastIndexOf('.')])
+            //    .ToPropertyEx(this, x => x.Title);
+
+            selectedGame.Subscribe(gameMetadata.GetGameScreens);
+
+            selectedGame
                 .Select(game => game.Screens.LoadingScreenLocalPath)
                 .ToPropertyEx(this, x => x.LoadingScreenPath);
 
-            context.SelectedFile
-                .Where(game => game != null)
-                .OfType<GameItem>()
+            selectedGame
                 .Select(game => game.Screens.ScreenshotLocalPath)
                 .ToPropertyEx(this, x => x.ScreenshotPath);
 

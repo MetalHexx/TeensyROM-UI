@@ -67,11 +67,23 @@ namespace TeensyRom.Core.Music.Sid
                 song.Title = sidRecord.Title;
                 song.SongLength = sidRecord.SongLengthSpan;
                 song.ReleaseInfo = sidRecord.Released;
-                song.Description = sidRecord.StilEntry;
+                song.Description = CleanDescription(sidRecord.StilEntry);
                 song.MetadataSource = "HVSC";
                 song.ShareUrl = $"https://deepsid.chordian.net/?file={sidRecord.Filepath}";
             }
             return song;
+        }
+
+        public string CleanDescription(string description)
+        {
+            if (string.IsNullOrWhiteSpace(description)) return string.Empty;
+
+            var cleanedDescription = $"{description.StripCarriageReturnsAndExtraWhitespace()}";
+            cleanedDescription = cleanedDescription.Replace("COMMENT:", "\r\nComment:\r\n");
+            cleanedDescription = cleanedDescription.Replace("ARTIST:", "\r\nArtist: ");
+            cleanedDescription = cleanedDescription.Replace("TITLE:", "\r\nTitle: ");
+            cleanedDescription = cleanedDescription.RemoveFirstOccurrence("\r\n");
+            return cleanedDescription;
         }
 
         private Dictionary<string, SidRecord> ReadCsv()
@@ -112,7 +124,7 @@ namespace TeensyRom.Core.Music.Sid
                 sid.Value.Title = sid.Value.Title.EnsureNotEmpty(sid.Value.Filename.GetFileNameFromPath());
                 sid.Value.Author = sid.Value.Author.EnsureNotEmpty("Unknown Artist");
                 sid.Value.Released = sid.Value.Released.EnsureNotEmpty("No Release Info");
-                sid.Value.StilEntry = sid.Value.StilEntry.EnsureNotEmpty("No Comments");
+                sid.Value.StilEntry = sid.Value.StilEntry.EnsureNotEmpty("No Description");
 
                 if (string.IsNullOrEmpty(sid.Value.SongLength))
                 {

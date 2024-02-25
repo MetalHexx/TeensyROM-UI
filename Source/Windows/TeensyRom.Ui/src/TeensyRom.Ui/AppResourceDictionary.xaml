@@ -206,6 +206,7 @@
     <helpers:InverseBoolToVisibilityConvertor x:Key="InverseBoolToVisibilityConvertor"/>
     <helpers:BooleanInverterConverter x:Key="BooleanInverterConverter"/>
     <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
-    <helpers:EnumToBooleanConverter x:Key="NullOrEmptyToVisibilityConverter"/>
+    <helpers:NullOrEmptyToVisibilityConverter x:Key="NullOrEmptyToVisibilityConverter"/>
+    <helpers:InverseNullOrEmptyToVisibilityConverter x:Key="InverseNullOrEmptyToVisibilityConverter"/>
 
 </ResourceDictionary>
