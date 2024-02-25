@@ -3,61 +3,61 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace TeensyRom.Ui.Features.Music.State
+namespace TeensyRom.Ui.Features.Common.State.Progress
 {
-    public interface ISongTimer
+    public interface IProgressTimer
     {
         IObservable<TimeSpan> CurrentTime { get; }
-        IObservable<Unit> SongComplete { get; }
+        IObservable<Unit> TimerComplete { get; }
 
-        void StartNewTimer(TimeSpan songLength);
+        void StartNewTimer(TimeSpan length);
         void PauseTimer();
         void ResumeTimer();
     }
-    public class SongTimer : ISongTimer, IDisposable
+    public class ProgressTimer : IProgressTimer, IDisposable
     {
         public IObservable<TimeSpan> CurrentTime => _timeIntervalObservable.Select(_ => _currentTime);
-        public IObservable<Unit> SongComplete => _songComplete.AsObservable();
+        public IObservable<Unit> TimerComplete => _timerComplete.AsObservable();
 
-        private Subject<Unit> _songComplete = new();
+        private Subject<Unit> _timerComplete = new();
         private IObservable<long> _timeIntervalObservable;
         private IDisposable? _timerSubscription;
         private IDisposable? _currentTimeSubscription;
 
         private TimeSpan _currentTime = TimeSpan.Zero;
-        private TimeSpan _songLength;
-        private TimeSpan _songTimeLeft;
+        private TimeSpan _length;
+        private TimeSpan _timeLeft;
 
-        public SongTimer()
+        public ProgressTimer()
         {
-            _timeIntervalObservable = Observable.Interval(TimeSpan.FromSeconds(1))
+            _timeIntervalObservable = Observable.Interval(TimeSpan.FromMilliseconds(20))
                 .Publish()
                 .RefCount();
         }
-        public void StartNewTimer(TimeSpan songLength)
+        public void StartNewTimer(TimeSpan length)
         {
             _currentTime = TimeSpan.Zero;
-            _songLength = songLength;
+            _length = length;
             TryStopObservables();
-            StartObservables(songLength);
+            StartObservables(length);
         }
         public void PauseTimer()
         {
-            _songTimeLeft = _songLength.Subtract(_currentTime);
+            _timeLeft = _length.Subtract(_currentTime);
             TryStopObservables();
         }
         public void ResumeTimer()
         {
-            StartObservables(_songTimeLeft);
+            StartObservables(_timeLeft);
         }
 
         private void StartObservables(TimeSpan length)
         {
             _timerSubscription = Observable.Timer(length)
-                .Subscribe(_ => _songComplete.OnNext(Unit.Default));
+                .Subscribe(_ => _timerComplete.OnNext(Unit.Default));
 
             _currentTimeSubscription = _timeIntervalObservable
-                .Subscribe(_ => _currentTime = _currentTime.Add(TimeSpan.FromSeconds(1)));
+                .Subscribe(_ => _currentTime = _currentTime.Add(TimeSpan.FromMilliseconds(20)));
         }
 
         private void TryStopObservables()

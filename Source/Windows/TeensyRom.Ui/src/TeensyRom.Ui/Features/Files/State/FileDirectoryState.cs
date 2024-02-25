@@ -16,9 +16,9 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
 
-namespace TeensyRom.Ui.Features.Common.State
+namespace TeensyRom.Ui.Features.Files.State
 {
-    public class DirectoryState(ICachedStorageService _storageService)
+    public class FileDirectoryState(ICachedStorageService _storageService)
     {
         public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryTree.AsObservable();
         public IObservable<int> CurrentPage => _currentPage.AsObservable();

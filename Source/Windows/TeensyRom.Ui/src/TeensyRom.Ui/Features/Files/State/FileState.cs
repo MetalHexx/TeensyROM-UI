@@ -22,7 +22,6 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
-using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Files.DirectoryContent;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
@@ -40,7 +39,7 @@ namespace TeensyRom.Ui.Features.Files.State
 
         private Subject<ILaunchableItem> _programLaunched = new();
 
-        private readonly DirectoryState _directoryState;
+        private readonly FileDirectoryState _directoryState;
         private readonly ICachedStorageService _storageService;
         private readonly ISettingsService _settingsService;
         private readonly IMediator _mediator;
@@ -51,7 +50,7 @@ namespace TeensyRom.Ui.Features.Files.State
 
         public FileState(ICachedStorageService storage, ISettingsService settingsService, IMediator mediator, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav)
         {
-            _directoryState = new DirectoryState(storage);
+            _directoryState = new FileDirectoryState(storage);
             _storageService = storage;
             _settingsService = settingsService;
             _mediator = mediator;

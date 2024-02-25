@@ -38,6 +38,7 @@ using TeensyRom.Ui.Features.Games.State.Directory;
 using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.DirectoryList;
+using TeensyRom.Ui.Features.Common.State.Progress;
 
 namespace TeensyRom.Ui
 {
@@ -54,7 +55,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IAlertService, AlertService>();
             services.AddSingleton<ISnackbarService, SnackbarService>();
             services.AddSingleton<IDialogService, DialogService>();
-            services.AddSingleton<ISongTimer, SongTimer>();
+            services.AddSingleton<IProgressTimer, ProgressTimer>();
             services.AddSingleton<ILaunchHistory,  LaunchHistory>();
             services.AddSingleton<IMusicState, MusicState>();
             services.AddSingleton<IFileState, FileState>();
@@ -64,9 +65,12 @@ namespace TeensyRom.Ui
             services.AddSingleton<IGameMetadataService, GameMetadataService>();
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
             services.AddSingleton<ICachedStorageService, CachedStorageService>();
-            services.AddSingleton<IGameDirectoryTreeState, GameTreeState>();
+            services.AddSingleton<IGameTreeState, GameTreeState>();
             services.AddSingleton<IGamePlayerContext, GamePlayerContext>();
             services.AddSingleton<IGameViewConfig, GameViewConfig>();
+            services.AddSingleton<IMusicTreeState, MusicTreeState>();
+            services.AddSingleton<IMusicPlayerContext, MusicPlayerContext>();
+            services.AddSingleton<IMusicViewConfig, MusicViewConfig>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<ConnectViewModel>();
             services.AddSingleton<FilesViewModel>();

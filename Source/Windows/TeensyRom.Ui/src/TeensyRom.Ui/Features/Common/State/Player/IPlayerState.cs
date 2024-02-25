@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Ui.Features.Common.State.Directory;
 using TeensyRom.Ui.Features.Games.State.Directory;
 
-namespace TeensyRom.Ui.Features.Games.State
+namespace TeensyRom.Ui.Features.Common.State.Player
 {
     public interface IPlayerState
     {

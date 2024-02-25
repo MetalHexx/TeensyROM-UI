@@ -7,7 +7,7 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.State;
 
-namespace TeensyRom.Ui.Features.Games.State
+namespace TeensyRom.Ui.Features.Common.State.Player
 {
     public interface IPlayerContext
     {
@@ -28,7 +28,7 @@ namespace TeensyRom.Ui.Features.Games.State
         Task LoadDirectory(string path);
         Task LoadDirectory(string path, string? filePathToSelect = null);
         Task PlayFile(ILaunchableItem file);
-        Task ToggleFile();
+        Task TogglePlay();
         Unit NextPage();
         Task PlayNext();
         Task PlayPrevious();

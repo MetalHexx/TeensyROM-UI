@@ -27,6 +27,7 @@ using TeensyRom.Ui.Controls;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Features.Common.State;
+using TeensyRom.Ui.Features.Common.State.Progress;
 using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
@@ -56,7 +57,7 @@ namespace TeensyRom.Ui.Features.Music.State
             PlayMode = PlayMode.Normal  
         });   
 
-        private readonly ISongTimer _songTime;
+        private readonly IProgressTimer _songTime;
         private readonly IMediator _mediator;
         private readonly ICachedStorageService _musicService;
         private readonly ISettingsService _settingsService;
@@ -70,7 +71,7 @@ namespace TeensyRom.Ui.Features.Music.State
 
         private IDisposable _currentTimeSubscription;
 
-        public MusicState(ISongTimer songTime, IMediator mediator, ICachedStorageService musicService, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, IGlobalState globalState, ISerialStateContext serialContext, INavigationService nav)
+        public MusicState(IProgressTimer songTime, IMediator mediator, ICachedStorageService musicService, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, IGlobalState globalState, ISerialStateContext serialContext, INavigationService nav)
         {
             _songTime = songTime;
             _mediator = mediator;
@@ -196,7 +197,7 @@ namespace TeensyRom.Ui.Features.Music.State
             });
 
             _playingSongSubscription?.Dispose();
-            _playingSongSubscription = _songTime.SongComplete.Subscribe(async _ => 
+            _playingSongSubscription = _songTime.TimerComplete.Subscribe(async _ => 
             {
                 if (_launchState.Value.PlayMode == PlayMode.Shuffle)
                 {

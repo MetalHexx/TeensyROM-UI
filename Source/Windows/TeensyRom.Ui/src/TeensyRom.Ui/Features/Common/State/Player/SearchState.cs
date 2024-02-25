@@ -13,12 +13,11 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.State;
-using TeensyRom.Ui.Features.Games.State.Directory;
+using TeensyRom.Ui.Features.Common.State.Directory;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
-using DirectoryState = TeensyRom.Ui.Features.Games.State.Directory.DirectoryState;
 
-namespace TeensyRom.Ui.Features.Games.State
+namespace TeensyRom.Ui.Features.Common.State.Player
 {
     public class SearchState : PlayerState
     {

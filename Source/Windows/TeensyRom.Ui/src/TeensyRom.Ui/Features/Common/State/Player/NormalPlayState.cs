@@ -10,11 +10,11 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
-using TeensyRom.Ui.Features.Games.State.Directory;
+using TeensyRom.Ui.Features.Common.State.Directory;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 
-namespace TeensyRom.Ui.Features.Games.State
+namespace TeensyRom.Ui.Features.Common.State.Player
 {
     public class NormalPlayState : PlayerState
     {

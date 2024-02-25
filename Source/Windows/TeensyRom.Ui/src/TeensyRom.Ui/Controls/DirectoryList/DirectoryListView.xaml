@@ -42,7 +42,7 @@
             <Grid x:Name="SongItemPanel">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -52,7 +52,7 @@
                         TextTrimming="CharacterEllipsis"
                         Style="{StaticResource MaterialDesignBody2TextBlock}" 
                         Margin="5,0" VerticalAlignment="Center" />
-                    <materialDesign:PackIcon x:Name="IncompatibleIcon" ToolTip="Sorry, this sid is currently incompatible with TeensyROM.  Try again in the future." Kind="EmoticonConfused" Visibility="Collapsed" VerticalAlignment="Center" />
+                    <materialDesign:PackIcon x:Name="IncompatibleIcon" ToolTip="Sorry, this file is currently incompatible with TeensyROM.  Try again in the future." Kind="EmoticonConfused" Visibility="Collapsed" VerticalAlignment="Center" />                    
                 </StackPanel>
 
                 <StackPanel 

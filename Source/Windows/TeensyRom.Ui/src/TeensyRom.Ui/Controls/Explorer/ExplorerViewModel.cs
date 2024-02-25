@@ -21,8 +21,10 @@ using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.SearchResultsToolbar;
 using TeensyRom.Ui.Features.Common.Config;
 using TeensyRom.Ui.Features.Common.State;
-using TeensyRom.Ui.Features.Games.State;
+using TeensyRom.Ui.Features.Common.State.Player;
+using TeensyRom.Ui.Features.Common.State.Progress;
 using TeensyRom.Ui.Features.Global;
+using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Controls.Explorer
@@ -44,9 +46,11 @@ namespace TeensyRom.Ui.Controls.Explorer
         [Reactive] public SearchResultsToolbarViewModel SearchResultsToolbar { get; set; } = new();
 
         private TeensySettings _settings = null!;
+        private readonly IExplorerViewConfig _viewConfig;
 
-        public ExplorerViewModel(string viewName, IPlayerContext player, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, IGameMetadataService metadata, IExplorerViewConfig config)
-        {            
+        public ExplorerViewModel(string viewName, IPlayerContext player, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, IGameMetadataService metadata, IExplorerViewConfig config, IProgressTimer? timer)
+        {
+            _viewConfig = config;
             Title = new FeatureTitleViewModel(viewName);
             FileInfo = new FileInfoViewModel(player, metadata);
 
@@ -69,9 +73,9 @@ namespace TeensyRom.Ui.Controls.Explorer
             (
                 player.LaunchedFile,
                 launchState,
-                null,
+                timer,
                 player.ToggleShuffleMode,
-                player.ToggleFile,
+                player.TogglePlay,
                 player.PlayPrevious,
                 player.PlayNext,
                 player.SaveFavorite,
@@ -125,7 +129,7 @@ namespace TeensyRom.Ui.Controls.Explorer
             settingsService.Settings.Subscribe(s =>
             {
                 _settings = s;
-                var libPath = s.Libraries.FirstOrDefault(l => l.Type == TeensyLibraryType.Programs)?.Path ?? "";
+                var libPath = s.Libraries.FirstOrDefault(l => l.Type == _viewConfig.LibraryType)?.Path ?? "";
 
                 DirectoryChips = new DirectoryChipsViewModel(
                     path: player.CurrentPath,
@@ -141,7 +145,7 @@ namespace TeensyRom.Ui.Controls.Explorer
                     dialog,
                     _settings.TargetType
                 );
-            });
+            });            
         }
 
         private static PlayMode GetPlayMode(PlayerState state) => state switch

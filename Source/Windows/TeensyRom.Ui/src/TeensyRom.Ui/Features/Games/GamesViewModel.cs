@@ -35,6 +35,6 @@ namespace TeensyRom.Ui.Features.Games
 {
     public class GamesViewModel(IGamePlayerContext player, IGameMetadataService metadata, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, IGameViewConfig config) : ReactiveObject
     {
-        [Reactive] public ExplorerViewModel Explorer { get; set; } = new("Games", player, globalState, dialog, alert, settingsService, metadata, config);
+        [Reactive] public ExplorerViewModel Explorer { get; set; } = new("Games", player, globalState, dialog, alert, settingsService, metadata, config, null);
     }
 }

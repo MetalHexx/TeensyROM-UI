@@ -19,16 +19,17 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Ui.Controls.PlayToolbar;
+using TeensyRom.Ui.Features.Common.Config;
 using TeensyRom.Ui.Features.Common.State;
-using TeensyRom.Ui.Features.Games.State.Directory;
+using TeensyRom.Ui.Features.Common.State.Directory;
 using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
-using DirectoryState = TeensyRom.Ui.Features.Games.State.Directory.DirectoryState;
 
-namespace TeensyRom.Ui.Features.Games.State
+namespace TeensyRom.Ui.Features.Common.State.Player
 {
-    public class PlayerContext : IPlayerContext
+    public abstract class PlayerContext : IPlayerContext
     {
         public IObservable<string> CurrentPath => _directoryState.Select(d => d.CurrentPath);
         public IObservable<PlayerState> CurrentState => _currentState.AsObservable();
@@ -40,31 +41,31 @@ namespace TeensyRom.Ui.Features.Games.State
         public IObservable<ILaunchableItem> LaunchedFile => _launchedFile.AsObservable();
         public IObservable<ILaunchableItem> SelectedFile => _selectedFile.AsObservable();
         public IObservable<PlayState> PlayingState => _playingState.AsObservable();
-        private readonly List<TeensyFileType> _fileTypes = [];
 
         private string _currentPath = string.Empty;
 
-        private PlayerState? _previousState;
-        private readonly BehaviorSubject<PlayerState> _currentState;        
-        private readonly BehaviorSubject<ILaunchableItem> _launchedFile = new(null!);
-        private readonly BehaviorSubject<ILaunchableItem> _selectedFile = new(null!);
-        private readonly BehaviorSubject<PlayState> _playingState = new(PlayState.Stopped);
+        protected PlayerState? _previousState;
+        protected readonly BehaviorSubject<PlayerState> _currentState;        
+        protected readonly BehaviorSubject<ILaunchableItem> _launchedFile = new(null!);
+        protected readonly BehaviorSubject<ILaunchableItem> _selectedFile = new(null!);
+        protected readonly BehaviorSubject<PlayState> _playingState = new(PlayState.Stopped);
         protected BehaviorSubject<DirectoryState> _directoryState = new(new());
 
-        private IDisposable? _settingsSubscription;
-        private TeensySettings _settings = null!;        
-        private readonly IMediator _mediator;
-        private readonly ICachedStorageService _storage;
-        private readonly ISettingsService _settingsService;
-        private readonly ILaunchHistory _launchHistory;
-        private readonly ISnackbarService _alert;
-        private readonly ISerialStateContext _serialContext;
-        private readonly INavigationService _nav;
-        private readonly IGameDirectoryTreeState _tree;
-        private readonly Dictionary<Type, PlayerState> _states;
-        private readonly List<IDisposable> _stateSubscriptions = new();
+        protected IDisposable? _settingsSubscription;
+        protected TeensySettings _settings = null!;
+        protected readonly IMediator _mediator;
+        protected readonly ICachedStorageService _storage;
+        protected readonly ISettingsService _settingsService;
+        protected readonly ILaunchHistory _launchHistory;
+        protected readonly ISnackbarService _alert;
+        protected readonly ISerialStateContext _serialContext;
+        protected readonly INavigationService _nav;
+        protected readonly IDirectoryTreeState _tree;
+        protected readonly IExplorerViewConfig _config;
+        protected readonly Dictionary<Type, PlayerState> _states;
+        protected readonly List<IDisposable> _stateSubscriptions = new();
 
-        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IGameDirectoryTreeState tree, List<TeensyFileType> fileTypes)
+        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree, IExplorerViewConfig config)
         {
             _mediator = mediator;
             _storage = storage;
@@ -74,7 +75,7 @@ namespace TeensyRom.Ui.Features.Games.State
             _serialContext = serialContext;
             _nav = nav;
             _tree = tree;
-            _fileTypes = fileTypes;
+            _config = config;
             _states = new()
             {
                 { typeof(NormalPlayState), new NormalPlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) },
@@ -91,11 +92,11 @@ namespace TeensyRom.Ui.Features.Games.State
                 .Do(settings => _settings = settings)
                 .CombineLatest(_serialContext.CurrentState, _nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
                 .Where(state => state.serial is SerialConnectedState)
-                .Where(state => state.navView?.Type == NavigationLocation.Games)
-                .Select(state => (path: state.settings.GetLibraryPath(TeensyLibraryType.Programs), state.settings.TargetType))
+                .Where(state => state.navView?.Type == _config.NavigationLocation)
+                .Select(state => (path: state.settings.GetLibraryPath(_config.LibraryType), state.settings.TargetType))
                 .DistinctUntilChanged()
                 .Select(storage => storage.path)
-                .Do(state => _tree.ResetDirectoryTree(_settings!.GetLibraryPath(TeensyLibraryType.Programs)))
+                .Do(state => _tree.ResetDirectoryTree(_settings!.GetLibraryPath(_config.LibraryType)))
                 .Subscribe(async path => await LoadDirectory(path));
         }
 
@@ -160,7 +161,7 @@ namespace TeensyRom.Ui.Features.Games.State
             return Task.CompletedTask;
         }
 
-        public async Task ToggleFile()
+        public virtual async Task TogglePlay()
         {
             if (_playingState.Value is PlayState.Playing)
             {
@@ -169,7 +170,13 @@ namespace TeensyRom.Ui.Features.Games.State
                 return;
             }
             _playingState.OnNext(PlayState.Playing);
-            await PlayFile(_launchedFile.Value);
+
+            if(_config.PlayToggleOption == PlayToggleOption.Stop)
+            {
+                await PlayFile(_launchedFile.Value);
+                return;
+            }
+            await _mediator.Send(new ToggleMusicCommand());
         }
 
         public virtual async Task PlayFile(ILaunchableItem file)
@@ -178,11 +185,11 @@ namespace TeensyRom.Ui.Features.Games.State
 
             var result = await _mediator.Send(new LaunchFileCommand { Path = file.Path });
 
-            if (result.LaunchResult is LaunchFileResultType.ProgramError)
+            if (result.LaunchResult is LaunchFileResultType.ProgramError or LaunchFileResultType.SidError)
             {
-                _alert.Enqueue($"{file.Name} is currently unsupported (see logs).  Skipping to the next game.");
+                _alert.Enqueue($"{file.Name} is currently unsupported (see logs).  Skipping to the next file.");
                 _storage.MarkIncompatible(file);
-                var nextFile = await _currentState.Value.GetNext(_launchedFile.Value, _directoryState.Value);
+                var nextFile = await _currentState.Value.GetNext(file, _directoryState.Value);
 
                 if (nextFile is not null) await PlayFile(nextFile);
 
@@ -240,7 +247,7 @@ namespace TeensyRom.Ui.Features.Games.State
             }
             await PlayFile(file);
         }
-        public async Task PlayPrevious()
+        public async virtual Task PlayPrevious()
         {
             var file = await _currentState.Value.GetPrevious(_launchedFile.Value, _directoryState.Value);
 
@@ -249,7 +256,12 @@ namespace TeensyRom.Ui.Features.Games.State
         public Task StopFile() 
         {
             _playingState.OnNext(PlayState.Stopped);
-            return _mediator.Send(new ResetCommand());
+
+            if(_config.PlayToggleOption == PlayToggleOption.Stop)
+            {
+                return _mediator.Send(new ResetCommand());
+            }
+            return _mediator.Send(new ToggleMusicCommand());
         }
 
         public async Task<ILaunchableItem?> PlayRandom()
@@ -276,9 +288,11 @@ namespace TeensyRom.Ui.Features.Games.State
 
             if (!success) return Unit.Default;
 
-            var searchResult = _storage.SearchGames(searchText)
+            var libraryPath = _settings.GetLibraryPath(_config.LibraryType);
+
+            var searchResult = _storage.Search(searchText, FileTypes)
+                .Where(f => f.Path.Contains(libraryPath))
                 .Cast<IStorageItem>()
-                .Take(100)
                 .ToList();
 
             if (searchResult is null) return Unit.Default;
@@ -350,6 +364,6 @@ namespace TeensyRom.Ui.Features.Games.State
             return Unit.Default;
         }
 
-        public TeensyFileType[] FileTypes => _fileTypes.Select(f => f).ToArray();
+        public TeensyFileType[] FileTypes => _config.FileTypes.Select(f => f).ToArray();
     }
 }

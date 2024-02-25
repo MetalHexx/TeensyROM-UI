@@ -12,6 +12,8 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Common.State;
+using TeensyRom.Ui.Features.Common.State.Progress;
+using TeensyRom.Ui.Features.Music.State;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -24,14 +26,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [ObservableAsProperty] public bool ProgressEnabled { get; }
         [ObservableAsProperty] public ILaunchableItem? File { get; }
         [ObservableAsProperty] public TimeProgressViewModel? Progress { get; } = null;
-        [ObservableAsProperty] public string CurrentTime { get; } = string.Empty;
-        [ObservableAsProperty] public double CurrentProgress { get; }
         [ObservableAsProperty] public bool ShuffleModeEnabled { get; }
         [ObservableAsProperty] public bool ShareVisible { get; }        
         [ObservableAsProperty] public bool ShowCreator { get; }
         [ObservableAsProperty] public bool ShowReleaseInfo { get; }
         [ObservableAsProperty] public bool ShowReleaseCreatorSeperator { get; }
-
 
         public ReactiveCommand<Unit, Unit> TogglePlayCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PreviousCommand { get; set; }
@@ -40,12 +39,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<Unit, Unit> FavoriteCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ShareCommand { get; set; }
         public ReactiveCommand<Unit, Unit> NavigateToFileDirCommand { get; set; }
+
         private readonly IAlertService _alert;
+        private IProgressTimer? _timer;
+        private IDisposable? _timerCompleteSubscription;
+        private IDisposable? _timerTickSubscription;
 
         public PlayToolbarViewModel(
             IObservable<ILaunchableItem> file, 
-            IObservable<LaunchItemState> playState, 
-            IObservable<TimeProgressViewModel>? timeState, 
+            IObservable<LaunchItemState> playState,
+            IProgressTimer? timer,
             Func<Unit> toggleMode, 
             Func<Task> togglePlay,
             Func<Task> playPrevious, 
@@ -55,6 +58,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             PlayToggleOption toggleOption, 
             IAlertService alert)
         {
+            _timer = timer;
             _alert = alert;
 
             file
@@ -97,6 +101,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     EnablePauseButton = false;
                     EnableStopButton = false;
                     EnablePlayButton = true;
+                    _timer?.PauseTimer();
                 });
 
             var playToggle = playState
@@ -112,21 +117,45 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => toggleOption == PlayToggleOption.Pause)
                 .Subscribe(_ => EnablePauseButton = true);
 
-            timeState?
-                .Select(time => time is not null)
+            file
+                .OfType<SongItem>()
+                .Subscribe(song => InitializeProgress(playNext, song));
+
+            file.Select(file => file is SongItem)
                 .ToPropertyEx(this, vm => vm.ProgressEnabled);
 
-            timeState?
-                .Where(time => time is not null)
-                .ToPropertyEx(this, vm => vm.Progress);
-
-            TogglePlayCommand = ReactiveCommand.CreateFromTask(togglePlay);
+            TogglePlayCommand = ReactiveCommand.CreateFromTask(_ => 
+            {
+                if (EnablePlayButton) _timer?.ResumeTimer();
+                if (EnablePauseButton) _timer?.PauseTimer();
+                return togglePlay();
+            });
             NextCommand = ReactiveCommand.CreateFromTask(playNext);
             PreviousCommand = ReactiveCommand.CreateFromTask(playPrevious);
             ToggleShuffleCommand = ReactiveCommand.Create(toggleMode);
             FavoriteCommand = ReactiveCommand.CreateFromTask(_ => saveFav(File!));
             ShareCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleShareCommand());
             NavigateToFileDirCommand = ReactiveCommand.CreateFromTask(_ => loadDirectory(File!.Path.GetUnixParentPath()!));
+        }
+
+        private void InitializeProgress(Func<Task> playNext, SongItem song)
+        {
+            if(_timer == null) return;
+
+            _timerTickSubscription?.Dispose();
+            _timerCompleteSubscription?.Dispose();
+
+            _timer?.StartNewTimer(song.SongLength);
+
+            _timerCompleteSubscription = _timer?.CurrentTime
+                .Select(t => new TimeProgressViewModel(song.SongLength, t))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToPropertyEx(this, vm => vm.Progress);
+
+            _timerCompleteSubscription = _timer?.TimerComplete.Subscribe(_ =>
+            {
+                playNext();
+            });
         }
 
         private Unit HandleShareCommand() 
