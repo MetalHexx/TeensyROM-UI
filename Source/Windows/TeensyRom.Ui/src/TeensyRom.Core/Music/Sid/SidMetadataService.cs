@@ -21,7 +21,7 @@ namespace TeensyRom.Core.Music.Sid
     public interface ISidMetadataService
     {
         SongItem EnrichSong(SongItem song);
-    }
+    } 
 
     public class SidMetadataService : ISidMetadataService, IDisposable
     {
@@ -63,15 +63,45 @@ namespace TeensyRom.Core.Music.Sid
 
             if (sidRecord is not null)
             {
-                song.Creator = sidRecord.Author;
-                song.Title = sidRecord.Title;
-                song.SongLength = sidRecord.SongLengthSpan;
-                song.ReleaseInfo = sidRecord.Released;
-                song.Description = CleanDescription(sidRecord.StilEntry);
-                song.MetadataSource = "HVSC";
-                song.ShareUrl = $"https://deepsid.chordian.net/?file={sidRecord.Filepath}";
+                EnrichWithHsvcMetadata(song, sidRecord);
+                EnrichWithHsvcMusicianImage(song);
             }
             return song;
+        }
+
+        private void EnrichWithHsvcMetadata(SongItem song, SidRecord? sidRecord)
+        {
+            song.Creator = sidRecord.Author;
+            song.Title = sidRecord.Title;
+            song.SongLength = sidRecord.SongLengthSpan;
+            song.ReleaseInfo = sidRecord.Released;
+            song.Description = CleanDescription(sidRecord.StilEntry);
+            song.MetadataSource = SidConstants.Hvsc;
+            song.ShareUrl = $"https://deepsid.chordian.net/?file={sidRecord.Filepath}";
+        }
+
+        private void EnrichWithHsvcMusicianImage(SongItem song) 
+        {
+            var currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            var remainingPathSegments = song.Path.GetRemainingPathSegments(SidConstants.Hvsc_Musician_Base_Remote_Path);
+
+            var hsvcImageName = $"{Path.Combine(currentDirectory!, SidConstants.Musician_Image_Local_Path)}musicians";
+
+            foreach(var segment in remainingPathSegments)
+            {
+                hsvcImageName = $"{hsvcImageName}_{segment}";
+            }
+            hsvcImageName = $"{hsvcImageName}.jpg";
+
+            if(File.Exists(hsvcImageName))
+            {
+                song.Images.Add(new ViewableItemImage
+                {
+                    LocalPath = hsvcImageName,
+                    Source = SidConstants.DeepSid
+                });
+            }
         }
 
         public string CleanDescription(string description)

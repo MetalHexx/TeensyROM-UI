@@ -4,9 +4,10 @@ using TeensyRom.Core.Common;
 
 namespace TeensyRom.Core.Storage.Entities
 {
-    public class SongItem : FileItem, ILaunchableItem
+    public class SongItem : FileItem, ILaunchableItem, IViewableItem
     {   
         public TimeSpan SongLength { get; set; } = TimeSpan.FromMinutes(3);
+        public List<ViewableItemImage> Images { get; } = [];
 
         public SongItem()
         {

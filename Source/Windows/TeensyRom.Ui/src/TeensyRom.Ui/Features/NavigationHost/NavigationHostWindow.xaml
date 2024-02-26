@@ -15,10 +15,8 @@
         xmlns:interactivity="http://schemas.microsoft.com/xaml/behaviors"
         WindowStartupLocation="CenterScreen"        
         Foreground="White"
-        MinWidth="1200"
-        MinHeight="730"
         Width="1300" 
-        Height="840">   
+        Height="820">   
 
     <Window.Resources>
         <Storyboard x:Key="OpenMenu">
