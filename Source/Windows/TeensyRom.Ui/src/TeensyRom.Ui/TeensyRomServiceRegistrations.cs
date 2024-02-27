@@ -39,6 +39,7 @@ using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Features.Common.State.Progress;
+using TeensyRom.Core.Music.Images;
 
 namespace TeensyRom.Ui
 {
@@ -71,6 +72,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IMusicTreeState, MusicTreeState>();
             services.AddSingleton<IMusicPlayerContext, MusicPlayerContext>();
             services.AddSingleton<IMusicViewConfig, MusicViewConfig>();
+            services.AddSingleton<IUnpackAssetService, MusicUnpackService>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<ConnectViewModel>();
             services.AddSingleton<FilesViewModel>();

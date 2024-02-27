@@ -17,6 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Music\Images\Composers\Composers.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Music\Sid\SIDlist_79_UTF8.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
