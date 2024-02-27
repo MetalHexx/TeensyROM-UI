@@ -40,6 +40,7 @@ using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Features.Common.State.Progress;
 using TeensyRom.Core.Music.Images;
+using TeensyRom.Core.Common.Abstractions;
 
 namespace TeensyRom.Ui
 {

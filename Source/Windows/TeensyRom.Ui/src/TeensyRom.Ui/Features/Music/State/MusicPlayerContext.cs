@@ -6,7 +6,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Core.Commands;
-using TeensyRom.Core.Music.Images;
+using TeensyRom.Core.Common.Abstractions;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
