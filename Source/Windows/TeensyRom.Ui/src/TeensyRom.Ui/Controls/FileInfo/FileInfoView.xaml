@@ -41,7 +41,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Margin="0 10 10 0">
-                            <Grid>
+                            <Grid Visibility="{Binding Image, Converter={StaticResource NullOrEmptyToVisibilityConverter}}">
                                 <Border 
                                     Canvas.Left="55"
                                     Canvas.Top="30"
@@ -80,11 +80,10 @@
                                 </Border>
                             </Grid>
 
-                            <StackPanel Orientation="Horizontal" Margin="0 5 0 10" HorizontalAlignment="Right">
+                            <StackPanel Orientation="Horizontal" Margin="0 5 0 10" HorizontalAlignment="Right" Visibility="{Binding Image, Converter={StaticResource NullOrEmptyToVisibilityConverter}}">
                                 <TextBlock Text="Source: " Foreground="Gray"/>
                                 <TextBlock 
                                     Text="{Binding MetadataSource, FallbackValue='Metadata Source'}" 
-                                    Visibility="{Binding MetadataSource, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
                                     FontStyle="Italic" 
                                     HorizontalAlignment="Right"
                                     Foreground="Gray" />

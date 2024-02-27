@@ -28,10 +28,10 @@ namespace TeensyRom.Core.Games
         private IDisposable _settingsSubscription;
         private GameCache? _gameCache;
 
-        private readonly string _gameDataPath = "TeensyGameMetadata.json";
-        private string _gameArtPath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), @"Games\Art");        
-        private string _localLoadingScreenPath => Path.Combine(_gameArtPath, "LoadingScreens");        
-        private string _localScreenshotPath => Path.Combine(_gameArtPath, "Screenshots");        
+        private readonly string _gameDataPath = GameConstants.Game_Data_Filename;
+        private string _gameArtPath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), GameConstants.Game_Image_Local_Path);        
+        private string _localLoadingScreenPath => Path.Combine(_gameArtPath, GameConstants.Loading_Screen_Sub_Path);        
+        private string _localScreenshotPath => Path.Combine(_gameArtPath, GameConstants.Screenshots_Sub_Path);        
         private string GetGameArtPath(string filename, string parentPath) => Path.Combine(parentPath, filename.ReplaceExtension(".png"));
 
         public GameMetadataService(IMediator mediator, ISerialStateContext serialContext, ISettingsService settingsService, IAlertService alert)
@@ -56,16 +56,13 @@ namespace TeensyRom.Core.Games
         {
             EnsureArtDirectories();
 
-            await GetAndStoreFile(
-                remotePath: game.Screens.LoadingScreenRemotePath, 
-                localPath: game.Screens.LoadingScreenLocalPath, 
+            foreach(var image in game.Images)
+            {
+                await GetAndStoreFile(
+                remotePath: image.RemotePath,
+                localPath: image.LocalPath,
                 storageType: TeensyStorageType.SD);
-
-
-            await GetAndStoreFile(
-                remotePath: game.Screens.ScreenshotRemotePath,
-                localPath: game.Screens.ScreenshotLocalPath,
-                storageType: TeensyStorageType.SD);
+            }
         }
 
         private async Task GetAndStoreFile(string remotePath, string localPath, TeensyStorageType storageType)
@@ -114,13 +111,13 @@ namespace TeensyRom.Core.Games
 
             game.Images.Add(new ViewableItemImage
             {
-                LocalPath = loadingScreen?.LocalPath ?? string.Empty,
+                LocalPath = loadScreenLocalPath ?? string.Empty,
                 RemotePath = loadingScreen?.RemotePath ?? string.Empty,
                 Source = GameConstants.OneLoad64
             });
             game.Images.Add(new ViewableItemImage
             {
-                LocalPath = screenshot?.LocalPath ?? string.Empty,
+                LocalPath = screenshotLocalPath ?? string.Empty,
                 RemotePath = screenshot?.RemotePath ?? string.Empty,
                 Source = GameConstants.OneLoad64
             });

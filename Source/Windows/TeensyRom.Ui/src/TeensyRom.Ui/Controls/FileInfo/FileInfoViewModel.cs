@@ -51,7 +51,7 @@ namespace TeensyRom.Ui.Controls.FileInfo
                     .Select(image => 
                     {
                         return item is GameItem
-                            ? new ImageAndMetadata { Image = CreateImageSource(image.LocalPath), MetadataSource = image.Source }
+                            ? new ImageAndMetadata { Image = CreateGameImageSource(image.LocalPath), MetadataSource = image.Source }
                             : new ImageAndMetadata { Image = CreateImageSource(image.LocalPath) };
                     })
                     .ToList())
@@ -63,7 +63,13 @@ namespace TeensyRom.Ui.Controls.FileInfo
             selectedGame.Subscribe(gameMetadata.GetGameScreens);
         }
 
-        private ImageSource? CreateImageSource(string imagePath, int fromX = 0, int fromY = 0)
+        /// <summary>
+        /// Creates an image source for a game item.  If the file is a screenshot, it'll crop the image
+        /// to remove the border and bring the image to 320x200.
+        /// </summary>
+        /// <param name="imagePath"></param>
+        /// <returns></returns>
+        private ImageSource? CreateGameImageSource(string imagePath)
         {
             if (string.IsNullOrEmpty(imagePath)) return null;
 
@@ -71,11 +77,22 @@ namespace TeensyRom.Ui.Controls.FileInfo
             {
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
-                bitmap.UriSource = new Uri(imagePath);
+                bitmap.UriSource = new Uri(imagePath, UriKind.Absolute);
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
                 bitmap.EndInit();
 
-                var rect = new Int32Rect(fromX, fromY, 320, 200);
+                if (bitmap.PixelWidth == 0 || bitmap.PixelHeight == 0) return null;
+
+                int targetWidth = 320;
+                int targetHeight = 200;
+
+                int fromX = Math.Max(0, (bitmap.PixelWidth - targetWidth) / 2);
+                int fromY = Math.Max(0, (bitmap.PixelHeight - targetHeight) / 2);
+
+                targetWidth = Math.Min(targetWidth, bitmap.PixelWidth);
+                targetHeight = Math.Min(targetHeight, bitmap.PixelHeight);
+
+                var rect = new Int32Rect(fromX, fromY, targetWidth, targetHeight);
                 var croppedBitmap = new CroppedBitmap(bitmap, rect);
                 return croppedBitmap;
             }
