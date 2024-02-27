@@ -1,8 +1,11 @@
-﻿namespace TeensyRom.Core.Storage.Entities
+﻿
+namespace TeensyRom.Core.Storage.Entities
 {
-    public class GameItem : FileItem, ILaunchableItem
+    public class GameItem : FileItem, ILaunchableItem, IViewableItem
     {
         public GameItemScreens Screens { get; set; } = new ();
+        public List<ViewableItemImage> Images { get; } = [];
+
         public override GameItem Clone() => new ()
         {
             Name = Name,

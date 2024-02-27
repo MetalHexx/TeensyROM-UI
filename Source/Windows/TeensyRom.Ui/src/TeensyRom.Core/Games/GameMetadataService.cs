@@ -112,11 +112,18 @@ namespace TeensyRom.Core.Games
                 .Where(f => f.Name.Equals(imageFilename, StringComparison.OrdinalIgnoreCase))
                 .FirstOrDefault();
 
-            game.Screens.LoadingScreenLocalPath = loadingScreen?.LocalPath ?? string.Empty;
-            game.Screens.LoadingScreenRemotePath = loadingScreen?.RemotePath ?? string.Empty;
-            game.Screens.ScreenshotLocalPath = screenshot?.LocalPath ?? string.Empty;
-            game.Screens.ScreenshotRemotePath = screenshot?.RemotePath ?? string.Empty;
-            game.MetadataSource = "OneLoad64";
+            game.Images.Add(new ViewableItemImage
+            {
+                LocalPath = loadingScreen?.LocalPath ?? string.Empty,
+                RemotePath = loadingScreen?.RemotePath ?? string.Empty,
+                Source = GameConstants.OneLoad64
+            });
+            game.Images.Add(new ViewableItemImage
+            {
+                LocalPath = screenshot?.LocalPath ?? string.Empty,
+                RemotePath = screenshot?.RemotePath ?? string.Empty,
+                Source = GameConstants.OneLoad64
+            });
             game.Title = game.Name[..game.Name.LastIndexOf('.')];
             GetGameScreens(game);
         }

@@ -14,10 +14,6 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Orientation="Vertical">
@@ -83,7 +79,7 @@
                                     </Border>
                                 </Border>
                             </Grid>
-                            
+
                             <StackPanel Orientation="Horizontal" Margin="0 5 0 10" HorizontalAlignment="Right">
                                 <TextBlock Text="Source: " Foreground="Gray"/>
                                 <TextBlock 
@@ -98,27 +94,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <Image Grid.Row="1" 
-                Source="{Binding CroppedLoadingScreen}" 
-                Visibility="{Binding CroppedLoadingScreen, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
-                Stretch="Uniform" 
-
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Margin="0 10 0 0"/>
-
-
-            <Image Grid.Row="3"
-                Source="{Binding CroppedScreenshot}" 
-                   
-                Visibility="{Binding CroppedScreenshot, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
-                Stretch="Uniform" 
-
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Margin="0 10 0 0" />
-
-            <Grid Grid.Row="4">
+            <Grid Grid.Row="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />

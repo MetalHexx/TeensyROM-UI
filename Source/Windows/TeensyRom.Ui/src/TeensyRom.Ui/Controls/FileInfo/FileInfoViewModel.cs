@@ -35,7 +35,7 @@ namespace TeensyRom.Ui.Controls.FileInfo
 
         public FileInfoViewModel(IPlayerContext context, IGameMetadataService gameMetadata)
         {
-            var selectedFile = context.SelectedFile;
+            var selectedFile = context.SelectedFile.SubscribeOn(RxApp.MainThreadScheduler);
 
             selectedFile
                 .Where(type => type is not GameItem)
@@ -44,35 +44,23 @@ namespace TeensyRom.Ui.Controls.FileInfo
 
             context.SelectedFile.ToPropertyEx(this, x => x.SelectedFile);
 
-            var imageSourcesObservable = selectedFile
+            selectedFile
                 .OfType<IViewableItem>()
                 .Select(item => item.Images
                     .Where(image => !string.IsNullOrEmpty(image.LocalPath))
-                    .Select(image => new ImageAndMetadata { Image = CreateImageSource(image.LocalPath), MetadataSource = image.Source })
+                    .Select(image => 
+                    {
+                        return item is GameItem
+                            ? new ImageAndMetadata { Image = CreateImageSource(image.LocalPath), MetadataSource = image.Source }
+                            : new ImageAndMetadata { Image = CreateImageSource(image.LocalPath) };
+                    })
                     .ToList())
                 .Select(list => new ObservableCollection<ImageAndMetadata>(list))
                 .ToPropertyEx(this, x => x.ImageSources);
 
-
             var selectedGame = selectedFile.OfType<GameItem>();
 
             selectedGame.Subscribe(gameMetadata.GetGameScreens);
-
-            selectedGame
-                .Select(game => game.Screens.LoadingScreenLocalPath)
-                .ToPropertyEx(this, x => x.LoadingScreenPath);
-
-            selectedGame
-                .Select(game => game.Screens.ScreenshotLocalPath)
-                .ToPropertyEx(this, x => x.ScreenshotPath);
-
-            this.WhenAnyValue(x => x.LoadingScreenPath)
-                .Select(path => CreateImageSource(path!))
-                .ToPropertyEx(this, x => x.CroppedLoadingScreen);
-
-            this.WhenAnyValue(x => x.ScreenshotPath)
-                .Select(path => CreateImageSource(path!, 32, 36))
-                .ToPropertyEx(this, x => x.CroppedScreenshot);
         }
 
         private ImageSource? CreateImageSource(string imagePath, int fromX = 0, int fromY = 0)
