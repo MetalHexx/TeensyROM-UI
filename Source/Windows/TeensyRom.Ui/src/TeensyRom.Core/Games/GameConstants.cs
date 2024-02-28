@@ -12,6 +12,5 @@ namespace TeensyRom.Core.Games
         public const string Game_Image_Local_Path = @"Games\Images";
         public const string Loading_Screen_Sub_Path = "LoadingScreens";
         public const string Screenshots_Sub_Path = "Screenshots";
-        public const string Game_Data_Filename = "TeensyGameMetadata.json";
     }
 }

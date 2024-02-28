@@ -46,11 +46,11 @@ namespace TeensyRom.Ui
             _ = Task.Run(UnpackAssets);
         }
 
-        private async Task UnpackAssets()
+        private Task UnpackAssets()
         {
-            var alertService = _serviceProvider.GetRequiredService<IAlertService>();
             AssetHelper.UnpackImages(GameConstants.Game_Image_Local_Path, "OneLoad64.zip");
             AssetHelper.UnpackImages(SidConstants.Musician_Image_Local_Path, "Composers.zip");
+            return Task.CompletedTask;
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

@@ -27,10 +27,6 @@
                 <RowDefinition Height="40" ></RowDefinition>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="105"></RowDefinition>
-                <RowDefinition Height="30" ></RowDefinition>
-                <RowDefinition Height="30" ></RowDefinition>
-                <RowDefinition Height="40" ></RowDefinition>
-                <RowDefinition Height="1"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="130"></ColumnDefinition>
@@ -43,24 +39,6 @@
                 Text="{Binding FeatureTitle}"
                 Style="{StaticResource SectionTitle}" 
                 Grid.Row="0" Margin="0 0 0 10"/>
-
-            <!--<Label 
-                Content="Persist File Cache:"
-                ToolTip="Enabling this will save the file cache to the disk and will be restored when re-starting the UI.  Enabling this will increase app performance and reliability."
-                Grid.Row="1" HorizontalAlignment="Right"/>
-
-            <StackPanel 
-                Orientation="Horizontal" 
-                Grid.Row="1" Grid.Column="3" 
-                VerticalAlignment="Top" 
-                Margin="0 4 0 0">
-                <CheckBox                  
-                    Content="Enabled"                
-                    ToolTip="Enabling this will save the file cache to the disk and will be restored when re-starting the UI.  Enabling this will increase app performance and reliability."
-                    IsChecked="{Binding Settings.SaveMusicCacheEnabled, Mode=TwoWay}" 
-                    VerticalAlignment="Top" Margin="0 0 0 0"/>
-            </StackPanel>-->
-            
 
             <Label 
                 Content="File Auto-Transfer:"
@@ -146,33 +124,6 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <Label 
-                Content="Game Art Paths:" 
-                ToolTip="This path will be used to source game loading screen images."
-                Grid.Row="6" HorizontalAlignment="Right"/>
-            
-            <Label 
-                Content="Load Screens:" 
-                ToolTip="This path will be used to source game loading screen images."
-                Grid.Row="7" HorizontalAlignment="Right"/>
-
-            <TextBox 
-                ToolTip="This path will be used to source game loading images."
-                materialDesign:HintAssist.Hint="/path/to/game/load/images"
-                Text="{Binding Settings.GameLoadingScreenPath, Mode=TwoWay}"                
-                Grid.Row="7" Grid.Column="3" VerticalAlignment="Top"/>
-
-            <Label 
-                Content="Screenshots:" 
-                ToolTip="This path will be used to source gameplay images."
-                Grid.Row="8" HorizontalAlignment="Right"/>
-
-            <TextBox 
-                ToolTip="This path will be used to source game play screen images."
-                materialDesign:HintAssist.Hint="/path/to/game/play/images"
-                Text="{Binding Settings.GameScreenshotPath, Mode=TwoWay}"                
-                Grid.Row="8" Grid.Column="3" VerticalAlignment="Top"/>
-
         </Grid>
 
         <Button             
@@ -180,6 +131,6 @@
             Content="Save Settings"  
             Command="{Binding SaveSettingsCommand}" 
             HorizontalAlignment="Left"
-            Grid.Row="7" Width="150" Margin="20"/>
+            Grid.Row="6" Width="150" Margin="20"/>
     </Grid>
 </UserControl>

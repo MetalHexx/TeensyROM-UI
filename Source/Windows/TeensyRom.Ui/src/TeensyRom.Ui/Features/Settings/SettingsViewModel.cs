@@ -28,26 +28,22 @@ namespace TeensyRom.Ui.Features.Settings
         public ReactiveCommand<Unit, Unit> SaveSettingsCommand { get; set; }
 
         private readonly ISettingsService _settingsService;
-        private readonly ICachedStorageService _storage;
         private readonly IAlertService _alert;
-        private readonly IDialogService _dialog;
         private readonly ILoggingService _logService;
         private readonly IDisposable _logsSubscription;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public SettingsViewModel(ISettingsService settings, ICachedStorageService storage, IAlertService alert, IDialogService dialog, ILoggingService logService)
+        public SettingsViewModel(ISettingsService settings, IAlertService alert, ILoggingService logService)
         {
             FeatureTitle = "Settings";
 
             _logService = logService;
             _settingsService = settings;
-            _storage = storage;
             _alert = alert;
-            _dialog = dialog;
             _settingsService.Settings.ToPropertyEx(this, vm => vm.Settings);
 
-            SaveSettingsCommand = ReactiveCommand.CreateFromTask<Unit, Unit>(
-                execute: async n => await HandleSave(),
+            SaveSettingsCommand = ReactiveCommand.Create<Unit, Unit>(
+                execute: n => HandleSave(),
                 outputScheduler: RxApp.MainThreadScheduler);
 
             _logsSubscription = _logService.Logs
@@ -60,22 +56,16 @@ namespace TeensyRom.Ui.Features.Settings
                 });
         }
 
-        private async Task<Unit> HandleSave()
+        private Unit HandleSave()
         {
-            var confirmed = await _dialog.ShowConfirmation("Are you sure you want to save settings?\r\rWarning: Cache will be deleted if you proceed.");
-
-            if (!confirmed) return Unit.Default;
-
             var success = _settingsService.SaveSettings(Settings!);
             if (success)
             {
                 _alert.Publish("Settings saved successfully.");
-                _storage.ClearCache();
+                return Unit.Default;
             }
-            else
-            {
-                _alert.Publish("Error saving settings");
-            }
+
+            _alert.Publish("Error saving settings");
             return Unit.Default;
         }
 

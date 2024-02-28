@@ -47,20 +47,18 @@ namespace TeensyRom.Ui.Controls.FileInfo
             selectedFile
                 .OfType<IViewableItem>()
                 .Select(item => item.Images
-                    .Where(image => !string.IsNullOrEmpty(image.LocalPath))
+                    .Where(image => !string.IsNullOrEmpty(image.Path))
                     .Select(image => 
                     {
                         return item is GameItem
-                            ? new ImageAndMetadata { Image = CreateGameImageSource(image.LocalPath), MetadataSource = image.Source }
-                            : new ImageAndMetadata { Image = CreateImageSource(image.LocalPath), MetadataSource = image.Source };
+                            ? new ImageAndMetadata { Image = CreateGameImageSource(image.Path), MetadataSource = image.Source }
+                            : new ImageAndMetadata { Image = CreateImageSource(image.Path), MetadataSource = image.Source };
                     })
                     .ToList())
                 .Select(list => new ObservableCollection<ImageAndMetadata>(list))
                 .ToPropertyEx(this, x => x.ImageSources);
 
             var selectedGame = selectedFile.OfType<GameItem>();
-
-            selectedGame.Subscribe(gameMetadata.GetGameScreens);
         }
 
         /// <summary>

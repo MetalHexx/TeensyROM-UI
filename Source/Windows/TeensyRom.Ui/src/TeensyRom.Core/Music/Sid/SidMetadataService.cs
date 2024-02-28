@@ -100,7 +100,7 @@ namespace TeensyRom.Core.Music.Sid
             {
                 song.Images.Add(new ViewableItemImage
                 {
-                    LocalPath = hsvcImageName,
+                    Path = hsvcImageName,
                     Source = SidConstants.DeepSid
                 });
             }
