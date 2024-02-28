@@ -15,8 +15,6 @@
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
 
-            <ContentControl Content="{Binding Search}" Grid.Column="0"/>
-
             <Button 
             Command="{Binding PlayRandomCommand}" 
             ToolTip="I'm feeling lucky!"
