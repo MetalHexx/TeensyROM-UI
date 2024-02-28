@@ -52,7 +52,7 @@ namespace TeensyRom.Ui.Controls.FileInfo
                     {
                         return item is GameItem
                             ? new ImageAndMetadata { Image = CreateGameImageSource(image.LocalPath), MetadataSource = image.Source }
-                            : new ImageAndMetadata { Image = CreateImageSource(image.LocalPath) };
+                            : new ImageAndMetadata { Image = CreateImageSource(image.LocalPath), MetadataSource = image.Source };
                     })
                     .ToList())
                 .Select(list => new ObservableCollection<ImageAndMetadata>(list))
