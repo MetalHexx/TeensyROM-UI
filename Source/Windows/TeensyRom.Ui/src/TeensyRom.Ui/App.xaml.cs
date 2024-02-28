@@ -13,6 +13,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Threading;
 using TeensyRom.Core.Logging;
+using System.Collections.Generic;
+using TeensyRom.Core.Games;
+using TeensyRom.Core.Music.Sid;
+using TeensyRom.Core.Common;
+using System.Threading.Tasks;
 
 namespace TeensyRom.Ui
 {
@@ -37,6 +42,15 @@ namespace TeensyRom.Ui
             mainWindow.DataContext = mainViewModel;
             mainWindow.Show();
             _ = _serviceProvider.GetRequiredService<IFileWatchService>(); //triggers file watch service to construct and start
+
+            _ = Task.Run(UnpackAssets);
+        }
+
+        private async Task UnpackAssets()
+        {
+            var alertService = _serviceProvider.GetRequiredService<IAlertService>();
+            AssetHelper.UnpackImages(GameConstants.Game_Image_Local_Path, "OneLoad64.zip");
+            AssetHelper.UnpackImages(SidConstants.Musician_Image_Local_Path, "Composers.zip");
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

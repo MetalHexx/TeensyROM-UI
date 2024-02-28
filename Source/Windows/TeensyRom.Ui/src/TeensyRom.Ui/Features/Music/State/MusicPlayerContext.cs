@@ -6,7 +6,6 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Core.Commands;
-using TeensyRom.Core.Common.Abstractions;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
@@ -24,10 +23,9 @@ namespace TeensyRom.Ui.Features.Music.State
     public sealed class MusicPlayerContext : PlayerContext, IMusicPlayerContext
     {
         private TimeSpan _currentTime = TimeSpan.Zero;
-        public MusicPlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IMusicTreeState tree, IMusicViewConfig config, IGlobalState globalState, IProgressTimer timer, IUnpackAssetService unpackService)
+        public MusicPlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IMusicTreeState tree, IMusicViewConfig config, IGlobalState globalState, IProgressTimer timer)
             : base(mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree, config) 
         {
-            unpackService.UnpackImages();
 
             globalState.ProgramLaunched
                 .Where(p => p is not null)
