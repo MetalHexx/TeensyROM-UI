@@ -10,6 +10,7 @@ using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
+using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Common.State.Player;
 using TeensyRom.Ui.Features.Common.State.Progress;
@@ -37,6 +38,19 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public override async Task TogglePlay()
         {
+            if (_playingState.Value is PlayState.Playing)
+            {
+                _playingState.OnNext(PlayState.Stopped);
+                await StopFile();
+                return;
+            }
+            _playingState.OnNext(PlayState.Playing);
+
+            if (_config.PlayToggleOption == PlayToggleOption.Stop)
+            {
+                await PlayFile(_launchedFile.Value);
+                return;
+            }
             var result = await _mediator.Send(new ToggleMusicCommand());
 
             if (result.IsBusy)
