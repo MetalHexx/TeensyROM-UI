@@ -81,7 +81,7 @@
                             </Grid>
 
                             <StackPanel Orientation="Horizontal" Margin="0 5 0 10" HorizontalAlignment="Right" Visibility="{Binding Image, Converter={StaticResource NullOrEmptyToVisibilityConverter}}">
-                                <TextBlock Text="Source: " Foreground="Gray"/>
+                                <TextBlock Text="Source: " FontStyle="Italic" Foreground="Gray"/>
                                 <TextBlock 
                                     Text="{Binding MetadataSource, FallbackValue='Metadata Source'}" 
                                     FontStyle="Italic" 
@@ -123,7 +123,7 @@
 
                 <StackPanel 
                     Grid.Row="2" 
-                    Visibility="{Binding SelectedFile.Description, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
+                    Visibility="{Binding SelectedFile.Description, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"                    
                     Orientation="Horizontal" Margin="0 5 10 10" HorizontalAlignment="Right">
 
                     <TextBlock 
