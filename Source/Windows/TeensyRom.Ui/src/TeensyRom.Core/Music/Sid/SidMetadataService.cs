@@ -71,6 +71,8 @@ namespace TeensyRom.Core.Music.Sid
 
         private void EnrichWithHsvcMetadata(SongItem song, SidRecord? sidRecord)
         {
+            if (sidRecord is null) return;
+
             song.Creator = sidRecord.Author;
             song.Title = sidRecord.Title;
             song.SongLength = sidRecord.SongLengthSpan;
@@ -154,7 +156,6 @@ namespace TeensyRom.Core.Music.Sid
                 sid.Value.Title = sid.Value.Title.EnsureNotEmpty(sid.Value.Filename.GetFileNameFromPath());
                 sid.Value.Author = sid.Value.Author.EnsureNotEmpty("Unknown Artist");
                 sid.Value.Released = sid.Value.Released.EnsureNotEmpty("No Release Info");
-                sid.Value.StilEntry = sid.Value.StilEntry.EnsureNotEmpty("No Description");
 
                 if (string.IsNullOrEmpty(sid.Value.SongLength))
                 {
