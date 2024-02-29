@@ -10,6 +10,8 @@
         string Creator { get; set; }
         string ReleaseInfo { get; set; }
         string Description { get; set; }
+        string Meta1 { get; set; }
+        string Meta2 { get; set; }
 
         FileItem Clone();
     }

@@ -10,6 +10,8 @@ namespace TeensyRom.Core.Storage.Entities
         public string Description { get; set; } = string.Empty;
         public string ShareUrl { get; set; } = string.Empty;
         public string MetadataSource { get; set; } = string.Empty;
+        public string Meta1 { get; set; } = string.Empty;
+        public string Meta2 { get; set; } = string.Empty;
         public string Id => $"{Size}{Path.GetFileNameFromPath()}";
         public TeensyFileType FileType => Path.GetUnixFileExtension().GetFileType();
 

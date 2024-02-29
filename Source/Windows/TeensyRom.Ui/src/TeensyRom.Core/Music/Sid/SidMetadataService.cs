@@ -78,6 +78,8 @@ namespace TeensyRom.Core.Music.Sid
             song.SongLength = sidRecord.SongLengthSpan;
             song.ReleaseInfo = sidRecord.Released;
             song.Description = CleanDescription(sidRecord.StilEntry);
+            song.Meta1 = sidRecord.Clock;
+            song.Meta2 = sidRecord.SidModel;
             song.MetadataSource = SidConstants.Hvsc;
             song.ShareUrl = $"https://deepsid.chordian.net/?file={sidRecord.Filepath}";
         }
