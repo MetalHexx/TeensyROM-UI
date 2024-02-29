@@ -21,8 +21,8 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="1.32*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="1.32*" MinWidth="200"/>
+                <ColumnDefinition MaxWidth="600"/>
             </Grid.ColumnDefinitions>
 
             <ContentControl 
