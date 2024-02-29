@@ -152,10 +152,12 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToPropertyEx(this, vm => vm.Progress);
 
-            _timerCompleteSubscription = _timer?.TimerComplete.Subscribe(_ =>
-            {
-                playNext();
-            });
+            _timerCompleteSubscription = _timer?.TimerComplete
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ =>
+                {
+                    playNext();
+                });
         }
 
         private Unit HandleShareCommand() 
