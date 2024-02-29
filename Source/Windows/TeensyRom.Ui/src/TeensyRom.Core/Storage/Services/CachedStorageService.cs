@@ -375,13 +375,13 @@ namespace TeensyRom.Core.Storage.Services
                 .Where(result => result.Score > 0)
                 .OrderBy(result => result.File.Title)
                 .OrderByDescending(result => result.Score)
-                .Select(result => result.File);                
+                .Select(result => result.File);
         }
 
         public IEnumerable<SongItem> SearchMusic(string searchText, int maxNumResults = 250)
         {
             var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
+            
             return _storageCache
                 .Where(NotFavoriteFilter)
                 .SelectMany(c => c.Value.Files)
@@ -448,7 +448,10 @@ namespace TeensyRom.Core.Storage.Services
         }
 
         Func<KeyValuePair<string, StorageCacheItem>, bool> NotFavoriteFilter => 
-            kvp => !_settings.GetFavoritePaths().Any(favPath => kvp.Key.Contains(favPath));
+            kvp => !_settings
+                .GetFavoritePaths()
+                .Select(p => p.RemoveLeadingAndTrailingSlash())
+                .Any(favPath => kvp.Key.Contains(favPath));
 
         public async Task CacheAll()
         {
