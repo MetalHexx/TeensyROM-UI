@@ -17,13 +17,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Games\Images\OneLoad64.zip">
+    <None Update="Assets\Game\Images\OneLoad64.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Music\Images\Composers\Composers.zip">
+    <None Update="Assets\Music\Images\Composers\Composers.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Music\Sid\SIDlist_79_UTF8.csv">
+    <None Update="Assets\Music\Metadata\SIDlist_79_UTF8.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -52,7 +52,7 @@ namespace TeensyRom.Core.Music.Sid
 
             if (currentDirectory is null) return string.Empty;
 
-            var relativePath = @"Music\Sid\SIDlist_79_UTF8.csv";
+            var relativePath = MusicConstants.Hvsc_Local_Path;
 
             return Path.Combine(currentDirectory, relativePath);
         }
@@ -80,7 +80,7 @@ namespace TeensyRom.Core.Music.Sid
             song.Description = CleanDescription(sidRecord.StilEntry);
             song.Meta1 = sidRecord.Clock;
             song.Meta2 = sidRecord.SidModel;
-            song.MetadataSource = SidConstants.Hvsc;
+            song.MetadataSource = MusicConstants.Hvsc;
             song.ShareUrl = $"https://deepsid.chordian.net/?file={sidRecord.Filepath}";
         }
 
@@ -88,9 +88,9 @@ namespace TeensyRom.Core.Music.Sid
         {
             var currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var remainingPathSegments = song.Path.GetRemainingPathSegments(SidConstants.Hvsc_Musician_Base_Remote_Path);
+            var remainingPathSegments = song.Path.GetRemainingPathSegments(MusicConstants.Hvsc_Musician_Base_Remote_Path);
 
-            var hsvcImageName = $"{Path.Combine(currentDirectory!, SidConstants.Musician_Image_Local_Path)}musicians";
+            var hsvcImageName = $"{Path.Combine(currentDirectory!, MusicConstants.Musician_Image_Local_Path)}musicians";
 
             foreach(var segment in remainingPathSegments)
             {
@@ -103,7 +103,7 @@ namespace TeensyRom.Core.Music.Sid
                 song.Images.Add(new ViewableItemImage
                 {
                     Path = hsvcImageName,
-                    Source = SidConstants.DeepSid
+                    Source = MusicConstants.DeepSid
                 });
             }
         }

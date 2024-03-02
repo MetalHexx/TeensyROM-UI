@@ -18,6 +18,7 @@ using TeensyRom.Core.Games;
 using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Common;
 using System.Threading.Tasks;
+using TeensyRom.Core.Music;
 
 namespace TeensyRom.Ui
 {
@@ -49,7 +50,7 @@ namespace TeensyRom.Ui
         private Task UnpackAssets()
         {
             AssetHelper.UnpackImages(GameConstants.Game_Image_Local_Path, "OneLoad64.zip");
-            AssetHelper.UnpackImages(SidConstants.Musician_Image_Local_Path, "Composers.zip");
+            AssetHelper.UnpackImages(MusicConstants.Musician_Image_Local_Path, "Composers.zip");
             return Task.CompletedTask;
         }
 
