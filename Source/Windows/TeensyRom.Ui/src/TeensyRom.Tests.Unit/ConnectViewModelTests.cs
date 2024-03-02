@@ -36,7 +36,7 @@ namespace TeensyRom.Tests.Unit
         }
 
         [Fact]
-        public void Given_SerialPortsDoNotExist_NotConnected()
+        public void Given_SerialPortsDoNotExist_NotConnected_And_NotConnectable()
         {
             //Arrange
             _serialMock.Ports.Returns(new BehaviorSubject<string[]>(Array.Empty<string>()).AsObservable());
@@ -45,6 +45,7 @@ namespace TeensyRom.Tests.Unit
 
             //Assert
             viewModel.IsConnected.Should().BeFalse();
+            viewModel.IsConnectable.Should().BeFalse();
         }
 
         [Fact]
