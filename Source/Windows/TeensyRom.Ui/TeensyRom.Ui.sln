@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Tests.Unit", "src\TeensyRom.Tests.Unit\TeensyRom.Tests.Unit.csproj", "{5B6FE7D7-3EEF-4B6F-9EA3-4FD2268C7311}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{D2122D1C-BFBA-446D-96A5-45FCAA75EAC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2122D1C-BFBA-446D-96A5-45FCAA75EAC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2122D1C-BFBA-446D-96A5-45FCAA75EAC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B6FE7D7-3EEF-4B6F-9EA3-4FD2268C7311}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B6FE7D7-3EEF-4B6F-9EA3-4FD2268C7311}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B6FE7D7-3EEF-4B6F-9EA3-4FD2268C7311}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B6FE7D7-3EEF-4B6F-9EA3-4FD2268C7311}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
