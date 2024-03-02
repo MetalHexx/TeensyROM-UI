@@ -54,7 +54,7 @@ namespace TeensyRom.Ui.Features.Connect
                 {
                     if (p.Count > 0) 
                     {
-                        p.Insert(0, "Auto");
+                        p.Insert(0, "Auto-detect");
                     }   
                     return p;
                 })
@@ -65,7 +65,7 @@ namespace TeensyRom.Ui.Features.Connect
                 .Subscribe(ports => SelectedPort = ports.First());
 
             this.WhenAnyValue(x => x.SelectedPort)
-                .Where(port => port is not null && !port!.Contains("Auto"))
+                .Where(port => port is not null && !port!.Contains("Auto-detect"))
                 .Subscribe(port => serial.SetPort(port));
 
             serial.CurrentState
@@ -81,7 +81,7 @@ namespace TeensyRom.Ui.Features.Connect
             ConnectCommand = ReactiveCommand.CreateFromTask<Unit, Unit>(
                 execute: async n =>
                 {
-                    var success = SelectedPort.Contains("Auto") 
+                    var success = SelectedPort.Contains("Auto-detect") 
                         ? await TryAutoConnect()
                         : await TrySingleConnect();
 
@@ -123,9 +123,11 @@ namespace TeensyRom.Ui.Features.Connect
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(logMessage =>
                 {
+                    //logMessage.Split("\r\n").ToList().ForEach(log => Logs.Add(log));
+
                     Logs.Add(logMessage);
 
-                    if (Logs.Count > 1000)
+                    if (Logs.Count > 20)
                     {
                         Logs.RemoveAt(0);
                     }
@@ -150,7 +152,7 @@ namespace TeensyRom.Ui.Features.Connect
         private async Task<bool> TryAutoConnect()
         {
             var legitPorts = Ports!
-                .Where(p => p != "Auto")
+                .Where(p => p != "Auto-detect")
                 .OrderBy(p => p);
 
             foreach (var port in legitPorts)

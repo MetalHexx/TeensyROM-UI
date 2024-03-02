@@ -57,7 +57,7 @@ namespace TeensyRom.Tests.Unit
             var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
 
             //Assert
-            viewModel.Ports.Should().BeEquivalentTo(new[] { "Auto", "COM3", "COM4" });
+            viewModel.Ports.Should().BeEquivalentTo(new[] { "Auto-detect", "COM3", "COM4" });
         }
 
         [Fact]
@@ -69,7 +69,7 @@ namespace TeensyRom.Tests.Unit
             var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
 
             //Assert
-            viewModel.SelectedPort.Should().BeEquivalentTo("Auto");
+            viewModel.SelectedPort.Should().BeEquivalentTo("Auto-detect");
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace TeensyRom.Tests.Unit
             var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
 
             //Act
-            viewModel.SelectedPort = "Auto";
+            viewModel.SelectedPort = "Auto-detect";
 
             //Assert
             _serialMock.Received(0).SetPort(Arg.Any<string>());
@@ -460,24 +460,24 @@ namespace TeensyRom.Tests.Unit
         }
 
         [Fact]
-        public void Given_ThereAre1000Logs_When_NextLogAdded_FirstLogRemoved()
+        public void Given_ThereAre20Logs_When_NextLogAdded_FirstLogRemoved()
         {
             //Arrange
             var logSubject = new BehaviorSubject<string>("log0");
             _logMock.Logs.Returns(logSubject.AsObservable());
             var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
 
-            foreach (var i in Enumerable.Range(1, 999))
+            foreach (var i in Enumerable.Range(1, 19))
             {
                 logSubject.OnNext($"log{i}");
             }
 
             //Act
-            logSubject.OnNext("log1000");
+            logSubject.OnNext("log20");
 
             //Assert
             viewModel.Logs.First().Should().Be("log1");
-            viewModel.Logs.Last().Should().Be("log1000");
+            viewModel.Logs.Last().Should().Be("log20");
         }
 
         [Fact]

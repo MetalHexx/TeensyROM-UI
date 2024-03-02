@@ -110,6 +110,9 @@
                 <RichTextBox 
                     x:Name="LogRichTextBox"
                     IsReadOnly="True"
+                    VirtualizingPanel.CacheLength="20"   
+                    VirtualizingStackPanel.IsVirtualizing="True"
+                    VirtualizingStackPanel.VirtualizationMode="Recycling"
                     VerticalScrollBarVisibility="Visible"
                     HorizontalAlignment="Stretch"
                     BorderBrush="Transparent"
