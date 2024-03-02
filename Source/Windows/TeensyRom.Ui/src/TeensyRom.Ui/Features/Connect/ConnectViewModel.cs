@@ -11,21 +11,24 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
+using System.Windows.Controls;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
+using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Helpers.ViewModel;
 
 namespace TeensyRom.Ui.Features.Connect
 {
-    public class ConnectViewModel: FeatureViewModelBase
+    public class ConnectViewModel: ReactiveObject
     {
         [ObservableAsProperty] public string[]? Ports { get; }
         [ObservableAsProperty] public bool IsConnected { get; set; }
         [ObservableAsProperty] public bool IsConnectable { get; set; }
 
+        [Reactive] public FeatureTitleViewModel Title { get; set; }
         [Reactive] public string SelectedPort { get; set; } = string.Empty;
 
         public ReactiveCommand<Unit, Unit> ConnectCommand { get; set; }
@@ -37,7 +40,7 @@ namespace TeensyRom.Ui.Features.Connect
 
         public ConnectViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log)
         {
-            FeatureTitle = "Manage Connection";
+            Title = new FeatureTitleViewModel("Connection");
 
             serial.Ports.ToPropertyEx(this, vm => vm.Ports);
 

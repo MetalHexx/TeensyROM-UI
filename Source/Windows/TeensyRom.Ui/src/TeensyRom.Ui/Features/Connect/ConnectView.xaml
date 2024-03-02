@@ -5,117 +5,136 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:local="clr-namespace:TeensyRom.Ui.Features.Connect"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
     mc:Ignorable="d">
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="45"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="1.32*" MinWidth="200"/>
+            <ColumnDefinition MaxWidth="200"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock 
-            Text="{Binding FeatureTitle}"
-            Style="{StaticResource SectionTitle}" 
-            Grid.Row="0"/>
+        <ContentControl 
+            Content="{Binding Title}" 
+            Grid.Row="0" Grid.Column="0"/>
 
-        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Label 
-                HorizontalAlignment="Right" 
-                Content="Status:"/>
+        <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource SectionBorder}" Margin="10 0 0 0">
+            <StackPanel Orientation="Horizontal" Margin ="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Label 
+                    HorizontalAlignment="Left" 
+                    Content="Status:"/> 
 
-            <Label 
-                HorizontalAlignment="Right" 
-                Foreground="{StaticResource EnabledColor}"
-                Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConvertor}}"
-                Content="Connected"/>
+                <Label 
+                    HorizontalAlignment="Center" 
+                    Foreground="{StaticResource EnabledColor}"
+                    Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConvertor}}"
+                    Content="Connected"/>
 
-            <Label
-                HorizontalAlignment="Right"
-                Foreground="{StaticResource PrimaryHueLightBrush}"
-                Margin="10 0 0 0" 
-                Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
-                Content="Not Connected"/>
+                <Label
+                    HorizontalAlignment="Right"
+                    Foreground="{StaticResource PrimaryHueLightBrush}"
+                    Margin="10 0 0 0" 
+                    Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
+                    Content="Not Connected"/>
 
-        </StackPanel>
+            </StackPanel>
+        </Border>
 
-        <StackPanel 
-            Grid.Row="1" 
-            Orientation="Horizontal"
-            Grid.ColumnSpan="1">
 
-            <ComboBox  
-                Margin="11 0 10 0" 
-                Width="80"
-                ItemsSource="{Binding Ports, Mode=OneWay}" 
-                SelectedItem="{Binding SelectedPort, Mode=TwoWay}"/>
+        <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource SectionBorder}" Margin="10 0 0 0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <Button 
-                Margin="10" 
-                HorizontalAlignment="Left" 
-                Command="{Binding ConnectCommand}" 
-                Content="Connect" 
-                Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
-                Style="{StaticResource LightButton}" 
-                ToolTip="Press to connect to the selected port" />
+                <ComboBox  
+                    Grid.Column="0"
+                    Margin="10 0 0 0" 
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Stretch"
+                    ItemsSource="{Binding Ports, Mode=OneWay}" 
+                    SelectedItem="{Binding SelectedPort, Mode=TwoWay}"/>
 
-            <Button 
-                Margin="10" 
-                HorizontalAlignment="Left" 
-                Command="{Binding DisconnectCommand}" 
-                Content="Disconnect" 
-                Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConvertor}}"
-                Style="{StaticResource LightButton}" 
-                ToolTip="Press to disconnect from the port" />
+                    <Button
+                        Grid.Column="1"
+                        Margin="10 0 0 0"
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding ConnectCommand}" 
+                        Content="Connect" 
+                        Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
+                        Style="{StaticResource MaterialDesignOutlinedLightButton}"
+                        ToolTip="Press to connect to the selected port" />
 
-            <Button 
-                Margin="10" 
-                HorizontalAlignment="Left" 
-                Command="{Binding PingCommand}" 
-                Content="Ping" 
-                Style="{StaticResource LightButton}" 
-                ToolTip="Press to connect to ping the TeensyROM device" />
+                    <Button 
+                        Grid.Column="1"
+                        Margin="10 0 0 0" 
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding DisconnectCommand}" 
+                        Content="Disconnect" 
+                        Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConvertor}}"
+                        Style="{StaticResource MaterialDesignOutlinedLightButton}" 
+                        ToolTip="Press to disconnect from the port" />
 
-            <Button 
-                Margin="10" 
-                HorizontalAlignment="Left" 
-                Command="{Binding ResetCommand}" 
-                Content="Reset" 
-                Style="{StaticResource LightButton}" 
-                ToolTip="Press to connect to reset the TeensyROM device" />
+                    <Button 
+                        Grid.Column="2"
+                        Margin="10 0 0 0" 
+                        HorizontalAlignment="Stretch" 
+                        Command="{Binding PingCommand}" 
+                        Content="Ping"                         
+                        Style="{StaticResource MaterialDesignOutlinedLightButton}" 
+                        ToolTip="Press to connect to ping the TeensyROM device" />
 
-            <Button 
-                Margin="10"
-                HorizontalAlignment="Right" 
-                Command="{Binding ClearLogsCommand}" 
-                Content="Clear Logs" 
-                Style="{StaticResource LightButton}" 
-                ToolTip="Clears the the logs" />
+                    <Button 
+                        Grid.Column="3"
+                        Margin="10 0 0 0" 
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding ResetCommand}" 
+                        Content="Reset" 
+                        Style="{StaticResource MaterialDesignOutlinedLightButton}"  
+                        ToolTip="Press to connect to reset the TeensyROM device" />
+                    
+            </Grid>
+        </Border>
 
-        </StackPanel>
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource SectionBorder}" Margin="0 10 0 0" Padding="10 5 5 5" Background="{DynamicResource MaterialDesignPaper}">
+            <Grid>
+                <RichTextBox 
+                    x:Name="LogRichTextBox"
+                    IsReadOnly="True"
+                    VerticalScrollBarVisibility="Visible"
+                    HorizontalAlignment="Stretch"
+                    BorderBrush="Transparent"
+                    BorderThickness="0"
+                    CaretBrush="Transparent"
+     >
+                    <i:Interaction.Behaviors>
+                        <local:RichTextBindingBehavior TextCollection="{Binding Logs }" />
+                    </i:Interaction.Behaviors>
 
-        <RichTextBox 
-            x:Name="LogRichTextBox"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            Grid.Row="5"
-            Margin="13 0 10 0"
-            IsReadOnly="True"
-            VerticalScrollBarVisibility="Auto"
-            HorizontalAlignment="Stretch">
-            <i:Interaction.Behaviors>
-                <local:RichTextBindingBehavior TextCollection="{Binding Logs }" />
-            </i:Interaction.Behaviors>
-
-        </RichTextBox>
+                </RichTextBox>
+                <Button                     
+                    Command="{Binding ClearLogsCommand}"  
+                    Style="{StaticResource MaterialDesignFloatingActionLightButton}" 
+                    ToolTip="Clears the the logs"
+                    Grid.Column="4"                    
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Height="30"
+                    Width="30"
+                    Margin="0 0 25 5">
+                    <materialDesign:PackIcon Kind="Eraser" />
+                </Button>
+            </Grid>
+            
+        </Border>
 
     </Grid>
 </UserControl>
