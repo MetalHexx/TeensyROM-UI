@@ -372,5 +372,32 @@ namespace TeensyRom.Tests.Unit
             viewModel.Logs.First().Should().Be("log1");
             viewModel.Logs.Last().Should().Be("log1000");
         }
+
+        [Fact]
+        public void Given_ThereAreNoLogs_Then_ClearLogsCommand_CannotBeExecuted()
+        {
+            //Arrange
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock);
+
+            //Act
+            viewModel.ClearLogsCommand.Execute().Subscribe();
+            var canExecute = viewModel.ClearLogsCommand.CanExecute.FirstAsync().Wait();
+
+            //Assert
+            canExecute.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Given_ThereAreLogs_Then_ClearLogsCommand_CannotBeExecuted()
+        {
+            //Arrange
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock);
+
+            //Act
+            var canExecute = viewModel.ClearLogsCommand.CanExecute.FirstAsync().Wait();
+
+            //Assert
+            canExecute.Should().BeTrue();
+        }
     }
 }

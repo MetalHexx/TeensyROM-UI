@@ -91,6 +91,7 @@ namespace TeensyRom.Ui.Features.Connect
                     Logs.Clear();
                     return Unit.Default;
                 },
+                canExecute: this.WhenAnyValue(x => x.Logs.Count).Select(count => count > 0),
                 outputScheduler: RxApp.MainThreadScheduler);
 
             log.Logs
