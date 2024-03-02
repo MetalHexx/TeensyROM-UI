@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace TeensyRom.Core.Logging
 {
-    public class LogConstants
+    public static class LogConstants
     {
-        public const string LogFileName = "TeensyLogs.txt";
+        public const string LogPath = @"Assets\System\Logs\Logs.txt";
         public const string InternalColor = "#b39ddb"; //lavendar
         public const string InternalSuccessColor = "#86c691"; //green
         public const string InternalErrorColor = "#cc666c"; //soft red

@@ -13,13 +13,17 @@ namespace TeensyRom.Core.Logging
         public IObservable<string> Logs => _logs.AsObservable();
         protected Subject<string> _logs = new();
 
-        private string _logPath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), LogConstants.LogFileName);
+        private string _logPath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), LogConstants.LogPath);
 
         public LoggingService()
         {
             if(File.Exists(_logPath))
             {
                 File.Delete(_logPath);
+            } 
+            if(!Directory.Exists(Path.GetDirectoryName(_logPath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(_logPath)!);
             }
             File.Create(_logPath).Close();
         }
