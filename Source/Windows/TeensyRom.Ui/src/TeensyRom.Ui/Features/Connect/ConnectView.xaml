@@ -56,12 +56,13 @@
                 </Grid.ColumnDefinitions>
 
                 <ComboBox  
+                    ItemsSource="{Binding Ports, Mode=OneWay}" 
+                    SelectedItem="{Binding SelectedPort, Mode=TwoWay}"
+                    IsEnabled="{Binding IsConnectable}"
                     Grid.Column="0"
                     Margin="10 0 0 0" 
                     VerticalAlignment="Center"
-                    HorizontalAlignment="Stretch"
-                    ItemsSource="{Binding Ports, Mode=OneWay}" 
-                    SelectedItem="{Binding SelectedPort, Mode=TwoWay}"/>
+                    HorizontalAlignment="Stretch"/>
 
                     <Button
                         Grid.Column="1"
