@@ -2,6 +2,8 @@
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reflection;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using Formatting = Newtonsoft.Json.Formatting;
 
@@ -12,8 +14,8 @@ namespace TeensyRom.Core.Settings
         public IObservable<TeensySettings> Settings => _settings.AsObservable();
 
         private BehaviorSubject<TeensySettings> _settings;
+        private string _settingsFilePath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), SettingsConstants.SettingsPath);
 
-        private const string _settingsFilePath = "Settings.json";
         private readonly ILoggingService _log;
 
         public SettingsService(ILoggingService log)
@@ -24,39 +26,34 @@ namespace TeensyRom.Core.Settings
 
         private TeensySettings GetSettings()
         {
-            try
+            TeensySettings? settings = null;
+
+            if (File.Exists(_settingsFilePath))
             {
                 using var stream = File.Open(_settingsFilePath, FileMode.Open, FileAccess.Read);
                 using var reader = new StreamReader(stream);
                 var content = reader.ReadToEnd();
 
-                var settings = JsonConvert.DeserializeObject<TeensySettings>(content, new JsonSerializerSettings
+                settings = JsonConvert.DeserializeObject<TeensySettings>(content, new JsonSerializerSettings
                 {
                     TypeNameHandling = TypeNameHandling.Auto,
                     Formatting = Formatting.Indented
                 });
-                if(settings == null)
-                {
-                    throw new Exception("Settings file was empty or corrupt.");
-                }
-                if(settings is null)
-                {
-                    return InitDefaultSettings();
-                }
-                ValidateAndLogSettings(settings);
-
-                return settings;
             }
-            catch
+            if(settings is null)
             {
-                return InitDefaultSettings();
+                settings = InitDefaultSettings();
+                WriteSettings(settings);
             }
+            ValidateAndLogSettings(settings);
+
+            return settings;          
         }
 
         private TeensySettings InitDefaultSettings()
         {
             var settings = new TeensySettings();
-            settings.InitializeDefaults();
+            settings.InitializeDefaults();            
             return settings;
         }
         public bool SaveSettings(TeensySettings settings)
@@ -65,13 +62,21 @@ namespace TeensyRom.Core.Settings
 
             _log.InternalSuccess($"Settings saved successfully.");
             _settings.OnNext(settings with { });
+            WriteSettings(settings);
+            return true;
+        }
 
+        private void WriteSettings(TeensySettings settings)
+        {
+            if (!Directory.Exists(Path.GetDirectoryName(_settingsFilePath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(_settingsFilePath)!);
+            }
             File.WriteAllText(_settingsFilePath, JsonConvert.SerializeObject(settings, Formatting.Indented, new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,
                 Formatting = Formatting.Indented
             }));
-            return true;
         }
 
         public bool ValidateAndLogSettings(TeensySettings settings)
