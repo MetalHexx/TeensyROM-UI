@@ -7,10 +7,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
@@ -24,7 +26,7 @@ namespace TeensyRom.Ui.Features.Connect
 {
     public class ConnectViewModel: ReactiveObject
     {
-        [ObservableAsProperty] public string[]? Ports { get; }
+        [ObservableAsProperty] public List<string> Ports { get; }
         [ObservableAsProperty] public bool IsConnected { get; set; }
         [ObservableAsProperty] public bool IsConnectable { get; set; }
 
@@ -38,19 +40,32 @@ namespace TeensyRom.Ui.Features.Connect
         public ReactiveCommand<Unit, Unit> ClearLogsCommand { get; set; }
         public ObservableCollection<string> Logs { get; } = [];
 
-        public ConnectViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log)
+        private readonly IMediator _mediator;
+        private readonly ISerialStateContext _serial;
+
+        public ConnectViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log, IAlertService alertService)
         {
             Title = new FeatureTitleViewModel("Connection");
 
-            serial.Ports.ToPropertyEx(this, vm => vm.Ports);
-
             serial.Ports
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(ports => ports.Length > 0)
+                .Where(p => p is not null && p.Length > 0)
+                .Select(p => p.ToList())
+                .Select(p => 
+                {
+                    if (p.Count > 0) 
+                    {
+                        p.Insert(0, "Auto");
+                    }   
+                    return p;
+                })
+                .ToPropertyEx(this, vm => vm.Ports);
+
+            this.WhenAnyValue(x => x.Ports)
+                .Where(port => port != null)
                 .Subscribe(ports => SelectedPort = ports.First());
 
             this.WhenAnyValue(x => x.SelectedPort)
-                .Where(port => port != null)
+                .Where(port => port is not null && !port!.Contains("Auto"))
                 .Subscribe(port => serial.SetPort(port));
 
             serial.CurrentState
@@ -63,11 +78,18 @@ namespace TeensyRom.Ui.Features.Connect
                 .Select(state => state is SerialConnectableState)                
                 .ToPropertyEx(this, vm => vm.IsConnectable);
 
-            ConnectCommand = ReactiveCommand.Create<Unit, Unit>(
-                execute: n =>
+            ConnectCommand = ReactiveCommand.CreateFromTask<Unit, Unit>(
+                execute: async n =>
                 {
-                    serial.OpenPort();
-                    mediator.Send(new ResetCommand());
+                    var success = SelectedPort.Contains("Auto") 
+                        ? await TryAutoConnect()
+                        : await TrySingleConnect();
+
+                    if (!success)
+                    {
+                        alertService.Publish("Failed to connect to device.  Check to make sure you're using the correct com port.");
+                    }
+                        
                     return Unit.Default;
                 },
                 canExecute: this.WhenAnyValue(x => x.IsConnectable),
@@ -108,6 +130,45 @@ namespace TeensyRom.Ui.Features.Connect
                         Logs.RemoveAt(0);
                     }
                 });
+            _mediator = mediator;
+            _serial = serial;
+        }
+
+        private async Task<bool> TrySingleConnect()
+        {
+            _serial.OpenPort();
+            var result = await _mediator.Send(new ResetCommand());
+
+            if (!result.IsSuccess)
+            {
+                _serial.ClosePort();
+                return false;
+            }
+            return true;
+        }
+
+        private async Task<bool> TryAutoConnect()
+        {
+            var legitPorts = Ports!
+                .Where(p => p != "Auto")
+                .OrderBy(p => p);
+
+            foreach (var port in legitPorts)
+            {
+                _serial.SetPort(port);
+                _serial.OpenPort();
+                var result = await _mediator.Send(new ResetCommand());
+
+                if (!result.IsSuccess)
+                {
+                    _serial.ClosePort();
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
