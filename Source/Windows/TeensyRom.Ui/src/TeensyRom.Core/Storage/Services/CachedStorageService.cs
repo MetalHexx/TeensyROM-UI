@@ -28,12 +28,9 @@ namespace TeensyRom.Core.Storage.Services
         private readonly IAlertService _alert;
         private TeensySettings _settings = null!;
         private IDisposable? _settingsSubscription;
-        private const string _cacheFileName = "TeensyStorageCache.json";
+        private string _cacheFileName => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), StorageConstants.Cache_File_Path);
         private StorageCache _storageCache = new();
         private Subject<string> _directoryUpdated = new();
-        private string _gameArtPath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), @"Games\Art");
-        private string _loadingScreenPath => Path.Combine(_gameArtPath, "LoadingScreens");
-        private string _gamePlayScreenPath => Path.Combine(_gameArtPath, "Screenshots");
 
         public CachedStorageService(ISettingsService settings, IGameMetadataService gameMetadata, ISidMetadataService sidMetadata, IMediator mediator, IAlertService alert)
         {
@@ -123,16 +120,13 @@ namespace TeensyRom.Core.Storage.Services
             SaveCacheToDisk();
         }
 
-        private string GetFullCachePath() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "", _cacheFileName);
         public void ClearCache()
         {
             _storageCache.Clear();
 
-            var cachePath = GetFullCachePath();
+            if (!File.Exists(_cacheFileName)) return;
 
-            if (!File.Exists(cachePath)) return;
-
-            File.Delete(cachePath);
+            File.Delete(_cacheFileName);
         }
         public void ClearCache(string path) => _storageCache.DeleteDirectoryWithChildren(path);
         private void LoadCache()
@@ -141,10 +135,9 @@ namespace TeensyRom.Core.Storage.Services
 
             if (!saveCacheEnabled) return;
 
-            var cacheLocation = GetFullCachePath();
 
-            if (!File.Exists(cacheLocation)) return;
-            LoadCacheFromDisk(cacheLocation);
+            if (!File.Exists(_cacheFileName)) return;
+            LoadCacheFromDisk(_cacheFileName);
             EnsureFavorites();
             SaveCacheToDisk();
         }
@@ -197,9 +190,12 @@ namespace TeensyRom.Core.Storage.Services
         {
             if (!_settings!.SaveMusicCacheEnabled) return;
 
-            var cacheLocation = GetFullCachePath();
+            if (!Directory.Exists(Path.GetDirectoryName(_cacheFileName)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(_cacheFileName)!);
+            }
 
-            File.WriteAllText(cacheLocation, JsonConvert.SerializeObject(_storageCache, Formatting.Indented, new JsonSerializerSettings
+            File.WriteAllText(_cacheFileName, JsonConvert.SerializeObject(_storageCache, Formatting.Indented, new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,
                 Formatting = Formatting.Indented
