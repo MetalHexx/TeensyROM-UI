@@ -121,7 +121,7 @@ namespace TeensyRom.Core.Serial
 
                     if (currentPorts.Length == 0)
                     {
-                        _log.InternalError($"Failed to find connectable ports. Retrying in {SerialPortConstants.Health_Check_Milliseconds}.");
+                        _log.InternalError($"Failed to find connectable ports.  Check your USB connection to the TeensyROM cart and make sure your C64 is turned on.");
                         _state.OnNext(typeof(SerialStartState));
                     }
                     else if (!previousHasPorts && currentPorts.Length > 0)
