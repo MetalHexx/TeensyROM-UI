@@ -171,7 +171,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             }
             _playingState.OnNext(PlayState.Playing);
 
-            if(_config.PlayToggleOption == PlayToggleOption.Stop)
+            if(_launchedFile.Value is GameItem)
             {
                 await PlayFile(_launchedFile.Value);
                 return;
@@ -258,7 +258,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         {
             _playingState.OnNext(PlayState.Stopped);
 
-            if(_config.PlayToggleOption == PlayToggleOption.Stop)
+            if(_launchedFile.Value is GameItem)
             {
                 return _mediator.Send(new ResetCommand());
             }

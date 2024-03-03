@@ -16,7 +16,6 @@ namespace TeensyRom.Ui.Features.Music.State
     public class MusicViewConfig : IMusicViewConfig
     {
         public List<TeensyFileType> FileTypes { get; set; } = [TeensyFileType.Sid];
-        public PlayToggleOption PlayToggleOption { get; set; } = PlayToggleOption.Pause;
         public NavigationLocation NavigationLocation { get; set; } = NavigationLocation.Music;
         public TeensyLibraryType LibraryType { get; set; } = TeensyLibraryType.Music;
     }

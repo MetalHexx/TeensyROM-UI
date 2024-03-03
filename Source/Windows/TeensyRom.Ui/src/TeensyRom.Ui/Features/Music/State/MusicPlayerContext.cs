@@ -46,11 +46,6 @@ namespace TeensyRom.Ui.Features.Music.State
             }
             _playingState.OnNext(PlayState.Playing);
 
-            if (_config.PlayToggleOption == PlayToggleOption.Stop)
-            {
-                await PlayFile(_launchedFile.Value);
-                return;
-            }
             var result = await _mediator.Send(new ToggleMusicCommand());
 
             if (result.IsBusy)

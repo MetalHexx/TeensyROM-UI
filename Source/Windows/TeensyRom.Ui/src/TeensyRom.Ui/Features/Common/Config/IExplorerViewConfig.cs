@@ -11,6 +11,5 @@ namespace TeensyRom.Ui.Features.Common.Config
         TeensyLibraryType LibraryType { get; set; }
         NavigationLocation NavigationLocation { get; set; }
         List<TeensyFileType> FileTypes { get; set; }
-        PlayToggleOption PlayToggleOption { get; set; }
     }
 }
