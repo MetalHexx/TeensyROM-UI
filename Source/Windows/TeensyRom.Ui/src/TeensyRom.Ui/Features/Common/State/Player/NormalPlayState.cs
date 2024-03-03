@@ -26,7 +26,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 || nextStateType == typeof(SearchState);
         }
 
-        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentLaunchable, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentLaunchable, TeensyLibraryType libraryType, DirectoryState directoryState)
         {
             var parentPath = currentLaunchable.Path.GetUnixParentPath();
             var directoryResult = await _storage.GetDirectory(parentPath);
@@ -49,7 +49,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             return null;
         }
 
-        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, TeensyLibraryType libraryType, DirectoryState directoryState)
         {
             var parentPath = currentFile.Path.GetUnixParentPath();
             var directoryResult = await _storage.GetDirectory(parentPath);

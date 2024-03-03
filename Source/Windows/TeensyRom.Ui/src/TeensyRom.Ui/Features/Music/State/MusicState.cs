@@ -418,7 +418,9 @@ namespace TeensyRom.Ui.Features.Music.State
 
         public async Task<SongItem?> PlayRandom() 
         {
-            var song = _musicService.GetRandomFile(TeensyFileType.Sid);
+            var libraryPath = _settings.GetLibraryPath(TeensyLibraryType.Music);
+
+            var song = _musicService.GetRandomFile(libraryPath, TeensyFileType.Sid);
 
             if(song is SongItem songItem)
             {

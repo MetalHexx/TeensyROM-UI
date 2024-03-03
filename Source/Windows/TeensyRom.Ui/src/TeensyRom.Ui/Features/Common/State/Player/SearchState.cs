@@ -29,7 +29,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 || nextStateType == typeof(ShuffleState);
         }
 
-        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, TeensyLibraryType libraryType, DirectoryState directoryState)
         {
             await Task.CompletedTask;
 
@@ -51,7 +51,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             return currentFile;
         }
 
-        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, TeensyLibraryType libraryType, DirectoryState directoryState)
         {
             await Task.CompletedTask;
 

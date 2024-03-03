@@ -26,7 +26,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 || nextStateType == typeof(SearchState);
         }
 
-        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, TeensyLibraryType libraryType, DirectoryState directoryState)
         {
             var nextFile = _launchHistory.GetNext(_playerContext.FileTypes);
 
@@ -35,7 +35,9 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 await _playerContext.LoadDirectory(nextFile.Path.GetUnixParentPath(), nextFile.Path);
                 return nextFile;
             }
-            var randomFile = _storage.GetRandomFile(_playerContext.FileTypes);
+            var libraryPath = _settings.GetLibraryPath(libraryType);
+            
+            var randomFile = _storage.GetRandomFile(libraryPath, _playerContext.FileTypes);
             
             if(randomFile is not null)
             {
@@ -45,7 +47,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             return randomFile;            
         }
 
-        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, DirectoryState directoryState)
+        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, TeensyLibraryType libraryType, DirectoryState directoryState)
         {
             var file = _launchHistory.GetPrevious(_playerContext.FileTypes);
 

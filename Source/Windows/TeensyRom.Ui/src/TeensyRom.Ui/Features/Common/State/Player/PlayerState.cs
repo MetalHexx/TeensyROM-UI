@@ -55,9 +55,9 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
         public abstract bool CanTransitionTo(Type nextStateType);
 
-        public virtual Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
+        public virtual Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, TeensyLibraryType libraryType, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
-        public virtual Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
+        public virtual Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, TeensyLibraryType libraryType, DirectoryState directoryState) => throw new TeensyStateException(InvalidStateExceptionMessage);
 
         protected string InvalidStateExceptionMessage => $"Cannot perform this operation from: {GetType().Name}";
 

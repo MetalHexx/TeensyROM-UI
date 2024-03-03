@@ -189,7 +189,8 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             {
                 _alert.Enqueue($"{file.Name} is currently unsupported (see logs).  Skipping to the next file.");
                 _storage.MarkIncompatible(file);
-                var nextFile = await _currentState.Value.GetNext(file, _directoryState.Value);
+
+                var nextFile = await _currentState.Value.GetNext(file, _config.LibraryType, _directoryState.Value);
 
                 if (nextFile is not null) await PlayFile(nextFile);
 
@@ -238,7 +239,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         }
         public async Task PlayNext()
         {
-            var file = await _currentState.Value.GetNext(_launchedFile.Value, _directoryState.Value);
+            var file = await _currentState.Value.GetNext(_launchedFile.Value, _config.LibraryType, _directoryState.Value);
 
             if (file is null)
             {
@@ -249,7 +250,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         }
         public async virtual Task PlayPrevious()
         {
-            var file = await _currentState.Value.GetPrevious(_launchedFile.Value, _directoryState.Value);
+            var file = await _currentState.Value.GetPrevious(_launchedFile.Value, _config.LibraryType, _directoryState.Value);
 
             if (file is not null) await PlayFile(file);
         }

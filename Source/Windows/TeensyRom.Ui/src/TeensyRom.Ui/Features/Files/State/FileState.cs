@@ -163,7 +163,7 @@ namespace TeensyRom.Ui.Features.Files.State
 
         public async Task PlayRandom()
         {
-            var file = _storageService.GetRandomFile();
+            var file = _storageService.GetRandomFile("/");
 
             if (file is null)
             {

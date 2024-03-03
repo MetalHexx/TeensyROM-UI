@@ -334,13 +334,15 @@ namespace TeensyRom.Core.Storage.Services
         }
         public void Dispose() => _settingsSubscription?.Dispose();
 
-        public ILaunchableItem? GetRandomFile(params TeensyFileType[] fileTypes) 
+        public ILaunchableItem? GetRandomFile(string startingPath, params TeensyFileType[] fileTypes) 
         {
             if (fileTypes.Length == 0)
             {
                 fileTypes = TeensyFileTypeExtensions.GetLaunchFileTypes();
             }
-            var selection = _storageCache.SelectMany(c => c.Value.Files)
+            var selection = _storageCache
+                .Where(k => k.Key.Contains(startingPath))
+                .SelectMany(c => c.Value.Files)
                 .Where(f => fileTypes.Contains(f.FileType))
                 .OfType<ILaunchableItem>()                
                 .ToArray();
