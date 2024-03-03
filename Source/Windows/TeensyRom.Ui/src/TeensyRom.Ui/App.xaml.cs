@@ -19,6 +19,7 @@ using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Common;
 using System.Threading.Tasks;
 using TeensyRom.Core.Music;
+using TeensyRom.Core.Storage.Services;
 
 namespace TeensyRom.Ui
 {
@@ -71,13 +72,18 @@ namespace TeensyRom.Ui
             {
                 LogExceptionToFile(ex);
                 var alertService = _serviceProvider.GetRequiredService<IAlertService>();
-                alertService.Publish("There was an unhandled exception.  Please check TeensyErrorLogs.txt for more information.");
+                alertService.Publish("There was an unhandled exception.");
             }
         }
 
         private static void LogExceptionToFile(Exception ex)
         {
-            string filePath = "TeensyErrorLogs.txt";
+            string filePath = Path.Combine(Assembly.GetExecutingAssembly().GetPath(), @"Assets\System\Logs\UnhandledErrorLogs.txt");
+
+            if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+            }
 
             try
             {
