@@ -21,40 +21,45 @@
                     Text="{Binding SelectedFile.Title}"                     
                     FontWeight="Bold" FontSize="24" />
 
-                <StackPanel Orientation="Horizontal" Margin="0 5 0 0">
+                <WrapPanel Orientation="Horizontal" Margin="0 5 0 0">
 
 
-                    <TextBlock Text="{Binding SelectedFile.Creator}" 
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <TextBlock Text="{Binding SelectedFile.Creator}" 
                         Visibility="{Binding SelectedFile.Creator, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
                         FontSize="16" Foreground="{StaticResource MaterialDesignBodyLight}" />
 
-                    <TextBlock Text=" • " FontSize="16" FontStyle="Italic"  Foreground="White" VerticalAlignment="Center" 
+                        <TextBlock Text=" • " FontSize="16" FontStyle="Italic"  Foreground="White" VerticalAlignment="Center" 
                         Visibility="{Binding SelectedFile.ReleaseInfo, Converter={StaticResource NullOrEmptyToVisibilityConverter}}" />
 
-                    <TextBlock Text="{Binding SelectedFile.ReleaseInfo, FallbackValue='Release Info'}" Foreground="{StaticResource MaterialDesignBodyLight}" 
-                        FontSize="16" Visibility="{Binding SelectedFile.ReleaseInfo, Converter={StaticResource NullOrEmptyToVisibilityConverter}}" />
+                        <TextBlock Text="{Binding SelectedFile.ReleaseInfo, FallbackValue='Release Info'}" Foreground="{StaticResource MaterialDesignBodyLight}" 
+                        FontSize="16" Visibility="{Binding SelectedFile.ReleaseInfo, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"/>
+                    </StackPanel>
 
-                    <Border 
-                        Visibility="{Binding SelectedFile.Meta1, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
-                        Grid.Column="1" 
-                        BorderBrush="{StaticResource EnabledColor}"  BorderThickness="1" CornerRadius="12" Padding="5" HorizontalAlignment="Right" Height="20" Margin="10 0 0 0" >
-                        <TextBlock 
-                            Text="{Binding SelectedFile.Meta1}"
-                            Foreground="{StaticResource EnabledColor}" FontSize="10" VerticalAlignment="Center">                            
-                        </TextBlock>
-                    </Border>
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <Border 
+                            Visibility="{Binding SelectedFile.Meta1, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
+                            Grid.Column="1" 
+                            BorderBrush="{StaticResource EnabledColor}"  BorderThickness="1" CornerRadius="12" Padding="5" HorizontalAlignment="Right" Height="20" >
+                            <TextBlock 
+                                Text="{Binding SelectedFile.Meta1}"
+                                Foreground="{StaticResource EnabledColor}" FontSize="10" VerticalAlignment="Center">
+                            </TextBlock>
+                        </Border>
 
-                    <Border 
-                        Visibility="{Binding SelectedFile.Meta2, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
-                        Grid.Column="2" 
-                        BorderBrush="{StaticResource PrimaryHueLightBrush}" BorderThickness="1" CornerRadius="12" Padding="5" HorizontalAlignment="Right" 
-                        Height="20" Margin="10 0 10 0">
-                        <TextBlock 
-                            Text="{Binding SelectedFile.Meta2}"                              
-                            Foreground="{StaticResource PrimaryHueLightBrush}" FontSize="10" VerticalAlignment="Center">                            
-                        </TextBlock>
-                    </Border>
-                </StackPanel>
+                        <Border 
+                            Visibility="{Binding SelectedFile.Meta2, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
+                            Grid.Column="2" 
+                            BorderBrush="{StaticResource PrimaryHueLightBrush}" BorderThickness="1" CornerRadius="12" Padding="5" HorizontalAlignment="Right" 
+                            Height="20" Margin="10 0 10 0">
+                            <TextBlock 
+                                Text="{Binding SelectedFile.Meta2}"                              
+                                Foreground="{StaticResource PrimaryHueLightBrush}" FontSize="10" VerticalAlignment="Center">
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                    
+                </WrapPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="0 5 0 0">
                     
