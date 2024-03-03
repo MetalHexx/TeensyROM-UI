@@ -162,7 +162,7 @@
 
                 <Button x:Name="ShuffleModeButton"
                     Command="{Binding ToggleShuffleCommand}"  
-                    ToolTip="Enable shuffle mode to play a random file in the libary."
+                    ToolTip="Shuffle Mode.  Enabling this will cause the next track to be a random file from the collection.  Disabling will play the next file in the current directory."
                     Style="{StaticResource ShuffleModeButtonStyle}">
                     <materialDesign:PackIcon Kind="Shuffle"/>
                 </Button>
