@@ -80,7 +80,6 @@ namespace TeensyRom.Ui.Controls.Explorer
                 player.PlayNext,
                 player.SaveFavorite,
                 player.LoadDirectory,
-                config.PlayToggleOption,
                 alert
             );
 

@@ -55,7 +55,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             Func<Task> playNext, 
             Func<ILaunchableItem, Task> saveFav,
             Func<string, Task> loadDirectory,
-            PlayToggleOption toggleOption, 
             IAlertService alert)
         {
             _timer = timer;
@@ -110,11 +109,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Do(_ => EnablePlayButton = false);
 
             playToggle
-                .Where(_ => toggleOption == PlayToggleOption.Stop)
+                .Where(_ => File is GameItem)
                 .Subscribe(_ => EnableStopButton = true);
 
             playToggle
-                .Where(_ => toggleOption == PlayToggleOption.Pause)
+                .Where(_ => File is SongItem)
                 .Subscribe(_ => EnablePauseButton = true);
 
             file
