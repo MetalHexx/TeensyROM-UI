@@ -42,6 +42,7 @@ namespace TeensyRom.Ui.Features.Connect
 
         private readonly IMediator _mediator;
         private readonly ISerialStateContext _serial;
+        private readonly ILoggingService _log;
 
         public ConnectViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log, IAlertService alertService)
         {
@@ -134,6 +135,7 @@ namespace TeensyRom.Ui.Features.Connect
                 });
             _mediator = mediator;
             _serial = serial;
+            _log = log;
         }
 
         private async Task<bool> TrySingleConnect()
@@ -151,6 +153,8 @@ namespace TeensyRom.Ui.Features.Connect
 
         private async Task<bool> TryAutoConnect()
         {
+            _log.Internal("Attempting to correct TeensyROM COM port.\r\nYou may see some errors as each COM port is attempted.");
+
             var legitPorts = Ports!
                 .Where(p => p != "Auto-detect")
                 .OrderBy(p => p);
@@ -167,6 +171,7 @@ namespace TeensyRom.Ui.Features.Connect
                 }
                 else
                 {
+                    _log.Internal("Auto-detection of correct TeensyROM COM port was successful!");
                     return true;
                 }
             }
