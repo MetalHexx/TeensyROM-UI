@@ -28,9 +28,13 @@ namespace TeensyRom.Core.Logging
             File.Create(_logPath).Close();
         }
 
+        private static readonly object _logFileLock = new object();
         public void Log(string message, string hExColor)
         {
-            File.AppendAllText(_logPath, message + Environment.NewLine);
+            lock (_logFileLock)
+            {
+                File.AppendAllText(_logPath, message + Environment.NewLine);
+            }
 
             var sb = new StringBuilder();
 

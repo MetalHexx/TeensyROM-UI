@@ -76,6 +76,7 @@ namespace TeensyRom.Ui
             }
         }
 
+        private static readonly object _logFileLock = new object();
         private static void LogExceptionToFile(Exception ex)
         {
             string filePath = Path.Combine(Assembly.GetExecutingAssembly().GetPath(), @"Assets\System\Logs\UnhandledErrorLogs.txt");
@@ -87,7 +88,7 @@ namespace TeensyRom.Ui
 
             try
             {
-                lock (filePath)
+                lock (_logFileLock)
                 {
                     File.AppendAllText(filePath, $"{DateTime.Now}{Environment.NewLine}Exception: {ex}{Environment.NewLine}{Environment.NewLine}");
                 }
