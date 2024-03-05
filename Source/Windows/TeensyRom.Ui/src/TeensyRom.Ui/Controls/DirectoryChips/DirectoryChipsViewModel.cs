@@ -26,29 +26,56 @@ namespace TeensyRom.Ui.Controls.DirectoryChips
             var pathItems = path
                 .Where(path => !string.IsNullOrWhiteSpace(path))
                 .Do(path => _currentPath = path)
-                .Select(p => p.Replace(basePath, ""))
+                .Select(p => basePath == "/" ? p : p.Replace(basePath, ""))
                 .Select(path => path.ToPathArray().Select(item => $"/{item}"))
                 .Subscribe(pathList => 
                 {
                     PathItems.Clear();
-                    PathItems.Add(basePath);
+
+                    if(pathList.Count() == 0)
+                    {
+                        PathItems.Add(basePath);
+                        return;
+                    }
+                    if(basePath == "/")
+                    {
+                        PathItems.Add("/root");
+                    }
                     PathItems.AddRange(pathList);
                 });
 
             PathItemClickCommand = ReactiveCommand.Create<string>(item =>
             {
                 var index = PathItems.IndexOf(item);
+
                 var path = string.Join("", PathItems.Take(index + 1));
 
                 if (path == _currentPath) return;
                 
-                onClick(path);
+                var newPath = ReplaceRoot(path);
+                onClick(newPath);
             });   
             CopyCommand = ReactiveCommand.Create<string>(_ => 
             {
                 Clipboard.SetText(_currentPath);
                 onCopy();
             });
+
+            
+        }
+        private string ReplaceRoot(string path)
+        {
+            var newPath = path;
+
+            if(path == "/root")
+            {
+                return "/";
+            }
+            if (path.StartsWith("/root"))
+            {
+                newPath = path.Replace("/root", "");
+            }
+            return newPath;
         }
     }
 }
