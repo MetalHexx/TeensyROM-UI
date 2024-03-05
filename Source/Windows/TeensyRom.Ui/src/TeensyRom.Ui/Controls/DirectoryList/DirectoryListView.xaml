@@ -154,7 +154,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="0">
@@ -186,8 +186,10 @@
 
             </ListView>
         </ScrollViewer>
-        <ContentControl Content="{Binding Paging}" 
-            Visibility="{Binding ShowPaging, Converter={StaticResource BoolToVisibilityConvertor}}"
+        <ContentControl 
+            Content="{Binding Paging}" 
+            IsEnabled="{Binding ShowPaging}"
+            HorizontalAlignment="Right"
             Grid.Row="1"/>
     </Grid>
 </UserControl>
