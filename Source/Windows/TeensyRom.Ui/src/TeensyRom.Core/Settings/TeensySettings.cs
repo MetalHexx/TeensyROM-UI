@@ -7,6 +7,7 @@ namespace TeensyRom.Core.Settings
 {
     public enum TeensyLibraryType
     {
+        All,
         Programs,
         Music,
         Hex
@@ -15,6 +16,7 @@ namespace TeensyRom.Core.Settings
     {
         public TeensyLibraryType Type { get; set; }
         public string DisplayName { get; set; } = string.Empty;
+        public string Icon { get; set; } = string.Empty;
         public string Path { get; set; } = string.Empty;
     }
     /// <summary>
@@ -42,14 +44,23 @@ namespace TeensyRom.Core.Settings
             {
                 new TeensyLibrary
                 {
+                    Type = TeensyLibraryType.All,
+                    DisplayName = "All",
+                    Icon = "AllInclusive",
+                    Path = "/"
+                },
+                new TeensyLibrary
+                {
                     Type = TeensyLibraryType.Music,
                     DisplayName = "Music",
+                    Icon = "MusicClefTreble",
                     Path = "libraries/music"
                 },
                 new TeensyLibrary
                 {
                     Type = TeensyLibraryType.Programs,
-                    DisplayName = "Programs",
+                    DisplayName = "Games",
+                    Icon = "Ghost",
                     Path = "libraries/programs"
                 },
                 new TeensyLibrary
