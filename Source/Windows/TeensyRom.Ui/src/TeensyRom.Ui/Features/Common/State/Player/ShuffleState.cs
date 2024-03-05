@@ -28,7 +28,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
         public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, TeensyLibraryType libraryType, DirectoryState directoryState)
         {
-            var nextFile = _launchHistory.GetNext(_playerContext.FileTypes);
+            var nextFile = _launchHistory.GetNext(_playerContext.GetFileTypes());
 
             if (nextFile is not null)
             {
@@ -37,7 +37,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             }
             var libraryPath = _settings.GetLibraryPath(libraryType);
             
-            var randomFile = _storage.GetRandomFile(libraryPath, _playerContext.FileTypes);
+            var randomFile = _storage.GetRandomFile(libraryPath, _playerContext.GetFileTypes());
             
             if(randomFile is not null)
             {
@@ -49,7 +49,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
         public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, TeensyLibraryType libraryType, DirectoryState directoryState)
         {
-            var file = _launchHistory.GetPrevious(_playerContext.FileTypes);
+            var file = _launchHistory.GetPrevious(_playerContext.GetFileTypes());
 
             if (file is not null)
             {

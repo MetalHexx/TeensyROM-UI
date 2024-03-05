@@ -64,6 +64,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         protected readonly IExplorerViewConfig _config;
         protected readonly Dictionary<Type, PlayerState> _states;
         protected readonly List<IDisposable> _stateSubscriptions = new();
+        protected TeensyLibrary _currentLibrary;
 
         public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree, IExplorerViewConfig config)
         {
@@ -90,13 +91,14 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         {
             _settingsSubscription = _settingsService.Settings
                 .Do(settings => _settings = settings)
+                .Do(settings => _currentLibrary = settings.Libraries.First(lib => lib.Type == _config.LibraryType))
                 .CombineLatest(_serialContext.CurrentState, _nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
                 .Where(state => state.serial is SerialConnectedState)
                 .Where(state => state.navView?.Type == _config.NavigationLocation)
-                .Select(state => (path: state.settings.GetLibraryPath(_config.LibraryType), state.settings.TargetType))
+                .Select(state => (path: _currentLibrary.Path, state.settings.TargetType))
                 .DistinctUntilChanged()
                 .Select(storage => storage.path)
-                .Do(state => _tree.ResetDirectoryTree(_settings!.GetLibraryPath(_config.LibraryType)))
+                .Do(path => _tree.ResetDirectoryTree(path))                
                 .Subscribe(async path => await LoadDirectory(path));
         }
 
@@ -239,7 +241,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         }
         public async Task PlayNext()
         {
-            var file = await _currentState.Value.GetNext(_launchedFile.Value, _config.LibraryType, _directoryState.Value);
+            var file = await _currentState.Value.GetNext(_launchedFile.Value, _currentLibrary.Type, _directoryState.Value);
 
             if (file is null)
             {
@@ -250,7 +252,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         }
         public async virtual Task PlayPrevious()
         {
-            var file = await _currentState.Value.GetPrevious(_launchedFile.Value, _config.LibraryType, _directoryState.Value);
+            var file = await _currentState.Value.GetPrevious(_launchedFile.Value, _currentLibrary.Type, _directoryState.Value);
 
             if (file is not null) await PlayFile(file);
         }
@@ -289,10 +291,8 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
             if (!success) return Unit.Default;
 
-            var libraryPath = _settings.GetLibraryPath(_config.LibraryType);
-
-            var searchResult = _storage.Search(searchText, FileTypes)
-                .Where(f => f.Path.Contains(libraryPath))
+            var searchResult = _storage.Search(searchText, GetFileTypes())
+                .Where(f => f.Path.Contains(_currentLibrary.Path))
                 .Cast<IStorageItem>()
                 .ToList();
 
@@ -365,6 +365,25 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             return Unit.Default;
         }
 
-        public TeensyFileType[] FileTypes => _config.FileTypes.Select(f => f).ToArray();
+        public Task SwitchLibrary(TeensyLibrary library)
+        {
+            _currentLibrary = library;
+            _directoryState.Value.ClearSelection();            
+            _tree.ResetDirectoryTree(library.Path);
+            return LoadDirectory(library.Path);            
+        }
+
+        public TeensyFileType[] GetFileTypes() 
+        {
+            if (_currentLibrary.Type == TeensyLibraryType.All) 
+            {
+                return _settings.FileTargets
+                    .Where(ft => ft.Type != TeensyFileType.Hex)
+                    .Select(t => t.Type).ToArray();
+            }
+            return _settings.FileTargets
+                .Where(ft => ft.LibraryType == _currentLibrary.Type)
+                .Select(t => t.Type).ToArray();            
+        }
     }
 }

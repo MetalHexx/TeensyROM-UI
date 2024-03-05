@@ -39,6 +39,8 @@ using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Features.Common.State.Progress;
+using TeensyRom.Ui.Features.Discover;
+using TeensyRom.Ui.Features.Discover.State;
 
 namespace TeensyRom.Ui
 {
@@ -70,6 +72,9 @@ namespace TeensyRom.Ui
             services.AddSingleton<IGameViewConfig, GameViewConfig>();
             services.AddSingleton<IMusicTreeState, MusicTreeState>();
             services.AddSingleton<IMusicPlayerContext, MusicPlayerContext>();
+            services.AddSingleton<IDiscoverContext, DiscoverContext>();
+            services.AddSingleton<IDiscoverViewConfig, DiscoverViewConfig>();
+            services.AddSingleton<IDiscoveryTreeState, DiscoverTreeState>();
             services.AddSingleton<IMusicViewConfig, MusicViewConfig>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<ConnectViewModel>();
@@ -83,6 +88,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<SongListViewModel>();
             services.AddSingleton<SearchMusicViewModel>();
             services.AddSingleton<GamesViewModel>();
+            services.AddSingleton<DiscoverViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddSingleton<ITeensyCommandExecutor, TeensyCommandExecutor>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            

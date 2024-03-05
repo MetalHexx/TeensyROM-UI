@@ -7,6 +7,7 @@
         Files,
         Music,
         Games,
+        Discover,
         Settings,
         Help        
     }

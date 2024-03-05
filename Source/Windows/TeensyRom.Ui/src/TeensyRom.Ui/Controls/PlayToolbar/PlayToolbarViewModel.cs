@@ -110,11 +110,19 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             playToggle
                 .Where(_ => File is GameItem)
-                .Subscribe(_ => EnableStopButton = true);
+                .Subscribe(_ => 
+                {
+                    EnableStopButton = true;
+                    EnablePauseButton = false;
+                });
 
             playToggle
                 .Where(_ => File is SongItem)
-                .Subscribe(_ => EnablePauseButton = true);
+                .Subscribe(_ =>
+                {
+                    EnableStopButton = false;
+                    EnablePauseButton = true;
+                });
 
             file
                 .OfType<SongItem>()

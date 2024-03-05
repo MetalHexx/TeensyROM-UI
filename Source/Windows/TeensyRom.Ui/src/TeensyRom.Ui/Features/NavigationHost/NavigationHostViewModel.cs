@@ -18,6 +18,7 @@ using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Features.Games;
 using System.Reflection;
 using System;
+using TeensyRom.Ui.Features.Discover;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -40,17 +41,17 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, ISerialStateContext serialState, ISnackbarService alert, FilesViewModel files, MusicViewModel music, GamesViewModel games, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
+        public NavigationHostViewModel(INavigationService navStore, ISerialStateContext serialState, ISnackbarService alert, FilesViewModel files, MusicViewModel music, GamesViewModel games, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
         {
             _navService = navStore;
             _serialContext = serialState;
             MessageQueue = alert.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
-            InitializeNavItems(files, music, games, help, connect, settings);
-        }     
+            InitializeNavItems(files, music, games, help, connect, settings, discover);
+        }
 
-        public void InitializeNavItems(FilesViewModel files, MusicViewModel midi, GamesViewModel games, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings)
+        public void InitializeNavItems(FilesViewModel files, MusicViewModel midi, GamesViewModel games, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
         {
             _navService.Initialize(NavigationLocation.Connect, new List<NavigationItem>
             {
@@ -77,6 +78,12 @@ namespace TeensyRom.Ui.Features.NavigationHost
                     Type = NavigationLocation.Games,
                     ViewModel = games,
                     Icon = "Ghost"
+                },
+                new() {
+                    Name = "Discover",
+                    Type = NavigationLocation.Discover,
+                    ViewModel = discover,
+                    Icon = "CompassRose"
                 },
                 new() {
                     Name = "Settings",
