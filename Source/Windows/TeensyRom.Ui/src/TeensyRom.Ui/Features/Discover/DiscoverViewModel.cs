@@ -21,6 +21,7 @@ using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.SearchResultsToolbar;
 using TeensyRom.Ui.Features.Common.Config;
+using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Common.State.Player;
 using TeensyRom.Ui.Features.Common.State.Progress;
@@ -95,13 +96,14 @@ namespace TeensyRom.Ui.Features.Discover
                 context.PlayFile,
                 context.SelectFile,
                 context.SaveFavorite,
+                context.StoreFiles,
                 context.DeleteFile,
                 context.LoadDirectory,
                 context.NextPage,
                 context.PreviousPage,
                 context.SetPageSize,
-                alert,
-                dialog
+                alert: alert,
+                dialog: dialog
             );
 
             DirectoryTree = new(context.DirectoryTree)

@@ -6,6 +6,7 @@ using System.Windows.Documents;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Common.State;
 
 namespace TeensyRom.Ui.Features.Common.State.Player
@@ -45,5 +46,6 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         Unit ToggleShuffleMode();
         bool TryTransitionTo(Type nextStateType);     
         Task SwitchLibrary(TeensyLibrary library);
+        Task StoreFiles(IEnumerable<FileCopyItem> files);
     }
 }

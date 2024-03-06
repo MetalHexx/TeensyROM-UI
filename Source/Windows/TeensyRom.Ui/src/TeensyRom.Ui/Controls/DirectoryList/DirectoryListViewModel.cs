@@ -6,12 +6,17 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using System.Windows;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Services;
 using System.CodeDom.Compiler;
 using TeensyRom.Ui.Controls.Paging;
 using TeensyRom.Ui.Features.Games.State;
+using TeensyRom.Ui.Features.Common.Models;
+using File = System.IO.File;
+using FileCopyItem = TeensyRom.Ui.Features.Common.Models.FileCopyItem;
 
 namespace TeensyRom.Ui.Controls.DirectoryList
 {
@@ -24,6 +29,8 @@ namespace TeensyRom.Ui.Controls.DirectoryList
         public ReactiveCommand<ILaunchableItem, Unit> SelectCommand { get; set; }
         public ReactiveCommand<ILaunchableItem, Unit> SaveFavoriteCommand { get; set; }
         public ReactiveCommand<IFileItem, Unit> DeleteCommand { get; set; }
+        public ReactiveCommand<DragEventArgs, Unit> FileDropCommand { get; private set; }
+        public ReactiveCommand<DragEventArgs, Unit> DragOverCommand { get; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }
 
         public DirectoryListViewModel
@@ -33,8 +40,9 @@ namespace TeensyRom.Ui.Controls.DirectoryList
             IObservable<int> currentPage,
             IObservable<int> totalPages,
             Func<ILaunchableItem, Task> launchGameFunc, 
-            Func<ILaunchableItem, Unit> setSelectedFunc, 
+            Func<ILaunchableItem, Unit> setSelectedFunc,
             Func<ILaunchableItem, Task> saveFavFunc,
+            Func<IEnumerable<FileCopyItem>, Task> storeFilesFunc,
             Func<IFileItem, Task> deleteFunc,
             Func<string, string, Task> loadDirFunc,
             Func<Unit> nextPageFunc,
@@ -84,6 +92,57 @@ namespace TeensyRom.Ui.Controls.DirectoryList
                     return Unit.Default;
                 },
                 outputScheduler: RxApp.MainThreadScheduler);
+
+            DragOverCommand = ReactiveCommand.Create
+            (
+                execute: (DragEventArgs e) =>
+                {
+                    e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+                    e.Handled = true;
+                },
+                outputScheduler: RxApp.MainThreadScheduler
+            );
+
+            FileDropCommand = ReactiveCommand.CreateFromTask
+            (
+                execute: (DragEventArgs e) => 
+                {
+                    var filePaths = new List<FileCopyItem>();
+
+                    if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return Task.CompletedTask;
+
+                    var items = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                    foreach (var item in items)
+                    {
+                        if (File.Exists(item))
+                        {
+                            filePaths.Add(new FileCopyItem { Path = item });
+                        }
+                        else if (Directory.Exists(item))
+                        {
+                            ProcessDirectoryAsync(item, filePaths);
+                        }
+                    }
+                    return storeFilesFunc(filePaths);
+                },
+                outputScheduler: RxApp.MainThreadScheduler
+            );
+        }
+        private static void ProcessDirectoryAsync(string directoryPath, List<FileCopyItem> filePaths)
+        {
+            filePaths.AddRange(Directory
+                .GetFiles(directoryPath)
+                .Select(path => new FileCopyItem
+                {
+                    Path = path,
+                    InSubdirectory = true
+                }));
+
+            foreach (var subdirectory in Directory.GetDirectories(directoryPath))
+            {
+                ProcessDirectoryAsync(subdirectory, filePaths);
+            }
         }
     }
 }

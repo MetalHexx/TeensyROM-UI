@@ -3,6 +3,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -21,11 +22,13 @@ using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Features.Common.Config;
+using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Common.State.Directory;
 using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
+using SystemDirectory = System.IO.Directory;
 
 namespace TeensyRom.Ui.Features.Common.State.Player
 {
@@ -385,5 +388,50 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 .Where(ft => ft.LibraryType == _currentLibrary.Type)
                 .Select(t => t.Type).ToArray();            
         }
+
+        public async Task StoreFiles(IEnumerable<FileCopyItem> files)
+        {
+            var commonParent = GetCommonBasePath(files.Select(i => i.Path));
+            var directoryOnly = files.All(i => i.InSubdirectory);
+
+            foreach (var file in files)
+            {
+                var fileInfo = new TeensyFileInfo(file.Path);
+
+                var finalPath = directoryOnly
+                    ? SystemDirectory.GetParent(commonParent)?.FullName
+                    : commonParent;
+
+                var relativePath = fileInfo.FullPath
+                    .Replace(finalPath!, string.Empty)
+                    .ToUnixPath()
+                    .GetUnixParentPath();
+
+                fileInfo.TargetPath = _directoryState.Value
+                    .CurrentPath
+                    .UnixPathCombine(relativePath);
+
+                await _storage.SaveFile(fileInfo);
+            }
+            await RefreshDirectory(bustCache: false);
+        }
+
+        private static string GetCommonBasePath(IEnumerable<string> directories)
+        {
+            if (!directories.Any()) return string.Empty;
+
+            string commonPath = directories.First();
+
+            foreach (string path in directories)
+            {
+                while (!path.StartsWith(commonPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    commonPath = commonPath.Substring(0, commonPath.LastIndexOf(Path.DirectorySeparatorChar));
+                }
+            }
+            return commonPath;
+        }
+
+
     }
 }

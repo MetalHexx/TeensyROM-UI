@@ -6,6 +6,7 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Files.DirectoryContent;
 using TeensyRom.Ui.Features.Common.Models;
+using FileCopyItem = TeensyRom.Ui.Features.Files.DirectoryContent.FileCopyItem;
 
 namespace TeensyRom.Ui.Features.Files.State
 {

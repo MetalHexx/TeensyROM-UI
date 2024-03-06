@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using DynamicData;
+using MediatR;
 using System;
 using System.Linq;
 using System.Reactive.Linq;
@@ -33,11 +34,15 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
             if (directoryResult is null) return null;
 
-            var currentIndex = directoryResult.Files.IndexOf(currentLaunchable);
+            var launchableItems = directoryResult.Files
+                .OfType<ILaunchableItem>()
+                .ToList();
 
-            var nextFile = directoryResult.Files.Count == currentIndex + 1
-                ? directoryResult.Files.First()
-                : directoryResult.Files[++currentIndex];
+            var currentIndex = launchableItems.IndexOf(currentLaunchable);
+
+            var nextFile = launchableItems.Count == currentIndex + 1
+                ? launchableItems.First()
+                : launchableItems[++currentIndex];
 
             if (nextFile is ILaunchableItem f)
             {

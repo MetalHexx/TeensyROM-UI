@@ -20,6 +20,7 @@ using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.SearchResultsToolbar;
 using TeensyRom.Ui.Features.Common.Config;
+using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Common.State.Player;
 using TeensyRom.Ui.Features.Common.State.Progress;
@@ -92,7 +93,8 @@ namespace TeensyRom.Ui.Controls.Explorer
                 player.PlayFile,
                 player.SelectFile,
                 player.SaveFavorite,
-                player.DeleteFile,
+                (IEnumerable<FileCopyItem> files) => Task.CompletedTask,
+                player.DeleteFile,                
                 player.LoadDirectory,
                 player.NextPage,
                 player.PreviousPage,
