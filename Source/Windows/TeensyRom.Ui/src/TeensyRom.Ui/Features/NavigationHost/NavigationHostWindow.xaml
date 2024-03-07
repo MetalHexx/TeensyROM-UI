@@ -13,12 +13,66 @@
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto" 
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
         xmlns:interactivity="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:shell="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         WindowStartupLocation="CenterScreen"        
         Foreground="White"
         Width="1280" 
-        Height="900">   
+        Height="900">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="50" GlassFrameThickness="0" />
+    </WindowChrome.WindowChrome>
+
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed_Close" />
+        <CommandBinding Command="{x:Static SystemCommands.MaximizeWindowCommand}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed_Maximize" />
+        <CommandBinding Command="{x:Static SystemCommands.MinimizeWindowCommand}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed_Minimize" />
+        <CommandBinding Command="{x:Static SystemCommands.RestoreWindowCommand}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed_Restore" />
+    </Window.CommandBindings>
 
     <Window.Resources>
+        <!--Base style for title bar buttons-->
+        <Style x:Key="CaptionButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="LayoutRoot" Background="{x:Null}" Width="44" Height="50">
+                            <TextBlock x:Name="txt" Text="{TemplateBinding Content}" FontFamily="Segoe MDL2 Assets" FontSize="10" FontWeight="DemiBold" 
+                                Foreground="{StaticResource PrimaryHueLightBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                RenderOptions.ClearTypeHint="Auto" TextOptions.TextRenderingMode="Aliased"  TextOptions.TextFormattingMode="Display"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="LayoutRoot" Property="Background" Value="#E5E5E5"/>
+                                <Setter TargetName="LayoutRoot" Property="Opacity" Value=".3"/>
+                                <Setter TargetName="txt" Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--Minimize-->
+        <Style x:Key="MinimizeButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Content" Value="&#xE949;"/>
+        </Style>
+
+        <!--Maximize-->
+        <Style x:Key="MaximizeButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Content" Value="&#xE739;"/>
+        </Style>
+
+        <!--Restore-->
+        <Style x:Key="RestoreButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Content" Value="&#xE923;"/>
+        </Style>
+
+        <!--Close-->
+        <Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Content" Value="&#xE106;"/>
+        </Style>
+
         <Storyboard x:Key="OpenMenu">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="GridMenu">
                 <EasingDoubleKeyFrame KeyTime="0" Value="60"/>
@@ -33,146 +87,187 @@
         </Storyboard>
     </Window.Resources>
 
-    <materialDesign:DialogHost
-        Identifier="RootDialog"
-        HorizontalAlignment="Stretch"
-        VerticalAlignment="Stretch"
-        CloseOnClickAway="True">
+    <Border x:Name="MainWindowBorder" BorderBrush="{x:Null}" BorderThickness="0" >
+        <Grid x:Name="parentContainer" Background="{DynamicResource MaterialDesignPaper}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height ="Auto"/>
+                <RowDefinition Height ="*"/>
+            </Grid.RowDefinitions>
 
-        <Grid>
+            <!--Window chrome-->
+            <Grid Grid.Row="0" Height="50" Background="{DynamicResource PrimaryHueDarkBrush}" Panel.ZIndex="1">
+                <Grid.Effect>
+                    <DropShadowEffect 
+                        Color="Black" 
+                        Direction="0" 
+                        ShadowDepth="2" 
+                        BlurRadius="10" 
+                        Opacity="0.6"/>
+                </Grid.Effect>
 
-            <Rectangle 
-                Visibility="{Binding IsNavOpen, Converter={StaticResource BoolToVisibilityConvertor}}"
-                x:Name="Overlay" Fill="#66000000" Grid.Row="0" RadiusX="5" RadiusY="5" Margin="0 0 0 0" Panel.ZIndex="1">
-                <interactivity:Interaction.Triggers>
-                    <interactivity:EventTrigger EventName="MouseLeftButtonDown">
-                        <interactivity:InvokeCommandAction Command="{Binding CloseNavCommand}" />
-                    </interactivity:EventTrigger>
-                </interactivity:Interaction.Triggers>
-            </Rectangle>
-
-            <materialDesign:PackIcon Foreground="{DynamicResource PrimaryHueLightBrush}" Kind="ArrowLeft" Width="25" Height="25"/>
-            
-            <StackPanel Orientation="Horizontal" Panel.ZIndex="1">                
-                
-                <Grid x:Name="GridMenu" Width="60" HorizontalAlignment="Left" Background="{DynamicResource MaterialDesignCardBackground}" Opacity="1">
-                    <StackPanel>
-                        <Grid Height="60" Background="{DynamicResource PrimaryHueDarkBrush}">
-
-                            <Button x:Name="ButtonCloseMenu" 
-                                    Command="{Binding CloseNavCommand}"
-                                    Visibility="{Binding IsNavOpen, Converter={StaticResource BoolToVisibilityConvertor}}"
-                                    Width="60" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" VerticalAlignment="Top" HorizontalAlignment="Right" >
-
-                                <materialDesign:PackIcon Foreground="{DynamicResource PrimaryHueLightBrush}" Kind="ArrowLeft" Width="25" Height="25"/>
-                            </Button>
-
-                            <Button x:Name="ButtonOpenMenu"
-                                    Command="{Binding OpenNavCommand}"
-                                    Visibility="{Binding IsNavOpen, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
-                                    Width="60" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" VerticalAlignment="Top" HorizontalAlignment="Right">
-
-                                <materialDesign:PackIcon Foreground="{DynamicResource PrimaryHueLightBrush}" Kind="Menu" Width="25" Height="25"/>
-                            </Button>
-
-                        </Grid>
-
-                        <ItemsControl x:Name="ProfileList" ItemsSource="{Binding NavigationItems}" Foreground="{DynamicResource PrimaryHueLightBrush}" Margin="0 10">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button 
-                                        Command="{Binding ElementName=ProfileList, Path=DataContext.NavigateCommand}" 
-                                        CommandParameter="{Binding}" 
-                                        Style="{StaticResource MaterialDesignFloatingActionButton}" Margin="10 0" HorizontalAlignment="Left" Width="200">
-                                        <Button.Template>
-
-                                            <ControlTemplate>
-                                                <Border Background="Transparent">
-
-                                                    <StackPanel Orientation="Horizontal" 
-                                                            Height="200" Margin="8 10 0 0" 
-                                                            VerticalAlignment="Center" HorizontalAlignment="Left">
-
-                                                        <materialDesign:PackIcon 
-                                                            Kind="{Binding Path=Icon}"  
-                                                            Foreground="{DynamicResource PrimaryHueLightBrush}" 
-                                                            Width="25" Height="25" VerticalAlignment="Center"/>
-
-                                                        <TextBlock Text="{Binding Path=Name}" Foreground="{DynamicResource PrimaryHueLightBrush}" VerticalAlignment="Center" Margin="20"/>
-
-                                                    </StackPanel>
-                                                </Border>
-
-                                            </ControlTemplate>
-                                        </Button.Template>
-                                    </Button>
-
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>                        
-                    </StackPanel>
-                    <TextBlock Text="{Binding Version}" Visibility="{Binding IsNavOpen, Converter={StaticResource BoolToVisibilityConvertor}}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0 0 0 10" Foreground="DarkGray"/>                    
-                </Grid>
-            </StackPanel>
-
-            <Grid Grid.Column="1" Margin="80 20 20 20">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <Grid>
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="150"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding Title}" Style="{StaticResource MainTitle}" Margin="0 -10 0 10" VerticalAlignment="Top" Grid.Column="0"/>
-                    <TextBlock Text="{Binding Version}" HorizontalAlignment="Right" Grid.Column="1" Foreground="DarkGray"/>
+                    <TextBlock Text="{Binding Title}" Style="{StaticResource MainTitle}" FontFamily="Arial" FontSize="24" Margin="20 0 0 0" Grid.Column="0"/>
+                    <TextBlock Text="{Binding Version}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Foreground="DarkGray" Margin="-150 0 0 0"/>
                 </Grid>
 
-                <materialDesign:Card Grid.Row="1" Padding="0 0 0 0" VerticalAlignment="Stretch">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <ContentControl Content="{Binding CurrentViewModel}" Opacity="0" Grid.Row="0" Margin="10">
-                            <ContentControl.Style>
-                                <Style TargetType="ContentControl">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding TriggerAnimation}" Value="True">
-                                            <DataTrigger.EnterActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                 From="0.0" To="1.0" Duration="0:0:0.3"/>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </DataTrigger.EnterActions>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ContentControl.Style>
-                        </ContentControl>
-
-                        <ProgressBar
-                            Visibility="{Binding SerialBusy, Converter={StaticResource BoolToVisibilityConvertor}}"
-                            IsIndeterminate="True"
-                            VerticalAlignment="Bottom"
-                            HorizontalAlignment="Stretch"
-                            Height="5" 
-                            Panel.ZIndex="1"                            
-                            Margin="0">                            
-                        </ProgressBar>
-                        
-                    </Grid>
-                </materialDesign:Card>
-
-                <materialDesign:Snackbar 
-                    MessageQueue="{Binding MessageQueue}" 
-                    Grid.Row="7" VerticalAlignment="Bottom" />
+                <!--Caption buttons-->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
+                    <Button Style="{StaticResource MinimizeButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize"
+                        Command="{x:Static SystemCommands.MinimizeWindowCommand}"/>
+                    <Button x:Name="RestoreButton" Visibility="Collapsed" Style="{StaticResource RestoreButtonStyle}" 
+                        Command="{x:Static SystemCommands.RestoreWindowCommand}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Restore"/>
+                    <Button x:Name="MaximizeButton" Visibility="Visible" Style="{StaticResource MaximizeButtonStyle}" 
+                        Command="{x:Static SystemCommands.MaximizeWindowCommand}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Maximize" />
+                    <Button Style="{StaticResource CloseButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
+                        Command="{x:Static SystemCommands.CloseWindowCommand}"/>
+                </StackPanel>
             </Grid>
 
+            <!--App content-->
+            <Grid Grid.Row="1" x:Name="AppArea">
+                <materialDesign:DialogHost
+                    Identifier="RootDialog"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    CloseOnClickAway="True">
+
+                    <Grid>
+
+                        <Rectangle 
+                            Visibility="{Binding IsNavOpen, Converter={StaticResource BoolToVisibilityConvertor}}"
+                            x:Name="Overlay" Fill="#66000000" Grid.Row="0" RadiusX="5" RadiusY="5" Margin="0 0 0 0" Panel.ZIndex="1">
+                            <interactivity:Interaction.Triggers>
+                                <interactivity:EventTrigger EventName="MouseLeftButtonDown">
+                                    <interactivity:InvokeCommandAction Command="{Binding CloseNavCommand}" />
+                                </interactivity:EventTrigger>
+                            </interactivity:Interaction.Triggers>
+                        </Rectangle>
+
+                        <StackPanel Orientation="Horizontal" Panel.ZIndex="1">
+
+                            <Grid x:Name="GridMenu" Width="60" HorizontalAlignment="Left" Background="{DynamicResource MaterialDesignCardBackground}" Opacity="1" >
+                                <Grid.Effect>
+                                    <DropShadowEffect 
+                                        Color="Black" 
+                                        Direction="0" 
+                                        ShadowDepth="2" 
+                                        BlurRadius="10" 
+                                        Opacity="0.2"/>
+                                </Grid.Effect>
+                                <StackPanel>
+                                    <Grid Height="40">
+                                        <Button x:Name="ButtonCloseMenu" 
+                                            Command="{Binding CloseNavCommand}"
+                                            Visibility="{Binding IsNavOpen, Converter={StaticResource BoolToVisibilityConvertor}}"
+                                            Width="60" Height="60" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" >
+
+                                            <materialDesign:PackIcon Foreground="White" Kind="ArrowLeft" Width="25" Height="25"/>
+                                        </Button>
+
+                                        <Button x:Name="ButtonOpenMenu"
+                                            Command="{Binding OpenNavCommand}"
+                                            Visibility="{Binding IsNavOpen, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
+                                            Width="60" Height="60" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" VerticalAlignment="Top" HorizontalAlignment="Right">
+
+                                            <materialDesign:PackIcon Foreground="White" Kind="Menu" Width="25" Height="25"/>
+                                        </Button>
+
+                                    </Grid>
+
+                                    <ItemsControl x:Name="ProfileList" ItemsSource="{Binding NavigationItems}" Foreground="{DynamicResource PrimaryHueLightBrush}" Margin="0 10">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button 
+                                                    Command="{Binding ElementName=ProfileList, Path=DataContext.NavigateCommand}" 
+                                                    CommandParameter="{Binding}" 
+                                                    Style="{StaticResource MaterialDesignFloatingActionButton}" Margin="10 0" HorizontalAlignment="Left" Width="200">
+                                                    <Button.Template>
+
+                                                        <ControlTemplate>
+                                                            <Border Background="Transparent">
+
+                                                                <StackPanel Orientation="Horizontal" 
+                                                                    Height="200" Margin="8 10 0 0" 
+                                                                    VerticalAlignment="Center" HorizontalAlignment="Left">
+
+                                                                    <materialDesign:PackIcon 
+                                                                        Kind="{Binding Path=Icon}"  
+                                                                        Foreground="{DynamicResource PrimaryHueLightBrush}" 
+                                                                        Width="25" Height="25" VerticalAlignment="Center"/>
+
+                                                                    <TextBlock Text="{Binding Path=Name}" Foreground="{DynamicResource PrimaryHueLightBrush}" VerticalAlignment="Center" Margin="20"/>
+
+                                                                </StackPanel>
+                                                            </Border>
+
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                                <TextBlock Text="{Binding Version}" Visibility="{Binding IsNavOpen, Converter={StaticResource BoolToVisibilityConvertor}}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0 0 0 10" Foreground="DarkGray"/>
+                            </Grid>
+                        </StackPanel>
+
+                        <Grid Grid.Column="1" Margin="80 20 20 20">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <materialDesign:Card Grid.Row="1" Padding="0 0 0 0" VerticalAlignment="Stretch">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <ContentControl Content="{Binding CurrentViewModel}" Opacity="0" Grid.Row="0" Margin="10">
+                                        <ContentControl.Style>
+                                            <Style TargetType="ContentControl">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding TriggerAnimation}" Value="True">
+                                                        <DataTrigger.EnterActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                        From="0.0" To="1.0" Duration="0:0:0.3"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </DataTrigger.EnterActions>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ContentControl.Style>
+                                    </ContentControl>
+
+                                    <ProgressBar
+                                        Visibility="{Binding SerialBusy, Converter={StaticResource BoolToVisibilityConvertor}}"
+                                        IsIndeterminate="True"
+                                        VerticalAlignment="Bottom"
+                                        HorizontalAlignment="Stretch"
+                                        Height="5" 
+                                        Panel.ZIndex="1"                            
+                                        Margin="0">
+                                    </ProgressBar>
+
+                                </Grid>
+                            </materialDesign:Card>
+
+                            <materialDesign:Snackbar 
+                                MessageQueue="{Binding MessageQueue}" 
+                                Grid.Row="7" VerticalAlignment="Bottom" />
+                        </Grid>
+
+                    </Grid>
+                </materialDesign:DialogHost>
+            </Grid>
         </Grid>
-    </materialDesign:DialogHost>
+    </Border>
 </Window>

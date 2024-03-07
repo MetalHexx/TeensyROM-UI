@@ -8,7 +8,7 @@
     <UseWPF>true</UseWPF>
 	<AssemblyVersion>1.0.0.0</AssemblyVersion>
 	<FileVersion>1.0.0.0</FileVersion>
-	<Version>1.0.0-alpha.23</Version>
+	<Version>1.0.0-alpha.24</Version>
   </PropertyGroup>
 
   <ItemGroup>
