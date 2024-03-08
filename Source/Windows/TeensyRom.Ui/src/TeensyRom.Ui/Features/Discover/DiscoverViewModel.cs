@@ -136,7 +136,9 @@ namespace TeensyRom.Ui.Features.Discover
 
                 var libs = _settings.Libraries.Where(lib => lib.Type is not TeensyLibraryType.Hex);
 
-                LibraryFilter = new LibraryFilterViewModel(libs, (library) => context.SwitchLibrary(library));
+                var prevLib = LibraryFilter?.SelectedLibrary;
+
+                LibraryFilter = new LibraryFilterViewModel(libs, prevLib, (library) => context.SwitchLibrary(library));
 
                 var libPath = s.Libraries.FirstOrDefault(l => l.Type == _viewConfig.LibraryType)?.Path ?? "";
 
