@@ -92,14 +92,18 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
         private void SubscribeToStateObservables()
         {
-            _settingsSubscription = _settingsService.Settings
+            _settingsService.Settings
+                .Where(settings => settings is not null)
+                .Take(1)
+                .Subscribe(settings => _currentLibrary = settings.Libraries.First(lib => lib.Type == _config.LibraryType));
+
+            _settingsSubscription = _settingsService.Settings                
                 .Do(settings => _settings = settings)
-                .Do(settings => _currentLibrary = settings.Libraries.First(lib => lib.Type == _config.LibraryType))
                 .CombineLatest(_serialContext.CurrentState, _nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
                 .Where(state => state.serial is SerialConnectedState)
                 .Where(state => state.navView?.Type == _config.NavigationLocation)
+                .DistinctUntilChanged(state => string.Join("", state.settings.Libraries.Select(lib => lib.Path)))
                 .Select(state => (path: _currentLibrary.Path, state.settings.TargetType))
-                .DistinctUntilChanged()
                 .Select(storage => storage.path)
                 .Do(path => _tree.ResetDirectoryTree(path))                
                 .Subscribe(async path => await LoadDirectory(path));
