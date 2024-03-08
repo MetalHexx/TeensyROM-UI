@@ -14,12 +14,14 @@ namespace TeensyRom.Ui.Controls.LibraryFilter
     public class LibraryFilterViewModel : ReactiveObject
     {
         [Reactive] public ObservableCollection<TeensyLibrary> Libraries { get; set; }
+        [Reactive] public TeensyLibrary SelectedLibrary { get; set; }
         public ReactiveCommand<TeensyLibrary, Unit> FilterCommand { get; }
         public LibraryFilterViewModel(IEnumerable<TeensyLibrary> libraries, Func<TeensyLibrary, Task> filterFunc)
         {
             Libraries = new ObservableCollection<TeensyLibrary>(libraries);
             FilterCommand = ReactiveCommand.CreateFromTask<TeensyLibrary, Unit>(async lib => 
             {
+                SelectedLibrary = lib;
                 await filterFunc(lib);
                 return Unit.Default;
             });

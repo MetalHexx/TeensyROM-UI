@@ -34,7 +34,14 @@ namespace TeensyRom.Ui.Controls.LibraryFilter
             var parentDataContext = this.DataContext;
             var viewModel = parentDataContext as LibraryFilterViewModel;
 
-            if (viewModel != null && radioButton.DataContext == viewModel.Libraries.FirstOrDefault())
+            if (viewModel == null) return;
+
+            if (viewModel.SelectedLibrary is not null && radioButton.DataContext == viewModel.SelectedLibrary)
+            {
+                radioButton.IsChecked = true;
+                return;
+            }
+            if (viewModel.SelectedLibrary is null && radioButton.DataContext == viewModel.Libraries.FirstOrDefault())
             {
                 radioButton.IsChecked = true;
             }
