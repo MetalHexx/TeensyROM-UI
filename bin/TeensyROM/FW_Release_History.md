@@ -1,6 +1,75 @@
 
 # FW Release Version history:
 
+
+### 0.5.13 sub-release 3/6/24
+* NFC Loading System Updates:
+  * Tag write improvements:
+    * Prompt to remove nfc tag after writing to prevent auto-execute
+    * General messaging clarification
+    * Checks card type to reject Mifare Classic
+    * Always re-init and clear last UID after write operation
+    * Retries on tag verification read before write
+  * NFC re-initialized (if enabled) on menu button press
+    * Easier way to force init than power cycle, also insures reader stays in synch
+    * Note: If NFC is enabled but not attached to USB, power-up and button pushes will be slow to respond
+  * Check for "C64" at start of path and remove if path not present.  
+    * Keeps compatibility with TapTo w/ System ID
+  
+### 0.5.12 sub-release 2/23/24
+* New feature: NFC Loading System!
+  * Use NFC tags to instantly launch you CRTs/PRGs/SIDs/etc.
+  * Write new tags right from your C64
+  * See documentation [here](/docs/NFC_Loader.md).
+  * A huge thank you to [**StatMat**](https://github.com/Stat-Mat) for sharing his vision and support
+  * Thanks also to the TapTo project for the inspiration! 
+* General updates
+  * Skipping RAM test at boot for faster boot and reduced screen garbage time.
+    * As used in the OneLoad64 collection, code provided by [**StatMat**](https://github.com/Stat-Mat)
+  * EEPROM setting reset to defaults
+    * Hold menu button for 10 seconds until LED starts flashing
+    * Upon release, setting will be reset and TeensyROM is rebooted
+  * Settings Menu 
+    * "Reboot TeensyROM" option to apply changed defaults without power-cycle
+    * "NFC Enabled" to enable attached NFC reader
+    * "RW Ready Dly" to improve Hi-ROM game graphics on Reloaded MKII and C64c
+      * Thanks to **alterationx10** for the testing!
+    * Free RAM now displayed to indicate max CRT file size
+  * YYZ.sid edited to *not* zero out time registers on SID init
+    * Thank you to **][avok** for reporting this issue
+* Remote Launch UI support updates
+  * Readback game preview file additions by [**MetalHexx**](https://github.com/MetalHexx)
+
+### 0.5.11 sub-release 2/6/24
+* New feature: Picture viewer
+  * Koala multi-color and Art Studio Hi-res files viewable/supported
+  * File Extension association:
+    * .kla, .koa:  Koala multi-color
+    * .art, .aas, .hpi: Art Studio Hi-Res
+  * Compatible with output from [Retropixels online](https://www.micheldebree.nl/retropixels/)
+    * Create a C64 viewable file from any source format:
+      * Drag source picture in to Retropixels site
+      * Adjust picture parameters & types
+      * Save as Koala Painter or Art Studio
+      * Transfer to TeensyROM SD or USB and select to view
+  * Commands available while viewing:
+    * '+' & '-' to view next/prev picture in directory
+    * CRSR Up/Dn to change border color (+multicolor background)
+    * Any other key to exit viewer
+  * Added /Pictures dir to Main TR Menu w/ 16 sample pics
+* Swiftlink/Browser updates:
+  * Entity References now detected/parsed
+    * \&gt; ('>') and \&nbsp; (' ') implemented
+    * Other ERs ignored for now
+  * HTML tag \<tr> = return added
+* Remote Launch support updates
+  * BadSIDToken sent on SID load error
+* General/Housekeeping:
+  * Updated nS_DataHold time from 350 to 365 to accommodate Reloaded MK2 board
+    * Thanks to **alterationx10** for the testing!
+  * Timing control via serial improvement (Dbg_SerTimChg)
+  * Removed 2 redundant pic .prgs (Fractal/Emb Head)
+
 ### 0.5.10 sub-release 1/13/23
 * SID Player updates:
   * SID conflict check range reduced to $6000-70ff, set on compile

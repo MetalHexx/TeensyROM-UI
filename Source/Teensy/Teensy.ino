@@ -42,6 +42,7 @@ uint16_t NumDrvDirMenuItems = 0;
 char DriveDirPath[MaxPathLength];
 uint16_t LOROM_Mask, HIROM_Mask;
 bool RemoteLaunched = false; //last app was launched remotely
+bool nfcEnabled = false; //default disabled unless set in eeprom and passes init
 
 extern "C" uint32_t set_arm_clock(uint32_t frequency);
 extern float tempmonGetTemp(void);
@@ -71,7 +72,7 @@ void setup()
    NVIC_SET_PRIORITY(IRQ_GPIO6789,16); //set HW ints as high priority, otherwise ethernet int timer causes misses
    
    myusbHost.begin(); // Start USBHost_t36, HUB(s) and USB devices.
-
+ 
    uint32_t MagNumRead;
    EEPROM.get(eepAdMagicNum, MagNumRead);
    if (MagNumRead != eepMagicNum) SetEEPDefaults();
@@ -97,8 +98,15 @@ void setup()
 
    StrSIDInfo = (char*)calloc(StrSIDInfoSize, sizeof(char)); //SID header info storage
    BigBuf = (uint32_t*)malloc(BigBufSize*sizeof(uint32_t));
-   MakeBuildCPUInfoStr();
-   Serial.printf("\n%sTeensyROM %s is on-line\n", SerialStringBuf, strVersionNumber);
+   MakeBuildInfo();
+   Serial.printf("\n%s\nTeensyROM %s is on-line\n", SerialStringBuf, strVersionNumber);
+
+#ifdef nfcScanner
+   if (IO1[rwRegPwrUpDefaults] & rpudNFCEnabled) nfcInit(); //connect to nfc scanner
+#endif
+
+   if (IO1[rwRegPwrUpDefaults] & rpudRWReadyDly) nS_RWnReady = Def_nS_RWnReady_dly; //delay RW read timing
+
 } 
      
 void loop()
@@ -116,6 +124,9 @@ void loop()
          RemoteLaunched = false;
          Printf_dbg("Remote recovery\n"); 
       }   
+   #ifdef nfcScanner
+      if (IO1[rwRegPwrUpDefaults] & rpudNFCEnabled) nfcInit(); //connect to nfc scanner
+   #endif
       SetUpMainMenuROM(); //back to main menu
    }
    
@@ -125,7 +136,24 @@ void loop()
       Serial.println("Resetting C64"); 
       Serial.flush();
       delay(50); 
-      while(ReadButton==0); //avoid self reset detection
+      uint32_t NextInterval = 10000, beginWait = millis();
+      bool LEDState = true, DefEEPReboot = false;
+      while(ReadButton==0)
+      {  //avoid self reset detection, check for long press
+         if(millis()-beginWait > NextInterval)
+         {
+            DefEEPReboot = true;
+            NextInterval += 150;
+            LEDState = !LEDState;
+            if (LEDState) SetLEDOn;
+            else SetLEDOff;
+         }
+      }
+      if (DefEEPReboot)
+      {
+         SetEEPDefaults();
+         REBOOT;
+      }
       doReset=false;
       BtnPressed = false;
       SetResetDeassert;
@@ -133,6 +161,9 @@ void loop()
   
    if (Serial.available()) ServiceSerial();
    myusbHost.Task();
+#ifdef nfcScanner
+   if (nfcEnabled) nfcCheck();
+#endif
    
    //handler specific polling items:
    if (IOHandler[CurrentIOHandler]->PollingHndlr != NULL) IOHandler[CurrentIOHandler]->PollingHndlr();
@@ -150,7 +181,7 @@ void SetUpMainMenuROM()
    NVIC_ENABLE_IRQ(IRQ_ENET); //make sure ethernet interrupt is back on
    NVIC_ENABLE_IRQ(IRQ_PIT);
    EmulateVicCycles = false;
-   
+
    FreeCrtChips();
    FreeSwiftlinkBuffs();
    RedirectEmptyDriveDirMenu();
@@ -191,7 +222,7 @@ void EEPreadStr(uint16_t addr, char* buf)
 void SetEEPDefaults()
 {
    Serial.println("--> Setting EEPROM to defaults");
-   EEPROM.write(eepAdPwrUpDefaults, 0x90 /* | rpudSIDPauseMask  | rpudNetTimeMask */); //default med js speed, music on, eth time synch off
+   EEPROM.write(eepAdPwrUpDefaults, 0x90); //default med js speed, music on, eth time synch off, NFC off, RW delay off
    EEPROM.write(eepAdTimezone, -14); //default to pacific time
    EEPROM.write(eepAdNextIOHndlr, IOH_None); //default to no Special HW
    SetEthEEPDefaults();

@@ -35,11 +35,8 @@
 Start:
 
 ;screen setup:     
-   lda #BorderColor
-   sta BorderColorReg
-   lda #BackgndColor
-   sta BackgndColorReg
-   
+   jsr TextScreenMemColor
+  
 !ifndef Debug {
 ;check for HW:
    lda rRegPresence1+IO1Port
@@ -236,6 +233,12 @@ ReadKeyboard:
    jsr ListMenuItems ; reprint menu
    jmp HighlightCurrent 
 
++  cmp #ChrLeftArrow ;Write NFC Tag
+   bne +  
+   jsr WriteNFCTag
+   jsr ListMenuItems ; reprint menu
+   jmp HighlightCurrent 
+
 +  cmp #ChrHome ;top of directory
    bne +  
    lda #1  ;first page
@@ -421,6 +424,8 @@ smcIRQFlagged
 +  cmp #ricmdLaunch
    bne -    ;no command or false irq
 
+   jsr TextScreenMemColor  ;make sure we're in text mode:
+
    ;launch app set up by TR
    jsr RunSelected  ;start TR selected app...
    
@@ -453,10 +458,11 @@ RunSelected:
    jmp ListAndDone
 
 +  cmp #rtNone ;do nothing for 'none' type
-   beq AllDone 
+   bne + 
+   rts
    
    ;any type except None and sub-dir, clear screen and stop interrupts
-   pha ;store the type
++  pha ;store the type
    jsr IRQDisable  ;turn off interrupt (also stops SID playback, if on)
    jsr PrintBanner ;clear screen for messaging for remaining types:
    lda #NameColor
@@ -508,8 +514,16 @@ RunSelected:
    jsr ShowSIDInfoPage
    jmp ListAndDone  
     
-    
-   ;not a dir, "none", hex file, or SID, try to start/execute
++  cmp #rtFileKla  ;check for Koala file selected
+   bne +
+-- jsr LoadViewKoala
+   jmp ListAndDone  
+
++  cmp #rtFileArt  ;check for Hi-res art file selected
+   beq --
+
+   
+   ;not a dir, "none", hex file, Koala, or SID, try to start/execute
 +  jsr StartSelItem_WaitForTRDots ;if it's a ROM/crt image, it won't return from this unless error
 
    lda rRegStrAvailable+IO1Port 
@@ -521,7 +535,6 @@ RunSelected:
    
 ListAndDone
    jsr ListMenuItems ; reprint menu
-AllDone
    rts
 
 
@@ -550,6 +563,7 @@ AnyKeyErrMsgWait:
    lda #rpudSIDPauseMask    ;Pause SID playback on error
    sta smcSIDPauseStop+1
    jsr IRQEnable  ;turn on IRQ
+AnyKeyMsgWait:
    lda #<MsgAnyKey  ;wait for any key to continue 
    ldy #>MsgAnyKey
    jsr PrintString 
@@ -575,7 +589,7 @@ WaitForTRWaitMsg:  ;Print Waiting message in upper right and waits
    ldy #$ff ;don't print dots
 WaitForTRMain   ;Main wait loop
    ;!ifndef Debug {   ;} 
-   inc ScreenCharMemStart+40*2-2 ;spinner @ top-1, right-1
+   inc C64ScreenRAM+40*2-2 ;spinner @ top-1, right-1
    cpy #$ff
    beq +    ;skip dot printing if wait message selected
    cpy TODSecBCD  ;no latch/unlatch needed for only reading seconds
@@ -767,30 +781,191 @@ WaitHelpMenuKey:
 MenuChangeInit:  ;changing menu source.  Prep: Load acc with menu to change to
    sta rWRegCurrMenuWAIT+IO1Port  ;must wait on a write (load dir)
    jsr WaitForTRWaitMsg
+rets
    rts
 
+LoadViewKoala:
+   ;Koala file is highlighted/detected before calling
+   ; acc pre-loaded with ItemType
+   cmp #rtFileArt  ;check for Hi-res art file selected
+   bne +
+   ldx #<ARTBorder
+   ldy #>ARTBorder
+   lda #$c8
+   jmp ++
++  ldx #<KLABackground ;otherwise assume multi-color
+   ldy #>KLABackground
+   lda #$d8
+++ stx smcPicBackgroundSource+1
+   sty smcPicBackgroundSource+2
+   sta smcPicVICCtlSet+1
+   
+   jsr StartSelItem_WaitForTRDots ;Tell Teensy to check file and prep for xfer
+   
+   ;force SID to stay paused (may have been overwritten)
+   lda #$ff      ;rpudSIDPauseMask  ;disable SID playback, all bits don't allow un-pause until reload
+   sta smcSIDPauseStop+1
+   
+   jsr FastLoadFile ;check for error and load file to C64 RAM
+   bne rets  ;zero flag clear if an error occured, jump to rts from 
+
+smcPicBackgroundSource
+   lda KLABackground
+   sta BackgndColorReg  ;set vic background color
+   sta BorderColorReg   ;set border color to same
+
+   ;copy color and screen data to their final locations:
+   ldx #$00
+-  lda KLAColorRAM       ,x
+   sta C64ColorRAM       ,x
+   lda KLAColorRAM + $100,x
+   sta C64ColorRAM + $100,x
+   lda KLAColorRAM + $200,x
+   sta C64ColorRAM + $200,x
+   lda KLAColorRAM + $300,x
+   sta C64ColorRAM + $300,x
+
+   lda KLAScreenRAM       ,x
+   sta C64ScreenRAM       ,x
+   lda KLAScreenRAM + $100,x
+   sta C64ScreenRAM + $100,x
+   lda KLAScreenRAM + $200,x
+   sta C64ScreenRAM + $200,x
+   lda KLAScreenRAM + $300,x
+   sta C64ScreenRAM + $300,x
+
+   dex
+   bne -
+
+   lda #$18   
+   sta $d018  ;set vic bitmap screen data offset to 8k ($2000)
+smcPicVICCtlSet
+   lda #$d8    
+   sta $d016  ;turn on vic multi-color  or hi-res mode
+   lda #$3b    
+   sta $d011  ;bit 5 ($20) turns on bitmap graphics mode
+
+   jsr IRQEnable  ;re-start the IRQ wedge
+-  jsr CheckForIRQGetIn ;read key/IRQ
+   beq -  
+   ;a key was pressed
+   
+   cmp #ChrCRSRUp
+   bne +
+   inc BackgndColorReg 
+   inc BorderColorReg  
+   jmp -
+   
++  cmp #ChrCRSRDn
+   bne +
+   dec BackgndColorReg 
+   dec BorderColorReg  
+   jmp -
+   
++  cmp #'-'
+   bne +  
+   lda #rCtlLastPicture 
+CtlWaitReprint
+   sta wRegControl+IO1Port
+   lda #$00    
+   sta $d011   ;turn off the display   
+   jsr PrintBanner ;clear screen for messaging
+   lda #NameColor
+   jsr SendChar
+   jsr WaitForTRDots
+   lda rRegItemTypePlusIOH+IO1Port ;Read Item type selected
+   and #$7f  ;bit 7 indicates an assigned IOHandler, we don't care here
+   jmp LoadViewKoala
+   
++  cmp #'+'
+   bne +
+   lda #rCtlNextPicture 
+   jmp CtlWaitReprint
+   
+   ;any other key, just exit...
++  jsr TextScreenMemColor
+   rts
+
+TextScreenMemColor:
+   ;vic/bitmap back to default for text:
+   ;jsr $fda3   ;initialise sid, cia and irq
+   ;jsr $e5a0   ;initialize the vic
+   lda #$17  ;Lower case
+   sta $d018 
+   lda #$c8  
+   sta $d016 
+   lda #$1b  
+   sta $d011 
+   
+   ;set screen and border colors back
+   lda #BorderColor
+   sta BorderColorReg
+   lda #BackgndColor
+   sta BackgndColorReg
+   rts
+
+WriteNFCTag:
+   jsr PrintBanner
+   lda #<MsgWriteNFCTag
+   ldy #>MsgWriteNFCTag
+   jsr PrintString 
+
+   lda #rCtlWriteNFCTagCheckWAIT
+   sta wRegControl+IO1Port
+   jsr WaitForTRDots
+
+   ;error or ready to write?
+   lda rRegLastHourBCD+IO1Port ;using this reg as scratch to communicate outcome
+   beq +  ;skip to end if error
+
+   ;prompt to place card
+   lda #<MsgPlaceNFCTag
+   ldy #>MsgPlaceNFCTag
+   jsr PrintString 
+   
+-  jsr CheckForIRQGetIn ;read key/IRQ
+   beq -  
+   
+   lda #rCtlWriteNFCTagWAIT
+   sta wRegControl+IO1Port
+   jsr WaitForTRDots
+   
+   ;Error may have occured, but   
+   ;Wait for tag removal either way
++  lda #<MsgRemoveNFCTag
+   ldy #>MsgRemoveNFCTag
+   jsr PrintString 
+   jsr AnyKeyMsgWait
+
+   ;re-enable NFC
+   lda #rCtlNFCReEnableWAIT
+   sta wRegControl+IO1Port
+   jsr WaitForTRDots
+
+   rts
+   
 TblRowToMemLoc:
-   !word ScreenCharMemStart+40*(3+ 0)-1
-   !word ScreenCharMemStart+40*(3+ 1)-1
-   !word ScreenCharMemStart+40*(3+ 2)-1
-   !word ScreenCharMemStart+40*(3+ 3)-1
-   !word ScreenCharMemStart+40*(3+ 4)-1
-   !word ScreenCharMemStart+40*(3+ 5)-1
-   !word ScreenCharMemStart+40*(3+ 6)-1
-   !word ScreenCharMemStart+40*(3+ 7)-1
-   !word ScreenCharMemStart+40*(3+ 8)-1
-   !word ScreenCharMemStart+40*(3+ 9)-1
-   !word ScreenCharMemStart+40*(3+10)-1
-   !word ScreenCharMemStart+40*(3+11)-1
-   !word ScreenCharMemStart+40*(3+12)-1
-   !word ScreenCharMemStart+40*(3+13)-1
-   !word ScreenCharMemStart+40*(3+14)-1
-   !word ScreenCharMemStart+40*(3+15)-1
-   !word ScreenCharMemStart+40*(3+16)-1
-   !word ScreenCharMemStart+40*(3+17)-1
-   !word ScreenCharMemStart+40*(3+18)-1
-   !word ScreenCharMemStart+40*(3+19)-1
-   !word ScreenCharMemStart+40*(3+20)-1
+   !word C64ScreenRAM+40*(3+ 0)-1
+   !word C64ScreenRAM+40*(3+ 1)-1
+   !word C64ScreenRAM+40*(3+ 2)-1
+   !word C64ScreenRAM+40*(3+ 3)-1
+   !word C64ScreenRAM+40*(3+ 4)-1
+   !word C64ScreenRAM+40*(3+ 5)-1
+   !word C64ScreenRAM+40*(3+ 6)-1
+   !word C64ScreenRAM+40*(3+ 7)-1
+   !word C64ScreenRAM+40*(3+ 8)-1
+   !word C64ScreenRAM+40*(3+ 9)-1
+   !word C64ScreenRAM+40*(3+10)-1
+   !word C64ScreenRAM+40*(3+11)-1
+   !word C64ScreenRAM+40*(3+12)-1
+   !word C64ScreenRAM+40*(3+13)-1
+   !word C64ScreenRAM+40*(3+14)-1
+   !word C64ScreenRAM+40*(3+15)-1
+   !word C64ScreenRAM+40*(3+16)-1
+   !word C64ScreenRAM+40*(3+17)-1
+   !word C64ScreenRAM+40*(3+18)-1
+   !word C64ScreenRAM+40*(3+19)-1
+   !word C64ScreenRAM+40*(3+20)-1
    ; check MaxItemsPerPage
    
    

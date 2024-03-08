@@ -31,7 +31,7 @@ FLASHMEM void ServiceSerial()
          //only commands available when busy:
          if (inVal == ResetC64Token) //Reset C64
          {
-            Serial.println("Reset cmd received");
+            Serial.println("Reset cmd received");  //UI looks for this string, do not change.
             BtnPressed = true;
             return;
          }
@@ -76,7 +76,10 @@ FLASHMEM void ServiceSerial()
                break;
             case DebugToken: //'dg'Test/debug
                //for (int a=0; a<256; a++) Serial.printf("\n%3d, // %3d   '%c'", ToPETSCII(a), a, a);
-               PrintDebugLog();
+               //PrintDebugLog();
+               #ifdef nfcScanner
+                  nfcInit();
+               #endif
                break;
             default:
                Serial.printf("Unk cmd: 0x%04x\n", inVal); 
@@ -88,19 +91,22 @@ FLASHMEM void ServiceSerial()
          Serial.println("Applied upon reboot");
          break;
 
-   // l, c, i, f, x
-   #ifdef Dbg_SerLogMem 
+   // l, c
+   #ifdef Dbg_SerLog 
       case 'l':  //Show Debug Log
          PrintDebugLog();
          break;
       case 'c': //Clear Debug Log buffer
          BigBufCount = 0;
          Serial.println("Buffer Reset");
-         break;
-      case 'i':
+         break;       
+   #endif
+         
+   // f, x
+   #ifdef Dbg_SerMem 
       case 'f': //show build info+free mem.  Menu must be idle, interferes with any serialstring in progress
          {
-            MakeBuildCPUInfoStr();
+            MakeBuildInfo();
             Serial.println("\n***** Build & Mem info *****");
             Serial.println(SerialStringBuf);
             Serial.printf("RAM2 Bytes Free: %lu (%luK)\n\n", RAM2BytesFree(), RAM2BytesFree()/1024);
@@ -143,18 +149,24 @@ FLASHMEM void ServiceSerial()
             Serial.printf("TeensyROMMenu/sub Items: %d (%dk) of Flash\n\n", TotalSize, TotalSize/1024);
          }
          break;
-      case 'x':
-         { //see how many 8k banks will fit in RAM2
-            char *ptrChip[70]; //64 8k blocks would be 512k (size of RAM2)
-            uint16_t ChipNum = 0;
-            while(1)
-            {
-               ptrChip[ChipNum] = (char *)malloc(8192);
-               if (ptrChip[ChipNum] == NULL) break;
-               ChipNum++;
-            } 
-            for(uint16_t Cnt=0; Cnt < ChipNum; Cnt++) free(ptrChip[Cnt]);
-            Serial.printf("Created/freed %d  8k blocks (%dk total) in RAM2\n", ChipNum, ChipNum*8);
+      case 'x': 
+         { 
+            FreeDriveDirMenu(); //Will mess up navigation if not on TR menu!
+            
+            uint32_t CrtMax = (RAM_ImageSize & 0xffffe000)/1024; //round down to k bytes rounded to nearest 8k
+            Serial.printf("\n\nRAM1 Buff: %luK (%lu blks)\n", CrtMax, CrtMax/8);
+            
+            //uint32_t RAM2Free = (RAM2BytesFree() & 0xffffe000)/1024; //round down to k bytes rounded to nearest 8k
+            //Serial.printf("RAM2 Free: %luK (%lu blks)\n", RAM2Free, RAM2Free/8);
+            
+            uint8_t NumChips = RAM2blocks();
+            //Serial.printf("RAM2 Blks: %luK (%lu blks)\n", NumChips*8, NumChips);
+            NumChips = RAM2blocks()-1; //do it again, sometimes get one more, minus one to match reality, not clear why
+            Serial.printf("RAM2 Blks: %luK (%lu blks)\n", NumChips*8, NumChips);
+           
+            CrtMax += NumChips*8;
+            Serial.printf("  CRT Max: %luK (%lu blks) ~%luK file\n", CrtMax, CrtMax/8, (uint32_t)(CrtMax*1.004));
+            //larger File size due to header info.
          }
          break;
    #endif
@@ -245,6 +257,7 @@ FLASHMEM void ServiceSerial()
    // t...
    #ifdef Dbg_SerTimChg
       case 't': //timing commands, 2 letters and 3-4 numbers
+         Serial.printf("-----\n");
          switch (Serial.read())
          {
             case 'm': //nS_MaxAdj change
@@ -265,16 +278,28 @@ FLASHMEM void ServiceSerial()
             case 'v': //VIC timing change
                GetDigits(3, &nS_VICStart);
                break;
+            case 'd': //Set Defaults
+               nS_MaxAdj    = Def_nS_MaxAdj; 
+               nS_RWnReady  = Def_nS_RWnReady;  
+               nS_PLAprop   = Def_nS_PLAprop;  
+               nS_DataSetup = Def_nS_DataSetup;  
+               nS_DataHold  = Def_nS_DataHold;  
+               nS_VICStart  = Def_nS_VICStart;  
+               Serial.printf("Defaults set\n");
+               break;
             default:
                Serial.printf("No changes\n");
                break;
          }
-         Serial.printf("   nS_MaxAdj(tm) %04d\n", nS_MaxAdj);
-         Serial.printf(" nS_RWnReady(tr)  %03d\n", nS_RWnReady);
-         Serial.printf("  nS_PLAprop(tp)  %03d\n", nS_PLAprop);
-         Serial.printf("nS_DataSetup(ts)  %03d\n", nS_DataSetup);
-         Serial.printf(" nS_DataHold(th)  %03d\n", nS_DataHold);
-         Serial.printf(" nS_VICStart(tv)  %03d\n", nS_VICStart);
+         Serial.printf("Current:    Variable  Val (Command)\n");
+         Serial.printf("\t   nS_MaxAdj %04d (tm####)\n", nS_MaxAdj);
+         Serial.printf("\t nS_RWnReady  %03d (tr###)\n", nS_RWnReady);
+         Serial.printf("\t  nS_PLAprop  %03d (tp###)\n", nS_PLAprop);
+         Serial.printf("\tnS_DataSetup  %03d (ts###)\n", nS_DataSetup);
+         Serial.printf("\t nS_DataHold  %03d (th###)\n", nS_DataHold);
+         Serial.printf("\t nS_VICStart  %03d (tv###)\n", nS_VICStart);
+         Serial.printf("\tSet Defaults      (td)\n");
+         Serial.printf("\tList current vals (t)\n-----\n");
          break;  
    #endif
    
@@ -383,8 +408,9 @@ FLASHMEM void LaunchFile()
    //Teensy: AckToken 0x64CC
    //   App: Send SD_nUSB(1), DestPath/Name(up to MaxNamePathLength, null term)
    //Teensy: AckToken 0x64CC
+   //   C64: file Launches
 
-   //Launch file token has been received, only 2 byte responses until after final response
+   //Launch file token has been received
    SendU16(AckToken);
 
    uint32_t SD_nUSB;
@@ -464,7 +490,6 @@ uint32_t RAM2BytesFree()
 // https://forum.pjrc.com/threads/33443-How-to-display-free-ram
 // https://www.pjrc.com/store/teensy41.html#memory
 
-#define printf Serial.printf
 #if ARDUINO_TEENSY41
   extern "C" uint8_t external_psram_size;
 #endif
@@ -491,51 +516,51 @@ FLASHMEM void memInfo ()
 
   auto sp = (char*) __builtin_frame_address(0);
 
-  printf("MemInfo:\n");
-  printf("_stext        %08x\n",      _stext);
-  printf("_etext        %08x +%db\n", _etext, _etext - _stext);
-  printf("_sdata        %08x\n",      _sdata);
-  printf("_edata        %08x +%db\n", _edata, _edata - _sdata);
-  printf("_sbss         %08x\n",      _sbss);
-  printf("_ebss         %08x +%db\n", _ebss, _ebss - _sbss);
-  printf("curr stack    %08x +%db\n", sp, sp - _ebss);
-  printf("_estack       %08x +%db\n", _estack, _estack - sp);
-  printf("_heap_start   %08x\n",      _heap_start);
-  printf("__brkval      %08x +%db\n", __brkval, __brkval - _heap_start);
-  printf("_heap_end     %08x +%db\n", _heap_end, _heap_end - __brkval);
+  Serial.printf("MemInfo:\n");
+  Serial.printf("_stext        %08x\n",      _stext);
+  Serial.printf("_etext        %08x +%db\n", _etext, _etext - _stext);
+  Serial.printf("_sdata        %08x\n",      _sdata);
+  Serial.printf("_edata        %08x +%db\n", _edata, _edata - _sdata);
+  Serial.printf("_sbss         %08x\n",      _sbss);
+  Serial.printf("_ebss         %08x +%db\n", _ebss, _ebss - _sbss);
+  Serial.printf("curr stack    %08x +%db\n", sp, sp - _ebss);
+  Serial.printf("_estack       %08x +%db\n", _estack, _estack - sp);
+  Serial.printf("_heap_start   %08x\n",      _heap_start);
+  Serial.printf("__brkval      %08x +%db\n", __brkval, __brkval - _heap_start);
+  Serial.printf("_heap_end     %08x +%db\n", _heap_end, _heap_end - __brkval);
   
 #if ARDUINO_TEENSY41
   extern char _extram_start[], _extram_end[], *__brkval;
-  printf("_extram_start %08x\n",      _extram_start);
-  printf("_extram_end   %08x +%db\n", _extram_end,
+  Serial.printf("_extram_start %08x\n",      _extram_start);
+  Serial.printf("_extram_end   %08x +%db\n", _extram_end,
          _extram_end - _extram_start);
 #endif
-  printf("\n");
+  Serial.printf("\n");
 
-  printf("<ITCM>  %08x .. %08x\n",
+  Serial.printf("<ITCM>  %08x .. %08x\n",
          _stext, _stext + ((int) _itcm_block_count << 15) - 1);
-  printf("<DTCM>  %08x .. %08x\n",
+  Serial.printf("<DTCM>  %08x .. %08x\n",
          _sdata, _estack - 1);
-  printf("<RAM>   %08x .. %08x\n",
+  Serial.printf("<RAM>   %08x .. %08x\n",
          RAM_BASE, RAM_BASE + RAM_SIZE - 1);
-  printf("<FLASH> %08x .. %08x\n",
+  Serial.printf("<FLASH> %08x .. %08x\n",
          FLASH_BASE, FLASH_BASE + FLASH_SIZE - 1);
 #if ARDUINO_TEENSY41
   if (external_psram_size > 0)
-    printf("<PSRAM> %08x .. %08x\n",
+    Serial.printf("<PSRAM> %08x .. %08x\n",
            _extram_start, _extram_start + (external_psram_size << 20) - 1);
 #endif
-  printf("\n");
+  Serial.printf("\n");
 
   auto stack = sp - _ebss;
-  printf("avail STACK (RAM1) %8d b %5d kb\n", stack, stack >> 10);
+  Serial.printf("avail STACK (RAM1) %8d b %5d kb\n", stack, stack >> 10);
 
   auto heap = _heap_end - __brkval;
-  printf("avail HEAP  (RAM2) %8d b %5d kb\n", heap, heap >> 10);
+  Serial.printf("avail HEAP  (RAM2) %8d b %5d kb\n", heap, heap >> 10);
 
 #if ARDUINO_TEENSY41
   auto psram = _extram_start + (external_psram_size << 20) - _extram_end;
-  printf("avail PSRAM (ext)  %8d b %5d kb\n", psram, psram >> 10);
+  Serial.printf("avail PSRAM (ext)  %8d b %5d kb\n", psram, psram >> 10);
 #endif
 }
 
@@ -551,11 +576,11 @@ FLASHMEM void  getFreeITCM() { // end of CODE ITCM, skip full 32 bits
   sizeofFreeITCM = SizeLeft_etext - 4;
   sizeofFreeITCM /= sizeof(ptrFreeITCM[0]);
   ptrFreeITCM = (uint32_t *) ( (uint32_t)&_stext + (uint32_t)&_etext + 4 );
-  printf( "Size of Free ITCM in Bytes = %u\n", sizeofFreeITCM * sizeof(ptrFreeITCM[0]) );
-  printf( "Start of Free ITCM = %u [%X] \n", ptrFreeITCM, ptrFreeITCM);
-  printf( "End of Free ITCM = %u [%X] \n", ptrFreeITCM + sizeofFreeITCM, ptrFreeITCM + sizeofFreeITCM);
+  Serial.printf( "Size of Free ITCM in Bytes = %u\n", sizeofFreeITCM * sizeof(ptrFreeITCM[0]) );
+  Serial.printf( "Start of Free ITCM = %u [%X] \n", ptrFreeITCM, ptrFreeITCM);
+  Serial.printf( "End of Free ITCM = %u [%X] \n", ptrFreeITCM + sizeofFreeITCM, ptrFreeITCM + sizeofFreeITCM);
   for ( uint32_t ii = 0; ii < sizeofFreeITCM; ii++) ptrFreeITCM[ii] = 1;
   uint32_t jj = 0;
   for ( uint32_t ii = 0; ii < sizeofFreeITCM; ii++) jj += ptrFreeITCM[ii];
-  printf( "ITCM DWORD cnt = %u [#bytes=%u] \n", jj, jj*4);
+  Serial.printf( "ITCM DWORD cnt = %u [#bytes=%u] \n", jj, jj*4);
 }

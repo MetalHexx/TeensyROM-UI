@@ -39,12 +39,12 @@ void HandleExecution()
    }
    
    FS *sourceFS = &firstPartition;
-   switch(IO1[rWRegCurrMenuWAIT])
-   {
+   switch(IO1[rWRegCurrMenuWAIT]) 
+   {  //find source based on current menu, perform device specific actions
       case rmtSD:
          sourceFS = &SD;
       case rmtUSBDrive:
-      
+         //USB or SD drive actions:
          if (MenuSelCpy.ItemType == rtFileHex)  //FW update from hex file
          {
             char FullFilePath[MaxNamePathLength];
@@ -75,7 +75,9 @@ void HandleExecution()
          MenuSelCpy.Code_Image = RAM_Image;
          break;
          
-      case rmtTeensy:  //not many size checks as this is loading internally
+      case rmtTeensy:  
+         // local Teensy Flash menu actions
+         // not many size checks as this is loading internally
          
          if (MenuSelCpy.ItemType == rtDirectory)
          {
@@ -126,7 +128,7 @@ void HandleExecution()
          }
          
          else
-         {  //non-CRT: copy the whole thing into the RAM1 buffer
+         {  //non-CRT: copy the whole thing from flash into the RAM1 buffer
             memcpy(RAM_Image, MenuSelCpy.Code_Image, MenuSelCpy.Size);
             MenuSelCpy.Code_Image = RAM_Image;   
          }            
@@ -135,28 +137,39 @@ void HandleExecution()
          
    }
    
-   //if (MenuSelCpy.ItemType == rtFileCrt) ParseCRTFile(&MenuSelCpy); //will update MenuSelCpy.ItemType & .Code_Image, if checks ok
+   //Have to do this differently for Flash vs ext media:
+   // if (MenuSelCpy.ItemType == rtFileCrt) ParseCRTFile(&MenuSelCpy); //will update MenuSelCpy.ItemType & .Code_Image, if checks ok
  
-   if (MenuSelCpy.ItemType == rtFileP00) ParseP00File(&MenuSelCpy); //will update MenuSelCpy.ItemType & .Code_Image, if checks ok
-
-   if (MenuSelCpy.ItemType == rtFileSID) 
-   {
-      XferImage = MenuSelCpy.Code_Image;
-      XferSize = MenuSelCpy.Size;
-      if (!ParseSIDHeader(MenuSelCpy.Name)) return; //Parse SID File 
-      
-      //set up to transfer to C64 RAM
-      
-      
-      return;   //we're done here
-   }
+   //will update MenuSelCpy.ItemType & .Code_Image, if checks ok:
+   if (MenuSelCpy.ItemType == rtFileP00) ParseP00File(&MenuSelCpy); 
    
    //has to be distilled down to one of these by this point, only ones supported so far.
-   //Emulate ROM or prep PRG tranfer
+   //Emulate ROM or prep for tranfer
    uint8_t CartLoaded = false;
    
    switch(MenuSelCpy.ItemType)
    {
+      case rtFileSID:
+         XferImage = MenuSelCpy.Code_Image;
+         XferSize = MenuSelCpy.Size;
+         ParseSIDHeader(MenuSelCpy.Name); //Parse SID File & set up to transfer to C64 RAM
+         break;
+      case rtFileKla:
+         XferImage = MenuSelCpy.Code_Image;
+         XferSize = MenuSelCpy.Size;
+         //Parse Koala File:
+         if(!ParseKLAHeader()) return;
+         StreamOffsetAddr = 0; //set to start of data
+         IO1[rRegStrAvailable] = 0xff;    // transfer start flag, set last    
+         break;
+      case rtFileArt:
+         XferImage = MenuSelCpy.Code_Image;
+         XferSize = MenuSelCpy.Size;
+         //Parse Hi-Res Art File:
+         if(!ParseARTHeader()) return;
+         StreamOffsetAddr = 0; //set to start of data
+         IO1[rRegStrAvailable] = 0xff;    // transfer start flag, set last    
+         break;
       case rtBin16k:
          SetGameAssert;
          SetExROMAssert;
@@ -534,7 +547,7 @@ bool ParseChipHeader(uint8_t* ChipHeader)
       {
          if (DriveDirMenu == NULL)
          {
-            SendMsgPrintfln("Not enough room"); 
+            SendMsgPrintfln("Not enough room: %d", NumCrtChips); 
             return false;         
          }
          else
@@ -566,15 +579,58 @@ void FreeCrtChips()
    NumCrtChips = 0;
 }
 
+FLASHMEM bool ParseARTHeader()
+{
+  // XferImage and XferSize are populated w/ koala file info
+  
+   if(XferImage[0] != 0 || XferImage[1] != 0x20) //allow only $2000
+   {
+      SendMsgPrintfln("Bad addr: $%02x%02x (exp $2000)", XferImage[1], XferImage[0]);
+      return false;
+   }
+
+   if (XferSize != 9002 && XferSize != 9009) //exact expected image size
+   {
+      SendMsgPrintfln("Bad size: %lu bytes (exp 9002 or 9009)", XferSize);
+      return false;
+   }
+   if (XferSize == 9002)
+   {  //border/screen color unknown for this size
+      XferImage[XferSize++] = 15; //PokeLtGrey
+   }
+   return true;
+}
+
+FLASHMEM bool ParseKLAHeader()
+{
+  // XferImage and XferSize are populated w/ koala file info
+  
+   if(XferImage[0] != 0 || (XferImage[1] & 0xbf) != 0x20) //allow only $2000 & $6000
+   {
+      SendMsgPrintfln("Bad addr: $%02x%02x (exp $2000 or $6000)", XferImage[1], XferImage[0]);
+      return false;
+   }
+
+   XferImage[1] = 0x20;  //force to $2000
+
+   if (XferSize != 10003) //exact expected image size
+   {
+      SendMsgPrintfln("Bad size: %lu bytes (exp 10003)", XferSize);
+      return false;
+   }
+
+   return true;
+}
+
 FLASHMEM void SIDLoadError(const char* ErrMsg)
 {
    strcat(StrSIDInfo, "Error: ");
-   strcat(StrSIDInfo, ErrMsg);
-   SendU16(FailToken);
+   strcat(StrSIDInfo, ErrMsg); //add to displayed info
+   SendU16(BadSIDToken);
    SendMsgPrintfln(ErrMsg);
 }
 
-FLASHMEM bool ParseSIDHeader(const char *filename)
+FLASHMEM void ParseSIDHeader(const char *filename)
 {
    // XferImage and XferSize are populated w/ SID file info
    // Need to parse dataOffset (StreamOffsetAddr), loadAddress, 
@@ -610,7 +666,7 @@ FLASHMEM bool ParseSIDHeader(const char *filename)
       if (memcmp(XferImage, "RSID", 4) != 0) 
       {
          SIDLoadError("PSID/RSID not found");
-         return false;
+         return;
       }
    }
    
@@ -618,14 +674,14 @@ FLASHMEM bool ParseSIDHeader(const char *filename)
    if ( sidVersion<2 || sidVersion>4) 
    {
       SIDLoadError("Unexpected Version");
-      return false;
+      return;
    }
 
    StreamOffsetAddr = toU16(XferImage+0x06); //dataOffset
    if (StreamOffsetAddr!= 0x7c) 
    {
       SIDLoadError("Unexpected Data Offset");
-      return false;
+      return;
    }
    
    if (toU16(XferImage+0x08) != 0)
@@ -652,14 +708,14 @@ FLASHMEM bool ParseSIDHeader(const char *filename)
    if (LoadAddress < 0xdf00 && LoadAddress+XferSize >= 0xde00)
    {
       SIDLoadError("IO1 mem conflict");
-      return false;
+      return;
    }
 
    //check for RAM conflict with TR code:   
    if (LoadAddress < (IO1[rwRegCodeLastPage]+1)*256 && LoadAddress+XferSize >= IO1[rwRegCodeStartPage]*256)
    {
       SIDLoadError("Mem conflict w/ TR app");
-      return false;
+      return;
    }
 
    //speed: for each song (bit): 0 specifies vertical blank interrupt (50Hz PAL, 60Hz NTSC)
@@ -709,8 +765,8 @@ FLASHMEM bool ParseSIDHeader(const char *filename)
    SidFlags = (IO1[wRegVid_TOD_Clks] & 1) | (SidFlags & 2); //now selects from CIATimer
    Printf_dbg("\nCIA Timer: %02x%02x", CIATimer[SidFlags][0], CIATimer[SidFlags][1]);
 
-   Printf_dbg("\relocStartPage: %02x", XferImage[0x78]);
-   Printf_dbg("\relocPages: %02x", XferImage[0x79]);
+   Printf_dbg("\nrelocStartPage: %02x", XferImage[0x78]);
+   Printf_dbg("\nrelocPages: %02x", XferImage[0x79]);
 
    IO1[rRegSIDDefSpeedHi] = CIATimer[SidFlags][0];
    IO1[rRegSIDDefSpeedLo] = CIATimer[SidFlags][1];  
@@ -719,8 +775,8 @@ FLASHMEM bool ParseSIDHeader(const char *filename)
    IO1[rRegSIDPlayHi] = XferImage[0x0C];
    IO1[rRegSIDPlayLo] = XferImage[0x0D];
    
-   IO1[rRegStrAvailable] = 0xff;
-   return true;
+   IO1[rRegStrAvailable] = 0xff; //transfer start flag, set last
+   //return true;
 }
  
 void RedirectEmptyDriveDirMenu()

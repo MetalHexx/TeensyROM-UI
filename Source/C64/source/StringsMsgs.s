@@ -35,7 +35,20 @@ MsgMainOptions2:
    !tx ChrRvsOn, OptionColor, "F3", ChrRvsOff, SourcesColor,  " SD Card     "
    !tx ChrRvsOn, OptionColor, "F7", ChrRvsOff, MenuMiscColor,  " Help"
    !tx 0
+
+MsgWriteNFCTag:
+   !tx ChrReturn, SourcesColor, "Write NFC Tag:", ChrReturn
+   !tx 0
    
+MsgPlaceNFCTag:
+   !tx ChrReturn, OptionColor, " Place tag in NFC reader,"
+   !tx ChrReturn, "  then press any key to write", ChrReturn, SourcesColor
+   !tx 0
+
+MsgRemoveNFCTag:
+   !tx ChrReturn, ChrReturn, OptionColor, "Remove tag from reader, then"
+   !tx 0
+
 MsgSIDInfo1:
    !tx ChrReturn, SourcesColor, "SID Info Page:", ChrReturn, ChrReturn
    !tx " File Information for", NameColor  ;MenuMiscColor
@@ -102,21 +115,25 @@ MsgSettingsMenu1:
    !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "b", ChrRvsOff, ChrFillLeft, SourcesColor, " Special IO:", ChrReturn
    !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "c", ChrRvsOff, ChrFillLeft, SourcesColor, " Joy2 Speed:", ChrReturn
    !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "d", ChrRvsOff, ChrFillLeft, SourcesColor, " Synch Time:", ChrReturn
-   !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "e", ChrRvsOff, ChrFillLeft, SourcesColor, "  SID State:", ChrReturn
+   !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "e", ChrRvsOff, ChrFillLeft, SourcesColor, "   Play SID:", ChrReturn
+   !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "f", ChrRvsOff, ChrFillLeft, SourcesColor, "NFC Enabled:", ChrReturn
+   !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "g", ChrRvsOff, ChrFillLeft, SourcesColor, "RW Read Dly:", ChrReturn
    !tx MenuMiscColor, "   Immediate:", ChrReturn
-   !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "f", ChrRvsOff, ChrFillLeft, SourcesColor, "Synch Time via Ethernet", ChrReturn
-   !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "g", ChrRvsOff, ChrFillLeft, SourcesColor, "Toggle SID On/Off", ChrReturn
-   !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "h", ChrRvsOff, ChrFillLeft, SourcesColor, "Self Test", ChrReturn
-   !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "i", ChrRvsOff, ChrFillLeft, SourcesColor, "Help Menu", ChrReturn
-   !tx ChrReturn, 0 
+   !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "h", ChrRvsOff, ChrFillLeft, SourcesColor, "Re-boot TeensyROM", ChrReturn
+   !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "i", ChrRvsOff, ChrFillLeft, SourcesColor, "Synch Time via Ethernet", ChrReturn
+   !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "j", ChrRvsOff, ChrFillLeft, SourcesColor, "Pause/Play SID", ChrReturn
+   !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "k", ChrRvsOff, ChrFillLeft, SourcesColor, "Self Test", ChrReturn
+   !tx "    ", OptionColor, ChrFillRight, ChrRvsOn, "l", ChrRvsOff, ChrFillLeft, SourcesColor, "Help Menu", ChrReturn
+   ;!tx ChrReturn
 MsgSettingsMenu2SpaceRet:
    !tx "  ", OptionColor, ChrFillRight, ChrRvsOn, "Space", ChrRvsOff, ChrFillLeft, SourcesColor,  "Back to Main menu", ChrReturn
    !tx 0 
 MsgSettingsMenu3:
-   !tx ChrReturn, ChrReturn, ChrReturn, ChrReturn, MenuMiscColor 
-   !tx "      2024 by Travis S @ Sensorium", ChrReturn
-   !tx NameColor, " TeensyROM is 100% Open Source HW & SW!", ChrReturn
-   !tx " github.com/SensoriumEmbedded/TeensyROM"
+   !tx ChrReturn, ChrPurple   ;MenuMiscColor 
+   !tx "      2024 by Travis S @ Sensorium"
+   ;, ChrReturn
+   ;!tx NameColor, " TeensyROM is 100% Open Source HW & SW!", ChrReturn
+   ;!tx " github.com/SensoriumEmbedded/TeensyROM"
    !tx 0
 
 MsgFWVerify:
@@ -169,3 +186,5 @@ TblItemType: ;must match regItemTypes (rtNone, rtBin16k, etc) order!
    !tx TypeColor, "Hex"  ; rtFileHex   = 9,
    !tx TypeColor, "P00"  ; rtFileP00   = 10,
    !tx TypeColor, "SID"  ; rtFileSID   = 11,
+   !tx TypeColor, "Kla"  ; rtFileKla   = 12,
+   !tx TypeColor, "Art"  ; rtFileArt   = 13,

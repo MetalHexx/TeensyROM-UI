@@ -17,33 +17,45 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-char strVersionNumber[] = "v0.5.10+"; //*VERSION*
+char strVersionNumber[] = "v0.5.13"; //*VERSION*
 
 //Build options: enable debug messaging at your own risk, can cause emulation interference/fails
-//#define DbgMsgs_IO    //Serial out messages (Printf_dbg): Swift, MIDI (mostly out), CRT Chip info
+//#define DbgMsgs_IO     //Serial out messages (Printf_dbg): Swift, MIDI (mostly out), CRT Chip info
+#define nfcScanner     //nfc scanner libs/code included in build
+
 //less used:
 // #define DbgMsgs_M2S   //MIDI2SID MIDI handler messages
 // #define DbgIOTraceLog //Logs Reads/Writes to/from IO1 to BigBuf. Like debug handler but can use for others
 // #define DbgCycAdjLog  //Logs ISR timing adjustments to BigBuf.
-// #define Dbg_SerTimChg //Allow commands over serial that tweak timing parameters.
-// #define Dbg_SerSwift  //Allow commands over serial that tweak SwiftLink parameters.
-// #define Dbg_SerLogMem //Allow commands over serial that display log and memory info
 // #define DbgSpecial    //Special case logging to BigBuf
+// #define Dbg_SerTimChg //Serial commands that tweak timing parameters.
+// #define Dbg_SerSwift  //Serial commands that tweak SwiftLink parameters.
+// #define Dbg_SerLog    //Serial commands that display log info
+// #define Dbg_SerMem    //Serial commands that display memory info
 
 #include "ROMs/TeensyROMC64.h" //TeensyROM Menu cart, stored in RAM
-#define BigBufSize          500
+#define BigBufSize          5
 uint16_t BigBufCount = 0;
 uint32_t* BigBuf = NULL;
 
+#ifdef nfcScanner
+   #define MaxRAM_ImageSize  (184-40)  // ~18k added by host serial & nfc libs, crossed a 32k code boundry (22k more padding)
+   //"626k Free"
+   uint8_t Lastuid[7];  // Buffer to store the last UID read
+#else
+   #define MaxRAM_ImageSize  184  //normal max 
+   //"666k Free"
+#endif
+
 #ifdef DbgMsgs_IO  //Debug msgs mode: Specific background SID, reduced RAM_ImageSize
    #define Printf_dbg Serial.printf
-   #define RAM_ImageSize       (160*1024)
+   #define RAM_ImageSize       ((MaxRAM_ImageSize-24)*1024)
    #include "SIDs/Echoes.sid.h"
    #define SIDforBackground     Echoes_sid
    
 #else //Normal mode: Specific background SID, maximize RAM_ImageSize
    __attribute__((always_inline)) inline void Printf_dbg(...) {};
-   #define RAM_ImageSize       (184*1024)
+   #define RAM_ImageSize       (MaxRAM_ImageSize*1024)
    #include "SIDs/SleepDirt_norm_ntsc_1000_6581.sid.h"
    #define SIDforBackground     SleepDirt_norm_ntsc_1000_6581_sid
    
@@ -113,6 +125,7 @@ enum InternalEEPROMmap
 #define GetDirectoryToken 0x64DD
 #define ResetC64Token     0x64EE
 #define FailToken         0x9B7F
+#define BadSIDToken       0x9B80
 
 
 volatile uint32_t StartCycCnt, LastCycCnt=0;
@@ -178,21 +191,32 @@ const uint8_t OutputPins[] = {
 //#define RESET_CYCLECOUNT   { ARM_DEMCR |= ARM_DEMCR_TRCENA; ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA; ARM_DWT_CYCCNT = 0; }
 #define WaitUntil_nS(N)     while((ARM_DWT_CYCCNT-StartCycCnt) < nSToCyc(N))
     
-uint32_t nS_MaxAdj    =  1030;  //above this nS since last int causes adjustment, formerly 993 for NTSC only
-// Times from Phi2 rising (interrupt):
-uint32_t nS_RWnReady  =    95;  //Phi2 rise to RWn valid
-uint32_t nS_PLAprop   =   150;  //delay through PLA to decode address (IO1/2, ROML/H)
-uint32_t nS_DataSetup =   220;  //On a C64 write, when to latch data bus.
-uint32_t nS_DataHold  =   350;  //On a C64 read, when to stop driving the data bus
+#define Def_nS_MaxAdj      1030  //    above this nS since last int causes adjustment, formerly 993 for NTSC only
 
-// Times from Phi2 falling:
-uint32_t nS_VICStart  =   210;  //delay from Phi2 falling to look for ROMH.  Too long or short will manifest as general screen noise (missing data) on ROMH games such as JupiterLander and RadarRatRace
-//  Hold time for VIC cycle is same as normal cyc (nS_DataHold)
+                                 // Times from Phi2 rising (interrupt):
+#define Def_nS_RWnReady      95  //    Phi2 rise to RWn valid.  
+#define Def_nS_RWnReady_dly 135  //       2/4/24: Jupiter Lander ship requires 135 on NTSC Reloaded MKII (via alterationx10) 
+#define Def_nS_PLAprop      150  //    delay through PLA to decode address (IO1/2, ROML/H)
+#define Def_nS_DataSetup    220  //    On a C64 write, when to latch data bus.
+#define Def_nS_DataHold     365  //    On a C64 read, when to stop driving the data bus
+                                 //       2/1/24 v0.5.10+: updated from 350 to 365 to accomodate prg load on NTSC Reloaded MKII (via alterationx10)
+                                 
+                                 // Times from Phi2 falling:
+#define Def_nS_VICStart     210  //    delay from Phi2 falling to look for ROMH.  Too long or short will manifest as general screen noise (missing data) on ROMH games such as JupiterLander and RadarRatRace
+                                 //    Hold time for VIC cycle is same as normal cyc (nS_DataHold)
+
+uint32_t nS_MaxAdj    = Def_nS_MaxAdj; 
+uint32_t nS_RWnReady  = Def_nS_RWnReady;  
+uint32_t nS_PLAprop   = Def_nS_PLAprop;  
+uint32_t nS_DataSetup = Def_nS_DataSetup;  
+uint32_t nS_DataHold  = Def_nS_DataHold;  
+uint32_t nS_VICStart  = Def_nS_VICStart;  
+
 
 __attribute__((always_inline)) inline void DataPortWriteWait(uint8_t Data)
 {
    DataBufEnable; 
-   register uint32_t RegBits = (Data & 0x0F) | ((Data & 0xF0) << 12);
+   uint32_t RegBits = (Data & 0x0F) | ((Data & 0xF0) << 12);
    CORE_PIN7_PORTSET = RegBits;
    CORE_PIN7_PORTCLEAR = ~RegBits & GP7_DataMask;
    WaitUntil_nS(nS_DataHold);  
@@ -210,15 +234,13 @@ __attribute__((always_inline)) inline uint8_t DataPortWaitRead()
    SetDataPortDirIn; //set data ports to inputs         //data port set to read previously
    DataBufEnable; //enable external buffer
    WaitUntil_nS(nS_DataSetup);  //could poll Phi2 for falling edge...  only 30nS typ hold time
-   register uint32_t DataIn = ReadGPIO7;
+   uint32_t DataIn = ReadGPIO7;
    DataBufDisable;
    SetDataPortDirOut; //set data ports to outputs (default)
    return ((DataIn & 0x0F) | ((DataIn >> 12) & 0xF0));
 }
 
-enum Phi2ISRStates
-{
-   P2I_Normal,
-   P2I_Off,
-   P2I_TimingCheck,
-};
+// reboot is the same for all ARM devices
+#define CPU_RESTART_ADDR	((uint32_t *)0xE000ED0C)
+#define CPU_RESTART_VAL		(0x5FA0004)
+#define REBOOT			(*CPU_RESTART_ADDR = CPU_RESTART_VAL)

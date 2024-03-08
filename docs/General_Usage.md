@@ -15,7 +15,7 @@
   * Additional external hardware connection points:
 * ![TeensyROM connections](/media/v0.2b/TR_Connections.jpg)
 
-## Main Menu Options/Navigation (as of FW v0.5)
+## Main Menu Options/Navigation (as of FW v0.5.12)
   * Menu navigation: Use the keyboard or a Joystick connected to Control Port 2
     * **CRSR or Joystick Up/Down:** Move cursor up/down the list of files on the currently selected source device
     * **CRSR or Joystick Left/Right:** Page up/down the list of files
@@ -34,6 +34,7 @@
     * **F6:** Go to Settings Menu
     * **F8:** Enter the MIDI2SID application
     * **Space Bar:** Display the Help Menu
+    * **Left Arrow:** Write NFC tag representing the highlighted file
   * Screen contents:
     * **File Source and dir path** is shown in the upper left corner
     * **Page number and number of pages** is shown in the lower right corner
@@ -63,7 +64,7 @@
     * ***.HEX files:**
       * Used for TeensyROM firmware updates (see below)
 
-## The Settings Menu
+## The Settings Menu (as of FW v0.5.12)
   * Keyboard commands available from the Settings Menu:
     * These commands modify settings stored in the Teensy, and are recalled on power-up
       * **a/A:** Set local Time Zone for system/screen clock (applied next Ethernet time synch)
@@ -71,14 +72,17 @@
       * **c/C:** Set Port 2 Joystick repeat speed for menu navigation from 0 (very slow) to 15 (super fast) 
       * **d:** Toggle auto Internet Time Synch on power-up
       * **e:** Toggle auto background music on power-up
+      * **f:** Toggle NFC Reader enabled on power-up
+      * **g:** Toggle RW Ready timing delay (to improve Hi-ROM games on Reloaded MKII and C64c)
     * These commands only change settings for this session and execute immediately
-      * **f:** Perform Internet Time Synch
-      * **g:** Toggle background music on/off
-      * **h:** Execute Self-Test (takes ~4 seconds)
+      * **h:** Reboot TeensyROM to execute updated power-up settings
+      * **i:** Perform Internet Time Synch
+      * **j:** Toggle background music on/off
+      * **k:** Execute Self-Test (takes ~4 seconds)
         * Tests the TeensyROM ability to rapidly read from emulated ROM
         * Helpful in testing out HW and debug, but should not fail in normal use
         * The is not an exhaustive test, but may be expanded later
-      * **i:** Display Help menu
+      * **l:** Display Help menu
       * **Space Bar:** Return to Main Menu
       * **Return:** Screen refresh.  Handy for updating the temperature reading 
   * Other information on the Settings screen
@@ -90,7 +94,7 @@
       * External cooling is not required for this speed. However, in abundance of caution, a heatsink is specified in the BOM for this project.
       * The max spec is 95C, and there is an automatic shutdown at 90C.
       * Even in extended use, I've never seen the internal temperature exceded 75C.
-    * Open source reminder, URL to the Github location
+    * Free RAM space available for large .CRT files
 
 ## Selecting and associating Special IO
   * What is it?
@@ -111,9 +115,9 @@
     * If a selected CRT file is associated with different Special IO (ie Epyx, EZFlash etc), that Special IO will be loaded instead
 
 ## Firmware updates
-  There are 3 ways to update the TeensyROM firmware
+  There are multiple ways to update the TeensyROM firmware, choose one of the following:
 
-### **From SD Card or USB Thumb Drive** (easiest method)
+### **From SD Card or USB Thumb Drive**
   * This method is only available in FW v0.4 and higher.
     * Older versions will have to use one of the other methods one time to update
   * Get the .hex file containing the latest major (x.x) or minor(x.x.x) release [from here](/bin/TeensyROM)
@@ -130,7 +134,25 @@
     * When the update completes succesfully, your computer will reset and the new version of TeensyROM will be shown
     * If there are any problems, take note of any messages shown before pressing any key to return to the main menu.
 
-### **Using the Teensy application** (requires computer with USB connection)
+### **Directly using TeensyROM via Ethernet connection**
+  * Digitalman uses a similar approach in [this video](https://www.youtube.com/watch?v=PGRFLHmw0hY)
+  * This method uses features added in FW v0.5.8
+    * Older versions will have to use one of the other methods one time to update
+  * Connect active Ethernet cable to TeensyROM
+    * An inserted SD card (preferred) or USB Thumb drive is also required
+  * Open CCGMS from the main menu and type "atbrowse"
+  * There are two sites hosting TeensyROM firmware updates, use one of the default bookmarks to enter either of them
+    * Bookmark #1 is for the TinyWeb64 site, entering "b1" will take you to sensoriumembedded.com/tinyweb64
+    * Bookmark #2 is for Digitalman's site, so "b2" to go to digitalman.azurewebsites.net
+    * Alternately the 'U' command will also work: "u sensoriumembedded.com/tinyweb64"
+  * From the main menu, link #5 will take you to the Firmware download section on either site
+  * Choose the link # for the FW version you want to download/install
+    * The FW file will take a minute or two to download, dots shown on screen to indicate progress
+  * Use the "d" command to see the local downloaded files directory.
+  * Choose the link # of the firmware .hex file downloaded in the previous step to directly launch the update.
+    * Check the version and confirm as described in the section above.
+
+### **Using the TeensyLoader application** (requires computer with USB connection)
   * Get the .hex file of the latest released version [from here](/bin/TeensyROM/)
   * Download and install the [Teenyduino/TeensyLoader app](https://www.pjrc.com/teensy/td_download.html)
     * Teensyduino requires arduino to run, which works fine.

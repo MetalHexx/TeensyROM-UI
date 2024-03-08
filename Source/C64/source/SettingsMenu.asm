@@ -23,17 +23,11 @@ SettingsMenu:
    lda #<MsgSettingsMenu1
    ldy #>MsgSettingsMenu1
    jsr PrintString 
-   lda #<MsgSettingsMenu2SpaceRet
-   ldy #>MsgSettingsMenu2SpaceRet
-   jsr PrintString 
-   lda #<MsgSettingsMenu3
-   ldy #>MsgSettingsMenu3
-   jsr PrintString 
 
    lda #rCtlMakeInfoStrWAIT
    sta wRegControl+IO1Port
-   jsr WaitForTRWaitMsg
-   ldx #18 ;row
+   jsr WaitForTRWaitMsg   ;moves cursor to upper right
+   ldx #20 ;row
    ldy #0 ;col
    clc
    jsr SetCursor
@@ -41,6 +35,10 @@ SettingsMenu:
    jsr SendChar
    lda #rsstSerialStringBuf ; Build info from rCtlMakeInfoStrWAIT
    jsr PrintSerialString
+   
+   lda #<MsgSettingsMenu3
+   ldy #>MsgSettingsMenu3
+   jsr PrintString 
 
 ShowSettings:
    lda #NameColor
@@ -116,6 +114,22 @@ ShowSettings:
    lda rwRegPwrUpDefaults+IO1Port
    and #rpudSIDPauseMask  
    eor #rpudSIDPauseMask  
+   jsr PrintOnOff
+   
+   ldx #10 ;row NFC Enabled
+   ldy #20 ;col
+   clc
+   jsr SetCursor
+   lda rwRegPwrUpDefaults+IO1Port
+   and #rpudNFCEnabled  
+   jsr PrintOnOff
+   
+   ldx #11 ;row RW Ready Delay
+   ldy #20 ;col
+   clc
+   jsr SetCursor
+   lda rwRegPwrUpDefaults+IO1Port
+   and #rpudRWReadyDly  
    jsr PrintOnOff
    
 
@@ -205,22 +219,47 @@ UpdTimeZone
    jsr WaitForTRWaitMsg
    jmp ShowSettings  
 
-+  cmp #'f'  ;Synch Time now
++  cmp #'f'  ;NFC Enabled toggle
    bne +
-   jsr SynchEthernetTime
+   lda rwRegPwrUpDefaults+IO1Port
+   eor #rpudNFCEnabled  
+   sta rwRegPwrUpDefaults+IO1Port
+   jsr WaitForTRWaitMsg
+   jmp ShowSettings  
+
++  cmp #'g'  ;RW Ready Delay
+   bne +
+   lda rwRegPwrUpDefaults+IO1Port
+   eor #rpudRWReadyDly
+   sta rwRegPwrUpDefaults+IO1Port
+   jsr WaitForTRWaitMsg
+   jmp ShowSettings  
+
++  cmp #'h'  ;Reboot TeensyROM
+   bne +
+   lda #$00    
+   sta $d011   ;turn off the display   
+   lda #rCtlRebootTeensyROM 
+   sta wRegControl+IO1Port
+   ;no need to wait, TR/C64 will be rebooting...
    jmp WaitForSettingsKey  
 
-+  cmp #'g'  ;Toggle Music now
++  cmp #'i'  ;Synch Time now
+   bne +
+   jsr SynchEthernetTime
+   jmp SettingsMenu ;force to reprint all in case ram reduced  
+
++  cmp #'j'  ;Toggle Music now
    bne +
    jsr ToggleSIDMusic
    jmp WaitForSettingsKey  
 
-+  cmp #'h'  ;Test IO
++  cmp #'k'  ;Test IO
    bne +
    jsr TestIO
    jmp WaitForSettingsKey  
    
-+  cmp #'i'  ;Help Menu
++  cmp #'l'  ;Help Menu
    bne +
    jmp HelpMenu  ;return from there  
    
@@ -271,8 +310,8 @@ smcTestIOCnt
    jsr PrintString 
    rts
 
-CursorToTest
-   ldx #13 ;row 
+CursorToTest:
+   ldx #16 ;row 
    ldy #18 ;col
    clc
    jsr SetCursor   

@@ -187,13 +187,19 @@ extern void MenuChange();
 extern void HandleExecution();
 extern bool PathIsRoot();
 extern void LoadDirectory(FS *sourceFS);
+extern void FreeDriveDirMenu();
+extern void RedirectEmptyDriveDirMenu();
 extern void IOHandlerInitToNext();
-extern bool ParseSIDHeader(const char *filename);
+extern void ParseSIDHeader(const char *filename);
 extern stcIOHandlers* IOHandler[];
 extern char DriveDirPath[];
 extern uint8_t RAM_Image[];
 extern char* StrSIDInfo;
 extern char StrMachineInfo[];
+extern bool nfcEnabled;
+extern void SendMsgPrintfln(const char *Fmt, ...);
+extern void nfcWriteTag(const char* TxtMsg);
+extern void nfcInit();
 
 #define DecToBCD(d) ((int((d)/10)<<4) | ((d)%10))
 
@@ -275,10 +281,46 @@ void WriteEEPROM()
    EEPROM.write(eepAddrToWrite, eepDataToWrite);
 }
 
-void MakeBuildCPUInfoStr()
+FLASHMEM uint8_t RAM2blocks()
+{  //see how many 8k banks will fit in RAM2
+   char *ptrChip[70]; //64 8k blocks would be 512k (size of RAM2)
+   uint8_t ChipNum = 0;
+   while(1)
+   {
+      ptrChip[ChipNum] = (char *)malloc(8192);
+      if (ptrChip[ChipNum] == NULL) break;
+      ChipNum++;
+   } 
+   for(uint8_t Cnt=0; Cnt < ChipNum; Cnt++) free(ptrChip[Cnt]);
+   //Serial.printf("Created/freed %d  8k blocks (%dk total) in RAM2\n", ChipNum, ChipNum*8);
+   return ChipNum;
+}
+
+FLASHMEM void MakeBuildInfo()
 {
    //Serial.printf("\nBuild Date/Time: %s  %s\nCPU Freq: %lu MHz   Temp: %.1f°C\n", __DATE__, __TIME__, (F_CPU_ACTUAL/1000000), tempmonGetTemp());
-   sprintf(SerialStringBuf, " Build Date/Time: %s, %s\r\n    Teensy Freq: %luMHz  Temp: %.1fC\r\n", __DATE__, __TIME__, (F_CPU_ACTUAL/1000000), tempmonGetTemp());
+   sprintf(SerialStringBuf, "       FW: %s, %s\r\n   Teensy: %luMHz  %.1fC", __DATE__, __TIME__, (F_CPU_ACTUAL/1000000), tempmonGetTemp());
+}
+
+FLASHMEM void MakeBuildCPUInfoStr()
+{
+   FreeDriveDirMenu(); //Will mess up navigation if not on TR menu!
+   RedirectEmptyDriveDirMenu(); //OK since we're on the TR settings screen
+  
+   uint32_t CrtMax = (RAM_ImageSize & 0xffffe000)/1024; //round down to k bytes rounded to nearest 8k
+   //Serial.printf("\n\nRAM1 Buff: %luK (%lu blks)\n", CrtMax, CrtMax/8);
+      
+   uint8_t NumChips = RAM2blocks();
+   //Serial.printf("RAM2 Blks: %luK (%lu blks)\n", NumChips*8, NumChips);
+   NumChips = RAM2blocks()-1; //do it again, sometimes get one more, minus one to match reality, not clear why
+   //Serial.printf("RAM2 Blks: %luK (%lu blks)\n", NumChips*8, NumChips);
+  
+   CrtMax += NumChips*8;
+   char FreeStr[20];
+   sprintf(FreeStr, "  %luk free\r", (uint32_t)(CrtMax*1.004));  //larger File size due to header info.
+
+   MakeBuildInfo();
+   strcat(SerialStringBuf, FreeStr);
 }
 
 void UpDirectory()
@@ -299,6 +341,49 @@ void UpDirectory()
    }
 }
 
+void SetCursorToItemNum(uint16_t ItemNum)
+{
+   IO1[rwRegPageNumber] = ItemNum/MaxItemsPerPage +1;
+   IO1[rwRegCursorItemOnPg] = ItemNum % MaxItemsPerPage;
+   IO1[rRegNumItemsOnPage] = (NumItemsFull > IO1[rwRegPageNumber]*MaxItemsPerPage ? MaxItemsPerPage : NumItemsFull-(IO1[rwRegPageNumber]-1)*MaxItemsPerPage);
+}
+
+FLASHMEM void NextPicture()
+{
+   SelItemFullIdx = IO1[rwRegCursorItemOnPg] + (IO1[rwRegPageNumber]-1) * MaxItemsPerPage;
+   uint16_t InitItemNum = SelItemFullIdx;
+   
+   do
+   {
+      if (++SelItemFullIdx >= NumItemsFull) SelItemFullIdx = 0;
+      if (MenuSource[SelItemFullIdx].ItemType == rtFileKla ||
+          MenuSource[SelItemFullIdx].ItemType == rtFileArt)
+      {
+         SetCursorToItemNum(SelItemFullIdx);
+         return;
+      }
+   } while (SelItemFullIdx != InitItemNum); //just 1 time through, but should stop on same initial one unless changed externally
+}
+
+FLASHMEM void LastPicture()
+{
+   SelItemFullIdx = IO1[rwRegCursorItemOnPg] + (IO1[rwRegPageNumber]-1) * MaxItemsPerPage;
+   uint16_t InitItemNum = SelItemFullIdx;
+   
+   do
+   {
+      if (SelItemFullIdx == 0) SelItemFullIdx = NumItemsFull-1;
+      else SelItemFullIdx--;
+      
+      if (MenuSource[SelItemFullIdx].ItemType == rtFileKla ||
+          MenuSource[SelItemFullIdx].ItemType == rtFileArt)
+      {
+         SetCursorToItemNum(SelItemFullIdx);
+         return;
+      }
+   } while (SelItemFullIdx != InitItemNum); //just 1 time through, but should stop on same initial one unless changed externally   
+}
+
 void SearchForLetter()
 {
    uint16_t ItemNum = 0;
@@ -309,13 +394,75 @@ void SearchForLetter()
    {
       if (toupper(MenuSource[ItemNum].Name[0]) >= SearchFor)
       {
-         IO1[rwRegPageNumber] = ItemNum/MaxItemsPerPage +1;
-         IO1[rwRegCursorItemOnPg] = ItemNum % MaxItemsPerPage;
-         IO1[rRegNumItemsOnPage] = (NumItemsFull > IO1[rwRegPageNumber]*MaxItemsPerPage ? MaxItemsPerPage : NumItemsFull-(IO1[rwRegPageNumber]-1)*MaxItemsPerPage);
+         SetCursorToItemNum(ItemNum);
          return;
       }
       ItemNum++;
    }
+}
+
+FLASHMEM void GetCurrentFilePathName(char* FilePathName)
+{
+   char SDUSB[6] = "SD";
+   if (IO1[rWRegCurrMenuWAIT] == rmtUSBDrive) strcpy(SDUSB, "USB");
+
+   if (PathIsRoot()) sprintf(FilePathName, "%s:/%s", SDUSB, MenuSource[SelItemFullIdx].Name);  // at root
+   else sprintf(FilePathName, "%s:%s/%s", SDUSB, DriveDirPath, MenuSource[SelItemFullIdx].Name);   
+}
+
+FLASHMEM void WriteNFCTagCheck()
+{
+
+   IO1[rRegLastHourBCD] = 0; //using this reg as scratch to communicate outcome
+   
+   if (!nfcEnabled)
+   {
+      SendMsgPrintfln(" NFC not enabled/found\r");
+      return;      
+   }
+
+   if (IO1[rWRegCurrMenuWAIT] != rmtSD && IO1[rWRegCurrMenuWAIT] != rmtUSBDrive)
+   { 
+      SendMsgPrintfln(" Must be SD or USB source\r");
+      return;
+   }
+   
+   SelItemFullIdx = IO1[rwRegCursorItemOnPg]+(IO1[rwRegPageNumber]-1)*MaxItemsPerPage;
+
+   if(MenuSource[SelItemFullIdx].ItemType < rtFilePrg)
+   {
+      SendMsgPrintfln(" Invalid File Type (%d)\r", MenuSource[SelItemFullIdx].ItemType);
+      return;
+   }
+   
+   char PathMsg[MaxPathLength];
+   GetCurrentFilePathName(PathMsg);
+   SendMsgPrintfln("File Selected:\r%s\r", PathMsg);
+   
+   nfcEnabled = false; //keep if from trigerring if re-using prev programmed tag
+   IO1[rRegLastHourBCD] = 0xff; //checks look good!
+}
+
+FLASHMEM void WriteNFCTag()
+{   
+   //checks have been done, ready to write tag
+   //nfc polling not Enabled here
+   
+   char PathMsg[MaxPathLength];
+   GetCurrentFilePathName(PathMsg);
+   
+   SendMsgPrintfln("Preparing...");
+   //Serial.printf("WriteNFCTag: %s\n", PathMsg);
+
+   nfcWriteTag(PathMsg);
+
+   //pause for removal (in assy)
+}
+
+FLASHMEM void NFCReEnable()
+{              
+   // nfc not currently enabled (just wrote a tag)
+   nfcInit(); //this should pass, was enabled/initialized previously...
 }
 
 FLASHMEM void LoadMainSIDforXfer()
@@ -323,7 +470,7 @@ FLASHMEM void LoadMainSIDforXfer()
    XferImage = RAM_Image; 
    XferSize  = sizeof(SIDforBackground); 
    memcpy(XferImage, SIDforBackground, XferSize);
-   ParseSIDHeader("Main Background SID"); //returns pass/fail, but assuming it passes for buit-in
+   ParseSIDHeader("Main Background SID"); //assuming it passes for buit-in
 }
 
 void (*StatusFunction[rsNumStatusTypes])() = //match RegStatusTypes order
@@ -337,6 +484,11 @@ void (*StatusFunction[rsNumStatusTypes])() = //match RegStatusTypes order
    &UpDirectory,         // rsUpDirectory
    &SearchForLetter,     // rsSearchForLetter
    &LoadMainSIDforXfer,  // rsLoadSIDforXfer
+   &NextPicture,         // rsNextPicture    
+   &LastPicture,         // rsLastPicture    
+   &WriteNFCTagCheck,    // rsWriteNFCTagCheck
+   &WriteNFCTag,         // rsWriteNFCTag
+   &NFCReEnable,         // rsNFCReEnable
 };
 
 
@@ -536,7 +688,7 @@ void IO1Hndlr_TeensyROM(uint8_t Address, bool R_Wn)
       switch(Address)
       {
          case rwRegSelItemOnPage:
-            SelItemFullIdx=Data+(IO1[rwRegPageNumber]-1)*MaxItemsPerPage;
+            SelItemFullIdx = Data+(IO1[rwRegPageNumber]-1)*MaxItemsPerPage;
          case rwRegStatus:
          case wRegVid_TOD_Clks:
          case wRegIRQ_ACK:
@@ -650,6 +802,24 @@ void IO1Hndlr_TeensyROM(uint8_t Address, bool R_Wn)
                   break;
                case rCtlLoadSIDWAIT:
                   IO1[rwRegStatus] = rsLoadSIDforXfer; //work this in the main code
+                  break;
+               case rCtlNextPicture:
+                  IO1[rwRegStatus] = rsNextPicture; //work this in the main code
+                  break;
+               case rCtlLastPicture:
+                  IO1[rwRegStatus] = rsLastPicture; //work this in the main code
+                  break;
+               case rCtlWriteNFCTagCheckWAIT:
+                  IO1[rwRegStatus] = rsWriteNFCTagCheck; //work this in the main code
+                  break;
+               case rCtlWriteNFCTagWAIT:
+                  IO1[rwRegStatus] = rsWriteNFCTag; //work this in the main code
+                  break;
+               case rCtlNFCReEnableWAIT:
+                  IO1[rwRegStatus] = rsNFCReEnable; //work this in the main code
+                  break;
+               case rCtlRebootTeensyROM:
+                  REBOOT;
                   break;
             }
             break;
