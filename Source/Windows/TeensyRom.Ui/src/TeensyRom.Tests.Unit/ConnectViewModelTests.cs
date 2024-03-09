@@ -181,7 +181,6 @@ namespace TeensyRom.Tests.Unit
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectableState(_observableSerialPort)).AsObservable());
             _serialMock.Ports.Returns(new BehaviorSubject<string[]>(["COM1", "COM2", "COM3", "COM4"]).AsObservable());
 
-            int callCount = 0;
             _mediatorMock
                 .Send(Arg.Any<ResetCommand>())
                 .Returns(new ResetResult { IsSuccess = false, Error = "Error Message" });
@@ -205,7 +204,6 @@ namespace TeensyRom.Tests.Unit
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectableState(_observableSerialPort)).AsObservable());
             _serialMock.Ports.Returns(new BehaviorSubject<string[]>(["COM1", "COM2", "COM3", "COM4"]).AsObservable());
 
-            int callCount = 0;
             _mediatorMock
                 .Send(Arg.Any<ResetCommand>())
                 .Returns(new ResetResult { IsSuccess = false, Error = "Error Message" });
@@ -230,7 +228,6 @@ namespace TeensyRom.Tests.Unit
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectableState(_observableSerialPort)).AsObservable());
             _serialMock.Ports.Returns(new BehaviorSubject<string[]>(["COM1", "COM2", "COM3", "COM4"]).AsObservable());
 
-            int callCount = 0;
             _mediatorMock
                 .Send(Arg.Any<ResetCommand>())
                 .Returns(new ResetResult { IsSuccess = true });

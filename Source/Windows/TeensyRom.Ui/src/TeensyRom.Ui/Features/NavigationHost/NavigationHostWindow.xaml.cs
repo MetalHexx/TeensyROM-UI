@@ -78,8 +78,8 @@ namespace TeensyRom.Ui.Main
         }
 
         // State change
-        private void MainWindowStateChangeRaised(object sender, EventArgs e)
-        {
+        private void MainWindowStateChangeRaised(object? sender, EventArgs e)
+        {            
             if (WindowState == WindowState.Maximized)
             {
                 MainWindowBorder.BorderThickness = new Thickness(8);

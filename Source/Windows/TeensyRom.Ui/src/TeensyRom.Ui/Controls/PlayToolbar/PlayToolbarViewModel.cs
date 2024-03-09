@@ -42,7 +42,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private readonly IAlertService _alert;
         private IProgressTimer? _timer;
         private IDisposable? _timerCompleteSubscription;
-        private IDisposable? _timerTickSubscription;
 
         public PlayToolbarViewModel(
             IObservable<ILaunchableItem> file, 
@@ -148,7 +147,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         {
             if(_timer == null) return;
 
-            _timerTickSubscription?.Dispose();
             _timerCompleteSubscription?.Dispose();
 
             _timer?.StartNewTimer(song.SongLength);
