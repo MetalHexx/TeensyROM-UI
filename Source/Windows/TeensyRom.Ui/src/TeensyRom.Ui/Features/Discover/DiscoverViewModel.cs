@@ -11,6 +11,7 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.CornerToolbar;
 using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.DirectoryList;
@@ -143,11 +144,13 @@ namespace TeensyRom.Ui.Features.Discover
 
                 var libPath = s.Libraries.FirstOrDefault(l => l.Type == _viewConfig.LibraryType)?.Path ?? "";
 
-                DirectoryChips = new DirectoryChipsViewModel(
+                DirectoryChips = new DirectoryChipsViewModel
+                (
                     path: context.CurrentPath,
-                    basePath: "/",
+                    basePath: StorageConstants.Remote_Path_Root,
                     onClick: async path => await context.LoadDirectory(path),
-                    onCopy: () => alert.Publish("Path copied to clipboard"));
+                    onCopy: () => alert.Publish("Path copied to clipboard")
+                );
 
                 CornerToolbar = new CornerToolbarViewModel
                 (
