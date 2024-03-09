@@ -30,8 +30,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
         [Reactive] public bool ControlsEnabled { get; set; } //TODO: Track down why I need this property.  I had to put this here to stop a bunch of errors from throwing in the output window.
         public SnackbarMessageQueue MessageQueue { get; private set; }
         public ReactiveCommand<NavigationItem, Unit>? NavigateCommand { get; private set; }
-        public ReactiveCommand<Unit, Unit>? OpenNavCommand { get; private set; }
-        public ReactiveCommand<Unit, Unit>? CloseNavCommand { get; private set; }
+        public ReactiveCommand<Unit, Unit>? ToggleNavCommand { get; private set; }
 
         private readonly INavigationService _navService;
         private readonly ISerialStateContext _serialContext;
@@ -98,24 +97,22 @@ namespace TeensyRom.Ui.Features.NavigationHost
                 return Unit.Default;
             }, outputScheduler: ImmediateScheduler.Instance);
 
-            OpenNavCommand = ReactiveCommand.Create<Unit, Unit>(
+            ToggleNavCommand = ReactiveCommand.Create<Unit, Unit>(
                 execute: n => 
                 {
-                    IsNavOpen = true;
-                    MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Opened });
+                    IsNavOpen = !IsNavOpen;
+
+                    if(IsNavOpen)
+                    {
+                        MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Opened });
+                    }
+                    else
+                    {
+                        MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Closed });
+                    }
                     return Unit.Default;
                 },
                 outputScheduler: ImmediateScheduler.Instance);
-
-            CloseNavCommand = ReactiveCommand.Create<Unit, Unit>(
-                execute: n =>
-                {
-                    IsNavOpen = false;
-                    MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Closed });
-                    return Unit.Default;
-                },
-                outputScheduler: ImmediateScheduler.Instance);
-
         }
 
         private void RegisterModelProperties()

@@ -160,21 +160,13 @@
                                 </Grid.Effect>
                                 <StackPanel>
                                     <Grid Height="40">
-                                        <Button x:Name="ButtonCloseMenu" 
-                                            Command="{Binding CloseNavCommand}"
-                                            Visibility="{Binding IsNavOpen, Converter={StaticResource BoolToVisibilityConvertor}}"
-                                            Width="60" Height="60" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" >
 
-                                            <materialDesign:PackIcon Foreground="White" Kind="ArrowLeft" Width="25" Height="25"/>
-                                        </Button>
-
-                                        <Button x:Name="ButtonOpenMenu"
-                                            Command="{Binding OpenNavCommand}"
-                                            Visibility="{Binding IsNavOpen, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
-                                            Width="60" Height="60" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" VerticalAlignment="Top" HorizontalAlignment="Right">
-
-                                            <materialDesign:PackIcon Foreground="White" Kind="Menu" Width="25" Height="25"/>
-                                        </Button>
+                                        <ToggleButton 
+                                            x:Name="ButtonCloseMenu" 
+                                            Command="{Binding ToggleNavCommand}"
+                                            Style="{StaticResource MaterialDesignHamburgerToggleButton}" 
+                                            HorizontalAlignment="Right"
+                                            Margin="0 10 12 0"/>
 
                                     </Grid>
 
@@ -184,7 +176,7 @@
                                                 <Button 
                                                     Command="{Binding ElementName=ProfileList, Path=DataContext.NavigateCommand}" 
                                                     CommandParameter="{Binding}" 
-                                                    Style="{StaticResource MaterialDesignFloatingActionButton}" Margin="10 0" HorizontalAlignment="Left" Width="200">
+                                                    Style="{StaticResource MaterialDesignFloatingActionButton}" Margin="9 0" HorizontalAlignment="Left" Width="200">
                                                     <Button.Template>
 
                                                         <ControlTemplate>
