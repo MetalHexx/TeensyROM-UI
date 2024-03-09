@@ -99,5 +99,21 @@
             }
             return path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
         }
+
+        public static string GetCommonBasePath(this IEnumerable<string> directories)
+        {
+            if (!directories.Any()) return string.Empty;
+
+            string commonPath = directories.First();
+
+            foreach (string path in directories)
+            {
+                while (!path.StartsWith(commonPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    commonPath = commonPath.Substring(0, commonPath.LastIndexOf(Path.DirectorySeparatorChar));
+                }
+            }
+            return commonPath;
+        }
     }
 }

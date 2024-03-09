@@ -143,15 +143,14 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
             _directoryState.Value.ClearSelection();
             _directoryState.Value.LoadDirectory(cacheItem.ToList(), cacheItem.Path, filePathToSelect);
-            
-            _currentPath = cacheItem.Path;            
+
+            _currentPath = cacheItem.Path;
 
             Application.Current.Dispatcher.Invoke(() =>
             {
                 _tree.Insert(cacheItem.Directories);
                 _tree.SelectDirectory(cacheItem.Path);
             });
-
             _directoryState.OnNext(_directoryState.Value);
         }
         public Task RefreshDirectory(bool bustCache = true)
@@ -374,9 +373,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         public Task SwitchLibrary(TeensyLibrary library)
         {
             _currentLibrary = library;
-            _directoryState.Value.ClearSelection();            
-            _tree.ResetDirectoryTree(library.Path);
-            return LoadDirectory(library.Path);            
+            return Task.CompletedTask;        
         }
 
         public TeensyFileType[] GetFileTypes() 
@@ -394,7 +391,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
         public async Task StoreFiles(IEnumerable<FileCopyItem> files)
         {
-            var commonParent = GetCommonBasePath(files.Select(i => i.Path));
+            var commonParent = files.Select(i => i.Path).GetCommonBasePath();
             var directoryOnly = files.All(i => i.InSubdirectory);
 
             foreach (var file in files)
@@ -417,24 +414,6 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 await _storage.SaveFile(fileInfo);
             }
             await RefreshDirectory(bustCache: false);
-        }
-
-        private static string GetCommonBasePath(IEnumerable<string> directories)
-        {
-            if (!directories.Any()) return string.Empty;
-
-            string commonPath = directories.First();
-
-            foreach (string path in directories)
-            {
-                while (!path.StartsWith(commonPath, StringComparison.OrdinalIgnoreCase))
-                {
-                    commonPath = commonPath.Substring(0, commonPath.LastIndexOf(Path.DirectorySeparatorChar));
-                }
-            }
-            return commonPath;
-        }
-
-
+        }        
     }
 }
