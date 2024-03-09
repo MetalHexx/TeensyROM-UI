@@ -12,17 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Features\Games\GameList\**" />
-    <Compile Remove="Features\Games\Search\**" />
-    <EmbeddedResource Remove="Features\Games\GameList\**" />
-    <EmbeddedResource Remove="Features\Games\Search\**" />
-    <None Remove="Features\Games\GameList\**" />
-    <None Remove="Features\Games\Search\**" />
-    <Page Remove="Features\Games\GameList\**" />
-    <Page Remove="Features\Games\Search\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="CommonServiceLocator" Version="2.0.7" />
     <PackageReference Include="gong-wpf-dragdrop" Version="3.2.1" />
     <PackageReference Include="MaterialDesignColors" Version="2.1.4" />
@@ -42,9 +31,6 @@
 
   <ItemGroup>
     <Compile Update="Features\Help\HelpView.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Features\Music\MusicView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

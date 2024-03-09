@@ -1,19 +1,12 @@
 ﻿<Application 
     x:Class="TeensyRom.Ui.App"
     xmlns:ui="clr-namespace:TeensyRom.Ui"
-    xmlns:Files="clr-namespace:TeensyRom.Ui.Features.Files"
-    xmlns:SearchFiles="clr-namespace:TeensyRom.Ui.Features.Files.Search"
     xmlns:Paging="clr-namespace:TeensyRom.Ui.Controls.Paging"
-    xmlns:DirectoryContent="clr-namespace:TeensyRom.Ui.Features.Files.DirectoryContent"
     xmlns:Help="clr-namespace:TeensyRom.Ui.Features.Help"
-    xmlns:Music="clr-namespace:TeensyRom.Ui.Features.Music"
-    xmlns:Games="clr-namespace:TeensyRom.Ui.Features.Games"
     xmlns:FileInfo="clr-namespace:TeensyRom.Ui.Controls.FileInfo"
     xmlns:DirectoryTree="clr-namespace:TeensyRom.Ui.Controls.DirectoryTree"
     xmlns:PlayToolbar="clr-namespace:TeensyRom.Ui.Controls.PlayToolbar"
-    xmlns:SongList="clr-namespace:TeensyRom.Ui.Features.Music.SongList"
     xmlns:DirectoryList="clr-namespace:TeensyRom.Ui.Controls.DirectoryList"
-    xmlns:SearchMusic="clr-namespace:TeensyRom.Ui.Features.Music.Search"
     xmlns:Search="clr-namespace:TeensyRom.Ui.Controls.Search"
     xmlns:DirectoryChips="clr-namespace:TeensyRom.Ui.Controls.DirectoryChips"
     xmlns:Connect="clr-namespace:TeensyRom.Ui.Features.Connect"
@@ -21,7 +14,6 @@
     xmlns:CornerToolbar="clr-namespace:TeensyRom.Ui.Controls.CornerToolbar"
     xmlns:FeatureTitle="clr-namespace:TeensyRom.Ui.Controls.FeatureTitle"
     xmlns:SearchResultsToolbar="clr-namespace:TeensyRom.Ui.Controls.SearchResultsToolbar"
-    xmlns:Explorer="clr-namespace:TeensyRom.Ui.Controls.Explorer"
     xmlns:Discover="clr-namespace:TeensyRom.Ui.Features.Discover"
     xmlns:LibraryFilter="clr-namespace:TeensyRom.Ui.Controls.LibraryFilter"
     
@@ -41,32 +33,12 @@
                 <ResourceDictionary Source="AppResourceDictionary.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <DataTemplate DataType="{x:Type Files:FilesViewModel}">
-                <Files:FilesView />
-            </DataTemplate>
-
-            <DataTemplate DataType="{x:Type SearchFiles:SearchFilesViewModel}">
-                <SearchFiles:SearchFilesView/>
-            </DataTemplate>
-
             <DataTemplate DataType="{x:Type Paging:PagingViewModel}">
                 <Paging:PagingView />
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type DirectoryContent:DirectoryContentViewModel}">
-                <DirectoryContent:DirectoryContentView/>
-            </DataTemplate>
-
             <DataTemplate DataType="{x:Type Help:HelpViewModel}">
                 <Help:HelpView />
-            </DataTemplate>
-
-            <DataTemplate DataType="{x:Type Music:MusicViewModel}">
-                <Music:MusicView />
-            </DataTemplate>
-
-            <DataTemplate DataType="{x:Type Games:GamesViewModel}">
-                <Games:GamesView/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type FileInfo:FileInfoViewModel}">
@@ -81,16 +53,8 @@
                 <PlayToolbar:PlayToolbarView/>
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type SongList:SongListViewModel}">
-                <SongList:SongListView/>
-            </DataTemplate>
-
             <DataTemplate DataType="{x:Type DirectoryList:DirectoryListViewModel}">
                 <DirectoryList:DirectoryListView/>
-            </DataTemplate>
-
-            <DataTemplate DataType="{x:Type SearchMusic:SearchMusicViewModel}">
-                <SearchMusic:SearchMusicView/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type Search:SearchViewModel}">
@@ -119,10 +83,6 @@
 
             <DataTemplate DataType="{x:Type SearchResultsToolbar:SearchResultsToolbarViewModel}">
                 <SearchResultsToolbar:SearchResultsToolbarView/>
-            </DataTemplate>
-
-            <DataTemplate DataType="{x:Type Explorer:ExplorerViewModel}">
-                <Explorer:ExplorerView/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type Discover:DiscoverViewModel}">

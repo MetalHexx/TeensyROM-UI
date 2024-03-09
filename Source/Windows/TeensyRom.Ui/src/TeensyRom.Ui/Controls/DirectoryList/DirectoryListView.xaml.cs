@@ -14,7 +14,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryList;
-using TeensyRom.Ui.Features.Music.SongList;
 
 namespace TeensyRom.Ui.Controls.DirectoryList
 {

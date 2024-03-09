@@ -13,8 +13,6 @@ using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Common.State.Player;
 using TeensyRom.Ui.Features.Common.State.Progress;
-using TeensyRom.Ui.Features.Global;
-using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 
@@ -24,14 +22,9 @@ namespace TeensyRom.Ui.Features.Discover.State
     public class DiscoverContext : PlayerContext, IDiscoverContext
     {
         private TimeSpan _currentTime = TimeSpan.Zero;
-        public DiscoverContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDiscoveryTreeState tree, IDiscoverViewConfig config, IGlobalState globalState, IProgressTimer timer)
+        public DiscoverContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDiscoveryTreeState tree, IDiscoverViewConfig config, IProgressTimer timer)
             : base(mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree, config)
         {
-
-            globalState.ProgramLaunched
-                .Where(p => p is not null)
-                .Subscribe(_ => _playingState.OnNext(PlayState.Paused));
-
             timer.CurrentTime
                 .Subscribe(time => _currentTime = time);
         }

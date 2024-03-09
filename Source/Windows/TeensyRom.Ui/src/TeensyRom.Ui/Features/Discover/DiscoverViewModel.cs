@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Core.Games;
 using TeensyRom.Core.Logging;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.CornerToolbar;
@@ -26,8 +27,6 @@ using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Common.State.Player;
 using TeensyRom.Ui.Features.Common.State.Progress;
 using TeensyRom.Ui.Features.Discover.State;
-using TeensyRom.Ui.Features.Global;
-using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Discover
@@ -52,13 +51,15 @@ namespace TeensyRom.Ui.Features.Discover
         private TeensySettings _settings = null!;
         private readonly IExplorerViewConfig _viewConfig;
 
-        public DiscoverViewModel(IDiscoverContext context, IGlobalState globalState, IDialogService dialog, IAlertService alert, ISettingsService settingsService, IGameMetadataService metadata, IDiscoverViewConfig config, IProgressTimer? timer)
+        public DiscoverViewModel(IDiscoverContext context, ISerialStateContext serial, IDialogService dialog, IAlertService alert, ISettingsService settingsService, IGameMetadataService metadata, IDiscoverViewConfig config, IProgressTimer? timer)
         {
             _viewConfig = config;
             Title = new FeatureTitleViewModel("Discover");
             FileInfo = new FileInfoViewModel(context, metadata);
 
-            globalState.SerialConnected.ToPropertyEx(this, x => x.IsConnected);
+            serial.CurrentState
+                .Select(state => state is SerialBusyState or SerialConnectedState)
+                .ToPropertyEx(this, x => x.IsConnected);
 
             context.LaunchedFile
                 .Select(g => g is not null)

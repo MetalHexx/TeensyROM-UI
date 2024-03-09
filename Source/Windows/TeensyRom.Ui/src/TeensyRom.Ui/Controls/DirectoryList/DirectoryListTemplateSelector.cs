@@ -1,6 +1,5 @@
 ﻿using System.Windows.Controls;
 using System.Windows;
-using TeensyRom.Ui.Features.Music;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Common;
 

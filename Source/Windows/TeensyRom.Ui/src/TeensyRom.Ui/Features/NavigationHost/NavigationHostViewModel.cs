@@ -6,16 +6,13 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Linq;
 using TeensyRom.Ui.Features.Help;
-using TeensyRom.Ui.Features.Music;
 using TeensyRom.Ui.Features.Connect;
 using TeensyRom.Ui.Features.Settings;
 using MaterialDesignThemes.Wpf;
 using TeensyRom.Core.Storage;
-using TeensyRom.Ui.Features.Files;
 using TeensyRom.Core.Serial;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Serial.State;
-using TeensyRom.Ui.Features.Games;
 using System.Reflection;
 using System;
 using TeensyRom.Ui.Features.Discover;
@@ -41,17 +38,17 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, ISerialStateContext serialState, ISnackbarService alert, FilesViewModel files, MusicViewModel music, GamesViewModel games, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
+        public NavigationHostViewModel(INavigationService navStore, ISerialStateContext serialState, ISnackbarService alert, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
         {
             _navService = navStore;
             _serialContext = serialState;
             MessageQueue = alert.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
-            InitializeNavItems(files, music, games, help, connect, settings, discover);
+            InitializeNavItems(help, connect, settings, discover);
         }
 
-        public void InitializeNavItems(FilesViewModel files, MusicViewModel midi, GamesViewModel games, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
+        public void InitializeNavItems(HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
         {
             _navService.Initialize(NavigationLocation.Connect, new List<NavigationItem>
             {
@@ -60,24 +57,6 @@ namespace TeensyRom.Ui.Features.NavigationHost
                     Type = NavigationLocation.Connect,
                     ViewModel = connect,
                     Icon = "LanConnect"
-                },
-                new() {
-                    Name = "File Explorer",
-                    Type = NavigationLocation.Files,
-                    ViewModel = files,
-                    Icon = "FileArrowLeftRightOutline"
-                },
-                new() {
-                    Name = "Music Player",
-                    Type = NavigationLocation.Music,
-                    ViewModel = midi,
-                    Icon = "MusicClefTreble"
-                },
-                new() {
-                    Name = "Games",
-                    Type = NavigationLocation.Games,
-                    ViewModel = games,
-                    Icon = "Ghost"
                 },
                 new() {
                     Name = "Discover",

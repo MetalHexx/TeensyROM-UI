@@ -25,7 +25,6 @@ using TeensyRom.Ui.Features.Common.Config;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Common.State;
 using TeensyRom.Ui.Features.Common.State.Directory;
-using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using SystemDirectory = System.IO.Directory;

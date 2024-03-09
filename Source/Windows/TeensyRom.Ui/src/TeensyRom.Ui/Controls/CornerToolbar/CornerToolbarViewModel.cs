@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Ui.Features.Music.State;
 using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Controls.CornerToolbar

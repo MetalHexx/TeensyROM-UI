@@ -19,7 +19,6 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Controls.FeatureTitle;
-using TeensyRom.Ui.Features.Global;
 using TeensyRom.Ui.Helpers.ViewModel;
 
 namespace TeensyRom.Ui.Features.Connect

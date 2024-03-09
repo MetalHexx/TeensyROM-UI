@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Common.State.Directory;
-using TeensyRom.Ui.Features.Games.State.Directory;
 
 namespace TeensyRom.Ui.Features.Common.State.Player
 {

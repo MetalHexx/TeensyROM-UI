@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
-using TeensyRom.Ui.Features.Games.State;
 
 namespace TeensyRom.Ui.Controls.Search
 {
