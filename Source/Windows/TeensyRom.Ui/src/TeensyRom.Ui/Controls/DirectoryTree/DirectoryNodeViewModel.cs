@@ -24,6 +24,12 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
 
             IsSelected = normalizedCurrentPath.Equals(normalizedTargetPath);
 
+            if(Directories.Count == 0 && normalizedTargetPath.Contains(normalizedCurrentPath))
+            {
+                IsSelected = true;
+                return;
+            }
+
             foreach (var directory in Directories)
             {
                 directory.SelectDirectory(directoryPath);
