@@ -31,19 +31,13 @@ namespace TeensyRom.Ui.Main
 
             StateChanged += MainWindowStateChangeRaised;
 
-            MessageBus.Current.Listen<NavAnimationMessage>().Subscribe(message =>
+            MessageBus.Current.Listen<NavigatedMessage>().Subscribe(message =>
+            {
+                if (LeftNavButton.IsChecked == true)
                 {
-                    switch (message.NavMenuState)
-                    {
-                        case NavMenuState.Opened:
-                            BeginStoryboard((Storyboard)FindResource("OpenMenu"));
-                            break;
-                        case NavMenuState.Closed:
-                            BeginStoryboard((Storyboard)FindResource("CloseMenu"));
-                            break;
-                        default:
-                            break;
-                    }
+                    BeginStoryboard((Storyboard)FindResource("CloseMenu"));
+                    LeftNavButton.IsChecked = false;
+                }
             });
         }
 
@@ -92,6 +86,16 @@ namespace TeensyRom.Ui.Main
                 RestoreButton.Visibility = Visibility.Collapsed;
                 MaximizeButton.Visibility = Visibility.Visible;
             }
+        }
+
+        private void LeftNavButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (LeftNavButton.IsChecked == true)
+            {
+                BeginStoryboard((Storyboard)FindResource("OpenMenu"));
+                return;
+            }
+            BeginStoryboard((Storyboard)FindResource("CloseMenu"));
         }
     }
 }

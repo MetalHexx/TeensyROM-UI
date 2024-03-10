@@ -89,32 +89,10 @@ namespace TeensyRom.Ui.Features.NavigationHost
                 
                 TriggerAnimation = false;
 
-                if (IsNavOpen)
-                {
-                    IsNavOpen = false;
-                    MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Closed });
-                    return Unit.Default;
-                }
+                MessageBus.Current.SendMessage(new NavigatedMessage());
 
                 return Unit.Default;
             }, outputScheduler: ImmediateScheduler.Instance);
-
-            ToggleNavCommand = ReactiveCommand.Create<Unit, Unit>(
-                execute: n => 
-                {   
-
-                    if(IsNavOpen)
-                    {
-                        MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Closed });
-                        IsNavOpen = false;
-                        return Unit.Default;
-                    }
-                    MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Opened });
-                    IsNavOpen = true;
-
-                    return Unit.Default;
-                },
-                outputScheduler: ImmediateScheduler.Instance);
         }
 
         private void RegisterModelProperties()

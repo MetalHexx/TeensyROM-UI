@@ -120,9 +120,9 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <ToggleButton 
-                        x:Name="ButtonCloseMenu" 
+                        x:Name="LeftNavButton" 
                         Style="{StaticResource MaterialDesignHamburgerToggleButton}"
-                        Command="{Binding ToggleNavCommand}"
+                        Click="LeftNavButton_Click"
                         WindowChrome.IsHitTestVisibleInChrome="True"
                         HorizontalAlignment="Right"
                         Margin="0 0 15 0"
@@ -154,16 +154,6 @@
 
                     <Grid>
 
-                        <Rectangle 
-                            Visibility="{Binding IsNavOpen, Converter={StaticResource BoolToVisibilityConvertor}}"
-                            x:Name="Overlay" Fill="#66000000" Grid.Row="0" RadiusX="5" RadiusY="5" Margin="0 0 0 0" Panel.ZIndex="1">
-                            <interactivity:Interaction.Triggers>
-                                <interactivity:EventTrigger EventName="MouseLeftButtonDown">
-                                    <interactivity:InvokeCommandAction Command="{Binding CloseNavCommand}" />
-                                </interactivity:EventTrigger>
-                            </interactivity:Interaction.Triggers>
-                        </Rectangle>
-
                         <StackPanel Orientation="Horizontal" Panel.ZIndex="1">
 
                             <Grid x:Name="GridMenu" Width="60" HorizontalAlignment="Left" Background="{DynamicResource MaterialDesignCardBackground}" Opacity="1" >
@@ -179,7 +169,7 @@
                                     <ItemsControl x:Name="ProfileList" ItemsSource="{Binding NavigationItems}" Foreground="{DynamicResource PrimaryHueLightBrush}" Margin="0 10">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Button 
+                                                <Button
                                                     Command="{Binding ElementName=ProfileList, Path=DataContext.NavigateCommand}" 
                                                     CommandParameter="{Binding}" 
                                                     Style="{StaticResource MaterialDesignFloatingActionButton}" Margin="9 0" HorizontalAlignment="Left" Width="200">
