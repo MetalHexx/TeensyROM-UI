@@ -204,7 +204,17 @@
                                                                         Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConvertor}}"
                                                                         Width="25" Height="25" VerticalAlignment="Center"/>
 
-                                                                    <TextBlock Text="{Binding Path=Name}" Foreground="{DynamicResource PrimaryHueLightBrush}" VerticalAlignment="Center" Margin="20"/>
+                                                                    <TextBlock 
+                                                                        Text="{Binding Path=Name}" 
+                                                                        Visibility="{Binding IsSelected, Converter={StaticResource InverseBoolToVisibilityConvertor}}" 
+                                                                        Foreground="{DynamicResource PrimaryHueLightBrush}" 
+                                                                        VerticalAlignment="Center" Margin="20"/>
+                                                                    
+                                                                    <TextBlock 
+                                                                        Text="{Binding Path=Name}" 
+                                                                        Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConvertor}}" 
+                                                                        Foreground="{StaticResource EnabledColor}" 
+                                                                        VerticalAlignment="Center" Margin="20"/>
 
                                                                 </StackPanel>
                                                             </Border>
