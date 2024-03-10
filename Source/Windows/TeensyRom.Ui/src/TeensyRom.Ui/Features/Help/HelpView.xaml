@@ -24,14 +24,14 @@
             <controls:DetailButton 
                 ClickCommand="{Binding NavigateToUiGithubCommand}"
                 Title="Desktop UI Project" 
-                Subtitle="Code, new releases and help documentation can be found on the UI github page."
+                Subtitle="Code, new releases and help documentation can be found at the UI GitHub repository."
                 Icon="Github"
                 Margin="0 0 0 20"/>
 
             <controls:DetailButton 
                 ClickCommand="{Binding NavigateToTrGithubCommand}"
                 Title="Hardware Project" 
-                Subtitle="Technical specifications, documentation and firmware releases can be found at the TeensyROM GitHub Repository."
+                Subtitle="Technical specifications, help documentation and firmware releases can be found at the TeensyROM GitHub Repository."
                 Icon="Github"
                 Margin="0 0 0 20"/>
 
@@ -46,15 +46,15 @@
 
             <controls:DetailButton 
                 ClickCommand="{Binding NavigateToEbayCommand}"
-                Title="Ebay" 
-                Subtitle="Purchase a new TeensyROM hardware cartridge on ebay."
+                Title="eBay" 
+                Subtitle="Purchase a new TeensyROM hardware cartridge on eBay."
                 Icon="PiggyBankOutline"
                 Margin="0 0 0 20"/>
 
             <controls:DetailButton 
                 ClickCommand="{Binding NavigateToTindieCommand}"
-                Title="Tindie" 
-                Subtitle="Purchase a new TeensyROM hardware cartridge on Tindie."
+                Title="tindie" 
+                Subtitle="Purchase a new TeensyROM hardware cartridge on tindie."
                 Icon="Cow"
                 Margin="0 0 0 20"/>
         </StackPanel>
@@ -73,7 +73,7 @@
             <controls:DetailButton 
                 ClickCommand="{Binding NavigateToHvscCommand}"
                 Title="High Velocity Sid Collection" 
-                Subtitle="Highly recommended companion music library.  Install this and you'll get enhanced sid music info and composer images.  See help docs for setup info."
+                Subtitle="A highly recommended companion music library.  Install this and you'll get enhanced sid music info and composer images.  See help docs for setup info."
                 Icon="MusicClefTreble"
                 Margin="0 0 0 20"/>
 
