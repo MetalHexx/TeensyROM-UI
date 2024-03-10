@@ -19,7 +19,6 @@
                     <RadioButton 
                             Command="{Binding DataContext.FilterCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                             CommandParameter="{Binding}"
-                            IsChecked="{Binding IsSelected, Mode=TwoWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                             Loaded="RadioButton_Loaded"
                             FontSize="16"
                             GroupName="GroupChoiceChipOutline"
