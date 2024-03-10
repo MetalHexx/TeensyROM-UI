@@ -29,7 +29,7 @@
             </Grid.ColumnDefinitions>
 
             <materialDesign:PackIcon 
-                Kind="{Binding Icon, ElementName=DetailButtonControl}"  
+                Kind="{Binding Icon, ElementName=DetailButtonControl, Converter={StaticResource StringToPackIconKindConverter}}"  
                 Foreground="{DynamicResource PrimaryHueLightBrush}" 
                 Width="50" Height="50" VerticalAlignment="Center" HorizontalAlignment="Left"
                 Grid.Column="0"/>

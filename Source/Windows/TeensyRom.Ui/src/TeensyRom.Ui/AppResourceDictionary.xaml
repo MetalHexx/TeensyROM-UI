@@ -208,5 +208,6 @@
     <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
     <helpers:NullOrEmptyToVisibilityConverter x:Key="NullOrEmptyToVisibilityConverter"/>
     <helpers:InverseNullOrEmptyToVisibilityConverter x:Key="InverseNullOrEmptyToVisibilityConverter"/>
+    <helpers:StringToPackIconKindConverter x:Key="StringToPackIconKindConverter"/>
 
 </ResourceDictionary>

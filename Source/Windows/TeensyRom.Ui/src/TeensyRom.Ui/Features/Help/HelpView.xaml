@@ -10,27 +10,87 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Style="{StaticResource SectionTitle}">Help Resources</TextBlock>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="1">
+        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0 10 0 0">
+            
+            <TextBlock FontSize="20" Text="Help and Project Resources" HorizontalAlignment="Center" Margin="10"/>
+            
             <controls:DetailButton 
-            Title="Github" 
-            Subtitle="Find all the source and documentation at the GitHub Repository"
-            ImageSource="/Assets/Add.png"
-            Margin="0 0 0 20"/>
+                ClickCommand="{Binding NavigateToUiGithubCommand}"
+                Title="Desktop UI Project" 
+                Subtitle="Code, new releases and help documentation can be found on the UI github page."
+                Icon="Github"
+                Margin="0 0 0 20"/>
+
             <controls:DetailButton 
-            Title="Discord" 
-            Subtitle="Join the community and talk about TeensyRom or get some help"
-            ImageSource="/Assets/Download.png"
-            Margin="0 0 0 20"/>
+                ClickCommand="{Binding NavigateToTrGithubCommand}"
+                Title="Hardware Project" 
+                Subtitle="Technical specifications, documentation and hardware firmware releases can be found at the TeensyROM  GitHub Repository."
+                Icon="Github"
+                Margin="0 0 0 20"/>
+
             <controls:DetailButton 
-            Title="Where to buy" 
-            Subtitle="If you need to buy the hardware or refer a friend, I sell them here in my ebay store"
-            ImageSource="/Assets/Download.png"
-            Margin="0 0 0 20"/>
+                ClickCommand="{Binding NavigateToDiscordCommand}"
+                Title="Discord" 
+                Subtitle="Join the community and talk about TeensyROM or get some help."
+                Icon="ChatOutline"
+                Margin="0 0 0 20"/>
+
+            <TextBlock FontSize="20" Text="Buy TeensyROM" HorizontalAlignment="Center" Margin="10"/>
+
+            <controls:DetailButton 
+                ClickCommand="{Binding NavigateToEbayCommand}"
+                Title="Ebay" 
+                Subtitle="Purchase a new TeensyROM hardware cartridge on ebay."
+                Icon="PiggyBankOutline"
+                Margin="0 0 0 20"/>
+
+            <controls:DetailButton 
+                ClickCommand="{Binding NavigateToTindieCommand}"
+                Title="Tindie" 
+                Subtitle="Purchase a new TeensyROM hardware cartridge on Tindie."
+                Icon="cow"
+                Margin="0 0 0 20"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0 10 0 0">
+
+            <TextBlock FontSize="20" Text="Add Ons" HorizontalAlignment="Center" Margin="10"/>
+
+            <controls:DetailButton 
+                ClickCommand="{Binding NavigateToOneLoad64Command}"
+                Title="OneLoad64" 
+                Subtitle="Highly recommended companion game library.  Installing this will enhance the application experience with game screenshots. See help docs for setup info."
+                Icon="GhostOutline"
+                Margin="0 0 0 20"/>
+
+            <controls:DetailButton 
+                ClickCommand="{Binding NavigateToHvscCommand}"
+                Title="High Velocity Sid Collection" 
+                Subtitle="Highly recommended companion music library.  Installing this will ehance the application experience with sid music info and composer images.  See help docs for setup info."
+                Icon="MusicClefTreble"
+                Margin="0 0 0 20"/>
+
+            <controls:DetailButton 
+                ClickCommand="{Binding NavigateToSidListCommand}"
+                Title="SID List" 
+                Subtitle="SID List is a database containing song information for the HVSC.  See help docs for setup info."
+                Icon="FileMusicOutline"
+                Margin="0 0 0 20"/>
+
+            <controls:DetailButton 
+                ClickCommand="{Binding NavigateToDeepSidCommand}"
+                Title="DeepSid Composer Images" 
+                Subtitle="Composer images are sourced from the DeepSID open source project.  See help docs for setup info."
+                Icon="FileImageOutline"
+                Margin="0 0 0 20"/>
+
         </StackPanel>
     </Grid>
 
