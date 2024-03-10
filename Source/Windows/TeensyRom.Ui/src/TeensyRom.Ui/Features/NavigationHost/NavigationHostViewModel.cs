@@ -55,7 +55,8 @@ namespace TeensyRom.Ui.Features.NavigationHost
                     Name = "Connect",
                     Type = NavigationLocation.Connect,
                     ViewModel = connect,
-                    Icon = "LanConnect"
+                    Icon = "LanConnect",
+                    IsSelected = true
                 },
                 new() {
                     Name = "Discover",
@@ -75,7 +76,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
                     ViewModel = help,
                     Icon = "Help"
                 },
-            });
+            });   
         }
 
         private void RegisterModelCommands()

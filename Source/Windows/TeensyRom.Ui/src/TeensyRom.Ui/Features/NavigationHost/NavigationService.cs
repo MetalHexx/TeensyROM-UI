@@ -34,9 +34,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
         
         public Unit NavigateTo(Guid id)
         {
-            _selectedNavigation.OnNext(
-                _navigationItems.Value.First(n => n.Id == id));
-
+            NavigateTo(_navigationItems.Value.First(n => n.Id == id));
             return Unit.Default;
         }
 
@@ -53,8 +51,19 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
             if (navItem != null && selectedNav?.Id != navItem.Id)
             {
+                SetSelectedNav(navItem);
                 _selectedNavigation.OnNext(navItem);
             }
+        }
+
+        private void SetSelectedNav(NavigationItem navItem)
+        {
+            navItem.IsSelected = true;
+
+            _navigationItems.Value
+                .Where(n => n.Id != navItem.Id)
+                .ToList()
+                .ForEach(n => n.IsSelected = false);
         }
     }
 }

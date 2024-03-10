@@ -20,7 +20,7 @@
         Height="900">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="50" GlassFrameThickness="0" />
+        <WindowChrome CaptionHeight="50" GlassFrameThickness="0" ResizeBorderThickness="10" />
     </WindowChrome.WindowChrome>
 
     <Window.CommandBindings>
@@ -195,6 +195,13 @@
                                                                     <materialDesign:PackIcon 
                                                                         Kind="{Binding Path=Icon}"  
                                                                         Foreground="{DynamicResource PrimaryHueLightBrush}" 
+                                                                        Visibility="{Binding IsSelected, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
+                                                                        Width="25" Height="25" VerticalAlignment="Center"/>
+
+                                                                    <materialDesign:PackIcon 
+                                                                        Kind="{Binding Path=Icon}"  
+                                                                        Foreground="{StaticResource EnabledColor}" 
+                                                                        Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConvertor}}"
                                                                         Width="25" Height="25" VerticalAlignment="Center"/>
 
                                                                     <TextBlock Text="{Binding Path=Name}" Foreground="{DynamicResource PrimaryHueLightBrush}" VerticalAlignment="Center" Margin="20"/>

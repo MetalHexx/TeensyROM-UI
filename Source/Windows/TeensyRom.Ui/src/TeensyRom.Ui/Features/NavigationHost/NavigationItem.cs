@@ -1,14 +1,16 @@
-﻿using System;
+﻿using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
+using System;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
-    public class NavigationItem
+    public class NavigationItem : ReactiveObject
     {
-        public object ViewModel { get; init; } = null!;
+        [Reactive] public object ViewModel { get; init; } = null!;
+        [Reactive] public bool IsSelected { get; set; }
         public Guid Id { get; } = Guid.NewGuid();
         public string Name { get; init; } = string.Empty;
         public NavigationLocation Type { get; set; }
         public string Icon { get; init; } = string.Empty;
-
     }
 }
