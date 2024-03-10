@@ -93,6 +93,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
                 {
                     IsNavOpen = false;
                     MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Closed });
+                    return Unit.Default;
                 }
 
                 return Unit.Default;
@@ -100,17 +101,17 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
             ToggleNavCommand = ReactiveCommand.Create<Unit, Unit>(
                 execute: n => 
-                {
-                    IsNavOpen = !IsNavOpen;
+                {   
 
                     if(IsNavOpen)
                     {
-                        MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Opened });
-                    }
-                    else
-                    {
                         MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Closed });
+                        IsNavOpen = false;
+                        return Unit.Default;
                     }
+                    MessageBus.Current.SendMessage(new NavAnimationMessage { NavMenuState = NavMenuState.Opened });
+                    IsNavOpen = true;
+
                     return Unit.Default;
                 },
                 outputScheduler: ImmediateScheduler.Instance);
