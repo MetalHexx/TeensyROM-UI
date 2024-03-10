@@ -30,13 +30,13 @@ namespace TeensyRom.Ui.Controls
         public static readonly DependencyProperty SubtitleProperty =
             DependencyProperty.Register("Subtitle", typeof(string), typeof(DetailButton), new PropertyMetadata("No value set"));
 
-        public string ImageSource
+        public string Icon
         {
-            get { return (string)GetValue(ImageSourceProperty); }
-            set { SetValue(ImageSourceProperty, value); }
+            get { return (string)GetValue(IconProperty); }
+            set { SetValue(IconProperty, value); }
         }
-        public static readonly DependencyProperty ImageSourceProperty =
-            DependencyProperty.Register("ImageSource", typeof(string), typeof(DetailButton), null);
+        public static readonly DependencyProperty IconProperty =
+            DependencyProperty.Register("Icon", typeof(string), typeof(DetailButton), null);
 
         public static readonly RoutedEvent ClickEvent = EventManager.RegisterRoutedEvent
         (
@@ -78,12 +78,11 @@ namespace TeensyRom.Ui.Controls
 
         private void OnClick(object sender, RoutedEventArgs e)
         {
+            if (ClickCommand != null && ClickCommand.CanExecute(null))
+            {
+                ClickCommand.Execute(null);
+            }
             RaiseClickEvent();
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

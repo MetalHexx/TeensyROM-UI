@@ -11,39 +11,40 @@
     <UserControl.Resources>
         <Style x:Key="Title" TargetType="TextBlock">
             <Setter Property="FontSize" Value="20"/>
-            <Setter Property="Padding" Value="0 0 0 3"/>
         </Style>
 
         <Style x:Key="NonTitle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Foreground" Value="LightGray"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Width" Value="310"/>
         </Style>
 
     </UserControl.Resources>
-    <StackPanel>
-        <Button Name="Button" Click="OnClick" Command="{Binding ClickCommand, ElementName=DetailButtonControl}" MaxHeight="120" MinHeight="110" MaxWidth="400">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.15*"></ColumnDefinition>
-                    <ColumnDefinition Width="0.85*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
+    <Button Name="Button" Click="OnClick" Command="{Binding ClickCommand, ElementName=DetailButtonControl}" MaxHeight="120" MinHeight="110" MaxWidth="400" Padding="0 0 0 0">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
 
-                <Image Grid.Column="0" Source="{Binding ImageSource, ElementName=DetailButtonControl}"/>
+            <materialDesign:PackIcon 
+                Kind="{Binding Icon, ElementName=DetailButtonControl}"  
+                Foreground="{DynamicResource PrimaryHueLightBrush}" 
+                Width="50" Height="50" VerticalAlignment="Center" HorizontalAlignment="Left"
+                Grid.Column="0"/>
 
-                <StackPanel Grid.Column="1" Margin="5 0 0 0">
-                    <TextBlock 
-                        Name="TxtTitle"  
-                        Style="{StaticResource Title}"
-                        Text="{Binding Title, ElementName=DetailButtonControl}"
-                        HorizontalAlignment="Left" />
-                    <TextBlock 
-                        Name="TxtSubtitle" 
-                        Style="{StaticResource NonTitle}"
-                        Text="{Binding Subtitle, ElementName=DetailButtonControl}"
-                        HorizontalAlignment="Left" />       
-                </StackPanel>
-            </Grid>
-        </Button>
-    </StackPanel>
+            <StackPanel Grid.Column="1" Margin="5 0 0 0">
+                <TextBlock 
+                    Name="TxtTitle"  
+                    Style="{StaticResource Title}"
+                    Text="{Binding Title, ElementName=DetailButtonControl}"
+                    Margin="0 0 0 5"/>
+                <TextBlock 
+                    Name="TxtSubtitle" 
+                    Style="{StaticResource NonTitle}"
+                    Text="{Binding Subtitle, ElementName=DetailButtonControl}" />
+            </StackPanel>
+        </Grid>
+    </Button>
 </UserControl>
