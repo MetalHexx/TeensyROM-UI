@@ -5,7 +5,7 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 - Media Player / File Explorer hybrid interface
 - Instant remote launch of your games and SID music on a C64/128
 - Random play / shuffle mode capabilities for easy discovery of new content
-- Search capabilities to find instantly locate files in massive collections
+- Search capabilities to find instantly locate specific files in massive collections
 - Tag your favorites titles so you don't lose track of them 
 - Continuous playback of SID music creates a hands free streaming service-like experience
 - Enhanced with SID composer and scene information with metadata integration from [HVSC](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b) and [DeepSID](https://github.com/Chordian/deepsid)
