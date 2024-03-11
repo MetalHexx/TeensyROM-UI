@@ -31,7 +31,7 @@ Coming soon.
 If you multitask a lot and don't always have a lot of time to sink into a full C64 play session, this is for you.  Turn on the C64, load the UI, click random, and you get instant gratification for a quick play session.
 
 #### Kids
-This is a much easier interface to navigate (at least I think so) than the C64 and kids have shorter attention spans.  The randomization features are invaluable here and will keep them engaged for much longer.
+Kids have short attention spans.  The randomization features are invaluable here and will keep them engaged for much longer.
 
 #### Chiptune Lovers 
 This is the retro jukebox you've been looking for.  The continuous playing capability turns your 8-bit machine into a streaming service so can enjoy tunes hands free while you do other things.  DeepSID rules, but it's not hardware and it does sound different. :)
