@@ -190,17 +190,17 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         {
             if(file is null) return;
 
+            if (!file.IsCompatible) 
+            {
+                await HandleBadFile(file);
+                return;
+            }
+
             var result = await _mediator.Send(new LaunchFileCommand { Path = file.Path });
 
             if (result.LaunchResult is LaunchFileResultType.ProgramError or LaunchFileResultType.SidError)
             {
-                _alert.Enqueue($"{file.Name} is currently unsupported (see logs).  Skipping to the next file.");
-                _storage.MarkIncompatible(file);
-
-                var nextFile = await _currentState.Value.GetNext(file, _config.LibraryType, _directoryState.Value);
-
-                if (nextFile is not null) await PlayFile(nextFile);
-
+                await HandleBadFile(file);
                 return;
             }
             Application.Current.Dispatcher.Invoke(() =>
@@ -218,6 +218,17 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             _launchedFile.OnNext(file);
             _selectedFile.OnNext(file);
             _playingState.OnNext(PlayState.Playing);
+        }
+
+        public Task HandleBadFile(ILaunchableItem file)
+        {
+            _alert.Enqueue($"{file.Name} is currently unsupported (see logs).  Skipping to the next file.");
+
+            _launchedFile.OnNext(file); //play next will use this to determine the next file
+
+            if(file.IsCompatible is true) _storage.MarkIncompatible(file);
+            
+            return PlayNext();
         }
         
         public virtual async Task SaveFavorite(ILaunchableItem file)
