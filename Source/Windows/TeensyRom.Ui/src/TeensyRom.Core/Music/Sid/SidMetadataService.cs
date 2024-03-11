@@ -164,17 +164,44 @@ namespace TeensyRom.Core.Music.Sid
                     sid.Value.SongLengthSpan = MusicConstants.DefaultLength;
                     continue;
                 }
-
-                var timeSpanFormats = new[] { @"m\:ss", @"mm\:ss", @"m\:ss\.f", @"mm\:ss\.f", @"m\:ss\.ff", @"mm\:ss\.ff" };
-
-                if (TimeSpan.TryParseExact(sid.Value.SongLength.Trim(), timeSpanFormats, CultureInfo.InvariantCulture, TimeSpanStyles.None, out var timeSpan))
-                {
-                    sid.Value.SongLengthSpan = timeSpan;
-                    continue;
-                }
-                sid.Value.SongLengthSpan = MusicConstants.DefaultLength;
+                var songLengths = ParseTimeSegments(sid.Value.SongLength);
+                
+                sid.Value.SongLengthSpan = songLengths.Any() ? songLengths.First() : MusicConstants.DefaultLength;
             }
             return sids;
+        }
+
+        private static List<TimeSpan> ParseTimeSegments(string input)
+        {
+            List<TimeSpan> timeSpans = [];
+
+            try
+            {
+                input = input.Replace(".", ":");
+                var segments = input.Split(' ');
+
+                foreach (var segment in segments)
+                {
+                    TimeSpan timeSpan;
+
+                    if (segment.Contains(':') && segment.Split(':').Length == 3)
+                    {
+                        var parts = segment.Split(':');
+                        int minutes = int.Parse(parts[0]);
+                        int seconds = int.Parse(parts[1]);
+                        int milliseconds = int.Parse(parts[2]);
+                        timeSpan = new TimeSpan(0, 0, minutes, seconds, milliseconds);
+                    }
+                    else
+                    {
+                        timeSpan = TimeSpan.ParseExact(segment, @"m\:ss", null);
+                    }
+                    timeSpans.Add(timeSpan);
+                }
+            }
+            catch { }
+
+            return timeSpans;
         }
 
         public void Dispose()
