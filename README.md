@@ -44,6 +44,6 @@ I am a late bloomer commodore 64 nerd.  I found a C64 at an auction and thought,
 
 I experimented with KungFu Flash which was really cool.  I pondered an Ultimate II+.  The problem was, none of them had midi and the Kerberos is impossible to find.  But then -- I found TeensyROM and it had MIDI capability too.  Perfect!
 
-The one thing that all these amazing carts have in common is that they're kind of slow at navigating over thousands of files.  It's a bit overwhelming. Trying to find that one game you played before but having trouble? :)  Call me impatient, but it takes tpo long to explore collections with these carts.  So this project aims to solve that problem. 
+The one thing that all these amazing carts have in common is that they're kind of slow at navigating over thousands of files.  It's a bit overwhelming. Trying to find that one game you played before but having trouble? I've been there. :)  Call me impatient, but it takes too long to explore collections with the built in cart UIs.  So this project aims to solve that problem. 
 
 I contacted the creator, Mr Travis S, and started brainstorming.  After a lot of hard work, late nights and bugging Travis with crazy ideas, I now offer this UI and hope it finds a place in your retro workflow. Enjoy!
