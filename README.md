@@ -28,7 +28,7 @@ Coming soon.
 
 ## Who is this for?
 #### Modern Desktop Warriors
-If you multitask a lot and don't always have a lot of time to sink into a full C64 play session, this is for you.  Turn on the C64, load the UI, click random, and you get instant gratification for a quick play session.
+If you multitask a lot and don't always have a lot of time to sink into a full C64 play session, this is for you.  Turn on the C64, load the UI, click random, and you get instant gratification from a quick play session.
 
 #### Kids
 Kids have short attention spans.  The randomization features are invaluable here and will keep them engaged for much longer.
