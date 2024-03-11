@@ -34,7 +34,7 @@ If you multitask a lot and don't always have a lot of time to sink into a full C
 Kids have short attention spans.  The randomization features are invaluable here and will keep them engaged for much longer.
 
 #### Chiptune Lovers 
-This is the retro jukebox you've been looking for.  The continuous playing capability turns your 8-bit machine into a streaming service so can enjoy tunes hands free while you do other things.  DeepSID rules, but it's not hardware and it does sound different. :)
+This is the retro jukebox you've been looking for.  The continuous playing capability turns your 8-bit machine into a streaming service so can enjoy tunes hands free while you do other things.  Nothing beats a true hardware SID experience. :)
 
 #### Purists 
 You may think this lacks the charm of a pure C64 experience...sure.  I can't argue with that. But I challenge you to give it a shot.  Just try SID music player while you're busy doing other things.  It also has plenty of file transfer utility to reduce the SD card / USB juggling operation.  
