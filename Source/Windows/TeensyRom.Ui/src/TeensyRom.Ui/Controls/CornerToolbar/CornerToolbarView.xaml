@@ -27,7 +27,7 @@
 
             <Button 
                 Command="{Binding CacheAllCommand}" 
-                ToolTip="Caches all files.  This will increase performance and make files and music available for search, random play and shuffle play mode."
+                ToolTip="Downloads all file location information from the TR. &#x0a;This is vital for the best experience."
                 Style="{StaticResource StorageIconButton}"
                 Margin="10 0 0 0"
                 Grid.Column="1">

@@ -76,7 +76,8 @@ namespace TeensyRom.Core.Storage.Services
 
             if (favoriteResult.IsBusy)
             {
-                _alert.Publish($"TR was reset to save the favorite.  Re-launching {launchItem.Name}.");
+                _alert.Publish($"TR was reset to save the favorite.");
+                _alert.Publish($"Re-launching {launchItem.Name}.");
                 await _mediator.Send(new ResetCommand());                
                 favoriteResult = await _mediator.Send(favCommand);
                 await Task.Delay(5000);
@@ -84,10 +85,11 @@ namespace TeensyRom.Core.Storage.Services
             }
             if(!favoriteResult.IsSuccess)
             {
-                _alert.Publish($"There was an error favoriting {launchItem.Name}.");
+                _alert.Publish($"There was an error tagging {launchItem.Name} as favorite.");
                 return null;
             }
-            _alert.Publish($"{launchItem.Name} has been favorited.  A copy was placed in {favPath}");
+            _alert.Publish($"{launchItem.Name} has been tagged as a favorite.");
+            _alert.Publish($"A copy was placed in {favPath}.");
 
             var favItem = launchItem switch
             {
@@ -453,9 +455,9 @@ namespace TeensyRom.Core.Storage.Services
 
         public async Task CacheAll()
         {
-            _alert.Publish($"Starting cache all operation.  This may take several minutes.");
+            _alert.Publish($"Starting download of {_settings.TargetType} storage information.");
             var allContent = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = "/" });
-            _alert.Publish($"Enriching music and games with extra metadata and screen images.");
+            _alert.Publish($"Enriching music and games.");
 
             await Task.Run(() => 
             {
@@ -469,7 +471,7 @@ namespace TeensyRom.Core.Storage.Services
                 EnsureFavorites();
                 SaveCacheToDisk();
             });
-            _alert.Publish($"Cache all completed for {_settings.TargetType} storage.");
+            _alert.Publish($"Download completed for {_settings.TargetType} storage.");
         }
     }
 }
