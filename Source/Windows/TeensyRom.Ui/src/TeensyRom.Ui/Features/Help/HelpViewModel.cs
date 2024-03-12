@@ -44,7 +44,7 @@ namespace TeensyRom.Ui.Features.Help
             });
             NavigateToOneLoad64Command = ReactiveCommand.Create(() =>
             {
-                Process.Start(new ProcessStartInfo("https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b") { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo("https://www.youtube.com/playlist?list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b") { UseShellExecute = true });
             });
             NavigateToHvscCommand = ReactiveCommand.Create(() =>
             {
