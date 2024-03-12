@@ -21,7 +21,7 @@ namespace TeensyRom.Core.Music.Sid
     public interface ISidMetadataService
     {
         SongItem EnrichSong(SongItem song);
-    } 
+    }
 
     public class SidMetadataService : ISidMetadataService, IDisposable
     {
@@ -59,7 +59,9 @@ namespace TeensyRom.Core.Music.Sid
 
         public SongItem EnrichSong(SongItem song)
         {
-            if (BadSids.Sids.Contains(song.Name)) 
+            var badSidListed = BadSids.Sids.Any(s => s.Contains(song.Name)) || BadSids.Paths.Any(song.Path.Contains);
+
+            if (badSidListed)
             {
                 song.IsCompatible = false;
                 return song;

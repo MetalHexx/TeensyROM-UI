@@ -15,6 +15,7 @@ using System.Windows.Input;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
@@ -189,6 +190,11 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         public virtual async Task PlayFile(ILaunchableItem file)
         {
             if(file is null) return;
+            if (BadSids.Paths.Any(file.Path.Contains)) 
+            {
+                _alert.Enqueue("Sorry all the files in this folder have an issue.  Please pick another directory.");                
+                return;
+            }
 
             if (!file.IsCompatible) 
             {
