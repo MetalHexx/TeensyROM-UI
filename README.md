@@ -33,24 +33,25 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 - Make a USB connection between the computer and the micro-SD 
  
 ## Quick Start
+*This quick start guide will get you up and running quickly with little explaintion.  See the [Help Guides](#help-guides) for in-depth feature guidance.*
 - Firstly, ensure your have your TeensyROM SD/USB storage filled with some games and SIDs.
-  - HVSC and OneLoad64 are highly recommended to maximize the UI experience.  See the Help Guides below.
+  - HVSC and OneLoad64 are highly recommended to maximize the UI experience.
 - Execute TeensyRom.Ui.exe
 - You will get a Windows Defender / SmartScreen warning.
-- Click "More Info" --> "Run anyway"
+- Click `More Info` --> `Run anyway`
   - *This is due to the application not being signed with a certificate authority yet.*  
-- You'll be greeted with a connection screen.
-- Press the "Connect" button.
+- Once the app loads, press the `Connect` button.
   - *Note: The C64 will automatically reset, this is by design.*
-- Go to "Settings" by clicking the "Gear" icon in the left navigation menu
-- Configure the library paths to point to your game and music folders on your chose storage device
-  - This step will determine where your favorites and auto-transfer files are placed.  See help guides below for more info.
-- Click the save button
-- Click on the "Compass" icon in the left navigation menu
-- Click the "Download" icon in the upper right corner of the screen to cache all your file locations.
-  - The dialog that pops up will further explain why this is important.
-- Click the "Dice" icon in the upper right corner of the screen (next to the "Download" button)
-- Enjoy the ride! For more details on the various features available and how to get the most out of the UI, see the "Help Guides" below.
+- Go to `Settings` by clicking the `Gear` icon in the left navigation menu
+- Select your preferred `Default Storage` device
+- Configure the `Library Paths` to point to your game and music folders on your chose storage device
+  - Note: *This step will determine where your favorites and auto-transfer files are placed.
+- Click the `Save` button
+- Click on the `Compass` icon in the left navigation menu
+- Click the `Download` icon in the upper right corner of the screen to cache all your file locations.
+  - The dialog that pops up will further explain why this is important.  See: [Help Guides](#help-guides)
+- Click the `Dice` icon in the upper right corner of the screen (next to the `Download` button)
+- Enjoy the ride! For more details on the various features available and how to get the most out of the UI, check out the [Help Guides](#help-guides).
 
 ## Help Guides
 Coming soon.
