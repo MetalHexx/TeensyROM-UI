@@ -45,7 +45,6 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 - Go to `Settings` by clicking the `Gear` icon in the left navigation menu
 - Select your preferred `Default Storage` device
 - Configure the `Library Paths` to point to your game and music folders on your chose storage device
-  - Note: *This step will determine where your favorites and auto-transfer files are placed.
 - Click the `Save` button
 - Click on the `Compass` icon in the left navigation menu
 - Click the `Download` icon in the upper right corner of the screen to cache all your file locations.
