@@ -8,6 +8,6 @@ namespace TeensyRom.Core.Music.Sid
 {
     public static class BadSids
     {
-        public static readonly List<string> Sids = ["Revolutionary_Etude_part_1.sid"];
+        public static readonly List<string> Sids = ["Revolutionary_Etude_part_1.sid", "Revolutionary_Etude_part_2.sid"];
     }
 }
