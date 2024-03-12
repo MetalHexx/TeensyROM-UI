@@ -21,7 +21,10 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 - Games and SIDs!
 
 ## Installation
-Coming soon.
+- Install the latest TeensyROM Firmware.  0.5.12 or later is required.
+  - Check for the latest [release notes and firmware (.hex file) here](https://github.com/SensoriumEmbedded/TeensyROM/blob/main/bin/TeensyROM/FW_Release_History.md)
+- Download the latest [release](https://github.com/MetalHexx/TeensyROM-UI/releases)
+  - It comes bundled with a locally bundled NET 8 runtime.  If run into issues, try the [installing the runtime from here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
 ## Help Guides
 Coming soon.
@@ -37,13 +40,13 @@ Kids have short attention spans.  The randomization features are invaluable here
 This is the retro jukebox you've been looking for.  The continuous playing capability turns your 8-bit machine into a streaming service so can enjoy tunes hands free while you do other things.  Nothing beats a true hardware SID experience. :)
 
 #### Purists 
-You may think this lacks the charm of a pure C64 experience...sure.  I can't argue with that. But I challenge you to give it a shot.  Just try SID music player while you're busy doing other things.  It also has plenty of file transfer utility to reduce the SD card / USB juggling operation.  
+Sure, this lacks the oldschool nostalgia.  But I challenge you to give it a shot.  Try the SID music player while you're busy doing other things.  It also has plenty of file transfer utility to reduce the SD card / USB juggling operation.  
 
 ## The Project Story
 I am a late bloomer commodore 64 nerd.  I found a C64 at an auction and thought, hey, maybe I can find a way to control one of these with MIDI to make some music.  I started researching ways to get some games on this thing.  
 
 I experimented with KungFu Flash which was really cool.  I pondered an Ultimate II+.  The problem was, none of them had midi and the Kerberos is impossible to find.  But then -- I found TeensyROM and it had MIDI capability too.  Perfect!
 
-The one thing that all these amazing carts have in common is that they're kind of slow at navigating over thousands of files.  It's a bit overwhelming. Trying to find that one game you played before but having trouble? I've been there. :)  Call me impatient, but it takes too long to explore collections with the built in cart UIs.  So this project aims to solve that problem. 
+The one thing that all these amazing carts have in common is that they're kind of slow at navigating over thousands of files.  It's a bit overwhelming. Trying to find that one game you played before but having trouble? I've been there. :) This project aims to solve that problem.
 
 I contacted the creator, Mr Travis S, and started brainstorming.  After a lot of hard work, late nights and bugging Travis with crazy ideas, I now offer this UI and hope it finds a place in your retro workflow. Enjoy!
