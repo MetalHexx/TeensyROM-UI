@@ -33,9 +33,8 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 - Make a USB connection between the computer and the micro-SD 
  
 ## Quick Start
-- Firstly, ensure your have your TeensyROM SD/USB storage filled with some games and sids.
-  - See the help guides below for how to install HVSC and OneLoad64.
-  - They're not required but highly recommended.  You will get a lot of cool information about SID music, composers and game previews
+- Firstly, ensure your have your TeensyROM SD/USB storage filled with some games and SIDs.
+  - HVSC and OneLoad64 are highly recommended to maximize the UI experience.  See the Help Guides below.
 - Execute TeensyRom.Ui.exe
 - You will get a Windows Defender / SmartScreen warning.
 - Click "More Info" --> "Run anyway"
