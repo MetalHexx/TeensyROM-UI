@@ -1,6 +1,8 @@
 # TeensyROM Desktop UI
 Command your Commodore 64 / 128 with a modern desktop user experience.  This UI frontend integrates with the [TeensyROM Hardware Cartridge](https://github.com/SensoriumEmbedded/TeensyROM), *designed by Travis S/Sensorium*, to provide robust and performant file transfer, exploration and remote launch capability to your 8-bit machine.  Metadata enhancements also bring a rich user experience to the exploration process.  
 
+
+
 ## Features
 - Media Player / File Explorer hybrid interface
 - Instant remote launch of your games and SID music on a C64/128
@@ -49,7 +51,7 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 - Click the "Download" icon in the upper right corner of the screen to cache all your file locations.
   - The dialog that pops up will further explain why this is important.
 - Click the "Dice" icon in the upper right corner of the screen (next to the "Download" button)
-- Enjoy the ride! For more details on the various features available, see the "Help Guides" below.
+- Enjoy the ride! For more details on the various features available and how to get the most out of the UI, see the "Help Guides" below.
 
 ## Help Guides
 Coming soon.
