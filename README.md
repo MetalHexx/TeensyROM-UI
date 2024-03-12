@@ -26,7 +26,7 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 ## Installation
 - Install the latest TeensyROM Firmware.  0.5.12 or later is required.
   - Latest firmware (.hex file) found [here](https://github.com/SensoriumEmbedded/TeensyROM/blob/main/bin/TeensyROM/FW_Release_History.md)
-- Download the latest [release](https://github.com/MetalHexx/TeensyROM-UI/releases)
+- Download the latest [desktop UI application release](https://github.com/MetalHexx/TeensyROM-UI/releases)
 - It comes bundled with a locally bundled NET 8 runtime.
   - If run into issues, try the installing the runtime found [here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 - Unzip the release into a directory of your choice
