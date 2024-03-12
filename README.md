@@ -18,13 +18,36 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 - A windows 10/11 laptop, tablet or desktop computer
 - [TeensyROM Hardware Cartridge](https://github.com/SensoriumEmbedded/TeensyROM)
 - Micro-USB Cable
+- NET 8 Runtime
 - Games and SIDs!
 
 ## Installation
 - Install the latest TeensyROM Firmware.  0.5.12 or later is required.
-  - Check for the latest [release notes and firmware (.hex file) here](https://github.com/SensoriumEmbedded/TeensyROM/blob/main/bin/TeensyROM/FW_Release_History.md)
+  - Latest firmware (.hex file) found [here](https://github.com/SensoriumEmbedded/TeensyROM/blob/main/bin/TeensyROM/FW_Release_History.md)
 - Download the latest [release](https://github.com/MetalHexx/TeensyROM-UI/releases)
-  - It comes bundled with a locally bundled NET 8 runtime.  If run into issues, try the [installing the runtime from here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- It comes bundled with a locally bundled NET 8 runtime.
+  - If run into issues, try the installing the runtime found [here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- Unzip the release into a directory of your choice
+- Make a USB connection between the computer and the micro-SD 
+ 
+## Quick Start
+- Firstly, ensure your have your TeensyROM SD/USB storage filled with some games and sids.
+  - See the help guides below for how to install HVSC and OneLoad64.
+  - They're not required but highly recommended.  You will get a lot of cool information about SID music, composers and game previews
+- Execute TeensyRom.Ui.exe
+- You will get a Windows Defender / SmartScreen warning.  This is due to the application not being signed with a certificate authority yet.
+  - Click "More Info" --> "Run anyway"
+- You'll be greeted with a connection screen.  Press the "Connect" button.
+  - *Note -- when "Auto-detect" is selected in the drop down, the application will attempt to the correct COM port.*
+- Go to "Settings" by clicking the "Gear" icon in the left navigation menu
+- Configure the library paths to point to your game and music folders on your chose storage device
+  - This step will determine where your favorites and auto-transfer files are placed.
+- Click the save button
+- Click on the "Compass" icon in the left navigation menu
+- Click the "Download" icon in the upper right corner of the screen to cache all your file locations.
+  - The dialog that pops up will further explain why this is important.
+- Click the "Dice" icon in the upper right corner of the screen (next to the "Download" button)
+- Enjoy the ride! For more details on the various features available, see the "Help Guides" below.
 
 ## Help Guides
 Coming soon.
