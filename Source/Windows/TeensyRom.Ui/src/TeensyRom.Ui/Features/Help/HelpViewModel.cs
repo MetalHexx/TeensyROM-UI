@@ -24,40 +24,45 @@ namespace TeensyRom.Ui.Features.Help
         {
             NavigateToUiGithubCommand = ReactiveCommand.Create(() => 
             {
-                Process.Start(new ProcessStartInfo("https://github.com/MetalHexx/TeensyROM-UI") { UseShellExecute = true });
+                OpenBrowser("https://github.com/MetalHexx/TeensyROM-UI");
             });
             NavigateToTrGithubCommand = ReactiveCommand.Create(() => 
             {
-                Process.Start(new ProcessStartInfo("https://github.com/SensoriumEmbedded/TeensyROM") { UseShellExecute = true });
+                OpenBrowser("https://github.com/SensoriumEmbedded/TeensyROM");
             });
             NavigateToDiscordCommand = ReactiveCommand.Create(() =>
-            {
-                Process.Start(new ProcessStartInfo("https://discord.gg/ubSAb74S5U") { UseShellExecute = true });
+            {                
+                OpenBrowser("https://discord.gg/ubSAb74S5U");
             });
             NavigateToEbayCommand = ReactiveCommand.Create(() => 
-            {
-                Process.Start(new ProcessStartInfo("https://www.ebay.com/usr/travster1") { UseShellExecute = true });
+            {                
+                OpenBrowser("https://www.ebay.com/usr/travster1");
             });
             NavigateToTindieCommand = ReactiveCommand.Create(() =>
             {
-                Process.Start(new ProcessStartInfo("https://www.tindie.com/products/travissmith/teensyrom-cartridge-for-c64128/") { UseShellExecute = true });
+                OpenBrowser("https://www.tindie.com/products/travissmith/teensyrom-cartridge-for-c64128/");                
             });
             NavigateToOneLoad64Command = ReactiveCommand.Create(() =>
             {
-                Process.Start(new ProcessStartInfo("https://www.youtube.com/playlist?list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b") { UseShellExecute = true });
+                OpenBrowser("https://www.youtube.com/playlist?list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b");                
             });
             NavigateToHvscCommand = ReactiveCommand.Create(() =>
-            {
-                Process.Start(new ProcessStartInfo("https://www.hvsc.c64.org/") { UseShellExecute = true });
+            {                
+                OpenBrowser("https://www.hvsc.c64.org/");
             });
             NavigateToSidListCommand = ReactiveCommand.Create(() =>
-            {
-                Process.Start(new ProcessStartInfo("https://www.transbyte.org/SID/SIDlist.html") { UseShellExecute = true });
+            {                
+                OpenBrowser("https://www.transbyte.org/SID/SIDlist.html");
             });
             NavigateToDeepSidCommand = ReactiveCommand.Create(() =>
             {
-                Process.Start(new ProcessStartInfo("https://github.com/Chordian/deepsid") { UseShellExecute = true });
+                OpenBrowser("https://github.com/Chordian/deepsid");
             });
+        }
+
+        private void OpenBrowser(string url)
+        {
+            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         }
     }
 }

@@ -45,17 +45,17 @@
             <TextBlock FontSize="20" Text="Buy TeensyROM" HorizontalAlignment="Center" Margin="10"/>
 
             <controls:DetailButton 
-                ClickCommand="{Binding NavigateToEbayCommand}"
-                Title="eBay" 
-                Subtitle="Purchase a new TeensyROM hardware cartridge on eBay."
-                Icon="PiggyBankOutline"
-                Margin="0 0 0 20"/>
-
-            <controls:DetailButton 
                 ClickCommand="{Binding NavigateToTindieCommand}"
                 Title="tindie" 
                 Subtitle="Purchase a new TeensyROM hardware cartridge on tindie."
                 Icon="Cow"
+                Margin="0 0 0 20"/>
+
+            <controls:DetailButton 
+                ClickCommand="{Binding NavigateToEbayCommand}"
+                Title="eBay" 
+                Subtitle="Purchase a new TeensyROM hardware cartridge on eBay."
+                Icon="PiggyBankOutline"
                 Margin="0 0 0 20"/>
         </StackPanel>
 
