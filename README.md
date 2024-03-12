@@ -35,13 +35,15 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
   - See the help guides below for how to install HVSC and OneLoad64.
   - They're not required but highly recommended.  You will get a lot of cool information about SID music, composers and game previews
 - Execute TeensyRom.Ui.exe
-- You will get a Windows Defender / SmartScreen warning.  This is due to the application not being signed with a certificate authority yet.
-  - Click "More Info" --> "Run anyway"
-- You'll be greeted with a connection screen.  Press the "Connect" button.
-  - *Note -- when "Auto-detect" is selected in the drop down, the application will attempt to the correct COM port.*
+- You will get a Windows Defender / SmartScreen warning.
+- Click "More Info" --> "Run anyway"
+  - *This is due to the application not being signed with a certificate authority yet.*  
+- You'll be greeted with a connection screen.
+- Press the "Connect" button.
+  - *Note: The C64 will automatically reset, this is by design.*
 - Go to "Settings" by clicking the "Gear" icon in the left navigation menu
 - Configure the library paths to point to your game and music folders on your chose storage device
-  - This step will determine where your favorites and auto-transfer files are placed.
+  - This step will determine where your favorites and auto-transfer files are placed.  See help guides below for more info.
 - Click the save button
 - Click on the "Compass" icon in the left navigation menu
 - Click the "Download" icon in the upper right corner of the screen to cache all your file locations.
