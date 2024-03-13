@@ -86,7 +86,7 @@
 
             <controls:DetailButton 
                 ClickCommand="{Binding NavigateToDeepSidCommand}"
-                Title="DeepSid Composer Images" 
+                Title="DeepSID Composer Images" 
                 Subtitle="Composer images from the DeepSID open source project.  This comes pre-installed.  To update the latest version manually, see help docs."
                 Icon="FileImageOutline"
                 Margin="0 0 0 20"/>
