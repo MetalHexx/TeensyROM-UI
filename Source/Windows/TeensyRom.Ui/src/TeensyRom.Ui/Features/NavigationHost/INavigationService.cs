@@ -10,5 +10,6 @@ namespace TeensyRom.Ui.Features.NavigationHost
         IObservable<NavigationItem> SelectedNavigationView { get; }
         Unit NavigateTo(Guid locationId);
         void Initialize(NavigationLocation startingLocation, List<NavigationItem> navItems);
+        Unit NavigateTo(NavigationLocation location);
     }
 }
