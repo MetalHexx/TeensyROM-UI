@@ -16,6 +16,8 @@ using TeensyRom.Core.Serial.State;
 using System.Reflection;
 using System;
 using TeensyRom.Ui.Features.Discover;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -33,18 +35,30 @@ namespace TeensyRom.Ui.Features.NavigationHost
         public ReactiveCommand<Unit, Unit>? ToggleNavCommand { get; private set; }
 
         private readonly INavigationService _navService;
+        private readonly ISetupService _setup;
         private readonly ISerialStateContext _serialContext;
 
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, ISerialStateContext serialState, ISnackbarService alert, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
+        public NavigationHostViewModel(INavigationService navStore, ISetupService setup, ISerialStateContext serialState, ISnackbarService alert, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
         {
             _navService = navStore;
+            _setup = setup;
             _serialContext = serialState;
             MessageQueue = alert.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
             InitializeNavItems(help, connect, settings, discover);
+
+            var setupDelay = Task.Delay(1000);
+
+            setupDelay.ContinueWith(_ =>
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    _setup.StartSetup();
+                });
+            });
         }
 
         public void InitializeNavItems(HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
@@ -105,8 +119,10 @@ namespace TeensyRom.Ui.Features.NavigationHost
             _navService.NavigationItems
                 .ToPropertyEx(this, vm => vm.NavigationItems);
 
-            _serialContext.CurrentState
-                .Select(s => s is SerialBusyState)
+            _serialContext.CurrentState           
+                .Scan((previous: (SerialState?)null, current: (SerialState?)null), (stateTuple, currentState) => (stateTuple.current, currentState))    
+                .Where(s => s.previous is not null && s.previous is not SerialConnectableState)
+                .Select(s => s.current is SerialBusyState)
                 .Throttle(TimeSpan.FromMilliseconds(1000))
                 .ToPropertyEx(this, vm => vm.SerialBusy);
         }

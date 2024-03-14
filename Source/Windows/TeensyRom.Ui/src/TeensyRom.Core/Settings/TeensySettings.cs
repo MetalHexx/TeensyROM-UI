@@ -32,6 +32,7 @@ namespace TeensyRom.Core.Settings
         public string AutoTransferPath { get; set; } = "auto-transfer";
         public bool AutoFileCopyEnabled { get; set; }
         public bool SaveMusicCacheEnabled { get; set; } = true;        
+        public bool FirstTimeSetup { get; set; } = true;
 
         public TeensySettings()
         {

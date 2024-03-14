@@ -24,7 +24,7 @@ namespace TeensyRom.Core.Settings
             _settings = new BehaviorSubject<TeensySettings>(GetSettings());
         }
 
-        private TeensySettings GetSettings()
+        public TeensySettings GetSettings()
         {
             TeensySettings? settings = null;
 
