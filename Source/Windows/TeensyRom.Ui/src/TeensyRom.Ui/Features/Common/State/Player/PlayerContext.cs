@@ -46,6 +46,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         public IObservable<PlayState> PlayingState => _playingState.AsObservable();
 
         private string _currentPath = string.Empty;
+        private string _previousSearch = string.Empty;
 
         protected PlayerState? _previousState;
         protected readonly BehaviorSubject<PlayerState> _currentState;        
@@ -309,6 +310,8 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         }
         public Unit SearchFiles(string searchText)
         {
+            _previousSearch = searchText;
+
             var success = TryTransitionTo(typeof(SearchState));
 
             if (!success) return Unit.Default;
@@ -387,10 +390,15 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             return Unit.Default;
         }
 
-        public Task SwitchLibrary(TeensyLibrary library)
+        public async Task SwitchLibrary(TeensyLibrary library)
         {
             _currentLibrary = library;
-            return Task.CompletedTask;        
+
+            if(_currentState.Value is SearchState)
+            {
+                SearchFiles(_previousSearch);
+                return;
+            }
         }
 
         public TeensyFileType[] GetFileTypes() 
