@@ -18,6 +18,7 @@ namespace TeensyRom.Core.Settings
         public string DisplayName { get; set; } = string.Empty;
         public string Icon { get; set; } = string.Empty;
         public string Path { get; set; } = string.Empty;
+        public bool IsConfigurable { get; set; } = true;
     }
     /// <summary>
     /// Used to persist and retrieve user preference from disk.  See: Settings.json in the bin folder
@@ -48,7 +49,9 @@ namespace TeensyRom.Core.Settings
                     Type = TeensyLibraryType.All,
                     DisplayName = "All",
                     Icon = "AllInclusive",
-                    Path = "/"
+                    Path = "/",
+                    IsConfigurable = false
+
                 },
                 new TeensyLibrary
                 {
