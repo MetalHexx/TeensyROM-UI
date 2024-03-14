@@ -7,9 +7,13 @@ namespace TeensyRom.Ui.Services
 {
     public class DialogService : IDialogService
     {
-        public async Task<bool> ShowConfirmation(string message)
+        public Task<bool> ShowConfirmation(string content)
         {
-            var viewModel = new ConfirmDialogViewModel(message);
+            return ShowConfirmation("Confirm", content);
+        }
+        public async Task<bool> ShowConfirmation(string title, string content)
+        {
+            var viewModel = new ConfirmDialogViewModel(title, content);
 
             var view = new ContentControl
             {

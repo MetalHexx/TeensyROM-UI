@@ -175,16 +175,23 @@
     </Style>
 
     <DataTemplate x:Key="ConfirmationDialogTemplate">
-        <StackPanel Background="#424242" MaxWidth="400">
+        <StackPanel Background="#424242" MaxWidth="500">
+            
+            <Rectangle HorizontalAlignment="Stretch" Height="10" Fill="{StaticResource PrimaryHueDarkBrush}"/>
+
+            <TextBlock Text="{Binding Title}" TextAlignment="Center" HorizontalAlignment="Stretch" Height="15" Background="{StaticResource PrimaryHueDarkBrush}"/>
+
+            <Rectangle HorizontalAlignment="Stretch" Height="10" Fill="{StaticResource PrimaryHueDarkBrush}"/>
+
             <TextBlock Text="{Binding Content}" 
                 Foreground="White" 
                 FontSize="16" 
-                HorizontalAlignment="Left"  
+                HorizontalAlignment="Left"                  
                 TextWrapping="Wrap" 
-                TextAlignment="Center"
+                TextAlignment="Left"
                 Margin="20"/>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="20">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 0 0 10">
                 <Button Content="OK" 
                     IsDefault="True" 
                     Command="materialDesign:DialogHost.CloseDialogCommand" 
