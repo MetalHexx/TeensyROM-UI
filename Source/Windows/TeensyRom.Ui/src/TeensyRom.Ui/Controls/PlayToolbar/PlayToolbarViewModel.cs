@@ -112,6 +112,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     EnableStopButton = true;
                     EnablePauseButton = false;
+                    _timer?.PauseTimer();
                 });
 
             playToggle
