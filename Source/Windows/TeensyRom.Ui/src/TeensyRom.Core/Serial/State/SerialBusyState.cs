@@ -7,7 +7,8 @@ namespace TeensyRom.Core.Serial.State
         public override bool CanTransitionTo(Type nextStateType)
         {
             return nextStateType == typeof(SerialConnectedState)
-                || nextStateType == typeof(SerialConnectionLostState);
+                || nextStateType == typeof(SerialConnectionLostState)
+                || nextStateType == typeof(SerialConnectableState);
         }
         public override int BytesToRead => _serialPort.BytesToRead;
         public override void Write(string text) => _serialPort.Write(text);

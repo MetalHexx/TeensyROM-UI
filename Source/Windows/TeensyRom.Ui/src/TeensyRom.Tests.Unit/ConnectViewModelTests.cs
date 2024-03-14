@@ -144,24 +144,24 @@ namespace TeensyRom.Tests.Unit
         public void Given_IsConnectable_When_ConnectCommandExecuted_WithAutoPort_RetriesUntilConnected()
         {
             //Arrange
-            _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectableState(_observableSerialPort)).AsObservable());
-            _serialMock.Ports.Returns(new BehaviorSubject<string[]>(["COM1", "COM2", "COM3", "COM4"]).AsObservable());
+            var ports = new BehaviorSubject<string[]>(new[] { "COM1", "COM2", "COM3", "COM4" });
+            var currentStateSubject = new BehaviorSubject<SerialState>(new SerialConnectableState(_observableSerialPort));
 
-            int callCount = 0;
+
+            _serialMock.CurrentState.Returns(currentStateSubject.AsObservable());
+            _serialMock.Ports.Returns(ports.AsObservable());
+
             _mediatorMock
                 .Send(Arg.Any<ResetCommand>())
-                .ReturnsForAnyArgs(callInfo =>
-                {
-                    callCount++;
-                    if (callCount < 4)
-                    {
-                        return new ResetResult { IsSuccess = false, Error = "Error Message" };
-                    }
-                    else
-                    {
-                        return new ResetResult { IsSuccess = true };                        
-                    }
-                });
+                .Returns(new ResetResult { IsSuccess = true });
+
+            _serialMock
+                .When(x => x.SetPort(Arg.Is<string>(s => s == "COM3")))
+                .Do(_ => currentStateSubject.OnNext(new SerialConnectedState(_observableSerialPort)));
+
+            _serialMock
+                .When(x => x.SetPort(Arg.Is<string>(s => s != "COM3")))
+                .Do(_ => currentStateSubject.OnNext(new SerialConnectableState(_observableSerialPort)));
 
             var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
 
@@ -169,13 +169,12 @@ namespace TeensyRom.Tests.Unit
             viewModel.ConnectCommand.Execute().Subscribe();
 
             //Assert
-            _mediatorMock.Received(4).Send(Arg.Any<ResetCommand>());
-            _serialMock.Received(4).OpenPort();
-            _serialMock.Received(3).ClosePort();
+            _serialMock.Received(3).OpenPort();
+            _serialMock.Received(3).SetPort(Arg.Any<string>());
         }
 
         [Fact]
-        public void Given_IsConnectable_When_ConnectCommandExecuted_AndConnectionFails_AlertsUser()
+        public async Task Given_IsConnectable_When_ConnectCommandExecuted_AndConnectionFails_AlertsUser()
         {
             //Arrange
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectableState(_observableSerialPort)).AsObservable());
@@ -191,9 +190,7 @@ namespace TeensyRom.Tests.Unit
             viewModel.ConnectCommand.Execute().Subscribe();
 
             //Assert
-            _mediatorMock.Received(4).Send(Arg.Any<ResetCommand>());
             _serialMock.Received(4).OpenPort();
-            _serialMock.Received(4).ClosePort();
             _alertService.Received(1).Publish("Failed to connect to device.  Check to make sure you're using the correct com port.");
         }
 
@@ -215,9 +212,7 @@ namespace TeensyRom.Tests.Unit
             viewModel.ConnectCommand.Execute().Subscribe();
 
             //Assert
-            _mediatorMock.Received(1).Send(Arg.Any<ResetCommand>());
             _serialMock.Received(1).OpenPort();
-            _serialMock.Received(1).ClosePort();
             _alertService.Received(1).Publish("Failed to connect to device.  Check to make sure you're using the correct com port.");
         }
 
@@ -228,10 +223,6 @@ namespace TeensyRom.Tests.Unit
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectableState(_observableSerialPort)).AsObservable());
             _serialMock.Ports.Returns(new BehaviorSubject<string[]>(["COM1", "COM2", "COM3", "COM4"]).AsObservable());
 
-            _mediatorMock
-                .Send(Arg.Any<ResetCommand>())
-                .Returns(new ResetResult { IsSuccess = true });
-
             var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
             viewModel.SelectedPort = "COM3";
 
@@ -239,13 +230,12 @@ namespace TeensyRom.Tests.Unit
             viewModel.ConnectCommand.Execute().Subscribe();
 
             //Assert
-            _mediatorMock.Received(1).Send(Arg.Any<ResetCommand>());
             _serialMock.Received(1).OpenPort();
-            _serialMock.Received(0).ClosePort();
+            _serialMock.Received(1).SetPort(Arg.Any<string>());
         }
 
         [Fact]
-        public void Given_IsConnected_When_DisconnectCommandExecuted_SerialPortClosed_AndResetCommandCalled()
+        public void Given_IsConnected_When_DisconnectCommandExecuted_SerialPortClosed()
         {
             //Arrange
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectedState(_observableSerialPort)).AsObservable());

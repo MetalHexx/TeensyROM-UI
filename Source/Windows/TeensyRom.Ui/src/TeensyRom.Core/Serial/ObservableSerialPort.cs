@@ -63,7 +63,25 @@ namespace TeensyRom.Core.Serial
         public Unit OpenPort()
         {
             EnsureConnection();
-            _state.OnNext(typeof(SerialConnectedState));
+
+            if (_serialPort.IsOpen)
+            {
+                Lock();
+                _log.Internal($"Attemping a reset the TR on {_serialPort.PortName}.");
+
+                Write(TeensyByteToken.Reset_Bytes.ToArray(), 0, 2);
+                var response = ReadAndLogSerialAsString(200).ToLower();
+
+                if (!response.Contains("reset cmd received"))
+                {
+                    _log.InternalError($"Failed to connect to a TR on {_serialPort.PortName} Try a different COM port.");
+                    _serialPort.Close();
+                    _state.OnNext(typeof(SerialConnectableState));
+                    return Unit.Default;
+                }
+                _log.Internal($"Successfully located a TR at {_serialPort.PortName}");
+                Unlock();
+            }
 
             _healthCheckSubscription = Observable
                 .Interval(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds))

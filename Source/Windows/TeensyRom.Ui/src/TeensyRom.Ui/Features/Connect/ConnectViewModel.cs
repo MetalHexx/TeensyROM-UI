@@ -140,11 +140,12 @@ namespace TeensyRom.Ui.Features.Connect
         private async Task<bool> TrySingleConnect()
         {
             _serial.OpenPort();
-            var result = await _mediator.Send(new ResetCommand());
 
-            if (!result.IsSuccess)
+            var serialState = await _serial.CurrentState.FirstAsync();
+
+            if (serialState is not SerialConnectedState)
             {
-                _serial.ClosePort();
+                _log.InternalError($"Failed to find a connectable TeensyROM cartridge.");
                 return false;
             }
             return true;
@@ -152,7 +153,7 @@ namespace TeensyRom.Ui.Features.Connect
 
         private async Task<bool> TryAutoConnect()
         {
-            _log.Internal("Attempting to correct TeensyROM COM port.\r\nYou may see some errors as each COM port is attempted.");
+            _log.Internal("Scanning for a TR on each COM port.");
 
             var legitPorts = Ports!
                 .Where(p => p != "Auto-detect")
@@ -162,18 +163,16 @@ namespace TeensyRom.Ui.Features.Connect
             {
                 _serial.SetPort(port);
                 _serial.OpenPort();
-                var result = await _mediator.Send(new ResetCommand());
+                var serialState = await _serial.CurrentState.FirstAsync();
 
-                if (!result.IsSuccess)
+                if(serialState is not SerialConnectedState)
                 {
-                    _serial.ClosePort();
+                    _log.Internal($"Attempting the next COM port.");
+                    continue;
                 }
-                else
-                {
-                    _log.Internal("Auto-detection of correct TeensyROM COM port was successful!");
-                    return true;
-                }
+                return true;
             }
+            _log.Internal($"Failed to find a connectable TeensyROM cartridge.");
             return false;
         }
     }
