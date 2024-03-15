@@ -370,11 +370,12 @@ namespace TeensyRom.Core.Storage.Services
                         file.Creator.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                         file.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                         file.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                        file.Path.Contains(term, StringComparison.OrdinalIgnoreCase))
+                        file.Path.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        file.Description.Contains(term, StringComparison.OrdinalIgnoreCase))
                 })
-                .Where(result => result.Score > 0)
-                .OrderBy(result => result.File.Title)
+                .Where(result => result.Score > 0)                
                 .OrderByDescending(result => result.Score)
+                .ThenBy(result => result.File.Title)
                 .Select(result => result.File);
         }
 
