@@ -138,9 +138,11 @@ namespace TeensyRom.Ui.Features.Discover
 
                 var libs = _settings.Libraries.Where(lib => lib.Type is not TeensyLibraryType.Hex);
 
-                var prevLib = LibraryFilter?.SelectedLibrary;
+                var selectedLibrary = LibraryFilter?.SelectedLibrary;
 
-                LibraryFilter = new LibraryFilterViewModel(libs, prevLib, (library) => context.SwitchLibrary(library));
+                LibraryFilter = new LibraryFilterViewModel(libs, selectedLibrary, 
+                    filterFunc: (library) => context.SwitchLibrary(library),
+                    launchRandomFunc: () => context.PlayRandom());
 
                 var libPath = s.Libraries.FirstOrDefault(l => l.Type == _viewConfig.LibraryType)?.Path ?? "";
 
@@ -154,8 +156,7 @@ namespace TeensyRom.Ui.Features.Discover
 
                 CornerToolbar = new CornerToolbarViewModel
                 (
-                    context.CacheAll,
-                    context.PlayRandom,
+                    context.CacheAll,                    
                     context.RefreshDirectory,
                     dialog,
                     _settings.TargetType
