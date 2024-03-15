@@ -45,7 +45,7 @@
             <Button                     
                     Command="{Binding CopyCommand}" 
                     ToolTip="Copies the path to the clipboard"
-                    Style="{StaticResource TinyIconButton}"
+                    Style="{StaticResource StorageIconButton}"
                     HorizontalAlignment="Right"
                     Grid.Column="2">
                 <materialDesign:PackIcon Kind="ContentCopy" Height="15"/>

@@ -28,9 +28,10 @@
                 Command="{Binding ClearSearchCommand}" 
                 Visibility="{Binding ShowClearSearch, Converter={StaticResource BoolToVisibilityConvertor}}"
                 ToolTip="Clear search"
-                Style="{StaticResource TinyIconButton}"
+                Style="{StaticResource StorageIconButton}"
                 VerticalAlignment="Center"
                 HorizontalAlignment="Center"
+                Margin="0 0 0 0"
                 Grid.Column="1">
                 <materialDesign:PackIcon Kind="Close" Height="15" />
             </Button>

@@ -36,7 +36,7 @@
         <Button 
             Command="{Binding PlayRandomCommand}" 
             ToolTip="I'm feeling lucky!"
-            Style="{StaticResource RandomButton}"
+            Style="{StaticResource StorageIconButton}"
             Grid.Column="0"
             Margin="5 0 0 0">
             <materialDesign:PackIcon Kind="Dice5" />
