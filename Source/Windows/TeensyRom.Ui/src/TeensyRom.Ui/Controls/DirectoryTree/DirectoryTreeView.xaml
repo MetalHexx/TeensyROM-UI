@@ -4,29 +4,29 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:local="clr-namespace:TeensyRom.Ui.Controls.DirectoryTree"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     mc:Ignorable="d" 
     d:DesignHeight="450" d:DesignWidth="800">
     <TreeView 
-            x:Name="DirectoryTreeControl"
-            ItemsSource="{Binding RootDirectory.Directories}" 
-            HorizontalAlignment="Left">
+        x:Name="DirectoryTreeControl"
+        ItemsSource="{Binding RootDirectory.Directories}" 
+        HorizontalAlignment="Stretch">
 
-            <TreeView.Resources>
-                <Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
-                    <Setter Property="materialDesign:TreeViewAssist.ExpanderSize" Value="20" />
-                    <Setter Property="materialDesign:TreeViewAssist.ShowSelection" Value="True" />
-                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                </Style>
+        <TreeView.Resources>
+            <Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
+                <Setter Property="materialDesign:TreeViewAssist.ExpanderSize" Value="20" />
+                <Setter Property="materialDesign:TreeViewAssist.ShowSelection" Value="True" />
+                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+            </Style>
 
-                <HierarchicalDataTemplate 
-                    DataType="{x:Type local:DirectoryNodeViewModel}" 
-                    ItemsSource="{Binding Directories, Mode=OneWay}">
+            <HierarchicalDataTemplate 
+                DataType="{x:Type local:DirectoryNodeViewModel}" 
+                ItemsSource="{Binding Directories, Mode=OneWay}">
 
-                    <TextBlock Margin="3,2" Text="{Binding Name, Mode=OneTime}" />
+                <TextBlock Margin="3,2" Text="{Binding Name, Mode=OneTime}" />
 
-                </HierarchicalDataTemplate>
-            </TreeView.Resources>
-        </TreeView>
+            </HierarchicalDataTemplate>
+        </TreeView.Resources>
+    </TreeView>
 </UserControl>
