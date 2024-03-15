@@ -369,6 +369,11 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 _selectedFile.Value!.IsSelected = false;
             }
             _selectedFile.OnNext(file);
+
+            if(_currentState.Value is not SearchState)
+            {
+                TryTransitionTo(typeof(NormalPlayState));
+            }
             return Unit.Default;
         }
         public virtual Unit NextPage()
