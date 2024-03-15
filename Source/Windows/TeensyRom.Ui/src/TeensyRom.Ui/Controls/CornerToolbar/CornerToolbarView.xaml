@@ -12,25 +12,14 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-
-            <Button 
-                Command="{Binding PlayRandomCommand}" 
-                ToolTip="I'm feeling lucky!"
-                Style="{StaticResource StorageIconButton}"
-                Grid.Column="0"
-                Margin="10 0 0 0">
-
-                <materialDesign:PackIcon Kind="Dice5" />
-            </Button>
 
             <Button 
                 Command="{Binding CacheAllCommand}" 
                 ToolTip="Downloads all file location information from the TR. &#x0a;This is vital for the best experience."
                 Style="{StaticResource StorageIconButton}"
                 Margin="10 0 0 0"
-                Grid.Column="1">
+                Grid.Column="0">
 
                 <materialDesign:PackIcon Kind="Download" />
             </Button>
@@ -39,7 +28,7 @@
                 Command="{Binding RefreshCommand}" 
                 ToolTip="Refreshes the current directory."
                 Style="{StaticResource StorageIconButton}"
-                Grid.Column="2"
+                Grid.Column="1"
                 Margin="10 0 0 0">
 
                 <materialDesign:PackIcon Kind="refresh" />

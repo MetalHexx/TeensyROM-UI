@@ -7,7 +7,8 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid HorizontalAlignment="Stretch">
+    
+    <StackPanel Orientation="Horizontal">
         <ItemsControl ItemsSource="{Binding Libraries}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -17,13 +18,13 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <RadioButton 
-                            Command="{Binding DataContext.FilterCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                            CommandParameter="{Binding}"
-                            Loaded="RadioButton_Loaded"
-                            FontSize="16"
-                            GroupName="GroupChoiceChipOutline"
-                            Style="{StaticResource MaterialDesignChoiceChipPrimaryOutlineRadioButton}" 
-                            HorizontalAlignment="Stretch">
+                        Command="{Binding DataContext.FilterCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                        CommandParameter="{Binding}"
+                        Loaded="RadioButton_Loaded"
+                        FontSize="16"
+                        GroupName="GroupChoiceChipOutline"
+                        Style="{StaticResource MaterialDesignChoiceChipPrimaryOutlineRadioButton}" 
+                        HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="{Binding Icon}" Foreground="{StaticResource PrimaryHueLightBrush}" Height="17" VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding DisplayName}" Foreground="White" Margin="3 0 0 0" VerticalAlignment="Center"/>
@@ -32,5 +33,13 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-    </Grid>
+        <Button 
+            Command="{Binding PlayRandomCommand}" 
+            ToolTip="I'm feeling lucky!"
+            Style="{StaticResource RandomButton}"
+            Grid.Column="0"
+            Margin="5 0 0 0">
+            <materialDesign:PackIcon Kind="Dice5" />
+        </Button>
+    </StackPanel>
 </UserControl>

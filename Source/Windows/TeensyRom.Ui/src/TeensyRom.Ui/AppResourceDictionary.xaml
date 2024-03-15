@@ -81,19 +81,23 @@
     </Style>
 
     <Style x:Key="StorageIconButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
-
+        
         <Setter Property="Padding" Value="0"/>
         <Setter Property="Height" Value="30"/>
         <Setter Property="Width" Value="30"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="DarkGray"/>
-                <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource EnabledColor}"/>
             </Trigger>
             <Trigger Property="IsMouseOver" Value="False">
                 <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}"/>
             </Trigger>
         </Style.Triggers>
+    </Style>
+
+    <Style x:Key="RandomButton" TargetType="Button" BasedOn="{StaticResource StorageIconButton}">
+        <Setter Property="Height" Value="35"/>
+        <Setter Property="Width" Value="35"/>        
     </Style>
 
     <Style x:Key="TinyIconButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
