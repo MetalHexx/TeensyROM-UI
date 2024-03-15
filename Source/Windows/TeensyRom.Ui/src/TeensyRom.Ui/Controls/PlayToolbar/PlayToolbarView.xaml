@@ -145,9 +145,8 @@
                     Visibility="{Binding ShareVisible, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
                     ToolTip="Copies a shareable web link to clipboard"
                     Style="{StaticResource StorageIconButton}"
-                    Padding="0"
-                    Margin="10">
-                    <materialDesign:PackIcon Kind="Share"/>
+                    Padding="0">
+                    <materialDesign:PackIcon Kind="Share" Margin="0 0 0 3"/>
                 </Button>
 
                 <Button x:Name="FavoriteButton"
@@ -168,7 +167,6 @@
                 </Button>
 
             </StackPanel>
-
             
         </Grid>
     </Grid>
