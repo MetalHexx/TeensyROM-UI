@@ -17,8 +17,17 @@ namespace TeensyRom.Core.Storage.Services
     /// - hitting previous in shuffle mode when you're at the beginning of the history will do nothing.
     /// - clicking a song in your current directory will pull you out of shuffle mode and clear history.Clicking next or previous will go to the next or previous song in the current directory.
     /// </summary>
-    public class StorageCache(List<string> bannedFolders, List<string> bannedFiles) : Dictionary<string, StorageCacheItem>
+    public class StorageCache : Dictionary<string, StorageCacheItem>
     {
+        private readonly List<string> _bannedFolders = [];
+        private readonly List<string> _bannedFiles = [];
+
+        public StorageCache() { }
+        public StorageCache(List<string> bannedFolders, List<string> bannedFiles)
+        {
+            _bannedFolders = bannedFolders;
+            _bannedFiles = bannedFiles;
+        }
         public void UpsertDirectory(string path, StorageCacheItem directory)
         {
             if(IsBannedFolder(path)) return;
@@ -130,9 +139,9 @@ namespace TeensyRom.Core.Storage.Services
         {
             if (folder == StorageConstants.Remote_Path_Root) return false;
 
-            return bannedFolders.Any(b => b.RemoveLeadingAndTrailingSlash().Contains(folder.RemoveLeadingAndTrailingSlash()));
+            return _bannedFolders.Any(b => b.RemoveLeadingAndTrailingSlash().Contains(folder.RemoveLeadingAndTrailingSlash()));
         }
-        private bool IsBannedFile(string fileName) => bannedFiles.Any(b => b.RemoveLeadingAndTrailingSlash().Contains(fileName.RemoveLeadingAndTrailingSlash()));
+        private bool IsBannedFile(string fileName) => _bannedFiles.Any(b => b.RemoveLeadingAndTrailingSlash().Contains(fileName.RemoveLeadingAndTrailingSlash()));
 
         private StorageCacheItem CleanBadFilesAndFolders(StorageCacheItem cacheItem)
         {
