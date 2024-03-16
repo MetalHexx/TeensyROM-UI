@@ -59,13 +59,6 @@ namespace TeensyRom.Core.Music.Sid
 
         public SongItem EnrichSong(SongItem song)
         {
-            var badSidListed = BadSids.Sids.Any(s => s.Contains(song.Name)) || BadSids.Paths.Any(song.Path.Contains);
-
-            if (badSidListed)
-            {
-                song.IsCompatible = false;
-                return song;
-            }
             _songDatabase.TryGetValue(song.Id, out var sidRecord);
 
             if (sidRecord is not null)
