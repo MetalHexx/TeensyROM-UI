@@ -159,6 +159,8 @@ namespace TeensyRom.Core.Storage.Services
                 TypeNameHandling = TypeNameHandling.Auto,
                 Formatting = Formatting.Indented
             });
+            cacheFromDisk?.SetBanLists(_settings.BannedDirectories, _settings.BannedFiles);
+
             if(cacheFromDisk is null) return;
 
             _storageCache = cacheFromDisk;
@@ -458,13 +460,15 @@ namespace TeensyRom.Core.Storage.Services
                 .Select(p => p.RemoveLeadingAndTrailingSlash())
                 .Any(favPath => kvp.Key.Contains(favPath));
 
-        public async Task CacheAll()
+        public Task CacheAll() => CacheAll(StorageConstants.Remote_Path_Root);
+
+        public async Task CacheAll(string path)
         {
-            _alert.Publish($"Starting download of {_settings.TargetType} storage information.");
-            var allContent = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = "/" });
+            _alert.Publish($"Refreshing cache for selected directory and subdirectories.");
+            var allContent = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = path });
             _alert.Publish($"Enriching music and games.");
 
-            await Task.Run(() => 
+            await Task.Run(() =>
             {
                 foreach (var directory in allContent.DirectoryContent)
                 {

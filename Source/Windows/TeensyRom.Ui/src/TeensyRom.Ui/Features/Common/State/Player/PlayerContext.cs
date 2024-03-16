@@ -155,19 +155,21 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             });
             _directoryState.OnNext(_directoryState.Value);
         }
-        public Task RefreshDirectory(bool bustCache = true)
+        public async Task RefreshDirectory(bool bustCache = true)
         {
             var success = TryTransitionTo(typeof(NormalPlayState));
 
             if (success)
             {
-                if (string.IsNullOrWhiteSpace(_currentPath)) return Task.CompletedTask;
+                if (string.IsNullOrWhiteSpace(_currentPath)) return;
 
-                if (bustCache) _storage.ClearCache(_currentPath);
-
-                return LoadDirectory(_currentPath);
+                if (bustCache)
+                {
+                    _storage.ClearCache(_currentPath);
+                    await _storage.CacheAll(_currentPath);
+                }
+                await LoadDirectory(_currentPath);                
             }
-            return Task.CompletedTask;
         }
 
         public virtual async Task TogglePlay()

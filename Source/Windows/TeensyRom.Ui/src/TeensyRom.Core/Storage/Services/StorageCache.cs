@@ -19,11 +19,16 @@ namespace TeensyRom.Core.Storage.Services
     /// </summary>
     public class StorageCache : Dictionary<string, StorageCacheItem>
     {
-        private readonly List<string> _bannedFolders = [];
-        private readonly List<string> _bannedFiles = [];
+        private List<string> _bannedFolders = [];
+        private List<string> _bannedFiles = [];
 
         public StorageCache() { }
         public StorageCache(List<string> bannedFolders, List<string> bannedFiles)
+        {
+            _bannedFolders = bannedFolders;
+            _bannedFiles = bannedFiles;
+        }
+        public void SetBanLists(List<string> bannedFolders, List<string> bannedFiles)
         {
             _bannedFolders = bannedFolders;
             _bannedFiles = bannedFiles;

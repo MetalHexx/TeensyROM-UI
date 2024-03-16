@@ -17,6 +17,7 @@ namespace TeensyRom.Core.Storage.Services
         IEnumerable<SongItem> SearchMusic(string searchText, int maxNumResults = 250);
         IEnumerable<ILaunchableItem> SearchFiles(string searchText);
         Task CacheAll();
+        Task CacheAll(string path);
         void MarkIncompatible(ILaunchableItem launchItem);
         IEnumerable<GameItem> SearchGames(string searchText);
         IEnumerable<ILaunchableItem> Search(string searchText, params TeensyFileType[] fileTypes);
