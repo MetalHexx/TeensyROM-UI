@@ -38,7 +38,7 @@ namespace TeensyRom.Ui.Features.Discover
         [ObservableAsProperty] public bool PlayToolbarActive { get; set; }
         [ObservableAsProperty] public bool SearchActive { get; }
 
-        [Reactive] public LibraryFilterViewModel LibraryFilter { get; set; } = null!;
+        [Reactive] public LibraryFilterViewModel Filter { get; set; } = null!;
         [Reactive] public DirectoryChipsViewModel DirectoryChips { get; set; } = null!;
         [Reactive] public SearchViewModel Search { get; set; }
         [Reactive] public DirectoryTreeViewModel DirectoryTree { get; set; }
@@ -136,15 +136,13 @@ namespace TeensyRom.Ui.Features.Discover
             {
                 _settings = s;
 
-                var libs = _settings.Libraries.Where(lib => lib.Type is not TeensyLibraryType.Hex);
+                var libs = _settings.FileFilters.Where(lib => lib.Type is not TeensyFilterType.Hex);
 
-                var selectedLibrary = LibraryFilter?.SelectedLibrary;
+                var selectedFilter = Filter?.SelectedLibrary;
 
-                LibraryFilter = new LibraryFilterViewModel(libs, selectedLibrary, 
-                    filterFunc: (library) => context.SwitchLibrary(library),
+                Filter = new LibraryFilterViewModel(libs, selectedFilter, 
+                    filterFunc: (filter) => context.SwitchFilter(filter),
                     launchRandomFunc: () => context.PlayRandom());
-
-                var libPath = s.Libraries.FirstOrDefault(l => l.Type == _viewConfig.LibraryType)?.Path ?? "";
 
                 DirectoryChips = new DirectoryChipsViewModel
                 (

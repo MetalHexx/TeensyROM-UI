@@ -10,127 +10,74 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" ></RowDefinition>
+            <RowDefinition Height="40" ></RowDefinition>
+            <RowDefinition Height="40" ></RowDefinition>
+            <RowDefinition Height="40" ></RowDefinition>
+            <RowDefinition Height="80"></RowDefinition>
+            <RowDefinition Height="120"></RowDefinition>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="130"></ColumnDefinition>
+            <ColumnDefinition Width="10"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
 
-        <Grid Grid.Row="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" ></RowDefinition>
-                <RowDefinition Height="40" ></RowDefinition>
-                <RowDefinition Height="40" ></RowDefinition>
-                <RowDefinition Height="40" ></RowDefinition>
-                <RowDefinition Height="30"></RowDefinition>
-                <RowDefinition Height="120"></RowDefinition>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="130"></ColumnDefinition>
-                <ColumnDefinition Width="10"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
 
-            </Grid.ColumnDefinitions>
+        <TextBlock 
+        Text="{Binding FeatureTitle}"
+        Style="{StaticResource SectionTitle}" 
+        Grid.Row="0" Margin="0 0 0 10"/>
 
-            <TextBlock 
-                Text="{Binding FeatureTitle}"
-                Style="{StaticResource SectionTitle}" 
-                Grid.Row="0" Margin="0 0 0 10"/>
+        <Label 
+        Content="File Auto-Transfer:"
+        ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  If a file is detected, it will automatically copy the file and place it in the appropriate folders as defined below."
+        Grid.Row="1" HorizontalAlignment="Right"/>
+        <CheckBox                  
+        Content="Enabled"                
+        ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  If a file is detected, it will automatically copy the file and place it in the appropriate folders as defined below."
+        IsChecked="{Binding Settings.AutoFileCopyEnabled, Mode=TwoWay}" 
+        Grid.Row="1" Grid.Column="3" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
-            <Label 
-                Content="File Auto-Transfer:"
-                ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  If a file is detected, it will automatically copy the file and place it in the appropriate folders as defined below."
-                Grid.Row="1" HorizontalAlignment="Right"/>
-            <CheckBox                  
-                Content="Enabled"                
-                ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  If a file is detected, it will automatically copy the file and place it in the appropriate folders as defined below."
-                IsChecked="{Binding Settings.AutoFileCopyEnabled, Mode=TwoWay}" 
-                Grid.Row="1" Grid.Column="3" VerticalAlignment="Top" Margin="0 4 0 0"/>
+        <Label 
+        Content="Watch Directory:" 
+        ToolTip="Set up a directory to watch.  When a supported file type is copied to the directory (like your downloads directory) it will automatically save the file to TeensyRom.  See: File Type Paths to configure target locations."
+        Grid.Row="2" HorizontalAlignment="Right"/>
 
-            <Label 
-                Content="Watch Directory:" 
-                ToolTip="Set up a directory to watch.  When a supported file type is copied to the directory (like your downloads directory) it will automatically save the file to TeensyRom.  See: File Type Paths to configure target locations."
-                Grid.Row="2" HorizontalAlignment="Right"/>
+        <TextBox 
+        ToolTip="Set up a directory to watch.  When a supported file type is copied to the directory (like your downloads directory) it will automatically save the file to TeensyRom.  See: File Type Paths to configure target locations."
+        materialDesign:HintAssist.Hint="Watch Directory"
+        IsEnabled="{Binding Settings.AutoFileCopyEnabled}"
+        Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}"                
+        Grid.Row="2" Grid.Column="3" VerticalAlignment="Top"/>
 
-            <TextBox 
-                ToolTip="Set up a directory to watch.  When a supported file type is copied to the directory (like your downloads directory) it will automatically save the file to TeensyRom.  See: File Type Paths to configure target locations."
-                materialDesign:HintAssist.Hint="Watch Directory"
-                IsEnabled="{Binding Settings.AutoFileCopyEnabled}"
-                Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}"                
-                Grid.Row="2" Grid.Column="3" VerticalAlignment="Top"/>
+        <Label 
+        Content="Default Storage:"
+        ToolTip="This will determine the default storage type to use in TeensyRom."
+        Grid.Row="3" HorizontalAlignment="Right"/>
 
-            <Label 
-                Content="Default Storage:"
-                ToolTip="This will determine the default storage type to use in TeensyRom.  This will affect the library views and auto-transfer functionality."
-                Grid.Row="3" HorizontalAlignment="Right"/>
+        <StackPanel 
+        ToolTip="This will determine the default storage type to use in TeensyRom."                
+        Grid.Row="3" Grid.Column="3" Orientation="Horizontal" VerticalAlignment="top" Margin="0 3 0 0">
 
-            <StackPanel 
-                ToolTip="This will determine the default storage type to use in TeensyRom.  This will affect the library views and auto-transfer functionality."                
-                Grid.Row="3" Grid.Column="3" Orientation="Horizontal" VerticalAlignment="top" Margin="0 3 0 0">
+            <RadioButton 
+            Content="SD" 
+            IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.SD}}" />
 
-                <RadioButton 
-                    Content="SD" 
-                    IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.SD}}" />
-
-                <RadioButton 
-                    Content="USB"                          
-                    IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.USB}}" 
-                    Margin="10,0,0,0" />
-            </StackPanel>
-
-            <Label 
-                Content="Library Paths:" 
-                ToolTip="This will determine which folders use when going to the game or program views as well as where auto-transfer functionality saves files."
-                Grid.Row="4" HorizontalAlignment="Right"/>
-
-            <ItemsControl  
-                ToolTip="You can set the default path to store the file types.  The root path will be prepended to the path you specify on the file type"
-                ItemsSource="{Binding Settings.Libraries}"
-                Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Visibility="{Binding IsConfigurable, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="30"></RowDefinition>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="85" />
-                                <ColumnDefinition Width="5" />
-                                <ColumnDefinition Width="10" />
-                                <ColumnDefinition Width="*" />
-
-                            </Grid.ColumnDefinitions>
-
-                            <Label 
-                                Content="{Binding DisplayName, StringFormat='{}{0}:'}"
-                                ToolTip="These library paths will be the starting paths for the music and programs view.  Auto-transfer will store files in /auto-transfer folder relative to this path."
-                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
-
-                            <TextBox Grid.Column="3" 
-                                materialDesign:HintAssist.Hint="{Binding DisplayName, StringFormat='{}{0} Target Path'}"
-                                Text="{Binding Path, Mode=TwoWay}" 
-                                VerticalAlignment="Center" />
-
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
-        </Grid>
+            <RadioButton 
+            Content="USB"                          
+            IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.USB}}" 
+            Margin="10,0,0,0" />
+        </StackPanel>
 
         <Button             
             ToolTip="This will save your settings to disk.  They will be remembered when you re-open the application."
             Content="Save Settings"  
             Command="{Binding SaveSettingsCommand}" 
             HorizontalAlignment="Left"
-            Grid.Row="6" Width="150" Margin="20"/>
+            Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="20"/>
+
     </Grid>
+
+    
 </UserControl>

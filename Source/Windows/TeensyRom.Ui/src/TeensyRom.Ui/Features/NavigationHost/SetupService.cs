@@ -44,7 +44,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
         {   
             var settings = _settingsService.GetSettings();
 
-            if (!settings.FirstTimeSetup) return;
+            if (settings.FirstTimeSetup) return;
 
             var result = await _dialog.ShowConfirmation("Welcome to TeensyROM!", "This start up guide will help you get set up and learn about a few basic features of the app. \r\rAt any point, feel free to press cancel to finish up on your own.");
 

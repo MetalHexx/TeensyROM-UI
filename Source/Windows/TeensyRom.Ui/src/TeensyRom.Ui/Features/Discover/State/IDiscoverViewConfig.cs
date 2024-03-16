@@ -16,6 +16,6 @@ namespace TeensyRom.Ui.Features.Discover.State
     {
         public List<TeensyFileType> FileTypes { get; set; } = [TeensyFileType.Sid, TeensyFileType.Crt, TeensyFileType.Prg];
         public NavigationLocation NavigationLocation { get; set; } = NavigationLocation.Discover;
-        public TeensyLibraryType LibraryType { get; set; } = TeensyLibraryType.All;
+        public TeensyFilterType FilterType { get; set; } = TeensyFilterType.All;
     }
 }

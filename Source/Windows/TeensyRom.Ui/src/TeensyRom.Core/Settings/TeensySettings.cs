@@ -5,19 +5,18 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Settings
 {
-    public enum TeensyLibraryType
+    public enum TeensyFilterType
     {
         All,
         Programs,
         Music,
         Hex
     }
-    public class TeensyLibrary
+    public class TeensyFilter
     {
-        public TeensyLibraryType Type { get; set; }
+        public TeensyFilterType Type { get; set; }
         public string DisplayName { get; set; } = string.Empty;
         public string Icon { get; set; } = string.Empty;
-        public string Path { get; set; } = string.Empty;
         public bool IsConfigurable { get; set; } = true;
     }
     /// <summary>
@@ -29,11 +28,13 @@ namespace TeensyRom.Core.Settings
         public string WatchDirectoryLocation { get; set; } = string.Empty;
         public string TargetRootPath { get; set; } = @"/";
         public List<TeensyTarget> FileTargets { get; set; } = [];
-        public List<TeensyLibrary> Libraries { get; set; } = [];
+        public List<TeensyFilter> FileFilters { get; set; } = [];
         public string AutoTransferPath { get; set; } = "auto-transfer";
         public bool AutoFileCopyEnabled { get; set; }
         public bool SaveMusicCacheEnabled { get; set; } = true;        
         public bool FirstTimeSetup { get; set; } = true;
+        public List<string> BannedDirectories = ["MUSICIANS/S/Szachista", "System Volume Information", "FOUND.000", "integration-test-files", "integration-tests"];
+        public List<string> BannedFiles = ["Revolutionary_Etude_part_1.sid", "Revolutionary_Etude_part_2.sid", "Super_Trouper.sid"];
 
         public TeensySettings()
         {
@@ -42,36 +43,32 @@ namespace TeensyRom.Core.Settings
 
         public void InitializeDefaults()
         {
-            Libraries.AddRange(new List<TeensyLibrary>
+            FileFilters.AddRange(new List<TeensyFilter>
             {
-                new TeensyLibrary
+                new TeensyFilter
                 {
-                    Type = TeensyLibraryType.All,
+                    Type = TeensyFilterType.All,
                     DisplayName = "All",
                     Icon = "AllInclusive",
-                    Path = "/",
                     IsConfigurable = false
 
                 },
-                new TeensyLibrary
+                new TeensyFilter
                 {
-                    Type = TeensyLibraryType.Music,
+                    Type = TeensyFilterType.Music,
                     DisplayName = "Music",
-                    Icon = "MusicClefTreble",
-                    Path = "libraries/music"
+                    Icon = "MusicClefTreble"
                 },
-                new TeensyLibrary
+                new TeensyFilter
                 {
-                    Type = TeensyLibraryType.Programs,
+                    Type = TeensyFilterType.Programs,
                     DisplayName = "Games",
-                    Icon = "Ghost",
-                    Path = "libraries/programs"
+                    Icon = "Ghost"
                 },
-                new TeensyLibrary
+                new TeensyFilter
                 {
-                    Type = TeensyLibraryType.Hex,
-                    DisplayName = "Hex",
-                    Path = "libraries/hex"
+                    Type = TeensyFilterType.Hex,
+                    DisplayName = "Hex"
                 }
             });
             FileTargets.AddRange(new List<TeensyTarget>
@@ -79,28 +76,28 @@ namespace TeensyRom.Core.Settings
                 new TeensyTarget
                 {
                     Type = TeensyFileType.Sid,
-                    LibraryType = TeensyLibraryType.Music,
+                    FilterType = TeensyFilterType.Music,
                     DisplayName = "SID",
                     Extension = ".sid"
                 },
                 new TeensyTarget
                 {
                     Type = TeensyFileType.Prg,
-                    LibraryType = TeensyLibraryType.Programs,
+                    FilterType = TeensyFilterType.Programs,
                     DisplayName = "PRG",
                     Extension = ".prg"
                 },
                 new TeensyTarget
                 {
                     Type = TeensyFileType.Crt,
-                    LibraryType = TeensyLibraryType.Programs,
+                    FilterType = TeensyFilterType.Programs,
                     DisplayName = "CRT",
                     Extension = ".crt"
                 },
                 new TeensyTarget
                 {
                     Type = TeensyFileType.Hex,
-                    LibraryType = TeensyLibraryType.Hex,
+                    FilterType = TeensyFilterType.Hex,
                     DisplayName = "HEX",
                     Extension = ".hex"
                 }
@@ -109,21 +106,11 @@ namespace TeensyRom.Core.Settings
 
         public string GetFileTypePath(TeensyFileType type)
         {
-            var target = FileTargets.FirstOrDefault(t => t.Type == type) 
+            return FileTargets
+                .FirstOrDefault(FileTargets => FileTargets.Type == type)?.Extension
+                .RemoveFirstOccurrence(".")
+
                 ?? throw new TeensyException($"Unsupported file type: {type}");
-
-            var library = Libraries.FirstOrDefault(l => l.Type == target.LibraryType) 
-                ?? throw new TeensyException($"Unsupported library type: {target.LibraryType}");
-
-            return library.Path;
-        }
-
-        public string GetLibraryPath(TeensyLibraryType type)
-        {
-            var library = Libraries.FirstOrDefault(l => l.Type == type) 
-                ?? throw new TeensyException($"Unsupported library type: {type}");
-
-            return library.Path;
         }
 
         public List<string> GetFavoritePaths() => FileTargets.Select(t => GetFavoritePath(t.Type)).ToList();
@@ -132,17 +119,10 @@ namespace TeensyRom.Core.Settings
         {
             return type switch
             {
-                TeensyFileType.Sid => GetFileTypePath(TeensyFileType.Sid)
-                    .UnixPathCombine("/playlists/favorites"),
-
-                TeensyFileType.Prg => GetFileTypePath(TeensyFileType.Prg)
-                    .UnixPathCombine("/favorites"),
-
-                TeensyFileType.Crt => GetFileTypePath(TeensyFileType.Crt)
-                    .UnixPathCombine("/favorites"),
-
-                TeensyFileType.Hex => GetFileTypePath(TeensyFileType.Hex)
-                    .UnixPathCombine("/favorites"),
+                TeensyFileType.Sid => "/favorites/music",
+                TeensyFileType.Prg => "/favorites/games",
+                TeensyFileType.Crt => "/favorites/games",
+                TeensyFileType.Hex => "/firmware",
 
                 _ => throw new TeensyException("This file type is not supported for favoriting")
             }; ;

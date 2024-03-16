@@ -29,7 +29,7 @@ namespace TeensyRom.Core.Storage.Services
         private TeensySettings _settings = null!;
         private IDisposable? _settingsSubscription;
         private string _cacheFileName => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), StorageConstants.Cache_File_Path);
-        private StorageCache _storageCache = new();
+        private StorageCache _storageCache = null!;
         private Subject<string> _directoryUpdated = new();
 
         public CachedStorageService(ISettingsService settings, IGameMetadataService gameMetadata, ISidMetadataService sidMetadata, IMediator mediator, IAlertService alert)
@@ -44,9 +44,13 @@ namespace TeensyRom.Core.Storage.Services
 
         private void OnSettingsChanged(TeensySettings newSettings)
         {
+            if(_storageCache is null)
+            {
+                _storageCache = new StorageCache(newSettings.BannedDirectories, newSettings.BannedFiles);
+            }
             if (_settings is null && newSettings.SaveMusicCacheEnabled)
             {
-                _settings = newSettings;
+                _settings = newSettings;                 
                 LoadCache();
                 return;
             }
@@ -217,7 +221,8 @@ namespace TeensyRom.Core.Storage.Services
                 Path = path
             });
 
-            if (response.DirectoryContent is null) return null;            
+            if (response.DirectoryContent is null) return null;  
+            
 
             cacheItem = SaveDirectoryToCache(response.DirectoryContent);
             SaveCacheToDisk();
@@ -336,15 +341,14 @@ namespace TeensyRom.Core.Storage.Services
         }
         public void Dispose() => _settingsSubscription?.Dispose();
 
-        public ILaunchableItem? GetRandomFile(string startingPath, params TeensyFileType[] fileTypes) 
+        public ILaunchableItem? GetRandomFile(params TeensyFileType[] fileTypes) 
         {
             if (fileTypes.Length == 0)
             {
                 fileTypes = TeensyFileTypeExtensions.GetLaunchFileTypes();
             }
             var selection = _storageCache
-                .Where(k => k.Key.Contains(startingPath))
-                .SelectMany(c => c.Value.Files)
+                .SelectMany(c => c.Value.Files)                
                 .Where(f => fileTypes.Contains(f.FileType))
                 .OfType<ILaunchableItem>()                
                 .ToArray();

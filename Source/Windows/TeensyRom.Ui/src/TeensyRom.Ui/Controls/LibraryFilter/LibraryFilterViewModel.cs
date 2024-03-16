@@ -13,16 +13,16 @@ namespace TeensyRom.Ui.Controls.LibraryFilter
 {
     public class LibraryFilterViewModel : ReactiveObject
     {
-        [Reactive] public ObservableCollection<TeensyLibrary> Libraries { get; set; }
-        [Reactive] public TeensyLibrary? SelectedLibrary { get; set; }
-        public ReactiveCommand<TeensyLibrary, Unit> FilterCommand { get; }
+        [Reactive] public ObservableCollection<TeensyFilter> Libraries { get; set; }
+        [Reactive] public TeensyFilter? SelectedLibrary { get; set; }
+        public ReactiveCommand<TeensyFilter, Unit> FilterCommand { get; }
         public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
-        public LibraryFilterViewModel(IEnumerable<TeensyLibrary> libraries, TeensyLibrary? selectedLibrary,  Func<TeensyLibrary, Task> filterFunc, Func<Task> launchRandomFunc)
+        public LibraryFilterViewModel(IEnumerable<TeensyFilter> libraries, TeensyFilter? selectedLibrary,  Func<TeensyFilter, Task> filterFunc, Func<Task> launchRandomFunc)
         {
             SelectedLibrary = selectedLibrary;
-            Libraries = new ObservableCollection<TeensyLibrary>(libraries);
+            Libraries = new ObservableCollection<TeensyFilter>(libraries);
 
-            FilterCommand = ReactiveCommand.CreateFromTask<TeensyLibrary, Unit>(async lib => 
+            FilterCommand = ReactiveCommand.CreateFromTask<TeensyFilter, Unit>(async lib => 
             {
                 SelectedLibrary = lib;
                 await filterFunc(lib);

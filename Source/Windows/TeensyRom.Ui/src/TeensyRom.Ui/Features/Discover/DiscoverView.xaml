@@ -76,7 +76,7 @@
 
             <Grid Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch">
                 <ContentControl                 
-                    Content="{Binding LibraryFilter}"
+                    Content="{Binding Filter}"
                     HorizontalAlignment="Stretch"
                     />
             </Grid>

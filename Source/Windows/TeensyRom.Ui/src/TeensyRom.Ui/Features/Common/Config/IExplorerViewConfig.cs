@@ -8,7 +8,7 @@ namespace TeensyRom.Ui.Features.Common.Config
 {
     public interface IExplorerViewConfig 
     {
-        TeensyLibraryType LibraryType { get; set; }
+        TeensyFilterType FilterType { get; set; }
         NavigationLocation NavigationLocation { get; set; }
         List<TeensyFileType> FileTypes { get; set; }
     }

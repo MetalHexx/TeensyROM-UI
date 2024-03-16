@@ -13,7 +13,7 @@ namespace TeensyRom.Core.Storage.Services
         Task SaveFile(TeensyFileInfo fileInfo);
         Task QueuedSaveFile(TeensyFileInfo fileInfo);
         Task DeleteFile(IFileItem file, TeensyStorageType storageType);
-        ILaunchableItem? GetRandomFile(string startingPath, params TeensyFileType[] fileTypes);
+        ILaunchableItem? GetRandomFile(params TeensyFileType[] fileTypes);
         IEnumerable<SongItem> SearchMusic(string searchText, int maxNumResults = 250);
         IEnumerable<ILaunchableItem> SearchFiles(string searchText);
         Task CacheAll();

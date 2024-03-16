@@ -11,7 +11,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
     public interface IPlayerState
     {
         bool CanTransitionTo(Type nextStateType);
-        Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, TeensyLibraryType libraryType, DirectoryState directoryState);
-        Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, TeensyLibraryType libraryType, DirectoryState directoryState);
+        Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState);
+        Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState);
     }
 }

@@ -45,7 +45,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         Task StopFile();
         Unit ToggleShuffleMode();
         bool TryTransitionTo(Type nextStateType);     
-        Task SwitchLibrary(TeensyLibrary library);
+        Task SwitchFilter(TeensyFilter filter);
         Task StoreFiles(IEnumerable<FileCopyItem> files);
     }
 }
