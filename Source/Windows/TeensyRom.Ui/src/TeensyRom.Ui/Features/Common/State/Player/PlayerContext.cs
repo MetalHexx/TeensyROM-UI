@@ -263,11 +263,8 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         {
             var file = await _currentState.Value.GetNext(_launchedFile.Value, _currentFilter.Type, _directoryState.Value);
 
-            if (file is null)
-            {
-                _alert.Enqueue("Random search requires visiting at least one directory with files in it first.  Try clicking the cache all button.");
-                return;
-            }
+            if (file is null) return;
+
             await PlayFile(file);
         }
         public async virtual Task PlayPrevious()
