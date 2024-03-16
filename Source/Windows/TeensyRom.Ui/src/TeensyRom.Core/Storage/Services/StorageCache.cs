@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reactive.Concurrency;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -15,16 +17,20 @@ namespace TeensyRom.Core.Storage.Services
     /// - hitting previous in shuffle mode when you're at the beginning of the history will do nothing.
     /// - clicking a song in your current directory will pull you out of shuffle mode and clear history.Clicking next or previous will go to the next or previous song in the current directory.
     /// </summary>
-    public class StorageCache : Dictionary<string, StorageCacheItem>
+    public class StorageCache(List<string> bannedFolders, List<string> bannedFiles) : Dictionary<string, StorageCacheItem>
     {
         public void UpsertDirectory(string path, StorageCacheItem directory)
         {
+            if(IsBannedFolder(path)) return;
+
             DeleteDirectory(path);
             Insert(path, directory);
         }
 
         public void UpsertFile(IFileItem fileItem)
         {
+            if (IsBannedFile(fileItem.Path)) return;
+
             var fileParentDir = EnsureParents(fileItem.Path);
 
             fileParentDir!.UpsertFile(fileItem);
@@ -60,6 +66,9 @@ namespace TeensyRom.Core.Storage.Services
 
         private void Insert(string path, StorageCacheItem cacheItem)
         {
+            if (IsBannedFolder(path)) return;
+
+            cacheItem = CleanBadFilesAndFolders(cacheItem);
             var cleanPath = CleanPath(path);
             TryAdd(cleanPath, cacheItem);
         }
@@ -115,6 +124,27 @@ namespace TeensyRom.Core.Storage.Services
         }
 
         private static string CleanPath(string path) => path
-            .RemoveLeadingAndTrailingSlash();   
+            .RemoveLeadingAndTrailingSlash();
+
+        private bool IsBannedFolder(string folder) 
+        {
+            if (folder == StorageConstants.Remote_Path_Root) return false;
+
+            return bannedFolders.Any(b => b.RemoveLeadingAndTrailingSlash().Contains(folder.RemoveLeadingAndTrailingSlash()));
+        }
+        private bool IsBannedFile(string fileName) => bannedFiles.Any(b => b.RemoveLeadingAndTrailingSlash().Contains(fileName.RemoveLeadingAndTrailingSlash()));
+
+        private StorageCacheItem CleanBadFilesAndFolders(StorageCacheItem cacheItem)
+        {
+            cacheItem.Directories = cacheItem.Directories
+                .Where(d => !IsBannedFolder(d.Path))
+                .ToList();
+
+            cacheItem.Files = cacheItem.Files
+                .Where(f => !IsBannedFile(f.Name))
+                .ToList();
+
+            return cacheItem;
+        }
     }
 }
