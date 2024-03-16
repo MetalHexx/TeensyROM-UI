@@ -465,12 +465,15 @@ namespace TeensyRom.Core.Storage.Services
         public async Task CacheAll(string path)
         {
             _alert.Publish($"Refreshing cache for selected directory and subdirectories.");
-            var allContent = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = path });
+            var response = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = path });
+
+            if (!response.IsSuccess) return;
+
             _alert.Publish($"Enriching music and games.");
 
             await Task.Run(() =>
             {
-                foreach (var directory in allContent.DirectoryContent)
+                foreach (var directory in response.DirectoryContent)
                 {
                     if (directory is not null)
                     {
