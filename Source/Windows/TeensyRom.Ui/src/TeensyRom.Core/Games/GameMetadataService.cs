@@ -23,25 +23,50 @@ namespace TeensyRom.Core.Games
     {  
         private string _gameArtPath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), GameConstants.Game_Image_Local_Path);        
         private string _localLoadingScreenPath => Path.Combine(_gameArtPath, GameConstants.Loading_Screen_Sub_Path);        
-        private string _localScreenshotPath => Path.Combine(_gameArtPath, GameConstants.Screenshots_Sub_Path);        
+        private string _localScreenshotPath => Path.Combine(_gameArtPath, GameConstants.Screenshots_Sub_Path);
+        private List<ViewableItemImage> _gameMetadata = [];
+
+        private List<ViewableItemImage> LoadGameMetadata()
+        {
+            if(File.Exists(GameConstants.Game_Image_Metadata_File_Path))
+            {
+                var fileMetadata = JsonConvert.DeserializeObject<List<ViewableItemImage>>(File.ReadAllText(GameConstants.Game_Image_Metadata_File_Path));
+
+                if(fileMetadata is not null && fileMetadata.Any())
+                {
+                    return fileMetadata;
+                }
+            }
+            var loadingScreens = Directory.GetFiles(_localLoadingScreenPath);
+            var screenshots = Directory.GetFiles(_localScreenshotPath);
+
+            var allScreenMetadata = loadingScreens
+                .Concat(screenshots)
+                .ToList()
+                .Select(f => new ViewableItemImage
+                {
+                    FileName = Path.GetFileName(f),
+                    Path = f,
+                    Source = GameConstants.OneLoad64
+                })
+                .OrderBy(f => f.FileName)
+                .ToList();
+
+            File.WriteAllText(GameConstants.Game_Image_Metadata_File_Path, JsonConvert.SerializeObject(allScreenMetadata));
+            return allScreenMetadata;
+        }
 
         public void EnrichGame(GameItem game)
         {
+            if (!_gameMetadata.Any()) 
+            {
+                _gameMetadata = LoadGameMetadata();
+            }
             var imageFileName = game.Name.ReplaceExtension(".png");
 
-            var loadScreenLocalPath = Path.Combine(_localLoadingScreenPath, imageFileName);
-            var screenshotLocalPath = Path.Combine(_localScreenshotPath, imageFileName);            
+            var images = _gameMetadata.Where(m => m.FileName == imageFileName);
 
-            game.Images.Add(new ViewableItemImage
-            {
-                Path = File.Exists(loadScreenLocalPath) ? loadScreenLocalPath : string.Empty,
-                Source = GameConstants.OneLoad64
-            });
-            game.Images.Add(new ViewableItemImage
-            {
-                Path = File.Exists(screenshotLocalPath) ? screenshotLocalPath : string.Empty,
-                Source = GameConstants.OneLoad64
-            });
+            game.Images.AddRange(images);
             game.Title = game.Name[..game.Name.LastIndexOf('.')];
         }
     }
