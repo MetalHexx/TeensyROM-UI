@@ -26,17 +26,18 @@ namespace TeensyRom.Core.Storage
         private readonly ISerialStateContext _serialState;
         private readonly ILoggingService _logService;
         private readonly ICachedStorageService _storageService;
+        private readonly IAlertService _alert;
         private IDisposable? _settingsSubscription = null!;
         private IDisposable? _fileWatchSubscription = null!;
 
-        public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialStateContext serialState, ILoggingService logService, ICachedStorageService storageService)
+        public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialStateContext serialState, ILoggingService logService, ICachedStorageService storageService, IAlertService alert)
         {
             _settingsService = settingsService;
             _fileWatcher = fileWatcher;
             _serialState = serialState;
             _logService = logService;
             _storageService = storageService;
-
+            _alert = alert;
             _settingsSubscription = _settingsService.Settings
                 .Subscribe(settings => ToggleFileWatch(settings));
         }
@@ -60,7 +61,11 @@ namespace TeensyRom.Core.Storage
                 .DistinctUntilChanged()
                 .Select(file => new TeensyFileInfo(file))
                 .Do(fileInfo => _logService.Internal($"File detected: {fileInfo.FullPath}"))
-                .Subscribe(async fileInfo => await _storageService.QueuedSaveFile(fileInfo));
+                .Subscribe(async fileInfo => 
+                {
+                    await _storageService.QueuedSaveFile(fileInfo);
+                    _alert.Publish($"{fileInfo.Name} was detected and stored in {fileInfo.TargetPath}");
+                });
         }
 
         public void Dispose()
