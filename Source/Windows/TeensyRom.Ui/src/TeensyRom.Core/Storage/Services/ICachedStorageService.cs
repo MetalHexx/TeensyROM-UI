@@ -4,7 +4,7 @@ namespace TeensyRom.Core.Storage.Services
 {
     public interface ICachedStorageService: IDisposable
     {
-        IObservable<string> DirectoryUpdated { get; }
+        IObservable<string> FileAdded { get; }
 
         void ClearCache();
         void ClearCache(string path);

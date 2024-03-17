@@ -86,9 +86,14 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 { typeof(NormalPlayState), new NormalPlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) },
                 { typeof(ShuffleState), new ShuffleState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) },
                 { typeof(SearchState), new SearchState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) }
-            };
-            SubscribeToStateObservables();
+            };            
             _currentState = new(_states[typeof(NormalPlayState)]);
+
+            SubscribeToStateObservables();
+
+            storage.FileAdded
+                .SubscribeOn(RxApp.MainThreadScheduler)
+                .Subscribe(async path => await OnFileAdded(path));
         }
 
         private void SubscribeToStateObservables()
@@ -108,6 +113,39 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 .Select(storage => storage.path)
                 .Do(path => _tree.ResetDirectoryTree(StorageConstants.Remote_Path_Root))                
                 .Subscribe(async path => await LoadDirectory(StorageConstants.Remote_Path_Root));
+        }
+
+        private async Task OnFileAdded(string filePath) 
+        {
+            await Application.Current.Dispatcher.Invoke(async () =>
+            {
+                var parentPath = filePath.GetUnixParentPath().RemoveLeadingAndTrailingSlash();
+
+                if (_directoryState.Value.CurrentPath.RemoveLeadingAndTrailingSlash() == parentPath)
+                {
+                    var cacheItem = await _storage.GetDirectory(parentPath);
+                    await LoadDirectory(cacheItem?.Path ?? "");
+                    return;
+                }
+                List<string> directories = ["/"];
+
+                directories.AddRange(parentPath.ToPathArray());
+
+                var currentDir = string.Empty;
+
+                List<DirectoryItem> dirsToAdd = [];
+
+                foreach (var directory in directories)
+                {
+                    currentDir = currentDir.UnixPathCombine(directory);
+                    var cacheItem = await _storage.GetDirectory(currentDir);
+
+                    if (cacheItem is not null) 
+                    {
+                        _tree.Insert(cacheItem.Directories);
+                    }
+                }                
+            });
         }
 
         public bool TryTransitionTo(Type nextStateType)

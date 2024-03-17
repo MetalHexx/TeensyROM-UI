@@ -53,15 +53,7 @@ namespace TeensyRom.Core.Commands
             if(!string.IsNullOrWhiteSpace(fileInfo.TargetPath)) return;
 
             fileInfo.StorageType = _settings.TargetType;
-
-            var target = _settings.FileTargets
-                .FirstOrDefault(t => t.Type == fileInfo.Type);
-
-            if (target is null) throw new TeensyException($"Unsupported file type: {fileInfo.Type}");
-
-            fileInfo.TargetPath = _settings.TargetRootPath
-                .UnixPathCombine(_settings.GetFileTypePath(fileInfo.Type), _settings.AutoTransferPath)
-                .EnsureUnixPathEnding();
+            fileInfo.TargetPath = _settings.GetAutoTransferPath(fileInfo.Type);
         }
     }
 }

@@ -128,6 +128,19 @@ namespace TeensyRom.Core.Settings
             }; ;
         }
 
+        public string GetAutoTransferPath(TeensyFileType type)
+        {
+            return type switch
+            {
+                TeensyFileType.Sid => AutoTransferPath.UnixPathCombine("music"),
+                TeensyFileType.Prg => AutoTransferPath.UnixPathCombine("games"),
+                TeensyFileType.Crt => AutoTransferPath.UnixPathCombine("games"),
+                TeensyFileType.Hex => "/firmware",
+
+                _ => throw new TeensyException("This file type is not supported for auto-transfer")
+            }; ;
+        }
+
         /// <summary>
         /// If the user has no settings file saved yet, we'll default to the 
         /// environmentally defined location for the user profile download directory
