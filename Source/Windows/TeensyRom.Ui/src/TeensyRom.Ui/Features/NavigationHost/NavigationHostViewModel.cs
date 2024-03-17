@@ -112,9 +112,9 @@ namespace TeensyRom.Ui.Features.NavigationHost
         private void RegisterModelProperties()
         {
             _navService.SelectedNavigationView
-                            .Where(n => n is not null)
-                            .Select(n => n.ViewModel)
-                            .ToPropertyEx(this, vm => vm.CurrentViewModel);
+                .Where(n => n is not null)
+                .Select(n => n.ViewModel)
+                .ToPropertyEx(this, vm => vm.CurrentViewModel);
 
             _navService.NavigationItems
                 .ToPropertyEx(this, vm => vm.NavigationItems);
@@ -123,7 +123,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
                 .Scan((previous: (SerialState?)null, current: (SerialState?)null), (stateTuple, currentState) => (stateTuple.current, currentState))    
                 .Where(s => s.previous is not null && s.previous is not SerialConnectableState)
                 .Select(s => s.current is SerialBusyState)
-                .Throttle(TimeSpan.FromMilliseconds(1000))
+                .Throttle(TimeSpan.FromMilliseconds(100))
                 .ToPropertyEx(this, vm => vm.SerialBusy);
         }
 

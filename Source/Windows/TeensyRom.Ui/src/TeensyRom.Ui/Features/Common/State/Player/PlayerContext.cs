@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reflection;
 using System.Runtime;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -49,7 +50,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         private string _previousSearch = string.Empty;
 
         protected PlayerState? _previousState;
-        protected readonly BehaviorSubject<PlayerState> _currentState;        
+        protected readonly BehaviorSubject<PlayerState> _currentState;
         protected readonly BehaviorSubject<ILaunchableItem> _launchedFile = new(null!);
         protected readonly BehaviorSubject<ILaunchableItem> _selectedFile = new(null!);
         protected readonly BehaviorSubject<PlayState> _playingState = new(PlayState.Stopped);
@@ -86,7 +87,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 { typeof(NormalPlayState), new NormalPlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) },
                 { typeof(ShuffleState), new ShuffleState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) },
                 { typeof(SearchState), new SearchState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) }
-            };            
+            };
             _currentState = new(_states[typeof(NormalPlayState)]);
 
             SubscribeToStateObservables();
@@ -103,19 +104,19 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 .Take(1)
                 .Subscribe(settings => _currentFilter = settings.FileFilters.First(lib => lib.Type == _config.FilterType));
 
-            _settingsSubscription = _settingsService.Settings                
-                .Do(settings => _settings = settings)                
+            _settingsSubscription = _settingsService.Settings
+                .Do(settings => _settings = settings)
                 .CombineLatest(_serialContext.CurrentState, _nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
                 .Where(state => state.serial is SerialConnectedState)
                 .Where(state => state.navView?.Type == _config.NavigationLocation)
                 .DistinctUntilChanged(state => state.settings.TargetType)
                 .Select(state => (path: _currentFilter, state.settings.TargetType))
                 .Select(storage => storage.path)
-                .Do(path => _tree.ResetDirectoryTree(StorageConstants.Remote_Path_Root))                
+                .Do(path => _tree.ResetDirectoryTree(StorageConstants.Remote_Path_Root))
                 .Subscribe(async path => await LoadDirectory(StorageConstants.Remote_Path_Root));
         }
 
-        private async Task OnFileAdded(string filePath) 
+        private async Task OnFileAdded(string filePath)
         {
             await Application.Current.Dispatcher.Invoke(async () =>
             {
@@ -140,11 +141,11 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                     currentDir = currentDir.UnixPathCombine(directory);
                     var cacheItem = await _storage.GetDirectory(currentDir);
 
-                    if (cacheItem is not null) 
+                    if (cacheItem is not null)
                     {
                         _tree.Insert(cacheItem.Directories);
                     }
-                }                
+                }
             });
         }
 
@@ -166,16 +167,16 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         }
         public async Task LoadDirectory(string path, string? filePathToSelect = null)
         {
-            if (_currentState.Value is SearchState) 
+            if (_currentState.Value is SearchState)
             {
-                if(_previousState is not null)
+                if (_previousState is not null)
                 {
                     TryTransitionTo(_previousState.GetType());
                 }
                 else
                 {
                     TryTransitionTo(typeof(NormalPlayState));
-                }                
+                }
             }
             var cacheItem = await _storage.GetDirectory(path);
 
@@ -206,7 +207,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                     _storage.ClearCache(_currentPath);
                     await _storage.CacheAll(_currentPath);
                 }
-                await LoadDirectory(_currentPath);                
+                await LoadDirectory(_currentPath);
             }
         }
 
@@ -215,12 +216,12 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             if (_playingState.Value is PlayState.Playing)
             {
                 _playingState.OnNext(PlayState.Stopped);
-                await StopFile();                
+                await StopFile();
                 return;
             }
             _playingState.OnNext(PlayState.Playing);
 
-            if(_launchedFile.Value is GameItem)
+            if (_launchedFile.Value is GameItem)
             {
                 await PlayFile(_launchedFile.Value);
                 return;
@@ -230,9 +231,9 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
         public virtual async Task PlayFile(ILaunchableItem file)
         {
-            if(file is null) return;
+            if (file is null) return;
 
-            if (!file.IsCompatible) 
+            if (!file.IsCompatible)
             {
                 await HandleBadFile(file);
                 return;
@@ -268,11 +269,11 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
             _launchedFile.OnNext(file); //play next will use this to determine the next file
 
-            if(file.IsCompatible is true) _storage.MarkIncompatible(file);
-            
+            if (file.IsCompatible is true) _storage.MarkIncompatible(file);
+
             return PlayNext();
         }
-        
+
         public virtual async Task SaveFavorite(ILaunchableItem file)
         {
             var favFile = await _storage.SaveFavorite(file);
@@ -287,7 +288,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             _directoryState.Value.LoadDirectory(directoryResult.ToList(), directoryResult.Path);
         }
 
-        public Task DeleteFile(IFileItem file) 
+        public Task DeleteFile(IFileItem file)
         {
             if (_directoryState.Value is null) return Task.CompletedTask;
 
@@ -311,11 +312,11 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
             if (file is not null) await PlayFile(file);
         }
-        public Task StopFile() 
+        public Task StopFile()
         {
             _playingState.OnNext(PlayState.Stopped);
 
-            if(_launchedFile.Value is GameItem)
+            if (_launchedFile.Value is GameItem)
             {
                 return _mediator.Send(new ResetCommand());
             }
@@ -326,7 +327,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         {
             var success = TryTransitionTo(typeof(ShuffleState));
 
-            if(!success) return _launchedFile.Value;
+            if (!success) return _launchedFile.Value;
 
             _launchHistory.ClearForwardHistory();
             await PlayNext();
@@ -335,7 +336,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
         public void UpdateHistory(ILaunchableItem fileToLoad)
         {
-            var isNotConsecutiveDuplicate = _launchedFile.Value is null 
+            var isNotConsecutiveDuplicate = _launchedFile.Value is null
                 || !fileToLoad.Path.Equals(_launchedFile.Value.Path, StringComparison.OrdinalIgnoreCase);
 
             if (isNotConsecutiveDuplicate) _launchHistory.Add(fileToLoad);
@@ -353,12 +354,12 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 .ToList();
 
             if (searchResult is null) return Unit.Default;
-                
+
             _directoryState.Value.ClearSelection();
             _directoryState.Value.LoadDirectory(searchResult, "Search Results:");
             var firstItem = _directoryState.Value.SelectFirst();
-               
-            if(firstItem is not null) _selectedFile.OnNext(firstItem);
+
+            if (firstItem is not null) _selectedFile.OnNext(firstItem);
 
             _directoryState.OnNext(_directoryState.Value);
 
@@ -368,7 +369,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         public async Task ClearSearch()
         {
             _directoryState.Value.ClearSelection();
-            await LoadDirectory(_currentPath);            
+            await LoadDirectory(_currentPath);
             var firstItem = _directoryState.Value.SelectFirst();
 
             if (firstItem is not null)
@@ -387,7 +388,12 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
             return Unit.Default;
         }
-        public Task CacheAll() => _storage.CacheAll();
+        public async Task CacheAll() 
+        {   
+            await _storage.CacheAll();
+            _tree.ResetDirectoryTree(StorageConstants.Remote_Path_Root);
+            await LoadDirectory(StorageConstants.Remote_Path_Root);            
+        }
         public Unit SelectFile(ILaunchableItem file)
         {
             file.IsSelected = true;
@@ -450,51 +456,62 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 .Select(t => t.Type).ToArray();            
         }
 
-        public async Task StoreFiles(IEnumerable<FileCopyItem> files)
+        public Task StoreFiles(IEnumerable<FileCopyItem> files)
         {
-            var commonParent = files.Select(i => i.Path).GetCommonBasePath();
-            var directoryOnly = files.All(i => i.InSubdirectory);
+            var localCommonParent = files.Select(i => i.Path).GetCommonBasePath();
+            var isDirectoryCopy = files.All(i => i.InSubdirectory);
 
-            var dupeCount = 0;
+            var localParentPath = isDirectoryCopy
+                ? SystemDirectory.GetParent(localCommonParent)?.FullName
+                : localCommonParent;
 
-            foreach (var file in files)
+            var targetBaseRemotePath = _directoryState.Value.CurrentPath;
+
+            return Task.Run(async () => 
             {
-                var fileInfo = new TeensyFileInfo(file.Path);
+                var dupeCount = 0;
 
-                var parentPath = directoryOnly
-                    ? SystemDirectory.GetParent(commonParent)?.FullName
-                    : commonParent;
+                foreach (var file in files)
+                {
+                    var fileInfo = new TeensyFileInfo(file.Path);
 
-                var relativePath = fileInfo.FullPath
-                    .Replace(parentPath!, string.Empty)
-                    .ToUnixPath()
-                    .GetUnixParentPath();
+                    var relativeTargetPath = fileInfo.FullPath
+                        .Replace(localParentPath!, string.Empty)
+                        .ToUnixPath()
+                        .GetUnixParentPath();
 
-                fileInfo.TargetPath = _directoryState.Value
-                    .CurrentPath
-                    .UnixPathCombine(relativePath);
-                try
-                {
-                    await _storage.SaveFile(fileInfo);
+                    fileInfo.TargetPath = targetBaseRemotePath
+                        .UnixPathCombine(relativeTargetPath);
+                    try
+                    {
+                        await _storage.SaveFile(fileInfo);
+                    }
+                    catch (TeensyDuplicateException)
+                    {
+                        dupeCount++;
+                        continue;
+                    }
                 }
-                catch (TeensyDuplicateException)
+                if (dupeCount > 0)
                 {
-                    dupeCount++;
-                    continue;
+                    if (dupeCount == files.Count())
+                    {
+                        _alert.Enqueue("All files were duplicates and not stored.");
+                    }
+                    else
+                    {
+                        _alert.Enqueue($"{dupeCount} files were duplicates and not stored.");
+                    }
                 }
-            }
-            if (dupeCount > 0) 
-            {
-                if (dupeCount == files.Count())
+                return Application.Current.Dispatcher.Invoke(async () =>
                 {
-                    _alert.Enqueue("All files were duplicates and not stored.");
-                }
-                else
-                {
-                    _alert.Enqueue($"{dupeCount} files were duplicates and not stored.");
-                }
-            }
-            await RefreshDirectory(bustCache: false);
+                    if(targetBaseRemotePath == _directoryState.Value.CurrentPath)
+                    {
+                        await LoadDirectory(targetBaseRemotePath);
+                    }
+                });                
+            });
+            
         }        
     }
 }
