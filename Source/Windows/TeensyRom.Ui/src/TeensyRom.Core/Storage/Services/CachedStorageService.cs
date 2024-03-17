@@ -383,27 +383,28 @@ namespace TeensyRom.Core.Storage.Services
 
         public IEnumerable<ILaunchableItem> Search(string searchText, params TeensyFileType[] fileTypes)
         {
-            var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            searchTerms.RemoveAll(term => _settings.SearchStopWords.Contains(term.ToLower()));
 
             return _storageCache
-        .Where(NotFavoriteFilter)
-        .SelectMany(c => c.Value.Files)
-        .Where(f => fileTypes.Contains(f.FileType))
-        .OfType<ILaunchableItem>()
-        .Select(file => new
-        {
-            File = file,
-            Score = searchTerms.Sum(term =>
-                (file.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Title : 0) + 
-                (file.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.FileName : 0) + 
-                (file.Creator.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Creator : 0) +
-                (file.Path.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.FilePath: 0) +
-                (file.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Description : 0))
-        })
-        .Where(result => result.Score > 0)
-        .OrderByDescending(result => result.Score)
-        .ThenBy(result => result.File.Title)
-        .Select(result => result.File);
+                .Where(NotFavoriteFilter)
+                .SelectMany(c => c.Value.Files)
+                .Where(f => fileTypes.Contains(f.FileType))
+                .OfType<ILaunchableItem>()
+                .Select(file => new
+                {
+                    File = file,
+                    Score = searchTerms.Sum(term =>
+                        (file.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Title : 0) + 
+                        (file.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.FileName : 0) + 
+                        (file.Creator.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Creator : 0) +
+                        (file.Path.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.FilePath: 0) +
+                        (file.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Description : 0))
+                })
+                .Where(result => result.Score > 0)
+                .OrderByDescending(result => result.Score)
+                .ThenBy(result => result.File.Title)
+                .Select(result => result.File);
         }
 
         Func<KeyValuePair<string, StorageCacheItem>, bool> NotFavoriteFilter => 

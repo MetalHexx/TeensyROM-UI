@@ -36,6 +36,7 @@ namespace TeensyRom.Core.Settings
         public List<string> BannedDirectories = ["MUSICIANS/S/Szachista", "System Volume Information", "FOUND.000", "integration-test-files", "integration-tests"];
         public List<string> BannedFiles = ["Revolutionary_Etude_part_1.sid", "Revolutionary_Etude_part_2.sid", "Super_Trouper.sid"];
         public SearchWeights SearchWeights { get; set; } = new();
+        public List<string> SearchStopWords = ["a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "is", "it", "no", "not", "of", "on", "or", "that", "the", "to", "was", "with"];
 
         public TeensySettings()
         {
