@@ -7,7 +7,7 @@ namespace TeensyRom.Core.Storage.Entities
     public class SongItem : FileItem, ILaunchableItem, IViewableItem
     {   
         public TimeSpan SongLength { get; set; } = TimeSpan.FromMinutes(3);
-        public List<ViewableItemImage> Images { get; } = [];
+        public List<ViewableItemImage> Images { get; init; } = [];
 
         public SongItem()
         {
@@ -25,7 +25,8 @@ namespace TeensyRom.Core.Storage.Entities
             Title = Title,
             Creator = Creator,
             ReleaseInfo = ReleaseInfo,
-            Description = Description            
+            Description = Description,
+            Images = Images.Select(x => x.Clone()).ToList()
         };
     }
 }

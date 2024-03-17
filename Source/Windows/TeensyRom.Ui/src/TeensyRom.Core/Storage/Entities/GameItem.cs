@@ -4,7 +4,7 @@ namespace TeensyRom.Core.Storage.Entities
     public class GameItem : FileItem, ILaunchableItem, IViewableItem
     {
         public GameItemScreens Screens { get; set; } = new ();
-        public List<ViewableItemImage> Images { get; } = [];
+        public List<ViewableItemImage> Images { get; init; } = [];
 
         public override GameItem Clone() => new ()
         {
@@ -18,7 +18,8 @@ namespace TeensyRom.Core.Storage.Entities
                 LoadingScreenRemotePath = Screens.LoadingScreenRemotePath,
                 ScreenshotLocalPath = Screens.ScreenshotLocalPath,
                 ScreenshotRemotePath = Screens.ScreenshotRemotePath                
-            }
+            },
+            Images = Images.Select(x => x.Clone()).ToList()
         };
     }
 
