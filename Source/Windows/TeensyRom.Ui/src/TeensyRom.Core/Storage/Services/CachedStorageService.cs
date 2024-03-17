@@ -211,7 +211,7 @@ namespace TeensyRom.Core.Storage.Services
         }
         public async Task<StorageCacheItem?> GetDirectory(string path)
         {
-            var cacheItem = _storageCache.Get(path);
+            var cacheItem = _storageCache.GetByDirPath(path);
 
             if (cacheItem != null)
             {                
@@ -296,6 +296,13 @@ namespace TeensyRom.Core.Storage.Services
 
         public async Task SaveFile(TeensyFileInfo fileInfo)
         {
+            var isDupe = _storageCache.GetFileByPath(fileInfo.TargetPath.UnixPathCombine(fileInfo.Name)) is not null;
+
+            if (isDupe) 
+            {
+                throw new TeensyDuplicateException($"File {fileInfo.Name} already exists.");
+            }
+
             var result = await _mediator.Send(new SaveFileCommand
             {
                 File = fileInfo
@@ -306,8 +313,11 @@ namespace TeensyRom.Core.Storage.Services
 
             if (storageItem is SongItem song) _sidMetadata.EnrichSong(song);
             if (storageItem is GameItem game) _gameMetadata.EnrichGame(game);
-            if (storageItem is FileItem file) _storageCache.UpsertFile(file); 
-
+            if (storageItem is FileItem file) 
+            {
+                _storageCache.UpsertFile(file);
+                SaveCacheToDisk();
+            } 
             _fileAdded.OnNext(storageItem.Path);
         }
 
@@ -342,7 +352,7 @@ namespace TeensyRom.Core.Storage.Services
             _storageCache.DeleteFile(file.Path);
 
             _storageCache
-                .FindFile(file.Name)
+                .GetFileByName(file.Name)
                 .ForEach(f => f.IsFavorite = false);
         }
         public void Dispose() => _settingsSubscription?.Dispose();

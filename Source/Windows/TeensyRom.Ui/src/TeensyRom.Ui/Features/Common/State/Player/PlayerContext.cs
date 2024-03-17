@@ -455,24 +455,44 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             var commonParent = files.Select(i => i.Path).GetCommonBasePath();
             var directoryOnly = files.All(i => i.InSubdirectory);
 
+            var dupeCount = 0;
+
             foreach (var file in files)
             {
                 var fileInfo = new TeensyFileInfo(file.Path);
 
-                var finalPath = directoryOnly
+                var parentPath = directoryOnly
                     ? SystemDirectory.GetParent(commonParent)?.FullName
                     : commonParent;
 
                 var relativePath = fileInfo.FullPath
-                    .Replace(finalPath!, string.Empty)
+                    .Replace(parentPath!, string.Empty)
                     .ToUnixPath()
                     .GetUnixParentPath();
 
                 fileInfo.TargetPath = _directoryState.Value
                     .CurrentPath
                     .UnixPathCombine(relativePath);
-
-                await _storage.SaveFile(fileInfo);
+                try
+                {
+                    await _storage.SaveFile(fileInfo);
+                }
+                catch (TeensyDuplicateException)
+                {
+                    dupeCount++;
+                    continue;
+                }
+            }
+            if (dupeCount > 0) 
+            {
+                if (dupeCount == files.Count())
+                {
+                    _alert.Enqueue("All files were duplicates and not stored.");
+                }
+                else
+                {
+                    _alert.Enqueue($"{dupeCount} files were duplicates and not stored.");
+                }
             }
             await RefreshDirectory(bustCache: false);
         }        

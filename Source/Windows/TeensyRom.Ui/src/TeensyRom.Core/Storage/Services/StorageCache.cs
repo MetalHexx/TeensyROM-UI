@@ -54,7 +54,7 @@ namespace TeensyRom.Core.Storage.Services
         public StorageCacheItem EnsureParents(string path)
         {
             var parentPath = CleanPath(path.GetUnixParentPath());
-            var fileParentDir = Get(parentPath);
+            var fileParentDir = GetByDirPath(parentPath);
 
             if (fileParentDir is null)
             {
@@ -90,7 +90,7 @@ namespace TeensyRom.Core.Storage.Services
         public void DeleteDirectory(string path)
         {
             var cleanPath = CleanPath(path);
-            var dir = Get(cleanPath);
+            var dir = GetByDirPath(cleanPath);
 
             if (dir is null) return;
 
@@ -99,7 +99,7 @@ namespace TeensyRom.Core.Storage.Services
 
         public void DeleteDirectoryWithChildren(string path)
         {
-            var currentDir = Get(path);
+            var currentDir = GetByDirPath(path);
 
             if (currentDir is null) return;
 
@@ -110,7 +110,7 @@ namespace TeensyRom.Core.Storage.Services
             DeleteDirectory(currentDir.Path);
         }
 
-        public StorageCacheItem? Get(string path)
+        public StorageCacheItem? GetByDirPath(string path)
         {
             var cleanPath = CleanPath(path);
 
@@ -119,22 +119,34 @@ namespace TeensyRom.Core.Storage.Services
             return item;
         }
 
-        public void DeleteFile(string path)
+        public IFileItem? GetFileByPath(string filePath)
         {
-            var cleanPath = CleanPath(path);
-            var parentPath = cleanPath.GetUnixParentPath();
-            var parentDir = Get(parentPath);
+            var parentPath = CleanPath(filePath.GetUnixParentPath());
+            TryGetValue(parentPath, out StorageCacheItem? dir);
 
-            if (parentDir is null) return;
-
-            parentDir.DeleteFile(path);
+            if (dir is not null)
+            {
+                return dir.Files.FirstOrDefault(f => f.Path.Equals(filePath));
+            }
+            return null;
         }
 
-        public List<IFileItem> FindFile(string name)
+        public List<IFileItem> GetFileByName(string name)
         {
             return this.SelectMany(c => c.Value.Files)
                 .Where(f => f.Name.Equals(name))
                 .ToList();
+        }
+
+        public void DeleteFile(string path)
+        {
+            var cleanPath = CleanPath(path);
+            var parentPath = cleanPath.GetUnixParentPath();
+            var parentDir = GetByDirPath(parentPath);
+
+            if (parentDir is null) return;
+
+            parentDir.DeleteFile(path);
         }
 
         private static string CleanPath(string path) => path
