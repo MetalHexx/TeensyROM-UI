@@ -458,56 +458,51 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
         public Task StoreFiles(IEnumerable<FileCopyItem> files)
         {
-            var localCommonParent = files.Select(i => i.Path).GetCommonBasePath();
+            var sourceCommonParent = files.Select(i => i.Path).GetCommonBasePath();
             var isDirectoryCopy = files.All(i => i.InSubdirectory);
 
-            var localParentPath = isDirectoryCopy
-                ? SystemDirectory.GetParent(localCommonParent)?.FullName
-                : localCommonParent;
+            var sourceParentPath = isDirectoryCopy
+                ? SystemDirectory.GetParent(sourceCommonParent)?.FullName
+                : sourceCommonParent;
 
-            var targetBaseRemotePath = _directoryState.Value.CurrentPath;
+            var targetBasePath = _directoryState.Value.CurrentPath;
 
             return Task.Run(async () => 
             {
                 var dupeCount = 0;
 
-                foreach (var file in files)
+                var fileInfos = files
+                    .Select(f => new TeensyFileInfo(f.Path))
+                    .Select(f =>
+                    {
+                        var targetRelativePath = f.FullPath
+                            .Replace(sourceParentPath!, string.Empty)
+                            .ToUnixPath()
+                            .GetUnixParentPath();
+
+                        f.TargetPath = targetBasePath
+                            .UnixPathCombine(targetRelativePath);
+
+                        return f;
+                    });
+
+                var numFilesSaved = await _storage.SaveFiles(fileInfos);
+
+                var fileCount = files.Count();
+
+                if(numFilesSaved < fileCount)
                 {
-                    var fileInfo = new TeensyFileInfo(file.Path);
-
-                    var relativeTargetPath = fileInfo.FullPath
-                        .Replace(localParentPath!, string.Empty)
-                        .ToUnixPath()
-                        .GetUnixParentPath();
-
-                    fileInfo.TargetPath = targetBaseRemotePath
-                        .UnixPathCombine(relativeTargetPath);
-                    try
-                    {
-                        await _storage.SaveFile(fileInfo);
-                    }
-                    catch (TeensyDuplicateException)
-                    {
-                        dupeCount++;
-                        continue;
-                    }
+                    _alert.Enqueue($"·{numFilesSaved} files were saved. \r\n·{fileCount - numFilesSaved} duplicates were skipped.");                    
                 }
-                if (dupeCount > 0)
+                else
                 {
-                    if (dupeCount == files.Count())
-                    {
-                        _alert.Enqueue("All files were duplicates and not stored.");
-                    }
-                    else
-                    {
-                        _alert.Enqueue($"{dupeCount} files were duplicates and not stored.");
-                    }
+                    _alert.Enqueue($"{numFilesSaved} files were saved to the TR.");
                 }
                 return Application.Current.Dispatcher.Invoke(async () =>
                 {
-                    if(targetBaseRemotePath == _directoryState.Value.CurrentPath)
+                    if(targetBasePath == _directoryState.Value.CurrentPath)
                     {
-                        await LoadDirectory(targetBaseRemotePath);
+                        await LoadDirectory(targetBasePath);
                     }
                 });                
             });

@@ -294,31 +294,38 @@ namespace TeensyRom.Core.Storage.Services
             .ToList() ?? [];
         }
 
-        public async Task SaveFile(TeensyFileInfo fileInfo)
+        public async Task<int> SaveFiles(IEnumerable<TeensyFileInfo> files)
         {
-            var isDupe = _storageCache.GetFileByPath(fileInfo.TargetPath.UnixPathCombine(fileInfo.Name)) is not null;
+            var dupeCount = 0;
 
-            if (isDupe) 
+            foreach (var f in files)
             {
-                throw new TeensyDuplicateException($"File {fileInfo.Name} already exists.");
+                var isDupe = _storageCache.GetFileByPath(f.TargetPath.UnixPathCombine(f.Name)) is not null;
+
+                if (isDupe)
+                {
+                    dupeCount++;
+                    continue;
+                }
+
+                var result = await _mediator.Send(new SaveFileCommand
+                {
+                    File = f
+                });
+                if (!result.IsSuccess) return dupeCount;
+
+                var storageItem = f.ToStorageItem();
+
+                if (storageItem is SongItem song) _sidMetadata.EnrichSong(song);
+                if (storageItem is GameItem game) _gameMetadata.EnrichGame(game);
+                if (storageItem is FileItem file)
+                {
+                    _storageCache.UpsertFile(file);                    
+                }
+                _fileAdded.OnNext(storageItem.Path);
             }
-
-            var result = await _mediator.Send(new SaveFileCommand
-            {
-                File = fileInfo
-            });
-            if (!result.IsSuccess) return;
-
-            var storageItem = fileInfo.ToStorageItem();
-
-            if (storageItem is SongItem song) _sidMetadata.EnrichSong(song);
-            if (storageItem is GameItem game) _gameMetadata.EnrichGame(game);
-            if (storageItem is FileItem file) 
-            {
-                _storageCache.UpsertFile(file);
-                SaveCacheToDisk();
-            } 
-            _fileAdded.OnNext(storageItem.Path);
+            SaveCacheToDisk();
+            return files.Count() - dupeCount;
         }
 
         public async Task QueuedSaveFile(TeensyFileInfo fileInfo)
@@ -478,7 +485,7 @@ namespace TeensyRom.Core.Storage.Services
 
         public async Task CacheAll(string path)
         {
-            _alert.Publish($"Refreshing cache for selected directory and subdirectories.");
+            _alert.Publish($"Refreshing cache for {path} and all nested directories.");
             var response = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = path });
 
             if (!response.IsSuccess) return;

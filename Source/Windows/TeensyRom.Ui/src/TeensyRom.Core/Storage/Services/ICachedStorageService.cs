@@ -5,12 +5,11 @@ namespace TeensyRom.Core.Storage.Services
     public interface ICachedStorageService: IDisposable
     {
         IObservable<string> FileAdded { get; }
-
         void ClearCache();
         void ClearCache(string path);
         Task<StorageCacheItem?> GetDirectory(string path);
         Task<ILaunchableItem?> SaveFavorite(ILaunchableItem file);
-        Task SaveFile(TeensyFileInfo fileInfo);
+        Task<int> SaveFiles(IEnumerable<TeensyFileInfo> files);
         Task QueuedSaveFile(TeensyFileInfo fileInfo);
         Task DeleteFile(IFileItem file, TeensyStorageType storageType);
         ILaunchableItem? GetRandomFile(params TeensyFileType[] fileTypes);
