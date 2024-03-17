@@ -35,6 +35,7 @@ namespace TeensyRom.Core.Settings
         public bool FirstTimeSetup { get; set; } = true;
         public List<string> BannedDirectories = ["MUSICIANS/S/Szachista", "System Volume Information", "FOUND.000", "integration-test-files", "integration-tests"];
         public List<string> BannedFiles = ["Revolutionary_Etude_part_1.sid", "Revolutionary_Etude_part_2.sid", "Super_Trouper.sid"];
+        public SearchWeights SearchWeights { get; set; } = new();
 
         public TeensySettings()
         {

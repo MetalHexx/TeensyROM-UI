@@ -386,93 +386,24 @@ namespace TeensyRom.Core.Storage.Services
             var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             return _storageCache
-                .Where(NotFavoriteFilter)
-                .SelectMany(c => c.Value.Files)
-                .Where(f => fileTypes.Contains(f.FileType))
-                .OfType<ILaunchableItem>()
-                .Select(file => new
-                {
-                    File = file,
-                    Score = searchTerms.Count(term =>
-                        file.Creator.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                        file.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                        file.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                        file.Path.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                        file.Description.Contains(term, StringComparison.OrdinalIgnoreCase))
-                })
-                .Where(result => result.Score > 0)                
-                .OrderByDescending(result => result.Score)
-                .ThenBy(result => result.File.Title)
-                .Select(result => result.File);
-        }
-
-        public IEnumerable<SongItem> SearchMusic(string searchText, int maxNumResults = 250)
+        .Where(NotFavoriteFilter)
+        .SelectMany(c => c.Value.Files)
+        .Where(f => fileTypes.Contains(f.FileType))
+        .OfType<ILaunchableItem>()
+        .Select(file => new
         {
-            var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            
-            return _storageCache
-                .Where(NotFavoriteFilter)
-                .SelectMany(c => c.Value.Files)
-                .OfType<SongItem>()
-                .Select(song => new
-                {
-                    Song = song,
-                    Score = searchTerms.Count(term =>
-                        song.Creator.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                        song.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                        song.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                        song.Path.Contains(term, StringComparison.OrdinalIgnoreCase)
-                    )
-                })
-                .Where(result => result.Score > 0)
-                .OrderBy(result => result.Song.Title)
-                .OrderByDescending(result => result.Score)
-                .Select(result => result.Song)
-                .Take(maxNumResults);
-        }
-
-        public IEnumerable<ILaunchableItem> SearchFiles(string searchText)
-        {
-            var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-            return _storageCache
-                .Where(NotFavoriteFilter)
-                .SelectMany(c => c.Value.Files)
-                .OfType<ILaunchableItem>()
-                .Where(f => TeensyFileTypeExtensions.GetLaunchFileTypes().Contains(f.FileType))
-                .Select(song => new
-                {
-                    File = song,
-                    Score = searchTerms.Count(term =>
-                        song.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                        song.Path.Contains(term, StringComparison.OrdinalIgnoreCase)
-                    )
-                })
-                .Where(result => result.Score > 0)
-                .OrderByDescending(result => result.Score)
-                .Select(result => result.File);
-        }
-
-        public IEnumerable<GameItem> SearchGames(string searchText)
-        {
-            var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-            return _storageCache
-                .Where(NotFavoriteFilter)
-                .SelectMany(c => c.Value.Files)
-                .OfType<GameItem>()
-                .Where(f => f.FileType is TeensyFileType.Crt or TeensyFileType.Prg)
-                .Select(game => new
-                {
-                    File = game,
-                    Score = searchTerms.Count(term =>
-                        game.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                        game.Path.Contains(term, StringComparison.OrdinalIgnoreCase)
-                    )
-                })
-                .Where(result => result.Score > 0)
-                .OrderByDescending(result => result.Score)
-                .Select(result => result.File);
+            File = file,
+            Score = searchTerms.Sum(term =>
+                (file.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Title : 0) + 
+                (file.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.FileName : 0) + 
+                (file.Creator.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Creator : 0) +
+                (file.Path.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.FilePath: 0) +
+                (file.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Description : 0))
+        })
+        .Where(result => result.Score > 0)
+        .OrderByDescending(result => result.Score)
+        .ThenBy(result => result.File.Title)
+        .Select(result => result.File);
         }
 
         Func<KeyValuePair<string, StorageCacheItem>, bool> NotFavoriteFilter => 
