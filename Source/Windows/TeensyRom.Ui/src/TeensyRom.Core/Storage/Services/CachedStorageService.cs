@@ -485,6 +485,14 @@ namespace TeensyRom.Core.Storage.Services
 
         public async Task CacheAll(string path)
         {
+            if (path == StorageConstants.Remote_Path_Root)
+            {
+                ClearCache();
+            }
+            else 
+            {
+                ClearCache(path);
+            }
             _alert.Publish($"Refreshing cache for {path} and all nested directories.");
             var response = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = path });
 
