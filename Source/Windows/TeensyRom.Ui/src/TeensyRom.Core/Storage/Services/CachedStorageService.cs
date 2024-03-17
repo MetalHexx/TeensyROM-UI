@@ -211,6 +211,10 @@ namespace TeensyRom.Core.Storage.Services
         }
         public async Task<StorageCacheItem?> GetDirectory(string path)
         {
+            var isBanned = _settings.BannedDirectories.Any(b => path.Contains(b));
+
+            if(isBanned) return null;
+            
             var cacheItem = _storageCache.GetByDirPath(path);
 
             if (cacheItem != null)
@@ -224,9 +228,10 @@ namespace TeensyRom.Core.Storage.Services
             });
 
             if (response.DirectoryContent is null) return null;  
-            
 
-            cacheItem = SaveDirectoryToCache(response.DirectoryContent);
+            var filteredContent = FilterDirectoryContent(response.DirectoryContent);
+
+            cacheItem = SaveDirectoryToCache(filteredContent);
             SaveCacheToDisk();
             return cacheItem;
         }
@@ -436,15 +441,34 @@ namespace TeensyRom.Core.Storage.Services
             {
                 foreach (var directory in response.DirectoryContent)
                 {
-                    if (directory is not null)
-                    {
-                        SaveDirectoryToCache(directory);
-                    }
+                    if(directory is null) continue;
+
+                    var filteredContent = FilterDirectoryContent(directory);
+
+                    if(filteredContent is null) continue;
+
+                    SaveDirectoryToCache(filteredContent);
                 }
                 EnsureFavorites();
                 SaveCacheToDisk();
             });
             _alert.Publish($"Download completed for {_settings.TargetType} storage.");
+        }
+
+        private DirectoryContent? FilterDirectoryContent(DirectoryContent directoryContent)
+        {
+            var pathBanned = _settings.BannedDirectories.Any(d => directoryContent.Path.Contains(d));
+            if (pathBanned) return null;
+
+            var filteredDirectories = directoryContent.Directories.Where(d => _settings.BannedDirectories.All(b => !d.Path.Contains(b)));
+            var filteredFiles = directoryContent.Files.Where(f => _settings.BannedFiles.All(b => !f.Name.Contains(b)));
+
+            return new DirectoryContent
+            {
+                Path = directoryContent.Path,
+                Directories = filteredDirectories.ToList(),
+                Files = filteredFiles.ToList()
+            };
         }
     }
 }
