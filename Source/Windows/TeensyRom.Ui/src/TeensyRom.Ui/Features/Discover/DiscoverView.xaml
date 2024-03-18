@@ -81,17 +81,25 @@
                     />
             </Grid>
 
-            
 
-            <Grid x:Name="ToolBarGrid"                 
-                Visibility="{Binding PlayToolbarActive, Converter={StaticResource BoolToVisibilityConvertor}}"
-                Grid.Row="3" Grid.ColumnSpan="3" 
-                Background="#303030" >
-                <Border Style="{StaticResource SectionBorder}">
+            <Border Grid.Row="3" Grid.ColumnSpan="3">
+                <Border.Effect>
+                    <DropShadowEffect 
+                        Color="Black" 
+                        Direction="270"
+                        ShadowDepth="5"
+                        BlurRadius="10" 
+                        Opacity="0.6"/>
+                </Border.Effect>
+
+                <Grid x:Name="ToolBarGrid"                 
+                    Visibility="{Binding PlayToolbarActive, Converter={StaticResource BoolToVisibilityConvertor}}"                 
+                    Background="#303030" 
+                    Margin="0 0 0 5">
 
                     <ContentControl Content="{Binding PlayToolbar}" VerticalAlignment="Center"/>
-                </Border>
-            </Grid>
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>
