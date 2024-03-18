@@ -126,8 +126,20 @@
                         WindowChrome.IsHitTestVisibleInChrome="True"
                         HorizontalAlignment="Right"
                         Margin="0 0 15 0"
-                        Grid.Column="0" Height="30" Width="30"/>                
-                    <TextBlock Text="{Binding Title}" Style="{StaticResource MainTitle}" FontFamily="Arial" FontSize="24" Margin="0 0 0 0" VerticalAlignment="Center" Grid.Column="1"/>
+                        Grid.Column="0" Height="30" Width="30"/>
+                    
+                    <Grid Grid.Column="1">
+                        <Grid.Effect>
+                            <DropShadowEffect 
+                                Color="{DynamicResource Primary700}" 
+                                Direction="270"
+                                ShadowDepth="5"
+                                BlurRadius="10" 
+                                Opacity="0.6"/>
+                        </Grid.Effect>
+                        <TextBlock Text="{Binding Title}" Style="{StaticResource MainTitle}" FontFamily="Arial" FontSize="24" Margin="0 0 0 0" VerticalAlignment="Center"/>
+                    </Grid>
+                    
                     <TextBlock Text="{Binding Version}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Foreground="DarkGray" Margin="-210 0 0 0"/>
                 </Grid>
 
