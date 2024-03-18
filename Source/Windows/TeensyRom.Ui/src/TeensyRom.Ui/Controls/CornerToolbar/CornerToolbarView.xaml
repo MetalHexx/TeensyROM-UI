@@ -16,7 +16,7 @@
 
             <Button 
                 Command="{Binding CacheAllCommand}" 
-                ToolTip="Downloads all file location information from the TR. &#x0a;This is vital for the best experience."
+                ToolTip="Caches all file location information from the TR. &#x0a;File caching directly affects the scope of global search, randomization and continuous music play features."
                 Style="{StaticResource StorageIconButton}"
                 Margin="5 0 0 0"
                 Grid.Column="0">
