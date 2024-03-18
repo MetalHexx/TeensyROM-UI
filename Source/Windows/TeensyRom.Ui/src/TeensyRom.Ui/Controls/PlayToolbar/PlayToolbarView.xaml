@@ -29,7 +29,7 @@
             <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Top" Margin="0 3 0 0">
                 <Button x:Name="PreviousButton"
                     Command="{Binding PreviousCommand}"  
-                    ToolTip="Previous"
+                    ToolTip="Go to the previous file. &#x0a;In normal mode, it goes to the next file in the selected directory.  &#x0a;In shuffle mode, it will go to the next random file in your collection.  &#x0a;The filter above will determine the type of file that gets played."
                     Style="{StaticResource PlaybarPrevSkipButton}">
                     <materialDesign:PackIcon Kind="SkipPrevious" />
                 </Button>
@@ -45,7 +45,7 @@
                 <Button x:Name="PauseButton"
                     Command="{Binding TogglePlayCommand}" 
                     Visibility="{Binding EnablePauseButton, Converter={StaticResource BoolToVisibilityConvertor}}"   
-                    ToolTip="Pause"
+                    ToolTip="Pauses the music."
                     Style="{StaticResource PlaybarButton}">
                     <materialDesign:PackIcon Kind="Pause" />
                 </Button>
@@ -53,14 +53,14 @@
                 <Button x:Name="Stop"
                     Command="{Binding TogglePlayCommand}" 
                     Visibility="{Binding EnableStopButton, Converter={StaticResource BoolToVisibilityConvertor}}"   
-                    ToolTip="Stop"
+                    ToolTip="Stops the game by resetting the TR"
                     Style="{StaticResource PlaybarButton}">
                     <materialDesign:PackIcon Kind="Stop" />
                 </Button>
 
                 <Button x:Name="NextButton"
                     Command="{Binding NextCommand}"  
-                    ToolTip="Next"
+                    ToolTip="Go to the next file. &#x0a;In normal mode, it goes to the next file in the selected directory.  &#x0a;In shuffle mode, it will go to the next random file in your collection.  &#x0a;The filter above will determine the type of file that gets played."
                     Style="{StaticResource PlaybarPrevSkipButton}">
                     <materialDesign:PackIcon Kind="SkipNext" />
                 </Button>
@@ -161,7 +161,7 @@
 
                 <Button x:Name="ShuffleModeButton"
                     Command="{Binding ToggleShuffleCommand}"  
-                    ToolTip="Shuffle Mode.  Enabling this will cause the next track to be a random file from the collection.  Disabling will play the next file in the current directory."
+                    ToolTip="Shuffle Mode.  &#x0a;Enabling this will cause the next button to play random file from your collection.  &#x0a;Disabling will play the next file in the current directory. &#x0a;The filter selected will determine the file type that gets picked."
                     Style="{StaticResource ShuffleModeButtonStyle}">
                     <materialDesign:PackIcon Kind="Shuffle"/>
                 </Button>
