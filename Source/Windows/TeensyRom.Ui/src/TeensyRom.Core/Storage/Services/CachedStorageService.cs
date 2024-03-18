@@ -173,10 +173,16 @@ namespace TeensyRom.Core.Storage.Services
             favsToFavorite.ForEach(f => f.IsFavorite = true);
 
             _storageCache
-                .SelectMany(c => c.Value.Files)
-                .Where(f => !f.IsFavorite && favsToFavorite.Any(fav => fav.Name == f.Name))
+                .Where(NotFavoriteFilter)
+                .SelectMany(c => c.Value.Files)                
+                .Where(f => favsToFavorite.Any(fav => fav.Id == f.Id))
                 .ToList()
-                .ForEach(f => f.IsFavorite = true);
+                .ForEach(f => 
+                {
+                    f.IsFavorite = true;
+                    var fav = favsToFavorite.First(fav => fav.Id == f.Id);
+                    fav.SourcePath = f.Path;
+                });
         }
 
         public List<ILaunchableItem> GetFavoriteItemsFromCache()
@@ -186,7 +192,7 @@ namespace TeensyRom.Core.Storage.Services
             foreach (var target in _settings.GetFavoritePaths())
             {
                 favs.AddRange(_storageCache
-                    .Where(c => c.Key.Contains(target))
+                    .Where(c => c.Key.RemoveLeadingAndTrailingSlash().Contains(target.RemoveLeadingAndTrailingSlash()))
                     .SelectMany(c => c.Value.Files)
                     .ToList()
                     .Cast<ILaunchableItem>());
@@ -278,7 +284,14 @@ namespace TeensyRom.Core.Storage.Services
                 {
                     if (file.FileType is TeensyFileType.Sid) 
                     {
-                        var song = new SongItem { Name = file.Name, Title = file.Name, Path = file.Path, Size = file.Size };
+                        var song = new SongItem 
+                        { 
+                            Name = file.Name, 
+                            Title = file.Name, 
+                            Path = file.Path, 
+                            Size = file.Size,
+                            SourcePath = file.Path
+                        };
                         _sidMetadata.EnrichSong(song);
                         return song;
                     }
@@ -288,7 +301,8 @@ namespace TeensyRom.Core.Storage.Services
                         {
                             Name = file.Name,
                             Path = file.Path,
-                            Size = file.Size
+                            Size = file.Size,
+                            SourcePath = file.Path
                         };
                         _gameMetadata.EnrichGame(game);
                         return game;

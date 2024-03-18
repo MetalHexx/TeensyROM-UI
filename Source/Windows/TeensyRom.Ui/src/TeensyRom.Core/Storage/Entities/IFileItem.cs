@@ -12,6 +12,7 @@
         string Description { get; set; }
         string Meta1 { get; set; }
         string Meta2 { get; set; }
+        string SourcePath { get; set; }
 
         FileItem Clone();
     }
