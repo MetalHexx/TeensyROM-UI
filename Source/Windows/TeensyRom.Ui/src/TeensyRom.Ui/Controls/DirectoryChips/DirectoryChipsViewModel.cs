@@ -19,10 +19,15 @@ namespace TeensyRom.Ui.Controls.DirectoryChips
         public ObservableCollection<string> PathItems { get; set; } = [];
         public ReactiveCommand<string, Unit> PathItemClickCommand { get; set; }
         public ReactiveCommand<string, Unit> CopyCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
         private string _currentPath = string.Empty;
 
-        public DirectoryChipsViewModel(IObservable<string> path, string basePath, Action<string> onClick, Action onCopy) //  /some/directory/path/yay
+        public DirectoryChipsViewModel(IObservable<string> path, string basePath, Action<string> onClick, Action onCopy, Func<bool, Task> onRefresh)
         {
+            RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(
+                execute: _ => onRefresh(true),
+                outputScheduler: RxApp.MainThreadScheduler);
+
             var pathItems = path
                 .Where(path => !string.IsNullOrWhiteSpace(path))
                 .Do(path => _currentPath = path)

@@ -18,21 +18,13 @@
                 Command="{Binding CacheAllCommand}" 
                 ToolTip="Downloads all file location information from the TR. &#x0a;This is vital for the best experience."
                 Style="{StaticResource StorageIconButton}"
-                Margin="10 0 0 0"
+                Margin="5 0 0 0"
                 Grid.Column="0">
 
                 <materialDesign:PackIcon Kind="Download" />
             </Button>
 
-            <Button 
-                Command="{Binding RefreshCommand}" 
-                ToolTip="Refreshes the current directory."
-                Style="{StaticResource StorageIconButton}"
-                Grid.Column="1"
-                Margin="10 0 0 0">
-
-                <materialDesign:PackIcon Kind="refresh" />
-            </Button>
+            
         </Grid>
     </Border>
 </UserControl>

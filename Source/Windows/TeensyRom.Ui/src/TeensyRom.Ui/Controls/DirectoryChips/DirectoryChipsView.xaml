@@ -15,6 +15,7 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
 
             <materialDesign:PackIcon 
@@ -43,12 +44,21 @@
             </ItemsControl>
 
             <Button                     
-                    Command="{Binding CopyCommand}" 
-                    ToolTip="Copies the path to the clipboard"
-                    Style="{StaticResource StorageIconButton}"
-                    HorizontalAlignment="Right"
-                    Grid.Column="2">
+                Command="{Binding CopyCommand}" 
+                ToolTip="Copies the path to the clipboard"
+                Style="{StaticResource StorageIconButton}"
+                HorizontalAlignment="Right"
+                Grid.Column="2">
                 <materialDesign:PackIcon Kind="ContentCopy" Height="15"/>
+            </Button>
+
+            <Button 
+                Command="{Binding RefreshCommand}" 
+                ToolTip="Refreshes the current directory."
+                Style="{StaticResource StorageIconButton}"
+                HorizontalAlignment="Right"
+                Grid.Column="3">
+                <materialDesign:PackIcon Kind="refresh" Height="20" />
             </Button>
 
         </Grid>

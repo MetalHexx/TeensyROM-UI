@@ -149,13 +149,13 @@ namespace TeensyRom.Ui.Features.Discover
                     path: context.CurrentPath,
                     basePath: StorageConstants.Remote_Path_Root,
                     onClick: async path => await context.LoadDirectory(path),
-                    onCopy: () => alert.Publish("Path copied to clipboard")
+                    onCopy: () => alert.Publish("Path copied to clipboard"),
+                    onRefresh: context.RefreshDirectory
                 );
 
                 CornerToolbar = new CornerToolbarViewModel
                 (
-                    context.CacheAll,                    
-                    context.RefreshDirectory,
+                    context.CacheAll,                                        
                     dialog,
                     _settings.TargetType
                 );
