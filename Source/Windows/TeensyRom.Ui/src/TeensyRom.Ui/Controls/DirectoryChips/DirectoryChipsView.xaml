@@ -54,7 +54,7 @@
 
             <Button 
                 Command="{Binding RefreshCommand}" 
-                ToolTip="Refreshes the current directory and all child directories."
+                ToolTip="Refreshes the current directory cache and all child directories."
                 Style="{StaticResource StorageIconButton}"
                 HorizontalAlignment="Right"
                 Grid.Column="3">
