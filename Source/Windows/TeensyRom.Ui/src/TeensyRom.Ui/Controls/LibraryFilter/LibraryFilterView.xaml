@@ -35,11 +35,17 @@
         </ItemsControl>
         <Button 
             Command="{Binding PlayRandomCommand}" 
+            Click="Random_Click"
             ToolTip="I'm feeling lucky!"
-            Style="{StaticResource StorageIconButton}"
+            Style="{StaticResource DropShadowButton}"
             Grid.Column="0"
             Margin="5 0 0 0">
-            <materialDesign:PackIcon Kind="Dice5" />
+            <Viewbox RenderTransformOrigin="0.5,0.5">
+                <Viewbox.RenderTransform>
+                    <RotateTransform x:Name="IconRotateTransform"/>
+                </Viewbox.RenderTransform>
+                <materialDesign:PackIcon Kind="Dice5" Height="17"/>
+            </Viewbox>
         </Button>
     </StackPanel>
 </UserControl>

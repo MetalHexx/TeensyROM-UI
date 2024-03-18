@@ -9,7 +9,9 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
@@ -45,6 +47,20 @@ namespace TeensyRom.Ui.Controls.LibraryFilter
             {
                 radioButton.IsChecked = true;
             }
+        }
+
+        private void Random_Click(object sender, RoutedEventArgs e)
+        {
+            var rotateAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = 360,
+                Duration = TimeSpan.FromSeconds(0.5),
+                AccelerationRatio = 0.5,
+                DecelerationRatio = 0.5
+            };
+
+            IconRotateTransform.BeginAnimation(RotateTransform.AngleProperty, rotateAnimation);
         }
     }
 }

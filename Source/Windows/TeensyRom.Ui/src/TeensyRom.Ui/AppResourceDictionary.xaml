@@ -69,6 +69,7 @@
         <Setter Property="Padding" Value="0"/>
         <Setter Property="Height" Value="35"/>
         <Setter Property="Width" Value="35"/>
+        
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Foreground" Value="{StaticResource EnabledColor}"/>
@@ -79,6 +80,19 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="DropShadowButton" TargetType="Button" BasedOn="{StaticResource StorageIconButton}">
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect 
+                    Color="Black" 
+                    Direction="270"
+                    ShadowDepth="5"
+                    BlurRadius="10" 
+                    Opacity="0.6"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
     <Style x:Key="ShuffleModeButtonStyle" TargetType="Button" BasedOn="{StaticResource StorageIconButton}">
         <Style.Triggers>
             <DataTrigger Binding="{Binding ShuffleModeEnabled}" Value="True">
