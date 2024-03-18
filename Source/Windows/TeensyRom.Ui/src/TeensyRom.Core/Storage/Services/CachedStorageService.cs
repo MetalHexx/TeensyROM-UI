@@ -144,7 +144,6 @@ namespace TeensyRom.Core.Storage.Services
 
             if (!File.Exists(_cacheFileName)) return;
             LoadCacheFromDisk(_cacheFileName);
-            EnsureFavorites();
             SaveCacheToDisk();
         }
 
