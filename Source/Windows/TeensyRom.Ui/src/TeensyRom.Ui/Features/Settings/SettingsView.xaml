@@ -10,74 +10,70 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" ></RowDefinition>
+            <RowDefinition Height="55"/>
             <RowDefinition Height="40" ></RowDefinition>
-            <RowDefinition Height="40" ></RowDefinition>
-            <RowDefinition Height="40" ></RowDefinition>
-            <RowDefinition Height="80"></RowDefinition>
-            <RowDefinition Height="120"></RowDefinition>
+            <RowDefinition Height="30" ></RowDefinition>
+            <RowDefinition Height="30" ></RowDefinition>
+            <RowDefinition Height="80" ></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="130"></ColumnDefinition>
             <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="400"></ColumnDefinition>
 
         </Grid.ColumnDefinitions>
 
-        <TextBlock 
-        Text="{Binding FeatureTitle}"
-        Style="{StaticResource SectionTitle}" 
-        Grid.Row="0" Margin="0 0 0 10"/>
+        <ContentControl 
+            Content="{Binding Title}" 
+            Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0 0 0 10"/>
 
         <Label 
-        Content="File Auto-Transfer:"
-        ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  If a file is detected, it will automatically copy the file and place it in the appropriate folders as defined below."
-        Grid.Row="1" HorizontalAlignment="Right"/>
-        <CheckBox                  
-        Content="Enabled"                
-        ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  If a file is detected, it will automatically copy the file and place it in the appropriate folders as defined below."
-        IsChecked="{Binding Settings.AutoFileCopyEnabled, Mode=TwoWay}" 
-        Grid.Row="1" Grid.Column="3" VerticalAlignment="Top" Margin="0 4 0 0"/>
-
-        <Label 
-        Content="Watch Directory:" 
-        ToolTip="Set up a directory to watch.  When a supported file type is copied to the directory (like your downloads directory) it will automatically save the file to TeensyRom.  See: File Type Paths to configure target locations."
-        Grid.Row="2" HorizontalAlignment="Right"/>
-
-        <TextBox 
-        ToolTip="Set up a directory to watch.  When a supported file type is copied to the directory (like your downloads directory) it will automatically save the file to TeensyRom.  See: File Type Paths to configure target locations."
-        materialDesign:HintAssist.Hint="Watch Directory"
-        IsEnabled="{Binding Settings.AutoFileCopyEnabled}"
-        Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}"                
-        Grid.Row="2" Grid.Column="3" VerticalAlignment="Top"/>
-
-        <Label 
-        Content="Default Storage:"
-        ToolTip="This will determine the default storage type to use in TeensyRom."
-        Grid.Row="3" HorizontalAlignment="Right"/>
+            Content="Default Storage:"
+            ToolTip="This will determine the storage device that the application will bind to on the TR."
+            Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
         <StackPanel 
-        ToolTip="This will determine the default storage type to use in TeensyRom."                
-        Grid.Row="3" Grid.Column="3" Orientation="Horizontal" VerticalAlignment="top" Margin="0 3 0 0">
+            ToolTip="This will determine the storage device that the application will bind to on the TR."                
+            Grid.Row="1" Grid.Column="3" Orientation="Horizontal">
 
             <RadioButton 
-            Content="SD" 
-            IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.SD}}" />
+                Content="SD" 
+                IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.SD}}" />
 
             <RadioButton 
-            Content="USB"                          
-            IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.USB}}" 
-            Margin="10,0,0,0" />
+                Content="USB"                          
+                IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.USB}}" 
+                Margin="10,0,0,0" />
         </StackPanel>
 
+        <Label 
+            Content="File Auto-Transfer:"
+            ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  &#x0a;If a file is detected, it will automatically be transferred to /auto-transfer/[media type]."
+            Grid.Row="2" HorizontalAlignment="Right"/>
+        <CheckBox                  
+            Content="Enabled"                
+            ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  &#x0a;If a file is detected, it will automatically be transferred to /auto-transfer/[media type]."
+            IsChecked="{Binding Settings.AutoFileCopyEnabled, Mode=TwoWay}" 
+            Grid.Row="2" Grid.Column="3" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
+        <Label 
+            Content="Watch Directory:" 
+            ToolTip="The folder specified here will be monitored for new files. &#x0a;Try setting it something like your browser download folder.  &#x0a;Only types supported by the TR be monitored."
+            Grid.Row="3" HorizontalAlignment="Right"/>
+
+        <TextBox 
+            ToolTip="The folder specified here will be monitored for new files. &#x0a;Try setting it something like your browser download folder.  &#x0a;Only types supported by the TR be monitored."
+            materialDesign:HintAssist.Hint="Watch Directory"
+            Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}"                
+            Grid.Row="3" Grid.Column="3" VerticalAlignment="Top"/>
+
+        
+
         <Button             
-            ToolTip="This will save your settings to disk.  They will be remembered when you re-open the application."
+            ToolTip="This will save your settings to disk."
             Content="Save Settings"  
             Command="{Binding SaveSettingsCommand}" 
             HorizontalAlignment="Left"
             Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="20"/>
-
     </Grid>
-
-    
 </UserControl>

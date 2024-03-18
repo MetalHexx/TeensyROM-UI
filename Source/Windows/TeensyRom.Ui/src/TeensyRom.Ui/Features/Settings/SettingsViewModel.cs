@@ -13,6 +13,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Services;
+using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Helpers.ViewModel;
 using TeensyRom.Ui.Services;
 
@@ -20,6 +21,7 @@ namespace TeensyRom.Ui.Features.Settings
 {
     public class SettingsViewModel: FeatureViewModelBase, IDisposable
     {
+        [Reactive] public FeatureTitleViewModel Title { get; set; } = new("Settings");
         [Reactive] public string Logs { get; set; } = string.Empty;
         [ObservableAsProperty] public bool IsDirty { get; }
         [ObservableAsProperty] public TeensySettings? Settings { get; }

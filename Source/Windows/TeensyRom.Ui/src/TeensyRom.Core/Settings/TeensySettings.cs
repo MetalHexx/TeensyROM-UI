@@ -17,7 +17,6 @@ namespace TeensyRom.Core.Settings
         public TeensyFilterType Type { get; set; }
         public string DisplayName { get; set; } = string.Empty;
         public string Icon { get; set; } = string.Empty;
-        public bool IsConfigurable { get; set; } = true;
     }
     /// <summary>
     /// Used to persist and retrieve user preference from disk.  See: Settings.json in the bin folder
@@ -30,7 +29,7 @@ namespace TeensyRom.Core.Settings
         public List<TeensyTarget> FileTargets { get; set; } = [];
         public List<TeensyFilter> FileFilters { get; set; } = [];
         public string AutoTransferPath { get; set; } = "auto-transfer";
-        public bool AutoFileCopyEnabled { get; set; }
+        public bool AutoFileCopyEnabled { get; set; } = true;
         public bool SaveMusicCacheEnabled { get; set; } = true;        
         public bool FirstTimeSetup { get; set; } = true;
         public List<string> BannedDirectories = ["MUSICIANS/S/Szachista", "System Volume Information", "FOUND.000", "integration-test-files", "integration-tests", "AlternativeFormats", "Dumps", "Docs", "MultiLoad64"];
@@ -52,7 +51,6 @@ namespace TeensyRom.Core.Settings
                     Type = TeensyFilterType.All,
                     DisplayName = "All",
                     Icon = "AllInclusive",
-                    IsConfigurable = false
 
                 },
                 new TeensyFilter
@@ -70,7 +68,8 @@ namespace TeensyRom.Core.Settings
                 new TeensyFilter
                 {
                     Type = TeensyFilterType.Hex,
-                    DisplayName = "Hex"
+                    DisplayName = "Hex",
+                    Icon = "ArrowUpBoldHexagonOutline"
                 }
             });
             FileTargets.AddRange(new List<TeensyTarget>
