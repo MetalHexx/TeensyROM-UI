@@ -46,7 +46,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
         {   
             _settings = _settingsService.GetSettings();
 
-            if (_settings.FirstTimeSetup) return;
+            if (!_settings.FirstTimeSetup) return;
 
             var result = await _dialog.ShowConfirmation("Welcome to TeensyROM!", "This start up guide will help you get set up and learn about a few basic features of the app. \r\rAt any point, feel free to press cancel to finish up on your own.");
 
@@ -161,7 +161,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
         public async Task OnCache()
         {
-            //var cachingTask = _storage.CacheAll();
+            var cachingTask = _storage.CacheAll();
             var result = await _dialog.ShowConfirmation("Let's navigate back to the connection screen.  You can watch as all the files are read from the TR.\r\rHang tight as this will likely take several minutes if you have thousands of files.");
             _navigation.NavigateTo(NavigationLocation.Connect);
 
@@ -235,10 +235,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
                     }
 
                     OnLaunchGame();
-                });
-            //await _dialog.ShowConfirmation("You're all set!", "You can now start using TeensyROM to explore your infinitely massive collection.  \r\rI'll take you to the help section now where you can find out more information about the application. \r\r Enjoy! ;)");
-
-            //_navigation.NavigateTo(NavigationLocation.Help);
+                });            
         }
         public void OnLaunchGame()
         {
@@ -353,7 +350,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
             _navigation.NavigateTo(NavigationLocation.Help);
 
-            return _dialog.ShowConfirmation("Setup Wizard Complete", "The help section is a great place to find out more about the project.\r\rVisit the GitHub project page for more detailed documentation on the application features or troubleshooting tips.\r\rEnjoy! ;)");
+            return _dialog.ShowConfirmation("Setup Wizard Complete", "The help section is a great place to find out more about the project.\r\rVisit the GitHub project page for more detailed documentation on the application features or troubleshooting tips.\r\r  If you'd like to re-run this tutorial, you can do so from here.\r\rEnjoy! ;)");
         }
     }
 }
