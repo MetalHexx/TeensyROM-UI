@@ -19,6 +19,7 @@ namespace TeensyRom.Ui.Services
 {
     public interface ISetupService
     {
+        void ResetSetup();
         Task StartSetup();
 
     }
@@ -42,11 +43,25 @@ namespace TeensyRom.Ui.Services
             _discover = discover;
             _settingsService.Settings.Subscribe(settings => _settings = settings);
         }
+        public void ResetSetup()
+        {
+            _settings = _settingsService.GetSettings();
+            _settings.FirstTimeSetup = true;
+            _settingsService.SaveSettings(_settings);
+        }
         public async Task StartSetup()
         {
             _settings = _settingsService.GetSettings();
 
             if (!_settings.FirstTimeSetup) return;
+
+
+            var currentView = await _navigation.SelectedNavigationView.FirstOrDefaultAsync();
+
+            if (currentView.Type is not NavigationLocation.Connect)
+            {
+                _navigation.NavigateTo(NavigationLocation.Connect);
+            }
 
             var result = await _dialog.ShowConfirmation("Welcome to TeensyROM!", "This start up guide will help you get set up and learn about a few basic features of the app. \r\rAt any point, feel free to press cancel to finish up on your own.");
 
@@ -93,7 +108,28 @@ namespace TeensyRom.Ui.Services
                 .Take(1)
                 .ObserveOn(RxApp.MainThreadScheduler).Subscribe(async _ =>
                 {
-                    var result = await _dialog.ShowConfirmation("Successful Connection!", "Let's head over to the settings view and get some things configured.");
+                    var result = await _dialog.ShowConfirmation("Successful Connection!", "You have connected to the TR successfully.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+                    result = await _dialog.ShowConfirmation("Connection View", "On this screen, you will find a few utility features that might come in handy.\r\r· Ping: This is useful for troubleshooting connectivity. \r· Reset: Will reset the C64. \r· Logs: Useful for troubleshooting or debugging.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+                    result = await _dialog.ShowConfirmation("Automatic Reconnect", "Useful to note that if you decide to turn off your C64 or lose a connection to the TR for some other reason, the application will automatically attempt to re-connect.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+                    result = await _dialog.ShowConfirmation("Settings", "Let's head over to the settings view and get your preferences configured.");
 
                     if (!result)
                     {
@@ -111,7 +147,7 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
-                    result = await _dialog.ShowConfirmation("Automatic File Transfer", "Another feature you can configure here is the \"Watch Directory\".  Any files you place into this directory will automatically get copied to the TR.  \r\rI've set the directory of your default downloads folder.  If you download a SID, CRT, PRG or HEX firmware with your web browser, you should automatically see it in the /auto-transfer folder. \r\rFeel free to change this watch folder or disable the feature.");
+                    result = await _dialog.ShowConfirmation("Automatic File Transfer", "Another feature you can configure here is the \"Watch Directory\".  \r\rWhen new .SID, .CRT, .PRG or .HEX firmware files are detected they will automatically be uploaded to the /auto-transfer directory on your TR.  \r\rYou may find the download directory a good choice if you like the roam the web for your C64 content.  This is also handy for quickly downloading and updating your TeensyROM firmware.  As such, it's set as default directory.\r\rFor privacy reasons, this feature is disabled by default.");
 
                     if (!result)
                     {
@@ -350,7 +386,7 @@ namespace TeensyRom.Ui.Services
 
             _navigation.NavigateTo(NavigationLocation.Help);
 
-            return _dialog.ShowConfirmation("Setup Wizard Complete", "The help section is a great place to find out more about the project.\r\rVisit the GitHub project page for more detailed documentation on the application features or troubleshooting tips.\r\r  If you'd like to re-run this tutorial, you can do so from here.\r\rEnjoy! ;)");
+            return _dialog.ShowConfirmation("Setup Wizard Complete", "The help section is a great place to find out more about the project.\r\rVisit the GitHub project page for more detailed documentation on the application features or troubleshooting tips.\r\rIf you'd like to re-run this tutorial, you can do so from here.\r\rEnjoy! ;)");
         }
     }
 }
