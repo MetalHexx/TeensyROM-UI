@@ -136,11 +136,11 @@
     <DataTemplate x:Key="ConfirmationDialogTemplate">
         <StackPanel Background="#424242" MaxWidth="500">
             
-            <Rectangle HorizontalAlignment="Stretch" Height="10" Fill="{StaticResource PrimaryHueDarkBrush}"/>
+            <Rectangle HorizontalAlignment="Stretch" Height="8" Fill="{StaticResource PrimaryHueDarkBrush}"/>
 
-            <TextBlock Text="{Binding Title}" TextAlignment="Center" HorizontalAlignment="Stretch" Height="15" Background="{StaticResource PrimaryHueDarkBrush}"/>
+            <TextBlock Text="{Binding Title}" TextAlignment="Center" HorizontalAlignment="Stretch" Height="17"  Background="{StaticResource PrimaryHueDarkBrush}"/>
 
-            <Rectangle HorizontalAlignment="Stretch" Height="10" Fill="{StaticResource PrimaryHueDarkBrush}"/>
+            <Rectangle HorizontalAlignment="Stretch" Height="5" Fill="{StaticResource PrimaryHueDarkBrush}"/>
 
             <TextBlock Text="{Binding Content}" 
                 Foreground="White" 
