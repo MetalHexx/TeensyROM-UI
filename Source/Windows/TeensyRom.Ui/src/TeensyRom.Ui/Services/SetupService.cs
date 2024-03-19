@@ -122,7 +122,7 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Automatic Reconnect", "Useful to note that if you decide to turn off your C64 or lose a connection to the TR for some other reason, the application will automatically attempt to re-connect.");
+                    result = await _dialog.ShowConfirmation("Automatic Reconnect", "Useful to note that if you decide to turn off your C64 or lose your connection to the TR for some other reason, the application will automatically attempt to re-connect.");
 
                     if (!result)
                     {
@@ -147,7 +147,7 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
-                    result = await _dialog.ShowConfirmation("Automatic File Transfer", "Another feature you can configure here is the \"Watch Directory\".  \r\rWhen new .SID, .CRT, .PRG or .HEX firmware files are detected they will automatically be uploaded to the /auto-transfer directory on your TR.  \r\rYou may find the download directory a good choice if you like the roam the web for your C64 content.  This is also handy for quickly downloading and updating your TeensyROM firmware.  As such, it's set as default directory.\r\rFor privacy reasons, this feature is disabled by default.");
+                    result = await _dialog.ShowConfirmation("Automatic File Transfer", "Another feature you can configure here is the \"Watch Directory\".  \r\rWhen new .SID, .CRT, .PRG or .HEX firmware files are detected they will automatically be uploaded to the /auto-transfer directory on your TR.  \r\rYou may find the download directory a good choice if you like the roam the web for your C64 content.  This is also handy for quickly downloading and updating your TeensyROM firmware.  As such, it's set as the default directory.\r\rFor privacy reasons, this feature is disabled by default.");
 
                     if (!result)
                     {
@@ -183,7 +183,7 @@ namespace TeensyRom.Ui.Services
                     return;
                 }
 
-                result = await _dialog.ShowConfirmation("Copy Some Files!", "Copy some files now before we start the indexing process.  \r\rTotally optional, but strongly recommended, consider copying HVSC and OneLoad64 onto your SD or USB storage. You can always do this later if you want.\r\r Clicking \"OK\" will start the indexing process.");
+                result = await _dialog.ShowConfirmation("Copy Some Files!", $"Copy some files now before we start the indexing process.  \r\rTotally optional, but strongly recommended, consider copying HVSC and OneLoad64 onto your {_settings.TargetType} storage. You can always do this later if you want.\r\r Clicking \"OK\" will start the indexing process.");
 
                 if (!result)
                 {
