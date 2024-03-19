@@ -13,9 +13,9 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Features.Common.State.Player;
 using TeensyRom.Ui.Features.Discover.State;
-using TeensyRom.Ui.Services;
+using TeensyRom.Ui.Features.NavigationHost;
 
-namespace TeensyRom.Ui.Features.NavigationHost
+namespace TeensyRom.Ui.Services
 {
     public interface ISetupService
     {
@@ -43,7 +43,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
             _settingsService.Settings.Subscribe(settings => _settings = settings);
         }
         public async Task StartSetup()
-        {   
+        {
             _settings = _settingsService.GetSettings();
 
             if (!_settings.FirstTimeSetup) return;
@@ -58,7 +58,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
             await OnConnectable();
         }
 
-        public async Task OnConnectable() 
+        public async Task OnConnectable()
         {
             _serial.CurrentState
                 .Where(s => s is SerialConnectableState)
@@ -91,7 +91,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
             _serial.CurrentState
                 .Where(s => s is SerialConnectedState)
                 .Take(1)
-                .ObserveOn(RxApp.MainThreadScheduler).Subscribe(async _ => 
+                .ObserveOn(RxApp.MainThreadScheduler).Subscribe(async _ =>
                 {
                     var result = await _dialog.ShowConfirmation("Successful Connection!", "Let's head over to the settings view and get some things configured.");
 
@@ -131,7 +131,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
                 });
         }
 
-        public void OnSettingsSaved() 
+        public void OnSettingsSaved()
         {
             _settingsService.Settings
                 .Skip(1)
@@ -155,7 +155,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
                     return;
                 }
 
-                await OnCache();                
+                await OnCache();
             });
         }
 
@@ -205,7 +205,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
                     }
 
                     result = await _dialog.ShowConfirmation("Feeling Lucky?", "Let's try discovering something to play. \r\rClick on the die button near the lower left of the screen next to the \"All\", \"Games\", and \"Music\" filters.");
-                    
+
                     if (!result)
                     {
                         await Complete();
@@ -218,7 +218,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
         public void OnLaunch()
         {
             _discover.LaunchedFile
-                .OfType<ILaunchableItem>()  
+                .OfType<ILaunchableItem>()
                 .Where(file => file.IsCompatible is true)
                 .Take(1)
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -235,7 +235,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
                     }
 
                     OnLaunchGame();
-                });            
+                });
         }
         public void OnLaunchGame()
         {
@@ -250,7 +250,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
                     var result = false;
 
-                    if(file is GameItem)
+                    if (file is GameItem)
                     {
                         result = await _dialog.ShowConfirmation("Random Game Launched", $"Nice, you found a game located at {file.Path}.  \r\rNotice how the directory listing has also changed to location of the launched file.");
                     }
@@ -306,7 +306,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
                     {
                         await Complete();
                         return;
-                    }                    
+                    }
                     result = await _dialog.ShowConfirmation("Music Only", $"Music has some special behaviors that games do not.  \r\r· Music will go to the next SID automatically if it ends. \r· The previous button will restart the current SID.  \r· Quickly clicking a second time will go to the previous SID.  \r· A share button allows you to share DeepSID links with your friends.\r\rHave you installed the HVSC yet? ;)");
 
                     if (!result)
