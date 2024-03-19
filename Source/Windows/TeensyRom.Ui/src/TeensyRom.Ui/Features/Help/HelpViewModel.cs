@@ -4,11 +4,14 @@ using System.Diagnostics;
 using System.Security.Policy;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Helpers.ViewModel;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Help
 {
     public class HelpViewModel
     {
+        private readonly ISetupService _setupService;
+
         public ReactiveCommand<Unit, Unit> NavigateToUiGithubCommand { get; }
         public ReactiveCommand<Unit, Unit> NavigateToTrGithubCommand { get; }
         public ReactiveCommand<Unit, Unit> NavigateToDiscordCommand { get; }
@@ -18,10 +21,13 @@ namespace TeensyRom.Ui.Features.Help
         public ReactiveCommand<Unit, Unit> NavigateToHvscCommand { get; }
         public ReactiveCommand<Unit, Unit> NavigateToSidListCommand { get; }
         public ReactiveCommand<Unit, Unit> NavigateToDeepSidCommand { get; }
+        public ReactiveCommand<Unit, Unit> StartTutorialCommand { get; }
 
 
-        public HelpViewModel() 
+        public HelpViewModel(ISetupService setupService) 
         {
+            _setupService = setupService;
+
             NavigateToUiGithubCommand = ReactiveCommand.Create(() => 
             {
                 OpenBrowser("https://github.com/MetalHexx/TeensyROM-UI");
@@ -58,6 +64,13 @@ namespace TeensyRom.Ui.Features.Help
             {
                 OpenBrowser("https://github.com/Chordian/deepsid");
             });
+
+            StartTutorialCommand = ReactiveCommand.Create(() =>
+            {
+                _setupService.ResetSetup();
+                _setupService.StartSetup();
+            });
+            
         }
 
         private void OpenBrowser(string url)

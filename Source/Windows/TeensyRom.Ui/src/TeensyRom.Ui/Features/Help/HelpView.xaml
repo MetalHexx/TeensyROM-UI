@@ -60,6 +60,15 @@
         </StackPanel>
 
         <StackPanel Grid.Row="1" Grid.Column="2" Margin="0 10 0 0">
+            
+            <TextBlock FontSize="20" Text="Tutorials" HorizontalAlignment="Center" Margin="10"/>
+
+            <controls:DetailButton 
+                ClickCommand="{Binding StartTutorialCommand}"
+                Title="Setup and Feature Review" 
+                Subtitle="Click here to run through the first time startup tutorial again.  "
+                Icon="GhostOutline"
+                Margin="0 0 0 20"/>
 
             <TextBlock FontSize="20" Text="Add Ons" HorizontalAlignment="Center" Margin="10"/>
 
