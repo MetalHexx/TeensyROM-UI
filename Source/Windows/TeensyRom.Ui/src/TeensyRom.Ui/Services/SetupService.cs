@@ -343,14 +343,14 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Music Only", $"Music has some special behaviors that games do not.  \r\r· Music will go to the next SID automatically if it ends. \r· The previous button will restart the current SID.  \r· Quickly clicking a second time will go to the previous SID.  \r· A share button allows you to share DeepSID links with your friends.\r\rHave you installed the HVSC yet? ;)");
+                    result = await _dialog.ShowConfirmation("Music Only", $"Music Launching has some special behaviors that games do not.  \r\r· When a SID ends, the next one will be played automatically. \r· The previous button will restart the current SID.  \r· Clicking previous a second time will go to the previous SID.  \r· A share button will copy a shareable DeepSID link to your clipboard.");
 
                     if (!result)
                     {
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Games Only", $"Games also have some unique behaviors.  \r\r· Games will have a \"Stop\" button instead of \"Pause\".  \r· Stop will reset the TR\r· Tagging a favorite while a game is playing will re-launch the game.");
+                    result = await _dialog.ShowConfirmation("Games Only", $"Games also have some unique behaviors.  \r\r· Games will have a \"Stop\" button instead of \"Pause\".  \r· Stop will reset the TR\r· Tagging a favorite while a game is launched will re-launch the game.");
 
                     if (!result)
                     {
