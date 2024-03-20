@@ -81,7 +81,7 @@
 
             <controls:DetailButton 
                 ClickCommand="{Binding NavigateToHvscCommand}"
-                Title="High Velocity Sid Collection" 
+                Title="High Voltage Sid Collection" 
                 Subtitle="A highly recommended companion music library.  Install this and you'll get enhanced sid music info and composer images.  See help docs for setup info."
                 Icon="MusicClefTreble"
                 Margin="0 0 0 20"/>
