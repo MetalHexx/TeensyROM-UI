@@ -39,6 +39,11 @@ namespace TeensyRom.Ui.Features.Discover.State
             }
             _playingState.OnNext(PlayState.Playing);
 
+            if(_launchedFile.Value is GameItem)
+            {
+                await PlayFile(_launchedFile.Value!);
+                return;
+            }
             var result = await _mediator.Send(new ToggleMusicCommand());
 
             if (result.IsBusy)
