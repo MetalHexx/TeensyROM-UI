@@ -24,11 +24,12 @@ namespace TeensyRom.Core.Games
         private string _gameArtPath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), GameConstants.Game_Image_Local_Path);        
         private string _localLoadingScreenPath => Path.Combine(_gameArtPath, GameConstants.Loading_Screen_Sub_Path);        
         private string _localScreenshotPath => Path.Combine(_gameArtPath, GameConstants.Screenshots_Sub_Path);
+        private string _gameMetadataFilePath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), GameConstants.Game_Image_Metadata_File_Path);
         private List<ViewableItemImage> _gameMetadata = [];
 
         private List<ViewableItemImage> LoadGameMetadata()
         {
-            if(File.Exists(GameConstants.Game_Image_Metadata_File_Path))
+            if(File.Exists(_gameMetadataFilePath))
             {
                 var fileMetadata = JsonConvert.DeserializeObject<List<ViewableItemImage>>(File.ReadAllText(GameConstants.Game_Image_Metadata_File_Path));
 
@@ -52,7 +53,11 @@ namespace TeensyRom.Core.Games
                 .OrderBy(f => f.FileName)
                 .ToList();
 
-            File.WriteAllText(GameConstants.Game_Image_Metadata_File_Path, JsonConvert.SerializeObject(allScreenMetadata));
+            if (!Directory.Exists(Path.GetDirectoryName(_gameMetadataFilePath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(_gameMetadataFilePath)!);
+            }
+            File.WriteAllText(_gameMetadataFilePath, JsonConvert.SerializeObject(allScreenMetadata));
             return allScreenMetadata;
         }
 
