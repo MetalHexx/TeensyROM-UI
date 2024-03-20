@@ -162,7 +162,7 @@
                     Identifier="RootDialog"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
-                    CloseOnClickAway="True">
+                    CloseOnClickAway="False">
 
                     <Grid>
 
