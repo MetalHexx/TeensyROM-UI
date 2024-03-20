@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Data;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
@@ -10,7 +11,7 @@ namespace TeensyRom.Core.Storage.Services
         private readonly Subject<FileInfo> _fileFound = new Subject<FileInfo>();
         public IObservable<FileInfo> FileFound => _fileFound.AsObservable();
 
-        private readonly FileSystemWatcher _watcher = new();
+        private FileSystemWatcher? _watcher = null;
         private string[] _fileTypes = Array.Empty<string>();
         private readonly ConcurrentDictionary<string, byte> _processedFiles = new();
         private IDisposable? _watchSubscription;
@@ -18,6 +19,7 @@ namespace TeensyRom.Core.Storage.Services
         public void Disable()
         {
             _watchSubscription?.Dispose();
+            _watcher?.Dispose();
             _watchSubscription = null;
         }
 
@@ -25,16 +27,23 @@ namespace TeensyRom.Core.Storage.Services
         {
             _fileTypes = fileTypes;
 
-            _watchSubscription ??= InitializeWatcher();
-
-            _watcher.Path = path;
-            _watcher.NotifyFilter = NotifyFilters.LastWrite;
-            _watcher.Filter = "*.*";
-            _watcher.EnableRaisingEvents = true;
+            _watchSubscription?.Dispose();
+            _watcher?.Dispose();
+            _watcher = new()
+            {
+                Path = path,
+                NotifyFilter = NotifyFilters.LastWrite,
+                Filter = "*.*",
+                EnableRaisingEvents = true
+            };
+            _watchSubscription = InitializeWatcher();
         }
 
         private IDisposable InitializeWatcher()
         {
+            if (_watcher is null)
+                throw new InvalidOperationException("Watcher not initialized");
+
             return Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
                 handler => _watcher.Changed += handler,
                 handler => _watcher.Changed -= handler)
