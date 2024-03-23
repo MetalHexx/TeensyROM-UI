@@ -8,12 +8,11 @@ namespace TeensyRom.Core.Storage.Services
 
     public class FileWatcher : IFileWatcher, IDisposable
     {
-        private readonly Subject<FileInfo> _fileFound = new Subject<FileInfo>();
-        public IObservable<FileInfo> FileFound => _fileFound.AsObservable();
+        private readonly Subject<List<FileInfo>> _fileFound = new();
+        public IObservable<List<FileInfo>> FilesFound => _fileFound.AsObservable();
 
         private FileSystemWatcher? _watcher = null;
         private string[] _fileTypes = Array.Empty<string>();
-        private readonly ConcurrentDictionary<string, byte> _processedFiles = new();
         private IDisposable? _watchSubscription;
 
         public void Disable()
@@ -34,7 +33,8 @@ namespace TeensyRom.Core.Storage.Services
                 Path = path,
                 NotifyFilter = NotifyFilters.LastWrite,
                 Filter = "*.*",
-                EnableRaisingEvents = true
+                EnableRaisingEvents = true,
+                InternalBufferSize = 65536
             };
             _watchSubscription = InitializeWatcher();
         }
@@ -48,15 +48,16 @@ namespace TeensyRom.Core.Storage.Services
                 handler => _watcher.Changed += handler,
                 handler => _watcher.Changed -= handler)
                 .Where(_ => _watchSubscription is not null)
-                .Select(evt => evt.EventArgs.FullPath)
-                .DistinctUntilChanged()
-                .Select(filePath => new FileInfo(filePath))
-                .Where(AcceptedType)
-                .Where(NotDupe)
-                .Subscribe(_fileFound);
-        }
+                .Publish(_events => _events.Buffer(() => _events.Throttle(TimeSpan.FromMilliseconds(5000))))
+                .Select(evts => evts
+                    .Select(evt => evt.EventArgs.FullPath)
+                    .Distinct()
+                    .Select(path => new FileInfo(path))
+                    .Where(AcceptedType)
+                    .ToList())
+                .Subscribe(files => _fileFound.OnNext([.. files]));
 
-        private bool NotDupe(FileInfo fileInfo) => _processedFiles.TryAdd(fileInfo.Name, 0);
+        }
         private bool AcceptedType(FileInfo fileInfo) => _fileTypes.Any(t => t.Equals(fileInfo.Extension));
         public void Dispose()
         {

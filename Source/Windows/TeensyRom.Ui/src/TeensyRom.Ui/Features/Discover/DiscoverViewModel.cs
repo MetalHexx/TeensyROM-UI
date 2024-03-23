@@ -58,26 +58,30 @@ namespace TeensyRom.Ui.Features.Discover
             Title = new FeatureTitleViewModel("Discover");
             FileInfo = new FileInfoViewModel(context, metadata);
 
-            serial.CurrentState
+            var launchedFile = context.LaunchedFile.ObserveOn(RxApp.MainThreadScheduler);
+            var serialCurrentState = serial.CurrentState.ObserveOn(RxApp.MainThreadScheduler);
+            var playerContextState = context.CurrentState.ObserveOn(RxApp.MainThreadScheduler);
+
+            serialCurrentState
                 .Select(state => state is SerialBusyState or SerialConnectedState)
                 .ToPropertyEx(this, x => x.IsConnected);
 
-            context.LaunchedFile
+            launchedFile
                 .Select(g => g is not null)
                 .ToPropertyEx(this, x => x.PlayToolbarActive);
 
-            context.CurrentState
+            playerContextState
                 .Select(state => state is SearchState)
                 .ToPropertyEx(this, x => x.SearchActive);
 
-            var launchState = context.CurrentState
+            var launchState = playerContextState
                 .Select(state => GetPlayMode(state))
                 .CombineLatest(context.PlayingState, (mode, state) => (mode, state))
                 .Select(stateMode => new LaunchItemState { PlayState = stateMode.state, PlayMode = stateMode.mode });
 
             PlayToolbar = new PlayToolbarViewModel
             (
-                context.LaunchedFile,
+                launchedFile,
                 launchState,
                 timer,
                 context.ToggleShuffleMode,
@@ -91,10 +95,10 @@ namespace TeensyRom.Ui.Features.Discover
 
             DirectoryList = new DirectoryListViewModel
             (
-                context.DirectoryContent,
-                context.PagingEnabled,
-                context.CurrentPage,
-                context.TotalPages,
+                context.DirectoryContent.ObserveOn(RxApp.MainThreadScheduler),
+                context.PagingEnabled.ObserveOn(RxApp.MainThreadScheduler),
+                context.CurrentPage.ObserveOn(RxApp.MainThreadScheduler),
+                context.TotalPages.ObserveOn(RxApp.MainThreadScheduler),
                 context.PlayFile,
                 context.SelectFile,
                 context.SaveFavorite,
@@ -115,7 +119,7 @@ namespace TeensyRom.Ui.Features.Discover
                     outputScheduler: RxApp.MainThreadScheduler)
             };
 
-            var searchActive = context.CurrentState.Select(s => s is SearchState);
+            var searchActive = playerContextState.Select(s => s is SearchState);
 
             Search = new(searchActive)
             {
@@ -132,7 +136,7 @@ namespace TeensyRom.Ui.Features.Discover
                     outputScheduler: RxApp.MainThreadScheduler)
             };
 
-            settingsService.Settings.Subscribe(s =>
+            settingsService.Settings.ObserveOn(RxApp.MainThreadScheduler).Subscribe(s =>
             {
                 _settings = s;
 
@@ -146,7 +150,7 @@ namespace TeensyRom.Ui.Features.Discover
 
                 DirectoryChips = new DirectoryChipsViewModel
                 (
-                    path: context.CurrentPath,
+                    path: context.CurrentPath.ObserveOn(RxApp.MainThreadScheduler),
                     basePath: StorageConstants.Remote_Path_Root,
                     onClick: async path => await context.LoadDirectory(path),
                     onCopy: () => alert.Publish("Path copied to clipboard"),

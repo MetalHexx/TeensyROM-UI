@@ -19,6 +19,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Storage;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
@@ -71,7 +72,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         protected readonly List<IDisposable> _stateSubscriptions = new();
         protected TeensyFilter _currentFilter;
 
-        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree, IExplorerViewConfig config)
+        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, IFileWatchService watchService, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree, IExplorerViewConfig config)
         {
             _mediator = mediator;
             _storage = storage;
@@ -92,9 +93,24 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
             SubscribeToStateObservables();
 
-            storage.FileAdded
+            storage.FilesAdded
+                .SubscribeOn(RxApp.MainThreadScheduler)             
+                .Subscribe(async files => 
+                {
+                    await UpdateDirectoryTree(files.ToList());
+
+                    var fileToAutoLaunch = files.OfType<ILaunchableItem>().FirstOrDefault();
+
+                    if (fileToAutoLaunch is not null && _settings.AutoLaunchOnCopyEnabled)
+                    {
+                        await PlayFile(fileToAutoLaunch);
+                    }
+                });
+
+            watchService.WatchFiles
                 .SubscribeOn(RxApp.MainThreadScheduler)
-                .Subscribe(async path => await OnFileAdded(path));
+                .Where(files => files is not null && files.Any())
+                .Subscribe(async files => await AutoStoreFiles(files));
         }
 
         private void SubscribeToStateObservables()
@@ -116,35 +132,38 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 .Subscribe(async path => await LoadDirectory(StorageConstants.Remote_Path_Root));
         }
 
-        private async Task OnFileAdded(string filePath)
+        private async Task UpdateDirectoryTree(List<IFileItem> files)
         {
+            var uniquePaths = files
+                .Select(f => f.Path.GetUnixParentPath().RemoveLeadingAndTrailingSlash())                
+                .Distinct();
+
             await Application.Current.Dispatcher.Invoke(async () =>
             {
-                var parentPath = filePath.GetUnixParentPath().RemoveLeadingAndTrailingSlash();
-
-                if (_directoryState.Value.CurrentPath.RemoveLeadingAndTrailingSlash() == parentPath)
+                foreach (var path in uniquePaths) 
                 {
-                    var cacheItem = await _storage.GetDirectory(parentPath);
-                    await LoadDirectory(cacheItem?.Path ?? "");
-                    return;
-                }
-                List<string> directories = ["/"];
+                    List<string> directoryParts = ["/"];
 
-                directories.AddRange(parentPath.ToPathArray());
+                    directoryParts.AddRange(path.ToPathArray());
 
-                var currentDir = string.Empty;
+                    var currentDir = string.Empty;
 
-                List<DirectoryItem> dirsToAdd = [];
+                    List<DirectoryItem> dirsToAdd = [];
 
-                foreach (var directory in directories)
-                {
-                    currentDir = currentDir.UnixPathCombine(directory);
-                    var cacheItem = await _storage.GetDirectory(currentDir);
-
-                    if (cacheItem is not null)
+                    foreach (var directory in directoryParts)
                     {
-                        _tree.Insert(cacheItem.Directories);
+                        currentDir = currentDir.UnixPathCombine(directory);
+                        var cacheItem = await _storage.GetDirectory(currentDir);
+
+                        if (cacheItem is not null)
+                        {
+                            _tree.Insert(cacheItem.Directories);
+                        }
                     }
+                }
+                if (uniquePaths.Any(p => p ==_directoryState.Value.CurrentPath.RemoveLeadingAndTrailingSlash()))
+                {
+                    await LoadDirectory(_directoryState.Value.CurrentPath);
                 }
             });
         }
@@ -486,6 +505,8 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                         return f;
                     });
 
+                await _mediator.Send(new ResetCommand());
+                await Task.Delay(300);
                 var numFilesSaved = await _storage.SaveFiles(fileInfos);
 
                 var fileCount = files.Count();
@@ -507,6 +528,34 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 });                
             });
             
-        }        
+        }
+
+        public Task AutoStoreFiles(IEnumerable<TeensyFileInfo> files)
+        {
+            var targetPath = files.First().TargetPath;
+
+            return Task.Run(async () =>
+            {
+                var fileInfos = files
+                    .Select(f =>
+                    {
+                        f.TargetPath = _settings.GetAutoTransferPath(f.Type);
+                        return f;
+                    });
+                await _mediator.Send(new ResetCommand());
+                var numFilesSaved = await _storage.SaveFiles(fileInfos);
+                
+                _alert.Enqueue($"{numFilesSaved} files were saved to the TR.");
+                
+                return Application.Current.Dispatcher.Invoke(async () =>
+                {
+                    if (targetPath == _directoryState.Value.CurrentPath)
+                    {
+                        await LoadDirectory(targetPath);
+                    }
+                });
+            });
+
+        }
     }
 }

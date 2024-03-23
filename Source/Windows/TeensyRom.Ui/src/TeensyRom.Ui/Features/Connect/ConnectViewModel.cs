@@ -70,7 +70,7 @@ namespace TeensyRom.Ui.Features.Connect
 
             serial.CurrentState
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Select(state => state is SerialConnectedState)
+                .Select(state => state is SerialConnectedState or SerialBusyState)
                 .ToPropertyEx(this, vm => vm.IsConnected);
 
             serial.CurrentState

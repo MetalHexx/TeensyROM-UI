@@ -20,7 +20,9 @@ namespace TeensyRom.Core.Storage.Services
 {
     public class CachedStorageService : ICachedStorageService
     {
-        public IObservable<string> FileAdded => _fileAdded.AsObservable();
+        public IObservable<IEnumerable<IFileItem>> FilesAdded => _filesAdded.AsObservable();
+        private Subject<IEnumerable<IFileItem>> _filesAdded = new();
+
         protected readonly ISettingsService _settingsService;
         private readonly IGameMetadataService _gameMetadata;
         private readonly ISidMetadataService _sidMetadata;
@@ -30,8 +32,7 @@ namespace TeensyRom.Core.Storage.Services
         private IDisposable? _settingsSubscription;
         private string _cacheFileName => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), StorageConstants.Cache_File_Path);
         private StorageCache _storageCache = null!;
-        private Subject<string> _fileAdded = new();
-
+        
         public CachedStorageService(ISettingsService settings, IGameMetadataService gameMetadata, ISidMetadataService sidMetadata, IMediator mediator, IAlertService alert)
         {
             _settingsService = settings;
@@ -315,6 +316,7 @@ namespace TeensyRom.Core.Storage.Services
         public async Task<int> SaveFiles(IEnumerable<TeensyFileInfo> files)
         {
             var dupeCount = 0;
+            List<IFileItem> addedFiles = new();
 
             foreach (var f in files)
             {
@@ -338,33 +340,13 @@ namespace TeensyRom.Core.Storage.Services
                 if (storageItem is GameItem game) _gameMetadata.EnrichGame(game);
                 if (storageItem is FileItem file)
                 {
-                    _storageCache.UpsertFile(file);                    
+                    _storageCache.UpsertFile(file);   
+                    addedFiles.Add(file);
                 }
-                _fileAdded.OnNext(storageItem.Path);
             }
+            _filesAdded.OnNext(addedFiles);
             SaveCacheToDisk();
             return files.Count() - dupeCount;
-        }
-
-        public async Task QueuedSaveFile(TeensyFileInfo fileInfo)
-        {
-            var result = await _mediator.Send(new QueuedSaveFileCommand
-            {
-                File = fileInfo
-            });
-            if (!result.IsSuccess) return;
-
-            var storageItem = fileInfo.ToStorageItem();
-
-            if (storageItem is SongItem song) _sidMetadata.EnrichSong(song);
-            if (storageItem is GameItem game) _gameMetadata.EnrichGame(game);
-            if (storageItem is FileItem file) 
-            {
-                _storageCache.UpsertFile(file);
-                SaveCacheToDisk();
-            }
-
-            _fileAdded.OnNext(storageItem.Path);
         }
 
         public async Task DeleteFile(IFileItem file, TeensyStorageType storageType)

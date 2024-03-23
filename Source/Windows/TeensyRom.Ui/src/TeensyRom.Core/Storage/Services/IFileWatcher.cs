@@ -9,7 +9,7 @@
         /// <summary>
         /// Emits values when files are added
         /// </summary>
-        IObservable<FileInfo> FileFound { get; }
+        IObservable<List<FileInfo>> FilesFound { get; }
 
         /// <summary>
         /// Enables the watcher with given a path a file filter

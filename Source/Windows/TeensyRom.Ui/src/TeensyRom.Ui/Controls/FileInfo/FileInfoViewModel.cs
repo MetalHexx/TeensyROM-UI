@@ -35,14 +35,14 @@ namespace TeensyRom.Ui.Controls.FileInfo
 
         public FileInfoViewModel(IPlayerContext context, IGameMetadataService gameMetadata)
         {
-            var selectedFile = context.SelectedFile.SubscribeOn(RxApp.MainThreadScheduler);
+            var selectedFile = context.SelectedFile.ObserveOn(RxApp.MainThreadScheduler);
 
             selectedFile
                 .Where(type => type is not GameItem)
                 .Select(file => file?.Title ?? string.Empty)
                 .ToPropertyEx(this, x => x.Title);
 
-            context.SelectedFile.ToPropertyEx(this, x => x.SelectedFile);
+            selectedFile.ToPropertyEx(this, x => x.SelectedFile);
 
             selectedFile
                 .OfType<IViewableItem>()

@@ -1,5 +1,9 @@
 ﻿using MediatR;
+using System.Collections.Concurrent;
+using System.IO;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Runtime.CompilerServices;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
@@ -12,6 +16,8 @@ namespace TeensyRom.Core.Storage
 {
     public interface IFileWatchService : IDisposable 
     {
+        IObservable<bool> IsProcessing { get; }
+        IObservable<List<TeensyFileInfo>> WatchFiles { get; }
         void ToggleFileWatch(TeensySettings settings);
     }
 
@@ -21,29 +27,31 @@ namespace TeensyRom.Core.Storage
     /// </summary>
     public class FileWatchService: IFileWatchService
     {
+        public IObservable<List<TeensyFileInfo>> WatchFiles => _watchFiles.AsObservable();
+        private readonly Subject<List<TeensyFileInfo>> _watchFiles = new();
+
+        public IObservable<bool> IsProcessing => _isProcessing.AsObservable();
+        private readonly BehaviorSubject<bool> _isProcessing = new(false);
+        
+
         private readonly ISettingsService _settingsService;
         private readonly IFileWatcher _fileWatcher;
         private readonly ISerialStateContext _serialState;
-        private readonly ILoggingService _logService;
         private readonly ICachedStorageService _storageService;
-        private readonly IAlertService _alert;
         private IDisposable? _settingsSubscription = null!;
         private IDisposable? _fileWatchSubscription = null!;
 
-        public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialStateContext serialState, ILoggingService logService, ICachedStorageService storageService, IAlertService alert)
+        public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialStateContext serialState, ICachedStorageService storageService)
         {
             _settingsService = settingsService;
             _fileWatcher = fileWatcher;
             _serialState = serialState;
-            _logService = logService;
             _storageService = storageService;
-            _alert = alert;
-            _settingsSubscription = _settingsService.Settings
-                .Subscribe(settings => ToggleFileWatch(settings));
+            _settingsSubscription = _settingsService.Settings.Subscribe(ToggleFileWatch);
         }
 
         public void ToggleFileWatch(TeensySettings settings)
-        {
+        {   
             if(settings.AutoFileCopyEnabled is false)
             {
                 _fileWatcher.Disable();
@@ -53,21 +61,15 @@ namespace TeensyRom.Core.Storage
                 settings.WatchDirectoryLocation,
                 settings.FileTargets.Select(t => t.Extension).ToArray());
 
-            _fileWatchSubscription ??= _fileWatcher.FileFound
-                .Throttle(TimeSpan.FromMilliseconds(500))
-                .CombineLatest(_serialState.CurrentState, (file, serialState) => (file, serialState))                
+            _fileWatchSubscription ??= _fileWatcher.FilesFound
+                .CombineLatest(_serialState.CurrentState, (file, serialState) => (file, serialState))
                 .Where(fileSerial => fileSerial.serialState is SerialConnectedState && settings.AutoFileCopyEnabled)
                 .Select(fileSerial => fileSerial.file)
                 .DistinctUntilChanged()
-                .Select(file => new TeensyFileInfo(file))
-                .Do(fileInfo => _logService.Internal($"File detected: {fileInfo.FullPath}"))
-                .Subscribe(async fileInfo => 
-                {
-                    await _storageService.QueuedSaveFile(fileInfo);
-                    _alert.Publish($"{fileInfo.Name} was detected and stored in {fileInfo.TargetPath}");
-                });
-        }
-
+                .Select(files => files.Select(f => new TeensyFileInfo(f)).ToList())
+                .Subscribe(_watchFiles.OnNext);
+        }       
+               
         public void Dispose()
         {
             _settingsSubscription?.Dispose();

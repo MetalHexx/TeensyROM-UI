@@ -14,10 +14,11 @@
             <RowDefinition Height="40" ></RowDefinition>
             <RowDefinition Height="30" ></RowDefinition>
             <RowDefinition Height="30" ></RowDefinition>
+            <RowDefinition Height="30" ></RowDefinition>
             <RowDefinition Height="80" ></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="130"></ColumnDefinition>
+            <ColumnDefinition Width="150"></ColumnDefinition>
             <ColumnDefinition Width="10"></ColumnDefinition>
             <ColumnDefinition Width="400"></ColumnDefinition>
 
@@ -47,25 +48,35 @@
         </StackPanel>
 
         <Label 
+            Content="Auto-Launch on Copy:"
+            ToolTip="When files are copied to the TR with drag and drop or the watch directory, &#x0a;a random file from the set will automatically launch."
+            Grid.Row="2" HorizontalAlignment="Right"/>
+        <CheckBox                  
+            Content="Enabled"                
+            ToolTip="When files are copied to the TR with drag and drop or the watch directory, &#x0a;a random file from the set will automatically launch."
+            IsChecked="{Binding Settings.AutoLaunchOnCopyEnabled, Mode=TwoWay}" 
+            Grid.Row="2" Grid.Column="3" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
+        <Label 
             Content="File Auto-Transfer:"
             ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  &#x0a;If a file is detected, it will automatically be transferred to /auto-transfer/[media type]."
-            Grid.Row="2" HorizontalAlignment="Right"/>
+            Grid.Row="3" HorizontalAlignment="Right"/>
         <CheckBox                  
             Content="Enabled"                
             ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  &#x0a;If a file is detected, it will automatically be transferred to /auto-transfer/[media type]."
             IsChecked="{Binding Settings.AutoFileCopyEnabled, Mode=TwoWay}" 
-            Grid.Row="2" Grid.Column="3" VerticalAlignment="Top" Margin="0 4 0 0"/>
+            Grid.Row="3" Grid.Column="3" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Label 
             Content="Watch Directory:" 
             ToolTip="The folder specified here will be monitored for new files. &#x0a;Try setting it something like your browser download folder.  &#x0a;Only types supported by the TR be monitored."
-            Grid.Row="3" HorizontalAlignment="Right"/>
+            Grid.Row="4" HorizontalAlignment="Right"/>
 
         <TextBox 
             ToolTip="The folder specified here will be monitored for new files. &#x0a;Try setting it something like your browser download folder.  &#x0a;Only types supported by the TR be monitored."
             materialDesign:HintAssist.Hint="Watch Directory"
             Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}"                
-            Grid.Row="3" Grid.Column="3" VerticalAlignment="Top"/>
+            Grid.Row="4" Grid.Column="3" VerticalAlignment="Top"/>
 
         
 
@@ -74,6 +85,6 @@
             Content="Save Settings"  
             Command="{Binding SaveSettingsCommand}" 
             HorizontalAlignment="Left"
-            Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="20"/>
+            Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="20"/>
     </Grid>
 </UserControl>

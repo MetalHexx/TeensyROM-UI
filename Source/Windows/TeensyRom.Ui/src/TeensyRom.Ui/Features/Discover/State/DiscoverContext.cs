@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Storage;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Features.Common.State;
@@ -22,8 +23,8 @@ namespace TeensyRom.Ui.Features.Discover.State
     public class DiscoverContext : PlayerContext, IDiscoverContext
     {
         private TimeSpan _currentTime = TimeSpan.Zero;
-        public DiscoverContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDiscoveryTreeState tree, IDiscoverViewConfig config, IProgressTimer timer)
-            : base(mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree, config)
+        public DiscoverContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, IFileWatchService watchService, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDiscoveryTreeState tree, IDiscoverViewConfig config, IProgressTimer timer)
+            : base(mediator, storage, settingsService, launchHistory, watchService, alert, serialContext, nav, tree, config)
         {
             timer.CurrentTime
                 .Subscribe(time => _currentTime = time);

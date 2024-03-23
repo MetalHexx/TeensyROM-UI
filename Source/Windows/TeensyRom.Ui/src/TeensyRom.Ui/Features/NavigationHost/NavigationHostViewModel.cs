@@ -37,14 +37,16 @@ namespace TeensyRom.Ui.Features.NavigationHost
         private readonly INavigationService _navService;
         private readonly ISetupService _setup;
         private readonly ISerialStateContext _serialContext;
+        private readonly IFileWatchService _watchService;
 
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, ISetupService setup, ISerialStateContext serialState, ISnackbarService alert, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
+        public NavigationHostViewModel(INavigationService navStore, ISetupService setup, ISerialStateContext serialState, IFileWatchService watchService, ISnackbarService alert, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
         {
             _navService = navStore;
             _setup = setup;
             _serialContext = serialState;
+            _watchService = watchService;
             MessageQueue = alert.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
@@ -119,10 +121,12 @@ namespace TeensyRom.Ui.Features.NavigationHost
             _navService.NavigationItems
                 .ToPropertyEx(this, vm => vm.NavigationItems);
 
-            _serialContext.CurrentState           
-                .Scan((previous: (SerialState?)null, current: (SerialState?)null), (stateTuple, currentState) => (stateTuple.current, currentState))    
+            _serialContext.CurrentState
+                .Scan((previous: (SerialState?)null, current: (SerialState?)null), (stateTuple, currentState) => (stateTuple.current, currentState))
                 .Where(s => s.previous is not null && s.previous is not SerialConnectableState)
-                .Select(s => s.current is SerialBusyState)
+                .Select(s => s.current is SerialBusyState)                
+                .Merge(_watchService.IsProcessing)
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Throttle(TimeSpan.FromMilliseconds(100))
                 .ToPropertyEx(this, vm => vm.SerialBusy);
         }
