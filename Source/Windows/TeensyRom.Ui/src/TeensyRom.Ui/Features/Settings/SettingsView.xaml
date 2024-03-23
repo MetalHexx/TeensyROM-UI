@@ -49,11 +49,11 @@
 
         <Label 
             Content="Auto-Launch on Copy:"
-            ToolTip="When files are copied to the TR with drag and drop or the watch directory, &#x0a;a random file from the set will automatically launch."
+            ToolTip="When files are copied to the TR with drag and drop or the watch directory, &#x0a;the first file from the set will automatically launch."
             Grid.Row="2" HorizontalAlignment="Right"/>
         <CheckBox                  
             Content="Enabled"                
-            ToolTip="When files are copied to the TR with drag and drop or the watch directory, &#x0a;a random file from the set will automatically launch."
+            ToolTip="When files are copied to the TR with drag and drop or the watch directory, &#x0a;the first file from the set will automatically launch."
             IsChecked="{Binding Settings.AutoLaunchOnCopyEnabled, Mode=TwoWay}" 
             Grid.Row="2" Grid.Column="3" VerticalAlignment="Top" Margin="0 4 0 0"/>
 

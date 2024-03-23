@@ -147,7 +147,15 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
-                    result = await _dialog.ShowConfirmation("Automatic File Transfer", "Another feature you can configure here is the \"Watch Directory\".  \r\rWhen new .SID, .CRT, .PRG or .HEX firmware files are detected they will automatically be uploaded to the /auto-transfer directory on your TR.  \r\rYou may find the download directory a good choice if you like the roam the web for your C64 content.  This is also handy for quickly downloading and updating your TeensyROM firmware.  As such, it's set as the default directory.\r\rFor privacy reasons, this feature is disabled by default.");
+                    result = await _dialog.ShowConfirmation("Automatic File Transfer", "Another feature you can configure here is the \"Watch Directory\".  \r\rWhen new .SID, .CRT, .PRG or .HEX firmware files are detected they will automatically be uploaded to the /auto-transfer directory on your TR. \r\rYou may find the download directory a good choice if you like the roam the web for your C64 content.  This is also handy for quickly downloading and updating your TeensyROM firmware.  As such, it's set as the default directory.\r\rFor privacy reasons, this feature is disabled by default.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+
+                    result = await _dialog.ShowConfirmation("Auto-Launch on File Transfer", "Note, when you use the watch directory or file drag and drop to copy a file, you can optionally configure the file to auto-launch.  If you copy multiple files, the first file from the set will be launched.  This behavior is on by default.");
 
                     if (!result)
                     {
@@ -175,7 +183,7 @@ namespace TeensyRom.Ui.Services
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async settings =>
             {
-                var result = await _dialog.ShowConfirmation("Next, we're going to index all the file locations on your selected storage device.\r\r This will increase performance, stability, and unlock some fun search and randomization features.");
+                var result = await _dialog.ShowConfirmation("Next, we're going to index all the file locations on your selected storage device.\r\rThis will increase performance, stability, and unlock some fun search and randomization features.");
 
                 if (!result)
                 {
@@ -183,7 +191,7 @@ namespace TeensyRom.Ui.Services
                     return;
                 }
 
-                result = await _dialog.ShowConfirmation("Copy Some Files!", $"Copy some files now before we start the indexing process.  \r\rTotally optional, but strongly recommended, consider copying HVSC and OneLoad64 onto your {_settings.TargetType} storage. You can always do this later if you want.\r\r Clicking \"OK\" will start the indexing process.");
+                result = await _dialog.ShowConfirmation("Copy Some Files!", $"Copy some files now before we start the indexing process.  \r\rTotally optional, but strongly recommended, consider copying HVSC and OneLoad64 onto your {_settings.TargetType} storage. You can always do this later if you want.\r\rClicking \"OK\" will start the indexing process.");
 
                 if (!result)
                 {
@@ -232,7 +240,7 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
-                    result = await _dialog.ShowConfirmation("Transfer Files", "You can drag and drop files or folders onto the file listing of the current directory to transfer files to the TR. \r\rWarning, if you drag a folder that has other nested folders, they will all be copied!");
+                    result = await _dialog.ShowConfirmation("Transfer Files", "You can drag and drop files or folders onto the file listing of the current directory to transfer files to the TR.  Optionally, copied files can be auto-launched. \r\rWarning, if you drag a folder that has other nested folders, they will all be copied!");
 
                     if (!result)
                     {
