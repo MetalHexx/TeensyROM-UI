@@ -52,7 +52,7 @@ namespace TeensyRom.Ui.Features.Discover
         private TeensySettings _settings = null!;
         private readonly IExplorerViewConfig _viewConfig;
 
-        public DiscoverViewModel(IDiscoverContext context, ISerialStateContext serial, IDialogService dialog, IAlertService alert, ISettingsService settingsService, IGameMetadataService metadata, IDiscoverViewConfig config, IProgressTimer? timer)
+        public DiscoverViewModel(IDiscoverContext context, ISerialStateContext serial, IDialogService dialog, IAlertService alert, IProgressService progress, ISettingsService settingsService, IGameMetadataService metadata, IDiscoverViewConfig config, IProgressTimer? timer)
         {
             _viewConfig = config;
             Title = new FeatureTitleViewModel("Discover");
@@ -108,8 +108,9 @@ namespace TeensyRom.Ui.Features.Discover
                 context.NextPage,
                 context.PreviousPage,
                 context.SetPageSize,
-                alert: alert,
-                dialog: dialog
+                alert,
+                dialog,
+                progress
             );
 
             DirectoryTree = new(context.DirectoryTree)

@@ -42,6 +42,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IFileWatcher, FileWatcher>();
             services.AddSingleton<ISettingsService, SettingsService>();
             services.AddSingleton<IAlertService, AlertService>();
+            services.AddSingleton<IProgressService, ProgressService>();
             services.AddSingleton<ISnackbarService, SnackbarService>();
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<IProgressTimer, ProgressTimer>();
@@ -54,7 +55,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IDiscoverContext, DiscoverContext>();
             services.AddSingleton<IDiscoverViewConfig, DiscoverViewConfig>();
             services.AddSingleton<IDiscoveryTreeState, DiscoverTreeState>();
-            services.AddSingleton<ISetupService, SetupService>();
+            services.AddSingleton<ISetupService, SetupService>();           
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<ConnectViewModel>();
             services.AddSingleton<SettingsViewModel>();

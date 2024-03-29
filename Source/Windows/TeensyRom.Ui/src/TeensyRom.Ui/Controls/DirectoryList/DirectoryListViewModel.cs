@@ -48,7 +48,8 @@ namespace TeensyRom.Ui.Controls.DirectoryList
             Func<Unit> prevPageFunc,
             Func<int, Unit> setPageSizeFunc,
             IAlertService alert, 
-            IDialogService dialog
+            IDialogService dialog,
+            IProgressService progress
         )
         {
             directoryContent.ToPropertyEx(this, x => x.DirectoryContent);
@@ -106,8 +107,11 @@ namespace TeensyRom.Ui.Controls.DirectoryList
             (
                 execute: (DragEventArgs e) => 
                 {
-                    return Task.Run(() =>
+                    return Task.Run(async () =>
                     {
+                        progress.EnableProgress();
+                        alert.Publish("Transferring files.");
+
                         List<FileCopyItem> filePaths = [];
 
                         if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
@@ -125,7 +129,8 @@ namespace TeensyRom.Ui.Controls.DirectoryList
                                 ProcessDirectoryAsync(item, filePaths);
                             }
                         }
-                        storeFilesFunc(filePaths);
+                        await storeFilesFunc(filePaths);
+                        progress.DisableProgress();
                     });
                 },
                 outputScheduler: RxApp.MainThreadScheduler
