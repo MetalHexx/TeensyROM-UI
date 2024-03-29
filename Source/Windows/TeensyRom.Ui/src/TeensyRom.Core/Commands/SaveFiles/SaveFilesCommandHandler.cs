@@ -90,7 +90,7 @@ namespace TeensyRom.Core.Commands
 
                     if (isDuplicateFile)
                     {
-                        _logService.InternalError($"Attempting to overwrite: {file.TargetPath}/{file.Name}");
+                        _logService.InternalError($"Attempting to overwrite: {file.TargetPath.UnixPathCombine(file.Name)}");
                         TryDelete($"{file.TargetPath.UnixPathCombine(file.Name)}");
                         continue;
                     }
