@@ -76,6 +76,12 @@ namespace TeensyRom.Core.Serial.State
             _serialPort.Dispose();
             _stateSubscription.Dispose();
         }
+
+        public void ClearBuffers()
+        {
+            _currentState.Value.ClearBuffers();
+        }
+
         IObservable<Type> IObservableSerialPort.State => throw new NotImplementedException();
     }
 }

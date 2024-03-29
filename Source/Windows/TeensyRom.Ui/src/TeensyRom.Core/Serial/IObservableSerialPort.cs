@@ -23,6 +23,11 @@ namespace TeensyRom.Core.Serial
         IObservable<Type> State { get; }
 
         /// <summary>
+        /// Clears the input and output buffers of the serial port
+        /// </summary>
+        void ClearBuffers();
+
+        /// <summary>
         /// Writes text to the serial port
         /// </summary>
         /// <param name="text"></param>

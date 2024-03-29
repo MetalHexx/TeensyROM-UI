@@ -301,6 +301,12 @@ namespace TeensyRom.Core.Serial
             _serialEventSubscription?.Dispose();
         }
 
+        public void ClearBuffers()
+        {
+            _serialPort.DiscardInBuffer();
+            _serialPort.DiscardOutBuffer();
+        }
+
         private IDisposable? _serialEventSubscription;
         private IDisposable? _healthCheckSubscription;
         private IDisposable? _portRefresherSubscription;
