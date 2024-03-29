@@ -28,7 +28,7 @@ namespace TeensyRom.Tests.Integration
             // Arrange
             _fixture.Initialize(initOpenPort: true);
             var testFile = _fixture.CreateTeensyFileInfo(TeensyFileType.Sid, TeensyFixture.IntegrationTestPath, TeensyStorageType.SD);
-            await _fixture.Mediator.Send(new SaveFileCommand { File = testFile });
+            await _fixture.Mediator.Send(new SaveFilesCommand { Files = [testFile] });
 
             // Act
             var delResult = await _fixture.Mediator.Send(new DeleteFileCommand 
