@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using System.IO.Ports;
+using System.Reactive.Linq;
 using System.Threading;
 using TeensyRom.Core.Commands;
-using TeensyRom.Core.Commands.Behaviors;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
@@ -14,24 +14,32 @@ public class SerialBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, T
     where TRequest : IRequest<TResponse>
     where TResponse : TeensyCommandResult, new()
 {
-    private readonly ITeensyCommandExecutor _executor;
+    private readonly ISerialStateContext _serial;
 
-    public SerialBehavior(ITeensyCommandExecutor executor)
+    public SerialBehavior(ISerialStateContext serial)
     {
-        _executor = executor;
+        _serial = serial;
     }
-
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         TResponse response = default!;
+        var currentSerialState = await _serial.CurrentState.FirstAsync();
 
-        var shouldQueue = request is IQueuedTeensyCommand;
-
-        await _executor.Execute(async () =>
+        if(currentSerialState is SerialBusyState)
         {
+            throw new TeensyBusyException("TR is busy with your previous command.  Try again soon.");
+        }
+        try
+        {
+            _serial.Lock();
             response = await next();
-        }, shouldQueue);
-
+            _serial.ReadAndLogSerialAsString(10);
+        }
+        finally
+        {
+            _serial.Unlock();
+            await Task.Delay(10);
+        }
         return response;
     }
 }
