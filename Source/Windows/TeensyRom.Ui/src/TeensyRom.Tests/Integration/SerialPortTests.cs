@@ -48,7 +48,7 @@ namespace TeensyRom.Tests.Integration
             Thread.Sleep(500);
 
             //Assert
-            _fixture.ConnectViewModel.Logs.Should().Contain(expectedConnectedLog);
+            _fixture.ConnectViewModel.Log.Logs.Should().Contain(expectedConnectedLog);
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace TeensyRom.Tests.Integration
             Thread.Sleep(500);
 
             //Assert
-            _fixture.ConnectViewModel.Logs.Should().Contain(expectedErrorLog);
+            _fixture.ConnectViewModel.Log.Logs.Should().Contain(expectedErrorLog);
         }
 
         [Fact]
@@ -82,7 +82,7 @@ namespace TeensyRom.Tests.Integration
             Thread.Sleep(500);
 
             //Assert
-            _fixture.ConnectViewModel.Logs.Should().Contain(expectedDisconnectedLog);
+            _fixture.ConnectViewModel.Log.Logs.Should().Contain(expectedDisconnectedLog);
         }
 
         [Fact]
@@ -98,8 +98,8 @@ namespace TeensyRom.Tests.Integration
             _fixture.ConnectViewModel.PingCommand.Execute().Subscribe();
             Thread.Sleep(500);
 
-            _fixture.ConnectViewModel.Logs.Should().Contain(expectedPingLog);
-            _fixture.ConnectViewModel.Logs.Should().Contain(expectedPongLog);
+            _fixture.ConnectViewModel.Log.Logs.Should().Contain(expectedPingLog);
+            _fixture.ConnectViewModel.Log.Logs.Should().Contain(expectedPongLog);
         }
 
 
@@ -119,8 +119,8 @@ namespace TeensyRom.Tests.Integration
             Thread.Sleep(500);
             _fixture.ConnectViewModel.PingCommand.Execute().Subscribe();
             Thread.Sleep(500);
-            _fixture.ConnectViewModel.Logs.Should().Contain(expectedPingLog);
-            _fixture.ConnectViewModel.Logs.Should().Contain(expectedPongLog);
+            _fixture.ConnectViewModel.Log.Logs.Should().Contain(expectedPingLog);
+            _fixture.ConnectViewModel.Log.Logs.Should().Contain(expectedPongLog);
         }
 
         [Fact]
@@ -189,9 +189,9 @@ namespace TeensyRom.Tests.Integration
 
 
             //Assert
-            _fixture.ConnectViewModel.Logs.Should().Contain(expectedLog1);
-            _fixture.ConnectViewModel.Logs.Should().Contain(expectedLog2);
-            _fixture.ConnectViewModel.Logs.Should().Contain(expectedLog3);
+            _fixture.ConnectViewModel.Log.Logs.Should().Contain(expectedLog1);
+            _fixture.ConnectViewModel.Log.Logs.Should().Contain(expectedLog2);
+            _fixture.ConnectViewModel.Log.Logs.Should().Contain(expectedLog3);
         }
 
         public void Dispose()

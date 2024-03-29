@@ -425,7 +425,7 @@ namespace TeensyRom.Tests.Unit
 
 
             //Assert
-            viewModel.Logs.Should().BeEquivalentTo(new[] { "log1", "log2", "log3" });
+            viewModel.Log.Logs.Should().BeEquivalentTo(new[] { "log1", "log2", "log3" });
         }
 
         [Fact]
@@ -443,7 +443,7 @@ namespace TeensyRom.Tests.Unit
 
 
             //Assert
-            viewModel.Logs.Should().BeEquivalentTo([]);
+            viewModel.Log.Logs.Should().BeEquivalentTo([]);
         }
 
         [Fact]
@@ -463,8 +463,8 @@ namespace TeensyRom.Tests.Unit
             logSubject.OnNext("log20");
 
             //Assert
-            viewModel.Logs.First().Should().Be("log1");
-            viewModel.Logs.Last().Should().Be("log20");
+            viewModel.Log.Logs.First().Should().Be("log1");
+            viewModel.Log.Logs.Last().Should().Be("log20");
         }
 
         [Fact]
