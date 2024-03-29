@@ -30,7 +30,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             _serialState.Write($"{request.Path}\0");
             _serialState.HandleAck();
             await Task.Delay(400);
-            var response = _serialState.ReadSerialAsString(0);
+            var response = _serialState.ReadSerialAsString(400);
             var resultType = ParseResponse(response);
 
             return new LaunchFileResult
