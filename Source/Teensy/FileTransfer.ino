@@ -53,10 +53,22 @@ FLASHMEM bool GetFileStream(uint32_t SD_nUSB, char FileNamePath[], FS* sourceFS,
     }
     file = sourceFS->open(FileNamePath, FILE_WRITE);
 
+    int retry = 0;
+
+    while(retry < 3)
+    {
+      if(!file) 
+      {
+        file = sourceFS->open(FileNamePath, FILE_WRITE);
+      }
+      retry++;
+    }
+
     if (!file)
     {
         SendU16(FailToken);
         Serial.printf("Could not open for write: %s:%s\n", (SD_nUSB ? "SD" : "USB"), FileNamePath);
+        file.close();
         return false;
     }
     return true;
@@ -109,19 +121,19 @@ FLASHMEM bool ReceiveFileData(File& file, uint32_t len, uint32_t& CheckSum)
         file.write(ByteIn = Serial.read());
         CheckSum -= ByteIn;
         bytenum++;
-    }
-    file.close();
+    }    
 
     CheckSum &= 0xffff;
     if (CheckSum != 0)
     {
         SendU16(FailToken);
         Serial.printf("CS Failed! RCS:%lu\n", CheckSum);
+        file.close();
         return false;
     }
+    file.close();
     return true;
 }
-
 
 // Command: 
 // Post File to target directory and storage type on TeensyROM.
@@ -307,6 +319,7 @@ FLASHMEM bool CopyFile(const char* SourcePath, const char* DestinationPath, FS& 
     {
         SendU16(FailToken);
         Serial.printf("Failed to open source file: %s\n", SourcePath);
+        sourceFile.close();
         return false;
     }
 
@@ -316,6 +329,7 @@ FLASHMEM bool CopyFile(const char* SourcePath, const char* DestinationPath, FS& 
         SendU16(FailToken);
         Serial.printf("Failed to open destination file: %s\n", DestinationPath);
         sourceFile.close();
+        destinationFile.close();
         return false;
     }
 
