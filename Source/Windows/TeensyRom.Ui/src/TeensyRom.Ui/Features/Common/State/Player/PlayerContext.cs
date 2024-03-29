@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using DynamicData.Kernel;
+using MediatR;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ using System.Windows.Input;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
@@ -68,11 +70,12 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         protected readonly INavigationService _nav;
         protected readonly IDirectoryTreeState _tree;
         protected readonly IExplorerViewConfig _config;
+        private readonly ILoggingService _log;
         protected readonly Dictionary<Type, PlayerState> _states;
         protected readonly List<IDisposable> _stateSubscriptions = new();
         protected TeensyFilter _currentFilter;
 
-        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, IFileWatchService watchService, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree, IExplorerViewConfig config)
+        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, IFileWatchService watchService, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree, IExplorerViewConfig config, ILoggingService log)
         {
             _mediator = mediator;
             _storage = storage;
@@ -83,6 +86,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             _nav = nav;
             _tree = tree;
             _config = config;
+            _log = log;
             _states = new()
             {
                 { typeof(NormalPlayState), new NormalPlayState(this, mediator, storage, settingsService, launchHistory, alert, serialContext, nav, tree) },
@@ -475,20 +479,16 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 .Select(t => t.Type).ToArray();            
         }
 
-        public Task StoreFiles(IEnumerable<FileCopyItem> files)
+        public async Task StoreFiles(IEnumerable<FileCopyItem> files)
         {
-            var sourceCommonParent = files.Select(i => i.Path).GetCommonBasePath();
-            var isDirectoryCopy = files.All(i => i.InSubdirectory);
+                var sourceCommonParent = files.Select(i => i.Path).GetCommonBasePath();
+                var isDirectoryCopy = files.All(i => i.InSubdirectory);
 
-            var sourceParentPath = isDirectoryCopy
-                ? SystemDirectory.GetParent(sourceCommonParent)?.FullName
-                : sourceCommonParent;
+                var sourceParentPath = isDirectoryCopy
+                    ? SystemDirectory.GetParent(sourceCommonParent)?.FullName
+                    : sourceCommonParent;
 
-            var targetBasePath = _directoryState.Value.CurrentPath;
-
-            return Task.Run(async () => 
-            {
-                var dupeCount = 0;
+                var targetBasePath = _directoryState.Value.CurrentPath;
 
                 var fileInfos = files
                     .Select(f => new TeensyFileInfo(f.Path))
@@ -506,28 +506,28 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                     });
 
                 await _mediator.Send(new ResetCommand());
-                await Task.Delay(300);
-                var numFilesSaved = await _storage.SaveFiles(fileInfos);
+
+                var saveResults = await _storage.SaveFiles(fileInfos);
 
                 var fileCount = files.Count();
 
-                if(numFilesSaved < fileCount)
+                if(saveResults.FailedFiles.Any())
                 {
-                    _alert.Enqueue($"·{numFilesSaved} files were saved. \r\n·{fileCount - numFilesSaved} duplicates were skipped.");                    
+                    _alert.Enqueue($"{saveResults.FailedFiles.Count} files had an error being copied. \r\n See Logs.");   
+                    saveResults.FailedFiles.ForEach(d => _log.InternalError($"Error copying file: {d.FullPath}"));
                 }
-                else
+                _alert.Enqueue($"{fileInfos.Count() - saveResults.FailedFiles.Count} files were saved to the TR.");
+
+                if (_settings.AutoLaunchOnCopyEnabled) return;
+                
+                await Application.Current.Dispatcher.Invoke(() =>
                 {
-                    _alert.Enqueue($"{numFilesSaved} files were saved to the TR.");
-                }
-                return Application.Current.Dispatcher.Invoke(async () =>
-                {
-                    if(targetBasePath == _directoryState.Value.CurrentPath)
+                    if (targetBasePath == _directoryState.Value.CurrentPath)
                     {
-                        await LoadDirectory(targetBasePath);
+                        return LoadDirectory(targetBasePath);
                     }
-                });                
-            });
-            
+                    return Task.CompletedTask;
+                });           
         }
 
         public Task AutoStoreFiles(IEnumerable<TeensyFileInfo> files)
@@ -543,11 +543,19 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                         return f;
                     });
                 await _mediator.Send(new ResetCommand());
-                var numFilesSaved = await _storage.SaveFiles(fileInfos);
+                var saveResults = await _storage.SaveFiles(fileInfos);
+
+                if (saveResults.FailedFiles.Any())
+                {
+                    _alert.Enqueue($"{saveResults.FailedFiles.Count} files had an error being copied. \r\n See Logs.");
+                    saveResults.FailedFiles.ForEach(d => _log.InternalError($"Error copying file: {d.FullPath}"));
+                }
+                _alert.Enqueue($"{fileInfos.Count() - saveResults.FailedFiles.Count} files were saved to the TR.");
+
+                if (_settings.AutoLaunchOnCopyEnabled) return;
+
                 
-                _alert.Enqueue($"{numFilesSaved} files were saved to the TR.");
-                
-                return Application.Current.Dispatcher.Invoke(async () =>
+                await Application.Current.Dispatcher.Invoke(async () =>
                 {
                     if (targetPath == _directoryState.Value.CurrentPath)
                     {
@@ -555,7 +563,6 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                     }
                 });
             });
-
         }
     }
 }

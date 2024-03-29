@@ -313,40 +313,31 @@ namespace TeensyRom.Core.Storage.Services
             .ToList() ?? [];
         }
 
-        public async Task<int> SaveFiles(IEnumerable<TeensyFileInfo> files)
+        public async Task<SaveFilesResult> SaveFiles(IEnumerable<TeensyFileInfo> files)
         {
-            var dupeCount = 0;
             List<IFileItem> addedFiles = new();
+            SaveFilesResult saveResults = new();
 
-            foreach (var f in files)
+            var result = await _mediator.Send(new SaveFilesCommand
             {
-                var isDupe = _storageCache.GetFileByPath(f.TargetPath.UnixPathCombine(f.Name)) is not null;
+                Files = files.ToList()
+            });           
 
-                if (isDupe)
-                {
-                    dupeCount++;
-                    continue;
-                }
-
-                var result = await _mediator.Send(new SaveFileCommand
-                {
-                    File = f
-                });
-                if (!result.IsSuccess) return dupeCount;
-
+            foreach (var f in result.SuccessfulFiles)
+            {
                 var storageItem = f.ToStorageItem();
 
                 if (storageItem is SongItem song) _sidMetadata.EnrichSong(song);
                 if (storageItem is GameItem game) _gameMetadata.EnrichGame(game);
                 if (storageItem is FileItem file)
                 {
-                    _storageCache.UpsertFile(file);   
+                    _storageCache.UpsertFile(file);
                     addedFiles.Add(file);
                 }
             }
-            _filesAdded.OnNext(addedFiles);
             SaveCacheToDisk();
-            return files.Count() - dupeCount;
+            _filesAdded.OnNext(addedFiles);
+            return saveResults;
         }
 
         public async Task DeleteFile(IFileItem file, TeensyStorageType storageType)
