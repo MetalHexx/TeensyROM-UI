@@ -106,24 +106,27 @@ namespace TeensyRom.Ui.Controls.DirectoryList
             (
                 execute: (DragEventArgs e) => 
                 {
-                    var filePaths = new List<FileCopyItem>();
-
-                    if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return Task.CompletedTask;
-
-                    var items = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-                    foreach (var item in items)
+                    return Task.Run(() =>
                     {
-                        if (File.Exists(item))
+                        List<FileCopyItem> filePaths = [];
+
+                        if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
+
+                        var items = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                        foreach (var item in items)
                         {
-                            filePaths.Add(new FileCopyItem { Path = item });
+                            if (File.Exists(item))
+                            {
+                                filePaths.Add(new FileCopyItem { Path = item });
+                            }
+                            else if (Directory.Exists(item))
+                            {
+                                ProcessDirectoryAsync(item, filePaths);
+                            }
                         }
-                        else if (Directory.Exists(item))
-                        {
-                            ProcessDirectoryAsync(item, filePaths);
-                        }
-                    }
-                    return storeFilesFunc(filePaths);
+                        storeFilesFunc(filePaths);
+                    });
                 },
                 outputScheduler: RxApp.MainThreadScheduler
             );
