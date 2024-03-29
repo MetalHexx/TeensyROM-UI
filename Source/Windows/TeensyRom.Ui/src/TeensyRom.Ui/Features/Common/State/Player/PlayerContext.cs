@@ -144,7 +144,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
             await Application.Current.Dispatcher.Invoke(async () =>
             {
-                foreach (var path in uniquePaths) 
+                foreach (var path in uniquePaths)
                 {
                     List<string> directoryParts = ["/"];
 
@@ -154,7 +154,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
                     List<DirectoryItem> dirsToAdd = [];
 
-                    foreach (var directory in directoryParts)
+                    foreach (var directory in directoryParts.Take(2))
                     {
                         currentDir = currentDir.UnixPathCombine(directory);
                         var cacheItem = await _storage.GetDirectory(currentDir);
@@ -165,10 +165,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                         }
                     }
                 }
-                if (uniquePaths.Any(p => p ==_directoryState.Value.CurrentPath.RemoveLeadingAndTrailingSlash()))
-                {
-                    await LoadDirectory(_directoryState.Value.CurrentPath);
-                }
+                await LoadDirectory(_directoryState.Value.CurrentPath);
             });
         }
 
