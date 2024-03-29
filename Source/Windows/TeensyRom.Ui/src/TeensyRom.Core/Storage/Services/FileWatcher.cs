@@ -48,7 +48,7 @@ namespace TeensyRom.Core.Storage.Services
                 handler => _watcher.Changed += handler,
                 handler => _watcher.Changed -= handler)
                 .Where(_ => _watchSubscription is not null)
-                .Publish(_events => _events.Buffer(() => _events.Throttle(TimeSpan.FromMilliseconds(5000))))
+                .Publish(_events => _events.Buffer(() => _events.Throttle(TimeSpan.FromMilliseconds(2000))))
                 .Select(evts => evts
                     .Select(evt => evt.EventArgs.FullPath)
                     .Distinct()
