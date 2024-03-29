@@ -33,27 +33,37 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
         if (IsSuccess(response))
         {
-            _logService.InternalSuccess($"{requestType} Completed in {sw.ElapsedMilliseconds}ms {FormatResponse(response)}");
+            _logService.InternalSuccess($"{requestType} Completed in {sw.ElapsedMilliseconds}ms {FormatResponse(response)}\n");
             return response;
         }
             
-        _logService.InternalError($"{requestType} Completed {FormatResponse(response)}");
+        _logService.InternalError($"{requestType} Completed {FormatResponse(response)}\n");
 
         return response;
     }
 
     private static string FormatRequest(TRequest request)
     {
-        var properties = request.GetType().GetProperties();
-        var sb = new StringBuilder();
+        if (request == null) return string.Empty;
 
-        if(properties.Length == 0) return string.Empty;
-        
+        var properties = request.GetType().GetProperties();
+        StringBuilder sb = new();
+
+        if (properties.Length == 0) return string.Empty;
+
         foreach (var property in properties)
         {
-            sb.AppendWithLimit($"\r\n=> {property.Name}: {property.GetValue(request)?.ToString() ?? "<null>"}");
+            if (IsNativeType(property.PropertyType))
+            {
+                sb.AppendLine($"\r => {property.Name}: {property.GetValue(request)?.ToString() ?? "<null>"}");
+            }
         }
-        return $"{sb.ToString().DropLastComma()}";
+        return sb.ToString().TrimEnd();
+    }
+
+    private static bool IsNativeType(Type type)
+    {
+        return type.IsPrimitive || type == typeof(string) || type == typeof(decimal) || type == typeof(DateTime) || type.IsEnum;
     }
 
     private string FormatResponse(TResponse response) => string.IsNullOrWhiteSpace(response.Error)
