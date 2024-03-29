@@ -18,7 +18,6 @@ using System.Windows.Threading;
 using MediatR;
 using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Commands.Behaviors;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Games;
@@ -62,7 +61,6 @@ namespace TeensyRom.Ui
             services.AddSingleton<HelpViewModel>();
             services.AddSingleton<DiscoverViewModel>();
             services.AddSingleton<MainWindow>();
-            services.AddSingleton<ITeensyCommandExecutor, TeensyCommandExecutor>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
