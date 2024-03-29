@@ -55,12 +55,9 @@ FLASHMEM bool GetFileStream(uint32_t SD_nUSB, char FileNamePath[], FS* sourceFS,
 
     int retry = 0;
 
-    while(retry < 3)
+    while(retry < 3 && !file)
     {
-      if(!file) 
-      {
-        file = sourceFS->open(FileNamePath, FILE_WRITE);
-      }
+      file = sourceFS->open(FileNamePath, FILE_WRITE);
       retry++;
     }
 
@@ -68,7 +65,6 @@ FLASHMEM bool GetFileStream(uint32_t SD_nUSB, char FileNamePath[], FS* sourceFS,
     {
         SendU16(FailToken);
         Serial.printf("Could not open for write: %s:%s\n", (SD_nUSB ? "SD" : "USB"), FileNamePath);
-        file.close();
         return false;
     }
     return true;
