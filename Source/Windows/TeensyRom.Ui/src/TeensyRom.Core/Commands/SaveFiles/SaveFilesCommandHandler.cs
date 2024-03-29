@@ -1,9 +1,5 @@
 ﻿using MediatR;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using TeensyRom.Core.Commands.Behaviors;
-using TeensyRom.Core.Commands.DeleteFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
