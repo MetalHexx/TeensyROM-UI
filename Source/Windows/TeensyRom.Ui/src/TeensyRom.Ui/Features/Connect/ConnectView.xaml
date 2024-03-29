@@ -120,7 +120,7 @@
                     CaretBrush="Transparent"
      >
                     <i:Interaction.Behaviors>
-                        <local:RichTextBindingBehavior TextCollection="{Binding Logs }" />
+                        <local:RichTextBindingBehavior TextCollection="{Binding Log.Logs }" />
                     </i:Interaction.Behaviors>
 
                 </RichTextBox>

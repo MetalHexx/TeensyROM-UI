@@ -37,7 +37,7 @@ namespace TeensyRom.Ui.Features.Connect
         public ReactiveCommand<Unit, PingResult> PingCommand { get; set; }
         public ReactiveCommand<Unit, ResetResult> ResetCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ClearLogsCommand { get; set; }
-        public ObservableCollection<string> Logs { get; } = [];
+        public LogViewModel Log { get; } = new();
 
         private readonly IMediator _mediator;
         private readonly ISerialStateContext _serial;
@@ -113,25 +113,31 @@ namespace TeensyRom.Ui.Features.Connect
             ClearLogsCommand = ReactiveCommand.Create<Unit, Unit>(
                 execute: _ =>
                 {
-                    Logs.Clear();
+                    Log.Clear();
                     return Unit.Default;
                 },
-                canExecute: this.WhenAnyValue(x => x.Logs.Count).Select(count => count > 0),
+                canExecute: this.WhenAnyValue(x => x.Log.Logs.Count).Select(count => count > 0),
                 outputScheduler: RxApp.MainThreadScheduler);
 
+            //This works
+            //log.Logs
+            //    .ObserveOn(RxApp.MainThreadScheduler)
+            //    .Subscribe(Log.AddLog);
+
+            //This one does not
             log.Logs
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(logMessage =>
+                .Buffer(TimeSpan.FromMilliseconds(1000))
+                .Where(logs => logs.Any())
+                .ObserveOn(RxApp.MainThreadScheduler) // Ensure this is right before Subscribe
+                .Subscribe(logs =>
                 {
-                    //logMessage.Split("\r\n").ToList().ForEach(log => Logs.Add(log));
-
-                    Logs.Add(logMessage);
-
-                    if (Logs.Count > 20)
-                    {
-                        Logs.RemoveAt(0);
-                    }
+                    var combinedLog = string.Join("\n", logs); // Join the logs using a newline separator
+                    combinedLog.TrimStart('\n');
+                    Log.AddLog(combinedLog);
                 });
+
+
+
             _mediator = mediator;
             _serial = serial;
             _log = log;
