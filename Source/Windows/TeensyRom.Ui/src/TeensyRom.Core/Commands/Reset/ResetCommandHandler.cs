@@ -11,7 +11,7 @@ namespace TeensyRom.Core.Commands
         public async Task<ResetResult> Handle(ResetCommand request, CancellationToken cancellationToken)
         {
             _serialState.Write(TeensyByteToken.Reset_Bytes.ToArray(), 0, 2);
-            var response = _serialState.ReadAndLogSerialAsString(200);            
+            var response = _serialState.ReadAndLogSerialAsString(1000);            
 
             return response.Contains("Reset cmd received")
                 ? new ResetResult()
