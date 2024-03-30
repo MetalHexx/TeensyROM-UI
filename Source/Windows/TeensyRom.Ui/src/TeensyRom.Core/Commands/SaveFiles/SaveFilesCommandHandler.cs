@@ -11,27 +11,25 @@ namespace TeensyRom.Core.Commands
 {
     public class SaveFilesCommandHandler : IRequestHandler<SaveFilesCommand, SaveFilesResult>
     {
-        private TeensySettings _settings = null!;
         private readonly ISerialStateContext _serialState;
         private readonly ILoggingService _logService;
         private int _retryLimit = 3;
 
-        public SaveFilesCommandHandler(ISerialStateContext serialState, ISettingsService settings, ILoggingService logService)
+        public SaveFilesCommandHandler(ISerialStateContext serialState, ILoggingService logService)
         {
-            settings.Settings.Take(1).Subscribe(s => _settings = s);
             _serialState = serialState;
             _logService = logService;
         }
 
-        public Task<SaveFilesResult> Handle(SaveFilesCommand r, CancellationToken ct)
+        public Task<SaveFilesResult> Handle(SaveFilesCommand command, CancellationToken ct)
         {
-            _logService.Internal($"Saving {r.Files.Count} file(s) to the TR");
+            _logService.Internal($"Saving {command.Files.Count} file(s) to the TR");
 
             var result = new SaveFilesResult();
 
-            foreach (var file in r.Files)
+            foreach (var file in command.Files)
             {
-                var success = CopyFile(file);
+                var success = CopyFile(file, command);
 
                 if (success)
                 {
@@ -47,9 +45,8 @@ namespace TeensyRom.Core.Commands
             return Task.FromResult(result);
         }
 
-        private bool CopyFile(TeensyFileInfo file) 
+        private bool CopyFile(FileTransferItem file, SaveFilesCommand command) 
         {
-            TransformDestination(file);
             var retry = 0;
 
             while (retry < _retryLimit)
@@ -61,7 +58,7 @@ namespace TeensyRom.Core.Commands
                     _serialState.HandleAck();
                     _serialState.SendIntBytes(file.StreamLength, 4);
                     _serialState.SendIntBytes(file.Checksum, 2);
-                    _serialState.SendIntBytes(file.StorageType.GetStorageToken(), 1);
+                    _serialState.SendIntBytes(file.TargetStorage.GetStorageToken(), 1);
                     _serialState.Write($"{file.TargetPath.UnixPathCombine(file.Name)}\0");
                     _serialState.HandleAck();
                     _serialState.ClearBuffers();
@@ -91,7 +88,7 @@ namespace TeensyRom.Core.Commands
                     if (isDuplicateFile)
                     {
                         _logService.InternalError($"Attempting to overwrite: {file.TargetPath.UnixPathCombine(file.Name)}");
-                        TryDelete($"{file.TargetPath.UnixPathCombine(file.Name)}");
+                        TryDelete(file);
                         continue;
                     }
                     _logService.InternalError($"Waiting {retry} seconds to retry.");
@@ -102,38 +99,22 @@ namespace TeensyRom.Core.Commands
             return false;
         }
 
-        private void TryDelete(string path) 
+        private void TryDelete(FileTransferItem file) 
         {
             try
             {
                 _serialState.ClearBuffers();
                 _serialState.SendIntBytes(TeensyToken.DeleteFile, 2);
                 _serialState.HandleAck();
-                _serialState.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
-                _serialState.Write($"{path}\0");
+                _serialState.SendIntBytes(file.TargetStorage.GetStorageToken(), 1);
+                _serialState.Write($"{file.TargetPath.UnixPathCombine(file.Name)}\0");
                 _serialState.HandleAck();
-                _logService.InternalSuccess($"Deleted file {path} successfully");
+                _logService.InternalSuccess($"Deleted file {file} successfully");
             }
             catch (Exception ex)
             {
-                _logService.InternalError($"Error deleting file {path} \r\n => {ex.Message}");
+                _logService.InternalError($"Error deleting file {file} \r\n => {ex.Message}");
             }
-        }
-
-        private void TransformDestination(TeensyFileInfo fileInfo)
-        {
-            if(!string.IsNullOrWhiteSpace(fileInfo.TargetPath)) return;
-
-            fileInfo.StorageType = _settings.TargetType;
-
-            var target = _settings.FileTargets
-                .FirstOrDefault(t => t.Type == fileInfo.Type);
-
-            if (target is null) throw new TeensyException($"Unsupported file type: {fileInfo.Type}");
-
-            fileInfo.TargetPath = _settings.TargetRootPath
-                .UnixPathCombine(_settings.GetFileTypePath(fileInfo.Type), _settings.AutoTransferPath)
-                .EnsureUnixPathEnding();
         }
     }
 }

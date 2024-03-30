@@ -47,6 +47,6 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         bool TryTransitionTo(Type nextStateType);     
         Task SwitchFilter(TeensyFilter filter);
         Task StoreFiles(IEnumerable<FileCopyItem> files);
-        Task AutoStoreFiles(IEnumerable<TeensyFileInfo> files);
+        Task AutoStoreFiles(IEnumerable<FileTransferItem> files);
     }
 }

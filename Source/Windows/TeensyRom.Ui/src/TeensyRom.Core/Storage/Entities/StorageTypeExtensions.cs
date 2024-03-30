@@ -21,14 +21,14 @@ namespace TeensyRom.Core.Storage.Entities
     }
     public static class StorageFileExtensions
     {
-        public static StorageItem ToStorageItem(this TeensyFileInfo fileInfo)
+        public static StorageItem ToStorageItem(this FileTransferItem fileInfo)
         {
             return fileInfo.Type switch {                 
-                TeensyFileType.Sid => new SongItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.Crt => new GameItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.Prg => new GameItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.Hex => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                _ => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+                TeensyFileType.Sid => new SongItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size, StorageType = fileInfo.TargetStorage },
+                TeensyFileType.Crt => new GameItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size, StorageType = fileInfo.TargetStorage },
+                TeensyFileType.Prg => new GameItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size, StorageType = fileInfo.TargetStorage },
+                TeensyFileType.Hex => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size, StorageType = fileInfo.TargetStorage },
+                _ => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size, StorageType = fileInfo.TargetStorage },
             };
         }
     }

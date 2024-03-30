@@ -8,6 +8,6 @@ namespace TeensyRom.Core.Commands
 {
     public class SaveFilesCommand : IRequest<SaveFilesResult>
     {
-        public List<TeensyFileInfo> Files { get; init; } = default!;
+        public List<FileTransferItem> Files { get; init; } = default!;
     }
 }

@@ -10,7 +10,7 @@ namespace TeensyRom.Core.Storage.Services
         void ClearCache(string path);
         Task<StorageCacheItem?> GetDirectory(string path);
         Task<ILaunchableItem?> SaveFavorite(ILaunchableItem file);
-        Task<SaveFilesResult> SaveFiles(IEnumerable<TeensyFileInfo> files);
+        Task<SaveFilesResult> SaveFiles(IEnumerable<FileTransferItem> files);
         Task DeleteFile(IFileItem file, TeensyStorageType storageType);
         ILaunchableItem? GetRandomFile(params TeensyFileType[] fileTypes);
         Task CacheAll();

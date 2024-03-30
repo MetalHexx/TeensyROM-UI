@@ -4,7 +4,7 @@ namespace TeensyRom.Core.Commands
 {
     public class SaveFilesResult : TeensyCommandResult 
     {
-        public List<TeensyFileInfo> SuccessfulFiles { get; set; } = [];        
-        public List<TeensyFileInfo> FailedFiles { get; set; } = [];
+        public List<FileTransferItem> SuccessfulFiles { get; set; } = [];        
+        public List<FileTransferItem> FailedFiles { get; set; } = [];
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Runtime;
 using System.Runtime.CompilerServices;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
@@ -17,7 +18,7 @@ namespace TeensyRom.Core.Storage
     public interface IFileWatchService : IDisposable 
     {
         IObservable<bool> IsProcessing { get; }
-        IObservable<List<TeensyFileInfo>> WatchFiles { get; }
+        IObservable<List<FileTransferItem>> WatchFiles { get; }
         void ToggleFileWatch(TeensySettings settings);
     }
 
@@ -27,8 +28,8 @@ namespace TeensyRom.Core.Storage
     /// </summary>
     public class FileWatchService: IFileWatchService
     {
-        public IObservable<List<TeensyFileInfo>> WatchFiles => _watchFiles.AsObservable();
-        private readonly Subject<List<TeensyFileInfo>> _watchFiles = new();
+        public IObservable<List<FileTransferItem>> WatchFiles => _watchFiles.AsObservable();
+        private readonly Subject<List<FileTransferItem>> _watchFiles = new();
 
         public IObservable<bool> IsProcessing => _isProcessing.AsObservable();
         private readonly BehaviorSubject<bool> _isProcessing = new(false);
@@ -66,8 +67,13 @@ namespace TeensyRom.Core.Storage
                 .Where(fileSerial => fileSerial.serialState is SerialConnectedState && settings.AutoFileCopyEnabled)
                 .Select(fileSerial => fileSerial.file)
                 .DistinctUntilChanged()
-                .Select(files => files.Select(f => new TeensyFileInfo(f)).ToList())
-                .Subscribe(_watchFiles.OnNext);
+                .Select(files => files.Select(f => new FileTransferItem
+                (
+                    fileInfo: f,
+                    targetPath: settings.GetAutoTransferPath(f.Extension.GetFileType()),
+                    targetStorage: settings.TargetType
+                )))
+                .Subscribe(fti => _watchFiles.OnNext(fti.ToList()));
         }       
                
         public void Dispose()

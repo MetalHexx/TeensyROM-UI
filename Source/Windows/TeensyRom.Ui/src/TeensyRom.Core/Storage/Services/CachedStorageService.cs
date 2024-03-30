@@ -230,6 +230,7 @@ namespace TeensyRom.Core.Storage.Services
 
             var response = await _mediator.Send(new GetDirectoryCommand
             {
+                StorageType = _settings.TargetType,
                 Path = path
             });
 
@@ -313,7 +314,7 @@ namespace TeensyRom.Core.Storage.Services
             .ToList() ?? [];
         }
 
-        public async Task<SaveFilesResult> SaveFiles(IEnumerable<TeensyFileInfo> files)
+        public async Task<SaveFilesResult> SaveFiles(IEnumerable<FileTransferItem> files)
         {
             List<IFileItem> addedFiles = new();
             SaveFilesResult saveResults = new();

@@ -65,7 +65,7 @@ namespace TeensyRom.Tests.Integration
             }
         }
 
-        public TeensyFileInfo CreateTeensyFileInfo(
+        public FileTransferItem CreateTeensyFileInfo(
             TeensyFileType fileType = TeensyFileType.Sid,
             string? targetPath = null,
             TeensyStorageType storageType = TeensyStorageType.SD)
@@ -78,13 +78,14 @@ namespace TeensyRom.Tests.Integration
             string defaultContent = "Default content for testing.";
             File.WriteAllText(tempFilePath, defaultContent);
 
-            var fileInfo = new TeensyFileInfo(tempFilePath)
-            {
-                TargetPath = targetPath ?? string.Empty,
-                StorageType = storageType
-            };
+            var fileInfo = new FileTransferItem
+            (
+                sourcePath: tempFilePath,
+                targetPath: targetPath ?? string.Empty,
+                targetStorage: storageType
+            );
 
-            File.Delete(fileInfo.FullPath);
+            File.Delete(fileInfo.SourcePath);
 
             return fileInfo;
         }

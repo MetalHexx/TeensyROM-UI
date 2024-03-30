@@ -487,19 +487,20 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
                 var targetBasePath = _directoryState.Value.CurrentPath;
 
-                var fileInfos = files
-                    .Select(f => new TeensyFileInfo(f.Path))
+                var fileInfos = files                    
                     .Select(f =>
                     {
-                        var targetRelativePath = f.FullPath
+                        var targetRelativePath = f.Path
                             .Replace(sourceParentPath!, string.Empty)
                             .ToUnixPath()
                             .GetUnixParentPath();
 
-                        f.TargetPath = targetBasePath
-                            .UnixPathCombine(targetRelativePath);
-
-                        return f;
+                        return new FileTransferItem
+                        (
+                            sourcePath: f.Path,
+                            targetPath: targetBasePath.UnixPathCombine(targetRelativePath),
+                            targetStorage: _settings.TargetType
+                        );
                     });
 
                 await _mediator.Send(new ResetCommand());
@@ -511,7 +512,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 if(saveResults.FailedFiles.Any())
                 {
                     _alert.Enqueue($"{saveResults.FailedFiles.Count} files had an error being copied. \r\n See Logs.");   
-                    saveResults.FailedFiles.ForEach(d => _log.InternalError($"Error copying file: {d.FullPath}"));
+                    saveResults.FailedFiles.ForEach(d => _log.InternalError($"Error copying file: {d.SourcePath}"));
                 }
                 _alert.Enqueue($"{fileInfos.Count() - saveResults.FailedFiles.Count} files were saved to the TR.");
 
@@ -527,27 +528,21 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 });           
         }
 
-        public Task AutoStoreFiles(IEnumerable<TeensyFileInfo> files)
+        public Task AutoStoreFiles(IEnumerable<FileTransferItem> files)
         {
             var targetPath = files.First().TargetPath;
 
             return Task.Run(async () =>
             {
-                var fileInfos = files
-                    .Select(f =>
-                    {
-                        f.TargetPath = _settings.GetAutoTransferPath(f.Type);
-                        return f;
-                    });
                 await _mediator.Send(new ResetCommand());
-                var saveResults = await _storage.SaveFiles(fileInfos);
+                var saveResults = await _storage.SaveFiles(files);
 
                 if (saveResults.FailedFiles.Any())
                 {
                     _alert.Enqueue($"{saveResults.FailedFiles.Count} files had an error being copied. \r\n See Logs.");
-                    saveResults.FailedFiles.ForEach(d => _log.InternalError($"Error copying file: {d.FullPath}"));
+                    saveResults.FailedFiles.ForEach(d => _log.InternalError($"Error copying file: {d.SourcePath}"));
                 }
-                _alert.Enqueue($"{fileInfos.Count() - saveResults.FailedFiles.Count} files were saved to the TR.");
+                _alert.Enqueue($"{files.Count() - saveResults.FailedFiles.Count} files were saved to the TR.");
 
                 if (_settings.AutoLaunchOnCopyEnabled) return;
 
