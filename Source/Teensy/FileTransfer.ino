@@ -315,7 +315,6 @@ FLASHMEM bool CopyFile(const char* SourcePath, const char* DestinationPath, FS& 
     {
         SendU16(FailToken);
         Serial.printf("Failed to open source file: %s\n", SourcePath);
-        sourceFile.close();
         return false;
     }
 
@@ -325,7 +324,6 @@ FLASHMEM bool CopyFile(const char* SourcePath, const char* DestinationPath, FS& 
         SendU16(FailToken);
         Serial.printf("Failed to open destination file: %s\n", DestinationPath);
         sourceFile.close();
-        destinationFile.close();
         return false;
     }
 
