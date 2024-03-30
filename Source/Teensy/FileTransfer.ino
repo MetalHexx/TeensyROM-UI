@@ -117,17 +117,16 @@ FLASHMEM bool ReceiveFileData(File& file, uint32_t len, uint32_t& checksum)
         file.write(byteIn = Serial.read());
         checksum -= byteIn;
         bytenum++;
-    }    
+    }  
+    file.close();
 
     checksum &= 0xffff;
     if (checksum != 0)
     {
         SendU16(FailToken);
-        Serial.printf("CS Failed! RCS:%lu\n", checksum);
-        file.close();
+        Serial.printf("CS Failed! RCS:%lu\n", checksum);        
         return false;
     }
-    file.close();
     return true;
 }
 
