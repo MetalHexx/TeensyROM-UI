@@ -123,15 +123,17 @@ namespace TeensyRom.Ui.Features.NavigationHost
             _navService.NavigationItems
                 .ToPropertyEx(this, vm => vm.NavigationItems);
 
-            _serialContext.CurrentState
+            var fileTransferInProgress = _progressService.InProgress
+                .WithLatestFrom(_watchService.IsProcessing, (inProgress, watchProcessing) => inProgress || watchProcessing);
+
+            var serialBusy = _serialContext.CurrentState
                 .Scan((previous: (SerialState?)null, current: (SerialState?)null), (stateTuple, currentState) => (stateTuple.current, currentState))
                 .Where(s => s.previous is not null && s.previous is not SerialConnectableState)
-                .Select(s => s.current is SerialBusyState)  
-                .WithLatestFrom(_progressService.InProgress, (serialBusy, progress) => serialBusy || progress)
-                .WithLatestFrom(_watchService.IsProcessing, (serialBusy, watchBusy) => serialBusy || watchBusy)
-                .Select(x => x)
+                .Select(s => s.current is SerialBusyState);
+
+            serialBusy
+                .CombineLatest(fileTransferInProgress, (serialBusy, fileTransfer) => serialBusy || fileTransfer)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Throttle(TimeSpan.FromMilliseconds(1000))
                 .ToPropertyEx(this, vm => vm.SerialBusy);
         }
 
