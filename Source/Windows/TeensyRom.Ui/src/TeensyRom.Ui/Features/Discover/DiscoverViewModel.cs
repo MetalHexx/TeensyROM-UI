@@ -22,6 +22,7 @@ using TeensyRom.Ui.Controls.LibraryFilter;
 using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.SearchResultsToolbar;
+using TeensyRom.Ui.Controls.StorageSelector;
 using TeensyRom.Ui.Features.Common.Config;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Common.State;
@@ -48,6 +49,7 @@ namespace TeensyRom.Ui.Features.Discover
         [Reactive] public CornerToolbarViewModel CornerToolbar { get; set; } = null!;
         [Reactive] public FeatureTitleViewModel Title { get; set; }
         [Reactive] public SearchResultsToolbarViewModel SearchResultsToolbar { get; set; } = new();
+        [Reactive] public StorageSelectorViewModel StorageSelector { get; set; }
 
         private TeensySettings _settings = null!;
         private readonly IExplorerViewConfig _viewConfig;
@@ -113,6 +115,8 @@ namespace TeensyRom.Ui.Features.Discover
                 progress
             );
 
+            StorageSelector = new StorageSelectorViewModel(settingsService);
+
             DirectoryTree = new(context.DirectoryTree)
             {
                 DirectorySelectedCommand = ReactiveCommand.CreateFromTask<DirectoryNodeViewModel>(
@@ -162,7 +166,7 @@ namespace TeensyRom.Ui.Features.Discover
                 (
                     context.CacheAll,                                        
                     dialog,
-                    _settings.TargetType
+                    _settings.StorageType
                 );
             });
         }

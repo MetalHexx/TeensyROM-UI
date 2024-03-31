@@ -11,13 +11,11 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 {
     public class LaunchFileHandler: IRequestHandler<LaunchFileCommand, LaunchFileResult>
     {
-        private TeensySettings _settings = null!;
         private readonly ISerialStateContext _serialState;
         private readonly ILoggingService _log;
 
-        public LaunchFileHandler(ISerialStateContext serialState, ISettingsService settings, ILoggingService log)
+        public LaunchFileHandler(ISerialStateContext serialState, ILoggingService log)
         {
-            settings.Settings.Take(1).Subscribe(s => _settings = s);
             _serialState = serialState;
             _log = log;
         }
@@ -26,7 +24,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
         {
             _serialState.SendIntBytes(TeensyToken.LaunchFile, 2);
             _serialState.HandleAck();
-            _serialState.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
+            _serialState.SendIntBytes(request.StorageType.GetStorageToken(), 1);
             _serialState.Write($"{request.Path}\0");
             _serialState.HandleAck();
             await Task.Delay(400);

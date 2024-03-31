@@ -10,9 +10,9 @@ using System.IO;
 
 namespace TeensyRom.Core.Commands.GetFile
 {
-    public class GetFileCommand : IRequest<GetFileResult>
+    public class GetFileCommand(TeensyStorageType storageType, string filePath) : IRequest<GetFileResult>
     {
-        public string FilePath { get; init; } = default!;
-        public TeensyStorageType StorageType { get; set; }
+        public TeensyStorageType StorageType { get; } = storageType;
+        public string FilePath { get; } = filePath;
     }
 }

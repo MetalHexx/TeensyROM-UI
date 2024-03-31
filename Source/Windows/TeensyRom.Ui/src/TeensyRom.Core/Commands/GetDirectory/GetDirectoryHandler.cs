@@ -32,7 +32,7 @@ namespace TeensyRom.Core.Commands
                 _serialState.SendIntBytes(TeensyToken.ListDirectory, 2);
 
                 _serialState.HandleAck();
-                _serialState.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
+                _serialState.SendIntBytes(_settings.StorageType.GetStorageToken(), 1);
                 _serialState.SendIntBytes(0, 2);
                 _serialState.SendIntBytes(9999, 2);
                 _serialState.Write($"{r.Path}\0");

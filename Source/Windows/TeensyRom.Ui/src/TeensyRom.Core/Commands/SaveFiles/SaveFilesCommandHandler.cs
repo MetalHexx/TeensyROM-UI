@@ -13,7 +13,7 @@ namespace TeensyRom.Core.Commands
     {
         private readonly ISerialStateContext _serialState;
         private readonly ILoggingService _logService;
-        private int _retryLimit = 3;
+        private readonly int _retryLimit = 3;
 
         public SaveFilesCommandHandler(ISerialStateContext serialState, ILoggingService logService)
         {

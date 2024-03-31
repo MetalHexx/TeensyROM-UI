@@ -7,9 +7,9 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public class GetDirectoryCommand : IRequest<GetDirectoryResult>
+    public class GetDirectoryCommand(TeensyStorageType storageType, string path) : IRequest<GetDirectoryResult>
     {
-        public TeensyStorageType StorageType { get; init; }
-        public string Path { get; init; } = string.Empty;
+        public TeensyStorageType StorageType { get; } = storageType;
+        public string Path { get; } = path;
     }
 }

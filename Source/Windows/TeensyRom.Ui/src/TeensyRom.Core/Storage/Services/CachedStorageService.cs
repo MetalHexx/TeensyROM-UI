@@ -30,7 +30,12 @@ namespace TeensyRom.Core.Storage.Services
         private readonly IAlertService _alert;
         private TeensySettings _settings = null!;
         private IDisposable? _settingsSubscription;
-        private string _cacheFileName => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), StorageConstants.Cache_File_Path);
+        private string _usbCacheFileName => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), StorageConstants.Usb_Cache_File_Path);
+        private string _sdCacheFileName => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), StorageConstants.Sd_Cache_File_Path);
+        private string CacheFilePath => _settings.StorageType is TeensyStorageType.SD
+            ? _sdCacheFileName
+            : _usbCacheFileName;
+
         private StorageCache _storageCache = null!;
         
         public CachedStorageService(ISettingsService settings, IGameMetadataService gameMetadata, ISidMetadataService sidMetadata, IMediator mediator, IAlertService alert)
@@ -40,31 +45,24 @@ namespace TeensyRom.Core.Storage.Services
             _sidMetadata = sidMetadata;
             _mediator = mediator;
             _alert = alert;
-            _settingsSubscription = _settingsService.Settings.Subscribe(OnSettingsChanged);
+            _settingsSubscription = _settingsService.Settings
+                .Where(s => s is not null)
+                .Subscribe(OnSettingsChanged);
         }
 
         private void OnSettingsChanged(TeensySettings newSettings)
-        {
-            if(_storageCache is null)
-            {
-                _storageCache = new StorageCache(newSettings.BannedDirectories, newSettings.BannedFiles);
-            }
-            if (_settings is null && newSettings.SaveMusicCacheEnabled)
-            {
-                _settings = newSettings;                 
-                LoadCache();
-                return;
-            }
-            var shouldDeleteCache = _settings is not null
-                && _settings.SaveMusicCacheEnabled
-                && newSettings.SaveMusicCacheEnabled == false;
-
+        {   
+            var previousSettings = _settings == null 
+                ?  null 
+                : _settings with { };
+            
             _settings = newSettings;
 
-            if (shouldDeleteCache) //if a user disabled cache saving, clear the cache
+            if (previousSettings is null || _settings.StorageType != previousSettings.StorageType)
             {
-                ClearCache();
+                LoadCache();
             }
+            
         }
         
         public async Task<ILaunchableItem?> SaveFavorite(ILaunchableItem launchItem)
@@ -72,10 +70,11 @@ namespace TeensyRom.Core.Storage.Services
             var favPath = _settings.GetFavoritePath(launchItem.FileType);
 
             var favCommand = new FavoriteFileCommand
-            {
-                SourcePath = launchItem.Path,
-                DestPath = favPath.UnixPathCombine(launchItem.Name)
-            };
+            (
+                storageType: _settings.StorageType, 
+                sourcePath: launchItem.Path, 
+                targetPath: favPath.UnixPathCombine(launchItem.Name)
+            );
 
             var favoriteResult = await _mediator.Send(favCommand);
 
@@ -86,7 +85,7 @@ namespace TeensyRom.Core.Storage.Services
                 await _mediator.Send(new ResetCommand());                
                 favoriteResult = await _mediator.Send(favCommand);
                 await Task.Delay(5000);
-                await _mediator.Send(new LaunchFileCommand { Path = launchItem.Path });
+                await _mediator.Send(new LaunchFileCommand(_settings.StorageType, launchItem.Path));
             }
             if(!favoriteResult.IsSuccess)
             {
@@ -131,26 +130,26 @@ namespace TeensyRom.Core.Storage.Services
         {
             _storageCache.Clear();
 
-            if (!File.Exists(_cacheFileName)) return;
+            if (!File.Exists(CacheFilePath)) return;
 
-            File.Delete(_cacheFileName);
+            File.Delete(CacheFilePath);
         }
         public void ClearCache(string path) => _storageCache.DeleteDirectoryWithChildren(path);
+
         private void LoadCache()
         {
-            var saveCacheEnabled = _settings?.SaveMusicCacheEnabled ?? false;
-
-            if (!saveCacheEnabled) return;
-
-
-            if (!File.Exists(_cacheFileName)) return;
-            LoadCacheFromDisk(_cacheFileName);
-            SaveCacheToDisk();
+            if (!File.Exists(CacheFilePath)) 
+            {
+                _storageCache = new StorageCache(_settings.BannedDirectories, _settings.BannedFiles);
+                SaveCacheToDisk();
+                return;
+            }
+            LoadCacheFromDisk();
         }
 
-        private void LoadCacheFromDisk(string cacheLocation)
+        private void LoadCacheFromDisk()
         {
-            using var stream = File.Open(cacheLocation, FileMode.Open, FileAccess.Read);
+            using var stream = File.Open(CacheFilePath, FileMode.Open, FileAccess.Read);
             using var reader = new StreamReader(stream);
             var content = reader.ReadToEnd();
 
@@ -202,14 +201,12 @@ namespace TeensyRom.Core.Storage.Services
 
         private void SaveCacheToDisk()
         {
-            if (!_settings!.SaveMusicCacheEnabled) return;
-
-            if (!Directory.Exists(Path.GetDirectoryName(_cacheFileName)))
+            if (!Directory.Exists(Path.GetDirectoryName(CacheFilePath)))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(_cacheFileName)!);
+                Directory.CreateDirectory(Path.GetDirectoryName(CacheFilePath)!);
             }
 
-            File.WriteAllText(_cacheFileName, JsonConvert.SerializeObject(_storageCache, Formatting.Indented, new JsonSerializerSettings
+            File.WriteAllText(CacheFilePath, JsonConvert.SerializeObject(_storageCache, Formatting.Indented, new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,
                 Formatting = Formatting.Indented
@@ -228,11 +225,7 @@ namespace TeensyRom.Core.Storage.Services
                 return cacheItem;
             }
 
-            var response = await _mediator.Send(new GetDirectoryCommand
-            {
-                StorageType = _settings.TargetType,
-                Path = path
-            });
+            var response = await _mediator.Send(new GetDirectoryCommand(_settings.StorageType, path));
 
             if (response.DirectoryContent is null) return null;  
 
@@ -319,10 +312,7 @@ namespace TeensyRom.Core.Storage.Services
             List<IFileItem> addedFiles = new();
             SaveFilesResult saveResults = new();
 
-            var result = await _mediator.Send(new SaveFilesCommand
-            {
-                Files = files.ToList()
-            });           
+            var result = await _mediator.Send(new SaveFilesCommand(files.ToList()));         
 
             foreach (var f in result.SuccessfulFiles)
             {
@@ -342,12 +332,9 @@ namespace TeensyRom.Core.Storage.Services
         }
 
         public async Task DeleteFile(IFileItem file, TeensyStorageType storageType)
-        {      
-            await _mediator.Send(new DeleteFileCommand 
-            { 
-                Path = file.Path, 
-                StorageType = storageType 
-            });
+        {
+            await _mediator.Send(new DeleteFileCommand(storageType, file.Path));
+
             _storageCache.DeleteFile(file.Path);
 
             _storageCache
@@ -418,7 +405,7 @@ namespace TeensyRom.Core.Storage.Services
                 ClearCache(path);
             }
             _alert.Publish($"Refreshing cache for {path} and all nested directories.");
-            var response = await _mediator.Send(new GetDirectoryRecursiveCommand() { Path = path });
+            var response = await _mediator.Send(new GetDirectoryRecursiveCommand(_settings.StorageType, path));
 
             if (!response.IsSuccess) return;
 
@@ -439,7 +426,7 @@ namespace TeensyRom.Core.Storage.Services
                 EnsureFavorites();
                 SaveCacheToDisk();
             });
-            _alert.Publish($"Download completed for {_settings.TargetType} storage.");
+            _alert.Publish($"Download completed for {_settings.StorageType} storage.");
         }
 
         private DirectoryContent? FilterDirectoryContent(DirectoryContent directoryContent)

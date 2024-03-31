@@ -6,8 +6,9 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands.File.LaunchFile
 {
-    public class LaunchFileCommand : IRequest<LaunchFileResult>
+    public class LaunchFileCommand(TeensyStorageType storageType, string path) : IRequest<LaunchFileResult>
     {
-        public string Path { get; set; } = string.Empty;
+        public TeensyStorageType StorageType { get; } = storageType;
+        public string Path { get; } = path;
     }
 }

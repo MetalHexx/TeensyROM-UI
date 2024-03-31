@@ -29,7 +29,7 @@
             Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0 0 0 10"/>
 
         <Label 
-            Content="Default Storage:"
+            Content="Selected Storage:"
             ToolTip="This will determine the storage device that the application will bind to on the TR."
             Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
@@ -39,11 +39,11 @@
 
             <RadioButton 
                 Content="SD" 
-                IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.SD}}" />
+                IsChecked="{Binding Settings.StorageType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.SD}}" />
 
             <RadioButton 
                 Content="USB"                          
-                IsChecked="{Binding Settings.TargetType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.USB}}" 
+                IsChecked="{Binding Settings.StorageType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static core:TeensyStorageType.USB}}" 
                 Margin="10,0,0,0" />
         </StackPanel>
 

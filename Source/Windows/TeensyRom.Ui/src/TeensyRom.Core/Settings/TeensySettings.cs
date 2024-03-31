@@ -23,7 +23,7 @@ namespace TeensyRom.Core.Settings
     /// </summary>
     public record TeensySettings
     {
-        public TeensyStorageType TargetType { get; set; } = TeensyStorageType.SD;
+        public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;
         public string WatchDirectoryLocation { get; set; } = string.Empty;
         public string TargetRootPath { get; set; } = @"/";
         public List<TeensyTarget> FileTargets { get; set; } = [];

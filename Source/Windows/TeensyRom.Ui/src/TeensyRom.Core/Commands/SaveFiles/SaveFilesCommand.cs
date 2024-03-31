@@ -6,8 +6,8 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
 {
-    public class SaveFilesCommand : IRequest<SaveFilesResult>
+    public class SaveFilesCommand(List<FileTransferItem> files) : IRequest<SaveFilesResult>
     {
-        public List<FileTransferItem> Files { get; init; } = default!;
+        public List<FileTransferItem> Files { get; } = files;
     }
 }

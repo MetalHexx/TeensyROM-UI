@@ -16,6 +16,7 @@
     xmlns:SearchResultsToolbar="clr-namespace:TeensyRom.Ui.Controls.SearchResultsToolbar"
     xmlns:Discover="clr-namespace:TeensyRom.Ui.Features.Discover"
     xmlns:LibraryFilter="clr-namespace:TeensyRom.Ui.Controls.LibraryFilter"
+    xmlns:StorageSelector="clr-namespace:TeensyRom.Ui.Controls.StorageSelector"
     
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"           
@@ -92,6 +93,10 @@
 
             <DataTemplate DataType="{x:Type LibraryFilter:LibraryFilterViewModel}">
                 <LibraryFilter:LibraryFilterView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type StorageSelector:StorageSelectorViewModel}">
+                <StorageSelector:StorageSelectorView/>
             </DataTemplate>
 
         </ResourceDictionary>

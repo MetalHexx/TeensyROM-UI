@@ -2,7 +2,8 @@
 {
     public static class StorageConstants 
     {
-        public const string Cache_File_Path = @"Assets\System\Cache\Cache.json";
+        public const string Usb_Cache_File_Path = @"Assets\System\Cache\UsbCache.json";
+        public const string Sd_Cache_File_Path = @"Assets\System\Cache\SdCache.json";
         public const string Remote_Path_Root = @"/";
     }
 }

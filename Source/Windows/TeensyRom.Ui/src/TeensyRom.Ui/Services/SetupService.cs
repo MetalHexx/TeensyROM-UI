@@ -12,6 +12,7 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Features.Common.State.Player;
+using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.NavigationHost;
 
@@ -30,17 +31,21 @@ namespace TeensyRom.Ui.Services
         private readonly ISerialStateContext _serial;
         private readonly IDialogService _dialog;
         private readonly ICachedStorageService _storage;
-        private readonly IDiscoverContext _discover;
+        private readonly IDiscoverContext _discoverContext;
+        private readonly DiscoverViewModel _discoverView;
         private TeensySettings _settings = null!;
+        private bool _sdSuccess = false;
+        private bool _usbSuccess = false;
 
-        public SetupService(ISettingsService settingsService, INavigationService navigation, ISerialStateContext serial, IDialogService dialog, ICachedStorageService storage, IDiscoverContext discover)
+        public SetupService(ISettingsService settingsService, INavigationService navigation, ISerialStateContext serial, IDialogService dialog, ICachedStorageService storage, IDiscoverContext discoverContext, DiscoverViewModel discoverView)
         {
             _settingsService = settingsService;
             _navigation = navigation;
             _serial = serial;
             _dialog = dialog;
             _storage = storage;
-            _discover = discover;
+            _discoverContext = discoverContext;
+            _discoverView = discoverView;
             _settingsService.Settings.Subscribe(settings => _settings = settings);
         }
         public void ResetSetup()
@@ -139,7 +144,7 @@ namespace TeensyRom.Ui.Services
 
                     _navigation.NavigateTo(NavigationLocation.Settings);
 
-                    result = await _dialog.ShowConfirmation("Select Storage Device", "Here, you're going to select your preferred storage device.  \r\rFor now, the app only supports a single storage device at a time.");
+                    result = await _dialog.ShowConfirmation("Settings", "There are a few settings you should be aware of.  Let's review and configure them.");
 
                     if (!result)
                     {
@@ -147,7 +152,7 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
-                    result = await _dialog.ShowConfirmation("Automatic File Transfer", "Another feature you can configure here is the \"Watch Directory\".  \r\rWhen new .SID, .CRT, .PRG or .HEX firmware files are detected they will automatically be uploaded to the /auto-transfer directory on your TR. \r\rYou may find the download directory a good choice if you like the roam the web for your C64 content.  This is also handy for quickly downloading and updating your TeensyROM firmware.  As such, it's set as the default directory.\r\rFor privacy reasons, this feature is disabled by default.");
+                    result = await _dialog.ShowConfirmation("Automatic File Transfer", "The \"Watch Directory\" can be configured to make copying files your TR very easy.\r\rWhen new .SID, .CRT, .PRG or .HEX firmware files copied to the watch directory, they will be detected and automatically be uploaded to the /auto-transfer directory on your TR. \r\rYou may find the download directory a good choice if you like the roam the web for your C64 content.  Your download directory is set by default.");
 
                     if (!result)
                     {
@@ -155,7 +160,22 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
-                    result = await _dialog.ShowConfirmation("Auto-Launch on File Transfer", "Note, when you use the watch directory or file drag and drop to copy a file, you can optionally configure the file to auto-launch.  If you copy multiple files, the first file from the set will be launched.  This behavior is on by default.");
+                    result = await _dialog.ShowConfirmation("Automatic File Transfer", "Using the download directory also makes it easy to update your TR by downloading a new Firmware (hex file) using your browser.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+
+                    result = await _dialog.ShowConfirmation("Auto-Launch on File Transfer", "Note, when you copy files to the TR, you can optionally have them automatically launch.  This behavior is on by default.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+                    result = await _dialog.ShowConfirmation("Auto-Launch on File Transfer", "If you're a SID musician or a programmer, the watch directory combined with auto-launch can turn your TR into a realtime testing environment!");
 
                     if (!result)
                     {
@@ -183,7 +203,7 @@ namespace TeensyRom.Ui.Services
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async settings =>
             {
-                var result = await _dialog.ShowConfirmation("Next, we're going to index all the file locations on your selected storage device.\r\rThis will increase performance, stability, and unlock some fun search and randomization features.");
+                var result = await _dialog.ShowConfirmation("Let's Index", "Next, we're going to index all the file locations on your selected storage device.\r\rThis will increase performance, stability, and unlock some fun search and randomization features.");
 
                 if (!result)
                 {
@@ -191,7 +211,7 @@ namespace TeensyRom.Ui.Services
                     return;
                 }
 
-                result = await _dialog.ShowConfirmation("Copy Some Files!", $"Copy some files now before we start the indexing process.  \r\rTotally optional, but strongly recommended, consider copying HVSC and OneLoad64 onto your {_settings.TargetType} storage. You can always do this later if you want.\r\rClicking \"OK\" will start the indexing process.");
+                result = await _dialog.ShowConfirmation("Copy Some Files!", $"Copy some files now before we start the indexing process.  \r\rTotally optional, but strongly recommended, consider copying HVSC and OneLoad64 onto your {_settings.StorageType} storage. You can always do this later if you want.\r\rClicking \"OK\" will start the indexing process.");
 
                 if (!result)
                 {
@@ -199,69 +219,103 @@ namespace TeensyRom.Ui.Services
                     return;
                 }
 
-                await OnCache();
+                await OnCacheSD();
             });
         }
 
-        public async Task OnCache()
-        {
-            var cachingTask = _storage.CacheAll();
+        public async Task OnCacheSD()
+        {   
             var result = await _dialog.ShowConfirmation("Let's navigate back to the connection screen.  You can watch as all the files are read from the TR.\r\rHang tight as this will likely take several minutes if you have thousands of files.");
+            
             _navigation.NavigateTo(NavigationLocation.Connect);
 
-            _serial.CurrentState
-                .Where(s => s is SerialConnectedState)
-                .Take(1)
-                .ObserveOn(RxApp.MainThreadScheduler).Subscribe(async _ =>
-                {
-                    var result = await _dialog.ShowConfirmation("File Indexing Completed", $"Now that your {_settings.TargetType} file information has been indexed, lets head over to the Discover view and do some exploring.");
+            result = await _dialog.ShowConfirmation("SD Index", "First we'll check your SD card for files to index.");
+            if (!result)
+            {
+                await Complete();
+                return;
+            }
 
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
+            _settings.StorageType = TeensyStorageType.SD;
+            _settingsService.SaveSettings(_settings);
+            await _storage.CacheAll(StorageConstants.Remote_Path_Root);
 
-                    _navigation.NavigateTo(NavigationLocation.Discover);
+            await OnCacheUSB();
+        }
 
-                    result = await _dialog.ShowConfirmation("Indexing Files", "If you make any changes to your storage outside of this application, you can always re-index all your files by clicking on the download button in the upper right.  \r\rNote, if you avoid indexing all your files, your random play and search capabilities will be limited to the folders you have visited.");
+        public async Task OnCacheUSB()
+        {
+            var result = await _dialog.ShowConfirmation("USB Index", "Next we'll check your USB storage for files to index.");
+            if (!result)
+            {
+                await Complete();
+                return;
+            }
+            _settings.StorageType = TeensyStorageType.USB;
+            _settingsService.SaveSettings(_settings);
+            await _storage.CacheAll(StorageConstants.Remote_Path_Root);
 
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
+            result = await _dialog.ShowConfirmation("File Indexing Completed", $"Now that your file information has been indexed, lets head over to the Discover view and do some exploring.");
 
-                    result = await _dialog.ShowConfirmation("Discovery View", $"In the \"Discover\" view, you can navigate and launch music and games (or other programs) on your {_settings.TargetType} storage.  \r\rIn the first 2 sections, you should see the root directory structure and file listing of your {_settings.TargetType} storage.\r\rOn the right you will find some file information for the currently selected file.  If you copy the HVSC and OneLoad64 collection to your SD, you will be treated with some extra content here.");
+            if (!result)
+            {
+                await Complete();
+                return;
+            }
 
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
+            await OnDiscover();
+        }
 
-                    result = await _dialog.ShowConfirmation("Transfer Files", "You can drag and drop files or folders onto the file listing of the current directory to transfer files to the TR.  Optionally, copied files can be auto-launched. \r\rWarning, if you drag a folder that has other nested folders, they will all be copied!");
+        public async Task OnDiscover() 
+        {
+            _navigation.NavigateTo(NavigationLocation.Discover);
 
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
+            _discoverView.StorageSelector.SelectedStorage = TeensyStorageType.SD;
 
-                    result = await _dialog.ShowConfirmation("Feeling Lucky?", "Let's try discovering something to play. \r\rClick on the die button near the lower left of the screen next to the \"All\", \"Games\", and \"Music\" filters.");
+            var result = await _dialog.ShowConfirmation("Indexing Files", "If you make any changes to your storage outside of this application, you can always re-index all your files by clicking on the download button in the upper right.  \r\rNote, if you avoid indexing all your files, your random play and search capabilities will be limited to the folders you have visited.");
 
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
-                    OnLaunch();
-                });
+            if (!result)
+            {
+                await Complete();
+                return;
+            }
+
+            result = await _dialog.ShowConfirmation("Discovery View", $"In the \"Discover\" view, you can navigate and launch music and games (or other programs).  \r\rIn the first 2 sections, you should see the root directory structure and file listing of your {_settings.StorageType} storage.\r\rOn the right you will find some file information for the currently selected file.  If you copy the HVSC and OneLoad64 collection to your SD, you will be treated with some extra content here.");
+
+            if (!result)
+            {
+                await Complete();
+                return;
+            }
+
+            result = await _dialog.ShowConfirmation("Storage", $"{_settings.StorageType} storage is currently selected.  You can switch between SD and USB storage using the dropdown next to the \"Discover\" title.\r\rYour last selected storage device will be remembered next time you load the app.");
+
+            if (!result)
+            {
+                await Complete();
+                return;
+            }
+
+            result = await _dialog.ShowConfirmation("Transfer Files", "You can drag and drop files or folders onto the file listing of the current directory to transfer files to the TR.  Optionally, copied files can be auto-launched. \r\rWarning, if you drag a folder that has other nested folders, they will all be copied!");
+
+            if (!result)
+            {
+                await Complete();
+                return;
+            }
+
+            result = await _dialog.ShowConfirmation("Feeling Lucky?", "Let's try discovering something to play. \r\rClick on the die button near the lower left of the screen next to the \"All\", \"Games\", and \"Music\" filters.");
+
+            if (!result)
+            {
+                await Complete();
+                return;
+            }
         }
 
         public void OnLaunch()
         {
-            _discover.LaunchedFile
+            _discoverContext.LaunchedFile
                 .OfType<ILaunchableItem>()
                 .Where(file => file.IsCompatible is true)
                 .Take(1)
@@ -283,7 +337,7 @@ namespace TeensyRom.Ui.Services
         }
         public void OnLaunchGame()
         {
-            _discover.LaunchedFile
+            _discoverContext.LaunchedFile
                 .OfType<ILaunchableItem>()
                 .Skip(1)
                 .Take(1)
@@ -315,7 +369,7 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Play Toolbar", "Currently we're in \"Shuffle Mode\" as indicated by the blue crossed arrows on the right.  As you saw, the \"Next\" button played the next random file.  \r\rNote, in this application, shuffle mode works across your entire collection, not just the current directory.");
+                    result = await _dialog.ShowConfirmation("Play Toolbar", "Currently we're in \"Shuffle Mode\" as indicated by the blue crossed arrows on the right.  As you saw, the \"Next\" button played the next random file.  \r\rNote, in this application, shuffle mode works across your entire collection for the selected storage device, not just the current directory.");
 
                     if (!result)
                     {
@@ -335,7 +389,7 @@ namespace TeensyRom.Ui.Services
 
         public void OnNormalPlay()
         {
-            _discover.LaunchedFile
+            _discoverContext.LaunchedFile
                 .OfType<ILaunchableItem>()
                 .Skip(1)
                 .Take(1)

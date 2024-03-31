@@ -11,18 +11,16 @@ namespace TeensyRom.Core.Commands
     public class CopyFileHandler : IRequestHandler<CopyFileCommand, CopyFileResult>
     {
         private readonly ISerialStateContext _serialState;
-        private TeensySettings _settings = null!;
 
-        public CopyFileHandler(ISerialStateContext serialState, ISettingsService settings)
+        public CopyFileHandler(ISerialStateContext serialState)
         {
-            settings.Settings.Take(1).Subscribe(s => _settings = s);
             _serialState = serialState;
         }
 
         public Task<CopyFileResult> Handle(CopyFileCommand request, CancellationToken cancellationToken)
         {
             _serialState.SendIntBytes(TeensyToken.CopyFile, 2);
-            _serialState.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
+            _serialState.SendIntBytes(request.StorageType.GetStorageToken(), 1);
             _serialState.Write($"{request.SourcePath}\0");
             _serialState.Write($"{request.DestPath}\0");
             _serialState.HandleAck();

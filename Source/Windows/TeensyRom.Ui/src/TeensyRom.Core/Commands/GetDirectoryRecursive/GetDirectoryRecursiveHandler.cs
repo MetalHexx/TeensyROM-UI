@@ -15,13 +15,11 @@ namespace TeensyRom.Core.Commands
 {
     public class GetDirectoryRecursiveHandler : IRequestHandler<GetDirectoryRecursiveCommand, GetDirectoryRecursiveResult>
     {
-        private TeensySettings _settings = null!;
         private readonly ISerialStateContext _serialState;
         private readonly ILoggingService _log;
 
-        public GetDirectoryRecursiveHandler(ISerialStateContext serialState, ISettingsService settings, ILoggingService log)
+        public GetDirectoryRecursiveHandler(ISerialStateContext serialState, ILoggingService log)
         {
-            settings.Settings.Take(1).Subscribe(s => _settings = s);
             _serialState = serialState;
             _log = log;
         }
@@ -32,12 +30,12 @@ namespace TeensyRom.Core.Commands
             {
                 var result = new GetDirectoryRecursiveResult();
                 StringBuilder sb = new();
-                GetDirectoryContent(r.Path, result, sb);                
+                GetDirectoryContent(r.Path, r.StorageType, result, sb);                
                 return result;
             }, x);
         }
 
-        private void GetDirectoryContent(string path, GetDirectoryRecursiveResult result, StringBuilder directoryLogs)
+        private void GetDirectoryContent(string path, TeensyStorageType storageType, GetDirectoryRecursiveResult result, StringBuilder directoryLogs)
         {            
             Log($"=> Fetching: {path}", directoryLogs);
 
@@ -46,9 +44,9 @@ namespace TeensyRom.Core.Commands
             _serialState.SendIntBytes(TeensyToken.ListDirectory, 2);
 
             _serialState.HandleAck();
-            _serialState.SendIntBytes(_settings.TargetType.GetStorageToken(), 1);
-            _serialState.SendIntBytes(0, 2);
-            _serialState.SendIntBytes(9999, 2);
+            _serialState.SendIntBytes(storageType.GetStorageToken(), 1);
+            _serialState.SendIntBytes(0, 2); //skip
+            _serialState.SendIntBytes(9999, 2); //take
             _serialState.Write($"{path}\0");
 
             if (WaitForDirectoryStartToken() != TeensyToken.StartDirectoryList)
@@ -69,7 +67,7 @@ namespace TeensyRom.Core.Commands
 
             foreach (var directory in directoryContent.Directories)
             {
-                GetDirectoryContent(directory.Path, result, directoryLogs);
+                GetDirectoryContent(directory.Path, storageType, result, directoryLogs);
             }
         }
 

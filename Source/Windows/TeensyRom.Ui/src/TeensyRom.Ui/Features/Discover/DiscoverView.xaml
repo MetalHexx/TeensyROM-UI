@@ -27,11 +27,18 @@
                 <ColumnDefinition MaxWidth="600"/>
             </Grid.ColumnDefinitions>
 
-            <ContentControl 
-                Content="{Binding Title}" 
-                Grid.Row="0" Grid.Column="0"/>
+            <StackPanel Orientation="Horizontal"  >
+                
+            </StackPanel>
 
-            
+            <Grid HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5*"/>
+                    <ColumnDefinition Width="85"/>
+                </Grid.ColumnDefinitions>
+                <ContentControl Content="{Binding Title}" Grid.Column="0"/>
+                <ContentControl Content="{Binding StorageSelector}" Grid.Column="1"  Margin="10 0 0 0"/>
+            </Grid>
 
             <ContentControl 
                 Content="{Binding DirectoryChips}" 

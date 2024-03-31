@@ -38,7 +38,7 @@ namespace TeensyRom.Core.Storage
         private readonly ISettingsService _settingsService;
         private readonly IFileWatcher _fileWatcher;
         private readonly ISerialStateContext _serialState;
-        private readonly ICachedStorageService _storageService;
+        private TeensySettings _settings = null!;
         private IDisposable? _settingsSubscription = null!;
         private IDisposable? _fileWatchSubscription = null!;
 
@@ -47,31 +47,35 @@ namespace TeensyRom.Core.Storage
             _settingsService = settingsService;
             _fileWatcher = fileWatcher;
             _serialState = serialState;
-            _storageService = storageService;
-            _settingsSubscription = _settingsService.Settings.Subscribe(ToggleFileWatch);
+            _settingsSubscription = _settingsService.Settings
+                .Where(s => s is not null)
+                .Select(s => s with { })
+                .Subscribe(ToggleFileWatch);
         }
 
         public void ToggleFileWatch(TeensySettings settings)
-        {   
-            if(settings.AutoFileCopyEnabled is false)
+        {
+            _settings = settings;
+
+            if (_settings.AutoFileCopyEnabled is false)
             {
                 _fileWatcher.Disable();
                 return;
             }            
             _fileWatcher.Enable(
-                settings.WatchDirectoryLocation,
-                settings.FileTargets.Select(t => t.Extension).ToArray());
+                _settings.WatchDirectoryLocation,
+                _settings.FileTargets.Select(t => t.Extension).ToArray());
 
             _fileWatchSubscription ??= _fileWatcher.FilesFound
                 .CombineLatest(_serialState.CurrentState, (file, serialState) => (file, serialState))
-                .Where(fileSerial => fileSerial.serialState is SerialConnectedState && settings.AutoFileCopyEnabled)
+                .Where(fileSerial => fileSerial.serialState is SerialConnectedState && _settings.AutoFileCopyEnabled)
                 .Select(fileSerial => fileSerial.file)
                 .DistinctUntilChanged()
                 .Select(files => files.Select(f => new FileTransferItem
                 (
                     fileInfo: f,
-                    targetPath: settings.GetAutoTransferPath(f.Extension.GetFileType()),
-                    targetStorage: settings.TargetType
+                    targetPath: _settings.GetAutoTransferPath(f.Extension.GetFileType()),
+                    targetStorage: _settings.StorageType
                 )))
                 .Subscribe(fti => _watchFiles.OnNext(fti.ToList()));
         }       

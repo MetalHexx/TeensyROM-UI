@@ -42,7 +42,10 @@ namespace TeensyRom.Ui.Features.Settings
             _logService = logService;
             _settingsService = settings;
             _alert = alert;
-            _settingsService.Settings.ToPropertyEx(this, vm => vm.Settings);
+
+            _settingsService.Settings
+                .Select(s => s with { })
+                .ToPropertyEx(this, vm => vm.Settings);
 
             SaveSettingsCommand = ReactiveCommand.Create<Unit, Unit>(
                 execute: n => HandleSave(),

@@ -129,8 +129,8 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 .CombineLatest(_serialContext.CurrentState, _nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
                 .Where(state => state.serial is SerialConnectedState)
                 .Where(state => state.navView?.Type == _config.NavigationLocation)
-                .DistinctUntilChanged(state => state.settings.TargetType)
-                .Select(state => (path: _currentFilter, state.settings.TargetType))
+                .DistinctUntilChanged(state => state.settings.StorageType)
+                .Select(state => (path: _currentFilter, state.settings.StorageType))
                 .Select(storage => storage.path)
                 .Do(path => _tree.ResetDirectoryTree(StorageConstants.Remote_Path_Root))
                 .Subscribe(async path => await LoadDirectory(StorageConstants.Remote_Path_Root));
@@ -259,7 +259,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 return;
             }
 
-            var result = await _mediator.Send(new LaunchFileCommand { Path = file.Path });
+            var result = await _mediator.Send(new LaunchFileCommand(_settings.StorageType, file.Path));
 
             if (result.LaunchResult is LaunchFileResultType.ProgramError or LaunchFileResultType.SidError)
             {
@@ -312,7 +312,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         {
             if (_directoryState.Value is null) return Task.CompletedTask;
 
-            _storage.DeleteFile(file, _settings.TargetType);
+            _storage.DeleteFile(file, _settings.StorageType);
 
             _storage.ClearCache(_directoryState.Value.CurrentPath);
 
@@ -499,7 +499,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                         (
                             sourcePath: f.Path,
                             targetPath: targetBasePath.UnixPathCombine(targetRelativePath),
-                            targetStorage: _settings.TargetType
+                            targetStorage: _settings.StorageType
                         );
                     });
 

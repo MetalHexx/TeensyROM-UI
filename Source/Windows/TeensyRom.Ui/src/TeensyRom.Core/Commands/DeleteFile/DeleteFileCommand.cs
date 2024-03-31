@@ -11,10 +11,10 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands.DeleteFile
 {
-    public class DeleteFileCommand : IRequest<DeleteFileResult>
+    public class DeleteFileCommand(TeensyStorageType storageType, string path) : IRequest<DeleteFileResult>
     {
-        public string Path{ get; init; } = string.Empty;
-        public TeensyStorageType StorageType { get; set; }
+        public TeensyStorageType StorageType { get; } = storageType;
+        public string Path { get; } = path;
     }
 
     public class DeleteFileResult : TeensyCommandResult { }
