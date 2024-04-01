@@ -41,31 +41,29 @@ namespace TeensyRom.Ui.Features.Discover.State
             }
             _playingState.OnNext(PlayState.Playing);
 
-            if(_launchedFile.Value is GameItem)
+            if (_launchedFile.Value is SongItem)
             {
-                await PlayFile(_launchedFile.Value!);
-                return;
-            }
-            var result = await _mediator.Send(new ToggleMusicCommand());
+                var result = await _mediator.Send(new ToggleMusicCommand());
 
-            if (result.IsBusy)
-            {
-                _alert.Enqueue("Toggle music failed. Re-launching the current song.");
-                await PlayFile(_launchedFile.Value!);
-                return;
+                if (result.IsBusy)
+                {
+                    _alert.Enqueue("Toggle music failed. Re-launching the current song.");
+                }
             }
+            await PlayFile(_launchedFile.Value!);
+            return;
         }
 
         public override Task PlayPrevious()
         {
-            if (_launchedFile.Value is GameItem)
+            if (_launchedFile.Value is SongItem && _currentTime <= TimeSpan.FromSeconds(3))
             {
                 return base.PlayPrevious();
             }
-            if (_currentTime <= TimeSpan.FromSeconds(3))
+            if (_launchedFile.Value is ILaunchableItem)
             {
                 return base.PlayPrevious();
-            }
+            }            
             return PlayFile(_launchedFile.Value!);
         }
     }

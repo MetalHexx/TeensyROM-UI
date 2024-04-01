@@ -107,7 +107,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Do(_ => EnablePlayButton = false);
 
             playToggle
-                .Where(_ => File is GameItem)
+                .Where(_ => File is GameItem or HexItem)
                 .Subscribe(_ => 
                 {
                     EnableStopButton = true;

@@ -66,6 +66,8 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             }
             var index = launchableItems.IndexOf(currentFile);
 
+            if (!launchableItems.Any()) return null;
+
             var nextFile = index == 0
                 ? launchableItems.Last()
                 : launchableItems[--index];

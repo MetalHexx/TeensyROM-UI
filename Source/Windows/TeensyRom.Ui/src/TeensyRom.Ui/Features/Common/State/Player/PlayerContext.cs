@@ -231,22 +231,20 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             }
         }
 
-        public virtual async Task TogglePlay()
+        public virtual Task TogglePlay()
         {
             if (_playingState.Value is PlayState.Playing)
             {
                 _playingState.OnNext(PlayState.Stopped);
-                await StopFile();
-                return;
+                return StopFile();                
             }
             _playingState.OnNext(PlayState.Playing);
 
-            if (_launchedFile.Value is GameItem)
+            if(_launchedFile.Value is SongItem)
             {
-                await PlayFile(_launchedFile.Value);
-                return;
+                return _mediator.Send(new ToggleMusicCommand());                
             }
-            await _mediator.Send(new ToggleMusicCommand());
+            return PlayFile(_launchedFile.Value);
         }
 
         public virtual async Task PlayFile(ILaunchableItem file)
@@ -336,11 +334,11 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         {
             _playingState.OnNext(PlayState.Stopped);
 
-            if (_launchedFile.Value is GameItem)
+            if (_launchedFile.Value is SongItem)
             {
-                return _mediator.Send(new ResetCommand());
+                return _mediator.Send(new ToggleMusicCommand());
             }
-            return _mediator.Send(new ToggleMusicCommand());
+            return _mediator.Send(new ResetCommand());
         }
 
         public async Task<ILaunchableItem?> PlayRandom()

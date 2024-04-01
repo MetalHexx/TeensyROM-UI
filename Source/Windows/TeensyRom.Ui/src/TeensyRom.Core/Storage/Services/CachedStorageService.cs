@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using CsvHelper.Expressions;
+using MediatR;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.IO;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
+using TeensyRom.Core.Assets;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.DeleteFile;
 using TeensyRom.Core.Commands.File.LaunchFile;
@@ -99,6 +101,7 @@ namespace TeensyRom.Core.Storage.Services
             {
                 SongItem s => s.Clone(),
                 GameItem g => g.Clone(),
+                HexItem h => h.Clone(),
                 FileItem f => f.Clone(),                
                 _ => throw new TeensyException("Unknown file type")
             };
@@ -274,37 +277,41 @@ namespace TeensyRom.Core.Storage.Services
         private List<IFileItem> MapAndOrderFiles(DirectoryContent? directoryContent)
         {
             return directoryContent?.Files
-                .Select(file =>
-                {
-                    if (file.FileType is TeensyFileType.Sid) 
-                    {
-                        var song = new SongItem 
-                        { 
-                            Name = file.Name, 
-                            Title = file.Name, 
-                            Path = file.Path, 
-                            Size = file.Size,
-                            SourcePath = file.Path
-                        };
-                        _sidMetadata.EnrichSong(song);
-                        return song;
-                    }
-                    if (file.FileType is TeensyFileType.Crt or TeensyFileType.Prg)
-                    {
-                        var game = new GameItem
-                        {
-                            Name = file.Name,
-                            Path = file.Path,
-                            Size = file.Size,
-                            SourcePath = file.Path
-                        };
-                        _gameMetadata.EnrichGame(game);
-                        return game;
-                    }
-                    return file;
-                })
-            .OrderBy(file => file.Name)
-            .ToList() ?? [];
+                .Select(MapFile)
+                .OrderBy(file => file.Name)
+                .ToList() ?? [];
+        }
+
+        public IFileItem MapFile(IFileItem file) 
+        {
+            var mappedFile = file.MapFileItem();
+            return mappedFile switch
+            {
+                SongItem s => _sidMetadata.EnrichSong(s),
+                GameItem g => _gameMetadata.EnrichGame(g),
+                HexItem h => MapHexItem(h),
+                _ => file
+            };
+        }
+
+        private HexItem MapHexItem(HexItem h) 
+        {
+            h.Title = $"{h.Name[..h.Name.LastIndexOf('.')]}";
+            h.Creator = "Firmware Update";
+            h.Meta1 = "Travis Smith";
+            h.Meta2 = "Sensorium Embedded";
+            h.Description = "Launch this to update your TeensyROM cartridge with a new firmware version.\r\rAfter launching, look at the C64 display for further instructions.";
+
+            File.ReadAllText(GameConstants.Game_Image_Metadata_File_Path);
+            var hardwareFileInfo = new FileInfo(AssetConstants.TeensyRomHardwareFilePath);
+
+            h.Images.Add(new ViewableItemImage
+            {
+                FileName = hardwareFileInfo.Name,
+                Path = hardwareFileInfo.FullName,
+                Source = "SensoriumEmbedded"
+            });
+            return h;
         }
 
         public async Task<SaveFilesResult> SaveFiles(IEnumerable<FileTransferItem> files)
@@ -316,7 +323,7 @@ namespace TeensyRom.Core.Storage.Services
 
             foreach (var f in result.SuccessfulFiles)
             {
-                var storageItem = f.ToStorageItem();
+                var storageItem = f.ToFileItem();
 
                 if (storageItem is SongItem song) _sidMetadata.EnrichSong(song);
                 if (storageItem is GameItem game) _gameMetadata.EnrichGame(game);
