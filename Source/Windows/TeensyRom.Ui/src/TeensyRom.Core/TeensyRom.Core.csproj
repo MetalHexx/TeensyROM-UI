@@ -27,7 +27,10 @@
     <None Update="Assets\Music\Images\Composers\Composers.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Assets\Music\Metadata\SIDlist_79_UTF8.csv">
+    <None Update="Assets\Music\SidList\SIDlist_79_UTF8.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\Music\SidList\SIDlist_80_UTF8.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Assets\Other\Sensorium.png">
