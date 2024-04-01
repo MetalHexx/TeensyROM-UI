@@ -52,9 +52,19 @@ namespace TeensyRom.Core.Music.Sid
 
             if (currentDirectory is null) return string.Empty;
 
-            var relativePath = MusicConstants.Hvsc_Local_Path;
+            var sidListPath = Path.Combine(currentDirectory, MusicConstants.SidList_Local_Path);
 
-            return Path.Combine(currentDirectory, relativePath);
+            if (!Directory.Exists(sidListPath)) return string.Empty;
+
+            var csvFiles = Directory.GetFiles(sidListPath, "*.csv");
+
+            if (csvFiles.Length == 0) return string.Empty;
+
+            return csvFiles
+                .Select(file => new FileInfo(file))
+                .OrderByDescending(fi => fi.LastWriteTime)
+                .First()
+                .FullName;
         }
 
         public SongItem EnrichSong(SongItem song)
