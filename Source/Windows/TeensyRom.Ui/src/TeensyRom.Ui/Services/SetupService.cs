@@ -152,7 +152,7 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
-                    result = await _dialog.ShowConfirmation("Automatic File Transfer", "The \"Watch Directory\" can be configured to make copying files your TR very easy.\r\rWhen new .SID, .CRT, .PRG or .HEX firmware files copied to the watch directory, they will be detected and automatically be uploaded to the /auto-transfer directory on your TR. \r\rYou may find the download directory a good choice if you like the roam the web for your C64 content.  Your download directory is set by default.");
+                    result = await _dialog.ShowConfirmation("Automatic File Transfer", "The \"Watch Directory\" can be configured to automate copying files your TR.\r\rWhen new .SID, .CRT, .PRG or .HEX firmware files copied to the watch directory, they will be detected and automatically be uploaded to the /auto-transfer directory on your TR. \r\rYou may find the download directory a good choice if you like the roam the web for your C64 content.  Your download directory is set by default.");
 
                     if (!result)
                     {
@@ -238,7 +238,7 @@ namespace TeensyRom.Ui.Services
 
             _settings.StorageType = TeensyStorageType.SD;
             _settingsService.SaveSettings(_settings);
-            await _storage.CacheAll(StorageConstants.Remote_Path_Root);
+            //await _storage.CacheAll(StorageConstants.Remote_Path_Root);
 
             await OnCacheUSB();
         }
@@ -253,7 +253,7 @@ namespace TeensyRom.Ui.Services
             }
             _settings.StorageType = TeensyStorageType.USB;
             _settingsService.SaveSettings(_settings);
-            await _storage.CacheAll(StorageConstants.Remote_Path_Root);
+            //await _storage.CacheAll(StorageConstants.Remote_Path_Root);
 
             result = await _dialog.ShowConfirmation("File Indexing Completed", $"Now that your file information has been indexed, lets head over to the Discover view and do some exploring.");
 
@@ -296,7 +296,7 @@ namespace TeensyRom.Ui.Services
                 return;
             }
 
-            result = await _dialog.ShowConfirmation("Transfer Files", "You can drag and drop files or folders onto the file listing of the current directory to transfer files to the TR.  Optionally, copied files can be auto-launched. \r\rWarning, if you drag a folder that has other nested folders, they will all be copied!");
+            result = await _dialog.ShowConfirmation("Transfer Files", "You can drag and drop files or folders onto the file listing of the current directory to transfer files to the TR. \r\rWarning, if you drag a folder that has other nested folders, they will all be copied!");
 
             if (!result)
             {
@@ -311,6 +311,7 @@ namespace TeensyRom.Ui.Services
                 await Complete();
                 return;
             }
+            OnLaunch();
         }
 
         public void OnLaunch()
@@ -419,7 +420,7 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Favorite Your Favorites!", $"Whenever you see a \"Heart\" button throughout the application, when you click it, the file will be saved to the /favorites folder.  \r\rThis will physically copy the file there, so you can find the favorites while using TR C64 UI directly as well.");
+                    result = await _dialog.ShowConfirmation("Tag Your Favorites!", $"Whenever you see a \"Heart\" button throughout the application, when you click it, the file will be saved to the /favorites folder.  \r\rThis will physically copy the file there, so you can find the favorites while using TR C64 UI directly as well.");
 
                     if (!result)
                     {
