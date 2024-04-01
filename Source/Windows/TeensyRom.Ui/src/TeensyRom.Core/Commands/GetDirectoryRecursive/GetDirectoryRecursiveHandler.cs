@@ -37,7 +37,7 @@ namespace TeensyRom.Core.Commands
 
         private void GetDirectoryContent(string path, TeensyStorageType storageType, GetDirectoryRecursiveResult result, StringBuilder directoryLogs)
         {            
-            Log($"=> Fetching: {path}", directoryLogs);
+            Log($"=> Indexing: {path}", directoryLogs);
 
             DirectoryContent? directoryContent;
 
