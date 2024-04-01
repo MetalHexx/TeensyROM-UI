@@ -153,7 +153,7 @@
 
                 <StackPanel 
                     Grid.Row="2" 
-                    Visibility="{Binding SelectedFile.Description, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"                    
+                    Visibility="{Binding SelectedFile.MetadataSource, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"                    
                     Orientation="Horizontal" Margin="0 5 10 10" HorizontalAlignment="Right">
 
                     <TextBlock 
