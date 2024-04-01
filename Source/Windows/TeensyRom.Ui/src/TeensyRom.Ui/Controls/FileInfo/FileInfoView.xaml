@@ -40,18 +40,18 @@
                         <Border 
                             Visibility="{Binding SelectedFile.Meta1, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
                             Grid.Column="1" 
-                            BorderBrush="{StaticResource EnabledColor}"  BorderThickness="1" CornerRadius="12" Padding="5" HorizontalAlignment="Right" Height="20" >
+                            BorderBrush="{StaticResource EnabledColor}"  BorderThickness="1" CornerRadius="12" Padding="5" HorizontalAlignment="Right" Height="24" MinWidth="30" >
                             <TextBlock 
                                 Text="{Binding SelectedFile.Meta1}"
-                                Foreground="{StaticResource EnabledColor}" FontSize="10" VerticalAlignment="Center">
+                                Foreground="{StaticResource EnabledColor}" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center">
                             </TextBlock>
                         </Border>
 
                         <Border 
                             Visibility="{Binding SelectedFile.Meta2, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
                             Grid.Column="2" 
-                            BorderBrush="{StaticResource PrimaryHueLightBrush}" BorderThickness="1" CornerRadius="12" Padding="5" HorizontalAlignment="Right" 
-                            Height="20" Margin="10 0 10 0">
+                            BorderBrush="{StaticResource PrimaryHueLightBrush}" BorderThickness="1" CornerRadius="12" Padding="5" HorizontalAlignment="Right" Height="24" MinWidth="30" 
+                            Margin="10 0 10 0">
                             <TextBlock 
                                 Text="{Binding SelectedFile.Meta2}"                              
                                 Foreground="{StaticResource PrimaryHueLightBrush}" FontSize="10" VerticalAlignment="Center">

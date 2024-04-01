@@ -72,7 +72,6 @@ namespace TeensyRom.Core.Games
             var images = _gameMetadata.Where(m => m.FileName == imageFileName);
 
             game.Images.AddRange(images);
-            game.Title = game.Name[..game.Name.LastIndexOf('.')];
 
             return game;
         }
