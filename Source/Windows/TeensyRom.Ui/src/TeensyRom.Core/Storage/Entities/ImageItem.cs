@@ -4,12 +4,13 @@ using TeensyRom.Core.Common;
 
 namespace TeensyRom.Core.Storage.Entities
 {
-    public class ImageItem : FileItem, ILaunchableItem
+    public class ImageItem : FileItem, ILaunchableItem, IContinuousPlayItem
     {
         public override string Creator => GetExtensionShortDescription();
         public override string Description => GetExtensionLongDescription();
         public override string Title => $"{Name[..Name.LastIndexOf('.')]}";
         public override string Meta1 => Name[(Name.LastIndexOf('.') + 1)..];
+        public TimeSpan PlayLength { get; set; } =  TimeSpan.FromMinutes(1);
 
         private string GetExtensionShortDescription() 
         {
@@ -41,6 +42,7 @@ namespace TeensyRom.Core.Storage.Entities
             Name = Name,
             Path = Path,
             Size = Size,
+            PlayLength = PlayLength,
             IsFavorite = IsFavorite,
             ReleaseInfo = ReleaseInfo,
             ShareUrl = ShareUrl,

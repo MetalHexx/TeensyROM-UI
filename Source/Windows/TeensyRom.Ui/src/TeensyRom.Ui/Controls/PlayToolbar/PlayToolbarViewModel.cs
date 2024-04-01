@@ -107,7 +107,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Do(_ => EnablePlayButton = false);
 
             playToggle
-                .Where(_ => File is GameItem or HexItem or ImageItem)
+                .Where(_ => File is GameItem or HexItem)
                 .Subscribe(_ => 
                 {
                     EnableStopButton = true;
@@ -123,11 +123,19 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     EnablePauseButton = true;
                 });
 
-            file
-                .OfType<SongItem>()
-                .Subscribe(song => InitializeProgress(playNext, song));
+            playToggle
+               .Where(_ => File is ImageItem)
+               .Subscribe(_ =>
+               {
+                   EnableStopButton = true;
+                   EnablePauseButton = false;                   
+               });
 
-            file.Select(file => file is SongItem)
+            file
+                .OfType<IContinuousPlayItem>()
+                .Subscribe(item => InitializeProgress(playNext, item));
+
+            file.Select(file => file is IContinuousPlayItem)
                 .ToPropertyEx(this, vm => vm.ProgressEnabled);
 
             TogglePlayCommand = ReactiveCommand.CreateFromTask(_ => 
@@ -144,16 +152,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             NavigateToFileDirCommand = ReactiveCommand.CreateFromTask(_ => loadDirectory(File!.Path.GetUnixParentPath()!));
         }
 
-        private void InitializeProgress(Func<Task> playNext, SongItem song)
+        private void InitializeProgress(Func<Task> playNext, IContinuousPlayItem item)
         {
             if(_timer == null) return;
 
             _timerCompleteSubscription?.Dispose();
 
-            _timer?.StartNewTimer(song.SongLength);
+            _timer?.StartNewTimer(item.PlayLength);
 
             _timerCompleteSubscription = _timer?.CurrentTime
-                .Select(t => new TimeProgressViewModel(song.SongLength, t))
+                .Select(t => new TimeProgressViewModel(item.PlayLength, t))
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToPropertyEx(this, vm => vm.Progress);
 

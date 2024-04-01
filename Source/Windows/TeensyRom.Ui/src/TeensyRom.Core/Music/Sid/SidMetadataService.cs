@@ -85,7 +85,7 @@ namespace TeensyRom.Core.Music.Sid
 
             song.Creator = sidRecord.Author;
             song.Title = sidRecord.Title;
-            song.SongLength = sidRecord.SongLengthSpan;
+            song.PlayLength = sidRecord.SongLengthSpan;
             song.ReleaseInfo = sidRecord.Released;
             song.Description = CleanDescription(sidRecord.StilEntry);
             song.Meta1 = sidRecord.Clock;
