@@ -81,7 +81,7 @@
                 
             </StackPanel>
 
-            <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="30 3 0 0">
+            <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="30 4 0 0">
                 <Button
                     Content="{Binding File.Title, Mode=OneWay}"
                     Command="{Binding NavigateToFileDirCommand}"

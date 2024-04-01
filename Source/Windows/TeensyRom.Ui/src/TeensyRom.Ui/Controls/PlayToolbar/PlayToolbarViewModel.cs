@@ -77,7 +77,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             showReleaseInfo.CombineLatest(showCreatorInfo, (release, creator) => release && creator)
                 .ToPropertyEx(this, vm => vm.ShowReleaseCreatorSeperator);
 
-            showReleaseInfo.CombineLatest(showCreatorInfo, (release, creator) => !(release && creator))
+            showReleaseInfo.CombineLatest(showCreatorInfo, (release, creator) => !(release || creator))
                 .Select(x => x)
                 .ToPropertyEx(this, vm => vm.ShowTitleOnly);
 
