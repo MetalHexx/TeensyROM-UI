@@ -18,7 +18,8 @@ namespace TeensyRom.Core.Storage.Entities
             MetadataSource = MetadataSource,
             Meta1 = Meta1,
             Meta2 = Meta2,
-            SourcePath = SourcePath
+            SourcePath = SourcePath,
+            Images = Images.Select(x => x.Clone()).ToList()
         };
     }
 }
