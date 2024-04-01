@@ -21,14 +21,26 @@ namespace TeensyRom.Core.Storage.Entities
     }
     public static class StorageFileExtensions
     {
-        public static StorageItem ToStorageItem(this FileTransferItem fileInfo)
+        public static IFileItem ToFileItem(this FileTransferItem fileInfo)
         {
             return fileInfo.Type switch {                 
-                TeensyFileType.Sid => new SongItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size, StorageType = fileInfo.TargetStorage },
-                TeensyFileType.Crt => new GameItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size, StorageType = fileInfo.TargetStorage },
-                TeensyFileType.Prg => new GameItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size, StorageType = fileInfo.TargetStorage },
-                TeensyFileType.Hex => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size, StorageType = fileInfo.TargetStorage },
-                _ => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size, StorageType = fileInfo.TargetStorage },
+                TeensyFileType.Sid => new SongItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+                TeensyFileType.Crt => new GameItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+                TeensyFileType.Prg => new GameItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+                TeensyFileType.Hex => new HexItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+                _ => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+            };
+        }
+
+        public static IFileItem MapFileItem(this IFileItem fileItem)
+        {
+            return fileItem.FileType switch
+            {
+                TeensyFileType.Sid => new SongItem { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
+                TeensyFileType.Crt => new GameItem { Name = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
+                TeensyFileType.Prg => new GameItem { Name = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size},
+                TeensyFileType.Hex => new HexItem { Name = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
+                _ => new FileItem { Name = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
             };
         }
     }
@@ -44,7 +56,7 @@ namespace TeensyRom.Core.Storage.Entities
             };
         }
 
-        public static TeensyFileType GetFileType(this string extension) => extension switch
+        public static TeensyFileType GetFileType(this string extension) => extension.ToLower() switch
         {
             ".sid" => TeensyFileType.Sid,
             ".crt" => TeensyFileType.Crt,
