@@ -97,7 +97,14 @@ namespace TeensyRom.Tests.Integration
                 TeensyFileType.Sid => ".sid",
                 TeensyFileType.Crt => ".crt",
                 TeensyFileType.Prg => ".prg",
+                TeensyFileType.P00 => ".p00",
                 TeensyFileType.Hex => ".hex",
+                TeensyFileType.Kla => ".kla",
+                TeensyFileType.Koa => ".koa",
+                TeensyFileType.Art => ".art",
+                TeensyFileType.Aas => ".aas",
+                TeensyFileType.Hpi => ".hpi",
+
                 _ => ".tmp", // default extension for Unknown or other types
             };
         }

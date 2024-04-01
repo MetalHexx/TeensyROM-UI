@@ -10,7 +10,8 @@ namespace TeensyRom.Core.Settings
         All,
         Programs,
         Music,
-        Hex
+        Hex,
+        Images
     }
     public class TeensyFilter
     {
@@ -71,6 +72,12 @@ namespace TeensyRom.Core.Settings
                     Type = TeensyFilterType.Hex,
                     DisplayName = "Hex",
                     Icon = "ArrowUpBoldHexagonOutline"
+                },
+                new TeensyFilter
+                {
+                    Type = TeensyFilterType.Images,
+                    DisplayName = "Images",
+                    Icon = "FileImageOutline"
                 }
             });
             FileTargets.AddRange(new List<TeensyTarget>
@@ -91,6 +98,13 @@ namespace TeensyRom.Core.Settings
                 },
                 new TeensyTarget
                 {
+                    Type = TeensyFileType.P00,
+                    FilterType = TeensyFilterType.Programs,
+                    DisplayName = "P00",
+                    Extension = ".p00"
+                },
+                new TeensyTarget
+                {
                     Type = TeensyFileType.Crt,
                     FilterType = TeensyFilterType.Programs,
                     DisplayName = "CRT",
@@ -102,6 +116,41 @@ namespace TeensyRom.Core.Settings
                     FilterType = TeensyFilterType.Hex,
                     DisplayName = "HEX",
                     Extension = ".hex"
+                },
+                new TeensyTarget
+                {
+                    Type = TeensyFileType.Kla,
+                    FilterType = TeensyFilterType.Images,
+                    DisplayName = "KLA",
+                    Extension = ".kla"
+                },
+                new TeensyTarget
+                {
+                    Type = TeensyFileType.Koa,
+                    FilterType = TeensyFilterType.Images,
+                    DisplayName = "KOA",
+                    Extension = ".koa"
+                },
+                new TeensyTarget
+                {
+                    Type = TeensyFileType.Art,
+                    FilterType = TeensyFilterType.Images,
+                    DisplayName = "ART",
+                    Extension = ".art"
+                },
+                new TeensyTarget
+                {
+                    Type = TeensyFileType.Aas,
+                    FilterType = TeensyFilterType.Images,
+                    DisplayName = "AAS",
+                    Extension = ".aas"
+                },
+                new TeensyTarget
+                {
+                    Type = TeensyFileType.Hpi,
+                    FilterType = TeensyFilterType.Images,
+                    DisplayName = "HPI",
+                    Extension = ".hpi"
                 }
             });
         }
@@ -123,7 +172,13 @@ namespace TeensyRom.Core.Settings
             {
                 TeensyFileType.Sid => "/favorites/music",
                 TeensyFileType.Prg => "/favorites/games",
+                TeensyFileType.P00 => "/favorites/games",
                 TeensyFileType.Crt => "/favorites/games",
+                TeensyFileType.Kla => "/favorites/images",
+                TeensyFileType.Koa => "/favorites/images",
+                TeensyFileType.Art => "/favorites/images",
+                TeensyFileType.Aas => "/favorites/images",
+                TeensyFileType.Hpi => "/favorites/images",
                 TeensyFileType.Hex => "/firmware",
 
                 _ => throw new TeensyException("This file type is not supported for favoriting")
@@ -136,7 +191,13 @@ namespace TeensyRom.Core.Settings
             {
                 TeensyFileType.Sid => AutoTransferPath.UnixPathCombine("music"),
                 TeensyFileType.Prg => AutoTransferPath.UnixPathCombine("games"),
+                TeensyFileType.P00 => AutoTransferPath.UnixPathCombine("games"),
                 TeensyFileType.Crt => AutoTransferPath.UnixPathCombine("games"),
+                TeensyFileType.Kla => AutoTransferPath.UnixPathCombine("images"),
+                TeensyFileType.Koa => AutoTransferPath.UnixPathCombine("images"),
+                TeensyFileType.Art => AutoTransferPath.UnixPathCombine("images"),
+                TeensyFileType.Aas => AutoTransferPath.UnixPathCombine("images"),
+                TeensyFileType.Hpi => AutoTransferPath.UnixPathCombine("images"),
                 TeensyFileType.Hex => "/firmware",
 
                 _ => throw new TeensyException("This file type is not supported for auto-transfer")

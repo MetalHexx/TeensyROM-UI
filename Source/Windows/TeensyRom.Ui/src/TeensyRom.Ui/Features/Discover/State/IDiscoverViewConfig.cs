@@ -14,7 +14,18 @@ namespace TeensyRom.Ui.Features.Discover.State
 
     public class DiscoverViewConfig : IDiscoverViewConfig
     {
-        public List<TeensyFileType> FileTypes { get; set; } = [TeensyFileType.Sid, TeensyFileType.Crt, TeensyFileType.Prg];
+        public List<TeensyFileType> FileTypes { get; set; } = 
+        [
+            TeensyFileType.Sid, 
+            TeensyFileType.Crt, 
+            TeensyFileType.Prg,
+            TeensyFileType.P00,
+            TeensyFileType.Kla,
+            TeensyFileType.Koa,
+            TeensyFileType.Art,
+            TeensyFileType.Aas,
+            TeensyFileType.Hpi
+        ];
         public NavigationLocation NavigationLocation { get; set; } = NavigationLocation.Discover;
         public TeensyFilterType FilterType { get; set; } = TeensyFilterType.All;
     }

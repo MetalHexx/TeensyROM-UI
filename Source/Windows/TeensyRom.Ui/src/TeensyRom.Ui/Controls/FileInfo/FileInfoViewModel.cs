@@ -25,7 +25,7 @@ namespace TeensyRom.Ui.Controls.FileInfo
     }
     public class FileInfoViewModel : ReactiveObject
     {
-        [ObservableAsProperty] public ObservableCollection<ImageAndMetadata> ImageSources { get; } = [];
+        [ObservableAsProperty] public ObservableCollection<ImageAndMetadata>? ImageSources { get; } = [];
         [ObservableAsProperty] public string? Title { get; private set; }        
         [ObservableAsProperty] public string? LoadingScreenPath { get; }
         [ObservableAsProperty] public string? ScreenshotPath { get; }
@@ -43,6 +43,10 @@ namespace TeensyRom.Ui.Controls.FileInfo
                 .ToPropertyEx(this, x => x.Title);
 
             selectedFile.ToPropertyEx(this, x => x.SelectedFile);
+
+            selectedFile
+                .OfType<ImageItem>()
+                .Subscribe(_ => ImageSources?.Clear());
 
             selectedFile
                 .OfType<IViewableItem>()

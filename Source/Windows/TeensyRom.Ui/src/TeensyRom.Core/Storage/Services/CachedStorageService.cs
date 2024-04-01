@@ -102,6 +102,7 @@ namespace TeensyRom.Core.Storage.Services
                 SongItem s => s.Clone(),
                 GameItem g => g.Clone(),
                 HexItem h => h.Clone(),
+                ImageItem image => image.Clone(),
                 FileItem f => f.Clone(),                
                 _ => throw new TeensyException("Unknown file type")
             };
@@ -289,30 +290,13 @@ namespace TeensyRom.Core.Storage.Services
             {
                 SongItem s => _sidMetadata.EnrichSong(s),
                 GameItem g => _gameMetadata.EnrichGame(g),
-                HexItem h => MapHexItem(h),
+                HexItem h => h,
+                ImageItem i => i,
                 _ => file
             };
         }
 
-        private HexItem MapHexItem(HexItem h) 
-        {
-            h.Title = $"{h.Name[..h.Name.LastIndexOf('.')]}";
-            h.Creator = "Firmware Update";
-            h.Meta1 = "Travis Smith";
-            h.Meta2 = "Sensorium Embedded";
-            h.Description = "Launch this to update your TeensyROM cartridge with a new firmware version.\r\rAfter launching, look at the C64 display for further instructions.";
-
-            File.ReadAllText(GameConstants.Game_Image_Metadata_File_Path);
-            var hardwareFileInfo = new FileInfo(AssetConstants.TeensyRomHardwareFilePath);
-
-            h.Images.Add(new ViewableItemImage
-            {
-                FileName = hardwareFileInfo.Name,
-                Path = hardwareFileInfo.FullName,
-                Source = "SensoriumEmbedded"
-            });
-            return h;
-        }
+        
 
         public async Task<SaveFilesResult> SaveFiles(IEnumerable<FileTransferItem> files)
         {

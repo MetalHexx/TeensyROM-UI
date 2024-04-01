@@ -5,7 +5,13 @@
         Sid,
         Crt,
         Prg,
+        P00,
         Hex,
+        Kla,
+        Koa,
+        Art,
+        Aas,
+        Hpi,
         Unknown
     }
 }

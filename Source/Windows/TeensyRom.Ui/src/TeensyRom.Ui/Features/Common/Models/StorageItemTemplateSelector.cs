@@ -12,6 +12,7 @@ namespace TeensyRom.Ui.Features.Common.Models
         public DataTemplate SongTemplate { get; set; } = new();
         public DataTemplate GameTemplate { get; set; } = new();
         public DataTemplate HexTemplate { get; set; } = new();
+        public DataTemplate ImageTemplate { get; set; } = new();
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
@@ -21,6 +22,7 @@ namespace TeensyRom.Ui.Features.Common.Models
                 SongItem => SongTemplate,
                 GameItem _ => GameTemplate,
                 HexItem _ => HexTemplate,
+                ImageItem _ => ImageTemplate,
                 FileItem _ => FileTemplate,
                 _ => base.SelectTemplate(item, container),
             };
