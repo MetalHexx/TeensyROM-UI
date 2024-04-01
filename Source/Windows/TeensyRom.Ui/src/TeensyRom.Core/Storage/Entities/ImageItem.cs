@@ -8,7 +8,8 @@ namespace TeensyRom.Core.Storage.Entities
     {
         public override string Creator => GetExtensionShortDescription();
         public override string Description => GetExtensionLongDescription();
-        public override string Title => $"{Name[..Name.LastIndexOf('.')]}";        
+        public override string Title => $"{Name[..Name.LastIndexOf('.')]}";
+        public override string Meta1 => Name[(Name.LastIndexOf('.') + 1)..];
 
         private string GetExtensionShortDescription() 
         {
@@ -27,11 +28,11 @@ namespace TeensyRom.Core.Storage.Entities
         {
             return FileType switch
             {
-                TeensyFileType.Kla => "A bitmap graphics file for the Commodore 64, created with the KoalaPainter software. Characterized by its 160x200 pixel resolution and 16-color palette, Koala files encapsulate the vibrant pixel art era of the 1980s and are notable for their widespread use alongside the KoalaPad peripheral.",
-                TeensyFileType.Koa => "Identical to KLA, the KOA format hails from the same-named KoalaPainter software. With a resolution of 160x200 and a 16-color palette, it stands as a hallmark of C64 artistry, easily recognizable by its chunky pixels and vivid color schemes reflecting the creative potential of early computer art.",
-                TeensyFileType.Art => "A file format from Art Studio, a prominent bitmap graphics editor on the C64. It features a resolution of 160x200 pixels using a 16-color palette and was celebrated for bringing detailed pixel graphics editing to the home user, showcasing the graphic capabilities of the C64.",
-                TeensyFileType.Aas => "The successor to Art Studio, the AAS format comes from Advanced Art Studio, pushing the C64's graphical prowess further. It maintained the standard 160x200 resolution with a 16-color palette but introduced enhanced tools and features for the burgeoning community of home computer artists.",
-                TeensyFileType.Hpi => "A less common but technically intriguing format used by Hi-Pic Creator, a C64 program designed for high-resolution images. HPI files often pushed beyond standard C64 limitations, experimenting with resolutions and color techniques that paved the way for future graphics innovations on home computers.",
+                TeensyFileType.Kla => "About KLA Files:\r\rA bitmap graphics file for the Commodore 64, created with the KoalaPainter software. Characterized by its 160x200 pixel resolution and 16-color palette, Koala files encapsulate the vibrant pixel art era of the 1980s and are notable for their widespread use alongside the KoalaPad peripheral.",
+                TeensyFileType.Koa => "About KOA Files:\r\rIdentical to KLA, the KOA format hails from the same-named KoalaPainter software. With a resolution of 160x200 and a 16-color palette, it stands as a hallmark of C64 artistry, easily recognizable by its chunky pixels and vivid color schemes reflecting the creative potential of early computer art.",
+                TeensyFileType.Art => "About ART Files:\r\rA file format from Art Studio, a prominent bitmap graphics editor on the C64. It features a resolution of 160x200 pixels using a 16-color palette and was celebrated for bringing detailed pixel graphics editing to the home user, showcasing the graphic capabilities of the C64.",
+                TeensyFileType.Aas => "About AAS Files:\r\rThe successor to Art Studio, the AAS format comes from Advanced Art Studio, pushing the C64's graphical prowess further. It maintained the standard 160x200 resolution with a 16-color palette but introduced enhanced tools and features for the burgeoning community of home computer artists.",
+                TeensyFileType.Hpi => "About HPI Files:\r\rA less common but technically intriguing format used by Hi-Pic Creator, a C64 program designed for high-resolution images. HPI files often pushed beyond standard C64 limitations, experimenting with resolutions and color techniques that paved the way for future graphics innovations on home computers.",
                 _ => "Unknown File Type"
             };
         }
@@ -44,7 +45,6 @@ namespace TeensyRom.Core.Storage.Entities
             ReleaseInfo = ReleaseInfo,
             ShareUrl = ShareUrl,
             MetadataSource = MetadataSource,
-            Meta1 = Meta1,
             Meta2 = Meta2,
             SourcePath = SourcePath
         };
