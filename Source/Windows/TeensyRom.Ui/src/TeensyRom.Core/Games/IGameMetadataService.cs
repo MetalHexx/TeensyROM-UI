@@ -4,6 +4,6 @@ namespace TeensyRom.Core.Games
 {
     public interface IGameMetadataService
     {
-        void EnrichGame(GameItem game);
+        GameItem EnrichGame(GameItem game);
     }
 }

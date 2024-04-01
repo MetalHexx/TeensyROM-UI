@@ -61,7 +61,7 @@ namespace TeensyRom.Core.Games
             return allScreenMetadata;
         }
 
-        public void EnrichGame(GameItem game)
+        public GameItem EnrichGame(GameItem game)
         {
             if (!_gameMetadata.Any()) 
             {
@@ -73,6 +73,8 @@ namespace TeensyRom.Core.Games
 
             game.Images.AddRange(images);
             game.Title = game.Name[..game.Name.LastIndexOf('.')];
+
+            return game;
         }
     }
 }
