@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using TeensyRom.Core.Assets;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.DeleteFile;
@@ -353,22 +354,58 @@ namespace TeensyRom.Core.Storage.Services
 
         public IEnumerable<ILaunchableItem> Search(string searchText, params TeensyFileType[] fileTypes)
         {
+            var quotedMatches = Regex
+                .Matches(searchText, @"(\+?""([^""]+)"")|\+?\S+")
+                .Cast<Match>()
+                .Select(m => m.Groups[2].Success ? (m.Groups[1].Value.StartsWith("+") ? "+" : "") + m.Groups[2].Value : m.Groups[0].Value)
+                .Where(m => !string.IsNullOrEmpty(m))
+                .ToList();
+
+            searchText = searchText.Replace("\"", "");
+            searchText = searchText.Replace("+", "");
+
+            foreach (var quotedMatch in quotedMatches)
+            {
+                var noPlusQuotedMatch = string.IsNullOrWhiteSpace(quotedMatch) 
+                    ? string.Empty
+                    : quotedMatch.Replace("+", "");
+
+                searchText = string.IsNullOrWhiteSpace(searchText) 
+                    ? string.Empty 
+                    : searchText.Replace($"{noPlusQuotedMatch}", "");
+            }
+
             var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
             searchTerms.RemoveAll(term => _settings.SearchStopWords.Contains(term.ToLower()));
+
+            searchTerms.AddRange(quotedMatches);
+
+            var requiredTerms = searchTerms
+                .Where(term => term.StartsWith("+"))
+                .Select(term => term.Substring(1))
+                .ToList();
+
+            searchTerms = searchTerms.Select(term => term.TrimStart('+')).ToList();
 
             return _storageCache
                 .Where(NotFavoriteFilter)
                 .SelectMany(c => c.Value.Files)
-                .Where(f => fileTypes.Contains(f.FileType))
                 .OfType<ILaunchableItem>()
+                .Where(f => fileTypes.Contains(f.FileType) &&
+                            requiredTerms.All(requiredTerm =>
+                                f.Title.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase) ||
+                                f.Name.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase) ||
+                                f.Creator.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase) ||
+                                f.Path.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase) ||
+                                f.Description.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase)))
                 .Select(file => new
                 {
                     File = file,
                     Score = searchTerms.Sum(term =>
-                        (file.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Title : 0) + 
-                        (file.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.FileName : 0) + 
+                        (file.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Title : 0) +
+                        (file.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.FileName : 0) +
                         (file.Creator.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Creator : 0) +
-                        (file.Path.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.FilePath: 0) +
+                        (file.Path.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.FilePath : 0) +
                         (file.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Description : 0))
                 })
                 .Where(result => result.Score > 0)
