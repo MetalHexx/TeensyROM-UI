@@ -238,7 +238,7 @@ namespace TeensyRom.Ui.Services
 
             _settings.StorageType = TeensyStorageType.SD;
             _settingsService.SaveSettings(_settings);
-            //await _storage.CacheAll(StorageConstants.Remote_Path_Root);
+            await _storage.CacheAll(StorageConstants.Remote_Path_Root);
 
             await OnCacheUSB();
         }
@@ -253,7 +253,7 @@ namespace TeensyRom.Ui.Services
             }
             _settings.StorageType = TeensyStorageType.USB;
             _settingsService.SaveSettings(_settings);
-            //await _storage.CacheAll(StorageConstants.Remote_Path_Root);
+            await _storage.CacheAll(StorageConstants.Remote_Path_Root);
 
             result = await _dialog.ShowConfirmation("File Indexing Completed", $"Now that your file information has been indexed, lets head over to the Discover view and do some exploring.");
 
