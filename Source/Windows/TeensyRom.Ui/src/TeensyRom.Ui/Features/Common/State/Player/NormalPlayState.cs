@@ -44,7 +44,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 ? launchableItems.First()
                 : launchableItems[++currentIndex];
 
-            if (nextFile is ILaunchableItem f)
+            if (nextFile is ILaunchableItem f && _settings.NavToDirOnLaunch)
             {
                 if (f.Path == currentLaunchable.Path) return null;
 
@@ -74,7 +74,10 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
             if (nextFile is null) return null;
 
-            await _playerContext.LoadDirectory(nextFile.Path.GetUnixParentPath(), nextFile.Path);            
+            if (_settings.NavToDirOnLaunch) 
+            {
+                await _playerContext.LoadDirectory(nextFile.Path.GetUnixParentPath(), nextFile.Path);
+            }
             return nextFile;            
         }
     }

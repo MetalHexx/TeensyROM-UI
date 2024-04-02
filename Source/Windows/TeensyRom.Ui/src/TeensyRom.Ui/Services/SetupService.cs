@@ -151,6 +151,13 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
+                    result = await _dialog.ShowConfirmation("Automatic Directory Navigation", "The \"Nav to Dir on Launch\" option will determine if the \"Discovery\" view will automatically jump to the directory of the launched file.  I recommend keeping this enabled for now.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
 
                     result = await _dialog.ShowConfirmation("Automatic File Transfer", "The \"Watch Directory\" can be configured to automate copying files your TR.\r\rWhen new .SID, .CRT, .PRG or .HEX firmware files copied to the watch directory, they will be detected and automatically be uploaded to the /auto-transfer directory on your TR. \r\rYou may find the download directory a good choice if you like the roam the web for your C64 content.  Your download directory is set by default.");
 
@@ -345,18 +352,13 @@ namespace TeensyRom.Ui.Services
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async file =>
                 {
-                    var itemType = string.Empty;
+                    var itemType = file is SongItem ? "SID" : "game";
 
-                    var result = false;
+                    var dirJumped = _settings.NavToDirOnLaunch
+                        ? $"\r\rNotice how the directory listing has also changed to location of the launched {itemType}."
+                        : string.Empty;
 
-                    if (file is GameItem)
-                    {
-                        result = await _dialog.ShowConfirmation("Random Game Launched", $"Nice, you found a game located at {file.Path}.  \r\rNotice how the directory listing has also changed to location of the launched file.");
-                    }
-                    else if (file is SongItem)
-                    {
-                        result = await _dialog.ShowConfirmation("Random Music Launched", $"Nice, you found a SID located at {file.Path}.  \r\rNotice how the directory listing has also changed to location of the launched file.");
-                    }
+                    var result = await _dialog.ShowConfirmation("Random Launch", $"Nice, you found a {itemType} located at {file.Path}.{dirJumped}");
 
                     if (!result)
                     {

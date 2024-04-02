@@ -32,7 +32,8 @@ namespace TeensyRom.Core.Settings
         public string AutoTransferPath { get; set; } = "auto-transfer";
         public bool AutoFileCopyEnabled { get; set; } = false;
         public bool AutoLaunchOnCopyEnabled { get; set; } = true;
-        public bool SaveMusicCacheEnabled { get; set; } = true;        
+        public bool SaveMusicCacheEnabled { get; set; } = true;  
+        public bool NavToDirOnLaunch { get; set; } = true;
         public bool FirstTimeSetup { get; set; } = true;
         public List<string> BannedDirectories = ["MUSICIANS/S/Szachista", "System Volume Information", "FOUND.000", "integration-test-files", "integration-tests", "AlternativeFormats", "Dumps", "Docs", "MultiLoad64"];
         public List<string> BannedFiles = ["Revolutionary_Etude_part_1.sid", "Revolutionary_Etude_part_2.sid", "Super_Trouper.sid"];

@@ -42,7 +42,11 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             if(randomFile is not null)
             {
                 _playerContext.UpdateHistory(randomFile);
-                await _playerContext.LoadDirectory(randomFile.Path.GetUnixParentPath(), randomFile.Path);
+
+                if (_settings.NavToDirOnLaunch) 
+                {
+                    await _playerContext.LoadDirectory(randomFile.Path.GetUnixParentPath(), randomFile.Path);
+                }
             }
             return randomFile;            
         }
@@ -51,7 +55,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         {
             var file = _launchHistory.GetPrevious(_playerContext.GetFileTypes());
 
-            if (file is not null)
+            if (file is not null && _settings.NavToDirOnLaunch)
             {
                 await _playerContext.LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
                 return file;
