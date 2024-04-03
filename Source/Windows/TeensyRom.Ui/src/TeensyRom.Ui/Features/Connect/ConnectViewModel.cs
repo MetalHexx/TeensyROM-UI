@@ -20,6 +20,7 @@ using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Helpers.ViewModel;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Connect
 {
@@ -42,8 +43,9 @@ namespace TeensyRom.Ui.Features.Connect
         private readonly IMediator _mediator;
         private readonly ISerialStateContext _serial;
         private readonly ILoggingService _log;
+        private bool _nfcWarningFlag = false;
 
-        public ConnectViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log, IAlertService alertService)
+        public ConnectViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log, IAlertService alertService, IDialogService dialog)
         {
             Title = new FeatureTitleViewModel("Connection");
 
@@ -119,20 +121,19 @@ namespace TeensyRom.Ui.Features.Connect
                 canExecute: this.WhenAnyValue(x => x.Log.Logs.Count).Select(count => count > 0),
                 outputScheduler: RxApp.MainThreadScheduler);
 
-            //This works
-            //log.Logs
-            //    .ObserveOn(RxApp.MainThreadScheduler)
-            //    .Subscribe(Log.AddLog);
-
-            //This one does not
             log.Logs
                 .Buffer(TimeSpan.FromMilliseconds(1000))
                 .Where(logs => logs.Any())
-                .ObserveOn(RxApp.MainThreadScheduler) // Ensure this is right before Subscribe
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(logs =>
                 {
-                    var combinedLog = string.Join("\n", logs); // Join the logs using a newline separator
+                    var combinedLog = string.Join("\n", logs); 
                     combinedLog.TrimStart('\n');
+                    if (combinedLog.Contains("PN53x board not found") && _nfcWarningFlag == false) 
+                    {
+                        _nfcWarningFlag = true;
+                        dialog.ShowConfirmation("NFC Not Found", "The TR is having an issue locating your NFC device.  This will cause a degraded experience with the Desktop UI.\r\rPlease plug in your NFC device or disable it by pressing F8 and 'F' on the C64.");
+                    }
                     Log.AddLog(combinedLog);
                 });
 
