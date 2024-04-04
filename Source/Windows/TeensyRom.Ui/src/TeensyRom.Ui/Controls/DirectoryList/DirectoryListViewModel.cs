@@ -15,7 +15,7 @@ using System.CodeDom.Compiler;
 using TeensyRom.Ui.Controls.Paging;
 using TeensyRom.Ui.Features.Common.Models;
 using File = System.IO.File;
-using FileCopyItem = TeensyRom.Ui.Features.Common.Models.FileCopyItem;
+using DragNDropFile = TeensyRom.Ui.Features.Common.Models.FileCopyItem;
 
 namespace TeensyRom.Ui.Controls.DirectoryList
 {
@@ -41,7 +41,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
             Func<ILaunchableItem, Task> launchGameFunc, 
             Func<ILaunchableItem, Unit> setSelectedFunc,
             Func<ILaunchableItem, Task> saveFavFunc,
-            Func<IEnumerable<FileCopyItem>, Task> storeFilesFunc,
+            Func<IEnumerable<DragNDropFile>, Task> storeFilesFunc,
             Func<IFileItem, Task> deleteFunc,
             Func<string, string, Task> loadDirFunc,
             Func<Unit> nextPageFunc,
@@ -112,7 +112,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
                         progress.EnableProgress();
                         alert.Publish("Transferring files.");
 
-                        List<FileCopyItem> filePaths = [];
+                        List<DragNDropFile> filePaths = [];
 
                         if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
 
@@ -122,7 +122,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
                         {
                             if (File.Exists(item))
                             {
-                                filePaths.Add(new FileCopyItem { Path = item });
+                                filePaths.Add(new DragNDropFile { Path = item });
                             }
                             else if (Directory.Exists(item))
                             {
@@ -136,11 +136,11 @@ namespace TeensyRom.Ui.Controls.DirectoryList
                 outputScheduler: RxApp.MainThreadScheduler
             );
         }
-        private static void ProcessDirectoryAsync(string directoryPath, List<FileCopyItem> filePaths)
+        private static void ProcessDirectoryAsync(string directoryPath, List<DragNDropFile> filePaths)
         {
             filePaths.AddRange(Directory
                 .GetFiles(directoryPath)
-                .Select(path => new FileCopyItem
+                .Select(path => new DragNDropFile
                 {
                     Path = path,
                     InSubdirectory = true
