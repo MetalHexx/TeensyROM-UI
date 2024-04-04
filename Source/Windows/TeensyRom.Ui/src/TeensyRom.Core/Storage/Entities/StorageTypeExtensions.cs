@@ -81,6 +81,7 @@ namespace TeensyRom.Core.Storage.Entities
             ".art" => TeensyFileType.Art,
             ".aas" => TeensyFileType.Aas,
             ".hpi" => TeensyFileType.Hpi,
+            ".d64" => TeensyFileType.D64,
             _ => TeensyFileType.Unknown
         };
     }

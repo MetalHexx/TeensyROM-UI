@@ -28,6 +28,7 @@ using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Features.Common.State.Progress;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State;
+using TeensyRom.Core.Assets.Tools.Vice;
 
 namespace TeensyRom.Ui
 {
@@ -55,7 +56,8 @@ namespace TeensyRom.Ui
             services.AddSingleton<IDiscoverContext, DiscoverContext>();
             services.AddSingleton<IDiscoverViewConfig, DiscoverViewConfig>();
             services.AddSingleton<IDiscoveryTreeState, DiscoverTreeState>();
-            services.AddSingleton<ISetupService, SetupService>();           
+            services.AddSingleton<ISetupService, SetupService>();  
+            services.AddSingleton<ID64Extractor, D64Extractor>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<ConnectViewModel>();
             services.AddSingleton<SettingsViewModel>();

@@ -42,6 +42,9 @@
     <None Update="Assets\Other\TeensyROM-Hardware.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Assets\Tools\Vice\vice-bins.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

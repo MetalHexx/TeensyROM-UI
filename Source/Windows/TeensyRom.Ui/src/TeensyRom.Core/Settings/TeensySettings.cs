@@ -152,6 +152,13 @@ namespace TeensyRom.Core.Settings
                     FilterType = TeensyFilterType.Images,
                     DisplayName = "HPI",
                     Extension = ".hpi"
+                },
+                new TeensyTarget
+                {
+                    Type = TeensyFileType.D64,
+                    FilterType = TeensyFilterType.Programs,
+                    DisplayName = "D64",
+                    Extension = ".d64"
                 }
             });
         }
@@ -182,8 +189,8 @@ namespace TeensyRom.Core.Settings
                 TeensyFileType.Hpi => "/favorites/images",
                 TeensyFileType.Hex => "/firmware",
 
-                _ => throw new TeensyException("This file type is not supported for favoriting")
-            }; ;
+                _ => "/favorites/unknown"
+            };
         }
 
         public string GetAutoTransferPath(TeensyFileType type)
@@ -201,8 +208,8 @@ namespace TeensyRom.Core.Settings
                 TeensyFileType.Hpi => AutoTransferPath.UnixPathCombine("images"),
                 TeensyFileType.Hex => "/firmware",
 
-                _ => throw new TeensyException("This file type is not supported for auto-transfer")
-            }; ;
+                _ => AutoTransferPath.UnixPathCombine("unknown")
+            };
         }
 
         /// <summary>

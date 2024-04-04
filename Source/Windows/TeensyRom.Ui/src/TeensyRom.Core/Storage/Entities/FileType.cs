@@ -12,6 +12,7 @@
         Art,
         Aas,
         Hpi,
+        D64,
         Unknown
     }
 }

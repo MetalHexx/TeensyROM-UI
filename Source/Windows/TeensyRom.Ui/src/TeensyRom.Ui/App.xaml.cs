@@ -20,6 +20,8 @@ using TeensyRom.Core.Common;
 using System.Threading.Tasks;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Assets;
+using TeensyRom.Core.Assets.Tools.Vice;
 
 namespace TeensyRom.Ui
 {
@@ -46,13 +48,21 @@ namespace TeensyRom.Ui
             _ = _serviceProvider.GetRequiredService<IFileWatchService>(); //triggers file watch service to construct and start
 
             _ = Task.Run(UnpackAssets);
+            CleanupOldAssets();
         }
 
         private Task UnpackAssets()
         {
-            AssetHelper.UnpackImages(GameConstants.Game_Image_Local_Path, "OneLoad64.zip");
-            AssetHelper.UnpackImages(MusicConstants.Musician_Image_Local_Path, "Composers.zip");
+            AssetHelper.UnpackAssets(GameConstants.Game_Image_Local_Path, "OneLoad64.zip");
+            AssetHelper.UnpackAssets(MusicConstants.Musician_Image_Local_Path, "Composers.zip");
+            AssetHelper.UnpackAssets(AssetConstants.VicePath, "vice-bins.zip");
             return Task.CompletedTask;
+        }
+
+        private void CleanupOldAssets() 
+        {
+            var d64Service = _serviceProvider.GetRequiredService<ID64Extractor>();
+            d64Service.ClearOutputDirectory();
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

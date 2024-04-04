@@ -5,9 +5,9 @@ namespace TeensyRom.Core.Common
 {
     public static class AssetHelper
     {
-        public static void UnpackImages(string imagePath, string zipFileName)
+        public static void UnpackAssets(string assetPath, string zipFileName)
         {
-            var assetFullPath = Path.Combine(Assembly.GetExecutingAssembly().GetPath(), imagePath);
+            var assetFullPath = Path.Combine(Assembly.GetExecutingAssembly().GetPath(), assetPath);
             var zipFullPath = Path.Combine(assetFullPath, zipFileName);
 
             if (!File.Exists(zipFullPath)) return;
