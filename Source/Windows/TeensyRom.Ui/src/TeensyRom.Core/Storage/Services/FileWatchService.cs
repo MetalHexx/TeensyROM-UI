@@ -89,36 +89,8 @@ namespace TeensyRom.Core.Storage
                     targetStorage: _settings.StorageType
                 )))
                 .ObserveOn(Scheduler.Default)
-                .Select(x => ExtractD64(x))                
+                .Select(x => _d64Extractor.Extract(x))                
                 .Subscribe(fti => _watchFiles.OnNext(fti.ToList()));
-        }
-
-        private IEnumerable<FileTransferItem> ExtractD64(IEnumerable<FileTransferItem> files)
-        {
-            if (files.Any(files => files.Type == TeensyFileType.D64))
-            {
-                _alert.Publish("D64 files detected.  Unpacking PRGs.");
-            }
-            var extractedPrgs = files
-                .Where(f => f.Type == TeensyFileType.D64)                
-                .Select(f => _d64Extractor.Extract(f))
-                .Select(f => f.ExtractedFiles
-                    .Select(prgInfo => new FileTransferItem
-                    (
-                        sourcePath: prgInfo.FullName,
-                        targetPath: _settings.GetAutoTransferPath(prgInfo.Extension.GetFileType()).UnixPathCombine(f.D64Name),
-                        targetStorage: _settings.StorageType)
-                    ))
-                .SelectMany(f => f)
-                .ToList();
-
-            var finalList = files
-                .Where(f => f.Type is not TeensyFileType.D64)
-                .ToList();
-
-            finalList.AddRange(extractedPrgs);
-
-            return finalList;
         }
 
         public void Dispose()
