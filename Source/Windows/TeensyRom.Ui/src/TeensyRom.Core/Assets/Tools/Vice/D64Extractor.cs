@@ -187,7 +187,7 @@ namespace TeensyRom.Core.Assets.Tools.Vice
             return prgRegex
                 .Matches(listOutput)
                 .Where(m => m.Success)
-                .Select(m => m.Groups[1].Value.Trim())
+                .Select(m => m.Groups[1].Value)
                 .ToList();
         }
         private static void EnsureOutputDirectory(string outputPath)
