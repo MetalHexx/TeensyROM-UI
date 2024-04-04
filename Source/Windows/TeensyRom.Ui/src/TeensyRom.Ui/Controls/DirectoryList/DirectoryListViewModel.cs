@@ -15,7 +15,7 @@ using System.CodeDom.Compiler;
 using TeensyRom.Ui.Controls.Paging;
 using TeensyRom.Ui.Features.Common.Models;
 using File = System.IO.File;
-using DragNDropFile = TeensyRom.Ui.Features.Common.Models.FileCopyItem;
+using DragNDropFile = TeensyRom.Ui.Features.Common.Models.DragNDropFile;
 
 namespace TeensyRom.Ui.Controls.DirectoryList
 {

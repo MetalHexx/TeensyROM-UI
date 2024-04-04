@@ -474,7 +474,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 .Select(t => t.Type).ToArray();            
         }
 
-        public async Task StoreFiles(IEnumerable<FileCopyItem> files)
+        public async Task StoreFiles(IEnumerable<DragNDropFile> files)
         {
                 var sourceCommonParent = files.Select(i => i.Path).GetCommonBasePath();
                 var isDirectoryCopy = files.All(i => i.InSubdirectory);
