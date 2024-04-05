@@ -2,9 +2,9 @@
 
 namespace TeensyRom.Core.Assets.Tools.Vice
 {
-    public interface ID64Extractor: IDisposable
+    public interface ID64Extractor
     {
         void ClearOutputDirectory();
-        IEnumerable<FileTransferItem> Extract(IEnumerable<FileTransferItem> files);
+        D64ExtractionResult Extract(FileTransferItem d64);
     }
 }

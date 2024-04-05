@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using System.Windows;
 using System.Windows.Input;
+using TeensyRom.Core.Assets.Tools.Vice;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
@@ -65,6 +66,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         protected readonly ICachedStorageService _storage;
         protected readonly ISettingsService _settingsService;
         protected readonly ILaunchHistory _launchHistory;
+        private readonly ID64Extractor _d64Extractor;
         protected readonly ISnackbarService _alert;
         protected readonly ISerialStateContext _serialContext;
         protected readonly INavigationService _nav;
@@ -75,12 +77,13 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         protected readonly List<IDisposable> _stateSubscriptions = new();
         protected TeensyFilter _currentFilter;
 
-        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, IFileWatchService watchService, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree, IExplorerViewConfig config, ILoggingService log)
+        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, IFileWatchService watchService, ID64Extractor d64Extractor, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDirectoryTreeState tree, IExplorerViewConfig config, ILoggingService log)
         {
             _mediator = mediator;
             _storage = storage;
             _settingsService = settingsService;
             _launchHistory = launchHistory;
+            _d64Extractor = d64Extractor;
             _alert = alert;
             _serialContext = serialContext;
             _nav = nav;
@@ -476,54 +479,85 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
         public async Task StoreFiles(IEnumerable<DragNDropFile> files)
         {
-                var sourceCommonParent = files.Select(i => i.Path).GetCommonBasePath();
-                var isDirectoryCopy = files.All(i => i.InSubdirectory);
+            var sourceCommonParent = files.Select(i => i.Path).GetCommonBasePath();
+            var isDirectoryCopy = files.All(i => i.InSubdirectory);
 
-                var sourceParentPath = isDirectoryCopy
-                    ? SystemDirectory.GetParent(sourceCommonParent)?.FullName
-                    : sourceCommonParent;
+            var sourceParentPath = isDirectoryCopy
+                ? SystemDirectory.GetParent(sourceCommonParent)?.FullName
+                : sourceCommonParent;
 
-                var targetBasePath = _directoryState.Value.CurrentPath;
+            var targetBasePath = _directoryState.Value.CurrentPath;
 
-                var fileInfos = files                    
-                    .Select(f =>
-                    {
-                        var targetRelativePath = f.Path
-                            .Replace(sourceParentPath!, string.Empty)
-                            .ToUnixPath()
-                            .GetUnixParentPath();
-
-                        return new FileTransferItem
-                        (
-                            sourcePath: f.Path,
-                            targetPath: targetBasePath.UnixPathCombine(targetRelativePath),
-                            targetStorage: _settings.StorageType
-                        );
-                    });
-
-                await _mediator.Send(new ResetCommand());
-
-                var saveResults = await _storage.SaveFiles(fileInfos);
-
-                var fileCount = files.Count();
-
-                if(saveResults.FailedFiles.Any())
+            var transferItems = files                    
+                .Select(f =>
                 {
-                    _alert.Enqueue($"{saveResults.FailedFiles.Count} files had an error being copied. \r\n See Logs.");   
-                    saveResults.FailedFiles.ForEach(d => _log.InternalError($"Error copying file: {d.SourcePath}"));
-                }
-                _alert.Enqueue($"{fileInfos.Count() - saveResults.FailedFiles.Count} files were saved to the TR.");
+                    var targetRelativePath = f.Path
+                        .Replace(sourceParentPath!, string.Empty)
+                        .ToUnixPath()
+                        .GetUnixParentPath();
 
-                if (_settings.AutoLaunchOnCopyEnabled) return;
+                    return new FileTransferItem
+                    (
+                        sourcePath: f.Path,
+                        targetPath: targetBasePath.UnixPathCombine(targetRelativePath),
+                        targetStorage: _settings.StorageType
+                    );
+                })
+                .ToList();
+
+            transferItems = ExtractD64(transferItems);
+
+            await _mediator.Send(new ResetCommand());
+
+            var saveResults = await _storage.SaveFiles(transferItems);
+
+            var fileCount = files.Count();
+
+            if(saveResults.FailedFiles.Any())
+            {
+                _alert.Enqueue($"{saveResults.FailedFiles.Count} files had an error being copied. \r\n See Logs.");   
+                saveResults.FailedFiles.ForEach(d => _log.InternalError($"Error copying file: {d.SourcePath}"));
+            }
+            _alert.Enqueue($"{transferItems.Count() - saveResults.FailedFiles.Count} files were saved to the TR.");
+
+            if (_settings.AutoLaunchOnCopyEnabled) return;
                 
-                await Application.Current.Dispatcher.Invoke(() =>
+            await Application.Current.Dispatcher.Invoke(() =>
+            {
+                if (targetBasePath == _directoryState.Value.CurrentPath)
                 {
-                    if (targetBasePath == _directoryState.Value.CurrentPath)
-                    {
-                        return LoadDirectory(targetBasePath);
-                    }
-                    return Task.CompletedTask;
-                });           
+                    return LoadDirectory(targetBasePath);
+                }
+                return Task.CompletedTask;
+            });           
+        }
+
+        private List<FileTransferItem> ExtractD64(List<FileTransferItem> files)
+        {
+            if (files.Any(files => files.Type == TeensyFileType.D64))
+            {
+                _alert.Enqueue("D64 files detected.  Unpacking PRGs.");
+            }
+            var extractedPrgs = files
+                .Where(f => f.Type == TeensyFileType.D64)
+                .Select(f => (extraction: _d64Extractor.Extract(f), d64: f))
+                .Select(f => f.extraction.ExtractedFiles
+                    .Select(prgInfo => new FileTransferItem
+                    (
+                        sourcePath: prgInfo.FullName,
+                        targetPath: f.d64.TargetPath.UnixPathCombine(f.d64.Name),
+                        targetStorage: _settings.StorageType)
+                    ))
+                .SelectMany(f => f)
+                .ToList();
+
+            var finalList = files
+                .Where(f => f.Type is not TeensyFileType.D64)
+                .ToList();
+
+            finalList.AddRange(extractedPrgs);
+
+            return finalList;
         }
 
         public Task AutoStoreFiles(IEnumerable<FileTransferItem> files)

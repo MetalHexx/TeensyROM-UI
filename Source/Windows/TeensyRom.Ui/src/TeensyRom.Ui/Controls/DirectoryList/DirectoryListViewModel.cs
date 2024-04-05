@@ -136,19 +136,21 @@ namespace TeensyRom.Ui.Controls.DirectoryList
                 outputScheduler: RxApp.MainThreadScheduler
             );
         }
-        private static void ProcessDirectoryAsync(string directoryPath, List<DragNDropFile> filePaths)
+        private static void ProcessDirectoryAsync(string directoryPath, List<DragNDropFile> filePaths, int directoryLevel = 0)
         {
+            directoryLevel++;
+
             filePaths.AddRange(Directory
                 .GetFiles(directoryPath)
                 .Select(path => new DragNDropFile
                 {
                     Path = path,
-                    InSubdirectory = true
+                    InSubdirectory = directoryLevel > 1
                 }));
 
             foreach (var subdirectory in Directory.GetDirectories(directoryPath))
             {
-                ProcessDirectoryAsync(subdirectory, filePaths);
+                ProcessDirectoryAsync(subdirectory, filePaths, directoryLevel);
             }
         }
     }

@@ -4,32 +4,20 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Assets.Tools.Vice
 {
-    public class D64Extractor : ID64Extractor
-    {   
+    public class D64Extractor(ILoggingService log) : ID64Extractor
+    {
+        private readonly ILoggingService _log = log;
         private string? AssemblyBasePath => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         private string OutputPath => Path.Combine(AssemblyBasePath!, AssetConstants.VicePath, "output");
-        private readonly ILoggingService _log;
-        private readonly IAlertService _alert;
-        private TeensySettings _settings = null!;
-        private IDisposable _settingsSubscription = null!;
-
-        public D64Extractor(ILoggingService log, IAlertService alert, ISettingsService settingsService)
-        {
-            _log = log;
-            _alert = alert;
-            _settingsSubscription = settingsService.Settings.Subscribe(s => _settings = s);            
-        }
 
         public void ClearOutputDirectory()
         {
@@ -39,35 +27,7 @@ namespace TeensyRom.Core.Assets.Tools.Vice
             }
         }
 
-        public IEnumerable<FileTransferItem> Extract(IEnumerable<FileTransferItem> files)
-        {
-            if (files.Any(files => files.Type == TeensyFileType.D64))
-            {
-                _alert.Publish("D64 files detected.  Unpacking PRGs.");
-            }
-            var extractedPrgs = files
-                .Where(f => f.Type == TeensyFileType.D64)
-                .Select(f => ExtractSingle(f))
-                .Select(f => f.ExtractedFiles
-                    .Select(prgInfo => new FileTransferItem
-                    (
-                        sourcePath: prgInfo.FullName,
-                        targetPath: _settings.GetAutoTransferPath(prgInfo.Extension.GetFileType()).UnixPathCombine(f.D64Name),
-                        targetStorage: _settings.StorageType)
-                    ))
-                .SelectMany(f => f)
-                .ToList();
-
-            var finalList = files
-                .Where(f => f.Type is not TeensyFileType.D64)
-                .ToList();
-
-            finalList.AddRange(extractedPrgs);
-
-            return finalList;
-        }
-
-        private D64ExtractionResult ExtractSingle(FileTransferItem d64)
+        public D64ExtractionResult Extract(FileTransferItem d64)
         {
             _log.Internal($"***Starting d64 extraction for {d64.Name}***");
 
@@ -98,7 +58,7 @@ namespace TeensyRom.Core.Assets.Tools.Vice
                 var outputFileName = $"{uniqueFileName}.prg";
                 var outputFullPath = Path.Combine(outputDir, outputFileName);
 
-                var arguments = $"-attach {d64Path} -read \"{prgFile}\" \"{outputFullPath}\"";
+                var arguments = $"-attach \"{d64Path}\" -read \"{prgFile}\" \"{outputFullPath}\"";
 
                 _log.Internal($"Extracting ({prgFile}):\r .\\c1541 {arguments}");
 
@@ -133,7 +93,7 @@ namespace TeensyRom.Core.Assets.Tools.Vice
 
         public List<string> GetPrgFiles(string d64Path) 
         {
-            var arguments = $"-attach {d64Path} -list";
+            var arguments = $"-attach \"{d64Path}\" -list";
 
             _log.Internal(@$"Finding PRG files: .\c1541.exe {arguments}");
 
@@ -219,11 +179,6 @@ namespace TeensyRom.Core.Assets.Tools.Vice
             {
                 Directory.CreateDirectory(outputPath);
             }
-        }
-
-        public void Dispose()
-        {
-            _settingsSubscription.Dispose();
         }
     }
 }
