@@ -11,6 +11,7 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Features.Connect;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Tests.Unit
 {
@@ -21,6 +22,7 @@ namespace TeensyRom.Tests.Unit
         private readonly ILoggingService _logMock = Substitute.For<ILoggingService>();
         private readonly IObservableSerialPort _observableSerialPort = Substitute.For<IObservableSerialPort>();
         private readonly IAlertService _alertService = Substitute.For<IAlertService>();
+        private readonly IDialogService _dialogService = Substitute.For<IDialogService>();
 
 
         [Fact]
@@ -29,7 +31,7 @@ namespace TeensyRom.Tests.Unit
             //Arrange
             _serialMock.Ports.Returns(new BehaviorSubject<string[]>(Array.Empty<string>()).AsObservable());
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Assert
             viewModel.Ports.Should().BeNullOrEmpty();
@@ -41,7 +43,7 @@ namespace TeensyRom.Tests.Unit
             //Arrange
             _serialMock.Ports.Returns(new BehaviorSubject<string[]>(Array.Empty<string>()).AsObservable());
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Assert
             viewModel.IsConnected.Should().BeFalse();
@@ -54,7 +56,7 @@ namespace TeensyRom.Tests.Unit
             //Arrange
             _serialMock.Ports.Returns(new BehaviorSubject<string[]>(["COM3", "COM4"]).AsObservable());
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Assert
             viewModel.Ports.Should().BeEquivalentTo(new[] { "Auto-detect", "COM3", "COM4" });
@@ -66,7 +68,7 @@ namespace TeensyRom.Tests.Unit
             //Arrange
             _serialMock.Ports.Returns(new BehaviorSubject<string[]>(["COM3", "COM4"]).AsObservable());
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Assert
             viewModel.SelectedPort.Should().BeEquivalentTo("Auto-detect");
@@ -78,7 +80,7 @@ namespace TeensyRom.Tests.Unit
             //Arrange
             _serialMock.Ports.Returns(new BehaviorSubject<string[]>(["COM3", "COM4"]).AsObservable());
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             viewModel.SelectedPort = "COM4";
@@ -93,7 +95,7 @@ namespace TeensyRom.Tests.Unit
             //Arrange
             _serialMock.Ports.Returns(new BehaviorSubject<string[]>(["COM3", "COM4"]).AsObservable());
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             viewModel.SelectedPort = "Auto-detect";
@@ -110,7 +112,7 @@ namespace TeensyRom.Tests.Unit
             //Arrange
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectedState(_observableSerialPort)).AsObservable());
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Assert
             viewModel.IsConnected.Should().BeTrue();
@@ -122,7 +124,7 @@ namespace TeensyRom.Tests.Unit
             //Arrange
             _serialMock.Ports.Returns(new BehaviorSubject<string[]>(Array.Empty<string>()).AsObservable());
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Assert
             viewModel.IsConnectable.Should().BeFalse();
@@ -134,7 +136,7 @@ namespace TeensyRom.Tests.Unit
             //Arrange
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectableState(_observableSerialPort)).AsObservable());
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Assert
             viewModel.IsConnectable.Should().BeTrue();
@@ -163,7 +165,7 @@ namespace TeensyRom.Tests.Unit
                 .When(x => x.SetPort(Arg.Is<string>(s => s != "COM3")))
                 .Do(_ => currentStateSubject.OnNext(new SerialConnectableState(_observableSerialPort)));
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             viewModel.ConnectCommand.Execute().Subscribe();
@@ -184,7 +186,7 @@ namespace TeensyRom.Tests.Unit
                 .Send(Arg.Any<ResetCommand>())
                 .Returns(new ResetResult { IsSuccess = false, Error = "Error Message" });
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             viewModel.ConnectCommand.Execute().Subscribe();
@@ -205,7 +207,7 @@ namespace TeensyRom.Tests.Unit
                 .Send(Arg.Any<ResetCommand>())
                 .Returns(new ResetResult { IsSuccess = false, Error = "Error Message" });
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
             viewModel.SelectedPort = "COM3";
 
             //Act
@@ -223,7 +225,7 @@ namespace TeensyRom.Tests.Unit
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectableState(_observableSerialPort)).AsObservable());
             _serialMock.Ports.Returns(new BehaviorSubject<string[]>(["COM1", "COM2", "COM3", "COM4"]).AsObservable());
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
             viewModel.SelectedPort = "COM3";
 
             //Act
@@ -241,7 +243,7 @@ namespace TeensyRom.Tests.Unit
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectedState(_observableSerialPort)).AsObservable());
             var logMock = Substitute.For<ILoggingService>();
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, logMock, _alertService, _dialogService);
 
             //Act
             viewModel.DisconnectCommand.Execute().Subscribe();
@@ -257,7 +259,7 @@ namespace TeensyRom.Tests.Unit
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectedState(_observableSerialPort)).AsObservable());
             var logMock = Substitute.For<ILoggingService>();
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, logMock, _alertService, _dialogService);
 
             //Act
             viewModel.PingCommand.Execute().Subscribe();
@@ -273,7 +275,7 @@ namespace TeensyRom.Tests.Unit
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectedState(_observableSerialPort)).AsObservable());
             var logMock = Substitute.For<ILoggingService>();
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, logMock, _alertService, _dialogService);
 
             //Act
             viewModel.ResetCommand.Execute().Subscribe();
@@ -289,7 +291,7 @@ namespace TeensyRom.Tests.Unit
             //Arrange
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectedState(_observableSerialPort)).AsObservable());
 
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             viewModel.DisconnectCommand.Execute().Subscribe();
@@ -304,7 +306,7 @@ namespace TeensyRom.Tests.Unit
         {
             //Arrange
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectableState(_observableSerialPort)).AsObservable());
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             var canExecute = viewModel.ConnectCommand.CanExecute.FirstAsync().Wait();
@@ -318,7 +320,7 @@ namespace TeensyRom.Tests.Unit
         {
             //Arrange
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialStartState(_observableSerialPort)).AsObservable());
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             var canExecute = viewModel.ConnectCommand.CanExecute.FirstAsync().Wait();
@@ -332,7 +334,7 @@ namespace TeensyRom.Tests.Unit
         {
             //Arrange
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectedState(_observableSerialPort)).AsObservable());
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             var canExecute = viewModel.DisconnectCommand.CanExecute.FirstAsync().Wait();
@@ -346,7 +348,7 @@ namespace TeensyRom.Tests.Unit
         {
             //Arrange
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialStartState(_observableSerialPort)).AsObservable());
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             var canExecute = viewModel.DisconnectCommand.CanExecute.FirstAsync().Wait();
@@ -360,7 +362,7 @@ namespace TeensyRom.Tests.Unit
         {
             //Arrange
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectedState(_observableSerialPort)).AsObservable());
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             var canExecute = viewModel.PingCommand.CanExecute.FirstAsync().Wait();
@@ -374,7 +376,7 @@ namespace TeensyRom.Tests.Unit
         {
             //Arrange
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialStartState(_observableSerialPort)).AsObservable());
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             var canExecute = viewModel.PingCommand.CanExecute.FirstAsync().Wait();
@@ -388,7 +390,7 @@ namespace TeensyRom.Tests.Unit
         {
             //Arrange
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialConnectedState(_observableSerialPort)).AsObservable());
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             var canExecute = viewModel.ResetCommand.CanExecute.FirstAsync().Wait();
@@ -402,7 +404,7 @@ namespace TeensyRom.Tests.Unit
         {
             //Arrange
             _serialMock.CurrentState.Returns(new BehaviorSubject<SerialState>(new SerialStartState(_observableSerialPort)).AsObservable());
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             var canExecute = viewModel.ResetCommand.CanExecute.FirstAsync().Wait();
@@ -417,7 +419,7 @@ namespace TeensyRom.Tests.Unit
             //Arrange
             var logSubject = new BehaviorSubject<string>("log1");
             _logMock.Logs.Returns(logSubject.AsObservable());
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             logSubject.OnNext("log2");
@@ -434,7 +436,7 @@ namespace TeensyRom.Tests.Unit
             //Arrange
             var logSubject = new BehaviorSubject<string>("log1");
             _logMock.Logs.Returns(logSubject.AsObservable());
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             logSubject.OnNext("log2");
@@ -452,7 +454,7 @@ namespace TeensyRom.Tests.Unit
             //Arrange
             var logSubject = new BehaviorSubject<string>("log0");
             _logMock.Logs.Returns(logSubject.AsObservable());
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             foreach (var i in Enumerable.Range(1, 19))
             {
@@ -471,7 +473,7 @@ namespace TeensyRom.Tests.Unit
         public void Given_ThereAreNoLogs_Then_ClearLogsCommand_CannotBeExecuted()
         {
             //Arrange
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             viewModel.ClearLogsCommand.Execute().Subscribe();
@@ -485,7 +487,7 @@ namespace TeensyRom.Tests.Unit
         public void Given_ThereAreLogs_Then_ClearLogsCommand_CannotBeExecuted()
         {
             //Arrange
-            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService);
+            var viewModel = new ConnectViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService);
 
             //Act
             var canExecute = viewModel.ClearLogsCommand.CanExecute.FirstAsync().Wait();
@@ -494,4 +496,5 @@ namespace TeensyRom.Tests.Unit
             canExecute.Should().BeTrue();
         }
     }
+    //TODO: Add tests to check dialog service behavior.
 }
