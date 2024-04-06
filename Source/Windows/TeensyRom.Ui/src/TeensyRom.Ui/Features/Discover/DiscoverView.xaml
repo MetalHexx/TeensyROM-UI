@@ -22,7 +22,7 @@
 
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition MinWidth="200" Width="Auto"/>
                 <ColumnDefinition Width="1.32*" MinWidth="200"/>
                 <ColumnDefinition MaxWidth="600"/>
             </Grid.ColumnDefinitions>
@@ -81,7 +81,7 @@
                 Grid.Row="1" Grid.Column="2"  Grid.RowSpan="2" 
                 Margin="10 10 0 0"/>
 
-            <Grid Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch">
+            <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
                 <ContentControl                 
                     Content="{Binding Filter}"
                     HorizontalAlignment="Stretch"
