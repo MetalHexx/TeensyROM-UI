@@ -40,6 +40,25 @@
             Style="{StaticResource DropShadowButton}"
             Grid.Column="0"
             Margin="5 0 0 0">
+            <Button.Triggers>
+                <EventTrigger RoutedEvent="Button.Click">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="IconRotateTransform"
+                                     Storyboard.TargetProperty="Angle"
+                                     From="0"
+                                     To="720"
+                                     Duration="0:0:2" 
+                                     AccelerationRatio="0.2"
+                                     DecelerationRatio="0.8">
+                                <DoubleAnimation.EasingFunction>
+                                    <CircleEase EasingMode="EaseInOut" />
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Button.Triggers>
             <Viewbox RenderTransformOrigin="0.5,0.5">
                 <Viewbox.RenderTransform>
                     <RotateTransform x:Name="IconRotateTransform"/>
