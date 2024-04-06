@@ -92,10 +92,24 @@ namespace TeensyRom.Ui.Main
         {
             if (LeftNavButton.IsChecked == true)
             {
+                Overlay.Visibility = Visibility.Visible;
                 BeginStoryboard((Storyboard)FindResource("OpenMenu"));
+                BeginStoryboard((Storyboard)FindResource("FadeInOverlay"));
                 return;
             }
             BeginStoryboard((Storyboard)FindResource("CloseMenu"));
+            Storyboard fadeOutStoryboard = (Storyboard)FindResource("FadeOutOverlay");
+            BeginStoryboard(fadeOutStoryboard);
+            fadeOutStoryboard.Completed += (s, eArgs) =>
+            {
+                Overlay.Visibility = Visibility.Hidden;
+            };
+        }
+
+        private void Overlay_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            LeftNavButton.IsChecked = !LeftNavButton.IsChecked;
+            LeftNavButton_Click(LeftNavButton, null!);
         }
     }
 }

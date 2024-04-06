@@ -42,7 +42,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, ISetupService setup, ISerialStateContext serialState, IFileWatchService watchService, ISnackbarService alert, IProgressService progressService, HelpViewModel help, TerminalViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
+        public NavigationHostViewModel(INavigationService navStore, ISetupService setup, ISerialStateContext serialState, IFileWatchService watchService, ISnackbarService alert, IProgressService progressService, HelpViewModel help, TerminalViewModel terminal, SettingsViewModel settings, DiscoverViewModel discover)
         {
             _navService = navStore;
             _setup = setup;
@@ -52,7 +52,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
             MessageQueue = alert.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
-            InitializeNavItems(help, connect, settings, discover);
+            InitializeNavItems(help, terminal, settings, discover);
 
             var setupDelay = Task.Delay(1000);
 
@@ -65,14 +65,14 @@ namespace TeensyRom.Ui.Features.NavigationHost
             });
         }
 
-        public void InitializeNavItems(HelpViewModel help, TerminalViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
+        public void InitializeNavItems(HelpViewModel help, TerminalViewModel terminal, SettingsViewModel settings, DiscoverViewModel discover)
         {
-            _navService.Initialize(NavigationLocation.Connect, new List<NavigationItem>
+            _navService.Initialize(NavigationLocation.Terminal, new List<NavigationItem>
             {
                 new() {
-                    Name = "Connect",
-                    Type = NavigationLocation.Connect,
-                    ViewModel = connect,
+                    Name = "Terminal",
+                    Type = NavigationLocation.Terminal,
+                    ViewModel = terminal,
                     Icon = "LanConnect",
                     IsSelected = true
                 },

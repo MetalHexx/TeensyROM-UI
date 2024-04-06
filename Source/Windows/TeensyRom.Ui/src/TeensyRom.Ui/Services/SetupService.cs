@@ -63,9 +63,9 @@ namespace TeensyRom.Ui.Services
 
             var currentView = await _navigation.SelectedNavigationView.FirstOrDefaultAsync();
 
-            if (currentView.Type is not NavigationLocation.Connect)
+            if (currentView.Type is not NavigationLocation.Terminal)
             {
-                _navigation.NavigateTo(NavigationLocation.Connect);
+                _navigation.NavigateTo(NavigationLocation.Terminal);
             }
 
             var result = await _dialog.ShowConfirmation("Welcome to TeensyROM!", "This start up guide will help you get set up and learn about a few basic features of the app. \r\rAt any point, feel free to press cancel to finish up on your own.");
@@ -234,7 +234,7 @@ namespace TeensyRom.Ui.Services
         {   
             var result = await _dialog.ShowConfirmation("Let's navigate back to the connection screen.  You can watch as all the files are read from the TR.\r\rHang tight as this will likely take several minutes if you have thousands of files.");
             
-            _navigation.NavigateTo(NavigationLocation.Connect);
+            _navigation.NavigateTo(NavigationLocation.Terminal);
 
             result = await _dialog.ShowConfirmation("SD Index", "First we'll check your SD card for files to index.");
             if (!result)

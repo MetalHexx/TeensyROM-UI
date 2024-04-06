@@ -2,7 +2,7 @@
 {
     public enum NavigationLocation
     {
-        Connect,
+        Terminal,
         FileTransfer,
         Files,
         Music,
