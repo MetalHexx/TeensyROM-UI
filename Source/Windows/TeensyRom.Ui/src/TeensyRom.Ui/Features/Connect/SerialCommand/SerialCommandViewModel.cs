@@ -13,7 +13,13 @@ using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Ui.Features.Connect.SerialCommand
 {
-    public class SerialCommandViewModel : ReactiveObject
+    public interface ISerialCommandViewModel
+    {
+        ReactiveCommand<Unit, Unit> SendSerialCommand { get; set; }
+        string SerialString { get; set; }
+    }
+
+    public class SerialCommandViewModel : ReactiveObject, ISerialCommandViewModel
     {
         [Reactive] public string SerialString { get; set; } = string.Empty;
         public ReactiveCommand<Unit, Unit> SendSerialCommand { get; set; }
@@ -22,8 +28,8 @@ namespace TeensyRom.Ui.Features.Connect.SerialCommand
         {
             SendSerialCommand = ReactiveCommand.CreateFromTask
             (
-                execute: async () => 
-                {   
+                execute: async () =>
+                {
                     var _ = await mediator.Send(new SendStringCommand(SerialString));
                     SerialString = string.Empty;
                     return Unit.Default;

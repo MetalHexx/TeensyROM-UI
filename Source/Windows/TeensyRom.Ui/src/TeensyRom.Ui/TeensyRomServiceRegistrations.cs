@@ -64,7 +64,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<SettingsViewModel>();
             services.AddSingleton<HelpViewModel>();
             services.AddSingleton<DiscoverViewModel>();
-            services.AddSingleton<SerialCommandViewModel>();
+            services.AddSingleton<ISerialCommandViewModel, SerialCommandViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
