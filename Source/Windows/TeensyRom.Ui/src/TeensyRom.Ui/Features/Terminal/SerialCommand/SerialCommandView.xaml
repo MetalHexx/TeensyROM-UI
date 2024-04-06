@@ -14,7 +14,7 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         
-        <Label Content=">" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+        <Label Content="> " Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
         
         <TextBox 
             Text="{Binding SerialString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
