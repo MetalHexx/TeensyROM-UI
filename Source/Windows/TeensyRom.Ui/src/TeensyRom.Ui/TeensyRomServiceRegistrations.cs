@@ -7,7 +7,7 @@ using TeensyRom.Core.Serial;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage;
 using TeensyRom.Core.Storage.Services;
-using TeensyRom.Ui.Features.Connect;
+using TeensyRom.Ui.Features.Terminal;
 using TeensyRom.Ui.Features.Help;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Settings;
@@ -29,7 +29,7 @@ using TeensyRom.Ui.Features.Common.State.Progress;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Core.Assets.Tools.Vice;
-using TeensyRom.Ui.Features.Connect.SerialCommand;
+using TeensyRom.Ui.Features.Terminal.SerialCommand;
 
 namespace TeensyRom.Ui
 {
@@ -60,7 +60,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<ISetupService, SetupService>();  
             services.AddSingleton<ID64Extractor, D64Extractor>();
             services.AddSingleton<NavigationHostViewModel>();
-            services.AddSingleton<ConnectViewModel>();
+            services.AddSingleton<TerminalViewModel>();
             services.AddSingleton<SettingsViewModel>();
             services.AddSingleton<HelpViewModel>();
             services.AddSingleton<DiscoverViewModel>();

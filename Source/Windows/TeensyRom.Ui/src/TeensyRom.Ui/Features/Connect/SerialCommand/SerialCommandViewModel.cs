@@ -11,7 +11,7 @@ using System.Windows.Input;
 using TeensyRom.Core.Commands.SendString;
 using TeensyRom.Core.Serial.State;
 
-namespace TeensyRom.Ui.Features.Connect.SerialCommand
+namespace TeensyRom.Ui.Features.Terminal.SerialCommand
 {
     public interface ISerialCommandViewModel
     {

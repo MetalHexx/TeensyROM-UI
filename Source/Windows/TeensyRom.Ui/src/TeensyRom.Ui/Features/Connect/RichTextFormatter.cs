@@ -3,7 +3,7 @@ using System.Windows.Media;
 using System.Text.RegularExpressions;
 using TeensyRom.Core.Logging;
 
-namespace TeensyRom.Ui.Features.Connect
+namespace TeensyRom.Ui.Features.Terminal
 {
     public static class RichTextFormatter
     {

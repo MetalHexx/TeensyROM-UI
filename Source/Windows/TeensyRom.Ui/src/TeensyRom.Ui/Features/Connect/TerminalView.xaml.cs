@@ -14,14 +14,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TeensyRom.Ui.Features.Connect
+namespace TeensyRom.Ui.Features.Terminal
 {
     /// <summary>
     /// Interaction logic for ConnectView.xaml
     /// </summary>
-    public partial class ConnectView : UserControl
+    public partial class TerminalView : UserControl
     {
-        public ConnectView()
+        public TerminalView()
         {
             InitializeComponent();
         }

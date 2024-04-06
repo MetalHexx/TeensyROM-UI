@@ -19,13 +19,13 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Controls.FeatureTitle;
-using TeensyRom.Ui.Features.Connect.SerialCommand;
+using TeensyRom.Ui.Features.Terminal.SerialCommand;
 using TeensyRom.Ui.Helpers.ViewModel;
 using TeensyRom.Ui.Services;
 
-namespace TeensyRom.Ui.Features.Connect
+namespace TeensyRom.Ui.Features.Terminal
 {
-    public class ConnectViewModel: ReactiveObject
+    public class TerminalViewModel: ReactiveObject
     {
         [ObservableAsProperty] public List<string> Ports { get; }
         [ObservableAsProperty] public bool IsConnected { get; set; }
@@ -47,9 +47,9 @@ namespace TeensyRom.Ui.Features.Connect
         private readonly ILoggingService _log;
         private bool _nfcWarningFlag = false;
 
-        public ConnectViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log, IAlertService alertService, IDialogService dialog, ISerialCommandViewModel serialCommandVm)
+        public TerminalViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log, IAlertService alertService, IDialogService dialog, ISerialCommandViewModel serialCommandVm)
         {
-            Title = new FeatureTitleViewModel("Connection");
+            Title = new FeatureTitleViewModel("Terminal");
             SerialCommandVm = serialCommandVm;
 
             serial.Ports

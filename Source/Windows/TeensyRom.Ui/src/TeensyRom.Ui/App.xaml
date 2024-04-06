@@ -9,7 +9,7 @@
     xmlns:DirectoryList="clr-namespace:TeensyRom.Ui.Controls.DirectoryList"
     xmlns:Search="clr-namespace:TeensyRom.Ui.Controls.Search"
     xmlns:DirectoryChips="clr-namespace:TeensyRom.Ui.Controls.DirectoryChips"
-    xmlns:Connect="clr-namespace:TeensyRom.Ui.Features.Connect"
+    xmlns:Terminal="clr-namespace:TeensyRom.Ui.Features.Terminal"
     xmlns:Settings="clr-namespace:TeensyRom.Ui.Features.Settings"
     xmlns:CornerToolbar="clr-namespace:TeensyRom.Ui.Controls.CornerToolbar"
     xmlns:FeatureTitle="clr-namespace:TeensyRom.Ui.Controls.FeatureTitle"
@@ -17,7 +17,7 @@
     xmlns:Discover="clr-namespace:TeensyRom.Ui.Features.Discover"
     xmlns:LibraryFilter="clr-namespace:TeensyRom.Ui.Controls.LibraryFilter"
     xmlns:StorageSelector="clr-namespace:TeensyRom.Ui.Controls.StorageSelector"
-    xmlns:SerialCommand="clr-namespace:TeensyRom.Ui.Features.Connect.SerialCommand"
+    xmlns:SerialCommand="clr-namespace:TeensyRom.Ui.Features.Terminal.SerialCommand"
     
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"           
@@ -63,8 +63,8 @@
                 <Search:SearchView/>
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type Connect:ConnectViewModel}">
-                <Connect:ConnectView/>
+            <DataTemplate DataType="{x:Type Terminal:TerminalViewModel}">
+                <Terminal:TerminalView/>
             </DataTemplate>
             
             <DataTemplate DataType="{x:Type Settings:SettingsViewModel}">

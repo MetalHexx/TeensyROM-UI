@@ -8,7 +8,7 @@ using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Storage;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Settings;
-using TeensyRom.Ui.Features.Connect;
+using TeensyRom.Ui.Features.Terminal;
 using TeensyRom.Core.Settings;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +32,7 @@ namespace TeensyRom.Tests.Integration
         public IFileWatcher FileWatcher { get; private set; } = null!;
         public IFileWatchService FileWatchService { get; private set; } = null!;
         public SettingsViewModel SettingsViewModel { get; private set; } = null!;
-        public ConnectViewModel ConnectViewModel { get; private set; } = null!;
+        public TerminalViewModel ConnectViewModel { get; private set; } = null!;
         public readonly string SettingsFileName = "Settings.json";
         public readonly string TestFileName = $"{Guid.NewGuid().ToString().Substring(0, 7)}-test";
         public string FullSourceTestPath => @$"{Settings.WatchDirectoryLocation}\{TestFileName}";
@@ -55,7 +55,7 @@ namespace TeensyRom.Tests.Integration
             SettingsService = _serviceProvider.GetRequiredService<ISettingsService>();
             FileWatcher = _serviceProvider.GetRequiredService<IFileWatcher>();
             FileWatchService = _serviceProvider.GetRequiredService<IFileWatchService>();
-            ConnectViewModel = _serviceProvider.GetRequiredService<ConnectViewModel>();
+            ConnectViewModel = _serviceProvider.GetRequiredService<TerminalViewModel>();
             SettingsViewModel = _serviceProvider.GetRequiredService<SettingsViewModel>();
             
             if (initOpenPort)

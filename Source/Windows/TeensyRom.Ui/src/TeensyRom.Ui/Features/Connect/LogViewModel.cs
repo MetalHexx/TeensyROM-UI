@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TeensyRom.Ui.Features.Connect
+namespace TeensyRom.Ui.Features.Terminal
 {
     public class LogViewModel : ReactiveObject
     {

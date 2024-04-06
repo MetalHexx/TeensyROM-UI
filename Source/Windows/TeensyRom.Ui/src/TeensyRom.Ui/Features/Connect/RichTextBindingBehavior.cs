@@ -7,7 +7,7 @@ using System.Windows;
 using System.Windows.Media;
 using System;
 
-namespace TeensyRom.Ui.Features.Connect
+namespace TeensyRom.Ui.Features.Terminal
 {
     public class RichTextBindingBehavior : Behavior<RichTextBox>
     {

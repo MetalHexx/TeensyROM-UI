@@ -6,7 +6,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Linq;
 using TeensyRom.Ui.Features.Help;
-using TeensyRom.Ui.Features.Connect;
+using TeensyRom.Ui.Features.Terminal;
 using TeensyRom.Ui.Features.Settings;
 using MaterialDesignThemes.Wpf;
 using TeensyRom.Core.Storage;
@@ -42,7 +42,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
 
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, ISetupService setup, ISerialStateContext serialState, IFileWatchService watchService, ISnackbarService alert, IProgressService progressService, HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
+        public NavigationHostViewModel(INavigationService navStore, ISetupService setup, ISerialStateContext serialState, IFileWatchService watchService, ISnackbarService alert, IProgressService progressService, HelpViewModel help, TerminalViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
         {
             _navService = navStore;
             _setup = setup;
@@ -65,7 +65,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
             });
         }
 
-        public void InitializeNavItems(HelpViewModel help, ConnectViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
+        public void InitializeNavItems(HelpViewModel help, TerminalViewModel connect, SettingsViewModel settings, DiscoverViewModel discover)
         {
             _navService.Initialize(NavigationLocation.Connect, new List<NavigationItem>
             {

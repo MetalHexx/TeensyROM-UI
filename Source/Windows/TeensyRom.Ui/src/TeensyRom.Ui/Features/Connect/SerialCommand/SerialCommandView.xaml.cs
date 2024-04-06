@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TeensyRom.Ui.Features.Connect.SerialCommand
+namespace TeensyRom.Ui.Features.Terminal.SerialCommand
 {
     /// <summary>
     /// Interaction logic for SerialCommandView.xaml
