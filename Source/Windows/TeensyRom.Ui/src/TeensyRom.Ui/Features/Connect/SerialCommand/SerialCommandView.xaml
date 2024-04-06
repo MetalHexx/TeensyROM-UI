@@ -13,12 +13,26 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
+        
         <Label Content=">" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-        <TextBox Text="{Binding SerialString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Command" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+        
+        <TextBox 
+            Text="{Binding SerialString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+            materialDesign:HintAssist.Hint="Command" 
+            ToolTip="Type serial commands to serial for tweaking and debugging the TR.  Press enter to send the command."
+            Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+            
             <TextBox.InputBindings>
                 <KeyBinding Key="Enter" Command="{Binding SendSerialCommand}"/>
             </TextBox.InputBindings>
         </TextBox>
-        <Button Command="{Binding SendSerialCommand}" Style="{StaticResource MaterialDesignOutlinedLightButton}" VerticalAlignment="Center" Margin="10 0 3 0" Grid.Column="2">Send</Button>
+        
+        <Button 
+            Command="{Binding SendSerialCommand}" 
+            Style="{StaticResource MaterialDesignOutlinedLightButton}" 
+            VerticalAlignment="Center" Margin="10 0 3 0" Grid.Column="2"
+            ToolTip="Send the entered serial command to the TR">
+            Send
+        </Button>
     </Grid>
 </UserControl>
