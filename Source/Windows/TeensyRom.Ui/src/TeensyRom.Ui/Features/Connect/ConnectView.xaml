@@ -12,6 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="45"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -101,7 +102,6 @@
                         Content="Reset" 
                         Style="{StaticResource MaterialDesignOutlinedLightButton}"  
                         ToolTip="Press to connect to reset the TeensyROM device" />
-                    
             </Grid>
         </Border>
 
@@ -138,6 +138,12 @@
                 </Button>
             </Grid>
             
+        </Border>
+
+        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource SectionBorder}" Margin="0 10 0 0" Padding="10 5 5 5" Background="{DynamicResource MaterialDesignPaper}">
+            <ContentControl 
+                Content="{Binding SerialCommandVm}" 
+                HorizontalAlignment="Stretch" />
         </Border>
 
     </Grid>

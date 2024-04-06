@@ -29,6 +29,7 @@ using TeensyRom.Ui.Features.Common.State.Progress;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Core.Assets.Tools.Vice;
+using TeensyRom.Ui.Features.Connect.SerialCommand;
 
 namespace TeensyRom.Ui
 {
@@ -63,6 +64,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<SettingsViewModel>();
             services.AddSingleton<HelpViewModel>();
             services.AddSingleton<DiscoverViewModel>();
+            services.AddSingleton<SerialCommandViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));

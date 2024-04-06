@@ -19,6 +19,7 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Controls.FeatureTitle;
+using TeensyRom.Ui.Features.Connect.SerialCommand;
 using TeensyRom.Ui.Helpers.ViewModel;
 using TeensyRom.Ui.Services;
 
@@ -39,15 +40,17 @@ namespace TeensyRom.Ui.Features.Connect
         public ReactiveCommand<Unit, ResetResult> ResetCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ClearLogsCommand { get; set; }
         public LogViewModel Log { get; } = new();
+        public SerialCommandViewModel SerialCommandVm { get; }
 
         private readonly IMediator _mediator;
         private readonly ISerialStateContext _serial;
         private readonly ILoggingService _log;
         private bool _nfcWarningFlag = false;
 
-        public ConnectViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log, IAlertService alertService, IDialogService dialog)
+        public ConnectViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log, IAlertService alertService, IDialogService dialog, SerialCommandViewModel serialCommandVm)
         {
             Title = new FeatureTitleViewModel("Connection");
+            SerialCommandVm = serialCommandVm;
 
             serial.Ports
                 .Where(p => p is not null && p.Length > 0)
@@ -136,12 +139,10 @@ namespace TeensyRom.Ui.Features.Connect
                     }
                     Log.AddLog(combinedLog);
                 });
-
-
-
             _mediator = mediator;
             _serial = serial;
             _log = log;
+            
         }
 
         private async Task<bool> TrySingleConnect()
