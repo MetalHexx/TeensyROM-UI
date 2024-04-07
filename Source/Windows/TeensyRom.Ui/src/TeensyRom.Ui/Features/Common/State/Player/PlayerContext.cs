@@ -456,6 +456,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         public async Task SwitchFilter(TeensyFilter filter)
         {
             _currentFilter = filter;
+            await PlayRandom();
 
             if(_currentState.Value is SearchState)
             {
