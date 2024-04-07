@@ -38,20 +38,25 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 .OfType<ILaunchableItem>()
                 .ToList();
 
-            var currentIndex = launchableItems.IndexOf(currentLaunchable);
+            var currentFile = launchableItems.FirstOrDefault(s => s.Id == currentLaunchable.Id);
+
+            if (currentFile is null) return null;
+
+            var currentIndex = launchableItems.IndexOf(currentFile);
 
             var nextFile = launchableItems.Count == currentIndex + 1
                 ? launchableItems.First()
                 : launchableItems[++currentIndex];
 
-            if (nextFile is ILaunchableItem f && _settings.NavToDirOnLaunch)
-            {
-                if (f.Path == currentLaunchable.Path) return null;
+            if (nextFile is not ILaunchableItem) return null;
 
-                await _playerContext.LoadDirectory(f.Path.GetUnixParentPath(), f.Path);
-                return f;
+            if (nextFile.Path == currentLaunchable.Path) return currentLaunchable;
+
+            if (_settings.NavToDirOnLaunch)
+            {
+                await _playerContext.LoadDirectory(nextFile.Path.GetUnixParentPath(), nextFile.Path);
             }
-            return null;
+            return nextFile;
         }
 
         public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState)
