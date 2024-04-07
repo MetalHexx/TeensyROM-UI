@@ -81,15 +81,6 @@ namespace TeensyRom.Core.Storage.Services
 
             var favoriteResult = await _mediator.Send(favCommand);
 
-            if (favoriteResult.IsBusy)
-            {
-                _alert.Publish($"TR was reset to save the favorite.");
-                _alert.Publish($"Re-launching {launchItem.Name}.");
-                await _mediator.Send(new ResetCommand());                
-                favoriteResult = await _mediator.Send(favCommand);
-                await Task.Delay(5000);
-                await _mediator.Send(new LaunchFileCommand(_settings.StorageType, launchItem.Path));
-            }
             if(!favoriteResult.IsSuccess)
             {
                 _alert.Publish($"There was an error tagging {launchItem.Name} as favorite.");

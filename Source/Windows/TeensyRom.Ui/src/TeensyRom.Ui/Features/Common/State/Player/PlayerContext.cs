@@ -297,7 +297,19 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
         public virtual async Task SaveFavorite(ILaunchableItem file)
         {
+            if (_launchedFile.Value is GameItem) 
+            {
+                _alert.Enqueue("Your game will re-launch to allow favorite to be tagged.");
+                await _mediator.Send(new ResetCommand());
+            }
             var favFile = await _storage.SaveFavorite(file);
+
+            if (_launchedFile.Value is GameItem)
+            {
+                await Task.Delay(2000);
+                await _mediator.Send(new LaunchFileCommand(_settings.StorageType, _launchedFile.Value.Path));
+            }
+            
             var parentDir = favFile?.Path.GetUnixParentPath();
 
             if (parentDir is null) return;
