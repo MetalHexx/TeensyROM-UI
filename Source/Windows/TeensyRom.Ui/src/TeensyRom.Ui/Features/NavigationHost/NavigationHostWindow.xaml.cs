@@ -35,7 +35,7 @@ namespace TeensyRom.Ui.Main
             {
                 if (LeftNavButton.IsChecked == true)
                 {
-                    BeginStoryboard((Storyboard)FindResource("CloseMenu"));
+                    CloseNav();                    
                     LeftNavButton.IsChecked = false;
                 }
             });
@@ -97,6 +97,11 @@ namespace TeensyRom.Ui.Main
                 BeginStoryboard((Storyboard)FindResource("FadeInOverlay"));
                 return;
             }
+            CloseNav();
+        }
+
+        private void CloseNav()
+        {
             BeginStoryboard((Storyboard)FindResource("CloseMenu"));
             Storyboard fadeOutStoryboard = (Storyboard)FindResource("FadeOutOverlay");
             BeginStoryboard(fadeOutStoryboard);

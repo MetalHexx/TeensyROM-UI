@@ -101,6 +101,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
         {
             NavigateCommand = ReactiveCommand.Create<NavigationItem, Unit>(n =>
             {
+                
                 TriggerAnimation = true;
 
                 _navService.NavigateTo(n.Id);                
