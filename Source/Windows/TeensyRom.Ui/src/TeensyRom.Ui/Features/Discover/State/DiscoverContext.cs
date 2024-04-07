@@ -57,9 +57,9 @@ namespace TeensyRom.Ui.Features.Discover.State
 
         public override Task PlayPrevious()
         {
-            if (_launchedFile.Value is SongItem && _currentTime <= TimeSpan.FromSeconds(3))
+            if (_launchedFile.Value is SongItem && _currentTime >= TimeSpan.FromSeconds(3))
             {
-                return base.PlayPrevious();
+                return base.PlayFile(_launchedFile.Value!);
             }
             if (_launchedFile.Value is ILaunchableItem)
             {
