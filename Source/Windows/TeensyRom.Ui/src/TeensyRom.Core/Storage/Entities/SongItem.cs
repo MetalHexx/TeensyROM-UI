@@ -13,7 +13,7 @@ namespace TeensyRom.Core.Storage.Entities
         {
             Creator = "Unknown";
             ReleaseInfo = "Unknown";
-            Description = "No description";
+            Description = "About SID Files:\r\rSID files are programs used to control the Commodore 64's Sound Interface Device (SID) to make music for games and standalone compositions. \r\rThe SID is a unique and forward thinking 3-voice polyphonic hybrid synthesizer that combines digital oscillators and a multimode analog filter. The .sid files contain instructions to directly control the SID chip by orchestrating it's large selection of available parameters in realtime. \r\rA significant portion of SID music, especially in the early years, was programmed with extreme precision using assembly language and BASIC. Trackers and dedicated music software became more prevalent later, offering a more accessible interface for SID music creation.";
         }
 
         public override SongItem Clone() => new()

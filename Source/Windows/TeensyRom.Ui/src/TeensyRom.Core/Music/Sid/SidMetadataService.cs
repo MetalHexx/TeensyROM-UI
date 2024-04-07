@@ -83,14 +83,17 @@ namespace TeensyRom.Core.Music.Sid
         {
             if (sidRecord is null) return;
 
+            var cleanedSTIL = CleanDescription(sidRecord.StilEntry);
+            var missingSTIL = string.IsNullOrWhiteSpace(cleanedSTIL);
+
+            song.Description = missingSTIL ? song.Description : cleanedSTIL;
+            song.MetadataSource = missingSTIL ? string.Empty : MusicConstants.Hvsc;
             song.Creator = sidRecord.Author;
             song.Title = sidRecord.Title;
             song.PlayLength = sidRecord.SongLengthSpan;
-            song.ReleaseInfo = sidRecord.Released;
-            song.Description = CleanDescription(sidRecord.StilEntry);
+            song.ReleaseInfo = sidRecord.Released;            
             song.Meta1 = sidRecord.Clock;
-            song.Meta2 = sidRecord.SidModel;
-            song.MetadataSource = MusicConstants.Hvsc;
+            song.Meta2 = sidRecord.SidModel;            
             
             song.SourcePath = song.SourcePath.RemoveLeadingAndTrailingSlash().Contains(sidRecord.Filepath.RemoveLeadingAndTrailingSlash()) 
                 ? song.SourcePath 
@@ -123,11 +126,11 @@ namespace TeensyRom.Core.Music.Sid
             }
         }
 
-        public string CleanDescription(string description)
+        public string CleanDescription(string stilDescription)
         {
-            if (string.IsNullOrWhiteSpace(description)) return string.Empty;
+            if (string.IsNullOrWhiteSpace(stilDescription)) return string.Empty;
 
-            var cleanedDescription = $"{description.StripCarriageReturnsAndExtraWhitespace()}";
+            var cleanedDescription = $"{stilDescription.StripCarriageReturnsAndExtraWhitespace()}";
             cleanedDescription = cleanedDescription.Replace("COMMENT:", "\r\nComment:\r\n");
             cleanedDescription = cleanedDescription.Replace("ARTIST:", "\r\nArtist: ");
             cleanedDescription = cleanedDescription.Replace("TITLE:", "\r\nTitle: ");

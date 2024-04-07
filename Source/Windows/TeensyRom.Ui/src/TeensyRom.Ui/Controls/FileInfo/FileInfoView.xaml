@@ -138,13 +138,8 @@
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <Grid>
                             <TextBlock 
-                                Text="{Binding SelectedFile.Description, FallbackValue='No Description'}" 
+                                Text="{Binding SelectedFile.Description}" 
                                 Visibility="{Binding SelectedFile.Description, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
-                                TextWrapping="Wrap" Foreground="WhiteSmoke" />
-
-                            <TextBlock 
-                                Text="No Description" 
-                                Visibility="{Binding SelectedFile.Description, Converter={StaticResource InverseNullOrEmptyToVisibilityConverter}}"
                                 TextWrapping="Wrap" Foreground="WhiteSmoke" />
                         </Grid>
                         
