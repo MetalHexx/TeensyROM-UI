@@ -35,8 +35,10 @@ namespace TeensyRom.Ui.Features.Terminal.SerialCommand
                     return Unit.Default;
                 },
                 canExecute: serial.CurrentState
-                 .Select(state => state is SerialConnectedState)
-                 .DistinctUntilChanged(),
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Select(state => state is SerialConnectedState)
+                    .DistinctUntilChanged(),
+
                 outputScheduler: RxApp.MainThreadScheduler
             );
         }
