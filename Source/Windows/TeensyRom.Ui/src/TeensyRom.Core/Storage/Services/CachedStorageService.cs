@@ -445,7 +445,7 @@ namespace TeensyRom.Core.Storage.Services
                 EnsureFavorites();
                 SaveCacheToDisk();
             });
-            _alert.Publish($"Download completed for {_settings.StorageType} storage.");
+            _alert.Publish($"Indexing completed for {_settings.StorageType} storage.");
         }
 
         private DirectoryContent? FilterDirectoryContent(DirectoryContent directoryContent)
