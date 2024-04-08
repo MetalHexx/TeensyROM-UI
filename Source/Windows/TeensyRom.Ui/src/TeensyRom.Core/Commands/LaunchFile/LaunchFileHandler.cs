@@ -27,7 +27,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             _serialState.SendIntBytes(request.StorageType.GetStorageToken(), 1);
             _serialState.Write($"{request.Path}\0");
             _serialState.HandleAck();
-            var response = _serialState.ReadSerialAsString(100);
+            var response = _serialState.ReadSerialAsString(500);
             var resultType = ParseResponse(response);
 
             return new LaunchFileResult

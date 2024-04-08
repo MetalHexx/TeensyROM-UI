@@ -260,13 +260,8 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 return;
             }
 
-            var result = await _mediator.Send(new LaunchFileCommand(_settings.StorageType, file.Path));
+            LaunchFileAsync(file);
 
-            if (result.LaunchResult is LaunchFileResultType.ProgramError or LaunchFileResultType.SidError)
-            {
-                await HandleBadFile(file);
-                return;
-            }
             Application.Current.Dispatcher.Invoke(() =>
             {
                 file.IsSelected = true;
@@ -282,6 +277,26 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             _launchedFile.OnNext(file);
             _selectedFile.OnNext(file);
             _playingState.OnNext(PlayState.Playing);
+        }
+
+        private void LaunchFileAsync(ILaunchableItem file) 
+        {
+            Task.Run(() => 
+            {
+                _mediator
+                .Send(new LaunchFileCommand(_settings.StorageType, file.Path))
+                .ContinueWith(async task =>
+                {
+                    var result = task.Result;
+                    if (result.LaunchResult is LaunchFileResultType.ProgramError or LaunchFileResultType.SidError)
+                    {
+                        await Application.Current.Dispatcher.BeginInvoke(new Action(async () =>
+                        {
+                            await HandleBadFile(file);
+                        }));
+                    }
+                });
+            });
         }
 
         public Task HandleBadFile(ILaunchableItem file)
