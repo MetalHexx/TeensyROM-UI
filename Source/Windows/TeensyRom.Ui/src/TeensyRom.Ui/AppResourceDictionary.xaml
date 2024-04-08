@@ -101,6 +101,14 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="TimerModeButtonStyle" TargetType="Button" BasedOn="{StaticResource StorageIconButton}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding TimedPlayEnabled}" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource EnabledColor}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="WindowBorder" TargetType="Border"></Style>
 
     <Style x:Key="SectionTitle" TargetType="TextBlock">

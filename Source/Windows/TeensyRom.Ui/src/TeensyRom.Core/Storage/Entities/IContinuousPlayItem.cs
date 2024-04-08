@@ -3,6 +3,5 @@
     public interface IContinuousPlayItem : IFileItem
     {
         TimeSpan PlayLength { get; set; }
-
-    }
+    }    
 }

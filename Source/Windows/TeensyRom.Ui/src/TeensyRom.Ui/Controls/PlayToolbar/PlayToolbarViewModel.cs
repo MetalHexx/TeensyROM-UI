@@ -5,6 +5,7 @@ using System;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using System.Windows;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
@@ -18,11 +19,14 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 {
     public class PlayToolbarViewModel : ReactiveObject
     {   
-        [Reactive] public bool EnablePlayButton { get; set; }
-        [Reactive] public bool EnablePauseButton { get; set; }
-        [Reactive] public bool EnableStopButton { get; set; }
+        [Reactive] public bool PlayButtonEnabled { get; set; }
+        [Reactive] public bool PauseButtonEnabled { get; set; }
+        [Reactive] public bool StopButtonEnabled { get; set; }
+        [Reactive] public bool TimedPlayButtonEnabled { get; set; }
+        [Reactive] public bool TimedPlayEnabled { get; set; }        
+        [Reactive] public bool ProgressEnabled { get; set; }
         [ObservableAsProperty] public bool ShowTitleOnly { get; }
-        [ObservableAsProperty] public bool ProgressEnabled { get; }
+        
         [ObservableAsProperty] public ILaunchableItem? File { get; }
         [ObservableAsProperty] public TimeProgressViewModel? Progress { get; } = null;
         [ObservableAsProperty] public bool ShuffleModeEnabled { get; }
@@ -35,6 +39,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<Unit, Unit> PreviousCommand { get; set; }
         public ReactiveCommand<Unit, Unit> NextCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ToggleShuffleCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ToggleTimedPlay { get; set; }
         public ReactiveCommand<Unit, Unit> FavoriteCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ShareCommand { get; set; }
         public ReactiveCommand<Unit, Unit> NavigateToFileDirCommand { get; set; }
@@ -95,55 +100,107 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
                 {
-                    EnablePauseButton = false;
-                    EnableStopButton = false;
-                    EnablePlayButton = true;
+                    PauseButtonEnabled = false;
+                    StopButtonEnabled = false;
+                    PlayButtonEnabled = true;
                     _timer?.PauseTimer();
                 });
 
             var playToggle = playState
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(state => state.PlayState == PlayState.Playing)                
-                .Do(_ => EnablePlayButton = false);
+                .Do(_ => PlayButtonEnabled = false);
 
             playToggle
                 .Where(_ => File is GameItem or HexItem)
-                .Subscribe(_ => 
-                {
-                    EnableStopButton = true;
-                    EnablePauseButton = false;
-                    _timer?.PauseTimer();
+                .Subscribe(item => 
+                {   
+                    StopButtonEnabled = true;
+                    PauseButtonEnabled = false;
                 });
 
             playToggle
                 .Where(_ => File is SongItem)
                 .Subscribe(_ =>
                 {
-                    EnableStopButton = false;
-                    EnablePauseButton = true;
+                    StopButtonEnabled = false;
+                    PauseButtonEnabled = true;
                 });
 
             playToggle
                .Where(_ => File is ImageItem)
                .Subscribe(_ =>
                {
-                   EnableStopButton = true;
-                   EnablePauseButton = false;                   
+                   StopButtonEnabled = true;
+                   PauseButtonEnabled = false;                   
                });
 
             file
-                .OfType<IContinuousPlayItem>()
-                .Subscribe(item => InitializeProgress(playNext, item));
+                .OfType<IAutoContinuousPlayItem>()
+                .Subscribe(item => 
+                {
+                    TimedPlayButtonEnabled = false;
+                    ProgressEnabled = true;
+                    InitializeProgress(playNext, item);
+                });
 
-            file.Select(file => file is IContinuousPlayItem)
-                .ToPropertyEx(this, vm => vm.ProgressEnabled);
+            file
+                .OfType<IManualContinuousPlayItem>()
+                .Where(_ => TimedPlayEnabled)
+                .Subscribe(item =>
+                {
+                    TimedPlayButtonEnabled = true;
+                    InitializeProgress(playNext, item);
+                    ProgressEnabled = true;
+                });
+
+            file
+                .OfType<IManualContinuousPlayItem>()
+                .Where(_ => !TimedPlayEnabled)
+                .Subscribe(item =>
+                {
+                    TimedPlayButtonEnabled = true;                    
+                    ProgressEnabled = false;
+                    _timer?.PauseTimer();
+                });
+
+            file
+                .Where(f => f is HexItem)
+                .Subscribe(item =>
+                {
+                    TimedPlayButtonEnabled = false;                    
+                    ProgressEnabled = false;
+                    _timer?.PauseTimer();
+                });
+
+
+            file
+                .Where(f => f is GameItem)
+                .Subscribe(item =>
+                {
+                    TimedPlayButtonEnabled = true;
+                });
 
             TogglePlayCommand = ReactiveCommand.CreateFromTask(_ => 
             {
-                if (EnablePlayButton) _timer?.ResumeTimer();
-                if (EnablePauseButton) _timer?.PauseTimer();
+                if (PlayButtonEnabled) _timer?.ResumeTimer();
+                if (PauseButtonEnabled) _timer?.PauseTimer();
                 return togglePlay();
             });
+            ToggleTimedPlay = ReactiveCommand.Create<Unit>(_ => 
+            {
+                TimedPlayEnabled = !TimedPlayEnabled;
+
+                if (TimedPlayEnabled)
+                {
+                    InitializeProgress(playNext, (File as IContinuousPlayItem));
+                    ProgressEnabled = true;
+                    return;
+                }
+                ProgressEnabled = false;
+                _timer?.PauseTimer();
+            });
+
             NextCommand = ReactiveCommand.CreateFromTask(playNext);
             PreviousCommand = ReactiveCommand.CreateFromTask(playPrevious);
             ToggleShuffleCommand = ReactiveCommand.Create(toggleMode);
@@ -152,8 +209,9 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             NavigateToFileDirCommand = ReactiveCommand.CreateFromTask(_ => loadDirectory(File!.Path.GetUnixParentPath()!));
         }
 
-        private void InitializeProgress(Func<Task> playNext, IContinuousPlayItem item)
+        private void InitializeProgress(Func<Task> playNext, IContinuousPlayItem? item)
         {
+            if (item == null) return;
             if(_timer == null) return;
 
             _timerCompleteSubscription?.Dispose();

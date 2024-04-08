@@ -1,13 +1,13 @@
-﻿
-namespace TeensyRom.Core.Storage.Entities
+﻿namespace TeensyRom.Core.Storage.Entities
 {
-    public class GameItem : FileItem, ILaunchableItem, IViewableItem
+    public class GameItem : FileItem, ILaunchableItem, IManualContinuousPlayItem, IViewableItem
     {
         public override string Creator => GetExtensionShortDescription();
         public override string Description => GetExtensionLongDescription();
         public override string Title => $"{Name[..Name.LastIndexOf('.')]}";
         public override string Meta1 => Name[(Name.LastIndexOf('.') + 1)..];
         public List<ViewableItemImage> Images { get; init; } = [];
+        public TimeSpan PlayLength { get; set; } = TimeSpan.FromMinutes(3);
 
         private string GetExtensionShortDescription()
         {
