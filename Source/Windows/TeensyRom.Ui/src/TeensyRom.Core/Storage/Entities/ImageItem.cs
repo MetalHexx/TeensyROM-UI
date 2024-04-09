@@ -4,7 +4,7 @@ using TeensyRom.Core.Common;
 
 namespace TeensyRom.Core.Storage.Entities
 {
-    public class ImageItem : FileItem, ILaunchableItem, IAutoContinuousPlayItem
+    public class ImageItem : FileItem, ILaunchableItem
     {
         public override string Creator => GetExtensionShortDescription();
         public override string Description => GetExtensionLongDescription();

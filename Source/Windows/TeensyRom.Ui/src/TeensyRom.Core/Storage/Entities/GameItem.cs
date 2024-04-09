@@ -1,6 +1,6 @@
 ﻿namespace TeensyRom.Core.Storage.Entities
 {
-    public class GameItem : FileItem, ILaunchableItem, IManualContinuousPlayItem, IViewableItem
+    public class GameItem : FileItem, ILaunchableItem, IViewableItem
     {
         public override string Creator => GetExtensionShortDescription();
         public override string Description => GetExtensionLongDescription();

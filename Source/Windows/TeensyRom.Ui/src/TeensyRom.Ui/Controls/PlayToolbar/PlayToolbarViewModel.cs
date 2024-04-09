@@ -2,6 +2,7 @@
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -22,9 +23,12 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [Reactive] public bool PlayButtonEnabled { get; set; }
         [Reactive] public bool PauseButtonEnabled { get; set; }
         [Reactive] public bool StopButtonEnabled { get; set; }
+        [Reactive] public bool TimedPlayEnabled { get; set; }
         [Reactive] public bool TimedPlayButtonEnabled { get; set; }
-        [Reactive] public bool TimedPlayEnabled { get; set; }        
+        [Reactive] public bool TimedPlayComboBoxEnabled { get; set; }              
         [Reactive] public bool ProgressEnabled { get; set; }
+        [Reactive] public string TimerSeconds { get; set; } = "3m";
+        [Reactive] public List<string> TimerOptions { get; set; } = ["5s", "10s", "15s", "30s", "1m", "3m", "5m", "10m", "15m", "30m"];
         [ObservableAsProperty] public bool ShowTitleOnly { get; }
         
         [ObservableAsProperty] public ILaunchableItem? File { get; }
@@ -63,19 +67,17 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             _timer = timer;
             _alert = alert;
 
-            file
-                .Where(item => item is not null)
-                .ToPropertyEx(this, s => s.File);
+            var currentFile = file.Where(item => item is not null);
 
-            var showReleaseInfo = file
-                .Where(item => item is not null)
+            var showReleaseInfo = currentFile
                 .Select(item => !string.IsNullOrWhiteSpace(item.ReleaseInfo));
 
-            showReleaseInfo.ToPropertyEx(this, vm => vm.ShowReleaseInfo);
-
-            var showCreatorInfo = file
-                .Where(item => item is not null)
+            var showCreatorInfo = currentFile
                 .Select(item => !string.IsNullOrWhiteSpace(item.Creator));
+
+            currentFile.ToPropertyEx(this, f => f.File);
+
+            showReleaseInfo.ToPropertyEx(this, vm => vm.ShowReleaseInfo);
 
             showCreatorInfo.ToPropertyEx(this, vm => vm.ShowCreator);
 
@@ -86,9 +88,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Select(x => x)
                 .ToPropertyEx(this, vm => vm.ShowTitleOnly);
 
-            file
-                .Where(s => s is not null)
-                .Select(s => !string.IsNullOrEmpty(s.ShareUrl))
+            currentFile
+                .Select(f => !string.IsNullOrWhiteSpace(f.ShareUrl))
                 .ToPropertyEx(this, vm => vm.ShareVisible);
 
             playState
@@ -112,7 +113,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Do(_ => PlayButtonEnabled = false);
 
             playToggle
-                .Where(_ => File is GameItem or HexItem)
+                .Where(_ => File is GameItem or HexItem or ImageItem)
                 .Subscribe(item => 
                 {   
                     StopButtonEnabled = true;
@@ -127,58 +128,51 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     PauseButtonEnabled = true;
                 });
 
-            playToggle
-               .Where(_ => File is ImageItem)
-               .Subscribe(_ =>
-               {
-                   StopButtonEnabled = true;
-                   PauseButtonEnabled = false;                   
-               });
+            var song = currentFile.OfType<SongItem>();
+            var hexItem = currentFile.OfType<HexItem>();
+            var gameOrImage = currentFile.Where(f => f is GameItem or ImageItem);
 
-            file
-                .OfType<IAutoContinuousPlayItem>()
-                .Subscribe(item => 
-                {
-                    TimedPlayButtonEnabled = false;
-                    ProgressEnabled = true;
-                    InitializeProgress(playNext, item);
-                });
+            song.Subscribe(item => 
+            {
+                TimedPlayButtonEnabled = false;
+                TimedPlayComboBoxEnabled = false;
+                ProgressEnabled = true;
+                InitializeProgress(playNext, item);
+            });
 
-            file
-                .OfType<IManualContinuousPlayItem>()
+            gameOrImage
                 .Where(_ => TimedPlayEnabled)
                 .Subscribe(item =>
                 {
                     TimedPlayButtonEnabled = true;
-                    InitializeProgress(playNext, item);
+                    TimedPlayComboBoxEnabled = true;                                        
                     ProgressEnabled = true;
+                    InitializeProgress(playNext, item);
                 });
 
-            file
-                .OfType<IManualContinuousPlayItem>()
+            gameOrImage
                 .Where(_ => !TimedPlayEnabled)
                 .Subscribe(item =>
                 {
-                    TimedPlayButtonEnabled = true;                    
-                    ProgressEnabled = false;
-                    _timer?.PauseTimer();
-                });
-
-            file
-                .Where(f => f is HexItem)
-                .Subscribe(item =>
-                {
-                    TimedPlayButtonEnabled = false;                    
-                    ProgressEnabled = false;
-                    _timer?.PauseTimer();
-                });
-
-
-            file
-                .Where(f => f is GameItem)
-                .Subscribe(item =>
-                {
                     TimedPlayButtonEnabled = true;
+                    TimedPlayComboBoxEnabled = false;                                       
+                    ProgressEnabled = false;
+                    _timer?.PauseTimer();
+                });
+
+            hexItem.Subscribe(item =>
+            {
+                TimedPlayButtonEnabled = false;
+                TimedPlayComboBoxEnabled = false;
+                ProgressEnabled = false;
+                _timer?.PauseTimer();
+            });
+
+            this.WhenAnyValue(x => x.TimerSeconds)
+                .Where(_ => TimedPlayEnabled)
+                .Subscribe(timeSpan =>
+                {
+                    InitializeProgress(playNext, File);
                 });
 
             TogglePlayCommand = ReactiveCommand.CreateFromTask(_ => 
@@ -187,17 +181,20 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 if (PauseButtonEnabled) _timer?.PauseTimer();
                 return togglePlay();
             });
+
             ToggleTimedPlay = ReactiveCommand.Create<Unit>(_ => 
             {
                 TimedPlayEnabled = !TimedPlayEnabled;
 
                 if (TimedPlayEnabled)
                 {
-                    InitializeProgress(playNext, (File as IContinuousPlayItem));
+                    TimedPlayComboBoxEnabled = true;                    
                     ProgressEnabled = true;
+                    InitializeProgress(playNext, (File));
                     return;
                 }
-                ProgressEnabled = false;
+                TimedPlayComboBoxEnabled = false;
+                ProgressEnabled = false;                
                 _timer?.PauseTimer();
             });
 
@@ -209,17 +206,28 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             NavigateToFileDirCommand = ReactiveCommand.CreateFromTask(_ => loadDirectory(File!.Path.GetUnixParentPath()!));
         }
 
-        private void InitializeProgress(Func<Task> playNext, IContinuousPlayItem? item)
+        private void InitializeProgress(Func<Task> playNext, ILaunchableItem? item)
         {
             if (item == null) return;
             if(_timer == null) return;
 
+            TimeSpan playLength;
+
+            if(item is SongItem songItem)
+            {
+                playLength = songItem.PlayLength;
+            }
+            else
+            {
+                playLength = ConvertToTimeSpan(TimerSeconds);
+            }
+
             _timerCompleteSubscription?.Dispose();
 
-            _timer?.StartNewTimer(item.PlayLength);
+            _timer?.StartNewTimer(playLength);
 
             _timerCompleteSubscription = _timer?.CurrentTime
-                .Select(t => new TimeProgressViewModel(item.PlayLength, t))
+                .Select(t => new TimeProgressViewModel(playLength, t))
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToPropertyEx(this, vm => vm.Progress);
 
@@ -236,6 +244,32 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             Clipboard.SetText(File!.ShareUrl);
             _alert.Publish("Share URL copied to clipboard.");
             return Unit.Default;
+        }
+
+        private TimeSpan ConvertToTimeSpan(string timeString)
+        {
+            if (string.IsNullOrWhiteSpace(timeString))
+            {
+                return TimeSpan.Zero;
+            }
+
+            char timeUnit = timeString[^1];
+
+            if(timeUnit != 's' && timeUnit != 'm')
+            {
+                return TimeSpan.Zero;
+            }
+
+            if (int.TryParse(timeString[..^1], out int timeValue))
+            {
+                return timeUnit switch
+                {
+                    's' => TimeSpan.FromSeconds(timeValue),
+                    'm' => TimeSpan.FromMinutes(timeValue),
+                    _ => TimeSpan.Zero
+                };
+            }
+            return TimeSpan.Zero;
         }
     }
 }

@@ -140,23 +140,46 @@
                 HorizontalAlignment="Right" VerticalAlignment="Top" 
                 Margin="10 0 10 0">
 
+                <ComboBox 
+                    x:Name="TimerComboBox"
+                    ItemsSource="{Binding TimerOptions}"
+                    SelectedItem="{Binding TimerSeconds, Mode=TwoWay}"
+                    Visibility="{Binding TimedPlayComboBoxEnabled, Converter={StaticResource BoolToVisibilityConvertor}, Mode=TwoWay}"
+                    Foreground="{StaticResource EnabledColor}"
+                    FontFamily="Arial"
+                    
+                    materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                    materialDesign:TextFieldAssist.PrefixText="Play Timer:"                    
+                    ToolTip="The amount of time to play the file before launching the next."
+                    Margin="0 0 30 0">
+                </ComboBox>
+
                 <Button x:Name="TimerButton"
                     Command="{Binding ToggleTimedPlay}"  
                     Visibility="{Binding TimedPlayButtonEnabled, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
                     ToolTip="Enables timed play."
                     Style="{StaticResource TimerModeButtonStyle}"
                     Padding="0"
-                    Margin="10">
+                    Margin="0 10 10 10">
                     <materialDesign:PackIcon Kind="TimerOutline" Margin="0 0 0 0"/>
                 </Button>
 
                 <Button x:Name="ShareButton"
-                    Command="{Binding ShareCommand}"                      
+                    Command="{Binding ShareCommand}"    
+                    Visibility="{Binding ShareVisible, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
                     ToolTip="Copies a shareable web link to clipboard"
                     Style="{StaticResource StorageIconButton}"
                     Padding="0"
                     Margin="10">
                     <materialDesign:PackIcon Kind="Share" Margin="0 0 0 3"/>
+                </Button>
+
+                <Button x:Name="ShuffleModeButton"
+                    Command="{Binding ToggleShuffleCommand}"  
+                    ToolTip="Shuffle Mode.  &#x0a;Enabling this will cause the next button to play random file from your collection.  &#x0a;Disabling will play the next file in the current directory. &#x0a;The filter selected will determine the file type that gets picked."
+                    Style="{StaticResource ShuffleModeButtonStyle}"
+                    Margin="10">
+                    <materialDesign:PackIcon Kind="Shuffle"/>
                 </Button>
 
                 <Button x:Name="FavoriteButton"
@@ -168,15 +191,6 @@
                     Margin="10">
                     <materialDesign:PackIcon Kind="heart"/>
                 </Button>
-
-                <Button x:Name="ShuffleModeButton"
-                    Command="{Binding ToggleShuffleCommand}"  
-                    ToolTip="Shuffle Mode.  &#x0a;Enabling this will cause the next button to play random file from your collection.  &#x0a;Disabling will play the next file in the current directory. &#x0a;The filter selected will determine the file type that gets picked."
-                    Style="{StaticResource ShuffleModeButtonStyle}"
-                    Margin="10">
-                    <materialDesign:PackIcon Kind="Shuffle"/>
-                </Button>
-
             </StackPanel>
             
         </Grid>
