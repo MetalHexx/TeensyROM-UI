@@ -208,6 +208,7 @@ namespace TeensyRom.Core.Serial
             return dataString;
         }
 
+        //TODO: Make it return Task<string>
         public string ReadSerialAsString(int msToWait = 0)
         {
             Thread.Sleep(msToWait);
