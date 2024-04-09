@@ -34,14 +34,6 @@ namespace TeensyRom.Ui.Features.Discover.State
 
         public override async Task TogglePlay()
         {
-            if (_playingState.Value is PlayState.Playing)
-            {
-                _playingState.OnNext(PlayState.Stopped);
-                await StopFile();
-                return;
-            }
-            _playingState.OnNext(PlayState.Playing);
-
             if (_launchedFile.Value is SongItem)
             {
                 var result = await _mediator.Send(new ToggleMusicCommand());
@@ -49,8 +41,22 @@ namespace TeensyRom.Ui.Features.Discover.State
                 if (result.IsBusy)
                 {
                     _alert.Enqueue("Toggle music failed. Re-launching the current song.");
+                    _playingState.OnNext(PlayState.Playing);
+                    await PlayFile(_launchedFile.Value!);
+                    return;
                 }
+                _playingState.OnNext(_playingState.Value == PlayState.Paused 
+                    ? PlayState.Playing 
+                    : PlayState.Paused);
+                return;
             }
+            if (_playingState.Value is PlayState.Playing)
+            {
+                _playingState.OnNext(PlayState.Stopped);
+                await StopFile();
+                return;
+            }
+            _playingState.OnNext(PlayState.Playing);            
             await PlayFile(_launchedFile.Value!);
             return;
         }
