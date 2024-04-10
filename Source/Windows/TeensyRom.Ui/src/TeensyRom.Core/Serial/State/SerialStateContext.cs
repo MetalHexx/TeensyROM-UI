@@ -82,6 +82,8 @@ namespace TeensyRom.Core.Serial.State
             _currentState.Value.ClearBuffers();
         }
 
+        public byte[] ReadSerialBytes(int msToWait = 0) => _currentState.Value.ReadSerialBytes(msToWait);
+
         IObservable<Type> IObservableSerialPort.State => throw new NotImplementedException();
     }
 }

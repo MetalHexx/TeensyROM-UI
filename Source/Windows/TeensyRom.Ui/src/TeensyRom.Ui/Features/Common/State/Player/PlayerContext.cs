@@ -259,6 +259,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
                 await HandleBadFile(file);
                 return;
             }
+            if (IsBusy()) return;
 
             LaunchFileAsync(file);
 
@@ -278,13 +279,19 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             _selectedFile.OnNext(file);
             _playingState.OnNext(PlayState.Playing);
         }
+        private bool IsBusy()
+        {
+            var serialState = _serialContext.CurrentState.FirstOrDefault();
+
+            return serialState is SerialBusyState;
+        }
 
         private void LaunchFileAsync(ILaunchableItem file) 
         {
             Task.Run(() => 
             {
                 _mediator
-                .Send(new LaunchFileCommand(_settings.StorageType, file.Path))
+                .Send(new LaunchFileCommand(_settings.StorageType, file))
                 .ContinueWith(async task =>
                 {
                     var result = task.Result;
@@ -312,6 +319,8 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
         public virtual async Task SaveFavorite(ILaunchableItem file)
         {
+            if (IsBusy()) return;
+
             if (_launchedFile.Value is GameItem) 
             {
                 _alert.Enqueue("Your game will re-launch to allow favorite to be tagged.");
@@ -322,7 +331,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             if (_launchedFile.Value is GameItem)
             {
                 await Task.Delay(2000);
-                await _mediator.Send(new LaunchFileCommand(_settings.StorageType, _launchedFile.Value.Path));
+                await _mediator.Send(new LaunchFileCommand(_settings.StorageType, _launchedFile.Value));
             }
             
             var parentDir = favFile?.Path.GetUnixParentPath();
@@ -348,6 +357,8 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         }
         public async Task PlayNext()
         {
+            if (IsBusy()) return;
+
             var file = await _currentState.Value.GetNext(_launchedFile.Value, _currentFilter.Type, _directoryState.Value);
 
             if (file is null) return;
@@ -356,6 +367,8 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         }
         public async virtual Task PlayPrevious()
         {
+            if (IsBusy()) return;
+
             var file = await _currentState.Value.GetPrevious(_launchedFile.Value, _currentFilter.Type, _directoryState.Value);
 
             if (file is not null) await PlayFile(file);
@@ -373,6 +386,8 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
         public async Task<ILaunchableItem?> PlayRandom()
         {
+            if (IsBusy()) return _launchedFile.Value;
+
             var success = TryTransitionTo(typeof(ShuffleState));
 
             if (!success) return _launchedFile.Value;

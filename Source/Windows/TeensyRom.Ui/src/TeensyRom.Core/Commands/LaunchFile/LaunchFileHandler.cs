@@ -22,13 +22,22 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
         public async Task<LaunchFileResult> Handle(LaunchFileCommand request, CancellationToken cancellationToken)
         {
+            _serialState.ClearBuffers();
             _serialState.SendIntBytes(TeensyToken.LaunchFile, 2);
             _serialState.HandleAck();
             _serialState.SendIntBytes(request.StorageType.GetStorageToken(), 1);
-            _serialState.Write($"{request.Path}\0");
+            _serialState.Write($"{request.LaunchItem.Path}\0");
             _serialState.HandleAck();
-            var response = _serialState.ReadSerialAsString(500);
-            var resultType = ParseResponse(response);
+
+            if (request.LaunchItem is HexItem or ImageItem) 
+            {
+                return new LaunchFileResult
+                {
+                    LaunchResult = LaunchFileResultType.Success
+                };
+            }
+
+            var resultType = PollResponse();
 
             return new LaunchFileResult
             {
@@ -36,23 +45,55 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             };
         }
 
-        private LaunchFileResultType ParseResponse(string response)
+        private LaunchFileResultType PollResponse()
         {
-            var sidError = new[] { "PSID not found", "Mem conflict w/ TR app", "PSID/RSID not found", "IO1 mem conflict", "Unexpected Version", "Unexpected Data Offset" };
-            var programError = new[] { "Not enough room", "Unsupported HW Type" };
-
-            if (sidError.Any(response.Contains))
+            var resultType = LaunchFileResultType.NoResponse;
+            List<byte> bytesRead = [];
+            
+            for (int i = 0; i < 40; i++)
             {
-                _log.ExternalError($"Failed to launch sid: \r\n{response}");
+                var responseBytes = _serialState.ReadSerialBytes(25);
+                bytesRead.AddRange(responseBytes);
+                resultType = ParseResponse([.. bytesRead]);
+
+                if (resultType != LaunchFileResultType.NoResponse)
+                {
+                    return resultType;
+                }
+            }
+            return LaunchFileResultType.Success;
+        }
+
+        private LaunchFileResultType ParseResponse(byte[] responseBytes)
+        {   
+            var resultString = responseBytes.ToAscii();
+            var resultToCheck = resultString.Replace("Loading IO handler: TeensyROM", string.Empty);
+            var foundTokens = responseBytes.FindTRTokens();
+            
+            if (foundTokens.Any(t => t == TeensyToken.GoodSIDToken))
+            {
+                _log.External(resultString);
+                return LaunchFileResultType.Success;
+            }
+            if (foundTokens.Any(t => t == TeensyToken.BadSIDToken))
+            {
+                _log.ExternalError($"Failed to launch sid: \r\n{resultString}");
                 return LaunchFileResultType.SidError;
             }
-            if (programError.Any(response.Contains))
+            if (resultString.Contains("Loading IO handler:", StringComparison.OrdinalIgnoreCase))
             {
-                _log.ExternalError($"Failed to launch program: \r\n{response}");
+                _log.External(resultString);
+                return LaunchFileResultType.Success;
+            }
+            var programError = new[] { "Not enough room", "Unsupported HW Type" };
+
+            if (programError.Any(error => resultString.Contains(error, StringComparison.OrdinalIgnoreCase)))
+            {
+                _log.ExternalError($"Failed to launch program: \r\n{resultString}");
                 return LaunchFileResultType.ProgramError;
             }
-            _log.External(response);
-            return LaunchFileResultType.Success;
+            _log.External(resultString);
+            return LaunchFileResultType.NoResponse;
         }
     }
 }

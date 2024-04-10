@@ -20,6 +20,7 @@ namespace TeensyRom.Core.Serial.State
         public override int Read(byte[] buffer, int offset, int count) => _serialPort.Read(buffer, offset, count);
         public override int ReadByte() => _serialPort.ReadByte();
         public override string ReadAndLogSerialAsString(int msToWait = 0) => _serialPort.ReadAndLogSerialAsString(msToWait);
+        public override byte[] ReadSerialBytes(int msToWait = 0) => _serialPort.ReadSerialBytes(msToWait);
         public override string ReadSerialAsString(int msToWait = 0) => _serialPort.ReadSerialAsString(msToWait);
         public override byte[] ReadSerialBytes() => _serialPort.ReadSerialBytes();
         public override void WaitForSerialData(int numBytes, int timeoutMs) => _serialPort.WaitForSerialData(numBytes, timeoutMs);

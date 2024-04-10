@@ -16,6 +16,8 @@ namespace TeensyRom.Core.Serial
         public static readonly TeensyToken LegacySendFile = new(0x64AA, nameof(LegacySendFile));
         public static readonly TeensyToken Ack = new(0x64CC, nameof(Ack));
         public static readonly TeensyToken Fail = new(0x9B7F, nameof(Fail));
+        public static readonly TeensyToken GoodSIDToken = new(0x9B81, nameof(GoodSIDToken));
+        public static readonly TeensyToken BadSIDToken = new(0x9B80, nameof(BadSIDToken));
         public static readonly TeensyToken Unnknown = new(0x0000, nameof(Unnknown));
 
         private TeensyToken(ushort value, string name) : base(name, value) { }

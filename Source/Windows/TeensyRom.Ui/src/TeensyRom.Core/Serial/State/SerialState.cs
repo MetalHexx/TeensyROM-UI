@@ -35,6 +35,9 @@ namespace TeensyRom.Core.Serial.State
         public virtual void StartPortPoll() => throw new TeensyStateException(ExceptionMessage);
         public virtual void Dispose() => _serialPort.Dispose();
         public virtual void ClearBuffers() => throw new NotImplementedException();
+
+        public virtual byte[] ReadSerialBytes(int msToWait = 0) => throw new TeensyStateException(ExceptionMessage);
+
         protected string ExceptionMessage => $"Cannot perform serial operations in: {this.GetType().Name}";
         IObservable<Type> IObservableSerialPort.State => throw new NotImplementedException();
     }

@@ -19,7 +19,7 @@ namespace TeensyRom.Core.Serial
     {
         public IObservable<Type> State => _state.AsObservable();
         public IObservable<string[]> Ports => _ports.AsObservable();
-
+        
         private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         private readonly BehaviorSubject<Type> _state = new(typeof(SerialStartState));
         private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
@@ -195,6 +195,17 @@ namespace TeensyRom.Core.Serial
             var data = new byte[_serialPort.BytesToRead];
             _serialPort.Read(data, 0, data.Length);
             return data;
+        }
+
+        public byte[] ReadSerialBytes(int msToWait = 0)
+        {
+            Thread.Sleep(msToWait);
+            if (_serialPort.BytesToRead == 0) return [];
+
+            byte[] receivedData = new byte[_serialPort.BytesToRead];
+            _serialPort.Read(receivedData, 0, receivedData.Length);
+
+            return receivedData;
         }
 
         public string ReadAndLogSerialAsString(int msToWait = 0)

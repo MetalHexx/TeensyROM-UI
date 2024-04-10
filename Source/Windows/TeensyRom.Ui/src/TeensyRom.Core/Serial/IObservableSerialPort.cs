@@ -111,6 +111,11 @@ namespace TeensyRom.Core.Serial
         byte[] ReadSerialBytes();
 
         /// <summary>
+        /// Waits a specified number of milliseconds and then reads the serial port as bytes
+        /// </summary>
+        byte[] ReadSerialBytes(int msToWait = 0);
+
+        /// <summary>
         /// Waits for a specified number of bytes to be available to read from the serial port
         /// </summary>
         /// <param name="numBytes"></param>

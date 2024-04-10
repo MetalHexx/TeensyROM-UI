@@ -4,6 +4,7 @@
     {
         Success,
         SidError,
-        ProgramError
+        ProgramError,
+        NoResponse
     }
 }
