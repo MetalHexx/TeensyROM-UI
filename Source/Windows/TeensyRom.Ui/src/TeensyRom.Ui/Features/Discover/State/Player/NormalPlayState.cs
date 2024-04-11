@@ -11,11 +11,11 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
-using TeensyRom.Ui.Features.Common.State.Directory;
+using TeensyRom.Ui.Features.Discover.State.Directory;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 
-namespace TeensyRom.Ui.Features.Common.State.Player
+namespace TeensyRom.Ui.Features.Discover.State.Player
 {
     public class NormalPlayState : PlayerState
     {
@@ -67,7 +67,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
             if (launchableItems is null)
             {
-                return currentFile;                
+                return currentFile;
             }
             var index = launchableItems.IndexOf(currentFile);
 
@@ -79,11 +79,11 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
             if (nextFile is null) return null;
 
-            if (_settings.NavToDirOnLaunch) 
+            if (_settings.NavToDirOnLaunch)
             {
                 await _playerContext.LoadDirectory(nextFile.Path.GetUnixParentPath(), nextFile.Path);
             }
-            return nextFile;            
+            return nextFile;
         }
     }
 }

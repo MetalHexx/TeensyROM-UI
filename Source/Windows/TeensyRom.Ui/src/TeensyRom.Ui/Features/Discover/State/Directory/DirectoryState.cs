@@ -11,7 +11,7 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
 
-namespace TeensyRom.Ui.Features.Common.State.Directory
+namespace TeensyRom.Ui.Features.Discover.State.Directory
 {
     public class DirectoryState
     {

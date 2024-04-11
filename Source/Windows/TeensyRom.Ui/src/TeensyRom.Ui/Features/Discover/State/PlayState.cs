@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Ui.Features.Common.State
+﻿namespace TeensyRom.Ui.Features.Discover.State
 {
     public enum PlayState
     {

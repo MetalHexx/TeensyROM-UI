@@ -12,12 +12,11 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
-using TeensyRom.Ui.Features.Common.State;
-using TeensyRom.Ui.Features.Common.State.Directory;
+using TeensyRom.Ui.Features.Discover.State.Directory;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 
-namespace TeensyRom.Ui.Features.Common.State.Player
+namespace TeensyRom.Ui.Features.Discover.State.Player
 {
     public class SearchState : PlayerState
     {
@@ -46,7 +45,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
             if (nextFile is ILaunchableItem f)
             {
-                return f;                
+                return f;
             }
             return currentFile;
         }
@@ -70,7 +69,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
 
             if (file is ILaunchableItem f)
             {
-                return f;                
+                return f;
             }
             return currentFile;
         }

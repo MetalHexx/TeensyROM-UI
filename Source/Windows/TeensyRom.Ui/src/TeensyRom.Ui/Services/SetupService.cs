@@ -11,9 +11,9 @@ using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
-using TeensyRom.Ui.Features.Common.State.Player;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State;
+using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Ui.Features.NavigationHost;
 
 namespace TeensyRom.Ui.Services
@@ -31,20 +31,20 @@ namespace TeensyRom.Ui.Services
         private readonly ISerialStateContext _serial;
         private readonly IDialogService _dialog;
         private readonly ICachedStorageService _storage;
-        private readonly IDiscoverContext _discoverContext;
+        private readonly IPlayerContext _player;
         private readonly DiscoverViewModel _discoverView;
         private TeensySettings _settings = null!;
         private bool _sdSuccess = false;
         private bool _usbSuccess = false;
 
-        public SetupService(ISettingsService settingsService, INavigationService navigation, ISerialStateContext serial, IDialogService dialog, ICachedStorageService storage, IDiscoverContext discoverContext, DiscoverViewModel discoverView)
+        public SetupService(ISettingsService settingsService, INavigationService navigation, ISerialStateContext serial, IDialogService dialog, ICachedStorageService storage, IPlayerContext player, DiscoverViewModel discoverView)
         {
             _settingsService = settingsService;
             _navigation = navigation;
             _serial = serial;
             _dialog = dialog;
             _storage = storage;
-            _discoverContext = discoverContext;
+            _player = player;
             _discoverView = discoverView;
             _settingsService.Settings.Subscribe(settings => _settings = settings);
         }
@@ -323,7 +323,7 @@ namespace TeensyRom.Ui.Services
 
         public void OnLaunch()
         {
-            _discoverContext.LaunchedFile
+            _player.LaunchedFile
                 .OfType<ILaunchableItem>()
                 .Where(file => file.IsCompatible is true)
                 .Take(1)
@@ -345,7 +345,7 @@ namespace TeensyRom.Ui.Services
         }
         public void OnLaunchGame()
         {
-            _discoverContext.LaunchedFile
+            _player.LaunchedFile
                 .OfType<ILaunchableItem>()
                 .Skip(1)
                 .Take(1)
@@ -392,7 +392,7 @@ namespace TeensyRom.Ui.Services
 
         public void OnNormalPlay()
         {
-            _discoverContext.LaunchedFile
+            _player.LaunchedFile
                 .OfType<ILaunchableItem>()
                 .Skip(1)
                 .Take(1)

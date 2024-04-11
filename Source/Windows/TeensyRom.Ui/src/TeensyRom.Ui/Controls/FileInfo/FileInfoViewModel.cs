@@ -8,13 +8,13 @@ using System.Diagnostics;
 using System.Windows;
 using TeensyRom.Core.Games;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Ui.Features.Common.State.Player;
 using System.Collections;
 using System.Collections.ObjectModel;
 using TeensyRom.Core.Common;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
+using TeensyRom.Ui.Features.Discover.State.Player;
 
 namespace TeensyRom.Ui.Controls.FileInfo
 {

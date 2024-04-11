@@ -4,9 +4,9 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Ui.Features.Common.State.Directory;
+using TeensyRom.Ui.Features.Discover.State.Directory;
 
-namespace TeensyRom.Ui.Features.Common.State.Player
+namespace TeensyRom.Ui.Features.Discover.State.Player
 {
     public interface IPlayerState
     {

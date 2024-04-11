@@ -10,11 +10,11 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
-using TeensyRom.Ui.Features.Common.State.Directory;
+using TeensyRom.Ui.Features.Discover.State.Directory;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 
-namespace TeensyRom.Ui.Features.Common.State.Player
+namespace TeensyRom.Ui.Features.Discover.State.Player
 {
     public class ShuffleState : PlayerState
     {
@@ -36,19 +36,19 @@ namespace TeensyRom.Ui.Features.Common.State.Player
             {
                 await _playerContext.LoadDirectory(nextFile.Path.GetUnixParentPath(), nextFile.Path);
                 return nextFile;
-            }            
+            }
             var randomFile = _storage.GetRandomFile(fileTypes);
-            
-            if(randomFile is not null)
+
+            if (randomFile is not null)
             {
                 _playerContext.UpdateHistory(randomFile);
 
-                if (_settings.NavToDirOnLaunch) 
+                if (_settings.NavToDirOnLaunch)
                 {
                     await _playerContext.LoadDirectory(randomFile.Path.GetUnixParentPath(), randomFile.Path);
                 }
             }
-            return randomFile;            
+            return randomFile;
         }
 
         public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState)

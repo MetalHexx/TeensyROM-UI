@@ -25,10 +25,9 @@ using TeensyRom.Ui.Controls.SearchResultsToolbar;
 using TeensyRom.Ui.Controls.StorageSelector;
 using TeensyRom.Ui.Features.Common.Config;
 using TeensyRom.Ui.Features.Common.Models;
-using TeensyRom.Ui.Features.Common.State;
-using TeensyRom.Ui.Features.Common.State.Player;
-using TeensyRom.Ui.Features.Common.State.Progress;
 using TeensyRom.Ui.Features.Discover.State;
+using TeensyRom.Ui.Features.Discover.State.Player;
+using TeensyRom.Ui.Features.Discover.State.Progress;
 using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Discover
@@ -52,17 +51,15 @@ namespace TeensyRom.Ui.Features.Discover
         [Reactive] public StorageSelectorViewModel StorageSelector { get; set; }
 
         private TeensySettings _settings = null!;
-        private readonly IExplorerViewConfig _viewConfig;
 
-        public DiscoverViewModel(IDiscoverContext context, ISerialStateContext serial, IDialogService dialog, IAlertService alert, IProgressService progress, ISettingsService settingsService, IGameMetadataService metadata, IDiscoverViewConfig config, IProgressTimer? timer)
+        public DiscoverViewModel(IPlayerContext player, ISerialStateContext serial, IDialogService dialog, IAlertService alert, IProgressService progress, ISettingsService settingsService, IGameMetadataService metadata, IProgressTimer? timer)
         {
-            _viewConfig = config;
             Title = new FeatureTitleViewModel("Discover");
-            FileInfo = new FileInfoViewModel(context, metadata);
+            FileInfo = new FileInfoViewModel(player, metadata);
 
-            var launchedFile = context.LaunchedFile.ObserveOn(RxApp.MainThreadScheduler);
+            var launchedFile = player.LaunchedFile.ObserveOn(RxApp.MainThreadScheduler);
             var serialCurrentState = serial.CurrentState.ObserveOn(RxApp.MainThreadScheduler);
-            var playerContextState = context.CurrentState.ObserveOn(RxApp.MainThreadScheduler);
+            var playerContextState = player.CurrentState.ObserveOn(RxApp.MainThreadScheduler);
 
             serialCurrentState
                 .Select(state => state is SerialBusyState or SerialConnectedState)
@@ -78,7 +75,7 @@ namespace TeensyRom.Ui.Features.Discover
 
             var launchState = playerContextState
                 .Select(state => GetPlayMode(state))
-                .CombineLatest(context.PlayingState, (mode, state) => (mode, state))
+                .CombineLatest(player.PlayingState, (mode, state) => (mode, state))
                 .Select(stateMode => new LaunchItemState { PlayState = stateMode.state, PlayMode = stateMode.mode });
 
             PlayToolbar = new PlayToolbarViewModel
@@ -86,30 +83,30 @@ namespace TeensyRom.Ui.Features.Discover
                 launchedFile,
                 launchState,
                 timer,
-                context.ToggleShuffleMode,
-                context.TogglePlay,
-                context.PlayPrevious,
-                context.PlayNext,
-                context.SaveFavorite,
-                context.LoadDirectory,
+                player.ToggleShuffleMode,
+                player.TogglePlay,
+                player.PlayPrevious,
+                player.PlayNext,
+                player.SaveFavorite,
+                player.LoadDirectory,
                 alert
             );
 
             DirectoryList = new DirectoryListViewModel
             (
-                context.DirectoryContent.ObserveOn(RxApp.MainThreadScheduler),
-                context.PagingEnabled.ObserveOn(RxApp.MainThreadScheduler),
-                context.CurrentPage.ObserveOn(RxApp.MainThreadScheduler),
-                context.TotalPages.ObserveOn(RxApp.MainThreadScheduler),
-                context.PlayFile,
-                context.SelectFile,
-                context.SaveFavorite,
-                context.StoreFiles,
-                context.DeleteFile,
-                context.LoadDirectory,
-                context.NextPage,
-                context.PreviousPage,
-                context.SetPageSize,
+                player.DirectoryContent.ObserveOn(RxApp.MainThreadScheduler),
+                player.PagingEnabled.ObserveOn(RxApp.MainThreadScheduler),
+                player.CurrentPage.ObserveOn(RxApp.MainThreadScheduler),
+                player.TotalPages.ObserveOn(RxApp.MainThreadScheduler),
+                player.PlayFile,
+                player.SelectFile,
+                player.SaveFavorite,
+                player.StoreFiles,
+                player.DeleteFile,
+                player.LoadDirectory,
+                player.NextPage,
+                player.PreviousPage,
+                player.SetPageSize,
                 alert,
                 dialog,
                 progress
@@ -117,10 +114,10 @@ namespace TeensyRom.Ui.Features.Discover
 
             StorageSelector = new StorageSelectorViewModel(settingsService);
 
-            DirectoryTree = new(context.DirectoryTree)
+            DirectoryTree = new(player.DirectoryTree)
             {
                 DirectorySelectedCommand = ReactiveCommand.CreateFromTask<DirectoryNodeViewModel>(
-                    execute: async (directory) => await context.LoadDirectory(directory.Path),
+                    execute: async (directory) => await player.LoadDirectory(directory.Path),
                     outputScheduler: RxApp.MainThreadScheduler)
             };
 
@@ -129,14 +126,14 @@ namespace TeensyRom.Ui.Features.Discover
             Search = new(searchActive)
             {
                 SearchCommand = ReactiveCommand.Create<string, Unit>(
-                    execute: context.SearchFiles,
+                    execute: player.SearchFiles,
                     outputScheduler: RxApp.MainThreadScheduler),
 
                 ClearSearchCommand = ReactiveCommand.CreateFromTask(
                     execute: () =>
                     {
                         Search!.SearchText = string.Empty;
-                        return context.ClearSearch();
+                        return player.ClearSearch();
                     },
                     outputScheduler: RxApp.MainThreadScheduler)
             };
@@ -150,21 +147,21 @@ namespace TeensyRom.Ui.Features.Discover
                 var selectedFilter = Filter?.SelectedLibrary;
 
                 Filter = new LibraryFilterViewModel(libs, selectedFilter, 
-                    filterFunc: (filter) => context.SwitchFilter(filter),
-                    launchRandomFunc: () => context.PlayRandom());
+                    filterFunc: (filter) => player.SwitchFilter(filter),
+                    launchRandomFunc: () => player.PlayRandom());
 
                 DirectoryChips = new DirectoryChipsViewModel
                 (
-                    path: context.CurrentPath.ObserveOn(RxApp.MainThreadScheduler),
+                    path: player.CurrentPath.ObserveOn(RxApp.MainThreadScheduler),
                     basePath: StorageConstants.Remote_Path_Root,
-                    onClick: async path => await context.LoadDirectory(path),
+                    onClick: async path => await player.LoadDirectory(path),
                     onCopy: () => alert.Publish("Path copied to clipboard"),
-                    onRefresh: context.RefreshDirectory
+                    onRefresh: player.RefreshDirectory
                 );
 
                 CornerToolbar = new CornerToolbarViewModel
                 (
-                    context.CacheAll,                                        
+                    player.CacheAll,                                        
                     dialog,
                     _settings.StorageType
                 );

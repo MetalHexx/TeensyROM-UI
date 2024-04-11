@@ -21,12 +21,12 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
-using TeensyRom.Ui.Features.Common.State.Directory;
+using TeensyRom.Ui.Features.Discover.State.Directory;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
-using PlayState = TeensyRom.Ui.Features.Common.State.PlayState;
+using PlayState = TeensyRom.Ui.Features.Discover.State.PlayState;
 
-namespace TeensyRom.Ui.Features.Common.State.Player
+namespace TeensyRom.Ui.Features.Discover.State.Player
 {
     public abstract class PlayerState : IPlayerState, IDisposable
     {

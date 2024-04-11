@@ -25,11 +25,12 @@ using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.DirectoryList;
-using TeensyRom.Ui.Features.Common.State.Progress;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Core.Assets.Tools.Vice;
 using TeensyRom.Ui.Features.Terminal.SerialCommand;
+using TeensyRom.Ui.Features.Discover.State.Progress;
+using TeensyRom.Ui.Features.Discover.State.Player;
 
 namespace TeensyRom.Ui
 {
@@ -54,8 +55,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IGameMetadataService, GameMetadataService>();
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
             services.AddSingleton<ICachedStorageService, CachedStorageService>();
-            services.AddSingleton<IDiscoverContext, DiscoverContext>();
-            services.AddSingleton<IDiscoverViewConfig, DiscoverViewConfig>();
+            services.AddSingleton<IPlayerContext, PlayerContext>();
             services.AddSingleton<IDiscoveryTreeState, DiscoverTreeState>();
             services.AddSingleton<ISetupService, SetupService>();  
             services.AddSingleton<ID64Extractor, D64Extractor>();

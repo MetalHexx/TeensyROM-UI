@@ -7,9 +7,9 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
-using TeensyRom.Ui.Features.Common.State;
+using TeensyRom.Ui.Features.Discover.State;
 
-namespace TeensyRom.Ui.Features.Common.State.Player
+namespace TeensyRom.Ui.Features.Discover.State.Player
 {
     public interface IPlayerContext
     {
@@ -44,7 +44,7 @@ namespace TeensyRom.Ui.Features.Common.State.Player
         Unit SelectFile(ILaunchableItem file);
         Task StopFile();
         Unit ToggleShuffleMode();
-        bool TryTransitionTo(Type nextStateType);     
+        bool TryTransitionTo(Type nextStateType);
         Task SwitchFilter(TeensyFilter filter);
         Task StoreFiles(IEnumerable<DragNDropFile> files);
         Task AutoStoreFiles(IEnumerable<FileTransferItem> files);

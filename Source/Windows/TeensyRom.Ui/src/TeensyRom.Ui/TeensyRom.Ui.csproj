@@ -35,4 +35,8 @@
     </Compile>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Common\State\" />
+  </ItemGroup>
+
 </Project>
