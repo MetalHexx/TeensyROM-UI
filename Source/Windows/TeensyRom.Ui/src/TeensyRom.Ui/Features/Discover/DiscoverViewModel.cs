@@ -12,7 +12,7 @@ using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
-using TeensyRom.Ui.Controls.CornerToolbar;
+using TeensyRom.Ui.Controls.CacheButton;
 using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Controls.DirectoryTree;
@@ -45,7 +45,7 @@ namespace TeensyRom.Ui.Features.Discover
         [Reactive] public DirectoryListViewModel DirectoryList { get; set; }
         [Reactive] public FileInfoViewModel FileInfo { get; set; }
         [Reactive] public PlayToolbarViewModel PlayToolbar { get; set; }
-        [Reactive] public CornerToolbarViewModel CornerToolbar { get; set; } = null!;
+        [Reactive] public CacheButtonViewModel CornerToolbar { get; set; } = null!;
         [Reactive] public FeatureTitleViewModel Title { get; set; }
         [Reactive] public SearchResultsToolbarViewModel SearchResultsToolbar { get; set; } = new();
         [Reactive] public StorageSelectorViewModel StorageSelector { get; set; }
@@ -159,7 +159,7 @@ namespace TeensyRom.Ui.Features.Discover
                     onRefresh: player.RefreshDirectory
                 );
 
-                CornerToolbar = new CornerToolbarViewModel
+                CornerToolbar = new CacheButtonViewModel
                 (
                     player.CacheAll,                                        
                     dialog,

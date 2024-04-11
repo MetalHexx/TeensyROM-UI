@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TeensyRom.Ui.Controls.CornerToolbar
+namespace TeensyRom.Ui.Controls.CacheButton
 {
     /// <summary>
     /// Interaction logic for CornerToolbarView.xaml
     /// </summary>
-    public partial class CornerToolbarView : UserControl
+    public partial class CacheButtonView : UserControl
     {
-        public CornerToolbarView()
+        public CacheButtonView()
         {
             InitializeComponent();
         }

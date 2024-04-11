@@ -11,7 +11,7 @@
     xmlns:DirectoryChips="clr-namespace:TeensyRom.Ui.Controls.DirectoryChips"
     xmlns:Terminal="clr-namespace:TeensyRom.Ui.Features.Terminal"
     xmlns:Settings="clr-namespace:TeensyRom.Ui.Features.Settings"
-    xmlns:CornerToolbar="clr-namespace:TeensyRom.Ui.Controls.CornerToolbar"
+    xmlns:CacheButton="clr-namespace:TeensyRom.Ui.Controls.CacheButton"
     xmlns:FeatureTitle="clr-namespace:TeensyRom.Ui.Controls.FeatureTitle"
     xmlns:SearchResultsToolbar="clr-namespace:TeensyRom.Ui.Controls.SearchResultsToolbar"
     xmlns:Discover="clr-namespace:TeensyRom.Ui.Features.Discover"
@@ -75,8 +75,8 @@
                 <DirectoryChips:DirectoryChipsView/>
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type CornerToolbar:CornerToolbarViewModel}">
-                <CornerToolbar:CornerToolbarView/>
+            <DataTemplate DataType="{x:Type CacheButton:CacheButtonViewModel}">
+                <CacheButton:CacheButtonView/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type FeatureTitle:FeatureTitleViewModel}">

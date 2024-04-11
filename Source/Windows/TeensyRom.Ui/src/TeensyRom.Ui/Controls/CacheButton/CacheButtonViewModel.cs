@@ -10,13 +10,13 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Services;
 
-namespace TeensyRom.Ui.Controls.CornerToolbar
+namespace TeensyRom.Ui.Controls.CacheButton
 {
-    public class CornerToolbarViewModel : ReactiveObject
+    public class CacheButtonViewModel : ReactiveObject
     {   
         public ReactiveCommand<Unit, Unit> CacheAllCommand { get; set; }
 
-        public CornerToolbarViewModel(Func<Task> cacheAllFunc, IDialogService dialog, TeensyStorageType storageType)
+        public CacheButtonViewModel(Func<Task> cacheAllFunc, IDialogService dialog, TeensyStorageType storageType)
         {
             CacheAllCommand = ReactiveCommand.CreateFromTask(
                 execute: async _ =>
