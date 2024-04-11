@@ -325,9 +325,11 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             _alert.Enqueue($"{file.Name} is currently unsupported (see logs).  Skipping to the next file.");
 
-            _launchedFile.OnNext(file); //play next will use this to determine the next file
+            _launchedFile.OnNext(file); //play next will use this to determine the next file            
 
             if (file.IsCompatible is true) _storage.MarkIncompatible(file);
+
+            _launchHistory.Remove(file);
 
             return PlayNext();
         }

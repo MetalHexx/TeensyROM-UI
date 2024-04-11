@@ -22,6 +22,18 @@ namespace TeensyRom.Core.Storage.Services
             _currentIndex = _history.Count;
             _history.Add(new(_currentIndex, fileItem));
         }
+
+        public void Remove(ILaunchableItem fileItem)
+        {
+            int index = _history.FindIndex(tuple => tuple.Item2 == fileItem);            
+            if (index == -1) return;            
+            _history.RemoveAt(index);
+            
+            if (index <= _currentIndex)
+            {
+                _currentIndex--;
+            }
+        }
         public void Clear() => _history.Clear();
 
         public void ClearForwardHistory() => _history.RemoveRange(_currentIndex + 1, _history.Count - _currentIndex - 1);
