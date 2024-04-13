@@ -118,6 +118,10 @@ namespace TeensyRom.Ui.Controls.DirectoryList
 
                         var items = (string[])e.Data.GetData(DataFormats.FileDrop);
 
+                        var singleDirectoryCopy = items.Length == 1 && !File.Exists(items[0]) && Directory.Exists(items[0]);
+
+                        var depth = singleDirectoryCopy ? 1 : 0;
+
                         foreach (var item in items)
                         {
                             if (File.Exists(item))
@@ -126,7 +130,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
                             }
                             else if (Directory.Exists(item))
                             {
-                                ProcessDirectoryAsync(item, filePaths);
+                                ProcessDirectoryAsync(item, filePaths, depth);
                             }
                         }
                         await storeFilesFunc(filePaths);
