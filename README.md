@@ -13,6 +13,7 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 - Enhanced with SID composer, song lengths and scene information with metadata integration from [HVSC](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b) and [DeepSID](https://github.com/Chordian/deepsid)
 - Enhanced with game preview screenshots with metadata integration from [OneLoad64](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b)
 - Transfer files to your TeensyROM SD/USB storage with drag and drop capabilities
+  - .d64 files will automatically unpack the embedded .prg files upon transfer
 - Set a watch folder on your desktop to automatically sync files to your TeensyROM SD/USB storage.
 
 ## Requirements
