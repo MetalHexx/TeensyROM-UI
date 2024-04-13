@@ -42,14 +42,10 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
   - *This is due to the application not being signed with a certificate authority yet.*  
 - Once the app loads, press the `Connect` button.
   - *Note: The C64 will automatically reset, this is by design.*
-- Go to `Settings` by clicking the `Gear` icon in the left navigation menu
-- Select your preferred `Default Storage` device
-- Configure the `Library Paths` to point to your game and music folders on your chose storage device
-- Click the `Save` button
 - Click on the `Compass` icon in the left navigation menu
 - Click the `Download` icon in the upper right corner of the screen to cache all your file locations.
   - The dialog that pops up will further explain why this is important.  See: [Help Guides](#help-guides)
-- Click the `Dice` icon in the upper right corner of the screen (next to the `Download` button)
+- Click the `Dice` icon or one of the file type filter buttons.  This will launch a random file.
 - Enjoy the ride! For more details on the various features available and how to get the most out of the UI, check out the [Help Guides](#help-guides).
 
 ## Help Guides
