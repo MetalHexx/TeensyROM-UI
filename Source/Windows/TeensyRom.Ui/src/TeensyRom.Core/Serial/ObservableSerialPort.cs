@@ -47,11 +47,13 @@ namespace TeensyRom.Core.Serial
             if (_serialPort.IsOpen) return;
 
             try
-            {
+            {                
+                _log.Internal($"Attempting to open {_serialPort.PortName}");
                 _serialPort.Open();
-
-                ReadAndLogStaleBuffer();
                 _log.InternalSuccess($"Successfully connected to {_serialPort.PortName}");
+                _log.Internal($"Clearing stale buffers");
+                ReadAndLogStaleBuffer();
+                
             }
             catch
             {
@@ -61,7 +63,7 @@ namespace TeensyRom.Core.Serial
         }
 
         public Unit OpenPort()
-        {
+        {   
             EnsureConnection();
 
             if (_serialPort.IsOpen)

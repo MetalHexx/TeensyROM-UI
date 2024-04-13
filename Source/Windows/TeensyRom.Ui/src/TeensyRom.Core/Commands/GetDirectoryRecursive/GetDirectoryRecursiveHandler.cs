@@ -37,7 +37,7 @@ namespace TeensyRom.Core.Commands
 
         private void GetDirectoryContent(string path, TeensyStorageType storageType, GetDirectoryRecursiveResult result, StringBuilder directoryLogs)
         {            
-            Log($"=> Indexing: {path}", directoryLogs);
+            _log.Internal($"=> Indexing: {path}");
 
             DirectoryContent? directoryContent;
 
@@ -71,17 +71,6 @@ namespace TeensyRom.Core.Commands
             }
         }
 
-        private void Log(string path, StringBuilder directoryLogs)
-        {
-            directoryLogs.AppendLine(path);
-
-            if (directoryLogs.Length > 2000)
-            {
-                _log.Internal(directoryLogs.ToString());
-                directoryLogs.Clear();
-            }
-        }
-
         public List<byte> GetRawDirectoryData()
         {
             var receivedBytes = new List<byte>();
@@ -98,7 +87,6 @@ namespace TeensyRom.Core.Commands
 
                 if (_serialState.BytesToRead > 0)
                 {
-                    Console.WriteLine("Still reading");
                     byte[] buffer = new byte[_serialState.BytesToRead];
                     int bytesRead = _serialState.Read(buffer, 0, buffer.Length);
                     receivedBytes.AddRange(buffer.Take(bytesRead));
