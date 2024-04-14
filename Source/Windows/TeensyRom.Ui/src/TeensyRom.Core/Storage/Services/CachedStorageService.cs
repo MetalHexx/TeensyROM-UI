@@ -225,7 +225,7 @@ namespace TeensyRom.Core.Storage.Services
 
             if (response.DirectoryContent is null) return null;  
 
-            var filteredContent = FilterDirectoryContent(response.DirectoryContent);
+            var filteredContent = FilterBannedItems(response.DirectoryContent);
 
             cacheItem = SaveDirectoryToCache(filteredContent);
             SaveCacheToDisk();
@@ -436,7 +436,7 @@ namespace TeensyRom.Core.Storage.Services
                 {
                     if(directory is null) continue;
 
-                    var filteredContent = FilterDirectoryContent(directory);
+                    var filteredContent = FilterBannedItems(directory);
 
                     if(filteredContent is null) continue;
 
@@ -448,7 +448,7 @@ namespace TeensyRom.Core.Storage.Services
             _alert.Publish($"Indexing completed for {_settings.StorageType} storage.");
         }
 
-        private DirectoryContent? FilterDirectoryContent(DirectoryContent directoryContent)
+        private DirectoryContent? FilterBannedItems(DirectoryContent directoryContent)
         {
             var pathBanned = _settings.BannedDirectories.Any(d => directoryContent.Path.Contains(d));
             if (pathBanned) return null;
