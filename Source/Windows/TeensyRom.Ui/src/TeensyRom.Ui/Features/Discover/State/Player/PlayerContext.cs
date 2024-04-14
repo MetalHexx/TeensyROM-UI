@@ -527,13 +527,13 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         public async Task SwitchFilter(TeensyFilter filter)
         {
             _currentFilter = filter;
-            await PlayRandom();
 
             if (_currentState.Value is SearchState)
             {
                 SearchFiles(_previousSearch);
                 return;
             }
+            await PlayRandom();
         }
 
         public TeensyFileType[] GetFileTypes()
