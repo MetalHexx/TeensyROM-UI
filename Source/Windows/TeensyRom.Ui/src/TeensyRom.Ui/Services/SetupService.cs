@@ -330,7 +330,7 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Shuffle Mode", "Currently we're in \"Shuffle Mode\" as indicated by the blue crossed arrows on the right.  \r\rThis means clicking the next button will launch a random file from your collection.");
+                    result = await _dialog.ShowConfirmation("Shuffle Mode", "Currently we're in \"Shuffle Mode\" as indicated by the blue crossed arrows on the right.  \r\rThis means clicking the next button will launch a random file from your collection depending on the filter you have selected.");
 
                     if (!result)
                     {
