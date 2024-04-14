@@ -62,7 +62,7 @@ namespace TeensyRom.Ui.Controls.DirectoryChips
             });   
             CopyCommand = ReactiveCommand.Create<string>(_ => 
             {
-                Clipboard.SetText(_currentPath);
+                Clipboard.SetDataObject(_currentPath);
                 onCopy();
             });
 

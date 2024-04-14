@@ -51,6 +51,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private readonly IAlertService _alert;
         private IProgressTimer? _timer;
         private IDisposable? _timerCompleteSubscription;
+        private IDisposable? _currentTimeSubscription;
 
         public PlayToolbarViewModel(
             IObservable<ILaunchableItem> file, 
@@ -234,10 +235,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             }
 
             _timerCompleteSubscription?.Dispose();
+            _currentTimeSubscription?.Dispose();
 
             _timer?.StartNewTimer(playLength);
 
-            _timerCompleteSubscription = _timer?.CurrentTime
+            _currentTimeSubscription = _timer?.CurrentTime
                 .Select(t => new TimeProgressViewModel(playLength, t))
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToPropertyEx(this, vm => vm.Progress);
@@ -252,7 +254,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         private Unit HandleShareCommand() 
         {   
-            Clipboard.SetText(File!.ShareUrl);
+            Clipboard.SetDataObject(File!.ShareUrl);
             _alert.Publish("Share URL copied to clipboard.");
             return Unit.Default;
         }
