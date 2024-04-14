@@ -81,12 +81,12 @@ The one thing that all these amazing carts have in common is that they're kind o
 I contacted the creator, Mr Travis S, and started brainstorming.  A lot of really great ideas were been shared and in no time, the UI was born.  Enjoy!
 
 ## Screenshots
-#### Launch Games
-![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/c5ebfbcd-4282-49b2-b349-3af5b5d503c5)
-
 #### Launch SIDs
-![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/d4bfa1f6-9b7d-4d2c-8d2e-02e2b505a548)
+<img src="https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/d4bfa1f6-9b7d-4d2c-8d2e-02e2b505a548" width="75%" alt="Launch SIDs">
+
+#### Launch Games
+<img src="https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/c5ebfbcd-4282-49b2-b349-3af5b5d503c5" width="75%" alt="Launch Games">
 
 #### Debug and Tinker with a Serial CLI
-![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/cd59e5a9-dcd4-424e-8032-87bb1fa526d8)
+<img src="https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/cd59e5a9-dcd4-424e-8032-87bb1fa526d8" width="75%" alt="Debug and Tinker with a Serial CLI">
 
