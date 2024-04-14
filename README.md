@@ -39,13 +39,14 @@ An integration with [HVSC](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN
 
 #### OneLoad64
 The application comes bundled with [OneLoad64](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b) game load and play screens to make it easy to preview games to play.  This collection in combination with this application enable the fastest consecutive game load times possible on a commodore machine.
-## Search
+
+## Search:
 The integration with this metadata data means that we get some relativately strong text search capility across a wide variety of information.  Featuring some light search engine style syntax and relevancy mechanics, you can fine tune a search to find some very specific content across various file types.
 
-## Debug and Serial CLI
+## Debug and Serial CLI:
 The UI is also a debugging / file transfer utility.  The application features a terminal to show you all of the activity happening on the TR. A command line interface is available for sending Serial commands directly to the hardware.  This is useful for debugging or tinkering with your TR.
 
- ## File Transfer
+ ## File Transfer:
 Incorporating file drag and drop functionality, you can move files to your SD/USB storage pretty quickly, reducing the need to physically remove them.  Watch file capability allows you to designate a folder on your desktop computer to trigger automatic file transfer and launch on your commodore.
    
 ## Requirements
