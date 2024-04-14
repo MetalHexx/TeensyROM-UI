@@ -11,14 +11,15 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="55"/>
-            <RowDefinition Height="30" ></RowDefinition>
-            <RowDefinition Height="30" ></RowDefinition>
-            <RowDefinition Height="30" ></RowDefinition>
-            <RowDefinition Height="30" ></RowDefinition>
-            <RowDefinition Height="80" ></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="80"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="160"></ColumnDefinition>
+            <ColumnDefinition Width="165"></ColumnDefinition>
             <ColumnDefinition Width="10"></ColumnDefinition>
             <ColumnDefinition Width="400"></ColumnDefinition>
 
@@ -69,13 +70,21 @@
             Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}"                
             Grid.Row="4" Grid.Column="3" VerticalAlignment="Top"/>
 
-        
+        <Label 
+            Content="Play Timer Auto-Enabled:"
+            ToolTip="This will enable the Games/Programs/Images play timer automatically when you first start the app."
+            Grid.Row="5" HorizontalAlignment="Right"/>
+        <CheckBox                  
+            Content="Enabled"                
+            ToolTip="This will enable the Games/Programs/Images play timer automatically when you first start the app."
+            IsChecked="{Binding Settings.PlayTimerEnabled, Mode=TwoWay}" 
+            Grid.Row="5" Grid.Column="3" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Button             
             ToolTip="This will save your settings to disk."
             Content="Save Settings"  
             Command="{Binding SaveSettingsCommand}" 
             HorizontalAlignment="Left"
-            Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="20"/>
+            Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="20"/>
     </Grid>
 </UserControl>

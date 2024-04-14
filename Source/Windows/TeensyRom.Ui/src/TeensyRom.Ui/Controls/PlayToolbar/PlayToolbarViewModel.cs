@@ -55,13 +55,14 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public PlayToolbarViewModel(
             IObservable<ILaunchableItem> file, 
             IObservable<LaunchItemState> playState,
+            IObservable<bool> timedPlayEnabled,
             IProgressTimer? timer,
             Func<Unit> toggleMode, 
             Func<Task> togglePlay,
             Func<Task> playPrevious, 
             Func<Task> playNext, 
             Func<ILaunchableItem, Task> saveFav,
-            Func<string, Task> loadDirectory,
+            Func<string, Task> loadDirectory,            
             IAlertService alert)
         {
             _timer = timer;
@@ -174,6 +175,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     InitializeProgress(playNext, File);
                 });
+
+            timedPlayEnabled
+                .Take(2)
+                .Where(pt => pt is true).Subscribe(enabled =>
+            {
+                TimedPlayEnabled = true;
+                TimedPlayComboBoxEnabled = true;
+                ProgressEnabled = true;
+                InitializeProgress(playNext, (File));
+            });
 
             TogglePlayCommand = ReactiveCommand.CreateFromTask(_ => 
             {

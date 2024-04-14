@@ -82,13 +82,14 @@ namespace TeensyRom.Ui.Features.Discover
             (
                 launchedFile,
                 launchState,
+                settingsService.Settings.Select(s => s.PlayTimerEnabled),
                 timer,
                 player.ToggleShuffleMode,
                 player.TogglePlay,
                 player.PlayPrevious,
                 player.PlayNext,
                 player.SaveFavorite,
-                player.LoadDirectory,
+                player.LoadDirectory,                
                 alert
             );
 
