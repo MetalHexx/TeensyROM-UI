@@ -120,14 +120,7 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Connection View", "On this screen, you will find a few utility features that might come in handy.\r\r· Ping: This is useful for troubleshooting connectivity. \r· Reset: Will reset the C64. \r· Logs: Useful for troubleshooting or debugging.");
-
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
-                    result = await _dialog.ShowConfirmation("Automatic Reconnect", "Useful to note that if you decide to turn off your C64 or lose your connection to the TR for some other reason, the application will automatically attempt to re-connect.");
+                    result = await _dialog.ShowConfirmation("Connection View", "On this screen, you will find a few utility features that might come in handy.\r\r· Ping: This is useful for troubleshooting connectivity. \r· Reset: Will reset the C64. \r· Logs: Useful for troubleshooting or debugging. \r· CLI: Will send serial commands to the TR");
 
                     if (!result)
                     {
@@ -144,45 +137,7 @@ namespace TeensyRom.Ui.Services
 
                     _navigation.NavigateTo(NavigationLocation.Settings);
 
-                    result = await _dialog.ShowConfirmation("Settings", "There are a few settings you should be aware of.  Let's review and configure them.");
-
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
-                    result = await _dialog.ShowConfirmation("Automatic Directory Navigation", "The \"Nav to Dir on Launch\" option will determine if the \"Discovery\" view will automatically jump to the directory of the launched file.  I recommend keeping this enabled for now.");
-
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
-
-                    result = await _dialog.ShowConfirmation("Automatic File Transfer", "The \"Watch Directory\" can be configured to automate copying files your TR.\r\rWhen new .SID, .CRT, .PRG or .HEX firmware files copied to the watch directory, they will be detected and automatically be uploaded to the /auto-transfer directory on your TR. \r\rYou may find the download directory a good choice if you like the roam the web for your C64 content.  Your download directory is set by default.");
-
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
-
-                    result = await _dialog.ShowConfirmation("Automatic File Transfer", "Using the download directory also makes it easy to update your TR by downloading a new Firmware (hex file) using your browser.");
-
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
-
-                    result = await _dialog.ShowConfirmation("Auto-Launch on File Transfer", "Note, when you copy files to the TR, you can optionally have them automatically launch.  This behavior is on by default.");
-
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
-                    result = await _dialog.ShowConfirmation("Auto-Launch on File Transfer", "If you're a SID musician or a programmer, the watch directory combined with auto-launch can turn your TR into a realtime testing environment!");
+                    result = await _dialog.ShowConfirmation("Settings", "There are various settings here to customize the application behavior to your preferences.  \r\rMouse over the different settings to see a tooltip for what they do.\r\r Note: Help tooltips are present on most controls in the app. ");
 
                     if (!result)
                     {
@@ -210,7 +165,7 @@ namespace TeensyRom.Ui.Services
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async settings =>
             {
-                var result = await _dialog.ShowConfirmation("Let's Index", "Next, we're going to index all the file locations on your selected storage device.\r\rThis will increase performance, stability, and unlock some fun search and randomization features.");
+                var result = await _dialog.ShowConfirmation("Let's Index", "Next, we're going to index all the file locations on your selected storage device.\r\rThe indexing process is vital for getting the best user experience with the application.");
 
                 if (!result)
                 {
@@ -245,7 +200,7 @@ namespace TeensyRom.Ui.Services
 
             _settings.StorageType = TeensyStorageType.SD;
             _settingsService.SaveSettings(_settings);
-            await _storage.CacheAll(StorageConstants.Remote_Path_Root);
+            //await _storage.CacheAll(StorageConstants.Remote_Path_Root);
 
             await OnCacheUSB();
         }
@@ -260,7 +215,7 @@ namespace TeensyRom.Ui.Services
             }
             _settings.StorageType = TeensyStorageType.USB;
             _settingsService.SaveSettings(_settings);
-            await _storage.CacheAll(StorageConstants.Remote_Path_Root);
+            //await _storage.CacheAll(StorageConstants.Remote_Path_Root);
 
             result = await _dialog.ShowConfirmation("File Indexing Completed", $"Now that your file information has been indexed, lets head over to the Discover view and do some exploring.");
 
@@ -279,15 +234,7 @@ namespace TeensyRom.Ui.Services
 
             _discoverView.StorageSelector.SelectedStorage = TeensyStorageType.SD;
 
-            var result = await _dialog.ShowConfirmation("Indexing Files", "If you make any changes to your storage outside of this application, you can always re-index all your files by clicking on the download button in the upper right.  \r\rNote, if you avoid indexing all your files, your random play and search capabilities will be limited to the folders you have visited.");
-
-            if (!result)
-            {
-                await Complete();
-                return;
-            }
-
-            result = await _dialog.ShowConfirmation("Discovery View", $"In the \"Discover\" view, you can navigate and launch music and games (or other programs).  \r\rIn the first 2 sections, you should see the root directory structure and file listing of your {_settings.StorageType} storage.\r\rOn the right you will find some file information for the currently selected file.  If you copy the HVSC and OneLoad64 collection to your SD, you will be treated with some extra content here.");
+            var result = await _dialog.ShowConfirmation("Discovery View", $"In the \"Discover\" view, you can navigate and launch music, games or images.  \r\rIn the first 2 sections, you should see the root directory structure and file listing of your {_settings.StorageType} storage.\r\rOn the right you will find some information about the currently selected file.");
 
             if (!result)
             {
@@ -303,15 +250,7 @@ namespace TeensyRom.Ui.Services
                 return;
             }
 
-            result = await _dialog.ShowConfirmation("Transfer Files", "You can drag and drop files or folders onto the file listing of the current directory to transfer files to the TR. \r\rWarning, if you drag a folder that has other nested folders, they will all be copied!");
-
-            if (!result)
-            {
-                await Complete();
-                return;
-            }
-
-            result = await _dialog.ShowConfirmation("Feeling Lucky?", "Let's try discovering something to play. \r\rClick on the die button near the lower left of the screen next to the \"All\", \"Games\", and \"Music\" filters.");
+            result = await _dialog.ShowConfirmation("Feeling Lucky?", "Let's try discovering something to play. \r\rClick on the die button near the lower left of the screen next to the \"All\", \"Games\", \"Music\" and \"Images\" filters.");
 
             if (!result)
             {
@@ -324,15 +263,23 @@ namespace TeensyRom.Ui.Services
         public void OnLaunch()
         {
             _player.LaunchedFile
+                .Where(f => f?.File is not null)
+                .Select(f => f.File)
                 .OfType<ILaunchableItem>()
                 .Where(file => file.IsCompatible is true)
                 .Take(1)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async file =>
                 {
-                    var itemType = file is SongItem ? "SID" : "Game";
+                    var itemType = file switch
+                    {
+                        SongItem => "SID",
+                        GameItem => "Game",
+                        ImageItem => "Image",
+                        _ => "File"
+                    };
 
-                    var result = await _dialog.ShowConfirmation("Random Launch", $"I see you discoverd a {itemType} called \"{file.Name}\", nice! \r\rNotice the \"All\" filter is selected in the lower left.  Currently, either Games or Music will be launched randomly.  \r\rTry selecting the \"Games\" or \"Music\" filter.  After, try clicking the \"Next\" button on the play toolbar.");
+                    var result = await _dialog.ShowConfirmation("Random Launch", $"I see you discoverd a {itemType} located at {file.Path}, nice! \r\rNotice the \"All\" filter is selected in the lower left.  This means any file type (Games, Music, or Images) will be launched randomly.");
 
                     if (!result)
                     {
@@ -340,25 +287,36 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
+                    result = await _dialog.ShowConfirmation("Filters", $"Try selecting the \"Games\" or \"Music\" filter.  You will notice that pressing the filter buttons will also automatically trigger a random launch for the selected file type.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
                     OnLaunchGame();
                 });
         }
         public void OnLaunchGame()
         {
             _player.LaunchedFile
+                .Where(f => f?.File is not null)
+                .Select(f => f.File)
                 .OfType<ILaunchableItem>()
                 .Skip(1)
                 .Take(1)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async file =>
                 {
-                    var itemType = file is SongItem ? "SID" : "game";
+                    var itemType = file switch
+                    {
+                        SongItem => "SID",
+                        GameItem => "Game",
+                        ImageItem => "Image",
+                        _ => "File"
+                    };
 
-                    var dirJumped = _settings.NavToDirOnLaunch
-                        ? $"\r\rNotice how the directory listing has also changed to location of the launched {itemType}."
-                        : string.Empty;
-
-                    var result = await _dialog.ShowConfirmation("Random Launch", $"Nice, you found a {itemType} located at {file.Path}.{dirJumped}");
+                    var result = await _dialog.ShowConfirmation("Random Launch", $"Nice, you found a {itemType} located at {file.Path}.");
 
                     if (!result)
                     {
@@ -372,14 +330,22 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Play Toolbar", "Currently we're in \"Shuffle Mode\" as indicated by the blue crossed arrows on the right.  As you saw, the \"Next\" button played the next random file.  \r\rNote, in this application, shuffle mode works across your entire collection for the selected storage device, not just the current directory.");
+                    result = await _dialog.ShowConfirmation("Shuffle Mode", "Currently we're in \"Shuffle Mode\" as indicated by the blue crossed arrows on the right.  \r\rThis means clicking the next button will launch a random file from your collection.");
 
                     if (!result)
                     {
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Play Toolbar", "Try clicking the \"Shuffle Mode\" button to turn it off.  Then click the \"Next\" button.");
+
+                    result = await _dialog.ShowConfirmation("Shuffle Mode", "History is kept while in shuffle mode.  So if you click the previous button, you will launch the previous file.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+                    result = await _dialog.ShowConfirmation("Play Toolbar", "Try clicking the \"Shuffle Mode\" button to disable it.  Then click the \"Next\" button.");
 
                     if (!result)
                     {
@@ -393,6 +359,8 @@ namespace TeensyRom.Ui.Services
         public void OnNormalPlay()
         {
             _player.LaunchedFile
+                .Where(f => f?.File is not null)
+                .Select(f => f.File)
                 .OfType<ILaunchableItem>()
                 .Skip(1)
                 .Take(1)
@@ -408,14 +376,15 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Music Only", $"Music Launching has some special behaviors that games do not.  \r\r· When a SID ends, the next one will be played automatically. \r· The previous button will restart the current SID.  \r· Clicking previous a second time will go to the previous SID.  \r· A share button will copy a shareable DeepSID link to your clipboard.");
+                    result = await _dialog.ShowConfirmation("Continuous Play", $"All file types support continuous play.  \r\r·SIDs will automatically got to the next track when it ends. \r·Games and Images have an optional play timer you can enable.");
 
                     if (!result)
                     {
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Games Only", $"Games also have some unique behaviors.  \r\r· Games will have a \"Stop\" button instead of \"Pause\".  \r· Stop will reset the TR\r· Tagging a favorite while a game is launched will re-launch the game.");
+
+                    result = await _dialog.ShowConfirmation("Play Timer", $"Try clicking the \"Games\" or \"Images\" filter.  You will notice a \"Stopwatch\" icon in the \"Play\" toolbar.\r\rClicking the \"Stopwatch\" button will enable continuous play on games and images.  You can select a play time length that best suits your needs.");
 
                     if (!result)
                     {
@@ -429,7 +398,21 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Search", $"In the upper right, you can type multiple keywords to search for games or SIDs.  As you would expect, \"All\", \"Games\" and \"Music\" will filter your search results.\r\rPlaying Next or Previous will move through the files in your search results.");
+                    result = await _dialog.ShowConfirmation("Search", $"In the upper right, you can type multiple keywords to search for games or SIDs.\r\r The \"All\", \"Games\", \"Music\" and \"Images\" buttons will filter your search results.\r\rPlaying Next or Previous will move through the files in your search results.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+                    result = await _dialog.ShowConfirmation("Search Phrases", $"In addition to keywords, you can also group keywords together in double quotes to search for a phrase.\r\r Ex: \"Iron Maiden\" Aces High");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+                    result = await _dialog.ShowConfirmation("Search Required Terms", $"Search terms are optional, so not all terms must be present in a search result. If a search result MUST have a specific keyword or phrase, you can place a + in front of it\r\r Ex: +\"Iron Maiden\" Aces +High\r\rIn this query, the term \"Aces\" will not be required but \"Iron Maiden\" and \"High\" will be.");
 
                     if (!result)
                     {
