@@ -6,12 +6,13 @@
              xmlns:local="clr-namespace:TeensyRom.Ui.Controls.FeatureTitle"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Border Style="{StaticResource SectionBorder}">
+    <Border Style="{StaticResource SectionBorder}" Width="165">
         <TextBlock 
             Text="{Binding Title}"
             Style="{StaticResource SectionTitle}"  
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
+            TextAlignment="Left"
             Margin="20 0 20 0"
             Grid.Row="0" Grid.Column="0"/>            
     </Border>

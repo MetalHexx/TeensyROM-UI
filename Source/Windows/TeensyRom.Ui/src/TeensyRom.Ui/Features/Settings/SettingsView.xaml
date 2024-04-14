@@ -22,12 +22,13 @@
             <ColumnDefinition Width="165"></ColumnDefinition>
             <ColumnDefinition Width="10"></ColumnDefinition>
             <ColumnDefinition Width="400"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
 
         </Grid.ColumnDefinitions>
 
         <ContentControl 
             Content="{Binding Title}" 
-            Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0 0 0 10"/>
+            Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1" Margin="0 0 0 10"/>
 
         <Label 
             Content="Nav to Dir on Launch:"
@@ -37,7 +38,7 @@
             Content="Enabled"                
             ToolTip="In Discover view, when clicking on Next / Previous or during continuous play, &#x0a;you will automatically be taken to the directory for the launched item."
             IsChecked="{Binding Settings.NavToDirOnLaunch, Mode=TwoWay}" 
-            Grid.Row="1" Grid.Column="3" VerticalAlignment="Top" Margin="0 4 0 0"/>
+            Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Label 
             Content="Auto-Launch on Copy:"
@@ -47,7 +48,7 @@
             Content="Enabled"                
             ToolTip="When files are copied to the TR with drag and drop or the watch directory, &#x0a;the first file from the set will automatically launch."
             IsChecked="{Binding Settings.AutoLaunchOnCopyEnabled, Mode=TwoWay}" 
-            Grid.Row="2" Grid.Column="3" VerticalAlignment="Top" Margin="0 4 0 0"/>
+            Grid.Row="2" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Label 
             Content="File Auto-Transfer:"
@@ -57,7 +58,7 @@
             Content="Enabled"                
             ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  &#x0a;If a file is detected, it will automatically be transferred to /auto-transfer/[media type]."
             IsChecked="{Binding Settings.AutoFileCopyEnabled, Mode=TwoWay}" 
-            Grid.Row="3" Grid.Column="3" VerticalAlignment="Top" Margin="0 4 0 0"/>
+            Grid.Row="3" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Label 
             Content="Watch Directory:" 
@@ -68,7 +69,7 @@
             ToolTip="The folder specified here will be monitored for new files. &#x0a;Try setting it something like your browser download folder.  &#x0a;Only types supported by the TR be monitored."
             materialDesign:HintAssist.Hint="Watch Directory"
             Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}"                
-            Grid.Row="4" Grid.Column="3" VerticalAlignment="Top"/>
+            Grid.Row="4" Grid.Column="2" VerticalAlignment="Top"/>
 
         <Label 
             Content="Play Timer Auto-Enabled:"
@@ -78,7 +79,7 @@
             Content="Enabled"                
             ToolTip="This will enable the Games/Programs/Images play timer automatically when you first start the app."
             IsChecked="{Binding Settings.PlayTimerEnabled, Mode=TwoWay}" 
-            Grid.Row="5" Grid.Column="3" VerticalAlignment="Top" Margin="0 4 0 0"/>
+            Grid.Row="5" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Button             
             ToolTip="This will save your settings to disk."
