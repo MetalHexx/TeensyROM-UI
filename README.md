@@ -35,13 +35,12 @@ Inspired by streaming music/video media services, the application comes with the
 _Integrations with various metadata sources enrich your file collection with interesting information and media._
 
 #### HVSC/DeepSID
-An integration with [HVSC](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b) brings forth STIL info like accurate SID play times, composer name, release info, and even some interesting historical scene information.  This plethora of information enables some relatively strong text search capability which is great when digging for cover tunes or other very specific tracks.  Special thanks to the open source [DeepSID](https://github.com/Chordian/deepsid) project, composer images also compliment the HVSC SIDs.
+An integration with [HVSC](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b) brings forth STIL info like accurate SID play times, composer name, release info, and even some interesting historical scene information.  This plethora of information becomes quite effective when digging for cover tunes or other very specific tracks.  Special thanks to the open source [DeepSID](https://github.com/Chordian/deepsid) project, composer images also compliment the HVSC SIDs.
 
 #### OneLoad64
-The application comes bundled with [OneLoad64](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b) game load and play screens to make it easy to preview games to play.
-
+The application comes bundled with [OneLoad64](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b) game load and play screens to make it easy to preview games to play.  This collection in combination with this application enable the fastest consecutive game load times possible on a commodore machine.
 ## Search
-The integration with this metadata data means that we get some relativately strong text search capility across a wide variety of information.  Featuring some light search engine style syntax and relevancy mechanics, you can fine tune a search to find some very specific content,   This is especially useful when digging for "cover music" or remixes or even related content across file types.
+The integration with this metadata data means that we get some relativately strong text search capility across a wide variety of information.  Featuring some light search engine style syntax and relevancy mechanics, you can fine tune a search to find some very specific content across various file types.
 
 ## Debug and Serial CLI
 The UI is also a debugging / file transfer utility.  The application features a terminal to show you all of the activity happening on the TR. A command line interface is available for sending Serial commands directly to the hardware.  This is useful for debugging or tinkering with your TR.
