@@ -420,6 +420,14 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
+                    result = await _dialog.ShowConfirmation("Search Filtering", $"Special Note: filters will not trigger a file launch when viewing search results.  Instead, search results will be filtered by the selected file type.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+
                     result = await _dialog.ShowConfirmation("", $"I hope these tools help you have fun finding new content!  \r\rLet's head over to the \"Help\" section now.");
 
                     await Complete();
