@@ -50,24 +50,24 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 ## Help Guides
 Coming soon.
 
-## Who is this for?
+## Who should use this and why?
 #### Modern Desktop Warriors
 If you multitask a lot and don't always have a lot of time to sink into a full C64 play session, this is for you.  Turn on the C64, load the UI, click random, and you get instant gratification from a quick play session.
 
-#### Chiptune Lovers 
-This is the retro jukebox you've been looking for.  The continuous playing capability turns your 8-bit machine into a streaming service so can enjoy tunes hands free while you do other things.  Nothing beats a true hardware SID experience. :)
+#### Chiptune / Scene Demo Lovers 
+This is the retro jukebox you've been looking for.  The continuous playing capability turns your 8-bit machine into a streaming service so can enjoy tunes hands free while you do other things.  Try adding scene demos and even games into the music rotation -- retro MTV? lol
 
 #### Purists 
-Sure, this lacks the oldschool nostalgia.  But I challenge you to give it a shot.  Try the SID music player while you're busy doing other things.  It also has plenty of file transfer utility to reduce the SD card / USB juggling operation.  
+Even if your prefer to interact directly with the commodore, I think you'll find a lot of great utility here.  If you tag favorites, they're copied to the /Favorites folder on the TR.  Try the SID music player while you're busy doing other things.  The file transfer and serial debugging tools are handy too.
 
 #### Realtime Programming Development Environment
-The automatic detection and synchronization of files has potential for realtime development or music making applications.
+The automatic detection and synchronization of files has potential for realtime development or music making applications.  Send your feature suggestions for anything I can do to help here.
 
-#### Kids
-Kids have short attention spans.  The randomization features are invaluable here and will keep them engaged for much longer.  Try the play timer to automatically jump to new games.
+#### Kids / Social Activities
+Kids have short attention spans.  The randomization features are invaluable here and will keep them engaged for much longer.  Try the play timer to automatically jump to new games.  
 
-#### Conference / Demo Booths
-The selectable play timer provides a great way to automatically launch titles for hands free demonstration.
+#### Conference / Meetup Demonstration Booths
+The selectable play timer provides a great way to automatically launch titles for hands free demonstration at a conference or meetup.
 
 ## The Project Story
 I am a late bloomer commodore 64 nerd.  I found a C64 at an auction and thought, hey, maybe I can find a way to control one of these with MIDI to make some music.  I started researching ways to get some games on this thing.  
@@ -76,7 +76,7 @@ I experimented with KungFu Flash which was really cool.  I pondered an Ultimate 
 
 The one thing that all these amazing carts have in common is that they're kind of slow at navigating over thousands of files.  It's a bit overwhelming. Trying to find that one game you played before but having trouble? I've been there. :) This project primary aims to solve that problem.
 
-I contacted the creator, Mr Travis S, and started brainstorming.  After a lot of hard work, late nights and bugging Travis with crazy ideas, I now offer this UI and hope it finds a place in your retro workflow. Enjoy!
+I contacted the creator, Mr Travis S, and started brainstorming.  A lot of really great ideas were been shared and in no time, the UI was born.  Enjoy!
 
 ## Screenshots
 #### Launch Games
