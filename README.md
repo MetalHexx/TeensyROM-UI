@@ -62,8 +62,8 @@ This is the retro jukebox you've been looking for.  The continuous playing capab
 #### Purists 
 Even if your prefer to interact directly with the commodore, I think you'll find a lot of great utility here.  If you tag favorites, they're copied to the /Favorites folder on the TR.  Try the SID music player while you're busy doing other things.  The file transfer and serial debugging tools are handy too.
 
-#### Realtime Programming Development Environment
-The automatic detection and synchronization of files has potential for realtime development or music making applications.  Send your feature suggestions for anything I can do to help here.
+#### Realtime Development Environment
+The automatic detection and synchronization of files has potential for realtime development or music making applications.  Send your feature suggestions for dev tooling ideas.
 
 #### Kids
 Kids have short attention spans.  The randomization features are invaluable here and will keep them engaged for much longer.  Try the play timer to automatically jump to new games.
