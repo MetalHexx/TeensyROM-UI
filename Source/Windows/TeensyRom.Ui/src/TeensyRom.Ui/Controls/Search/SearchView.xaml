@@ -15,7 +15,7 @@
             </Grid.ColumnDefinitions>
             
             <TextBox 
-                ToolTip="Type 1 or more words (at least 3 characters) to search for files that have been cached.  &#x0a;&#x0a;Depending on the file type, your search terms will match against various properties. The more terms that match, the higher the relevancy score.  Some terms carry a bit more weight than others.  &#x0a;Search results are ordered by relevancy score then alphabetically by filename. &#x0a;&#x0a;The types of files that appear in the results depends on the filter you have selected.  'All' will return all files types, 'Games' will return games, 'Music' will return sids."
+                ToolTip="Type 1 or more words (at least 3 characters) to search for files that have been cached.  &#x0a;&#x0a;Depending on the file type, your search terms will match against various properties. The more terms that match, the higher the relevancy score.  Some terms carry a bit more weight than others.  &#x0a;Search results are ordered by relevancy score then alphabetically by filename. &#x0a;&#x0a;The types of files that appear in the results depends on the filter you have selected.  'All' will return all files types, 'Games' will return games, 'Music' will return sids.  'Images' will return images. &#x0a;&#x0a;You can group keywords together in double quotes to search for a phrase. &#x0a;&#x0a;You can add a + in front of keywords or phrases to require them to be present in search results."
                 materialDesign:HintAssist.Hint="Search"
                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"  
                 VerticalAlignment="Center"  
