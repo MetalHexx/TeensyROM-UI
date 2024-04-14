@@ -40,7 +40,7 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 - You will get a Windows Defender / SmartScreen warning.
 - Click `More Info` --> `Run anyway`
   - *This is due to the application not being signed with a certificate authority yet.*
-- _The application will great you with a Tutorial/Wizard to get you started.  If you choose to skip this, see the steps below.
+- _The application will great you with a Tutorial/Wizard to get you started.  If you choose to skip this, see the steps below._
 - Once the app loads, press the `Connect` button.
   - *Note: The C64 will automatically reset, this is by design.*
 - Click on the `Compass` icon in the left navigation menu
