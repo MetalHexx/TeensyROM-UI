@@ -20,6 +20,17 @@ Inspired by streaming music/video media services, the application comes with the
   </tr>
 </table>
 
+## Table of Contents
+- [Features](#features)
+- [Integrations](#integrations)
+- [Search](#search)
+- [Debug and Serial CLI](#debug-and-serial-cli)
+- [File Transfer](#file-transfer)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Help Guides](#help-guides)
+
 ## Features
 - Media Player / File Explorer hybrid interface
 - Remote Launch of Games, SIDS, Images, Firmware Updates
@@ -31,7 +42,7 @@ Inspired by streaming music/video media services, the application comes with the
 - File transfer via Drag and Drop and One-way Watch Directory syncronization
 - .D64 program file extraction on file transfer
 
-## Integrations:
+## Integrations
 _Integrations with various metadata sources enrich your file collection with interesting information and media._
 
 #### HVSC/DeepSID
