@@ -14,7 +14,7 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 - Image File Support
 - Easy Firmware Updates
 - Transfer files to your TeensyROM SD/USB storage with drag and drop capabilities
-  - .d64 files will automatically unpack the embedded .prg files upon transfer
+- .D64 File Support through automatic PRG file extraction on file transfer
 - Set a watch folder on your desktop to automatically sync files to your TeensyROM SD/USB storage.
 
 ## Requirements
