@@ -386,7 +386,7 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Continuous Play", $"All file types support continuous play.  \r\r·SIDs will automatically got to the next track when it ends. \r·Games and Images have an optional play timer you can enable.");
+                    result = await _dialog.ShowConfirmation("Continuous Play", $"All file types support continuous play.  \r\r·SIDs will automatically go to the next track when it ends. \r·Games and Images have an optional play timer you can enable.");
 
                     if (!result)
                     {
