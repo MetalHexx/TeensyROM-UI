@@ -5,7 +5,7 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 - Media Player / File Explorer hybrid interface
 - Instant remote launch of your games and SID music on a C64/128
 - Random play / shuffle mode capabilities for easy discovery of new content
-- Search capabilities to find instantly locate specific files in massive collections
+- Search capabilities to instantly find files in your massive collections
 - Tag your favorite titles so you don't lose track of them 
 - Continuous playback of SID music creates a hands free streaming service-like experience
 - Enhanced with SID composer, song lengths and scene information with metadata integration from [HVSC](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b) and [DeepSID](https://github.com/Chordian/deepsid)
@@ -45,7 +45,7 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 - Once the app loads, press the `Connect` button.
   - *Note: The C64 will automatically reset, this is by design.*
 - Click on the `Compass` icon in the left navigation menu
-- Click the `Download` icon in the upper right corner of the screen to cache all your file locations.
+- Click the `Download` icon in the upper right corner of the screen to index all the files on your TR storage.
   - The dialog that pops up will further explain why this is important.  See: [Help Guides](#help-guides)
 - Click the `Dice` icon or one of the file type filter buttons.  This will launch a random file.
 - Enjoy the ride! For more details on the various features available and how to get the most out of the UI, check out the [Help Guides](#help-guides).
