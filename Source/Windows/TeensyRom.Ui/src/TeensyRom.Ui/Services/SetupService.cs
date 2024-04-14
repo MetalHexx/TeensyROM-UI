@@ -175,7 +175,7 @@ namespace TeensyRom.Ui.Services
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async settings =>
             {
-                var result = await _dialog.ShowConfirmation("Let's Index", "Next, we're going to index all the file locations on your selected storage device.\r\rThe indexing process is vital for getting the best user experience with the application.");
+                var result = await _dialog.ShowConfirmation("Let's Index", "Next, we're going to index all the file locations on your storage devices.\r\rThe indexing process is vital for getting the best user experience with the application.");
 
                 if (!result)
                 {
