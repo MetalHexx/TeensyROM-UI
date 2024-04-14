@@ -20,17 +20,6 @@ Inspired by streaming music/video media services, the application comes with the
   </tr>
 </table>
 
-## Table of Contents
-- [Features](#features)
-- [Integrations](#integrations)
-- [Search](#search)
-- [Debug and Serial CLI](#debug-and-serial-cli)
-- [File Transfer](#file-transfer)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Help Guides](#help-guides)
-
 ## Features
 - Media Player / File Explorer hybrid interface
 - Remote Launch of Games, SIDS, Images, Firmware Updates
