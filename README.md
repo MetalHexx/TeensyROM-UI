@@ -82,8 +82,8 @@ The one thing that all these amazing carts have in common is that they're kind o
 I contacted the creator, Mr Travis S, and started brainstorming.  After a lot of hard work, late nights and bugging Travis with crazy ideas, I now offer this UI and hope it finds a place in your retro workflow. Enjoy!
 
 ## Screenshots
-#### Launch Games - With OneLoad64 Screen Previews
+#### Launch Games
 ![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/c5ebfbcd-4282-49b2-b349-3af5b5d503c5)
 
-#### SID Player - With HVSC SID Info and DeepSID Composer Images
+#### Launch SIDs
 ![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/d4bfa1f6-9b7d-4d2c-8d2e-02e2b505a548)
