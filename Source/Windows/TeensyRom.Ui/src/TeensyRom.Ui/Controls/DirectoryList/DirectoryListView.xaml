@@ -25,6 +25,7 @@
 
                 <materialDesign:PackIcon 
                     Kind="Folder" 
+                    ToolTip="Double-click to enter the directory."
                     Foreground="{StaticResource PrimaryHueLightBrush}"
                     VerticalAlignment="Center" 
                     Margin="5,0" Width="24" Height="24" Grid.Column="0"/>
@@ -71,7 +72,7 @@
                             Command="{Binding DataContext.PlayCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
                             CommandParameter="{Binding}"  
                             Visibility="Collapsed"
-                            ToolTip="Launch"
+                            ToolTip="Launches the file on the TR"
                             Style="{StaticResource StorageIconButton}"
                             Margin="10 0 0 0 ">
                             <materialDesign:PackIcon Kind="Play" />
@@ -82,7 +83,7 @@
                             Command="{Binding DataContext.SaveFavoriteCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
                             CommandParameter="{Binding}"
                             Visibility="Collapsed"
-                            ToolTip="Add to favorites"
+                            ToolTip="Tags the current file as favorite.&#x0a;Your file will be saved to the /favorites folder."
                             Style="{StaticResource StorageIconButton}"
                             Margin="10 0 0 0">
                             <materialDesign:PackIcon Kind="Heart" />
@@ -93,7 +94,7 @@
                             Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
                             CommandParameter="{Binding}" 
                             Visibility="Collapsed"
-                            ToolTip="Delete"                    
+                            ToolTip="Deletes the file from the TR."                    
                             Style="{StaticResource StorageIconButton}"
                             Margin="10 0 0 0">
                             <materialDesign:PackIcon Kind="Trash" />
@@ -164,7 +165,7 @@
                             Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
                             CommandParameter="{Binding}" 
                             Visibility="Collapsed"
-                            ToolTip="Delete"                    
+                            ToolTip="Deletes the file from the TR"                    
                             Style="{StaticResource StorageIconButton}"
                             Margin="10 0 0 0">
                             <materialDesign:PackIcon Kind="Trash" />

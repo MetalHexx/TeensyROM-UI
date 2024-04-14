@@ -11,6 +11,7 @@
         <ComboBox 
             ItemsSource="{Binding Storage, Mode=OneWay}"  
             SelectedItem="{Binding SelectedStorage, Mode=TwoWay}" 
+            ToolTip="Select the storage device to view files for on the TR."
             HorizontalContentAlignment="Center"
             materialDesign:HintAssist.Hint="OS" Margin="15 0 10 0">
         </ComboBox>

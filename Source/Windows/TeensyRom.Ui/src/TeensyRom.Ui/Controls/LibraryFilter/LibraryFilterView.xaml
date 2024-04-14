@@ -36,6 +36,7 @@
                     <RadioButton 
                         Command="{Binding DataContext.FilterCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                         CommandParameter="{Binding}"
+                        ToolTip="Selecting a filter will randomly launch a game of the selected type.&#x0a;&#x0a;This will affect the types of files launched by 'Next', 'Previous' and 'Die' buttons.&#x0a;When searching, files will not be launched and instead, the search results will be filtered."
                         Loaded="RadioButton_Loaded"
                         FontSize="16"
                         GroupName="GroupChoiceChipOutline"
@@ -50,11 +51,11 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
         <Button x:Name="diceButton"
-        Command="{Binding PlayRandomCommand}" 
-        ToolTip="I'm feeling lucky!"
-        Style="{StaticResource DropShadowButton}"
-        Grid.Column="0"
-        Margin="5 0 0 0">
+            Command="{Binding PlayRandomCommand}" 
+            ToolTip="I'm feeling lucky!&#x0a;&#x0a;A random file will be launched depending on the filter you have selected."
+            Style="{StaticResource DropShadowButton}"
+            Grid.Column="0"
+            Margin="5 0 0 0">
             <Button.Triggers>
                 <EventTrigger RoutedEvent="Button.Click">
                     <BeginStoryboard Storyboard="{StaticResource DiceSpinStoryboard}"/>

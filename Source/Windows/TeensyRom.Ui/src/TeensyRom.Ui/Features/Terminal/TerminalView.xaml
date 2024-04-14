@@ -28,15 +28,16 @@
             <StackPanel Orientation="Horizontal" Margin ="10" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Label 
                     HorizontalAlignment="Left" 
-                    Content="Status:"/> 
-
+                    Content="Status:"/>                
                 <Label 
+                    ToolTip="Indicates your current connection status to the TeensyROM hardware."
                     HorizontalAlignment="Center" 
                     Foreground="{StaticResource EnabledColor}"
                     Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConvertor}}"
                     Content="Connected"/>
 
                 <Label
+                    ToolTip="Indicates your current connection status to the TeensyROM hardware."
                     HorizontalAlignment="Right"
                     Foreground="{StaticResource PrimaryHueLightBrush}"
                     Margin="10 0 0 0" 
@@ -60,6 +61,7 @@
                     ItemsSource="{Binding Ports, Mode=OneWay}" 
                     SelectedItem="{Binding SelectedPort, Mode=TwoWay}"
                     IsEnabled="{Binding IsConnectable}"
+                    ToolTip="Select the COM port to connect to.&#x0a;Selecting 'Auto-detect' will search through all the COM ports until theTR is found."
                     Grid.Column="0"
                     Margin="10 0 0 0" 
                     VerticalAlignment="Center"
@@ -83,7 +85,7 @@
                         Content="Disconnect" 
                         Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConvertor}}"
                         Style="{StaticResource MaterialDesignOutlinedLightButton}" 
-                        ToolTip="Press to disconnect from the port" />
+                        ToolTip="Press to disconnect from the TR" />
 
                     <Button 
                         Grid.Column="2"
@@ -92,7 +94,7 @@
                         Command="{Binding PingCommand}" 
                         Content="Ping"                         
                         Style="{StaticResource MaterialDesignOutlinedLightButton}" 
-                        ToolTip="Press to connect to ping the TeensyROM device" />
+                        ToolTip="Press to ping the TR" />
 
                     <Button 
                         Grid.Column="3"
@@ -101,7 +103,7 @@
                         Command="{Binding ResetCommand}" 
                         Content="Reset" 
                         Style="{StaticResource MaterialDesignOutlinedLightButton}"  
-                        ToolTip="Press to connect to reset the TeensyROM device" />
+                        ToolTip="Press to reset the TR" />
             </Grid>
         </Border>
 

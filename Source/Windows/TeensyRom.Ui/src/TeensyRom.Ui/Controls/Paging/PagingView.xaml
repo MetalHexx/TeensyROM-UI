@@ -18,7 +18,7 @@
             IsEnabled="{Binding ShowPrevious}"
             Style="{StaticResource MaterialDesignIconForegroundButton}"
             Height="30" Width="30"
-            ToolTip="Previous Page"
+            ToolTip="Previous Page of directory listing"
             VerticalAlignment="Center">
             <materialDesign:PackIcon Kind="ArrowLeft" />
         </Button>
@@ -32,7 +32,7 @@
                 IsEnabled="{Binding ShowNext}"
                 Style="{StaticResource MaterialDesignIconForegroundButton}"
                 Height="30" Width="30"
-                ToolTip="Next Page"
+                ToolTip="Next Page of directory listing"
                 VerticalAlignment="Center"
                 Margin="0 0 15 0">
             <materialDesign:PackIcon Kind="ArrowRight" />
@@ -42,6 +42,7 @@
 
         <ComboBox 
             ItemsSource="{Binding PageSizes}"
+            ToolTip="Determines the number of directory items to show per page."
             SelectedValue="{Binding PageSize, Mode=TwoWay}"
             Margin="0 0 10 0"
             Width="50" VerticalAlignment="Center">

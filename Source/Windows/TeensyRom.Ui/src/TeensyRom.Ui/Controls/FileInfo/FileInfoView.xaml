@@ -26,8 +26,8 @@
 
                     <StackPanel Orientation="Horizontal" Margin="5">
                         <TextBlock Text="{Binding SelectedFile.Creator}" 
-                        Visibility="{Binding SelectedFile.Creator, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
-                        FontSize="16" Foreground="{StaticResource MaterialDesignBodyLight}" />
+                            Visibility="{Binding SelectedFile.Creator, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
+                            FontSize="16" Foreground="{StaticResource MaterialDesignBodyLight}" />
 
                         <TextBlock Text=" • " FontSize="16" FontStyle="Italic"  Foreground="White" VerticalAlignment="Center" 
                         Visibility="{Binding SelectedFile.ReleaseInfo, Converter={StaticResource NullOrEmptyToVisibilityConverter}}" />
