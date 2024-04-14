@@ -57,14 +57,20 @@ Coming soon.
 #### Modern Desktop Warriors
 If you multitask a lot and don't always have a lot of time to sink into a full C64 play session, this is for you.  Turn on the C64, load the UI, click random, and you get instant gratification from a quick play session.
 
-#### Kids
-Kids have short attention spans.  The randomization features are invaluable here and will keep them engaged for much longer.
-
 #### Chiptune Lovers 
 This is the retro jukebox you've been looking for.  The continuous playing capability turns your 8-bit machine into a streaming service so can enjoy tunes hands free while you do other things.  Nothing beats a true hardware SID experience. :)
 
 #### Purists 
 Sure, this lacks the oldschool nostalgia.  But I challenge you to give it a shot.  Try the SID music player while you're busy doing other things.  It also has plenty of file transfer utility to reduce the SD card / USB juggling operation.  
+
+#### Realtime Programming Development Environment
+The automatic detection and synchronization of files has potential for realtime development or music making applications.
+
+#### Kids
+Kids have short attention spans.  The randomization features are invaluable here and will keep them engaged for much longer.  Try the play timer to automatically jump to new games.
+
+#### Conference / Demo Booths
+The selectable play timer provides a great way to automatically launch titles for hands free demonstration.
 
 ## The Project Story
 I am a late bloomer commodore 64 nerd.  I found a C64 at an auction and thought, hey, maybe I can find a way to control one of these with MIDI to make some music.  I started researching ways to get some games on this thing.  
