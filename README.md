@@ -3,19 +3,16 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 
 ## Features
 - Media Player / File Explorer hybrid interface
-- Instant remote launch of your games and SID music on a C64/128
-- Random play / shuffle mode capabilities for easy discovery of new content
-- Search capabilities to instantly find files in your massive collections
-- Tag your favorite titles so you don't lose track of them 
-- Continuous playback of SID music creates a hands free streaming service-like experience
-- Enhanced with SID composer, song lengths and scene information with metadata integration from [HVSC](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b) and [DeepSID](https://github.com/Chordian/deepsid)
-- Enhanced with game preview screenshots with metadata integration from [OneLoad64](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b)
-- Optional Timed Playback of Scene Demos and Games
-- Image File Support
-- Easy Firmware Updates
-- Transfer files to your TeensyROM SD/USB storage with drag and drop capabilities
-- .D64 File Support through automatic PRG file extraction on file transfer
-- Set a watch folder on your desktop to automatically sync files to your TeensyROM SD/USB storage.
+- Remote Launch of Games, SIDS, Images, Firmware Updates
+- Launch Randomization by File Type
+- Continuous playback of SID music using HVSC song lengths
+- Continuous playback of Images, Games and Demos with Play Timer
+- Search files by type
+- Tag favorite titles
+- SID metadata integration with [HVSC](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b) and [DeepSID](https://github.com/Chordian/deepsid)
+- Game image preview integration with [OneLoad64](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b)
+- File transfer via Drag and Drop and One-way Watch Directory syncronization
+- .D64 program file extraction on file transfer
 
 ## Requirements
 - A Commodore 64/128 personal computer
@@ -23,13 +20,13 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This UI 
 - [TeensyROM Hardware Cartridge](https://github.com/SensoriumEmbedded/TeensyROM)
 - Micro-USB Cable
 - NET 8 Runtime
-- Games and SIDs!
+- Some Game, Demo and/or SID files
 
 ## Installation
 - Install the latest TeensyROM Firmware.  0.5.12 or later is required.
   - Latest firmware (.hex file) found [here](https://github.com/SensoriumEmbedded/TeensyROM/blob/main/bin/TeensyROM/FW_Release_History.md)
 - Download the latest [desktop UI application release](https://github.com/MetalHexx/TeensyROM-UI/releases)
-- It comes bundled with a locally bundled NET 8 runtime.
+- It comes bundled with NET 8 runtime.
   - If run into issues, try the installing the runtime found [here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 - Unzip the release into a directory of your choice
 - Make a USB connection between the computer and the micro-SD 
@@ -87,3 +84,7 @@ I contacted the creator, Mr Travis S, and started brainstorming.  After a lot of
 
 #### Launch SIDs
 ![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/d4bfa1f6-9b7d-4d2c-8d2e-02e2b505a548)
+
+#### Debug and Tinker
+![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/cd59e5a9-dcd4-424e-8032-87bb1fa526d8)
+
