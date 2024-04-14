@@ -88,9 +88,13 @@ I contacted the creator, Mr Travis S, and started brainstorming.  After a lot of
 #### SID Player - With HVSC SID Info and DeepSID Composer Images
 ![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/d4bfa1f6-9b7d-4d2c-8d2e-02e2b505a548)
 
-Enjoying the App?  Keep me going with a coffee. ;) 
 
-[![Donate with PayPal button](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/donate?hosted_button_id=DF66NKLKDELBA)
+<p align="center">
+  Enjoying the App?  Help keep me going with a coffee. ;) <br><br>
+  <a href="https://www.paypal.com/donate?hosted_button_id=DF66NKLKDELBA">
+    <img alt="Donate with PayPal button" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" />
+  </a>
+</p>
 
 
 
