@@ -1,8 +1,6 @@
 # TeensyROM Desktop UI
 Command your Commodore 64 / 128 with a modern desktop user experience.  This UI frontend integrates with the [TeensyROM Hardware Cartridge](https://github.com/SensoriumEmbedded/TeensyROM), *designed by Travis S/Sensorium*, to provide robust and performant file transfer, exploration and remote launch capability to your 8-bit machine.  Metadata enhancements also bring a rich user experience to the exploration process.  
 
-
-
 ## Features
 - Media Player / File Explorer hybrid interface
 - Instant remote launch of your games and SID music on a C64/128
@@ -73,3 +71,12 @@ I experimented with KungFu Flash which was really cool.  I pondered an Ultimate 
 The one thing that all these amazing carts have in common is that they're kind of slow at navigating over thousands of files.  It's a bit overwhelming. Trying to find that one game you played before but having trouble? I've been there. :) This project primary aims to solve that problem.
 
 I contacted the creator, Mr Travis S, and started brainstorming.  After a lot of hard work, late nights and bugging Travis with crazy ideas, I now offer this UI and hope it finds a place in your retro workflow. Enjoy!
+
+## Screenshots
+#### Launch Games 
+![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/c5ebfbcd-4282-49b2-b349-3af5b5d503c5)
+
+#### SID Player
+![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/f4e9142f-47eb-45e9-8509-0752d1e1a92f)
+
+
