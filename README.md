@@ -77,6 +77,7 @@ I contacted the creator, Mr Travis S, and started brainstorming.  After a lot of
 ![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/c5ebfbcd-4282-49b2-b349-3af5b5d503c5)
 
 #### SID Player - With HVSC SID Info and DeepSID Composer Images
-![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/f4e9142f-47eb-45e9-8509-0752d1e1a92f)
+![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/d4bfa1f6-9b7d-4d2c-8d2e-02e2b505a548)
+
 
 
