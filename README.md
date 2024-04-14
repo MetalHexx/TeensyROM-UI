@@ -65,8 +65,8 @@ Even if your prefer to interact directly with the commodore, I think you'll find
 #### Realtime Programming Development Environment
 The automatic detection and synchronization of files has potential for realtime development or music making applications.  Send your feature suggestions for anything I can do to help here.
 
-#### Kids / Social Activities
-Kids have short attention spans.  The randomization features are invaluable here and will keep them engaged for much longer.  Try the play timer to automatically jump to new games.  
+#### Kids
+Kids have short attention spans.  The randomization features are invaluable here and will keep them engaged for much longer.  Try the play timer to automatically jump to new games.
 
 #### Conference / Meetup Demonstration Booths
 The selectable play timer provides a great way to automatically launch titles for hands free demonstration at a conference or meetup.
