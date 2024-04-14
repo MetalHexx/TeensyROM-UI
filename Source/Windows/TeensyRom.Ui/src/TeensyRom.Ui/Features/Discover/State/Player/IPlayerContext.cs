@@ -21,7 +21,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         IObservable<ObservableCollection<IStorageItem>> DirectoryContent { get; }
         IObservable<DirectoryNodeViewModel?> DirectoryTree { get; }
         IObservable<bool> PagingEnabled { get; }
-        IObservable<ILaunchableItem> LaunchedFile { get; }
+        IObservable<LaunchedFileResult> LaunchedFile { get; }
         IObservable<ILaunchableItem> SelectedFile { get; }
         IObservable<int> TotalPages { get; }
         Task CacheAll();

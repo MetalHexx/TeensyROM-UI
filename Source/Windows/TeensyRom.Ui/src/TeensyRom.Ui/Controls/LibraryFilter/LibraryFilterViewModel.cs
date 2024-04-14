@@ -17,10 +17,12 @@ namespace TeensyRom.Ui.Controls.LibraryFilter
         [Reactive] public TeensyFilter? SelectedLibrary { get; set; }
         public ReactiveCommand<TeensyFilter, Unit> FilterCommand { get; }
         public ReactiveCommand<Unit, Unit> PlayRandomCommand { get; set; }
-        public LibraryFilterViewModel(IEnumerable<TeensyFilter> libraries, TeensyFilter? selectedLibrary,  Func<TeensyFilter, Task> filterFunc, Func<Task> launchRandomFunc)
+        public LibraryFilterViewModel(IEnumerable<TeensyFilter> libraries, TeensyFilter? selectedLibrary, IObservable<Unit> randomLaunched,  Func<TeensyFilter, Task> filterFunc, Func<Task> launchRandomFunc)
         {
             SelectedLibrary = selectedLibrary;
             Libraries = new ObservableCollection<TeensyFilter>(libraries);
+
+            randomLaunched.Subscribe(_ => MessageBus.Current.SendMessage(new RandomLaunchMessage()));
 
             FilterCommand = ReactiveCommand.CreateFromTask<TeensyFilter, Unit>(async lib => 
             {

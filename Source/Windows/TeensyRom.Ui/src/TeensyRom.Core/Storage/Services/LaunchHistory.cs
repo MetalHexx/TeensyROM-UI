@@ -11,7 +11,8 @@ namespace TeensyRom.Core.Storage.Services
     public class LaunchHistory : ILaunchHistory
     {
         private readonly List<Tuple<int, ILaunchableItem>> _history = [];
-        private int _currentIndex = -1;
+        private int _currentIndex = -1;        
+        public bool CurrentIsNew { get; private set; }
 
         public void Add(ILaunchableItem fileItem) 
         {
@@ -21,6 +22,7 @@ namespace TeensyRom.Core.Storage.Services
             }
             _currentIndex = _history.Count;
             _history.Add(new(_currentIndex, fileItem));
+            CurrentIsNew = true;
         }
 
         public void Remove(ILaunchableItem fileItem)
@@ -32,6 +34,7 @@ namespace TeensyRom.Core.Storage.Services
             if (index <= _currentIndex)
             {
                 _currentIndex--;
+                CurrentIsNew = false;
             }
         }
         public void Clear() => _history.Clear();
@@ -47,6 +50,7 @@ namespace TeensyRom.Core.Storage.Services
             if (currentFilteredIndex == -1) return null;
 
             _currentIndex = filteredList[currentFilteredIndex].Item1;
+            CurrentIsNew = false;
             return filteredList[currentFilteredIndex].Item2;
         }
 
@@ -59,6 +63,7 @@ namespace TeensyRom.Core.Storage.Services
             if (currentFilteredIndex == -1) return null;
 
             _currentIndex = filteredList[currentFilteredIndex].Item1;
+            CurrentIsNew = false;
             return filteredList[currentFilteredIndex].Item2;
         }
 

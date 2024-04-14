@@ -7,7 +7,23 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    
+
+    <UserControl.Resources>
+        <Storyboard x:Key="DiceSpinStoryboard">
+            <DoubleAnimation 
+                Storyboard.TargetName="IconRotateTransform"
+                Storyboard.TargetProperty="Angle"
+                From="0" To="720"
+                Duration="0:0:2" 
+                AccelerationRatio="0.2"
+                DecelerationRatio="0.8">
+                <DoubleAnimation.EasingFunction>
+                    <CircleEase EasingMode="EaseInOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+    </UserControl.Resources>
+
     <StackPanel Orientation="Horizontal">
         <ItemsControl ItemsSource="{Binding Libraries}">
             <ItemsControl.ItemsPanel>
@@ -33,30 +49,15 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <Button 
-            Command="{Binding PlayRandomCommand}" 
-            Click="Random_Click"
-            ToolTip="I'm feeling lucky!"
-            Style="{StaticResource DropShadowButton}"
-            Grid.Column="0"
-            Margin="5 0 0 0">
+        <Button x:Name="diceButton"
+        Command="{Binding PlayRandomCommand}" 
+        ToolTip="I'm feeling lucky!"
+        Style="{StaticResource DropShadowButton}"
+        Grid.Column="0"
+        Margin="5 0 0 0">
             <Button.Triggers>
                 <EventTrigger RoutedEvent="Button.Click">
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <DoubleAnimation Storyboard.TargetName="IconRotateTransform"
-                                     Storyboard.TargetProperty="Angle"
-                                     From="0"
-                                     To="720"
-                                     Duration="0:0:2" 
-                                     AccelerationRatio="0.2"
-                                     DecelerationRatio="0.8">
-                                <DoubleAnimation.EasingFunction>
-                                    <CircleEase EasingMode="EaseInOut" />
-                                </DoubleAnimation.EasingFunction>
-                            </DoubleAnimation>
-                        </Storyboard>
-                    </BeginStoryboard>
+                    <BeginStoryboard Storyboard="{StaticResource DiceSpinStoryboard}"/>
                 </EventTrigger>
             </Button.Triggers>
             <Viewbox RenderTransformOrigin="0.5,0.5">

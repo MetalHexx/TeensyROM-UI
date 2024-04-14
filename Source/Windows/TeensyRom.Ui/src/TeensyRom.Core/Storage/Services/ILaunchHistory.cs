@@ -9,6 +9,7 @@ namespace TeensyRom.Core.Storage.Services
         void ClearForwardHistory();
         ILaunchableItem? GetNext(params TeensyFileType[] types);
         ILaunchableItem? GetPrevious(params TeensyFileType[] types);
+        bool CurrentIsNew { get; }
         void Remove(ILaunchableItem fileItem);
     }
 }

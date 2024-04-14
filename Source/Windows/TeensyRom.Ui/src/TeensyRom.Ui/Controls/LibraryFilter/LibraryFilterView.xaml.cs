@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,6 +26,18 @@ namespace TeensyRom.Ui.Controls.LibraryFilter
         public LibraryFilterView()
         {
             InitializeComponent();
+
+            MessageBus.Current.Listen<RandomLaunchMessage>().Subscribe(_ => SpinRandomButton());
+        }
+
+        private void SpinRandomButton() 
+        {
+            var storyboard = this.Resources["DiceSpinStoryboard"] as Storyboard;
+            if (storyboard != null)
+            {                
+                Storyboard clonedStoryboard = storyboard.Clone();
+                clonedStoryboard.Begin(this.diceButton, true);
+            }
         }
 
         private void RadioButton_Loaded(object sender, RoutedEventArgs e)
@@ -47,20 +60,6 @@ namespace TeensyRom.Ui.Controls.LibraryFilter
             {
                 radioButton.IsChecked = true;
             }
-        }
-
-        private void Random_Click(object sender, RoutedEventArgs e)
-        {
-            var rotateAnimation = new DoubleAnimation
-            {
-                From = 0,
-                To = 360,
-                Duration = TimeSpan.FromSeconds(0.5),
-                AccelerationRatio = 0.5,
-                DecelerationRatio = 0.5
-            };
-
-            IconRotateTransform.BeginAnimation(RotateTransform.AngleProperty, rotateAnimation);
         }
     }
 }

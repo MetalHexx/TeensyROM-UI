@@ -47,7 +47,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         public IObservable<bool> PagingEnabled => _directoryState.Select(d => d.PagingEnabled);
         public IObservable<DirectoryNodeViewModel?> DirectoryTree => _tree.DirectoryTree.AsObservable();
         public IObservable<ObservableCollection<IStorageItem>> DirectoryContent => _directoryState.Select(d => d.DirectoryContent);
-        public IObservable<ILaunchableItem> LaunchedFile => _launchedFile.AsObservable();
+        public IObservable<LaunchedFileResult> LaunchedFile => _launchedFile.AsObservable();
         public IObservable<ILaunchableItem> SelectedFile => _selectedFile.AsObservable();
         public IObservable<PlayState> PlayingState => _playingState.AsObservable();
 
@@ -57,7 +57,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
         protected PlayerState? _previousState;
         protected readonly BehaviorSubject<PlayerState> _currentState;
-        protected readonly BehaviorSubject<ILaunchableItem> _launchedFile = new(null!);
+        protected readonly BehaviorSubject<LaunchedFileResult> _launchedFile = new(null!);
         protected readonly BehaviorSubject<ILaunchableItem> _selectedFile = new(null!);
         protected readonly BehaviorSubject<PlayState> _playingState = new(PlayState.Stopped);
         protected BehaviorSubject<DirectoryState> _directoryState = new(new());
@@ -238,7 +238,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
         public async Task TogglePlay()
         {
-            if (_launchedFile.Value is SongItem)
+            if (_launchedFile.Value.File is SongItem)
             {
                 var result = await _mediator.Send(new ToggleMusicCommand());
 
@@ -246,7 +246,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 {
                     _alert.Enqueue("Toggle music failed. Re-launching the current song.");
                     _playingState.OnNext(PlayState.Playing);
-                    await PlayFile(_launchedFile.Value!);
+                    await PlayFile(_launchedFile.Value!.File);
                     return;
                 }
                 _playingState.OnNext(_playingState.Value == PlayState.Paused
@@ -261,7 +261,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 return;
             }
             _playingState.OnNext(PlayState.Playing);
-            await PlayFile(_launchedFile.Value!);
+            await PlayFile(_launchedFile.Value!.File);
             return;
         }
 
@@ -282,17 +282,23 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             {
                 file.IsSelected = true;
 
-                var shouldUpdateCurrent = _launchedFile.Value is not null
-                    && file.Path.Equals(_launchedFile.Value.Path) == false;
+                var shouldUpdateCurrent = _launchedFile.Value?.File is not null
+                    && file.Path.Equals(_launchedFile.Value?.File.Path) == false;
 
                 if (shouldUpdateCurrent)
                 {
-                    _launchedFile.Value!.IsSelected = false;
+                    _launchedFile.Value!.File.IsSelected = false;
                 }
             });
-            _launchedFile.OnNext(file);
+            _launchedFile.OnNext(GetLaunchResult(file));
             _selectedFile.OnNext(file);
             _playingState.OnNext(PlayState.Playing);
+        }
+
+        private LaunchedFileResult GetLaunchResult(ILaunchableItem file) 
+        {
+            var isRandom = _currentState.Value is ShuffleState && _launchHistory.CurrentIsNew && file.Path != _launchedFile.Value?.File.Path;
+            return new LaunchedFileResult(file, isRandom);
         }
         private bool IsBusy()
         {
@@ -325,7 +331,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             _alert.Enqueue($"{file.Name} is currently unsupported (see logs).  Skipping to the next file.");
 
-            _launchedFile.OnNext(file); //play next will use this to determine the next file            
+            _launchedFile.OnNext(GetLaunchResult(file)); //play next will use this to determine the next file            
 
             if (file.IsCompatible is true) _storage.MarkIncompatible(file);
 
@@ -338,17 +344,17 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             if (IsBusy()) return;
 
-            if (_launchedFile.Value is GameItem)
+            if (_launchedFile.Value.File is GameItem)
             {
                 _alert.Enqueue("Your game will re-launch to allow favorite to be tagged.");
                 await _mediator.Send(new ResetCommand());
             }
             var favFile = await _storage.SaveFavorite(file);
 
-            if (_launchedFile.Value is GameItem)
+            if (_launchedFile.Value.File is GameItem)
             {
                 await Task.Delay(2000);
-                await _mediator.Send(new LaunchFileCommand(_settings.StorageType, _launchedFile.Value));
+                await _mediator.Send(new LaunchFileCommand(_settings.StorageType, _launchedFile.Value.File));
             }
 
             var parentDir = favFile?.Path.GetUnixParentPath();
@@ -376,7 +382,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             if (IsBusy()) return;
 
-            var file = await _currentState.Value.GetNext(_launchedFile.Value, _currentFilter.Type, _directoryState.Value);
+            var file = await _currentState.Value.GetNext(_launchedFile.Value?.File, _currentFilter.Type, _directoryState.Value);
 
             if (file is null) return;
 
@@ -386,27 +392,27 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             if (IsBusy()) return;
 
-            if (_launchedFile.Value is SongItem && _currentTime >= TimeSpan.FromSeconds(3))
+            if (_launchedFile.Value.File is SongItem && _currentTime >= TimeSpan.FromSeconds(3))
             {
-                await PlayFile(_launchedFile.Value!);
+                await PlayFile(_launchedFile.Value!.File);
                 return; 
             }
-            if (_launchedFile.Value is ILaunchableItem)
+            if (_launchedFile.Value.File is ILaunchableItem)
             {
-                var file = await _currentState.Value.GetPrevious(_launchedFile.Value, _currentFilter.Type, _directoryState.Value);
+                var file = await _currentState.Value.GetPrevious(_launchedFile.Value.File, _currentFilter.Type, _directoryState.Value);
 
                 if (file is not null) await PlayFile(file);
 
                 return;
             }
-            await PlayFile(_launchedFile.Value!);
+            await PlayFile(_launchedFile.Value!.File);
             return;
         }
         public Task StopFile()
         {
             _playingState.OnNext(PlayState.Stopped);
 
-            if (_launchedFile.Value is SongItem)
+            if (_launchedFile.Value.File is SongItem)
             {
                 return _mediator.Send(new ToggleMusicCommand());
             }
@@ -415,21 +421,21 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
         public async Task<ILaunchableItem?> PlayRandom()
         {
-            if (IsBusy()) return _launchedFile.Value;
+            if (IsBusy()) return _launchedFile.Value.File;
 
             var success = TryTransitionTo(typeof(ShuffleState));
 
-            if (!success) return _launchedFile.Value;
+            if (!success) return _launchedFile.Value.File;
 
             _launchHistory.ClearForwardHistory();
             await PlayNext();
-            return _launchedFile.Value;
+            return _launchedFile.Value.File;
         }
 
         public void UpdateHistory(ILaunchableItem fileToLoad)
         {
-            var isNotConsecutiveDuplicate = _launchedFile.Value is null
-                || !fileToLoad.Path.Equals(_launchedFile.Value.Path, StringComparison.OrdinalIgnoreCase);
+            var isNotConsecutiveDuplicate = _launchedFile.Value?.File is null
+                || !fileToLoad.Path.Equals(_launchedFile.Value.File.Path, StringComparison.OrdinalIgnoreCase);
 
             if (isNotConsecutiveDuplicate) _launchHistory.Add(fileToLoad);
         }

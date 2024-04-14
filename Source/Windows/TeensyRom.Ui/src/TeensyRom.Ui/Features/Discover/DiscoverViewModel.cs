@@ -80,7 +80,7 @@ namespace TeensyRom.Ui.Features.Discover
 
             PlayToolbar = new PlayToolbarViewModel
             (
-                launchedFile,
+                launchedFile.Where(f => f is not null).Select(f => f.File),
                 launchState,
                 settingsService.Settings.Select(s => s.PlayTimerEnabled),
                 timer,
@@ -147,7 +147,10 @@ namespace TeensyRom.Ui.Features.Discover
 
                 var selectedFilter = Filter?.SelectedLibrary;
 
-                Filter = new LibraryFilterViewModel(libs, selectedFilter, 
+                Filter = new LibraryFilterViewModel(
+                    libs, 
+                    selectedFilter, 
+                    player.LaunchedFile.Where(f => f is not null && f.Random).Select(_ => Unit.Default),
                     filterFunc: (filter) => player.SwitchFilter(filter),
                     launchRandomFunc: () => player.PlayRandom());
 
