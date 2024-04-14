@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
@@ -30,6 +31,7 @@ namespace TeensyRom.Ui.Services
         private readonly INavigationService _navigation;
         private readonly ISerialStateContext _serial;
         private readonly IDialogService _dialog;
+        private readonly IAlertService _alert;
         private readonly ICachedStorageService _storage;
         private readonly IPlayerContext _player;
         private readonly DiscoverViewModel _discoverView;
@@ -37,12 +39,13 @@ namespace TeensyRom.Ui.Services
         private bool _sdSuccess = false;
         private bool _usbSuccess = false;
 
-        public SetupService(ISettingsService settingsService, INavigationService navigation, ISerialStateContext serial, IDialogService dialog, ICachedStorageService storage, IPlayerContext player, DiscoverViewModel discoverView)
+        public SetupService(ISettingsService settingsService, INavigationService navigation, ISerialStateContext serial, IDialogService dialog, IAlertService alert, ICachedStorageService storage, IPlayerContext player, DiscoverViewModel discoverView)
         {
             _settingsService = settingsService;
             _navigation = navigation;
             _serial = serial;
             _dialog = dialog;
+            _alert = alert;
             _storage = storage;
             _player = player;
             _discoverView = discoverView;
@@ -57,6 +60,13 @@ namespace TeensyRom.Ui.Services
         public async Task StartSetup()
         {
             _settings = _settingsService.GetSettings();
+            var connected = await _serial.CurrentState.Select(s => s is SerialConnectedState).FirstAsync();
+
+            if (connected) 
+            {
+                _alert.Publish("Disconnecting from TR to run first time setup wizard.");
+                _serial.ClosePort();
+            }
 
             if (!_settings.FirstTimeSetup) return;
 
