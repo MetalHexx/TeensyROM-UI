@@ -87,6 +87,6 @@ I contacted the creator, Mr Travis S, and started brainstorming.  A lot of reall
 #### Launch SIDs
 ![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/d4bfa1f6-9b7d-4d2c-8d2e-02e2b505a548)
 
-#### Debug and Tinker
+#### Debug and Tinker with a Serial CLI
 ![image](https://github.com/MetalHexx/TeensyROM-UI/assets/9291740/cd59e5a9-dcd4-424e-8032-87bb1fa526d8)
 
