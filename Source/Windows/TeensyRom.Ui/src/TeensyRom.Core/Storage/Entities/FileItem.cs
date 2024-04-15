@@ -12,7 +12,9 @@ namespace TeensyRom.Core.Storage.Entities
         public virtual string MetadataSource { get; set; } = string.Empty;
         public virtual string Meta1 { get; set; } = string.Empty;
         public virtual string Meta2 { get; set; } = string.Empty;
-        public string SourcePath { get; set; } = string.Empty;
+        public string MetadataSourcePath { get; set; } = string.Empty;
+        public string FavChildPath { get; set; } = string.Empty;
+        public string FavParentPath { get; set; } = string.Empty;
         public string Id => $"{Size}{Path.GetFileNameFromPath()}";
         public TeensyFileType FileType => Path.GetUnixFileExtension().GetFileType();
 
@@ -34,7 +36,7 @@ namespace TeensyRom.Core.Storage.Entities
                 MetadataSource = MetadataSource,
                 Meta1 = Meta1,
                 Meta2 = Meta2,
-                SourcePath = SourcePath
+                MetadataSourcePath = MetadataSourcePath
             };
         }
     }

@@ -45,6 +45,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<Unit, Unit> ToggleShuffleCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ToggleTimedPlay { get; set; }
         public ReactiveCommand<Unit, Unit> FavoriteCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> RemoveFavoriteCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ShareCommand { get; set; }
         public ReactiveCommand<Unit, Unit> NavigateToFileDirCommand { get; set; }
 
@@ -63,6 +64,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             Func<Task> playPrevious, 
             Func<Task> playNext, 
             Func<ILaunchableItem, Task> saveFav,
+            Func<ILaunchableItem, Task> removeFav,
             Func<string, Task> loadDirectory,            
             IAlertService alert)
         {
@@ -214,6 +216,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             PreviousCommand = ReactiveCommand.CreateFromTask(playPrevious);
             ToggleShuffleCommand = ReactiveCommand.Create(toggleMode);
             FavoriteCommand = ReactiveCommand.CreateFromTask(_ => saveFav(File!));
+            RemoveFavoriteCommand = ReactiveCommand.CreateFromTask(_ => removeFav(File!));
             ShareCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleShareCommand());
             NavigateToFileDirCommand = ReactiveCommand.CreateFromTask(_ => loadDirectory(File!.Path.GetUnixParentPath()!));
         }

@@ -95,8 +95,8 @@ namespace TeensyRom.Core.Music.Sid
             song.Meta1 = sidRecord.Clock;
             song.Meta2 = sidRecord.SidModel;            
             
-            song.SourcePath = song.SourcePath.RemoveLeadingAndTrailingSlash().Contains(sidRecord.Filepath.RemoveLeadingAndTrailingSlash()) 
-                ? song.SourcePath 
+            song.MetadataSourcePath = song.MetadataSourcePath.RemoveLeadingAndTrailingSlash().Contains(sidRecord.Filepath.RemoveLeadingAndTrailingSlash()) 
+                ? song.MetadataSourcePath 
                 : sidRecord.Filepath;
             
             song.ShareUrl = $"https://deepsid.chordian.net/?file={sidRecord.Filepath}";
@@ -106,7 +106,7 @@ namespace TeensyRom.Core.Music.Sid
         {
             var currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var remainingPathSegments = song.SourcePath.GetRemainingPathSegments(MusicConstants.Hvsc_Musician_Base_Remote_Path);
+            var remainingPathSegments = song.MetadataSourcePath.GetRemainingPathSegments(MusicConstants.Hvsc_Musician_Base_Remote_Path);
 
             var hsvcImageName = $"{Path.Combine(currentDirectory!, MusicConstants.Musician_Image_Local_Path)}musicians";
 

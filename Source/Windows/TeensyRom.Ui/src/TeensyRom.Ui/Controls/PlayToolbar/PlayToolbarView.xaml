@@ -134,27 +134,31 @@
                 
             </StackPanel>
 
-            <StackPanel 
-                Grid.Column="2" 
-                Orientation="Horizontal"
-                HorizontalAlignment="Right" VerticalAlignment="Top" 
+            <Grid Grid.Column="2"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
                 Margin="10 0 10 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                <ComboBox 
+                <ComboBox Grid.Column="0"
                     x:Name="TimerComboBox"
                     ItemsSource="{Binding TimerOptions}"
                     SelectedItem="{Binding TimerSeconds, Mode=TwoWay}"
                     Visibility="{Binding TimedPlayComboBoxEnabled, Converter={StaticResource BoolToVisibilityConvertor}, Mode=TwoWay}"
                     Foreground="{StaticResource EnabledColor}"
                     FontFamily="Arial"
-                    
                     materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                    materialDesign:TextFieldAssist.PrefixText="Play Timer:"                    
+                    materialDesign:TextFieldAssist.PrefixText="Play Timer:"
                     ToolTip="The amount of time to play the current file before launching the next."
-                    Margin="0 0 30 0">
-                </ComboBox>
+                    Margin="0 0 30 0"/>
 
-                <Button x:Name="TimerButton"
+                <Button Grid.Column="1"
+                    x:Name="TimerButton"
                     Command="{Binding ToggleTimedPlay}"  
                     Visibility="{Binding TimedPlayButtonEnabled, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
                     ToolTip="Enables continuous timed play.&#x0a;When the timer ends, the next file will be launched."
@@ -164,7 +168,8 @@
                     <materialDesign:PackIcon Kind="TimerOutline" Margin="0 0 0 0"/>
                 </Button>
 
-                <Button x:Name="ShareButton"
+                <Button Grid.Column="2"
+                    x:Name="ShareButton"
                     Command="{Binding ShareCommand}"    
                     Visibility="{Binding ShareVisible, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
                     ToolTip="Copies a shareable web link to the clipboard"
@@ -174,7 +179,8 @@
                     <materialDesign:PackIcon Kind="Share" Margin="0 0 0 3"/>
                 </Button>
 
-                <Button x:Name="ShuffleModeButton"
+                <Button Grid.Column="3"
+                    x:Name="ShuffleModeButton"
                     Command="{Binding ToggleShuffleCommand}"  
                     ToolTip="Shuffle Mode.  &#x0a;Enabling this will cause the next button to play random file from your collection.  &#x0a;Disabling will play the next file in the current directory. &#x0a;The filter selected will determine the file type that gets picked."
                     Style="{StaticResource ShuffleModeButtonStyle}"
@@ -182,17 +188,32 @@
                     <materialDesign:PackIcon Kind="Shuffle"/>
                 </Button>
 
-                <Button x:Name="FavoriteButton"
+
+                <Button
+                    Grid.Column="4"
+                    x:Name="FavoriteButton"
                     Command="{Binding FavoriteCommand}"  
-                    IsEnabled="{Binding File.IsFavorite, Converter={StaticResource BooleanInverterConverter}, Mode=OneWay}"
+                    Visibility="{Binding File.IsFavorite, Converter={StaticResource InverseBooleanToVisibilityConverter}, Mode=OneWay}"
                     ToolTip="Tags the current file as favorite.&#x0a;Your file will be saved to the /favorites folder."
                     Style="{StaticResource StorageIconButton}"
                     Padding="0"
                     Margin="10">
-                    <materialDesign:PackIcon Kind="heart"/>
+                    <materialDesign:PackIcon Kind="HeartOutline"/>
                 </Button>
-            </StackPanel>
-            
+
+                <Button
+                    Grid.Column="4"
+                    x:Name="RemoveFavoriteButton"
+                    Command="{Binding RemoveFavoriteCommand}"  
+                    Visibility="{Binding File.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
+                    ToolTip="Untags the current file as favorite."
+                    Style="{StaticResource StorageIconButton}"
+                    Padding="0"
+                    Margin="10">
+                    <materialDesign:PackIcon Kind="Heart"/>
+                </Button>
+            </Grid>
+
         </Grid>
     </Grid>
 </UserControl>

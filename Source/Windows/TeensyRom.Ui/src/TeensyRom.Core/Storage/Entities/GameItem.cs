@@ -47,7 +47,7 @@
             MetadataSource = MetadataSource,
             Meta1 = Meta1,
             Meta2 = Meta2,
-            SourcePath = SourcePath,
+            MetadataSourcePath = MetadataSourcePath,
             Images = Images.Select(x => x.Clone()).ToList()
         };
     }

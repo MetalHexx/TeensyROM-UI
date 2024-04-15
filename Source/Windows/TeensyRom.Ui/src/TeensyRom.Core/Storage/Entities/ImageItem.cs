@@ -48,7 +48,7 @@ namespace TeensyRom.Core.Storage.Entities
             ShareUrl = ShareUrl,
             MetadataSource = MetadataSource,
             Meta2 = Meta2,
-            SourcePath = SourcePath
+            MetadataSourcePath = MetadataSourcePath
         };
     }
 }

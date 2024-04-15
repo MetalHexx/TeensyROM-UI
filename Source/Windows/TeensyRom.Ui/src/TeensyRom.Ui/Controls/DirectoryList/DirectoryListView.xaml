@@ -86,6 +86,17 @@
                             ToolTip="Tags the current file as favorite.&#x0a;Your file will be saved to the /favorites folder."
                             Style="{StaticResource StorageIconButton}"
                             Margin="10 0 0 0">
+                            <materialDesign:PackIcon Kind="HeartOutline" />
+                        </Button>
+
+                        <Button 
+                            x:Name="RemoveFavButton" 
+                            Command="{Binding DataContext.RemoveFavoriteCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
+                            CommandParameter="{Binding}"
+                            Visibility="Collapsed"
+                            ToolTip="Tags the current file as favorite.&#x0a;Your file will be saved to the /favorites folder."
+                            Style="{StaticResource StorageIconButton}"
+                            Margin="10 0 0 0">
                             <materialDesign:PackIcon Kind="Heart" />
                         </Button>
 
@@ -105,21 +116,33 @@
             </Grid>
 
             <DataTemplate.Triggers>
-                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">
+
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True"/>
+                        <Condition Binding="{Binding IsFavorite}" Value="False"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter TargetName="RemoveFavButton" Property="Visibility" Value="Collapsed"/>
                     <Setter TargetName="FavButton" Property="Visibility" Value="Visible"/>
+                </MultiDataTrigger>
+
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True"/>
+                        <Condition Binding="{Binding IsFavorite}" Value="True"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter TargetName="RemoveFavButton" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="FavButton" Property="Visibility" Value="Collapsed"/>
+                </MultiDataTrigger>
+
+
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True">
                     <Setter TargetName="DeleteButton" Property="Visibility" Value="Visible"/>
-                    <Setter TargetName="PlayButton" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="PlayButton" Property="Visibility" Value="Visible"/>                    
                 </DataTrigger>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="False">
-                    <Setter TargetName="FavButton" Property="Visibility" Value="Collapsed"/>
                     <Setter TargetName="DeleteButton" Property="Visibility" Value="Collapsed"/>
                     <Setter TargetName="PlayButton" Property="Visibility" Value="Collapsed"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsFavorite}" Value="True">
-                    <Setter TargetName="FavButton" Property="IsEnabled" Value="False"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsFavorite}" Value="False">
-                    <Setter TargetName="FavButton" Property="IsEnabled" Value="True"/>
                 </DataTrigger>
 
                 <DataTrigger Binding="{Binding IsCompatible}" Value="False">

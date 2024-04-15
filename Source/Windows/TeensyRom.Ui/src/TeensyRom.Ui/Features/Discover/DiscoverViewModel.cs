@@ -89,6 +89,7 @@ namespace TeensyRom.Ui.Features.Discover
                 player.PlayPrevious,
                 player.PlayNext,
                 player.SaveFavorite,
+                player.RemoveFavorite,
                 player.LoadDirectory,                
                 alert
             );
@@ -102,6 +103,7 @@ namespace TeensyRom.Ui.Features.Discover
                 player.PlayFile,
                 player.SelectFile,
                 player.SaveFavorite,
+                player.RemoveFavorite,
                 player.StoreFiles,
                 player.DeleteFile,
                 player.LoadDirectory,

@@ -27,6 +27,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
         public ReactiveCommand<ILaunchableItem, Unit> PlayCommand { get; set; }
         public ReactiveCommand<ILaunchableItem, Unit> SelectCommand { get; set; }
         public ReactiveCommand<ILaunchableItem, Unit> SaveFavoriteCommand { get; set; }
+        public ReactiveCommand<ILaunchableItem, Unit> RemoveFavoriteCommand { get; set; }
         public ReactiveCommand<IFileItem, Unit> DeleteCommand { get; set; }
         public ReactiveCommand<DragEventArgs, Unit> FileDropCommand { get; private set; }
         public ReactiveCommand<DragEventArgs, Unit> DragOverCommand { get; }
@@ -41,6 +42,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
             Func<ILaunchableItem, Task> launchGameFunc, 
             Func<ILaunchableItem, Unit> setSelectedFunc,
             Func<ILaunchableItem, Task> saveFavFunc,
+            Func<ILaunchableItem, Task> removeFavFunc,
             Func<IEnumerable<DragNDropFile>, Task> storeFilesFunc,
             Func<IFileItem, Task> deleteFunc,
             Func<string, string, Task> loadDirFunc,
@@ -72,6 +74,10 @@ namespace TeensyRom.Ui.Controls.DirectoryList
 
             SaveFavoriteCommand = ReactiveCommand.CreateFromTask(
                 execute: saveFavFunc,
+                outputScheduler: RxApp.MainThreadScheduler);
+
+            RemoveFavoriteCommand = ReactiveCommand.CreateFromTask(
+                execute: removeFavFunc,
                 outputScheduler: RxApp.MainThreadScheduler);
 
             LoadDirectoryCommand = ReactiveCommand.CreateFromTask<DirectoryItem>(

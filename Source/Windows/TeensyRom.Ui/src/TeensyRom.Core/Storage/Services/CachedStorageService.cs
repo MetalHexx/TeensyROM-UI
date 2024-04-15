@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using TeensyRom.Core.Assets;
 using TeensyRom.Core.Commands;
@@ -101,10 +102,12 @@ namespace TeensyRom.Core.Storage.Services
 
             if (!favoriteResult.IsSuccess) return null;
 
-            launchItem.IsFavorite = true;
             favItem.IsFavorite = true;
-            
             favItem.Path = favPath.UnixPathCombine(favItem.Name);
+            favItem.FavParentPath = launchItem.Path;
+
+            launchItem.IsFavorite = true;            
+            launchItem.FavChildPath = favItem.Path;
 
             _storageCache.UpsertFile(launchItem);
             _storageCache.UpsertFile(favItem);
@@ -112,6 +115,44 @@ namespace TeensyRom.Core.Storage.Services
             SaveCacheToDisk();
 
             return favItem as ILaunchableItem;
+        }
+
+        public async Task RemoveFavorite(ILaunchableItem file) 
+        {
+            IFileItem? sourceFile;
+            IFileItem? favFile;
+
+            if (string.IsNullOrWhiteSpace(file.FavChildPath) && string.IsNullOrWhiteSpace(file.FavParentPath)) 
+            {
+                _alert.Publish($"{file.Path} is an orphan.  Try re-indexing your files.");
+                return;
+            }
+
+            if(string.IsNullOrWhiteSpace(file.FavChildPath))
+            {
+                favFile = file;
+                sourceFile = _storageCache.GetFileByPath(file.FavParentPath);
+            }
+            else
+            {
+                sourceFile = file;
+                favFile = _storageCache.GetFileByPath(file.FavChildPath);
+            }
+            if(sourceFile is not null)
+            {
+                sourceFile.IsFavorite = false;
+                sourceFile.FavChildPath = string.Empty;
+                _storageCache.UpsertFile(sourceFile);
+            }
+            if(favFile is null) return;
+
+            favFile.IsFavorite = false; 
+
+            _storageCache.DeleteFile(favFile.Path);            
+            _alert.Publish($"{favFile.Path} was untagged as a favorite.");            
+            await _mediator.Send(new DeleteFileCommand(_settings.StorageType, favFile.Path));
+            favFile.Path = sourceFile?.Path ?? favFile.Path; //TODO: smell - this fixes a bug if favorite is re-favorited from play toolbar.
+            return;
         }
 
         public void MarkIncompatible(ILaunchableItem launchItem)
@@ -165,18 +206,22 @@ namespace TeensyRom.Core.Storage.Services
         {
             List<ILaunchableItem> favsToFavorite = GetFavoriteItemsFromCache();
 
-            favsToFavorite.ForEach(f => f.IsFavorite = true);
+            favsToFavorite.ForEach(fav => fav.IsFavorite = true);
 
             _storageCache
                 .Where(NotFavoriteFilter)
                 .SelectMany(c => c.Value.Files)                
                 .Where(f => favsToFavorite.Any(fav => fav.Id == f.Id))
                 .ToList()
-                .ForEach(f => 
-                {
-                    f.IsFavorite = true;
-                    var fav = favsToFavorite.First(fav => fav.Id == f.Id);
-                    fav.SourcePath = f.Path;
+                .ForEach(parentFile => 
+                {                       
+                    var fav = favsToFavorite.First(fav => fav.Id == parentFile.Id);
+                    fav.FavParentPath = parentFile.Path;
+                    fav.MetadataSourcePath = parentFile.MetadataSourcePath;
+                    parentFile.IsFavorite = true;
+                    parentFile.FavChildPath = fav.Path;
+                    _storageCache.UpsertFile(parentFile);
+                    _storageCache.UpsertFile(fav);
                 });
         }
 

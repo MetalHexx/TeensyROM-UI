@@ -344,28 +344,32 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             if (IsBusy()) return;
 
-            if (_launchedFile.Value.File is GameItem)
+            if (_launchedFile.Value?.File is GameItem)
             {
                 _alert.Enqueue("Your game will re-launch to allow favorite to be tagged.");
                 await _mediator.Send(new ResetCommand());
             }
             var favFile = await _storage.SaveFavorite(file);
 
-            if (_launchedFile.Value.File is GameItem)
+            if (_launchedFile?.Value?.File is GameItem)
             {
                 await Task.Delay(2000);
                 await _mediator.Send(new LaunchFileCommand(_settings.StorageType, _launchedFile.Value.File));
             }
+            await LoadDirectory(_directoryState.Value.CurrentPath, file.Path);
+        }
 
-            var parentDir = favFile?.Path.GetUnixParentPath();
+        public Task RemoveFavorite(ILaunchableItem file)
+        {
+            if (IsBusy()) return Task.CompletedTask;
 
-            if (parentDir is null) return;
-
-            var directoryResult = await _storage.GetDirectory(parentDir);
-
-            if (directoryResult is null) return;
-
-            _directoryState.Value.LoadDirectory(directoryResult.ToList(), directoryResult.Path);
+            _storage.RemoveFavorite(file);
+            
+            if(file.FavParentPath == string.Empty)
+            {
+                return LoadDirectory(_directoryState.Value.CurrentPath, file.Path);
+            }
+            return LoadDirectory(_directoryState.Value.CurrentPath);
         }
 
         public Task DeleteFile(IFileItem file)

@@ -1,4 +1,5 @@
 ﻿using TeensyRom.Core.Commands;
+using TeensyRom.Core.Commands.DeleteFile;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Storage.Services
@@ -17,5 +18,6 @@ namespace TeensyRom.Core.Storage.Services
         Task CacheAll(string path);
         void MarkIncompatible(ILaunchableItem launchItem);
         IEnumerable<ILaunchableItem> Search(string searchText, params TeensyFileType[] fileTypes);
+        Task RemoveFavorite(ILaunchableItem file);
     }
 }

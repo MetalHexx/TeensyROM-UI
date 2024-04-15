@@ -12,7 +12,9 @@
         string Description { get; set; }
         string Meta1 { get; set; }
         string Meta2 { get; set; }
-        string SourcePath { get; set; }
+        string MetadataSourcePath { get; set; }
+        string FavChildPath { get; set; }
+        string FavParentPath { get; set; }
 
         FileItem Clone();
     }
