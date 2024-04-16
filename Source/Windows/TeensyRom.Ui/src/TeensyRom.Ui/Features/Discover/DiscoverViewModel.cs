@@ -28,6 +28,7 @@ using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Ui.Features.Discover.State.Progress;
+using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Discover
@@ -52,7 +53,7 @@ namespace TeensyRom.Ui.Features.Discover
 
         private TeensySettings _settings = null!;
 
-        public DiscoverViewModel(IPlayerContext player, ISerialStateContext serial, IDialogService dialog, IAlertService alert, IProgressService progress, ISettingsService settingsService, IGameMetadataService metadata, IProgressTimer? timer)
+        public DiscoverViewModel(IPlayerContext player, ISerialStateContext serial, IDialogService dialog, IAlertService alert, IProgressService progress, ISettingsService settingsService, INavigationService nav, IGameMetadataService metadata, IProgressTimer? timer)
         {
             Title = new FeatureTitleViewModel("Discover");
             FileInfo = new FileInfoViewModel(player, metadata);
@@ -169,7 +170,8 @@ namespace TeensyRom.Ui.Features.Discover
                 (
                     player.CacheAll,                                        
                     dialog,
-                    _settings.StorageType
+                    _settings.StorageType, 
+                    nav
                 );
             });
         }
