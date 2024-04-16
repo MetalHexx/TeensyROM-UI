@@ -7,24 +7,20 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d">
 
-    <Border Style="{StaticResource ToolbarBorder}">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
-            </Grid.ColumnDefinitions>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
 
-            <Button 
+        <Button 
                 Command="{Binding CacheAllCommand}" 
-                ToolTip="Indexes all file location information from the TR. &#x0a;Indexing everything is important for randomization and search functionality."
-                Style="{StaticResource StorageIconButton}"
-                Margin="5 0 0 0"
+                ToolTip="Indexes all file location information from the TR for the selected storage device. &#x0a;Indexing everything is important for randomization and search functionality."
+                Style="{StaticResource StorageIconButton}"                
                 Grid.Column="0">
 
-                <materialDesign:PackIcon Kind="Download" />
-            </Button>
+            <materialDesign:PackIcon Kind="Download" />
+        </Button>
 
-            
-        </Grid>
-    </Border>
+
+    </Grid>
 </UserControl>

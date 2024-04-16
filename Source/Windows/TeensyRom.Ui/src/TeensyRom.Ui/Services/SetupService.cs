@@ -252,6 +252,14 @@ namespace TeensyRom.Ui.Services
                 return;
             }
 
+            result = await _dialog.ShowConfirmation("Re-indexing Storage", $"If you make changes to your selected storage outside of this application, you can re-index it clicking on the down arrow button next to the storage dropdown.");
+
+            if (!result)
+            {
+                await Complete();
+                return;
+            }
+
             result = await _dialog.ShowConfirmation("Feeling Lucky?", "Let's try discovering something to play. \r\rClick on the die button near the lower left of the screen next to the \"All\", \"Games\", \"Music\" and \"Images\" filters.");
 
             if (!result)

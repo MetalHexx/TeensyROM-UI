@@ -7,13 +7,12 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Border Style="{StaticResource ToolbarBorder}">
-        <ComboBox 
+    <ComboBox 
             ItemsSource="{Binding Storage, Mode=OneWay}"  
             SelectedItem="{Binding SelectedStorage, Mode=TwoWay}" 
             ToolTip="Select the storage device to view files for on the TR."
             HorizontalContentAlignment="Center"
-            materialDesign:HintAssist.Hint="OS" Margin="15 0 10 0">
-        </ComboBox>
-    </Border>
+            materialDesign:HintAssist.Hint="OS"
+            Margin="3 0 0 0">
+    </ComboBox>
 </UserControl>

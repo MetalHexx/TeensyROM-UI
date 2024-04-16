@@ -34,10 +34,21 @@
             <Grid HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="5*"/>
-                    <ColumnDefinition Width="85"/>
+                    <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <ContentControl Content="{Binding Title}" Grid.Column="0"/>
-                <ContentControl Content="{Binding StorageSelector}" Grid.Column="1"  Margin="10 0 0 0"/>
+                <Border Style="{StaticResource ToolbarBorder}" Grid.Column="1" Margin="10 0 0 0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="58"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ContentControl Content="{Binding StorageSelector}" Grid.Column="0"  Margin="10 0 0 0"/>
+                        <ContentControl Content="{Binding CornerToolbar}" Grid.Column="1" Margin="7 0 0 0"/>
+                    </Grid>
+                    
+                </Border>
+                
             </Grid>
 
             <ContentControl 
@@ -56,14 +67,10 @@
 
             <Grid Grid.Row="0" Grid.Column="2" Margin="10 0 0 0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>                    
                 </Grid.ColumnDefinitions>
 
                 <ContentControl Content="{Binding Search}" Grid.Column="0"/>
-
-                <ContentControl Content="{Binding CornerToolbar}" Grid.Column="1" Margin="10 0 0 0"/>
-
             </Grid>
 
             <ContentControl 
