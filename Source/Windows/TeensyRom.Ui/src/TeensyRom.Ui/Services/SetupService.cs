@@ -201,33 +201,25 @@ namespace TeensyRom.Ui.Services
             
             _navigation.NavigateTo(NavigationLocation.Terminal);
 
-            result = await _dialog.ShowConfirmation("SD Index", "First we'll check your SD card for files to index.");
-            if (!result)
-            {
-                await Complete();
-                return;
-            }
+            _dialog.ShowNoClose("Indexing SD Storage", "This may a few minutes.  Don't touch your commodore while indexing is in progress.");
 
             _settings.StorageType = TeensyStorageType.SD;
             _settingsService.SaveSettings(_settings);
             await _storage.CacheAll(StorageConstants.Remote_Path_Root);
+            _dialog.HideNoClose();
 
             await OnCacheUSB();
         }
 
         public async Task OnCacheUSB()
         {
-            var result = await _dialog.ShowConfirmation("USB Index", "Next we'll check your USB storage for files to index.");
-            if (!result)
-            {
-                await Complete();
-                return;
-            }
+            _dialog.ShowNoClose("Indexing USB Storage", "This may take a few minutes.  Don't touch your commodore while indexing is in progress.");
             _settings.StorageType = TeensyStorageType.USB;
             _settingsService.SaveSettings(_settings);
             await _storage.CacheAll(StorageConstants.Remote_Path_Root);
+            _dialog.HideNoClose();
 
-            result = await _dialog.ShowConfirmation("File Indexing Completed", $"Now that your file information has been indexed, lets head over to the Discover view and do some exploring.");
+            var result = await _dialog.ShowConfirmation("File Indexing Completed", $"Now that your file information has been indexed, lets head over to the Discover view and do some exploring.");
 
             if (!result)
             {
@@ -244,7 +236,7 @@ namespace TeensyRom.Ui.Services
 
             _discoverView.StorageSelector.SelectedStorage = TeensyStorageType.SD;
 
-            var result = await _dialog.ShowConfirmation("Discovery View", $"In the \"Discover\" view, you can navigate and launch music, games or images.  \r\rIn the first 2 sections, you should see the root directory structure and file listing of your {_settings.StorageType} storage.\r\rOn the right you will find some information about the currently selected file.");
+            var result = await _dialog.ShowConfirmation("Discovery View", $"In the \"Discover\" view, you can navigate and launch music, games or images.  \r\rIn the first 2 sections, you should see the root directory structure and file listing of your {_settings.StorageType} storage.");
 
             if (!result)
             {
@@ -252,7 +244,7 @@ namespace TeensyRom.Ui.Services
                 return;
             }
 
-            result = await _dialog.ShowConfirmation("Storage", $"{_settings.StorageType} storage is currently selected.  You can switch between SD and USB storage using the dropdown next to the \"Discover\" title.\r\rYour last selected storage device will be remembered next time you load the app.");
+            result = await _dialog.ShowConfirmation("Storage", $"{_settings.StorageType} storage is currently selected.  You can switch between SD and USB storage using the dropdown next to the \"Discover\" title.");
 
             if (!result)
             {
@@ -401,7 +393,7 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Tag Your Favorites!", $"Whenever you see a \"Heart\" button throughout the application, when you click it, the file will be saved to the /favorites folder.  \r\rThis will physically copy the file there, so you can find the favorites while using TR C64 UI directly as well.");
+                    result = await _dialog.ShowConfirmation("Tag Your Favorites!", $"Whenever you see a \"Heart\" button throughout the application, when you click it, the file will be saved to the /favorites folder.  \r\rSince the tagged favorite is a copy of the file, you can launch it directly from the Commodore UI as well.");
 
                     if (!result)
                     {
