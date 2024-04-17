@@ -9,7 +9,7 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -17,7 +17,7 @@
             Value="{Binding Progress.Percentage, Mode=OneWay}"
             Visibility="{Binding ProgressEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"
             Maximum="1"
-            Grid.Row="0" VerticalAlignment="Top" />
+            Grid.Row="0" VerticalAlignment="Top"/>
 
         <Grid Grid.Row="1" Margin="10 10 0 10">
             <Grid.ColumnDefinitions>
