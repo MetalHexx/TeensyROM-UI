@@ -27,10 +27,6 @@
                 <ColumnDefinition MaxWidth="600"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation="Horizontal"  >
-                
-            </StackPanel>
-
             <Grid HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="5*"/>

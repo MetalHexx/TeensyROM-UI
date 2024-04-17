@@ -12,7 +12,7 @@
             Style="{StaticResource SectionTitle}"  
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            TextAlignment="Left"
+            TextAlignment="Center"
             Margin="20 0 20 0"
             Grid.Row="0" Grid.Column="0"/>            
     </Border>
