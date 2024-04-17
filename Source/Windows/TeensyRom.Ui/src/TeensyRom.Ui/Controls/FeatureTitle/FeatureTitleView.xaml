@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:TeensyRom.Ui.Controls.FeatureTitle"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Border Style="{StaticResource SectionBorder}" Width="165">
+    <Border Style="{StaticResource SectionBorder}" MinWidth="165">
         <TextBlock 
             Text="{Binding Title}"
             Style="{StaticResource SectionTitle}"  

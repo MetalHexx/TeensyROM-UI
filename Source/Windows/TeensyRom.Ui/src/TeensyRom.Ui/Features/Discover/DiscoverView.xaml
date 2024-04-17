@@ -22,21 +22,21 @@
 
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition MinWidth="200" Width="Auto"/>
+                <ColumnDefinition MinWidth="200" Width="auto"/>
                 <ColumnDefinition Width="1.32*" MinWidth="200"/>
                 <ColumnDefinition MaxWidth="600"/>
             </Grid.ColumnDefinitions>
 
             <Grid HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*"/>
-                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <ContentControl Content="{Binding Title}" Grid.Column="0"/>
-                <Border Style="{StaticResource ToolbarBorder}" Grid.Column="1" Margin="10 0 0 0">
+                <ContentControl Content="{Binding Title}" Grid.Column="0" HorizontalAlignment="Stretch"/>
+                <Border Style="{StaticResource ToolbarBorder}" Grid.Column="1" HorizontalAlignment="Stretch" Margin="10 0 0 0">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="58"/>
+                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
                         <ContentControl Content="{Binding StorageSelector}" Grid.Column="0"  Margin="10 0 0 0"/>
