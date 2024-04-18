@@ -115,5 +115,43 @@
             }
             return commonPath;
         }
+
+        public static List<string> GetRemainingPathSegments(this string fullPath, string basePath)
+        {
+            var fullPathItems = fullPath.ToPathArray().ToList();
+            var basePathItems = basePath.ToPathArray().ToList();
+
+            fullPathItems = fullPathItems.Select(x => x.ToLower()).ToList();
+            basePathItems = basePathItems.Select(x => x.ToLower()).ToList();
+
+            int startIndex = FindStartIndexOfBasePath(fullPathItems, basePathItems);
+            if (startIndex == -1)
+            {
+                return [];
+            }
+            int remainingPathLength = fullPathItems.Count - (startIndex + basePathItems.Count) - 1;
+
+            if (remainingPathLength <= 0)
+            {
+                return [];
+            }
+            List<string> remainingPathSegments = fullPathItems.GetRange(startIndex + basePathItems.Count, remainingPathLength);
+
+            return remainingPathSegments;
+        }
+
+        private static int FindStartIndexOfBasePath(List<string> fullPath, List<string> basePath)
+        {
+            for (int i = 0; i <= fullPath.Count - basePath.Count; i++)
+            {
+                var currentSlice = fullPath.GetRange(i, basePath.Count);
+
+                if (Enumerable.SequenceEqual(currentSlice, basePath))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
     }
 }
