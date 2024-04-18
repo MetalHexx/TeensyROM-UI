@@ -37,7 +37,14 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 await _playerContext.LoadDirectory(nextFile.Path.GetUnixParentPath(), nextFile.Path);
                 return nextFile;
             }
-            var randomFile = _storage.GetRandomFile(fileTypes);
+            var currentScope = _playerContext.GetScope();
+            var currentScopePath = currentScope switch 
+            { 
+                StorageScope.DirShallow => _playerContext.GetScopePath(), 
+                StorageScope.DirDeep => _playerContext.GetScopePath(), 
+                _ => StorageConstants.Remote_Path_Root 
+            };
+            var randomFile = _storage.GetRandomFile(currentScope, currentScopePath, fileTypes);
 
             if (randomFile is not null)
             {

@@ -143,21 +143,36 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <ComboBox Grid.Column="0"
+                    x:Name="ScopeComboBox"
+                    ItemsSource="{Binding ScopeOptions}"
+                    SelectedItem="{Binding SelectedScope, Mode=TwoWay}"
+                    Visibility="{Binding ShuffleModeEnabled, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
+                    FontFamily="Arial"
+                    Foreground="{StaticResource EnabledColor}"
+                    materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                    materialDesign:TextFieldAssist.PrefixText="Shuffle:"
+                    materialDesign:HintAssist.HelperText="{Binding StorageScopePath}"
+                    materialDesign:HintAssist.HelperTextFontSize="12"
+                    ToolTip="Shuffle mode will randomly select files at varying depths:&#x0a;• Selected Storage: Files across your entire selected storage device.&#x0a;• Directory (Shallow): Files in the pinned directory only.&#x0a;• Directory (Deep): Files in the pinned directory and deeply nested in directories below it."
+                    Margin="0 0 30 0"/>
+
+                <ComboBox Grid.Column="1"
                     x:Name="TimerComboBox"
                     ItemsSource="{Binding TimerOptions}"
                     SelectedItem="{Binding TimerSeconds, Mode=TwoWay}"
-                    Visibility="{Binding TimedPlayComboBoxEnabled, Converter={StaticResource BoolToVisibilityConvertor}, Mode=TwoWay}"
-                    Foreground="{StaticResource EnabledColor}"
+                    Visibility="{Binding TimedPlayComboBoxEnabled, Converter={StaticResource BoolToVisibilityConvertor}, Mode=TwoWay}"                    
                     FontFamily="Arial"
+                    Foreground="{StaticResource EnabledColor}"
                     materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                    materialDesign:TextFieldAssist.PrefixText="Play Timer:"
+                    materialDesign:TextFieldAssist.PrefixText="Timer:"
                     ToolTip="The amount of time to play the current file before launching the next."
                     Margin="0 0 30 0"/>
 
-                <Button Grid.Column="1"
+                <Button Grid.Column="2"
                     x:Name="TimerButton"
                     Command="{Binding ToggleTimedPlay}"  
                     Visibility="{Binding TimedPlayButtonEnabled, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
@@ -168,7 +183,7 @@
                     <materialDesign:PackIcon Kind="TimerOutline" Margin="0 0 0 0"/>
                 </Button>
 
-                <Button Grid.Column="2"
+                <Button Grid.Column="3"
                     x:Name="ShareButton"
                     Command="{Binding ShareCommand}"    
                     Visibility="{Binding ShareVisible, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
@@ -179,7 +194,7 @@
                     <materialDesign:PackIcon Kind="Share" Margin="0 0 0 3"/>
                 </Button>
 
-                <Button Grid.Column="3"
+                <Button Grid.Column="4"
                     x:Name="ShuffleModeButton"
                     Command="{Binding ToggleShuffleCommand}"  
                     ToolTip="Shuffle Mode.  &#x0a;Enabling this will cause the next button to play random file from your collection.  &#x0a;Disabling will play the next file in the current directory. &#x0a;The filter selected will determine the file type that gets picked."
@@ -190,7 +205,7 @@
 
 
                 <Button
-                    Grid.Column="4"
+                    Grid.Column="5"
                     x:Name="FavoriteButton"
                     Command="{Binding FavoriteCommand}"  
                     Visibility="{Binding File.IsFavorite, Converter={StaticResource InverseBooleanToVisibilityConverter}, Mode=OneWay}"
@@ -202,7 +217,7 @@
                 </Button>
 
                 <Button
-                    Grid.Column="4"
+                    Grid.Column="6"
                     x:Name="RemoveFavoriteButton"
                     Command="{Binding RemoveFavoriteCommand}"  
                     Visibility="{Binding File.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"

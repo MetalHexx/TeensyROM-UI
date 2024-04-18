@@ -24,6 +24,8 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         IObservable<LaunchedFileResult> LaunchedFile { get; }
         IObservable<ILaunchableItem> SelectedFile { get; }
         IObservable<int> TotalPages { get; }
+        IObservable<StorageScope> CurrentScope { get; }
+        IObservable<string> CurrentScopePath { get; }
         Task CacheAll();
         Task ClearSearch();
         Task DeleteFile(IFileItem file);
@@ -49,5 +51,8 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         Task StoreFiles(IEnumerable<DragNDropFile> files);
         Task AutoStoreFiles(IEnumerable<FileTransferItem> files);
         Task RemoveFavorite(ILaunchableItem file);
+        void SetScope(StorageScope scope);
+        void SetScopePath(string path);
+        string GetScopePath();
     }
 }

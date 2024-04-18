@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.XPath;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Storage.Services;
 
 namespace TeensyRom.Ui.Controls.DirectoryChips
 {
@@ -18,21 +19,19 @@ namespace TeensyRom.Ui.Controls.DirectoryChips
     {
         public ObservableCollection<string> PathItems { get; set; } = [];
         public ReactiveCommand<string, Unit> PathItemClickCommand { get; set; }
-        public ReactiveCommand<string, Unit> CopyCommand { get; set; }
-        public ReactiveCommand<Unit, Unit> RefreshCommand { get; set; }
+        public ReactiveCommand<string, Unit> PinCommand { get; set; }
         private string _currentPath = string.Empty;
 
-        public DirectoryChipsViewModel(IObservable<string> path, string basePath, Action<string> onClick, Action onCopy, Func<bool, Task> onRefresh)
+        public DirectoryChipsViewModel(IObservable<string> path, string basePath, Action<string> onClick, Action<string> onPin)
         {
-            RefreshCommand = ReactiveCommand.CreateFromTask<Unit>(
-                execute: _ => onRefresh(true),
-                outputScheduler: RxApp.MainThreadScheduler);
+            var root = StorageConstants.Remote_Path_Root;
 
             var pathItems = path
                 .Where(path => !string.IsNullOrWhiteSpace(path))
                 .Do(path => _currentPath = path)
-                .Select(p => basePath == "/" ? p : p.Replace(basePath, ""))
-                .Select(path => path.ToPathArray().Select(item => $"/{item}"))
+                .Select(p => basePath == root ? p : p.Replace(basePath, ""))
+                .Select(path => path.ToPathArray()
+                    .Select(item => item == root ? root : $"/{item}"))
                 .Subscribe(pathList => 
                 {
                     PathItems.Clear();
@@ -42,11 +41,11 @@ namespace TeensyRom.Ui.Controls.DirectoryChips
                         PathItems.Add(basePath);
                         return;
                     }
-                    if(basePath == "/")
+                    if(basePath == root)
                     {
                         PathItems.Add("/root");
                     }
-                    PathItems.AddRange(pathList);
+                    PathItems.AddRange(pathList.Where(p => p != StorageConstants.Remote_Path_Root));
                 });
 
             PathItemClickCommand = ReactiveCommand.Create<string>(item =>
@@ -60,13 +59,13 @@ namespace TeensyRom.Ui.Controls.DirectoryChips
                 var newPath = ReplaceRoot(path);
                 onClick(newPath);
             });   
-            CopyCommand = ReactiveCommand.Create<string>(_ => 
-            {
-                Clipboard.SetDataObject(_currentPath);
-                onCopy();
+
+            PinCommand = ReactiveCommand.Create<string>(_ =>
+            {   
+                onPin(_currentPath);
             });
 
-            
+
         }
         private string ReplaceRoot(string path)
         {

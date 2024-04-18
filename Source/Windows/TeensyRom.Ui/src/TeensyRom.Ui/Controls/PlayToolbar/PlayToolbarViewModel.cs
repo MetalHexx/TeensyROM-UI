@@ -3,6 +3,7 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Discover.State.Progress;
@@ -29,15 +31,24 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [Reactive] public bool ProgressEnabled { get; set; }
         [Reactive] public string TimerSeconds { get; set; } = "3m";
         [Reactive] public List<string> TimerOptions { get; set; } = ["5s", "10s", "15s", "30s", "1m", "3m", "5m", "10m", "15m", "30m"];
+        [Reactive] public string SelectedScope { get; set; } = StorageScope.Storage.ToDescription();
+
+        [Reactive]
+        public List<string> ScopeOptions { get; set; } = Enum
+            .GetValues(typeof(StorageScope))
+            .Cast<StorageScope>().ToList()
+            .Select(e => e.ToDescription())
+            .ToList();
         [ObservableAsProperty] public bool ShowTitleOnly { get; }
-        
+
+        [ObservableAsProperty] public string StorageScopePath { get; }
         [ObservableAsProperty] public ILaunchableItem? File { get; }
         [ObservableAsProperty] public TimeProgressViewModel? Progress { get; } = null;
         [ObservableAsProperty] public bool ShuffleModeEnabled { get; }
         [ObservableAsProperty] public bool ShareVisible { get; }        
         [ObservableAsProperty] public bool ShowCreator { get; }
         [ObservableAsProperty] public bool ShowReleaseInfo { get; }
-        [ObservableAsProperty] public bool ShowReleaseCreatorSeperator { get; }
+        [ObservableAsProperty] public bool ShowReleaseCreatorSeperator { get; }        
 
         public ReactiveCommand<Unit, Unit> TogglePlayCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PreviousCommand { get; set; }
@@ -58,14 +69,17 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             IObservable<ILaunchableItem> file, 
             IObservable<LaunchItemState> playState,
             IObservable<bool> timedPlayEnabled,
+            IObservable<StorageScope> storageScope,
+            IObservable<string> storageScopePath,
             IProgressTimer? timer,
             Func<Unit> toggleMode, 
             Func<Task> togglePlay,
             Func<Task> playPrevious, 
-            Func<Task> playNext, 
+            Func<Task> playNext,             
             Func<ILaunchableItem, Task> saveFav,
             Func<ILaunchableItem, Task> removeFav,
-            Func<string, Task> loadDirectory,            
+            Func<string, Task> loadDirectory,
+            Action<StorageScope> setScope,
             IAlertService alert)
         {
             _timer = timer;
@@ -99,6 +113,32 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             playState
                 .Select(state => state.PlayMode == PlayMode.Shuffle)
                 .ToPropertyEx(this, vm => vm.ShuffleModeEnabled);
+
+            storageScopePath
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Skip(1)
+                .Subscribe(_ => SelectedScope = StorageScope.DirDeep.ToDescription());
+
+            storageScope
+                .CombineLatest(storageScopePath, (scope, path) => (scope, path))
+                .Select(scopeAndPath => 
+                {
+                    if (scopeAndPath.path == StorageConstants.Remote_Path_Root) return scopeAndPath;
+
+                    if(scopeAndPath.path.Length <= 10) return scopeAndPath;
+
+                    var rangeToTake = Math.Abs(24 - scopeAndPath.path.Length);
+
+                    scopeAndPath.path = $"...{scopeAndPath.path[rangeToTake..]}";
+                    return scopeAndPath;
+                })
+                .Select(scopeAndPath => scopeAndPath.scope switch
+                { 
+                    StorageScope.DirDeep => scopeAndPath.path,
+                    StorageScope.DirShallow => scopeAndPath.path,
+                    _ => string.Empty
+                })
+                .ToPropertyEx(this, vm => vm.StorageScopePath);
 
             playState
                 .Where(state => state.PlayState != PlayState.Playing)
@@ -179,15 +219,19 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     InitializeProgress(playNext, File);
                 });
 
+            this.WhenAnyValue(x => x.SelectedScope)
+                .Select(s => s.ToEnum<StorageScope>())
+                .Subscribe(scope => setScope(scope));
+
             timedPlayEnabled
                 .Take(2)
                 .Where(pt => pt is true).Subscribe(enabled =>
-            {
-                TimedPlayEnabled = true;
-                TimedPlayComboBoxEnabled = true;
-                ProgressEnabled = true;
-                InitializeProgress(playNext, (File));
-            });
+                {
+                    TimedPlayEnabled = true;
+                    TimedPlayComboBoxEnabled = true;
+                    ProgressEnabled = true;
+                    InitializeProgress(playNext, (File));
+                });
 
             TogglePlayCommand = ReactiveCommand.CreateFromTask(_ => 
             {

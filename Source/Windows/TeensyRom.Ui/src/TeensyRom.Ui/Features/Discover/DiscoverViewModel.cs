@@ -84,14 +84,17 @@ namespace TeensyRom.Ui.Features.Discover
                 launchedFile.Where(f => f is not null).Select(f => f.File),
                 launchState,
                 settingsService.Settings.Select(s => s.PlayTimerEnabled),
-                timer,
+                player.CurrentScope,
+                player.CurrentScopePath,
+                timer,                
                 player.ToggleShuffleMode,
                 player.TogglePlay,
                 player.PlayPrevious,
                 player.PlayNext,
                 player.SaveFavorite,
                 player.RemoveFavorite,
-                player.LoadDirectory,                
+                player.LoadDirectory,
+                player.SetScope,
                 alert
             );
 
@@ -162,8 +165,11 @@ namespace TeensyRom.Ui.Features.Discover
                     path: player.CurrentPath.ObserveOn(RxApp.MainThreadScheduler),
                     basePath: StorageConstants.Remote_Path_Root,
                     onClick: async path => await player.LoadDirectory(path),
-                    onCopy: () => alert.Publish("Path copied to clipboard"),
-                    onRefresh: player.RefreshDirectory
+                    onPin: path => 
+                    {
+                        player.SetScopePath(path);
+                        alert.Publish($"{path} has been pinned for shuffle mode.");
+                    }
                 );
 
                 CornerToolbar = new CacheButtonViewModel

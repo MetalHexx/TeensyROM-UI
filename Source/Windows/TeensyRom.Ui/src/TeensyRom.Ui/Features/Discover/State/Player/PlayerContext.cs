@@ -50,16 +50,20 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         public IObservable<LaunchedFileResult> LaunchedFile => _launchedFile.AsObservable();
         public IObservable<ILaunchableItem> SelectedFile => _selectedFile.AsObservable();
         public IObservable<PlayState> PlayingState => _playingState.AsObservable();
+        public IObservable<StorageScope> CurrentScope => _currentScope.AsObservable();
+        public IObservable<string> CurrentScopePath => _currentScopePath.AsObservable();
 
         private string _currentPath = string.Empty;
         private string _previousSearch = string.Empty;
-        private TimeSpan _currentTime = TimeSpan.Zero;
+        private TimeSpan _currentTime = TimeSpan.Zero;        
 
         protected PlayerState? _previousState;
         protected readonly BehaviorSubject<PlayerState> _currentState;
         protected readonly BehaviorSubject<LaunchedFileResult> _launchedFile = new(null!);
         protected readonly BehaviorSubject<ILaunchableItem> _selectedFile = new(null!);
         protected readonly BehaviorSubject<PlayState> _playingState = new(PlayState.Stopped);
+        protected readonly BehaviorSubject<StorageScope> _currentScope = new(StorageScope.Storage);
+        protected readonly BehaviorSubject<string> _currentScopePath = new(StorageConstants.Remote_Path_Root);
         protected BehaviorSubject<DirectoryState> _directoryState = new(new());
 
         protected IDisposable? _settingsSubscription;
@@ -433,7 +437,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
             _launchHistory.ClearForwardHistory();
             await PlayNext();
-            return _launchedFile.Value.File;
+            return _launchedFile.Value?.File;
         }
 
         public void UpdateHistory(ILaunchableItem fileToLoad)
@@ -670,5 +674,10 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 });
             });
         }
+
+        public void SetScope(StorageScope scope) => _currentScope.OnNext(scope);
+        public void SetScopePath(string path) => _currentScopePath.OnNext(path);
+        public StorageScope GetScope() => _currentScope.Value;
+        public string GetScopePath() => _currentScopePath.Value;
     }
 }
