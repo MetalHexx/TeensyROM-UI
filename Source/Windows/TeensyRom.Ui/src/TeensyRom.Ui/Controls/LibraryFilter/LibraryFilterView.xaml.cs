@@ -32,12 +32,15 @@ namespace TeensyRom.Ui.Controls.LibraryFilter
 
         private void SpinRandomButton() 
         {
-            var storyboard = this.Resources["DiceSpinStoryboard"] as Storyboard;
-            if (storyboard != null)
-            {                
-                Storyboard clonedStoryboard = storyboard.Clone();
-                clonedStoryboard.Begin(this.diceButton, true);
-            }
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var storyboard = this.Resources["DiceSpinStoryboard"] as Storyboard;
+                if (storyboard != null)
+                {
+                    Storyboard clonedStoryboard = storyboard.Clone();
+                    clonedStoryboard.Begin(this.diceButton, true);
+                }
+            });
         }
 
         private void RadioButton_Loaded(object sender, RoutedEventArgs e)
