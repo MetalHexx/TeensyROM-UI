@@ -392,8 +392,12 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
             var file = await _currentState.Value.GetNext(_launchedFile.Value?.File, _currentFilter.Type, _directoryState.Value);
 
-            if (file is null) return;
-
+            if (file is null) 
+            {
+                _alert.Enqueue("No file was found.  Check your filters and pinned directory.");
+                await StopFile();
+                return;
+            }
             await PlayFile(file);
         }
         public async Task PlayPrevious()
