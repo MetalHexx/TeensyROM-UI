@@ -363,17 +363,19 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             await LoadDirectory(_directoryState.Value.CurrentPath, file.Path);
         }
 
-        public Task RemoveFavorite(ILaunchableItem file)
+        public async Task RemoveFavorite(ILaunchableItem file)
         {
-            if (IsBusy()) return Task.CompletedTask;
+            if (IsBusy()) return;
 
-            _storage.RemoveFavorite(file);
-            
-            if(file.FavParentPath == string.Empty)
+            var isGameItem = _launchedFile.Value?.File is GameItem;
+
+            if (_launchedFile.Value?.File is GameItem)
             {
-                return LoadDirectory(_directoryState.Value.CurrentPath, file.Path);
+                _alert.Enqueue("Resetting TR to allow favorite to be untagged.");
+                await _mediator.Send(new ResetCommand());
             }
-            return LoadDirectory(_directoryState.Value.CurrentPath);
+            await _storage.RemoveFavorite(file);
+            await LoadDirectory(_directoryState.Value.CurrentPath, file.Path);
         }
 
         public Task DeleteFile(IFileItem file)
