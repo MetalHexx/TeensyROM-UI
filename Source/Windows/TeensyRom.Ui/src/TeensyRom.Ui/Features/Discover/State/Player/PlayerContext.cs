@@ -502,6 +502,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         }
         public async Task CacheAll()
         {
+            await _mediator.Send(new ResetCommand());
             await _storage.CacheAll();
             _tree.ResetDirectoryTree(StorageConstants.Remote_Path_Root);
             await LoadDirectory(StorageConstants.Remote_Path_Root);
