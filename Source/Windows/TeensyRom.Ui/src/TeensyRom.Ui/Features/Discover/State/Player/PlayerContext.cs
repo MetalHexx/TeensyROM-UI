@@ -360,7 +360,10 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 await Task.Delay(2000);
                 await _mediator.Send(new LaunchFileCommand(_settings.StorageType, _launchedFile.Value.File));
             }
-            await LoadDirectory(_directoryState.Value.CurrentPath, file.Path);
+            if (_currentState.Value is not SearchState) 
+            {
+                await LoadDirectory(_directoryState.Value.CurrentPath, file.Path);
+            }            
         }
 
         public async Task RemoveFavorite(ILaunchableItem file)
@@ -375,7 +378,11 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 await _mediator.Send(new ResetCommand());
             }
             await _storage.RemoveFavorite(file);
-            await LoadDirectory(_directoryState.Value.CurrentPath, file.Path);
+
+            if(_currentState.Value is not SearchState)
+            {
+                await LoadDirectory(_directoryState.Value.CurrentPath, file.Path);
+            }
         }
 
         public Task DeleteFile(IFileItem file)
