@@ -36,10 +36,10 @@ namespace TeensyRom.Core.Settings
         public bool SaveMusicCacheEnabled { get; set; } = true;  
         public bool NavToDirOnLaunch { get; set; } = true;
         public bool FirstTimeSetup { get; set; } = true;
-        public List<string> BannedDirectories = ["MUSICIANS/S/Szachista", "System Volume Information", "FOUND.000", "integration-test-files", "integration-tests", "AlternativeFormats", "Dumps", "Docs", "MultiLoad64"];
-        public List<string> BannedFiles = ["Revolutionary_Etude_part_1.sid", "Revolutionary_Etude_part_2.sid", "Super_Trouper.sid"];
+        public List<string> BannedDirectories = [];
+        public List<string> BannedFiles = [];
         public SearchWeights SearchWeights { get; set; } = new();
-        public List<string> SearchStopWords = ["a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "is", "it", "no", "not", "of", "on", "or", "that", "the", "to", "was", "with"];
+        public List<string> SearchStopWords = [];
 
         public TeensySettings()
         {
@@ -48,6 +48,10 @@ namespace TeensyRom.Core.Settings
 
         public void InitializeDefaults()
         {
+            BannedDirectories = ["MUSICIANS/S/Szachista", "System Volume Information", "FOUND.000", "integration-test-files", "integration-tests", "AlternativeFormats", "Dumps", "Docs"];
+            BannedFiles = ["Revolutionary_Etude_part_1.sid", "Revolutionary_Etude_part_2.sid", "Super_Trouper.sid"];
+            SearchStopWords = ["a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "is", "it", "no", "not", "of", "on", "or", "that", "the", "to", "was", "with"];
+
             FileFilters.AddRange(new List<TeensyFilter>
             {
                 new TeensyFilter

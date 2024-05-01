@@ -26,7 +26,9 @@ namespace TeensyRom.Core.Settings
 
         public TeensySettings GetSettings()
         {
-            TeensySettings? settings = null;
+            var settings = _settings?.Value;
+
+            if (settings is not null) return settings;
 
             if (File.Exists(_settingsFilePath))
             {
