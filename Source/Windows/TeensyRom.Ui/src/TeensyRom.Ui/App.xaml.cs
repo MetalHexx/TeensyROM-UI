@@ -21,7 +21,8 @@ using System.Threading.Tasks;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Assets;
-using TeensyRom.Core.Assets.Tools.Vice;
+using TeensyRom.Core.Storage.Tools.D64Extraction;
+using TeensyRom.Core.Storage.Tools.Zip;
 
 namespace TeensyRom.Ui
 {
@@ -62,7 +63,9 @@ namespace TeensyRom.Ui
         private void CleanupOldAssets() 
         {
             var d64Service = _serviceProvider.GetRequiredService<ID64Extractor>();
+            var zipService = _serviceProvider.GetRequiredService<IZipExtractor>();
             d64Service.ClearOutputDirectory();
+            zipService.ClearOutputDirectory();
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

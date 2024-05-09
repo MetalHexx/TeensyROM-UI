@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using System.Transactions;
 using System.Windows;
 using System.Windows.Input;
-using TeensyRom.Core.Assets.Tools.Vice;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
@@ -25,6 +24,8 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Storage.Tools.D64Extraction;
+using TeensyRom.Core.Storage.Tools.Zip;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Features.Common.Config;
@@ -73,6 +74,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         protected readonly ISettingsService _settingsService;
         protected readonly ILaunchHistory _launchHistory;
         private readonly ID64Extractor _d64Extractor;
+        private readonly IZipExtractor _zipExtractor;
         protected readonly ISnackbarService _alert;
         protected readonly ISerialStateContext _serialContext;
         protected readonly INavigationService _nav;
@@ -82,13 +84,14 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         protected readonly List<IDisposable> _stateSubscriptions = new();
         protected TeensyFilter _currentFilter;
 
-        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, IFileWatchService watchService, ID64Extractor d64Extractor, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDiscoveryTreeState tree, IProgressTimer timer, ILoggingService log)
+        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, IFileWatchService watchService, ID64Extractor d64Extractor, IZipExtractor zipExtractor, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDiscoveryTreeState tree, IProgressTimer timer, ILoggingService log)
         {
             _mediator = mediator;
             _storage = storage;
             _settingsService = settingsService;
             _launchHistory = launchHistory;
             _d64Extractor = d64Extractor;
+            _zipExtractor = zipExtractor;
             _alert = alert;
             _serialContext = serialContext;
             _nav = nav;
@@ -605,6 +608,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 })
                 .ToList();
 
+            transferItems = ExtractZips(transferItems);
             transferItems = ExtractD64(transferItems);
 
             await _mediator.Send(new ResetCommand());
@@ -630,6 +634,44 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 }
                 return Task.CompletedTask;
             });
+        }
+
+        private List<FileTransferItem> ExtractZips(List<FileTransferItem> files) 
+        {
+            var zipFiles = files.Where(file => new FileInfo(file.SourcePath).Extension.Contains("zip", StringComparison.OrdinalIgnoreCase));
+
+            if (!zipFiles.Any())
+            {
+                return files;
+            }
+            var fileMessageString = zipFiles.Count() > 1 ? "files" : "file";
+            _alert.Enqueue($"Unpacking ZIP {fileMessageString}.");
+
+            var extractedFiles = zipFiles
+                .Select(f => (extraction: _zipExtractor.Extract(f), zip: f))
+                .Select(f => f.extraction.ExtractedFiles
+                    .Select(fileInfo => new FileTransferItem
+                    (
+                        sourcePath: fileInfo.FullName,
+                        targetPath: f.zip.TargetPath,
+                        targetStorage: _settings.StorageType)
+                    ))
+                .SelectMany(f => f)
+                .Where(f => f.Type != TeensyFileType.Unknown)
+                .ToList();
+
+            if (!extractedFiles.Any())
+            {
+                _alert.Enqueue($"No compatible files found in ZIP {fileMessageString}.");
+            }
+
+            var finalList = files
+                .Where(f => !zipFiles.Any(zip => f.Name == zip.Name))
+                .ToList();
+
+            finalList.AddRange(extractedFiles);
+
+            return finalList;
         }
 
         private List<FileTransferItem> ExtractD64(List<FileTransferItem> files)

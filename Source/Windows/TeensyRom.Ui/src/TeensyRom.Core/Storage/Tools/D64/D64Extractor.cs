@@ -7,11 +7,12 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TeensyRom.Core.Assets;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Core.Assets.Tools.Vice
+namespace TeensyRom.Core.Storage.Tools.D64Extraction
 {
     public class D64Extractor(ILoggingService log) : ID64Extractor
     {
@@ -27,7 +28,7 @@ namespace TeensyRom.Core.Assets.Tools.Vice
             }
         }
 
-        public D64ExtractionResult Extract(FileTransferItem d64)
+        public ExtractionResult Extract(FileTransferItem d64)
         {
             _log.Internal($"***Starting d64 extraction for {d64.Name}***");
 
@@ -36,12 +37,12 @@ namespace TeensyRom.Core.Assets.Tools.Vice
             EnsureOutputDirectory(outputDir);
 
             var prgFileNames = GetPrgFiles(d64.SourcePath);
-            
+
             var outputFiles = ExtractPrgFiles(d64.SourcePath, prgFileNames, outputDir);
 
-            return new D64ExtractionResult
+            return new ExtractionResult
             (
-                d64Name: d64.Name, 
+                fileName: d64.Name,
                 extractedFiles: outputFiles
             );
         }
@@ -84,14 +85,14 @@ namespace TeensyRom.Core.Assets.Tools.Vice
             return outputFiles;
         }
 
-        private bool IsErrorResult(string output) => 
+        private bool IsErrorResult(string output) =>
                 output.Contains("err =", StringComparison.OrdinalIgnoreCase)
                 || output.Contains("invalid filename", StringComparison.OrdinalIgnoreCase)
                 || output.Contains("file not found", StringComparison.OrdinalIgnoreCase)
                 || output.Contains("c11541 timeout", StringComparison.OrdinalIgnoreCase)
                 || output.Contains("out of bounds", StringComparison.OrdinalIgnoreCase);
 
-        public List<string> GetPrgFiles(string d64Path) 
+        public List<string> GetPrgFiles(string d64Path)
         {
             var arguments = $"-attach \"{d64Path}\" -list";
 
@@ -152,7 +153,7 @@ namespace TeensyRom.Core.Assets.Tools.Vice
             return sanitizedFileName;
         }
 
-        private static string EnsureUniqueFileName(string fileName, IEnumerable<FileInfo> files) 
+        private static string EnsureUniqueFileName(string fileName, IEnumerable<FileInfo> files)
         {
             var isDuplicate = files.Any(f => Path.GetFileNameWithoutExtension(f.Name) == fileName);
 
@@ -160,7 +161,7 @@ namespace TeensyRom.Core.Assets.Tools.Vice
             {
                 return $"{fileName}_{Guid.NewGuid().ToString()[..4]}";
             }
-            return fileName;            
+            return fileName;
         }
 
         private List<string> ParsePrgFiles(string listOutput)

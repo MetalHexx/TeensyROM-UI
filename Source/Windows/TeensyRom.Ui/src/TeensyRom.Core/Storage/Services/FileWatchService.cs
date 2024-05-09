@@ -7,7 +7,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime;
 using System.Runtime.CompilerServices;
-using TeensyRom.Core.Assets.Tools.Vice;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
@@ -16,6 +15,8 @@ using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Storage.Tools.D64Extraction;
+using TeensyRom.Core.Storage.Tools.Zip;
 
 namespace TeensyRom.Core.Storage
 {
@@ -43,18 +44,20 @@ namespace TeensyRom.Core.Storage
         private readonly IFileWatcher _fileWatcher;
         private readonly ISerialStateContext _serialState;
         private readonly ID64Extractor _d64Extractor;
+        private readonly IZipExtractor _zipExtractor;
         private readonly ILoggingService _log;
         private readonly IAlertService _alert;
         private TeensySettings _settings = null!;
         private IDisposable? _settingsSubscription = null!;
         private IDisposable? _fileWatchSubscription = null!;
 
-        public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialStateContext serialState, ID64Extractor d64Extractor,  ILoggingService log, IAlertService alert)
+        public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialStateContext serialState, ID64Extractor d64Extractor, IZipExtractor zipExtractor,  ILoggingService log, IAlertService alert)
         {
             _settingsService = settingsService;
             _fileWatcher = fileWatcher;
             _serialState = serialState;
             _d64Extractor = d64Extractor;
+            _zipExtractor = zipExtractor;
             _log = log;
             _alert = alert;
             _settingsSubscription = _settingsService.Settings
@@ -71,10 +74,17 @@ namespace TeensyRom.Core.Storage
             {
                 _fileWatcher.Disable();
                 return;
-            }            
+            }
+            var typesToWatch = _settings.FileTargets
+                .Select(t => t.Extension)
+                .ToList();
+
+            typesToWatch.Add(".zip");
+
+
             _fileWatcher.Enable(
                 _settings.WatchDirectoryLocation,
-                _settings.FileTargets.Select(t => t.Extension).ToArray());
+                typesToWatch.ToArray());
 
             _fileWatchSubscription ??= _fileWatcher.FilesFound
                 .CombineLatest(_serialState.CurrentState, (file, serialState) => (file, serialState))
@@ -89,16 +99,62 @@ namespace TeensyRom.Core.Storage
                     targetStorage: _settings.StorageType
                 )))
                 .ObserveOn(Scheduler.Default)
-                .Select(x => ExtractD64(x))                
+                .Select(x => Extract(x))                
                 .Subscribe(fti => _watchFiles.OnNext(fti.ToList()));
+        }
+
+        private IEnumerable<FileTransferItem> Extract(IEnumerable<FileTransferItem> files)        
+        {
+            var transferItems = ExtractZip(files);
+            transferItems = ExtractD64(transferItems);            
+            return transferItems;
+        }
+
+        private IEnumerable<FileTransferItem> ExtractZip(IEnumerable<FileTransferItem> files) 
+        {
+            var zipFiles = files.Where(file => new FileInfo(file.SourcePath).Extension.Contains("zip", StringComparison.OrdinalIgnoreCase));
+            
+            if (!zipFiles.Any())
+            {
+                return files;
+            }
+            var fileMessageString = zipFiles.Count() > 1 ? "files" : "file";
+            _alert.Publish($"Unpacking ZIP {fileMessageString}.");
+
+            var extractedFiles = zipFiles
+                .Select(f => _zipExtractor.Extract(f))
+                .Select(f => f.ExtractedFiles
+                    .Select(fileInfo => new FileTransferItem
+                    (
+                        sourcePath: fileInfo.FullName,
+                        targetPath: _settings.GetAutoTransferPath(fileInfo.Extension.GetFileType()),
+                        targetStorage: _settings.StorageType)
+                    ))
+                .SelectMany(f => f)
+                .Where(f => f.Type != TeensyFileType.Unknown)
+                .ToList();
+
+            if(!extractedFiles.Any())
+            {
+                _alert.Publish($"No compatible files found in ZIP {fileMessageString}.");
+            }
+
+            var finalList = files
+                .Where(f => !zipFiles.Any(zip => f.Name == zip.Name))
+                .ToList();
+
+            finalList.AddRange(extractedFiles);
+
+            return finalList;
         }
 
         private IEnumerable<FileTransferItem> ExtractD64(IEnumerable<FileTransferItem> files)
         {
-            if (files.Any(files => files.Type == TeensyFileType.D64))
+            if (!files.Any(files => files.Type == TeensyFileType.D64))
             {
-                _alert.Publish("D64 files detected.  Unpacking PRGs.");
+                return files;
             }
+            _alert.Publish("D64 files detected.  Unpacking PRGs.");
             var extractedPrgs = files
                 .Where(f => f.Type == TeensyFileType.D64)                
                 .Select(f => _d64Extractor.Extract(f))
@@ -106,7 +162,7 @@ namespace TeensyRom.Core.Storage
                     .Select(prgInfo => new FileTransferItem
                     (
                         sourcePath: prgInfo.FullName,
-                        targetPath: _settings.GetAutoTransferPath(prgInfo.Extension.GetFileType()).UnixPathCombine(f.D64Name),
+                        targetPath: _settings.GetAutoTransferPath(prgInfo.Extension.GetFileType()).UnixPathCombine(f.OriginalFileName),
                         targetStorage: _settings.StorageType)
                     ))
                 .SelectMany(f => f)

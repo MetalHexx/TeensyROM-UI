@@ -27,10 +27,11 @@ using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State;
-using TeensyRom.Core.Assets.Tools.Vice;
 using TeensyRom.Ui.Features.Terminal.SerialCommand;
 using TeensyRom.Ui.Features.Discover.State.Progress;
 using TeensyRom.Ui.Features.Discover.State.Player;
+using TeensyRom.Core.Storage.Tools.D64Extraction;
+using TeensyRom.Core.Storage.Tools.Zip;
 
 namespace TeensyRom.Ui
 {
@@ -59,6 +60,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IDiscoveryTreeState, DiscoverTreeState>();
             services.AddSingleton<ISetupService, SetupService>();  
             services.AddSingleton<ID64Extractor, D64Extractor>();
+            services.AddSingleton<IZipExtractor, ZipExtractor>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<TerminalViewModel>();
             services.AddSingleton<SettingsViewModel>();

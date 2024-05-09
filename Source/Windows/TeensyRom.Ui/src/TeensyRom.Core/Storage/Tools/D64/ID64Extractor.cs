@@ -1,10 +1,10 @@
 ﻿using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Core.Assets.Tools.Vice
+namespace TeensyRom.Core.Storage.Tools.D64Extraction
 {
     public interface ID64Extractor
     {
         void ClearOutputDirectory();
-        D64ExtractionResult Extract(FileTransferItem d64);
+        ExtractionResult Extract(FileTransferItem d64Item);
     }
 }
