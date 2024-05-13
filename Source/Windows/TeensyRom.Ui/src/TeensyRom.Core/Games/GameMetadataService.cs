@@ -31,7 +31,7 @@ namespace TeensyRom.Core.Games
         {
             if(File.Exists(_gameMetadataFilePath))
             {
-                var fileMetadata = JsonConvert.DeserializeObject<List<ViewableItemImage>>(File.ReadAllText(GameConstants.Game_Image_Metadata_File_Path));
+                var fileMetadata = JsonConvert.DeserializeObject<List<ViewableItemImage>>(File.ReadAllText(_gameMetadataFilePath));
 
                 if(fileMetadata is not null && fileMetadata.Any())
                 {
