@@ -19,7 +19,7 @@ using System.Drawing;
 
 namespace TeensyRom.Core.Games
 {
-    public class GameMetadataService : IGameMetadataService
+    public class GameMetadataService(ILoggingService log) : IGameMetadataService
     {  
         private string _gameArtPath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), GameConstants.Game_Image_Local_Path);        
         private string _localLoadingScreenPath => Path.Combine(_gameArtPath, GameConstants.Loading_Screen_Sub_Path);        
@@ -31,15 +31,19 @@ namespace TeensyRom.Core.Games
         {
             if(File.Exists(_gameMetadataFilePath))
             {
+                log.Internal($"Reading game metadata file: {_gameMetadataFilePath}");
                 var fileMetadata = JsonConvert.DeserializeObject<List<ViewableItemImage>>(File.ReadAllText(_gameMetadataFilePath));
 
                 if(fileMetadata is not null && fileMetadata.Any())
                 {
+                    log.Internal($"Loaded {fileMetadata.Count} game metadata items from file.");
                     return fileMetadata;
                 }
             }
             var loadingScreens = Directory.GetFiles(_localLoadingScreenPath);
             var screenshots = Directory.GetFiles(_localScreenshotPath);
+
+            log.Internal($"Found {loadingScreens.Length} loading screens and {screenshots.Length} screenshots.");
 
             var allScreenMetadata = loadingScreens
                 .Concat(screenshots)
@@ -53,11 +57,24 @@ namespace TeensyRom.Core.Games
                 .OrderBy(f => f.FileName)
                 .ToList();
 
+            log.Internal($"Mapped {allScreenMetadata.Count} game metadata items.");
+
             if (!Directory.Exists(Path.GetDirectoryName(_gameMetadataFilePath)))
             {
+                log.Internal($"Creating directory for game metadata file: {Path.GetDirectoryName(_gameMetadataFilePath)}");
                 Directory.CreateDirectory(Path.GetDirectoryName(_gameMetadataFilePath)!);
             }
+            log.Internal($"Writing game metadata file: {_gameMetadataFilePath}");
             File.WriteAllText(_gameMetadataFilePath, JsonConvert.SerializeObject(allScreenMetadata));
+
+            if(File.Exists(_gameMetadataFilePath))
+            {
+                log.InternalSuccess($"Game metadata file written successfully.");
+            }
+            else
+            {
+                log.InternalError($"Failed to write game metadata file.");
+            }
             return allScreenMetadata;
         }
 
