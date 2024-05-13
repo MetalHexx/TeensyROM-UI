@@ -15,23 +15,6 @@ namespace TeensyRom.Core.Storage.Entities
 
         public List<ViewableItemImage> Images { get; init; } = [];
 
-        public HexItem()
-        {
-            MapImages();
-        }
-
-        private void MapImages() 
-        {
-            File.ReadAllText(GameConstants.Game_Image_Metadata_File_Path);
-            var hardwareFileInfo = new FileInfo(AssetConstants.TeensyRomHardwareFilePath);
-
-            Images.Add(new ViewableItemImage
-            {
-                FileName = hardwareFileInfo.Name,
-                Path = hardwareFileInfo.FullName,
-                Source = "SensoriumEmbedded"
-            });
-        }
         public override HexItem Clone() => new()
         {
             Name = Name,

@@ -327,12 +327,26 @@ namespace TeensyRom.Core.Storage.Services
             {
                 SongItem s => _sidMetadata.EnrichSong(s),
                 GameItem g => _gameMetadata.EnrichGame(g),
-                HexItem h => h,
+                HexItem h => MapHexItem(h),
                 ImageItem i => i,
                 _ => file
             };
         }
 
+        private HexItem MapHexItem(HexItem h) 
+        {
+            if (h.Images.Count != 0) return h;
+
+            var hardwareFileInfo = new FileInfo(AssetConstants.TeensyRomHardwareFilePath);
+
+            h.Images.Add(new ViewableItemImage
+            {
+                FileName = hardwareFileInfo.Name,
+                Path = hardwareFileInfo.FullName,
+                Source = "SensoriumEmbedded"
+            });
+            return h;
+        }
         
 
         public async Task<SaveFilesResult> SaveFiles(IEnumerable<FileTransferItem> files)
