@@ -436,7 +436,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             _playingState.OnNext(PlayState.Stopped);
 
-            if (_launchedFile.Value.File is SongItem)
+            if (_launchedFile.Value?.File is SongItem)
             {
                 return _mediator.Send(new ToggleMusicCommand());
             }
@@ -445,11 +445,11 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
         public async Task<ILaunchableItem?> PlayRandom()
         {
-            if (IsBusy()) return _launchedFile.Value.File;
+            if (IsBusy()) return _launchedFile.Value?.File;
 
             var success = TryTransitionTo(typeof(ShuffleState));
 
-            if (!success) return _launchedFile.Value.File;
+            if (!success) return _launchedFile.Value?.File;
 
             _launchHistory.ClearForwardHistory();
             await PlayNext();
