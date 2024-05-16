@@ -28,7 +28,7 @@ Inspired by streaming music/video media services, the application comes with the
 - Continuous playback of Images, Games and Demos with Play Timer
 - Search files by type with light search engine syntax
 - Tag favorite titles so you don't lose track of gems.
-- File transfer via Drag and Drop and One-way Watch Directory syncronization
+- File transfer via Drag and Drop and One-way watch directory synchronization
 - .D64 program file extraction on file transfer
 
 ## Integrations
