@@ -28,7 +28,7 @@ Inspired by streaming music/video media services, the application comes with the
 - Continuous playback of Images, Games and Demos with Play Timer
 - Search files by type with light search engine syntax
 - Tag favorite titles so you don't lose track of gems.
-- File transfer via Drag and Drop and One-way Watch Directory syncronization
+- File transfer via Drag and Drop and One-way watch directory synchronization
 - .D64 program file extraction on file transfer
 
 ## Integrations
@@ -41,7 +41,7 @@ An integration with [HVSC](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN
 The application comes bundled with [OneLoad64](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b) game load and play screens to make it easy to preview games to play.  This collection in combination with this application enable the fastest consecutive game load times possible on a commodore machine.
 
 ## Search
-The integration with this metadata data means that we get some relativately strong text search capility across a wide variety of information.  Featuring some light search engine style syntax and relevancy mechanics, you can fine tune a search to find some very specific content across various file types.
+Search will make finding specific content very easy with filename/path search for all file types.  Searching for SIDS in the HVSC library has some additional benefits through the integration of STIL song info.  The search will use Artist Name, Song Title and Comments to making finding hidden gems much easier.
 
 ## Debug and Serial CLI
 The application features a terminal to show you all of the activity happening on the TR. A command line interface is available for sending Serial commands directly to the hardware.  This is useful for debugging or tinkering with your TR.
