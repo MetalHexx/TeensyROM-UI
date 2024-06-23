@@ -73,9 +73,9 @@ namespace TeensyRom.Core.Music.Sid
 
             if (sidRecord is not null)
             {
-                EnrichWithHsvcMetadata(song, sidRecord);
-                EnrichWithHsvcMusicianImage(song);
+                EnrichWithHsvcMetadata(song, sidRecord);                
             }
+            EnrichWithHsvcMusicianImage(song);
             return song;
         }
 
@@ -102,11 +102,22 @@ namespace TeensyRom.Core.Music.Sid
             song.ShareUrl = $"https://deepsid.chordian.net/?file={sidRecord.Filepath}";
         }
 
+        /// <summary>
+        /// Assigns a composer image to a sid
+        /// </summary>
+        /// <remarks>
+        /// To add a new composer image for a composer not in the HVSC:
+        /// Add SID in the HVSC /musicians/<letter> folder structure 
+        /// Add composer image with musicians_<letter>_<musicianname>.jpg
+        /// TODO: Make more generic and remove HVSC folder structure requirement
+        /// </remarks>
+        /// <param name="song"></param>
         private void EnrichWithHsvcMusicianImage(SongItem song) 
         {
             var currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var songPath = string.IsNullOrWhiteSpace(song.MetadataSourcePath) ? song.Path : song.MetadataSourcePath;
 
-            var remainingPathSegments = song.MetadataSourcePath.GetRemainingPathSegments(MusicConstants.Hvsc_Musician_Base_Remote_Path);
+            var remainingPathSegments = songPath.GetRemainingPathSegments(MusicConstants.Hvsc_Musician_Base_Remote_Path);
 
             var hsvcImageName = $"{Path.Combine(currentDirectory!, MusicConstants.Musician_Image_Local_Path)}musicians";
 
