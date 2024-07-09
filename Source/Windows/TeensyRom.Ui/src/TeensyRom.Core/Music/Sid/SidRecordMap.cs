@@ -15,7 +15,7 @@ namespace TeensyRom.Core.Music.Sid
             Map(m => m.Author).Name("AUTHOR");
             Map(m => m.Released).Name("RELEASED");
             //Map(m => m.Songs).Name("SONGS");
-            //Map(m => m.StartSong).Name("STARTSONG");
+            Map(m => m.StartSong).Name("STARTSONG");
             Map(m => m.SongLength).Name("SONGLEN (per tune)");
             Map(m => m.SizeInBytes).Name("SIZE (in bytes)");
             //Map(m => m.InitAddr).Name("INITADDR");

@@ -16,6 +16,7 @@ using System.Windows;
 using System.Windows.Input;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.File.LaunchFile;
+using TeensyRom.Core.Commands.PlaySubtune;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Music.Sid;
@@ -735,5 +736,11 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         public void SetScopePath(string path) => _currentScopePath.OnNext(path);
         public StorageScope GetScope() => _currentScope.Value;
         public string GetScopePath() => _currentScopePath.Value;
+
+        public Task PlaySubtune(int subtuneIndex)
+        {
+            if (IsBusy()) return Task.CompletedTask;
+            return _mediator.Send(new PlaySubtuneCommand(subtuneIndex));
+        }
     }
 }

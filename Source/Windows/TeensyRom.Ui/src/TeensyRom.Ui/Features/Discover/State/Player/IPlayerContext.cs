@@ -36,6 +36,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         Unit NextPage();
         Task PlayNext();
         Task PlayPrevious();
+        Task PlaySubtune(int subtuneIndex);
         Task<ILaunchableItem?> PlayRandom();
         void UpdateHistory(ILaunchableItem fileToLoad);
         Unit PreviousPage();

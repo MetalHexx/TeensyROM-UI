@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using System.Text.Json.Serialization;
 using TeensyRom.Core.Common;
 
 namespace TeensyRom.Core.Storage.Entities
@@ -7,6 +8,8 @@ namespace TeensyRom.Core.Storage.Entities
     public class SongItem : FileItem, ILaunchableItem, IViewableItem
     {   
         public TimeSpan PlayLength { get; set; } = TimeSpan.FromMinutes(3);
+        public List<TimeSpan> SubtuneLengths { get; set; } = [];
+        public int StartSubtuneNum { get; set; }
         public List<ViewableItemImage> Images { get; init; } = [];        
 
         public SongItem()

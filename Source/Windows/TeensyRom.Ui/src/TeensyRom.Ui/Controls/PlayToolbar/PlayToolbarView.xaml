@@ -22,6 +22,7 @@
         <Grid Grid.Row="1" Margin="10 10 0 10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
@@ -134,7 +135,48 @@
                 
             </StackPanel>
 
-            <Grid Grid.Column="2"
+            <StackPanel 
+                Visibility="{Binding SubtunesEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"
+                Orientation="Horizontal" Grid.Column="2"
+                Margin="20 0 0 0">
+                <Button 
+                    Command="{Binding PreviousSubtuneCommand}"
+                    IsEnabled="{Binding SubtunePreviousButtonEnabled}"
+                    Style="{StaticResource MaterialDesignIconForegroundButton}"
+                    Foreground="{DynamicResource PrimaryHueLightBrush }"
+                    Height="30" Width="30"
+                    ToolTip="Previous Subtune"
+                    VerticalAlignment="Center"
+                    Margin="0 0 2 0">
+                    <materialDesign:PackIcon Kind="SkipPrevious"/>
+                </Button>
+
+                <ComboBox
+                    x:Name="SubtubeComboBox"
+                    ItemsSource="{Binding SubtuneIndex}"
+                    SelectedItem="{Binding CurrentSubtuneIndex, Mode=TwoWay}"  
+                    materialDesign:TextFieldAssist.UnderlineBrush="{DynamicResource PrimaryHueLightBrush }"
+                    FontFamily="Arial"
+                    Height="30"
+                    materialDesign:TextFieldAssist.PrefixText="Subtune:"
+                    ToolTip="Change to a different subtune."
+                    Margin="0 0 0 0"/>
+
+                <Button 
+                    Command="{Binding NextSubtuneCommand}"
+                    IsEnabled="{Binding SubtuneNextButtonEnabled}"
+                    Style="{StaticResource MaterialDesignIconForegroundButton}"
+                    Foreground="{DynamicResource PrimaryHueLightBrush }"
+                    Height="30" Width="30"
+                    ToolTip="Next Subtune"
+                    VerticalAlignment="Center"
+                    Margin="2 0 10 0">
+                    <materialDesign:PackIcon Kind="SkipNext" />
+                </Button>
+
+            </StackPanel>
+
+            <Grid Grid.Column="3"
                 HorizontalAlignment="Right" VerticalAlignment="Top"
                 Margin="10 0 10 0">
                 <Grid.ColumnDefinitions>
@@ -146,7 +188,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <ComboBox Grid.Column="0"
+                <ComboBox Grid.Column="1"
                     x:Name="ScopeComboBox"
                     ItemsSource="{Binding ScopeOptions}"
                     SelectedItem="{Binding SelectedScope, Mode=TwoWay}"
@@ -184,6 +226,15 @@
                 </Button>
 
                 <Button Grid.Column="3"
+                    x:Name="ShuffleModeButton"
+                    Command="{Binding ToggleShuffleCommand}"  
+                    ToolTip="Shuffle Mode.  &#x0a;Enabling this will cause the next button to play random file from your collection.  &#x0a;Disabling will play the next file in the current directory. &#x0a;The filter selected will determine the file type that gets picked."
+                    Style="{StaticResource ShuffleModeButtonStyle}"
+                    Margin="10">
+                    <materialDesign:PackIcon Kind="Shuffle"/>
+                </Button>
+
+                <Button Grid.Column="4"
                     x:Name="ShareButton"
                     Command="{Binding ShareCommand}"    
                     Visibility="{Binding ShareVisible, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
@@ -193,16 +244,6 @@
                     Margin="10">
                     <materialDesign:PackIcon Kind="Share" Margin="0 0 0 3"/>
                 </Button>
-
-                <Button Grid.Column="4"
-                    x:Name="ShuffleModeButton"
-                    Command="{Binding ToggleShuffleCommand}"  
-                    ToolTip="Shuffle Mode.  &#x0a;Enabling this will cause the next button to play random file from your collection.  &#x0a;Disabling will play the next file in the current directory. &#x0a;The filter selected will determine the file type that gets picked."
-                    Style="{StaticResource ShuffleModeButtonStyle}"
-                    Margin="10">
-                    <materialDesign:PackIcon Kind="Shuffle"/>
-                </Button>
-
 
                 <Button
                     Grid.Column="5"

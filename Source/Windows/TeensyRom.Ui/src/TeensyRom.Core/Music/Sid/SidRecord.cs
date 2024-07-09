@@ -12,9 +12,10 @@
         public string Author { get; set; } = string.Empty;
         public string Released { get; set; } = string.Empty;
         //public int Songs { get; set; }
-        //public int StartSong { get; set; }
+        public int StartSong { get; set; }
         public string SongLength { get; set; } = string.Empty;
         public TimeSpan SongLengthSpan { get; set; } = TimeSpan.FromMinutes(3);
+        public List<TimeSpan> SubTuneSongLengths = [];
         public int SizeInBytes { get; set; }
         //public string InitAddr { get; set; } = string.Empty;
         //public string PlayAddr { get; set; } = string.Empty;

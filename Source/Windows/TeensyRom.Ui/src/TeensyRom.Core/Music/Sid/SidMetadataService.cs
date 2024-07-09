@@ -91,6 +91,8 @@ namespace TeensyRom.Core.Music.Sid
             song.Creator = sidRecord.Author;
             song.Title = sidRecord.Title;
             song.PlayLength = sidRecord.SongLengthSpan;
+            song.StartSubtuneNum = sidRecord.StartSong;
+            song.SubtuneLengths = sidRecord.SubTuneSongLengths.Select(s => s).ToList();
             song.ReleaseInfo = sidRecord.Released;            
             song.Meta1 = sidRecord.Clock;
             song.Meta2 = sidRecord.SidModel;            
@@ -194,8 +196,9 @@ namespace TeensyRom.Core.Music.Sid
                     continue;
                 }
                 var songLengths = ParseTimeSegments(sid.Value.SongLength);
-                
+                                
                 sid.Value.SongLengthSpan = songLengths.Any() ? songLengths.First() : MusicConstants.DefaultLength;
+                sid.Value.SubTuneSongLengths = songLengths;
             }
             return sids;
         }

@@ -91,10 +91,11 @@ namespace TeensyRom.Ui.Features.Discover
                 player.TogglePlay,
                 player.PlayPrevious,
                 player.PlayNext,
+                player.PlaySubtune,
                 player.SaveFavorite,
                 player.RemoveFavorite,
                 player.LoadDirectory,
-                player.SetScope,
+                player.SetScope,                
                 alert
             );
 
