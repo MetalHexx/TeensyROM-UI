@@ -92,7 +92,6 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
                 _log.ExternalError($"Failed to launch program: \r\n{resultString}");
                 return LaunchFileResultType.ProgramError;
             }
-            _log.External(resultString);
             return LaunchFileResultType.NoResponse;
         }
     }
