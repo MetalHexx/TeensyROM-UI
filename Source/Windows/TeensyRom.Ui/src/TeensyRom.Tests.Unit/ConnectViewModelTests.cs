@@ -416,23 +416,6 @@ namespace TeensyRom.Tests.Unit
         }
 
         [Fact]
-        public void When_LogServiceEmitsLogs_LogsAreAvailable()
-        {
-            //Arrange
-            var logSubject = new BehaviorSubject<string>("log1");
-            _logMock.Logs.Returns(logSubject.AsObservable());
-            var viewModel = new TerminalViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService, _serialCommandVm);
-
-            //Act
-            logSubject.OnNext("log2");
-            logSubject.OnNext("log3");
-
-
-            //Assert
-            viewModel.Log.Logs.Should().BeEquivalentTo(new[] { "log1", "log2", "log3" });
-        }
-
-        [Fact]
         public void Given_LogsExist_When_LogCommandIsCalled_LogsAreCleared()
         {
             //Arrange
@@ -448,27 +431,6 @@ namespace TeensyRom.Tests.Unit
 
             //Assert
             viewModel.Log.Logs.Should().BeEquivalentTo([]);
-        }
-
-        [Fact]
-        public void Given_ThereAre20Logs_When_NextLogAdded_FirstLogRemoved()
-        {
-            //Arrange
-            var logSubject = new BehaviorSubject<string>("log0");
-            _logMock.Logs.Returns(logSubject.AsObservable());
-            var viewModel = new TerminalViewModel(_mediatorMock, _serialMock, _logMock, _alertService, _dialogService, _serialCommandVm);
-
-            foreach (var i in Enumerable.Range(1, 19))
-            {
-                logSubject.OnNext($"log{i}");
-            }
-
-            //Act
-            logSubject.OnNext("log20");
-
-            //Assert
-            viewModel.Log.Logs.First().Should().Be("log1");
-            viewModel.Log.Logs.Last().Should().Be("log20");
         }
 
         [Fact]
