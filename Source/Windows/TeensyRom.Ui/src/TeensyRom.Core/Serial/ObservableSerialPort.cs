@@ -71,10 +71,10 @@ namespace TeensyRom.Core.Serial
                 Lock();
                 _log.Internal($"Attemping a reset the TR on {_serialPort.PortName}.");
 
-                Write(TeensyByteToken.Reset_Bytes.ToArray(), 0, 2);
-                var response = ReadAndLogSerialAsString(200).ToLower();
+                Write(TeensyByteToken.Ping_Bytes.ToArray(), 0, 2);
+                var response = ReadAndLogSerialAsString(200);
 
-                if (!response.Contains("reset cmd received"))
+                if (!response.Contains("teensyrom", StringComparison.OrdinalIgnoreCase))
                 {
                     _log.InternalError($"Failed to connect to a TR on {_serialPort.PortName} Try a different COM port.");
                     _serialPort.Close();

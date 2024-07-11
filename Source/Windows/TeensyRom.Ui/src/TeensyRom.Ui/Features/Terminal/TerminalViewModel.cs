@@ -178,6 +178,7 @@ namespace TeensyRom.Ui.Features.Terminal
                     _log.Internal($"Attempting the next COM port.");
                     continue;
                 }
+                await _mediator.Send(new ResetCommand());
                 return true;
             }
             _log.Internal($"Failed to find a connectable TeensyROM cartridge.");
