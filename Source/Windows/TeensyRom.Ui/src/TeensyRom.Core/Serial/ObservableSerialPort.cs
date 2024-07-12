@@ -45,45 +45,54 @@ namespace TeensyRom.Core.Serial
         private void EnsureConnection()
         {
             if (_serialPort.IsOpen) return;
-
-            try
-            {                
+              
+            foreach(var port in SerialPort.GetPortNames())
+            {
+                _serialPort.PortName = port;
                 _log.Internal($"Attempting to open {_serialPort.PortName}");
-                _serialPort.Open();
+
+                try
+                {
+                    _serialPort.Open();
+                }
+                catch
+                {
+                    continue;
+                }
+
+                if (!_serialPort.IsOpen) continue;
+
+                ReadAndLogSerialAsString(100);
+
                 _log.InternalSuccess($"Successfully connected to {_serialPort.PortName}");
+                Lock();
+
+                _log.Internal($"Pinging {_serialPort.PortName} to verify connection to TeensyROM");
+                Write(TeensyByteToken.Ping_Bytes.ToArray(), 0, 2);
+                var response = ReadAndLogSerialAsString(100);
+
+                var isTeensyResponse = response.Contains("teensyrom", StringComparison.OrdinalIgnoreCase)
+                    || response.Contains("busy", StringComparison.OrdinalIgnoreCase);
+
+                if (!isTeensyResponse)
+                {
+                    _log.InternalError($"Failed to connect to a TR on {_serialPort.PortName} Try a different COM port.");
+                    _serialPort.Close();
+                    _state.OnNext(typeof(SerialConnectableState));
+                    continue;
+                }
+                _log.Internal($"Successfully located a TR at {_serialPort.PortName}");
+                Unlock();
                 _log.Internal($"Clearing stale buffers");
                 ReadAndLogStaleBuffer();
-                
+                return;
             }
-            catch
-            {
-                _log.InternalError($"Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
-                throw;
-            }
+            throw new TeensyException($"Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
         }
 
         public Unit OpenPort()
         {   
             EnsureConnection();
-
-            if (_serialPort.IsOpen)
-            {
-                Lock();
-                _log.Internal($"Attemping a reset the TR on {_serialPort.PortName}.");
-
-                Write(TeensyByteToken.Ping_Bytes.ToArray(), 0, 2);
-                var response = ReadAndLogSerialAsString(200);
-
-                if (!response.Contains("teensyrom", StringComparison.OrdinalIgnoreCase))
-                {
-                    _log.InternalError($"Failed to connect to a TR on {_serialPort.PortName} Try a different COM port.");
-                    _serialPort.Close();
-                    _state.OnNext(typeof(SerialConnectableState));
-                    return Unit.Default;
-                }
-                _log.Internal($"Successfully located a TR at {_serialPort.PortName}");
-                Unlock();
-            }
 
             _healthCheckSubscription = Observable
                 .Interval(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds))

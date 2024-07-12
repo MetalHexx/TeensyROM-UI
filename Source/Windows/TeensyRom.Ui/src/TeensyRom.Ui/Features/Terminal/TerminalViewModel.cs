@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.IO.Ports;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -178,6 +179,7 @@ namespace TeensyRom.Ui.Features.Terminal
                     _log.Internal($"Attempting the next COM port.");
                     continue;
                 }
+                _log.Internal($"Attemping to reset the TR.");
                 await _mediator.Send(new ResetCommand());
                 return true;
             }
