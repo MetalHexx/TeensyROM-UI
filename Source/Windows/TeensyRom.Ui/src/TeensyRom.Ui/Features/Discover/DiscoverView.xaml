@@ -7,11 +7,17 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <TextBlock Text="Files are unavailable, check your connection."
-        HorizontalAlignment="Center"
-        VerticalAlignment="Center"
-        Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
-        Grid.RowSpan="3"/>
+        <TextBlock Text="Disconnected from TeensyROM."
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Visibility="{Binding Disconnected, Converter={StaticResource BoolToVisibilityConvertor}}"
+            Grid.RowSpan="3"/>
+        
+        <TextBlock Text="Connection to TeensyROM Lost.  Attempting to reconnect."
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Visibility="{Binding ConnectionLost, Converter={StaticResource BoolToVisibilityConvertor}}"
+            Grid.RowSpan="3"/>
 
         <Grid Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConvertor}}">
             <Grid.RowDefinitions>

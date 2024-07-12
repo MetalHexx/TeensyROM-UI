@@ -36,6 +36,9 @@ namespace TeensyRom.Ui.Features.Discover
     public class DiscoverViewModel : ReactiveObject
     {
         [ObservableAsProperty] public bool IsConnected { get; set; }
+        [ObservableAsProperty] public bool ConnectionLost { get; set; }
+        [ObservableAsProperty] public bool Disconnected { get; set; }
+
         [ObservableAsProperty] public bool PlayToolbarActive { get; set; }
         [ObservableAsProperty] public bool SearchActive { get; }
 
@@ -65,6 +68,14 @@ namespace TeensyRom.Ui.Features.Discover
             serialCurrentState
                 .Select(state => state is SerialBusyState or SerialConnectedState)
                 .ToPropertyEx(this, x => x.IsConnected);
+
+            serialCurrentState
+                .Select(state => (state is SerialStartState or SerialConnectableState))
+                .ToPropertyEx(this, x => x.Disconnected);
+
+            serialCurrentState
+                .Select(state => state is SerialConnectionLostState)
+                .ToPropertyEx(this, x => x.ConnectionLost);
 
             launchedFile
                 .Select(g => g is not null)
