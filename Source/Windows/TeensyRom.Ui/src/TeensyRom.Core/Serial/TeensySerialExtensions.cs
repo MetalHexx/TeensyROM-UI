@@ -11,11 +11,13 @@ namespace TeensyRom.Core.Serial
 {
     public static class TeensySerialExtensions
     {
-        public static void HandleAck(this ISerialStateContext serialState)
+        public static TeensyToken HandleAck(this ISerialStateContext serialState)
         {
             var response = serialState.GetAck();
 
-            if (response == TeensyToken.Ack) return;
+
+            if (response == TeensyToken.Ack) return TeensyToken.Ack;
+            if (response == TeensyToken.RetryLaunch) return TeensyToken.RetryLaunch;
 
             var rawResponse = serialState.ReadAndLogSerialAsString();
 
@@ -44,6 +46,7 @@ namespace TeensyRom.Core.Serial
             {
                 var _ when recU16 == TeensyToken.Ack.Value => TeensyToken.Ack,
                 var _ when recU16 == TeensyToken.Fail.Value => TeensyToken.Fail,
+                var _ when recU16 == TeensyToken.RetryLaunch.Value => TeensyToken.RetryLaunch,
                 _ => TeensyToken.Unnknown,
             };
         }

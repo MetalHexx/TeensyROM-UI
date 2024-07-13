@@ -9,27 +9,30 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands.File.LaunchFile
 {
-    public class LaunchFileHandler: IRequestHandler<LaunchFileCommand, LaunchFileResult>
+    public class LaunchFileHandler(ISerialStateContext serialState, ILoggingService log, IAlertService alert) : IRequestHandler<LaunchFileCommand, LaunchFileResult>
     {
-        private readonly ISerialStateContext _serialState;
-        private readonly ILoggingService _log;
-
-        public LaunchFileHandler(ISerialStateContext serialState, ILoggingService log)
-        {
-            _serialState = serialState;
-            _log = log;
-        }
-
         public async Task<LaunchFileResult> Handle(LaunchFileCommand request, CancellationToken cancellationToken)
         {
-            _serialState.ClearBuffers();
-            _serialState.SendIntBytes(TeensyToken.LaunchFile, 2);
-            _serialState.HandleAck();
-            _serialState.SendIntBytes(request.StorageType.GetStorageToken(), 1);
-            _serialState.Write($"{request.LaunchItem.Path}\0");
-            _serialState.HandleAck();
+            if (request.LaunchItem.Size > 575000) 
+            {
+                alert.Publish($"Launching files over 575k may cause a re-connect cycle.");
+            }
 
-            if (request.LaunchItem is HexItem or ImageItem) 
+            var ack = AttemptLaunch(request);
+
+            if (ack == TeensyToken.RetryLaunch) 
+            {
+                await serialState.CurrentState
+                    .OfType<SerialConnectedState>()
+                    .FirstAsync();
+
+                //Locking the serial manually since the connection will get dropped during this workflow.
+                //The serial behavior will unlock it once the command completes.
+                serialState.Lock();                
+                AttemptLaunch(request);
+            }
+
+            if (request.LaunchItem is HexItem or ImageItem)
             {
                 return new LaunchFileResult
                 {
@@ -38,11 +41,27 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             }
 
             var resultType = PollResponse();
+            serialState.ReadAndLogSerialAsString(100);
 
             return new LaunchFileResult
             {
                 LaunchResult = resultType
             };
+        }
+
+        private TeensyToken AttemptLaunch(LaunchFileCommand request)
+        {
+            serialState.ClearBuffers();
+            serialState.SendIntBytes(TeensyToken.LaunchFile, 2);
+            var ack = serialState.HandleAck();
+
+            if(ack == TeensyToken.RetryLaunch)
+            {
+                return TeensyToken.RetryLaunch;
+            }
+            serialState.SendIntBytes(request.StorageType.GetStorageToken(), 1);
+            serialState.Write($"{request.LaunchItem.Path}\0");
+            return serialState.HandleAck();
         }
 
         private LaunchFileResultType PollResponse()
@@ -52,7 +71,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             
             for (int i = 0; i < 40; i++)
             {
-                var responseBytes = _serialState.ReadSerialBytes(25);
+                var responseBytes = serialState.ReadSerialBytes(25);
                 bytesRead.AddRange(responseBytes);
                 resultType = ParseResponse([.. bytesRead]);
 
@@ -72,24 +91,24 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             
             if (foundTokens.Any(t => t == TeensyToken.GoodSIDToken))
             {
-                _log.External(resultString);
+                log.External(resultString);
                 return LaunchFileResultType.Success;
             }
             if (foundTokens.Any(t => t == TeensyToken.BadSIDToken))
             {
-                _log.ExternalError($"Failed to launch sid: \r\n{resultString}");
+                log.ExternalError($"Failed to launch sid: \r\n{resultString}");
                 return LaunchFileResultType.SidError;
             }
             if (resultString.Contains("Loading IO handler:", StringComparison.OrdinalIgnoreCase))
             {
-                _log.External(resultString);
+                log.External(resultString);
                 return LaunchFileResultType.Success;
             }
             var programError = new[] { "Not enough room", "Unsupported HW Type" };
 
             if (programError.Any(error => resultString.Contains(error, StringComparison.OrdinalIgnoreCase)))
             {
-                _log.ExternalError($"Failed to launch program: \r\n{resultString}");
+                log.ExternalError($"Failed to launch program: \r\n{resultString}");
                 return LaunchFileResultType.ProgramError;
             }
             return LaunchFileResultType.NoResponse;

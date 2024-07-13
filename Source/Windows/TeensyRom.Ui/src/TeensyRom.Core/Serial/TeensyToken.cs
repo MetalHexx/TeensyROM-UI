@@ -20,6 +20,7 @@ namespace TeensyRom.Core.Serial
         public static readonly TeensyToken GoodSIDToken = new(0x9B81, nameof(GoodSIDToken));
         public static readonly TeensyToken BadSIDToken = new(0x9B80, nameof(BadSIDToken));
         public static readonly TeensyToken Unnknown = new(0x0000, nameof(Unnknown));
+        public static readonly TeensyToken RetryLaunch = new(0x9B7E, nameof(RetryLaunch));
 
         private TeensyToken(ushort value, string name) : base(name, value) { }
     }
