@@ -26,7 +26,7 @@ using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Terminal
 {
-    public class TerminalViewModel: ReactiveObject
+    public class TerminalViewModel : ReactiveObject
     {
         [ObservableAsProperty] public List<string> Ports { get; }
         [ObservableAsProperty] public bool IsConnected { get; set; }
@@ -56,12 +56,12 @@ namespace TeensyRom.Ui.Features.Terminal
             serial.Ports
                 .Where(p => p is not null && p.Length > 0)
                 .Select(p => p.ToList())
-                .Select(p => 
+                .Select(p =>
                 {
-                    if (p.Count > 0) 
+                    if (p.Count > 0)
                     {
                         p.Insert(0, "Auto-detect");
-                    }   
+                    }
                     return p;
                 })
                 .ToPropertyEx(this, vm => vm.Ports);
@@ -81,21 +81,19 @@ namespace TeensyRom.Ui.Features.Terminal
 
             serial.CurrentState
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Select(state => state is SerialConnectableState)                
+                .Select(state => state is SerialConnectableState)
                 .ToPropertyEx(this, vm => vm.IsConnectable);
 
             ConnectCommand = ReactiveCommand.CreateFromTask<Unit, Unit>(
                 execute: async n =>
                 {
-                    var success = SelectedPort.Contains("Auto-detect") 
-                        ? await TryAutoConnect()
-                        : await TrySingleConnect();
+                    var success = await TrySingleConnect();
 
                     if (!success)
                     {
                         alertService.Publish("Failed to connect to device.  Check to make sure you're using the correct com port.");
                     }
-                        
+
                     return Unit.Default;
                 },
                 canExecute: this.WhenAnyValue(x => x.IsConnectable),
@@ -112,7 +110,7 @@ namespace TeensyRom.Ui.Features.Terminal
                 outputScheduler: RxApp.MainThreadScheduler);
 
             ResetCommand = ReactiveCommand.CreateFromTask(
-                execute: () => mediator.Send(new ResetCommand()), 
+                execute: () => mediator.Send(new ResetCommand()),
                 canExecute: this.WhenAnyValue(x => x.IsConnected),
                 outputScheduler: RxApp.MainThreadScheduler);
 
@@ -131,9 +129,9 @@ namespace TeensyRom.Ui.Features.Terminal
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(logs =>
                 {
-                    var combinedLog = string.Join("\n", logs); 
+                    var combinedLog = string.Join("\n", logs);
                     combinedLog.TrimStart('\n');
-                    if (combinedLog.Contains("PN53x board not found") && _nfcWarningFlag == false) 
+                    if (combinedLog.Contains("PN53x board not found") && _nfcWarningFlag == false)
                     {
                         _nfcWarningFlag = true;
                         dialog.ShowConfirmation("NFC Not Found", "The TR is having an issue locating your NFC device.  This will cause a degraded experience with the Desktop UI.\r\rPlease plug in your NFC device or disable it by pressing F8 and 'F' on the C64.");
@@ -143,48 +141,25 @@ namespace TeensyRom.Ui.Features.Terminal
             _mediator = mediator;
             _serial = serial;
             _log = log;
-            
+
+            _serial.CurrentState
+                 .OfType<SerialConnectableState>()
+                 .Take(1)
+                 .Subscribe(async _ => await TrySingleConnect());
         }
 
         private async Task<bool> TrySingleConnect()
         {
-            _serial.OpenPort();
-
-            var serialState = await _serial.CurrentState.FirstAsync();
-
-            if (serialState is not SerialConnectedState)
+            try
+            {
+                _serial.OpenPort();
+            }
+            catch
             {
                 _log.InternalError($"Failed to find a connectable TeensyROM cartridge.");
                 return false;
             }
             return true;
-        }
-
-        private async Task<bool> TryAutoConnect()
-        {
-            _log.Internal("Scanning for a TR on each COM port.");
-
-            var legitPorts = Ports!
-                .Where(p => p != "Auto-detect")
-                .OrderBy(p => p);
-
-            foreach (var port in legitPorts)
-            {
-                _serial.SetPort(port);
-                _serial.OpenPort();
-                var serialState = await _serial.CurrentState.FirstAsync();
-
-                if(serialState is not SerialConnectedState)
-                {
-                    _log.Internal($"Attempting the next COM port.");
-                    continue;
-                }
-                _log.Internal($"Attemping to reset the TR.");
-                await _mediator.Send(new ResetCommand());
-                return true;
-            }
-            _log.Internal($"Failed to find a connectable TeensyROM cartridge.");
-            return false;
         }
     }
 }
