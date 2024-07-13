@@ -178,7 +178,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             var hexItem = currentFile.OfType<HexItem>().ObserveOn(RxApp.MainThreadScheduler);
             var gameOrImage = currentFile.Where(f => f is GameItem or ImageItem).ObserveOn(RxApp.MainThreadScheduler);
 
-            song.Select(s => s.SubtuneLengths.Count > 1)
+            file.Select(file => file is SongItem song && song.SubtuneLengths.Count > 1)
                 .ToPropertyEx(this, vm => vm.SubtunesEnabled);
 
             song.Select(s => s.StartSubtuneNum)
