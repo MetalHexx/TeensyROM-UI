@@ -15,7 +15,7 @@ namespace TeensyRom.Core.Serial
     /// Provides observables that can be used to monitor serial activity. 
     /// Resiliency routines are employed to recover from a disconnection.
     /// </summary>
-    public class ObservableSerialPort(ILoggingService _log) : IObservableSerialPort
+    public class ObservableSerialPort(ILoggingService _log, IAlertService alert) : IObservableSerialPort
     {
         public IObservable<Type> State => _state.AsObservable();
         public IObservable<string[]> Ports => _ports.AsObservable();
@@ -63,7 +63,7 @@ namespace TeensyRom.Core.Serial
                 if (!_serialPort.IsOpen) continue;
 
                 ReadAndLogSerialAsString(100);
-
+                                
                 _log.InternalSuccess($"Successfully connected to {_serialPort.PortName}");
                 Lock();
 
@@ -81,6 +81,7 @@ namespace TeensyRom.Core.Serial
                     _state.OnNext(typeof(SerialConnectableState));
                     continue;
                 }
+                alert.Publish($"Connected to TeensyROM on {_serialPort.PortName}");
                 _log.Internal($"Successfully located a TR at {_serialPort.PortName}");
                 Unlock();
                 _log.Internal($"Clearing stale buffers");
