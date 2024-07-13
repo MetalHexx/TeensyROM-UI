@@ -62,14 +62,13 @@ namespace TeensyRom.Ui.Services
             _settings = _settingsService.GetSettings();
             var connected = await _serial.CurrentState.Select(s => s is SerialConnectedState).FirstAsync();
 
+            if (!_settings.FirstTimeSetup) return;
+
             if (connected) 
             {
                 _alert.Publish("Disconnecting from TR to run first time setup wizard.");
                 _serial.ClosePort();
             }
-
-            if (!_settings.FirstTimeSetup) return;
-
 
             var currentView = await _navigation.SelectedNavigationView.FirstOrDefaultAsync();
 
