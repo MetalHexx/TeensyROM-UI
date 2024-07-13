@@ -140,7 +140,6 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             _settingsSubscription = _settingsService.Settings
                 .Do(settings => _settings = settings)
                 .CombineLatest(_serialContext.CurrentState, _nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
-                .Where(state => state.serial is SerialConnectedState)
                 .Where(state => state.navView?.Type == NavigationLocation.Discover)
                 .DistinctUntilChanged(state => state.settings.StorageType)
                 .Select(state => (path: _currentFilter, state.settings.StorageType))
