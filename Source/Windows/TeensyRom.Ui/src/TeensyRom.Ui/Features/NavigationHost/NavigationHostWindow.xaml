@@ -200,12 +200,14 @@
                                                     <Button
                                                         Command="{Binding ElementName=ProfileList, Path=DataContext.NavigateCommand}" 
                                                         CommandParameter="{Binding}" 
+                                                        IsEnabled="{Binding IsEnabled}"
                                                         Style="{StaticResource MaterialDesignFloatingActionButton}" Margin="9 0" HorizontalAlignment="Left" Width="200">
                                                     <Button.Template>
                                                         <ControlTemplate>
                                                             <Border Background="Transparent">
 
-                                                                <StackPanel Orientation="Horizontal" 
+                                                                <StackPanel                                                                     
+                                                                    Orientation="Horizontal" 
                                                                     Height="200" Margin="8 10 0 0" 
                                                                     VerticalAlignment="Center" HorizontalAlignment="Left">
 
@@ -235,6 +237,11 @@
 
                                                                 </StackPanel>
                                                             </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsEnabled" Value="False">
+                                                                    <Setter Property="Opacity" Value="0.5" />
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
 
                                                         </ControlTemplate>
                                                     </Button.Template>

@@ -11,5 +11,6 @@ namespace TeensyRom.Ui.Features.NavigationHost
         Unit NavigateTo(Guid locationId);
         void Initialize(NavigationLocation startingLocation, List<NavigationItem> navItems);
         Unit NavigateTo(NavigationLocation location);
+        Unit Enable(NavigationLocation location);
     }
 }

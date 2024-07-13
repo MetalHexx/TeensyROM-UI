@@ -26,7 +26,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
         public string Version => GetVersion();
         [ObservableAsProperty] public object? CurrentViewModel { get; }
         [ObservableAsProperty] public object? NavigationItems { get; }        
-        [ObservableAsProperty] public bool SerialBusy { get; set; }
+        [ObservableAsProperty] public bool SerialBusy { get; }
         [Reactive] public string Title { get; set; } = "TeensyROM";
         [Reactive] public bool IsNavOpen { get; set; }
         [Reactive] public bool ControlsEnabled { get; set; } //TODO: Track down why I need this property.  I had to put this here to stop a bunch of errors from throwing in the output window.
@@ -74,25 +74,29 @@ namespace TeensyRom.Ui.Features.NavigationHost
                     Type = NavigationLocation.Terminal,
                     ViewModel = terminal,
                     Icon = "LanConnect",
-                    IsSelected = true
+                    IsSelected = true,
+                    IsEnabled = true
                 },
                 new() {
                     Name = "Discover",
                     Type = NavigationLocation.Discover,
                     ViewModel = discover,
-                    Icon = "CompassRose"
+                    Icon = "CompassRose",
+                    IsEnabled = true
                 },
                 new() {
                     Name = "Settings",
                     Type = NavigationLocation.Settings,
                     ViewModel = settings,
-                    Icon = "Gear"
+                    Icon = "Gear",
+                    IsEnabled = true
                 },
                 new() {
                     Name = "Help",
                     Type = NavigationLocation.Help,
                     ViewModel = help,
-                    Icon = "Help"
+                    Icon = "Help",
+                    IsEnabled = true
                 },
             });   
         }
@@ -100,8 +104,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
         private void RegisterModelCommands()
         {
             NavigateCommand = ReactiveCommand.Create<NavigationItem, Unit>(n =>
-            {
-                
+            {                
                 TriggerAnimation = true;
 
                 _navService.NavigateTo(n.Id);                
@@ -127,15 +130,24 @@ namespace TeensyRom.Ui.Features.NavigationHost
             var fileTransferInProgress = _progressService.InProgress
                 .WithLatestFrom(_watchService.IsProcessing, (inProgress, watchProcessing) => inProgress || watchProcessing);
 
-            var serialBusy = _serialContext.CurrentState
+            var serialState = _serialContext.CurrentState
+                .ObserveOn(RxApp.MainThreadScheduler);
+
+            var serialBusy = serialState
                 .Scan((previous: (SerialState?)null, current: (SerialState?)null), (stateTuple, currentState) => (stateTuple.current, currentState))
                 .Where(s => s.previous is not null && s.previous is not SerialConnectableState)
                 .Select(s => s.current is SerialBusyState);
 
             serialBusy
                 .CombineLatest(fileTransferInProgress, (serialBusy, fileTransfer) => serialBusy || fileTransfer)
-                .ObserveOn(RxApp.MainThreadScheduler)
                 .ToPropertyEx(this, vm => vm.SerialBusy);
+
+            serialState
+                .OfType<SerialConnectedState>()                
+                .Subscribe(connected =>
+                {
+                    _navService.Enable(NavigationLocation.Discover);
+                });
         }
 
         public static string GetVersion()

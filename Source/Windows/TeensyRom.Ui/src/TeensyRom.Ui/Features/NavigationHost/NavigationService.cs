@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Transactions;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
 
@@ -64,6 +65,13 @@ namespace TeensyRom.Ui.Features.NavigationHost
                 .Where(n => n.Id != navItem.Id)
                 .ToList()
                 .ForEach(n => n.IsSelected = false);
+        }
+
+        public Unit Enable(NavigationLocation location)
+        {
+            var navItem = _navigationItems.Value.First(n => n.Type == location);
+            navItem.IsEnabled = true;
+            return Unit.Default;
         }
     }
 }
