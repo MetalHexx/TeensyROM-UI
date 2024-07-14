@@ -22,14 +22,30 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
             if (ack == TeensyToken.RetryLaunch) 
             {
+                
                 await serialState.CurrentState
                     .OfType<SerialConnectedState>()
+                    .Take(2)
                     .FirstAsync();
+
+                await Task.Delay(4000);
 
                 //Locking the serial manually since the connection will get dropped during this workflow.
                 //The serial behavior will unlock it once the command completes.
                 serialState.Lock();                
-                AttemptLaunch(request);
+                ack = AttemptLaunch(request);
+
+                if (ack == TeensyToken.Ack)
+                {
+                    return new LaunchFileResult
+                    {
+                        LaunchResult = LaunchFileResultType.Success
+                    };
+                }
+                return new LaunchFileResult
+                {
+                    LaunchResult = LaunchFileResultType.ProgramError
+                };
             }
 
             if (request.LaunchItem is HexItem or ImageItem)
