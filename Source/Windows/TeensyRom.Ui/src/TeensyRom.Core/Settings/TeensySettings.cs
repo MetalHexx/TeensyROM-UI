@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.ComponentModel;
 using System.Runtime;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
@@ -8,7 +9,7 @@ namespace TeensyRom.Core.Settings
     public enum TeensyFilterType
     {
         All,
-        Programs,
+        Games,
         Music,
         Hex,
         Images
@@ -33,6 +34,8 @@ namespace TeensyRom.Core.Settings
         public bool AutoFileCopyEnabled { get; set; } = false;
         public bool AutoLaunchOnCopyEnabled { get; set; } = true;
         public bool AutoConnectEnabled { get; set; } = true;
+        public TeensyFilterType StartupFilter { get; set; } = TeensyFilterType.All;
+        public bool StartupLaunchEnabled { get; set; } = true;
         public bool PlayTimerEnabled { get; set; } = false;
         public bool SaveMusicCacheEnabled { get; set; } = true;  
         public bool NavToDirOnLaunch { get; set; } = true;
@@ -70,7 +73,7 @@ namespace TeensyRom.Core.Settings
                 },
                 new TeensyFilter
                 {
-                    Type = TeensyFilterType.Programs,
+                    Type = TeensyFilterType.Games,
                     DisplayName = "Games",
                     Icon = "Ghost"
                 },
@@ -99,21 +102,21 @@ namespace TeensyRom.Core.Settings
                 new TeensyTarget
                 {
                     Type = TeensyFileType.Prg,
-                    FilterType = TeensyFilterType.Programs,
+                    FilterType = TeensyFilterType.Games,
                     DisplayName = "PRG",
                     Extension = ".prg"
                 },
                 new TeensyTarget
                 {
                     Type = TeensyFileType.P00,
-                    FilterType = TeensyFilterType.Programs,
+                    FilterType = TeensyFilterType.Games,
                     DisplayName = "P00",
                     Extension = ".p00"
                 },
                 new TeensyTarget
                 {
                     Type = TeensyFileType.Crt,
-                    FilterType = TeensyFilterType.Programs,
+                    FilterType = TeensyFilterType.Games,
                     DisplayName = "CRT",
                     Extension = ".crt"
                 },
@@ -162,7 +165,7 @@ namespace TeensyRom.Core.Settings
                 new TeensyTarget
                 {
                     Type = TeensyFileType.D64,
-                    FilterType = TeensyFilterType.Programs,
+                    FilterType = TeensyFilterType.Games,
                     DisplayName = "D64",
                     Extension = ".d64"
                 }

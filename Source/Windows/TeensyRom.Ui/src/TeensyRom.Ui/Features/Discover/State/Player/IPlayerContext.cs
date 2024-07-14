@@ -55,5 +55,6 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         void SetScope(StorageScope scope);
         void SetScopePath(string path);
         string GetScopePath();
+        Task SwitchFilter(TeensyFilterType filterType);
     }
 }

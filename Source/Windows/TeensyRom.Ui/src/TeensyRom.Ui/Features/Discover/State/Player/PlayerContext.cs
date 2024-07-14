@@ -77,7 +77,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         private readonly ID64Extractor _d64Extractor;
         private readonly IZipExtractor _zipExtractor;
         protected readonly ISnackbarService _alert;
-        protected readonly ISerialStateContext _serialContext;
+        protected readonly ISerialStateContext _serial;
         protected readonly INavigationService _nav;
         protected readonly IDiscoveryTreeState _tree;
         private readonly ILoggingService _log;
@@ -94,7 +94,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             _d64Extractor = d64Extractor;
             _zipExtractor = zipExtractor;
             _alert = alert;
-            _serialContext = serialContext;
+            _serial = serialContext;
             _nav = nav;
             _tree = tree;
             _log = log;
@@ -139,13 +139,19 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
             _settingsSubscription = _settingsService.Settings
                 .Do(settings => _settings = settings)
-                .CombineLatest(_serialContext.CurrentState, _nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
+                .CombineLatest(_serial.CurrentState, _nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
                 .Where(state => state.navView?.Type == NavigationLocation.Discover)
                 .DistinctUntilChanged(state => state.settings.StorageType)
                 .Select(state => (path: _currentFilter, state.settings.StorageType))
                 .Select(storage => storage.path)
                 .Do(path => _tree.ResetDirectoryTree(StorageConstants.Remote_Path_Root))
                 .Subscribe(async path => await LoadDirectory(StorageConstants.Remote_Path_Root));
+
+            _serial.CurrentState
+                .Where(_ => _settings.StartupLaunchEnabled)
+                .OfType<SerialConnectedState>()
+                .Take(1)
+                .Subscribe(async _ => await SwitchFilter(_settings.StartupFilter));
         }
 
         private async Task UpdateDirectoryTree(List<IFileItem> files)
@@ -309,7 +315,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         }
         private bool IsBusy()
         {
-            var serialState = _serialContext.CurrentState.FirstOrDefault();
+            var serialState = _serial.CurrentState.FirstOrDefault();
 
             return serialState is SerialBusyState;
         }
@@ -565,6 +571,13 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 return;
             }
             await PlayRandom();
+        }
+
+        public async Task SwitchFilter(TeensyFilterType filterType)
+        {
+            var filter = _settings.FileFilters.First(f => f.Type == filterType);
+
+            await SwitchFilter(filter);
         }
 
         public TeensyFileType[] GetFileTypes()

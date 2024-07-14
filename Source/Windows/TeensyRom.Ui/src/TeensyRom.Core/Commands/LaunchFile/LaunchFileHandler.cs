@@ -37,32 +37,19 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
                 if (ack == TeensyToken.Ack)
                 {
-                    return new LaunchFileResult
-                    {
-                        LaunchResult = LaunchFileResultType.Success
-                    };
+                    return new LaunchFileResult { LaunchResult = LaunchFileResultType.Success };
                 }
-                return new LaunchFileResult
-                {
-                    LaunchResult = LaunchFileResultType.ProgramError
-                };
+                return new LaunchFileResult { LaunchResult = LaunchFileResultType.ProgramError };
             }
 
             if (request.LaunchItem is HexItem or ImageItem)
             {
-                return new LaunchFileResult
-                {
-                    LaunchResult = LaunchFileResultType.Success
-                };
+                return new LaunchFileResult { LaunchResult = LaunchFileResultType.Success };
             }
 
-            var resultType = PollResponse();
-            serialState.ReadAndLogSerialAsString(100);
-
-            return new LaunchFileResult
-            {
-                LaunchResult = resultType
-            };
+                var resultType = PollResponse();
+                serialState.ReadAndLogSerialAsString(100);
+                return new LaunchFileResult { LaunchResult = resultType };
         }
 
         private TeensyToken AttemptLaunch(LaunchFileCommand request)
@@ -82,21 +69,34 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
         private LaunchFileResultType PollResponse()
         {
-            var resultType = LaunchFileResultType.NoResponse;
-            List<byte> bytesRead = [];
-            
-            for (int i = 0; i < 40; i++)
-            {
-                var responseBytes = serialState.ReadSerialBytes(25);
-                bytesRead.AddRange(responseBytes);
-                resultType = ParseResponse([.. bytesRead]);
 
-                if (resultType != LaunchFileResultType.NoResponse)
+            try
+            {
+                var resultType = LaunchFileResultType.NoResponse;
+                List<byte> bytesRead = [];
+
+                for (int i = 0; i < 40; i++)
                 {
-                    return resultType;
+                    var responseBytes = serialState.ReadSerialBytes(25);
+                    bytesRead.AddRange(responseBytes);
+                    resultType = ParseResponse([.. bytesRead]);
+
+                    if (resultType != LaunchFileResultType.NoResponse)
+                    {
+                        return resultType;
+                    }
                 }
+                return LaunchFileResultType.Success;
             }
-            return LaunchFileResultType.Success;
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("port is closed", StringComparison.OrdinalIgnoreCase))
+                {
+                    //TODO: I don't love this, make it cleaner.  This covers race condition when the TR disconnects during dual boot when going from COM5 to COM3 (say, on a large game to SID launch).   This will prevent an incorrect error message in the logs
+                    return LaunchFileResultType.Success;
+                }
+                throw;
+            }
         }
 
         private LaunchFileResultType ParseResponse(byte[] responseBytes)

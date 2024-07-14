@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
@@ -12,6 +13,7 @@ using System.Windows.Threading;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Helpers.ViewModel;
@@ -25,6 +27,12 @@ namespace TeensyRom.Ui.Features.Settings
         [Reactive] public string Logs { get; set; } = string.Empty;
         [ObservableAsProperty] public bool IsDirty { get; }
         [ObservableAsProperty] public TeensySettings? Settings { get; }
+        [Reactive]
+        public List<TeensyFilterType> FilterOptions { get; set; } = Enum
+        .GetValues(typeof(TeensyFilterType))
+        .Cast<TeensyFilterType>()
+        .Where(type => type != TeensyFilterType.Hex)
+        .ToList();
         public Interaction<string, bool> ConfirmSave { get; } = new Interaction<string, bool>();
 
         public ReactiveCommand<Unit, Unit> SaveSettingsCommand { get; set; }

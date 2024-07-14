@@ -17,6 +17,8 @@
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="36"></RowDefinition>
             <RowDefinition Height="80"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -69,6 +71,7 @@
         <TextBox 
             ToolTip="The folder specified here will be monitored for new files. &#x0a;Try setting it something like your browser download folder.  &#x0a;Only types supported by the TR be monitored."
             materialDesign:HintAssist.Hint="Watch Directory"
+            materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
             Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}"                
             Grid.Row="4" Grid.Column="2" VerticalAlignment="Top"/>
 
@@ -84,7 +87,7 @@
 
         <Label 
             Content="Auto-Connect on Startup:"
-            ToolTip="This will enable the Games/Programs/Images play timer automatically when you first start the app."
+            ToolTip="The application will automatically connect to TeensyROM on startup."
             Grid.Row="6" HorizontalAlignment="Right"/>
         <CheckBox                  
             Content="Enabled"                
@@ -92,11 +95,38 @@
             IsChecked="{Binding Settings.AutoConnectEnabled, Mode=TwoWay}" 
             Grid.Row="6" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
+        <Label 
+            Content="Auto-Launch on Startup:"
+            ToolTip="This will enable automatic file lauching on application startup based on the selected filter."
+            Grid.Row="7" HorizontalAlignment="Right"/>
+        <CheckBox                  
+            Content="Enabled"                
+            ToolTip="This will enable automatic file lauching on application startup based on the selected filter."
+            IsChecked="{Binding Settings.StartupLaunchEnabled, Mode=TwoWay}" 
+            Grid.Row="7" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
+        <Label 
+            Content="Default Filter:"
+            ToolTip="This will set the default startup filter"
+            Grid.Row="8" HorizontalAlignment="Right"/>
+        
+        <ComboBox 
+            Grid.Row="8" Grid.Column="2"
+            x:Name="FilterComboBox"
+            ItemsSource="{Binding FilterOptions}"
+            SelectedItem="{Binding Settings.StartupFilter, Mode=TwoWay}"            
+            FontFamily="Arial"
+            materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+            materialDesign:HintAssist.HelperTextFontSize="12"
+            ToolTip="This will set the default startup filter"
+            Margin="0 -13 0 0"/>
+
         <Button             
             ToolTip="This will save your settings to disk."
             Content="Save Settings"  
             Command="{Binding SaveSettingsCommand}" 
             HorizontalAlignment="Left"
-            Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="20"/>
+            Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="20"/>
+        
     </Grid>
 </UserControl>
