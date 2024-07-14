@@ -22,7 +22,6 @@
         <Grid Grid.Row="1" Margin="10 10 0 10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
@@ -133,53 +132,13 @@
                     
                 </StackPanel>
                 
-            </StackPanel>
+            </StackPanel>            
 
-            <StackPanel 
-                Visibility="{Binding SubtunesEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"
-                Orientation="Horizontal" Grid.Column="2"
-                Margin="20 0 0 0">
-                <Button 
-                    Command="{Binding PreviousSubtuneCommand}"
-                    IsEnabled="{Binding SubtunePreviousButtonEnabled}"
-                    Style="{StaticResource MaterialDesignIconForegroundButton}"
-                    Foreground="{DynamicResource PrimaryHueLightBrush }"
-                    Height="30" Width="30"
-                    ToolTip="Previous Subtune"
-                    VerticalAlignment="Center"
-                    Margin="0 0 2 0">
-                    <materialDesign:PackIcon Kind="SkipPrevious"/>
-                </Button>
-
-                <ComboBox
-                    x:Name="SubtubeComboBox"
-                    ItemsSource="{Binding SubtuneIndex}"
-                    SelectedItem="{Binding CurrentSubtuneIndex, Mode=TwoWay}"  
-                    materialDesign:TextFieldAssist.UnderlineBrush="{DynamicResource PrimaryHueLightBrush }"
-                    FontFamily="Arial"
-                    Height="30"
-                    materialDesign:TextFieldAssist.PrefixText="Subtune:"
-                    ToolTip="Change to a different subtune."
-                    Margin="0 0 0 0"/>
-
-                <Button 
-                    Command="{Binding NextSubtuneCommand}"
-                    IsEnabled="{Binding SubtuneNextButtonEnabled}"
-                    Style="{StaticResource MaterialDesignIconForegroundButton}"
-                    Foreground="{DynamicResource PrimaryHueLightBrush }"
-                    Height="30" Width="30"
-                    ToolTip="Next Subtune"
-                    VerticalAlignment="Center"
-                    Margin="2 0 10 0">
-                    <materialDesign:PackIcon Kind="SkipNext" />
-                </Button>
-
-            </StackPanel>
-
-            <Grid Grid.Column="3"
-                HorizontalAlignment="Right" VerticalAlignment="Top"
-                Margin="10 0 10 0">
+            <Grid Grid.Column="2"
+                HorizontalAlignment="Right" VerticalAlignment="Top">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
@@ -188,9 +147,49 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                
+                <StackPanel 
+                    Grid.Column="0"
+                    Visibility="{Binding SubtunesEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"
+                    Orientation="Horizontal" 
+                    Margin="0 0 0 0">
+                    <Button 
+                        Command="{Binding PreviousSubtuneCommand}"
+                        IsEnabled="{Binding SubtunePreviousButtonEnabled}"
+                        Style="{StaticResource MaterialDesignIconForegroundButton}"
+                        Foreground="{DynamicResource PrimaryHueLightBrush }"
+                        Height="30" Width="30"
+                        ToolTip="Previous Subtune"
+                        VerticalAlignment="Center"
+                        Margin="0 0 2 0">
+                        <materialDesign:PackIcon Kind="SkipPrevious"/>
+                    </Button>
 
-                <ComboBox Grid.Column="0"
+                    <ComboBox
+                        x:Name="SubtuneComboBox"
+                        ItemsSource="{Binding SubtuneIndex}"
+                        SelectedItem="{Binding CurrentSubtuneIndex, Mode=TwoWay}"  
+                        materialDesign:TextFieldAssist.UnderlineBrush="{DynamicResource PrimaryHueLightBrush }"
+                        FontFamily="Arial"
+                        Height="30"
+                        materialDesign:TextFieldAssist.PrefixText="Subtune:"
+                        ToolTip="Change to a different subtune."
+                        Margin="0 0 0 0"/>
+
+                    <Button 
+                        Command="{Binding NextSubtuneCommand}"
+                        IsEnabled="{Binding SubtuneNextButtonEnabled}"
+                        Style="{StaticResource MaterialDesignIconForegroundButton}"
+                        Foreground="{DynamicResource PrimaryHueLightBrush }"
+                        Height="30" Width="30"
+                        ToolTip="Next Subtune"
+                        VerticalAlignment="Center"
+                        Margin="2 0 10 0">
+                        <materialDesign:PackIcon Kind="SkipNext" />
+                    </Button>
+
+                </StackPanel>
+
+                <ComboBox Grid.Column="1"
                     x:Name="TimerComboBox"
                     ItemsSource="{Binding TimerOptions}"
                     SelectedItem="{Binding TimerSeconds, Mode=TwoWay}"
@@ -200,20 +199,20 @@
                     materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                     materialDesign:TextFieldAssist.PrefixText="Timer:"
                     ToolTip="The amount of time to play the current file before launching the next."
-                    Margin="0 0 10 0"/>
+                    Margin="5"/>
 
-                <Button Grid.Column="1"
+                <Button Grid.Column="2"
                     x:Name="TimerButton"
                     Command="{Binding ToggleTimedPlay}"  
                     Visibility="{Binding TimedPlayButtonEnabled, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
                     ToolTip="Enables continuous timed play.&#x0a;When the timer ends, the next file will be launched."
                     Style="{StaticResource TimerModeButtonStyle}"
                     Padding="0"
-                    Margin="0 10 10 10">
+                    Margin="5">
                     <materialDesign:PackIcon Kind="TimerOutline" Margin="0 0 0 0"/>
                 </Button>
 
-                <ComboBox Grid.Column="2"
+                <ComboBox Grid.Column="3"
                     x:Name="ScopeComboBox"
                     ItemsSource="{Binding ScopeOptions}"
                     SelectedItem="{Binding SelectedScope, Mode=TwoWay}"
@@ -225,49 +224,49 @@
                     materialDesign:HintAssist.HelperText="{Binding StorageScopePath}"
                     materialDesign:HintAssist.HelperTextFontSize="12"
                     ToolTip="Shuffle mode will randomly select files at varying depths:&#x0a;• Selected Storage: Files across your entire selected storage device.&#x0a;• Directory (Shallow): Files in the pinned directory only.&#x0a;• Directory (Deep): Files in the pinned directory and deeply nested in directories below it."
-                    Margin="0 0 10 0"/>
+                    Margin="5"/>
 
-                <Button Grid.Column="3"
+                <Button Grid.Column="4"
                     x:Name="ShuffleModeButton"
                     Command="{Binding ToggleShuffleCommand}"  
                     ToolTip="Shuffle Mode.  &#x0a;Enabling this will cause the next button to play random file from your collection.  &#x0a;Disabling will play the next file in the current directory. &#x0a;The filter selected will determine the file type that gets picked."
                     Style="{StaticResource ShuffleModeButtonStyle}"
-                    Margin="10">
+                    Margin="5 10 5 5">
                     <materialDesign:PackIcon Kind="Shuffle"/>
                 </Button>
 
-                <Button Grid.Column="4"
+                <Button Grid.Column="5"
                     x:Name="ShareButton"
                     Command="{Binding ShareCommand}"    
                     Visibility="{Binding ShareVisible, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
                     ToolTip="Copies a shareable web link to the clipboard"
                     Style="{StaticResource StorageIconButton}"
                     Padding="0"
-                    Margin="10">
+                    Margin="5 10 5 5">
                     <materialDesign:PackIcon Kind="Share" Margin="0 0 0 3"/>
                 </Button>
 
                 <Button
-                    Grid.Column="5"
+                    Grid.Column="6"
                     x:Name="FavoriteButton"
                     Command="{Binding FavoriteCommand}"  
                     Visibility="{Binding File.IsFavorite, Converter={StaticResource InverseBooleanToVisibilityConverter}, Mode=OneWay}"
                     ToolTip="Tags the current file as favorite.&#x0a;Your file will be saved to the /favorites folder."
                     Style="{StaticResource StorageIconButton}"
                     Padding="0"
-                    Margin="10">
+                    Margin="5 10 5 5">
                     <materialDesign:PackIcon Kind="HeartOutline"/>
                 </Button>
 
                 <Button
-                    Grid.Column="6"
+                    Grid.Column="7"
                     x:Name="RemoveFavoriteButton"
                     Command="{Binding RemoveFavoriteCommand}"  
                     Visibility="{Binding File.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
                     ToolTip="Untags the current file as favorite."
                     Style="{StaticResource StorageIconButton}"
                     Padding="0"
-                    Margin="10">
+                    Margin="5 10 5 5">
                     <materialDesign:PackIcon Kind="Heart"/>
                 </Button>
             </Grid>
