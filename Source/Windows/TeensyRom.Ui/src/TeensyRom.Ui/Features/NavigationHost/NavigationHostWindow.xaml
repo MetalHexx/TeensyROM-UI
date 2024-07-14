@@ -16,8 +16,8 @@
         xmlns:shell="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         WindowStartupLocation="CenterScreen"        
         Foreground="White"
-        Width="1280" 
-        Height="900">
+        Width="1200" 
+        Height="800">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="50" GlassFrameThickness="0" ResizeBorderThickness="10" />
