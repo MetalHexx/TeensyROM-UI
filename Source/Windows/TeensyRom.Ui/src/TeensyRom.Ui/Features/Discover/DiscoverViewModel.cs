@@ -163,11 +163,9 @@ namespace TeensyRom.Ui.Features.Discover
 
                 var libs = _settings.FileFilters.Where(lib => lib.Type is not TeensyFilterType.Hex);
 
-                var selectedFilter = Filter?.SelectedLibrary;
-
                 Filter = new LibraryFilterViewModel(
                     libs, 
-                    selectedFilter, 
+                    _settings.GetStartupFilter(), 
                     player.LaunchedFile.Where(f => f is not null && f.Random).Select(_ => Unit.Default),
                     filterFunc: (filter) => player.SwitchFilter(filter),
                     launchRandomFunc: () => player.PlayRandom());

@@ -139,6 +139,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
             _settingsSubscription = _settingsService.Settings
                 .Do(settings => _settings = settings)
+                .Do(settings => _currentFilter = _settings.GetStartupFilter())
                 .CombineLatest(_serial.CurrentState, _nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
                 .Where(state => state.navView?.Type == NavigationLocation.Discover)
                 .DistinctUntilChanged(state => state.settings.StorageType)
@@ -151,7 +152,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 .Where(_ => _settings.StartupLaunchEnabled)
                 .OfType<SerialConnectedState>()
                 .Take(1)
-                .Subscribe(async _ => await SwitchFilter(_settings.StartupFilter));
+                .Subscribe(async _ => await SwitchFilter(_settings.GetStartupFilter()));
         }
 
         private async Task UpdateDirectoryTree(List<IFileItem> files)
@@ -571,13 +572,6 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 return;
             }
             await PlayRandom();
-        }
-
-        public async Task SwitchFilter(TeensyFilterType filterType)
-        {
-            var filter = _settings.FileFilters.First(f => f.Type == filterType);
-
-            await SwitchFilter(filter);
         }
 
         public TeensyFileType[] GetFileTypes()

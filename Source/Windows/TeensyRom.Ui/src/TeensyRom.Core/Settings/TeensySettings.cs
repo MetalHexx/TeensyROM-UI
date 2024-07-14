@@ -181,6 +181,8 @@ namespace TeensyRom.Core.Settings
                 ?? throw new TeensyException($"Unsupported file type: {type}");
         }
 
+        public TeensyFilter GetStartupFilter() => FileFilters.First(f => f.Type == StartupFilter);
+
         public List<string> GetFavoritePaths() => FileTargets.Select(t => GetFavoritePath(t.Type)).ToList();
 
         public string GetFavoritePath(TeensyFileType type) 
