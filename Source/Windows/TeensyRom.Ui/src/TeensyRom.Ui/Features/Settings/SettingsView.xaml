@@ -16,6 +16,7 @@
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="80"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -81,11 +82,21 @@
             IsChecked="{Binding Settings.PlayTimerEnabled, Mode=TwoWay}" 
             Grid.Row="5" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
+        <Label 
+            Content="Auto-Connect on Startup:"
+            ToolTip="This will enable the Games/Programs/Images play timer automatically when you first start the app."
+            Grid.Row="6" HorizontalAlignment="Right"/>
+        <CheckBox                  
+            Content="Enabled"                
+            ToolTip="The application will automatically connect to TeensyROM on startup."
+            IsChecked="{Binding Settings.AutoConnectEnabled, Mode=TwoWay}" 
+            Grid.Row="6" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
         <Button             
             ToolTip="This will save your settings to disk."
             Content="Save Settings"  
             Command="{Binding SaveSettingsCommand}" 
             HorizontalAlignment="Left"
-            Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="20"/>
+            Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="20"/>
     </Grid>
 </UserControl>

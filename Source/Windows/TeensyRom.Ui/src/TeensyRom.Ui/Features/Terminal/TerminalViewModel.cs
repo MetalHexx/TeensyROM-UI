@@ -19,6 +19,7 @@ using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
+using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Features.Terminal.SerialCommand;
 using TeensyRom.Ui.Helpers.ViewModel;
@@ -46,13 +47,14 @@ namespace TeensyRom.Ui.Features.Terminal
         private readonly IMediator _mediator;
         private readonly ISerialStateContext _serial;
         private readonly ILoggingService _log;
+        private readonly ISettingsService _settings;
         private bool _nfcWarningFlag = false;
 
-        public TerminalViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log, IAlertService alertService, IDialogService dialog, ISerialCommandViewModel serialCommandVm)
+        public TerminalViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log, IAlertService alertService, IDialogService dialog, ISerialCommandViewModel serialCommandVm, ISettingsService settings)
         {
             Title = new FeatureTitleViewModel("Terminal");
             SerialCommandVm = serialCommandVm;
-
+            _settings = settings;
             serial.Ports
                 .Where(p => p is not null && p.Length > 0)
                 .Select(p => p.ToList())
@@ -143,6 +145,7 @@ namespace TeensyRom.Ui.Features.Terminal
             _log = log;
 
             _serial.CurrentState
+                 .Where(_ => _settings.GetSettings().AutoConnectEnabled)
                  .OfType<SerialConnectableState>()
                  .Take(1)
                  .Subscribe(async _ => await TrySingleConnect());
