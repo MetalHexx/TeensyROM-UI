@@ -26,12 +26,13 @@ public class ExceptionBehavior<TRequest, TResponse>(IAlertService alert) : IPipe
         }
         catch (Exception ex)
         {
-            alert.Publish(GetExceptionMessage(ex));
+            var message = GetExceptionMessage(ex);
+            alert.Publish(message);
 
             return new TResponse
             {
                 IsSuccess = false,
-                Error = $"An exception was thrown: \r\n{ex}" 
+                Error = message
             };
         }
         return response;
