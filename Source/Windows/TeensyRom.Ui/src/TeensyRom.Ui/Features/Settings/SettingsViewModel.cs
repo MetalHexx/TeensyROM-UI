@@ -29,10 +29,10 @@ namespace TeensyRom.Ui.Features.Settings
         [ObservableAsProperty] public TeensySettings? Settings { get; }
         [Reactive]
         public List<TeensyFilterType> FilterOptions { get; set; } = Enum
-        .GetValues(typeof(TeensyFilterType))
-        .Cast<TeensyFilterType>()
-        .Where(type => type != TeensyFilterType.Hex)
-        .ToList();
+            .GetValues(typeof(TeensyFilterType))
+            .Cast<TeensyFilterType>()
+            .Where(type => type != TeensyFilterType.Hex)
+            .ToList();
         public Interaction<string, bool> ConfirmSave { get; } = new Interaction<string, bool>();
 
         public ReactiveCommand<Unit, Unit> SaveSettingsCommand { get; set; }
