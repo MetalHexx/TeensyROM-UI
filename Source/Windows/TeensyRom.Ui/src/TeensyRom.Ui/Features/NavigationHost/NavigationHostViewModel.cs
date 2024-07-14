@@ -18,6 +18,7 @@ using System;
 using TeensyRom.Ui.Features.Discover;
 using System.Threading.Tasks;
 using System.Windows;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -39,20 +40,23 @@ namespace TeensyRom.Ui.Features.NavigationHost
         private readonly ISerialStateContext _serialContext;
         private readonly IFileWatchService _watchService;
         private readonly IProgressService _progressService;
+        private readonly ISettingsService _settingsService;
 
         [Reactive] public bool TriggerAnimation { get; set; } = true;
 
-        public NavigationHostViewModel(INavigationService navStore, ISetupService setup, ISerialStateContext serialState, IFileWatchService watchService, ISnackbarService alert, IProgressService progressService, HelpViewModel help, TerminalViewModel terminal, SettingsViewModel settings, DiscoverViewModel discover)
+        public NavigationHostViewModel(INavigationService navStore, ISetupService setup, ISerialStateContext serialState, IFileWatchService watchService, ISnackbarService alert, IProgressService progressService, ISettingsService settingsService, HelpViewModel help, TerminalViewModel terminal, SettingsViewModel settings, DiscoverViewModel discover)
         {
             _navService = navStore;
             _setup = setup;
             _serialContext = serialState;
             _watchService = watchService;
             _progressService = progressService;
+            _settingsService = settingsService;
             MessageQueue = alert.MessageQueue;
             RegisterModelProperties();
             RegisterModelCommands();
             InitializeNavItems(help, terminal, settings, discover);
+            TryNavToDiscover();
 
             var setupDelay = Task.Delay(1000);
 
@@ -65,8 +69,17 @@ namespace TeensyRom.Ui.Features.NavigationHost
             });
         }
 
-        public void InitializeNavItems(HelpViewModel help, TerminalViewModel terminal, SettingsViewModel settings, DiscoverViewModel discover)
+        private void TryNavToDiscover()
         {
+            var settings = _settingsService.GetSettings();
+            if (settings.StartupLaunchEnabled && !settings.FirstTimeSetup) 
+            { 
+                _navService.NavigateTo(NavigationLocation.Discover);
+            }
+        }
+
+        public void InitializeNavItems(HelpViewModel help, TerminalViewModel terminal, SettingsViewModel settings, DiscoverViewModel discover)
+        {   
             _navService.Initialize(NavigationLocation.Terminal, new List<NavigationItem>
             {
                 new() {
