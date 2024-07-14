@@ -46,39 +46,38 @@ namespace TeensyRom.Core.Serial
         {
             if (_serialPort.IsOpen) return;
               
-            foreach(var port in SerialPort.GetPortNames())
+            foreach(var port in SerialPort.GetPortNames().Distinct())
             {
                 _serialPort.PortName = port;
                 _log.Internal($"Attempting to open {_serialPort.PortName}");
 
                 try
-                {
+                { 
+                    if(_serialPort.IsOpen) _serialPort.Close();
                     _serialPort.Open();
                 }
                 catch
                 {
+                    _log.ExternalError($"Unable to connect to {_serialPort.PortName}");
                     continue;
                 }
 
                 if (!_serialPort.IsOpen) continue;
-
-                ReadAndLogSerialAsString(100);
                                 
                 _log.InternalSuccess($"Successfully connected to {_serialPort.PortName}");
                 Lock();
 
                 _log.Internal($"Pinging {_serialPort.PortName} to verify connection to TeensyROM");
                 Write(TeensyByteToken.Ping_Bytes.ToArray(), 0, 2);
-                var response = ReadAndLogSerialAsString(100);
+
+                var response = ReadAndLogSerialAsString(1000);
 
                 var isTeensyResponse = response.Contains("teensyrom", StringComparison.OrdinalIgnoreCase)
                     || response.Contains("busy", StringComparison.OrdinalIgnoreCase);
 
                 if (!isTeensyResponse)
                 {
-                    _log.InternalError($"Failed to connect to a TR on {_serialPort.PortName} Try a different COM port.");
-                    _serialPort.Close();
-                    _state.OnNext(typeof(SerialConnectableState));
+                    _log.ExternalError($"TeensyROM was not detected on {_serialPort.PortName}");
                     continue;
                 }
                 alert.Publish($"Connected to TeensyROM on {_serialPort.PortName}");
@@ -86,6 +85,7 @@ namespace TeensyRom.Core.Serial
                 Unlock();
                 _log.Internal($"Clearing stale buffers");
                 ReadAndLogStaleBuffer();
+                _state.OnNext(typeof(SerialConnectedState));
                 return;
             }
             throw new TeensyException($"Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
@@ -102,15 +102,11 @@ namespace TeensyRom.Core.Serial
                     try
                     {
                         EnsureConnection();
-
-                        if (_state.Value == typeof(SerialConnectionLostState))
-                        {
-                            _state.OnNext(typeof(SerialConnectedState));
-                        }
                     }
                     catch (Exception ex)
                     {
                         _state.OnNext(typeof(SerialConnectionLostState));
+                        _log.ExternalError($"Connection to {_serialPort.PortName} was lost.");
                         return Observable.Throw<long>(ex);
                     }
                     return Observable.Empty<long>();
