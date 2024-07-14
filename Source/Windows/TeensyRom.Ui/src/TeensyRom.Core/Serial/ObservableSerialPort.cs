@@ -49,46 +49,54 @@ namespace TeensyRom.Core.Serial
             foreach(var port in SerialPort.GetPortNames().Distinct())
             {
                 _serialPort.PortName = port;
-                _log.Internal($"Attempting to open {_serialPort.PortName}");
+                _log.Internal($"ObservableSerialPort.EnsureConnection: Attempting to open {_serialPort.PortName}");
 
                 try
                 { 
                     if(_serialPort.IsOpen) _serialPort.Close();
                     _serialPort.Open();
                 }
-                catch
+                catch(FileNotFoundException)
                 {
-                    _log.ExternalError($"Unable to connect to {_serialPort.PortName}");
+                    _log.ExternalError($"ObservableSerialPort.EnsureConnection: Unable to connect to {_serialPort.PortName}");
                     continue;
                 }
-
                 if (!_serialPort.IsOpen) continue;
                                 
-                _log.InternalSuccess($"Successfully connected to {_serialPort.PortName}");
+                _log.InternalSuccess($"ObservableSerialPort.EnsureConnection: Successfully connected to {_serialPort.PortName}");
                 Lock();
 
-                _log.Internal($"Pinging {_serialPort.PortName} to verify connection to TeensyROM");
+                _log.Internal($"ObservableSerialPort.EnsureConnection: Pinging {_serialPort.PortName} to verify connection to TeensyROM");
                 Write(TeensyByteToken.Ping_Bytes.ToArray(), 0, 2);
 
-                var response = ReadAndLogSerialAsString(1000);
+                var ms = 4000;
+
+                _log.Internal($"ObservableSerialPort.EnsureConnection: Waiting {ms}ms for PING response");
+
+                var response = ReadAndLogSerialAsString(4000);
 
                 var isTeensyResponse = response.Contains("teensyrom", StringComparison.OrdinalIgnoreCase)
                     || response.Contains("busy", StringComparison.OrdinalIgnoreCase);
 
                 if (!isTeensyResponse)
                 {
-                    _log.ExternalError($"TeensyROM was not detected on {_serialPort.PortName}");
+                    _log.ExternalError($"ObservableSerialPort.EnsureConnection: PING failed -- TeensyROM was not detected on {_serialPort.PortName}");
                     continue;
                 }
                 alert.Publish($"Connected to TeensyROM on {_serialPort.PortName}");
-                _log.Internal($"Successfully located a TR at {_serialPort.PortName}");
+                _log.Internal($"ObservableSerialPort.EnsureConnection: PING succeeded");                
+                _log.Internal($"ObservableSerialPort.EnsureConnection: Unlocking serial port from ObservableSerialPort");
+                _log.Internal($"ObservableSerialPort.EnsureConnection: Clearing stale buffers from ObservableSerialPort");
+                _log.Internal($"ObservableSerialPort.EnsureConnection: Remaining Buffer: ");
+                
                 Unlock();
-                _log.Internal($"Clearing stale buffers");
                 ReadAndLogStaleBuffer();
+                
+                _log.Internal($"ObservableSerialPort.EnsureConnection: Moving to SerialConnectedState");
                 _state.OnNext(typeof(SerialConnectedState));
                 return;
             }
-            throw new TeensyException($"Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
+            throw new TeensyException($"ObservableSerialPort.EnsureConnection: Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
         }
 
         public Unit OpenPort()

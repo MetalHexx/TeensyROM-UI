@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using System.Reactive.Linq;
+using System.Reflection.Metadata.Ecma335;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
@@ -17,22 +18,32 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             {
                 alert.Publish($"Launching files over 575k may cause a re-connect cycle.");
             }
-
             var ack = AttemptLaunch(request);
 
-            if (ack == TeensyToken.RetryLaunch) 
+            if (ack == TeensyToken.Ack)
             {
-                
+                return new LaunchFileResult { LaunchResult = LaunchFileResultType.Success };
+            }
+            if (ack == TeensyToken.RetryLaunch) 
+            {                
+                log.Internal($"LaunchFileHandler: Initiating Launch Retry of {request.LaunchItem.Name}");
+
+                log.Internal("LaunchFileHandler: Waiting for re-connection to TeensyROM");
+
                 await serialState.CurrentState
                     .OfType<SerialConnectedState>()
                     .Take(2)
                     .FirstAsync();
 
-                await Task.Delay(4000);
+                var ms = 1000;
+
+                log.Internal($"LaunchFileHandler: Waiting {ms}ms for TeensyROM to catch up");
+                await Task.Delay(ms);
 
                 //Locking the serial manually since the connection will get dropped during this workflow.
                 //The serial behavior will unlock it once the command completes.
-                serialState.Lock();                
+                serialState.Lock();
+                log.Internal($"LaunchFileHandler: Manually locking Serial Port");
                 ack = AttemptLaunch(request);
 
                 if (ack == TeensyToken.Ack)
@@ -40,31 +51,58 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
                     return new LaunchFileResult { LaunchResult = LaunchFileResultType.Success };
                 }
                 return new LaunchFileResult { LaunchResult = LaunchFileResultType.ProgramError };
-            }
+            }            
 
             if (request.LaunchItem is HexItem or ImageItem)
             {
                 return new LaunchFileResult { LaunchResult = LaunchFileResultType.Success };
             }
 
-                var resultType = PollResponse();
-                serialState.ReadAndLogSerialAsString(100);
-                return new LaunchFileResult { LaunchResult = resultType };
+            var resultType = PollResponse();
+            serialState.ReadAndLogSerialAsString(100);
+            return new LaunchFileResult { LaunchResult = resultType };
         }
 
         private TeensyToken AttemptLaunch(LaunchFileCommand request)
         {
+            log.Internal($"LaunchFileHandler: Clearing serial buffers");
             serialState.ClearBuffers();
+
+            log.Internal($"LaunchFileHandler: Sending {TeensyToken.LaunchFile} token.");
             serialState.SendIntBytes(TeensyToken.LaunchFile, 2);
+            
             var ack = serialState.HandleAck();
 
-            if(ack == TeensyToken.RetryLaunch)
+            LogAck(ack);
+
+            if (ack == TeensyToken.RetryLaunch)
             {
                 return TeensyToken.RetryLaunch;
             }
+
+            log.Internal($"LaunchFileHandler: Sending storage token to TeensyROM");
             serialState.SendIntBytes(request.StorageType.GetStorageToken(), 1);
+
+            log.Internal($"LaunchFileHandler: Sending {request.LaunchItem.Path} to TeensyROM");
+
             serialState.Write($"{request.LaunchItem.Path}\0");
-            return serialState.HandleAck();
+            ack = serialState.HandleAck();
+
+            LogAck(ack);
+
+            return ack;
+        }
+
+        private void LogAck(TeensyToken ack) 
+        {
+            if (ack == TeensyToken.Ack || ack == TeensyToken.RetryLaunch)
+            {
+                log.Internal($"LaunchFileHandler: Received {ack} token from TeensyROM");
+            }
+            else
+            {
+                log.InternalError($"LaunchFileHandler: Received {ack} token from TeensyROM");
+            }
         }
 
         private LaunchFileResultType PollResponse()
@@ -112,7 +150,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             }
             if (foundTokens.Any(t => t == TeensyToken.BadSIDToken))
             {
-                log.ExternalError($"Failed to launch sid: \r\n{resultString}");
+                log.ExternalError($"LaunchFileHandler: Failed to launch sid: \r\n{resultString}");
                 return LaunchFileResultType.SidError;
             }
             if (resultString.Contains("Loading IO handler:", StringComparison.OrdinalIgnoreCase))
@@ -124,7 +162,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
             if (programError.Any(error => resultString.Contains(error, StringComparison.OrdinalIgnoreCase)))
             {
-                log.ExternalError($"Failed to launch program: \r\n{resultString}");
+                log.ExternalError($"LaunchFileHandler: Failed to launch program: \r\n{resultString}");
                 return LaunchFileResultType.ProgramError;
             }
             return LaunchFileResultType.NoResponse;
