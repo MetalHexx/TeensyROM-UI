@@ -159,7 +159,7 @@ namespace TeensyRom.Ui.Features.Terminal
             {
                 _serial.OpenPort();
             }
-            catch
+            catch(Exception ex)
             {
                 _log.InternalError($"Failed to find a connectable TeensyROM cartridge.");
                 return false;
