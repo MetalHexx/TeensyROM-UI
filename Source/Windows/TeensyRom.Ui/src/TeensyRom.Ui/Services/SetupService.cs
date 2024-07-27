@@ -83,7 +83,7 @@ namespace TeensyRom.Ui.Services
             {
                 await Complete();
                 return;
-            }
+            }            
             await OnConnectable();
         }
 
@@ -182,7 +182,7 @@ namespace TeensyRom.Ui.Services
                     return;
                 }
 
-                result = await _dialog.ShowConfirmation("Copy Some Files!", $"Copy some files now before we start the indexing process.  \r\rTotally optional, but strongly recommended, consider copying HVSC and OneLoad64 onto your {_settings.StorageType} storage. You can always do this later if you want.\r\rClicking \"OK\" will start the indexing process.");
+                result = await _dialog.ShowConfirmation("Copy Some Files!", $"Copy some files to your SD or USB storage now before we start the indexing process.  \r\rTotally optional, but strongly recommended, consider copying HVSC and OneLoad64 onto your {_settings.StorageType} storage. You can always do this later if you want.\r\rClicking \"OK\" will start the indexing process.");
 
                 if (!result)
                 {
@@ -288,7 +288,7 @@ namespace TeensyRom.Ui.Services
                         _ => "File"
                     };
 
-                    var result = await _dialog.ShowConfirmation("Random Launch", $"I see you discoverd a {itemType} located at {file.Path}, nice! \r\rNotice the \"All\" filter is selected in the lower left.  This means any file type (Games, Music, or Images) will be launched randomly.");
+                    var result = await _dialog.ShowConfirmation("Random Launch", $"I see you discoverd a {itemType} located at {file.Path}, nice! \r\rNotice the \"All\" filter is selected in the lower left.  This means any file type (Games, Music, or Images) will be launched randomly when your roll the dice.");
 
                     if (!result)
                     {
@@ -437,7 +437,7 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
-                    result = await _dialog.ShowConfirmation("", $"I hope these tools help you have fun finding new content!  \r\rLet's head over to the \"Help\" section now.");
+                    result = await _dialog.ShowConfirmation("", $"I hope these tools help you have fun finding new content!  \r\rThere are other features you can learn about in the docs or tooltips throughout the app.  \r\rLet's head over to the \"Help\" section now.");
 
                     await Complete();
                 });
