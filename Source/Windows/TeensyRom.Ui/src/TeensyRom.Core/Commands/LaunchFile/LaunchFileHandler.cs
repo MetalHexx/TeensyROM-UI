@@ -72,7 +72,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
             if (response != LaunchFileResultType.Disconnected) 
             {
-                return GetFinalResult(PollResponse());
+                return GetFinalResult(response);
             }
             if (request.LaunchItem.Size >= 575000)
             {
