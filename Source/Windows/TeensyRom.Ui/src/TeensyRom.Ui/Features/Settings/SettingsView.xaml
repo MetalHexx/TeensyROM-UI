@@ -97,11 +97,11 @@
 
         <Label 
             Content="Auto-Launch on Startup:"
-            ToolTip="This will enable automatic file lauching on application startup based on the selected filter."
+            ToolTip="The application will automatically launch a file on startup.&#x0a;File type is based on the Default Filter selected."
             Grid.Row="7" HorizontalAlignment="Right"/>
         <CheckBox                  
             Content="Enabled"                
-            ToolTip="This will enable automatic file lauching on application startup based on the selected filter."
+            ToolTip="The application will automatically launch a file on startup.&#x0a;File type is based on the Default Filter selected."
             IsChecked="{Binding Settings.StartupLaunchEnabled, Mode=TwoWay}" 
             Grid.Row="7" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
