@@ -7,11 +7,11 @@ using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Core.Commands
 {
-    public class ResetCommandHandler(ISerialStateContext _serialState) : IRequestHandler<ResetCommand, ResetResult>
+    public class ResetCommandHandler(ISerialStateContext serialState, IAlertService alert) : IRequestHandler<ResetCommand, ResetResult>
     {
         public async Task<ResetResult> Handle(ResetCommand request, CancellationToken cancellationToken)
         {
-            _serialState.Write(TeensyByteToken.Reset_Bytes.ToArray(), 0, 2);
+            serialState.Write(TeensyByteToken.Reset_Bytes.ToArray(), 0, 2);
 
             var pollResult = await PollForSuccess();
                      
@@ -27,16 +27,48 @@ namespace TeensyRom.Core.Commands
 
         private async Task<bool> PollForSuccess()
         {
-            for (int i = 0; i < 10; i++)
+            var response = string.Empty;
+            try
             {
-                var response = _serialState.ReadAndLogSerialAsString(1000);
-                if (response.Contains("Resetting C64"))
+                for (int i = 0; i < 10; i++)
                 {
+                    response = $"{response}{serialState.ReadAndLogSerialAsString(1000)}";
+                    if (response.Contains("Resetting C64"))
+                    {
+                        return true;
+                    }
+                    await Task.Delay(1000);
+                }
+            }
+            catch (Exception ex)
+            {
+                if(ex.Message.Contains("port is closed"))
+                {
+                    alert.Publish("Disconnected from TeensyROM minimal mode.  Reconnecting.");
+                    await HandleReconnection(1000);
                     return true;
                 }
-                await Task.Delay(1000);
+                throw;
             }
             return false;
+        }
+
+        private async Task HandleReconnection(int waitMs)
+        {
+            await Task.Delay(waitMs);
+
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    serialState.EnsureConnection();
+                    return;
+                }
+                catch (TeensyException)
+                {
+                    if (i == 2) throw;
+                }
+            }
         }
     }
 }
