@@ -42,7 +42,7 @@ public class SerialBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, T
             _serial.StartHealthCheck();
             throw;
         }
-        _serial.ReadAndLogSerialAsString(100);
+        _serial.ReadAndLogSerialAsString(300);
         _serial.Unlock();
         _serial.StartHealthCheck();
 
