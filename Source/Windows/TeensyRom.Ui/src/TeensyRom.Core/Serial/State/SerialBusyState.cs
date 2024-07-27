@@ -1,4 +1,5 @@
-﻿using TeensyRom.Core.Logging;
+﻿using TeensyRom.Core.Common;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Core.Serial.State
 {
@@ -16,6 +17,7 @@ namespace TeensyRom.Core.Serial.State
         public override void Write(char[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);
         public override void SendIntBytes(uint intToSend, short numBytes) => _serialPort.SendIntBytes(intToSend, numBytes);
         public override uint ReadIntBytes(short byteLength) => _serialPort.ReadIntBytes(byteLength);
+        public override void Lock() => _serialPort.Lock();
         public override void Unlock() => _serialPort.Unlock();
         public override int Read(byte[] buffer, int offset, int count) => _serialPort.Read(buffer, offset, count);
         public override int ReadByte() => _serialPort.ReadByte();
@@ -25,5 +27,8 @@ namespace TeensyRom.Core.Serial.State
         public override byte[] ReadSerialBytes() => _serialPort.ReadSerialBytes();
         public override void WaitForSerialData(int numBytes, int timeoutMs) => _serialPort.WaitForSerialData(numBytes, timeoutMs);
         public override void ClearBuffers() => _serialPort.ClearBuffers();
+        public override void StartHealthCheck() => _serialPort.StartHealthCheck();
+        public override void StopHealthCheck() => _serialPort.StopHealthCheck();
+        public override void EnsureConnection() => _serialPort.EnsureConnection();
     }
 }

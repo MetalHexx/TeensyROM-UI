@@ -4,7 +4,9 @@
     {
         Success,
         SidError,
+        Error,
         ProgramError,
-        NoResponse
+        NoResponse,
+        Disconnected
     }
 }

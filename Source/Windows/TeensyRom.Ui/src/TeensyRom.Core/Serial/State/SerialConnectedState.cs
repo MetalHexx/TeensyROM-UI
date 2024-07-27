@@ -14,6 +14,7 @@ namespace TeensyRom.Core.Serial.State
         }
         public override Unit ClosePort() => _serialPort.ClosePort();
         public override void Lock() => _serialPort.Lock();
+        public override void StopHealthCheck() => _serialPort.StopHealthCheck();
         public override void ClearBuffers() => _serialPort.ClearBuffers();
     }
 }

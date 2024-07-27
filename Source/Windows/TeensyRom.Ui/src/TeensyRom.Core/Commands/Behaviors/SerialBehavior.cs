@@ -32,14 +32,20 @@ public class SerialBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         try
         {
             _serial.Lock();
+            _serial.StopHealthCheck();
+            _serial.TransitionTo(typeof(SerialBusyState));                        
             response = await next();
-            _serial.ReadAndLogSerialAsString(10);
         }
-        finally
+        catch (Exception ex)
         {
             _serial.Unlock();
-            await Task.Delay(10);
+            _serial.StartHealthCheck();
+            throw;
         }
+        _serial.ReadAndLogSerialAsString(100);
+        _serial.Unlock();
+        _serial.StartHealthCheck();
+
         return response;
     }
 }

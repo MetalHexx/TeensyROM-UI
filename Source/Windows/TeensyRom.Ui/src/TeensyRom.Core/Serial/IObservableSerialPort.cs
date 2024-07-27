@@ -126,6 +126,9 @@ namespace TeensyRom.Core.Serial
         /// <summary>
         /// Starts polling the serial port for available ports
         /// </summary>
-        void StartPortPoll();        
+        void StartPortPoll();
+        void StartHealthCheck();
+        void StopHealthCheck();
+        void EnsureConnection();
     }
 }
