@@ -149,7 +149,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 .Subscribe(async path => await LoadDirectory(StorageConstants.Remote_Path_Root));
 
             _serial.CurrentState
-                .Where(_ => _settings.StartupLaunchEnabled)
+                .Where(_ => _settings.StartupLaunchEnabled && _settings.FirstTimeSetup == false)
                 .OfType<SerialConnectedState>()
                 .Take(1)
                 .Subscribe(async _ => await SwitchFilter(_settings.GetStartupFilter()));
