@@ -24,7 +24,7 @@ Inspired by streaming music/video media services, the application comes with the
 - Media Player / File Explorer hybrid interface
 - Remote Launch of Games, SIDS, Images, Firmware Updates
 - Launch Randomization by File Type
-- Continuous playback of SID music using HVSC song lengths
+- Continuous playback of SID music and subtunes using HVSC song lengths
 - Continuous playback of Images, Games and Demos with Play Timer
 - Search files by type with light search engine syntax
 - Tag favorite titles so you don't lose track of gems.
