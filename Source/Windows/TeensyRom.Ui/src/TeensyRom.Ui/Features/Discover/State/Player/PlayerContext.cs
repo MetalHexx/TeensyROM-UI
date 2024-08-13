@@ -141,7 +141,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 .Do(settings => _settings = settings)
                 .Do(settings => _currentFilter = _settings.GetStartupFilter())
                 .CombineLatest(_serial.CurrentState, _nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
-                .Where(state => state.navView?.Type == NavigationLocation.Discover)
+                .Where(state => state.navView?.Type == NavigationLocation.Discover && state.serial is SerialConnectedState)
                 .DistinctUntilChanged(state => state.settings.StorageType)
                 .Select(state => (path: _currentFilter, state.settings.StorageType))
                 .Select(storage => storage.path)
