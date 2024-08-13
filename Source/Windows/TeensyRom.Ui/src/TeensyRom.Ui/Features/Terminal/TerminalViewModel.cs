@@ -47,6 +47,7 @@ namespace TeensyRom.Ui.Features.Terminal
         private readonly IMediator _mediator;
         private readonly ISerialStateContext _serial;
         private readonly ILoggingService _log;
+        private readonly IAlertService _alert;
         private readonly ISettingsService _settingsService;
         private bool _nfcWarningFlag = false;
 
@@ -143,12 +144,13 @@ namespace TeensyRom.Ui.Features.Terminal
             _mediator = mediator;
             _serial = serial;
             _log = log;
-
+            _alert = alertService;
             var settings = _settingsService.GetSettings();
 
             _serial.CurrentState
                  .Where(_ => settings.AutoConnectEnabled && !settings.FirstTimeSetup)
                  .OfType<SerialConnectableState>()
+                 .Delay(TimeSpan.FromSeconds(1))
                  .Take(1)
                  .Subscribe(async _ => await TrySingleConnect());
         }
@@ -157,6 +159,7 @@ namespace TeensyRom.Ui.Features.Terminal
         {
             try
             {
+                _alert.Publish("Attempting to connect to TeensyROM cartridge.");
                 _serial.OpenPort();
             }
             catch(Exception ex)
