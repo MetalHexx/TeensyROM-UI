@@ -51,7 +51,6 @@ namespace TeensyRom.Core.Serial
 
             var ports = SerialPort.GetPortNames().Distinct();
 
-
             foreach (var port in ports)
             {
                 if (_serialPort.IsOpen) _serialPort.Close();
@@ -62,7 +61,7 @@ namespace TeensyRom.Core.Serial
                 {                     
                     _serialPort.Open();
                 }
-                catch(FileNotFoundException)
+                catch(Exception)
                 {
                     _log.ExternalError($"ObservableSerialPort.EnsureConnection: Unable to connect to {_serialPort.PortName}");
                     continue;
