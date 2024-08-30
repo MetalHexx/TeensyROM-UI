@@ -3,7 +3,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace TeensyRom.Ui.Features.Discover.State.Progress
+namespace TeensyRom.Ui.Core.Progress
 {
     public interface IProgressTimer
     {

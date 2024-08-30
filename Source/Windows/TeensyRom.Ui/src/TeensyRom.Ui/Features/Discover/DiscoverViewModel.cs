@@ -27,7 +27,7 @@ using TeensyRom.Ui.Features.Common.Config;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Discover.State.Player;
-using TeensyRom.Ui.Features.Discover.State.Progress;
+using TeensyRom.Ui.Core.Progress;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 

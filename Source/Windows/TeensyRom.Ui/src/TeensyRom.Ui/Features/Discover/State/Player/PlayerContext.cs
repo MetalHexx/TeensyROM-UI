@@ -33,7 +33,7 @@ using TeensyRom.Ui.Features.Common.Config;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Discover.State.Directory;
-using TeensyRom.Ui.Features.Discover.State.Progress;
+using TeensyRom.Ui.Core.Progress;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using SystemDirectory = System.IO.Directory;

@@ -11,7 +11,7 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Features.Discover.State;
-using TeensyRom.Ui.Features.Discover.State.Progress;
+using TeensyRom.Ui.Core.Progress;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {

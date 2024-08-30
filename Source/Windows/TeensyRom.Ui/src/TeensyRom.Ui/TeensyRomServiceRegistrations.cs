@@ -28,7 +28,7 @@ using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Terminal.SerialCommand;
-using TeensyRom.Ui.Features.Discover.State.Progress;
+using TeensyRom.Ui.Core.Progress;
 using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Core.Storage.Tools.Zip;
