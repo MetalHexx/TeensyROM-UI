@@ -71,7 +71,21 @@ namespace TeensyRom.Core.Serial
                 _log.InternalSuccess($"ObservableSerialPort.EnsureConnection: Successfully connected to {_serialPort.PortName}");
 
                 _log.Internal($"ObservableSerialPort.EnsureConnection: Pinging {_serialPort.PortName} to verify connection to TeensyROM");
-                Write(TeensyByteToken.Ping_Bytes.ToArray(), 0, 2);
+
+                try
+                {
+                    _serialPort.WriteTimeout = 2000;
+                    Write(TeensyByteToken.Ping_Bytes.ToArray(), 0, 2);                    
+                }
+                catch (Exception)
+                {
+                    _log.InternalError($"ObservableSerialPort.EnsureConnection: Timed out connecting to {_serialPort.PortName}");
+                    continue;
+                }
+                finally 
+                {
+                    _serialPort.WriteTimeout = SerialPort.InfiniteTimeout;
+                }
 
                 var ms = 4000;
 
