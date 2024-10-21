@@ -398,7 +398,7 @@ namespace TeensyRom.Core.Serial
         {
             if(!_serialPort.IsOpen) return;
 
-            _log.Internal("ObservableSerialPort.ClearBuffers: Clearing serial I/O buffers");
+            //_log.Internal("ObservableSerialPort.ClearBuffers: Clearing serial I/O buffers");
             _serialPort.DiscardInBuffer();
             _serialPort.DiscardOutBuffer();
         }
