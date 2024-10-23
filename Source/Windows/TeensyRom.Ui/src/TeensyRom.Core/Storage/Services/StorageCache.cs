@@ -156,9 +156,9 @@ namespace TeensyRom.Core.Storage.Services
         {
             if (folder == StorageConstants.Remote_Path_Root) return false;
 
-            return _bannedFolders.Any(b => b.RemoveLeadingAndTrailingSlash().Contains(folder.RemoveLeadingAndTrailingSlash()));
+            return _bannedFolders.Any(b => b.RemoveLeadingAndTrailingSlash().Equals(folder.RemoveLeadingAndTrailingSlash()));
         }
-        private bool IsBannedFile(string fileName) => _bannedFiles.Any(b => b.RemoveLeadingAndTrailingSlash().Contains(fileName.RemoveLeadingAndTrailingSlash()));
+        private bool IsBannedFile(string fileName) => _bannedFiles.Any(b => b.RemoveLeadingAndTrailingSlash().Equals(fileName.RemoveLeadingAndTrailingSlash()));
 
         private StorageCacheItem CleanBadFilesAndFolders(StorageCacheItem cacheItem)
         {
