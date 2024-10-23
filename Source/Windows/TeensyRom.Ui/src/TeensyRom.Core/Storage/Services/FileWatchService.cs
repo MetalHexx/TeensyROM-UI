@@ -95,12 +95,22 @@ namespace TeensyRom.Core.Storage
                 .Select(files => files.Select(f => new FileTransferItem
                 (
                     fileInfo: f,
-                    targetPath: _settings.GetAutoTransferPath(f.Extension.GetFileType()),
+                    targetPath: GetTargetPath(f),
                     targetStorage: _settings.StorageType
                 )))
                 .ObserveOn(Scheduler.Default)
-                .Select(x => Extract(x))                
+                .Select(Extract)
                 .Subscribe(fti => _watchFiles.OnNext(fti.ToList()));
+        }
+
+        private string GetTargetPath(FileInfo file)
+        {
+            return _settings
+                .GetAutoTransferPath(file.Extension.GetFileType())
+                .UnixPathCombine(file.FullName
+                    .Replace(_settings.WatchDirectoryLocation, string.Empty)
+                    .ToUnixPath()
+                    .GetUnixParentPath());
         }
 
         private IEnumerable<FileTransferItem> Extract(IEnumerable<FileTransferItem> files)        
