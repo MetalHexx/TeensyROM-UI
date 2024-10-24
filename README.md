@@ -53,11 +53,14 @@ The application comes bundled with [OneLoad64](https://www.youtube.com/watch?v=l
 ## Search
 Search will make finding specific content very easy with filename/path search for all file types.  Searching for SIDS in the HVSC library has some additional benefits through the integration of STIL song info.  The search will use Artist Name, Song Title and Comments to making finding hidden gems much easier.
 
-## Debug and Serial CLI
-The application features a terminal to show you all of the activity happening on the TR. A command line interface is available for sending Serial commands directly to the hardware.  This is useful for debugging or tinkering with your TR.
-
  ## File Transfer
 Incorporating file drag and drop functionality, you can move files to your SD/USB storage pretty quickly, reducing the need to physically remove them.  Watch file capability allows you to designate a folder on your desktop computer to trigger automatic file transfer and launch on your commodore.
+
+## Reatime Code Testing / SID Composition
+Try using the watch directory by configuring the UI to the location of build / music artifacts and automatically launch them on your Commodore for a true continuous testing environment.
+
+## Debug and Serial CLI
+The application features a terminal to show you all of the activity happening on the TR. A command line interface is available for sending Serial commands directly to the hardware.  This is useful for debugging or tinkering with your TR.
    
 ## Requirements
 - A Commodore 64/128 personal computer
