@@ -101,7 +101,7 @@ The application features a terminal to show you all of the activity happening on
 - Enjoy the ride! Check out [Tips and Tricks](#tips-and-tricks) for additional info.
 
 ## Tips and Tricks
-- One day we'll have better docs here. Maybe never, we'll see how well the UI explains itself. ;)
+- One day we'll have better docs. Maybe never, we'll see how well the UI explains itself. ;)
 - For now, the [demo](https://www.youtube.com/watch?v=cdS4zbQS-TY) goes over the feature set pretty well.
 - Be sure to check out the `Settings` view for some options to better suit your needs.
 - Hover over any UI control (buttons, etc) to get some help text.
@@ -110,7 +110,8 @@ The application features a terminal to show you all of the activity happening on
 - If you're storing a VERY large number of files like HVSC, I recommend doing it the old way with USB/SD. It's simply faster.
 - If you change the contents of the SD or USB storage outside of the UI, be sure to re-index.  Otherwise they'll appear to be missing.
 - If you feel like being adventurous,
-  - Settings that haven't been exposed in the UI here: `\Assets\System\Config\Settings.json`
-  - You can find the index files in `\Assets\System\Cache`
-  - Backup your files before changing them.
+  - Settings that haven't been exposed in the UI are located : `\Assets\System\Config\Settings.json`
+  - If you mess something up, no big deal, just delete your file and it'll restore to factory defaults.
+  - You can find the index files here `\Assets\System\Cache`
+  - Back up your files before changing them 
   - If you want to reset the system, you can delete these .json files, no big deal. They'll be recreated with defaults on the next app startup.
