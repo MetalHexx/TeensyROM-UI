@@ -114,4 +114,3 @@ The application features a terminal to show you all of the activity happening on
   - You can find the index files in `\Assets\System\Cache`
   - Backup your files before changing them.
   - If you want to reset the system, you can delete these .json files, no big deal. They'll be recreated with defaults on the next app startup.
-- Be sure to come back for updated tips and tricks.
