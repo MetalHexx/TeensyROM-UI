@@ -75,7 +75,6 @@ The application features a terminal to show you all of the activity happening on
 ## Installation
 - Install the latest TeensyROM Firmware.  0.5.12 or later is required.
   - Latest firmware (.hex file) found [here](https://github.com/SensoriumEmbedded/TeensyROM/blob/main/bin/TeensyROM/FW_Release_History.md)
-  - The application download is also bundled with the latest validated firmware in the /Assets/Firmware folder 
 - Download the latest [desktop UI application release](https://github.com/MetalHexx/TeensyROM-UI/releases)
 - It comes bundled with NET 8 runtime.
   - If run into issues, try the installing the runtime found [here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
@@ -83,16 +82,16 @@ The application features a terminal to show you all of the activity happening on
 - Make a USB connection between the computer and the micro-SD 
  
 ## Quick Start
-*This quick start guide will get you up and running quickly with little explaintion.  See the [Help Guides](#help-guides) for in-depth feature guidance.*
+*See the [Help Guides](#help-guides) for in-depth feature guidance.*
 - Firstly, ensure your have your TeensyROM SD/USB storage filled with some games and SIDs.
   - HVSC and OneLoad64 are highly recommended to maximize the UI experience.
+- Connect the computer to the micro-USB port on the TeensyROM cartridge.
 - Execute TeensyRom.Ui.exe
 - You will get a Windows Defender / SmartScreen warning.
 - Click `More Info` --> `Run anyway`
   - *This is due to the application not being signed with a certificate authority yet.*
 - _The application will great you with a Tutorial/Wizard to get you started.  If you choose to skip this, see the steps below._
-- Once the app loads, press the `Connect` button.
-  - *Note: The C64 will automatically reset, this is by design.*
+- Once the app loads, it should automatically detect and connect to the correct TeensyROM Cartridge port.  
 - Click on the `Compass` icon in the left navigation menu
 - Click the `Download` icon in the upper right corner of the screen to index all the files on your TR storage.
   - The dialog that pops up will further explain why this is important.  See: [Help Guides](#help-guides)
@@ -100,4 +99,4 @@ The application features a terminal to show you all of the activity happening on
 - Enjoy the ride! For more details on the various features available and how to get the most out of the UI, check out the [Help Guides](#help-guides).
 
 ## Help Guides
-Coming soon.
+One day we'll have some docs here. :) For now, the [demo](https://www.youtube.com/watch?v=cdS4zbQS-TY) goes over the feature set pretty well. 
