@@ -3,6 +3,8 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This use
 
 Inspired by streaming music/video media services, the application comes with the continuous playback, randomization and search capabilities you would expect from one. Your TR effectively becomes a retro-modern streaming service of random entertaining retro content that you never knew existed in your collection.  
 
+[Download Here](https://github.com/MetalHexx/TeensyROM-UI/releases)
+
 ## Demo / Tutorial Video
 <div align="center">
   <a href="https://www.youtube.com/watch?v=cdS4zbQS-TY">
