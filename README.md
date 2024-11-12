@@ -10,7 +10,7 @@ A demonstration of the UI features.  Watch this before you run the app.  App can
     <img src="https://github.com/user-attachments/assets/75af344d-ee5f-42b2-b258-88af4a669743" alt="Watch the video" width="75%">
   </a>
 </div>
-<div align="center">Click preview to watch demo!</div>
+<div align="center">Click preview to watch demo!  Or click [here](https://www.youtube.com/watch?v=cdS4zbQS-TY).</div>
 <br>
 
 ## Screenshots
@@ -65,7 +65,7 @@ Try using the watch directory by configuring the UI to the location of build / m
     <img src="https://github.com/user-attachments/assets/20bdc9d3-f916-4a77-abc2-5c27f38bf7ad" alt="Watch the video" width="75%">
   </a>  
 </div>
-<div align="center">Click preview to watch demo!</div>
+<div align="center">Click preview to watch demo!  Or click [here](https://youtu.be/Lm5OzDft1AQ?si=08C4-TIu80syaVTP).</div>
 <br>
 
 ## Debug and Serial CLI
