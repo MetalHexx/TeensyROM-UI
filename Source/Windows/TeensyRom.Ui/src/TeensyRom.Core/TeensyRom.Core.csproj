@@ -33,7 +33,7 @@
     <None Update="Assets\Music\SidList\SIDlist_79_UTF8.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Assets\Music\SidList\SIDlist_80_UTF8.csv">
+    <None Update="Assets\Music\SidList\SIDlist_81_UTF8.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Assets\Other\Sensorium.png">
@@ -48,6 +48,10 @@
     <None Update="Assets\Tools\Vice\vice-bins.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\Music\SidList\" />
   </ItemGroup>
 
 </Project>
