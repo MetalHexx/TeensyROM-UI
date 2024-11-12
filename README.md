@@ -4,13 +4,12 @@ Command your Commodore 64 / 128 with a modern desktop user experience.  This use
 Inspired by streaming music/video media services, the application comes with the continuous playback, randomization and search capabilities you would expect from one. Your TR effectively becomes a retro-modern streaming service of random entertaining retro content that you never knew existed in your collection.  
 
 ## Demo / Tutorial Video
-A demonstration of the UI features.  Watch this before you run the app.  App can be [downloaded here](https://github.com/MetalHexx/TeensyROM-UI/releases).
+A demonstration of the UI features.  Watch this before you run the app. Click image or [here](https://www.youtube.com/watch?v=cdS4zbQS-TY) to watch demo!  App can be downloaded [here](https://github.com/MetalHexx/TeensyROM-UI/releases).
 <div align="center">
   <a href="https://www.youtube.com/watch?v=cdS4zbQS-TY">
     <img src="https://github.com/user-attachments/assets/75af344d-ee5f-42b2-b258-88af4a669743" alt="Watch the video" width="75%">
   </a>
 </div>
-<div align="center">Click preview to watch demo!  Or click [here](https://www.youtube.com/watch?v=cdS4zbQS-TY).</div>
 <br>
 
 ## Screenshots
@@ -60,12 +59,12 @@ Incorporating file drag and drop functionality, you can move files to your SD/US
 
 ## Realtime Code Testing / SID Composition
 Try using the watch directory by configuring the UI to the location of build / music artifacts and automatically launch them on your Commodore for a true continuous testing environment.
+Click image or [here](https://youtu.be/Lm5OzDft1AQ?si=08C4-TIu80syaVTP) to watch demo!
 <div align="center">
   <a href="https://youtu.be/Lm5OzDft1AQ?si=08C4-TIu80syaVTP">
     <img src="https://github.com/user-attachments/assets/20bdc9d3-f916-4a77-abc2-5c27f38bf7ad" alt="Watch the video" width="75%">
   </a>  
 </div>
-<div align="center">Click preview to watch demo!  Or click [here](https://youtu.be/Lm5OzDft1AQ?si=08C4-TIu80syaVTP).</div>
 <br>
 
 ## Debug and Serial CLI
