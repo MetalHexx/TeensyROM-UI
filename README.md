@@ -13,6 +13,7 @@ A rather detailed demonstration of the UI features.  Watch this before you run i
     <img src="https://github.com/user-attachments/assets/75af344d-ee5f-42b2-b258-88af4a669743" alt="Watch the video" width="75%">
   </a>
 </div>
+<div align="center">Click preview to watch demo!</div>
 <br>
 
 ## Screenshots
@@ -57,11 +58,18 @@ The application comes bundled with [OneLoad64](https://www.youtube.com/watch?v=l
 ## Search
 Search will make finding specific content very easy with filename/path search for all file types.  Searching for SIDS in the HVSC library has some additional benefits through the integration of STIL song info.  The search will use Artist Name, Song Title and Comments to making finding hidden gems much easier.  Type keywords to search.  `+` in front a keyword that is required in the search results.  Double quotes around to search for a match on a phrase.  You can also combine the two.  Example: `Iron Maiden +"Aces High"`
 
- ## File Transfer
+## File Transfer
 Incorporating file drag and drop functionality, you can move files to your SD/USB storage pretty quickly, reducing the need to physically remove them.  Watch file capability allows you to designate a folder on your desktop computer to trigger automatic file transfer and launch on your commodore.
 
-## Reatime Code Testing / SID Composition
+## Realtime Code Testing / SID Composition
 Try using the watch directory by configuring the UI to the location of build / music artifacts and automatically launch them on your Commodore for a true continuous testing environment.
+<div align="center">
+  <a href="https://youtu.be/Lm5OzDft1AQ?si=08C4-TIu80syaVTP">
+    <img src="https://github.com/user-attachments/assets/20bdc9d3-f916-4a77-abc2-5c27f38bf7ad" alt="Watch the video" width="75%">
+  </a>  
+</div>
+<div align="center">Click preview to watch demo!</div>
+<br>
 
 ## Debug and Serial CLI
 The application features a terminal to show you all of the activity happening on the TR. A command line interface is available for sending Serial commands directly to the hardware.  This is useful for debugging or tinkering with your TR.
