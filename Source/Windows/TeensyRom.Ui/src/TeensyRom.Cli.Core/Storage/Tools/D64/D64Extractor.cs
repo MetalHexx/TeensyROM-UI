@@ -2,10 +2,10 @@
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using TeensyRom.Cli.Core.Assets;
 using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Logging;
 using TeensyRom.Cli.Core.Storage.Entities;
+using TeensyRom.Core.Assets;
 
 namespace TeensyRom.Cli.Core.Storage.Tools.D64Extraction
 {

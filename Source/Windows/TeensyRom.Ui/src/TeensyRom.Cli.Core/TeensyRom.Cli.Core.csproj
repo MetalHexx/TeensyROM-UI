@@ -19,4 +19,8 @@
     <PackageReference Include="System.Reactive" Version="6.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TeensyRom.Core\TeensyRom.Core.csproj" />
+  </ItemGroup>
+
 </Project>

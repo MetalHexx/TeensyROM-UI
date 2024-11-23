@@ -4,7 +4,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using TeensyRom.Cli.Core.Assets;
 using TeensyRom.Cli.Core.Commands;
 using TeensyRom.Cli.Core.Commands.DeleteFile;
 using TeensyRom.Cli.Core.Common;
@@ -13,6 +12,7 @@ using TeensyRom.Cli.Core.Logging;
 using TeensyRom.Cli.Core.Music.Sid;
 using TeensyRom.Cli.Core.Settings;
 using TeensyRom.Cli.Core.Storage.Entities;
+using TeensyRom.Core.Assets;
 
 namespace TeensyRom.Cli.Core.Storage.Services
 {

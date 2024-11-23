@@ -220,7 +220,8 @@
           "MediatR": "[12.4.0, )",
           "Newtonsoft.Json": "[13.0.1, )",
           "System.IO.Ports": "[8.0.0, )",
-          "System.Reactive": "[6.0.1, )"
+          "System.Reactive": "[6.0.1, )",
+          "TeensyRom.Core": "[1.0.0, )"
         }
       },
       "teensyrom.core": {

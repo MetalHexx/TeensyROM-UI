@@ -12,7 +12,6 @@ using TeensyRom.Cli.Fonts;
 using TeensyRom.Cli.Helpers;
 using TeensyRom.Cli.Services;
 using TeensyRom.Cli.Core;
-using TeensyRom.Cli.Core.Assets;
 using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Games;
 using TeensyRom.Cli.Core.Logging;
@@ -25,6 +24,7 @@ using TeensyRom.Cli.Core.Settings;
 using TeensyRom.Cli.Core.Storage.Services;
 using AssemblyExtensions = TeensyRom.Cli.Core.Common.AssemblyExtensions;
 using TeensyRom.Cli.Core.Commands.Behaviors;
+using TeensyRom.Core.Assets;
 public class Program
 {
     private static int Main(string[] args)
