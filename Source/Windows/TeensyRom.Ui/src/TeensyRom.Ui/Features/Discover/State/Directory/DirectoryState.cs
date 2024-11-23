@@ -7,8 +7,8 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Windows;
-using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Services;
+using TeensyRom.Ui.Core.Storage.Entities;
+using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
 
 namespace TeensyRom.Ui.Features.Discover.State.Directory

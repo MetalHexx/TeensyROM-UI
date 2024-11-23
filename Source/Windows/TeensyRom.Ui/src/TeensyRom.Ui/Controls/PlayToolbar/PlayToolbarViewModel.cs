@@ -6,10 +6,10 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using TeensyRom.Core.Common;
-using TeensyRom.Core.Logging;
-using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Services;
+using TeensyRom.Ui.Core.Common;
+using TeensyRom.Ui.Core.Logging;
+using TeensyRom.Ui.Core.Storage.Entities;
+using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Core.Progress;
 

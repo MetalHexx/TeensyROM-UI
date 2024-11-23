@@ -1,4 +1,4 @@
-﻿using TeensyRom.Core.Storage.Entities;
+﻿using TeensyRom.Ui.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {

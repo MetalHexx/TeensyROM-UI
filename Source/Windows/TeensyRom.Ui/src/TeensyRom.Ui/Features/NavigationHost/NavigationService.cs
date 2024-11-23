@@ -5,8 +5,8 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Transactions;
-using TeensyRom.Core.Serial;
-using TeensyRom.Core.Serial.State;
+using TeensyRom.Ui.Core.Serial;
+using TeensyRom.Ui.Core.Serial.State;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {

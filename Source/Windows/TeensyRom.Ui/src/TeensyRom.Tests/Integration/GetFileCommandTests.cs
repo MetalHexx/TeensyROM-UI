@@ -5,9 +5,9 @@
 //using System.Linq;
 //using System.Text;
 //using System.Threading.Tasks;
-//using TeensyRom.Core.Commands;
-//using TeensyRom.Core.Commands.GetFile;
-//using TeensyRom.Core.Storage.Entities;
+//using TeensyRom.Ui.Core.Commands;
+//using TeensyRom.Ui.Core.Commands.GetFile;
+//using TeensyRom.Ui.Core.Storage.Entities;
 
 //namespace TeensyRom.Tests.Integration
 //{

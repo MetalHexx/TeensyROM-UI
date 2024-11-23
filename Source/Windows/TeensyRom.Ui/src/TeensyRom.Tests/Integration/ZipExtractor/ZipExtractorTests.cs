@@ -4,9 +4,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Services;
-using TeensyRom.Core.Storage.Tools.Zip;
+using TeensyRom.Ui.Core.Storage.Entities;
+using TeensyRom.Ui.Core.Storage.Services;
+using TeensyRom.Ui.Core.Storage.Tools.Zip;
 
 namespace TeensyRom.Tests.Integration.ZipExtractorTests
 {

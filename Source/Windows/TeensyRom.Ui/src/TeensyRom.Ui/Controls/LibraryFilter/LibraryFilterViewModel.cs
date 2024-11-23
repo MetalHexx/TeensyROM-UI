@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
-using TeensyRom.Core.Settings;
+using TeensyRom.Ui.Core.Settings;
 
 namespace TeensyRom.Ui.Controls.LibraryFilter
 {

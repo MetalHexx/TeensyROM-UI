@@ -209,7 +209,7 @@
           "System.Text.Encodings.Web": "8.0.0"
         }
       },
-      "teensyrom.core": {
+      "teensyrom.ui.core": {
         "type": "Project",
         "dependencies": {
           "Ardalis.SmartEnum": "[7.0.0, )",

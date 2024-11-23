@@ -5,24 +5,24 @@ using System.Windows;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Main;
 using System.Reflection;
-using TeensyRom.Core.Storage;
-using TeensyRom.Core.Settings;
+using TeensyRom.Ui.Core.Storage;
+using TeensyRom.Ui.Core.Settings;
 using System.Reactive.Threading.Tasks;
-using TeensyRom.Core.Serial.State;
+using TeensyRom.Ui.Core.Serial.State;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Threading;
-using TeensyRom.Core.Logging;
+using TeensyRom.Ui.Core.Logging;
 using System.Collections.Generic;
-using TeensyRom.Core.Games;
-using TeensyRom.Core.Music.Sid;
-using TeensyRom.Core.Common;
+using TeensyRom.Ui.Core.Games;
+using TeensyRom.Ui.Core.Music.Sid;
+using TeensyRom.Ui.Core.Common;
 using System.Threading.Tasks;
-using TeensyRom.Core.Music;
-using TeensyRom.Core.Storage.Services;
-using TeensyRom.Core.Assets;
-using TeensyRom.Core.Storage.Tools.D64Extraction;
-using TeensyRom.Core.Storage.Tools.Zip;
+using TeensyRom.Ui.Core.Music;
+using TeensyRom.Ui.Core.Storage.Services;
+using TeensyRom.Ui.Core.Assets;
+using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;
+using TeensyRom.Ui.Core.Storage.Tools.Zip;
 
 namespace TeensyRom.Ui
 {

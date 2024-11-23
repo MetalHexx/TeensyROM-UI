@@ -8,8 +8,8 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using TeensyRom.Core.Commands.SendString;
-using TeensyRom.Core.Serial.State;
+using TeensyRom.Ui.Core.Commands.SendString;
+using TeensyRom.Ui.Core.Serial.State;
 
 namespace TeensyRom.Ui.Features.Terminal.SerialCommand
 {

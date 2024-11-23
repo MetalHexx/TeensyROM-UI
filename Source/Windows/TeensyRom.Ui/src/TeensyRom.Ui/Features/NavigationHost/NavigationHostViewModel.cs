@@ -9,16 +9,16 @@ using TeensyRom.Ui.Features.Help;
 using TeensyRom.Ui.Features.Terminal;
 using TeensyRom.Ui.Features.Settings;
 using MaterialDesignThemes.Wpf;
-using TeensyRom.Core.Storage;
-using TeensyRom.Core.Serial;
+using TeensyRom.Ui.Core.Storage;
+using TeensyRom.Ui.Core.Serial;
 using TeensyRom.Ui.Services;
-using TeensyRom.Core.Serial.State;
+using TeensyRom.Ui.Core.Serial.State;
 using System.Reflection;
 using System;
 using TeensyRom.Ui.Features.Discover;
 using System.Threading.Tasks;
 using System.Windows;
-using TeensyRom.Core.Settings;
+using TeensyRom.Ui.Core.Settings;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {

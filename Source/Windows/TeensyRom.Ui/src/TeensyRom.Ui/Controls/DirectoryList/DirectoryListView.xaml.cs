@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Ui.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryList;
 
 namespace TeensyRom.Ui.Controls.DirectoryList

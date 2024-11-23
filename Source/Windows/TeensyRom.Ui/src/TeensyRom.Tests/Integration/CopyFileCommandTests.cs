@@ -4,10 +4,10 @@
 //using System.Linq;
 //using System.Text;
 //using System.Threading.Tasks;
-//using TeensyRom.Core.Commands;
-//using TeensyRom.Core.Logging;
-//using TeensyRom.Core.Serial;
-//using TeensyRom.Core.Settings;
+//using TeensyRom.Ui.Core.Commands;
+//using TeensyRom.Ui.Core.Logging;
+//using TeensyRom.Ui.Core.Serial;
+//using TeensyRom.Ui.Core.Settings;
 
 //namespace TeensyRom.Tests.Integration
 //{

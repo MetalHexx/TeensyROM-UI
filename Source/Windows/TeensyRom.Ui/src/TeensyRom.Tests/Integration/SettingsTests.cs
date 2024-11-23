@@ -2,9 +2,9 @@
 //using FluentAssertions;
 //using Newtonsoft.Json;
 //using System.Windows.Threading;
-//using TeensyRom.Core.Storage.Entities;
-//using TeensyRom.Core.Logging;
-//using TeensyRom.Core.Settings;
+//using TeensyRom.Ui.Core.Storage.Entities;
+//using TeensyRom.Ui.Core.Logging;
+//using TeensyRom.Ui.Core.Settings;
 //using TeensyRom.Ui.Services;
 
 //namespace TeensyRom.Tests.Integration

@@ -1,10 +1,10 @@
 ﻿using ReactiveUI.Fody.Helpers;
 using System.Collections.Generic;
 using System.Linq;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Ui.Core.Storage.Entities;
 using System.Reactive.Linq;
 using System.Collections.ObjectModel;
-using TeensyRom.Core.Common;
+using TeensyRom.Ui.Core.Common;
 using ReactiveUI;
 
 namespace TeensyRom.Ui.Controls.DirectoryTree

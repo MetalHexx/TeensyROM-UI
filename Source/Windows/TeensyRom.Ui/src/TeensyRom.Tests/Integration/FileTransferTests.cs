@@ -1,5 +1,5 @@
 ﻿//using FluentAssertions;
-//using TeensyRom.Core.Storage.Entities;
+//using TeensyRom.Ui.Core.Storage.Entities;
 
 //namespace TeensyRom.Tests.Integration
 //{

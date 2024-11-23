@@ -6,8 +6,8 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TeensyRom.Core.Settings;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Ui.Core.Settings;
+using TeensyRom.Ui.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Controls.StorageSelector
 {

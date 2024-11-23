@@ -1,0 +1,17 @@
+﻿using MediatR;
+using TeensyRom.Ui.Core.Common;
+using TeensyRom.Ui.Core.Serial;
+using TeensyRom.Ui.Core.Serial.State;
+
+namespace TeensyRom.Ui.Core.Commands
+{
+    public class ToggleMusicHandler(ISerialStateContext _serialState) :  IRequestHandler<ToggleMusicCommand, ToggleMusicResult>
+    {
+        public Task<ToggleMusicResult> Handle(ToggleMusicCommand request, CancellationToken cancellationToken)
+        {
+            _serialState.SendIntBytes(TeensyToken.PauseMusic, 2);
+            _serialState.HandleAck();
+            return Task.FromResult(new ToggleMusicResult());
+        }
+    }
+}

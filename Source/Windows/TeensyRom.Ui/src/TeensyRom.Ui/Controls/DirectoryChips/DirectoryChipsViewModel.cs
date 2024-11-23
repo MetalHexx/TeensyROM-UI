@@ -9,8 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.XPath;
-using TeensyRom.Core.Common;
-using TeensyRom.Core.Storage.Services;
+using TeensyRom.Ui.Core.Common;
+using TeensyRom.Ui.Core.Storage.Services;
 
 namespace TeensyRom.Ui.Controls.DirectoryChips
 {

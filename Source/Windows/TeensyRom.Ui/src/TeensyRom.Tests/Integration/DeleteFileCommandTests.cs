@@ -4,10 +4,10 @@
 //using System.Text;
 //using System.Threading;
 //using System.Threading.Tasks;
-//using TeensyRom.Core.Commands;
-//using TeensyRom.Core.Commands.DeleteFile;
-//using TeensyRom.Core.Common;
-//using TeensyRom.Core.Storage.Entities;
+//using TeensyRom.Ui.Core.Commands;
+//using TeensyRom.Ui.Core.Commands.DeleteFile;
+//using TeensyRom.Ui.Core.Common;
+//using TeensyRom.Ui.Core.Storage.Entities;
 //using Xunit;
 
 //namespace TeensyRom.Tests.Integration

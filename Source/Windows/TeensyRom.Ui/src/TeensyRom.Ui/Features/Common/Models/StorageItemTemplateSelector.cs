@@ -1,7 +1,7 @@
 ﻿using System.Windows.Controls;
 using System.Windows;
-using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Common;
+using TeensyRom.Ui.Core.Storage.Entities;
+using TeensyRom.Ui.Core.Common;
 
 namespace TeensyRom.Ui.Features.Common.Models
 {
