@@ -18,6 +18,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeensyRom.Tests.Unit", "src
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7E3C6ECA-A1A8-446F-A8D0-A662F109F2B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Cli.Core", "src\TeensyRom.Cli.Core\TeensyRom.Cli.Core.csproj", "{F2FF2DDC-B166-48DA-AF43-E461961F6E2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Cli", "src\TeensyRom.Cli\TeensyRom.Cli.csproj", "{ED490479-7230-470C-9413-B33A86F5924E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Cli.Tests", "src\TeensyRom.Cli.Tests\TeensyRom.Cli.Tests.csproj", "{F2DC6CAE-6371-4764-A355-C40BA0A57889}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +46,18 @@ Global
 		{5B6FE7D7-3EEF-4B6F-9EA3-4FD2268C7311}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B6FE7D7-3EEF-4B6F-9EA3-4FD2268C7311}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B6FE7D7-3EEF-4B6F-9EA3-4FD2268C7311}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2FF2DDC-B166-48DA-AF43-E461961F6E2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2FF2DDC-B166-48DA-AF43-E461961F6E2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2FF2DDC-B166-48DA-AF43-E461961F6E2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2FF2DDC-B166-48DA-AF43-E461961F6E2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED490479-7230-470C-9413-B33A86F5924E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED490479-7230-470C-9413-B33A86F5924E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED490479-7230-470C-9413-B33A86F5924E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED490479-7230-470C-9413-B33A86F5924E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2DC6CAE-6371-4764-A355-C40BA0A57889}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2DC6CAE-6371-4764-A355-C40BA0A57889}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2DC6CAE-6371-4764-A355-C40BA0A57889}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2DC6CAE-6371-4764-A355-C40BA0A57889}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

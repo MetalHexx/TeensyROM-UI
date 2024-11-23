@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TeensyRom.Core\TeensyRom.Ui.Core.csproj" />
+    <ProjectReference Include="..\TeensyRom.Cli.Core\TeensyRom.Cli.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
