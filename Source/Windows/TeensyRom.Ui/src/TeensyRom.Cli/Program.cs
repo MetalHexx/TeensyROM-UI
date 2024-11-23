@@ -24,6 +24,7 @@ using TeensyRom.Cli.Core.Serial.State;
 using TeensyRom.Cli.Core.Settings;
 using TeensyRom.Cli.Core.Storage.Services;
 using AssemblyExtensions = TeensyRom.Cli.Core.Common.AssemblyExtensions;
+using TeensyRom.Cli.Core.Commands.Behaviors;
 public class Program
 {
     private static int Main(string[] args)

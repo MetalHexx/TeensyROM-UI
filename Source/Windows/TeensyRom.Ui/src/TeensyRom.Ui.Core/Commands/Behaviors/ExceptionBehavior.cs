@@ -3,10 +3,12 @@ using TeensyRom.Ui.Core.Commands;
 using TeensyRom.Ui.Core.Common;
 using TeensyRom.Ui.Core.Logging;
 
-public class ExceptionBehavior<TRequest, TResponse>(IAlertService alert) : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
-    where TResponse : TeensyCommandResult, new()
-{
+namespace TeensyRom.Ui.Core.Commands.Behaviors
+{ 
+    public class ExceptionBehavior<TRequest, TResponse>(IAlertService alert) : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
+        where TResponse : TeensyCommandResult, new()
+    {
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         TResponse response;
@@ -45,4 +47,5 @@ public class ExceptionBehavior<TRequest, TResponse>(IAlertService alert) : IPipe
             _ when ex.Message.Contains("Cannot perform serial operations in", StringComparison.OrdinalIgnoreCase) => "Error communicating with TeensyROM.\rGo to the terminal to check the logs and connection.",
             _ => $"Unexpected Error: {ex.Message}. See logs."
         };
-}
+    }
+}   

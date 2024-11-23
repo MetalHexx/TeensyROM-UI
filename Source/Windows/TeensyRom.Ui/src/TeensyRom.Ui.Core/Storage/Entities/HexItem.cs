@@ -1,6 +1,5 @@
 ﻿
 using System;
-using TeensyRom.Ui.Core.Assets;
 using TeensyRom.Ui.Core.Games;
 
 namespace TeensyRom.Ui.Core.Storage.Entities

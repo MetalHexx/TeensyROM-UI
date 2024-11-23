@@ -32,6 +32,7 @@ using TeensyRom.Ui.Core.Progress;
 using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Ui.Core.Storage.Tools.Zip;
+using TeensyRom.Ui.Core.Commands.Behaviors;
 
 namespace TeensyRom.Ui
 {

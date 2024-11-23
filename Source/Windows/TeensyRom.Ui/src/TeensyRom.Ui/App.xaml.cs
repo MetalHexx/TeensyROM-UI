@@ -20,7 +20,7 @@ using TeensyRom.Ui.Core.Common;
 using System.Threading.Tasks;
 using TeensyRom.Ui.Core.Music;
 using TeensyRom.Ui.Core.Storage.Services;
-using TeensyRom.Ui.Core.Assets;
+using TeensyRom.Core.Assets;
 using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Ui.Core.Storage.Tools.Zip;
 

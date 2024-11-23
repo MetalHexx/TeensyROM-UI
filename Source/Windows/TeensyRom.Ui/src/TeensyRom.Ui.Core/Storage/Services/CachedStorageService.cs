@@ -9,7 +9,7 @@ using System.Reactive.Subjects;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using TeensyRom.Ui.Core.Assets;
+using TeensyRom.Core.Assets;
 using TeensyRom.Ui.Core.Commands;
 using TeensyRom.Ui.Core.Commands.DeleteFile;
 using TeensyRom.Ui.Core.Commands.File.LaunchFile;

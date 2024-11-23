@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TeensyRom.Cli.Core\TeensyRom.Ui.Core.csproj" />
+    <ProjectReference Include="..\TeensyRom.Core\TeensyRom.Core.csproj" />
     <ProjectReference Include="..\TeensyRom.Ui.Core\TeensyRom.Ui.Core.csproj" />
   </ItemGroup>
 

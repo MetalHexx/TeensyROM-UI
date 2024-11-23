@@ -7,45 +7,49 @@ using TeensyRom.Ui.Core.Common;
 using TeensyRom.Ui.Core.Serial;
 using TeensyRom.Ui.Core.Serial.State;
 
-/// <summary>
-/// Disables the serial read auto-poll behavior for the duration of the command and reneables it after.
-/// </summary>
-public class SerialBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
-    where TResponse : TeensyCommandResult, new()
+namespace TeensyRom.Ui.Core.Commands.Behaviors
 {
-    private readonly ISerialStateContext _serial;
-
-    public SerialBehavior(ISerialStateContext serial)
+    /// <summary>
+    /// Disables the serial read auto-poll behavior for the duration of the command and reneables it after.
+    /// </summary>
+    public class SerialBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
+        where TResponse : TeensyCommandResult, new()
     {
-        _serial = serial;
-    }
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
-    {
-        TResponse response = default!;
-        var currentSerialState = await _serial.CurrentState.FirstAsync();
+        private readonly ISerialStateContext _serial;
 
-        if(currentSerialState is SerialBusyState)
+        public SerialBehavior(ISerialStateContext serial)
         {
-            throw new TeensyBusyException("TR is busy with your previous command.  Try again soon.");
+            _serial = serial;
         }
-        try
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
-            _serial.Lock();
-            _serial.StopHealthCheck();
-            _serial.TransitionTo(typeof(SerialBusyState));                        
-            response = await next();
-        }
-        catch (Exception ex)
-        {
+            TResponse response = default!;
+            var currentSerialState = await _serial.CurrentState.FirstAsync();
+
+            if(currentSerialState is SerialBusyState)
+            {
+                throw new TeensyBusyException("TR is busy with your previous command.  Try again soon.");
+            }
+            try
+            {
+                _serial.Lock();
+                _serial.StopHealthCheck();
+                _serial.TransitionTo(typeof(SerialBusyState));                        
+                response = await next();
+            }
+            catch (Exception ex)
+            {
+                _serial.Unlock();
+                _serial.StartHealthCheck();
+                throw;
+            }
+            _serial.ReadAndLogSerialAsString(300);
             _serial.Unlock();
             _serial.StartHealthCheck();
-            throw;
-        }
-        _serial.ReadAndLogSerialAsString(300);
-        _serial.Unlock();
-        _serial.StartHealthCheck();
 
-        return response;
+            return response;
+        }
     }
 }
+

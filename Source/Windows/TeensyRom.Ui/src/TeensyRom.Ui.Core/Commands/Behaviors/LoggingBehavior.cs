@@ -8,67 +8,71 @@ using TeensyRom.Ui.Core.Commands;
 using TeensyRom.Ui.Core.Common;
 using TeensyRom.Ui.Core.Logging;
 
-public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
-    where TResponse : TeensyCommandResult
+namespace TeensyRom.Ui.Core.Commands.Behaviors
 {
-    private readonly ILoggingService _logService;
-
-    public LoggingBehavior(ILoggingService logService)
+    public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
+        where TResponse : TeensyCommandResult
     {
-        _logService = logService;
-    }
+        private readonly ILoggingService _logService;
 
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
-    {
-        var requestType = typeof(TRequest).Name;
-
-        _logService.Internal($"{requestType} Started {LoggingBehavior<TRequest, TResponse>.FormatRequest(request)}");
-
-        var sw = Stopwatch.StartNew(); 
-
-        var response = await next();
-
-        sw.Stop();
-
-        if (IsSuccess(response))
+        public LoggingBehavior(ILoggingService logService)
         {
-            _logService.InternalSuccess($"{requestType} Completed in {sw.ElapsedMilliseconds}ms {FormatResponse(response)}\n");
+            _logService = logService;
+        }
+
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        {
+            var requestType = typeof(TRequest).Name;
+
+            _logService.Internal($"{requestType} Started {LoggingBehavior<TRequest, TResponse>.FormatRequest(request)}");
+
+            var sw = Stopwatch.StartNew(); 
+
+            var response = await next();
+
+            sw.Stop();
+
+            if (IsSuccess(response))
+            {
+                _logService.InternalSuccess($"{requestType} Completed in {sw.ElapsedMilliseconds}ms {FormatResponse(response)}\n");
+                return response;
+            }
+            
+            _logService.InternalError($"{requestType} Completed {FormatResponse(response)}\n");
+
             return response;
         }
-            
-        _logService.InternalError($"{requestType} Completed {FormatResponse(response)}\n");
 
-        return response;
-    }
-
-    private static string FormatRequest(TRequest request)
-    {
-        if (request == null) return string.Empty;
-
-        var properties = request.GetType().GetProperties();
-        StringBuilder sb = new();
-
-        if (properties.Length == 0) return string.Empty;
-
-        foreach (var property in properties)
+        private static string FormatRequest(TRequest request)
         {
-            if (IsNativeType(property.PropertyType))
+            if (request == null) return string.Empty;
+
+            var properties = request.GetType().GetProperties();
+            StringBuilder sb = new();
+
+            if (properties.Length == 0) return string.Empty;
+
+            foreach (var property in properties)
             {
-                sb.AppendLine($"\r => {property.Name}: {property.GetValue(request)?.ToString() ?? "<null>"}");
+                if (IsNativeType(property.PropertyType))
+                {
+                    sb.AppendLine($"\r => {property.Name}: {property.GetValue(request)?.ToString() ?? "<null>"}");
+                }
             }
+            return sb.ToString().TrimEnd();
         }
-        return sb.ToString().TrimEnd();
+
+        private static bool IsNativeType(Type type)
+        {
+            return type.IsPrimitive || type == typeof(string) || type == typeof(decimal) || type == typeof(DateTime) || type.IsEnum;
+        }
+
+        private string FormatResponse(TResponse response) => string.IsNullOrWhiteSpace(response.Error)
+                ? "(Success)"
+                : $"(Failure) => {response.Error}";
+
+        private bool IsSuccess(TResponse response) => string.IsNullOrWhiteSpace(response.Error);
     }
 
-    private static bool IsNativeType(Type type)
-    {
-        return type.IsPrimitive || type == typeof(string) || type == typeof(decimal) || type == typeof(DateTime) || type.IsEnum;
-    }
-
-    private string FormatResponse(TResponse response) => string.IsNullOrWhiteSpace(response.Error)
-            ? "(Success)"
-            : $"(Failure) => {response.Error}";
-
-    private bool IsSuccess(TResponse response) => string.IsNullOrWhiteSpace(response.Error);
 }
