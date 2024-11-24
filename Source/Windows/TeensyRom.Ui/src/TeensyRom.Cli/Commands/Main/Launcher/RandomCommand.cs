@@ -7,6 +7,7 @@ using TeensyRom.Cli.Core.Logging;
 using TeensyRom.Cli.Core.Serial.State;
 using TeensyRom.Cli.Core.Settings;
 using TeensyRom.Cli.Core.Storage.Services;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Cli.Commands.Main.Launcher
 {

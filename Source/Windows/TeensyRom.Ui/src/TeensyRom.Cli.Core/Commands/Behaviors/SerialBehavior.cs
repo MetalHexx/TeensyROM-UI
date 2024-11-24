@@ -3,9 +3,9 @@ using System.IO.Ports;
 using System.Reactive.Linq;
 using System.Threading;
 using TeensyRom.Cli.Core.Commands;
-using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Serial;
 using TeensyRom.Cli.Core.Serial.State;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Cli.Core.Commands.Behaviors
 {

@@ -1,9 +1,9 @@
 ﻿using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
-using TeensyRom.Cli.Core.Common;
+using TeensyRom.Core.Common;
 
-namespace TeensyRom.Cli.Core.Logging
+namespace TeensyRom.Core.Logging
 {
     public abstract class LoggingService : ILoggingService
     {

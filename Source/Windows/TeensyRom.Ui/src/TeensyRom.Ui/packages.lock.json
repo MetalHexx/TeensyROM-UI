@@ -225,7 +225,10 @@
         }
       },
       "teensyrom.core": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "System.Reactive": "[6.0.1, )"
+        }
       },
       "teensyrom.ui.core": {
         "type": "Project",

@@ -2,8 +2,9 @@
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
-using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Logging;
+using TeensyRom.Core.Common;
+using TeensyRom.Core.Logging;
 using Formatting = Newtonsoft.Json.Formatting;
 
 namespace TeensyRom.Cli.Core.Settings

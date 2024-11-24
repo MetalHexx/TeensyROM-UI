@@ -1,4 +1,4 @@
-﻿using TeensyRom.Cli.Core.Common;
+﻿using TeensyRom.Core.Common;
 
 namespace TeensyRom.Cli.Core.Storage.Entities
 {

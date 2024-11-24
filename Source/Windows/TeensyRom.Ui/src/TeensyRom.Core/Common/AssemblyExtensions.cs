@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace TeensyRom.Cli.Core.Common
+namespace TeensyRom.Core.Common
 {
 
     public static class AssemblyExtensions
@@ -8,8 +8,8 @@ namespace TeensyRom.Cli.Core.Common
         /// <summary>
         /// Get the full path of the assembly
         /// </summary>
-        public static string GetPath(this Assembly assembly) 
-        {                         
+        public static string GetPath(this Assembly assembly)
+        {
             var location = assembly.Location;
             return Path.GetDirectoryName(location) ?? string.Empty;
         }

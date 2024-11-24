@@ -2,8 +2,8 @@
 using Spectre.Console.Cli;
 using System.Reactive.Linq;
 using TeensyRom.Cli.Helpers;
-using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Serial.State;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Cli.Services
 {

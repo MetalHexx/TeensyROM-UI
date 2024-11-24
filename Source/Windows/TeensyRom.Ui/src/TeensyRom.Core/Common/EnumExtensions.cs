@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
 
-namespace TeensyRom.Cli.Core.Common
+namespace TeensyRom.Core.Common
 {
     public static class EnumExtensions
     {
@@ -9,7 +9,7 @@ namespace TeensyRom.Cli.Core.Common
         {
             var field = value.GetType().GetField(value.ToString());
 
-            if(field == null)
+            if (field == null)
             {
                 return value.ToString();
             }

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using TeensyRom.Cli.Core.Commands;
-using TeensyRom.Cli.Core.Common;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Cli.Core.Commands.Behaviors
 {

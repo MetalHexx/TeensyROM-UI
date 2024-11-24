@@ -4,9 +4,10 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
-using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Logging;
 using TeensyRom.Cli.Core.Serial.State;
+using TeensyRom.Core.Common;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Cli.Core.Serial
 {

@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace TeensyRom.Cli.Core.Logging
+namespace TeensyRom.Core.Logging
 {
     public static partial class LogHelper
     {

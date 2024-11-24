@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Serial;
 using TeensyRom.Cli.Core.Serial.State;
 

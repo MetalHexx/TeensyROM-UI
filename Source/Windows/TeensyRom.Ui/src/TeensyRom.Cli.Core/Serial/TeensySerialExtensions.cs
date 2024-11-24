@@ -4,8 +4,8 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Serial.State;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Cli.Core.Serial
 {

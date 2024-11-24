@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TeensyRom.Cli.Core.Common
+namespace TeensyRom.Core.Common
 {
     public static class StringBuilderExtensions
     {
@@ -18,7 +18,7 @@ namespace TeensyRom.Cli.Core.Common
 
             if (availableSpace <= 0) return builder;
 
-            if (value.Length <= availableSpace) 
+            if (value.Length <= availableSpace)
             {
                 builder.Append(value);
                 return builder;

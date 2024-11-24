@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using TeensyRom.Cli.Core.Commands;
 using TeensyRom.Cli.Core.Logging;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Cli.Core.Commands.Behaviors
 {

@@ -1,7 +1,7 @@
 ﻿using System.IO.Compression;
 using System.Reflection;
 
-namespace TeensyRom.Cli.Core.Common
+namespace TeensyRom.Core.Common
 {
     public static class AssetHelper
     {

@@ -5,7 +5,6 @@ using System.Reactive.Subjects;
 using TeensyRom.Cli.Helpers;
 using TeensyRom.Cli.Core.Commands;
 using TeensyRom.Cli.Core.Commands.File.LaunchFile;
-using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Logging;
 using TeensyRom.Cli.Core.Player;
 using TeensyRom.Cli.Core.Progress;
@@ -13,6 +12,8 @@ using TeensyRom.Cli.Core.Serial.State;
 using TeensyRom.Cli.Core.Settings;
 using TeensyRom.Cli.Core.Storage.Entities;
 using TeensyRom.Cli.Core.Storage.Services;
+using TeensyRom.Core.Logging;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Cli.Services
 {
@@ -28,21 +29,17 @@ namespace TeensyRom.Cli.Services
         private readonly ICachedStorageService _storage;
         private readonly IProgressTimer _timer;
         private readonly ISettingsService _settingsService;
-        private readonly ISerialStateContext _serial;
         private readonly ILaunchHistory _randomHistory;
         private readonly IAlertService _alert;
-        private readonly ILoggingService _log;
 
-        public PlayerService(IMediator mediator, ICachedStorageService storage, IProgressTimer progressTimer, ISettingsService settingsService, ISerialStateContext serial, ILaunchHistory history, IAlertService alert, ILoggingService log)
+        public PlayerService(IMediator mediator, ICachedStorageService storage, IProgressTimer progressTimer, ISettingsService settingsService, ISerialStateContext serial, ILaunchHistory history, IAlertService alert)
         {
             _mediator = mediator;
             _storage = storage;
             _timer = progressTimer;
             _settingsService = settingsService;
-            _serial = serial;
             _randomHistory = history;
             _alert = alert;
-            _log = log;
             var settings = settingsService.GetSettings();
 
             _state = new() 

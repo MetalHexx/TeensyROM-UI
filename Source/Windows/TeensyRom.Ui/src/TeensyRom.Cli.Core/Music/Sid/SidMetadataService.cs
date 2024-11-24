@@ -12,9 +12,9 @@ using System.Reflection.Metadata.Ecma335;
 using System.Runtime;
 using System.Security.Cryptography;
 using System.Text;
-using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Settings;
 using TeensyRom.Cli.Core.Storage.Entities;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Cli.Core.Music.Sid
 {

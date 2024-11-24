@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace TeensyRom.Cli.Core.Common
+namespace TeensyRom.Core.Common
 {
     public static class StringExtensions
     {

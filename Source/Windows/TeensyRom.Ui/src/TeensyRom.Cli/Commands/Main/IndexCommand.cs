@@ -5,10 +5,10 @@ using System.ComponentModel;
 using TeensyRom.Cli.Helpers;
 using TeensyRom.Cli.Services;
 using TeensyRom.Cli.Core.Commands;
-using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Serial.State;
 using TeensyRom.Cli.Core.Settings;
 using TeensyRom.Cli.Core.Storage.Services;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Cli.Commands.Main
 {

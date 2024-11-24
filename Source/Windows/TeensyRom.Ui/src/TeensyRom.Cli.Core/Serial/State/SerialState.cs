@@ -1,5 +1,5 @@
 ﻿using System.Reactive;
-using TeensyRom.Cli.Core.Common;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Cli.Core.Serial.State
 {

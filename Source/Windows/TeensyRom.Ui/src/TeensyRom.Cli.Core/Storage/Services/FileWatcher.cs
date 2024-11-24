@@ -2,7 +2,7 @@
 using System.Data;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using TeensyRom.Cli.Core.Common;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Cli.Core.Storage.Services
 {

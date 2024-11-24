@@ -12,10 +12,11 @@ using TeensyRom.Cli.Core.Storage.Entities;
 using TeensyRom.Cli.Core.Storage.Services;
 using System.Windows;
 using System.Reflection;
-using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Commands.GetFile;
 using System.Collections;
 using System.Drawing;
+using TeensyRom.Core.Common;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Cli.Core.Games
 {

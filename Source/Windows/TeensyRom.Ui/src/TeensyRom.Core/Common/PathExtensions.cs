@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
-namespace TeensyRom.Cli.Core.Common
+namespace TeensyRom.Core.Common
 {
     public static class PathExtensions
     {
@@ -149,7 +149,7 @@ namespace TeensyRom.Cli.Core.Common
             {
                 var currentSlice = fullPath.GetRange(i, basePath.Count);
 
-                if (Enumerable.SequenceEqual(currentSlice, basePath))
+                if (currentSlice.SequenceEqual(basePath))
                 {
                     return i;
                 }
@@ -172,7 +172,7 @@ namespace TeensyRom.Cli.Core.Common
             return Regex.IsMatch(path, pattern);
         }
 
-        public static string GetOsFriendlyPath(this string path) 
+        public static string GetOsFriendlyPath(this string path)
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

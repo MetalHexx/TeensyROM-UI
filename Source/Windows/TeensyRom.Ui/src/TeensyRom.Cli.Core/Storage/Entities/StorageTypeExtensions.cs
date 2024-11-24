@@ -4,8 +4,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Serial;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Cli.Core.Storage.Entities
 {

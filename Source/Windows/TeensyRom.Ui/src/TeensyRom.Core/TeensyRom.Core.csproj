@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Reactive" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Assets\Firmware\TeensyROM.0.5.14.hex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

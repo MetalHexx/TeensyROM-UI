@@ -2,8 +2,8 @@
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Runtime;
-using TeensyRom.Cli.Core.Common;
 using TeensyRom.Cli.Core.Storage.Entities;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Cli.Core.Settings
 {
