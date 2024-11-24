@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TeensyRom.Core.Assets;
+using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Common;
 using TeensyRom.Ui.Core.Logging;
 using TeensyRom.Ui.Core.Storage.Entities;

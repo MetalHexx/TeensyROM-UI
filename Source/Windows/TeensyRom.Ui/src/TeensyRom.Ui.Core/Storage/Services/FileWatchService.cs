@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime;
 using System.Runtime.CompilerServices;
+using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Commands;
 using TeensyRom.Ui.Core.Common;
 using TeensyRom.Ui.Core.Logging;
@@ -45,20 +46,18 @@ namespace TeensyRom.Ui.Core.Storage
         private readonly ISerialStateContext _serialState;
         private readonly ID64Extractor _d64Extractor;
         private readonly IZipExtractor _zipExtractor;
-        private readonly ILoggingService _log;
         private readonly IAlertService _alert;
         private TeensySettings _settings = null!;
         private IDisposable? _settingsSubscription = null!;
         private IDisposable? _fileWatchSubscription = null!;
 
-        public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialStateContext serialState, ID64Extractor d64Extractor, IZipExtractor zipExtractor,  ILoggingService log, IAlertService alert)
+        public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialStateContext serialState, ID64Extractor d64Extractor, IZipExtractor zipExtractor,  IAlertService alert)
         {
             _settingsService = settingsService;
             _fileWatcher = fileWatcher;
             _serialState = serialState;
             _d64Extractor = d64Extractor;
             _zipExtractor = zipExtractor;
-            _log = log;
             _alert = alert;
             _settingsSubscription = _settingsService.Settings
                 .Where(s => s is not null)

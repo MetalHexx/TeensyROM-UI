@@ -3,6 +3,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
+using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Common;
 using TeensyRom.Ui.Core.Logging;
 using Formatting = Newtonsoft.Json.Formatting;

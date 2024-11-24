@@ -16,6 +16,7 @@ using TeensyRom.Ui.Core.Common;
 using TeensyRom.Ui.Core.Commands.GetFile;
 using System.Collections;
 using System.Drawing;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui.Core.Games
 {

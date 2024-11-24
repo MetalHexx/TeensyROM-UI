@@ -37,6 +37,7 @@ using TeensyRom.Ui.Core.Progress;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using SystemDirectory = System.IO.Directory;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {

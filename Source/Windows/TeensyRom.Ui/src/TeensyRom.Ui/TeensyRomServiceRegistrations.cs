@@ -33,6 +33,7 @@ using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Ui.Core.Storage.Tools.Zip;
 using TeensyRom.Ui.Core.Commands.Behaviors;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui
 {
@@ -42,7 +43,7 @@ namespace TeensyRom.Ui
         {
             services.AddSingleton(dispatcher);
             services.AddSingleton<INavigationService, NavigationService>();
-            services.AddSingleton<ILoggingService, LoggingService>();
+            services.AddSingleton<ILoggingService, UiLoggingService>();
             services.AddSingleton<IFileWatchService, FileWatchService>();
             services.AddSingleton<IFileWatcher, FileWatcher>();
             services.AddSingleton<ISettingsService, SettingsService>();

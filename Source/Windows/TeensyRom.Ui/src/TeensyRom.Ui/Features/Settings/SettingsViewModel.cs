@@ -18,6 +18,7 @@ using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Helpers.ViewModel;
 using TeensyRom.Ui.Services;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui.Features.Settings
 {

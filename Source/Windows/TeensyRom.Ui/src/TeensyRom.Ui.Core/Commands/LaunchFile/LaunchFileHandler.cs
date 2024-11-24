@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using System.Reactive.Linq;
 using System.Reflection.Metadata.Ecma335;
+using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Common;
 using TeensyRom.Ui.Core.Logging;
 using TeensyRom.Ui.Core.Serial;

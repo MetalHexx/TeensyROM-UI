@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Commands;
 using TeensyRom.Ui.Core.Common;
 using TeensyRom.Ui.Core.Logging;
