@@ -1,9 +1,9 @@
 ﻿using TeensyRom.Core.Common;
 
-namespace TeensyRom.Cli.Core.Storage.Entities
+namespace TeensyRom.Core.Storage.Entities
 {
     public class FileItem : StorageItem, IFileItem
-    {   
+    {
         public virtual string Title { get; set; } = string.Empty;
         public virtual string Creator { get; set; } = string.Empty;
         public virtual string ReleaseInfo { get; set; } = string.Empty;
@@ -18,7 +18,7 @@ namespace TeensyRom.Cli.Core.Storage.Entities
         public string Id => $"{Size}{Path.GetFileNameFromPath()}";
         public TeensyFileType FileType => Path.GetUnixFileExtension().GetFileType();
 
-        
+
 
         public virtual FileItem Clone()
         {
@@ -40,14 +40,14 @@ namespace TeensyRom.Cli.Core.Storage.Entities
             };
         }
 
-        public static IFileItem Create(string remotePath) 
-        { 
+        public static IFileItem Create(string remotePath)
+        {
             var extension = remotePath.ToUnixPath().GetUnixFileExtension();
             var fileType = extension.GetFileType();
 
-            return fileType switch 
+            return fileType switch
             {
-                TeensyFileType.Sid => new SongItem 
+                TeensyFileType.Sid => new SongItem
                 {
                     Path = remotePath,
                     Name = remotePath.GetFileNameFromPath()

@@ -1,21 +1,9 @@
-﻿using MediatR;
-using MediatR.Pipeline;
-using Newtonsoft.Json;
-using System.IO;
+﻿using Newtonsoft.Json;
 using System.Reactive.Linq;
-using System.Runtime;
-using TeensyRom.Cli.Core.Commands;
-using TeensyRom.Cli.Core.Serial.State;
-using TeensyRom.Cli.Core.Settings;
-using TeensyRom.Cli.Core.Storage.Entities;
-using TeensyRom.Cli.Core.Storage.Services;
-using System.Windows;
 using System.Reflection;
-using TeensyRom.Cli.Core.Commands.GetFile;
-using System.Collections;
-using System.Drawing;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Cli.Core.Games
 {

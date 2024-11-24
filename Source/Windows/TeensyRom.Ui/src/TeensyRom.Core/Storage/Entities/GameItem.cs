@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Cli.Core.Storage.Entities
+﻿namespace TeensyRom.Core.Storage.Entities
 {
     public class GameItem : FileItem, ILaunchableItem, IViewableItem
     {
@@ -33,7 +33,7 @@
         }
 
 
-        public override GameItem Clone() => new ()
+        public override GameItem Clone() => new()
         {
             Name = Name,
             Path = Path,

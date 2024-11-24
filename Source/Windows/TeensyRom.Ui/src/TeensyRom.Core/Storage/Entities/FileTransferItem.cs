@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Cli.Core.Storage.Entities
+﻿namespace TeensyRom.Core.Storage.Entities
 {
     /// <summary>
     /// A wrapper around FileInfo that automatically provides information necessary
@@ -27,14 +27,14 @@
             TargetPath = targetPath;
             TargetStorage = targetStorage;
             _fileInfo = new FileInfo(sourcePath);
-            GetBinaryFileData(SourcePath);            
+            GetBinaryFileData(SourcePath);
         }
 
         public FileTransferItem(FileInfo fileInfo, string targetPath, TeensyStorageType targetStorage)
         {
             TargetPath = targetPath;
             TargetStorage = targetStorage;
-            _fileInfo = fileInfo;            
+            _fileInfo = fileInfo;
             GetBinaryFileData(SourcePath);
         }
 

@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Cli.Core.Storage.Entities
+﻿namespace TeensyRom.Core.Storage.Entities
 {
     public class HexItem : FileItem, ILaunchableItem, IViewableItem
     {

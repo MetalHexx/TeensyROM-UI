@@ -1,6 +1,6 @@
-﻿namespace TeensyRom.Cli.Core.Storage.Entities
+﻿namespace TeensyRom.Core.Storage.Entities
 {
-    public interface IFileItem: IStorageItem
+    public interface IFileItem : IStorageItem
     {
         TeensyFileType FileType { get; }
         string Id { get; }

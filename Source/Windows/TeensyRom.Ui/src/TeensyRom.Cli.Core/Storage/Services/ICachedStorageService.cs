@@ -1,6 +1,5 @@
 ﻿using TeensyRom.Cli.Core.Commands;
-using TeensyRom.Cli.Core.Commands.DeleteFile;
-using TeensyRom.Cli.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Cli.Core.Storage.Services
 {

@@ -1,7 +1,7 @@
 ﻿
 using System.Reflection;
 
-namespace TeensyRom.Cli.Core.Storage.Entities
+namespace TeensyRom.Core.Storage.Entities
 {
     public class ImageItem : FileItem, ILaunchableItem
     {
@@ -9,9 +9,9 @@ namespace TeensyRom.Cli.Core.Storage.Entities
         public override string Description => GetExtensionLongDescription();
         public override string Title => $"{Name[..Name.LastIndexOf('.')]}";
         public override string Meta1 => Name[(Name.LastIndexOf('.') + 1)..];
-        public TimeSpan PlayLength { get; set; } =  TimeSpan.FromMinutes(1);
+        public TimeSpan PlayLength { get; set; } = TimeSpan.FromMinutes(1);
 
-        private string GetExtensionShortDescription() 
+        private string GetExtensionShortDescription()
         {
             return FileType switch
             {

@@ -19,6 +19,7 @@ using Microsoft.Reactive.Testing;
 using System;
 using TeensyRom.Cli.Core.Commands;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Cli.Tests
 {

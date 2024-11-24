@@ -9,10 +9,10 @@ using TeensyRom.Cli.Core.Player;
 using TeensyRom.Cli.Core.Progress;
 using TeensyRom.Cli.Core.Serial.State;
 using TeensyRom.Cli.Core.Settings;
-using TeensyRom.Cli.Core.Storage.Entities;
 using TeensyRom.Cli.Core.Storage.Services;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Cli.Services
 {

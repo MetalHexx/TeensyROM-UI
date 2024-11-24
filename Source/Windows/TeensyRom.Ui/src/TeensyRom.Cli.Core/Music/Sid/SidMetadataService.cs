@@ -1,20 +1,11 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
-using Microsoft.VisualBasic;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime;
-using System.Security.Cryptography;
 using System.Text;
 using TeensyRom.Cli.Core.Settings;
-using TeensyRom.Cli.Core.Storage.Entities;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Cli.Core.Music.Sid
 {

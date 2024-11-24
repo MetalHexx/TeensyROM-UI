@@ -9,10 +9,10 @@ using TeensyRom.Cli.Core.Commands.DeleteFile;
 using TeensyRom.Cli.Core.Games;
 using TeensyRom.Cli.Core.Music.Sid;
 using TeensyRom.Cli.Core.Settings;
-using TeensyRom.Cli.Core.Storage.Entities;
 using TeensyRom.Core.Assets;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Cli.Core.Storage.Services
 {

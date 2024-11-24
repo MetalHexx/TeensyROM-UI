@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using TeensyRom.Cli.Core.Serial;
 using TeensyRom.Cli.Core.Serial.State;
-using TeensyRom.Cli.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Cli.Core.Commands
 {

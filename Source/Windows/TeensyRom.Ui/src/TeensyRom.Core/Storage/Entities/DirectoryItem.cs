@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace TeensyRom.Cli.Core.Storage.Entities
+namespace TeensyRom.Core.Storage.Entities
 {
-    public class DirectoryItem : StorageItem 
+    public class DirectoryItem : StorageItem
     {
         public DirectoryItem Clone() => new DirectoryItem
         {

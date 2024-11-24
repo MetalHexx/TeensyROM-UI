@@ -1,9 +1,5 @@
-﻿using Microsoft.VisualBasic;
-using Newtonsoft.Json;
-using System.ComponentModel;
-using System.Runtime;
-using TeensyRom.Cli.Core.Storage.Entities;
-using TeensyRom.Core.Common;
+﻿using TeensyRom.Core.Common;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Cli.Core.Settings
 {

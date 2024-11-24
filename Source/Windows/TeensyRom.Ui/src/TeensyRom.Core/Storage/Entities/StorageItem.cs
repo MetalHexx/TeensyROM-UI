@@ -2,12 +2,12 @@
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace TeensyRom.Cli.Core.Storage.Entities
+namespace TeensyRom.Core.Storage.Entities
 {
     public class StorageItem : INotifyPropertyChanged, IStorageItem
     {
         public string Name { get; set; } = string.Empty;
-        public string Path { get; set; } = string.Empty;        
+        public string Path { get; set; } = string.Empty;
         public long Size { get; set; }
 
         private bool _isSelected;

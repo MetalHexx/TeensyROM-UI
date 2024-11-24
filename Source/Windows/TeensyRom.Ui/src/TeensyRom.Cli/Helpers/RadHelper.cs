@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
 using Spectre.Console;
-using TeensyRom.Cli.Core.Storage.Entities;
 using TeensyRom.Core.Common;
 
 namespace TeensyRom.Cli.Helpers
