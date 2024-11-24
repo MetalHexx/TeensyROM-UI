@@ -1,6 +1,6 @@
 ﻿using TeensyRom.Ui.Core.Commands;
 using TeensyRom.Ui.Core.Commands.DeleteFile;
-using TeensyRom.Ui.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Core.Storage.Services
 {

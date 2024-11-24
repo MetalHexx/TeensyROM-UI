@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Reactive.Linq;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Entities;
 using System.Reflection;
 using TeensyRom.Core.Common;
 

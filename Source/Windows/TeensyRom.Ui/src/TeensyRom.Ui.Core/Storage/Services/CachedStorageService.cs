@@ -12,7 +12,7 @@ using TeensyRom.Ui.Core.Games;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Music.Sid;
 using TeensyRom.Ui.Core.Settings;
-using TeensyRom.Ui.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Core.Storage.Services
 {

@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Windows;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Storage.Entities;
 using TeensyRom.Ui.Services;
 using TeensyRom.Ui.Controls.Paging;
 using File = System.IO.File;
 using DragNDropFile = TeensyRom.Ui.Features.Common.Models.DragNDropFile;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Controls.DirectoryList
 {

@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using System.Windows.Documents;
 using TeensyRom.Ui.Core.Settings;
-using TeensyRom.Ui.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
-using TeensyRom.Ui.Features.Discover.State;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {

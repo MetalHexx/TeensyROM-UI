@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using TeensyRom.Core.Assets;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Core.Storage.Tools.D64Extraction
 {

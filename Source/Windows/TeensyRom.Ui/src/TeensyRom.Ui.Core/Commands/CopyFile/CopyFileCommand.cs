@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using TeensyRom.Ui.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Core.Commands
 {

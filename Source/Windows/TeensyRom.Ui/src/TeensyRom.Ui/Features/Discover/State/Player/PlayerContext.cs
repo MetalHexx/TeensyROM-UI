@@ -17,7 +17,6 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Serial.State;
 using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Core.Storage;
-using TeensyRom.Ui.Core.Storage.Entities;
 using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Ui.Core.Storage.Tools.Zip;
@@ -28,6 +27,7 @@ using TeensyRom.Ui.Core.Progress;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using SystemDirectory = System.IO.Directory;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {

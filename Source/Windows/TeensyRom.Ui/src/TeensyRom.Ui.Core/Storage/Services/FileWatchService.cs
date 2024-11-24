@@ -5,7 +5,7 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Core.Common;
 using TeensyRom.Ui.Core.Serial.State;
 using TeensyRom.Ui.Core.Settings;
-using TeensyRom.Ui.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Ui.Core.Storage.Tools.Zip;

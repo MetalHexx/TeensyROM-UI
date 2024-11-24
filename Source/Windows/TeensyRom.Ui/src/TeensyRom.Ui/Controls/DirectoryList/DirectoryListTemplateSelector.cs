@@ -1,7 +1,6 @@
 ﻿using System.Windows.Controls;
 using System.Windows;
-using TeensyRom.Ui.Core.Storage.Entities;
-using TeensyRom.Core.Common;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Controls.DirectoryList
 {

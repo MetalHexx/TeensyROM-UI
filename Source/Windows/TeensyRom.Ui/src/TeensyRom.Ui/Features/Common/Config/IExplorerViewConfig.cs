@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using TeensyRom.Ui.Core.Settings;
-using TeensyRom.Ui.Core.Storage.Entities;
-using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Features.NavigationHost;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Features.Common.Config
 {

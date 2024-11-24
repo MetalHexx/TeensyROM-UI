@@ -4,17 +4,12 @@ using System.Windows.Media.Imaging;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System.Reactive.Linq;
-using System.Diagnostics;
 using System.Windows;
 using TeensyRom.Ui.Core.Games;
-using TeensyRom.Ui.Core.Storage.Entities;
-using System.Collections;
 using System.Collections.ObjectModel;
-using TeensyRom.Core.Common;
-using System.Drawing;
-using System.Collections.Generic;
 using System.Linq;
 using TeensyRom.Ui.Features.Discover.State.Player;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Controls.FileInfo
 {

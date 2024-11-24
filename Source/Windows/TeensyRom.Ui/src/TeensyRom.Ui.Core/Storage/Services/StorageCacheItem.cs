@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using TeensyRom.Core.Common;
-using TeensyRom.Ui.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Core.Storage.Services
 {

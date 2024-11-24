@@ -1,7 +1,6 @@
 ﻿using NSubstitute;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
-using TeensyRom.Cli.Core.Storage.Entities;
 using MediatR;
 using TeensyRom.Cli.Core.Storage.Services;
 using TeensyRom.Cli.Core.Progress;
@@ -13,10 +12,6 @@ using TeensyRom.Cli.Core.Player;
 using System.Reactive.Subjects;
 using Unit = System.Reactive.Unit;
 using TeensyRom.Cli.Services;
-using System.Reactive;
-using System.Threading.Tasks;
-using Microsoft.Reactive.Testing;
-using System;
 using TeensyRom.Cli.Core.Commands;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;

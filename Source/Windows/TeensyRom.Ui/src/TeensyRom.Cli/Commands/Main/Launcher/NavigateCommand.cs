@@ -147,8 +147,8 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
 
         public List<DirectoryItem> PrepareDirectories(List<DirectoryItem> directories)
         {
-            return directories
-                .Select(d => d.Clone())
+            return directories                
+                .Select(d => d.Clone() as DirectoryItem)
                 .Select(d =>
                 {
                     d.Name = $"/{d.Name}";

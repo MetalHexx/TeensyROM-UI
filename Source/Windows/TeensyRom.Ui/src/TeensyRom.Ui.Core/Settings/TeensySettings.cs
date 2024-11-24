@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Runtime;
 using TeensyRom.Core.Common;
-using TeensyRom.Ui.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Core.Settings
 {

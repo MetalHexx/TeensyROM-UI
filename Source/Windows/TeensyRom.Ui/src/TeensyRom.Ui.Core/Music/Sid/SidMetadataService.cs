@@ -14,7 +14,7 @@ using System.Security.Cryptography;
 using System.Text;
 using TeensyRom.Core.Common;
 using TeensyRom.Ui.Core.Settings;
-using TeensyRom.Ui.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Core.Music.Sid
 {

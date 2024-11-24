@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Ui.Core.Storage.Entities
+﻿namespace TeensyRom.Core.Storage.Entities
 {
     public class ExtractionResult
     {
