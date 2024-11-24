@@ -2,7 +2,6 @@
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Logging;
 
 namespace TeensyRom.Ui.Core.Serial.State
 {

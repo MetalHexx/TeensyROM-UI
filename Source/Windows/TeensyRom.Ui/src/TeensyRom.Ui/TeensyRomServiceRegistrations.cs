@@ -1,8 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using TeensyRom.Ui.Core.Commands.File.LaunchFile;
-using TeensyRom.Ui.Core.Commands;
-using TeensyRom.Ui.Core.Logging;
-using TeensyRom.Ui.Core.Music;
+using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Serial;
 using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Core.Storage;
@@ -13,18 +10,12 @@ using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Settings;
 using TeensyRom.Ui.Main;
 using TeensyRom.Ui.Core;
-using System.Windows;
 using System.Windows.Threading;
 using MediatR;
 using TeensyRom.Ui.Core.Music.Sid;
-using TeensyRom.Ui.Core.Storage.Entities;
 using TeensyRom.Ui.Services;
 using TeensyRom.Ui.Core.Serial.State;
 using TeensyRom.Ui.Core.Games;
-using TeensyRom.Ui.Controls.DirectoryTree;
-using TeensyRom.Ui.Controls.DirectoryChips;
-using TeensyRom.Ui.Controls.Search;
-using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Terminal.SerialCommand;
@@ -33,7 +24,6 @@ using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Ui.Core.Storage.Tools.Zip;
 using TeensyRom.Ui.Core.Commands.Behaviors;
-using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui
 {

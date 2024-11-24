@@ -1,5 +1,4 @@
 ﻿using System.Reactive;
-using TeensyRom.Ui.Core.Logging;
 
 namespace TeensyRom.Ui.Core.Serial.State
 {

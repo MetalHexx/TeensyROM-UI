@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reactive;
 using TeensyRom.Ui.Core.Common;
-using TeensyRom.Ui.Core.Logging;
 
 namespace TeensyRom.Ui.Core.Serial.State
 {

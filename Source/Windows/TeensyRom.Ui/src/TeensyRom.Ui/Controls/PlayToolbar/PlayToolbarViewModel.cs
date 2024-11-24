@@ -7,7 +7,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using TeensyRom.Ui.Core.Common;
-using TeensyRom.Ui.Core.Logging;
+using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Storage.Entities;
 using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Features.Discover.State;

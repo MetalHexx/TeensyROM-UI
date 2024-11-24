@@ -4,16 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Windows;
-using TeensyRom.Ui.Core.Logging;
+using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Storage.Entities;
 using TeensyRom.Ui.Services;
-using System.CodeDom.Compiler;
 using TeensyRom.Ui.Controls.Paging;
-using TeensyRom.Ui.Features.Common.Models;
 using File = System.IO.File;
 using DragNDropFile = TeensyRom.Ui.Features.Common.Models.DragNDropFile;
 

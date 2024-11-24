@@ -1,8 +1,4 @@
 ﻿using MediatR;
-using System.IO;
-using System.IO.Ports;
-using System.Runtime;
-using TeensyRom.Ui.Core.Logging;
 using TeensyRom.Ui.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Core.Commands

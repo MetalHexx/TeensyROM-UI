@@ -1,10 +1,9 @@
 ﻿using MediatR;
-using TeensyRom.Ui.Core.Commands;
 using TeensyRom.Ui.Core.Common;
-using TeensyRom.Ui.Core.Logging;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui.Core.Commands.Behaviors
-{ 
+{
     public class ExceptionBehavior<TRequest, TResponse>(IAlertService alert) : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
         where TResponse : TeensyCommandResult, new()

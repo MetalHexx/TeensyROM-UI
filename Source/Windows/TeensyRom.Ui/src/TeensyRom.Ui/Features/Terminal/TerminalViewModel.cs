@@ -1,30 +1,19 @@
-﻿using DynamicData;
-using DynamicData.Kernel;
-using MediatR;
+﻿using MediatR;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data;
-using System.IO.Ports;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 using TeensyRom.Ui.Core.Commands;
-using TeensyRom.Ui.Core.Logging;
-using TeensyRom.Ui.Core.Serial;
+using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Serial.State;
 using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Features.Terminal.SerialCommand;
-using TeensyRom.Ui.Helpers.ViewModel;
 using TeensyRom.Ui.Services;
-using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui.Features.Terminal
 {

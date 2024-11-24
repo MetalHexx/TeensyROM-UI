@@ -1,12 +1,9 @@
 ﻿using MediatR;
 using System.Reactive.Linq;
-using System.Reflection.Metadata.Ecma335;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Common;
-using TeensyRom.Ui.Core.Logging;
 using TeensyRom.Ui.Core.Serial;
 using TeensyRom.Ui.Core.Serial.State;
-using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Core.Commands.File.LaunchFile

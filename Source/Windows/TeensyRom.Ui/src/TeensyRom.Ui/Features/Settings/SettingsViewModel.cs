@@ -2,23 +2,14 @@
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Threading;
 using TeensyRom.Ui.Core.Common;
-using TeensyRom.Ui.Core.Logging;
+using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Settings;
-using TeensyRom.Ui.Core.Storage.Entities;
-using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Helpers.ViewModel;
-using TeensyRom.Ui.Services;
-using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui.Features.Settings
 {

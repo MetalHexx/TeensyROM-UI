@@ -1,7 +1,7 @@
 ﻿using MaterialDesignThemes.Wpf;
 using System;
 using System.Windows.Threading;
-using TeensyRom.Ui.Core.Logging;
+using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Ui.Services
 {

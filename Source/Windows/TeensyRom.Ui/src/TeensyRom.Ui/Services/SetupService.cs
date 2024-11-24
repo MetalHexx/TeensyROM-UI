@@ -1,19 +1,14 @@
 ﻿using ReactiveUI;
 using System;
-using System.Collections.Generic;
-using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
-using TeensyRom.Ui.Core.Logging;
+using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Serial.State;
 using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Core.Storage.Entities;
 using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Features.Discover;
-using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Ui.Features.NavigationHost;
 
