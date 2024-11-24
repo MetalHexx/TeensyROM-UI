@@ -13,7 +13,6 @@ using TeensyRom.Cli.Helpers;
 using TeensyRom.Cli.Services;
 using TeensyRom.Cli.Core;
 using TeensyRom.Cli.Core.Games;
-using TeensyRom.Cli.Core.Logging;
 using TeensyRom.Cli.Core.Music;
 using TeensyRom.Cli.Core.Music.Sid;
 using TeensyRom.Cli.Core.Progress;

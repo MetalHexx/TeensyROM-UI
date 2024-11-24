@@ -5,7 +5,6 @@ using System.IO;
 using System.Reactive.Linq;
 using System.Runtime;
 using TeensyRom.Cli.Core.Commands;
-using TeensyRom.Cli.Core.Logging;
 using TeensyRom.Cli.Core.Serial.State;
 using TeensyRom.Cli.Core.Settings;
 using TeensyRom.Cli.Core.Storage.Entities;

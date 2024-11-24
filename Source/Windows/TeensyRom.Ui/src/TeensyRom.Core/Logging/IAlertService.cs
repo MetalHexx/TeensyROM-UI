@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Cli.Core.Logging
+﻿namespace TeensyRom.Core.Logging
 {
     public interface IAlertService
     {

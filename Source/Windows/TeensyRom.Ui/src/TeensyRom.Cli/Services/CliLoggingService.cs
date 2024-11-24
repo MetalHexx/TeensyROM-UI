@@ -2,7 +2,6 @@
 using System.Reactive.Linq;
 using System.Text;
 using TeensyRom.Cli.Helpers;
-using TeensyRom.Cli.Core.Logging;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Common;
 

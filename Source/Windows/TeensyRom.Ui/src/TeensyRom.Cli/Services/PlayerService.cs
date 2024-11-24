@@ -5,7 +5,6 @@ using System.Reactive.Subjects;
 using TeensyRom.Cli.Helpers;
 using TeensyRom.Cli.Core.Commands;
 using TeensyRom.Cli.Core.Commands.File.LaunchFile;
-using TeensyRom.Cli.Core.Logging;
 using TeensyRom.Cli.Core.Player;
 using TeensyRom.Cli.Core.Progress;
 using TeensyRom.Cli.Core.Serial.State;

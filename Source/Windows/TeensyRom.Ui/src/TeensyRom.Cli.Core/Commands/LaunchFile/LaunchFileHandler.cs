@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using System.Reactive.Linq;
-using TeensyRom.Cli.Core.Logging;
 using TeensyRom.Cli.Core.Serial;
 using TeensyRom.Cli.Core.Serial.State;
 using TeensyRom.Cli.Core.Storage.Entities;

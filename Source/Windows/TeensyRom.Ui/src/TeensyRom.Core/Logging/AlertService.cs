@@ -1,7 +1,7 @@
 ﻿using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace TeensyRom.Cli.Core.Logging
+namespace TeensyRom.Core.Logging
 {
     public class AlertService : IAlertService
     {

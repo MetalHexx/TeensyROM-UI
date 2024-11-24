@@ -8,7 +8,6 @@ using System.Reactive.Subjects;
 using System.Runtime;
 using System.Runtime.CompilerServices;
 using TeensyRom.Cli.Core.Commands;
-using TeensyRom.Cli.Core.Logging;
 using TeensyRom.Cli.Core.Serial;
 using TeensyRom.Cli.Core.Serial.State;
 using TeensyRom.Cli.Core.Settings;

@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using TeensyRom.Cli.Core.Logging;
 using TeensyRom.Cli.Core.Storage.Entities;
 using TeensyRom.Core.Assets;
 using TeensyRom.Core.Common;
