@@ -1,4 +1,6 @@
-﻿namespace TeensyRom.Cli.Core.Serial.State
+﻿using TeensyRom.Core.Serial;
+
+namespace TeensyRom.Core.Serial.State
 {
     public class SerialBusyState(IObservableSerialPort _serialPort) : SerialState(_serialPort)
     {
@@ -10,7 +12,7 @@
         }
         public override int BytesToRead => _serialPort.BytesToRead;
         public override void Write(string text) => _serialPort.Write(text);
-        public override void Write(byte[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);   
+        public override void Write(byte[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);
         public override void Write(char[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);
         public override void SendIntBytes(uint intToSend, short numBytes) => _serialPort.SendIntBytes(intToSend, numBytes);
         public override uint ReadIntBytes(short byteLength) => _serialPort.ReadIntBytes(byteLength);

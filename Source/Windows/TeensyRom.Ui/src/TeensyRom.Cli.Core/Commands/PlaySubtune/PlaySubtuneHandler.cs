@@ -1,12 +1,6 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TeensyRom.Cli.Core.Commands.File.LaunchFile;
-using TeensyRom.Cli.Core.Serial.State;
-using TeensyRom.Cli.Core.Serial;
+using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Cli.Core.Commands.PlaySubtune
 {

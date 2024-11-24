@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace TeensyRom.Cli.Core.Serial
+namespace TeensyRom.Core.Serial
 {
     public static class TeensyByteToken
     {

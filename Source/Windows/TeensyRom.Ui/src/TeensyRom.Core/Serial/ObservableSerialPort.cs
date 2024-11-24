@@ -4,11 +4,11 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
-using TeensyRom.Cli.Core.Serial.State;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
+using TeensyRom.Core.Serial.State;
 
-namespace TeensyRom.Cli.Core.Serial
+namespace TeensyRom.Core.Serial
 {
     /// <summary>
     /// Serial port wrapper to provide access to serial port operations.
@@ -18,7 +18,7 @@ namespace TeensyRom.Cli.Core.Serial
     public class ObservableSerialPort(ILoggingService _log, IAlertService _alert) : IObservableSerialPort
     {
         public IObservable<Type> State => _state.AsObservable();
-        public IObservable<string[]> Ports => _ports.AsObservable();       
+        public IObservable<string[]> Ports => _ports.AsObservable();
 
         private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         private readonly BehaviorSubject<Type> _state = new(typeof(SerialStartState));
@@ -44,7 +44,7 @@ namespace TeensyRom.Cli.Core.Serial
         }
 
         public void EnsureConnection()
-        {            
+        {
             if (_serialPort.IsOpen) return;
 
             Lock();
@@ -62,16 +62,16 @@ namespace TeensyRom.Cli.Core.Serial
                 _log.Internal($"ObservableSerialPort.EnsureConnection: Attempting to open {_serialPort.PortName}");
 
                 try
-                {                     
+                {
                     _serialPort.Open();
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     _log.ExternalError($"ObservableSerialPort.EnsureConnection: Unable to connect to {_serialPort.PortName}");
                     continue;
                 }
                 if (!_serialPort.IsOpen) continue;
-                                
+
                 _log.InternalSuccess($"ObservableSerialPort.EnsureConnection: Successfully connected to {_serialPort.PortName}");
 
                 _log.Internal($"ObservableSerialPort.EnsureConnection: Pinging {_serialPort.PortName} to verify connection to TeensyROM");
@@ -105,7 +105,7 @@ namespace TeensyRom.Cli.Core.Serial
                     _log.ExternalError($"ObservableSerialPort.EnsureConnection: PING failed -- TeensyROM was not detected on {_serialPort.PortName}");
                     continue;
                 }
-                if(response.Contains("minimal", StringComparison.OrdinalIgnoreCase))
+                if (response.Contains("minimal", StringComparison.OrdinalIgnoreCase))
                 {
                     _alert.Publish($"Detected TeensyROM minimal mode. You've been reconnected to {_serialPort.PortName}.");
                 }
@@ -116,7 +116,7 @@ namespace TeensyRom.Cli.Core.Serial
                 _log.Internal($"ObservableSerialPort.EnsureConnection: PING succeeded");
 
                 _firstConnection = false;
-                
+
                 ReadAndLogStaleBuffer();
                 Unlock();
                 return;
@@ -134,12 +134,12 @@ namespace TeensyRom.Cli.Core.Serial
             return Unit.Default;
         }
 
-        public void StartHealthCheck() 
+        public void StartHealthCheck()
         {
             _healthCheckSubscription?.Dispose();
 
             try
-            {   
+            {
                 EnsureConnection();
 
                 if (_serialPort.IsOpen)
@@ -161,7 +161,7 @@ namespace TeensyRom.Cli.Core.Serial
                     {
                         if (_serialPort.IsOpen)
                         {
-                            if (_state.Value != typeof(SerialConnectedState)) 
+                            if (_state.Value != typeof(SerialConnectedState))
                             {
                                 _state.OnNext(typeof(SerialConnectedState));
                             }
@@ -171,7 +171,7 @@ namespace TeensyRom.Cli.Core.Serial
                             && _state.Value != typeof(SerialConnectionLostState)
                             && _state.Value != typeof(SerialStartState);
 
-                        if (showDisconnectedMessage) 
+                        if (showDisconnectedMessage)
                         {
                             //_alert.Publish($"Connection to {_serialPort.PortName} was lost.");
                         }
@@ -230,7 +230,7 @@ namespace TeensyRom.Cli.Core.Serial
                     var currentHasPorts = currentPorts.Length > 0;
 
                     if (currentPorts.Length == 0)
-                    {                        
+                    {
                         _log.InternalError($"Failed to find connectable ports.  Check your USB connection to the TeensyROM cart and make sure your C64 is turned on.");
                         _state.OnNext(typeof(SerialStartState));
                     }
@@ -240,7 +240,7 @@ namespace TeensyRom.Cli.Core.Serial
                         _state.OnNext(typeof(SerialConnectableState));
                     }
                     return currentPorts;
-                })                
+                })
                 .Subscribe(_ports.OnNext);
         }
 
@@ -300,7 +300,7 @@ namespace TeensyRom.Cli.Core.Serial
         {
             var dataString = ReadSerialAsString(msToWait);
 
-            if (!string.IsNullOrWhiteSpace(dataString)) 
+            if (!string.IsNullOrWhiteSpace(dataString))
             {
                 _log.External($"{dataString}");
             }
@@ -353,7 +353,7 @@ namespace TeensyRom.Cli.Core.Serial
             // Reconstruct the uint value in little-endian order
             for (short byteNum = 0; byteNum < byteLength; byteNum++)
             {
-                result |= (uint)(receivedBytes[byteNum] << (8 * byteNum));
+                result |= (uint)(receivedBytes[byteNum] << 8 * byteNum);
             }
 
             return result;
@@ -381,7 +381,7 @@ namespace TeensyRom.Cli.Core.Serial
             var bytes = ReadSerialBytes();
             var log = ToLogString(bytes);
 
-            if(string.IsNullOrWhiteSpace(log)) return;  
+            if (string.IsNullOrWhiteSpace(log)) return;
 
             _log.External(log);
         }
@@ -404,7 +404,7 @@ namespace TeensyRom.Cli.Core.Serial
 
         public void ClearBuffers()
         {
-            if(!_serialPort.IsOpen) return;
+            if (!_serialPort.IsOpen) return;
 
             _log.Internal("ObservableSerialPort.ClearBuffers: Clearing serial I/O buffers");
             _serialPort.DiscardInBuffer();

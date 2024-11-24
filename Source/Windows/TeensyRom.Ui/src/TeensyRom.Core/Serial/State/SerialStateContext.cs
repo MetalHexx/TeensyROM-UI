@@ -1,8 +1,9 @@
 ﻿using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using TeensyRom.Core.Serial;
 
-namespace TeensyRom.Cli.Core.Serial.State
+namespace TeensyRom.Core.Serial.State
 {
     public class SerialStateContext : ISerialStateContext, IObservableSerialPort
     {
@@ -15,7 +16,7 @@ namespace TeensyRom.Cli.Core.Serial.State
 
         public SerialStateContext(IObservableSerialPort serialPort)
         {
-            _serialPort = serialPort;            
+            _serialPort = serialPort;
             _states = new()
             {
                 { typeof(SerialStartState), new SerialStartState(serialPort) },
@@ -48,7 +49,7 @@ namespace TeensyRom.Cli.Core.Serial.State
         public void StartHealthCheck() => _currentState.Value.StartHealthCheck();
         public void StopHealthCheck() => _currentState.Value.StopHealthCheck();
         public void EnsureConnection() => _currentState.Value.EnsureConnection();
-        public Unit SetPort(string port) => _currentState.Value.SetPort( port);
+        public Unit SetPort(string port) => _currentState.Value.SetPort(port);
         public void Lock() => _currentState.Value.Lock();
         public void Unlock() => _currentState.Value.Unlock();
         public void SendIntBytes(uint intToSend, short byteLength) => _currentState.Value.SendIntBytes(intToSend, byteLength);

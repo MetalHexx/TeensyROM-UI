@@ -1,13 +1,14 @@
 ﻿using System.Reactive;
+using TeensyRom.Core.Serial;
 
-namespace TeensyRom.Cli.Core.Serial.State
+namespace TeensyRom.Core.Serial.State
 {
     public class SerialConnectedState : SerialState
     {
         public SerialConnectedState(IObservableSerialPort serialPort) : base(serialPort) { }
         public override bool CanTransitionTo(Type nextStateType)
         {
-            return nextStateType == typeof(SerialConnectableState) 
+            return nextStateType == typeof(SerialConnectableState)
                 || nextStateType == typeof(SerialBusyState)
                 || nextStateType == typeof(SerialConnectionLostState);
         }

@@ -15,6 +15,8 @@ using TeensyRom.Cli.Services;
 using TeensyRom.Cli.Core.Commands;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Cli.Tests
 {

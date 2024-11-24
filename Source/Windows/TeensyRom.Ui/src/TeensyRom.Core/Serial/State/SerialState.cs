@@ -1,13 +1,14 @@
 ﻿using System.Reactive;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Serial;
 
-namespace TeensyRom.Cli.Core.Serial.State
+namespace TeensyRom.Core.Serial.State
 {
     public abstract class SerialState : IObservableSerialPort
     {
         public abstract bool CanTransitionTo(Type nextStateType);
         protected readonly IObservableSerialPort _serialPort;
-        public SerialState(IObservableSerialPort serialPort) => _serialPort = serialPort;                
+        public SerialState(IObservableSerialPort serialPort) => _serialPort = serialPort;
         public IObservable<string[]> Ports => _serialPort.Ports;
         public virtual int BytesToRead => throw new TeensyStateException(ExceptionMessage);
         public virtual void Write(string text) => throw new TeensyStateException(ExceptionMessage);
@@ -35,7 +36,7 @@ namespace TeensyRom.Cli.Core.Serial.State
 
         public virtual byte[] ReadSerialBytes(int msToWait = 0) => throw new TeensyStateException(ExceptionMessage);
 
-        protected string ExceptionMessage => $"Cannot perform serial operations in: {this.GetType().Name}";
+        protected string ExceptionMessage => $"Cannot perform serial operations in: {GetType().Name}";
         IObservable<Type> IObservableSerialPort.State => throw new NotImplementedException();
     }
 }

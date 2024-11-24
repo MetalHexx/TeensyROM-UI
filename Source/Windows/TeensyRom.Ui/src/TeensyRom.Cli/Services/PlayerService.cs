@@ -7,12 +7,12 @@ using TeensyRom.Cli.Core.Commands;
 using TeensyRom.Cli.Core.Commands.File.LaunchFile;
 using TeensyRom.Cli.Core.Player;
 using TeensyRom.Cli.Core.Progress;
-using TeensyRom.Cli.Core.Serial.State;
 using TeensyRom.Cli.Core.Settings;
 using TeensyRom.Cli.Core.Storage.Services;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Cli.Services
 {

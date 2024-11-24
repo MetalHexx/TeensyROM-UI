@@ -1,11 +1,7 @@
 ﻿using MediatR;
-using System.IO.Ports;
 using System.Reactive.Linq;
-using System.Threading;
-using TeensyRom.Cli.Core.Commands;
-using TeensyRom.Cli.Core.Serial;
-using TeensyRom.Cli.Core.Serial.State;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Cli.Core.Commands.Behaviors
 {

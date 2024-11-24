@@ -1,6 +1,6 @@
 ﻿using Ardalis.SmartEnum;
 
-namespace TeensyRom.Cli.Core.Serial
+namespace TeensyRom.Core.Serial
 {
     public sealed class TeensyToken : SmartEnum<TeensyToken, ushort>
     {

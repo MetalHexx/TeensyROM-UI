@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Ardalis.SmartEnum" Version="8.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
     <PackageReference Include="System.Reactive" Version="6.0.1" />
   </ItemGroup>
 
@@ -37,6 +38,10 @@
     <None Update="Assets\Tools\Vice\vice-bins.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Storage\Services\" />
   </ItemGroup>
 
 </Project>

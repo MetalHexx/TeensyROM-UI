@@ -1,6 +1,7 @@
 ﻿using System.Reactive;
+using TeensyRom.Core.Serial;
 
-namespace TeensyRom.Cli.Core.Serial.State
+namespace TeensyRom.Core.Serial.State
 {
     public class SerialStartState(IObservableSerialPort _serialPort) : SerialState(_serialPort)
     {
