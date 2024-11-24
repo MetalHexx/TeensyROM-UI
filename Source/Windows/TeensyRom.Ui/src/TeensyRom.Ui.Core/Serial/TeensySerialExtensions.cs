@@ -4,7 +4,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TeensyRom.Ui.Core.Common;
+using TeensyRom.Core.Common;
 using TeensyRom.Ui.Core.Serial.State;
 
 namespace TeensyRom.Ui.Core.Serial

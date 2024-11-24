@@ -2,7 +2,7 @@
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Common;
+using TeensyRom.Core.Common;
 using TeensyRom.Ui.Core.Serial.State;
 using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Core.Storage.Entities;

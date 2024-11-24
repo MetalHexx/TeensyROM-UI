@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Runtime;
-using TeensyRom.Ui.Core.Common;
+using TeensyRom.Core.Common;
 using TeensyRom.Ui.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Core.Settings

@@ -12,7 +12,7 @@ using System.Windows;
 using TeensyRom.Ui.Core.Commands;
 using TeensyRom.Ui.Core.Commands.File.LaunchFile;
 using TeensyRom.Ui.Core.Commands.PlaySubtune;
-using TeensyRom.Ui.Core.Common;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Serial.State;
 using TeensyRom.Ui.Core.Settings;

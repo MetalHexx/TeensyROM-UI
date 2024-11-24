@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using TeensyRom.Ui.Core.Commands.File.LaunchFile;
-using TeensyRom.Ui.Core.Common;
+using TeensyRom.Core.Common;
 using TeensyRom.Ui.Core.Serial.State;
 using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Core.Storage.Entities;

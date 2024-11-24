@@ -5,7 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Common;
+using TeensyRom.Core.Common;
 using TeensyRom.Ui.Core.Serial.State;
 
 namespace TeensyRom.Ui.Core.Serial

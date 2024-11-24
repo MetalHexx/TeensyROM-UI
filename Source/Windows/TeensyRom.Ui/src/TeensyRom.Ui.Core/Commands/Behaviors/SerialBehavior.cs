@@ -3,7 +3,7 @@ using System.IO.Ports;
 using System.Reactive.Linq;
 using System.Threading;
 using TeensyRom.Ui.Core.Commands;
-using TeensyRom.Ui.Core.Common;
+using TeensyRom.Core.Common;
 using TeensyRom.Ui.Core.Serial;
 using TeensyRom.Ui.Core.Serial.State;
 

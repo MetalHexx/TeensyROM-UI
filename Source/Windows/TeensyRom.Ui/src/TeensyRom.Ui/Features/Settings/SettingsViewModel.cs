@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
-using TeensyRom.Ui.Core.Common;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Controls.FeatureTitle;

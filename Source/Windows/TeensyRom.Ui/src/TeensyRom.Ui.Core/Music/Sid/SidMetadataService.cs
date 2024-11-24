@@ -12,7 +12,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Runtime;
 using System.Security.Cryptography;
 using System.Text;
-using TeensyRom.Ui.Core.Common;
+using TeensyRom.Core.Common;
 using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Core.Storage.Entities;
 

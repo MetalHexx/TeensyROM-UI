@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using System.Text.Json.Serialization;
-using TeensyRom.Ui.Core.Common;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Ui.Core.Storage.Entities
 {

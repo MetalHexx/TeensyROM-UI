@@ -3,7 +3,7 @@ using System.Reactive.Linq;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Storage.Entities;
 using System.Reflection;
-using TeensyRom.Ui.Core.Common;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Ui.Core.Games
 {

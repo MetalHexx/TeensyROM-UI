@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using TeensyRom.Core.Assets;
 using TeensyRom.Ui.Core.Commands;
 using TeensyRom.Ui.Core.Commands.DeleteFile;
-using TeensyRom.Ui.Core.Common;
+using TeensyRom.Core.Common;
 using TeensyRom.Ui.Core.Games;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Music.Sid;
