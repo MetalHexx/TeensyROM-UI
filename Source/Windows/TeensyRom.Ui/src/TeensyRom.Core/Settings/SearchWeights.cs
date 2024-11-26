@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Cli.Core.Settings
+﻿namespace TeensyRom.Core.Settings
 {
     public class SearchWeights
     {

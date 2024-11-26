@@ -1,7 +1,7 @@
 ﻿using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Cli.Core.Settings
+namespace TeensyRom.Core.Settings
 {
     public enum TeensyFilterType
     {
@@ -35,7 +35,7 @@ namespace TeensyRom.Cli.Core.Settings
         public TeensyFilterType StartupFilter { get; set; } = TeensyFilterType.All;
         public bool StartupLaunchEnabled { get; set; } = true;
         public bool PlayTimerEnabled { get; set; } = false;
-        public bool SaveMusicCacheEnabled { get; set; } = true;  
+        public bool SaveMusicCacheEnabled { get; set; } = true;
         public bool NavToDirOnLaunch { get; set; } = true;
         public bool FirstTimeSetup { get; set; } = true;
         public List<string> BannedDirectories = [];
@@ -185,7 +185,7 @@ namespace TeensyRom.Cli.Core.Settings
 
         public List<string> GetFavoritePaths() => FileTargets.Select(t => GetFavoritePath(t.Type)).ToList();
 
-        public string GetFavoritePath(TeensyFileType type) 
+        public string GetFavoritePath(TeensyFileType type)
         {
             return type switch
             {

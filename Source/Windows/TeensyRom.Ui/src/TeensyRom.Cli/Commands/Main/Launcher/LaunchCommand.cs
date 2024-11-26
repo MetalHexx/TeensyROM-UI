@@ -1,7 +1,7 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Cli;
 using TeensyRom.Cli.Helpers;
-using TeensyRom.Cli.Core.Settings;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Cli.Commands.Main.Launcher
 {

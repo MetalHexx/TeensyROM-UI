@@ -1,5 +1,5 @@
 ﻿using TeensyRom.Cli.Core.Player;
-using TeensyRom.Cli.Core.Settings;
+using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Cli.Services

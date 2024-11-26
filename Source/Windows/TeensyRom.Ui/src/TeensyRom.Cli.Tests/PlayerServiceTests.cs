@@ -5,7 +5,6 @@ using MediatR;
 using TeensyRom.Cli.Core.Storage.Services;
 using TeensyRom.Cli.Core.Progress;
 using TeensyRom.Cli.Core.Serial.State;
-using TeensyRom.Cli.Core.Settings;
 using System.Reactive.Linq;
 using TeensyRom.Cli.Core.Commands.File.LaunchFile;
 using TeensyRom.Cli.Core.Player;
@@ -17,6 +16,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Serial.State;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Cli.Tests
 {

@@ -6,7 +6,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using Formatting = Newtonsoft.Json.Formatting;
 
-namespace TeensyRom.Cli.Core.Settings
+namespace TeensyRom.Core.Settings
 {
     public class SettingsService : ISettingsService
     {
@@ -46,20 +46,20 @@ namespace TeensyRom.Cli.Core.Settings
                     Formatting = Formatting.Indented
                 });
             }
-            if(settings is null)
+            if (settings is null)
             {
                 settings = InitDefaultSettings();
                 WriteSettings(settings);
             }
             ValidateAndLogSettings(settings);
 
-            return settings;          
+            return settings;
         }
 
         private TeensySettings InitDefaultSettings()
         {
             var settings = new TeensySettings();
-            settings.InitializeDefaults();            
+            settings.InitializeDefaults();
             return settings;
         }
         public bool SaveSettings(TeensySettings settings)
@@ -67,7 +67,7 @@ namespace TeensyRom.Cli.Core.Settings
             _logger.Internal($"Start Save Settings.");
             _logger.Internal($"Settings file path: {_settingsFilePath}");
 
-            if (!ValidateAndLogSettings(settings)) 
+            if (!ValidateAndLogSettings(settings))
             {
                 _logger.InternalError($"Settings failed validation.  Please correct the errors and try again.");
                 _logger.InternalError("Writing Settings value");
@@ -75,7 +75,7 @@ namespace TeensyRom.Cli.Core.Settings
                 {
                     TypeNameHandling = TypeNameHandling.Auto,
                     Formatting = Formatting.Indented
-                });                
+                });
                 _logger.InternalError(settingsString);
                 return false;
             }

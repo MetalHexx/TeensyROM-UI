@@ -2,10 +2,10 @@
 using Newtonsoft.Json;
 using System.Reactive.Linq;
 using System.Text;
-using TeensyRom.Cli.Core.Settings;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
+using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Cli.Core.Commands

@@ -1,9 +1,9 @@
 ﻿using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Cli.Core.Settings
+namespace TeensyRom.Core.Settings
 {
     public class TeensyTarget
-    {        
+    {
         public TeensyFileType Type { get; set; }
         public TeensyFilterType FilterType { get; set; }
         public string DisplayName { get; set; } = string.Empty;

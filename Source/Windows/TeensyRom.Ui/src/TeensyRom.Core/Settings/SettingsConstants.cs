@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TeensyRom.Cli.Core.Settings
+namespace TeensyRom.Core.Settings
 {
     public static class SettingsConstants
     {

@@ -2,8 +2,8 @@
 using System.Reactive.Linq;
 using TeensyRom.Cli.Helpers;
 using TeensyRom.Cli.Services;
-using TeensyRom.Cli.Core.Settings;
 using TeensyRom.Core.Serial.State;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Cli.Commands.Main
 {

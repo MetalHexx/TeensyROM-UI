@@ -3,8 +3,8 @@ using CsvHelper.Configuration;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
-using TeensyRom.Cli.Core.Settings;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Cli.Core.Music.Sid

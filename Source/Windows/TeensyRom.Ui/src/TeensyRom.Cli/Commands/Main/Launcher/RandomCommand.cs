@@ -3,10 +3,10 @@ using Spectre.Console.Cli;
 using System.ComponentModel;
 using TeensyRom.Cli.Helpers;
 using TeensyRom.Cli.Services;
-using TeensyRom.Cli.Core.Settings;
 using TeensyRom.Cli.Core.Storage.Services;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Cli.Commands.Main.Launcher
 {
