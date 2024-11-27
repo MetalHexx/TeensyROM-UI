@@ -229,6 +229,7 @@
         "dependencies": {
           "Ardalis.SmartEnum": "[8.0.0, )",
           "CsvHelper": "[33.0.1, )",
+          "MediatR": "[12.4.0, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "System.IO.Ports": "[8.0.0, )",
           "System.Reactive": "[6.0.1, )"

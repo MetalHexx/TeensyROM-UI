@@ -1,14 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
-using TeensyRom.Ui.Core.Storage;
-using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Features.Terminal;
 using TeensyRom.Ui.Features.Help;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Settings;
 using TeensyRom.Ui.Main;
-using TeensyRom.Ui.Core;
 using System.Windows.Threading;
 using MediatR;
 using TeensyRom.Core.Music.Sid;
@@ -20,10 +17,12 @@ using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Terminal.SerialCommand;
 using TeensyRom.Core.Progress;
 using TeensyRom.Ui.Features.Discover.State.Player;
-using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;
-using TeensyRom.Ui.Core.Storage.Tools.Zip;
-using TeensyRom.Ui.Core.Commands.Behaviors;
+using TeensyRom.Core.Commands.Behaviors;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core;
+using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Storage.Tools.D64;
+using TeensyRom.Core.Storage.Tools.Zip;
 
 namespace TeensyRom.Ui
 {

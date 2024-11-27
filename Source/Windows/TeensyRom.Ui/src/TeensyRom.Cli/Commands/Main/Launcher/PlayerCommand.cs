@@ -2,11 +2,11 @@
 using Spectre.Console.Cli;
 using TeensyRom.Cli.Helpers;
 using TeensyRom.Cli.Services;
-using TeensyRom.Cli.Core.Player;
-using TeensyRom.Cli.Core.Storage.Services;
+using TeensyRom.Core.Storage.Services;
 using TextCopy;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Player;
 
 namespace TeensyRom.Cli.Commands.Main.Launcher
 {

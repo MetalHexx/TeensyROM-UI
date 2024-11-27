@@ -6,7 +6,6 @@ using System.Reactive.Linq;
 using TeensyRom.Core.Games;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
-using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Controls.CacheButton;
 using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.DirectoryList;
@@ -24,6 +23,7 @@ using TeensyRom.Core.Progress;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Storage.Services;
 
 namespace TeensyRom.Ui.Features.Discover
 {

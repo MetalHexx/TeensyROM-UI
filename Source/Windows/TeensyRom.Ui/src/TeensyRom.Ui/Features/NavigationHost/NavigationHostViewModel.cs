@@ -8,7 +8,6 @@ using TeensyRom.Ui.Features.Help;
 using TeensyRom.Ui.Features.Terminal;
 using TeensyRom.Ui.Features.Settings;
 using MaterialDesignThemes.Wpf;
-using TeensyRom.Ui.Core.Storage;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Serial.State;
 using System.Reflection;
@@ -17,6 +16,7 @@ using TeensyRom.Ui.Features.Discover;
 using System.Threading.Tasks;
 using System.Windows;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Storage.Services;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {

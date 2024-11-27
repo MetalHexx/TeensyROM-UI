@@ -1,4 +1,4 @@
-﻿using TeensyRom.Cli.Core.Player;
+﻿using TeensyRom.Core.Player;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 

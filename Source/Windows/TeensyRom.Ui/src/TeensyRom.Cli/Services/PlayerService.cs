@@ -3,17 +3,18 @@ using Spectre.Console;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using TeensyRom.Cli.Helpers;
-using TeensyRom.Cli.Core.Commands;
-using TeensyRom.Cli.Core.Commands.File.LaunchFile;
-using TeensyRom.Cli.Core.Player;
+using TeensyRom.Core.Commands;
 using TeensyRom.Core.Progress;
-using TeensyRom.Cli.Core.Storage.Services;
+using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
-using TeensyRom.Core.Progress;
+using TeensyRom.Core.Commands.LaunchFile;
+using TeensyRom.Core.Commands.ToggleMusic;
+using TeensyRom.Core.Commands.Reset;
+using TeensyRom.Core.Player;
 
 namespace TeensyRom.Cli.Services
 {

@@ -7,13 +7,15 @@ using System.Data;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using TeensyRom.Ui.Core.Commands;
+using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Features.Terminal.SerialCommand;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Commands.Ping;
+using TeensyRom.Core.Commands.Reset;
 
 namespace TeensyRom.Ui.Features.Terminal
 {

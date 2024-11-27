@@ -4,11 +4,12 @@ using Spectre.Console.Cli;
 using System.ComponentModel;
 using TeensyRom.Cli.Helpers;
 using TeensyRom.Cli.Services;
-using TeensyRom.Cli.Core.Commands;
-using TeensyRom.Cli.Core.Storage.Services;
+using TeensyRom.Core.Commands;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Commands.Reset;
+using TeensyRom.Core.Storage.Services;
 
 namespace TeensyRom.Cli.Commands.Main
 {

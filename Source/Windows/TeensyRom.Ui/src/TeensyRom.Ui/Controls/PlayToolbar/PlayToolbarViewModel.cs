@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Core.Progress;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Services;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {

@@ -4,7 +4,6 @@ using System.Windows;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Main;
 using System.Reflection;
-using TeensyRom.Ui.Core.Storage;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Threading;
@@ -14,8 +13,9 @@ using TeensyRom.Core.Common;
 using System.Threading.Tasks;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Assets;
-using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;
-using TeensyRom.Ui.Core.Storage.Tools.Zip;
+using TeensyRom.Core.Storage.Tools.Zip;
+using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Storage.Tools.D64;
 
 namespace TeensyRom.Ui
 {

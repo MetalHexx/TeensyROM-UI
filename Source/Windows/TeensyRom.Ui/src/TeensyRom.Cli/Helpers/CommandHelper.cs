@@ -1,7 +1,7 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Cli;
-using TeensyRom.Cli.Core.Player;
-using TeensyRom.Cli.Core.Storage.Services;
+using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Player;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 

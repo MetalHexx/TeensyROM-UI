@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Ui.Core.Storage.Services;
+using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Features.Discover.State.Directory;
 using TeensyRom.Ui.Services;
 

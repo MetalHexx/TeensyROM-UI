@@ -5,13 +5,13 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial.State;
-using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Discover.State.Directory;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Storage.Services;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {

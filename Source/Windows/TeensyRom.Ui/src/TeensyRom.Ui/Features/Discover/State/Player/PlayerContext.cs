@@ -9,16 +9,11 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Windows;
-using TeensyRom.Ui.Core.Commands;
-using TeensyRom.Ui.Core.Commands.File.LaunchFile;
-using TeensyRom.Ui.Core.Commands.PlaySubtune;
+using TeensyRom.Core.Commands;
+using TeensyRom.Core.Commands.PlaySubtune;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
-using TeensyRom.Ui.Core.Storage;
-using TeensyRom.Ui.Core.Storage.Services;
-using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;
-using TeensyRom.Ui.Core.Storage.Tools.Zip;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Discover.State.Directory;
@@ -28,6 +23,12 @@ using TeensyRom.Ui.Services;
 using SystemDirectory = System.IO.Directory;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Commands.LaunchFile;
+using TeensyRom.Core.Commands.ToggleMusic;
+using TeensyRom.Core.Commands.Reset;
+using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Storage.Tools.D64;
+using TeensyRom.Core.Storage.Tools.Zip;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {
