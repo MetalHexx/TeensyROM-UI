@@ -10,7 +10,7 @@ using TeensyRom.Ui.Features.Settings;
 using MaterialDesignThemes.Wpf;
 using TeensyRom.Ui.Core.Storage;
 using TeensyRom.Ui.Services;
-using TeensyRom.Ui.Core.Serial.State;
+using TeensyRom.Core.Serial.State;
 using System.Reflection;
 using System;
 using TeensyRom.Ui.Features.Discover;

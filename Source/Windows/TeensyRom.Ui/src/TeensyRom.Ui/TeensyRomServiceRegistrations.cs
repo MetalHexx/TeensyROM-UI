@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Serial;
+using TeensyRom.Core.Serial;
 using TeensyRom.Ui.Core.Storage;
 using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Features.Terminal;
@@ -13,7 +13,7 @@ using System.Windows.Threading;
 using MediatR;
 using TeensyRom.Ui.Core.Music.Sid;
 using TeensyRom.Ui.Services;
-using TeensyRom.Ui.Core.Serial.State;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Core.Games;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State;

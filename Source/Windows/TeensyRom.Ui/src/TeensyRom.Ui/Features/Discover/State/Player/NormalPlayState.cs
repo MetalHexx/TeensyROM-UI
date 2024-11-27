@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using TeensyRom.Core.Common;
-using TeensyRom.Ui.Core.Serial.State;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Discover.State.Directory;

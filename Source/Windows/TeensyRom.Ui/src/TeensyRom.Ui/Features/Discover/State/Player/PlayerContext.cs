@@ -14,7 +14,7 @@ using TeensyRom.Ui.Core.Commands.File.LaunchFile;
 using TeensyRom.Ui.Core.Commands.PlaySubtune;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Serial.State;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Core.Storage;
 using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;

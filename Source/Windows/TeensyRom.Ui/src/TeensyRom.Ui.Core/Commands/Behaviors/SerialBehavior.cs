@@ -4,8 +4,8 @@ using System.Reactive.Linq;
 using System.Threading;
 using TeensyRom.Ui.Core.Commands;
 using TeensyRom.Core.Common;
-using TeensyRom.Ui.Core.Serial;
-using TeensyRom.Ui.Core.Serial.State;
+using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Ui.Core.Commands.Behaviors
 {

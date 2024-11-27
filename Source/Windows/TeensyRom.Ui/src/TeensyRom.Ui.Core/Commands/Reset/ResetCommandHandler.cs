@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Serial;
-using TeensyRom.Ui.Core.Serial.State;
+using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Ui.Core.Commands
 {

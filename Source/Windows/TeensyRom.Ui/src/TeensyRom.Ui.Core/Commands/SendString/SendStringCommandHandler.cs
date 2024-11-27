@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using TeensyRom.Ui.Core.Serial.State;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Ui.Core.Commands.SendString
 {

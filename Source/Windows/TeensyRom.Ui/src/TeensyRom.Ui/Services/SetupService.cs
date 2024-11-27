@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Ui.Core.Serial.State;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State.Player;

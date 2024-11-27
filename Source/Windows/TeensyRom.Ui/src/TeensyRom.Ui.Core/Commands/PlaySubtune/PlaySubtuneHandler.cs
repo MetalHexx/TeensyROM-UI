@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Ui.Core.Commands.File.LaunchFile;
-using TeensyRom.Ui.Core.Serial.State;
-using TeensyRom.Ui.Core.Serial;
+using TeensyRom.Core.Serial.State;
+using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Ui.Core.Commands.PlaySubtune
 {

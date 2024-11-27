@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using TeensyRom.Ui.Core.Commands.SendString;
-using TeensyRom.Ui.Core.Serial.State;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Ui.Features.Terminal.SerialCommand
 {

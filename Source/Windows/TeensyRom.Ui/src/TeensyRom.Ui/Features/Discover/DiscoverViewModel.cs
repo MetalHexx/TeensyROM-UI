@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using TeensyRom.Ui.Core.Games;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Serial.State;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Controls.CacheButton;
 using TeensyRom.Ui.Controls.DirectoryChips;

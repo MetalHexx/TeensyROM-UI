@@ -2,8 +2,8 @@
 using System.Reactive.Linq;
 using TeensyRom.Ui.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
-using TeensyRom.Ui.Core.Serial;
-using TeensyRom.Ui.Core.Serial.State;
+using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Settings;
 
