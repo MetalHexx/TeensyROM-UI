@@ -15,6 +15,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Progress;
 
 namespace TeensyRom.Cli.Tests
 {

@@ -20,7 +20,7 @@ using TeensyRom.Ui.Controls.SearchResultsToolbar;
 using TeensyRom.Ui.Controls.StorageSelector;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Discover.State.Player;
-using TeensyRom.Ui.Core.Progress;
+using TeensyRom.Core.Progress;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Settings;

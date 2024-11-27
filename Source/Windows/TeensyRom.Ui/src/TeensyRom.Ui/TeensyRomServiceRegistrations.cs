@@ -18,7 +18,7 @@ using TeensyRom.Ui.Core.Games;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Terminal.SerialCommand;
-using TeensyRom.Ui.Core.Progress;
+using TeensyRom.Core.Progress;
 using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Ui.Core.Storage.Tools.Zip;

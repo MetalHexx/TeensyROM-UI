@@ -22,7 +22,7 @@ using TeensyRom.Ui.Core.Storage.Tools.Zip;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Discover.State.Directory;
-using TeensyRom.Ui.Core.Progress;
+using TeensyRom.Core.Progress;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using SystemDirectory = System.IO.Directory;

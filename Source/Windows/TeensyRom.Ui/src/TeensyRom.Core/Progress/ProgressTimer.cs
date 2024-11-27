@@ -2,7 +2,7 @@
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace TeensyRom.Cli.Core.Progress
+namespace TeensyRom.Core.Progress
 {
     public interface IProgressTimer
     {

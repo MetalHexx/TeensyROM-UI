@@ -10,7 +10,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Features.Discover.State;
-using TeensyRom.Ui.Core.Progress;
+using TeensyRom.Core.Progress;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
