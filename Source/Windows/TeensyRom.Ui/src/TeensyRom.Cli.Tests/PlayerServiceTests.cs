@@ -4,7 +4,6 @@ using AutoFixture.AutoNSubstitute;
 using MediatR;
 using TeensyRom.Cli.Core.Storage.Services;
 using TeensyRom.Cli.Core.Progress;
-using TeensyRom.Cli.Core.Serial.State;
 using System.Reactive.Linq;
 using TeensyRom.Cli.Core.Commands.File.LaunchFile;
 using TeensyRom.Cli.Core.Player;
@@ -14,7 +13,6 @@ using TeensyRom.Cli.Services;
 using TeensyRom.Cli.Core.Commands;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 
