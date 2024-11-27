@@ -23,10 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TeensyRom.Cli.Core\TeensyRom.Cli.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Fonts\ANSI Regular.flf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

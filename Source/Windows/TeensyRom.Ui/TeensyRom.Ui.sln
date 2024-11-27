@@ -5,16 +5,12 @@ VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeensyRom.Ui", "src\TeensyRom.Ui\TeensyRom.Ui.csproj", "{8B6053C0-4B00-4C87-A84C-C346808F43F0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeensyRom.Ui.Core", "src\TeensyRom.Ui.Core\TeensyRom.Ui.Core.csproj", "{E73DA390-E535-4B33-A7DF-8F83D43DE82E}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{368B3443-1DCC-48A4-82EF-F8F1D2E53FBA}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI Tests", "UI Tests", "{7E3C6ECA-A1A8-446F-A8D0-A662F109F2B9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Cli.Core", "src\TeensyRom.Cli.Core\TeensyRom.Cli.Core.csproj", "{F2FF2DDC-B166-48DA-AF43-E461961F6E2E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Cli", "src\TeensyRom.Cli\TeensyRom.Cli.csproj", "{ED490479-7230-470C-9413-B33A86F5924E}"
 EndProject
@@ -34,14 +30,6 @@ Global
 		{8B6053C0-4B00-4C87-A84C-C346808F43F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B6053C0-4B00-4C87-A84C-C346808F43F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B6053C0-4B00-4C87-A84C-C346808F43F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E73DA390-E535-4B33-A7DF-8F83D43DE82E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E73DA390-E535-4B33-A7DF-8F83D43DE82E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E73DA390-E535-4B33-A7DF-8F83D43DE82E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E73DA390-E535-4B33-A7DF-8F83D43DE82E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F2FF2DDC-B166-48DA-AF43-E461961F6E2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F2FF2DDC-B166-48DA-AF43-E461961F6E2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F2FF2DDC-B166-48DA-AF43-E461961F6E2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F2FF2DDC-B166-48DA-AF43-E461961F6E2E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ED490479-7230-470C-9413-B33A86F5924E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{ED490479-7230-470C-9413-B33A86F5924E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED490479-7230-470C-9413-B33A86F5924E}.Release|Any CPU.ActiveCfg = Release|Any CPU
