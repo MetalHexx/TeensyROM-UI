@@ -11,7 +11,7 @@ using TeensyRom.Ui.Main;
 using TeensyRom.Ui.Core;
 using System.Windows.Threading;
 using MediatR;
-using TeensyRom.Ui.Core.Music.Sid;
+using TeensyRom.Core.Music.Sid;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Games;

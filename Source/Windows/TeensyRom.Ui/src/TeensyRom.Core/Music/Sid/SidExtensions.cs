@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TeensyRom.Ui.Core.Music.Sid
+namespace TeensyRom.Core.Music.Sid
 {
     public static class SidExtensions
     {

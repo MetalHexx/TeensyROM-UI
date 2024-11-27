@@ -4,10 +4,11 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Music;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Ui.Core.Music.Sid
+namespace TeensyRom.Core.Music.Sid
 {
     public interface ISidMetadataService
     {
@@ -18,12 +19,23 @@ namespace TeensyRom.Ui.Core.Music.Sid
     {
         private readonly string _filePath;
         private readonly Dictionary<string, SidRecord> _songDatabase = new();
+        private TeensySettings _settings = new();
+        private readonly ISettingsService _settingsService;
         private IDisposable _settingsSubscription;
 
         public SidMetadataService(ISettingsService settingsService)
         {
             _filePath = GetSidFilePath();
             _songDatabase = ParseSids(ReadCsv());
+
+            _settingsService = settingsService;
+
+            _settingsSubscription = _settingsService.Settings.Subscribe(OnSettingsChanged);
+        }
+
+        private void OnSettingsChanged(TeensySettings settings)
+        {
+            _settings = settings;
         }
 
         private static string GetSidFilePath()
@@ -32,7 +44,7 @@ namespace TeensyRom.Ui.Core.Music.Sid
 
             if (currentDirectory is null) return string.Empty;
 
-            var sidListPath = Path.Combine(currentDirectory, MusicConstants.SidList_Local_Path);
+            var sidListPath = Path.Combine(currentDirectory, MusicConstants.SidList_Local_Path).GetOsFriendlyPath();
 
             if (!Directory.Exists(sidListPath)) return string.Empty;
 
@@ -53,7 +65,7 @@ namespace TeensyRom.Ui.Core.Music.Sid
 
             if (sidRecord is not null)
             {
-                EnrichWithHsvcMetadata(song, sidRecord);                
+                EnrichWithHsvcMetadata(song, sidRecord);
             }
             EnrichWithHsvcMusicianImage(song);
             return song;
@@ -73,14 +85,14 @@ namespace TeensyRom.Ui.Core.Music.Sid
             song.PlayLength = sidRecord.SongLengthSpan;
             song.StartSubtuneNum = sidRecord.StartSong;
             song.SubtuneLengths = sidRecord.SubTuneSongLengths.Select(s => s).ToList();
-            song.ReleaseInfo = sidRecord.Released;            
+            song.ReleaseInfo = sidRecord.Released;
             song.Meta1 = sidRecord.Clock;
-            song.Meta2 = sidRecord.SidModel;            
-            
-            song.MetadataSourcePath = song.MetadataSourcePath.RemoveLeadingAndTrailingSlash().Contains(sidRecord.Filepath.RemoveLeadingAndTrailingSlash()) 
-                ? song.MetadataSourcePath 
+            song.Meta2 = sidRecord.SidModel;
+
+            song.MetadataSourcePath = song.MetadataSourcePath.RemoveLeadingAndTrailingSlash().Contains(sidRecord.Filepath.RemoveLeadingAndTrailingSlash())
+                ? song.MetadataSourcePath
                 : sidRecord.Filepath;
-            
+
             song.ShareUrl = $"https://deepsid.chordian.net/?file={sidRecord.Filepath}";
         }
 
@@ -94,7 +106,7 @@ namespace TeensyRom.Ui.Core.Music.Sid
         /// TODO: Make more generic and remove HVSC folder structure requirement
         /// </remarks>
         /// <param name="song"></param>
-        private void EnrichWithHsvcMusicianImage(SongItem song) 
+        private void EnrichWithHsvcMusicianImage(SongItem song)
         {
             var currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var songPath = string.IsNullOrWhiteSpace(song.MetadataSourcePath) ? song.Path : song.MetadataSourcePath;
@@ -103,13 +115,13 @@ namespace TeensyRom.Ui.Core.Music.Sid
 
             var hsvcImageName = $"{Path.Combine(currentDirectory!, MusicConstants.Musician_Image_Local_Path)}musicians";
 
-            foreach(var segment in remainingPathSegments)
+            foreach (var segment in remainingPathSegments)
             {
                 hsvcImageName = $"{hsvcImageName}_{segment}";
             }
             hsvcImageName = $"{hsvcImageName}.jpg";
 
-            if(File.Exists(hsvcImageName))
+            if (File.Exists(hsvcImageName))
             {
                 song.Images.Add(new ViewableItemImage
                 {
@@ -124,7 +136,7 @@ namespace TeensyRom.Ui.Core.Music.Sid
             if (string.IsNullOrWhiteSpace(stilDescription)) return string.Empty;
 
             var cleanedDescription = $"{stilDescription.StripCarriageReturnsAndExtraWhitespace()}";
-            cleanedDescription = cleanedDescription.Replace("COMMENT:", "\r\nComment:\r\n");
+            cleanedDescription = cleanedDescription.Replace("COMMENT:", "\r\nComment: ");
             cleanedDescription = cleanedDescription.Replace("ARTIST:", "\r\nArtist: ");
             cleanedDescription = cleanedDescription.Replace("TITLE:", "\r\nTitle: ");
             cleanedDescription = cleanedDescription.RemoveFirstOccurrence("\r\n");
@@ -176,7 +188,7 @@ namespace TeensyRom.Ui.Core.Music.Sid
                     continue;
                 }
                 var songLengths = ParseTimeSegments(sid.Value.SongLength);
-                                
+
                 sid.Value.SongLengthSpan = songLengths.Any() ? songLengths.First() : MusicConstants.DefaultLength;
                 sid.Value.SubTuneSongLengths = songLengths;
             }

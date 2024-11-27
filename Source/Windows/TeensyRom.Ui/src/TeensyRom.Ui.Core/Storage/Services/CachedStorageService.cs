@@ -10,7 +10,7 @@ using TeensyRom.Ui.Core.Commands.DeleteFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Games;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Music.Sid;
+using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Settings;
 

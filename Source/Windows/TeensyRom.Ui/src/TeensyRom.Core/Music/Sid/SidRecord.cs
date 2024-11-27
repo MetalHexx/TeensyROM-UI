@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Ui.Core.Music.Sid
+﻿namespace TeensyRom.Core.Music.Sid
 {
     public class SidRecord
     {

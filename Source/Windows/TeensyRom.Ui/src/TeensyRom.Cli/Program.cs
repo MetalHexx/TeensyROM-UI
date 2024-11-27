@@ -13,8 +13,8 @@ using TeensyRom.Cli.Helpers;
 using TeensyRom.Cli.Services;
 using TeensyRom.Cli.Core;
 using TeensyRom.Core.Games;
-using TeensyRom.Cli.Core.Music;
-using TeensyRom.Cli.Core.Music.Sid;
+using TeensyRom.Core.Music;
+using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Progress;
 using TeensyRom.Cli.Core.Storage.Services;
 using AssemblyExtensions = TeensyRom.Core.Common.AssemblyExtensions;
@@ -27,6 +27,8 @@ using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Progress;
 using TeensyRom.Core.Games;
+using TeensyRom.Core.Music;
+using TeensyRom.Core.Music.Sid;
 public class Program
 {
     private static int Main(string[] args)
