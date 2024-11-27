@@ -1,7 +1,6 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System.Collections.Generic;
-using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Linq;
@@ -10,7 +9,6 @@ using TeensyRom.Ui.Features.Terminal;
 using TeensyRom.Ui.Features.Settings;
 using MaterialDesignThemes.Wpf;
 using TeensyRom.Ui.Core.Storage;
-using TeensyRom.Ui.Core.Serial;
 using TeensyRom.Ui.Services;
 using TeensyRom.Ui.Core.Serial.State;
 using System.Reflection;
@@ -18,7 +16,7 @@ using System;
 using TeensyRom.Ui.Features.Discover;
 using System.Threading.Tasks;
 using System.Windows;
-using TeensyRom.Ui.Core.Settings;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {

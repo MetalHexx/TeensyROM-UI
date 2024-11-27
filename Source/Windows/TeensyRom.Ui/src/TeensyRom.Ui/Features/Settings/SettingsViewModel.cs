@@ -7,9 +7,9 @@ using System.Reactive.Linq;
 using System.Text;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Helpers.ViewModel;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui.Features.Settings
 {

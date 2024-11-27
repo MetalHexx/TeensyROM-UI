@@ -15,7 +15,6 @@ using TeensyRom.Ui.Core.Commands.PlaySubtune;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Serial.State;
-using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Core.Storage;
 using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;
@@ -28,6 +27,7 @@ using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using SystemDirectory = System.IO.Directory;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {

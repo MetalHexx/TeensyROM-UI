@@ -3,11 +3,8 @@ using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
 using System.Threading.Tasks;
-using TeensyRom.Ui.Core.Settings;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui.Controls.LibraryFilter
 {

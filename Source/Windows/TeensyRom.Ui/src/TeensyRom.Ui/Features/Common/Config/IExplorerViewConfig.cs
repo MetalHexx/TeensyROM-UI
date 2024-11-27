@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui.Features.Common.Config
 {

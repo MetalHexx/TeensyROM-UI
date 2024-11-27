@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 using TeensyRom.Ui.Core.Commands;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Serial.State;
-using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Features.Terminal.SerialCommand;
 using TeensyRom.Ui.Services;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui.Features.Terminal
 {

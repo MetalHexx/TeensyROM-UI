@@ -3,13 +3,13 @@ using System;
 using System.Threading.Tasks;
 using TeensyRom.Core.Common;
 using TeensyRom.Ui.Core.Serial.State;
-using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Discover.State.Directory;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {

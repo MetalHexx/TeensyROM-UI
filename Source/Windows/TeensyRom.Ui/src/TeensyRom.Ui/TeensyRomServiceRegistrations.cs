@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Core.Serial;
-using TeensyRom.Ui.Core.Settings;
 using TeensyRom.Ui.Core.Storage;
 using TeensyRom.Ui.Core.Storage.Services;
 using TeensyRom.Ui.Features.Terminal;
@@ -24,6 +23,7 @@ using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Ui.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Ui.Core.Storage.Tools.Zip;
 using TeensyRom.Ui.Core.Commands.Behaviors;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui
 {
