@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Threading;
 using TeensyRom.Core.Logging;
-using TeensyRom.Ui.Core.Games;
+using TeensyRom.Core.Games;
 using TeensyRom.Core.Common;
 using System.Threading.Tasks;
 using TeensyRom.Ui.Core.Music;

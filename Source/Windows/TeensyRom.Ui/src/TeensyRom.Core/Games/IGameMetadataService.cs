@@ -1,6 +1,6 @@
 ﻿using TeensyRom.Core.Storage.Entities;
 
-namespace TeensyRom.Cli.Core.Games
+namespace TeensyRom.Core.Games
 {
     public interface IGameMetadataService
     {

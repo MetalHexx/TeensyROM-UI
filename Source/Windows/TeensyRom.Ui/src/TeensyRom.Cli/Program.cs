@@ -12,7 +12,7 @@ using TeensyRom.Cli.Fonts;
 using TeensyRom.Cli.Helpers;
 using TeensyRom.Cli.Services;
 using TeensyRom.Cli.Core;
-using TeensyRom.Cli.Core.Games;
+using TeensyRom.Core.Games;
 using TeensyRom.Cli.Core.Music;
 using TeensyRom.Cli.Core.Music.Sid;
 using TeensyRom.Core.Progress;
@@ -26,6 +26,7 @@ using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Progress;
+using TeensyRom.Core.Games;
 public class Program
 {
     private static int Main(string[] args)

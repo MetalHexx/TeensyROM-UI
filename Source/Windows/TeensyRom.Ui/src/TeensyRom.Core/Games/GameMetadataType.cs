@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Ui.Core.Games
+﻿namespace TeensyRom.Core.Games
 {
     public enum GameMetadataType
     {

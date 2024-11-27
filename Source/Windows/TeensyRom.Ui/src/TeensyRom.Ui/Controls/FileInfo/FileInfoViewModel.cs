@@ -5,7 +5,7 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System.Reactive.Linq;
 using System.Windows;
-using TeensyRom.Ui.Core.Games;
+using TeensyRom.Core.Games;
 using System.Collections.ObjectModel;
 using System.Linq;
 using TeensyRom.Ui.Features.Discover.State.Player;

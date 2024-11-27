@@ -14,7 +14,7 @@ using MediatR;
 using TeensyRom.Ui.Core.Music.Sid;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Serial.State;
-using TeensyRom.Ui.Core.Games;
+using TeensyRom.Core.Games;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Terminal.SerialCommand;

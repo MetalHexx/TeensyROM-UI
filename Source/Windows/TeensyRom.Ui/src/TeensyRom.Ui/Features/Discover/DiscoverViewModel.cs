@@ -3,7 +3,7 @@ using ReactiveUI.Fody.Helpers;
 using System;
 using System.Linq;
 using System.Reactive.Linq;
-using TeensyRom.Ui.Core.Games;
+using TeensyRom.Core.Games;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Ui.Core.Storage.Services;

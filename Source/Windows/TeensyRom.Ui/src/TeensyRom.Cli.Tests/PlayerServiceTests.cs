@@ -3,7 +3,6 @@ using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using MediatR;
 using TeensyRom.Cli.Core.Storage.Services;
-using TeensyRom.Cli.Core.Progress;
 using System.Reactive.Linq;
 using TeensyRom.Cli.Core.Commands.File.LaunchFile;
 using TeensyRom.Cli.Core.Player;
