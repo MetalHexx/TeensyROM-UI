@@ -3,20 +3,6 @@ using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Settings
 {
-    public enum TeensyFilterType
-    {
-        All,
-        Games,
-        Music,
-        Hex,
-        Images
-    }
-    public class TeensyFilter
-    {
-        public TeensyFilterType Type { get; set; }
-        public string DisplayName { get; set; } = string.Empty;
-        public string Icon { get; set; } = string.Empty;
-    }
     /// <summary>
     /// Used to persist and retrieve user preference from disk.  See: json in the bin folder
     /// </summary>
@@ -55,121 +41,8 @@ namespace TeensyRom.Core.Settings
             BannedDirectories = ["MUSICIANS/S/Szachista", "System Volume Information", "FOUND.000", "integration-test-files", "integration-tests", "AlternativeFormats", "Dumps", "Docs"];
             BannedFiles = ["Revolutionary_Etude_part_1.sid", "Revolutionary_Etude_part_2.sid", "Super_Trouper.sid"];
             SearchStopWords = ["a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "is", "it", "no", "not", "of", "on", "or", "that", "the", "to", "was", "with"];
-
-            FileFilters.AddRange(new List<TeensyFilter>
-            {
-                new TeensyFilter
-                {
-                    Type = TeensyFilterType.All,
-                    DisplayName = "All",
-                    Icon = "AllInclusive",
-
-                },
-                new TeensyFilter
-                {
-                    Type = TeensyFilterType.Music,
-                    DisplayName = "Music",
-                    Icon = "MusicClefTreble"
-                },
-                new TeensyFilter
-                {
-                    Type = TeensyFilterType.Games,
-                    DisplayName = "Games",
-                    Icon = "Ghost"
-                },
-                new TeensyFilter
-                {
-                    Type = TeensyFilterType.Hex,
-                    DisplayName = "Hex",
-                    Icon = "ArrowUpBoldHexagonOutline"
-                },
-                new TeensyFilter
-                {
-                    Type = TeensyFilterType.Images,
-                    DisplayName = "Images",
-                    Icon = "FileImageOutline"
-                }
-            });
-            FileTargets.AddRange(new List<TeensyTarget>
-            {
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Sid,
-                    FilterType = TeensyFilterType.Music,
-                    DisplayName = "SID",
-                    Extension = ".sid"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Prg,
-                    FilterType = TeensyFilterType.Games,
-                    DisplayName = "PRG",
-                    Extension = ".prg"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.P00,
-                    FilterType = TeensyFilterType.Games,
-                    DisplayName = "P00",
-                    Extension = ".p00"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Crt,
-                    FilterType = TeensyFilterType.Games,
-                    DisplayName = "CRT",
-                    Extension = ".crt"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Hex,
-                    FilterType = TeensyFilterType.Hex,
-                    DisplayName = "HEX",
-                    Extension = ".hex"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Kla,
-                    FilterType = TeensyFilterType.Images,
-                    DisplayName = "KLA",
-                    Extension = ".kla"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Koa,
-                    FilterType = TeensyFilterType.Images,
-                    DisplayName = "KOA",
-                    Extension = ".koa"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Art,
-                    FilterType = TeensyFilterType.Images,
-                    DisplayName = "ART",
-                    Extension = ".art"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Aas,
-                    FilterType = TeensyFilterType.Images,
-                    DisplayName = "AAS",
-                    Extension = ".aas"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Hpi,
-                    FilterType = TeensyFilterType.Images,
-                    DisplayName = "HPI",
-                    Extension = ".hpi"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.D64,
-                    FilterType = TeensyFilterType.Games,
-                    DisplayName = "D64",
-                    Extension = ".d64"
-                }
-            });
+            FileTargets = [.. StorageHelper.FileTargets];
+            FileFilters = [.. StorageHelper.FileFilters];      
         }
 
         public string GetFileTypePath(TeensyFileType type)
@@ -183,26 +56,7 @@ namespace TeensyRom.Core.Settings
 
         public TeensyFilter GetStartupFilter() => FileFilters.First(f => f.Type == StartupFilter);
 
-        public List<string> GetFavoritePaths() => FileTargets.Select(t => GetFavoritePath(t.Type)).ToList();
-
-        public string GetFavoritePath(TeensyFileType type)
-        {
-            return type switch
-            {
-                TeensyFileType.Sid => "/favorites/music",
-                TeensyFileType.Prg => "/favorites/games",
-                TeensyFileType.P00 => "/favorites/games",
-                TeensyFileType.Crt => "/favorites/games",
-                TeensyFileType.Kla => "/favorites/images",
-                TeensyFileType.Koa => "/favorites/images",
-                TeensyFileType.Art => "/favorites/images",
-                TeensyFileType.Aas => "/favorites/images",
-                TeensyFileType.Hpi => "/favorites/images",
-                TeensyFileType.Hex => "/firmware",
-
-                _ => "/favorites/unknown"
-            };
-        }
+        public List<string> GetFavoritePaths() => FileTargets.Select(t => StorageHelper.GetFavoritePath(t.Type)).ToList();
 
         public string GetAutoTransferPath(TeensyFileType type)
         {
@@ -231,19 +85,6 @@ namespace TeensyRom.Core.Settings
         {
             string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             WatchDirectoryLocation = Path.Combine(userProfile, "Downloads");
-        }
-
-        public TeensyFileType[] GetFileTypes(TeensyFilterType filterType)
-        {
-            if (filterType == TeensyFilterType.All)
-            {
-                return FileTargets
-                    .Where(ft => ft.Type != TeensyFileType.Hex)
-                    .Select(t => t.Type).ToArray();
-            }
-            return FileTargets
-                .Where(ft => ft.FilterType == filterType)
-                .Select(t => t.Type).ToArray();
         }
 
         public TeensySettings GetClone() => this with

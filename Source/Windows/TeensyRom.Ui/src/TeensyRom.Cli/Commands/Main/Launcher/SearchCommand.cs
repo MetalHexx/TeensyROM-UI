@@ -117,7 +117,7 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
                     player.SetSidTimer(sidTimer);
                 }
             }
-            var searchResults = storage.Search(settings.Query, globalSettings.GetFileTypes(filterType));
+            var searchResults = storage.Search(settings.Query, StorageHelper.GetFileTypes(filterType));
 
             if (!searchResults.Any())
             {

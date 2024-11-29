@@ -506,7 +506,7 @@ namespace TeensyRom.Cli.Services
         private TeensyFileType[] GetFilterFileTypes()
         {
             var trSettings = _settingsService.GetSettings();
-            return trSettings.GetFileTypes(_state.FilterType);
+            return StorageHelper.GetFileTypes(_state.FilterType);
         }
 
         public void TogglePlay()

@@ -69,7 +69,7 @@ namespace TeensyRom.Core.Storage.Services
 
         public async Task<ILaunchableItem?> SaveFavorite(ILaunchableItem launchItem)
         {
-            var favPath = _settings.GetFavoritePath(launchItem.FileType);
+            var favPath = StorageHelper.GetFavoritePath(launchItem.FileType);
 
             var favCommand = new FavoriteFileCommand
             (

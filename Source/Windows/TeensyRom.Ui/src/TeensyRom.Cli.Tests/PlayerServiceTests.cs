@@ -526,7 +526,7 @@ namespace TeensyRom.Cli.Tests
             var existingSong = CreateFile<SongItem>("/");
             SetupStorageService(existingSong);
 
-            var expectedFileTypes = settings.GetFileTypes(filter);
+            var expectedFileTypes = StorageHelper.GetFileTypes(filter);
 
             //Act
             var playerService = _fixture.Create<PlayerService>();
