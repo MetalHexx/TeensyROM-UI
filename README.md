@@ -46,7 +46,7 @@ A demonstration of the UI features.  Watch this before you run the app. Click im
 _Integrations with various metadata sources enrich your file collection with interesting information and media._
 
 #### HVSC/DeepSID
-An integration with [HVSC](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b) brings forth STIL info like accurate SID play times, composer name, release info, and even some interesting historical scene information.  This plethora of information becomes quite effective when digging for cover tunes or other very specific tracks.  Special thanks to the open source [DeepSID](https://github.com/Chordian/deepsid) project, composer images also compliment the HVSC SIDs.
+An integration with [HVSC](https://hvsc.c64.org/) brings forth STIL info like accurate SID play times, composer name, release info, and even some interesting historical scene information.  This plethora of information becomes quite effective when digging for cover tunes or other very specific tracks.  Special thanks to the open source [DeepSID](https://github.com/Chordian/deepsid) project, composer images also compliment the HVSC SIDs.
 
 #### OneLoad64
 The application comes bundled with [OneLoad64](https://www.youtube.com/watch?v=lz0CJbkplj0&list=PLmN5cgEuNrpiCj1LfKBDUZS06ZBCjif5b) game load and play screens to make it easy to preview games to play.  This collection in combination with this application enable the fastest consecutive game load times possible on a commodore machine.  Make sure to keep 
