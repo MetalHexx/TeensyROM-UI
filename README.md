@@ -106,7 +106,7 @@ The application features a terminal to show you all of the activity happening on
 
 ## Tips and Tricks
 - One day we'll have better docs. Maybe never, we'll see how well the UI explains itself. ;)
-- For now, the [demo](https://www.youtube.com/watch?v=cdS4zbQS-TY) goes over the feature set pretty well.
+- For now, the [demo](https://www.youtube.com/watch?v=xUcfgGMYOpM) goes over the feature set pretty well.
 - Be sure to check out the `Settings` view for some options to better suit your needs.
 - Hover over any UI control (buttons, etc) to get some help text.
 - Don't skip indexing to get max usage of the features.
