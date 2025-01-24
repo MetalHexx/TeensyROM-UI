@@ -17,6 +17,8 @@ using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Progress;
 using TeensyRom.Core.Storage.Services;
 using AssemblyExtensions = TeensyRom.Core.Common.AssemblyExtensions;
+using LaunchHistory = TeensyRom.Player.LaunchHistory;
+using ILaunchHistory = TeensyRom.Player.ILaunchHistory;
 using TeensyRom.Core.Assets;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Common;
@@ -25,6 +27,7 @@ using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Commands.Behaviors;
 using TeensyRom.Core;
+using TeensyRom.Player;
 public class Program
 {
     private static int Main(string[] args)
@@ -56,6 +59,7 @@ public class Program
         services.AddSingleton<ISidMetadataService>(sidService);
         services.AddSingleton<ICachedStorageService, CachedStorageService>();
         services.AddSingleton<IPlayerService, PlayerService>();
+        services.AddSingleton<IPlayer, Player>();
         services.AddSingleton<ITypeResolver, TypeResolver>();
         services.AddSingleton<IProgressTimer, ProgressTimer>();
         services.AddSingleton<ILaunchHistory, LaunchHistory>();

@@ -61,19 +61,18 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
                 : settings.StorageDevice;
 
             var storageType = CommandHelper.PromptForStorageType(settings.StorageDevice, promptAlways: globalSettings.AlwaysPromptStorage);
+            player.SetStorage(storageType);
 
             if (globalSettings.AlwaysPromptStorage)
             {
                 storage.SwitchStorage(storageType);
             }
-
             settings.FilePath = CommandHelper.PromptForFilePath(settings.FilePath);
+            await player.SetDirectoryMode(settings.FilePath);
 
             if (!settings.ValidateSettings()) return -1;
-
-            player.SetDirectoryMode(settings.FilePath);
-            player.SetStorage(storageType);
-            await player.LaunchFromDirectory(settings.FilePath);
+            
+            await player.LaunchItem(settings.FilePath);
 
             var playerCommand = resolver.Resolve(typeof(PlayerCommand)) as PlayerCommand;
 

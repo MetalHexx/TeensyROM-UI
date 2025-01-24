@@ -32,19 +32,37 @@ namespace TeensyRom.Player
 
         private readonly List<ILaunchableItem> _items = [];
         private TeensyFilterType _filter = TeensyFilterType.All;
-        private int _currentIndex;
         private TimeSpan? _playTimer = null;
         private bool _songTimeOverride = false;
+        private ILaunchableItem? _lastSong = null;
+        private ILaunchableItem? _lastGame = null;
+        private ILaunchableItem? _lastImage = null;
 
         public async Task PlayNext()
         {
+            if (_currentItem.Value is null) 
+            {
+                await PlayItem(GetFilteredItems().First());
+                return;
+            }
             await PlayNextOrPrevious(true);
         }
 
         public async Task PlayPrevious()
         {
+            if (_currentItem.Value is null)
+            {
+                await PlayItem(GetFilteredItems().Last());
+                return;
+            }
             await PlayNextOrPrevious(false);
         }
+
+        private List<ILaunchableItem> GetFilteredItems() => _items
+            .Where(i => StorageHelper.GetFileTypes(_filter).Contains(i.FileType))
+            .GroupBy(file => file.Id)
+            .Select(group => group.First())
+            .ToList();
 
         private async Task PlayNextOrPrevious(bool isNext)
         {
@@ -58,18 +76,9 @@ namespace TeensyRom.Player
 
             var unfilteredIndex = unfilteredFiles.IndexOf(currentFile);
 
-            var filteredFiles = unfilteredFiles
-                .Where(f => StorageHelper.GetFileTypes(_filter)
-                    .Any(t => f.FileType == t))
-                .ToList();
+            var filteredFiles = GetFilteredItems();
 
             if (filteredFiles.Count == 0) return;
-
-            if (unfilteredIndex > filteredFiles.Count - 1)
-            {
-                await PlayAndPublish(filteredFiles.First());
-                return;
-            }
 
             var filteredIndex = filteredFiles.IndexOf(currentFile);
 
@@ -79,50 +88,94 @@ namespace TeensyRom.Player
                     ? (filteredIndex < filteredFiles.Count - 1 ? filteredIndex + 1 : 0)
                     : (filteredIndex > 0 ? filteredIndex - 1 : filteredFiles.Count - 1);
 
-                await PlayAndPublish(filteredFiles[index]);
+                await PlayItem(filteredFiles[index]);
                 return;
+            }
+
+            if (isNext) 
+            {
+                MarkLastItemOfCurrentType();
+            }
+
+            if (!isNext)
+            {
+                if (_filter is TeensyFilterType.Music && _lastSong is not null)
+                {
+                    MarkLastItemOfCurrentType();
+                    await PlayItem(_lastSong);                    
+                    _lastSong = null;
+                    return;
+                }
+                else if (_filter is TeensyFilterType.Games && _lastGame is not null)
+                {
+                    MarkLastItemOfCurrentType();
+                    await PlayItem(_lastGame);
+
+                    _lastGame = null;
+                    return;
+                }
+                else if (_filter is TeensyFilterType.Images && _lastImage is not null)
+                {
+                    MarkLastItemOfCurrentType();
+                    await PlayItem(_lastImage);
+                    _lastImage = null;
+                    return;
+                }
             }
 
             ILaunchableItem? candidate = null;
 
+            var indexMap = unfilteredFiles
+                .Select((file, index) => new { file, index })
+                .ToDictionary(x => x.file, x => x.index);
+
             for (int x = 0; x < filteredFiles.Count; x++)
             {
                 var f = filteredFiles[x];
-                var fIndex = unfilteredFiles.IndexOf(f);
+                if (!indexMap.TryGetValue(f, out var fIndex)) continue;
 
                 if (isNext && fIndex > unfilteredIndex)
                 {
                     candidate = f;
-                    continue;
-                }
-                else if (!isNext && fIndex < unfilteredIndex)
-                {
-                    candidate = f;
                     break;
+                }
+                else if (!isNext)
+                {
+                    if (fIndex < unfilteredIndex) 
+                    {
+                        candidate = f;
+                        continue;
+                    }
+                    if (fIndex > unfilteredIndex)
+                    {
+                        break;
+                    }
                 }
             }
 
             if (candidate is null)
             {
                 var fallback = isNext ? filteredFiles.First() : filteredFiles.Last();
-                await PlayAndPublish(fallback);
+                await PlayItem(fallback);
                 return;
             }
-
-            await PlayAndPublish(candidate);
+            await PlayItem(candidate);
         }
 
-        private async Task PlayAndPublish(ILaunchableItem item)
+        private void MarkLastItemOfCurrentType()
         {
-            SetPlayItem(item);
-            PublishItem(item);
-            await PlayItem();
-        }
-
-        private void PublishItem(ILaunchableItem item)
-        {
-            _currentItem.OnNext(item);
-            _currentIndex = _items.IndexOf(item);
+            if (_currentItem.Value is SongItem song)
+            {
+                _lastSong = song;
+            }
+            else if (_currentItem.Value is GameItem game)
+            {
+                _lastGame = game;
+            }
+            else if (_currentItem.Value is ImageItem image)
+            {
+                _lastImage = image;
+            }
         }
 
         public async Task Pause()
@@ -135,45 +188,64 @@ namespace TeensyRom.Player
             _playerState.OnNext(TeensyRom.Player.PlayerState.Paused);
         }
 
-        public async Task PlayItem()
+        public async Task ResumeItem()
         {
-            if(_currentItem.Value is null)
-            {
-                throw new Exception("You must set a playlist before playing an item");
-            }
             if (_playerState.Value == TeensyRom.Player.PlayerState.Paused)
-            {                
+            {
                 timer.ResumeTimer();
                 await mediator.Send(new ToggleMusicCommand());
                 _playerState.OnNext(TeensyRom.Player.PlayerState.Playing);
-            }
-            if(_playerState.Value == TeensyRom.Player.PlayerState.Stopped)
-            {
-                if (_currentItem.Value is SongItem song && _songTimeOverride == false)
-                {
-                    timer.StartNewTimer(song.PlayLength);
-                }
-                else if (_playTimer is not null)
-                {
-                    timer.StartNewTimer(_playTimer.Value);
-                }
-                var result = await mediator.Send(new LaunchFileCommand(settingsService.GetSettings().StorageType, _currentItem.Value));
-                
-                if (result.LaunchResult is LaunchFileResultType.SidError or LaunchFileResultType.ProgramError) 
-                {
-                    _badFile.OnNext(_currentItem.Value);
-                }
-                _playerState.OnNext(TeensyRom.Player.PlayerState.Playing);
+                return;
             }
         }
 
-        public void SetPlayItem(ILaunchableItem item)
+        public async Task PlayItem(string path) 
         {
-            if(_items.Contains(item))
+            var item = _items.FirstOrDefault(i => i.Path == path) 
+                ?? throw new ArgumentException("Path was not found in playlist");
+
+            await PlayItem(item);
+        }
+
+        public async Task PlayItem(ILaunchableItem item)
+        {
+            if (!_items.Contains(item))
             {
-                _currentIndex = _items.IndexOf(item);
-            }
+                _items.Add(item);
+            }            
             _currentItem.OnNext(item);
+            await StartStream();
+        }
+
+        private async Task StartStream() 
+        {
+            if(_currentItem.Value is null)
+            {
+                throw new Exception("You must set an item before a stream can start.");
+            }            
+            var result = await mediator.Send(new LaunchFileCommand(settingsService.GetSettings().StorageType, _currentItem.Value));
+
+            if (result.LaunchResult is LaunchFileResultType.SidError or LaunchFileResultType.ProgramError)
+            {
+                _badFile.OnNext(_currentItem.Value);
+            }            
+            _playerState.OnNext(TeensyRom.Player.PlayerState.Playing);
+            StartNewTimer();
+        }
+
+        private void StartNewTimer()
+        {            
+            _timerSubscription?.Dispose();
+
+            if (_currentItem.Value is SongItem song && _songTimeOverride == false)
+            {
+                timer.StartNewTimer(song.PlayLength);
+            }
+            else if (_playTimer is not null)
+            {
+                timer.StartNewTimer(_playTimer.Value);
+            }            
+            _timerSubscription = timer.TimerComplete.Subscribe(async _ => await PlayNext());
         }
 
         public void SetPlaylist(List<ILaunchableItem> items)
@@ -198,31 +270,34 @@ namespace TeensyRom.Player
             _songTimeOverride = true;
         }
 
-        public void ClearSongTimeOverride()
+        public void DisableSongTimeOverride()
         {
             _songTimeOverride = false;
         }
-
         public void ClearPlaytimer()
         {
             _playTimer = null;
         }
 
-        public async Task Stop()
+        public void Stop()
         {
             _playerState.OnNext(TeensyRom.Player.PlayerState.Stopped);
             _timerSubscription?.Dispose();
-            await mediator.Send(new ResetCommand());
         }
 
-        public ILaunchableItem GetCurrent() 
+        public ILaunchableItem? GetCurrent() 
         {
-            return _items[_currentIndex];
+            return _currentItem.Value;
         }
 
         public void SetFilter(TeensyFilterType filter)
         {
             _filter = filter;
+        }
+
+        public void RemoveItem(ILaunchableItem item)
+        {
+            _items.Remove(item);
         }
     }
 }

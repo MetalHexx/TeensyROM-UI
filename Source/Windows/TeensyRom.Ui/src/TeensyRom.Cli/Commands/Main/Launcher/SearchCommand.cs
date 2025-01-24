@@ -78,6 +78,7 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
                 : settings.StorageDevice;
 
             var storageType = CommandHelper.PromptForStorageType(settings.StorageDevice, promptAlways: globalSettings.AlwaysPromptStorage);
+            player.SetStorage(storageType);
 
             if (globalSettings.AlwaysPromptStorage)
             {
@@ -89,7 +90,6 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
                 settings.Query = PromptHelper.DefaultValueTextPrompt("Search Terms:", 2, "iron maiden");
                 RadHelper.WriteLine();
             }
-
             var validation = settings.Validate();
 
             if (!validation.Successful)
@@ -99,11 +99,13 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
             }
 
             var filterType = CommandHelper.PromptForFilterType(settings.Filter);
+            player.SetFilter(filterType);
+            var searchResults = player.SetSearchMode(settings.Query);
 
             if (filterType is TeensyFilterType.All or TeensyFilterType.Games or TeensyFilterType.Images)
             {
-                player.SetStreamTime(
-                    CommandHelper.PromptGameTimer(settings.Timer));
+                var streamTime = CommandHelper.PromptGameTimer(settings.Timer);
+                player.SetStreamTime(streamTime);
 
                 if (filterType is TeensyFilterType.All)
                 {
@@ -116,8 +118,7 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
                     var sidTimer = CommandHelper.PromptSidTimer(overrideSid);
                     player.SetSidTimer(sidTimer);
                 }
-            }
-            var searchResults = storage.Search(settings.Query, StorageHelper.GetFileTypes(filterType));
+            }                        
 
             if (!searchResults.Any())
             {
@@ -133,10 +134,7 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
             AnsiConsole.WriteLine();
 
             var file = searchResults.First(f => f.Name == fileName);
-            player.SetSearchMode(settings.Query);
-            player.SetStorage(storageType);
-
-            await player.LaunchFromDirectory(file.Path);
+            await player.LaunchItem(file.Path);
 
             if (playerCommand is not null)
             {

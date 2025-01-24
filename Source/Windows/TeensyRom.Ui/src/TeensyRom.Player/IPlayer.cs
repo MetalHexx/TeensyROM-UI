@@ -10,17 +10,19 @@ namespace TeensyRom.Player
         IObservable<TimeSpan> CurrentTime { get; }
         IObservable<ILaunchableItem> BadFile { get; }
 
-        Task PlayItem();
+        Task PlayItem(ILaunchableItem item);
         Task Pause();
-        Task Stop();
+        void Stop();
         Task PlayNext();
         Task PlayPrevious();
-        void SetPlayItem(ILaunchableItem item);
         void SetPlaylist(List<ILaunchableItem> Items);
         void SetPlayTimer(TimeSpan time);
         void SetFilter(TeensyFilterType filter);
         void ClearPlaytimer();
         void EnableSongTimeOverride();
-        void ClearSongTimeOverride();
+        void DisableSongTimeOverride();
+        Task ResumeItem();
+        void RemoveItem(ILaunchableItem item);
+        Task PlayItem(string path);
     }
 }

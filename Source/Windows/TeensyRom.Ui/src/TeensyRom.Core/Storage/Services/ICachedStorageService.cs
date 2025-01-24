@@ -16,6 +16,7 @@ namespace TeensyRom.Core.Storage.Services
         Task<SaveFilesResult> SaveFiles(IEnumerable<FileTransferItem> files);
         Task DeleteFile(IFileItem file, TeensyStorageType storageType);
         ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, params TeensyFileType[] fileTypes);
+        List<ILaunchableItem> GetRandomFiles(StorageScope scope, string scopePath, params TeensyFileType[] fileTypes);
         Task CacheAll();
         Task CacheAll(string path);
         void MarkIncompatible(ILaunchableItem launchItem);

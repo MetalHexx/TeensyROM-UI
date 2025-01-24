@@ -67,6 +67,7 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
                 : settings.StorageDevice;
 
             var storageType = CommandHelper.PromptForStorageType(settings.StorageDevice, promptAlways: globalSettings.AlwaysPromptStorage);
+            player.SetStorage(storageType);
 
             if (globalSettings.AlwaysPromptStorage)
             {
@@ -89,7 +90,6 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
 
             var selectedFile = await TraverseStorage(storageItems, _lastDirectory);
 
-
             if (selectedFile is null)
             {
                 RadHelper.WriteError("Directory or files not found.");
@@ -97,10 +97,9 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
                 return 0;
             }
             AnsiConsole.WriteLine();
-
-            player.SetDirectoryMode(selectedFile.Path);
-            player.SetStorage(storageType);
-            await player.LaunchFromDirectory(selectedFile.Path);
+            
+            await player.SetDirectoryMode(selectedFile.Path.GetUnixParentPath());
+            await player.LaunchItem(selectedFile.Path);
 
             if (playerCommand is not null)
             {

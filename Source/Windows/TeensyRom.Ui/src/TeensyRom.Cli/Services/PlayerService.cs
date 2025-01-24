@@ -1,20 +1,14 @@
-﻿using MediatR;
-using Spectre.Console;
+﻿using Spectre.Console;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using TeensyRom.Cli.Helpers;
-using TeensyRom.Core.Commands;
-using TeensyRom.Core.Progress;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
-using TeensyRom.Core.Commands.LaunchFile;
-using TeensyRom.Core.Commands.ToggleMusic;
-using TeensyRom.Core.Commands.Reset;
 using TeensyRom.Core.Player;
+using TeensyRom.Player;
 
 namespace TeensyRom.Cli.Services
 {
@@ -24,23 +18,17 @@ namespace TeensyRom.Cli.Services
         private Subject<ILaunchableItem> _fileLaunched = new();
         private PlayerState _state;
 
-
-        private IDisposable? _timerSubscription;
-        private readonly IMediator _mediator;
         private readonly ICachedStorageService _storage;
-        private readonly IProgressTimer _timer;
         private readonly ISettingsService _settingsService;
-        private readonly ILaunchHistory _randomHistory;
         private readonly IAlertService _alert;
+        private readonly IPlayer _player;
 
-        public PlayerService(IMediator mediator, ICachedStorageService storage, IProgressTimer progressTimer, ISettingsService settingsService, ISerialStateContext serial, ILaunchHistory history, IAlertService alert)
+        public PlayerService(ICachedStorageService storage, ISettingsService settingsService, ISerialStateContext serial, IAlertService alert, IPlayer player)
         {
-            _mediator = mediator;
             _storage = storage;
-            _timer = progressTimer;
             _settingsService = settingsService;
-            _randomHistory = history;
             _alert = alert;
+            _player = player;
             var settings = settingsService.GetSettings();
 
             _state = new() 
@@ -48,72 +36,59 @@ namespace TeensyRom.Cli.Services
                 StorageType = settings.StorageType,
                 FilterType = settings.StartupFilter,                
             };
-
             serial.CurrentState
-                .Where(state => state is SerialConnectionLostState && _state.PlayState is PlayState.Playing)
-                .Subscribe(_ => StopStream());
+                .Where(state => state is SerialConnectionLostState && _state.PlayState is Player.PlayerState.Playing)
+                .Subscribe(_ => StopStream()); 
 
-            SetupTimerSubscription();
+            player.CurrentItem.Subscribe(OnCurrentItem);
+            
+            player.BadFile
+                .Where(item => item is not null)
+                .Subscribe(OnBadFile);
+
+            player.PlayerState
+                .Subscribe(state => _state = _state with 
+                { 
+                    PlayState = state 
+                });
         }
 
-        public async Task LaunchFromDirectory(string path)
+        private async void OnBadFile(ILaunchableItem item)
         {
-            var directory = await _storage.GetDirectory(path.GetUnixParentPath());
-
-            if (directory is null)
-            {
-                _alert.PublishError("Directory not found.");
-                return;
-            }
-            var fileItem = directory.Files.FirstOrDefault(f => f.Path.Contains(path));
-
-            if (fileItem is not ILaunchableItem launchItem)
-            {
-                _alert.PublishError("File is not launchable.");
-                return;
-            }
-            var launchSuccessful = await LaunchItem(launchItem);
-
-            if (!launchSuccessful) 
-            {
-                await PlayNext();
-            }
+            _storage.MarkIncompatible(item);            
+            AlertBadFile(item);
+            await PlayNext();
+            _player.RemoveItem(item);
         }
 
-        public async Task<bool> LaunchItem(ILaunchableItem item)
-
+        private void OnCurrentItem(ILaunchableItem? item)
         {
-            _state = _state with
-            {
-                CurrentItem = item,
-                PlayState = PlayState.Playing
-            };
-            if (!item.IsCompatible) 
-            {
-                AlertBadFile(item);
-                return false;
-            }
-            var result = await _mediator.Send(new LaunchFileCommand(_state.StorageType, item));
+            if (item is null) return;
 
-            if (result.IsSuccess)
-            {
-                _fileLaunched.OnNext(item);
-                _alert.Publish(RadHelper.ClearHack);
-                MaybeStartStream(item);
-                return true;
-            }          
-            if (result.LaunchResult is LaunchFileResultType.SidError or LaunchFileResultType.ProgramError)
-            {
-                _storage.MarkIncompatible(item);
-                _randomHistory.Remove(item);
-                AlertBadFile(item);
-                return false;
-            }
-            _alert.PublishError($"Failed to launch {item.Name}.");
-            return false;
+            _state.CurrentItem = item;
+            _fileLaunched.OnNext(item);
+            _alert.Publish(RadHelper.ClearHack);
         }
 
-        private void AlertBadFile(ILaunchableItem item) 
+        public async Task Launch(ILaunchableItem item)
+        {
+            await _player.PlayItem(item);
+        }
+
+        public async Task LaunchItem(string path)
+        {   
+            await _player.PlayItem(path);
+        }
+
+        private List<ILaunchableItem> GetUnfilteredLaunchables(StorageCacheItem directory)
+        {
+            return directory.Files
+                .OfType<ILaunchableItem>()
+                .Where(file => file.IsCompatible)
+                .ToList();
+        }
+
+        private void AlertBadFile(ILaunchableItem item)
         {
             AnsiConsole.WriteLine();
             _alert.PublishError($"{item.Name} is currently unsupported (see logs).  Skipping file.");
@@ -121,379 +96,144 @@ namespace TeensyRom.Cli.Services
 
         public async Task PlayRandom()
         {
-            if (_state.PlayMode is not PlayMode.Random)
-            {
-                _randomHistory.Clear();
-            }
-            _state.PlayMode = PlayMode.Random;
 
-            var randomItem = _storage.GetRandomFile(_state.Scope, _state.ScopePath, GetFilterFileTypes());
-
-            if (randomItem is null)
+            if (_state.PlayMode is not PlayMode.Random) 
             {
-                _alert.PublishError($"No files for the filter \"{_state.FilterType}\" were found on the {_state.StorageType} in {_state.ScopePath}.");
-                return;
+                throw new Exception("You must set random mode first.");
             }
-            var launchSuccessful = await LaunchItem(randomItem);
-
-            if (launchSuccessful) 
-            {
-                _randomHistory.Add(randomItem);
-                return;
-            }
-            await PlayNext();
+            await _player.PlayNext();
         }
 
         public async Task PlayPrevious()
         {
-            ILaunchableItem? fileToPlay = _state.PlayMode switch
-            {
-                PlayMode.Random => _randomHistory.GetPrevious(GetFilterFileTypes()),
-                PlayMode.Search => GetPreviousSearchItem(),
-                PlayMode.CurrentDirectory => await GetPreviousDirectoryItem(),
-                _ => _state.CurrentItem
-            };
-            if(fileToPlay is null)
-            {
-                if (_state.CurrentItem is null) 
-                {
-                    return;
-                }
-                fileToPlay = _state.CurrentItem;
-            }
-            var launchSuccessful = await LaunchItem(fileToPlay);
-
-            if (!launchSuccessful) 
-            {
-                await PlayPrevious();
-            }
-        }
-
-        public ILaunchableItem? GetPreviousSearchItem()
-        {
-            var list = _storage.Search(_state.SearchQuery!, []).ToList();
-            return GetPreviousFromList(list);
-        }
-
-        public async Task<ILaunchableItem?> GetPreviousDirectoryItem()
-        {
-            var currentPath = _state.CurrentItem!.Path.GetUnixParentPath();
-            var currentDirectory = await _storage.GetDirectory(currentPath);
-
-            if (currentDirectory is null)
-            {
-                _alert.PublishError($"Couldn't find directory {currentPath}.");
-                return null;
-            }
-            var files = currentDirectory.Files.OfType<ILaunchableItem>().ToList();
-            return GetPreviousFromList(files);
-        }
-
-        private ILaunchableItem? GetPreviousFromList(List<ILaunchableItem> list)
-        {
-            var unfilteredFiles = list;
-
-            if (unfilteredFiles.Count == 0)
-            {
-                _alert.PublishError("Something went wrong.  I couldn't find any files in the target location.");
-                return null;
-            }
-            var currentFile = unfilteredFiles.ToList().FirstOrDefault(f => f.Id == _state.CurrentItem?.Id);
-
-            if (currentFile is null)
-            {
-                _alert.PublishError("Something went wrong.  I couldn't find the current file in the target location.");
-                return null;
-            }
-
-            var filteredFiles = unfilteredFiles
-                .Where(f => GetFilterFileTypes()
-                    .Any(t => f.FileType == t))
-                .ToList();
-
-            if (filteredFiles.Count() == 0)
-            {
-                _alert.PublishError("There were no files matching your filter in the target location");
-                return null;
-            }
-
-            var currentFileUnfilteredIndex = unfilteredFiles.IndexOf(currentFile);
-
-            var currentFileComesAfterLastItemInFilteredList = unfilteredFiles.IndexOf(filteredFiles.Last()) < currentFileUnfilteredIndex;
-
-            if (currentFileComesAfterLastItemInFilteredList)
-            {
-                return filteredFiles.Last();
-            }
-            var filteredIndex = filteredFiles.IndexOf(currentFile);
-
-            if (filteredIndex != -1)
-            {
-                var index = filteredIndex == 0
-                    ? filteredFiles.Count - 1
-                    : filteredIndex - 1;
-
-                return filteredFiles[index];
-            }
-
-            ILaunchableItem? candidate = null;
-
-            for (int x = 0; x < filteredFiles.Count; x++)
-            {
-                var f = filteredFiles[x];
-
-                var fIndex = unfilteredFiles.IndexOf(f);
-
-                if (fIndex < currentFileUnfilteredIndex)
-                {
-                    candidate = f;
-                    continue;
-                }
-                else if (fIndex > currentFileUnfilteredIndex)
-                {
-                    break;
-                }
-            }
-            if (candidate is null)
-            {
-                return filteredFiles.First();
-            }
-            return candidate;
+            await _player.PlayPrevious();            
         }
 
         public async Task PlayNext()
         {
-            ILaunchableItem? fileToPlay = null;
-
-            switch (_state.PlayMode) 
+            if (_state.PlayMode is PlayMode.Random)
             {
-                case PlayMode.Random:
-                    fileToPlay = _randomHistory.GetNext(GetFilterFileTypes());
-
-                    if (fileToPlay is null)
-                    {
-                        await PlayRandom();
-                        return;
-                    }
-                    break;
-
-                case PlayMode.Search:
-                    fileToPlay = GetNextSearchItem();
-                    break;
-
-                case PlayMode.CurrentDirectory:
-                    fileToPlay = await GetNextDirectoryItem();
-                    break;
-            }
-
-            if (fileToPlay is null)
-            {
-                fileToPlay = _state.CurrentItem;
-            }
-            var launchSuccessful = await LaunchItem(fileToPlay!);
-
-            if (!launchSuccessful) await PlayNext();
-        }
-
-        public ILaunchableItem? GetNextSearchItem()
-        {
-            if (_state.SearchQuery is null) return null;
-
-            var list = _storage.Search(_state.SearchQuery, []).ToList();
-
-            return GetNextListItem(list);
-        }
-
-        public async Task<ILaunchableItem?> GetNextDirectoryItem()
-        {
-            var currentPath = _state.CurrentItem!.Path.GetUnixParentPath();
-            var currentDirectory = await _storage.GetDirectory(currentPath);
-
-            if (currentDirectory is null) return null;
-
-            var compatibleFiles = currentDirectory.Files.Any(f => f.IsCompatible);
-
-            if (!compatibleFiles) return null;        
-            
-            var list = currentDirectory.Files.OfType<ILaunchableItem>().ToList();
-            return GetNextListItem(list);
-        }
-
-        public ILaunchableItem? GetNextListItem(List<ILaunchableItem> list)
-        {
-            var unfilteredFiles = list;
-
-            if (unfilteredFiles.Count == 0)
-            {
-                RadHelper.WriteError("Something went wrong.  I coudln't find any files in the target location.");
-                return null;
-            }
-
-            var currentFile = unfilteredFiles.ToList().FirstOrDefault(f => f.Id == _state.CurrentItem?.Id);
-
-            if (currentFile is null)
-            {
-                RadHelper.WriteError("Something went wrong.  I coudln't find the current file in the target location.");
-                return null;
-            }
-
-            var unfilteredIndex = unfilteredFiles.IndexOf(currentFile);
-
-            var filteredFiles = unfilteredFiles
-                .Where(f => GetFilterFileTypes()
-                    .Any(t => f.FileType == t))
-                .ToList();
-
-            if (filteredFiles.Count() == 0)
-            {
-                RadHelper.WriteError("There were no files matching your filter in the target location");
-                return null;
-            }
-            if (unfilteredIndex > filteredFiles.Count - 1)
-            {
-                return filteredFiles.First();
-            }
-            var filteredIndex = filteredFiles.IndexOf(currentFile);
-
-            if (filteredIndex != -1)
-            {
-                var index = filteredIndex < filteredFiles.Count - 1
-                ? filteredIndex + 1
-                : 0;
-
-                return filteredFiles[index];
-            }
-
-            ILaunchableItem? candidate = null;
-
-            for (int x = 0; x < filteredFiles.Count; x++)
-            {
-                var f = filteredFiles[x];
-
-                var fIndex = unfilteredFiles.IndexOf(f);
-
-                if (fIndex > unfilteredIndex)
-                {
-                    candidate = f;
-                    continue;
-                }
-                else if (fIndex < unfilteredIndex)
-                {
-                    break;
-                }
-            }
-            if (candidate is null)
-            {
-                return filteredFiles.First();
-            }
-            return candidate;
-        }
-
-        private void MaybeStartStream(ILaunchableItem fileItem)
-        {
-            if (fileItem is SongItem songItem && _state.SidTimer is SidTimer.SongLength)
-            {
-                StartStream(songItem.PlayLength);
+                await PlayRandom();
                 return;
             }
-            if (_state.PlayTimer is not null)
-            {
-                StartStream(_state.PlayTimer.Value);
-            }
-        }
-
-        private void StartStream(TimeSpan length)
-        {
-            _state.PlayState = PlayState.Playing;
-            SetupTimerSubscription();
-            _timer.StartNewTimer(length);
-        }
-
-        private void SetupTimerSubscription()
-        {
-            _timerSubscription?.Dispose();
-
-            _timerSubscription = _timer.TimerComplete.Subscribe(async _ =>
-            {
-                await PlayNext();
-            });
+            await _player.PlayNext();
+            return;
         }
 
         public void StopStream()
         {
-            if (_timerSubscription is not null)
-            {
-                _alert.Publish("Stopping Stream");
-            }
-            _state.PlayState = PlayState.Stopped;
-            _timerSubscription?.Dispose();
-            _timerSubscription = null;
+            _player.Stop();
         }
 
         public void PauseStream() 
         {
-            _state.PlayState = PlayState.Paused;
-            _timer.PauseTimer();
+            _player.Pause();
         }
         public void ResumeStream() 
         {
-            _state.PlayState = PlayState.Playing;
-            _timer.ResumeTimer();
+            _player.ResumeItem();
         }
 
         public PlayerState GetState() => _state with { };
 
-        public void SetSearchMode(string query)
+        public List<ILaunchableItem> SetSearchMode(string query)
         {
             _state = _state with
             {
                 PlayMode = PlayMode.Search,
                 SearchQuery = query
             };
+
+            var searchResults = _storage.Search(query);
+
+            if (!searchResults.Any())
+            {
+                _alert.PublishError("No files found for the search query.");
+                return [];
+            }
+            _player.SetPlaylist(searchResults.ToList());
+            var filterFileTypes = GetFilterFileTypes();
+            
+            return searchResults
+                .Where(f => filterFileTypes.Any(type => type == f.FileType))
+                .ToList();
         }
 
-        public void SetDirectoryMode(string directoryPath)
+        public async Task<List<ILaunchableItem>> SetDirectoryMode(string directoryPath)
         {
-            _state = _state with 
+            _state = _state with
             {
                 PlayMode = PlayMode.CurrentDirectory,
                 FilterType = TeensyFilterType.All,
-                ScopePath = directoryPath,
                 SearchQuery = null
             };
+            _player.SetFilter(TeensyFilterType.All);
             _alert.Publish("Switching filter to \"All\"");
+
+            var directory = await _storage.GetDirectory(directoryPath);
+
+            if (directory is null)
+            {
+                _alert.PublishError("Directory not found.");
+                return [];
+            }
+            var launchableFiles = GetUnfilteredLaunchables(directory);
+
+            if (launchableFiles.Count == 0)
+            {
+                _alert.PublishError("No launchable files found in the directory.");
+                return launchableFiles;
+            }
+            _player.SetPlaylist(launchableFiles);            
+            
+            return launchableFiles;
         }
 
-        public void SetRandomMode(string scopePath)
+        public void SetRandomMode()
         {
             if (_state.PlayMode is not PlayMode.Random)
             {
-                _randomHistory.Clear();
+                LoadRandomFiles();
             }
             _state = _state with            
             {
                 PlayMode = PlayMode.Random,
-                ScopePath = scopePath,
                 SearchQuery = null
             };
         }
 
-        public void SetFilter(TeensyFilterType filterType) => _state = _state with { FilterType = filterType };
-        public void SetDirectoryScope(string path) => _state = _state with { ScopePath = path };
-        public void SetStreamTime(TimeSpan? timespan)
+        private void LoadRandomFiles()
         {
-            _state = _state with { PlayTimer = timespan };
+            var playlist = _storage.GetRandomFiles(_state.Scope, _state.ScopePath);
 
-            if (_state.CurrentItem is SongItem && _state.SidTimer is SidTimer.SongLength)
+            if (playlist.Count == 0)
             {
+                _alert.PublishError($"No files were found on the {_state.StorageType} in {_state.ScopePath}.");
                 return;
             }
+            _player.SetPlaylist(playlist);
+        }
 
-            if (_state.PlayTimer is not null)
+        public void SetFilter(TeensyFilterType filterType) 
+        {
+            _state = _state with { FilterType = filterType };
+            _player.SetFilter(_state.FilterType);
+        }
+        public void SetDirectoryScope(string path) 
+        {
+            _state = _state with { ScopePath = path };
+
+            if (_state.PlayMode is PlayMode.Random) 
             {
-                StopStream();
-                StartStream(_state.PlayTimer.Value);
-            }
+                LoadRandomFiles();
+            };
+        }
+        public void SetStreamTime(TimeSpan? timespan)
+        {
+            if (!timespan.HasValue) return;
+
+            _player.SetPlayTimer(timespan.Value);
+            _state = _state with { PlayTimer = timespan };
         }
         public void SetSidTimer(SidTimer value) => _state = _state with { SidTimer = value };
 
@@ -511,38 +251,22 @@ namespace TeensyRom.Cli.Services
 
         public void TogglePlay()
         {
-            if(_state.PlayState is PlayState.Playing)
-            {   
-                PauseStream();
-                
-                if(_state.CurrentItem is SongItem) 
+            if(_state.PlayState is Player.PlayerState.Playing)
+            {
+                if (_state.CurrentItem is SongItem)
                 {
-                    _mediator.Send(new ToggleMusicCommand());
-                    _alert.Publish($"{_state.CurrentItem.Name} has been paused.");
-                    return;
+                    _player.Pause();
+                    _alert.Publish($"{_state.CurrentItem?.Name} has been paused.");
                 }
-                _mediator.Send(new ResetCommand());
-                _alert.Publish($"{_state.CurrentItem?.Name} has been stopped.");
+                else 
+                {
+                    _player.Stop();
+                    _alert.Publish($"{_state.CurrentItem?.Name} has been stopped.");
+                }
                 return;
             }
-            if(_state.CurrentItem is null)
-            {
-                _alert.PublishError("Hit back and try starting a new stream.");
-                return;
-            }
-            ResumeStream();
-
-            _state = _state with { PlayState = PlayState.Playing };
-
-            if (_state.CurrentItem is SongItem)
-            {
-                _mediator.Send(new ToggleMusicCommand());
-            }
-            else 
-            {
-                _mediator.Send(new LaunchFileCommand(_state.StorageType, _state.CurrentItem));
-            }
-            _alert.Publish($"{_state.CurrentItem.Name} has been resumed.");
+            _player.ResumeItem();
+            _alert.Publish($"{_state.CurrentItem?.Name} has resumed.");
         }
     }
 }

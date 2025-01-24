@@ -385,6 +385,12 @@ namespace TeensyRom.Core.Storage.Services
 
         public ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, params TeensyFileType[] fileTypes)
         {
+            var selection = GetRandomFiles(scope, scopePath, fileTypes).ToList();
+            return selection.FirstOrDefault();
+        }
+
+        public List<ILaunchableItem> GetRandomFiles(StorageScope scope, string scopePath, params TeensyFileType[] fileTypes)
+        {
             scopePath = $"{scopePath.RemoveLeadingAndTrailingSlash().EnsureUnixPathEnding()}";
 
             if (fileTypes.Length == 0)
@@ -409,12 +415,11 @@ namespace TeensyRom.Core.Storage.Services
 
                     _ => true
                 })
-                .OfType<ILaunchableItem>()
-                .ToArray();
+                .OfType<ILaunchableItem>();
 
-            if (selection.Length == 0) return null;
+            if (!selection.Any()) return [];
 
-            return selection[new Random().Next(selection.Length - 1)];
+            return selection.OrderBy(_ => Guid.NewGuid()).ToList();
         }
 
         public IEnumerable<ILaunchableItem> Search(string searchText, params TeensyFileType[] fileTypes)

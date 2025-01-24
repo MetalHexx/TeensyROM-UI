@@ -117,6 +117,7 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
             player.SetStorage(storageType);
             player.SetDirectoryScope(settings.PinnedDirectory);
             player.SetFilter(filterType);
+            player.SetRandomMode();
 
             await player.PlayRandom();
 

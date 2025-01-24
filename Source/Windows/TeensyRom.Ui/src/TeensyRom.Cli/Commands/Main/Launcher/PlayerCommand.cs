@@ -37,7 +37,7 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
             {
                 var _playerState = _player.GetState();
 
-                List<string> choices = _playerState.PlayState == PlayState.Playing
+                List<string> choices = _playerState.PlayState == Player.PlayerState.Playing
                     ? ["Next", "Previous", "Stop/Pause", "Favorite", "Ban", "Share", "Stream Settings", "Back"]
                     : ["Next", "Previous", "Resume", "Favorite", "Ban", "Share", "Stream Settings", "Back"];
 
@@ -176,7 +176,7 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
 
             if (playMode == "Random")
             {
-                _player.SetRandomMode(playerState.ScopePath);
+                _player.SetRandomMode();
                 return;
             }
             var directoryPath = playerState.CurrentItem is null
@@ -190,7 +190,7 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
         {
             AnsiConsole.WriteLine(RadHelper.ClearHack);
 
-            var needsToggle = playerState.PlayState is PlayState.Playing;
+            var needsToggle = playerState.PlayState is Player.PlayerState.Playing;
 
             if (playerState.CurrentItem is null)
             {
@@ -223,7 +223,7 @@ namespace TeensyRom.Cli.Commands.Main.Launcher
         {
             AnsiConsole.WriteLine(RadHelper.ClearHack);
 
-            var needsToggle = playerState.PlayState is PlayState.Playing;
+            var needsToggle = playerState.PlayState is Player.PlayerState.Playing;
 
             if (playerState.CurrentItem is null)
             {

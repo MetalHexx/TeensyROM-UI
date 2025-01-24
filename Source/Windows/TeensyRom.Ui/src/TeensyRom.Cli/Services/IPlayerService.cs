@@ -9,8 +9,7 @@ namespace TeensyRom.Cli.Services
         IObservable<ILaunchableItem> FileLaunched { get; }
 
         PlayerState GetState();
-        Task<bool> LaunchItem(ILaunchableItem item);
-        Task LaunchFromDirectory(string path);
+        Task LaunchItem(string path);
         Task PlayNext();
         Task PlayPrevious();
         Task PlayRandom();
@@ -19,9 +18,9 @@ namespace TeensyRom.Cli.Services
         void SetSidTimer(SidTimer value);
         void StopStream();
         void SetDirectoryScope(string path);
-        void SetSearchMode(string query);
-        void SetDirectoryMode(string path);
-        void SetRandomMode(string path);
+        List<ILaunchableItem> SetSearchMode(string query);
+        Task<List<ILaunchableItem>> SetDirectoryMode(string path);
+        void SetRandomMode();
         void TogglePlay();
         void SetStorage(TeensyStorageType storageType);
     }
