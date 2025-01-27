@@ -12,18 +12,31 @@ using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Core.Progress;
+using System.Reactive.Concurrency;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
+    public enum FastForwardSpeed 
+    {
+        Off,
+        Medium, 
+        MediumFast,
+        Fast,
+        Hyper
+    }
     public class PlayToolbarViewModel : ReactiveObject
     {
         [Reactive] public bool PlayButtonEnabled { get; set; }
-        [Reactive] public bool PauseButtonEnabled { get; set; }
+        [Reactive] public bool PauseButtonEnabled { get; set; }        
         [Reactive] public bool StopButtonEnabled { get; set; }
+        [Reactive] public bool FastForwardEnabled { get; set; }
+        [Reactive] public FastForwardSpeed FastForwardSpeed { get; set; } = FastForwardSpeed.Off;
+        [Reactive] public bool SetSpeedEnabled { get; set; }
+        [Reactive] public double SpeedPercentage { get; set; }
         [Reactive] public bool TimedPlayEnabled { get; set; }
         [Reactive] public bool TimedPlayButtonEnabled { get; set; }
         [Reactive] public bool TimedPlayComboBoxEnabled { get; set; }
-        [Reactive] public bool ProgressEnabled { get; set; }
+        [Reactive] public bool ProgressEnabled { get; set; }                
         [Reactive] public string TimerSeconds { get; set; } = "3m";
         [Reactive] public List<string> TimerOptions { get; set; } = ["5s", "10s", "15s", "30s", "1m", "3m", "5m", "10m", "15m", "30m"];
         [Reactive] public string SelectedScope { get; set; } = StorageScope.Storage.ToDescription();
@@ -38,6 +51,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [Reactive] public bool SubtuneNextButtonEnabled { get; set; }
         [Reactive] public bool SubtunePreviousButtonEnabled { get; set; }
         [ObservableAsProperty] public bool SubtunesEnabled { get; }
+        [ObservableAsProperty] public bool IsSong { get; }
         [ObservableAsProperty] public List<int> SubtuneIndex { get; }
         [ObservableAsProperty] public bool ShowTitleOnly { get; }
         [ObservableAsProperty] public string StorageScopePath { get; }
@@ -52,6 +66,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<Unit, Unit> TogglePlayCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PreviousCommand { get; set; }
         public ReactiveCommand<Unit, Unit> NextCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> FastForwardCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ToggleShuffleCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ToggleTimedPlay { get; set; }
         public ReactiveCommand<Unit, Unit> FavoriteCommand { get; set; }
@@ -60,27 +75,30 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<Unit, Unit> NavigateToFileDirCommand { get; set; }
         public ReactiveCommand<Unit, Unit> NextSubtuneCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PreviousSubtuneCommand { get; set; }
+        public ReactiveCommand<double, Unit> SetSpeedCommand { get; set; }
 
         private readonly IAlertService _alert;
         private IProgressTimer? _timer;
         private IDisposable? _timerCompleteSubscription;
         private IDisposable? _currentTimeSubscription;
+        private double _previousSpeed = 0;
 
         public PlayToolbarViewModel(
-            IObservable<ILaunchableItem> file, 
+            IObservable<ILaunchableItem> file,
             IObservable<LaunchItemState> playState,
             IObservable<bool> timedPlayEnabled,
             IObservable<StorageScope> storageScope,
             IObservable<string> storageScopePath,
             IProgressTimer? timer,
-            Func<Unit> toggleMode, 
+            Func<Unit> toggleMode,
             Func<Task> togglePlay,
-            Func<Task> playPrevious, 
+            Func<Task> playPrevious,
             Func<Task> playNext,
             Func<int, Task> playSubtune,
             Func<ILaunchableItem, Task> saveFav,
             Func<ILaunchableItem, Task> removeFav,
-            Func<string, Task> loadDirectory,            
+            Func<string, Task> loadDirectory,
+            Func<double, Task> changeSpeed,
             Action<StorageScope> setScope,
             IAlertService alert)
         {
@@ -94,6 +112,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             var showCreatorInfo = currentFile
                 .Select(item => !string.IsNullOrWhiteSpace(item.Creator));
+
+            currentFile.Subscribe(_ => DisableFastForward());
 
             currentFile.ToPropertyEx(this, f => f.File);
 
@@ -112,6 +132,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Select(f => !string.IsNullOrWhiteSpace(f.ShareUrl))
                 .ToPropertyEx(this, vm => vm.ShareVisible);
 
+            currentFile.Subscribe(_ => SpeedPercentage = 0);
+
             playState
                 .Select(state => state.PlayMode == PlayMode.Shuffle)
                 .ToPropertyEx(this, vm => vm.ShuffleModeEnabled);
@@ -123,11 +145,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             storageScope
                 .CombineLatest(storageScopePath, (scope, path) => (scope, path))
-                .Select(scopeAndPath => 
+                .Select(scopeAndPath =>
                 {
                     if (scopeAndPath.path == StorageConstants.Remote_Path_Root) return scopeAndPath;
 
-                    if(scopeAndPath.path.Length <= 10) return scopeAndPath;
+                    if (scopeAndPath.path.Length <= 10) return scopeAndPath;
 
                     var rangeToTake = Math.Abs(24 - scopeAndPath.path.Length);
 
@@ -135,7 +157,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     return scopeAndPath;
                 })
                 .Select(scopeAndPath => scopeAndPath.scope switch
-                { 
+                {
                     StorageScope.DirDeep => scopeAndPath.path,
                     StorageScope.DirShallow => scopeAndPath.path,
                     _ => string.Empty
@@ -155,13 +177,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             var playToggle = playState
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(state => state.PlayState == PlayState.Playing)                
+                .Where(state => state.PlayState == PlayState.Playing)
                 .Do(_ => PlayButtonEnabled = false);
 
             playToggle
                 .Where(_ => File is GameItem or HexItem or ImageItem)
-                .Subscribe(item => 
-                {   
+                .Subscribe(item =>
+                {
                     StopButtonEnabled = true;
                     PauseButtonEnabled = false;
                 });
@@ -181,31 +203,37 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             file.Select(file => file is SongItem song && song.SubtuneLengths.Count > 1)
                 .ToPropertyEx(this, vm => vm.SubtunesEnabled);
 
+            file.Select(f => f is SongItem)
+                .ToPropertyEx(this, vm => vm.IsSong);
+
+            file.Select(f => f is SongItem)
+                .Subscribe(isSong => SetSpeedEnabled = isSong);
+
             song.Select(s => s.StartSubtuneNum)
-                .Subscribe(startIndex => 
+                .Subscribe(startIndex =>
                 {
-                    CurrentSubtuneIndex = startIndex;                    
+                    CurrentSubtuneIndex = startIndex;
                 });
 
             song.Select(s => s.SubtuneLengths.Select((_, i) => i + 1).ToList())
                 .Where(lengths => lengths.Count > 1)
                 .ToPropertyEx(this, vm => vm.SubtuneIndex);
 
-            song.Subscribe(item => 
+            song.Subscribe(item =>
             {
                 TimedPlayButtonEnabled = false;
                 TimedPlayComboBoxEnabled = false;
                 ProgressEnabled = true;
                 InitializeProgress(playNext, item);
             });
-            
+
 
             gameOrImage
                 .Where(_ => TimedPlayEnabled)
                 .Subscribe(item =>
                 {
                     TimedPlayButtonEnabled = true;
-                    TimedPlayComboBoxEnabled = true;                                        
+                    TimedPlayComboBoxEnabled = true;
                     ProgressEnabled = true;
                     InitializeProgress(playNext, item);
                 });
@@ -215,7 +243,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Subscribe(item =>
                 {
                     TimedPlayButtonEnabled = true;
-                    TimedPlayComboBoxEnabled = false;                                       
+                    TimedPlayComboBoxEnabled = false;
                     ProgressEnabled = false;
                     _timer?.PauseTimer();
                 });
@@ -249,36 +277,81 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     InitializeProgress(playNext, (File));
                 });
 
-            TogglePlayCommand = ReactiveCommand.CreateFromTask(_ => 
+            TogglePlayCommand = ReactiveCommand.CreateFromTask(_ =>
             {
+                if (FastForwardEnabled)
+                {
+                    DisableFastForward(true);
+                    return Task.CompletedTask;
+                }
                 if (PlayButtonEnabled) _timer?.ResumeTimer();
                 if (PauseButtonEnabled) _timer?.PauseTimer();
                 return togglePlay();
             });
 
-            ToggleTimedPlay = ReactiveCommand.Create<Unit>(_ => 
+            ToggleTimedPlay = ReactiveCommand.Create<Unit>(_ =>
             {
                 TimedPlayEnabled = !TimedPlayEnabled;
 
                 if (TimedPlayEnabled)
                 {
-                    TimedPlayComboBoxEnabled = true;                    
+                    TimedPlayComboBoxEnabled = true;
                     ProgressEnabled = true;
                     InitializeProgress(playNext, (File));
                     return;
                 }
                 TimedPlayComboBoxEnabled = false;
-                ProgressEnabled = false;                
+                ProgressEnabled = false;
                 _timer?.PauseTimer();
             });
 
-            NextCommand = ReactiveCommand.CreateFromTask(playNext);
-            PreviousCommand = ReactiveCommand.CreateFromTask(playPrevious);
+            FastForwardCommand = ReactiveCommand.Create(() =>
+            {
+                switch (FastForwardSpeed)
+                {
+                    case FastForwardSpeed.Off:
+                        PauseButtonEnabled = false;
+                        PlayButtonEnabled = true;
+                        FastForwardEnabled = true;
+                        SetSpeedEnabled = false;
+                        FastForwardSpeed = FastForwardSpeed.Medium;
+                        _previousSpeed = SpeedPercentage;
+                        SpeedPercentage = 25;
+                        return;
+
+                    case FastForwardSpeed.Medium:
+                        FastForwardSpeed = FastForwardSpeed.MediumFast;
+                        SpeedPercentage = 50;
+                        return;
+
+                    case FastForwardSpeed.MediumFast:
+                        FastForwardSpeed = FastForwardSpeed.Fast;
+                        SpeedPercentage = 75;
+                        return;
+
+                    case FastForwardSpeed.Fast:
+                        FastForwardSpeed = FastForwardSpeed.Hyper;
+                        SpeedPercentage = 99;
+                        return;
+
+                    case FastForwardSpeed.Hyper:
+                        DisableFastForward(true);
+                        return;
+                }
+            });
+            NextCommand = ReactiveCommand.CreateFromTask(_ =>
+            {
+                return playNext();
+            });
+            PreviousCommand = ReactiveCommand.CreateFromTask(_ =>
+            {
+                return playPrevious();
+            });
             ToggleShuffleCommand = ReactiveCommand.Create(toggleMode);
             FavoriteCommand = ReactiveCommand.CreateFromTask(_ => saveFav(File!));
             RemoveFavoriteCommand = ReactiveCommand.CreateFromTask(_ => removeFav(File!));
             ShareCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleShareCommand());
-            NavigateToFileDirCommand = ReactiveCommand.CreateFromTask(_ => loadDirectory(File!.Path.GetUnixParentPath()!));
+            NavigateToFileDirCommand = ReactiveCommand.CreateFromTask(_ => loadDirectory(File!.Path.GetUnixParentPath()!));            
             
             PreviousSubtuneCommand = ReactiveCommand.Create<Unit, Unit>(_ => 
             {
@@ -304,6 +377,18 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 return Unit.Default;
             });
 
+            var speedChanges = this.WhenAnyValue(x => x.SpeedPercentage)
+                .Skip(1)
+                .Throttle(TimeSpan.FromMilliseconds(100))
+                .DistinctUntilChanged()
+                .ObserveOn(TaskPoolScheduler.Default)
+                .Subscribe(async speed =>
+                {
+                    await changeSpeed(speed).ConfigureAwait(false);                    
+                    timer?.UpdateSpeed(speed);
+                    //timer?.UpdateSpeed(speed.GetRealPlayPercentage());
+                });
+
             this.WhenAnyValue(x => x.CurrentSubtuneIndex)                
                 .Skip(2)
                 .Where(_ => File is SongItem item && item.SubtuneLengths.Count > 1)
@@ -313,6 +398,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     ResetSubtuneButtonState();
                     playSubtune(CurrentSubtuneIndex);
                 });
+        }
+
+        private void DisableFastForward(bool usePrevious = false)
+        {
+            PlayButtonEnabled = false;
+            PauseButtonEnabled = true;
+            FastForwardEnabled = false;
+            SetSpeedEnabled = true;
+            FastForwardSpeed = FastForwardSpeed.Off;
+            SpeedPercentage = usePrevious ? _previousSpeed : 0;
         }
 
         private void ResetSubtuneButtonState()

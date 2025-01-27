@@ -130,5 +130,6 @@ namespace TeensyRom.Core.Serial
         void StartHealthCheck();
         void StopHealthCheck();
         void EnsureConnection();
+        void SendSignedChar(sbyte charToSend);
     }
 }

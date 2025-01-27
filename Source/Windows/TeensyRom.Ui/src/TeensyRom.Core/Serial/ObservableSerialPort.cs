@@ -325,6 +325,13 @@ namespace TeensyRom.Core.Serial
             }
         }
 
+        public void SendSignedChar(sbyte charToSend)
+        {
+            byte[] byteToSend = { (byte)charToSend };
+            _log.Internal($"Sending byte: {byteToSend[0]} (0x{byteToSend[0]:X2})");
+            _serialPort.Write(byteToSend, 0, 1);
+        }
+
         public uint ReadIntBytes(short byteLength)
         {
             byte[] receivedBytes = new byte[byteLength];

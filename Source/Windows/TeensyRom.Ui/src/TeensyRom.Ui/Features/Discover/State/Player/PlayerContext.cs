@@ -37,6 +37,7 @@ using TeensyRom.Ui.Core.Progress;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using SystemDirectory = System.IO.Directory;
+using TeensyRom.Core.Commands.SetMusicSpeed;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {
@@ -747,6 +748,12 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             if (IsBusy()) return Task.CompletedTask;
             return _mediator.Send(new PlaySubtuneCommand(subtuneIndex));
+        }
+
+        public Task SetSpeed(double percentage)
+        {
+            if (IsBusy()) return Task.CompletedTask;
+            return _mediator.Send(new SetMusicSpeedCommand(percentage, MusicSpeedType.Linear));
         }
     }
 }

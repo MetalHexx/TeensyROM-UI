@@ -26,6 +26,7 @@ namespace TeensyRom.Core.Serial.State
         public virtual void StartHealthCheck() => throw new TeensyStateException(ExceptionMessage);
         public virtual void StopHealthCheck() => throw new TeensyStateException(ExceptionMessage);
         public virtual void SendIntBytes(uint intToSend, short numBytes) => throw new TeensyStateException(ExceptionMessage);
+        public virtual void SendSignedChar(sbyte charToSend) => throw new TeensyStateException(ExceptionMessage);
         public virtual uint ReadIntBytes(short byteLength) => throw new TeensyStateException(ExceptionMessage);
         public virtual void Lock() => throw new TeensyStateException(ExceptionMessage);
         public virtual void Unlock() => throw new TeensyStateException(ExceptionMessage);

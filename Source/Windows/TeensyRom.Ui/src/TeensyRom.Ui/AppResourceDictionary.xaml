@@ -64,6 +64,17 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="TrButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource EnabledColor}"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="False">
+                <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="StorageIconButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
 
         <Setter Property="Padding" Value="0"/>
@@ -92,7 +103,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <Style x:Key="ShuffleModeButtonStyle" TargetType="Button" BasedOn="{StaticResource StorageIconButton}">
         <Style.Triggers>
             <DataTrigger Binding="{Binding ShuffleModeEnabled}" Value="True">
@@ -100,6 +111,38 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
+
+    <SolidColorBrush x:Key="PastelGreen" Color="#86c691" />
+    <SolidColorBrush x:Key="PastelRed" Color="#cc666c" />
+    <SolidColorBrush x:Key="PastelBlue" Color="#87ceeb" />
+    <SolidColorBrush x:Key="PastelOrange" Color="#f5b185" />
+    <SolidColorBrush x:Key="PastelYellow" Color="#f8e58e" />
+
+    <Style x:Key="FastForwardButtonStyle" TargetType="Button" BasedOn="{StaticResource TrButton}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding FastForwardSpeed}" Value="Off">
+                <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}" />
+            </DataTrigger>
+
+            <DataTrigger Binding="{Binding FastForwardSpeed}" Value="Medium">
+                <Setter Property="Foreground" Value="{StaticResource PastelGreen}" />
+            </DataTrigger>
+
+            <DataTrigger Binding="{Binding FastForwardSpeed}" Value="MediumFast">
+                <Setter Property="Foreground" Value="{StaticResource PastelYellow}" />
+            </DataTrigger>
+
+            <DataTrigger Binding="{Binding FastForwardSpeed}" Value="Fast">
+                <Setter Property="Foreground" Value="{StaticResource PastelOrange}" />
+            </DataTrigger>
+
+            <DataTrigger Binding="{Binding FastForwardSpeed}" Value="Hyper">
+                <Setter Property="Foreground" Value="{StaticResource PastelRed}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+
 
     <Style x:Key="TimerModeButtonStyle" TargetType="Button" BasedOn="{StaticResource StorageIconButton}">
         <Style.Triggers>
