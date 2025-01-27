@@ -4,22 +4,124 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TeensyRom.Ui.Controls.PlayToolbar"
+             xmlns:behaviors="clr-namespace:TeensyRom.Ui.Helpers.Behaviors"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d">
-
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+
+        <Grid Background="Transparent">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            
+        </Grid>
+
+        <Border Grid.Row="0" x:Name="PopupContent" HorizontalAlignment="Stretch" Margin="26 0 0 0" Height="0">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <materialDesign:PackIcon 
+                        Kind="Snail"                         
+                        Height="24" Width="24" 
+                        Foreground="LightGray"
+                        Opacity="0.3"
+                        ToolTip="Controls the speed of the playing song."
+                        Margin="0 0 10 0"/>
+
+                    <Slider Style="{StaticResource MaterialDesignSlider}"
+                        x:Name="SetSpeedSlider"
+                        IsEnabled="{Binding SetSpeedEnabled}"
+                        MouseDoubleClick="SetSpeedSlider_MouseDoubleClick"
+                        ToolTip="Controls the speed of the playing song.  &#x0a;• Keyboard arrows adjust the speed by 1.  &#x0a;• Page Up/Down buttons adjusts speed by 10. &#x0a;• Double-click to reverts to default speed."
+                        Maximum="125"
+                        Minimum="-50"
+                        IsSnapToTickEnabled="True"
+                        TickFrequency="1"           
+                        SmallChange="1"
+                        LargeChange="10" 
+                        Value="{Binding SpeedPercentage}"
+                        Width="190"/>
+
+                    <materialDesign:PackIcon 
+                        Kind="Rabbit" 
+                        Opacity="0.3"                    
+                        Height="24" Width="24" 
+                        Foreground="LightGray"
+                        ToolTip="Controls the speed of the playing song."
+                        Margin="0 0 10 0"/>
+
+                    <TextBlock Text="{Binding ElementName=SetSpeedSlider, Path=Value, StringFormat='{}{0:F0}'}"
+                        IsEnabled="{Binding SetSpeedEnabled}"
+                        VerticalAlignment="Center"
+                        Margin="10,0,0,0"
+                        FontSize="14"
+                        Foreground="White"
+                        ToolTip="Percentage increase or decrease of the playing song."/>
+                    <TextBlock VerticalAlignment="Center">%</TextBlock>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0 0 10 0">
+
+                    <ComboBox
+                        x:Name="TimerComboBox"
+                        ItemsSource="{Binding TimerOptions}"
+                        SelectedItem="{Binding TimerSeconds, Mode=TwoWay}"
+                        IsEnabled="{Binding TimedPlayComboBoxEnabled}"                    
+                        FontFamily="Arial"
+                        Foreground="{StaticResource EnabledColor}"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:TextFieldAssist.PrefixText="Play Timer:"
+                        ToolTip="The amount of time to play the current file before launching the next."
+                        Margin="20 0 0 0"/>
+
+                    <ComboBox
+                        x:Name="ScopeComboBox"
+                        ItemsSource="{Binding ScopeOptions}"
+                        SelectedItem="{Binding SelectedScope, Mode=TwoWay}"
+                        IsEnabled="{Binding ShuffleModeEnabled}"
+                        FontFamily="Arial"
+                        Foreground="{StaticResource EnabledColor}"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:TextFieldAssist.PrefixText="Shuffle Scope:"
+                        materialDesign:HintAssist.HelperText="{Binding StorageScopePath}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Shuffle mode will randomly select files at varying depths:&#x0a;• Selected Storage: Files across your entire selected storage device.&#x0a;• Directory (Shallow): Files in the pinned directory only.&#x0a;• Directory (Deep): Files in the pinned directory and deeply nested in directories below it."
+                        Margin="20 0 0 0"/>
+
+                </StackPanel>
+                
+                
+            </Grid>                        
+        </Border>
 
         <ProgressBar 
             Value="{Binding Progress.Percentage, Mode=OneWay}"
             Visibility="{Binding ProgressEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"
             Maximum="1"
-            Grid.Row="0" VerticalAlignment="Top"/>
+            Grid.Row="1" VerticalAlignment="Top"/>
 
-        <Grid Grid.Row="1" Margin="10 10 0 10">
+        <Grid Grid.Row="2" Margin="10 10 0 10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -29,7 +131,7 @@
             <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Top" Margin="0 3 0 0">
                 <Button x:Name="PreviousButton"
                     Command="{Binding PreviousCommand}"  
-                    ToolTip="Go to the previous file. &#x0a;In normal mode, it goes to the next file in the selected directory.  &#x0a;In shuffle mode, it will go to the next random file in your collection.  &#x0a;The filter above will determine the type of file that gets played."
+                    ToolTip="Previous"
                     Style="{StaticResource PlaybarPrevSkipButton}">
                     <materialDesign:PackIcon Kind="SkipPrevious" />
                 </Button>
@@ -45,7 +147,7 @@
                 <Button x:Name="PauseButton"
                     Command="{Binding TogglePlayCommand}" 
                     Visibility="{Binding PauseButtonEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"   
-                    ToolTip="Pauses the music."
+                    ToolTip="Pause"
                     Style="{StaticResource PlaybarButton}">
                     <materialDesign:PackIcon Kind="Pause" />
                 </Button>
@@ -58,9 +160,18 @@
                     <materialDesign:PackIcon Kind="Stop" />
                 </Button>
 
+                <Button x:Name="FastFowardButton"
+                    Visibility="{Binding IsSong, Converter={StaticResource BoolToVisibilityConvertor}}"
+                    Command="{Binding FastForwardCommand}"  
+                    ToolTip="Fast Foward Song."
+                    Style="{StaticResource FastForwardButtonStyle}"
+                    Margin="10 0 0 0">
+                    <materialDesign:PackIcon Kind="FastForwardOutline" />
+                </Button>
+
                 <Button x:Name="NextButton"
                     Command="{Binding NextCommand}"  
-                    ToolTip="Go to the next file. &#x0a;In normal mode, it goes to the next file in the selected directory.  &#x0a;In shuffle mode, it will go to the next random file in your collection.  &#x0a;The filter above will determine the type of file that gets played."
+                    ToolTip="Play the next file. &#x0a;• In normal mode, it goes to the next file in the directory of the currently playing file.  &#x0a;• In shuffle mode, it will go to the next random file in your collection based on the shuffle scope.  &#x0a;• The filter above will determine the type of file that gets played."
                     Style="{StaticResource PlaybarPrevSkipButton}">
                     <materialDesign:PackIcon Kind="SkipNext" />
                 </Button>
@@ -78,7 +189,6 @@
                     Text="{Binding Progress.TotalTime,  Mode=OneWay}" 
                     Visibility="{Binding ProgressEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"
                     VerticalAlignment="Center" Margin="0 0 0 0"/>
-                
             </StackPanel>
 
             <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="30 4 0 0">
@@ -145,6 +255,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel 
@@ -189,53 +300,38 @@
 
                 </StackPanel>
 
-                <ComboBox Grid.Column="1"
-                    x:Name="TimerComboBox"
-                    ItemsSource="{Binding TimerOptions}"
-                    SelectedItem="{Binding TimerSeconds, Mode=TwoWay}"
-                    Visibility="{Binding TimedPlayComboBoxEnabled, Converter={StaticResource BoolToVisibilityConvertor}, Mode=TwoWay}"                    
-                    FontFamily="Arial"
-                    Foreground="{StaticResource EnabledColor}"
-                    materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                    materialDesign:TextFieldAssist.PrefixText="Timer:"
-                    ToolTip="The amount of time to play the current file before launching the next."
-                    Margin="5"/>
+                <Button
+                    Grid.Column="1"
+                    x:Name="AdvancedControlButton"
+                    Click="AdvancedControlButton_Click"                      
+                    ToolTip="Opens the advanced control options."
+                    Style="{StaticResource StorageIconButton}"
+                    Padding="0"
+                    Margin="5 10 5 5">
+                    <materialDesign:PackIcon Kind="Gear"/>
+                </Button>
 
-                <Button Grid.Column="2"
+                <Button Grid.Column="3"
                     x:Name="TimerButton"
                     Command="{Binding ToggleTimedPlay}"  
-                    Visibility="{Binding TimedPlayButtonEnabled, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
-                    ToolTip="Enables continuous timed play.&#x0a;When the timer ends, the next file will be launched."
+                    IsEnabled ="{Binding TimedPlayButtonEnabled}"
+                    ToolTip="Enables continuous timed play.&#x0a;• When the timer ends, the next file will be launched."
                     Style="{StaticResource TimerModeButtonStyle}"
                     Padding="0"
-                    Margin="5">
+                    Margin="5 10 5 5">
                     <materialDesign:PackIcon Kind="TimerOutline" Margin="0 0 0 0"/>
                 </Button>
 
-                <ComboBox Grid.Column="3"
-                    x:Name="ScopeComboBox"
-                    ItemsSource="{Binding ScopeOptions}"
-                    SelectedItem="{Binding SelectedScope, Mode=TwoWay}"
-                    Visibility="{Binding ShuffleModeEnabled, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
-                    FontFamily="Arial"
-                    Foreground="{StaticResource EnabledColor}"
-                    materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                    materialDesign:TextFieldAssist.PrefixText="Shuffle:"
-                    materialDesign:HintAssist.HelperText="{Binding StorageScopePath}"
-                    materialDesign:HintAssist.HelperTextFontSize="12"
-                    ToolTip="Shuffle mode will randomly select files at varying depths:&#x0a;• Selected Storage: Files across your entire selected storage device.&#x0a;• Directory (Shallow): Files in the pinned directory only.&#x0a;• Directory (Deep): Files in the pinned directory and deeply nested in directories below it."
-                    Margin="5"/>
-
-                <Button Grid.Column="4"
+                <Button Grid.Column="5"
                     x:Name="ShuffleModeButton"
                     Command="{Binding ToggleShuffleCommand}"  
-                    ToolTip="Shuffle Mode.  &#x0a;Enabling this will cause the next button to play random file from your collection.  &#x0a;Disabling will play the next file in the current directory. &#x0a;The filter selected will determine the file type that gets picked."
+                    ToolTip="Shuffle Mode.  &#x0a;• Enabling this will cause the next button to play random file from your collection.  &#x0a;• Disabling will play the next file in the current directory. &#x0a;• The filter selected will determine the file type that gets picked."
                     Style="{StaticResource ShuffleModeButtonStyle}"
                     Margin="5 10 5 5">
                     <materialDesign:PackIcon Kind="Shuffle"/>
                 </Button>
 
-                <Button Grid.Column="5"
+                <Button Grid.Column="6"
                     x:Name="ShareButton"
                     Command="{Binding ShareCommand}"    
                     Visibility="{Binding ShareVisible, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
@@ -247,11 +343,11 @@
                 </Button>
 
                 <Button
-                    Grid.Column="6"
+                    Grid.Column="7"
                     x:Name="FavoriteButton"
                     Command="{Binding FavoriteCommand}"  
                     Visibility="{Binding File.IsFavorite, Converter={StaticResource InverseBooleanToVisibilityConverter}, Mode=OneWay}"
-                    ToolTip="Tags the current file as favorite.&#x0a;Your file will be saved to the /favorites folder."
+                    ToolTip="Tags the current file as favorite.&#x0a;• Your file will be saved to the /favorites folder."
                     Style="{StaticResource StorageIconButton}"
                     Padding="0"
                     Margin="5 10 5 5">
@@ -259,7 +355,7 @@
                 </Button>
 
                 <Button
-                    Grid.Column="7"
+                    Grid.Column="8"
                     x:Name="RemoveFavoriteButton"
                     Command="{Binding RemoveFavoriteCommand}"  
                     Visibility="{Binding File.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"

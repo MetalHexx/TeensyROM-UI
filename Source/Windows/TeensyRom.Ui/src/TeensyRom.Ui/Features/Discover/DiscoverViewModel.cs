@@ -106,6 +106,7 @@ namespace TeensyRom.Ui.Features.Discover
                 player.SaveFavorite,
                 player.RemoveFavorite,
                 player.LoadDirectory,
+                player.SetSpeed,
                 player.SetScope,                
                 alert
             );

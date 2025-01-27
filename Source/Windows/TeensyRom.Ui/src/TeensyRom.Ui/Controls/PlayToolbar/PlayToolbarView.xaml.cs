@@ -21,9 +21,32 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
     /// </summary>
     public partial class PlayToolbarView : UserControl
     {
+        private bool _isAdvancedVisible = false;
+
         public PlayToolbarView()
         {
             InitializeComponent();
+        }
+
+        private void AdvancedControlButton_Click(object sender, RoutedEventArgs e)
+        {
+            double fromHeight = _isAdvancedVisible ? PopupContent.ActualHeight : 0;
+            double toHeight = _isAdvancedVisible ? 0 : 50; 
+
+            var heightAnimation = new DoubleAnimation
+            {
+                From = fromHeight,
+                To = toHeight,
+                Duration = new Duration(TimeSpan.FromSeconds(0.5)),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
+            };
+            PopupContent.BeginAnimation(FrameworkElement.HeightProperty, heightAnimation);
+            _isAdvancedVisible = !_isAdvancedVisible;
+        }
+
+        private void SetSpeedSlider_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            SetSpeedSlider.Value = 0;
         }
     }
 }
