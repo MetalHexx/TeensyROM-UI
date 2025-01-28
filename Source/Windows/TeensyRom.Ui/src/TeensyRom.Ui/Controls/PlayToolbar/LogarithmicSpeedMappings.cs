@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
 
-    internal static class PlaySpeedMappings
+    internal static class LogarithmicSpeedMappings
     {
         private static readonly Dictionary<double, double> Mappings = new()
         {
@@ -240,7 +240,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             { -127, -56 }
         };
 
-        public static double GetRealPlayPercentage(this double value)
+        public static double GetLogPercentage(this double value)
         {
             return Mappings.TryGetValue(value, out var percentage) ? percentage : throw new ArgumentOutOfRangeException(nameof(value), "Value not mapped.");
         }

@@ -54,13 +54,13 @@
                         IsEnabled="{Binding SetSpeedEnabled}"
                         MouseDoubleClick="SetSpeedSlider_MouseDoubleClick"
                         ToolTip="Controls the speed of the playing song.  &#x0a;• Keyboard arrows adjust the speed by 1.  &#x0a;• Page Up/Down buttons adjusts speed by 10. &#x0a;• Double-click to reverts to default speed."
-                        Maximum="125"
-                        Minimum="-50"
+                        Maximum="{Binding MaxSpeed}"
+                        Minimum="{Binding MinSpeed}"
                         IsSnapToTickEnabled="True"
                         TickFrequency="1"           
                         SmallChange="1"
                         LargeChange="10" 
-                        Value="{Binding SpeedPercentage}"
+                        Value="{Binding RawSpeedValue}"
                         Width="190"/>
 
                     <materialDesign:PackIcon 
@@ -71,14 +71,28 @@
                         ToolTip="Controls the speed of the playing song."
                         Margin="0 0 10 0"/>
 
-                    <TextBlock Text="{Binding ElementName=SetSpeedSlider, Path=Value, StringFormat='{}{0:F0}'}"
+                    <TextBlock Text="{Binding ActualSpeedPercent}"
                         IsEnabled="{Binding SetSpeedEnabled}"
                         VerticalAlignment="Center"
                         Margin="10,0,0,0"
                         FontSize="14"
                         Foreground="White"
                         ToolTip="Percentage increase or decrease of the playing song."/>
+                    
                     <TextBlock VerticalAlignment="Center">%</TextBlock>
+                    
+                    <ComboBox
+                        x:Name="SpeedCurveList"
+                        ItemsSource="{Binding SpeedCurveOptions}"
+                        SelectedItem="{Binding SelectedSpeedCurve, Mode=TwoWay}"
+                        IsEnabled="{Binding SetSpeedEnabled}"                    
+                        FontFamily="Arial"
+                        Foreground="{StaticResource PrimaryHueLightBrush}"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource PrimaryHueLightBrush}"
+                        materialDesign:TextFieldAssist.PrefixText="Speed Curve"
+                        ToolTip="The curve used for the speed control."
+                        Margin="20 0 0 0"/>
+                    
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0 0 10 0">

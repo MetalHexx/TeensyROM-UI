@@ -22,7 +22,6 @@ namespace TeensyRom.Ui.Core.Progress
 
         private Subject<Unit> _timerComplete = new();
         private IObservable<long> _timeIntervalObservable;
-        private IDisposable? _timerSubscription;
         private IDisposable? _currentTimeSubscription;
 
         private TimeSpan _currentTime = TimeSpan.Zero;
@@ -75,21 +74,22 @@ namespace TeensyRom.Ui.Core.Progress
 
         private void StartObservables(TimeSpan length)
         {
-            _timerSubscription = Observable.Timer(length)
-                .Subscribe(_ => _timerComplete.OnNext(Unit.Default));
-
             _currentTimeSubscription = Observable.Interval(TimeSpan.FromMilliseconds(20))
                 .Subscribe(_ =>
                 {
                     var timeStep = TimeSpan.FromMilliseconds(20 * _speedMultiplier);
                     _currentTime = _currentTime.Add(timeStep);
+
+                    if (_currentTime >= length) 
+                    {
+                        //Needed in case speed multiplier was or is being used since the Observable.Timer will be out of sync.
+                        _timerComplete.OnNext(Unit.Default);
+                    }
                 });
         }
 
         private void TryStopObservables()
         {
-            _timerSubscription?.Dispose();
-            _timerSubscription = null;
             _currentTimeSubscription?.Dispose();
             _currentTimeSubscription = null;
         }
