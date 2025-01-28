@@ -117,5 +117,4 @@ The application features a terminal to show you all of the activity happening on
   - Settings that haven't been exposed in the UI are located : `\Assets\System\Config\Settings.json`
   - If you mess something up, no big deal, just delete your file and it'll restore to factory defaults.
   - You can find the index files here `\Assets\System\Cache`
-  - Back up your files before changing them 
-  - If you want to reset the system, you can delete these .json files, no big deal. They'll be recreated with defaults on the next app startup.
+  - Back up your configuration files before changing them. 
