@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using TeensyRom.Core.Music;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
@@ -55,6 +56,6 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         void SetScope(StorageScope scope);
         void SetScopePath(string path);
         string GetScopePath();
-        Task SetSpeed(double percentage);
+        Task SetSpeed(double percentage, MusicSpeedCurveTypes curveType);
     }
 }
