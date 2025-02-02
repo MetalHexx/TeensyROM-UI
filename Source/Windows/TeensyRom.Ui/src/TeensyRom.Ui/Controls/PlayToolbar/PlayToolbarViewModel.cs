@@ -425,16 +425,25 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 if (SubtuneIndex?.Count > 1)
                 {
                     fastForwardTime = _currentSong.SubtuneLengths[CurrentSubtuneIndex].GetTimeSpanPercentage(percent);
-                    await playSubtune(CurrentSubtuneIndex);
+
+                    if (fastForwardTime < Progress?.CurrentSpan) 
+                    {
+                        await playSubtune(CurrentSubtuneIndex);
+                        _timer?.ResetTimer();
+                    }
                 }
                 else
                 {
                     fastForwardTime = _currentSong!.PlayLength.GetTimeSpanPercentage(percent);
-                    await restartSong();
+
+                    if (fastForwardTime < Progress?.CurrentSpan)
+                    {
+                        await restartSong();
+                        _timer?.ResetTimer();
+                    }
                 }
                 await _changeSpeed(99, MusicSpeedCurveTypes.Logarithmic);
 
-                _timer?.ResetTimer();
                 _timer?.UpdateSpeed(speedAdjustment);
 
                 _fastForwardTimerSubscription = _timer?.CurrentTime.Subscribe(async currentTime =>
