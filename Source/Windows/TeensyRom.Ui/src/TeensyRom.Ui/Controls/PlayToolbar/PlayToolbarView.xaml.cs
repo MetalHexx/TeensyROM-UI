@@ -85,13 +85,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 BindingOperations.ClearBinding(slider, Slider.ValueProperty);
                 slider.Value = originalValue; //This prevents resetting back to 0 when binding cleared.
 
-                Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    if (DataContext is PlayToolbarViewModel viewModel)
-                    {
-                        viewModel.PauseTimerCommand.Execute().Subscribe();
-                    }
-                }), System.Windows.Threading.DispatcherPriority.Background);
+                //Dispatcher.BeginInvoke(new Action(() =>
+                //{
+                //    if (DataContext is PlayToolbarViewModel viewModel)
+                //    {
+                //        viewModel.PauseTimerCommand.Execute().Subscribe();
+                //    }
+                //}), System.Windows.Threading.DispatcherPriority.Background);
             }
         }
 
