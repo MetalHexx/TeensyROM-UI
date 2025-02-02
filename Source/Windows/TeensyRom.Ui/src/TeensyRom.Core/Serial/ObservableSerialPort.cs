@@ -7,6 +7,7 @@ using System.Text;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TeensyRom.Core.Serial
 {
@@ -330,6 +331,15 @@ namespace TeensyRom.Core.Serial
             byte[] byteToSend = { (byte)charToSend };
             _log.Internal($"Sending byte: {byteToSend[0]} (0x{byteToSend[0]:X2})");
             _serialPort.Write(byteToSend, 0, 1);
+        }
+
+        public void SendSignedShort(short value)
+        {
+            byte highByte = (byte)((value >> 8) & 0xFF); 
+            byte lowByte = (byte)(value & 0xFF);
+
+            _serialPort.Write([highByte], 0, 1);
+            _serialPort.Write([lowByte], 0, 1);
         }
 
         public uint ReadIntBytes(short byteLength)

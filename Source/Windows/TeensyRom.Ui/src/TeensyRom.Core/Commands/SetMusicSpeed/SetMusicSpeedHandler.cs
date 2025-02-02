@@ -18,19 +18,24 @@ namespace TeensyRom.Core.Commands.SetMusicSpeed
 
         public Task<SetMusicSpeedResult> Handle(SetMusicSpeedCommand request, CancellationToken cancellationToken)
         {
-            sbyte speed = 0;
+            short speed = 0;
 
             if (request.Type == MusicSpeedCurveTypes.Linear)
             {
-                speed = request.Speed.ToSbyte(-68, 128);
+                if (speed < MusicConstants.Linear_Speed_Min || speed > MusicConstants.Linear_Speed_Max)
+                    throw new ArgumentOutOfRangeException(nameof(speed), $"Speed must be between {MusicConstants.Linear_Speed_Min} and {MusicConstants.Linear_Speed_Max}.");
+
+                speed = request.Speed.ToScaledShort();
                 _serialState.SendIntBytes(TeensyToken.SetMusicSpeedLinear, 2);
             }
             else
             {
-                speed = request.Speed.ToSbyte(-127, 99);
+                if (speed < MusicConstants.Log_Speed_Min || speed > MusicConstants.Log_Speed_Max)
+                    throw new ArgumentOutOfRangeException(nameof(speed), $"Speed must be between {MusicConstants.Log_Speed_Min} and {MusicConstants.Log_Speed_Max}.");
+                speed = request.Speed.ToScaledShort();
                 _serialState.SendIntBytes(TeensyToken.SetMusicSpeedLog, 2);
             }
-            _serialState.SendSignedChar(speed);
+            _serialState.SendSignedShort(speed);
             _serialState.HandleAck();
             return Task.FromResult(new SetMusicSpeedResult());
         }

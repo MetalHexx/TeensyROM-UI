@@ -6,5 +6,7 @@
         {
             return (sbyte)Math.Clamp(value, clampMin, clampMax);
         }
+
+        public static short ToScaledShort(this double speed) => (short)(speed * 256);        
     }
 }
