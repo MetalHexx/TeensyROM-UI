@@ -756,5 +756,14 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             if (IsBusy()) return Task.CompletedTask;
             return _mediator.Send(new SetMusicSpeedCommand(percentage, curveType));
         }
+
+        public Task RestartSong() 
+        {
+            if (_launchedFile.Value.File is SongItem song) 
+            {
+                return _mediator.Send(new LaunchFileCommand(_settings.StorageType, song));
+            }
+            return Task.CompletedTask;
+        }
     }
 }
