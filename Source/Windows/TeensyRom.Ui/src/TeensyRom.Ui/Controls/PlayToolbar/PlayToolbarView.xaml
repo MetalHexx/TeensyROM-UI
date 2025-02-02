@@ -7,12 +7,40 @@
              xmlns:behaviors="clr-namespace:TeensyRom.Ui.Helpers.Behaviors"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d">
-    <Grid>
+    <Grid IsEnabled="{Binding TrackSeekInProgress, Converter={StaticResource BooleanInverterConverter}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+
+        <Grid.Style>
+            <Style TargetType="Grid">
+                <Setter Property="Opacity" Value="1" />
+                <Style.Triggers>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Trigger.EnterActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                 To="0.80"
+                                                 Duration="0:0:0.5" />
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </Trigger.EnterActions>
+                        <Trigger.ExitActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                 To="1"
+                                                 Duration="0:0:0.5" />
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </Trigger.ExitActions>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Style>
 
         <Grid Background="Transparent">
             <Grid.RowDefinitions>
@@ -57,9 +85,9 @@
                         Maximum="{Binding MaxSpeed}"
                         Minimum="{Binding MinSpeed}"
                         IsSnapToTickEnabled="True"
-                        TickFrequency="1"           
-                        SmallChange="1"
-                        LargeChange="10" 
+                        TickFrequency="0.01"           
+                        SmallChange="0.01"
+                        LargeChange="1" 
                         Value="{Binding RawSpeedValue}"
                         Width="190"/>
 
@@ -129,11 +157,59 @@
             </Grid>                        
         </Border>
 
-        <ProgressBar 
-            Value="{Binding Progress.Percentage, Mode=OneWay}"
-            Visibility="{Binding ProgressEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"
-            Maximum="1"
-            Grid.Row="1" VerticalAlignment="Top"/>
+        <Grid Grid.Row="1" VerticalAlignment="Top">
+            <!--<ProgressBar 
+                x:Name="ProgressIndicator"
+                Value="{Binding Progress.Percentage, Mode=OneWay}"
+                Maximum="1"
+                Visibility="{Binding ProgressEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"
+                MouseEnter="ProgressIndicator_MouseEnter"/>-->
+
+            <!--Visibility="{Binding IsSong, Converter={StaticResource BooleanToVisibilityConverter}}"-->
+
+            <Slider x:Name="ProgressSlider"
+    Value="{Binding Progress.Percentage, Mode=OneWay}" 
+    Maximum="1"
+    Minimum="0"
+    IsEnabled="{Binding TrackSeekEnabled, Converter={StaticResource BooleanInverterConverter}}"
+    HorizontalAlignment="Stretch"
+    VerticalAlignment="Top"
+    Margin="0 -8 0 -8">
+                <Slider.Resources>
+                    <Style TargetType="Thumb">
+                        <Setter Property="Opacity" Value="0"/>
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Slider}, Path=IsMouseOver}" Value="True"/>
+                                    <Condition Binding="{Binding IsSong}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <MultiDataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                 To="1"
+                                                 Duration="0:0:0.3" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </MultiDataTrigger.EnterActions>
+                                <MultiDataTrigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                 To="0"
+                                                 Duration="0:0:0.3" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </MultiDataTrigger.ExitActions>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Slider.Resources>
+            </Slider>
+
+        </Grid>
 
         <Grid Grid.Row="2" Margin="10 10 0 10">
             <Grid.ColumnDefinitions>
@@ -381,6 +457,6 @@
                 </Button>
             </Grid>
 
-        </Grid>
+        </Grid>        
     </Grid>
 </UserControl>

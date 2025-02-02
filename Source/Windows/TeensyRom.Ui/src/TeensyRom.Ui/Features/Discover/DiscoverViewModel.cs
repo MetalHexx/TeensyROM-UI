@@ -102,6 +102,7 @@ namespace TeensyRom.Ui.Features.Discover
                 player.TogglePlay,
                 player.PlayPrevious,
                 player.PlayNext,
+                player.RestartSong,
                 player.PlaySubtune,
                 player.SaveFavorite,
                 player.RemoveFavorite,

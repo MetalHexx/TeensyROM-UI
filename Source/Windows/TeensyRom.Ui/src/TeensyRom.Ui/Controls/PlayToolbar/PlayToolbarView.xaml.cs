@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -22,10 +25,28 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
     public partial class PlayToolbarView : UserControl
     {
         private bool _isAdvancedVisible = false;
+        private Binding? _progressSliderBinding;
+        private bool _progressMouseDowned = false;
 
         public PlayToolbarView()
         {
             InitializeComponent();
+            this.Loaded += PlayToolbarView_Loaded;
+        }
+
+        private void PlayToolbarView_Loaded(object sender, RoutedEventArgs e)
+        {
+            _progressSliderBinding = BindingOperations.GetBinding(ProgressSlider, Slider.ValueProperty);
+
+            this.Loaded -= PlayToolbarView_Loaded;
+
+            ProgressSlider.AddHandler(UIElement.PreviewMouseDownEvent,
+                            new MouseButtonEventHandler(ProgressSlider_PreviewMouseDown),
+                            true);
+
+            ProgressSlider.AddHandler(UIElement.PreviewMouseUpEvent,
+                            new MouseButtonEventHandler(ProgressSlider_PreviewMouseUp),
+                            true);
         }
 
         private void AdvancedControlButton_Click(object sender, RoutedEventArgs e)
@@ -47,6 +68,63 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private void SetSpeedSlider_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             SetSpeedSlider.Value = 0;
+        }
+
+        private void ProgressSlider_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount > 1 || !IsSong()) //hack to avoid issues with double-click
+            {
+                e.Handled = true;
+                return;
+            }
+            if (sender is Slider slider)
+            {
+                _progressMouseDowned = true;
+
+                var originalValue = slider.Value;
+                BindingOperations.ClearBinding(slider, Slider.ValueProperty);
+                slider.Value = originalValue; //This prevents resetting back to 0 when binding cleared.
+
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (DataContext is PlayToolbarViewModel viewModel)
+                    {
+                        viewModel.PauseTimerCommand.Execute().Subscribe();
+                    }
+                }), System.Windows.Threading.DispatcherPriority.Background);
+            }
+        }
+
+        private void ProgressSlider_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_progressMouseDowned == false || !IsSong()) //hack to avoid issues with double-click
+            {
+                e.Handled = true;
+                return;
+            }
+            if (sender is Slider slider)
+            {
+                _progressMouseDowned = false;
+                double newValue = slider.Value;
+
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (DataContext is PlayToolbarViewModel viewModel)
+                    {
+                        viewModel.TrackTimeChangedCommand.Execute(newValue);
+                        BindingOperations.SetBinding(slider, Slider.ValueProperty, _progressSliderBinding);
+                    }
+                }), System.Windows.Threading.DispatcherPriority.Background);                
+            }
+        }
+
+        private bool IsSong() 
+        {
+            if (DataContext is PlayToolbarViewModel viewModel && viewModel.IsSong)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
