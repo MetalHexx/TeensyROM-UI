@@ -13,6 +13,7 @@ namespace TeensyRom.Ui.Core.Progress
         void StartNewTimer(TimeSpan length);
         void PauseTimer();
         void ResumeTimer();
+        void ResetTimer();
         void UpdateSpeed(double speedPercent);
     }
     public class ProgressTimer : IProgressTimer, IDisposable
@@ -53,6 +54,11 @@ namespace TeensyRom.Ui.Core.Progress
         public void ResumeTimer()
         {
             StartObservables(_timeLeft);
+        }
+
+        public void ResetTimer() 
+        {
+            StartNewTimer(_length);
         }
 
         public void UpdateSpeed(double percentage)

@@ -14,5 +14,10 @@ namespace TeensyRom.Core.Music
         public const string DeepSid = "DeepSID";
         public const string Musician_Image_Local_Path = @"Assets\Music\Images\Composers\";
         public const string Hvsc_Musician_Base_Remote_Path = @"/MUSICIANS/";
+        public const double Linear_Speed_Min = -68;
+        public const double Linear_Speed_Max = 127;
+        public const double Log_Speed_Min = -127;
+        public const double Log_Speed_Max = 99;
+
     }
 }
