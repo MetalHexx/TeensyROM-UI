@@ -47,8 +47,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [Reactive] public double ActualSpeedPercent { get; set; }
         [Reactive] public List<MusicSpeedCurveTypes> SpeedCurveOptions { get; set; } = [MusicSpeedCurveTypes.Linear, MusicSpeedCurveTypes.Logarithmic];
         [Reactive] public MusicSpeedCurveTypes SelectedSpeedCurve { get; set; } = MusicSpeedCurveTypes.Linear;
-        [Reactive] public double MinSpeed { get; set; } = linearMin;
-        [Reactive] public double MaxSpeed { get; set; } = linearMax;        
+        [Reactive] public double MinSpeed { get; set; } = MusicConstants.Linear_Speed_Min;
+        [Reactive] public double MaxSpeed { get; set; } = MusicConstants.Linear_Speed_Max;        
         [Reactive] public string SelectedScope { get; set; } = StorageScope.Storage.ToDescription();
         [Reactive]
         public List<string> ScopeOptions { get; set; } = Enum
@@ -97,15 +97,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private double _previousRawSpeed = 0;
         private SongItem? _currentSong;
         private MusicSpeedCurveTypes _previousSpeedCurve = MusicSpeedCurveTypes.Linear;
-        private const double logMin = MusicConstants.Log_Speed_Min;
-        private const double logMax = MusicConstants.Log_Speed_Max;
-        private const double linearMin = MusicConstants.Linear_Speed_Min;
-        private const double linearMax = MusicConstants.Linear_Speed_Max;
+        private bool _muteFastForward;
+        private bool _muteRandomSeek;
+        private Func<bool, bool, bool, Task> _mute;
 
         public PlayToolbarViewModel(
             IObservable<ILaunchableItem> file,
             IObservable<LaunchItemState> playState,
             IObservable<bool> timedPlayEnabled,
+            IObservable<bool> muteFastForward,
+            IObservable<bool> muteRandomSeek,
             IObservable<StorageScope> storageScope,
             IObservable<string> storageScopePath,
             IProgressTimer? timer,
@@ -119,12 +120,17 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             Func<ILaunchableItem, Task> removeFav,
             Func<string, Task> loadDirectory,
             Func<double, MusicSpeedCurveTypes, Task> changeSpeed,
+            Func<bool, bool, bool, Task> mute,
             Action<StorageScope> setScope,
             IAlertService alert)
         {
             _timer = timer;
             _changeSpeed = changeSpeed;
             _alert = alert;
+            _mute = mute;
+
+            muteFastForward.Subscribe(enabled => _muteFastForward = enabled);
+            muteRandomSeek.Subscribe(enabled => _muteRandomSeek = enabled);
 
             var currentFile = file.Where(item => item is not null);
 
@@ -342,21 +348,25 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                         _previousSpeedCurve = SelectedSpeedCurve;
                         SelectedSpeedCurve = MusicSpeedCurveTypes.Logarithmic;
                         RawSpeedValue = 25;
+                        if (_muteFastForward) _mute(true, true, true);
                         return;
 
                     case FastForwardSpeed.Medium:
                         FastForwardSpeed = FastForwardSpeed.MediumFast;
                         RawSpeedValue = 50;
+                        if (_muteFastForward) _mute(true, true, true);
                         return;
 
                     case FastForwardSpeed.MediumFast:
                         FastForwardSpeed = FastForwardSpeed.Fast;
                         RawSpeedValue = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear ? 75 : 90;
+                        if (_muteFastForward) _mute(true, true, true);
                         return;
 
                     case FastForwardSpeed.Fast:
                         FastForwardSpeed = FastForwardSpeed.Hyper;
                         RawSpeedValue = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear ? 125 : 96;
+                        if (_muteFastForward) _mute(true, true, true);
                         return;
 
                     case FastForwardSpeed.Hyper:
@@ -420,7 +430,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     return;
                 }
 
-                var speedAdjustment = logMax.GetLogPercentage();
+                var speedAdjustment = MusicConstants.Log_Speed_Max.GetLogPercentage();
 
                 if (SubtuneIndex?.Count > 1)
                 {
@@ -442,6 +452,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                         _timer?.ResetTimer();
                     }
                 }
+                if(_muteRandomSeek) await _mute(true, true, true);
+
                 await _changeSpeed(99, MusicSpeedCurveTypes.Logarithmic);
 
                 _timer?.UpdateSpeed(speedAdjustment);
@@ -457,7 +469,9 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                         _timer?.UpdateSpeed(originalSpeed);
                         _fastForwardTimerSubscription?.Dispose();
                         TrackSeekInProgress = false;
-                        await _changeSpeed(originalSpeed, SelectedSpeedCurve);                        
+                        await _changeSpeed(originalSpeed, SelectedSpeedCurve);
+
+                        if (_muteRandomSeek) await _mute(false, false, false);
                     }
                 });                
             });
@@ -471,12 +485,12 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                         : SelectedSpeedCurve;
 
                     MinSpeed = selectedSpeedCurve == MusicSpeedCurveTypes.Linear
-                        ? linearMin
-                        : logMin;
+                        ? MusicConstants.Linear_Speed_Min
+                        : MusicConstants.Log_Speed_Min;
 
                     MaxSpeed = selectedSpeedCurve == MusicSpeedCurveTypes.Linear
-                        ? linearMax
-                        : logMax;
+                        ? MusicConstants.Linear_Speed_Max
+                        : MusicConstants.Log_Speed_Max;
 
                     RawSpeedValue = 0;                    
                 });
@@ -518,7 +532,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             SetSpeedEnabled = true;
             FastForwardSpeed = FastForwardSpeed.Off;
             SelectedSpeedCurve = _previousSpeedCurve;
-            RawSpeedValue = resumePreviousSpeed ? _previousRawSpeed : 0;            
+            RawSpeedValue = resumePreviousSpeed ? _previousRawSpeed : 0;
+            if (_muteFastForward) _mute(false, false, false);
         }
 
         private void ResetSubtuneButtonState()
