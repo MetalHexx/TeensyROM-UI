@@ -37,9 +37,9 @@ namespace TeensyRom.Core.Storage.Tools.Zip
             EnsureOutputDirectory(zipOutputPath);
             ZipFile.ExtractToDirectory(zipFullPath, zipOutputPath, true);
 
-            var files = Directory.GetFiles(zipOutputPath);
+            var files = Directory.GetFiles(zipOutputPath, "*", SearchOption.AllDirectories);
 
-            if(files.Length == 0)
+            if (files.Length == 0)
             {
                 return new ExtractionResult(zipItem.Name, []);
             }

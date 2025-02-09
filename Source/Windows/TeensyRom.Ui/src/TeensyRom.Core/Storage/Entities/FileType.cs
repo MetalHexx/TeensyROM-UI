@@ -13,6 +13,8 @@
         Aas,
         Hpi,
         D64,
+        Seq,
+        Txt,
         Unknown
     }
 }

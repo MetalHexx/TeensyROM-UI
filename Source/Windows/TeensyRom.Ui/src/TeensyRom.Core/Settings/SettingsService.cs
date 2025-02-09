@@ -42,7 +42,7 @@ namespace TeensyRom.Core.Settings
                     Formatting = Formatting.Indented
                 });
             }
-            if(settings is null)
+            if (settings is null)
             {
                 settings = InitDefaultSettings();
                 WriteSettings(settings);

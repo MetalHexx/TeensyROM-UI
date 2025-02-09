@@ -1,5 +1,4 @@
-﻿
-using System.Reflection;
+﻿using System.Reflection;
 using TeensyRom.Core.Common;
 
 namespace TeensyRom.Core.Storage.Entities
@@ -21,6 +20,8 @@ namespace TeensyRom.Core.Storage.Entities
                 TeensyFileType.Art => "Art Studio Image",
                 TeensyFileType.Aas => "Advanced Art Studio Image",
                 TeensyFileType.Hpi => "Hi-Pic Creator Image",
+                TeensyFileType.Seq => "Sequential Data",
+                TeensyFileType.Txt => "Text File",
                 _ => "Unknown File Type"
             };
         }
@@ -34,6 +35,8 @@ namespace TeensyRom.Core.Storage.Entities
                 TeensyFileType.Art => "About ART Files:\r\rA file format from Art Studio, a prominent bitmap graphics editor on the C64. It features a resolution of 160x200 pixels using a 16-color palette and was celebrated for bringing detailed pixel graphics editing to the home user, showcasing the graphic capabilities of the C64.",
                 TeensyFileType.Aas => "About AAS Files:\r\rThe successor to Art Studio, the AAS format comes from Advanced Art Studio, pushing the C64's graphical prowess further. It maintained the standard 160x200 resolution with a 16-color palette but introduced enhanced tools and features for the burgeoning community of home computer artists.",
                 TeensyFileType.Hpi => "About HPI Files:\r\rA less common but technically intriguing format used by Hi-Pic Creator, a C64 program designed for high-resolution images. HPI files often pushed beyond standard C64 limitations, experimenting with resolutions and color techniques that paved the way for future graphics innovations on home computers.",
+                TeensyFileType.Seq => "About SEQ Files:\r\rA sequential data file type widely used on the Commodore 64. Encoded in PETSCII, SEQ files are popular in the C64 scene for storing structured text, game data, or custom tools. They reflect the retro computing era's focus on creative data handling and continue to play a role in modern retro development.",
+                TeensyFileType.Txt => "About TXT Files:\r\rA plain text file format that stores readable text, typically encoded in PETSCII on the Commodore 64. TXT files are versatile and widely used for documentation, programming notes, and script storage. Their simplicity makes them ideal for use across retro systems and modern workflows alike.",
                 _ => "Unknown File Type"
             };
         }

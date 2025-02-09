@@ -34,6 +34,8 @@ namespace TeensyRom.Core.Storage.Entities
                 TeensyFileType.Art => new ImageItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
                 TeensyFileType.Aas => new ImageItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
                 TeensyFileType.Hpi => new ImageItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+                TeensyFileType.Seq => new ImageItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+                TeensyFileType.Txt => new ImageItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
 
                 _ => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
             };
@@ -53,7 +55,9 @@ namespace TeensyRom.Core.Storage.Entities
                 TeensyFileType.Art => new ImageItem  { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
                 TeensyFileType.Aas => new ImageItem  { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
                 TeensyFileType.Hpi => new ImageItem  { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
-                                 _ => new FileItem   { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
+                TeensyFileType.Seq => new ImageItem  { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
+                TeensyFileType.Txt => new ImageItem  { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
+                _ => new FileItem   { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
             };
         }
     }
@@ -81,6 +85,8 @@ namespace TeensyRom.Core.Storage.Entities
             ".art" => TeensyFileType.Art,
             ".aas" => TeensyFileType.Aas,
             ".hpi" => TeensyFileType.Hpi,
+            ".seq" => TeensyFileType.Seq,
+            ".txt" => TeensyFileType.Txt,
             ".d64" => TeensyFileType.D64,
             _ => TeensyFileType.Unknown
         };

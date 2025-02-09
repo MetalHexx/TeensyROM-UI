@@ -28,7 +28,10 @@ namespace TeensyRom.Core.Settings
         public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;
         public string WatchDirectoryLocation { get; set; } = string.Empty;
         public string TargetRootPath { get; set; } = @"/";
+
+        [JsonIgnore]
         public List<TeensyTarget> FileTargets { get; set; } = [];
+        [JsonIgnore]
         public List<TeensyFilter> FileFilters { get; set; } = [];
         public string AutoTransferPath { get; set; } = "auto-transfer";
         public bool AutoFileCopyEnabled { get; set; } = false;
@@ -50,14 +53,6 @@ namespace TeensyRom.Core.Settings
         public TeensySettings()
         {
             GetDefaultBrowserDownloadPath();
-        }
-
-        public void InitializeDefaults()
-        {
-            BannedDirectories = ["MUSICIANS/S/Szachista", "System Volume Information", "FOUND.000", "integration-test-files", "integration-tests", "AlternativeFormats", "Dumps", "Docs"];
-            BannedFiles = ["Revolutionary_Etude_part_1.sid", "Revolutionary_Etude_part_2.sid", "Super_Trouper.sid"];
-            SearchStopWords = ["a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "is", "it", "no", "not", "of", "on", "or", "that", "the", "to", "was", "with"];
-
             FileFilters.AddRange(new List<TeensyFilter>
             {
                 new TeensyFilter
@@ -166,12 +161,33 @@ namespace TeensyRom.Core.Settings
                 },
                 new TeensyTarget
                 {
+                    Type = TeensyFileType.Seq,
+                    FilterType = TeensyFilterType.Images,
+                    DisplayName = "SEQ",
+                    Extension = ".seq"
+                },
+                new TeensyTarget
+                {
+                    Type = TeensyFileType.Txt,
+                    FilterType = TeensyFilterType.Images,
+                    DisplayName = "TXT",
+                    Extension = ".txt"
+                },
+                new TeensyTarget
+                {
                     Type = TeensyFileType.D64,
                     FilterType = TeensyFilterType.Games,
                     DisplayName = "D64",
                     Extension = ".d64"
                 }
             });
+        }
+
+        public void InitializeDefaults()
+        {
+            BannedDirectories = ["MUSICIANS/S/Szachista", "System Volume Information", "FOUND.000", "integration-test-files", "integration-tests", "AlternativeFormats", "Dumps", "Docs"];
+            BannedFiles = ["Revolutionary_Etude_part_1.sid", "Revolutionary_Etude_part_2.sid", "Super_Trouper.sid"];
+            SearchStopWords = ["a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "is", "it", "no", "not", "of", "on", "or", "that", "the", "to", "was", "with"];
         }
 
         public string GetFileTypePath(TeensyFileType type)
@@ -195,6 +211,8 @@ namespace TeensyRom.Core.Settings
                 TeensyFileType.Prg => "/favorites/games",
                 TeensyFileType.P00 => "/favorites/games",
                 TeensyFileType.Crt => "/favorites/games",
+                TeensyFileType.Txt => "/favorites/text",
+                TeensyFileType.Seq => "/favorites/images",
                 TeensyFileType.Kla => "/favorites/images",
                 TeensyFileType.Koa => "/favorites/images",
                 TeensyFileType.Art => "/favorites/images",
@@ -219,6 +237,8 @@ namespace TeensyRom.Core.Settings
                 TeensyFileType.Art => AutoTransferPath.UnixPathCombine("images"),
                 TeensyFileType.Aas => AutoTransferPath.UnixPathCombine("images"),
                 TeensyFileType.Hpi => AutoTransferPath.UnixPathCombine("images"),
+                TeensyFileType.Seq => AutoTransferPath.UnixPathCombine("images"),
+                TeensyFileType.Txt => AutoTransferPath.UnixPathCombine("text"),
                 TeensyFileType.Hex => "/firmware",
 
                 _ => AutoTransferPath.UnixPathCombine("unknown")
