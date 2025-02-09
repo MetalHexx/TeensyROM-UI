@@ -95,6 +95,8 @@ namespace TeensyRom.Ui.Features.Discover
                 launchedFile.Where(f => f is not null).Select(f => f.File),
                 launchState,
                 settingsService.Settings.Select(s => s.PlayTimerEnabled),
+                settingsService.Settings.Select(s => s.MuteFastForward),
+                settingsService.Settings.Select(s => s.MuteRandomSeek),
                 player.CurrentScope,
                 player.CurrentScopePath,
                 timer,                
@@ -108,6 +110,7 @@ namespace TeensyRom.Ui.Features.Discover
                 player.RemoveFavorite,
                 player.LoadDirectory,
                 player.SetSpeed,
+                player.Mute,
                 player.SetScope,                
                 alert
             );

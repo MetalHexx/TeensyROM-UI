@@ -7,6 +7,7 @@ namespace TeensyRom.Core.Serial
         public static readonly TeensyToken PauseMusic = new(0x6466, nameof(PauseMusic));
         public static readonly TeensyToken SetMusicSpeedLinear = new(0x6499, nameof(SetMusicSpeedLinear));
         public static readonly TeensyToken SetMusicSpeedLog = new(0x649A, nameof(SetMusicSpeedLog));
+        public static readonly TeensyToken SIDVoiceMuting = new(0x6433, nameof(SIDVoiceMuting));
         public static readonly TeensyToken ListDirectory = new(0x64DD, nameof(ListDirectory));
         public static readonly TeensyToken StartDirectoryList = new(0x5A5A, nameof(StartDirectoryList));
         public static readonly TeensyToken EndDirectoryList = new(0xA5A5, nameof(EndDirectoryList));

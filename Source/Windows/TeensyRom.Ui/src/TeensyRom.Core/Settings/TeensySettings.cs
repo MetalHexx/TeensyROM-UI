@@ -39,6 +39,8 @@ namespace TeensyRom.Core.Settings
         public bool PlayTimerEnabled { get; set; } = false;
         public bool SaveMusicCacheEnabled { get; set; } = true;  
         public bool NavToDirOnLaunch { get; set; } = true;
+        public bool MuteFastForward { get; set; } = true;
+        public bool MuteRandomSeek { get; set; } = true;
         public bool FirstTimeSetup { get; set; } = true;
         public List<string> BannedDirectories = [];
         public List<string> BannedFiles = [];

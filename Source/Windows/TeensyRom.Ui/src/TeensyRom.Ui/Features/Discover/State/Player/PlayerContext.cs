@@ -39,6 +39,7 @@ using TeensyRom.Ui.Services;
 using SystemDirectory = System.IO.Directory;
 using TeensyRom.Core.Commands.SetMusicSpeed;
 using TeensyRom.Core.Music;
+using TeensyRom.Core.Commands.MuteSidVoices;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {
@@ -749,6 +750,12 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             if (IsBusy()) return Task.CompletedTask;
             return _mediator.Send(new PlaySubtuneCommand(subtuneIndex));
+        }
+
+        public Task Mute(bool voice1, bool voice2, bool voice3)
+        {
+            if (IsBusy()) return Task.CompletedTask;
+            return _mediator.Send(new MuteSidVoicesCommand(voice1, voice2, voice3));
         }
 
         public Task SetSpeed(double percentage, MusicSpeedCurveTypes curveType)

@@ -18,6 +18,8 @@
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="36"></RowDefinition>
             <RowDefinition Height="80"></RowDefinition>
         </Grid.RowDefinitions>
@@ -106,12 +108,32 @@
             Grid.Row="7" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Label 
+            Content="Mute on Fast Forward :"
+            ToolTip="The SID voices will be muted when fast forwarding a song."
+            Grid.Row="8" HorizontalAlignment="Right"/>
+        <CheckBox                  
+            Content="Enabled"                
+            ToolTip="The SID voices will be muted when fast forwarding a song."
+            IsChecked="{Binding Settings.MuteFastForward, Mode=TwoWay}" 
+            Grid.Row="8" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
+        <Label 
+            Content="Mute on Random Seek:"
+            ToolTip="The SID voices will be muted when random seeking a song."
+            Grid.Row="9" HorizontalAlignment="Right"/>
+        <CheckBox                  
+            Content="Enabled"                
+            ToolTip="The SID voices will be muted when random seeking a song."
+            IsChecked="{Binding Settings.MuteRandomSeek, Mode=TwoWay}" 
+            Grid.Row="9" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
+        <Label 
             Content="Default Filter:"
             ToolTip="This will set the default startup filter"
-            Grid.Row="8" HorizontalAlignment="Right"/>
+            Grid.Row="10" HorizontalAlignment="Right"/>
         
         <ComboBox 
-            Grid.Row="8" Grid.Column="2"
+            Grid.Row="10" Grid.Column="2"
             x:Name="FilterComboBox"
             ItemsSource="{Binding FilterOptions}"
             SelectedItem="{Binding Settings.StartupFilter, Mode=TwoWay}"            
@@ -126,7 +148,7 @@
             Content="Save Settings"  
             Command="{Binding SaveSettingsCommand}" 
             HorizontalAlignment="Left"
-            Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="20"/>
+            Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="20"/>
         
     </Grid>
 </UserControl>
