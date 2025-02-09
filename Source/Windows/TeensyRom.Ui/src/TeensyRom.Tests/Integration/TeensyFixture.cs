@@ -104,6 +104,8 @@ namespace TeensyRom.Tests.Integration
                 TeensyFileType.Art => ".art",
                 TeensyFileType.Aas => ".aas",
                 TeensyFileType.Hpi => ".hpi",
+                TeensyFileType.Seq => ".seq",
+                TeensyFileType.Txt => ".txt",
 
                 _ => ".tmp", // default extension for Unknown or other types
             };
