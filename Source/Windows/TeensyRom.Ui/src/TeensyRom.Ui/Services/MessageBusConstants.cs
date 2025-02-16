@@ -17,6 +17,7 @@ namespace TeensyRom.Ui.Services
         public const string SidSpeedIncrease50KeyPressed = "SidSpeedIncrease50KeyPressed";
         public const string SidSpeedDecrease50KeyPressed = "SidSpeedDecrease50KeyPressed";
         public const string SidSpeedDefaultKeyPressed = "SidSpeedDefaultKeyPressed";
+        public const string FastForwardKeyPressed = "FastForwardKeyPressed";
         public const string PlayerPlayPausedKeyPressed = "PlayerPlayPausedKeyPressed";
         public const string PlayerStopKeyPressed = "PlayerStopKeyPressed";
         public const string PlayerNextTrackKeyPressed = "PlayerNextTrackKeyPressed";
