@@ -17,6 +17,7 @@ using TeensyRom.Core.Music;
 using Newtonsoft.Json.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Transactions;
+using System.DirectoryServices.ActiveDirectory;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -48,7 +49,10 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [Reactive] public List<MusicSpeedCurveTypes> SpeedCurveOptions { get; set; } = [MusicSpeedCurveTypes.Linear, MusicSpeedCurveTypes.Logarithmic];
         [Reactive] public MusicSpeedCurveTypes SelectedSpeedCurve { get; set; } = MusicSpeedCurveTypes.Linear;
         [Reactive] public double MinSpeed { get; set; } = MusicConstants.Linear_Speed_Min;
-        [Reactive] public double MaxSpeed { get; set; } = MusicConstants.Linear_Speed_Max;        
+        [Reactive] public double MaxSpeed { get; set; } = MusicConstants.Linear_Speed_Max;
+        [Reactive] public bool Voice1Enabled { get; set; } = true;
+        [Reactive] public bool Voice2Enabled { get; set; } = true;
+        [Reactive] public bool Voice3Enabled { get; set; } = true;
         [Reactive] public string SelectedScope { get; set; } = StorageScope.Storage.ToDescription();
         [Reactive]
         public List<string> ScopeOptions { get; set; } = Enum
@@ -236,7 +240,20 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ToPropertyEx(this, vm => vm.IsSong);
 
             file.Select(f => f is SongItem)
-                .Subscribe(isSong => SetSpeedEnabled = isSong);
+                .Subscribe(isSong => 
+                {
+                    SetSpeedEnabled = isSong;
+                    Voice1Enabled = true;
+                    Voice2Enabled = true;
+                    Voice3Enabled = true;
+                    TrackSeekInProgress = false;
+                });
+            
+
+            this.WhenAnyValue(vm => vm.Voice1Enabled, vm => vm.Voice2Enabled, vm => vm.Voice3Enabled)
+                .Skip(1)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ => mute(!Voice1Enabled, !Voice2Enabled, !Voice3Enabled));
 
             song.Select(s => s.StartSubtuneNum)
                 .Subscribe(startIndex =>
@@ -343,6 +360,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                         PlayButtonEnabled = true;
                         FastForwardInProgress = true;
                         SetSpeedEnabled = false;
+                        DisableVoiceChange();
                         FastForwardSpeed = FastForwardSpeed.Medium;
                         _previousRawSpeed = RawSpeedValue;
                         _previousSpeedCurve = SelectedSpeedCurve;
@@ -370,6 +388,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                         return;
 
                     case FastForwardSpeed.Hyper:
+                        EnableVoiceChange();
                         DisableFastForward(true);
                         return;
                 }
@@ -534,6 +553,20 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             SelectedSpeedCurve = _previousSpeedCurve;
             RawSpeedValue = resumePreviousSpeed ? _previousRawSpeed : 0;
             if (_muteFastForward) _mute(false, false, false);
+        }
+
+        private void DisableVoiceChange() 
+        {
+            Voice1Enabled = false;
+            Voice1Enabled = false;
+            Voice1Enabled = false;
+        }
+
+        private void EnableVoiceChange() 
+        {
+            Voice1Enabled = true;
+            Voice2Enabled = true;
+            Voice3Enabled = true;
         }
 
         private void ResetSubtuneButtonState()
