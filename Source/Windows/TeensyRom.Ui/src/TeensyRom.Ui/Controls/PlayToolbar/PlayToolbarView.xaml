@@ -56,7 +56,7 @@
             
         </Grid>
 
-        <Border Grid.Row="0" x:Name="PopupContent" HorizontalAlignment="Stretch" Margin="26 0 0 0" Height="0">
+        <Border Grid.Row="0" x:Name="PopupContent" HorizontalAlignment="Stretch" Margin="15 0 0 0" Height="0">
 
             <Grid>
                 <Grid.RowDefinitions>
@@ -101,8 +101,7 @@
 
                     <TextBlock Text="{Binding ActualSpeedPercent}"
                         IsEnabled="{Binding SetSpeedEnabled}"
-                        VerticalAlignment="Center"
-                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"                        
                         FontSize="14"
                         Foreground="White"
                         ToolTip="Percentage increase or decrease of the playing song."/>
@@ -119,8 +118,14 @@
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource PrimaryHueLightBrush}"
                         materialDesign:TextFieldAssist.PrefixText="Speed Curve"
                         ToolTip="The curve used for the speed control."
-                        Margin="20 0 0 0"/>
-                    
+                        Margin="30 0 10 0"/>
+
+                    <StackPanel IsEnabled="{Binding IsSong}" Orientation="Horizontal" Margin="15 0 0 0">
+                        <CheckBox IsChecked="{Binding Voice1Enabled}" Foreground="{StaticResource PrimaryHueLightBrush}">Voice 1</CheckBox>
+                        <CheckBox IsChecked="{Binding Voice2Enabled}" Margin="10 0 0 0" Foreground="{StaticResource PrimaryHueLightBrush}">Voice 2</CheckBox>
+                        <CheckBox IsChecked="{Binding Voice3Enabled}" Margin="10 0 0 0" Foreground="{StaticResource PrimaryHueLightBrush}">Voice 3</CheckBox>
+                    </StackPanel>
+
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0 0 10 0">
