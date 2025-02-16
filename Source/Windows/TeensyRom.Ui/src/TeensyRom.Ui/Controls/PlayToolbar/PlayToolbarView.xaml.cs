@@ -1,21 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
+using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -31,7 +21,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public PlayToolbarView()
         {
             InitializeComponent();
-            this.Loaded += PlayToolbarView_Loaded;
+            Loaded += PlayToolbarView_Loaded;
+            PreviewKeyDown += OnKeyDownHandler;
         }
 
         private void PlayToolbarView_Loaded(object sender, RoutedEventArgs e)
@@ -84,14 +75,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 var originalValue = slider.Value;
                 BindingOperations.ClearBinding(slider, Slider.ValueProperty);
                 slider.Value = originalValue; //This prevents resetting back to 0 when binding cleared.
-
-                //Dispatcher.BeginInvoke(new Action(() =>
-                //{
-                //    if (DataContext is PlayToolbarViewModel viewModel)
-                //    {
-                //        viewModel.PauseTimerCommand.Execute().Subscribe();
-                //    }
-                //}), System.Windows.Threading.DispatcherPriority.Background);
             }
         }
 
@@ -125,6 +108,21 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 return true;
             }
             return false;
+        }
+
+        private void OnKeyDownHandler(object sender, KeyEventArgs e)
+        {
+            if ((e.Key == Key.D1 || e.Key == Key.D2 || e.Key == Key.D3))
+            {
+                Debug.WriteLine("ExecuteKeyCommand triggered");
+
+                if (DataContext is PlayToolbarViewModel vm)
+                {
+                    int intKey = int.Parse(e.Key.ToString().Replace("D", ""));
+
+                    vm.SidVoiceKeyboardCommand.Execute(intKey).Subscribe();
+                }
+            }
         }
     }
 }
