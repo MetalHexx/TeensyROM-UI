@@ -14,10 +14,6 @@ using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Core.Progress;
 using System.Reactive.Concurrency;
 using TeensyRom.Core.Music;
-using Newtonsoft.Json.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Transactions;
-using System.DirectoryServices.ActiveDirectory;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -91,6 +87,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<double, Unit> SetSpeedCommand { get; set; }
         public ReactiveCommand<double, Unit> TrackTimeChangedCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PauseTimerCommand { get; set; }
+        public ReactiveCommand<int, Unit> SidVoiceKeyboardCommand { get; }
 
         private readonly IAlertService _alert;
         private IProgressTimer? _timer;
@@ -240,19 +237,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ToPropertyEx(this, vm => vm.IsSong);
 
             file.Select(f => f is SongItem)
-                .Subscribe(isSong => 
+                .Subscribe(isSong =>
                 {
                     SetSpeedEnabled = isSong;
                     Voice1Enabled = true;
                     Voice2Enabled = true;
                     Voice3Enabled = true;
                 });
-            
-
-            this.WhenAnyValue(vm => vm.Voice1Enabled, vm => vm.Voice2Enabled, vm => vm.Voice3Enabled)
-                .Skip(1)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => mute(!Voice1Enabled, !Voice2Enabled, !Voice3Enabled));
 
             song.Select(s => s.StartSubtuneNum)
                 .Subscribe(startIndex =>
@@ -404,18 +395,18 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             FavoriteCommand = ReactiveCommand.CreateFromTask(_ => saveFav(File!));
             RemoveFavoriteCommand = ReactiveCommand.CreateFromTask(_ => removeFav(File!));
             ShareCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleShareCommand());
-            NavigateToFileDirCommand = ReactiveCommand.CreateFromTask(_ => loadDirectory(File!.Path.GetUnixParentPath()!));            
-            
-            PreviousSubtuneCommand = ReactiveCommand.Create<Unit, Unit>(_ => 
+            NavigateToFileDirCommand = ReactiveCommand.CreateFromTask(_ => loadDirectory(File!.Path.GetUnixParentPath()!));
+
+            PreviousSubtuneCommand = ReactiveCommand.Create<Unit, Unit>(_ =>
             {
                 var song = File as SongItem;
 
-                if (CurrentSubtuneIndex == 1) 
+                if (CurrentSubtuneIndex == 1)
                 {
                     SubtunePreviousButtonEnabled = false;
                     return Unit.Default;
                 }
-                
+
                 CurrentSubtuneIndex--;
                 return Unit.Default;
             });
@@ -426,13 +417,14 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 if (song is null || CurrentSubtuneIndex == song.SubtuneLengths.Count) return Unit.Default;
 
                 if (CurrentSubtuneIndex == song.SubtuneLengths.Count);
+
                 CurrentSubtuneIndex++;
                 return Unit.Default;
             });
 
             PauseTimerCommand = ReactiveCommand.Create(_timer!.PauseTimer);
 
-            TrackTimeChangedCommand = ReactiveCommand.CreateFromTask<double>(async percent => 
+            TrackTimeChangedCommand = ReactiveCommand.CreateFromTask<double>(async percent =>
             {
                 if (_currentSong is null) return;
 
@@ -444,6 +436,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     TrackSeekInProgress = false;
                     await restartSong();
+                    await Task.Delay(100);
                     _timer?.ResetTimer();
                     return;
                 }
@@ -454,7 +447,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     fastForwardTime = _currentSong.SubtuneLengths[CurrentSubtuneIndex - 1].GetTimeSpanPercentage(percent);
 
-                    if (fastForwardTime < Progress?.CurrentSpan) 
+                    if (fastForwardTime < Progress?.CurrentSpan)
                     {
                         await playSubtune(CurrentSubtuneIndex);
                         _timer?.ResetTimer();
@@ -467,10 +460,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     if (fastForwardTime < Progress?.CurrentSpan)
                     {
                         await restartSong();
+                        await Task.Delay(100);
                         _timer?.ResetTimer();
                     }
                 }
-                if(_muteRandomSeek) await _mute(true, true, true);
+                if (_muteRandomSeek) await _mute(true, true, true);
 
                 await _changeSpeed(99, MusicSpeedCurveTypes.Logarithmic);
 
@@ -491,15 +485,15 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                         if (_muteRandomSeek) await _mute(false, false, false);
                     }
-                });                
+                });
             });
 
             this.WhenAnyValue(x => x.SelectedSpeedCurve)
                 .Skip(1)
-                .Subscribe(selectedSpeedCurve => 
+                .Subscribe(selectedSpeedCurve =>
                 {
-                    _previousSpeedCurve = FastForwardInProgress 
-                        ? MusicSpeedCurveTypes.Linear 
+                    _previousSpeedCurve = FastForwardInProgress
+                        ? MusicSpeedCurveTypes.Linear
                         : SelectedSpeedCurve;
 
                     MinSpeed = selectedSpeedCurve == MusicSpeedCurveTypes.Linear
@@ -510,7 +504,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                         ? MusicConstants.Linear_Speed_Max
                         : MusicConstants.Log_Speed_Max;
 
-                    RawSpeedValue = 0;                    
+                    RawSpeedValue = 0;
                 });
 
             var speedChanges = this.WhenAnyValue(x => x.RawSpeedValue)
@@ -522,16 +516,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                         : rawSpeed.GetLogPercentage();
 
                     _timer?.UpdateSpeed(ActualSpeedPercent);
-                })                
+                })
                 .DistinctUntilChanged()
                 .Throttle(TimeSpan.FromMilliseconds(100))
                 .ObserveOn(TaskPoolScheduler.Default)
                 .Subscribe(async rawSpeed =>
                 {
-                    await _changeSpeed(rawSpeed, SelectedSpeedCurve).ConfigureAwait(false);                    
+                    await _changeSpeed(rawSpeed, SelectedSpeedCurve).ConfigureAwait(false);
                 });
 
-            this.WhenAnyValue(x => x.CurrentSubtuneIndex)                
+            this.WhenAnyValue(x => x.CurrentSubtuneIndex)
                 .Skip(2)
                 .Where(_ => File is SongItem item && item.SubtuneLengths.Count > 1)
                 .Subscribe(songAndIndex =>
@@ -540,6 +534,20 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     ResetSubtuneButtonState();
                     playSubtune(CurrentSubtuneIndex);
                 });
+
+            SidVoiceKeyboardCommand = ReactiveCommand.Create<int>(keys =>
+            {
+                if (keys == 1) Voice1Enabled = !Voice1Enabled;
+                if (keys == 2) Voice2Enabled = !Voice2Enabled;
+                if (keys == 3) Voice3Enabled = !Voice3Enabled;
+            });
+
+            this.WhenAnyValue(vm => vm.Voice1Enabled, vm => vm.Voice2Enabled, vm => vm.Voice3Enabled)
+                .Skip(1)
+                .Buffer(TimeSpan.FromMilliseconds(50)) 
+                .Where(buffer => buffer.Any())
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(async buffer => await mute(!Voice1Enabled, !Voice2Enabled, !Voice3Enabled));
         }
 
         private void DisableFastForward(bool resumePreviousSpeed = false)
