@@ -267,6 +267,12 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
+                            <Button x:Name="FocusResetButton"
+                                Width="1" Height="1"
+                                Opacity="0"
+                                IsTabStop="False"
+                                Focusable="True"/>     
+
                             <materialDesign:Card Grid.Row="1" Padding="0 0 0 0" VerticalAlignment="Stretch">
                                 <Grid>
                                     <Grid.RowDefinitions>
