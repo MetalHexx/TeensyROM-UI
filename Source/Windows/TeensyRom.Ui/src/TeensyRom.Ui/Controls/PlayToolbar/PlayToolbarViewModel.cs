@@ -343,45 +343,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             FastForwardCommand = ReactiveCommand.Create(() =>
             {
-                switch (FastForwardSpeed)
-                {
-                    case FastForwardSpeed.Off:
-                        PauseButtonEnabled = false;
-                        PlayButtonEnabled = true;
-                        FastForwardInProgress = true;
-                        SetSpeedEnabled = false;
-                        DisableVoiceChange();
-                        FastForwardSpeed = FastForwardSpeed.Medium;
-                        _previousRawSpeed = RawSpeedValue;
-                        _previousSpeedCurve = SelectedSpeedCurve;
-                        SelectedSpeedCurve = MusicSpeedCurveTypes.Logarithmic;
-                        RawSpeedValue = 25;
-                        if (_muteFastForward) _mute(true, true, true);
-                        return;
-
-                    case FastForwardSpeed.Medium:
-                        FastForwardSpeed = FastForwardSpeed.MediumFast;
-                        RawSpeedValue = 50;
-                        if (_muteFastForward) _mute(true, true, true);
-                        return;
-
-                    case FastForwardSpeed.MediumFast:
-                        FastForwardSpeed = FastForwardSpeed.Fast;
-                        RawSpeedValue = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear ? 75 : 90;
-                        if (_muteFastForward) _mute(true, true, true);
-                        return;
-
-                    case FastForwardSpeed.Fast:
-                        FastForwardSpeed = FastForwardSpeed.Hyper;
-                        RawSpeedValue = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear ? 125 : 96;
-                        if (_muteFastForward) _mute(true, true, true);
-                        return;
-
-                    case FastForwardSpeed.Hyper:
-                        EnableVoiceChange();
-                        DisableFastForward(true);
-                        return;
-                }
+                HandleFastForward();
             });
             NextCommand = ReactiveCommand.CreateFromTask(_ =>
             {
@@ -550,6 +512,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => IsSong is true)
                 .Subscribe(_ =>
                 {
+                    if (FastForwardInProgress) DisableFastForward(true);
+
                     if (RawSpeedValue < MaxSpeed) RawSpeedValue += 1;
                 });
 
@@ -558,6 +522,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => IsSong is true)
                 .Subscribe(_ =>
                 {
+                    if (FastForwardInProgress) DisableFastForward(true);
+
                     if (RawSpeedValue > MinSpeed) RawSpeedValue -= 1;
                 });
 
@@ -566,6 +532,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => IsSong is true)
                 .Subscribe(_ =>
                 {
+                    if (FastForwardInProgress) DisableFastForward(false);
+
                     RawSpeedValue = 50;
                 });
 
@@ -574,6 +542,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => IsSong is true)
                 .Subscribe(_ =>
                 {
+                    if (FastForwardInProgress) DisableFastForward(false);
+
                     RawSpeedValue = -50;
                 });
 
@@ -582,7 +552,17 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => IsSong is true)
                 .Subscribe(_ =>
                 {
+                    if (FastForwardInProgress) DisableFastForward(false);
+
                     RawSpeedValue = 0;
+                });
+
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.FastForwardKeyPressed)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong is true)
+                .Subscribe(_ =>
+                {
+                    HandleFastForward();
                 });
 
             this.WhenAnyValue(vm => vm.Voice1Enabled, vm => vm.Voice2Enabled, vm => vm.Voice3Enabled)
@@ -591,6 +571,49 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(buffer => buffer.Any())
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async buffer => await mute(!Voice1Enabled, !Voice2Enabled, !Voice3Enabled));
+        }
+
+        private void HandleFastForward()
+        {
+            switch (FastForwardSpeed)
+            {
+                case FastForwardSpeed.Off:
+                    PauseButtonEnabled = false;
+                    PlayButtonEnabled = true;
+                    FastForwardInProgress = true;
+                    SetSpeedEnabled = false;
+                    DisableVoiceChange();
+                    FastForwardSpeed = FastForwardSpeed.Medium;
+                    _previousRawSpeed = RawSpeedValue;
+                    _previousSpeedCurve = SelectedSpeedCurve;
+                    SelectedSpeedCurve = MusicSpeedCurveTypes.Logarithmic;
+                    RawSpeedValue = 25;
+                    if (_muteFastForward) _mute(true, true, true);
+                    return;
+
+                case FastForwardSpeed.Medium:
+                    FastForwardSpeed = FastForwardSpeed.MediumFast;
+                    RawSpeedValue = 50;
+                    if (_muteFastForward) _mute(true, true, true);
+                    return;
+
+                case FastForwardSpeed.MediumFast:
+                    FastForwardSpeed = FastForwardSpeed.Fast;
+                    RawSpeedValue = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear ? 75 : 90;
+                    if (_muteFastForward) _mute(true, true, true);
+                    return;
+
+                case FastForwardSpeed.Fast:
+                    FastForwardSpeed = FastForwardSpeed.Hyper;
+                    RawSpeedValue = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear ? 125 : 96;
+                    if (_muteFastForward) _mute(true, true, true);
+                    return;
+
+                case FastForwardSpeed.Hyper:
+                    EnableVoiceChange();
+                    DisableFastForward(true);
+                    return;
+            }
         }
 
         private void DisableFastForward(bool resumePreviousSpeed = false)

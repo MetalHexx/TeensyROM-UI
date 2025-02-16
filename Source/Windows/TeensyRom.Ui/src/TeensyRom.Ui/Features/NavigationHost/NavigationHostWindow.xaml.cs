@@ -23,18 +23,19 @@ namespace TeensyRom.Ui.Main
 {
     public enum KeyboardShortcut
     {
-        Voice1Toggle = 1,
-        Voice2Toggle = 2,
-        Voice3Toggle = 3,
-        PlayPause = -1,
-        Stop = -2,
-        NextTrack = -3,
-        PreviousTrack = -4,
-        IncreaseSpeed = -5,
-        DecreaseSpeed = -6,
-        IncreaseSpeed50 = -7,
-        DecreaseSpeed50 = -8,
-        DefaultSpeed = -9
+        Voice1Toggle,
+        Voice2Toggle,
+        Voice3Toggle,
+        PlayPause,
+        Stop,
+        NextTrack,
+        PreviousTrack,
+        IncreaseSpeed,
+        DecreaseSpeed,
+        IncreaseSpeed50,
+        DecreaseSpeed50,
+        DefaultSpeed,
+        FastForward,
     }
 
     /// <summary>
@@ -76,6 +77,7 @@ namespace TeensyRom.Ui.Main
                 Key.Multiply => KeyboardShortcut.IncreaseSpeed50,
                 Key.Divide => KeyboardShortcut.DecreaseSpeed50,    
                 Key.NumPad0 => KeyboardShortcut.DefaultSpeed,
+                Key.Decimal => KeyboardShortcut.FastForward,
                 _ => null
             };
 
@@ -125,6 +127,10 @@ namespace TeensyRom.Ui.Main
                     return;
                 case KeyboardShortcut.DefaultSpeed:
                     MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedDefaultKeyPressed);
+                    return;
+
+                case KeyboardShortcut.FastForward:
+                    MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.FastForwardKeyPressed);
                     return;
             }
         }
