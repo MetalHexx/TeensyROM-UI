@@ -65,7 +65,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [Reactive] public bool SubtunePreviousButtonEnabled { get; set; }
         [ObservableAsProperty] public bool SubtunesEnabled { get; }
         [ObservableAsProperty] public bool IsSong { get; }
-        [ObservableAsProperty] public List<int> SubtuneIndex { get; }
+        [ObservableAsProperty] public List<int> SubtuneNumberList { get; }
         [ObservableAsProperty] public bool ShowTitleOnly { get; }
         [ObservableAsProperty] public string StorageScopePath { get; }
         [ObservableAsProperty] public ILaunchableItem? File { get; }
@@ -262,7 +262,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             song.Select(s => s.SubtuneLengths.Select((_, i) => i + 1).ToList())
                 .Where(lengths => lengths.Count > 1)
-                .ToPropertyEx(this, vm => vm.SubtuneIndex);
+                .ToPropertyEx(this, vm => vm.SubtuneNumberList);
 
             song.Subscribe(item =>
             {
@@ -450,7 +450,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                 var speedAdjustment = MusicConstants.Log_Speed_Max.GetLogPercentage();
 
-                if (SubtuneIndex?.Count > 1)
+                if (_currentSong.SubtuneLengths?.Count > 1)
                 {
                     fastForwardTime = _currentSong.SubtuneLengths[CurrentSubtuneIndex - 1].GetTimeSpanPercentage(percent);
 

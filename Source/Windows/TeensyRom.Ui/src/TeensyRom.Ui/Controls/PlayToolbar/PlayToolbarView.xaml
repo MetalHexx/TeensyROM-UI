@@ -372,7 +372,7 @@
 
                     <ComboBox
                         x:Name="SubtuneComboBox"
-                        ItemsSource="{Binding SubtuneIndex}"
+                        ItemsSource="{Binding SubtuneNumberList}"
                         SelectedItem="{Binding CurrentSubtuneIndex, Mode=TwoWay}"  
                         materialDesign:TextFieldAssist.UnderlineBrush="{DynamicResource PrimaryHueLightBrush }"
                         FontFamily="Arial"
