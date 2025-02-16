@@ -14,6 +14,7 @@ using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Core.Progress;
 using System.Reactive.Concurrency;
 using TeensyRom.Core.Music;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -87,7 +88,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<double, Unit> SetSpeedCommand { get; set; }
         public ReactiveCommand<double, Unit> TrackTimeChangedCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PauseTimerCommand { get; set; }
-        public ReactiveCommand<int, Unit> SidVoiceKeyboardCommand { get; }
 
         private readonly IAlertService _alert;
         private IProgressTimer? _timer;
@@ -535,12 +535,14 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     playSubtune(CurrentSubtuneIndex);
                 });
 
-            SidVoiceKeyboardCommand = ReactiveCommand.Create<int>(keys =>
-            {
-                if (keys == 1) Voice1Enabled = !Voice1Enabled;
-                if (keys == 2) Voice2Enabled = !Voice2Enabled;
-                if (keys == 3) Voice3Enabled = !Voice3Enabled;
-            });
+            MessageBus.Current.Listen<int>(MessageBusConstants.GlobalVoiceKeyMessageName)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(key => 
+                {
+                    if (key == 1) Voice1Enabled = !Voice1Enabled;
+                    if (key == 2) Voice2Enabled = !Voice2Enabled;
+                    if (key == 3) Voice3Enabled = !Voice3Enabled;
+                });
 
             this.WhenAnyValue(vm => vm.Voice1Enabled, vm => vm.Voice2Enabled, vm => vm.Voice3Enabled)
                 .Skip(1)

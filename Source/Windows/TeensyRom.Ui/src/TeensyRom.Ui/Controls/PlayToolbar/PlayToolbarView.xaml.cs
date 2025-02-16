@@ -22,7 +22,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         {
             InitializeComponent();
             Loaded += PlayToolbarView_Loaded;
-            PreviewKeyDown += OnKeyDownHandler;
         }
 
         private void PlayToolbarView_Loaded(object sender, RoutedEventArgs e)
@@ -108,21 +107,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 return true;
             }
             return false;
-        }
-
-        private void OnKeyDownHandler(object sender, KeyEventArgs e)
-        {
-            if ((e.Key == Key.D1 || e.Key == Key.D2 || e.Key == Key.D3))
-            {
-                Debug.WriteLine("ExecuteKeyCommand triggered");
-
-                if (DataContext is PlayToolbarViewModel vm)
-                {
-                    int intKey = int.Parse(e.Key.ToString().Replace("D", ""));
-
-                    vm.SidVoiceKeyboardCommand.Execute(intKey).Subscribe();
-                }
-            }
         }
     }
 }
