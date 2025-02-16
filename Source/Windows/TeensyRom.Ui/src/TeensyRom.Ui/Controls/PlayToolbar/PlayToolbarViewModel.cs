@@ -507,24 +507,28 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     if (key == KeyboardShortcut.Voice3Toggle) Voice3Enabled = !Voice3Enabled;
                 });
 
-            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedIncreaseKeyPressed)
+            MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedIncreaseKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong is true)
-                .Subscribe(_ =>
+                .Subscribe(amt =>
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
 
-                    if (RawSpeedValue < MaxSpeed) RawSpeedValue += 1;
+                    var finalSpeed = ClampSpeed(RawSpeedValue += amt);
+
+                    RawSpeedValue = finalSpeed;
                 });
 
-            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDecreaseKeyPressed)
+            MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedDecreaseKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong is true)
-                .Subscribe(_ =>
+                .Subscribe(amt =>
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
 
-                    if (RawSpeedValue > MinSpeed) RawSpeedValue -= 1;
+                    var finalSpeed = ClampSpeed(RawSpeedValue -= amt);
+
+                    RawSpeedValue = finalSpeed;
                 });
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedIncrease50KeyPressed)
@@ -572,6 +576,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async buffer => await mute(!Voice1Enabled, !Voice2Enabled, !Voice3Enabled));
         }
+
+        private double ClampSpeed(double speed)
+        {
+            var (min, max) = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear
+                ? (MusicConstants.Linear_Speed_Min, MusicConstants.Linear_Speed_Max)
+                : (MusicConstants.Log_Speed_Min, MusicConstants.Log_Speed_Max);
+
+            return Math.Clamp(speed, min, max);
+        }
+
 
         private void HandleFastForward()
         {

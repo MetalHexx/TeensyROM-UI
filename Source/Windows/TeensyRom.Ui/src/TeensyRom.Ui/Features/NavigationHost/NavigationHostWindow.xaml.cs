@@ -18,6 +18,8 @@ using System.Windows.Shapes;
 using System.Windows.Shell;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
+using System.Runtime.InteropServices;
+
 
 namespace TeensyRom.Ui.Main
 {
@@ -43,6 +45,16 @@ namespace TeensyRom.Ui.Main
     /// </summary>
     public partial class MainWindow : Window
     {
+        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+        public static extern short GetKeyState(int keyCode);
+
+        private const int VK_NUMLOCK = 0x90;
+
+        public bool IsNumLockOn()
+        {
+            return (GetKeyState(VK_NUMLOCK) & 1) == 1;
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -104,6 +116,8 @@ namespace TeensyRom.Ui.Main
             );
             if (ignore) return;
 
+            double amt = IsNumLockOn() ? 10 : 1;
+
             switch (shortcut)
             {
                 case KeyboardShortcut.Voice1Toggle or KeyboardShortcut.Voice2Toggle or KeyboardShortcut.Voice3Toggle:
@@ -111,11 +125,11 @@ namespace TeensyRom.Ui.Main
                     return;
 
                 case KeyboardShortcut.IncreaseSpeed:
-                    MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedIncreaseKeyPressed);
+                    MessageBus.Current.SendMessage(amt, MessageBusConstants.SidSpeedIncreaseKeyPressed);
                     return;
 
                 case KeyboardShortcut.DecreaseSpeed:
-                    MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedDecreaseKeyPressed);
+                    MessageBus.Current.SendMessage(amt, MessageBusConstants.SidSpeedDecreaseKeyPressed);
                     return;
 
                 case KeyboardShortcut.IncreaseSpeed50:
