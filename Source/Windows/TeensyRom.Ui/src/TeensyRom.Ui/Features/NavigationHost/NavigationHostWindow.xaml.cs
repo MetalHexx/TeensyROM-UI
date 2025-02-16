@@ -21,6 +21,22 @@ using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Main
 {
+    public enum KeyboardShortcut
+    {
+        Voice1Toggle = 1,
+        Voice2Toggle = 2,
+        Voice3Toggle = 3,
+        PlayPause = -1,
+        Stop = -2,
+        NextTrack = -3,
+        PreviousTrack = -4,
+        IncreaseSpeed = -5,
+        DecreaseSpeed = -6,
+        IncreaseSpeed50 = -7,
+        DecreaseSpeed50 = -8,
+        DefaultSpeed = -9
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -46,15 +62,70 @@ namespace TeensyRom.Ui.Main
         }
 
         private void GlobalKeyDownHandler(object sender, KeyEventArgs e)
-        {
-            if (Keyboard.FocusedElement is TextBox)
+        {   
+            KeyboardShortcut? shortcut = e.Key switch
             {
-                return;
-            }
-            if (e.Key == Key.D1 || e.Key == Key.D2 || e.Key == Key.D3)
+                Key.D1 => KeyboardShortcut.Voice1Toggle,
+                Key.NumPad1 => KeyboardShortcut.Voice1Toggle,
+                Key.D2 => KeyboardShortcut.Voice2Toggle,
+                Key.NumPad2 => KeyboardShortcut.Voice2Toggle,
+                Key.D3 => KeyboardShortcut.Voice3Toggle,
+                Key.NumPad3 => KeyboardShortcut.Voice3Toggle,
+                Key.Add => KeyboardShortcut.IncreaseSpeed,
+                Key.Subtract => KeyboardShortcut.DecreaseSpeed,
+                Key.Multiply => KeyboardShortcut.IncreaseSpeed50,
+                Key.Divide => KeyboardShortcut.DecreaseSpeed50,    
+                Key.NumPad0 => KeyboardShortcut.DefaultSpeed,
+                _ => null
+            };
+
+            if (shortcut is null) return;
+
+            var ignore = Keyboard.FocusedElement is TextBox &&
+            (
+                shortcut == KeyboardShortcut.Voice1Toggle
+                ||
+                shortcut == KeyboardShortcut.Voice2Toggle
+                ||
+                shortcut == KeyboardShortcut.Voice3Toggle
+                ||
+                shortcut == KeyboardShortcut.IncreaseSpeed
+                ||
+                shortcut == KeyboardShortcut.DecreaseSpeed
+                ||
+                shortcut == KeyboardShortcut.IncreaseSpeed50                
+                ||
+                shortcut == KeyboardShortcut.DecreaseSpeed50
+                ||
+                shortcut == KeyboardShortcut.DefaultSpeed
+
+            );
+            if (ignore) return;
+
+            switch (shortcut)
             {
-                int intKey = int.Parse(e.Key.ToString().Replace("D", ""));
-                MessageBus.Current.SendMessage(intKey, MessageBusConstants.GlobalVoiceKeyMessageName);
+                case KeyboardShortcut.Voice1Toggle or KeyboardShortcut.Voice2Toggle or KeyboardShortcut.Voice3Toggle:
+                    MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidVoiceMuteKeyPressed);
+                    return;
+
+                case KeyboardShortcut.IncreaseSpeed:
+                    MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedIncreaseKeyPressed);
+                    return;
+
+                case KeyboardShortcut.DecreaseSpeed:
+                    MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedDecreaseKeyPressed);
+                    return;
+
+                case KeyboardShortcut.IncreaseSpeed50:
+                    MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedIncrease50KeyPressed);
+                    return;
+
+                case KeyboardShortcut.DecreaseSpeed50:
+                    MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedDecrease50KeyPressed);
+                    return;
+                case KeyboardShortcut.DefaultSpeed:
+                    MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedDefaultKeyPressed);
+                    return;
             }
         }
 

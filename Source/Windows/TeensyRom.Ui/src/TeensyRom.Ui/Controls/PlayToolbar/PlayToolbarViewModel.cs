@@ -15,6 +15,7 @@ using TeensyRom.Ui.Core.Progress;
 using System.Reactive.Concurrency;
 using TeensyRom.Core.Music;
 using TeensyRom.Ui.Services;
+using TeensyRom.Ui.Main;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -85,7 +86,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<Unit, Unit> NavigateToFileDirCommand { get; set; }
         public ReactiveCommand<Unit, Unit> NextSubtuneCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PreviousSubtuneCommand { get; set; }
-        public ReactiveCommand<double, Unit> SetSpeedCommand { get; set; }
         public ReactiveCommand<double, Unit> TrackTimeChangedCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PauseTimerCommand { get; set; }
 
@@ -507,7 +507,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     RawSpeedValue = 0;
                 });
 
-            var speedChanges = this.WhenAnyValue(x => x.RawSpeedValue)
+            var speedChanges = this.WhenAnyValue(x => x.RawSpeedValue)                
                 .Skip(1)
                 .Do(rawSpeed =>
                 {
@@ -535,13 +535,54 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     playSubtune(CurrentSubtuneIndex);
                 });
 
-            MessageBus.Current.Listen<int>(MessageBusConstants.GlobalVoiceKeyMessageName)
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidVoiceMuteKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(key => 
+                .Where(_ => IsSong is true)
+                .Subscribe(key =>
                 {
-                    if (key == 1) Voice1Enabled = !Voice1Enabled;
-                    if (key == 2) Voice2Enabled = !Voice2Enabled;
-                    if (key == 3) Voice3Enabled = !Voice3Enabled;
+                    if (key == KeyboardShortcut.Voice1Toggle) Voice1Enabled = !Voice1Enabled;
+                    if (key == KeyboardShortcut.Voice2Toggle) Voice2Enabled = !Voice2Enabled;
+                    if (key == KeyboardShortcut.Voice3Toggle) Voice3Enabled = !Voice3Enabled;
+                });
+
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedIncreaseKeyPressed)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong is true)
+                .Subscribe(_ =>
+                {
+                    if (RawSpeedValue < MaxSpeed) RawSpeedValue += 1;
+                });
+
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDecreaseKeyPressed)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong is true)
+                .Subscribe(_ =>
+                {
+                    if (RawSpeedValue > MinSpeed) RawSpeedValue -= 1;
+                });
+
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedIncrease50KeyPressed)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong is true)
+                .Subscribe(_ =>
+                {
+                    RawSpeedValue = 50;
+                });
+
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDecrease50KeyPressed)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong is true)
+                .Subscribe(_ =>
+                {
+                    RawSpeedValue = -50;
+                });
+
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDefaultKeyPressed)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong is true)
+                .Subscribe(_ =>
+                {
+                    RawSpeedValue = 0;
                 });
 
             this.WhenAnyValue(vm => vm.Voice1Enabled, vm => vm.Voice2Enabled, vm => vm.Voice3Enabled)
