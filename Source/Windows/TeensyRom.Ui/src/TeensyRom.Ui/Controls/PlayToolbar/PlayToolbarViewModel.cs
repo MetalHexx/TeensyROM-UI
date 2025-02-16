@@ -453,7 +453,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                 if (SubtuneIndex?.Count > 1)
                 {
-                    fastForwardTime = _currentSong.SubtuneLengths[CurrentSubtuneIndex].GetTimeSpanPercentage(percent);
+                    fastForwardTime = _currentSong.SubtuneLengths[CurrentSubtuneIndex - 1].GetTimeSpanPercentage(percent);
 
                     if (fastForwardTime < Progress?.CurrentSpan) 
                     {
