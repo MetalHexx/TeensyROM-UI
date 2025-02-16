@@ -526,7 +526,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
 
-                    var finalSpeed = ClampSpeed(RawSpeedValue -= amt);
+                    var finalSpeed = ClampSpeed(RawSpeedValue += amt);
 
                     RawSpeedValue = finalSpeed;
                 });

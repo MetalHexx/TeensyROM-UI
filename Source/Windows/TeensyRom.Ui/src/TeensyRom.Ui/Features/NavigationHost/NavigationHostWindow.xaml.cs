@@ -20,7 +20,6 @@ using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using System.Runtime.InteropServices;
 
-
 namespace TeensyRom.Ui.Main
 {
     public enum KeyboardShortcut
@@ -32,12 +31,17 @@ namespace TeensyRom.Ui.Main
         Stop,
         NextTrack,
         PreviousTrack,
-        IncreaseSpeed,
-        DecreaseSpeed,
-        IncreaseSpeed50,
-        DecreaseSpeed50,
+        IncreaseSpeedFine,
+        DecreaseSpeedFine,
+        IncreaseSpeed1,
+        DecreaseSpeed1,
+        IncreaseSpeed10,
+        DecreaseSpeed10,
+        SetSpeedPlus50,
+        SetSpeedMinus50,
         DefaultSpeed,
         FastForward,
+        DisengageFocus,
     }
 
     /// <summary>
@@ -48,12 +52,18 @@ namespace TeensyRom.Ui.Main
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         public static extern short GetKeyState(int keyCode);
 
-        private const int VK_NUMLOCK = 0x90;
+        private const int VK_SHIFT = 0x10;
+        private const int VK_CONTROL = 0x11;
+        private const int VK_MENU = 0x12; // ALT key
 
-        public bool IsNumLockOn()
+        public bool IsKeyPressed(int keyCode)
         {
-            return (GetKeyState(VK_NUMLOCK) & 1) == 1;
+            return (GetKeyState(keyCode) & 0x8000) != 0;
         }
+
+        public bool IsShiftPressed() => IsKeyPressed(VK_SHIFT);
+        public bool IsCtrlPressed() => IsKeyPressed(VK_CONTROL);
+        public bool IsAltPressed() => IsKeyPressed(VK_MENU);
 
         public MainWindow()
         {
@@ -75,77 +85,110 @@ namespace TeensyRom.Ui.Main
         }
 
         private void GlobalKeyDownHandler(object sender, KeyEventArgs e)
-        {   
+        {
             KeyboardShortcut? shortcut = e.Key switch
             {
+                Key.Delete => KeyboardShortcut.DisengageFocus,
+                Key.Escape => KeyboardShortcut.DisengageFocus,
                 Key.D1 => KeyboardShortcut.Voice1Toggle,
                 Key.NumPad1 => KeyboardShortcut.Voice1Toggle,
                 Key.D2 => KeyboardShortcut.Voice2Toggle,
                 Key.NumPad2 => KeyboardShortcut.Voice2Toggle,
                 Key.D3 => KeyboardShortcut.Voice3Toggle,
                 Key.NumPad3 => KeyboardShortcut.Voice3Toggle,
-                Key.Add => KeyboardShortcut.IncreaseSpeed,
-                Key.Subtract => KeyboardShortcut.DecreaseSpeed,
-                Key.Multiply => KeyboardShortcut.IncreaseSpeed50,
-                Key.Divide => KeyboardShortcut.DecreaseSpeed50,    
+                Key.Add => KeyboardShortcut.IncreaseSpeedFine,
+                Key.Subtract => KeyboardShortcut.DecreaseSpeedFine,
+                Key.PageUp when IsCtrlPressed() => KeyboardShortcut.IncreaseSpeed10,
+                Key.PageDown when IsCtrlPressed() => KeyboardShortcut.DecreaseSpeed10,
+                Key.PageUp => KeyboardShortcut.IncreaseSpeed1,
+                Key.PageDown => KeyboardShortcut.DecreaseSpeed1,
+                Key.Multiply => KeyboardShortcut.SetSpeedPlus50,
+                Key.Divide => KeyboardShortcut.SetSpeedMinus50,
                 Key.NumPad0 => KeyboardShortcut.DefaultSpeed,
                 Key.Decimal => KeyboardShortcut.FastForward,
                 _ => null
             };
 
             if (shortcut is null) return;
+            if (shortcut is KeyboardShortcut.DisengageFocus) 
+            {
+                ClearFocus();
+                return;
+            }
 
-            var ignore = Keyboard.FocusedElement is TextBox &&
-            (
-                shortcut == KeyboardShortcut.Voice1Toggle
-                ||
-                shortcut == KeyboardShortcut.Voice2Toggle
-                ||
-                shortcut == KeyboardShortcut.Voice3Toggle
-                ||
-                shortcut == KeyboardShortcut.IncreaseSpeed
-                ||
-                shortcut == KeyboardShortcut.DecreaseSpeed
-                ||
-                shortcut == KeyboardShortcut.IncreaseSpeed50                
-                ||
-                shortcut == KeyboardShortcut.DecreaseSpeed50
-                ||
-                shortcut == KeyboardShortcut.DefaultSpeed
+            var ignoreScrollKeys = (Keyboard.FocusedElement is ScrollViewer
+                     || Keyboard.FocusedElement is ListBox
+                     || Keyboard.FocusedElement is DataGrid
+                     || Keyboard.FocusedElement is ListView
+                     || Keyboard.FocusedElement is ListViewItem) // Check if a ListView item is selected
+                     && (shortcut == KeyboardShortcut.IncreaseSpeed1
+                         || shortcut == KeyboardShortcut.DecreaseSpeed1
+                         || shortcut == KeyboardShortcut.IncreaseSpeed10
+                         || shortcut == KeyboardShortcut.DecreaseSpeed10);
 
-            );
-            if (ignore) return;
+            var ignoreTypingKeys = (Keyboard.FocusedElement is TextBox)
+                                 && (shortcut == KeyboardShortcut.Voice1Toggle
+                                     || shortcut == KeyboardShortcut.Voice2Toggle
+                                     || shortcut == KeyboardShortcut.Voice3Toggle
+                                     || shortcut == KeyboardShortcut.IncreaseSpeedFine
+                                     || shortcut == KeyboardShortcut.DecreaseSpeedFine);
 
-            double amt = IsNumLockOn() ? 10 : 1;
+            if (ignoreScrollKeys || ignoreTypingKeys) return;
+
+
+
+            if (ignoreScrollKeys || ignoreTypingKeys) return;
+
+
+            if (ignoreScrollKeys || ignoreTypingKeys) return;
+
 
             switch (shortcut)
             {
                 case KeyboardShortcut.Voice1Toggle or KeyboardShortcut.Voice2Toggle or KeyboardShortcut.Voice3Toggle:
                     MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidVoiceMuteKeyPressed);
                     return;
-
-                case KeyboardShortcut.IncreaseSpeed:
-                    MessageBus.Current.SendMessage(amt, MessageBusConstants.SidSpeedIncreaseKeyPressed);
+                case KeyboardShortcut.IncreaseSpeedFine:
+                    MessageBus.Current.SendMessage(0.1, MessageBusConstants.SidSpeedIncreaseKeyPressed);
                     return;
-
-                case KeyboardShortcut.DecreaseSpeed:
-                    MessageBus.Current.SendMessage(amt, MessageBusConstants.SidSpeedDecreaseKeyPressed);
+                case KeyboardShortcut.DecreaseSpeedFine:
+                    MessageBus.Current.SendMessage(-0.1, MessageBusConstants.SidSpeedDecreaseKeyPressed);
                     return;
-
-                case KeyboardShortcut.IncreaseSpeed50:
+                case KeyboardShortcut.IncreaseSpeed1:
+                    MessageBus.Current.SendMessage(1.0, MessageBusConstants.SidSpeedIncreaseKeyPressed);
+                    return;
+                case KeyboardShortcut.DecreaseSpeed1:
+                    MessageBus.Current.SendMessage(-1.0, MessageBusConstants.SidSpeedDecreaseKeyPressed);
+                    return;
+                case KeyboardShortcut.IncreaseSpeed10:
+                    MessageBus.Current.SendMessage(10.0, MessageBusConstants.SidSpeedIncreaseKeyPressed);
+                    return;
+                case KeyboardShortcut.DecreaseSpeed10:
+                    MessageBus.Current.SendMessage(-10.0, MessageBusConstants.SidSpeedDecreaseKeyPressed);
+                    return;
+                case KeyboardShortcut.SetSpeedPlus50:
                     MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedIncrease50KeyPressed);
                     return;
-
-                case KeyboardShortcut.DecreaseSpeed50:
+                case KeyboardShortcut.SetSpeedMinus50:
                     MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedDecrease50KeyPressed);
                     return;
                 case KeyboardShortcut.DefaultSpeed:
                     MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedDefaultKeyPressed);
                     return;
-
                 case KeyboardShortcut.FastForward:
                     MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.FastForwardKeyPressed);
                     return;
+            }
+        }
+
+        /// <summary>
+        /// Hack to clear the UI of all focusable elements by using a tiny transparent control.
+        /// </summary>
+        private void ClearFocus()
+        {
+            if (FocusResetButton != null)
+            {
+                Keyboard.Focus(FocusResetButton);
             }
         }
 
