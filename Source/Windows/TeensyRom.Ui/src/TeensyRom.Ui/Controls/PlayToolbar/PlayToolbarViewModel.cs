@@ -246,7 +246,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     Voice1Enabled = true;
                     Voice2Enabled = true;
                     Voice3Enabled = true;
-                    TrackSeekInProgress = false;
                 });
             
 
