@@ -17,6 +17,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Shell;
 using TeensyRom.Ui.Features.NavigationHost;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Main
 {
@@ -39,6 +40,22 @@ namespace TeensyRom.Ui.Main
                     LeftNavButton.IsChecked = false;
                 }
             });
+
+            this.PreviewKeyDown += GlobalKeyDownHandler;
+
+        }
+
+        private void GlobalKeyDownHandler(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.FocusedElement is TextBox)
+            {
+                return;
+            }
+            if (e.Key == Key.D1 || e.Key == Key.D2 || e.Key == Key.D3)
+            {
+                int intKey = int.Parse(e.Key.ToString().Replace("D", ""));
+                MessageBus.Current.SendMessage(intKey, MessageBusConstants.GlobalVoiceKeyMessageName);
+            }
         }
 
         // Can execute
