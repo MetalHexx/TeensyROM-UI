@@ -398,7 +398,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     TrackSeekInProgress = false;
                     await restartSong();
-                    await Task.Delay(100);
                     _timer?.ResetTimer();
                     return;
                 }
@@ -420,16 +419,15 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     fastForwardTime = _currentSong!.PlayLength.GetTimeSpanPercentage(percent);
 
                     if (fastForwardTime < Progress?.CurrentSpan)
-                    {
+                    {                        
                         await restartSong();
-                        await Task.Delay(100);
                         _timer?.ResetTimer();
+                        await Task.Delay(200);                        
                     }
                 }
                 if (_muteRandomSeek) await _mute(true, true, true);
 
                 await _changeSpeed(99, MusicSpeedCurveTypes.Logarithmic);
-
                 _timer?.UpdateSpeed(speedAdjustment);
 
                 _fastForwardTimerSubscription = _timer?.CurrentTime.Subscribe(async currentTime =>
