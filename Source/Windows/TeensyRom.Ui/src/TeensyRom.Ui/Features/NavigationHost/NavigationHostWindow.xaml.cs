@@ -22,28 +22,6 @@ using System.Runtime.InteropServices;
 
 namespace TeensyRom.Ui.Main
 {
-    public enum KeyboardShortcut
-    {
-        Voice1Toggle,
-        Voice2Toggle,
-        Voice3Toggle,
-        PlayPause,
-        Stop,
-        NextTrack,
-        PreviousTrack,
-        IncreaseSpeedFine,
-        DecreaseSpeedFine,
-        IncreaseSpeed1,
-        DecreaseSpeed1,
-        IncreaseSpeed10,
-        DecreaseSpeed10,
-        SetSpeedPlus50,
-        SetSpeedMinus50,
-        DefaultSpeed,
-        FastForward,
-        DisengageFocus,
-    }
-
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -102,6 +80,10 @@ namespace TeensyRom.Ui.Main
                 Key.PageDown when IsCtrlPressed() => KeyboardShortcut.DecreaseSpeed10,
                 Key.PageUp => KeyboardShortcut.IncreaseSpeed1,
                 Key.PageDown => KeyboardShortcut.DecreaseSpeed1,
+                //Key.Up => KeyboardShortcut.IncreaseSpeed10,
+                //Key.Down => KeyboardShortcut.DecreaseSpeed10,
+                //Key.Left => KeyboardShortcut.DecreaseSpeed1,
+                //Key.Right => KeyboardShortcut.IncreaseSpeed1,
                 Key.Multiply => KeyboardShortcut.SetSpeedPlus50,
                 Key.Divide => KeyboardShortcut.SetSpeedMinus50,
                 Key.NumPad0 => KeyboardShortcut.DefaultSpeed,
@@ -110,38 +92,32 @@ namespace TeensyRom.Ui.Main
             };
 
             if (shortcut is null) return;
-            if (shortcut is KeyboardShortcut.DisengageFocus) 
+
+            var ignoreScrollKeys = (Keyboard.FocusedElement is ScrollViewer
+                || Keyboard.FocusedElement is ListBox
+                || Keyboard.FocusedElement is DataGrid
+                || Keyboard.FocusedElement is ListView
+                || Keyboard.FocusedElement is ListViewItem)
+                && (shortcut == KeyboardShortcut.IncreaseSpeed1
+                    || shortcut == KeyboardShortcut.DecreaseSpeed1
+                    || shortcut == KeyboardShortcut.IncreaseSpeed10
+                    || shortcut == KeyboardShortcut.DecreaseSpeed10);
+
+            var ignoreTypingKeys = (Keyboard.FocusedElement is TextBox)
+                && (e.Key == Key.Delete
+                    ||shortcut == KeyboardShortcut.Voice1Toggle
+                    || shortcut == KeyboardShortcut.Voice2Toggle
+                    || shortcut == KeyboardShortcut.Voice3Toggle
+                    || shortcut == KeyboardShortcut.IncreaseSpeedFine
+                    || shortcut == KeyboardShortcut.DecreaseSpeedFine);
+
+            if (ignoreScrollKeys || ignoreTypingKeys) return;
+
+            if (shortcut is KeyboardShortcut.DisengageFocus)
             {
                 ClearFocus();
                 return;
             }
-
-            var ignoreScrollKeys = (Keyboard.FocusedElement is ScrollViewer
-                     || Keyboard.FocusedElement is ListBox
-                     || Keyboard.FocusedElement is DataGrid
-                     || Keyboard.FocusedElement is ListView
-                     || Keyboard.FocusedElement is ListViewItem) // Check if a ListView item is selected
-                     && (shortcut == KeyboardShortcut.IncreaseSpeed1
-                         || shortcut == KeyboardShortcut.DecreaseSpeed1
-                         || shortcut == KeyboardShortcut.IncreaseSpeed10
-                         || shortcut == KeyboardShortcut.DecreaseSpeed10);
-
-            var ignoreTypingKeys = (Keyboard.FocusedElement is TextBox)
-                                 && (shortcut == KeyboardShortcut.Voice1Toggle
-                                     || shortcut == KeyboardShortcut.Voice2Toggle
-                                     || shortcut == KeyboardShortcut.Voice3Toggle
-                                     || shortcut == KeyboardShortcut.IncreaseSpeedFine
-                                     || shortcut == KeyboardShortcut.DecreaseSpeedFine);
-
-            if (ignoreScrollKeys || ignoreTypingKeys) return;
-
-
-
-            if (ignoreScrollKeys || ignoreTypingKeys) return;
-
-
-            if (ignoreScrollKeys || ignoreTypingKeys) return;
-
 
             switch (shortcut)
             {
