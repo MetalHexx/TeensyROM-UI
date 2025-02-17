@@ -24,7 +24,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         {
             Dictionary<double, double> baseMappings = new()
             {
-                { 99, 9900 },
+                { 99, 10000 },
                 { 98, 4900 },
                 { 97, 3233 },
                 { 96, 2400 },
