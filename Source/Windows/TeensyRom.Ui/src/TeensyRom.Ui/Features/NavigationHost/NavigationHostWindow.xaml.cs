@@ -19,6 +19,8 @@ using System.Windows.Shell;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using System.Runtime.InteropServices;
+using Windows.Media;
+using Windows.Media.Playback;
 
 namespace TeensyRom.Ui.Main
 {
@@ -33,6 +35,8 @@ namespace TeensyRom.Ui.Main
         private const int VK_SHIFT = 0x10;
         private const int VK_CONTROL = 0x11;
         private const int VK_MENU = 0x12; // ALT key
+        private SystemMediaTransportControls _mediaControls;
+        private Windows.Media.Playback.MediaPlayer _mediaPlayer;
 
         public bool IsKeyPressed(int keyCode)
         {
@@ -59,7 +63,37 @@ namespace TeensyRom.Ui.Main
             });
 
             this.PreviewKeyDown += GlobalKeyDownHandler;
+            _mediaPlayer = new Windows.Media.Playback.MediaPlayer();            
+            _mediaPlayer.CommandManager.IsEnabled = false;
+            _mediaControls = _mediaPlayer.SystemMediaTransportControls;
+            _mediaControls.IsEnabled = true;
+            _mediaControls.IsPlayEnabled = true;
+            _mediaControls.IsStopEnabled = true;
+            _mediaControls.IsPreviousEnabled = true;
+            _mediaControls.IsNextEnabled = true;
+            _mediaControls.ButtonPressed += MediaControls_ButtonPressed;
+        }
 
+        private void MediaControls_ButtonPressed(SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)
+        {
+            switch (args.Button)
+            {
+                case SystemMediaTransportControlsButton.Play:
+                    Dispatcher.Invoke(() => MessageBus.Current.SendMessage(KeyboardShortcut.PlayPause, MessageBusConstants.MediaPlayerKeyPressed));
+                    break;
+                case SystemMediaTransportControlsButton.Pause:
+                    Dispatcher.Invoke(() => MessageBus.Current.SendMessage(KeyboardShortcut.PlayPause, MessageBusConstants.MediaPlayerKeyPressed));
+                    break;
+                case SystemMediaTransportControlsButton.Stop:
+                    Dispatcher.Invoke(() => MessageBus.Current.SendMessage(KeyboardShortcut.Stop, MessageBusConstants.MediaPlayerKeyPressed));
+                    break;
+                case SystemMediaTransportControlsButton.Next:
+                    Dispatcher.Invoke(() => MessageBus.Current.SendMessage(KeyboardShortcut.NextTrack, MessageBusConstants.MediaPlayerKeyPressed));
+                    break;
+                case SystemMediaTransportControlsButton.Previous:
+                    Dispatcher.Invoke(() => MessageBus.Current.SendMessage(KeyboardShortcut.PreviousTrack, MessageBusConstants.MediaPlayerKeyPressed));
+                    break;
+            }
         }
 
         private void GlobalKeyDownHandler(object sender, KeyEventArgs e)
