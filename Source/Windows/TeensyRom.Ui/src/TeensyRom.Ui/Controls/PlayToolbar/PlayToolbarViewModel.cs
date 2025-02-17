@@ -101,6 +101,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private bool _muteFastForward;
         private bool _muteRandomSeek;
         private Func<bool, bool, bool, Task> _mute;
+        private Func<Task> _togglePlay;
 
         public PlayToolbarViewModel(
             IObservable<ILaunchableItem> file,
@@ -129,6 +130,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             _changeSpeed = changeSpeed;
             _alert = alert;
             _mute = mute;
+            _togglePlay = togglePlay;
 
             muteFastForward.Subscribe(enabled => _muteFastForward = enabled);
             muteRandomSeek.Subscribe(enabled => _muteRandomSeek = enabled);
@@ -259,7 +261,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             {
                 TimedPlayButtonEnabled = false;
                 TimedPlayComboBoxEnabled = false;
-                ProgressEnabled = true;
+                ProgressEnabled = true;                
+                _previousRawSpeed = 0;
                 InitializeProgress(playNext, item);
             });
 
@@ -315,14 +318,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             TogglePlayCommand = ReactiveCommand.CreateFromTask(_ =>
             {
-                if (FastForwardInProgress)
-                {
-                    DisableFastForward(true);
-                    return Task.CompletedTask;
-                }
-                if (PlayButtonEnabled) _timer?.ResumeTimer();
-                if (PauseButtonEnabled) _timer?.PauseTimer();
-                return togglePlay();
+                return HandleTogglePlay();
             });
 
             ToggleTimedPlay = ReactiveCommand.Create<Unit>(_ =>
@@ -495,6 +491,27 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     playSubtune(CurrentSubtuneIndex);
                 });
 
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.MediaPlayerKeyPressed)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(key => 
+                {
+                    switch (key) 
+                    {
+                        case KeyboardShortcut.PlayPause:
+                            HandleTogglePlay();
+                            break;
+                        case KeyboardShortcut.Stop when StopButtonEnabled || PauseButtonEnabled:
+                            HandleTogglePlay();
+                            break;
+                        case KeyboardShortcut.PreviousTrack:
+                            playPrevious();
+                            break;
+                        case KeyboardShortcut.NextTrack:
+                            playNext();
+                            break;
+                    } 
+                });
+
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidVoiceMuteKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong is true)
@@ -512,9 +529,17 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
 
+                    if(SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
+                    {
+                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(amt));
+                        _previousRawSpeed = RawSpeedValue;
+                        return;
+                    }
+
                     var finalSpeed = ClampSpeed(RawSpeedValue += amt);
 
                     RawSpeedValue = finalSpeed;
+                    _previousRawSpeed = RawSpeedValue;
                 });
 
             MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedDecreaseKeyPressed)
@@ -523,10 +548,15 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Subscribe(amt =>
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
-
+                    if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
+                    {
+                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(amt));
+                        _previousRawSpeed = RawSpeedValue;
+                        return;
+                    }
                     var finalSpeed = ClampSpeed(RawSpeedValue += amt);
-
                     RawSpeedValue = finalSpeed;
+                    _previousRawSpeed = RawSpeedValue;
                 });
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedIncrease50KeyPressed)
@@ -536,7 +566,28 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     if (FastForwardInProgress) DisableFastForward(false);
 
-                    RawSpeedValue = 50;
+                    if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic) 
+                    {
+                        if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(50) && RawSpeedValue != 0) return;
+
+                        if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(-50))
+                        {
+                            RawSpeedValue = _previousRawSpeed;
+                            return;
+                        }
+                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(50));
+                        return;
+                    }
+                    if (RawSpeedValue == _previousRawSpeed + 50 && RawSpeedValue != 0) return;
+
+                    if (RawSpeedValue == _previousRawSpeed - 50) 
+                    {
+                        RawSpeedValue = _previousRawSpeed;
+                        return;
+                    }
+                    _previousRawSpeed = RawSpeedValue;
+
+                    RawSpeedValue = ClampSpeed(RawSpeedValue + 50);
                 });
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDecrease50KeyPressed)
@@ -546,7 +597,28 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     if (FastForwardInProgress) DisableFastForward(false);
 
-                    RawSpeedValue = -50;
+                    if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
+                    {
+                        if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(-50) && RawSpeedValue != 0) return;
+
+                        if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(50))
+                        {
+                            RawSpeedValue = _previousRawSpeed;
+                            return;
+                        }
+                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(-50));
+                        return;
+                    }
+                    if (RawSpeedValue == _previousRawSpeed - 50 && RawSpeedValue != 0) return;
+
+                    if (RawSpeedValue == _previousRawSpeed + 50)
+                    {
+                        RawSpeedValue = _previousRawSpeed;
+                        return;
+                    }
+                    _previousRawSpeed = RawSpeedValue;
+
+                    RawSpeedValue = ClampSpeed(RawSpeedValue - 50);
                 });
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDefaultKeyPressed)
@@ -556,7 +628,12 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     if (FastForwardInProgress) DisableFastForward(false);
 
-                    RawSpeedValue = 0;
+                    if(_previousRawSpeed == RawSpeedValue)
+                    {
+                        RawSpeedValue = 0;
+                        return;
+                    }
+                    RawSpeedValue = _previousRawSpeed;
                 });
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.FastForwardKeyPressed)
@@ -573,6 +650,18 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(buffer => buffer.Any())
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async buffer => await mute(!Voice1Enabled, !Voice2Enabled, !Voice3Enabled));
+        }
+
+        private Task HandleTogglePlay()
+        {
+            if (FastForwardInProgress)
+            {
+                DisableFastForward(true);
+                return Task.CompletedTask;
+            }
+            if (PlayButtonEnabled) _timer?.ResumeTimer();
+            if (PauseButtonEnabled) _timer?.PauseTimer();
+            return _togglePlay();
         }
 
         private double ClampSpeed(double speed)

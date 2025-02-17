@@ -20,6 +20,14 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             return Mappings.TryGetValue(roundedValue, out var percentage) ? percentage : throw new ArgumentOutOfRangeException(nameof(value), "Value not mapped.");
         }
 
+        public static double GetNearestPercentValue(this double currentValue, double percentageStep)
+        {
+            var currentPercentage = currentValue.GetLogPercentage();
+            var targetPercentage = currentPercentage + percentageStep;
+            var closest = Mappings.OrderBy(kvp => Math.Abs(kvp.Value - targetPercentage)).First();
+            return closest.Key;
+        }
+
         private static Dictionary<double, double> GenerateMappings()
         {
             Dictionary<double, double> baseMappings = new()
