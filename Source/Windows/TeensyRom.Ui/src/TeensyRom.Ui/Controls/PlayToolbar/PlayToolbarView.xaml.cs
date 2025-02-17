@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Windows;
@@ -6,6 +7,8 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using TeensyRom.Ui.Main;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -22,6 +25,38 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         {
             InitializeComponent();
             Loaded += PlayToolbarView_Loaded;
+
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidVoiceMuteKeyPressed)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(key => TriggerAdvancedMenu());
+
+            MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedIncreaseKeyPressed)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(key => TriggerAdvancedMenu());
+
+            MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedDecreaseKeyPressed)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(key => TriggerAdvancedMenu());
+
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedIncrease50KeyPressed)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(key => TriggerAdvancedMenu());
+
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDecrease50KeyPressed)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(key => TriggerAdvancedMenu());
+
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDefaultKeyPressed)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(key => TriggerAdvancedMenu());
+        }
+
+        private void TriggerAdvancedMenu()
+        {
+            if (!_isAdvancedVisible)
+            {
+                AdvancedControlButton_Click(this, null);
+            }
         }
 
         private void PlayToolbarView_Loaded(object sender, RoutedEventArgs e)
@@ -39,7 +74,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                             true);
         }
 
-        private void AdvancedControlButton_Click(object sender, RoutedEventArgs e)
+        private void AdvancedControlButton_Click(object sender, RoutedEventArgs? e)
         {
             double fromHeight = _isAdvancedVisible ? PopupContent.ActualHeight : 0;
             double toHeight = _isAdvancedVisible ? 0 : 50; 
