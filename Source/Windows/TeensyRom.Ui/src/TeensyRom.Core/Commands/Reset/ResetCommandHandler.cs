@@ -11,7 +11,8 @@ namespace TeensyRom.Core.Commands
     {
         public async Task<ResetResult> Handle(ResetCommand request, CancellationToken cancellationToken)
         {
-            serialState.Write(TeensyByteToken.Reset_Bytes.ToArray(), 0, 2);
+            //serialState.Write(TeensyByteToken.Reset_Bytes.ToArray(), 0, 2);
+            serialState.SendIntBytes(TeensyToken.Reset, 2);
 
             var pollResult = await PollForSuccess();
                      
