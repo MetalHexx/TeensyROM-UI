@@ -105,6 +105,29 @@ The application features a terminal to show you all of the activity happening on
 - Enjoy the ride! Check out [Tips and Tricks](#tips-and-tricks) for additional info.
 
 ## Tips and Tricks
+### Firmware Updates
+<img src="https://github.com/user-attachments/assets/855a341d-ed3e-4720-aaae-8d7c7d82479f" width="40%" alt="Launch Games"><br>
+_Firmware files are stored in `/firmware` using auto-transfer.  Press the `Play` button to launch a firmware update._
+
+#### How to Install TR Hardware Firmware with the UI
+**Option 1:** Use the auto-transfer feature **Recommended Approach!**<br>
+_This approach will trivialize your FW updates going forward, very convenient!_
+- Go to settings and make the following changes:
+  - Enable `File Auto-Transfer`
+  - Set a `Watch Directory`.  Your web browsers download directory is convenient and recommended.
+  - Enable `Auto-Launch on Copy` optional but recommended.
+  - I will assume you made all these changes in the instructions below.
+- Go to the [TeensyROM Repo](https://github.com/SensoriumEmbedded/TeensyROM/tree/main/bin/TeensyROM) and download the latest firmware (.hex) file.
+- The UI will automatically copy the file from you watch directory and launch it.
+  - The files with automatically be stored in a /firmware folder on your TeensyROM storage. 
+- Follow the instructions on your C64 to complete the FW update.
+
+**Option 2:** File Drag and Drop
+  - Download the latest firmware .hex file from the [TeensyROM Repo](https://github.com/SensoriumEmbedded/TeensyROM/tree/main/bin/TeensyROM) 
+  - Drag and drop the file  onto the UI any any folder you want.  (I suggest creating a /firmware folder)
+  - If you have `Auto-Launch on Copy` enabled (see Settings Menu), it will automatically load the firmware installation on the TR.
+
+### Other Tips
 - One day we'll have better docs. Maybe never, we'll see how well the UI explains itself. ;)
 - For now, the [demo](https://www.youtube.com/watch?v=xUcfgGMYOpM) goes over the feature set pretty well.
 - Be sure to check out the `Settings` view for some options to better suit your needs.
