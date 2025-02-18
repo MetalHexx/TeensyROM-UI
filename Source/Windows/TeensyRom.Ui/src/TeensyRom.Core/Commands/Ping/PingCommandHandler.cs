@@ -9,8 +9,7 @@ namespace TeensyRom.Core.Commands
     {
         public Task<PingResult> Handle(PingCommand request, CancellationToken cancellationToken)
         {
-            _serialState.Write(TeensyByteToken.Ping_Bytes.ToArray(), 0, 2);
-
+            _serialState.SendIntBytes(TeensyToken.Ping, 2);
             return Task.FromResult(new PingResult());
         }
     }
