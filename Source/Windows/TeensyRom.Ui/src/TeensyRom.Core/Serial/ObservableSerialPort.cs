@@ -4,9 +4,11 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
+using System.Text.RegularExpressions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
+using TeensyRom.Core.Settings;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TeensyRom.Core.Serial
@@ -16,7 +18,7 @@ namespace TeensyRom.Core.Serial
     /// Provides observables that can be used to monitor serial activity. 
     /// Resiliency routines are employed to recover from a disconnection.
     /// </summary>
-    public class ObservableSerialPort(ILoggingService _log, IAlertService _alert) : IObservableSerialPort
+    public class ObservableSerialPort(ILoggingService _log, IAlertService _alert, IFwVersionChecker versionChecker, ISettingsService settingsService) : IObservableSerialPort
     {
         public IObservable<Type> State => _state.AsObservable();
         public IObservable<string[]> Ports => _ports.AsObservable();
@@ -44,17 +46,46 @@ namespace TeensyRom.Core.Serial
             return Unit.Default;
         }
 
-        public void EnsureConnection()
-        {            
+        /// <summary>
+        /// Sorts the available ports by the last known used port to increase the chance of connecting to the correct port on the first try.
+        /// </summary>
+        private IEnumerable<string> GetSortedPorts()
+        {
+            var settings = settingsService.GetSettings();
+            var ports = SerialPort.GetPortNames().Distinct();
+
+            if (settings.DefaultComPort is not null)
+            {
+                return ports
+                    .OrderByDescending(port => settings.DefaultComPort == port)
+                    .ThenBy(port => port);
+            }
+            return ports;
+        }
+
+        private void SaveDefaultComPort(string comPort) 
+        {
+            var settings = settingsService.GetSettings();
+
+            if (settings.DefaultComPort != comPort)
+            {
+                settings.DefaultComPort = comPort;
+                settingsService.SaveSettings(settings);
+            }
+        }
+
+        public void EnsureConnection(int waitTimeMs = 200)
+        {
             if (_serialPort.IsOpen) return;
 
             Lock();
 
-            var ports = SerialPort.GetPortNames().Distinct();
+            var ports = GetSortedPorts();
 
             foreach (var port in ports)
             {
                 if (_serialPort.IsOpen) _serialPort.Close();
+
                 _serialPort.PortName = port;
                 _log.Internal($"ObservableSerialPort.EnsureConnection: Attempting to open {_serialPort.PortName}");
 
@@ -76,7 +107,8 @@ namespace TeensyRom.Core.Serial
                 try
                 {
                     _serialPort.WriteTimeout = 2000;
-                    Write(TeensyByteToken.Ping_Bytes.ToArray(), 0, 2);                    
+                    //_serialPort.Write([(byte)TeensyToken.VersionCheck.Value], 0, 1);
+                    SendIntBytes(TeensyToken.Ping, 2);
                 }
                 catch (Exception)
                 {
@@ -88,18 +120,16 @@ namespace TeensyRom.Core.Serial
                     _serialPort.WriteTimeout = SerialPort.InfiniteTimeout;
                 }
 
-                var ms = 4000;
+                _log.Internal($"ObservableSerialPort.EnsureConnection: Waiting {waitTimeMs}ms for VERSION CHECK response");
 
-                _log.Internal($"ObservableSerialPort.EnsureConnection: Waiting {ms}ms for PING response");
-
-                var response = ReadAndLogSerialAsString(ms);
+                var response = ReadAndLogSerialAsString(waitTimeMs);
 
                 var isTeensyResponse = response.Contains("teensyrom", StringComparison.OrdinalIgnoreCase)
                     || response.Contains("busy", StringComparison.OrdinalIgnoreCase);
 
                 if (!isTeensyResponse)
                 {
-                    _log.ExternalError($"ObservableSerialPort.EnsureConnection: PING failed -- TeensyROM was not detected on {_serialPort.PortName}");
+                    _log.ExternalError($"ObservableSerialPort.EnsureConnection: VERSION CHECK failed -- TeensyROM was not detected on {_serialPort.PortName}");
                     continue;
                 }
                 if(response.Contains("minimal", StringComparison.OrdinalIgnoreCase))
@@ -108,9 +138,15 @@ namespace TeensyRom.Core.Serial
                 }
                 else
                 {
+                    SaveDefaultComPort(port);                    
                     _alert.Publish($"Connected to TeensyROM on {_serialPort.PortName}");
+
+                    if (!response.Contains("busy", StringComparison.OrdinalIgnoreCase)) 
+                    {
+                        versionChecker.VersionCheck(response);
+                    }                    
                 }
-                _log.Internal($"ObservableSerialPort.EnsureConnection: PING succeeded");
+                _log.Internal($"ObservableSerialPort.EnsureConnection: VERSION CHECK succeeded");
                 
                 ReadAndLogStaleBuffer();
                 Unlock();
