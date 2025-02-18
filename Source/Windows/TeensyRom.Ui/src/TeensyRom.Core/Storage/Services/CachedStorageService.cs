@@ -1,18 +1,12 @@
-﻿using CsvHelper.Expressions;
-using MediatR;
+﻿using MediatR;
 using Newtonsoft.Json;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using TeensyRom.Core.Assets;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.DeleteFile;
-using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Games;
 using TeensyRom.Core.Logging;
@@ -343,7 +337,7 @@ namespace TeensyRom.Core.Storage.Services
             {
                 FileName = hardwareFileInfo.Name,
                 Path = hardwareFileInfo.FullName,
-                Source = "SensoriumEmbedded"
+                Source = "Sensorium Embedded"
             });
             return h;
         }
@@ -362,6 +356,7 @@ namespace TeensyRom.Core.Storage.Services
 
                 if (storageItem is SongItem song) _sidMetadata.EnrichSong(song);
                 if (storageItem is GameItem game) _gameMetadata.EnrichGame(game);
+                if (storageItem is HexItem hex) MapHexItem(hex);
                 if (storageItem is FileItem file)
                 {
                     _storageCache.UpsertFile(file);
