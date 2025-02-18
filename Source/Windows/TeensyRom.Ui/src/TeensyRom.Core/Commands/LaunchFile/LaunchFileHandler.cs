@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using System.Reactive.Linq;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
@@ -12,7 +13,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 {
     public class LaunchFileHandler(ISerialStateContext serialState, ILoggingService log, IAlertService alert) : IRequestHandler<LaunchFileCommand, LaunchFileResult>
     {
-        private const int _reconnectDelayMs = 1000;
+        private const int _reconnectDelayMs = 4000;
         public async Task<LaunchFileResult> Handle(LaunchFileCommand request, CancellationToken cancellationToken)
         {
             var ack = AttemptLaunch(request);
@@ -78,7 +79,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             {
                 alert.Publish("Detected a large file launch. A reconnection will occur.");
             }
-            await HandleReconnection(_reconnectDelayMs);
+            await HandleReconnection();
             return GetFinalResult(PollResponse());
         }
 
@@ -91,14 +92,14 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
             log.Internal($"LaunchFileHandler: Waiting {_reconnectDelayMs}ms for TeensyROM to catch up");
 
-            await HandleReconnection(_reconnectDelayMs);
+            await HandleReconnection();
 
             AttemptLaunch(request);
 
             if (request.LaunchItem.Size >= 575000)
             {
                 log.Internal($"LaunchFileHandler: Reconnecting again to new COM port due to large file launch retry.");
-                await HandleReconnection(_reconnectDelayMs);
+                await HandleReconnection();
             }
             return GetFinalResult(PollResponse());
         }
@@ -164,15 +165,15 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             return LaunchFileResultType.NoResponse;
         }
 
-        private async Task HandleReconnection(int waitMs)
+        private async Task HandleReconnection()
         {
-            await Task.Delay(waitMs);
+            await Task.Delay(1000);
 
             for (int i = 0; i < 3; i++)
             {
                 try
                 {
-                    serialState.EnsureConnection();
+                    serialState.EnsureConnection(_reconnectDelayMs);
                     return;
                 }
                 catch (TeensyException)

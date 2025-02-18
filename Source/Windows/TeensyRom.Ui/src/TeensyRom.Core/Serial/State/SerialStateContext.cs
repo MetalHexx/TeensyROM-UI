@@ -53,7 +53,7 @@ namespace TeensyRom.Core.Serial.State
         public Unit ClosePort() => _currentState.Value.ClosePort();
         public void StartHealthCheck() => _currentState.Value.StartHealthCheck();
         public void StopHealthCheck() => _currentState.Value.StopHealthCheck();
-        public void EnsureConnection() => _currentState.Value.EnsureConnection();
+        public void EnsureConnection(int waitTimeMs = 200) => _currentState.Value.EnsureConnection(waitTimeMs);
         public Unit SetPort(string port) => _currentState.Value.SetPort( port);
         public void Lock() => _currentState.Value.Lock();
         public void Unlock() => _currentState.Value.Unlock();

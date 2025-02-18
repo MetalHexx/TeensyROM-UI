@@ -129,7 +129,7 @@ namespace TeensyRom.Core.Serial
         void StartPortPoll();
         void StartHealthCheck();
         void StopHealthCheck();
-        void EnsureConnection();
+        void EnsureConnection(int waitTimeMs = 200);
         void SendSignedChar(sbyte charToSend);
         void SendSignedShort(short value);
     }

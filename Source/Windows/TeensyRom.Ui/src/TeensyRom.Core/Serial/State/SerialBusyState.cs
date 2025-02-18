@@ -31,6 +31,6 @@ namespace TeensyRom.Core.Serial.State
         public override void ClearBuffers() => _serialPort.ClearBuffers();
         public override void StartHealthCheck() => _serialPort.StartHealthCheck();
         public override void StopHealthCheck() => _serialPort.StopHealthCheck();
-        public override void EnsureConnection() => _serialPort.EnsureConnection();
+        public override void EnsureConnection(int waitTimeMs = 200) => _serialPort.EnsureConnection(waitTimeMs);
     }
 }
