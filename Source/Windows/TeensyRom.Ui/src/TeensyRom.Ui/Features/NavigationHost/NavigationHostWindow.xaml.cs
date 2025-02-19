@@ -52,27 +52,55 @@ namespace TeensyRom.Ui.Main
             InitializeComponent();
 
             StateChanged += MainWindowStateChangeRaised;
+            Activated += MainWindow_Activated;
+            //Deactivated += MainWindow_Deactivated;
+            InitializeNavigation();
 
+            this.PreviewKeyDown += GlobalKeyDownHandler;
+                       
+            InitializeMediaControls();
+        }
+
+        private void InitializeNavigation()
+        {
             MessageBus.Current.Listen<NavigatedMessage>().Subscribe(message =>
             {
                 if (LeftNavButton.IsChecked == true)
                 {
-                    CloseNav();                    
+                    CloseNav();
                     LeftNavButton.IsChecked = false;
                 }
             });
+        }
 
-            this.PreviewKeyDown += GlobalKeyDownHandler;
-            _mediaPlayer = new Windows.Media.Playback.MediaPlayer();            
+        private void InitializeMediaControls()
+        {
+            _mediaPlayer?.Dispose();
+            _mediaPlayer = new Windows.Media.Playback.MediaPlayer();
             _mediaPlayer.CommandManager.IsEnabled = false;
             _mediaControls = _mediaPlayer.SystemMediaTransportControls;
+            _mediaControls.ButtonPressed -= MediaControls_ButtonPressed;
             _mediaControls.IsEnabled = true;
             _mediaControls.IsPlayEnabled = true;
+            _mediaControls.IsPauseEnabled = true;
             _mediaControls.IsStopEnabled = true;
-            _mediaControls.IsPreviousEnabled = true;
             _mediaControls.IsNextEnabled = true;
+            _mediaControls.IsPreviousEnabled = true;
             _mediaControls.ButtonPressed += MediaControls_ButtonPressed;
         }
+
+        private void MainWindow_Activated(object? sender, EventArgs e)
+        {
+            InitializeMediaControls();
+        }
+
+        //private void MainWindow_Deactivated(object sender, EventArgs e)
+        //{
+        //    if (_mediaControls != null)
+        //    {
+        //        _mediaControls.IsEnabled = false;
+        //    }
+        //}
 
         private void MediaControls_ButtonPressed(SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)
         {
