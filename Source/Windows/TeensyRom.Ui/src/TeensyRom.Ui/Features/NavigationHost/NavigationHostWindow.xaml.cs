@@ -53,7 +53,6 @@ namespace TeensyRom.Ui.Main
 
             StateChanged += MainWindowStateChangeRaised;
             Activated += MainWindow_Activated;
-            //Deactivated += MainWindow_Deactivated;
             InitializeNavigation();
 
             this.PreviewKeyDown += GlobalKeyDownHandler;
@@ -93,14 +92,6 @@ namespace TeensyRom.Ui.Main
         {
             InitializeMediaControls();
         }
-
-        //private void MainWindow_Deactivated(object sender, EventArgs e)
-        //{
-        //    if (_mediaControls != null)
-        //    {
-        //        _mediaControls.IsEnabled = false;
-        //    }
-        //}
 
         private void MediaControls_ButtonPressed(SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)
         {
