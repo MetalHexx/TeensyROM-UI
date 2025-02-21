@@ -169,6 +169,11 @@
         <Setter Property="Foreground" Value="White"/>
     </Style>
 
+    <Style x:Key="Heading" TargetType="Label">
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+
     <Style x:Key="LightButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedSecondaryLightButton}">
         <Setter Property="Width" Value="120" />
     </Style>

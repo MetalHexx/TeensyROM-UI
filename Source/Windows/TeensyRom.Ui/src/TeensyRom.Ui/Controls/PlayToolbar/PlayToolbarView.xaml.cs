@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using TeensyRom.Core.Music.Midi;
 using TeensyRom.Ui.Main;
 using TeensyRom.Ui.Services;
 
@@ -26,36 +27,46 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             InitializeComponent();
             Loaded += PlayToolbarView_Loaded;
 
+            MessageBus.Current.Listen<MidiEvent>(MessageBusConstants.MidiCommandsReceived)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ => TriggerAdvancedMenu());
+
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidVoiceMuteKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(key => TriggerAdvancedMenu());
+                .Where(_ => _isAdvancedVisible is false)
+                .Subscribe(_ => TriggerAdvancedMenu());
 
             MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedIncreaseKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(key => TriggerAdvancedMenu());
+                .Where(_ => _isAdvancedVisible is false)
+                .Subscribe(_ => TriggerAdvancedMenu());
 
             MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedDecreaseKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(key => TriggerAdvancedMenu());
+                .Where(_ => _isAdvancedVisible is false)
+                .Subscribe(_ => TriggerAdvancedMenu());
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedIncrease50KeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(key => TriggerAdvancedMenu());
+                .Where(_ => _isAdvancedVisible is false)
+                .Subscribe(_ => TriggerAdvancedMenu());
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDecrease50KeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(key => TriggerAdvancedMenu());
+                .Where(_ => _isAdvancedVisible is false)
+                .Subscribe(_ => TriggerAdvancedMenu());
 
-            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDefaultKeyPressed)
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedHomeKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(key => TriggerAdvancedMenu());
+                .Where(_ => _isAdvancedVisible is false)
+                .Subscribe(_ => TriggerAdvancedMenu());
         }
 
         private void TriggerAdvancedMenu()
         {
             if (!_isAdvancedVisible)
             {
-                AdvancedControlButton_Click(this, null);
+                AdvancedControlButton_Click(this, null);                
             }
         }
 
