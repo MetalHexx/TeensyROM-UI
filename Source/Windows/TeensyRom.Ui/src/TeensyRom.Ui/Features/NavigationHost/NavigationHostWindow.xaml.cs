@@ -202,7 +202,7 @@ namespace TeensyRom.Ui.Main
                     MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedDecrease50KeyPressed);
                     return;
                 case KeyboardShortcut.DefaultSpeed:
-                    MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedDefaultKeyPressed);
+                    MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.SidSpeedHomeKeyPressed);
                     return;
                 case KeyboardShortcut.FastForward:
                     MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.FastForwardKeyPressed);

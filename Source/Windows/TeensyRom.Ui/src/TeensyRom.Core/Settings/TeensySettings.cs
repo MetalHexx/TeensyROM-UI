@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Runtime;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Music.Midi;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Settings
@@ -47,6 +48,7 @@ namespace TeensyRom.Core.Settings
         public bool FirstTimeSetup { get; set; } = true;
         public string? DefaultComPort { get; set; }
         public string? DefaultMinimalComPort { get; set; }
+        public MidiSettings MidiSettings { get; set; } = new();
 
         public List<string> BannedDirectories = [];
         public List<string> BannedFiles = [];

@@ -16,6 +16,10 @@ using System.Reactive.Concurrency;
 using TeensyRom.Core.Music;
 using TeensyRom.Ui.Services;
 using TeensyRom.Ui.Main;
+using TeensyRom.Core.Music.Midi;
+using System.Diagnostics;
+using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -102,6 +106,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private bool _muteRandomSeek;
         private Func<bool, bool, bool, Task> _mute;
         private Func<Task> _togglePlay;
+        private List<IDisposable> _midiSubscriptions = [];
 
         public PlayToolbarViewModel(
             IObservable<ILaunchableItem> file,
@@ -124,7 +129,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             Func<double, MusicSpeedCurveTypes, Task> changeSpeed,
             Func<bool, bool, bool, Task> mute,
             Action<StorageScope> setScope,
-            IAlertService alert)
+            IAlertService alert, 
+            IMidiService midiService)
         {
             _timer = timer;
             _changeSpeed = changeSpeed;
@@ -491,6 +497,54 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     playSubtune(CurrentSubtuneIndex);
                 });
 
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.EventType is DJEventType.CurrentSpeed)
+                .Subscribe(e =>
+                {
+                    if (FastForwardInProgress) DisableFastForward(true);
+
+                    if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
+                    {
+                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(e.Value));
+                        _previousRawSpeed = RawSpeedValue;
+                        return;
+                    }
+                    var finalSpeed = ClampSpeed(e.Value);
+
+                    RawSpeedValue = finalSpeed;
+                    _previousRawSpeed = RawSpeedValue;
+                });
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.EventType is DJEventType.Voice1 or DJEventType.Voice2 or DJEventType.Voice3)                
+                .Subscribe(e =>
+                {
+                    if (e.EventType is DJEventType.Voice1) Voice1Enabled = !Voice1Enabled;
+                    if (e.EventType is DJEventType.Voice2) Voice2Enabled = !Voice2Enabled;
+                    if (e.EventType is DJEventType.Voice3) Voice3Enabled = !Voice3Enabled;
+                });
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(e => MessageBus.Current.SendMessage(e, MessageBusConstants.MidiCommandsReceived));
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.EventType is DJEventType.SetSpeedPlus50)
+                .Subscribe(e => HandleIncrease50());
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.EventType is DJEventType.SetSpeedMinus50)
+                .Subscribe(e => HandleDecrease50());
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.EventType is DJEventType.HomeSpeed)
+                .Subscribe(e => HandleHomeSpeed());
+
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.MediaPlayerKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(key => 
@@ -564,30 +618,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => IsSong is true)
                 .Subscribe(_ =>
                 {
-                    if (FastForwardInProgress) DisableFastForward(false);
-
-                    if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic) 
-                    {
-                        if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(50) && RawSpeedValue != 0) return;
-
-                        if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(-50))
-                        {
-                            RawSpeedValue = _previousRawSpeed;
-                            return;
-                        }
-                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(50));
-                        return;
-                    }
-                    if (RawSpeedValue == _previousRawSpeed + 50 && RawSpeedValue != 0) return;
-
-                    if (RawSpeedValue == _previousRawSpeed - 50) 
-                    {
-                        RawSpeedValue = _previousRawSpeed;
-                        return;
-                    }
-                    _previousRawSpeed = RawSpeedValue;
-
-                    RawSpeedValue = ClampSpeed(RawSpeedValue + 50);
+                    HandleIncrease50();
                 });
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDecrease50KeyPressed)
@@ -595,45 +626,15 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => IsSong is true)
                 .Subscribe(_ =>
                 {
-                    if (FastForwardInProgress) DisableFastForward(false);
-
-                    if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
-                    {
-                        if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(-50) && RawSpeedValue != 0) return;
-
-                        if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(50))
-                        {
-                            RawSpeedValue = _previousRawSpeed;
-                            return;
-                        }
-                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(-50));
-                        return;
-                    }
-                    if (RawSpeedValue == _previousRawSpeed - 50 && RawSpeedValue != 0) return;
-
-                    if (RawSpeedValue == _previousRawSpeed + 50)
-                    {
-                        RawSpeedValue = _previousRawSpeed;
-                        return;
-                    }
-                    _previousRawSpeed = RawSpeedValue;
-
-                    RawSpeedValue = ClampSpeed(RawSpeedValue - 50);
+                    HandleDecrease50();
                 });
 
-            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDefaultKeyPressed)
+            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedHomeKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong is true)
                 .Subscribe(_ =>
                 {
-                    if (FastForwardInProgress) DisableFastForward(false);
-
-                    if(_previousRawSpeed == RawSpeedValue)
-                    {
-                        RawSpeedValue = 0;
-                        return;
-                    }
-                    RawSpeedValue = _previousRawSpeed;
+                    HandleHomeSpeed();
                 });
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.FastForwardKeyPressed)
@@ -650,6 +651,74 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(buffer => buffer.Any())
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async buffer => await mute(!Voice1Enabled, !Voice2Enabled, !Voice3Enabled));
+        }
+
+        private void HandleHomeSpeed()
+        {
+            if (FastForwardInProgress) DisableFastForward(false);
+
+            if (_previousRawSpeed == RawSpeedValue)
+            {
+                RawSpeedValue = 0;
+                return;
+            }
+            RawSpeedValue = _previousRawSpeed;
+        }
+
+        private void HandleDecrease50()
+        {
+            if (FastForwardInProgress) DisableFastForward(false);
+
+            if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
+            {
+                if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(-50) && RawSpeedValue != 0) return;
+
+                if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(50))
+                {
+                    RawSpeedValue = _previousRawSpeed;
+                    return;
+                }
+                RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(-50));
+                return;
+            }
+            if (RawSpeedValue == _previousRawSpeed - 50 && RawSpeedValue != 0) return;
+
+            if (RawSpeedValue == _previousRawSpeed + 50)
+            {
+                RawSpeedValue = _previousRawSpeed;
+                return;
+            }
+            _previousRawSpeed = RawSpeedValue;
+
+            RawSpeedValue = ClampSpeed(RawSpeedValue - 50);
+        }
+
+        private void HandleIncrease50()
+        {
+            if (FastForwardInProgress) DisableFastForward(false);
+
+            if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
+            {
+                if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(50) && RawSpeedValue != 0) return;
+
+                if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(-50))
+                {
+                    RawSpeedValue = _previousRawSpeed;
+                    return;
+                }
+                RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(50));
+                return;
+            }
+            if (RawSpeedValue == _previousRawSpeed + 50 && RawSpeedValue != 0) return;
+
+            if (RawSpeedValue == _previousRawSpeed - 50)
+            {
+                RawSpeedValue = _previousRawSpeed;
+                return;
+            }
+            _previousRawSpeed = RawSpeedValue;
+
+            RawSpeedValue = ClampSpeed(RawSpeedValue + 50);
         }
 
         private Task HandleTogglePlay()

@@ -32,6 +32,7 @@ using TeensyRom.Ui.Core.Progress;
 using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Core.Storage.Tools.Zip;
+using TeensyRom.Core.Music.Midi;
 
 namespace TeensyRom.Ui
 {
@@ -55,6 +56,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<ISerialStateContext, SerialStateContext>();
             services.AddSingleton<IGameMetadataService, GameMetadataService>();
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
+            services.AddSingleton<IMidiService, MidiService>();
             services.AddSingleton<ICachedStorageService, CachedStorageService>();
             services.AddSingleton<IPlayerContext, PlayerContext>();
             services.AddSingleton<IDiscoveryTreeState, DiscoverTreeState>();
