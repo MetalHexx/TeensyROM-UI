@@ -230,6 +230,7 @@
           "MediatR": "[12.2.0, )",
           "NAudio.Midi": "[2.2.1, )",
           "Newtonsoft.Json": "[13.0.3, )",
+          "ReactiveUI.Fody": "[19.5.41, )",
           "System.Drawing.Common": "[8.0.1, )",
           "System.IO.Ports": "[6.0.0, )",
           "System.Reactive": "[6.0.0, )"

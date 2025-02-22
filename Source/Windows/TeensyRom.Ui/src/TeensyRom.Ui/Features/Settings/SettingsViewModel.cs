@@ -2,7 +2,9 @@
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -27,8 +29,9 @@ namespace TeensyRom.Ui.Features.Settings
         [Reactive] public FeatureTitleViewModel Title { get; set; } = new("Settings");
         [Reactive] public string Logs { get; set; } = string.Empty;
         [ObservableAsProperty] public bool IsDirty { get; }
-        [ObservableAsProperty] public TeensySettings? Settings { get; }        
-        [Reactive] public IEnumerable<MidiDevice> AvailableDevices { get; set; } = [];
+        [Reactive] public TeensySettings? Settings { get; set; }
+        [Reactive] public MidiSettings? MidiSettings { get; set; }
+        [Reactive] public ObservableCollection<MidiDevice> AvailableDevices { get; set; } = [];
 
         [Reactive]
         public List<TeensyFilterType> FilterOptions { get; set; } = Enum
@@ -41,6 +44,7 @@ namespace TeensyRom.Ui.Features.Settings
         public Interaction<string, bool> ConfirmSave { get; } = new Interaction<string, bool>();
 
         public ReactiveCommand<Unit, Unit> SaveSettingsCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> RefreshMidiDevicesCommand { get; set; }
 
         private readonly ISettingsService _settingsService;
         private readonly IAlertService _alert;
@@ -57,36 +61,26 @@ namespace TeensyRom.Ui.Features.Settings
             _settingsService = settings;
             _alert = alert;
 
-            AvailableDevices = _midiService.GetMidiDevices();            
-
             _settingsService.Settings
-                .Select(s => s with { })
-                .Select(s =>
+                .Select(s => (s with { }))
+                .Subscribe(s => 
                 {
-                    //Ensures the same reference from the dropdown is set.  Also makes the selected device blank to indicate to the user it's missing.
-                    //TODO: Clean up smelly code.
-                    s.MidiSettings.CurrentSpeed.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.CurrentSpeed.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.FastForward.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.FastForward.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.HomeSpeed.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.HomeSpeed.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.Next.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.Next.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.NudgeBack.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.NudgeBack.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.NudgeFoward.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.NudgeFoward.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.PlayPause.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.PlayPause.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.Previous.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.Previous.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.Seek.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.Seek.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.SetSpeedMinus50.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.SetSpeedMinus50.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.SetSpeedPlus50.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.SetSpeedPlus50.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.Stop.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.Stop.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.Voice1.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.Voice1.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.Voice2.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.Voice2.Device?.Name) ?? new MidiDevice();
-                    s.MidiSettings.Voice3.Device = AvailableDevices.FirstOrDefault(d => d.Name == s.MidiSettings.Voice3.Device?.Name) ?? new MidiDevice();
-
-                    return s;
-                })
-                .ToPropertyEx(this, vm => vm.Settings);
+                    Settings = s;
+                    RefreshDeviceReferences(s.MidiSettings);
+                });
 
             SaveSettingsCommand = ReactiveCommand.Create<Unit, Unit>(
-                execute: n => HandleSave(),
+                execute: _ => HandleSave(),
+                outputScheduler: RxApp.MainThreadScheduler);
+
+            RefreshMidiDevicesCommand = ReactiveCommand.Create<Unit, Unit>(
+                execute: _ =>
+                {
+                    Settings = _settingsService.GetSettings() with { };                    
+                    _midiService.RefreshMidi(Settings.MidiSettings);                    
+                    RefreshDeviceReferences(Settings!.MidiSettings);
+                    return Unit.Default;
+                },
                 outputScheduler: RxApp.MainThreadScheduler);
 
             _logsSubscription = _logService.Logs
@@ -99,6 +93,34 @@ namespace TeensyRom.Ui.Features.Settings
                 });
 
             
+        }
+
+        /// <summary>
+        /// Ensures the device references are the same as the one from the AvailableDevices dropdown.
+        /// </summary>        
+        private void RefreshDeviceReferences(MidiSettings m)
+        {            
+            AvailableDevices.Clear();
+            foreach (var d in _midiService.GetMidiDevices())
+            {
+                AvailableDevices.Add(d);
+            }
+            m.CurrentSpeed.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.CurrentSpeed.Device?.Name) ?? m.CurrentSpeed.Device;
+            m.CurrentSpeedFine.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.CurrentSpeedFine.Device?.Name) ?? m.CurrentSpeedFine.Device;
+            m.FastForward.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.FastForward.Device?.Name) ?? m.FastForward.Device;
+            m.HomeSpeed.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.HomeSpeed.Device?.Name) ?? m.HomeSpeed.Device;
+            m.Next.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Next.Device?.Name) ?? m.Next.Device;
+            m.NudgeBackward.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.NudgeBackward.Device?.Name) ?? m.NudgeBackward.Device;
+            m.NudgeForward.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.NudgeForward.Device?.Name) ?? m.NudgeForward.Device;
+            m.PlayPause.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.PlayPause.Device?.Name) ?? m.PlayPause.Device;
+            m.Previous.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Previous.Device?.Name) ?? m.Previous.Device;
+            m.Seek.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Seek.Device?.Name) ?? m.Seek.Device;
+            m.SetSpeedMinus50.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.SetSpeedMinus50.Device?.Name) ?? m.SetSpeedMinus50.Device;
+            m.SetSpeedPlus50.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.SetSpeedPlus50.Device?.Name) ?? m.SetSpeedPlus50.Device;
+            m.Stop.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Stop.Device?.Name) ?? m.Stop.Device;
+            m.Voice1.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Voice1.Device?.Name) ?? m.Voice1.Device;
+            m.Voice2.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Voice2.Device?.Name) ?? m.Voice2.Device;
+            m.Voice3.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Voice3.Device?.Name) ?? m.Voice3.Device;
         }
 
         private Unit HandleSave()

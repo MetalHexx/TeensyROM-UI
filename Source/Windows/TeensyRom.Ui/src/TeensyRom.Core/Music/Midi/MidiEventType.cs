@@ -2,7 +2,9 @@
 {
     public enum MidiEventType 
     {
+        ControlChange,
         NoteChange,
-        ControlChange
+        NoteOff,
+        NoteOn       
     }
 }
