@@ -60,6 +60,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             .Cast<StorageScope>().ToList()
             .Select(e => e.ToDescription())
             .ToList();
+        [Reactive] public TimeProgressViewModel? Progress { get; set; } = null;
+        [Reactive] public double ProgressSliderPercentage { get; set; } = 0.0;
         [Reactive] public int CurrentSubtuneIndex { get; set; }
         [Reactive] public bool SubtuneNextButtonEnabled { get; set; }
         [Reactive] public bool SubtunePreviousButtonEnabled { get; set; }
@@ -68,8 +70,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [ObservableAsProperty] public List<int> SubtuneNumberList { get; }
         [ObservableAsProperty] public bool ShowTitleOnly { get; }
         [ObservableAsProperty] public string StorageScopePath { get; }
-        [ObservableAsProperty] public ILaunchableItem? File { get; }
-        [ObservableAsProperty] public TimeProgressViewModel? Progress { get; } = null;
+        [ObservableAsProperty] public ILaunchableItem? File { get; }        
         [ObservableAsProperty] public bool ShuffleModeEnabled { get; }
         [ObservableAsProperty] public bool ShareVisible { get; }        
         [ObservableAsProperty] public bool ShowCreator { get; }
@@ -104,6 +105,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private bool _muteRandomSeek;
         private Func<bool, bool, bool, Task> _mute;
         private Func<Task> _togglePlay;
+        private bool _midiTrackSeekInProgress;
 
         public PlayToolbarViewModel(
             IObservable<ILaunchableItem> file,
@@ -550,13 +552,19 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     }
                 });
 
-            var seekObservable = midiService.MidiEvents
+            midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.Seek)
+                .Where(_ => TrackSeekInProgress is false)
+                .Do(e => 
+                {
+                    _midiTrackSeekInProgress = true;
+                    ProgressSliderPercentage = e.Value / 100.0;
+                })
                 .Throttle(TimeSpan.FromMilliseconds(100))
                 .Subscribe(async e =>
-                {
-                    double percent = e.Value == 0 ? 0 : e.Value / 100.0;
+                {                    
+                    double percent = e.Value == 0 ? 0 : e.Value / 100.0;                    
                     await HandleSeek(restartSong, playSubtune, percent);
                 });
 
@@ -681,6 +689,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             if (percent == 0)
             {
                 TrackSeekInProgress = false;
+                _midiTrackSeekInProgress = false;
                 await restartSong();
                 _timer?.ResetTimer();
                 return;
@@ -695,7 +704,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 if (fastForwardTime < Progress?.CurrentSpan)
                 {
                     await playSubtune(CurrentSubtuneIndex);
-                    _timer?.ResetTimer();
+                    _timer?.ResetTimer();                    
                 }
             }
             else
@@ -704,7 +713,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                 if (fastForwardTime < Progress?.CurrentSpan)
                 {
-                    await restartSong();
+                    await restartSong();                    
                     _timer?.ResetTimer();
                     await Task.Delay(200);
                 }
@@ -713,6 +722,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             await _changeSpeed(99, MusicSpeedCurveTypes.Logarithmic);
             _timer?.UpdateSpeed(speedAdjustment);
+            _midiTrackSeekInProgress = false;
 
             _fastForwardTimerSubscription = _timer?.CurrentTime.Subscribe(async currentTime =>
             {
@@ -721,10 +731,10 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     var originalSpeed = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear
                         ? Math.Round(RawSpeedValue, 2)
                         : RawSpeedValue.GetLogPercentage();
-
-                    _timer?.UpdateSpeed(originalSpeed);
+                    
+                    _timer?.UpdateSpeed(originalSpeed);                    
                     _fastForwardTimerSubscription?.Dispose();
-                    TrackSeekInProgress = false;
+                    TrackSeekInProgress = false;                    
                     await _changeSpeed(originalSpeed, SelectedSpeedCurve);
 
                     if (_muteRandomSeek) await _mute(false, false, false);
@@ -949,7 +959,15 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             _currentTimeSubscription = _timer?.CurrentTime
                 .Select(t => new TimeProgressViewModel(timespan, t))
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .ToPropertyEx(this, vm => vm.Progress);
+                .Subscribe(t => 
+                {
+                    Progress = t;
+
+                    if (_midiTrackSeekInProgress is false)
+                    {
+                        ProgressSliderPercentage = t.Percentage;
+                    }
+                });
 
             _timerCompleteSubscription = _timer?.TimerComplete
                 .ObserveOn(RxApp.MainThreadScheduler)
