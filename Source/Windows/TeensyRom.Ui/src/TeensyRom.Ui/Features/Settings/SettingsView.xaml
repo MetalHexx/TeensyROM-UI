@@ -58,7 +58,7 @@
         <CheckBox                  
             Content="Enabled"                
             ToolTip="In Discover view, when clicking on Next / Previous or during continuous play, &#x0a;you will automatically be taken to the directory for the launched item."
-            IsChecked="{Binding Settings.NavToDirOnLaunch, Mode=TwoWay}" 
+            IsChecked="{Binding NavToDirOnLaunch, Mode=TwoWay}" 
             Grid.Row="2" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Label 
@@ -68,7 +68,7 @@
         <CheckBox                  
             Content="Enabled"                
             ToolTip="When files are copied to the TR with drag and drop or the watch directory, &#x0a;the first file from the set will automatically launch."
-            IsChecked="{Binding Settings.AutoLaunchOnCopyEnabled, Mode=TwoWay}" 
+            IsChecked="{Binding AutoLaunchOnCopyEnabled, Mode=TwoWay}" 
             Grid.Row="3" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Label 
@@ -78,7 +78,7 @@
         <CheckBox                  
             Content="Enabled"                
             ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  &#x0a;If a file is detected, it will automatically be transferred to /auto-transfer/[media type]."
-            IsChecked="{Binding Settings.AutoFileCopyEnabled, Mode=TwoWay}" 
+            IsChecked="{Binding AutoFileCopyEnabled, Mode=TwoWay}" 
             Grid.Row="4" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Label 
@@ -90,7 +90,7 @@
             ToolTip="The folder specified here will be monitored for new files. &#x0a;Try setting it something like your browser download folder.  &#x0a;Only types supported by the TR be monitored."
             materialDesign:HintAssist.Hint="Watch Directory"
             materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-            Text="{Binding Settings.WatchDirectoryLocation, Mode=TwoWay}"                
+            Text="{Binding WatchDirectoryLocation, Mode=TwoWay}"                
             Grid.Row="5" Grid.Column="2" VerticalAlignment="Top"/>
 
         <Label 
@@ -100,7 +100,7 @@
         <CheckBox                  
             Content="Enabled"                
             ToolTip="This will enable the Games/Programs/Images play timer automatically when you first start the app."
-            IsChecked="{Binding Settings.PlayTimerEnabled, Mode=TwoWay}" 
+            IsChecked="{Binding PlayTimerEnabled, Mode=TwoWay}" 
             Grid.Row="6" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Label 
@@ -110,7 +110,7 @@
         <CheckBox                  
             Content="Enabled"                
             ToolTip="The application will automatically connect to TeensyROM on startup."
-            IsChecked="{Binding Settings.AutoConnectEnabled, Mode=TwoWay}" 
+            IsChecked="{Binding AutoConnectEnabled, Mode=TwoWay}" 
             Grid.Row="7" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Label 
@@ -120,7 +120,7 @@
         <CheckBox                  
             Content="Enabled"                
             ToolTip="The application will automatically launch a file on startup.&#x0a;File type is based on the Default Filter selected."
-            IsChecked="{Binding Settings.StartupLaunchEnabled, Mode=TwoWay}" 
+            IsChecked="{Binding StartupLaunchEnabled, Mode=TwoWay}" 
             Grid.Row="8" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Label 
@@ -130,7 +130,7 @@
         <CheckBox                  
             Content="Enabled"                
             ToolTip="The SID voices will be muted when fast forwarding a song."
-            IsChecked="{Binding Settings.MuteFastForward, Mode=TwoWay}" 
+            IsChecked="{Binding MuteFastForward, Mode=TwoWay}" 
             Grid.Row="9" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Label 
@@ -140,7 +140,7 @@
         <CheckBox                  
             Content="Enabled"                
             ToolTip="The SID voices will be muted when random seeking a song."
-            IsChecked="{Binding Settings.MuteRandomSeek, Mode=TwoWay}" 
+            IsChecked="{Binding MuteRandomSeek, Mode=TwoWay}" 
             Grid.Row="10" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
         <Label 
@@ -152,7 +152,7 @@
             Grid.Row="11" Grid.Column="2"
             x:Name="FilterComboBox"
             ItemsSource="{Binding FilterOptions}"
-            SelectedItem="{Binding Settings.StartupFilter, Mode=TwoWay}"            
+            SelectedItem="{Binding StartupFilter, Mode=TwoWay}"            
             FontFamily="Arial"
             materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
             materialDesign:HintAssist.HelperTextFontSize="12"
@@ -168,7 +168,8 @@
 
             <ComboBox                
                 ItemsSource="{Binding AvailableDevices}"
-                SelectedItem="{Binding Settings.MidiSettings.CurrentSpeed.Device, Mode=TwoWay}" 
+                SelectedValue="{Binding MidiSettings.CurrentSpeed.Device.Name, Mode=TwoWay}" 
+                SelectedValuePath="Name"
                 DisplayMemberPath="Name"
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -182,7 +183,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding Settings.MidiSettings.CurrentSpeed.MidiChannel, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.CurrentSpeed.MidiChannel, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -194,7 +195,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding Settings.MidiSettings.CurrentSpeed.Value, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.CurrentSpeed.Value, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -209,7 +210,8 @@
 
             <ComboBox                
             ItemsSource="{Binding AvailableDevices}"
-            SelectedItem="{Binding Settings.MidiSettings.CurrentSpeedFine.Device, Mode=TwoWay}" 
+            SelectedValue="{Binding MidiSettings.CurrentSpeedFine.Device.Name, Mode=TwoWay}" 
+            SelectedValuePath="Name"
             DisplayMemberPath="Name"
             FontFamily="Arial"
             materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -223,7 +225,7 @@
 
             <ComboBox                
             ItemsSource="{Binding MidiChannels}"
-            SelectedItem="{Binding Settings.MidiSettings.CurrentSpeedFine.MidiChannel, Mode=TwoWay}" 
+            SelectedItem="{Binding MidiSettings.CurrentSpeedFine.MidiChannel, Mode=TwoWay}" 
             FontFamily="Arial"
             materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
             materialDesign:HintAssist.HelperTextFontSize="12"
@@ -235,7 +237,7 @@
 
             <ComboBox                
             ItemsSource="{Binding PossibleNoteOrCCValues}"
-            SelectedItem="{Binding Settings.MidiSettings.CurrentSpeedFine.Value, Mode=TwoWay}" 
+            SelectedItem="{Binding MidiSettings.CurrentSpeedFine.Value, Mode=TwoWay}" 
             FontFamily="Arial"
             materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
             materialDesign:HintAssist.HelperTextFontSize="12"
@@ -250,7 +252,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding Settings.MidiSettings.SetSpeedPlus50.Device.Name, Mode=TwoWay}" 
+                SelectedValue="{Binding MidiSettings.SetSpeedPlus50.Device.Name, Mode=TwoWay}" 
                 SelectedValuePath="Name"
                 DisplayMemberPath="Name"
                 FontFamily="Arial"
@@ -265,7 +267,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding Settings.MidiSettings.SetSpeedPlus50.MidiChannel, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.SetSpeedPlus50.MidiChannel, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -277,7 +279,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding Settings.MidiSettings.SetSpeedPlus50.Value, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.SetSpeedPlus50.Value, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -293,7 +295,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding Settings.MidiSettings.SetSpeedMinus50.Device.Name, Mode=TwoWay}" 
+                SelectedValue="{Binding MidiSettings.SetSpeedMinus50.Device.Name, Mode=TwoWay}" 
                 SelectedValuePath="Name"
                 DisplayMemberPath="Name"
                 FontFamily="Arial"
@@ -308,7 +310,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding Settings.MidiSettings.SetSpeedMinus50.MidiChannel, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.SetSpeedMinus50.MidiChannel, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -320,7 +322,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding Settings.MidiSettings.SetSpeedMinus50.Value, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.SetSpeedMinus50.Value, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -336,7 +338,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding Settings.MidiSettings.HomeSpeed.Device.Name, Mode=TwoWay}" 
+                SelectedValue="{Binding MidiSettings.HomeSpeed.Device.Name, Mode=TwoWay}" 
                 SelectedValuePath="Name"
                 DisplayMemberPath="Name"
                 FontFamily="Arial"
@@ -351,7 +353,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding Settings.MidiSettings.HomeSpeed.MidiChannel, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.HomeSpeed.MidiChannel, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -364,7 +366,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding Settings.MidiSettings.HomeSpeed.Value, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.HomeSpeed.Value, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -380,7 +382,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding Settings.MidiSettings.NudgeForward.Device.Name, Mode=TwoWay}" 
+                SelectedValue="{Binding MidiSettings.NudgeForward.Device.Name, Mode=TwoWay}" 
                 SelectedValuePath="Name"
                 DisplayMemberPath="Name"
                 FontFamily="Arial"
@@ -395,7 +397,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding Settings.MidiSettings.NudgeForward.MidiChannel, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.NudgeForward.MidiChannel, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -408,7 +410,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding Settings.MidiSettings.NudgeForward.Value, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.NudgeForward.Value, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -424,7 +426,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding Settings.MidiSettings.NudgeBackward.Device.Name, Mode=TwoWay}" 
+                SelectedValue="{Binding MidiSettings.NudgeBackward.Device.Name, Mode=TwoWay}" 
                 SelectedValuePath="Name"
                 DisplayMemberPath="Name"
                 FontFamily="Arial"
@@ -439,7 +441,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding Settings.MidiSettings.NudgeBackward.MidiChannel, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.NudgeBackward.MidiChannel, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -452,7 +454,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding Settings.MidiSettings.NudgeBackward.Value, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.NudgeBackward.Value, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -469,7 +471,7 @@
         <StackPanel Grid.Column="2" Grid.Row="20" Orientation="Horizontal">
             <ComboBox                
                 ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding Settings.MidiSettings.Voice1.Device.Name, Mode=TwoWay}" 
+                SelectedValue="{Binding MidiSettings.Voice1.Device.Name, Mode=TwoWay}" 
                 SelectedValuePath="Name"
                 DisplayMemberPath="Name"
                 FontFamily="Arial"
@@ -484,7 +486,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding Settings.MidiSettings.Voice1.MidiChannel, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.Voice1.MidiChannel, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -496,7 +498,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding Settings.MidiSettings.Voice1.Value, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.Voice1.Value, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -512,7 +514,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding Settings.MidiSettings.Voice2.Device.Name, Mode=TwoWay}" 
+                SelectedValue="{Binding MidiSettings.Voice2.Device.Name, Mode=TwoWay}" 
                 SelectedValuePath="Name"
                 DisplayMemberPath="Name"
                 FontFamily="Arial"
@@ -527,7 +529,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding Settings.MidiSettings.Voice2.MidiChannel, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.Voice2.MidiChannel, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -539,7 +541,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding Settings.MidiSettings.Voice2.Value, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.Voice2.Value, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -555,7 +557,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding Settings.MidiSettings.Voice3.Device.Name, Mode=TwoWay}" 
+                SelectedValue="{Binding MidiSettings.Voice3.Device.Name, Mode=TwoWay}" 
                 SelectedValuePath="Name"
                 DisplayMemberPath="Name"
                 FontFamily="Arial"
@@ -570,7 +572,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding Settings.MidiSettings.Voice3.MidiChannel, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.Voice3.MidiChannel, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -582,7 +584,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding Settings.MidiSettings.Voice3.Value, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.Voice3.Value, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -598,7 +600,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding Settings.MidiSettings.Seek.Device.Name, Mode=TwoWay}" 
+                SelectedValue="{Binding MidiSettings.Seek.Device.Name, Mode=TwoWay}" 
                 SelectedValuePath="Name"
                 DisplayMemberPath="Name"
                 FontFamily="Arial"
@@ -613,7 +615,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding Settings.MidiSettings.Seek.MidiChannel, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.Seek.MidiChannel, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -625,7 +627,7 @@
 
             <ComboBox                
                 ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding Settings.MidiSettings.Seek.Value, Mode=TwoWay}" 
+                SelectedItem="{Binding MidiSettings.Seek.Value, Mode=TwoWay}" 
                 FontFamily="Arial"
                 materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                 materialDesign:HintAssist.HelperTextFontSize="12"
@@ -643,12 +645,12 @@
                 HorizontalAlignment="Left"
                  Width="150" Margin="10"/>
 
-            <!--<Button             
+            <Button             
                 ToolTip="This will refresh the MIDI mapping list if devices were not previously found."
                 Content="Refresh Mappings"  
                 Command="{Binding RefreshMidiDevicesCommand}" 
                 HorizontalAlignment="Left"
-                Grid.Row="23" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="10"/>-->
+                Grid.Row="23" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="10"/>
 
         </StackPanel>
 

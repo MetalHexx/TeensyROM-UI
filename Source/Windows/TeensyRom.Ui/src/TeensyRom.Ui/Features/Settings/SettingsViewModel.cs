@@ -23,15 +23,26 @@ using TeensyRom.Ui.Helpers.ViewModel;
 using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Settings
-{
+{   
     public class SettingsViewModel: FeatureViewModelBase, IDisposable
     {
         [Reactive] public FeatureTitleViewModel Title { get; set; } = new("Settings");
         [Reactive] public string Logs { get; set; } = string.Empty;
         [ObservableAsProperty] public bool IsDirty { get; }
-        [Reactive] public TeensySettings? Settings { get; set; }
-        [Reactive] public MidiSettings? MidiSettings { get; set; }
-        [Reactive] public ObservableCollection<MidiDevice> AvailableDevices { get; set; } = [];
+        public string WatchDirectoryLocation { get; set; } = string.Empty;
+        public string AutoTransferPath { get; set; } = "auto-transfer";
+        public bool AutoFileCopyEnabled { get; set; } = false;
+        public bool AutoLaunchOnCopyEnabled { get; set; } = true;
+        public bool AutoConnectEnabled { get; set; } = true;
+        public TeensyFilterType StartupFilter { get; set; } = TeensyFilterType.All;
+        public bool StartupLaunchEnabled { get; set; } = true;
+        public bool PlayTimerEnabled { get; set; } = false;
+        public bool NavToDirOnLaunch { get; set; } = true;
+        public bool MuteFastForward { get; set; } = true;
+        public bool MuteRandomSeek { get; set; } = true;
+
+        [Reactive] public MidiSettingsViewModel MidiSettings { get; set; }
+        [Reactive] public ObservableCollection<MidiDeviceViewModel> AvailableDevices { get; set; } = [];
 
         [Reactive]
         public List<TeensyFilterType> FilterOptions { get; set; } = Enum
@@ -65,8 +76,8 @@ namespace TeensyRom.Ui.Features.Settings
                 .Select(s => (s with { }))
                 .Subscribe(s => 
                 {
-                    Settings = s;
-                    RefreshDeviceReferences(s.MidiSettings);
+                    MapSettings(s);
+                    RefreshDeviceReferences(MidiSettings!);
                 });
 
             SaveSettingsCommand = ReactiveCommand.Create<Unit, Unit>(
@@ -75,10 +86,10 @@ namespace TeensyRom.Ui.Features.Settings
 
             RefreshMidiDevicesCommand = ReactiveCommand.Create<Unit, Unit>(
                 execute: _ =>
-                {
-                    Settings = _settingsService.GetSettings() with { };                    
-                    _midiService.RefreshMidi(Settings.MidiSettings);                    
-                    RefreshDeviceReferences(Settings!.MidiSettings);
+                {                    
+                    var settings = _settingsService.GetSettings() with { };                    
+                    _midiService.RefreshMidi(settings.MidiSettings);
+                    RefreshDeviceReferences(MidiSettings!);
                     return Unit.Default;
                 },
                 outputScheduler: RxApp.MainThreadScheduler);
@@ -95,37 +106,58 @@ namespace TeensyRom.Ui.Features.Settings
             
         }
 
+        private void MapSettings(TeensySettings s)
+        {
+            WatchDirectoryLocation = s.WatchDirectoryLocation;
+            AutoTransferPath = s.AutoTransferPath;
+            AutoFileCopyEnabled = s.AutoFileCopyEnabled;
+            AutoLaunchOnCopyEnabled = s.AutoLaunchOnCopyEnabled;
+            AutoConnectEnabled = s.AutoConnectEnabled;
+            StartupFilter = s.StartupFilter;
+            StartupLaunchEnabled = s.StartupLaunchEnabled;
+            PlayTimerEnabled = s.PlayTimerEnabled;
+            NavToDirOnLaunch = s.NavToDirOnLaunch;
+            MuteFastForward = s.MuteFastForward;
+            MuteRandomSeek = s.MuteRandomSeek;
+            MidiSettings = new MidiSettingsViewModel(s.MidiSettings);
+        }
+
         /// <summary>
         /// Ensures the device references are the same as the one from the AvailableDevices dropdown.
         /// </summary>        
-        private void RefreshDeviceReferences(MidiSettings m)
-        {            
-            AvailableDevices.Clear();
-            foreach (var d in _midiService.GetMidiDevices())
-            {
-                AvailableDevices.Add(d);
-            }
-            m.CurrentSpeed.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.CurrentSpeed.Device?.Name) ?? m.CurrentSpeed.Device;
-            m.CurrentSpeedFine.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.CurrentSpeedFine.Device?.Name) ?? m.CurrentSpeedFine.Device;
-            m.FastForward.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.FastForward.Device?.Name) ?? m.FastForward.Device;
-            m.HomeSpeed.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.HomeSpeed.Device?.Name) ?? m.HomeSpeed.Device;
-            m.Next.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Next.Device?.Name) ?? m.Next.Device;
-            m.NudgeBackward.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.NudgeBackward.Device?.Name) ?? m.NudgeBackward.Device;
-            m.NudgeForward.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.NudgeForward.Device?.Name) ?? m.NudgeForward.Device;
-            m.PlayPause.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.PlayPause.Device?.Name) ?? m.PlayPause.Device;
-            m.Previous.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Previous.Device?.Name) ?? m.Previous.Device;
-            m.Seek.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Seek.Device?.Name) ?? m.Seek.Device;
-            m.SetSpeedMinus50.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.SetSpeedMinus50.Device?.Name) ?? m.SetSpeedMinus50.Device;
-            m.SetSpeedPlus50.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.SetSpeedPlus50.Device?.Name) ?? m.SetSpeedPlus50.Device;
-            m.Stop.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Stop.Device?.Name) ?? m.Stop.Device;
-            m.Voice1.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Voice1.Device?.Name) ?? m.Voice1.Device;
-            m.Voice2.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Voice2.Device?.Name) ?? m.Voice2.Device;
-            m.Voice3.Device = AvailableDevices.FirstOrDefault(d => d.Name == m.Voice3.Device?.Name) ?? m.Voice3.Device;
+        private void RefreshDeviceReferences(MidiSettingsViewModel m)
+        {
+            var devices = _midiService
+                .GetMidiDevices()
+                .Select(d => new MidiDeviceViewModel(d))
+                .ToList();
+
+            AvailableDevices = new ObservableCollection<MidiDeviceViewModel>(devices);            
+            var midiSettings = MidiSettings;
+            MidiSettings = null!;
+            MidiSettings = new MidiSettingsViewModel(midiSettings, [.. AvailableDevices]);
         }
 
         private Unit HandleSave()
         {
-            var success = _settingsService.SaveSettings(Settings!);
+            var settings = _settingsService.GetSettings() with 
+            {
+                WatchDirectoryLocation = WatchDirectoryLocation,
+                AutoTransferPath = AutoTransferPath,
+                AutoFileCopyEnabled = AutoFileCopyEnabled,
+                AutoLaunchOnCopyEnabled = AutoLaunchOnCopyEnabled,
+                AutoConnectEnabled = AutoConnectEnabled,
+                StartupFilter = StartupFilter,
+                StartupLaunchEnabled = StartupLaunchEnabled,
+                PlayTimerEnabled = PlayTimerEnabled,
+                NavToDirOnLaunch = NavToDirOnLaunch,
+                MuteFastForward = MuteFastForward,
+                MuteRandomSeek = MuteRandomSeek,
+                MidiSettings = MidiSettings.ToMidiSettings()
+            };
+
+            var success = _settingsService.SaveSettings(settings);
+
             if (success)
             {
                 _alert.Publish("Settings saved successfully.");
