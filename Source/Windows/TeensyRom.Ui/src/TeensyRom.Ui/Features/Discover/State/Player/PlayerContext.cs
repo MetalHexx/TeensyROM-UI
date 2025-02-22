@@ -291,7 +291,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 await HandleBadFile(file);
                 return;
             }
-            if (IsBusy()) return;
+            if (await IsBusy()) return;
 
             LaunchFileAsync(file);
 
@@ -317,9 +317,9 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             var isRandom = _currentState.Value is ShuffleState && _launchHistory.CurrentIsNew && file.Path != _launchedFile.Value?.File.Path;
             return new LaunchedFileResult(file, isRandom);
         }
-        private bool IsBusy()
+        private async Task<bool> IsBusy()
         {
-            var serialState = _serial.CurrentState.FirstOrDefault();
+            var serialState = await _serial.CurrentState.FirstOrDefaultAsync();
 
             return serialState is SerialBusyState;
         }
@@ -359,7 +359,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
         public virtual async Task SaveFavorite(ILaunchableItem file)
         {
-            if (IsBusy()) return;
+            if (await IsBusy()) return;
 
             if (_launchedFile.Value?.File is GameItem)
             {
@@ -381,7 +381,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
         public async Task RemoveFavorite(ILaunchableItem file)
         {
-            if (IsBusy()) return;
+            if (await IsBusy()) return;
 
             var isGameItem = _launchedFile.Value?.File is GameItem;
 
@@ -410,7 +410,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         }
         public async Task PlayNext()
         {
-            if (IsBusy()) return;
+            if (await IsBusy()) return;
 
             var file = await _currentState.Value.GetNext(_launchedFile.Value?.File, _currentFilter.Type, _directoryState.Value);
 
@@ -424,7 +424,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         }
         public async Task PlayPrevious()
         {
-            if (IsBusy()) return;
+            if (await IsBusy()) return;
 
             if (_launchedFile.Value.File is SongItem && _currentTime >= TimeSpan.FromSeconds(3))
             {
@@ -455,7 +455,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
         public async Task<ILaunchableItem?> PlayRandom()
         {
-            if (IsBusy()) return _launchedFile.Value?.File;
+            if (await IsBusy()) return _launchedFile.Value?.File;
 
             var success = TryTransitionTo(typeof(ShuffleState));
 
@@ -746,31 +746,35 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         public StorageScope GetScope() => _currentScope.Value;
         public string GetScopePath() => _currentScopePath.Value;
 
-        public Task PlaySubtune(int subtuneIndex)
+        public async Task PlaySubtune(int subtuneIndex)
         {
-            if (IsBusy()) return Task.CompletedTask;
-            return _mediator.Send(new PlaySubtuneCommand(subtuneIndex));
+            if (await IsBusy()) return;
+
+            await _mediator.Send(new PlaySubtuneCommand(subtuneIndex));
         }
 
-        public Task Mute(bool voice1, bool voice2, bool voice3)
+        public async Task Mute(bool voice1, bool voice2, bool voice3)
         {
-            if (IsBusy()) return Task.CompletedTask;
-            return _mediator.Send(new MuteSidVoicesCommand(voice1, voice2, voice3));
+            if (await IsBusy()) return;
+
+            await _mediator.Send(new MuteSidVoicesCommand(voice1, voice2, voice3));
         }
 
-        public Task SetSpeed(double percentage, MusicSpeedCurveTypes curveType)
+        public async Task SetSpeed(double percentage, MusicSpeedCurveTypes curveType)
         {
-            if (IsBusy()) return Task.CompletedTask;
-            return _mediator.Send(new SetMusicSpeedCommand(percentage, curveType));
+            if (await IsBusy()) return;
+
+            await _mediator.Send(new SetMusicSpeedCommand(percentage, curveType));
         }
 
-        public Task RestartSong() 
+        public async Task RestartSong() 
         {
             if (_launchedFile.Value.File is SongItem song) 
             {
-                return _mediator.Send(new LaunchFileCommand(_settings.StorageType, song));
+                await _mediator.Send(new LaunchFileCommand(_settings.StorageType, song));
+                return;
             }
-            return Task.CompletedTask;
+            return;
         }
     }
 }

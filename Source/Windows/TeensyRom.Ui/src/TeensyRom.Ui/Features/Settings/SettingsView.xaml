@@ -33,6 +33,7 @@
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="80"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -590,8 +591,51 @@
                 Margin="10 -3 0 0"/>
 
         </StackPanel>
+        
+        <Label Grid.Row="23"  HorizontalAlignment="Right" ToolTip="Allows you to move to a random point in the song.">Seek</Label>
 
-        <StackPanel Grid.Row="23" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="23">
+
+            <ComboBox                
+                ItemsSource="{Binding AvailableDevices}"
+                SelectedValue="{Binding Settings.MidiSettings.Seek.Device.Name, Mode=TwoWay}" 
+                SelectedValuePath="Name"
+                DisplayMemberPath="Name"
+                FontFamily="Arial"
+                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                materialDesign:HintAssist.HelperTextFontSize="12"
+                ToolTip="Select a MIDI device to map seek to." 
+                materialDesign:HintAssist.Hint="Midi Device"
+                Width="150"
+                Margin="0 -3 0 0"/>
+
+            <Label Margin="10 0 0 0">Channel:</Label>
+
+            <ComboBox                
+                ItemsSource="{Binding MidiChannels}"
+                SelectedItem="{Binding Settings.MidiSettings.Seek.MidiChannel, Mode=TwoWay}" 
+                FontFamily="Arial"
+                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                materialDesign:HintAssist.HelperTextFontSize="12"
+                ToolTip="Select a MIDI Channel to map seek to." 
+                Width="50"
+                Margin="10 -3 0 0"/>
+
+            <Label Margin="10 0 0 0">Note:</Label>
+
+            <ComboBox                
+                ItemsSource="{Binding PossibleNoteOrCCValues}"
+                SelectedItem="{Binding Settings.MidiSettings.Seek.Value, Mode=TwoWay}" 
+                FontFamily="Arial"
+                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                materialDesign:HintAssist.HelperTextFontSize="12"
+                ToolTip="Select a MIDI note # to map seek toggle to." 
+                Width="50"
+                Margin="10 -3 0 0"/>
+
+        </StackPanel>
+
+        <StackPanel Grid.Row="24" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
             <Button             
                 ToolTip="This will save your settings to disk."
                 Content="Save Settings"  

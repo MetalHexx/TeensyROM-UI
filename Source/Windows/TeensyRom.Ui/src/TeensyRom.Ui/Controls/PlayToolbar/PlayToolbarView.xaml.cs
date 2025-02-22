@@ -148,11 +148,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         private bool IsSong() 
         {
-            if (DataContext is PlayToolbarViewModel viewModel && viewModel.IsSong)
-            {
-                return true;
-            }
-            return false;
+            return DataContext is PlayToolbarViewModel viewModel && viewModel.IsSong;
         }
     }
 }
