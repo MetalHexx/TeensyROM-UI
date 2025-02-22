@@ -40,8 +40,7 @@ namespace TeensyRom.Core.Settings
         public bool AutoConnectEnabled { get; set; } = true;
         public TeensyFilterType StartupFilter { get; set; } = TeensyFilterType.All;
         public bool StartupLaunchEnabled { get; set; } = true;
-        public bool PlayTimerEnabled { get; set; } = false;
-        public bool SaveMusicCacheEnabled { get; set; } = true;  
+        public bool PlayTimerEnabled { get; set; } = false;  
         public bool NavToDirOnLaunch { get; set; } = true;
         public bool MuteFastForward { get; set; } = true;
         public bool MuteRandomSeek { get; set; } = true;
