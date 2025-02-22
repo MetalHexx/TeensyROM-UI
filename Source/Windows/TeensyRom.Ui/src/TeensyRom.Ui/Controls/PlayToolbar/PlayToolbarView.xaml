@@ -7,7 +7,7 @@
              xmlns:behaviors="clr-namespace:TeensyRom.Ui.Helpers.Behaviors"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d">
-    <Grid IsEnabled="{Binding TrackSeekInProgress, Converter={StaticResource BooleanInverterConverter}}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -162,9 +162,9 @@
             </Grid>                        
         </Border>
 
-        <Grid Grid.Row="1" VerticalAlignment="Top">
+        <Grid Grid.Row="1" VerticalAlignment="Top" IsEnabled="{Binding TrackSeekInProgress, Converter={StaticResource BooleanInverterConverter}}">
             <Slider x:Name="ProgressSlider"
-                Value="{Binding Progress.Percentage, Mode=OneWay}" 
+                Value="{Binding ProgressSliderPercentage, Mode=OneWay}" 
                 Maximum="1"
                 Minimum="0"
                 IsEnabled="{Binding TrackSeekEnabled, Converter={StaticResource BooleanInverterConverter}}"
