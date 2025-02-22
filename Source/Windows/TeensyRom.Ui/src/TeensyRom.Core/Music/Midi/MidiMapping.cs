@@ -1,7 +1,4 @@
-﻿using NAudio.Midi;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace TeensyRom.Core.Music.Midi
 {

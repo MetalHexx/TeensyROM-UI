@@ -4,22 +4,22 @@
     {
         public MidiMapping PlayPause { get; set; } = new() 
         {
-            MidiEventType = MidiEventType.NoteChange,
+            MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.PlayPause,
         };
         public MidiMapping Stop { get; set; } = new()
         {
-            MidiEventType = MidiEventType.NoteChange,
+            MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.Stop,
         };
         public MidiMapping Next { get; set; } = new()
         {
-            MidiEventType = MidiEventType.NoteChange,
+            MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.Next,
         };
         public MidiMapping Previous { get; set; } = new()
         {
-            MidiEventType = MidiEventType.NoteChange,
+            MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.Previous,
         };
         public MidiMapping Seek { get; set; } = new()
@@ -29,52 +29,57 @@
         };
         public MidiMapping FastForward { get; set; } = new()
         {
-            MidiEventType = MidiEventType.NoteChange,
+            MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.FastForward,
         };
-        public MidiMapping NudgeFoward { get; set; } = new()
+        public MidiMapping NudgeForward { get; set; } = new()
         {
             MidiEventType = MidiEventType.NoteChange,
-            DJEventType = DJEventType.NudgeFoward,
+            DJEventType = DJEventType.NudgeForward,
         };
-        public MidiMapping NudgeBack { get; set; } = new()
+        public MidiMapping NudgeBackward { get; set; } = new()
         {
             MidiEventType = MidiEventType.NoteChange,
-            DJEventType = DJEventType.NudgeBack,
+            DJEventType = DJEventType.NudgeBackward,
         };
         public MidiMapping CurrentSpeed { get; set; } = new() 
         {
             MidiEventType = MidiEventType.ControlChange,
             DJEventType = DJEventType.CurrentSpeed,
-        };    
+        };
+        public MidiMapping CurrentSpeedFine { get; set; } = new()
+        {
+            MidiEventType = MidiEventType.ControlChange,
+            DJEventType = DJEventType.CurrentSpeedFine,
+        };
         public MidiMapping SetSpeedPlus50 { get; set; } = new()
         {
-            MidiEventType = MidiEventType.NoteChange,
+            MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.SetSpeedPlus50,
         };
         public MidiMapping SetSpeedMinus50 { get; set; } = new()
         {
-            MidiEventType = MidiEventType.NoteChange,
+            MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.SetSpeedMinus50,
         };
         public MidiMapping HomeSpeed { get; set; } = new()
         {
-            MidiEventType = MidiEventType.NoteChange,
+            MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.HomeSpeed,
         };
         public MidiMapping Voice1 { get; set; } = new()
         {
-            MidiEventType = MidiEventType.NoteChange,
+            MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.Voice1,
         };
         public MidiMapping Voice2 { get; set; } = new()
         {
-            MidiEventType = MidiEventType.NoteChange,
+            MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.Voice2,
         };
         public MidiMapping Voice3 { get; set; } = new()
         {
-            MidiEventType = MidiEventType.NoteChange,
+            MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.Voice3,
         };
         public bool SnapToSpeed { get; set; } = false;

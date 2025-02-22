@@ -17,9 +17,6 @@ using TeensyRom.Core.Music;
 using TeensyRom.Ui.Services;
 using TeensyRom.Ui.Main;
 using TeensyRom.Core.Music.Midi;
-using System.Diagnostics;
-using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -499,18 +496,18 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(e => e.EventType is DJEventType.CurrentSpeed)
+                .Where(e => e.DJEventType is DJEventType.CurrentSpeed)
                 .Subscribe(e =>
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
 
                     if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
-                    {
-                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(e.Value));
+                    {                        
+                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(e.Value - 64));
                         _previousRawSpeed = RawSpeedValue;
                         return;
                     }
-                    var finalSpeed = ClampSpeed(e.Value);
+                    var finalSpeed = ClampSpeed(RawSpeedValue + (e.Value - 64));
 
                     RawSpeedValue = finalSpeed;
                     _previousRawSpeed = RawSpeedValue;
@@ -518,12 +515,33 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(e => e.EventType is DJEventType.Voice1 or DJEventType.Voice2 or DJEventType.Voice3)                
+                .Where(e => e.DJEventType is DJEventType.CurrentSpeedFine)
                 .Subscribe(e =>
                 {
-                    if (e.EventType is DJEventType.Voice1) Voice1Enabled = !Voice1Enabled;
-                    if (e.EventType is DJEventType.Voice2) Voice2Enabled = !Voice2Enabled;
-                    if (e.EventType is DJEventType.Voice3) Voice3Enabled = !Voice3Enabled;
+                    if (FastForwardInProgress) DisableFastForward(true);
+
+                    double delta = (e.Value - 64) * 0.01;
+
+                    if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
+                    {
+                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(delta));
+                        _previousRawSpeed = RawSpeedValue;
+                        return;
+                    }
+                    var finalSpeed = ClampSpeed(RawSpeedValue + delta);
+
+                    RawSpeedValue = finalSpeed;
+                    _previousRawSpeed = RawSpeedValue;
+                });
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.DJEventType is DJEventType.Voice1 or DJEventType.Voice2 or DJEventType.Voice3)                
+                .Subscribe(e =>
+                {
+                    if (e.DJEventType is DJEventType.Voice1) Voice1Enabled = !Voice1Enabled;
+                    if (e.DJEventType is DJEventType.Voice2) Voice2Enabled = !Voice2Enabled;
+                    if (e.DJEventType is DJEventType.Voice3) Voice3Enabled = !Voice3Enabled;
                 });
 
             midiService.MidiEvents
@@ -532,18 +550,62 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(e => e.EventType is DJEventType.SetSpeedPlus50)
+                .Where(e => e.DJEventType is DJEventType.SetSpeedPlus50)
                 .Subscribe(e => HandleIncrease50());
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(e => e.EventType is DJEventType.SetSpeedMinus50)
+                .Where(e => e.DJEventType is DJEventType.SetSpeedMinus50)
                 .Subscribe(e => HandleDecrease50());
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(e => e.EventType is DJEventType.HomeSpeed)
+                .Where(e => e.DJEventType is DJEventType.HomeSpeed)
                 .Subscribe(e => HandleHomeSpeed());
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.DJEventType is DJEventType.NudgeForward)
+                .Subscribe(e =>
+                {
+                    if (FastForwardInProgress) DisableFastForward(false);
+
+                    if (e.MidiEventType is MidiEventType.NoteOn) 
+                    {
+                        _previousRawSpeed = RawSpeedValue;
+
+                        RawSpeedValue = SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic
+                            ? ClampSpeed(RawSpeedValue.GetNearestPercentValue(10))
+                            : ClampSpeed(RawSpeedValue + 10);
+                        return;
+                    }
+                    if(e.MidiEventType is MidiEventType.NoteOff)
+                    {
+                        RawSpeedValue = _previousRawSpeed;
+                    }
+                });
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.DJEventType is DJEventType.NudgeBackward)
+                .Subscribe(e =>
+                {
+                    if (FastForwardInProgress) DisableFastForward(false);
+
+                    if (e.MidiEventType is MidiEventType.NoteOn)
+                    {
+                        _previousRawSpeed = RawSpeedValue;
+
+                        RawSpeedValue = SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic
+                            ? ClampSpeed(RawSpeedValue.GetNearestPercentValue(-10))
+                            : ClampSpeed(RawSpeedValue - 10);
+                        return;
+                    }
+                    if (e.MidiEventType is MidiEventType.NoteOff)
+                    {
+                        RawSpeedValue = _previousRawSpeed;
+                    }
+                });
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.MediaPlayerKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)

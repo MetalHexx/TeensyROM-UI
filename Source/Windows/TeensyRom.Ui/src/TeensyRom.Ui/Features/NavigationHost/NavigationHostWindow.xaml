@@ -17,7 +17,7 @@
         WindowStartupLocation="CenterScreen"        
         Foreground="White"
         Width="1300" 
-        Height="850">
+        Height="900">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="50" GlassFrameThickness="0" ResizeBorderThickness="10" />

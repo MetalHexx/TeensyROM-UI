@@ -163,23 +163,14 @@
         </Border>
 
         <Grid Grid.Row="1" VerticalAlignment="Top">
-            <!--<ProgressBar 
-                x:Name="ProgressIndicator"
-                Value="{Binding Progress.Percentage, Mode=OneWay}"
-                Maximum="1"
-                Visibility="{Binding ProgressEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"
-                MouseEnter="ProgressIndicator_MouseEnter"/>-->
-
-            <!--Visibility="{Binding IsSong, Converter={StaticResource BooleanToVisibilityConverter}}"-->
-
             <Slider x:Name="ProgressSlider"
-    Value="{Binding Progress.Percentage, Mode=OneWay}" 
-    Maximum="1"
-    Minimum="0"
-    IsEnabled="{Binding TrackSeekEnabled, Converter={StaticResource BooleanInverterConverter}}"
-    HorizontalAlignment="Stretch"
-    VerticalAlignment="Top"
-    Margin="0 -8 0 -8">
+                Value="{Binding Progress.Percentage, Mode=OneWay}" 
+                Maximum="1"
+                Minimum="0"
+                IsEnabled="{Binding TrackSeekEnabled, Converter={StaticResource BooleanInverterConverter}}"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Top"
+                Margin="0 -8 0 -8">
                 <Slider.Resources>
                     <Style TargetType="Thumb">
                         <Setter Property="Opacity" Value="0"/>
@@ -194,8 +185,8 @@
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                 To="1"
-                                                 Duration="0:0:0.3" />
+                                                To="1"
+                                                Duration="0:0:0.3" />
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </MultiDataTrigger.EnterActions>
@@ -203,8 +194,8 @@
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                 To="0"
-                                                 Duration="0:0:0.3" />
+                                                     To="0"
+                                                     Duration="0:0:0.3" />
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </MultiDataTrigger.ExitActions>
@@ -213,7 +204,6 @@
                     </Style>
                 </Slider.Resources>
             </Slider>
-
         </Grid>
 
         <Grid Grid.Row="2" Margin="10 10 0 10">
