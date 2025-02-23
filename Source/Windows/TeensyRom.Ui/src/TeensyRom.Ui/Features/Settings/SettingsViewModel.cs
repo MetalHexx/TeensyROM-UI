@@ -56,6 +56,7 @@ namespace TeensyRom.Ui.Features.Settings
 
         public ReactiveCommand<Unit, Unit> SaveSettingsCommand { get; set; }
         public ReactiveCommand<Unit, Unit> RefreshMidiDevicesCommand { get; set; }
+        public ReactiveCommand<MidiMappingViewModel, Unit> BindMidiCommand { get; set; }
 
         private readonly ISettingsService _settingsService;
         private readonly IAlertService _alert;
@@ -88,11 +89,48 @@ namespace TeensyRom.Ui.Features.Settings
                 execute: _ =>
                 {                    
                     var settings = _settingsService.GetSettings() with { };                    
-                    _midiService.RefreshMidi(settings.MidiSettings);
+                    _midiService.EngageMidi(settings.MidiSettings);
                     RefreshDeviceReferences(MidiSettings!);
                     return Unit.Default;
                 },
                 outputScheduler: RxApp.MainThreadScheduler);
+
+            BindMidiCommand = ReactiveCommand.CreateFromTask<MidiMappingViewModel>(async m =>
+            {
+                if (MidiSettings is null) return;
+
+                var message = m.MidiEventType is MidiEventType.NoteOn or MidiEventType.NoteOff or MidiEventType.NoteChange
+                    ? $"Press a note on the MIDI device to bind to {m.DJEventType}"
+                    : $"Move a knob or slider on the MIDI device to bind to {m.DJEventType}";
+
+                _alert.Publish(message);
+
+                RefreshDeviceReferences(MidiSettings!);
+
+                var midiResult = await _midiService.GetFirstMidiEvent(m.MidiEventType);
+
+                var device = AvailableDevices.FirstOrDefault(d => d.Id == midiResult.Device.Id);
+                if (device == null)
+                {
+                    _alert.Publish("MIDI device not found in available devices.");
+                    return;
+                }
+
+                var mapping = MidiSettings.GetAllMappings().FirstOrDefault(x => x.DJEventType == m.DJEventType);
+                if (mapping != null)
+                {
+                    mapping.Device = device;
+                    mapping.MidiChannel = midiResult.Channel;
+                    mapping.Value = midiResult.Value;
+                }
+                var midiSettings = MidiSettings;
+                MidiSettings = null!;
+                MidiSettings = midiSettings;
+
+            }, outputScheduler: RxApp.MainThreadScheduler);
+
+
+
 
             _logsSubscription = _logService.Logs
                 .Where(log => !string.IsNullOrWhiteSpace(log))
