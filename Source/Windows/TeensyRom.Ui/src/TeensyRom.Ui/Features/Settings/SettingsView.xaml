@@ -39,7 +39,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="165"></ColumnDefinition>
             <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="400"></ColumnDefinition>
+            <ColumnDefinition Width="500"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
 
         </Grid.ColumnDefinitions>
@@ -202,6 +202,9 @@
                 ToolTip="Select a MIDI CC to map speed to." 
                 Width="50"
                 Margin="20 -3 0 0"/>
+
+            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.CurrentSpeed}">Bind</Button>
+
         </StackPanel>
 
         <Label Grid.Row="14"  HorizontalAlignment="Right" ToolTip="Adjusts the play speed of the song by +-0.1%.">Set Speed +0.1%:</Label>
@@ -244,6 +247,9 @@
             ToolTip="Select a MIDI CC to map speed to." 
             Width="50"
             Margin="20 -3 0 0"/>
+            
+            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.CurrentSpeedFine}">Bind</Button>
+            
         </StackPanel>
 
         <Label Grid.Row="15" HorizontalAlignment="Right" ToolTip="Toggles the speed of the playing song +50%.&#x0a;• If the song is at -50%, this will set it back to the home speed.">Set Speed +50%:</Label>
@@ -286,6 +292,8 @@
                 ToolTip="Select a MIDI Note # to map the +50% speed toggle to." 
                 Width="50"
                 Margin="10 -3 0 0"/>
+            
+            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.SetSpeedPlus50}">Bind</Button>
 
         </StackPanel>
 
@@ -329,6 +337,8 @@
                 ToolTip="Select a MIDI Note # to map the -50% speed toggle to." 
                 Width="50"
                 Margin="10 -3 0 0"/>
+            
+            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.SetSpeedMinus50}">Bind</Button>
 
         </StackPanel>
 
@@ -373,6 +383,8 @@
                 ToolTip="Select a MIDI Note # to map the home speed toggle to." 
                 Width="50"
                 Margin="10 -3 0 0"/>
+            
+            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.HomeSpeed}">Bind</Button>
 
         </StackPanel>
 
@@ -417,6 +429,8 @@
                 ToolTip="Select a MIDI Note # to map the nudge forward to." 
                 Width="50"
                 Margin="10 -3 0 0"/>
+            
+            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.NudgeForward}">Bind</Button>
 
         </StackPanel>
 
@@ -461,6 +475,8 @@
                 ToolTip="Select a MIDI Note # to map the nudge backward to." 
                 Width="50"
                 Margin="10 -3 0 0"/>
+            
+            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.NudgeBackward}">Bind</Button>
 
         </StackPanel>
 
@@ -505,6 +521,8 @@
                 ToolTip="Select a MIDI note # to map the voice 1 toggle to." 
                 Width="50"
                 Margin="10 -3 0 0"/>
+            
+            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice1}">Bind</Button>
 
         </StackPanel>
 
@@ -548,6 +566,8 @@
                 ToolTip="Select a MIDI note # to map the voice 2 toggle to." 
                 Width="50"
                 Margin="10 -3 0 0"/>
+            
+            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice2}">Bind</Button>
 
         </StackPanel>
 
@@ -591,10 +611,12 @@
                 ToolTip="Select a MIDI note # to map the voice 3 toggle to." 
                 Width="50"
                 Margin="10 -3 0 0"/>
+            
+            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice3}">Bind</Button>
 
         </StackPanel>
         
-        <Label Grid.Row="23"  HorizontalAlignment="Right" ToolTip="Allows you to move to a random point in the song.">Seek</Label>
+        <Label Grid.Row="23"  HorizontalAlignment="Right" ToolTip="Allows you to move to a random point in the song.">Seek:</Label>
 
         <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="23">
 
@@ -634,6 +656,8 @@
                 ToolTip="Select a MIDI note # to map seek toggle to." 
                 Width="50"
                 Margin="10 -3 0 0"/>
+            
+            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Seek}">Bind</Button>
 
         </StackPanel>
 

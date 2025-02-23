@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,26 +34,16 @@ namespace TeensyRom.Core.Music.Midi
             _alert = alertService;
             _log = log;
 
-            _settingsService.Settings.Subscribe(s => HandleNewSettings(s.MidiSettings));
+            _settingsService.Settings
+                .Select(s => s.MidiSettings)
+                .Subscribe(EngageMidi);
         }
 
-        private void HandleNewSettings(MidiSettings midiSettings)
-        {
-            RefreshMidi(midiSettings);
-        }
-
-        public void RefreshMidi(MidiSettings? midiSettings)
+        public void EngageMidi(MidiSettings? midiSettings)
         {
             midiSettings ??= _settingsService.GetSettings().MidiSettings;
 
-            _midiIns.ForEach(m =>
-            {
-                m.Dispose();
-            });
-            _midiSubscriptions.ForEach(s => s.Dispose());
-            _registeredMappings.Clear();
-            _registeredDevices.Clear();
-            _midiSubscriptions.Clear();
+            DisengageMidi();
 
             var devices = GetMidiDevices().ToDictionary(d => d.Name);
 
@@ -77,7 +69,7 @@ namespace TeensyRom.Core.Music.Midi
                 .ToList();
 
             var missingDevices = mappings
-                .Where(m => !devices.ContainsKey(m.Device.Name))                
+                .Where(m => !devices.ContainsKey(m.Device.Name))
                 .Distinct()
                 .ToList();
 
@@ -177,6 +169,96 @@ namespace TeensyRom.Core.Music.Midi
             }
         }
 
+        private void DisengageMidi()
+        {
+            _midiIns.ForEach(m =>
+            {
+                m.Dispose();
+            });
+            _midiSubscriptions.ForEach(s => s.Dispose());
+            _registeredMappings.Clear();
+            _registeredDevices.Clear();
+            _midiSubscriptions.Clear();
+        }
+
+        public async Task<MidiResult> GetFirstMidiEvent(MidiEventType eventType)
+        {
+            DisengageMidi();
+
+            var devices = GetMidiDevices();
+
+            if (!devices.Any())
+            {
+                _alert.Publish("No MIDI devices found.");
+                throw new InvalidOperationException("No MIDI devices found.");
+            }
+
+            var midiInList = new List<MidiIn>();
+            var errorThrottle = new Subject<string>();
+
+            try
+            {
+                errorThrottle
+                    .Throttle(TimeSpan.FromMilliseconds(500))
+                    .Subscribe(_alert.Publish);
+
+                var midiEventObservable = devices
+                    .Select(device =>
+                    {
+                        var midiIn = new MidiIn(device.Id);
+                        midiInList.Add(midiIn);
+
+                        var observable = Observable.FromEventPattern<MidiInMessageEventArgs>(
+                                h => midiIn.MessageReceived += h,
+                                h => midiIn.MessageReceived -= h)
+                            .Select(e => new { Event = e.EventArgs.MidiEvent, Device = device });
+
+                        midiIn.Start();
+                        return observable;
+                    })
+                    .Merge();
+
+                return await midiEventObservable
+                    .Select(result => new
+                    {
+                        Result = result,
+                        IsValid = eventType switch
+                        {
+                            MidiEventType.ControlChange => result.Event is ControlChangeEvent,
+                            MidiEventType.NoteOn or MidiEventType.NoteOff or MidiEventType.NoteChange => result.Event is NoteOnEvent,
+                            _ => false
+                        }
+                    })
+                    .Do(x =>
+                    {
+                        if (!x.IsValid)
+                        {
+                            var expectedType = eventType == MidiEventType.ControlChange ? "a knob or slider (CC)" : "a key or pad (Note)";
+                            errorThrottle.OnNext($"Please use {expectedType} to bind this control.");
+                        }
+                    })
+                    .Where(x => x.IsValid)
+                    .Select(x => x.Result)
+                    .Take(1)
+                    .Select(result => result.Event switch
+                    {
+                        ControlChangeEvent ccEvent => new MidiResult(result.Device, (int)ccEvent.Controller, ccEvent.Channel),
+                        NoteOnEvent noteOn => new MidiResult(result.Device, noteOn.NoteNumber, noteOn.Channel),
+                        _ => throw new InvalidOperationException("Unhandled MIDI event type.")
+                    });
+            }
+            finally
+            {
+                foreach (var midiIn in midiInList)
+                {
+                    midiIn.Stop();
+                    midiIn.Dispose();
+                }
+                EngageMidi(_settingsService.GetSettings().MidiSettings);
+            }            
+        }
+
+
         public IEnumerable<MidiDevice> GetMidiDevices()
         {
             var devices = new List<MidiDevice>();
@@ -266,4 +348,7 @@ namespace TeensyRom.Core.Music.Midi
             }
         }
     }
+
+    public record MidiResult(MidiDevice Device, int Value, int Channel);
+
 }

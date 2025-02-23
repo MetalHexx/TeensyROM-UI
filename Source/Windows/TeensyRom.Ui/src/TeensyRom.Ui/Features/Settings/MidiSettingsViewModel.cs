@@ -111,5 +111,16 @@ namespace TeensyRom.Ui.Features.Settings
                 SnapToSeek = SnapToSeek
             };
         }
+
+        public IEnumerable<MidiMappingViewModel> GetAllMappings()
+        {
+            return new[]
+            {
+                PlayPause, Stop, Next, Previous, Seek, FastForward, NudgeForward, NudgeBackward,
+                CurrentSpeed, CurrentSpeedFine, SetSpeedPlus50, SetSpeedMinus50, HomeSpeed,
+                Voice1, Voice2, Voice3
+            };
+        }
+
     }
 }
