@@ -181,7 +181,7 @@ namespace TeensyRom.Core.Music.Midi
             _midiSubscriptions.Clear();
         }
 
-        public async Task<MidiResult> GetFirstMidiEvent(MidiEventType eventType)
+        public async Task<MidiResult> GetFirstMidiEvent(MidiEventType targetEventType)
         {
             DisengageMidi();
 
@@ -222,7 +222,7 @@ namespace TeensyRom.Core.Music.Midi
                     .Select(result => new
                     {
                         Result = result,
-                        IsValid = eventType switch
+                        IsValid = targetEventType switch
                         {
                             MidiEventType.ControlChange => result.Event is ControlChangeEvent,
                             MidiEventType.NoteOn or MidiEventType.NoteOff or MidiEventType.NoteChange => result.Event is NoteOnEvent,
@@ -233,7 +233,7 @@ namespace TeensyRom.Core.Music.Midi
                     {
                         if (!x.IsValid)
                         {
-                            var expectedType = eventType == MidiEventType.ControlChange ? "a knob or slider (CC)" : "a key or pad (Note)";
+                            var expectedType = targetEventType == MidiEventType.ControlChange ? "a knob or slider (CC)" : "a key or pad (Note)";
                             errorThrottle.OnNext($"Please use {expectedType} to bind this control.");
                         }
                     })

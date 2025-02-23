@@ -82,6 +82,12 @@
             MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.Voice3,
         };
+
+        public MidiMapping Restart { get; set; } = new()
+        {
+            MidiEventType = MidiEventType.NoteOff,
+            DJEventType = DJEventType.Restart,
+        };
         public bool SnapToSpeed { get; set; } = false;
         public bool SnapToSeek { get; set; } = false;
     }

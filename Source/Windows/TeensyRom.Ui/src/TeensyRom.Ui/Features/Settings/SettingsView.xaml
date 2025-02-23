@@ -9,675 +9,761 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="55"/>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="36"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="80"></RowDefinition>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="165"></ColumnDefinition>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="500"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-
-        </Grid.ColumnDefinitions>
-
-        <ContentControl 
-            Content="{Binding Title}" 
-            Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1" Margin="0 0 0 10"/>
-
-        <Label Grid.Row="1" Style="{StaticResource Heading}">General Settings</Label>
-        
-        <Label 
-            Content="Nav to Dir on Launch:"
-            ToolTip="In Discover view, when clicking on Next / Previous or during continuous play, &#x0a;you will automatically be taken to the directory for the launched item."
-            Grid.Row="2" HorizontalAlignment="Right"/>
-        
-        <CheckBox                  
-            Content="Enabled"                
-            ToolTip="In Discover view, when clicking on Next / Previous or during continuous play, &#x0a;you will automatically be taken to the directory for the launched item."
-            IsChecked="{Binding NavToDirOnLaunch, Mode=TwoWay}" 
-            Grid.Row="2" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
-
-        <Label 
-            Content="Auto-Launch on Copy:"
-            ToolTip="When files are copied to the TR with drag and drop or the watch directory, &#x0a;the first file from the set will automatically launch."
-            Grid.Row="3" HorizontalAlignment="Right"/>
-        <CheckBox                  
-            Content="Enabled"                
-            ToolTip="When files are copied to the TR with drag and drop or the watch directory, &#x0a;the first file from the set will automatically launch."
-            IsChecked="{Binding AutoLaunchOnCopyEnabled, Mode=TwoWay}" 
-            Grid.Row="3" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
-
-        <Label 
-            Content="File Auto-Transfer:"
-            ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  &#x0a;If a file is detected, it will automatically be transferred to /auto-transfer/[media type]."
-            Grid.Row="4" HorizontalAlignment="Right"/>
-        <CheckBox                  
-            Content="Enabled"                
-            ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  &#x0a;If a file is detected, it will automatically be transferred to /auto-transfer/[media type]."
-            IsChecked="{Binding AutoFileCopyEnabled, Mode=TwoWay}" 
-            Grid.Row="4" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
-
-        <Label 
-            Content="Watch Directory:" 
-            ToolTip="The folder specified here will be monitored for new files. &#x0a;Try setting it something like your browser download folder.  &#x0a;Only types supported by the TR be monitored."
-            Grid.Row="5" HorizontalAlignment="Right"/>
-
-        <TextBox 
-            ToolTip="The folder specified here will be monitored for new files. &#x0a;Try setting it something like your browser download folder.  &#x0a;Only types supported by the TR be monitored."
-            materialDesign:HintAssist.Hint="Watch Directory"
-            materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-            Text="{Binding WatchDirectoryLocation, Mode=TwoWay}"                
-            Grid.Row="5" Grid.Column="2" VerticalAlignment="Top"/>
-
-        <Label 
-            Content="Play Timer Auto-Enabled:"
-            ToolTip="This will enable the Games/Programs/Images play timer automatically when you first start the app."
-            Grid.Row="6" HorizontalAlignment="Right"/>
-        <CheckBox                  
-            Content="Enabled"                
-            ToolTip="This will enable the Games/Programs/Images play timer automatically when you first start the app."
-            IsChecked="{Binding PlayTimerEnabled, Mode=TwoWay}" 
-            Grid.Row="6" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
-
-        <Label 
-            Content="Auto-Connect on Startup:"
-            ToolTip="The application will automatically connect to TeensyROM on startup."
-            Grid.Row="7" HorizontalAlignment="Right"/>
-        <CheckBox                  
-            Content="Enabled"                
-            ToolTip="The application will automatically connect to TeensyROM on startup."
-            IsChecked="{Binding AutoConnectEnabled, Mode=TwoWay}" 
-            Grid.Row="7" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
-
-        <Label 
-            Content="Auto-Launch on Startup:"
-            ToolTip="The application will automatically launch a file on startup.&#x0a;File type is based on the Default Filter selected."
-            Grid.Row="8" HorizontalAlignment="Right"/>
-        <CheckBox                  
-            Content="Enabled"                
-            ToolTip="The application will automatically launch a file on startup.&#x0a;File type is based on the Default Filter selected."
-            IsChecked="{Binding StartupLaunchEnabled, Mode=TwoWay}" 
-            Grid.Row="8" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
-
-        <Label 
-            Content="Mute on Fast Forward :"
-            ToolTip="The SID voices will be muted when fast forwarding a song."
-            Grid.Row="9" HorizontalAlignment="Right"/>
-        <CheckBox                  
-            Content="Enabled"                
-            ToolTip="The SID voices will be muted when fast forwarding a song."
-            IsChecked="{Binding MuteFastForward, Mode=TwoWay}" 
-            Grid.Row="9" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
-
-        <Label 
-            Content="Mute on Random Seek:"
-            ToolTip="The SID voices will be muted when random seeking a song."
-            Grid.Row="10" HorizontalAlignment="Right"/>
-        <CheckBox                  
-            Content="Enabled"                
-            ToolTip="The SID voices will be muted when random seeking a song."
-            IsChecked="{Binding MuteRandomSeek, Mode=TwoWay}" 
-            Grid.Row="10" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
-
-        <Label 
-            Content="Default Filter:"
-            ToolTip="This will set the default startup filter"
-            Grid.Row="11" HorizontalAlignment="Right"/>
-        
-        <ComboBox 
-            Grid.Row="11" Grid.Column="2"
-            x:Name="FilterComboBox"
-            ItemsSource="{Binding FilterOptions}"
-            SelectedItem="{Binding StartupFilter, Mode=TwoWay}"            
-            FontFamily="Arial"
-            materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-            materialDesign:HintAssist.HelperTextFontSize="12"
-            ToolTip="This will set the default startup filter"
-            Margin="0 -13 0 0"/>
-
-
-        <Label Grid.Row="12" Style="{StaticResource Heading}">MIDI Control Mappings</Label>        
-
-        <Label Grid.Row="13"  HorizontalAlignment="Right" ToolTip="Adjusts the play speed of the song +-1%.">Set Speed +-1%:</Label>
-
-        <StackPanel Grid.Column="2" Grid.Row="13" Orientation="Horizontal">
-
-            <ComboBox                
-                ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding MidiSettings.CurrentSpeed.Device.Name, Mode=TwoWay}" 
-                SelectedValuePath="Name"
-                DisplayMemberPath="Name"
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                materialDesign:HintAssist.Hint="Midi Device"
-                ToolTip="Select a MIDI device to map speed to." 
-                Width="150"
-                Margin="0 -3 0 0"/>
-            
-            <Label Margin="10 0 0 0">Channel:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding MidiSettings.CurrentSpeed.MidiChannel, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI channel to map speed to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-
-            <Label Margin="10 0 0 0" HorizontalAlignment="Right">CC:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding MidiSettings.CurrentSpeed.Value, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI CC to map speed to." 
-                Width="50"
-                Margin="20 -3 0 0"/>
-
-            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.CurrentSpeed}">Bind</Button>
-
-        </StackPanel>
-
-        <Label Grid.Row="14"  HorizontalAlignment="Right" ToolTip="Adjusts the play speed of the song by +-0.1%.">Set Speed +0.1%:</Label>
-
-        <StackPanel Grid.Column="2" Grid.Row="14" Orientation="Horizontal">
-
-            <ComboBox                
-            ItemsSource="{Binding AvailableDevices}"
-            SelectedValue="{Binding MidiSettings.CurrentSpeedFine.Device.Name, Mode=TwoWay}" 
-            SelectedValuePath="Name"
-            DisplayMemberPath="Name"
-            FontFamily="Arial"
-            materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-            materialDesign:HintAssist.HelperTextFontSize="12"
-            materialDesign:HintAssist.Hint="Midi Device"
-            ToolTip="Select a MIDI device to map speed to." 
-            Width="150"
-            Margin="0 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Channel:</Label>
-
-            <ComboBox                
-            ItemsSource="{Binding MidiChannels}"
-            SelectedItem="{Binding MidiSettings.CurrentSpeedFine.MidiChannel, Mode=TwoWay}" 
-            FontFamily="Arial"
-            materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-            materialDesign:HintAssist.HelperTextFontSize="12"
-            ToolTip="Select a MIDI channel to map speed to." 
-            Width="50"
-            Margin="10 -3 0 0"/>
-
-            <Label Margin="10 0 0 0" HorizontalAlignment="Right">CC:</Label>
-
-            <ComboBox                
-            ItemsSource="{Binding PossibleNoteOrCCValues}"
-            SelectedItem="{Binding MidiSettings.CurrentSpeedFine.Value, Mode=TwoWay}" 
-            FontFamily="Arial"
-            materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-            materialDesign:HintAssist.HelperTextFontSize="12"
-            ToolTip="Select a MIDI CC to map speed to." 
-            Width="50"
-            Margin="20 -3 0 0"/>
-            
-            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.CurrentSpeedFine}">Bind</Button>
-            
-        </StackPanel>
-
-        <Label Grid.Row="15" HorizontalAlignment="Right" ToolTip="Toggles the speed of the playing song +50%.&#x0a;• If the song is at -50%, this will set it back to the home speed.">Set Speed +50%:</Label>
-
-        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="15">
-
-            <ComboBox                
-                ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding MidiSettings.SetSpeedPlus50.Device.Name, Mode=TwoWay}" 
-                SelectedValuePath="Name"
-                DisplayMemberPath="Name"
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                materialDesign:HintAssist.Hint="Midi Device"
-                ToolTip="Select a MIDI device to map the +50% speed toggle to." 
-                Width="150"
-                Margin="0 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Channel:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding MidiSettings.SetSpeedPlus50.MidiChannel, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI channel to map the +50% speed toggle to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Note:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding MidiSettings.SetSpeedPlus50.Value, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI Note # to map the +50% speed toggle to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-            
-            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.SetSpeedPlus50}">Bind</Button>
-
-        </StackPanel>
-
-        <Label Grid.Row="16"  HorizontalAlignment="Right" ToolTip="Toggles the speed of the playing song -50%.&#x0a;• If the song is at +50%, this will set it back to the home speed.">Set Speed -50%:</Label>
-
-        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="16">
-
-            <ComboBox                
-                ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding MidiSettings.SetSpeedMinus50.Device.Name, Mode=TwoWay}" 
-                SelectedValuePath="Name"
-                DisplayMemberPath="Name"
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                materialDesign:HintAssist.Hint="Midi Device"
-                ToolTip="Select a MIDI device to map the -50% speed toggle to." 
-                Width="150"
-                Margin="0 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Channel:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding MidiSettings.SetSpeedMinus50.MidiChannel, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI channel to map the -50% speed toggle to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Note:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding MidiSettings.SetSpeedMinus50.Value, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI Note # to map the -50% speed toggle to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-            
-            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.SetSpeedMinus50}">Bind</Button>
-
-        </StackPanel>
-
-        <Label Grid.Row="17"  HorizontalAlignment="Right" ToolTip="Select a midi device to map home speed to.&#x0a;• The home speed is always the previous speed you were at before pressing +-50% speed.&#x0a;• Otherwise, it's 0.">Home Speed:</Label>
-
-        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="17">
-
-            <ComboBox                
-                ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding MidiSettings.HomeSpeed.Device.Name, Mode=TwoWay}" 
-                SelectedValuePath="Name"
-                DisplayMemberPath="Name"
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                materialDesign:HintAssist.Hint="Midi Device"
-                ToolTip="Select a MIDI channel to map the home speed toggle to." 
-                Width="150"
-                Margin="0 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Channel:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding MidiSettings.HomeSpeed.MidiChannel, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI channel to map the home toggle to." 
-                materialDesign:HintAssist.Hint="Channel"
-                Width="50"
-                Margin="10 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Note:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding MidiSettings.HomeSpeed.Value, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI Note # to map the home speed toggle to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-            
-            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.HomeSpeed}">Bind</Button>
-
-        </StackPanel>
-
-        <Label Grid.Row="18"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song forward for a brief burst to assist with beat matching.">Nudge Forward:</Label>
-
-        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="18">
-
-            <ComboBox                
-                ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding MidiSettings.NudgeForward.Device.Name, Mode=TwoWay}" 
-                SelectedValuePath="Name"
-                DisplayMemberPath="Name"
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                materialDesign:HintAssist.Hint="Midi Device"
-                ToolTip="Select a MIDI channel to map the nudge forward to." 
-                Width="150"
-                Margin="0 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Channel:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding MidiSettings.NudgeForward.MidiChannel, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI channel to map the nudge foward to." 
-                materialDesign:HintAssist.Hint="Channel"
-                Width="50"
-                Margin="10 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Note:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding MidiSettings.NudgeForward.Value, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI Note # to map the nudge forward to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-            
-            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.NudgeForward}">Bind</Button>
-
-        </StackPanel>
-
-        <Label Grid.Row="19"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song backward for a brief burst to assist with beat matching.">Nudge Backward:</Label>
-
-        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="19">
-
-            <ComboBox                
-                ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding MidiSettings.NudgeBackward.Device.Name, Mode=TwoWay}" 
-                SelectedValuePath="Name"
-                DisplayMemberPath="Name"
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                materialDesign:HintAssist.Hint="Midi Device"
-                ToolTip="Select a MIDI channel to map the nudge backward to." 
-                Width="150"
-                Margin="0 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Channel:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding MidiSettings.NudgeBackward.MidiChannel, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI channel to map the nudge backward to." 
-                materialDesign:HintAssist.Hint="Channel"
-                Width="50"
-                Margin="10 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Note:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding MidiSettings.NudgeBackward.Value, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI Note # to map the nudge backward to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-            
-            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.NudgeBackward}">Bind</Button>
-
-        </StackPanel>
-
-        
-
-        <Label Grid.Row="20" HorizontalAlignment="Right" ToolTip="Toggles mute for voice 1 of the playing song.">Toggle Voice 1:</Label>
-
-        <StackPanel Grid.Column="2" Grid.Row="20" Orientation="Horizontal">
-            <ComboBox                
-                ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding MidiSettings.Voice1.Device.Name, Mode=TwoWay}" 
-                SelectedValuePath="Name"
-                DisplayMemberPath="Name"
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                materialDesign:HintAssist.Hint="Midi Device"
-                ToolTip="Select a MIDI device to map the voice 1 toggle to." 
-                Width="150"
-                Margin="0 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Channel:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding MidiSettings.Voice1.MidiChannel, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI channel to map the voice 1 toggle to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Note:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding MidiSettings.Voice1.Value, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI note # to map the voice 1 toggle to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-            
-            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice1}">Bind</Button>
-
-        </StackPanel>
-
-        <Label Grid.Row="21"  HorizontalAlignment="Right" ToolTip="Toggles mute for voice 2 of the playing song.">Toggle Voice 2:</Label>
-
-        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="21">
-
-            <ComboBox                
-                ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding MidiSettings.Voice2.Device.Name, Mode=TwoWay}" 
-                SelectedValuePath="Name"
-                DisplayMemberPath="Name"
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI device to map the voice 2 toggle to." 
-                materialDesign:HintAssist.Hint="Midi Device"
-                Width="150"
-                Margin="0 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Channel:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding MidiSettings.Voice2.MidiChannel, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI channel to map the voice 2 toggle to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Note:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding MidiSettings.Voice2.Value, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI note # to map the voice 2 toggle to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-            
-            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice2}">Bind</Button>
-
-        </StackPanel>
-
-        <Label Grid.Row="22"  HorizontalAlignment="Right" ToolTip="Toggles mute for voice 3 of the playing song.">Toggle Voice 3:</Label>
-
-        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="22">
-
-            <ComboBox                
-                ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding MidiSettings.Voice3.Device.Name, Mode=TwoWay}" 
-                SelectedValuePath="Name"
-                DisplayMemberPath="Name"
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI device to map the voice 3 toggle to." 
-                materialDesign:HintAssist.Hint="Midi Device"
-                Width="150"
-                Margin="0 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Channel:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding MidiSettings.Voice3.MidiChannel, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI Channel to map the voice 3 toggle to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Note:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding MidiSettings.Voice3.Value, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI note # to map the voice 3 toggle to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-            
-            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice3}">Bind</Button>
-
-        </StackPanel>
-        
-        <Label Grid.Row="23"  HorizontalAlignment="Right" ToolTip="Allows you to move to a random point in the song.">Seek:</Label>
-
-        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="23">
-
-            <ComboBox                
-                ItemsSource="{Binding AvailableDevices}"
-                SelectedValue="{Binding MidiSettings.Seek.Device.Name, Mode=TwoWay}" 
-                SelectedValuePath="Name"
-                DisplayMemberPath="Name"
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI device to map seek to." 
-                materialDesign:HintAssist.Hint="Midi Device"
-                Width="150"
-                Margin="0 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Channel:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding MidiChannels}"
-                SelectedItem="{Binding MidiSettings.Seek.MidiChannel, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI Channel to map seek to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-
-            <Label Margin="10 0 0 0">Note:</Label>
-
-            <ComboBox                
-                ItemsSource="{Binding PossibleNoteOrCCValues}"
-                SelectedItem="{Binding MidiSettings.Seek.Value, Mode=TwoWay}" 
-                FontFamily="Arial"
-                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
-                materialDesign:HintAssist.HelperTextFontSize="12"
-                ToolTip="Select a MIDI note # to map seek toggle to." 
-                Width="50"
-                Margin="10 -3 0 0"/>
-            
-            <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Seek}">Bind</Button>
-
-        </StackPanel>
-
-        <StackPanel Grid.Row="24" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
-            <Button             
-                ToolTip="This will save your settings to disk."
-                Content="Save Settings"  
-                Command="{Binding SaveSettingsCommand}" 
-                HorizontalAlignment="Left"
-                 Width="150" Margin="10"/>
-
-            <Button             
-                ToolTip="This will refresh the MIDI mapping list if devices were not previously found."
-                Content="Refresh Mappings"  
-                Command="{Binding RefreshMidiDevicesCommand}" 
-                HorizontalAlignment="Left"
-                Grid.Row="23" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="10"/>
-
-        </StackPanel>
-
-        
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="55"/>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="36"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="80"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="165"></ColumnDefinition>
+                    <ColumnDefinition Width="10"></ColumnDefinition>
+                    <ColumnDefinition Width="300"></ColumnDefinition>
+                    <ColumnDefinition Width="10"></ColumnDefinition>
+                    <ColumnDefinition Width="165"></ColumnDefinition>
+                    <ColumnDefinition Width="10"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+
+                </Grid.ColumnDefinitions>
+
+                <ContentControl 
+                    Content="{Binding Title}" 
+                    Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1" Margin="0 0 0 10"/>
+
+                <Label Grid.Row="1" Style="{StaticResource Heading}">General Settings</Label>
+
+                <Label 
+                    Content="Nav to Dir on Launch:"
+                    ToolTip="In Discover view, when clicking on Next / Previous or during continuous play, &#x0a;you will automatically be taken to the directory for the launched item."
+                    Grid.Row="2" HorizontalAlignment="Right"/>
+
+                <CheckBox                  
+                    Content="Enabled"                
+                    ToolTip="In Discover view, when clicking on Next / Previous or during continuous play, &#x0a;you will automatically be taken to the directory for the launched item."
+                    IsChecked="{Binding NavToDirOnLaunch, Mode=TwoWay}" 
+                    Grid.Row="2" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
+                <Label 
+                    Content="Auto-Launch on Copy:"
+                    ToolTip="When files are copied to the TR with drag and drop or the watch directory, &#x0a;the first file from the set will automatically launch."
+                    Grid.Row="3" HorizontalAlignment="Right"/>
+                <CheckBox                  
+                    Content="Enabled"                
+                    ToolTip="When files are copied to the TR with drag and drop or the watch directory, &#x0a;the first file from the set will automatically launch."
+                    IsChecked="{Binding AutoLaunchOnCopyEnabled, Mode=TwoWay}" 
+                    Grid.Row="3" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
+                <Label 
+                    Content="File Auto-Transfer:"
+                    ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  &#x0a;If a file is detected, it will automatically be transferred to /auto-transfer/[media type]."
+                    Grid.Row="4" HorizontalAlignment="Right"/>
+                <CheckBox                  
+                    Content="Enabled"                
+                    ToolTip="Enabling auto-transfer will watch for files in the specified directory below.  &#x0a;If a file is detected, it will automatically be transferred to /auto-transfer/[media type]."
+                    IsChecked="{Binding AutoFileCopyEnabled, Mode=TwoWay}" 
+                    Grid.Row="4" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
+                <Label 
+                    Content="Watch Directory:" 
+                    ToolTip="The folder specified here will be monitored for new files. &#x0a;Try setting it something like your browser download folder.  &#x0a;Only types supported by the TR be monitored."
+                    Grid.Row="5" HorizontalAlignment="Right"/>
+
+                <TextBox 
+                    ToolTip="The folder specified here will be monitored for new files. &#x0a;Try setting it something like your browser download folder.  &#x0a;Only types supported by the TR be monitored."
+                    materialDesign:HintAssist.Hint="Watch Directory"
+                    materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                    Text="{Binding WatchDirectoryLocation, Mode=TwoWay}"                
+                    Grid.Row="5" Grid.Column="2" VerticalAlignment="Top"/>
+
+                <Label 
+                    Content="Play Timer Auto-Enabled:"
+                    ToolTip="This will enable the Games/Programs/Images play timer automatically when you first start the app."
+                    Grid.Row="6" HorizontalAlignment="Right"/>
+                <CheckBox                  
+                    Content="Enabled"                
+                    ToolTip="This will enable the Games/Programs/Images play timer automatically when you first start the app."
+                    IsChecked="{Binding PlayTimerEnabled, Mode=TwoWay}" 
+                    Grid.Row="6" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
+                <Label 
+                    Content="Auto-Connect on Startup:"
+                    ToolTip="The application will automatically connect to TeensyROM on startup."
+                    Grid.Row="7" HorizontalAlignment="Right"/>
+                <CheckBox                  
+                    Content="Enabled"                
+                    ToolTip="The application will automatically connect to TeensyROM on startup."
+                    IsChecked="{Binding AutoConnectEnabled, Mode=TwoWay}" 
+                    Grid.Row="7" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
+                <Label 
+                    Content="Auto-Launch on Startup:"
+                    ToolTip="The application will automatically launch a file on startup.&#x0a;File type is based on the Default Filter selected."
+                    Grid.Row="8" HorizontalAlignment="Right"/>
+                <CheckBox                  
+                    Content="Enabled"                
+                    ToolTip="The application will automatically launch a file on startup.&#x0a;File type is based on the Default Filter selected."
+                    IsChecked="{Binding StartupLaunchEnabled, Mode=TwoWay}" 
+                    Grid.Row="8" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
+                <Label 
+                    Content="Mute on Fast Forward :"
+                    ToolTip="The SID voices will be muted when fast forwarding a song."
+                    Grid.Row="9" HorizontalAlignment="Right"/>
+                <CheckBox                  
+                    Content="Enabled"                
+                    ToolTip="The SID voices will be muted when fast forwarding a song."
+                    IsChecked="{Binding MuteFastForward, Mode=TwoWay}" 
+                    Grid.Row="9" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
+                <Label 
+                    Content="Mute on Random Seek:"
+                    ToolTip="The SID voices will be muted when random seeking a song."
+                    Grid.Row="10" HorizontalAlignment="Right"/>
+                <CheckBox                  
+                    Content="Enabled"                
+                    ToolTip="The SID voices will be muted when random seeking a song."
+                    IsChecked="{Binding MuteRandomSeek, Mode=TwoWay}" 
+                    Grid.Row="10" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+
+                <Label 
+                    Content="Default Filter:"
+                    ToolTip="This will set the default startup filter"
+                    Grid.Row="11" HorizontalAlignment="Right"/>
+
+                <ComboBox 
+                    Grid.Row="11" Grid.Column="2"
+                    x:Name="FilterComboBox"
+                    ItemsSource="{Binding FilterOptions}"
+                    SelectedItem="{Binding StartupFilter, Mode=TwoWay}"            
+                    FontFamily="Arial"
+                    materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                    materialDesign:HintAssist.HelperTextFontSize="12"
+                    ToolTip="This will set the default startup filter"
+                    Margin="0 -13 0 0"/>
+
+
+                <Label Grid.Column="4" Grid.Row="1" Style="{StaticResource Heading}">MIDI Control Mappings</Label>
+
+                <Label Grid.Column="4" Grid.Row="2" HorizontalAlignment="Right" ToolTip="Adjusts the play speed of the song +-1%.">Set Speed +-1%:</Label>
+
+                <StackPanel Grid.Column="6" Grid.Row="2" Orientation="Horizontal">
+
+                    <ComboBox                
+                        ItemsSource="{Binding AvailableDevices}"
+                        SelectedValue="{Binding MidiSettings.CurrentSpeed.Device.Name, Mode=TwoWay}" 
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name"
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Midi Device"
+                        ToolTip="Select a MIDI device to map speed to." 
+                        Width="150"
+                        Margin="0 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Channel:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding MidiChannels}"
+                        SelectedItem="{Binding MidiSettings.CurrentSpeed.MidiChannel, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI channel to map speed to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0" HorizontalAlignment="Right">CC:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        SelectedItem="{Binding MidiSettings.CurrentSpeed.Value, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI CC to map speed to." 
+                        Width="50"
+                        Margin="20 -3 0 0"/>
+
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.CurrentSpeed}">Bind</Button>
+
+                </StackPanel>
+
+                <Label Grid.Column="4" Grid.Row="3"  HorizontalAlignment="Right" ToolTip="Adjusts the play speed of the song by +-0.1%.">Set Speed +0.1%:</Label>
+
+                <StackPanel Grid.Column="6" Grid.Row="3" Orientation="Horizontal">
+
+                    <ComboBox                
+                        ItemsSource="{Binding AvailableDevices}"
+                        SelectedValue="{Binding MidiSettings.CurrentSpeedFine.Device.Name, Mode=TwoWay}" 
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name"
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Midi Device"
+                        ToolTip="Select a MIDI device to map speed to." 
+                        Width="150"
+                        Margin="0 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Channel:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding MidiChannels}"
+                        SelectedItem="{Binding MidiSettings.CurrentSpeedFine.MidiChannel, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI channel to map speed to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0" HorizontalAlignment="Right">CC:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        SelectedItem="{Binding MidiSettings.CurrentSpeedFine.Value, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI CC to map speed to." 
+                        Width="50"
+                        Margin="20 -3 0 0"/>
+
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.CurrentSpeedFine}">Bind</Button>
+
+                </StackPanel>
+
+                <Label Grid.Column="4" Grid.Row="4" HorizontalAlignment="Right" ToolTip="Toggles the speed of the playing song +50%.&#x0a;• If the song is at -50%, this will set it back to the home speed.">Set Speed +50%:</Label>
+
+                <StackPanel Grid.Column="6" Orientation="Horizontal" Grid.Row="4">
+
+                    <ComboBox                
+                        ItemsSource="{Binding AvailableDevices}"
+                        SelectedValue="{Binding MidiSettings.SetSpeedPlus50.Device.Name, Mode=TwoWay}" 
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name"
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Midi Device"
+                        ToolTip="Select a MIDI device to map the +50% speed toggle to." 
+                        Width="150"
+                        Margin="0 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Channel:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding MidiChannels}"
+                        SelectedItem="{Binding MidiSettings.SetSpeedPlus50.MidiChannel, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI channel to map the +50% speed toggle to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Note:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        SelectedItem="{Binding MidiSettings.SetSpeedPlus50.Value, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI Note # to map the +50% speed toggle to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.SetSpeedPlus50}">Bind</Button>
+
+                </StackPanel>
+
+                <Label Grid.Column="4" Grid.Row="5"  HorizontalAlignment="Right" ToolTip="Toggles the speed of the playing song -50%.&#x0a;• If the song is at +50%, this will set it back to the home speed.">Set Speed -50%:</Label>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="5">
+
+                    <ComboBox                
+                        ItemsSource="{Binding AvailableDevices}"
+                        SelectedValue="{Binding MidiSettings.SetSpeedMinus50.Device.Name, Mode=TwoWay}" 
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name"
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Midi Device"
+                        ToolTip="Select a MIDI device to map the -50% speed toggle to." 
+                        Width="150"
+                        Margin="0 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Channel:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding MidiChannels}"
+                        SelectedItem="{Binding MidiSettings.SetSpeedMinus50.MidiChannel, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI channel to map the -50% speed toggle to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Note:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        SelectedItem="{Binding MidiSettings.SetSpeedMinus50.Value, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI Note # to map the -50% speed toggle to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.SetSpeedMinus50}">Bind</Button>
+
+                </StackPanel>
+
+                <Label Grid.Column="4" Grid.Row="6"  HorizontalAlignment="Right" ToolTip="Select a midi device to map home speed to.&#x0a;• The home speed is always the previous speed you were at before pressing +-50% speed.&#x0a;• Otherwise, it's 0.">Home Speed:</Label>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="6">
+
+                    <ComboBox                
+                        ItemsSource="{Binding AvailableDevices}"
+                        SelectedValue="{Binding MidiSettings.HomeSpeed.Device.Name, Mode=TwoWay}" 
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name"
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Midi Device"
+                        ToolTip="Select a MIDI channel to map the home speed toggle to." 
+                        Width="150"
+                        Margin="0 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Channel:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding MidiChannels}"
+                        SelectedItem="{Binding MidiSettings.HomeSpeed.MidiChannel, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI channel to map the home toggle to." 
+                        materialDesign:HintAssist.Hint="Channel"
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Note:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        SelectedItem="{Binding MidiSettings.HomeSpeed.Value, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI Note # to map the home speed toggle to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.HomeSpeed}">Bind</Button>
+
+                </StackPanel>
+
+                <Label Grid.Column="4" Grid.Row="7"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song forward for a brief burst to assist with beat matching.">Nudge Forward:</Label>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="7">
+
+                    <ComboBox                
+                        ItemsSource="{Binding AvailableDevices}"
+                        SelectedValue="{Binding MidiSettings.NudgeForward.Device.Name, Mode=TwoWay}" 
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name"
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Midi Device"
+                        ToolTip="Select a MIDI channel to map the nudge forward to." 
+                        Width="150"
+                        Margin="0 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Channel:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding MidiChannels}"
+                        SelectedItem="{Binding MidiSettings.NudgeForward.MidiChannel, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI channel to map the nudge foward to." 
+                        materialDesign:HintAssist.Hint="Channel"
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Note:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        SelectedItem="{Binding MidiSettings.NudgeForward.Value, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI Note # to map the nudge forward to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.NudgeForward}">Bind</Button>
+
+                </StackPanel>
+
+                <Label Grid.Column="4" Grid.Row="8"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song backward for a brief burst to assist with beat matching.">Nudge Backward:</Label>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="8">
+
+                    <ComboBox                
+                        ItemsSource="{Binding AvailableDevices}"
+                        SelectedValue="{Binding MidiSettings.NudgeBackward.Device.Name, Mode=TwoWay}" 
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name"
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Midi Device"
+                        ToolTip="Select a MIDI channel to map the nudge backward to." 
+                        Width="150"
+                        Margin="0 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Channel:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding MidiChannels}"
+                        SelectedItem="{Binding MidiSettings.NudgeBackward.MidiChannel, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI channel to map the nudge backward to." 
+                        materialDesign:HintAssist.Hint="Channel"
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Note:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        SelectedItem="{Binding MidiSettings.NudgeBackward.Value, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI Note # to map the nudge backward to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.NudgeBackward}">Bind</Button>
+
+                </StackPanel>
+
+
+
+                <Label Grid.Column="4" Grid.Row="9" HorizontalAlignment="Right" ToolTip="Toggles mute for voice 1 of the playing song.">Toggle Voice 1:</Label>
+
+                <StackPanel Grid.Column="6" Grid.Row="9" Orientation="Horizontal">
+                    <ComboBox                
+                        ItemsSource="{Binding AvailableDevices}"
+                        SelectedValue="{Binding MidiSettings.Voice1.Device.Name, Mode=TwoWay}" 
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name"
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Midi Device"
+                        ToolTip="Select a MIDI device to map the voice 1 toggle to." 
+                        Width="150"
+                        Margin="0 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Channel:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding MidiChannels}"
+                        SelectedItem="{Binding MidiSettings.Voice1.MidiChannel, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI channel to map the voice 1 toggle to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Note:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        SelectedItem="{Binding MidiSettings.Voice1.Value, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI note # to map the voice 1 toggle to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice1}">Bind</Button>
+
+                </StackPanel>
+
+                <Label Grid.Column="4" Grid.Row="10"  HorizontalAlignment="Right" ToolTip="Toggles mute for voice 2 of the playing song.">Toggle Voice 2:</Label>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="10">
+
+                    <ComboBox                
+                        ItemsSource="{Binding AvailableDevices}"
+                        SelectedValue="{Binding MidiSettings.Voice2.Device.Name, Mode=TwoWay}" 
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name"
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI device to map the voice 2 toggle to." 
+                        materialDesign:HintAssist.Hint="Midi Device"
+                        Width="150"
+                        Margin="0 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Channel:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding MidiChannels}"
+                        SelectedItem="{Binding MidiSettings.Voice2.MidiChannel, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI channel to map the voice 2 toggle to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Note:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        SelectedItem="{Binding MidiSettings.Voice2.Value, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI note # to map the voice 2 toggle to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice2}">Bind</Button>
+
+                </StackPanel>
+
+                <Label Grid.Column="4" Grid.Row="11"  HorizontalAlignment="Right" ToolTip="Toggles mute for voice 3 of the playing song.">Toggle Voice 3:</Label>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="11">
+
+                    <ComboBox                
+                        ItemsSource="{Binding AvailableDevices}"
+                        SelectedValue="{Binding MidiSettings.Voice3.Device.Name, Mode=TwoWay}" 
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name"
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI device to map the voice 3 toggle to." 
+                        materialDesign:HintAssist.Hint="Midi Device"
+                        Width="150"
+                        Margin="0 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Channel:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding MidiChannels}"
+                        SelectedItem="{Binding MidiSettings.Voice3.MidiChannel, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI Channel to map the voice 3 toggle to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Note:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        SelectedItem="{Binding MidiSettings.Voice3.Value, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI note # to map the voice 3 toggle to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice3}">Bind</Button>
+
+                </StackPanel>
+
+                <Label Grid.Column="4" Grid.Row="12"  HorizontalAlignment="Right" ToolTip="Allows you to move to a random point in the song.">Seek:</Label>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="12">
+
+                    <ComboBox                
+                        ItemsSource="{Binding AvailableDevices}"
+                        SelectedValue="{Binding MidiSettings.Seek.Device.Name, Mode=TwoWay}" 
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name"
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI device to map seek to." 
+                        materialDesign:HintAssist.Hint="Midi Device"
+                        Width="150"
+                        Margin="0 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Channel:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding MidiChannels}"
+                        SelectedItem="{Binding MidiSettings.Seek.MidiChannel, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI Channel to map seek to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Note:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        SelectedItem="{Binding MidiSettings.Seek.Value, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI note # to map seek toggle to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Seek}">Bind</Button>
+
+                </StackPanel>
+
+                <Label Grid.Column="4" Grid.Row="13"  HorizontalAlignment="Right" ToolTip="Restarts the current song.">Restart:</Label>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="13">
+
+                    <ComboBox                
+                        ItemsSource="{Binding AvailableDevices}"
+                        SelectedValue="{Binding MidiSettings.Restart.Device.Name, Mode=TwoWay}" 
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name"
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI device to map restart to." 
+                        materialDesign:HintAssist.Hint="Midi Device"
+                        Width="150"
+                        Margin="0 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Channel:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding MidiChannels}"
+                        SelectedItem="{Binding MidiSettings.Restart.MidiChannel, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI Channel to map restart to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Label Margin="10 0 0 0">Note:</Label>
+
+                    <ComboBox                
+                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        SelectedItem="{Binding MidiSettings.Restart.Value, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI note # to map restart toggle to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Restart}">Bind</Button>
+
+                </StackPanel>
+                
+                <Label Grid.Column="4" Grid.Row="14"  HorizontalAlignment="Right" ToolTip="Fast forwars the song. 3 speeds.">Fast Foward:</Label>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="14">
+                
+                    <ComboBox                
+                        ItemsSource="{Binding AvailableDevices}"
+                        SelectedValue="{Binding MidiSettings.FastForward.Device.Name, Mode=TwoWay}" 
+                        SelectedValuePath="Name"
+                        DisplayMemberPath="Name"
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI device to map fast forward to." 
+                        materialDesign:HintAssist.Hint="Midi Device"
+                        Width="150"
+                        Margin="0 -3 0 0"/>
+                
+                    <Label Margin="10 0 0 0">Channel:</Label>
+                
+                    <ComboBox                
+                        ItemsSource="{Binding MidiChannels}"
+                        SelectedItem="{Binding MidiSettings.FastForward.MidiChannel, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI Channel to map fast foward to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+                
+                    <Label Margin="10 0 0 0">Note:</Label>
+                
+                    <ComboBox                
+                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        SelectedItem="{Binding MidiSettings.FastForward.Value, Mode=TwoWay}" 
+                        FontFamily="Arial"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+                        materialDesign:HintAssist.HelperTextFontSize="12"
+                        ToolTip="Select a MIDI note # to map fast foward to." 
+                        Width="50"
+                        Margin="10 -3 0 0"/>
+                
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.FastForward}">Bind</Button>
+                
+                </StackPanel>
+
+                <StackPanel Grid.Row="25" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
+                    <Button             
+                        ToolTip="This will save your settings to disk."
+                        Content="Save Settings"  
+                        Command="{Binding SaveSettingsCommand}" 
+                        HorizontalAlignment="Left"
+                        Width="150" Margin="10"/>
+
+                    <Button             
+                        ToolTip="This will refresh the MIDI mapping list if devices were not previously found."
+                        Content="Refresh Mappings"  
+                        Command="{Binding RefreshMidiDevicesCommand}" 
+                        HorizontalAlignment="Left"
+                        Grid.Row="23" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="10"/>
+
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>
