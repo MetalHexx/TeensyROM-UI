@@ -24,7 +24,7 @@ namespace TeensyRom.Ui.Features.Settings
         [Reactive] public MidiMappingViewModel Voice1 { get; set; }
         [Reactive] public MidiMappingViewModel Voice2 { get; set; }
         [Reactive] public MidiMappingViewModel Voice3 { get; set; }
-        [Reactive] public MidiMappingViewModel Restart { get; set; }
+        [Reactive] public MidiMappingViewModel Mode { get; set; }
         [Reactive] public bool SnapToSpeed { get; set; } = false;
         [Reactive] public bool SnapToSeek { get; set; } = false;
 
@@ -46,7 +46,7 @@ namespace TeensyRom.Ui.Features.Settings
             Voice1 = new MidiMappingViewModel(s.Voice1);
             Voice2 = new MidiMappingViewModel(s.Voice2);
             Voice3 = new MidiMappingViewModel(s.Voice3);
-            Restart = new MidiMappingViewModel(s.Restart);
+            Mode = new MidiMappingViewModel(s.Mode);
             SnapToSpeed = s.SnapToSpeed;
             SnapToSeek = s.SnapToSeek;
 
@@ -66,7 +66,7 @@ namespace TeensyRom.Ui.Features.Settings
             Voice1.Device = devices.FirstOrDefault(d => d.Name == Voice1.Device?.UnboundName) ?? Voice1.Device;
             Voice2.Device = devices.FirstOrDefault(d => d.Name == Voice2.Device?.UnboundName) ?? Voice2.Device;
             Voice3.Device = devices.FirstOrDefault(d => d.Name == Voice3.Device?.UnboundName) ?? Voice3.Device;
-            Restart.Device = devices.FirstOrDefault(d => d.Name == Restart.Device?.UnboundName) ?? Restart.Device;
+            Mode.Device = devices.FirstOrDefault(d => d.Name == Mode.Device?.UnboundName) ?? Mode.Device;
         }
         public MidiSettingsViewModel(MidiSettings s)
         {
@@ -86,7 +86,7 @@ namespace TeensyRom.Ui.Features.Settings
             Voice1 = new MidiMappingViewModel(s.Voice1);
             Voice2 = new MidiMappingViewModel(s.Voice2);
             Voice3 = new MidiMappingViewModel(s.Voice3);
-            Restart = new MidiMappingViewModel(s.Restart);
+            Mode = new MidiMappingViewModel(s.Mode);
             SnapToSpeed = s.SnapToSpeed;
             SnapToSeek = s.SnapToSeek;
         }
@@ -111,7 +111,7 @@ namespace TeensyRom.Ui.Features.Settings
                 Voice1 = Voice1.ToMidiMapping(),
                 Voice2 = Voice2.ToMidiMapping(),
                 Voice3 = Voice3.ToMidiMapping(),
-                Restart = Restart.ToMidiMapping(),
+                Mode = Mode.ToMidiMapping(),
                 SnapToSpeed = SnapToSpeed,
                 SnapToSeek = SnapToSeek
             };
@@ -123,7 +123,7 @@ namespace TeensyRom.Ui.Features.Settings
             {
                 PlayPause, Stop, Next, Previous, Seek, FastForward, NudgeForward, NudgeBackward,
                 CurrentSpeed, CurrentSpeedFine, SetSpeedPlus50, SetSpeedMinus50, HomeSpeed,
-                Voice1, Voice2, Voice3, Restart
+                Voice1, Voice2, Voice3, Mode
             };
         }
 

@@ -18,6 +18,6 @@
         Voice1,
         Voice2,
         Voice3,
-        Restart
+        Mode
     }
 }
