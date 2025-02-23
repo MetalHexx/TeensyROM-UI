@@ -321,10 +321,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     InitializeProgress(playNext, (File));
                 });
 
-            TogglePlayCommand = ReactiveCommand.CreateFromTask(_ =>
-            {
-                return HandleTogglePlay();
-            });
+            TogglePlayCommand = ReactiveCommand.CreateFromTask(_ => HandleTogglePlay());
 
             ToggleTimedPlay = ReactiveCommand.Create<Unit>(_ =>
             {
@@ -570,13 +567,30 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(e => e.DJEventType is DJEventType.Restart)
-                .Subscribe(async e => await restartSong());
+                .Where(e => e.DJEventType is DJEventType.FastForward)
+                .Subscribe(e => HandleFastForward());
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(e => e.DJEventType is DJEventType.FastForward)
-                .Subscribe(e => HandleFastForward());
+                .Where(e => e.DJEventType is DJEventType.PlayPause)
+                .Subscribe(e => HandleTogglePlay());
+
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.DJEventType is DJEventType.Previous)
+                .Subscribe(e => playPrevious());
+
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.DJEventType is DJEventType.Next)
+                .Subscribe(e => playNext());
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.DJEventType is DJEventType.Mode)
+                .Subscribe(e => toggleMode());
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.MediaPlayerKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
