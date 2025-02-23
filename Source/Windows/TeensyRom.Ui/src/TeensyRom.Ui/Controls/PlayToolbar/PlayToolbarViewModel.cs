@@ -568,6 +568,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     await HandleSeek(restartSong, playSubtune, percent);
                 });
 
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.DJEventType is DJEventType.Restart)
+                .Subscribe(async e => await restartSong());
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.DJEventType is DJEventType.FastForward)
+                .Subscribe(e => HandleFastForward());
+
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.MediaPlayerKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(key => 

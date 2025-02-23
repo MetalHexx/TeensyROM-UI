@@ -6,7 +6,7 @@ namespace TeensyRom.Core.Music.Midi
     {
         public DJEventType DJEventType { get; set; }
         public MidiEventType MidiEventType { get; set; }
-        public MidiDevice Device { get; set; } = null!;
+        public MidiDevice Device { get; set; } = new();
         public int MidiChannel { get; set; }
         public int Value { get; set; }
 

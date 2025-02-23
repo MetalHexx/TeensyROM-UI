@@ -17,6 +17,7 @@
         HomeSpeed,
         Voice1,
         Voice2,
-        Voice3
+        Voice3,
+        Restart
     }
 }
