@@ -32,6 +32,7 @@
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="80"></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -127,30 +128,30 @@
                 <Label 
                     Content="Mute on Fast Forward :"
                     ToolTip="The SID voices will be muted when fast forwarding a song."
-                    Grid.Row="9" HorizontalAlignment="Right"/>
+                    Grid.Row="12" HorizontalAlignment="Right"/>
                 <CheckBox                  
                     Content="Enabled"                
                     ToolTip="The SID voices will be muted when fast forwarding a song."
                     IsChecked="{Binding MuteFastForward, Mode=TwoWay}" 
-                    Grid.Row="9" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+                    Grid.Row="12" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
                 <Label 
                     Content="Mute on Random Seek:"
                     ToolTip="The SID voices will be muted when random seeking a song."
-                    Grid.Row="10" HorizontalAlignment="Right"/>
+                    Grid.Row="13" HorizontalAlignment="Right"/>
                 <CheckBox                  
                     Content="Enabled"                
                     ToolTip="The SID voices will be muted when random seeking a song."
                     IsChecked="{Binding MuteRandomSeek, Mode=TwoWay}" 
-                    Grid.Row="10" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+                    Grid.Row="13" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
                 <Label 
                     Content="Default Filter:"
                     ToolTip="This will set the default startup filter"
-                    Grid.Row="11" HorizontalAlignment="Right"/>
+                    Grid.Row="14" HorizontalAlignment="Right"/>
 
                 <ComboBox 
-                    Grid.Row="11" Grid.Column="2"
+                    Grid.Row="14" Grid.Column="2"
                     x:Name="FilterComboBox"
                     ItemsSource="{Binding FilterOptions}"
                     SelectedItem="{Binding StartupFilter, Mode=TwoWay}"            
@@ -488,7 +489,7 @@
                 <StackPanel Grid.Column="6" Grid.Row="9" Orientation="Horizontal">
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedItem="{Binding MidiSettings.Voice1.Device, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Voice1Toggle.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -503,7 +504,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding MidiChannels}"
-                        SelectedItem="{Binding MidiSettings.Voice1.MidiChannel, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Voice1Toggle.MidiChannel, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -515,7 +516,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}"
-                        SelectedItem="{Binding MidiSettings.Voice1.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Voice1Toggle.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -523,7 +524,7 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice1}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice1Toggle}">Bind</Button>
 
                 </StackPanel>
 
@@ -533,7 +534,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedItem="{Binding MidiSettings.Voice2.Device, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Voice2Toggle.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -548,7 +549,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding MidiChannels}"
-                        SelectedItem="{Binding MidiSettings.Voice2.MidiChannel, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Voice2Toggle.MidiChannel, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -560,7 +561,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}"
-                        SelectedItem="{Binding MidiSettings.Voice2.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Voice2Toggle.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -568,7 +569,7 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice2}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice2Toggle}">Bind</Button>
 
                 </StackPanel>
 
@@ -578,7 +579,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedItem="{Binding MidiSettings.Voice3.Device, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Voice3Toggle.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -593,7 +594,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding MidiChannels}"
-                        SelectedItem="{Binding MidiSettings.Voice3.MidiChannel, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Voice3Toggle.MidiChannel, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -605,7 +606,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}"
-                        SelectedItem="{Binding MidiSettings.Voice3.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Voice3Toggle.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -613,13 +614,147 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice3}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice3Toggle}">Bind</Button>
 
                 </StackPanel>
+                
+                <Label Grid.Column="4" Grid.Row="12" HorizontalAlignment="Right" ToolTip="Mutes for voice 1 of the playing song while holding the note.">Kill Voice 1:</Label>
 
-                <Label Grid.Column="4" Grid.Row="12"  HorizontalAlignment="Right" ToolTip="Allows you to move to a random point in the song.">Random Seek:</Label>
+<StackPanel Grid.Column="6" Grid.Row="12" Orientation="Horizontal">
+    <ComboBox                
+        ItemsSource="{Binding AvailableDevices}"
+        SelectedItem="{Binding MidiSettings.Voice1Kill.Device, Mode=TwoWay}" 
+        SelectedValuePath="Name"
+        DisplayMemberPath="Name"
+        FontFamily="Arial"
+        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+        materialDesign:HintAssist.HelperTextFontSize="12"
+        materialDesign:HintAssist.Hint="Midi Device"
+        ToolTip="Select a MIDI device to map the voice 1 kill to." 
+        Width="150"
+        Margin="0 -3 0 0"/>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="12">
+    <Label Margin="10 0 0 0">Channel:</Label>
+
+    <ComboBox                
+        ItemsSource="{Binding MidiChannels}"
+        SelectedItem="{Binding MidiSettings.Voice1Kill.MidiChannel, Mode=TwoWay}" 
+        FontFamily="Arial"
+        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+        materialDesign:HintAssist.HelperTextFontSize="12"
+        ToolTip="Select a MIDI channel to map the voice 1 kill to." 
+        Width="50"
+        Margin="10 -3 0 0"/>
+
+    <Label Margin="10 0 0 0">Note:</Label>
+
+    <ComboBox                
+        ItemsSource="{Binding PossibleNoteOrCCValues}"
+        SelectedItem="{Binding MidiSettings.Voice1Kill.Value, Mode=TwoWay}" 
+        FontFamily="Arial"
+        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+        materialDesign:HintAssist.HelperTextFontSize="12"
+        ToolTip="Select a MIDI note # to map the voice 1 kill to." 
+        Width="50"
+        Margin="10 -3 0 0"/>
+
+    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice1Kill}">Bind</Button>
+
+</StackPanel>
+
+<Label Grid.Column="4" Grid.Row="13"  HorizontalAlignment="Right" ToolTip="Toggles mute for voice 2 of the playing song.">Kill Voice 2:</Label>
+
+<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="13">
+
+    <ComboBox                
+        ItemsSource="{Binding AvailableDevices}"
+        SelectedItem="{Binding MidiSettings.Voice2Kill.Device, Mode=TwoWay}" 
+        SelectedValuePath="Name"
+        DisplayMemberPath="Name"
+        FontFamily="Arial"
+        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+        materialDesign:HintAssist.HelperTextFontSize="12"
+        ToolTip="Select a MIDI device to map the voice 2 kill to." 
+        materialDesign:HintAssist.Hint="Midi Device"
+        Width="150"
+        Margin="0 -3 0 0"/>
+
+    <Label Margin="10 0 0 0">Channel:</Label>
+
+    <ComboBox                
+        ItemsSource="{Binding MidiChannels}"
+        SelectedItem="{Binding MidiSettings.Voice2Kill.MidiChannel, Mode=TwoWay}" 
+        FontFamily="Arial"
+        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+        materialDesign:HintAssist.HelperTextFontSize="12"
+        ToolTip="Select a MIDI channel to map the voice 2 kill to." 
+        Width="50"
+        Margin="10 -3 0 0"/>
+
+    <Label Margin="10 0 0 0">Note:</Label>
+
+    <ComboBox                
+        ItemsSource="{Binding PossibleNoteOrCCValues}"
+        SelectedItem="{Binding MidiSettings.Voice2Kill.Value, Mode=TwoWay}" 
+        FontFamily="Arial"
+        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+        materialDesign:HintAssist.HelperTextFontSize="12"
+        ToolTip="Select a MIDI note # to map the voice 2 kill to." 
+        Width="50"
+        Margin="10 -3 0 0"/>
+
+    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice2Kill}">Bind</Button>
+
+</StackPanel>
+
+<Label Grid.Column="4" Grid.Row="14"  HorizontalAlignment="Right" ToolTip="Toggles mute for voice 3 of the playing song.">Kill Voice 3:</Label>
+
+<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="14">
+
+    <ComboBox                
+        ItemsSource="{Binding AvailableDevices}"
+        SelectedItem="{Binding MidiSettings.Voice3Kill.Device, Mode=TwoWay}" 
+        SelectedValuePath="Name"
+        DisplayMemberPath="Name"
+        FontFamily="Arial"
+        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+        materialDesign:HintAssist.HelperTextFontSize="12"
+        ToolTip="Select a MIDI device to map the voice 3 kill to." 
+        materialDesign:HintAssist.Hint="Midi Device"
+        Width="150"
+        Margin="0 -3 0 0"/>
+
+    <Label Margin="10 0 0 0">Channel:</Label>
+
+    <ComboBox                
+        ItemsSource="{Binding MidiChannels}"
+        SelectedItem="{Binding MidiSettings.Voice3Kill.MidiChannel, Mode=TwoWay}" 
+        FontFamily="Arial"
+        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+        materialDesign:HintAssist.HelperTextFontSize="12"
+        ToolTip="Select a MIDI Channel to map the voice 3 kill to." 
+        Width="50"
+        Margin="10 -3 0 0"/>
+
+    <Label Margin="10 0 0 0">Note:</Label>
+
+    <ComboBox                
+        ItemsSource="{Binding PossibleNoteOrCCValues}"
+        SelectedItem="{Binding MidiSettings.Voice3Kill.Value, Mode=TwoWay}" 
+        FontFamily="Arial"
+        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+        materialDesign:HintAssist.HelperTextFontSize="12"
+        ToolTip="Select a MIDI note # to map the voice 3 kill to." 
+        Width="50"
+        Margin="10 -3 0 0"/>
+
+    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice3Kill}">Bind</Button>
+
+</StackPanel>
+
+                <Label Grid.Column="4" Grid.Row="15"  HorizontalAlignment="Right" ToolTip="Allows you to move to a random point in the song.">Random Seek:</Label>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="15">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -662,9 +797,9 @@
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="13"  HorizontalAlignment="Right" ToolTip="Toggles between random and directory mode.">Toggle Shuffle Mode:</Label>
+                <Label Grid.Column="4" Grid.Row="16"  HorizontalAlignment="Right" ToolTip="Toggles between random and directory mode.">Toggle Shuffle Mode:</Label>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="13">
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="16">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -707,9 +842,9 @@
 
                 </StackPanel>
                 
-                <Label Grid.Column="4" Grid.Row="14"  HorizontalAlignment="Right" ToolTip="Play/Pause the song.">Play / Pause:</Label>
+                <Label Grid.Column="4" Grid.Row="17"  HorizontalAlignment="Right" ToolTip="Play/Pause the song.">Play / Pause:</Label>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="14">
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="17">
                 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -752,9 +887,9 @@
                 
                 </StackPanel>
                 
-                <Label Grid.Column="4" Grid.Row="15"  HorizontalAlignment="Right" ToolTip="Fast forwards the song. 3 speeds.">Fast Forward:</Label>
+                <Label Grid.Column="4" Grid.Row="18"  HorizontalAlignment="Right" ToolTip="Fast forwards the song. 3 speeds.">Fast Forward:</Label>
 
-               <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="15">
+               <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="18">
 
                    <ComboBox                
                        ItemsSource="{Binding AvailableDevices}"
@@ -797,9 +932,9 @@
 
                </StackPanel>
                 
-                 <Label Grid.Column="4" Grid.Row="16"  HorizontalAlignment="Right" ToolTip="Next Song.">Previous:</Label>
+                 <Label Grid.Column="4" Grid.Row="19"  HorizontalAlignment="Right" ToolTip="Next Song.">Previous:</Label>
 
-<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="16">
+<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="19">
 
     <ComboBox                
         ItemsSource="{Binding AvailableDevices}"
@@ -842,9 +977,9 @@
 
 </StackPanel>
                 
-                                 <Label Grid.Column="4" Grid.Row="17"  HorizontalAlignment="Right" ToolTip="Next Song.">Next:</Label>
+                                 <Label Grid.Column="4" Grid.Row="20"  HorizontalAlignment="Right" ToolTip="Next Song.">Next:</Label>
 
-<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="17">
+<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="20">
 
     <ComboBox                
         ItemsSource="{Binding AvailableDevices}"
