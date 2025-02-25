@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using System.Diagnostics;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
@@ -14,6 +15,10 @@ public class ExceptionBehavior<TRequest, TResponse>(IAlertService alert) : IPipe
         {
             response = await next();
         }
+        catch (TeensyDjException)
+        {
+            throw;
+        }
         catch (TeensyBusyException ex)
         {
             alert.Publish(ex.Message);
@@ -21,13 +26,14 @@ public class ExceptionBehavior<TRequest, TResponse>(IAlertService alert) : IPipe
             {
                 IsSuccess = false,
                 IsBusy = true,
-                Error = ex.Message 
+                Error = ex.Message
             };
-        }
+        }        
         catch (Exception ex)
         {
             var message = GetExceptionMessage(ex);
             alert.Publish(message);
+            Debug.WriteLine(ex);
 
             return new TResponse
             {

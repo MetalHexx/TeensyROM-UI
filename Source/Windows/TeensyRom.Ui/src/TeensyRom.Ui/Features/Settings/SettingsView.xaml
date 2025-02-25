@@ -23,7 +23,7 @@
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
-                    <RowDefinition Height="36"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
@@ -163,13 +163,13 @@
 
                 <Label Grid.Column="4" Grid.Row="1" Style="{StaticResource Heading}">MIDI Control Mappings</Label>
 
-                <Label Grid.Column="4" Grid.Row="2" HorizontalAlignment="Right" ToolTip="Adjusts the play speed of the song +-1%.">Set Speed +-1%:</Label>
+                <Label Grid.Column="4" Grid.Row="2" HorizontalAlignment="Right" ToolTip="Adjusts the play speed of the song by +-1%. &#x0a;• Your home speed will reset back to the songs original speed.">Set Speed +-1%:</Label>
 
                 <StackPanel Grid.Column="6" Grid.Row="2" Orientation="Horizontal">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedValue="{Binding MidiSettings.CurrentSpeed.Device.Name, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.CurrentSpeed.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -192,7 +192,7 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Label Margin="10 0 0 0" HorizontalAlignment="Right">CC:</Label>
+                    <Label Margin="22 0 0 0">CC:</Label>
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}"
@@ -202,19 +202,19 @@
                         materialDesign:HintAssist.HelperTextFontSize="12"
                         ToolTip="Select a MIDI CC to map speed to." 
                         Width="50"
-                        Margin="20 -3 0 0"/>
+                        Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.CurrentSpeed}">Bind</Button>
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="3"  HorizontalAlignment="Right" ToolTip="Adjusts the play speed of the song by +-0.1%.">Set Speed +0.1%:</Label>
+                <Label Grid.Column="4" Grid.Row="3"  HorizontalAlignment="Right" ToolTip="Adjusts the play speed of the song by +-0.1%. &#x0a;• Your home speed will reset back to the songs original speed.">Set Speed +-0.1%:</Label>
 
                 <StackPanel Grid.Column="6" Grid.Row="3" Orientation="Horizontal">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedValue="{Binding MidiSettings.CurrentSpeedFine.Device.Name, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.CurrentSpeedFine.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -237,7 +237,7 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Label Margin="10 0 0 0" HorizontalAlignment="Right">CC:</Label>
+                    <Label Margin="22 0 0 0">CC:</Label>
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}"
@@ -247,19 +247,19 @@
                         materialDesign:HintAssist.HelperTextFontSize="12"
                         ToolTip="Select a MIDI CC to map speed to." 
                         Width="50"
-                        Margin="20 -3 0 0"/>
+                        Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.CurrentSpeedFine}">Bind</Button>
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="4" HorizontalAlignment="Right" ToolTip="Toggles the speed of the playing song +50%.&#x0a;• If the song is at -50%, this will set it back to the home speed.">Set Speed +50%:</Label>
+                <Label Grid.Column="4" Grid.Row="4" HorizontalAlignment="Right" ToolTip="Toggles the speed of the playing song +50%.&#x0a;• If the song is at -50%, this will set it back to the home speed.">Jump Speed +50%:</Label>
 
                 <StackPanel Grid.Column="6" Orientation="Horizontal" Grid.Row="4">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedValue="{Binding MidiSettings.SetSpeedPlus50.Device.Name, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.SetSpeedPlus50.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -298,13 +298,13 @@
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="5"  HorizontalAlignment="Right" ToolTip="Toggles the speed of the playing song -50%.&#x0a;• If the song is at +50%, this will set it back to the home speed.">Set Speed -50%:</Label>
+                <Label Grid.Column="4" Grid.Row="5"  HorizontalAlignment="Right" ToolTip="Jumps to a fixed -50% from current speed. &#x0a;•Pressing home will take you back to your orginal (home) speed.&#x0a;•Pressing +50% will also take you back home.">Jump Speed -50%:</Label>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="5">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedValue="{Binding MidiSettings.SetSpeedMinus50.Device.Name, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.SetSpeedMinus50.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -343,13 +343,13 @@
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="6"  HorizontalAlignment="Right" ToolTip="Select a midi device to map home speed to.&#x0a;• The home speed is always the previous speed you were at before pressing +-50% speed.&#x0a;• Otherwise, it's 0.">Home Speed:</Label>
+                <Label Grid.Column="4" Grid.Row="6"  HorizontalAlignment="Right" ToolTip="Home speed is .&#x0a;• Otherwise, it's 0.">Home Speed:</Label>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="6">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedValue="{Binding MidiSettings.HomeSpeed.Device.Name, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.HomeSpeed.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -389,13 +389,13 @@
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="7"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song forward for a brief burst to assist with beat matching.">Nudge Forward:</Label>
+                <Label Grid.Column="4" Grid.Row="7"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song forward for a brief burst to assist with beat matching.">Nudge Forward 10%:</Label>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="7">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedValue="{Binding MidiSettings.NudgeForward.Device.Name, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.NudgeForward.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -414,7 +414,7 @@
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
-                        ToolTip="Select a MIDI channel to map the nudge foward to." 
+                        ToolTip="Select a MIDI channel to map the nudge forward to." 
                         materialDesign:HintAssist.Hint="Channel"
                         Width="50"
                         Margin="10 -3 0 0"/>
@@ -435,13 +435,13 @@
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="8"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song backward for a brief burst to assist with beat matching.">Nudge Backward:</Label>
+                <Label Grid.Column="4" Grid.Row="8"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song backward for a brief burst to assist with beat matching.">Nudge Backward 10%:</Label>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="8">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedValue="{Binding MidiSettings.NudgeBackward.Device.Name, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.NudgeBackward.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -488,7 +488,7 @@
                 <StackPanel Grid.Column="6" Grid.Row="9" Orientation="Horizontal">
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedValue="{Binding MidiSettings.Voice1.Device.Name, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Voice1.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -533,7 +533,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedValue="{Binding MidiSettings.Voice2.Device.Name, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Voice2.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -578,7 +578,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedValue="{Binding MidiSettings.Voice3.Device.Name, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Voice3.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -617,13 +617,13 @@
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="12"  HorizontalAlignment="Right" ToolTip="Allows you to move to a random point in the song.">Seek:</Label>
+                <Label Grid.Column="4" Grid.Row="12"  HorizontalAlignment="Right" ToolTip="Allows you to move to a random point in the song.">Random Seek:</Label>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="12">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedValue="{Binding MidiSettings.Seek.Device.Name, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Seek.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -646,7 +646,7 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Label Margin="10 0 0 0">Note:</Label>
+                    <Label Margin="22 0 0 0">CC:</Label>
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}"
@@ -662,13 +662,13 @@
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="13"  HorizontalAlignment="Right" ToolTip="Toggles between random and directory mode.">Mode:</Label>
+                <Label Grid.Column="4" Grid.Row="13"  HorizontalAlignment="Right" ToolTip="Toggles between random and directory mode.">Toggle Shuffle Mode:</Label>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="13">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedValue="{Binding MidiSettings.Mode.Device.Name, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.Mode.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -713,7 +713,7 @@
                 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
-                        SelectedValue="{Binding MidiSettings.PlayPause.Device.Name, Mode=TwoWay}" 
+                        SelectedItem="{Binding MidiSettings.PlayPause.Device, Mode=TwoWay}" 
                         SelectedValuePath="Name"
                         DisplayMemberPath="Name"
                         FontFamily="Arial"
@@ -752,13 +752,13 @@
                 
                 </StackPanel>
                 
-                <Label Grid.Column="4" Grid.Row="15"  HorizontalAlignment="Right" ToolTip="Fast forwards the song. 3 speeds.">Fast Foward:</Label>
+                <Label Grid.Column="4" Grid.Row="15"  HorizontalAlignment="Right" ToolTip="Fast forwards the song. 3 speeds.">Fast Forward:</Label>
 
                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="15">
 
                    <ComboBox                
                        ItemsSource="{Binding AvailableDevices}"
-                       SelectedValue="{Binding MidiSettings.FastForward.Device.Name, Mode=TwoWay}" 
+                       SelectedItem="{Binding MidiSettings.FastForward.Device, Mode=TwoWay}" 
                        SelectedValuePath="Name"
                        DisplayMemberPath="Name"
                        FontFamily="Arial"
@@ -777,7 +777,7 @@
                        FontFamily="Arial"
                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                        materialDesign:HintAssist.HelperTextFontSize="12"
-                       ToolTip="Select a MIDI Channel to map fast foward to." 
+                       ToolTip="Select a MIDI Channel to map fast forward to." 
                        Width="50"
                        Margin="10 -3 0 0"/>
 
@@ -789,7 +789,7 @@
                        FontFamily="Arial"
                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                        materialDesign:HintAssist.HelperTextFontSize="12"
-                       ToolTip="Select a MIDI note # to map fast foward to." 
+                       ToolTip="Select a MIDI note # to map fast forward to." 
                        Width="50"
                        Margin="10 -3 0 0"/>
 
@@ -803,7 +803,7 @@
 
     <ComboBox                
         ItemsSource="{Binding AvailableDevices}"
-        SelectedValue="{Binding MidiSettings.Previous.Device.Name, Mode=TwoWay}" 
+        SelectedItem="{Binding MidiSettings.Previous.Device, Mode=TwoWay}" 
         SelectedValuePath="Name"
         DisplayMemberPath="Name"
         FontFamily="Arial"
@@ -848,7 +848,7 @@
 
     <ComboBox                
         ItemsSource="{Binding AvailableDevices}"
-        SelectedValue="{Binding MidiSettings.Next.Device.Name, Mode=TwoWay}" 
+        SelectedItem="{Binding MidiSettings.Next.Device, Mode=TwoWay}" 
         SelectedValuePath="Name"
         DisplayMemberPath="Name"
         FontFamily="Arial"

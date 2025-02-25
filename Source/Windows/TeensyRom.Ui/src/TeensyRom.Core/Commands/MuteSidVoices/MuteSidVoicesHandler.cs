@@ -2,6 +2,7 @@
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Core.Commands.MuteSidVoices
 {
@@ -14,13 +15,32 @@ namespace TeensyRom.Core.Commands.MuteSidVoices
             _serialState = serialState;
         }
 
-        public Task<MuteSidVoicesResult> Handle(MuteSidVoicesCommand request, CancellationToken cancellationToken)
+        public async Task<MuteSidVoicesResult> Handle(MuteSidVoicesCommand request, CancellationToken cancellationToken)
         {
-            _serialState.SendIntBytes(TeensyToken.SIDVoiceMuting, 2);
-            _serialState.SendSignedChar((sbyte)request.VoiceMuteInfo);
-            var ack = _serialState.HandleAck();
+            var attemptNumber = 1;
 
-            return Task.FromResult(new MuteSidVoicesResult());
+            while (attemptNumber <= 3)
+            {
+                try
+                {
+                    _serialState.SendIntBytes(TeensyToken.SIDVoiceMuting, 2);
+                    _serialState.SendSignedChar((sbyte)request.VoiceMuteInfo);
+                    var ack = _serialState.HandleAck();
+                    break;
+                }
+                catch (TeensyException)
+                {
+                    await Task.Delay(attemptNumber * 100);
+
+                    if (attemptNumber == 3)
+                    {
+                        throw new TeensyDjException();
+                    }
+                    attemptNumber++;
+                    continue;
+                }
+            }
+            return new MuteSidVoicesResult();
         }
     }
 }

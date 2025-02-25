@@ -62,6 +62,27 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Subscribe(_ => TriggerAdvancedMenu());
         }
 
+        private void ProgressContainer_MouseEnter(object sender, MouseEventArgs e)
+        {
+            var fadeOut = new DoubleAnimation(0, TimeSpan.FromMilliseconds(200));
+            var fadeIn = new DoubleAnimation(1, TimeSpan.FromMilliseconds(200));
+
+            ProgressIndicator.BeginAnimation(UIElement.OpacityProperty, fadeOut);
+            ProgressSlider.BeginAnimation(UIElement.OpacityProperty, fadeIn);
+        }
+
+        private void ProgressContainer_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (!_progressMouseDowned)
+            {
+                var fadeOut = new DoubleAnimation(0, TimeSpan.FromMilliseconds(200));
+                var fadeIn = new DoubleAnimation(1, TimeSpan.FromMilliseconds(200));
+
+                ProgressSlider.BeginAnimation(UIElement.OpacityProperty, fadeOut);
+                ProgressIndicator.BeginAnimation(UIElement.OpacityProperty, fadeIn);
+            }
+        }
+
         private void TriggerAdvancedMenu()
         {
             if (!_isAdvancedVisible)

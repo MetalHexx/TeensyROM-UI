@@ -25,15 +25,15 @@ namespace TeensyRom.Ui.Features.Settings
             ProductName = d.ProductName;
         }
 
-        public MidiDeviceViewModel(MidiDeviceViewModel d) 
+        public MidiDeviceViewModel(MidiDeviceViewModel? d) 
         {
-            Name = d.Name;
-            UnboundName = d.UnboundName;
-            Id = d.Id;
-            ManufacturerName = d.ManufacturerName;
-            ProductId = d.ProductId;
-            DriverVersion = d.DriverVersion;
-            ProductName = d.ProductName;
+            Name = d?.Name ?? string.Empty;
+            UnboundName = d?.UnboundName ?? string.Empty;
+            Id = d is null ? 0 : d.Id;
+            ManufacturerName = d?.ManufacturerName ?? string.Empty;
+            ProductId = d is null ? 0 : d.ProductId;
+            DriverVersion = d is null ? 0 : d.DriverVersion;
+            ProductName = d?.ProductName ?? string.Empty;
         }
 
         public MidiDevice ToMidiDevice() 

@@ -42,8 +42,8 @@ namespace TeensyRom.Core.Settings
         public bool StartupLaunchEnabled { get; set; } = true;
         public bool PlayTimerEnabled { get; set; } = false;  
         public bool NavToDirOnLaunch { get; set; } = true;
-        public bool MuteFastForward { get; set; } = true;
-        public bool MuteRandomSeek { get; set; } = true;
+        public bool MuteFastForward { get; set; } = false;
+        public bool MuteRandomSeek { get; set; } = false;
         public bool FirstTimeSetup { get; set; } = true;
         public string? DefaultComPort { get; set; }
         public string? DefaultMinimalComPort { get; set; }

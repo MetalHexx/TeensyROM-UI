@@ -17,7 +17,6 @@ using TeensyRom.Core.Music;
 using TeensyRom.Ui.Services;
 using TeensyRom.Ui.Main;
 using TeensyRom.Core.Music.Midi;
-using System.Diagnostics;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -106,6 +105,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private Func<bool, bool, bool, Task> _mute;
         private Func<Task> _togglePlay;
         private bool _midiTrackSeekInProgress;
+        private TimeSpan? _currentSeekTargetTime;
+        private double _originalSpeed = 0;
 
         public PlayToolbarViewModel(
             IObservable<ILaunchableItem> file,
@@ -384,9 +385,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             PauseTimerCommand = ReactiveCommand.Create(_timer!.PauseTimer);
 
-            TrackTimeChangedCommand = ReactiveCommand.CreateFromTask<double>(async percent =>
+            TrackTimeChangedCommand = ReactiveCommand.CreateFromTask<double>(async targetPercent =>
             {
-                await HandleSeek(restartSong, playSubtune, percent);
+                if (Progress is null) return;
+
+                TimeSpan targetTime = Progress!.TotalTimeSpan.GetTimeFromPercent(targetPercent);
+
+                await HandleSeek(restartSong, playSubtune, targetTime);
             });
 
             this.WhenAnyValue(x => x.SelectedSpeedCurve)
@@ -419,7 +424,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     _timer?.UpdateSpeed(ActualSpeedPercent);
                 })
                 .DistinctUntilChanged()
-                .Throttle(TimeSpan.FromMilliseconds(100))
+                //.Throttle(TimeSpan.FromMilliseconds(100))
                 .ObserveOn(TaskPoolScheduler.Default)
                 .Subscribe(async rawSpeed =>
                 {
@@ -443,13 +448,15 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
 
+                    double delta = e.GetRelativeCCDelta(1);
+
                     if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
-                    {                        
-                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(e.Value - 64));
+                    {
+                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(delta));
                         _previousRawSpeed = RawSpeedValue;
                         return;
                     }
-                    var finalSpeed = ClampSpeed(RawSpeedValue + (e.Value - 64));
+                    var finalSpeed = ClampSpeed(RawSpeedValue + delta);
 
                     RawSpeedValue = finalSpeed;
                     _previousRawSpeed = RawSpeedValue;
@@ -462,7 +469,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
 
-                    double delta = (e.Value - 64) * 0.01;
+                    double delta = e.GetRelativeCCDelta(0.01);
 
                     if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
                     {
@@ -552,18 +559,29 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.Seek)
-                .Where(_ => TrackSeekInProgress is false)
-                .Do(e => 
+                .Where(_ => Progress is not null)
+                .Select(e => e.GetRelativeCCDelta(0.005))
+                .Do(delta =>
                 {
                     _midiTrackSeekInProgress = true;
-                    ProgressSliderPercentage = e.Value / 100.0;
+                    var newProgressValue = ProgressSliderPercentage + delta;
+
+                    if (newProgressValue > 1) 
+                    {
+                        ProgressSliderPercentage = newProgressValue - ProgressSliderPercentage;
+                        return;
+                    }
+                    ProgressSliderPercentage = newProgressValue;
                 })
-                .Throttle(TimeSpan.FromMilliseconds(100))
-                .Subscribe(async e =>
-                {                    
-                    double percent = e.Value == 0 ? 0 : e.Value / 100.0;                    
-                    await HandleSeek(restartSong, playSubtune, percent);
+                .Throttle(TimeSpan.FromMilliseconds(300))
+                .Do(_ => _midiTrackSeekInProgress = false)
+                .Subscribe(async deltaPercent =>
+                {
+                    TimeSpan targetTime = Progress.TotalTimeSpan.GetTimeFromPercent(ProgressSliderPercentage);                    
+
+                    await HandleSeek(restartSong, playSubtune, targetTime);
                 });
+
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -700,70 +718,99 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Subscribe(async buffer => await mute(!Voice1Enabled, !Voice2Enabled, !Voice3Enabled));
         }
 
-        private async Task HandleSeek(Func<Task> restartSong, Func<int, Task> playSubtune, double percent)
+        private async Task HandleSeek(Func<Task> restartSong, Func<int, Task> playSubtune, TimeSpan targetTime)
         {
-            if (_currentSong is null) return;
+            if (_currentSong is null || Progress is null) return;
 
-            if (TrackSeekInProgress) return;
+            if (targetTime == _currentSeekTargetTime) return;
 
-            TrackSeekInProgress = true;
-
-            TimeSpan fastForwardTime;
-
-            if (percent == 0)
+            try
             {
-                TrackSeekInProgress = false;
+
+                if (targetTime < Progress!.CurrentSpan || targetTime >= Progress.TotalTimeSpan)
+                {
+                    if (_currentSong.SubtuneLengths?.Count > 1)
+                    {
+                        await playSubtune(CurrentSubtuneIndex);
+                    }
+                    else 
+                    {
+                        await restartSong();
+                    }
+                    if (targetTime <= TimeSpan.Zero || targetTime >= Progress.TotalTimeSpan)
+                    {
+                        _timer?.ResetTimer();
+                        _midiTrackSeekInProgress = false;
+                        TrackSeekInProgress = false;
+                        return;
+                    }
+                    _timer?.ResetTimer();
+                    await Task.Delay(500);
+                }
+                if (TrackSeekInProgress && targetTime > _currentSeekTargetTime) 
+                {
+                    _currentSeekTargetTime = targetTime;
+                    return;
+                }
+                _currentSeekTargetTime = targetTime;
+
+                if (_muteRandomSeek) await _mute(true, true, true);
+
+            
+                await _changeSpeed(99, MusicSpeedCurveTypes.Logarithmic);
+            
+
+                var timeSpeedChange = MusicConstants.Log_Speed_Max.GetLogPercentage();
+                _timer?.UpdateSpeed(timeSpeedChange);            
                 _midiTrackSeekInProgress = false;
-                await restartSong();
-                _timer?.ResetTimer();
+
+                _fastForwardTimerSubscription?.Dispose();
+
+                _fastForwardTimerSubscription = _timer?.CurrentTime.Subscribe(async currentTime =>
+                {
+                    try
+                    {
+                        if (currentTime >= _currentSeekTargetTime)
+                        {
+                            _currentSeekTargetTime = null;
+
+                            _originalSpeed = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear
+                                ? Math.Round(RawSpeedValue, 2)
+                                : RawSpeedValue.GetLogPercentage();
+
+                            _timer?.UpdateSpeed(_originalSpeed);
+                            TrackSeekInProgress = false;
+                            await _changeSpeed(_originalSpeed, SelectedSpeedCurve);
+
+                            if (_muteRandomSeek) await _mute(false, false, false);
+
+                            _fastForwardTimerSubscription?.Dispose();
+                        }
+                    }
+                    catch (TeensyDjException)
+                    {
+                        await HandleSpeedOverload();
+                        return;
+                    }
+                });
+
+            }
+            catch (TeensyDjException)
+            {   
+                await HandleSpeedOverload();
                 return;
             }
+        }
 
-            var speedAdjustment = MusicConstants.Log_Speed_Max.GetLogPercentage();
-
-            if (_currentSong.SubtuneLengths?.Count > 1)
-            {
-                fastForwardTime = _currentSong.SubtuneLengths[CurrentSubtuneIndex - 1].GetTimeSpanPercentage(percent);
-
-                if (fastForwardTime < Progress?.CurrentSpan)
-                {
-                    await playSubtune(CurrentSubtuneIndex);
-                    _timer?.ResetTimer();                    
-                }
-            }
-            else
-            {
-                fastForwardTime = _currentSong!.PlayLength.GetTimeSpanPercentage(percent);
-
-                if (fastForwardTime < Progress?.CurrentSpan)
-                {
-                    await restartSong();                    
-                    _timer?.ResetTimer();
-                    await Task.Delay(200);
-                }
-            }
-            if (_muteRandomSeek) await _mute(true, true, true);
-
-            await _changeSpeed(99, MusicSpeedCurveTypes.Logarithmic);
-            _timer?.UpdateSpeed(speedAdjustment);
-            _midiTrackSeekInProgress = false;
-
-            _fastForwardTimerSubscription = _timer?.CurrentTime.Subscribe(async currentTime =>
-            {
-                if (currentTime >= fastForwardTime)
-                {
-                    var originalSpeed = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear
-                        ? Math.Round(RawSpeedValue, 2)
-                        : RawSpeedValue.GetLogPercentage();
-                    
-                    _timer?.UpdateSpeed(originalSpeed);                    
-                    _fastForwardTimerSubscription?.Dispose();
-                    TrackSeekInProgress = false;                    
-                    await _changeSpeed(originalSpeed, SelectedSpeedCurve);
-
-                    if (_muteRandomSeek) await _mute(false, false, false);
-                }
-            });
+        private async Task HandleSpeedOverload()
+        {   
+            _alert.Publish("Slow down a bit with the speed and voice changes, you fiend! ;)");
+            _currentSeekTargetTime = null;
+            _fastForwardTimerSubscription?.Dispose();
+            await Task.Delay(200);
+            _timer?.UpdateSpeed(_originalSpeed);
+            await _changeSpeed(_originalSpeed, SelectedSpeedCurve);
+            TrackSeekInProgress = false;
         }
 
         private void HandleHomeSpeed()

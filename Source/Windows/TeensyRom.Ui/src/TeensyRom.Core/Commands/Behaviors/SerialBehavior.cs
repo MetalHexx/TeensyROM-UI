@@ -21,7 +21,7 @@ public class SerialBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         _serial = serial;
     }
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
-    {
+    {        
         TResponse response = default!;
         var currentSerialState = await _serial.CurrentState.FirstAsync();
 
@@ -33,18 +33,14 @@ public class SerialBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         {
             _serial.Lock();
             _serial.StopHealthCheck();
-            _serial.TransitionTo(typeof(SerialBusyState));                        
-            response = await next();
+            _serial.TransitionTo(typeof(SerialBusyState));            
+            response = await next();            
         }
-        catch (Exception ex)
+        finally 
         {
             _serial.Unlock();
-            _serial.StartHealthCheck();
-            throw;
-        }
-        _serial.Unlock();
-        _serial.StartHealthCheck();
-
+            _serial.StartHealthCheck();            
+        }        
         return response;
     }
 }
