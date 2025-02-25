@@ -67,20 +67,36 @@
             MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.HomeSpeed,
         };
-        public MidiMapping Voice1 { get; set; } = new()
+        public MidiMapping Voice1Toggle { get; set; } = new()
         {
             MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.Voice1,
+            DJEventType = DJEventType.Voice1Toggle,
         };
-        public MidiMapping Voice2 { get; set; } = new()
+        public MidiMapping Voice2Toggle { get; set; } = new()
         {
             MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.Voice2,
+            DJEventType = DJEventType.Voice2Toggle,
         };
-        public MidiMapping Voice3 { get; set; } = new()
+        public MidiMapping Voice3Toggle { get; set; } = new()
         {
             MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.Voice3,
+            DJEventType = DJEventType.Voice3Toggle,
+        };
+
+        public MidiMapping Voice1Kill { get; set; } = new()
+        {
+            MidiEventType = MidiEventType.NoteChange,
+            DJEventType = DJEventType.Voice1Kill,
+        };
+        public MidiMapping Voice2Kill { get; set; } = new()
+        {
+            MidiEventType = MidiEventType.NoteChange,
+            DJEventType = DJEventType.Voice2Kill,
+        };
+        public MidiMapping Voice3Kill { get; set; } = new()
+        {
+            MidiEventType = MidiEventType.NoteChange,
+            DJEventType = DJEventType.Voice3Kill,
         };
 
         public MidiMapping Mode { get; set; } = new()

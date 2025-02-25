@@ -485,12 +485,22 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(e => e.DJEventType is DJEventType.Voice1 or DJEventType.Voice2 or DJEventType.Voice3)                
+                .Where(e => e.DJEventType is DJEventType.Voice1Kill or DJEventType.Voice2Kill or DJEventType.Voice3Kill)                
                 .Subscribe(e =>
                 {
-                    if (e.DJEventType is DJEventType.Voice1) Voice1Enabled = !Voice1Enabled;
-                    if (e.DJEventType is DJEventType.Voice2) Voice2Enabled = !Voice2Enabled;
-                    if (e.DJEventType is DJEventType.Voice3) Voice3Enabled = !Voice3Enabled;
+                    if (e.DJEventType is DJEventType.Voice1Kill) Voice1Enabled = !Voice1Enabled;
+                    if (e.DJEventType is DJEventType.Voice2Kill) Voice2Enabled = !Voice2Enabled;
+                    if (e.DJEventType is DJEventType.Voice3Kill) Voice3Enabled = !Voice3Enabled;
+                });
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.DJEventType is DJEventType.Voice1Toggle or DJEventType.Voice2Toggle or DJEventType.Voice3Toggle)
+                .Subscribe(e =>
+                {
+                    if (e.DJEventType is DJEventType.Voice1Toggle) Voice1Enabled = !Voice1Enabled;
+                    if (e.DJEventType is DJEventType.Voice2Toggle) Voice2Enabled = !Voice2Enabled;
+                    if (e.DJEventType is DJEventType.Voice3Toggle) Voice3Enabled = !Voice3Enabled;
                 });
 
             midiService.MidiEvents

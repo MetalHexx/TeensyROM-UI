@@ -21,9 +21,12 @@ namespace TeensyRom.Ui.Features.Settings
         [Reactive] public MidiMappingViewModel SetSpeedPlus50 { get; set; }
         [Reactive] public MidiMappingViewModel SetSpeedMinus50 { get; set; }
         [Reactive] public MidiMappingViewModel HomeSpeed { get; set; }
-        [Reactive] public MidiMappingViewModel Voice1 { get; set; }
-        [Reactive] public MidiMappingViewModel Voice2 { get; set; }
-        [Reactive] public MidiMappingViewModel Voice3 { get; set; }
+        [Reactive] public MidiMappingViewModel Voice1Toggle { get; set; }
+        [Reactive] public MidiMappingViewModel Voice2Toggle { get; set; }
+        [Reactive] public MidiMappingViewModel Voice3Toggle { get; set; }
+        [Reactive] public MidiMappingViewModel Voice1Kill { get; set; }
+        [Reactive] public MidiMappingViewModel Voice2Kill { get; set; }
+        [Reactive] public MidiMappingViewModel Voice3Kill { get; set; }
         [Reactive] public MidiMappingViewModel Mode { get; set; }
         [Reactive] public bool SnapToSpeed { get; set; } = false;
         [Reactive] public bool SnapToSeek { get; set; } = false;
@@ -43,9 +46,12 @@ namespace TeensyRom.Ui.Features.Settings
             SetSpeedPlus50 = new MidiMappingViewModel(s.SetSpeedPlus50);
             SetSpeedMinus50 = new MidiMappingViewModel(s.SetSpeedMinus50);
             HomeSpeed = new MidiMappingViewModel(s.HomeSpeed);
-            Voice1 = new MidiMappingViewModel(s.Voice1);
-            Voice2 = new MidiMappingViewModel(s.Voice2);
-            Voice3 = new MidiMappingViewModel(s.Voice3);
+            Voice1Toggle = new MidiMappingViewModel(s.Voice1Toggle);
+            Voice2Toggle = new MidiMappingViewModel(s.Voice2Toggle);
+            Voice3Toggle = new MidiMappingViewModel(s.Voice3Toggle);
+            Voice1Kill = new MidiMappingViewModel(s.Voice1Kill);
+            Voice2Kill = new MidiMappingViewModel(s.Voice2Kill);
+            Voice3Kill = new MidiMappingViewModel(s.Voice3Kill);
             Mode = new MidiMappingViewModel(s.Mode);
             SnapToSpeed = s.SnapToSpeed;
             SnapToSeek = s.SnapToSeek;
@@ -63,9 +69,12 @@ namespace TeensyRom.Ui.Features.Settings
             SetSpeedMinus50.Device = devices.FirstOrDefault(d => d.Name == SetSpeedMinus50.Device?.UnboundName) ?? SetSpeedMinus50.Device;
             SetSpeedPlus50.Device = devices.FirstOrDefault(d => d.Name == SetSpeedPlus50.Device?.UnboundName) ?? SetSpeedPlus50.Device;
             Stop.Device = devices.FirstOrDefault(d => d.Name == Stop.Device?.UnboundName) ?? Stop.Device;
-            Voice1.Device = devices.FirstOrDefault(d => d.Name == Voice1.Device?.UnboundName) ?? Voice1.Device;
-            Voice2.Device = devices.FirstOrDefault(d => d.Name == Voice2.Device?.UnboundName) ?? Voice2.Device;
-            Voice3.Device = devices.FirstOrDefault(d => d.Name == Voice3.Device?.UnboundName) ?? Voice3.Device;
+            Voice1Toggle.Device = devices.FirstOrDefault(d => d.Name == Voice1Toggle.Device?.UnboundName) ?? Voice1Toggle.Device;
+            Voice2Toggle.Device = devices.FirstOrDefault(d => d.Name == Voice2Toggle.Device?.UnboundName) ?? Voice2Toggle.Device;
+            Voice3Toggle.Device = devices.FirstOrDefault(d => d.Name == Voice3Toggle.Device?.UnboundName) ?? Voice3Toggle.Device;
+            Voice1Kill.Device = devices.FirstOrDefault(d => d.Name == Voice1Kill.Device?.UnboundName) ?? Voice1Kill.Device;
+            Voice2Kill.Device = devices.FirstOrDefault(d => d.Name == Voice2Kill.Device?.UnboundName) ?? Voice2Kill.Device;
+            Voice3Kill.Device = devices.FirstOrDefault(d => d.Name == Voice3Kill.Device?.UnboundName) ?? Voice3Kill.Device;
             Mode.Device = devices.FirstOrDefault(d => d.Name == Mode.Device?.UnboundName) ?? Mode.Device;
         }
         public MidiSettingsViewModel(MidiSettings s)
@@ -83,9 +92,12 @@ namespace TeensyRom.Ui.Features.Settings
             SetSpeedPlus50 = new MidiMappingViewModel(s.SetSpeedPlus50);
             SetSpeedMinus50 = new MidiMappingViewModel(s.SetSpeedMinus50);
             HomeSpeed = new MidiMappingViewModel(s.HomeSpeed);
-            Voice1 = new MidiMappingViewModel(s.Voice1);
-            Voice2 = new MidiMappingViewModel(s.Voice2);
-            Voice3 = new MidiMappingViewModel(s.Voice3);
+            Voice1Toggle = new MidiMappingViewModel(s.Voice1Toggle);
+            Voice2Toggle = new MidiMappingViewModel(s.Voice2Toggle);
+            Voice3Toggle = new MidiMappingViewModel(s.Voice3Toggle);
+            Voice1Kill = new MidiMappingViewModel(s.Voice1Kill);
+            Voice2Kill = new MidiMappingViewModel(s.Voice2Kill);
+            Voice3Kill = new MidiMappingViewModel(s.Voice3Kill);
             Mode = new MidiMappingViewModel(s.Mode);
             SnapToSpeed = s.SnapToSpeed;
             SnapToSeek = s.SnapToSeek;
@@ -108,9 +120,12 @@ namespace TeensyRom.Ui.Features.Settings
                 SetSpeedPlus50 = SetSpeedPlus50.ToMidiMapping(),
                 SetSpeedMinus50 = SetSpeedMinus50.ToMidiMapping(),
                 HomeSpeed = HomeSpeed.ToMidiMapping(),
-                Voice1 = Voice1.ToMidiMapping(),
-                Voice2 = Voice2.ToMidiMapping(),
-                Voice3 = Voice3.ToMidiMapping(),
+                Voice1Toggle = Voice1Toggle.ToMidiMapping(),
+                Voice2Toggle = Voice2Toggle.ToMidiMapping(),
+                Voice3Toggle = Voice3Toggle.ToMidiMapping(),
+                Voice1Kill = Voice1Kill.ToMidiMapping(),
+                Voice2Kill = Voice2Kill.ToMidiMapping(),
+                Voice3Kill = Voice3Kill.ToMidiMapping(),
                 Mode = Mode.ToMidiMapping(),
                 SnapToSpeed = SnapToSpeed,
                 SnapToSeek = SnapToSeek
@@ -123,7 +138,7 @@ namespace TeensyRom.Ui.Features.Settings
             {
                 PlayPause, Stop, Next, Previous, Seek, FastForward, NudgeForward, NudgeBackward,
                 CurrentSpeed, CurrentSpeedFine, SetSpeedPlus50, SetSpeedMinus50, HomeSpeed,
-                Voice1, Voice2, Voice3, Mode
+                Voice1Toggle, Voice2Toggle, Voice3Toggle, Voice1Kill, Voice2Kill, Voice3Kill, Mode
             };
         }
 
