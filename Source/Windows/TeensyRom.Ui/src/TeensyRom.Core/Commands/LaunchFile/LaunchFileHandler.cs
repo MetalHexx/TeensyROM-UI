@@ -142,11 +142,14 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
             if (foundTokens.Any(t => t == TeensyToken.GoodSIDToken))
             {
-                log.External(resultString);
+                var resultHex = $"GoodSIDToken: 0x{responseBytes.ToHexString()}";
+                log.External(resultHex);
                 return LaunchFileResultType.Success;
             }
             if (foundTokens.Any(t => t == TeensyToken.BadSIDToken))
             {
+                var resultHex = $"BadSIDToken: 0x{responseBytes.ToHexString()}";
+                log.External(resultHex);
                 log.ExternalError($"LaunchFileHandler: Failed to launch sid: \r\n{resultString}");
                 return LaunchFileResultType.SidError;
             }
