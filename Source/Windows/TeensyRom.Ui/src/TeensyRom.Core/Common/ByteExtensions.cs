@@ -17,5 +17,13 @@ namespace TeensyRom.Core.Common
 
             return dataString;
         }
+
+        public static string ToHexString(this byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0)
+                return string.Empty;
+
+            return BitConverter.ToString(bytes).Replace("-", "");
+        }
     }
 }
