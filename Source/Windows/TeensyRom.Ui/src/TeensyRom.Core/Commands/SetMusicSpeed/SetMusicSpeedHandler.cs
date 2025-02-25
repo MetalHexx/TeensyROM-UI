@@ -16,27 +16,47 @@ namespace TeensyRom.Core.Commands.SetMusicSpeed
             _serialState = serialState;
         }
 
-        public Task<SetMusicSpeedResult> Handle(SetMusicSpeedCommand request, CancellationToken cancellationToken)
+        public async Task<SetMusicSpeedResult> Handle(SetMusicSpeedCommand request, CancellationToken cancellationToken)
         {
-            short speed = request.Speed.ToScaledShort();
+            var attemptNumber = 1;
 
-            if (request.Type == MusicSpeedCurveTypes.Linear)
+            while (attemptNumber <= 3) 
             {
-                if (request.Speed < MusicConstants.Linear_Speed_Min || request.Speed > MusicConstants.Linear_Speed_Max)
-                    throw new ArgumentOutOfRangeException(nameof(speed), $"Speed must be between {MusicConstants.Linear_Speed_Min} and {MusicConstants.Linear_Speed_Max}.");
-                
-                _serialState.SendIntBytes(TeensyToken.SetMusicSpeedLinear, 2);
-            }
-            else
-            {
-                if (request.Speed < MusicConstants.Log_Speed_Min || request.Speed > MusicConstants.Log_Speed_Max)
-                    throw new ArgumentOutOfRangeException(nameof(speed), $"Speed must be between {MusicConstants.Log_Speed_Min} and {MusicConstants.Log_Speed_Max}.");
+                try
+                {
+                    short speed = request.Speed.ToScaledShort();
 
-                _serialState.SendIntBytes(TeensyToken.SetMusicSpeedLog, 2);
+                    if (request.Type == MusicSpeedCurveTypes.Linear)
+                    {
+                        if (request.Speed < MusicConstants.Linear_Speed_Min || request.Speed > MusicConstants.Linear_Speed_Max)
+                            throw new ArgumentOutOfRangeException(nameof(speed), $"Speed must be between {MusicConstants.Linear_Speed_Min} and {MusicConstants.Linear_Speed_Max}.");
+
+                        _serialState.SendIntBytes(TeensyToken.SetMusicSpeedLinear, 2);
+                    }
+                    else
+                    {
+                        if (request.Speed < MusicConstants.Log_Speed_Min || request.Speed > MusicConstants.Log_Speed_Max)
+                            throw new ArgumentOutOfRangeException(nameof(speed), $"Speed must be between {MusicConstants.Log_Speed_Min} and {MusicConstants.Log_Speed_Max}.");
+
+                        _serialState.SendIntBytes(TeensyToken.SetMusicSpeedLog, 2);
+                    }
+                    _serialState.SendSignedShort(speed);
+                    _serialState.HandleAck();
+                    break;
+                }
+                catch (TeensyException)
+                {
+                    await Task.Delay(attemptNumber * 100);
+
+                    if (attemptNumber == 3) 
+                    {
+                        throw new TeensyDjException();
+                    }
+                    attemptNumber++;
+                    continue;
+                }
             }
-            _serialState.SendSignedShort(speed);
-            _serialState.HandleAck();
-            return Task.FromResult(new SetMusicSpeedResult());
+            return new SetMusicSpeedResult();
         }
     }
 }

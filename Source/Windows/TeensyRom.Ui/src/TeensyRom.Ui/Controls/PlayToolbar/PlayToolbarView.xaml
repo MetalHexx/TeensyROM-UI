@@ -162,49 +162,32 @@
             </Grid>                        
         </Border>
 
-        <Grid Grid.Row="1" VerticalAlignment="Top" IsEnabled="{Binding TrackSeekInProgress, Converter={StaticResource BooleanInverterConverter}}">
-            <Slider x:Name="ProgressSlider"
-                Value="{Binding ProgressSliderPercentage, Mode=OneWay}" 
+        <Grid Grid.Row="1" VerticalAlignment="Top"
+            x:Name="ProgressContainer"
+            MouseEnter="ProgressContainer_MouseEnter"
+            MouseLeave="ProgressContainer_MouseLeave">
+
+            <ProgressBar x:Name="ProgressIndicator"
+                Value="{Binding ProgressSliderPercentage, Mode=OneWay}"
                 Maximum="1"
                 Minimum="0"
-                IsEnabled="{Binding TrackSeekEnabled, Converter={StaticResource BooleanInverterConverter}}"
+                Height="4"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Top"
-                Margin="0 -8 0 -8">
-                <Slider.Resources>
-                    <Style TargetType="Thumb">
-                        <Setter Property="Opacity" Value="0"/>
-                        <Setter Property="Visibility" Value="Visible"/>
-                        <Style.Triggers>
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Slider}, Path=IsMouseOver}" Value="True"/>
-                                    <Condition Binding="{Binding IsSong}" Value="True"/>
-                                </MultiDataTrigger.Conditions>
-                                <MultiDataTrigger.EnterActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                To="1"
-                                                Duration="0:0:0.3" />
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </MultiDataTrigger.EnterActions>
-                                <MultiDataTrigger.ExitActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                     To="0"
-                                                     Duration="0:0:0.3" />
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </MultiDataTrigger.ExitActions>
-                            </MultiDataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Slider.Resources>
-            </Slider>
+                VerticalAlignment="Center"
+                Opacity="1"/>
+
+            <Slider x:Name="ProgressSlider"
+                Value="{Binding ProgressSliderPercentage, Mode=TwoWay}" 
+                Maximum="1"
+                Minimum="0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                Margin="0 -8 0 -8"
+                Style="{StaticResource MaterialDesignSlider}"
+                Opacity="0"/>
         </Grid>
+
+
 
         <Grid Grid.Row="2" Margin="10 10 0 10">
             <Grid.ColumnDefinitions>
