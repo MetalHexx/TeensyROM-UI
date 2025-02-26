@@ -57,6 +57,7 @@ namespace TeensyRom.Ui.Features.Settings
         public ReactiveCommand<Unit, Unit> SaveSettingsCommand { get; set; }
         public ReactiveCommand<Unit, Unit> RefreshMidiDevicesCommand { get; set; }
         public ReactiveCommand<MidiMappingViewModel, Unit> BindMidiCommand { get; set; }
+        public ReactiveCommand<MidiMappingViewModel, Unit> ClearMidiBindCommand { get; set; }
 
         private readonly ISettingsService _settingsService;
         private readonly IAlertService _alert;
@@ -122,6 +123,22 @@ namespace TeensyRom.Ui.Features.Settings
                     mapping.Device = device;
                     mapping.MidiChannel = midiResult.Channel;
                     mapping.Value = midiResult.Value;
+                }
+                var midiSettings = MidiSettings;
+                MidiSettings = null!;
+                MidiSettings = midiSettings;
+
+            }, outputScheduler: RxApp.MainThreadScheduler);
+
+            ClearMidiBindCommand = ReactiveCommand.CreateFromTask<MidiMappingViewModel>(async m =>
+            {
+                if (MidiSettings is null) return;
+                var mapping = MidiSettings.GetAllMappings().FirstOrDefault(x => x.DJEventType == m.DJEventType);
+                if (mapping != null)
+                {
+                    mapping.Device = new MidiDeviceViewModel(new MidiDevice());
+                    mapping.MidiChannel = 1;
+                    mapping.Value = 1;
                 }
                 var midiSettings = MidiSettings;
                 MidiSettings = null!;
