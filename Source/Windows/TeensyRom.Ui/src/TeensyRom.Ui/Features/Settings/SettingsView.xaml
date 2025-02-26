@@ -128,30 +128,30 @@
                 <Label 
                     Content="Mute on Fast Forward :"
                     ToolTip="The SID voices will be muted when fast forwarding a song."
-                    Grid.Row="12" HorizontalAlignment="Right"/>
+                    Grid.Row="9" HorizontalAlignment="Right"/>
                 <CheckBox                  
                     Content="Enabled"                
                     ToolTip="The SID voices will be muted when fast forwarding a song."
                     IsChecked="{Binding MuteFastForward, Mode=TwoWay}" 
-                    Grid.Row="12" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+                    Grid.Row="9" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
                 <Label 
                     Content="Mute on Random Seek:"
                     ToolTip="The SID voices will be muted when random seeking a song."
-                    Grid.Row="13" HorizontalAlignment="Right"/>
+                    Grid.Row="10" HorizontalAlignment="Right"/>
                 <CheckBox                  
                     Content="Enabled"                
                     ToolTip="The SID voices will be muted when random seeking a song."
                     IsChecked="{Binding MuteRandomSeek, Mode=TwoWay}" 
-                    Grid.Row="13" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
+                    Grid.Row="10" Grid.Column="2" VerticalAlignment="Top" Margin="0 4 0 0"/>
 
                 <Label 
                     Content="Default Filter:"
                     ToolTip="This will set the default startup filter"
-                    Grid.Row="14" HorizontalAlignment="Right"/>
+                    Grid.Row="11" HorizontalAlignment="Right"/>
 
                 <ComboBox 
-                    Grid.Row="14" Grid.Column="2"
+                    Grid.Row="11" Grid.Column="2"
                     x:Name="FilterComboBox"
                     ItemsSource="{Binding FilterOptions}"
                     SelectedItem="{Binding StartupFilter, Mode=TwoWay}"            
@@ -159,6 +159,8 @@
                     materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                     materialDesign:HintAssist.HelperTextFontSize="12"
                     ToolTip="This will set the default startup filter"
+                    Width="75"
+                    HorizontalAlignment="Left"
                     Margin="0 -13 0 0"/>
 
 
@@ -206,6 +208,7 @@
                         Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.CurrentSpeed}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.CurrentSpeed}">Clear</Button>
 
                 </StackPanel>
 
@@ -251,6 +254,7 @@
                         Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.CurrentSpeedFine}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.CurrentSpeedFine}">Clear</Button>
 
                 </StackPanel>
 
@@ -296,6 +300,7 @@
                         Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.SetSpeedPlus50}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.SetSpeedPlus50}">Clear</Button>
 
                 </StackPanel>
 
@@ -341,6 +346,7 @@
                         Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.SetSpeedMinus50}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.SetSpeedMinus50}">Clear</Button>
 
                 </StackPanel>
 
@@ -387,6 +393,7 @@
                         Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.HomeSpeed}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.HomeSpeed}">Clear</Button>
 
                 </StackPanel>
 
@@ -433,6 +440,7 @@
                         Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.NudgeForward}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.NudgeForward}">Clear</Button>
 
                 </StackPanel>
 
@@ -479,6 +487,7 @@
                         Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.NudgeBackward}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.NudgeBackward}">Clear</Button>
 
                 </StackPanel>
 
@@ -525,6 +534,7 @@
                         Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice1Toggle}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.Voice1Toggle}">Clear</Button>
 
                 </StackPanel>
 
@@ -570,6 +580,7 @@
                         Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice2Toggle}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.Voice2Toggle}">Clear</Button>
 
                 </StackPanel>
 
@@ -615,6 +626,7 @@
                         Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice3Toggle}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.Voice3Toggle}">Clear</Button>
 
                 </StackPanel>
                 
@@ -659,6 +671,7 @@
         Margin="10 -3 0 0"/>
 
     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice1Kill}">Bind</Button>
+    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.Voice1Kill}">Clear</Button>
 
 </StackPanel>
 
@@ -704,6 +717,7 @@
         Margin="10 -3 0 0"/>
 
     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice2Kill}">Bind</Button>
+    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.Voice2Kill}">Clear</Button>
 
 </StackPanel>
 
@@ -749,6 +763,7 @@
         Margin="10 -3 0 0"/>
 
     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Voice3Kill}">Bind</Button>
+    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.Voice3Kill}">Clear</Button>
 
 </StackPanel>
 
@@ -794,6 +809,7 @@
                         Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Seek}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.Seek}">Clear</Button>
 
                 </StackPanel>
 
@@ -839,6 +855,7 @@
                         Margin="10 -3 0 0"/>
 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Mode}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.Mode}">Clear</Button>
 
                 </StackPanel>
                 
@@ -884,6 +901,7 @@
                         Margin="10 -3 0 0"/>
                 
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.PlayPause}">Bind</Button>
+                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.PlayPause}">Clear</Button>
                 
                 </StackPanel>
                 
@@ -929,6 +947,7 @@
                        Margin="10 -3 0 0"/>
 
                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.FastForward}">Bind</Button>
+                   <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.FastForward}">Clear</Button>
 
                </StackPanel>
                 
@@ -974,6 +993,7 @@
         Margin="10 -3 0 0"/>
 
     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Previous}">Bind</Button>
+    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.Previous}">Clear</Button>
 
 </StackPanel>
                 
@@ -1019,6 +1039,7 @@
         Margin="10 -3 0 0"/>
 
     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Next}">Bind</Button>
+    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.Next}">Clear</Button>
 
 </StackPanel>
 
