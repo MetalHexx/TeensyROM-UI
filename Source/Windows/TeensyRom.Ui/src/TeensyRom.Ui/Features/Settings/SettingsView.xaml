@@ -630,7 +630,7 @@
 
                 </StackPanel>
                 
-                <Label Grid.Column="4" Grid.Row="12" HorizontalAlignment="Right" ToolTip="Mutes for voice 1 of the playing song while holding the note.">Kill Voice 1:</Label>
+                <Label Grid.Column="4" Grid.Row="12" HorizontalAlignment="Right" ToolTip="Mutes for voice 1 of the playing song while holding the note.  Like a kill switch.">Kill Voice 1:</Label>
 
 <StackPanel Grid.Column="6" Grid.Row="12" Orientation="Horizontal">
     <ComboBox                
@@ -675,7 +675,7 @@
 
 </StackPanel>
 
-<Label Grid.Column="4" Grid.Row="13"  HorizontalAlignment="Right" ToolTip="Toggles mute for voice 2 of the playing song.">Kill Voice 2:</Label>
+<Label Grid.Column="4" Grid.Row="13"  HorizontalAlignment="Right" ToolTip="Mutes for voice 2 of the playing song while holding the note.  Like a kill switch.">Kill Voice 2:</Label>
 
 <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="13">
 
@@ -721,7 +721,7 @@
 
 </StackPanel>
 
-<Label Grid.Column="4" Grid.Row="14"  HorizontalAlignment="Right" ToolTip="Toggles mute for voice 3 of the playing song.">Kill Voice 3:</Label>
+<Label Grid.Column="4" Grid.Row="14"  HorizontalAlignment="Right" ToolTip="Mutes for voice 3 of the playing song while holding the note.  Like a kill switch.">Kill Voice 3:</Label>
 
 <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="14">
 
