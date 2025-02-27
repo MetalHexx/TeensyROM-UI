@@ -7,6 +7,6 @@ namespace TeensyRom.Core.Settings
         IObservable<TeensySettings> Settings { get; }
         bool SaveSettings(TeensySettings settings);
         TeensySettings GetSettings();
-        void SetMachineInfo(string comPort);
+        void SetCart(string comPort);
     }
 }

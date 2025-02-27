@@ -4,12 +4,10 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
-using System.Text.RegularExpressions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TeensyRom.Core.Serial
 {
@@ -128,7 +126,8 @@ namespace TeensyRom.Core.Serial
                 }
                 else
                 {
-                    settingsService.SetMachineInfo(_serialPort.PortName);                   
+                    settingsService.SetCart(_serialPort.PortName);  
+                    
                     _alert.Publish($"Connected to TeensyROM on {_serialPort.PortName}");
 
                     if (!response.Contains("busy", StringComparison.OrdinalIgnoreCase)) 
