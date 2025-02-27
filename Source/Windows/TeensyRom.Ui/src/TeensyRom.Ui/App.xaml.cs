@@ -42,6 +42,8 @@ namespace TeensyRom.Ui
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
+            DeleteUnhandledExceptionLog();
+
             var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
             var mainViewModel = _serviceProvider.GetRequiredService<NavigationHostViewModel>();
             mainWindow.DataContext = mainViewModel;
@@ -92,8 +94,12 @@ namespace TeensyRom.Ui
         private static readonly object _logFileLock = new object();
         private static void LogExceptionToFile(Exception ex)
         {
-            string filePath = Path.Combine(Assembly.GetExecutingAssembly().GetPath(), @"Assets\System\Logs\UnhandledErrorLogs.txt");
+            string filePath = GetUnhandledExceptionLogPath();
 
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
             if (!Directory.Exists(Path.GetDirectoryName(filePath)))
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
@@ -111,5 +117,19 @@ namespace TeensyRom.Ui
                 Debug.WriteLine("Failed to log exception: " + logEx.Message);
             }
         }
+
+        private static void DeleteUnhandledExceptionLog() 
+        {
+            string filePath = GetUnhandledExceptionLogPath();
+
+            FileInfo file = new(filePath);
+
+            if (file.Exists && file.LastWriteTime < DateTime.Now.AddDays(-7))
+            {
+                file.Delete();
+            }
+        }
+
+        private static string GetUnhandledExceptionLogPath() => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), @"Assets\System\Logs\UnhandledErrorLogs.txt");
     }
 }
