@@ -54,24 +54,14 @@ namespace TeensyRom.Core.Serial
             var settings = settingsService.GetSettings();
             var ports = SerialPort.GetPortNames().Distinct();
 
-            if (settings.DefaultComPort is not null)
-            {
-                return ports
-                    .OrderByDescending(port => settings.DefaultComPort == port)
-                    .ThenBy(port => port);
-            }
-            return ports;
-        }
+            var knownPorts = settings.KnownCarts
+                .Select(cart => cart.ComPort)
+                .Distinct()
+                .ToList();
 
-        private void SaveDefaultComPort(string comPort) 
-        {
-            var settings = settingsService.GetSettings();
-
-            if (settings.DefaultComPort != comPort)
-            {
-                settings.DefaultComPort = comPort;
-                settingsService.SaveSettings(settings);
-            }
+            return ports
+                .OrderByDescending(port => knownPorts.Contains(port))
+                .ThenBy(port => port);
         }
 
         public void EnsureConnection(int waitTimeMs = 200)
@@ -138,7 +128,7 @@ namespace TeensyRom.Core.Serial
                 }
                 else
                 {
-                    SaveDefaultComPort(port);                    
+                    settingsService.SetMachineInfo(_serialPort.PortName);                   
                     _alert.Publish($"Connected to TeensyROM on {_serialPort.PortName}");
 
                     if (!response.Contains("busy", StringComparison.OrdinalIgnoreCase)) 
