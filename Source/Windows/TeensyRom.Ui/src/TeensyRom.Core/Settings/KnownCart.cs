@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace TeensyRom.Core.Settings
 {
-    public record KnownCart(string DeviceHash, string PnpDeviceId, string ComPort);
+    public record KnownCart(string DeviceHash, string PnpDeviceId, string ComPort, string Name);
 }

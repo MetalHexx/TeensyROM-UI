@@ -28,8 +28,8 @@ namespace TeensyRom.Core.Storage.Services
         private readonly IAlertService _alert;
         private TeensySettings _settings = null!;
         private IDisposable? _settingsSubscription;
-        private string _usbCacheFileName => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), StorageConstants.Usb_Cache_File_Path);
-        private string _sdCacheFileName => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), StorageConstants.Sd_Cache_File_Path);
+        private string _usbCacheFileName = string.Empty; 
+        private string _sdCacheFileName = string.Empty;
         private string CacheFilePath => _settings.StorageType is TeensyStorageType.SD
             ? _sdCacheFileName
             : _usbCacheFileName;
@@ -44,7 +44,7 @@ namespace TeensyRom.Core.Storage.Services
             _mediator = mediator;
             _alert = alert;
             _settingsSubscription = _settingsService.Settings
-                .Where(s => s is not null)
+                .Where(s => s is not null && s.LastCart is not null)
                 .Subscribe(OnSettingsChanged);
         }
 
@@ -56,7 +56,17 @@ namespace TeensyRom.Core.Storage.Services
             
             _settings = newSettings;
 
-            if (previousSettings is null || _settings.StorageType != previousSettings.StorageType)
+            _usbCacheFileName = Path.Combine(
+                Assembly.GetExecutingAssembly().GetPath(),
+                StorageConstants.Usb_Cache_File_Relative_Path,
+                $"{StorageConstants.Usb_Cache_File_Name}{_settings.LastCart.DeviceHash}{StorageConstants.Cache_File_Extension}");
+
+            _sdCacheFileName = Path.Combine(
+                Assembly.GetExecutingAssembly().GetPath(),
+                StorageConstants.Sd_Cache_File_Relative_Path,
+                $"{StorageConstants.Sd_Cache_File_Name}{_settings.LastCart.DeviceHash}{StorageConstants.Cache_File_Extension}");
+
+            if (previousSettings is null || _settings.StorageType != previousSettings.StorageType || _settings.LastCart != previousSettings.LastCart)
             {
                 LoadCache();
             }

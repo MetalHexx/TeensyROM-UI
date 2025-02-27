@@ -55,7 +55,7 @@ namespace TeensyRom.Core.Settings
             return settings;          
         }
 
-        public void SetMachineInfo(string comPort)
+        public void SetCart(string comPort)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -80,25 +80,28 @@ namespace TeensyRom.Core.Settings
                 }
                 if (string.IsNullOrEmpty(pnpDeviceId))
                 {
-                    _log.InternalError($"Unable to find PNPDeviceID for {comPort}");
-                    return;
+                    throw new Exception($"Unable to find PNPDeviceID for {comPort}");
                 }
                 var deviceHash = GetFileNameSafeHash(pnpDeviceId);
 
                 var device = settings.KnownCarts
                     .FirstOrDefault(RemoteMachineInfo => RemoteMachineInfo.DeviceHash == deviceHash);
 
+                settings = settings with
+                {
+                    LastCart = device is null ? new KnownCart(deviceHash, pnpDeviceId, comPort, $"TeensyROM #{settings.KnownCarts.Count() + 1}") : device
+                };
+
                 if (device is null)
                 {
-                    settings.KnownCarts.Add(new KnownCart(deviceHash, pnpDeviceId, comPort));
+                    settings.KnownCarts.Add(settings.LastCart with { });
                 }
                 else 
                 {
                     settings.KnownCarts.Remove(device);
-                    device = new KnownCart(deviceHash, pnpDeviceId, comPort);
-                    settings.KnownCarts.Add(device);
+                    settings.KnownCarts.Add(settings.LastCart with { });
                 }
-                SaveSettings(settings);
+                SaveSettings(settings);                
             }
         }
 

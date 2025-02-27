@@ -26,6 +26,7 @@ namespace TeensyRom.Core.Settings
     /// </summary>
     public record TeensySettings
     {
+        public KnownCart? LastCart { get; set; }
         public List<KnownCart> KnownCarts { get; set; } = [];
         public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;
         public string WatchDirectoryLocation { get; set; } = string.Empty;
