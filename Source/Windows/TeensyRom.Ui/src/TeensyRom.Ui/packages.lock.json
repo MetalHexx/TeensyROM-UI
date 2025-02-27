@@ -183,6 +183,11 @@
         "resolved": "14.8.12",
         "contentHash": "7dTp+hgC2CS4DqjHtgkeS7hsECbpD09ukGwxL63HVM/aih9zseIaIjWhS6sQWlWw5GDvli8bVMHeZ1dekgmuvQ=="
       },
+      "System.CodeDom": {
+        "type": "Transitive",
+        "resolved": "9.0.2",
+        "contentHash": "VnlzS7afE8LaXXwKdHOe2D6FcDekqThzU1E67CONV7gp71q3zposqcSeXH+PxARMXC5j31efwXrxP8VGvD70Ug=="
+      },
       "System.ComponentModel.Annotations": {
         "type": "Transitive",
         "resolved": "5.0.0",
@@ -202,6 +207,14 @@
         "contentHash": "dRyGI7fUESar5ZLIpiBOaaNLW7YyOBGftjj5Of+xcduC/Rjl7RjhEnWDvvNBmHuF3d0tdXoqdVI/yrVA8f00XA==",
         "dependencies": {
           "runtime.native.System.IO.Ports": "6.0.0"
+        }
+      },
+      "System.Management": {
+        "type": "Transitive",
+        "resolved": "9.0.2",
+        "contentHash": "U6SXFe1kfJySAvcPPdbdb+fycaY+3c/KV0PwTjurvrALMnlSm37s5z8zcoI7qbkV2kYhxiLfsZRGiF0XeSsqSQ==",
+        "dependencies": {
+          "System.CodeDom": "9.0.2"
         }
       },
       "System.Reactive": {
@@ -232,6 +245,7 @@
           "Newtonsoft.Json": "[13.0.3, )",
           "System.Drawing.Common": "[8.0.1, )",
           "System.IO.Ports": "[6.0.0, )",
+          "System.Management": "[9.0.2, )",
           "System.Reactive": "[6.0.0, )"
         }
       }
@@ -273,6 +287,14 @@
         "contentHash": "dRyGI7fUESar5ZLIpiBOaaNLW7YyOBGftjj5Of+xcduC/Rjl7RjhEnWDvvNBmHuF3d0tdXoqdVI/yrVA8f00XA==",
         "dependencies": {
           "runtime.native.System.IO.Ports": "6.0.0"
+        }
+      },
+      "System.Management": {
+        "type": "Transitive",
+        "resolved": "9.0.2",
+        "contentHash": "U6SXFe1kfJySAvcPPdbdb+fycaY+3c/KV0PwTjurvrALMnlSm37s5z8zcoI7qbkV2kYhxiLfsZRGiF0XeSsqSQ==",
+        "dependencies": {
+          "System.CodeDom": "9.0.2"
         }
       },
       "System.Text.Encodings.Web": {

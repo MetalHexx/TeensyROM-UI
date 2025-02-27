@@ -1,8 +1,11 @@
 ﻿using Newtonsoft.Json;
-using System.Reactive;
+using System.Management;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using Formatting = Newtonsoft.Json.Formatting;
@@ -50,6 +53,70 @@ namespace TeensyRom.Core.Settings
             ValidateAndLogSettings(settings);
 
             return settings;          
+        }
+
+        public void SetMachineInfo(string comPort)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var searcher = new ManagementObjectSearcher($"SELECT * FROM Win32_SerialPort WHERE DeviceID = '{comPort}'");
+                var serialDevices = searcher.Get();
+
+                var settings = _settings.Value with { };
+
+                var pnpDeviceId = string.Empty;
+
+                foreach (var s in serialDevices)
+                {
+                    foreach (PropertyData property in s.Properties)
+                    {
+                        if (property.Name == "DeviceID" && property.Value?.ToString() == comPort)
+                        {
+                            pnpDeviceId = s.Properties["PNPDeviceID"]?.Value?.ToString();
+                            break;
+                        }
+                    }
+                    if(!string.IsNullOrEmpty(pnpDeviceId)) break;
+                }
+                if (string.IsNullOrEmpty(pnpDeviceId))
+                {
+                    _log.InternalError($"Unable to find PNPDeviceID for {comPort}");
+                    return;
+                }
+                var deviceHash = GetFileNameSafeHash(pnpDeviceId);
+
+                var device = settings.KnownCarts
+                    .FirstOrDefault(RemoteMachineInfo => RemoteMachineInfo.DeviceHash == deviceHash);
+
+                if (device is null)
+                {
+                    settings.KnownCarts.Add(new KnownCart(deviceHash, pnpDeviceId, comPort));
+                }
+                else 
+                {
+                    settings.KnownCarts.Remove(device);
+                    device = new KnownCart(deviceHash, pnpDeviceId, comPort);
+                    settings.KnownCarts.Add(device);
+                }
+                SaveSettings(settings);
+            }
+        }
+
+        public static string GetFileNameSafeHash(string stringToHash)
+        {
+            using (var md5 = MD5.Create())
+            {
+                byte[] inputBytes = Encoding.UTF8.GetBytes(stringToHash);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+                return string.Concat(hashBytes.Select(b => b.ToString("X2")));
+            }
+        }
+
+        public static void Main()
+        {
+            string deviceId = @"USB\VID_16C0&PID_0489&MI_00\9&1FB47159&0&0000";
+            string safeFileName = GetFileNameSafeHash(deviceId);
+            Console.WriteLine("Safe file name: " + safeFileName);
         }
 
         private TeensySettings InitDefaultSettings()
