@@ -88,7 +88,7 @@ namespace TeensyRom.Ui.Core.Progress
 
                     if (_currentTime >= length) 
                     {
-                        //Needed in case speed multiplier was or is being used since the Observable.Timer will be out of sync.
+                        _currentTimeSubscription?.Dispose();
                         _timerComplete.OnNext(Unit.Default);
                     }
                 });

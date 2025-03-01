@@ -7,6 +7,22 @@
              xmlns:behaviors="clr-namespace:TeensyRom.Ui.Helpers.Behaviors"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d">
+    <UserControl.Resources>
+        <Style x:Key="ShuffleModeButtonStyle" TargetType="Button" BasedOn="{StaticResource StorageIconButton}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ShuffleModeEnabled}" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource EnabledColor}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="RepeatModeButtonStyle" TargetType="Button" BasedOn="{StaticResource StorageIconButton}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RepeatModeEnabled}" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource EnabledColor}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -324,6 +340,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel 
@@ -389,7 +406,7 @@
                     Margin="5 10 5 5">
                     <materialDesign:PackIcon Kind="TimerOutline" Margin="0 0 0 0"/>
                 </Button>
-
+                
                 <Button Grid.Column="5"
                     x:Name="ShuffleModeButton"
                     Command="{Binding ToggleShuffleCommand}"  
@@ -398,8 +415,18 @@
                     Margin="5 10 5 5">
                     <materialDesign:PackIcon Kind="Shuffle"/>
                 </Button>
-
+                
                 <Button Grid.Column="6"
+                    x:Name="RepeatModeButton"
+                    Visibility="{Binding IsSong, Converter={StaticResource BoolToVisibilityConvertor}}"
+                    Command="{Binding ToggleRepeatCommand}"  
+                    ToolTip="Repeat Mode.  &#x0a;• Enabling this will repeat the song upon completion."
+                    Style="{StaticResource RepeatModeButtonStyle}"
+                    Margin="5 10 5 5">
+                    <materialDesign:PackIcon Kind="Repeat"/>
+                </Button>
+
+                <Button Grid.Column="7"
                     x:Name="ShareButton"
                     Command="{Binding ShareCommand}"    
                     Visibility="{Binding ShareVisible, Converter={StaticResource BoolToVisibilityConvertor}, Mode=OneWay}"
@@ -411,7 +438,7 @@
                 </Button>
 
                 <Button
-                    Grid.Column="7"
+                    Grid.Column="8"
                     x:Name="FavoriteButton"
                     Command="{Binding FavoriteCommand}"  
                     Visibility="{Binding File.IsFavorite, Converter={StaticResource InverseBooleanToVisibilityConverter}, Mode=OneWay}"

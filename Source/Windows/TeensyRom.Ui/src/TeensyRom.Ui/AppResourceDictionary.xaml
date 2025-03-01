@@ -104,13 +104,7 @@
         </Setter>
     </Style>
 
-    <Style x:Key="ShuffleModeButtonStyle" TargetType="Button" BasedOn="{StaticResource StorageIconButton}">
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding ShuffleModeEnabled}" Value="True">
-                <Setter Property="Foreground" Value="{StaticResource EnabledColor}"/>
-            </DataTrigger>
-        </Style.Triggers>
-    </Style>
+    
 
     <SolidColorBrush x:Key="PastelGreen" Color="#86c691" />
     <SolidColorBrush x:Key="PastelRed" Color="#cc666c" />
