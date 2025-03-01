@@ -57,7 +57,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         void SetScopePath(string path);
         string GetScopePath();
         Task SetSpeed(double percentage, MusicSpeedCurveTypes curveType);
-        Task RestartSong();
+        Task RestartSong(int subtuneIndex);
         Task Mute(bool voice1, bool voice2, bool voice3);
     }
 }

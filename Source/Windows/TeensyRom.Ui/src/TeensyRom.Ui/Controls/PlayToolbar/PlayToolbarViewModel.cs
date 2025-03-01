@@ -52,6 +52,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [Reactive] public bool Voice1Enabled { get; set; } = true;
         [Reactive] public bool Voice2Enabled { get; set; } = true;
         [Reactive] public bool Voice3Enabled { get; set; } = true;
+        [Reactive] public bool RepeatModeEnabled { get; set; }
         [Reactive] public string SelectedScope { get; set; } = StorageScope.Storage.ToDescription();
         [Reactive]
         public List<string> ScopeOptions { get; set; } = Enum
@@ -81,6 +82,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<Unit, Unit> NextCommand { get; set; }
         public ReactiveCommand<Unit, Unit> FastForwardCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ToggleShuffleCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ToggleRepeatCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ToggleTimedPlay { get; set; }
         public ReactiveCommand<Unit, Unit> FavoriteCommand { get; set; }
         public ReactiveCommand<Unit, Unit> RemoveFavoriteCommand { get; set; }
@@ -103,10 +105,12 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private bool _muteFastForward;
         private bool _muteRandomSeek;
         private Func<bool, bool, bool, Task> _mute;
+        private Func<int, Task> _restartSong;
+        private Func<Task> _playNext;
         private Func<Task> _togglePlay;
         private bool _midiTrackSeekInProgress;
         private TimeSpan? _currentSeekTargetTime;
-        private double _originalSpeed = 0;
+        private double _originalSpeed = 0;        
 
         public PlayToolbarViewModel(
             IObservable<ILaunchableItem> file,
@@ -121,7 +125,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             Func<Task> togglePlay,
             Func<Task> playPrevious,
             Func<Task> playNext,
-            Func<Task> restartSong,
+            Func<int, Task> restartSong,
             Func<int, Task> playSubtune,
             Func<ILaunchableItem, Task> saveFav,
             Func<ILaunchableItem, Task> removeFav,
@@ -137,6 +141,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             _alert = alert;
             _mute = mute;
             _togglePlay = togglePlay;
+            _restartSong = restartSong;
+            _playNext = playNext;
 
             muteFastForward.Subscribe(enabled => _muteFastForward = enabled);
             muteRandomSeek.Subscribe(enabled => _muteRandomSeek = enabled);
@@ -248,6 +254,9 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Subscribe(isSong =>
                 {
                     SetSpeedEnabled = isSong;
+
+                    if (RepeatModeEnabled) return;
+
                     Voice1Enabled = true;
                     Voice2Enabled = true;
                     Voice3Enabled = true;
@@ -263,20 +272,17 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(lengths => lengths.Count > 1)
                 .ToPropertyEx(this, vm => vm.SubtuneNumberList);
 
-            song.Subscribe(item =>
-            {
-                TimedPlayButtonEnabled = false;
-                TimedPlayComboBoxEnabled = false;
-                ProgressEnabled = true;                
-                _previousRawSpeed = 0;
-                InitializeProgress(playNext, item);
-            });
+            song.Subscribe(DoPlayNext);
 
+            gameOrImage.Subscribe(item =>
+            {
+                RepeatModeEnabled = false;
+            });
 
             gameOrImage
                 .Where(_ => TimedPlayEnabled)
                 .Subscribe(item =>
-                {
+                {   
                     TimedPlayButtonEnabled = true;
                     TimedPlayComboBoxEnabled = true;
                     ProgressEnabled = true;
@@ -287,6 +293,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => !TimedPlayEnabled)
                 .Subscribe(item =>
                 {
+                    RepeatModeEnabled = false;
                     TimedPlayButtonEnabled = true;
                     TimedPlayComboBoxEnabled = false;
                     ProgressEnabled = false;
@@ -295,6 +302,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             hexItem.Subscribe(item =>
             {
+                RepeatModeEnabled = false;
                 TimedPlayButtonEnabled = false;
                 TimedPlayComboBoxEnabled = false;
                 ProgressEnabled = false;
@@ -353,6 +361,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 return playPrevious();
             });
             ToggleShuffleCommand = ReactiveCommand.Create(toggleMode);
+            ToggleRepeatCommand = ReactiveCommand.Create<Unit, Unit>(_ => 
+            {
+                RepeatModeEnabled = !RepeatModeEnabled;
+                return Unit.Default;
+            });
             FavoriteCommand = ReactiveCommand.CreateFromTask(_ => saveFav(File!));
             RemoveFavoriteCommand = ReactiveCommand.CreateFromTask(_ => removeFav(File!));
             ShareCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleShareCommand());
@@ -728,7 +741,25 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Subscribe(async buffer => await mute(!Voice1Enabled, !Voice2Enabled, !Voice3Enabled));
         }
 
-        private async Task HandleSeek(Func<Task> restartSong, Func<int, Task> playSubtune, TimeSpan targetTime)
+        private void DoPlayNext(SongItem item)
+        {
+            TimedPlayButtonEnabled = false;
+            TimedPlayComboBoxEnabled = false;
+            ProgressEnabled = true;
+            _previousRawSpeed = RepeatModeEnabled ? _previousRawSpeed : 0;
+            InitializeProgress(_playNext, item);
+        }
+
+        private void RepeatSubtune(SongItem item)
+        {
+            TimedPlayButtonEnabled = false;
+            TimedPlayComboBoxEnabled = false;
+            ProgressEnabled = true;
+            _previousRawSpeed = RepeatModeEnabled ? _previousRawSpeed : 0;
+            InitializeSubtuneProgress(CurrentSubtuneIndex, _playNext);
+        }
+
+        private async Task HandleSeek(Func<int, Task> restartSong, Func<int, Task> playSubtune, TimeSpan targetTime)
         {
             if (_currentSong is null || Progress is null) return;
 
@@ -736,8 +767,9 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             try
             {
+                var nearlyEndOfSong = targetTime >= Progress.TotalTimeSpan - TimeSpan.FromSeconds(3);  //The subtraction avoids a potential loop.
 
-                if (targetTime < Progress!.CurrentSpan || targetTime >= Progress.TotalTimeSpan)
+                if (targetTime < Progress!.CurrentSpan || nearlyEndOfSong)
                 {
                     if (_currentSong.SubtuneLengths?.Count > 1)
                     {
@@ -745,9 +777,9 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     }
                     else 
                     {
-                        await restartSong();
+                        await restartSong(CurrentSubtuneIndex);
                     }
-                    if (targetTime <= TimeSpan.Zero || targetTime >= Progress.TotalTimeSpan)
+                    if (targetTime <= TimeSpan.Zero || nearlyEndOfSong)
                     {
                         _timer?.ResetTimer();
                         _midiTrackSeekInProgress = false;
@@ -1028,14 +1060,14 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             StartTimerObservables(playLength, playNext);            
         }
 
-        private void StartTimerObservables(TimeSpan timespan, Func<Task> onNext) 
+        private void StartTimerObservables(TimeSpan timespan, Func<Task> onNext, bool startNewTimer = true) 
         {
             if (_timer == null) return;
 
             _timerCompleteSubscription?.Dispose();
             _currentTimeSubscription?.Dispose();
 
-            _timer?.StartNewTimer(timespan);
+            if(startNewTimer) _timer?.StartNewTimer(timespan);
 
             _currentTimeSubscription = _timer?.CurrentTime
                 .Select(t => new TimeProgressViewModel(timespan, t))
@@ -1054,6 +1086,18 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
                 {
+                    if (RepeatModeEnabled) 
+                    {
+                        if (CurrentSubtuneIndex > 1) 
+                        {
+                            _restartSong(CurrentSubtuneIndex);
+                            RepeatSubtune(_currentSong!);
+                            return;
+                        }
+                        _restartSong(CurrentSubtuneIndex);
+                        DoPlayNext(_currentSong!);
+                        return;
+                    }
                     onNext();
                 });
         }
