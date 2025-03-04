@@ -24,7 +24,10 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         {
             var currentPercentage = currentValue.GetLogPercentage();
             var targetPercentage = currentPercentage + percentageStep;
-            var closest = Mappings.OrderBy(kvp => Math.Abs(kvp.Value - targetPercentage)).First();
+            var closest = Mappings
+                .Where(kvp => kvp.Key != currentValue)
+                .OrderBy(kvp => Math.Abs(kvp.Value - targetPercentage)).First();
+
             return closest.Key;
         }
 
