@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -29,6 +29,7 @@ namespace TeensyRom.Ui.Core.Progress
         private TimeSpan _length;
         private TimeSpan _timeLeft;
         private double _speedMultiplier = 1.0;
+        private readonly Stopwatch _stopwatch = new();
 
         public ProgressTimer()
         {
@@ -53,6 +54,7 @@ namespace TeensyRom.Ui.Core.Progress
 
         public void ResumeTimer()
         {
+            TryStopObservables();
             StartObservables(_timeLeft);
         }
 
@@ -80,15 +82,19 @@ namespace TeensyRom.Ui.Core.Progress
 
         private void StartObservables(TimeSpan length)
         {
+            _stopwatch.Restart();
+
             _currentTimeSubscription = Observable.Interval(TimeSpan.FromMilliseconds(20))
                 .Subscribe(_ =>
                 {
-                    var timeStep = TimeSpan.FromMilliseconds(20 * _speedMultiplier);
+                    var timeStep = TimeSpan.FromMilliseconds(_stopwatch.ElapsedMilliseconds * _speedMultiplier);
                     _currentTime = _currentTime.Add(timeStep);
+                    _stopwatch.Restart();
 
                     if (_currentTime >= length) 
-                    {
-                        _currentTimeSubscription?.Dispose();
+                    { 
+                        TryStopObservables();
+                        _stopwatch.Reset();
                         _timerComplete.OnNext(Unit.Default);
                     }
                 });

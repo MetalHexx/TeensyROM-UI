@@ -105,7 +105,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private bool _muteFastForward;
         private bool _muteRandomSeek;
         private Func<bool, bool, bool, Task> _mute;
-        private Func<int, Task> _restartSong;
+        private Func<Task> _restartSong;
+        private Func<int, Task> _restartSubtune;
         private Func<Task> _playNext;
         private Func<Task> _togglePlay;
         private bool _midiTrackSeekInProgress;
@@ -125,7 +126,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             Func<Task> togglePlay,
             Func<Task> playPrevious,
             Func<Task> playNext,
-            Func<int, Task> restartSong,
+            Func<Task> restartSong,
+            Func<int, Task> restartSubtune,
             Func<int, Task> playSubtune,
             Func<ILaunchableItem, Task> saveFav,
             Func<ILaunchableItem, Task> removeFav,
@@ -142,6 +144,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             _mute = mute;
             _togglePlay = togglePlay;
             _restartSong = restartSong;
+            _restartSubtune = restartSubtune;
             _playNext = playNext;
 
             muteFastForward.Subscribe(enabled => _muteFastForward = enabled);
@@ -173,8 +176,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             currentFile
                 .Select(f => !string.IsNullOrWhiteSpace(f.ShareUrl))
                 .ToPropertyEx(this, vm => vm.ShareVisible);
-
-            currentFile.Subscribe(_ => RawSpeedValue = 0);
 
             playState
                 .Select(state => state.PlayMode == PlayMode.Shuffle)
@@ -277,6 +278,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             gameOrImage.Subscribe(item =>
             {
                 RepeatModeEnabled = false;
+                RawSpeedValue = 0;
             });
 
             gameOrImage
@@ -302,6 +304,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             hexItem.Subscribe(item =>
             {
+                RawSpeedValue = 0;
                 RepeatModeEnabled = false;
                 TimedPlayButtonEnabled = false;
                 TimedPlayComboBoxEnabled = false;
@@ -746,20 +749,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             TimedPlayButtonEnabled = false;
             TimedPlayComboBoxEnabled = false;
             ProgressEnabled = true;
-            _previousRawSpeed = RepeatModeEnabled ? _previousRawSpeed : 0;
+            RawSpeedValue = 0;
+            _previousRawSpeed = RawSpeedValue;
             InitializeProgress(_playNext, item);
         }
 
-        private void RepeatSubtune(SongItem item)
-        {
-            TimedPlayButtonEnabled = false;
-            TimedPlayComboBoxEnabled = false;
-            ProgressEnabled = true;
-            _previousRawSpeed = RepeatModeEnabled ? _previousRawSpeed : 0;
-            InitializeSubtuneProgress(CurrentSubtuneIndex, _playNext);
-        }
 
-        private async Task HandleSeek(Func<int, Task> restartSong, Func<int, Task> playSubtune, TimeSpan targetTime)
+        private async Task HandleSeek(Func<Task> restartSong, Func<int, Task> playSubtune, TimeSpan targetTime)
         {
             if (_currentSong is null || Progress is null) return;
 
@@ -777,7 +773,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     }
                     else 
                     {
-                        await restartSong(CurrentSubtuneIndex);
+                        await restartSong();
                     }
                     if (targetTime <= TimeSpan.Zero || nearlyEndOfSong)
                     {
@@ -797,6 +793,14 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 _currentSeekTargetTime = targetTime;
 
                 if (_muteRandomSeek) await _mute(true, true, true);
+
+                if (PlayButtonEnabled) 
+                {
+                    PlayButtonEnabled = false;
+                    PauseButtonEnabled = true;
+                    _timer?.ResumeTimer();
+                    await _togglePlay();                    
+                }
 
             
                 await _changeSpeed(99, MusicSpeedCurveTypes.Logarithmic);
@@ -990,6 +994,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         private void DisableFastForward(bool resumePreviousSpeed = false)
         {
+            if(FastForwardInProgress is false) return;
+
             PlayButtonEnabled = false;
             PauseButtonEnabled = true;
             FastForwardInProgress = false;
@@ -1084,22 +1090,35 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             _timerCompleteSubscription = _timer?.TimerComplete
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ =>
+                .Subscribe(async _ =>
                 {
-                    if (RepeatModeEnabled) 
+                    if (RepeatModeEnabled)
                     {
-                        if (CurrentSubtuneIndex > 1) 
-                        {
-                            _restartSong(CurrentSubtuneIndex);
-                            RepeatSubtune(_currentSong!);
-                            return;
-                        }
-                        _restartSong(CurrentSubtuneIndex);
-                        DoPlayNext(_currentSong!);
+                        await HandleRepeatMode();
                         return;
-                    }
-                    onNext();
+                    }                    
+                    await onNext();
                 });
+        }
+
+        private async Task HandleRepeatMode()
+        {
+            if (CurrentSubtuneIndex > 1)
+            {
+                await _restartSubtune(CurrentSubtuneIndex);
+                InitializeSubtuneProgress(CurrentSubtuneIndex, _playNext);
+                return;
+            }
+            else 
+            {
+                await _restartSong();
+                InitializeProgress(_playNext, _currentSong);
+            }
+            if (RawSpeedValue != 0)
+            {
+                await Task.Delay(200);
+                await _changeSpeed(RawSpeedValue, SelectedSpeedCurve);
+            }        
         }
 
         private Unit HandleShareCommand() 

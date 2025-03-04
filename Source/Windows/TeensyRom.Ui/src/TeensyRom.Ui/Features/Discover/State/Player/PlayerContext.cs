@@ -767,18 +767,20 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             await _mediator.Send(new SetMusicSpeedCommand(percentage, curveType));
         }
 
-        public async Task RestartSong(int subtuneIndex) 
+        public async Task RestartSong() 
         {
             var launchedFile = _launchedFile.Value.File;
 
             if (launchedFile is null) return;
 
-            if (subtuneIndex == 1) 
-            {
-                await PlayFile(launchedFile);
-                return;
-            }
-            await PlaySubtune(subtuneIndex);
+            await _mediator.Send(new LaunchFileCommand(_settings.StorageType, launchedFile));
+            _playingState.OnNext(PlayState.Playing);
+        }
+
+        public async Task RestartSubtune(int subtuneIndex)
+        {
+            await _mediator.Send(new PlaySubtuneCommand(subtuneIndex));
+            _playingState.OnNext(PlayState.Playing);
         }
     }
 }
