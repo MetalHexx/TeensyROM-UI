@@ -13,12 +13,18 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         public static double GetLogPercentage(this double value)
         {
-            if(value == 0) return 0;
+            if (value == 0) return 0;
 
             var roundedValue = Math.Round(value, 2);
 
-            return Mappings.TryGetValue(roundedValue, out var percentage) ? percentage : throw new ArgumentOutOfRangeException(nameof(value), "Value not mapped.");
+            if (Mappings.TryGetValue(roundedValue, out var percentage))
+                return percentage;
+
+            var closestKey = Mappings.Keys.OrderBy(k => Math.Abs(k - roundedValue)).First();
+
+            return Mappings[closestKey];
         }
+
 
         public static double GetNearestPercentValue(this double currentValue, double percentageStep)
         {
