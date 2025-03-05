@@ -116,7 +116,7 @@ namespace TeensyRom.Core.Music.Midi
                     .Where(ccMapping => ccMapping.Mapping is not null)
                     .Subscribe(ccMapping =>
                     {
-                        Debug.WriteLine($"[MIDI IN --- Device: {ccMapping.Mapping!.Device.Name}Channel: {ccMapping.CCEvent.Channel} CC: {ccMapping.CCEvent.Controller} Value: {ccMapping.CCEvent.ControllerValue}");
+                        //Debug.WriteLine($"[MIDI IN --- Device: {ccMapping.Mapping!.Device.Name}Channel: {ccMapping.CCEvent.Channel} CC: {ccMapping.CCEvent.Controller} Value: {ccMapping.CCEvent.ControllerValue}");
 
                         _midiEvents.OnNext(new MidiEvent
                         (
@@ -151,7 +151,7 @@ namespace TeensyRom.Core.Music.Midi
                    .Where(ccMapping => ccMapping.Mapping is not null)
                    .Subscribe(ccMapping =>
                    {
-                       Debug.WriteLine($"[MIDI IN --- Device: {ccMapping.Mapping!.Device.Name}Channel: {ccMapping.NoteEvent.Channel} Note: {ccMapping.NoteEvent.NoteNumber} {ccMapping.NoteEvent.CommandCode}");
+                       //Debug.WriteLine($"[MIDI IN --- Device: {ccMapping.Mapping!.Device.Name}Channel: {ccMapping.NoteEvent.Channel} Note: {ccMapping.NoteEvent.NoteNumber} {ccMapping.NoteEvent.CommandCode}");
 
                        _midiEvents.OnNext(new MidiEvent
                        (
@@ -302,7 +302,7 @@ namespace TeensyRom.Core.Music.Midi
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error sending MIDI to device {device.Name}: {ex.Message}");
+                    Debug.WriteLine($"Error sending MIDI to device {device.Name}: {ex.Message}");
                 }
             }
         }
@@ -338,7 +338,7 @@ namespace TeensyRom.Core.Music.Midi
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error receiving MIDI from device index {i}: {ex.Message}");
+                    Debug.WriteLine($"Error receiving MIDI from device index {i}: {ex.Message}");
                 }
             }
 
