@@ -42,6 +42,7 @@ namespace TeensyRom.Ui.Core.Progress
         {
             _currentTime = TimeSpan.Zero;
             _length = length;
+            _speedMultiplier = 1;
             TryStopObservables();
             StartObservables(length);
         }
@@ -60,7 +61,9 @@ namespace TeensyRom.Ui.Core.Progress
 
         public void ResetTimer() 
         {
-            StartNewTimer(_length);
+            _currentTime = TimeSpan.Zero;
+            TryStopObservables();
+            StartObservables(_length);
         }
 
         public void UpdateSpeed(double percentage)
