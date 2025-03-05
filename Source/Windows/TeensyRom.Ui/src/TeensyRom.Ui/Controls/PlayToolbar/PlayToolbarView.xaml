@@ -135,6 +135,18 @@
                         materialDesign:TextFieldAssist.PrefixText="Speed Curve"
                         ToolTip="The curve used for the speed control."
                         Margin="30 0 10 0"/>
+                    
+                    <ComboBox
+                        x:Name="SeekSpeedList"
+                        ItemsSource="{Binding SeekSpeedOptions}"
+                        SelectedItem="{Binding SelectedSeekSpeed, Mode=TwoWay}"
+                        IsEnabled="{Binding SetSpeedEnabled}"                    
+                        FontFamily="Arial"
+                        Foreground="{StaticResource PrimaryHueLightBrush}"
+                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource PrimaryHueLightBrush}"
+                        materialDesign:TextFieldAssist.PrefixText="Seek Speed"
+                        ToolTip="The curve used for the speed control."
+                        Margin="10 0 10 0"/>
 
                     <StackPanel IsEnabled="{Binding IsSong}" Orientation="Horizontal" Margin="15 0 0 0">
                         <CheckBox IsChecked="{Binding Voice1Enabled}" Foreground="{StaticResource PrimaryHueLightBrush}">Voice 1</CheckBox>

@@ -4,6 +4,7 @@ using TeensyRom.Core.Serial;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Music;
+using System.Diagnostics;
 
 namespace TeensyRom.Core.Commands.SetMusicSpeed
 {
@@ -20,7 +21,7 @@ namespace TeensyRom.Core.Commands.SetMusicSpeed
         {
             var attemptNumber = 1;
 
-            while (attemptNumber <= 3) 
+            while (attemptNumber <= 5) 
             {
                 try
                 {
@@ -44,15 +45,17 @@ namespace TeensyRom.Core.Commands.SetMusicSpeed
                     _serialState.HandleAck();
                     break;
                 }
-                catch (TeensyException)
+                catch (Exception)
                 {
-                    await Task.Delay(attemptNumber * 100);
+                    Debug.WriteLine($"Caught Exception in SetMusicSpeedHandler.  Attempt: {attemptNumber} Delay: {100}");
+                    await Task.Delay(100);
 
-                    if (attemptNumber == 3) 
+                    if (attemptNumber >= 5) 
                     {
                         throw new TeensyDjException();
                     }
                     attemptNumber++;
+                    _serialState.ClearBuffers();
                     continue;
                 }
             }

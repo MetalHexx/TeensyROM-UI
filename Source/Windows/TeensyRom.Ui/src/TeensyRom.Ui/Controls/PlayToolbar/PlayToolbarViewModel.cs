@@ -28,6 +28,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         Fast,
         Hyper
     }
+
+    public enum SeekSpeed 
+    {
+        Accurate,
+        Insane
+    }
+
     public class PlayToolbarViewModel : ReactiveObject
     {   
         [Reactive] public bool PlayButtonEnabled { get; set; }
@@ -47,6 +54,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [Reactive] public double ActualSpeedPercent { get; set; }
         [Reactive] public List<MusicSpeedCurveTypes> SpeedCurveOptions { get; set; } = [MusicSpeedCurveTypes.Linear, MusicSpeedCurveTypes.Logarithmic];
         [Reactive] public MusicSpeedCurveTypes SelectedSpeedCurve { get; set; } = MusicSpeedCurveTypes.Linear;
+        [Reactive] public List<SeekSpeed> SeekSpeedOptions { get; set; } = [SeekSpeed.Accurate, SeekSpeed.Insane];
+        [Reactive] public SeekSpeed SelectedSeekSpeed { get; set; } = SeekSpeed.Accurate;
         [Reactive] public double MinSpeed { get; set; } = MusicConstants.Linear_Speed_Min;
         [Reactive] public double MaxSpeed { get; set; } = MusicConstants.Linear_Speed_Max;
         [Reactive] public bool Voice1Enabled { get; set; } = true;
@@ -236,16 +245,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Subscribe(_ =>
                 {
                     StopButtonEnabled = false;
-                    PauseButtonEnabled = true;
+                    PauseButtonEnabled = true;                   
                 });
 
             var song = currentFile.OfType<SongItem>().ObserveOn(RxApp.MainThreadScheduler);
             var hexItem = currentFile.OfType<HexItem>().ObserveOn(RxApp.MainThreadScheduler);
             var gameOrImage = currentFile.Where(f => f is GameItem or ImageItem).ObserveOn(RxApp.MainThreadScheduler);
 
-            song.Subscribe(song => _currentSong = song);
+            song.Subscribe(s => _currentSong = s);
 
-            file.Select(file => file is SongItem song && song.SubtuneLengths.Count > 1)
+            song.Select(s => s.SubtuneLengths.Count > 1)
                 .ToPropertyEx(this, vm => vm.SubtunesEnabled);
 
             file.Select(f => f is SongItem)
@@ -273,7 +282,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(lengths => lengths.Count > 1)
                 .ToPropertyEx(this, vm => vm.SubtuneNumberList);
 
-            song.Subscribe(DoPlayNext);
+            song.Subscribe(StartSong);
 
             gameOrImage.Subscribe(item =>
             {
@@ -440,7 +449,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     _timer?.UpdateSpeed(ActualSpeedPercent);
                 })
                 .DistinctUntilChanged()
-                //.Throttle(TimeSpan.FromMilliseconds(100))
                 .ObserveOn(TaskPoolScheduler.Default)
                 .Subscribe(async rawSpeed =>
                 {
@@ -592,7 +600,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     _midiTrackSeekInProgress = true;
                     var newProgressValue = ProgressSliderPercentage + delta;
 
-                    if (newProgressValue > 1) 
+                    if (newProgressValue > 1) //greater than 100% song length, wrap around.
                     {
                         ProgressSliderPercentage = newProgressValue - ProgressSliderPercentage;
                         return;
@@ -744,7 +752,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Subscribe(async buffer => await mute(!Voice1Enabled, !Voice2Enabled, !Voice3Enabled));
         }
 
-        private void DoPlayNext(SongItem item)
+        private void StartSong(SongItem item)
         {
             TimedPlayButtonEnabled = false;
             TimedPlayComboBoxEnabled = false;
@@ -757,13 +765,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         private async Task HandleSeek(Func<Task> restartSong, Func<int, Task> playSubtune, TimeSpan targetTime)
         {
-            if (_currentSong is null || Progress is null) return;
+            if (_currentSong is null || Progress is null || _timer is null) return;
 
             if (targetTime == _currentSeekTargetTime) return;
 
             try
             {
-                var nearlyEndOfSong = targetTime >= Progress.TotalTimeSpan - TimeSpan.FromSeconds(3);  //The subtraction avoids a potential loop.
+                var nearlyEndOfSong = targetTime >= Progress.TotalTimeSpan - TimeSpan.FromMilliseconds(500);  //The subtraction avoids a potential loop.
 
                 if (targetTime < Progress!.CurrentSpan || nearlyEndOfSong)
                 {
@@ -785,9 +793,12 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     _timer?.ResetTimer();
                     await Task.Delay(500);
                 }
-                if (TrackSeekInProgress && targetTime > _currentSeekTargetTime) 
+                if (TrackSeekInProgress) 
                 {
-                    _currentSeekTargetTime = targetTime;
+                    if (targetTime > _currentSeekTargetTime) 
+                    {
+                        _currentSeekTargetTime = targetTime;
+                    }
                     return;
                 }
                 _currentSeekTargetTime = targetTime;
@@ -802,13 +813,14 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     await _togglePlay();                    
                 }
 
-            
-                await _changeSpeed(99, MusicSpeedCurveTypes.Logarithmic);
-            
+                var seekSpeed = SelectedSeekSpeed is SeekSpeed.Accurate
+                ? MusicConstants.Log_Speed_Max_Accurate
+                : MusicConstants.Log_Speed_Max;
 
-                var timeSpeedChange = MusicConstants.Log_Speed_Max.GetLogPercentage();
-                _timer?.UpdateSpeed(timeSpeedChange);            
+                await _changeSpeed(seekSpeed, MusicSpeedCurveTypes.Logarithmic);
+                _timer?.UpdateSpeed(seekSpeed.GetLogPercentage());
                 _midiTrackSeekInProgress = false;
+                TrackSeekInProgress = true;
 
                 _fastForwardTimerSubscription?.Dispose();
 
@@ -816,7 +828,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     try
                     {
-                        if (currentTime >= _currentSeekTargetTime)
+                        if (currentTime >= _currentSeekTargetTime || _currentSeekTargetTime == null)   //TODO: Smell: checking for null here to prevent runaway timer.  Find out why _changeSpeed() threw an Ex to cause the null.
                         {
                             _currentSeekTargetTime = null;
 
@@ -835,7 +847,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     }
                     catch (TeensyDjException)
                     {
-                        await HandleSpeedOverload();
+                        await CancelSeek();
                         return;
                     }
                 });
@@ -843,14 +855,14 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             }
             catch (TeensyDjException)
             {   
-                await HandleSpeedOverload();
+                await CancelSeek();
                 return;
             }
         }
 
-        private async Task HandleSpeedOverload()
+        private async Task CancelSeek()
         {   
-            _alert.Publish("Slow down a bit with the speed and voice changes, you fiend! ;)");
+            _alert.Publish("Seek Overload: Slow down a bit.");
             _currentSeekTargetTime = null;
             _fastForwardTimerSubscription?.Dispose();
             await Task.Delay(200);
@@ -981,7 +993,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                 case FastForwardSpeed.Fast:
                     FastForwardSpeed = FastForwardSpeed.Hyper;
-                    RawSpeedValue = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear ? 125 : 96;
+                    RawSpeedValue = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear ? MusicConstants.Linear_Speed_Max : MusicConstants.Log_Speed_Max_Accurate;
                     if (_muteFastForward) _mute(true, true, true);
                     return;
 
@@ -1105,13 +1117,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         {
             if (CurrentSubtuneIndex > 1)
             {
-                await _restartSubtune(CurrentSubtuneIndex);
                 InitializeSubtuneProgress(CurrentSubtuneIndex, _playNext);
                 return;
             }
             else 
             {
-                await _restartSong();
                 InitializeProgress(_playNext, _currentSong);
             }
             if (RawSpeedValue != 0)
