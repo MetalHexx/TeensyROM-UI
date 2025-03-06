@@ -18,7 +18,7 @@ namespace TeensyRom.Core.Music
         public const double Linear_Speed_Max = 127;
         public const double Log_Speed_Min = -127;
         public const double Log_Speed_Max = 99;
-        public const double Log_Speed_Max_Accurate = 93;
+        public const double Log_Speed_Max_Accurate = 90;
         public const double Log_Speed_Max_Percentage = 10000.98;
     }
 }
