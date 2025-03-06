@@ -769,6 +769,20 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             if (targetTime == _currentSeekTargetTime) return;
 
+            if (TrackSeekInProgress)
+            {
+                await CancelSeek();
+            }
+
+            var isPaused = false;
+
+            if (PlayButtonEnabled) 
+            {
+                isPaused = true;
+            }
+            PlayButtonEnabled = true;
+            PauseButtonEnabled = false;
+
             try
             {
                 var nearlyEndOfSong = targetTime >= Progress.TotalTimeSpan - TimeSpan.FromMilliseconds(500);  //The subtraction avoids a potential loop.
@@ -793,19 +807,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     _timer?.ResetTimer();
                     await Task.Delay(500);
                 }
-                if (TrackSeekInProgress) 
-                {
-                    if (targetTime > _currentSeekTargetTime) 
-                    {
-                        _currentSeekTargetTime = targetTime;
-                    }
-                    return;
-                }
                 _currentSeekTargetTime = targetTime;
 
                 if (_muteRandomSeek) await _mute(true, true, true);
 
-                if (PlayButtonEnabled) 
+                if (isPaused) 
                 {
                     PlayButtonEnabled = false;
                     PauseButtonEnabled = true;
@@ -830,19 +836,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     {
                         if (currentTime >= _currentSeekTargetTime || _currentSeekTargetTime == null)   //TODO: Smell: checking for null here to prevent runaway timer.  Find out why _changeSpeed() threw an Ex to cause the null.
                         {
-                            _currentSeekTargetTime = null;
-
-                            _originalSpeed = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear
-                                ? Math.Round(RawSpeedValue, 2)
-                                : RawSpeedValue.GetLogPercentage();
-
-                            _timer?.UpdateSpeed(_originalSpeed);
-                            TrackSeekInProgress = false;
-                            await _changeSpeed(_originalSpeed, SelectedSpeedCurve);
-
-                            if (_muteRandomSeek) await _mute(false, false, false);
-
-                            _fastForwardTimerSubscription?.Dispose();
+                            await CancelSeek();
                         }
                     }
                     catch (TeensyDjException)
@@ -851,7 +845,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                         return;
                     }
                 });
-
             }
             catch (TeensyDjException)
             {   
@@ -861,14 +854,29 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         }
 
         private async Task CancelSeek()
-        {   
-            _alert.Publish("Seek Overload: Slow down a bit.");
-            _currentSeekTargetTime = null;
-            _fastForwardTimerSubscription?.Dispose();
-            await Task.Delay(200);
-            _timer?.UpdateSpeed(_originalSpeed);
-            await _changeSpeed(_originalSpeed, SelectedSpeedCurve);
-            TrackSeekInProgress = false;
+        {
+            try
+            {
+                _currentSeekTargetTime = null;
+                _fastForwardTimerSubscription?.Dispose();
+
+                var originalSpeed = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear
+                    ? Math.Round(RawSpeedValue, 2)
+                    : RawSpeedValue.GetLogPercentage();
+
+                _timer?.UpdateSpeed(_originalSpeed);
+                RawSpeedValue = _originalSpeed;
+                await _changeSpeed(_originalSpeed, SelectedSpeedCurve);
+                TrackSeekInProgress = false;
+                PlayButtonEnabled = false;
+                PauseButtonEnabled = true;
+                if (_muteFastForward) await _mute(false, false, false);
+            }
+            catch (Exception)
+            {
+                //swallow the exception.  Not much we can do.  This could be a problemmatic SID.
+                _alert.Publish("This SID might be incompatible with DJ functions");
+            }
         }
 
         private void HandleHomeSpeed()
@@ -945,6 +953,10 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             {
                 DisableFastForward(true);
                 return Task.CompletedTask;
+            }
+            if (TrackSeekInProgress)
+            {
+                return CancelSeek();
             }
             if (PlayButtonEnabled) _timer?.ResumeTimer();
             if (PauseButtonEnabled) _timer?.PauseTimer();
