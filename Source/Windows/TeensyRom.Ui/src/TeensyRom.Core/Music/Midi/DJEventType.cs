@@ -21,6 +21,7 @@
         Voice1Kill,
         Voice2Kill,
         Voice3Kill,
-        Mode
+        Mode,
+        Restart
     }
 }

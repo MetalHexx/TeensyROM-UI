@@ -115,7 +115,8 @@ namespace TeensyRom.Ui.Features.Discover
                 player.Mute,
                 player.SetScope,                
                 alert,
-                midiService
+                midiService,
+                settingsService
             );
 
             DirectoryList = new DirectoryListViewModel

@@ -105,6 +105,12 @@
             DJEventType = DJEventType.Mode,
         };
 
+        public MidiMapping Restart { get; set; } = new()
+        {
+            MidiEventType = MidiEventType.NoteOn,
+            DJEventType = DJEventType.Restart,
+        };
+
         public bool SnapToSpeed { get; set; } = false;
         public bool SnapToSeek { get; set; } = false;
     }

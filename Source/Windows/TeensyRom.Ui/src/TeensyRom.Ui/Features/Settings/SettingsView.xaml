@@ -33,6 +33,7 @@
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="80"></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -997,7 +998,7 @@
 
 </StackPanel>
                 
-                                 <Label Grid.Column="4" Grid.Row="20"  HorizontalAlignment="Right" ToolTip="Next Song.">Next:</Label>
+<Label Grid.Column="4" Grid.Row="20"  HorizontalAlignment="Right" ToolTip="Next Song.">Next:</Label>
 
 <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="20">
 
@@ -1042,8 +1043,54 @@
     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.Next}">Clear</Button>
 
 </StackPanel>
+                
+<Label Grid.Column="4" Grid.Row="21"  HorizontalAlignment="Right" ToolTip="Restarts the current song.">Restart Song:</Label>
+                
+<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="21">
 
-                <StackPanel Grid.Row="25" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
+    <ComboBox                
+        ItemsSource="{Binding AvailableDevices}"
+        SelectedItem="{Binding MidiSettings.Restart.Device, Mode=TwoWay}" 
+        SelectedValuePath="Name"
+        DisplayMemberPath="Name"
+        FontFamily="Arial"
+        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+        materialDesign:HintAssist.HelperTextFontSize="12"
+        ToolTip="Select a MIDI device to map restart to." 
+        materialDesign:HintAssist.Hint="Midi Device"
+        Width="150"
+        Margin="0 -3 0 0"/>
+
+    <Label Margin="10 0 0 0">Channel:</Label>
+
+    <ComboBox                
+        ItemsSource="{Binding MidiChannels}"
+        SelectedItem="{Binding MidiSettings.Restart.MidiChannel, Mode=TwoWay}" 
+        FontFamily="Arial"
+        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+        materialDesign:HintAssist.HelperTextFontSize="12"
+        ToolTip="Select a MIDI Channel to map restart to." 
+        Width="50"
+        Margin="10 -3 0 0"/>
+
+    <Label Margin="10 0 0 0">Note:</Label>
+
+    <ComboBox                
+        ItemsSource="{Binding PossibleNoteOrCCValues}"
+        SelectedItem="{Binding MidiSettings.Restart.Value, Mode=TwoWay}" 
+        FontFamily="Arial"
+        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+        materialDesign:HintAssist.HelperTextFontSize="12"
+        ToolTip="Select a MIDI note # to map restart to." 
+        Width="50"
+        Margin="10 -3 0 0"/>
+
+    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding MidiSettings.Restart}">Bind</Button>
+    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding MidiSettings.Restart}">Clear</Button>
+
+</StackPanel>
+
+                <StackPanel Grid.Row="26" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
                     <Button             
                         ToolTip="This will save your settings to disk."
                         Content="Save Settings"  

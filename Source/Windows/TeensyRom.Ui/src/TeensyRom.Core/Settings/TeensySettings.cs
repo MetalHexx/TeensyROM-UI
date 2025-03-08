@@ -47,6 +47,7 @@ namespace TeensyRom.Core.Settings
         public bool MuteFastForward { get; set; } = false;
         public bool MuteRandomSeek { get; set; } = false;
         public bool FirstTimeSetup { get; set; } = true;
+        public int NudgeAmount { get; set; } = 5;
         public string? DefaultComPort { get; set; }
         public string? DefaultMinimalComPort { get; set; }
         public MidiSettings MidiSettings { get; set; } = new();
