@@ -20,5 +20,6 @@
         DefaultSpeed,
         FastForward,
         DisengageFocus,
+        Restart
     }
 }

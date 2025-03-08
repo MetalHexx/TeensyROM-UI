@@ -133,6 +133,7 @@ namespace TeensyRom.Ui.Main
                 Key.PageDown when IsCtrlPressed() => KeyboardShortcut.DecreaseSpeed10,
                 Key.PageUp => KeyboardShortcut.IncreaseSpeed1,
                 Key.PageDown => KeyboardShortcut.DecreaseSpeed1,
+                Key.Home => KeyboardShortcut.Restart,
                 //Key.Up => KeyboardShortcut.IncreaseSpeed10,
                 //Key.Down => KeyboardShortcut.DecreaseSpeed10,
                 //Key.Left => KeyboardShortcut.DecreaseSpeed1,
@@ -158,7 +159,8 @@ namespace TeensyRom.Ui.Main
 
             var ignoreTypingKeys = (Keyboard.FocusedElement is TextBox)
                 && (e.Key == Key.Delete
-                    ||shortcut == KeyboardShortcut.Voice1Toggle
+                    || shortcut == KeyboardShortcut.Restart
+                    || shortcut == KeyboardShortcut.Voice1Toggle
                     || shortcut == KeyboardShortcut.Voice2Toggle
                     || shortcut == KeyboardShortcut.Voice3Toggle
                     || shortcut == KeyboardShortcut.IncreaseSpeedFine
@@ -206,6 +208,9 @@ namespace TeensyRom.Ui.Main
                     return;
                 case KeyboardShortcut.FastForward:
                     MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.FastForwardKeyPressed);
+                    return;
+                case KeyboardShortcut.Restart:
+                    MessageBus.Current.SendMessage(shortcut.Value, MessageBusConstants.RestartKeyPressed);
                     return;
             }
         }
