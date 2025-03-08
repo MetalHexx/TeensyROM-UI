@@ -34,6 +34,7 @@
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="80"></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -398,7 +399,7 @@
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="7"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song forward for a brief burst to assist with beat matching.">Nudge Forward 10%:</Label>
+                <Label Grid.Column="4" Grid.Row="7"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song forward for a brief burst to assist with beat matching.  Will remain engaged if you hold the note.">Nudge Forward 5%:</Label>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="7">
 
@@ -445,7 +446,7 @@
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="8"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song backward for a brief burst to assist with beat matching.">Nudge Backward 10%:</Label>
+                <Label Grid.Column="4" Grid.Row="8"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song backward for a brief burst to assist with beat matching.  Will remain engaged if you hold the note.">Nudge Backward 5%:</Label>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="8">
 
