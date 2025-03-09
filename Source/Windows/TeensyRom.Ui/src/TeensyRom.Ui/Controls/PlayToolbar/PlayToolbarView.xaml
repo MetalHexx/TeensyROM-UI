@@ -353,6 +353,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel 
@@ -448,9 +449,20 @@
                     Margin="5 10 5 5">
                     <materialDesign:PackIcon Kind="Share" Margin="0 0 0 3"/>
                 </Button>
-
+                
                 <Button
                     Grid.Column="8"
+                    x:Name="PlaylistButton"
+                    Command="{Binding PlaylistCommand}"                      
+                    ToolTip="Adds the current file to one or more playlists."
+                    Style="{StaticResource StorageIconButton}"
+                    Padding="0"
+                    Margin="5 10 5 5">
+                    <materialDesign:PackIcon Kind="PlaylistAdd"/>
+                </Button>
+
+                <Button
+                    Grid.Column="9"
                     x:Name="FavoriteButton"
                     Command="{Binding FavoriteCommand}"  
                     Visibility="{Binding File.IsFavorite, Converter={StaticResource InverseBooleanToVisibilityConverter}, Mode=OneWay}"
@@ -462,7 +474,7 @@
                 </Button>
 
                 <Button
-                    Grid.Column="8"
+                    Grid.Column="10"
                     x:Name="RemoveFavoriteButton"
                     Command="{Binding RemoveFavoriteCommand}"  
                     Visibility="{Binding File.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"

@@ -31,6 +31,7 @@ using TeensyRom.Ui.Core.Progress;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Music.Midi;
+using TeensyRom.Ui.Controls.Playlist;
 
 namespace TeensyRom.Ui.Features.Discover
 {
@@ -57,7 +58,7 @@ namespace TeensyRom.Ui.Features.Discover
 
         private TeensySettings _settings = null!;
 
-        public DiscoverViewModel(IPlayerContext player, ISerialStateContext serial, IDialogService dialog, IAlertService alert, IProgressService progress, ISettingsService settingsService, INavigationService nav, IGameMetadataService metadata, IProgressTimer? timer, IMidiService midiService)
+        public DiscoverViewModel(IPlayerContext player, ISerialStateContext serial, IDialogService dialog, IAlertService alert, IProgressService progress, ISettingsService settingsService, INavigationService nav, IGameMetadataService metadata, IProgressTimer? timer, IMidiService midiService, IPlaylistDialogService playlist)
         {
             Title = new FeatureTitleViewModel("Discover");
             FileInfo = new FileInfoViewModel(player, metadata);
@@ -116,7 +117,8 @@ namespace TeensyRom.Ui.Features.Discover
                 player.SetScope,                
                 alert,
                 midiService,
-                settingsService
+                settingsService,
+                playlist
             );
 
             DirectoryList = new DirectoryListViewModel

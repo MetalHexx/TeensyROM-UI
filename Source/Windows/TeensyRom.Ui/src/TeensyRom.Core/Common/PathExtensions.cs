@@ -1,4 +1,6 @@
-﻿namespace TeensyRom.Core.Common
+﻿using System.Text.RegularExpressions;
+
+namespace TeensyRom.Core.Common
 {
     public static class PathExtensions
     {
@@ -152,6 +154,21 @@
                 }
             }
             return -1;
+        }
+
+        public static bool IsSafeUnixDirectoryName(this string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return false;
+
+            string forbiddenPattern = @"[\0:*?""<>|;&$`'\\]";
+
+            if (Regex.IsMatch(name, forbiddenPattern) || name.StartsWith("-"))
+                return false;
+
+            if (name == "." || name == "..")
+                return false;
+
+            return true;
         }
     }
 }

@@ -7,6 +7,8 @@ namespace TeensyRom.Core.Storage.Services
     public interface ICachedStorageService: IDisposable
     {
         IObservable<IEnumerable<IFileItem>> FilesAdded { get; }
+        IObservable<IEnumerable<IFileItem>> FilesCopied { get; }
+
         void ClearCache();
         void ClearCache(string path);
         Task<StorageCacheItem?> GetDirectory(string path);
@@ -19,5 +21,6 @@ namespace TeensyRom.Core.Storage.Services
         void MarkIncompatible(ILaunchableItem launchItem);
         IEnumerable<ILaunchableItem> Search(string searchText, params TeensyFileType[] fileTypes);
         Task RemoveFavorite(ILaunchableItem file);
+        Task CopyFiles(List<CopyFileItem> fileItems);
     }
 }

@@ -18,6 +18,7 @@ using TeensyRom.Ui.Services;
 using TeensyRom.Ui.Main;
 using TeensyRom.Core.Music.Midi;
 using TeensyRom.Core.Settings;
+using TeensyRom.Ui.Controls.Playlist;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -102,6 +103,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<Unit, Unit> PreviousSubtuneCommand { get; set; }
         public ReactiveCommand<double, Unit> TrackTimeChangedCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PauseTimerCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> PlaylistCommand { get; set; }
 
         private readonly IAlertService _alert;
         private IProgressTimer? _timer;
@@ -149,7 +151,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             Action<StorageScope> setScope,
             IAlertService alert, 
             IMidiService midiService,
-            ISettingsService settingsService)
+            ISettingsService settingsService,
+            IPlaylistDialogService playlist)
         {
             _timer = timer;
             _changeSpeed = changeSpeed;
@@ -424,6 +427,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 TimeSpan targetTime = Progress!.TotalTimeSpan.GetTimeFromPercent(targetPercent);
 
                 await HandleSeek(restartSong, playSubtune, targetTime);
+            });
+
+            PlaylistCommand = ReactiveCommand.CreateFromTask(async () =>
+            {
+                await playlist.ShowDialog(File!);
             });
 
             this.WhenAnyValue(x => x.SelectedSpeedCurve)

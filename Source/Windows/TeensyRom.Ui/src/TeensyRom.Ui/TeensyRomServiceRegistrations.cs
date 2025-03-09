@@ -33,6 +33,7 @@ using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Core.Storage.Tools.Zip;
 using TeensyRom.Core.Music.Midi;
+using TeensyRom.Ui.Controls.Playlist;
 
 namespace TeensyRom.Ui
 {
@@ -69,6 +70,8 @@ namespace TeensyRom.Ui
             services.AddSingleton<SettingsViewModel>();
             services.AddSingleton<HelpViewModel>();
             services.AddSingleton<DiscoverViewModel>();
+            services.AddSingleton<PlaylistViewModel>();
+            services.AddSingleton<IPlaylistDialogService, PlaylistDialogService>();
             services.AddSingleton<ISerialCommandViewModel, SerialCommandViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            
