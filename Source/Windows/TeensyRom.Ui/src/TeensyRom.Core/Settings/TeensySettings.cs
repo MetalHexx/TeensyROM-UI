@@ -4,6 +4,7 @@ using System.Runtime;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Music.Midi;
 using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Storage.Services;
 
 namespace TeensyRom.Core.Settings
 {
@@ -203,7 +204,7 @@ namespace TeensyRom.Core.Settings
                 .FirstOrDefault(FileTargets => FileTargets.Type == type)?.Extension
                 .RemoveFirstOccurrence(".")
 
-                ?? throw new TeensyException($"Unsupported file type: {type}");
+                ?? string.Empty;
         }
 
         public TeensyFilter GetStartupFilter() => FileFilters.First(f => f.Type == StartupFilter);
@@ -214,21 +215,32 @@ namespace TeensyRom.Core.Settings
         {
             return type switch
             {
-                TeensyFileType.Sid => "/favorites/music",
-                TeensyFileType.Prg => "/favorites/games",
-                TeensyFileType.P00 => "/favorites/games",
-                TeensyFileType.Crt => "/favorites/games",
-                TeensyFileType.Txt => "/favorites/text",
-                TeensyFileType.Seq => "/favorites/images",
-                TeensyFileType.Kla => "/favorites/images",
-                TeensyFileType.Koa => "/favorites/images",
-                TeensyFileType.Art => "/favorites/images",
-                TeensyFileType.Aas => "/favorites/images",
-                TeensyFileType.Hpi => "/favorites/images",
+                TeensyFileType.Sid => $"{StorageConstants.Favorites_Path}music",
+                TeensyFileType.Prg => $"{StorageConstants.Favorites_Path}games",
+                TeensyFileType.P00 => $"{StorageConstants.Favorites_Path}games",
+                TeensyFileType.Crt => $"{StorageConstants.Favorites_Path}games",
+                TeensyFileType.Txt => $"{StorageConstants.Favorites_Path}text",
+                TeensyFileType.Seq => $"{StorageConstants.Favorites_Path}images",
+                TeensyFileType.Kla => $"{StorageConstants.Favorites_Path}images",
+                TeensyFileType.Koa => $"{StorageConstants.Favorites_Path}images",
+                TeensyFileType.Art => $"{StorageConstants.Favorites_Path}images",
+                TeensyFileType.Aas => $"{StorageConstants.Favorites_Path}images",
+                TeensyFileType.Hpi => $"{StorageConstants.Favorites_Path}images",
                 TeensyFileType.Hex => "/firmware",
 
-                _ => "/favorites/unknown"
+                _ => $"{StorageConstants.Favorites_Path}unknown"
             };
+        }
+
+        public List<string> GetAllFavoritePaths()
+        {
+            return
+            [
+                $"{StorageConstants.Favorites_Path}music",
+                $"{StorageConstants.Favorites_Path}games",
+                $"{StorageConstants.Favorites_Path}text",
+                $"{StorageConstants.Favorites_Path}images"
+            ];
         }
 
         public string GetAutoTransferPath(TeensyFileType type)

@@ -21,6 +21,9 @@ namespace TeensyRom.Core.Storage.Services
         public IObservable<IEnumerable<IFileItem>> FilesAdded => _filesAdded.AsObservable();
         private Subject<IEnumerable<IFileItem>> _filesAdded = new();
 
+        public IObservable<IEnumerable<IFileItem>> FilesCopied => _filesCopied.AsObservable();
+        private Subject<IEnumerable<IFileItem>> _filesCopied = new();
+
         protected readonly ISettingsService _settingsService;
         private readonly IGameMetadataService _gameMetadata;
         private readonly ISidMetadataService _sidMetadata;
@@ -94,15 +97,7 @@ namespace TeensyRom.Core.Storage.Services
             _alert.Publish($"{launchItem.Name} has been tagged as a favorite.");
             _alert.Publish($"A copy was placed in {favPath}.");
 
-            var favItem = launchItem switch
-            {
-                SongItem s => s.Clone(),
-                GameItem g => g.Clone(),
-                HexItem h => h.Clone(),
-                ImageItem image => image.Clone(),
-                FileItem f => f.Clone(),                
-                _ => throw new TeensyException("Unknown file type")
-            };
+            var favItem = CloneToFileItem(launchItem);
 
             if (!favoriteResult.IsSuccess) return null;
 
@@ -543,6 +538,54 @@ namespace TeensyRom.Core.Storage.Services
                 Directories = filteredDirectories.ToList(),
                 Files = filteredFiles.ToList()
             };
+        }
+
+        public async Task CopyFiles(List<CopyFileItem> fileItems)
+        {
+            List<CopyFileResult> results = [];
+            List<IFileItem> filesAdded = [];
+
+            foreach (var item in fileItems)
+            {
+                var targetFullPath = item.TargetPath.UnixPathCombine(item.SourceItem.Path.GetFileNameFromPath());
+
+                var copyItem = new CopyFileCommand
+                (
+                    storageType: _settings.StorageType,
+                    sourcePath: item.SourceItem.Path,
+                    destPath: targetFullPath
+                );
+                var result = await _mediator.Send(copyItem);
+                results.Add(result);
+                var cloned = CloneToFileItem(item.SourceItem);
+                cloned.Path = targetFullPath;
+                cloned.FavParentPath = item.TargetPath;
+                _storageCache.UpsertFile(cloned);
+                filesAdded.Add(cloned);
+            }
+            if (results.Any(r => r.IsSuccess is false))
+            {
+                _alert.Publish($"There was an error copying files.");
+                return;
+            }
+            _alert.Publish($"File(s) have been copied successfully.");            
+
+            SaveCacheToDisk();
+            _filesCopied.OnNext(filesAdded);
+        }
+
+        public FileItem CloneToFileItem(ILaunchableItem launchItem)
+        {
+            var clone = launchItem switch
+            {
+                SongItem s => s.Clone(),
+                GameItem g => g.Clone(),
+                HexItem h => h.Clone(),
+                ImageItem image => image.Clone(),
+                FileItem f => f.Clone(),
+                _ => throw new TeensyException("Unknown file type")
+            };
+            return clone;
         }
     }
 }

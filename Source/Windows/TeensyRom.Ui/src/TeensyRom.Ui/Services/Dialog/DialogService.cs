@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows;
 using TeensyRom.Ui.Features.Common.Models;
 using System;
+using TeensyRom.Ui.Helpers;
 
 namespace TeensyRom.Ui.Services
 {
@@ -22,7 +23,7 @@ namespace TeensyRom.Ui.Services
                 ContentTemplate = (DataTemplate)Application.Current.Resources["ConfirmationDialogTemplate"]
             };
 
-            var result = await MaterialDesignThemes.Wpf.DialogHost.Show(view, "RootDialog");
+            var result = await MaterialDesignThemes.Wpf.DialogHost.Show(view, UiConstants.RootDialog);
 
             if (result is string resultString)
             {
@@ -39,12 +40,12 @@ namespace TeensyRom.Ui.Services
                 Content = noCloseDialogViewModel,
                 ContentTemplate = (DataTemplate)Application.Current.Resources["NoCloseDialogTemplate"]
             };
-            MaterialDesignThemes.Wpf.DialogHost.Show(view, "RootDialog");
+            MaterialDesignThemes.Wpf.DialogHost.Show(view, UiConstants.RootDialog);
         }
 
         public void HideNoClose()
         {
-            MaterialDesignThemes.Wpf.DialogHost.Close("RootDialog");
+            MaterialDesignThemes.Wpf.DialogHost.Close(UiConstants.RootDialog);
         }
     }
 }
