@@ -194,7 +194,10 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                         }
                     }
                 }
-                await LoadDirectory(_directoryState.Value.CurrentPath);
+                if (_currentState.Value is not SearchState) 
+                {
+                    await LoadDirectory(_directoryState.Value.CurrentPath);
+                }
             });
         }
 
