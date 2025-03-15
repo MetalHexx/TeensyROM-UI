@@ -193,6 +193,7 @@
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Ch"
                         ToolTip="Select a MIDI channel to map speed to." 
                         Width="50"
                         Margin="10 -3 0 0"/>
@@ -239,6 +240,7 @@
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Ch"
                         ToolTip="Select a MIDI channel to map speed to." 
                         Width="50"
                         Margin="10 -3 0 0"/>
@@ -285,6 +287,7 @@
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Ch"
                         ToolTip="Select a MIDI channel to map the +50% speed toggle to." 
                         Width="50"
                         Margin="10 -3 0 0"/>
@@ -331,6 +334,7 @@
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Ch"
                         ToolTip="Select a MIDI channel to map the -50% speed toggle to." 
                         Width="50"
                         Margin="10 -3 0 0"/>
@@ -378,7 +382,7 @@
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
                         ToolTip="Select a MIDI channel to map the home toggle to." 
-                        materialDesign:HintAssist.Hint="Channel"
+                        materialDesign:HintAssist.Hint="Ch"
                         Width="50"
                         Margin="10 -3 0 0"/>
 
@@ -425,7 +429,7 @@
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
                         ToolTip="Select a MIDI channel to map the nudge forward to." 
-                        materialDesign:HintAssist.Hint="Channel"
+                        materialDesign:HintAssist.Hint="Ch"
                         Width="50"
                         Margin="10 -3 0 0"/>
 
@@ -472,7 +476,7 @@
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
                         ToolTip="Select a MIDI channel to map the nudge backward to." 
-                        materialDesign:HintAssist.Hint="Channel"
+                        materialDesign:HintAssist.Hint="Ch"
                         Width="50"
                         Margin="10 -3 0 0"/>
 
@@ -519,6 +523,7 @@
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Ch"
                         ToolTip="Select a MIDI channel to map the voice 1 toggle to." 
                         Width="50"
                         Margin="10 -3 0 0"/>
@@ -565,6 +570,7 @@
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Ch"
                         ToolTip="Select a MIDI channel to map the voice 2 toggle to." 
                         Width="50"
                         Margin="10 -3 0 0"/>
@@ -611,6 +617,7 @@
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Ch"
                         ToolTip="Select a MIDI Channel to map the voice 3 toggle to." 
                         Width="50"
                         Margin="10 -3 0 0"/>
@@ -656,6 +663,7 @@
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
         materialDesign:HintAssist.HelperTextFontSize="12"
+        materialDesign:HintAssist.Hint="Ch"
         ToolTip="Select a MIDI channel to map the voice 1 kill to." 
         Width="50"
         Margin="10 -3 0 0"/>
@@ -702,6 +710,7 @@
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
         materialDesign:HintAssist.HelperTextFontSize="12"
+        materialDesign:HintAssist.Hint="Ch"
         ToolTip="Select a MIDI channel to map the voice 2 kill to." 
         Width="50"
         Margin="10 -3 0 0"/>
@@ -748,6 +757,7 @@
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
         materialDesign:HintAssist.HelperTextFontSize="12"
+        materialDesign:HintAssist.Hint="Ch"
         ToolTip="Select a MIDI Channel to map the voice 3 kill to." 
         Width="50"
         Margin="10 -3 0 0"/>
@@ -794,6 +804,7 @@
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Ch"
                         ToolTip="Select a MIDI Channel to map seek to." 
                         Width="50"
                         Margin="10 -3 0 0"/>
@@ -840,6 +851,7 @@
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Ch"
                         ToolTip="Select a MIDI Channel to map mode to." 
                         Width="50"
                         Margin="10 -3 0 0"/>
@@ -886,6 +898,7 @@
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
+                        materialDesign:HintAssist.Hint="Ch"
                         ToolTip="Select a MIDI Channel to map play / pause to." 
                         Width="50"
                         Margin="10 -3 0 0"/>
@@ -932,6 +945,7 @@
                        FontFamily="Arial"
                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                        materialDesign:HintAssist.HelperTextFontSize="12"
+                       materialDesign:HintAssist.Hint="Ch"
                        ToolTip="Select a MIDI Channel to map fast forward to." 
                        Width="50"
                        Margin="10 -3 0 0"/>
@@ -978,6 +992,7 @@
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
         materialDesign:HintAssist.HelperTextFontSize="12"
+        materialDesign:HintAssist.Hint="Ch"
         ToolTip="Select a MIDI Channel to map previous to." 
         Width="50"
         Margin="10 -3 0 0"/>
@@ -1024,6 +1039,7 @@
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
         materialDesign:HintAssist.HelperTextFontSize="12"
+        materialDesign:HintAssist.Hint="Ch"
         ToolTip="Select a MIDI Channel to map next to." 
         Width="50"
         Margin="10 -3 0 0"/>
@@ -1070,6 +1086,7 @@
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
         materialDesign:HintAssist.HelperTextFontSize="12"
+        materialDesign:HintAssist.Hint="Ch"
         ToolTip="Select a MIDI Channel to map restart to." 
         Width="50"
         Margin="10 -3 0 0"/>
