@@ -1,26 +1,23 @@
-﻿using System.Drawing;
-using System.Reactive.Linq;
+﻿using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Text;
 using TeensyRom.Core.Common;
-using TeensyRom.Core.Games;
 
 namespace TeensyRom.Core.Logging
 {
     public class LoggingService : ILoggingService
     {
+        public string _uniqueLogId = FileHelper.GetFileDateTimeStamp(DateTime.Now);
         public IObservable<string> Logs => _logs.AsObservable();
         protected Subject<string> _logs = new();
 
-        private string _logPath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), LogConstants.LogPath);
+        private string _logPath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), LogConstants.LogPath, $"{LogConstants.LogFileName}{_uniqueLogId}{LogConstants.LogFileExtention}");
 
         public LoggingService()
         {
-            if(File.Exists(_logPath))
-            {
-                File.Delete(_logPath);
-            } 
+            DeleteLogs();
+             
             if(!Directory.Exists(Path.GetDirectoryName(_logPath)))
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(_logPath)!);
@@ -52,5 +49,11 @@ namespace TeensyRom.Core.Logging
         public void External(string message) => Log($"[TR]: {message}", LogConstants.ExternalColor);
         public void ExternalSuccess(string message) => Log($"[TR]: {message}", LogConstants.ExternalSuccessColor);
         public void ExternalError(string message) => Log($"[TR]: {message}", LogConstants.ExternalErrorColor);
+
+        private void DeleteLogs() 
+        {
+            var directory = Path.Combine(Assembly.GetExecutingAssembly().GetPath(), LogConstants.LogPath);
+            FileHelper.DeleteFilesOlderThan(DateTime.Now.Subtract(TimeSpan.FromDays(7)), directory);
+        }
     }
 }
