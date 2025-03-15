@@ -3,9 +3,39 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TeensyRom.Core.Music.Midi;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui.Features.Settings
 {
+    public class KnownCartViewModel
+    {
+        public string DeviceHash { get; set; } = string.Empty;
+        public string PnpDeviceId { get; set; } = string.Empty;
+        public string ComPort { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        [Reactive] public MidiSettingsViewModel MidiSettings { get; set; }
+        public KnownCartViewModel(KnownCart cart)
+        {
+            DeviceHash = cart.DeviceHash;
+            PnpDeviceId = cart.PnpDeviceId;
+            ComPort = cart.ComPort;
+            Name = cart.Name;
+            MidiSettings = new MidiSettingsViewModel(cart.MidiSettings ?? new());
+        }
+        public KnownCartViewModel(KnownCartViewModel cart, List<MidiDeviceViewModel> devices)
+        {
+            DeviceHash = cart.DeviceHash;
+            PnpDeviceId = cart.PnpDeviceId;
+            ComPort = cart.ComPort;
+            Name = cart.Name;
+            MidiSettings = new MidiSettingsViewModel(cart.MidiSettings, devices);
+        }
+
+        public KnownCart ToKnownCart()
+        {
+            return new KnownCart(DeviceHash, PnpDeviceId, ComPort, Name, MidiSettings.ToMidiSettings());
+        }
+    }
     public class MidiSettingsViewModel
     {
         [Reactive] public MidiMappingViewModel PlayPause { get; set; }

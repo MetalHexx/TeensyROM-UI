@@ -1,15 +1,8 @@
-﻿using NAudio.Midi;
-using System;
-using System.Collections.Generic;
+﻿using NAudio;
+using NAudio.Midi;
 using System.Diagnostics;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
 
@@ -35,14 +28,13 @@ namespace TeensyRom.Core.Music.Midi
             _log = log;
 
             _settingsService.Settings
-                .Select(s => s.MidiSettings)
+                .Where(s => s.LastCart is not null && s.LastCart.MidiSettings is not null)
+                .Select(s => s.LastCart!.MidiSettings)
                 .Subscribe(EngageMidi);
         }
 
-        public void EngageMidi(MidiSettings? midiSettings)
-        {
-            midiSettings ??= _settingsService.GetSettings().MidiSettings;
-
+        public void EngageMidi(MidiSettings midiSettings)
+        { 
             DisengageMidi();
 
             var devices = GetMidiDevices().ToDictionary(d => d.Name);
@@ -54,10 +46,16 @@ namespace TeensyRom.Core.Music.Midi
                 .Where(mapping => mapping.IsEnabled);
 
             _registeredMappings = mappings
-                .Where(m => devices.Any(d => d.Value.Name == m.Device.Name))
+                .Where(m => devices.Any(d => d.Value.Name == m.Device.Name || m.Device.ProductName == d.Value.ProductName))
                 .Select(m =>
                 {
-                    m.Device.Id = devices[m.Device.Name].Id;
+                    var device = devices[m.Device.Name];
+
+                    if(device is null)
+                    {
+                        device = devices[m.Device.ProductName];
+                    }
+                    m.Device.Id = device.Id;
                     return m;
                 })
                 .ToList();
@@ -70,6 +68,7 @@ namespace TeensyRom.Core.Music.Midi
 
             var missingDevices = mappings
                 .Where(m => !devices.ContainsKey(m.Device.Name))
+                .Where(m => !string.IsNullOrWhiteSpace(m.Device.Name))
                 .Distinct()
                 .ToList();
 
@@ -91,7 +90,9 @@ namespace TeensyRom.Core.Music.Midi
 
             foreach (var device in _registeredDevices)
             {
-                var midiIn = new MidiIn(device.Id);
+                var midiIn = TryGetMidiIn(device.Id);
+
+                if (midiIn is null) continue;
 
                 _midiIns.Add(midiIn);
 
@@ -169,7 +170,7 @@ namespace TeensyRom.Core.Music.Midi
             }
         }
 
-        private void DisengageMidi()
+        public void DisengageMidi()
         {
             _midiIns.ForEach(m =>
             {
@@ -181,8 +182,12 @@ namespace TeensyRom.Core.Music.Midi
             _midiSubscriptions.Clear();
         }
 
-        public async Task<MidiResult> GetFirstMidiEvent(MidiEventType targetEventType)
+        public async Task<MidiResult?> GetFirstMidiEvent(MidiEventType targetEventType)
         {
+            var settings = _settingsService.GetSettings();
+
+            if (settings.LastCart is null) return null;
+
             DisengageMidi();
 
             var devices = GetMidiDevices();
@@ -203,17 +208,25 @@ namespace TeensyRom.Core.Music.Midi
                     .Subscribe(_alert.Publish);
 
                 var midiEventObservable = devices
-                    .Select(device =>
+                    .Select(d =>
                     {
-                        var midiIn = new MidiIn(device.Id);
-                        midiInList.Add(midiIn);
+                        var midiIn = TryGetMidiIn(d.Id);
+
+                        if (midiIn is null) return null;
+
+                        return new { Device = d, MidiIn = midiIn };
+                    })
+                    .Where(deviceAndMidiIn => deviceAndMidiIn is not null)
+                    .Select(deviceAndMidiIn =>
+                    {
+                        midiInList.Add(deviceAndMidiIn!.MidiIn);
 
                         var observable = Observable.FromEventPattern<MidiInMessageEventArgs>(
-                                h => midiIn.MessageReceived += h,
-                                h => midiIn.MessageReceived -= h)
-                            .Select(e => new { Event = e.EventArgs.MidiEvent, Device = device });
+                                h => deviceAndMidiIn.MidiIn.MessageReceived += h,
+                                h => deviceAndMidiIn.MidiIn.MessageReceived -= h)
+                            .Select(e => new { Event = e.EventArgs.MidiEvent, Device = deviceAndMidiIn.Device });
 
-                        midiIn.Start();
+                        deviceAndMidiIn.MidiIn.Start();
                         return observable;
                     })
                     .Merge();
@@ -254,27 +267,60 @@ namespace TeensyRom.Core.Music.Midi
                     midiIn.Stop();
                     midiIn.Dispose();
                 }
-                EngageMidi(_settingsService.GetSettings().MidiSettings);
+                if (settings.LastCart.MidiSettings is not null) 
+                {
+                    EngageMidi(settings.LastCart.MidiSettings);
+                }
             }            
         }
 
+        public MidiIn? TryGetMidiIn(int deviceId) 
+        {
+            try
+            {
+                return new MidiIn(deviceId);
+            }
+            catch (MmException) { }
+            
+            return null;
+        }
 
         public IEnumerable<MidiDevice> GetMidiDevices()
-        {
+        {            
             var devices = new List<MidiDevice>();
+            var nameCounts = new Dictionary<string, int>();
+
             for (int deviceId = 0; deviceId < MidiIn.NumberOfDevices; deviceId++)
             {
+                var midiIn = TryGetMidiIn(deviceId);
+
+                if (midiIn is null) continue;
+
                 var capabilities = MidiIn.DeviceInfo(deviceId);
+                string displayName = capabilities.ProductName;
+
+                if (nameCounts.ContainsKey(displayName))
+                {
+                    nameCounts[displayName]++;
+                    displayName = $"{displayName} ({nameCounts[displayName]})";
+                }
+                else
+                {
+                    nameCounts[displayName] = 1;
+                }
+
                 devices.Add(new MidiDevice
                 {
-                    Name = capabilities.ProductName,
+                    Name = displayName,
                     Id = deviceId,
                     ManufacturerName = capabilities.Manufacturer.ToString(),
                     ProductId = capabilities.ProductId,
                     ProductName = capabilities.ProductName
                 });
+                midiIn.Dispose();
             }
-            return devices;
+
+            return devices.OrderBy(d => d.Name);
         }
 
         public void SendRandomMidiNotesToAllDevices()
@@ -326,7 +372,10 @@ namespace TeensyRom.Core.Music.Midi
             {
                 try
                 {
-                    var midiIn = new MidiIn(i);
+                    var midiIn = TryGetMidiIn(i);
+
+                    if (midiIn is null) continue;
+
                     string deviceName = "Unknown Device";
                     try { deviceName = MidiIn.DeviceInfo(i).ProductName; } catch { }
 
