@@ -89,7 +89,7 @@ namespace TeensyRom.Core.Settings
 
                 settings = settings with
                 {
-                    LastCart = device is null ? new KnownCart(deviceHash, pnpDeviceId, comPort, $"TeensyROM #{settings.KnownCarts.Count() + 1}") : device
+                    LastCart = device is null ? new KnownCart(deviceHash, pnpDeviceId, comPort, $"TeensyROM #{settings.KnownCarts.Count() + 1}", new()) : device
                 };
 
                 if (device is null)
@@ -101,6 +101,8 @@ namespace TeensyRom.Core.Settings
                     settings.KnownCarts.Remove(device);
                     settings.KnownCarts.Add(settings.LastCart with { });
                 }
+                var currentCart = settings.KnownCarts.FirstOrDefault(x => x.DeviceHash == deviceHash);
+                settings.LastCart = currentCart;
                 SaveSettings(settings);                
             }
         }

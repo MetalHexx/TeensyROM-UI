@@ -27,6 +27,7 @@ namespace TeensyRom.Core.Settings
     /// </summary>
     public record TeensySettings
     {
+        [JsonIgnore]
         public KnownCart? LastCart { get; set; }
         public List<KnownCart> KnownCarts { get; set; } = [];
         public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;
@@ -51,7 +52,6 @@ namespace TeensyRom.Core.Settings
         public int NudgeAmount { get; set; } = 5;
         public string? DefaultComPort { get; set; }
         public string? DefaultMinimalComPort { get; set; }
-        public MidiSettings MidiSettings { get; set; } = new();
 
         public List<string> BannedDirectories = [];
         public List<string> BannedFiles = [];
