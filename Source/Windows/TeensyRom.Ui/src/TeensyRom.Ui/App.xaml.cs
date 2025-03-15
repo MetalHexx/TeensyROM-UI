@@ -23,12 +23,14 @@ using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Assets;
 using TeensyRom.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Core.Storage.Tools.Zip;
+using System.Linq;
 
 namespace TeensyRom.Ui
 {
     public partial class App : Application
     {
         private readonly ServiceProvider _serviceProvider;
+        private string _logId = FileHelper.GetFileDateTimeStamp(DateTime.Now);
 
         public App()
         {
@@ -42,7 +44,7 @@ namespace TeensyRom.Ui
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
-            DeleteUnhandledExceptionLog();
+            CreateErrorLogFile();
 
             var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
             var mainViewModel = _serviceProvider.GetRequiredService<NavigationHostViewModel>();
@@ -92,7 +94,7 @@ namespace TeensyRom.Ui
         }
 
         private static readonly object _logFileLock = new object();
-        private static void LogExceptionToFile(Exception ex)
+        private void LogExceptionToFile(Exception ex)
         {
             string filePath = GetUnhandledExceptionLogPath();
 
@@ -118,18 +120,18 @@ namespace TeensyRom.Ui
             }
         }
 
-        private static void DeleteUnhandledExceptionLog() 
+        private string GetUnhandledExceptionLogPath() => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), LogConstants.UnhandedErrorLogPath,  $@"{LogConstants.UnhandledLogFileName}{_logId}.{LogConstants.UnhandledLogFileExtention}");
+
+        private void CreateErrorLogFile() 
         {
-            string filePath = GetUnhandledExceptionLogPath();
+            string directory = Path.GetDirectoryName(GetUnhandledExceptionLogPath())!;            
+            FileHelper.DeleteFilesOlderThan(DateTime.Now.Subtract(TimeSpan.FromDays(7)), directory);
 
-            FileInfo file = new(filePath);
-
-            if (file.Exists && file.LastWriteTime < DateTime.Now.AddDays(-7))
+            if (!Directory.Exists(Path.GetDirectoryName(LogConstants.LogPath)))
             {
-                file.Delete();
+                Directory.CreateDirectory(Path.GetDirectoryName(LogConstants.LogPath)!);
             }
+            File.Create(GetUnhandledExceptionLogPath()).Close();
         }
-
-        private static string GetUnhandledExceptionLogPath() => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), @"Assets\System\Logs\UnhandledErrorLogs.txt");
     }
 }

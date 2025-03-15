@@ -8,7 +8,12 @@ namespace TeensyRom.Core.Logging
 {
     public static class LogConstants
     {
-        public const string LogPath = @"Assets\System\Logs\Logs.txt";
+        public const string LogPath = @"Assets\System\Logs\";
+        public const string LogFileName = "Logs-";
+        public const string LogFileExtention = ".txt";
+        public const string UnhandedErrorLogPath = @"Assets\System\Logs\";
+        public const string UnhandledLogFileName = "UnhandledErrorLogs-";
+        public const string UnhandledLogFileExtention = ".txt";
         public const string InternalColor = "#b39ddb"; //lavendar
         public const string InternalSuccessColor = "#86c691"; //green
         public const string InternalErrorColor = "#cc666c"; //soft red
