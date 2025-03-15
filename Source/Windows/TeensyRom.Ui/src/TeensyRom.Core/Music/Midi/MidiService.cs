@@ -27,7 +27,7 @@ namespace TeensyRom.Core.Music.Midi
             _alert = alertService;
             _log = log;
 
-            _settingsService.Settings
+            _settingsService.Settings                
                 .Where(s => s.LastCart is not null && s.LastCart.MidiSettings is not null)
                 .Select(s => s.LastCart!.MidiSettings)
                 .Subscribe(EngageMidi);
@@ -36,6 +36,8 @@ namespace TeensyRom.Core.Music.Midi
         public void EngageMidi(MidiSettings midiSettings)
         { 
             DisengageMidi();
+
+            if (midiSettings.MidiEnabled is false) return;
 
             var devices = GetMidiDevices().ToDictionary(d => d.Name);
 
@@ -84,7 +86,6 @@ namespace TeensyRom.Core.Music.Midi
             }
             if (_registeredMappings.Count == 0)
             {
-                _alert.Publish("No valid MIDI mappings found. Please check your settings.");
                 return;
             }
 
@@ -286,7 +287,7 @@ namespace TeensyRom.Core.Music.Midi
         }
 
         public IEnumerable<MidiDevice> GetMidiDevices()
-        {            
+        {
             var devices = new List<MidiDevice>();
             var nameCounts = new Dictionary<string, int>();
 
@@ -319,7 +320,6 @@ namespace TeensyRom.Core.Music.Midi
                 });
                 midiIn.Dispose();
             }
-
             return devices.OrderBy(d => d.Name);
         }
 
