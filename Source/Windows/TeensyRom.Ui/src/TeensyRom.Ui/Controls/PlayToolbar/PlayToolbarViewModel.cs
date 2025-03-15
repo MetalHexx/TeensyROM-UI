@@ -164,7 +164,10 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             _playNext = playNext;
             _settings = settingsService.GetSettings();
 
-            settingsService.Settings.Subscribe(s => _settings = s);
+            settingsService.Settings.Subscribe(s => 
+            {
+                _settings = s;
+            });
 
             muteFastForward.Subscribe(enabled => _muteFastForward = enabled);
             muteRandomSeek.Subscribe(enabled => _muteRandomSeek = enabled);
@@ -436,6 +439,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             this.WhenAnyValue(x => x.SelectedSpeedCurve)
                 .Skip(1)
+                .Where(_ => IsSong)
                 .Subscribe(selectedSpeedCurve =>
                 {
                     _previousSpeedCurve = FastForwardInProgress
@@ -455,6 +459,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             var speedChanges = this.WhenAnyValue(x => x.RawSpeedValue)                
                 .Skip(1)
+                .Where(_ => IsSong)
                 .Do(rawSpeed =>
                 {
                     ActualSpeedPercent = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear
@@ -482,6 +487,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.CurrentSpeed)
                 .Subscribe(e =>
                 {
@@ -503,6 +509,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.CurrentSpeedFine)
                 .Subscribe(e =>
                 {
@@ -524,6 +531,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.Voice1Kill or DJEventType.Voice2Kill or DJEventType.Voice3Kill)                
                 .Subscribe(e =>
                 {
@@ -534,6 +542,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.Voice1Toggle or DJEventType.Voice2Toggle or DJEventType.Voice3Toggle)
                 .Subscribe(e =>
                 {
@@ -544,35 +553,42 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong)
                 .Subscribe(e => MessageBus.Current.SendMessage(e, MessageBusConstants.MidiCommandsReceived));
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.SetSpeedPlus50)
+                .Where(_ => IsSong)
                 .Subscribe(e => HandleIncrease50());
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.SetSpeedMinus50)
+                .Where(_ => IsSong)
                 .Subscribe(e => HandleDecrease50());
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.HomeSpeed)
+                .Where(_ => IsSong)
                 .Subscribe(e => HandleHomeSpeed());
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.NudgeForward)
+                .Where(_ => IsSong)
                 .Subscribe(e => HandleNudge(DJEventType.NudgeForward, e.MidiEventType));
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.NudgeBackward)
+                .Where(_ => IsSong)
                 .Subscribe(e => HandleNudge(DJEventType.NudgeBackward, e.MidiEventType));
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.Seek)
                 .Where(_ => Progress is not null)
                 .Select(e => e.GetRelativeCCDelta(0.005))
@@ -600,6 +616,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.FastForward)
                 .Subscribe(e => HandleFastForward());
 
@@ -632,6 +649,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.RestartKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong)
                 .Subscribe(async e => await HandleRestart());
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.MediaPlayerKeyPressed)
@@ -736,6 +754,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             this.WhenAnyValue(vm => vm.Voice1Enabled, vm => vm.Voice2Enabled, vm => vm.Voice3Enabled)
                 .Skip(1)
+                .Where(_ => IsSong)
                 .Buffer(TimeSpan.FromMilliseconds(50)) 
                 .Where(buffer => buffer.Any())
                 .ObserveOn(RxApp.MainThreadScheduler)
