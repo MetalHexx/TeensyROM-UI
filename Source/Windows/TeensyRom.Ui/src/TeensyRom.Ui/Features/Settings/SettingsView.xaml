@@ -34,8 +34,7 @@
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="30"></RowDefinition>
-                    <RowDefinition Height="30"></RowDefinition>
-                    <RowDefinition Height="80"></RowDefinition>
+                    <RowDefinition Height="80"></RowDefinition>                    
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="165"></ColumnDefinition>
@@ -168,9 +167,9 @@
 
                 <Label Grid.Column="4" Grid.Row="1" Style="{StaticResource Heading}">MIDI Control Mappings</Label>
 
-                <Label Grid.Column="4" Grid.Row="2" HorizontalAlignment="Right" ToolTip="Adjusts the play speed of the song by +-1%. &#x0a;• Your home speed will reset back to the songs original speed.">Set Speed +-1%:</Label>
+                <Label IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}" Grid.Column="4" Grid.Row="2" HorizontalAlignment="Right" ToolTip="Adjusts the play speed of the song by +-1%. &#x0a;• Your home speed will reset back to the songs original speed.">Set Speed +-1%:</Label>
 
-                <StackPanel Grid.Column="6" Grid.Row="2" Orientation="Horizontal">
+                <StackPanel Grid.Column="6" Grid.Row="2" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}" Orientation="Horizontal">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -201,7 +200,7 @@
                     <Label Margin="22 0 0 0">CC:</Label>
 
                     <ComboBox                
-                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
                         SelectedItem="{Binding LastCart.MidiSettings.CurrentSpeed.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -210,14 +209,14 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.CurrentSpeed}">Bind</Button>
+                    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.CurrentSpeed}">Learn</Button>
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.CurrentSpeed}">Clear</Button>
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="3"  HorizontalAlignment="Right" ToolTip="Adjusts the play speed of the song by +-0.1%. &#x0a;• Your home speed will reset back to the songs original speed.">Set Speed +-0.1%:</Label>
+                <Label Grid.Column="4" Grid.Row="3"  HorizontalAlignment="Right" ToolTip="Adjusts the play speed of the song by +-0.1%. &#x0a;• Your home speed will reset back to the songs original speed." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Set Speed +-0.1%:</Label>
 
-                <StackPanel Grid.Column="6" Grid.Row="3" Orientation="Horizontal">
+                <StackPanel Grid.Column="6" Grid.Row="3" Orientation="Horizontal" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -248,7 +247,7 @@
                     <Label Margin="22 0 0 0">CC:</Label>
 
                     <ComboBox                
-                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
                         SelectedItem="{Binding LastCart.MidiSettings.CurrentSpeedFine.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -257,14 +256,14 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.CurrentSpeedFine}">Bind</Button>
+                    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.CurrentSpeedFine}">Learn</Button>
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.CurrentSpeedFine}">Clear</Button>
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="4" HorizontalAlignment="Right" ToolTip="Toggles the speed of the playing song +50%.&#x0a;• If the song is at -50%, this will set it back to the home speed.">Jump Speed +50%:</Label>
+                <Label Grid.Column="4" Grid.Row="4" HorizontalAlignment="Right" ToolTip="Toggles the speed of the playing song +50%.&#x0a;• If the song is at -50%, this will set it back to the home speed." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Jump Speed +50%:</Label>
 
-                <StackPanel Grid.Column="6" Orientation="Horizontal" Grid.Row="4">
+                <StackPanel Grid.Column="6" Orientation="Horizontal" Grid.Row="4" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -304,14 +303,14 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.SetSpeedPlus50}">Bind</Button>
+                    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.SetSpeedPlus50}">Learn</Button>
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.SetSpeedPlus50}">Clear</Button>
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="5"  HorizontalAlignment="Right" ToolTip="Jumps to a fixed -50% from current speed. &#x0a;•Pressing home will take you back to your orginal (home) speed.&#x0a;•Pressing +50% will also take you back home.">Jump Speed -50%:</Label>
+                <Label Grid.Column="4" Grid.Row="5"  HorizontalAlignment="Right" ToolTip="Jumps to a fixed -50% from current speed. &#x0a;•Pressing home will take you back to your orginal (home) speed.&#x0a;•Pressing +50% will also take you back home." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Jump Speed -50%:</Label>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="5">
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="5" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -342,7 +341,7 @@
                     <Label Margin="10 0 0 0">Note:</Label>
 
                     <ComboBox                
-                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
                         SelectedItem="{Binding LastCart.MidiSettings.SetSpeedMinus50.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -351,14 +350,14 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.SetSpeedMinus50}">Bind</Button>
+                    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.SetSpeedMinus50}">Learn</Button>
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.SetSpeedMinus50}">Clear</Button>
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="6"  HorizontalAlignment="Right" ToolTip="Home speed is .&#x0a;• Otherwise, it's 0.">Home Speed:</Label>
+                <Label Grid.Column="4" Grid.Row="6"  HorizontalAlignment="Right" ToolTip="Home speed is .&#x0a;• Otherwise, it's 0." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Home Speed:</Label>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="6">
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="6" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -389,7 +388,7 @@
                     <Label Margin="10 0 0 0">Note:</Label>
 
                     <ComboBox                
-                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
                         SelectedItem="{Binding LastCart.MidiSettings.HomeSpeed.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -398,14 +397,14 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.HomeSpeed}">Bind</Button>
+                    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.HomeSpeed}">Learn</Button>
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.HomeSpeed}">Clear</Button>
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="7"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song forward for a brief burst to assist with beat matching.  Will remain engaged if you hold the note.">Nudge Forward 5%:</Label>
+                <Label Grid.Column="4" Grid.Row="7"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song forward for a brief burst to assist with beat matching.  Will remain engaged if you hold the note." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Nudge Forward 5%:</Label>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="7">
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="7" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -436,7 +435,8 @@
                     <Label Margin="10 0 0 0">Note:</Label>
 
                     <ComboBox                
-                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        ItemsSource="{Binding PossibleNoteOrCCValues}" 
+                        materialDesign:HintAssist.Hint="Val" 
                         SelectedItem="{Binding LastCart.MidiSettings.NudgeForward.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -445,14 +445,14 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.NudgeForward}">Bind</Button>
+                    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.NudgeForward}">Learn</Button>
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.NudgeForward}">Clear</Button>
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="8"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song backward for a brief burst to assist with beat matching.  Will remain engaged if you hold the note.">Nudge Backward 5%:</Label>
+                <Label Grid.Column="4" Grid.Row="8"  HorizontalAlignment="Right" ToolTip="Nudges the speed of the song backward for a brief burst to assist with beat matching.  Will remain engaged if you hold the note." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Nudge Backward 5%:</Label>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="8">
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="8" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -483,7 +483,8 @@
                     <Label Margin="10 0 0 0">Note:</Label>
 
                     <ComboBox                
-                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        ItemsSource="{Binding PossibleNoteOrCCValues}" 
+                        materialDesign:HintAssist.Hint="Val"
                         SelectedItem="{Binding LastCart.MidiSettings.NudgeBackward.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -492,16 +493,16 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.NudgeBackward}">Bind</Button>
+                    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.NudgeBackward}">Learn</Button>
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.NudgeBackward}">Clear</Button>
 
                 </StackPanel>
 
 
 
-                <Label Grid.Column="4" Grid.Row="9" HorizontalAlignment="Right" ToolTip="Toggles mute for voice 1 of the playing song.">Toggle Voice 1:</Label>
+                <Label Grid.Column="4" Grid.Row="9" HorizontalAlignment="Right" ToolTip="Toggles mute for voice 1 of the playing song." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Toggle Voice 1:</Label>
 
-                <StackPanel Grid.Column="6" Grid.Row="9" Orientation="Horizontal">
+                <StackPanel Grid.Column="6" Grid.Row="9" Orientation="Horizontal" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
                         SelectedItem="{Binding LastCart.MidiSettings.Voice1Toggle.Device, Mode=TwoWay}" 
@@ -531,7 +532,7 @@
                     <Label Margin="10 0 0 0">Note:</Label>
 
                     <ComboBox                
-                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
                         SelectedItem="{Binding LastCart.MidiSettings.Voice1Toggle.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -540,14 +541,14 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice1Toggle}">Bind</Button>
+                    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice1Toggle}">Learn</Button>
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice1Toggle}">Clear</Button>
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="10"  HorizontalAlignment="Right" ToolTip="Toggles mute for voice 2 of the playing song.">Toggle Voice 2:</Label>
+                <Label Grid.Column="4" Grid.Row="10"  HorizontalAlignment="Right" ToolTip="Toggles mute for voice 2 of the playing song." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Toggle Voice 2:</Label>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="10">
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="10" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -578,7 +579,7 @@
                     <Label Margin="10 0 0 0">Note:</Label>
 
                     <ComboBox                
-                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
                         SelectedItem="{Binding LastCart.MidiSettings.Voice2Toggle.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -587,14 +588,14 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice2Toggle}">Bind</Button>
+                    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice2Toggle}">Learn</Button>
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice2Toggle}">Clear</Button>
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="11"  HorizontalAlignment="Right" ToolTip="Toggles mute for voice 3 of the playing song.">Toggle Voice 3:</Label>
+                <Label Grid.Column="4" Grid.Row="11"  HorizontalAlignment="Right" ToolTip="Toggles mute for voice 3 of the playing song." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Toggle Voice 3:</Label>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="11">
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="11" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -625,7 +626,7 @@
                     <Label Margin="10 0 0 0">Note:</Label>
 
                     <ComboBox                
-                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
                         SelectedItem="{Binding LastCart.MidiSettings.Voice3Toggle.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -634,14 +635,14 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice3Toggle}">Bind</Button>
+                    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice3Toggle}">Learn</Button>
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice3Toggle}">Clear</Button>
 
                 </StackPanel>
                 
-                <Label Grid.Column="4" Grid.Row="12" HorizontalAlignment="Right" ToolTip="Mutes for voice 1 of the playing song while holding the note.  Like a kill switch.">Kill Voice 1:</Label>
+                <Label Grid.Column="4" Grid.Row="12" HorizontalAlignment="Right" ToolTip="Mutes for voice 1 of the playing song while holding the note.  Like a kill switch." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Kill Voice 1:</Label>
 
-<StackPanel Grid.Column="6" Grid.Row="12" Orientation="Horizontal">
+<StackPanel Grid.Column="6" Grid.Row="12" Orientation="Horizontal" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
     <ComboBox                
         ItemsSource="{Binding AvailableDevices}"
         SelectedItem="{Binding LastCart.MidiSettings.Voice1Kill.Device, Mode=TwoWay}" 
@@ -671,7 +672,7 @@
     <Label Margin="10 0 0 0">Note:</Label>
 
     <ComboBox                
-        ItemsSource="{Binding PossibleNoteOrCCValues}"
+        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
         SelectedItem="{Binding LastCart.MidiSettings.Voice1Kill.Value, Mode=TwoWay}" 
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -680,14 +681,14 @@
         Width="50"
         Margin="10 -3 0 0"/>
 
-    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice1Kill}">Bind</Button>
+    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice1Kill}">Learn</Button>
     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice1Kill}">Clear</Button>
 
 </StackPanel>
 
-<Label Grid.Column="4" Grid.Row="13"  HorizontalAlignment="Right" ToolTip="Mutes for voice 2 of the playing song while holding the note.  Like a kill switch.">Kill Voice 2:</Label>
+<Label Grid.Column="4" Grid.Row="13"  HorizontalAlignment="Right" ToolTip="Mutes for voice 2 of the playing song while holding the note.  Like a kill switch." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Kill Voice 2:</Label>
 
-<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="13">
+<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="13" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
     <ComboBox                
         ItemsSource="{Binding AvailableDevices}"
@@ -718,7 +719,7 @@
     <Label Margin="10 0 0 0">Note:</Label>
 
     <ComboBox                
-        ItemsSource="{Binding PossibleNoteOrCCValues}"
+        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
         SelectedItem="{Binding LastCart.MidiSettings.Voice2Kill.Value, Mode=TwoWay}" 
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -727,14 +728,14 @@
         Width="50"
         Margin="10 -3 0 0"/>
 
-    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice2Kill}">Bind</Button>
+    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice2Kill}">Learn</Button>
     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice2Kill}">Clear</Button>
 
 </StackPanel>
 
-<Label Grid.Column="4" Grid.Row="14"  HorizontalAlignment="Right" ToolTip="Mutes for voice 3 of the playing song while holding the note.  Like a kill switch.">Kill Voice 3:</Label>
+<Label Grid.Column="4" Grid.Row="14"  HorizontalAlignment="Right" ToolTip="Mutes for voice 3 of the playing song while holding the note.  Like a kill switch." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Kill Voice 3:</Label>
 
-<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="14">
+<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="14" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
     <ComboBox                
         ItemsSource="{Binding AvailableDevices}"
@@ -765,7 +766,7 @@
     <Label Margin="10 0 0 0">Note:</Label>
 
     <ComboBox                
-        ItemsSource="{Binding PossibleNoteOrCCValues}"
+        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
         SelectedItem="{Binding LastCart.MidiSettings.Voice3Kill.Value, Mode=TwoWay}" 
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -774,14 +775,14 @@
         Width="50"
         Margin="10 -3 0 0"/>
 
-    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice3Kill}">Bind</Button>
+    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice3Kill}">Learn</Button>
     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.Voice3Kill}">Clear</Button>
 
 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="15"  HorizontalAlignment="Right" ToolTip="Allows you to move to a random point in the song.">Random Seek:</Label>
+                <Label Grid.Column="4" Grid.Row="15"  HorizontalAlignment="Right" ToolTip="Allows you to move to a random point in the song." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Random Seek:</Label>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="15">
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="15" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -812,7 +813,7 @@
                     <Label Margin="22 0 0 0">CC:</Label>
 
                     <ComboBox                
-                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
                         SelectedItem="{Binding LastCart.MidiSettings.Seek.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -821,14 +822,14 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Seek}">Bind</Button>
+                    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Seek}">Learn</Button>
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.Seek}">Clear</Button>
 
                 </StackPanel>
 
-                <Label Grid.Column="4" Grid.Row="16"  HorizontalAlignment="Right" ToolTip="Toggles between random and directory mode.">Toggle Shuffle Mode:</Label>
+                <Label Grid.Column="4" Grid.Row="16"  HorizontalAlignment="Right" ToolTip="Toggles between random and directory mode." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Toggle Shuffle Mode:</Label>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="16">
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="16" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -859,7 +860,7 @@
                     <Label Margin="10 0 0 0">Note:</Label>
 
                     <ComboBox                
-                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
                         SelectedItem="{Binding LastCart.MidiSettings.Mode.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -868,14 +869,14 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Mode}">Bind</Button>
+                    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Mode}">Learn</Button>
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.Mode}">Clear</Button>
 
                 </StackPanel>
                 
-                <Label Grid.Column="4" Grid.Row="17"  HorizontalAlignment="Right" ToolTip="Play/Pause the song.">Play / Pause:</Label>
+                <Label Grid.Column="4" Grid.Row="17"  HorizontalAlignment="Right" ToolTip="Play/Pause the song." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Play / Pause:</Label>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="17">
+                <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="17" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
                 
                     <ComboBox                
                         ItemsSource="{Binding AvailableDevices}"
@@ -906,7 +907,7 @@
                     <Label Margin="10 0 0 0">Note:</Label>
                 
                     <ComboBox                
-                        ItemsSource="{Binding PossibleNoteOrCCValues}"
+                        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
                         SelectedItem="{Binding LastCart.MidiSettings.PlayPause.Value, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -915,14 +916,14 @@
                         Width="50"
                         Margin="10 -3 0 0"/>
                 
-                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.PlayPause}">Bind</Button>
+                    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.PlayPause}">Learn</Button>
                     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.PlayPause}">Clear</Button>
                 
                 </StackPanel>
                 
-                <Label Grid.Column="4" Grid.Row="18"  HorizontalAlignment="Right" ToolTip="Fast forwards the song. 3 speeds.">Fast Forward:</Label>
+                <Label Grid.Column="4" Grid.Row="18"  HorizontalAlignment="Right" ToolTip="Fast forwards the song. 3 speeds." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Fast Forward:</Label>
 
-               <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="18">
+               <StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="18" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
                    <ComboBox                
                        ItemsSource="{Binding AvailableDevices}"
@@ -953,7 +954,7 @@
                    <Label Margin="10 0 0 0">Note:</Label>
 
                    <ComboBox                
-                       ItemsSource="{Binding PossibleNoteOrCCValues}"
+                       ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
                        SelectedItem="{Binding LastCart.MidiSettings.FastForward.Value, Mode=TwoWay}" 
                        FontFamily="Arial"
                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -962,14 +963,14 @@
                        Width="50"
                        Margin="10 -3 0 0"/>
 
-                   <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.FastForward}">Bind</Button>
+                   <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.FastForward}">Learn</Button>
                    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.FastForward}">Clear</Button>
 
                </StackPanel>
                 
-                 <Label Grid.Column="4" Grid.Row="19"  HorizontalAlignment="Right" ToolTip="Next Song.">Previous:</Label>
+                 <Label Grid.Column="4" Grid.Row="19"  HorizontalAlignment="Right" ToolTip="Next Song." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Previous:</Label>
 
-<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="19">
+<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="19" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
     <ComboBox                
         ItemsSource="{Binding AvailableDevices}"
@@ -1000,7 +1001,7 @@
     <Label Margin="10 0 0 0">Note:</Label>
 
     <ComboBox                
-        ItemsSource="{Binding PossibleNoteOrCCValues}"
+        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
         SelectedItem="{Binding LastCart.MidiSettings.Previous.Value, Mode=TwoWay}" 
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -1009,14 +1010,14 @@
         Width="50"
         Margin="10 -3 0 0"/>
 
-    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Previous}">Bind</Button>
+    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Previous}">Learn</Button>
     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.Previous}">Clear</Button>
 
 </StackPanel>
                 
-<Label Grid.Column="4" Grid.Row="20"  HorizontalAlignment="Right" ToolTip="Next Song.">Next:</Label>
+<Label Grid.Column="4" Grid.Row="20"  HorizontalAlignment="Right" ToolTip="Next Song." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Next:</Label>
 
-<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="20">
+<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="20" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
     <ComboBox                
         ItemsSource="{Binding AvailableDevices}"
@@ -1047,7 +1048,7 @@
     <Label Margin="10 0 0 0">Note:</Label>
 
     <ComboBox                
-        ItemsSource="{Binding PossibleNoteOrCCValues}"
+        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
         SelectedItem="{Binding LastCart.MidiSettings.Next.Value, Mode=TwoWay}" 
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -1056,14 +1057,14 @@
         Width="50"
         Margin="10 -3 0 0"/>
 
-    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Next}">Bind</Button>
+    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Next}">Learn</Button>
     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.Next}">Clear</Button>
 
 </StackPanel>
                 
-<Label Grid.Column="4" Grid.Row="21"  HorizontalAlignment="Right" ToolTip="Restarts the current song.">Restart Song:</Label>
+<Label Grid.Column="4" Grid.Row="21"  HorizontalAlignment="Right" ToolTip="Restarts the current song." IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">Restart Song:</Label>
                 
-<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="21">
+<StackPanel Orientation="Horizontal" Grid.Column="6" Grid.Row="21" IsEnabled="{Binding MidiConfigEnabled, Mode=TwoWay}">
 
     <ComboBox                
         ItemsSource="{Binding AvailableDevices}"
@@ -1094,7 +1095,7 @@
     <Label Margin="10 0 0 0">Note:</Label>
 
     <ComboBox                
-        ItemsSource="{Binding PossibleNoteOrCCValues}"
+        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
         SelectedItem="{Binding LastCart.MidiSettings.Restart.Value, Mode=TwoWay}" 
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
@@ -1103,27 +1104,38 @@
         Width="50"
         Margin="10 -3 0 0"/>
 
-    <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Restart}">Bind</Button>
+    <Button Width="65" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding BindMidiCommand}" CommandParameter="{Binding LastCart.MidiSettings.Restart}">Learn</Button>
     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.Restart}">Clear</Button>
 
 </StackPanel>
-
-                <StackPanel Grid.Row="26" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
-                    <Button             
-                        ToolTip="This will save your settings to disk."
-                        Content="Save Settings"  
-                        Command="{Binding SaveSettingsCommand}" 
-                        HorizontalAlignment="Left"
-                        Width="150" Margin="10"/>
-
+                <TextBlock Grid.Row="23" Grid.Column="4" Grid.ColumnSpan="3" Margin="0 20 0 0" Visibility="{Binding MidiConfigUnavailable, Converter={StaticResource BooleanToVisibilityConverter}, Mode=TwoWay}">MIDI settings are configured per TR device.  Connect to a TR to unlock MIDI.</TextBlock>
+                <StackPanel Grid.Row="23" Grid.Column="4" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Left" Height="60" Visibility="{Binding MidiConfigUnavailable, Converter={StaticResource InverseBooleanToVisibilityConverter}, Mode=TwoWay}">
+                    
                     <Button             
                         ToolTip="This will refresh the MIDI mapping list if devices were not previously found."
-                        Content="Refresh Mappings"  
+                        Content="Refresh Midi"  
                         Command="{Binding RefreshMidiDevicesCommand}" 
                         HorizontalAlignment="Left"
-                        Grid.Row="23" Grid.Column="0" Grid.ColumnSpan="3" Width="150" Margin="10"/>
+                        VerticalAlignment="Center"
+                        Grid.ColumnSpan="3" Width="150" Margin="10"/>
+                    <CheckBox                  
+                        x:Name="MidiEnabledCheckBox"
+                        Content="Midi Enabled"                
+                        ToolTip="Enables MIDI support."
+                        IsChecked="{Binding LastCart.MidiSettings.MidiEnabled, Mode=TwoWay}" 
+                        VerticalAlignment="Center" Margin="0 4 0 0"
+                        Checked="MidiEnabledCheckBox_Checked"
+                        Unchecked="MidiEnabledCheckBox_Unchecked"/>
 
                 </StackPanel>
+                
+                <Button   
+                    Grid.Row="22" Grid.Column="0" 
+                    ToolTip="This will save your settings to disk."
+                    Content="Save Settings"  
+                    Command="{Binding SaveSettingsCommand}" 
+                    HorizontalAlignment="Left"
+                    Width="150" Margin="10"/>
             </Grid>
         </ScrollViewer>
     </Grid>

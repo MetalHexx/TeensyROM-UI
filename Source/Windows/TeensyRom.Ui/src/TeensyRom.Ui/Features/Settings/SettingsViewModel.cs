@@ -19,6 +19,7 @@ using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.FeatureTitle;
+using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Helpers.ViewModel;
 using TeensyRom.Ui.Services;
 
@@ -42,6 +43,8 @@ namespace TeensyRom.Ui.Features.Settings
         public bool MuteRandomSeek { get; set; } = true;
         [Reactive] public KnownCartViewModel LastCart { get; set; }
         [Reactive] public ObservableCollection<MidiDeviceViewModel> AvailableDevices { get; set; } = [];
+        [Reactive] public bool MidiConfigUnavailable { get; set; } = false;
+        [Reactive] public bool MidiConfigEnabled { get; set; } = false;
 
         [Reactive]
         public List<TeensyFilterType> FilterOptions { get; set; } = Enum
@@ -65,7 +68,7 @@ namespace TeensyRom.Ui.Features.Settings
         private readonly IDisposable _logsSubscription;
         private readonly StringBuilder _logBuilder = new StringBuilder();
 
-        public SettingsViewModel(ISettingsService settings, IAlertService alert, ILoggingService logService, IMidiService midiService)
+        public SettingsViewModel(ISettingsService settings, IAlertService alert, ILoggingService logService, IMidiService midiService, INavigationService nav)
         {
             FeatureTitle = "Settings";
             _logService = logService;
@@ -73,30 +76,34 @@ namespace TeensyRom.Ui.Features.Settings
             _settingsService = settings;
             _alert = alert;
 
-            _settingsService.Settings
-                .Where(s => s.LastCart is not null)
-                .Select(s => (s with { }))
-                .Subscribe(s => 
+            nav.SelectedNavigationView
+                .Where(nav => nav is not null && nav.Type is NavigationLocation.Settings)
+                .Subscribe(_ =>
                 {
-                    MapSettings(s);
-                    RefreshDeviceReferences(s.LastCart!);
+                    ReloadSettings();
                 });
 
             SaveSettingsCommand = ReactiveCommand.Create<Unit, Unit>(
-                execute: _ => HandleSave(),
+                execute: _ =>
+                {
+                    Task.Run(() => HandleSave());
+                    return Unit.Default;
+                },
                 outputScheduler: RxApp.MainThreadScheduler);
 
             RefreshMidiDevicesCommand = ReactiveCommand.Create<Unit, Unit>(
                 execute: _ =>
-                {                    
-                    var settings = _settingsService.GetSettings() with { };
-                    if (settings.LastCart is null)
+                {
+                    Task.Run(() =>
                     {
-                        _alert.Publish("Not connected to a TeensyROM cart.");
-                        return Unit.Default;
-                    }
-                    _midiService.EngageMidi(settings.LastCart.MidiSettings);
-                    RefreshDeviceReferences(settings.LastCart);
+                        var settings = _settingsService.GetSettings() with { };
+                        if (settings.LastCart is null)
+                        {
+                            _alert.Publish("Please connect to a TR Device before configuring MIDI.");
+                            return;
+                        }
+                        RefreshDeviceReferences(settings.LastCart);
+                    });
                     return Unit.Default;
                 },
                 outputScheduler: RxApp.MainThreadScheduler);
@@ -111,7 +118,7 @@ namespace TeensyRom.Ui.Features.Settings
 
                 _alert.Publish(message);
 
-                RefreshDeviceReferences(LastCart.ToKnownCart());
+                //RefreshDeviceReferences(LastCart.ToKnownCart());
 
                 var midiResult = await _midiService.GetFirstMidiEvent(m.MidiEventType);
 
@@ -139,6 +146,10 @@ namespace TeensyRom.Ui.Features.Settings
                 LastCart = null!;
                 LastCart = lastCart;
 
+                await Task.Run(() =>
+                {
+                    HandleSave();
+                });
             }, outputScheduler: RxApp.MainThreadScheduler);
 
             ClearMidiBindCommand = ReactiveCommand.CreateFromTask<MidiMappingViewModel>(async m =>
@@ -148,12 +159,17 @@ namespace TeensyRom.Ui.Features.Settings
                 if (mapping != null)
                 {
                     mapping.Device = new MidiDeviceViewModel(new MidiDevice());
-                    mapping.MidiChannel = 1;
-                    mapping.Value = 1;
+                    mapping.MidiChannel = 0;
+                    mapping.Value = -1;
                 }
                 var lastCart = LastCart;
                 LastCart = null!;
                 LastCart = lastCart;
+
+                await Task.Run(() =>
+                {
+                    HandleSave();
+                });
 
             }, outputScheduler: RxApp.MainThreadScheduler);
 
@@ -172,12 +188,19 @@ namespace TeensyRom.Ui.Features.Settings
             
         }
 
+        private void ReloadSettings()
+        {
+            var s = _settingsService.GetSettings();
+            MapSettings(s);
+
+            if (s.LastCart?.MidiSettings.MidiEnabled ?? false)
+            {
+                RefreshDeviceReferences(s.LastCart!);
+            }
+        }
+
         private void MapSettings(TeensySettings s)
         {
-            if (s.LastCart is null)
-            {
-                return;
-            }
             WatchDirectoryLocation = s.WatchDirectoryLocation;
             AutoTransferPath = s.AutoTransferPath;
             AutoFileCopyEnabled = s.AutoFileCopyEnabled;
@@ -189,7 +212,15 @@ namespace TeensyRom.Ui.Features.Settings
             NavToDirOnLaunch = s.NavToDirOnLaunch;
             MuteFastForward = s.MuteFastForward;
             MuteRandomSeek = s.MuteRandomSeek;
-            LastCart = new KnownCartViewModel(s.LastCart);            
+
+            MidiConfigUnavailable = s.LastCart is null ? true : false;
+
+            if (s.LastCart is not null) 
+            {   
+                LastCart = null!;
+                LastCart = new KnownCartViewModel(s.LastCart);
+                MidiConfigEnabled = s.LastCart.MidiSettings.MidiEnabled ? true : false;
+            }          
         }
 
         /// <summary>
@@ -212,16 +243,9 @@ namespace TeensyRom.Ui.Features.Settings
             LastCart = new KnownCartViewModel(lastCart, [.. AvailableDevices]);
         }
 
-        private Unit HandleSave()
+        public Unit HandleSave()
         {
             var settings = _settingsService.GetSettings();
-
-            if(settings.LastCart is null)
-            {
-                _alert.Publish("Not connected to a TeensyROM cart.");
-                return Unit.Default;
-            }
-            var lastCart = settings.KnownCarts.FirstOrDefault(c => c.DeviceHash == settings.LastCart.DeviceHash);
 
             settings = settings with 
             {
@@ -235,33 +259,33 @@ namespace TeensyRom.Ui.Features.Settings
                 PlayTimerEnabled = PlayTimerEnabled,
                 NavToDirOnLaunch = NavToDirOnLaunch,
                 MuteFastForward = MuteFastForward,
-                MuteRandomSeek = MuteRandomSeek,
-                LastCart = LastCart.ToKnownCart()
+                MuteRandomSeek = MuteRandomSeek
             };
 
-            var cart = settings.KnownCarts.FirstOrDefault(c => c.DeviceHash == settings.LastCart.DeviceHash);
 
-            if (cart is null) 
+            if (LastCart is not null)
             {
-                _alert.Publish("Cart not found.");
-                return Unit.Default;
+                var cart = settings.KnownCarts.First(c => c.DeviceHash == LastCart.DeviceHash);
+
+                var updatedCart = cart with
+                {
+                    MidiSettings = LastCart.MidiSettings.ToMidiSettings(),
+                    Name = LastCart.Name,
+                    DeviceHash = LastCart.DeviceHash,
+                    PnpDeviceId = LastCart.PnpDeviceId,
+                    ComPort = LastCart.ComPort
+                };
+                settings.KnownCarts.Remove(cart);
+                settings.KnownCarts.Add(updatedCart);
+                settings = settings with { LastCart = LastCart.ToKnownCart() };
             }
-            var updatedCart = cart with
-            {
-                MidiSettings = LastCart.MidiSettings.ToMidiSettings(),
-                Name = LastCart.Name,
-                DeviceHash = LastCart.DeviceHash,
-                PnpDeviceId = LastCart.PnpDeviceId,
-                ComPort = LastCart.ComPort
-            };
-            settings.KnownCarts.Remove(cart);
-            settings.KnownCarts.Add(updatedCart);
 
             var success = _settingsService.SaveSettings(settings);
 
             if (success)
             {
                 _alert.Publish("Settings saved successfully.");
+                ReloadSettings();
                 return Unit.Default;
             }
 

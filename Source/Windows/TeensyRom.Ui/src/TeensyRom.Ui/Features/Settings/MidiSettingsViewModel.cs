@@ -38,6 +38,7 @@ namespace TeensyRom.Ui.Features.Settings
     }
     public class MidiSettingsViewModel
     {
+        [Reactive] public bool MidiEnabled { get; set; }
         [Reactive] public MidiMappingViewModel PlayPause { get; set; }
         [Reactive] public MidiMappingViewModel Stop { get; set; }
         [Reactive] public MidiMappingViewModel Next { get; set; }
@@ -87,6 +88,7 @@ namespace TeensyRom.Ui.Features.Settings
             Restart = new MidiMappingViewModel(s.Restart);
             SnapToSpeed = s.SnapToSpeed;
             SnapToSeek = s.SnapToSeek;
+            MidiEnabled = s.MidiEnabled;
 
             CurrentSpeed.Device = devices.FirstOrDefault(d => d.Name == CurrentSpeed.Device?.UnboundName) ?? CurrentSpeed.Device;
             CurrentSpeedFine.Device = devices.FirstOrDefault(d => d.Name == CurrentSpeedFine.Device?.UnboundName) ?? CurrentSpeedFine.Device;
@@ -112,6 +114,7 @@ namespace TeensyRom.Ui.Features.Settings
         }
         public MidiSettingsViewModel(MidiSettings s)
         {
+            MidiEnabled = s.MidiEnabled;
             PlayPause = new MidiMappingViewModel(s.PlayPause);
             Stop = new MidiMappingViewModel(s.Stop);
             Next = new MidiMappingViewModel(s.Next);
@@ -141,6 +144,7 @@ namespace TeensyRom.Ui.Features.Settings
         {
             return new MidiSettings
             {
+                MidiEnabled = MidiEnabled,
                 PlayPause = PlayPause.ToMidiMapping(),
                 Stop = Stop.ToMidiMapping(),
                 Next = Next.ToMidiMapping(),
@@ -169,12 +173,12 @@ namespace TeensyRom.Ui.Features.Settings
 
         public IEnumerable<MidiMappingViewModel> GetAllMappings()
         {
-            return new[]
-            {
+            return
+            [
                 PlayPause, Stop, Next, Previous, Seek, FastForward, NudgeForward, NudgeBackward,
                 CurrentSpeed, CurrentSpeedFine, SetSpeedPlus50, SetSpeedMinus50, HomeSpeed,
                 Voice1Toggle, Voice2Toggle, Voice3Toggle, Voice1Kill, Voice2Kill, Voice3Kill, Mode, Restart
-            };
+            ];
         }
 
     }
