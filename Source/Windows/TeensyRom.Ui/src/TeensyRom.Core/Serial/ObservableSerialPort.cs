@@ -266,7 +266,7 @@ namespace TeensyRom.Core.Serial
         {
             _log.Internal("ObservableSerialPort.Unlock: Unlocking serial port");
 
-            if (_serialEventSubscription is not null) return;
+            _serialEventSubscription?.Dispose();
 
             _serialEventSubscription = Observable.FromEventPattern<SerialDataReceivedEventHandler, SerialDataReceivedEventArgs>
             (
@@ -289,6 +289,7 @@ namespace TeensyRom.Core.Serial
             ClearBuffers();
 
             _serialEventSubscription?.Dispose();
+            _serialEventSubscription = null;
         }
 
         /// <summary>
