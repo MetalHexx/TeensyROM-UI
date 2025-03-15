@@ -23,27 +23,15 @@ namespace TeensyRom.Core.Music.Sid
         SongItem EnrichSong(SongItem song);
     }
 
-    public class SidMetadataService : ISidMetadataService, IDisposable
+    public class SidMetadataService : ISidMetadataService
     {
         private readonly string _filePath;
         private readonly Dictionary<string, SidRecord> _songDatabase = new();
-        private TeensySettings _settings = new();
-        private readonly ISettingsService _settingsService;
-        private IDisposable _settingsSubscription;
 
-        public SidMetadataService(ISettingsService settingsService)
+        public SidMetadataService()
         {
             _filePath = GetSidFilePath();
             _songDatabase = ParseSids(ReadCsv());
-
-            _settingsService = settingsService;
-
-            _settingsSubscription = _settingsService.Settings.Subscribe(OnSettingsChanged);
-        }
-
-        private void OnSettingsChanged(TeensySettings settings)
-        {
-            _settings = settings;
         }
 
         private static string GetSidFilePath()
@@ -234,11 +222,6 @@ namespace TeensyRom.Core.Music.Sid
             catch { }
 
             return timeSpans;
-        }
-
-        public void Dispose()
-        {
-            _settingsSubscription?.Dispose();
         }
     }
 }
