@@ -2,6 +2,7 @@
 {
     public class MidiSettings 
     {
+        public bool MidiEnabled { get; set; }
         public MidiMapping PlayPause { get; set; } = new() 
         {
             MidiEventType = MidiEventType.NoteOff,
