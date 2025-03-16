@@ -173,11 +173,8 @@ namespace TeensyRom.Core.Music.Midi
 
         public void DisengageMidi()
         {
-            _midiIns.ForEach(m =>
-            {
-                m.Dispose();
-            });
-            _midiSubscriptions.ForEach(s => s.Dispose());
+            _midiIns.ForEach(DisposeMidiIn);
+            _midiSubscriptions.ForEach(DisposeMidiIn);
             _registeredMappings.Clear();
             _registeredDevices.Clear();
             _midiSubscriptions.Clear();
@@ -318,9 +315,21 @@ namespace TeensyRom.Core.Music.Midi
                     ProductId = capabilities.ProductId,
                     ProductName = capabilities.ProductName
                 });
-                midiIn.Dispose();
+                DisposeMidiIn(midiIn);
             }
             return devices.OrderBy(d => d.Name);
+        }
+
+        public void DisposeMidiIn(IDisposable midiIn) 
+        {
+            try
+            {
+                midiIn?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                //TODO: not sure why this happens
+            }
         }
 
         public void SendRandomMidiNotesToAllDevices()
