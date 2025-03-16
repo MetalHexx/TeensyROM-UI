@@ -1,13 +1,12 @@
-﻿using Newtonsoft.Json;
-using System.Management;
+﻿using System.Management;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
-using Formatting = Newtonsoft.Json.Formatting;
 
 namespace TeensyRom.Core.Settings
 {
@@ -38,11 +37,12 @@ namespace TeensyRom.Core.Settings
                 using var reader = new StreamReader(stream);
                 var content = reader.ReadToEnd();
 
-                settings = JsonConvert.DeserializeObject<TeensySettings>(content, new JsonSerializerSettings
+                var options = new JsonSerializerOptions
                 {
-                    TypeNameHandling = TypeNameHandling.Auto,
-                    Formatting = Formatting.Indented
-                });
+                    WriteIndented = true
+                };
+
+                settings = JsonSerializer.Deserialize<TeensySettings>(content, options);
             }
             if (settings is null)
             {
@@ -133,11 +133,12 @@ namespace TeensyRom.Core.Settings
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(_settingsFilePath)!);
             }
-            File.WriteAllText(_settingsFilePath, JsonConvert.SerializeObject(settings, Formatting.Indented, new JsonSerializerSettings
+            var options = new JsonSerializerOptions
             {
-                TypeNameHandling = TypeNameHandling.Auto,
-                Formatting = Formatting.Indented
-            }));
+                WriteIndented = true
+            };
+            File.WriteAllText(_settingsFilePath, JsonSerializer.Serialize(settings, options));
+
         }
 
         public bool ValidateAndLogSettings(TeensySettings settings)

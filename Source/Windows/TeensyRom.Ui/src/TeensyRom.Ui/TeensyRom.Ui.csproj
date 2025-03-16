@@ -23,6 +23,7 @@
 	  <PackageReference Include="ReactiveUI.WPF" Version="19.5.41">
 		  <NoWarn>NU1701</NoWarn>
 	  </PackageReference>
+	  <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
   <ItemGroup>
