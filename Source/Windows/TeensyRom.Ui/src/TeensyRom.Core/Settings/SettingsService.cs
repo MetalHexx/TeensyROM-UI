@@ -3,7 +3,6 @@ using System.Management;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using TeensyRom.Core.Common;
@@ -57,54 +56,42 @@ namespace TeensyRom.Core.Settings
 
         public void SetCart(string comPort)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            var searcher = new ManagementObjectSearcher($"SELECT * FROM Win32_SerialPort WHERE DeviceID = '{comPort}'");
+            var serialDevices = searcher.Get();                
+
+            var settings = _settings.Value with { };
+
+            var pnpDeviceId = searcher.Get()
+                .Cast<ManagementObject>()
+                .Select(mo => mo["PNPDeviceID"]?.ToString())
+                .FirstOrDefault(pnp => !string.IsNullOrEmpty(pnp));
+
+            if (string.IsNullOrEmpty(pnpDeviceId))
             {
-                var searcher = new ManagementObjectSearcher($"SELECT * FROM Win32_SerialPort WHERE DeviceID = '{comPort}'");
-                var serialDevices = searcher.Get();
-
-                var settings = _settings.Value with { };
-
-                var pnpDeviceId = string.Empty;
-
-                foreach (var s in serialDevices)
-                {
-                    foreach (PropertyData property in s.Properties)
-                    {
-                        if (property.Name == "DeviceID" && property.Value?.ToString() == comPort)
-                        {
-                            pnpDeviceId = s.Properties["PNPDeviceID"]?.Value?.ToString();
-                            break;
-                        }
-                    }
-                    if(!string.IsNullOrEmpty(pnpDeviceId)) break;
-                }
-                if (string.IsNullOrEmpty(pnpDeviceId))
-                {
-                    throw new Exception($"Unable to find PNPDeviceID for {comPort}");
-                }
-                var deviceHash = GetFileNameSafeHash(pnpDeviceId);
-
-                var device = settings.KnownCarts
-                    .FirstOrDefault(RemoteMachineInfo => RemoteMachineInfo.DeviceHash == deviceHash);
-
-                settings = settings with
-                {
-                    LastCart = device is null ? new KnownCart(deviceHash, pnpDeviceId, comPort, $"TeensyROM #{settings.KnownCarts.Count() + 1}", new()) : device
-                };
-
-                if (device is null)
-                {
-                    settings.KnownCarts.Add(settings.LastCart with { });
-                }
-                else 
-                {
-                    settings.KnownCarts.Remove(device);
-                    settings.KnownCarts.Add(settings.LastCart with { });
-                }
-                var currentCart = settings.KnownCarts.FirstOrDefault(x => x.DeviceHash == deviceHash);
-                settings.LastCart = currentCart;
-                SaveSettings(settings);                
+                throw new Exception($"Unable to find PNPDeviceID for {comPort}");
             }
+            var deviceHash = GetFileNameSafeHash(pnpDeviceId);
+
+            var device = settings.KnownCarts
+                .FirstOrDefault(RemoteMachineInfo => RemoteMachineInfo.DeviceHash == deviceHash);
+
+            settings = settings with
+            {
+                LastCart = device is null ? new KnownCart(deviceHash, pnpDeviceId, comPort, $"TeensyROM #{settings.KnownCarts.Count() + 1}", new()) : device
+            };
+
+            if (device is null)
+            {
+                settings.KnownCarts.Add(settings.LastCart with { });
+            }
+            else 
+            {
+                settings.KnownCarts.Remove(device);
+                settings.KnownCarts.Add(settings.LastCart with { });
+            }
+            var currentCart = settings.KnownCarts.FirstOrDefault(x => x.DeviceHash == deviceHash);
+            settings.LastCart = currentCart;
+            SaveSettings(settings);          
         }
 
         public static string GetFileNameSafeHash(string stringToHash)
@@ -135,8 +122,8 @@ namespace TeensyRom.Core.Settings
             if (!ValidateAndLogSettings(settings)) return false;
 
             _log.InternalSuccess($"Settings saved successfully.");
-            _settings.OnNext(settings with { });
             WriteSettings(settings);
+            Task.Run(() => _settings.OnNext(settings with { }));            
             return true;
         }
 
