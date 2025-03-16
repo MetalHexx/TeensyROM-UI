@@ -1,5 +1,13 @@
-﻿namespace TeensyRom.Core.Storage.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace TeensyRom.Core.Storage.Entities
 {
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]
+    [JsonDerivedType(typeof(SongItem), "Song")]
+    [JsonDerivedType(typeof(GameItem), "Game")]
+    [JsonDerivedType(typeof(HexItem), "Hex")]
+    [JsonDerivedType(typeof(ImageItem), "Image")]
+    [JsonDerivedType(typeof(FileItem), "File")]
     public interface IFileItem: IStorageItem
     {
         TeensyFileType FileType { get; }

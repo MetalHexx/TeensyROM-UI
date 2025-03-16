@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization.Metadata;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Settings;
@@ -292,11 +293,12 @@ namespace TeensyRom.Core.Storage.Services
             using var reader = new StreamReader(stream);
             var content = reader.ReadToEnd();
 
-            var cacheFromDisk = JsonConvert.DeserializeObject<StorageCache>(content, new JsonSerializerSettings
+            var cacheFromDisk = JsonSerializer.Deserialize<StorageCache>(content, new JsonSerializerOptions
             {
-                TypeNameHandling = TypeNameHandling.Auto,
-                Formatting = Formatting.Indented
+                TypeInfoResolver = JsonTypeInfoResolver.Combine(new DefaultJsonTypeInfoResolver()),
+                WriteIndented = true
             });
+
 
             if (cacheFromDisk is null) return;
 
@@ -314,12 +316,12 @@ namespace TeensyRom.Core.Storage.Services
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(_cacheFilePath)!);
             }
-
-            File.WriteAllText(_cacheFilePath, JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings
+            var options = new JsonSerializerOptions
             {
-                TypeNameHandling = TypeNameHandling.Auto,
-                Formatting = Formatting.Indented
-            }));
+                TypeInfoResolver = JsonTypeInfoResolver.Combine(new DefaultJsonTypeInfoResolver()),
+                WriteIndented = true
+            };
+            File.WriteAllText(_cacheFilePath, JsonSerializer.Serialize(this, options));
         }
 
         private static string CleanPath(string path) => path

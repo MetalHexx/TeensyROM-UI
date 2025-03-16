@@ -1,6 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel;
-using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace TeensyRom.Core.Storage.Entities
 {

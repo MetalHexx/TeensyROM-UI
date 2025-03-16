@@ -1,14 +1,11 @@
 ﻿using MediatR;
-using Newtonsoft.Json;
-using System.IO;
-using System.Net.WebSockets;
 using System.Reactive.Linq;
 using System.Text;
+using System.Text.Json;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
-using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Commands
@@ -138,7 +135,8 @@ namespace TeensyRom.Core.Commands
                 {
                     case var item when item.StartsWith(dirToken):
                         var dirJson = item.Substring(5);
-                        var dirItem = JsonConvert.DeserializeObject<DirectoryItem>(dirJson);
+                        var dirItem = JsonSerializer.Deserialize<DirectoryItem>(dirJson);
+
 
                         if (dirItem is null) continue;
 
@@ -148,7 +146,7 @@ namespace TeensyRom.Core.Commands
 
                     case var item when item.StartsWith(fileToken):
                         var fileJson = item.Substring(6);
-                        var fileItem = JsonConvert.DeserializeObject<FileItem>(fileJson);
+                        var fileItem = JsonSerializer.Deserialize<FileItem>(fileJson);
 
                         if (fileItem is null) continue;
 

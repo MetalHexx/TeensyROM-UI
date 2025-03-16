@@ -1,8 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel;
-using System.Runtime;
+﻿using System.Text.Json.Serialization;
 using TeensyRom.Core.Common;
-using TeensyRom.Core.Music.Midi;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 
@@ -50,8 +47,6 @@ namespace TeensyRom.Core.Settings
         public bool MuteRandomSeek { get; set; } = false;
         public bool FirstTimeSetup { get; set; } = true;
         public int NudgeAmount { get; set; } = 5;
-        public string? DefaultComPort { get; set; }
-        public string? DefaultMinimalComPort { get; set; }
 
         public List<string> BannedDirectories = [];
         public List<string> BannedFiles = [];

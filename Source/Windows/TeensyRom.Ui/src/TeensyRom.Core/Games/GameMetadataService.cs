@@ -1,21 +1,9 @@
-﻿using MediatR;
-using MediatR.Pipeline;
-using Newtonsoft.Json;
-using System.IO;
-using System.Reactive.Linq;
-using System.Runtime;
-using TeensyRom.Core.Commands;
+﻿using System.Reactive.Linq;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Serial.State;
-using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Services;
-using System.Windows;
 using System.Reflection;
 using TeensyRom.Core.Common;
-using TeensyRom.Core.Commands.GetFile;
-using System.Collections;
-using System.Drawing;
+using System.Text.Json;
 
 namespace TeensyRom.Core.Games
 {
@@ -32,7 +20,7 @@ namespace TeensyRom.Core.Games
             if(File.Exists(_gameMetadataFilePath))
             {
                 log.Internal($"Reading game metadata file: {_gameMetadataFilePath}");
-                var fileMetadata = JsonConvert.DeserializeObject<List<ViewableItemImage>>(File.ReadAllText(_gameMetadataFilePath));
+                var fileMetadata = JsonSerializer.Deserialize<List<ViewableItemImage>>(File.ReadAllText(_gameMetadataFilePath));
 
                 if(fileMetadata is not null && fileMetadata.Any())
                 {
@@ -65,7 +53,7 @@ namespace TeensyRom.Core.Games
                 Directory.CreateDirectory(Path.GetDirectoryName(_gameMetadataFilePath)!);
             }
             log.Internal($"Writing game metadata file: {_gameMetadataFilePath}");
-            File.WriteAllText(_gameMetadataFilePath, JsonConvert.SerializeObject(allScreenMetadata));
+            File.WriteAllText(_gameMetadataFilePath, JsonSerializer.Serialize(allScreenMetadata));
 
             if(File.Exists(_gameMetadataFilePath))
             {
