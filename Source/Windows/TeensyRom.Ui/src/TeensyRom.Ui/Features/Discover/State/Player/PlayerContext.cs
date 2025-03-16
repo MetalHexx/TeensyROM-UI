@@ -150,7 +150,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             _settingsSubscription = _settingsService.Settings
                 .Do(settings => _settings = settings)
                 .Do(settings => _currentFilter = _settings.GetStartupFilter())
-                .CombineLatest(_serial.CurrentState, _nav.SelectedNavigationView, (settings, serial, navView) => (settings, serial, navView))
+                .CombineLatest(_serial.CurrentState, _nav.SelectedNavigationView, _storage.StorageReady, (settings, serial, navView, storageReady) => (settings, serial, navView))
                 .Where(state => state.navView?.Type == NavigationLocation.Discover && state.serial is SerialConnectedState)
                 .DistinctUntilChanged(state => state.settings.StorageType)
                 .Select(state => (path: _currentFilter, state.settings.StorageType))
@@ -160,6 +160,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
             _serial.CurrentState
                 .Where(_ => _settings.StartupLaunchEnabled && _settings.FirstTimeSetup == false)
+                .CombineLatest(_storage.StorageReady, (serial, ready) => serial)
                 .OfType<SerialConnectedState>()
                 .Take(1)
                 .Subscribe(async _ => await SwitchFilter(_settings.GetStartupFilter()));

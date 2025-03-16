@@ -1,4 +1,5 @@
-﻿using TeensyRom.Core.Commands;
+﻿using MediatR;
+using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.DeleteFile;
 using TeensyRom.Core.Storage.Entities;
 
@@ -8,6 +9,7 @@ namespace TeensyRom.Core.Storage.Services
     {
         IObservable<IEnumerable<IFileItem>> FilesAdded { get; }
         IObservable<IEnumerable<IFileItem>> FilesCopied { get; }
+        IObservable<Unit> StorageReady { get; }
 
         void ClearCache();
         void ClearCache(string path);
