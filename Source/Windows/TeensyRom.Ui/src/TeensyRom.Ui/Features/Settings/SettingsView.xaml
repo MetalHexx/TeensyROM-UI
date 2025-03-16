@@ -1108,24 +1108,28 @@
     <Button Width="60" Height="20" FontSize="12" Margin="15 0 0 0" Command="{Binding ClearMidiBindCommand}" CommandParameter="{Binding LastCart.MidiSettings.Restart}">Clear</Button>
 
 </StackPanel>
-                <TextBlock Grid.Row="23" Grid.Column="4" Grid.ColumnSpan="3" Margin="0 20 0 0" Visibility="{Binding MidiConfigUnavailable, Converter={StaticResource BooleanToVisibilityConverter}, Mode=TwoWay}">MIDI settings are configured per TR device.  Connect to a TR to unlock MIDI.</TextBlock>
-                <StackPanel Grid.Row="23" Grid.Column="4" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Left" Height="60" Visibility="{Binding MidiConfigUnavailable, Converter={StaticResource InverseBooleanToVisibilityConverter}, Mode=TwoWay}">
+                <TextBlock Grid.Row="23" Grid.Column="4" Grid.ColumnSpan="3" Margin="0 20 0 0" Foreground="{StaticResource PastelRed}" Visibility="{Binding MidiConfigEnabled, Converter={StaticResource InverseBooleanToVisibilityConverter}, Mode=TwoWay}">MIDI settings are configured per TR device.  Connect to a TR to unlock MIDI.</TextBlock>
+                <StackPanel Grid.Row="23" Grid.Column="4" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Left" Height="60" Visibility="{Binding MidiConfigEnabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=TwoWay}">
                     
                     <Button             
                         ToolTip="This will refresh the MIDI mapping list if devices were not previously found."
-                        Content="Refresh Midi"  
+                        Content="Refresh Midi Devices"  
                         Command="{Binding RefreshMidiDevicesCommand}" 
+                        Visibility="{Binding MidiConfigEnabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=TwoWay}"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Center"
-                        Grid.ColumnSpan="3" Width="150" Margin="10"/>
-                    <CheckBox                  
+                        Grid.ColumnSpan="3" Width="165" Margin="10"/>
+
+                    <Label VerticalAlignment="Center" Margin="0 0 10 0">Midi Enabled</Label>
+                    
+                    <ToggleButton                  
                         x:Name="MidiEnabledCheckBox"
-                        Content="Midi Enabled"                
+                        Style="{StaticResource MaterialDesignSwitchToggleButton}"               
                         ToolTip="Enables MIDI support."
-                        IsChecked="{Binding LastCart.MidiSettings.MidiEnabled, Mode=TwoWay}" 
-                        VerticalAlignment="Center" Margin="0 4 0 0"
-                        Checked="MidiEnabledCheckBox_Checked"
-                        Unchecked="MidiEnabledCheckBox_Unchecked"/>
+                        Visibility="{Binding MidiConfigEnabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=TwoWay}"
+                        
+                        IsChecked="{Binding LastCart.MidiSettings.MidiEnabled, Mode=TwoWay}"
+                        VerticalAlignment="Center" Margin="0 4 0 0"/>
 
                 </StackPanel>
                 

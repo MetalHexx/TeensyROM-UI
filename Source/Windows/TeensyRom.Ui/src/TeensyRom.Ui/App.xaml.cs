@@ -1,29 +1,21 @@
-﻿using CommonServiceLocator;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Main;
 using System.Reflection;
 using TeensyRom.Core.Storage;
-using TeensyRom.Core.Settings;
-using System.Reactive.Threading.Tasks;
-using TeensyRom.Core.Serial.State;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Threading;
 using TeensyRom.Core.Logging;
-using System.Collections.Generic;
 using TeensyRom.Core.Games;
-using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Common;
 using System.Threading.Tasks;
 using TeensyRom.Core.Music;
-using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Assets;
 using TeensyRom.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Core.Storage.Tools.Zip;
-using System.Linq;
 
 namespace TeensyRom.Ui
 {
@@ -85,7 +77,7 @@ namespace TeensyRom.Ui
 
         private void HandleException(Exception? ex)
         {
-            if (ex is not null) 
+          if (ex is not null) 
             {
                 LogExceptionToFile(ex);
                 var alertService = _serviceProvider.GetRequiredService<IAlertService>();
