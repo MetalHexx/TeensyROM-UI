@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
@@ -23,6 +24,9 @@ namespace TeensyRom.Core.Storage.Services
 
         public IObservable<IEnumerable<IFileItem>> FilesCopied => _filesCopied.AsObservable();
         private Subject<IEnumerable<IFileItem>> _filesCopied = new();
+
+        public IObservable<Unit> StorageReady => _storageReady.AsObservable();
+        private Subject<Unit> _storageReady = new();
 
         protected readonly ISettingsService _settingsService;
         private readonly IGameMetadataService _gameMetadata;
@@ -69,11 +73,11 @@ namespace TeensyRom.Core.Storage.Services
                 StorageConstants.Sd_Cache_File_Relative_Path,
                 $"{StorageConstants.Sd_Cache_File_Name}{_settings.LastCart.DeviceHash}{StorageConstants.Cache_File_Extension}");
 
-            if (previousSettings is null || _settings.StorageType != previousSettings.StorageType || _settings.LastCart != previousSettings.LastCart)
+            if (previousSettings is null || _settings.StorageType != previousSettings.StorageType || _settings.LastCart.DeviceHash != previousSettings.LastCart?.DeviceHash)
             {
                 LoadCache();
-            }
-            
+                _storageReady.OnNext(Unit.Value);
+            }            
         }
         
         public async Task<ILaunchableItem?> SaveFavorite(ILaunchableItem launchItem)
@@ -185,6 +189,8 @@ namespace TeensyRom.Core.Storage.Services
 
         private void LoadCacheFromDisk()
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             using var stream = File.Open(CacheFilePath, FileMode.Open, FileAccess.Read);
             using var reader = new StreamReader(stream);
             var content = reader.ReadToEnd();
@@ -199,6 +205,7 @@ namespace TeensyRom.Core.Storage.Services
             if(cacheFromDisk is null) return;
 
             _storageCache = cacheFromDisk;
+            stopwatch.Stop();
         }
 
         public void EnsureFavorites()
@@ -241,6 +248,8 @@ namespace TeensyRom.Core.Storage.Services
 
         private void SaveCacheToDisk()
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             if (!Directory.Exists(Path.GetDirectoryName(CacheFilePath)))
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(CacheFilePath)!);
@@ -251,6 +260,7 @@ namespace TeensyRom.Core.Storage.Services
                 TypeNameHandling = TypeNameHandling.Auto,
                 Formatting = Formatting.Indented
             }));
+            stopwatch.Stop();
         }
         public async Task<StorageCacheItem?> GetDirectory(string path)
         {
