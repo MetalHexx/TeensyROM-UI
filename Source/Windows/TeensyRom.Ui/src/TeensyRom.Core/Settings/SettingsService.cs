@@ -15,6 +15,7 @@ namespace TeensyRom.Core.Settings
         public IObservable<TeensySettings> Settings => _settings.AsObservable();
 
         private BehaviorSubject<TeensySettings> _settings;
+        private TeensySettings? _currentSettings;
         private string _settingsFilePath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), SettingsConstants.SettingsPath);
 
         private readonly ILoggingService _log;
@@ -27,9 +28,7 @@ namespace TeensyRom.Core.Settings
 
         public TeensySettings GetSettings()
         {
-            var settings = _settings?.Value;
-
-            if (settings is not null) return settings;
+            if (_currentSettings is not null) return MapNewSettings(_currentSettings);
 
             if (File.Exists(_settingsFilePath))
             {
@@ -42,16 +41,16 @@ namespace TeensyRom.Core.Settings
                     WriteIndented = true
                 };
 
-                settings = JsonSerializer.Deserialize<TeensySettings>(content, options);
+                _currentSettings = JsonSerializer.Deserialize<TeensySettings>(content, options);
             }
-            if (settings is null)
+            if (_currentSettings is null)
             {
-                settings = InitDefaultSettings();
-                WriteSettings(settings);
+                _currentSettings = InitDefaultSettings();
+                WriteSettings(_currentSettings);
             }
-            ValidateAndLogSettings(settings);
+            ValidateAndLogSettings(_currentSettings);
 
-            return settings;          
+            return MapNewSettings(_currentSettings);          
         }
 
         public void SetCart(string comPort)
@@ -122,9 +121,47 @@ namespace TeensyRom.Core.Settings
             if (!ValidateAndLogSettings(settings)) return false;
 
             _log.InternalSuccess($"Settings saved successfully.");
-            WriteSettings(settings);
-            Task.Run(() => _settings.OnNext(settings with { }));            
+            _currentSettings = MapNewSettings(settings);
+            WriteSettings(_currentSettings);
+            Task.Run(() => _settings.OnNext(_currentSettings));            
             return true;
+        }
+
+        private TeensySettings MapNewSettings(TeensySettings settings) 
+        {
+            return settings with
+            {
+                LastCart = settings.LastCart is null ? null : settings.LastCart with
+                {
+                    MidiSettings = new Music.Midi.MidiSettings
+                    {
+                        CurrentSpeed = settings.LastCart.MidiSettings.CurrentSpeed,
+                        CurrentSpeedFine = settings.LastCart.MidiSettings.CurrentSpeedFine,
+                        FastForward = settings.LastCart.MidiSettings.FastForward,
+                        HomeSpeed = settings.LastCart.MidiSettings.HomeSpeed,
+                        MidiEnabled = settings.LastCart.MidiSettings.MidiEnabled,
+                        Mode = settings.LastCart.MidiSettings.Mode,
+                        Next = settings.LastCart.MidiSettings.Next,
+                        Previous = settings.LastCart.MidiSettings.Previous,
+                        NudgeBackward = settings.LastCart.MidiSettings.NudgeBackward,
+                        NudgeForward = settings.LastCart.MidiSettings.NudgeForward,
+                        PlayPause = settings.LastCart.MidiSettings.PlayPause,
+                        Restart = settings.LastCart.MidiSettings.Restart,
+                        Seek = settings.LastCart.MidiSettings.Seek,
+                        SetSpeedMinus50 = settings.LastCart.MidiSettings.SetSpeedMinus50,
+                        SetSpeedPlus50 = settings.LastCart.MidiSettings.SetSpeedPlus50,
+                        SnapToSeek = settings.LastCart.MidiSettings.SnapToSeek,
+                        SnapToSpeed = settings.LastCart.MidiSettings.SnapToSpeed,
+                        Stop = settings.LastCart.MidiSettings.Stop,
+                        Voice1Kill = settings.LastCart.MidiSettings.Voice1Kill,
+                        Voice1Toggle = settings.LastCart.MidiSettings.Voice1Toggle,
+                        Voice2Kill = settings.LastCart.MidiSettings.Voice2Kill,
+                        Voice2Toggle = settings.LastCart.MidiSettings.Voice2Toggle,
+                        Voice3Kill = settings.LastCart.MidiSettings.Voice3Kill,
+                        Voice3Toggle = settings.LastCart.MidiSettings.Voice3Toggle
+                    }
+                }
+            };
         }
 
         private void WriteSettings(TeensySettings settings)

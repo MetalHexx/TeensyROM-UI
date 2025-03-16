@@ -22,6 +22,14 @@ namespace TeensyRom.Ui.Features.Settings
             Name = cart.Name;
             MidiSettings = new MidiSettingsViewModel(cart.MidiSettings ?? new());
         }
+        public KnownCartViewModel(KnownCart cart, List<MidiDeviceViewModel> devices)
+        {
+            DeviceHash = cart.DeviceHash;
+            PnpDeviceId = cart.PnpDeviceId;
+            ComPort = cart.ComPort;
+            Name = cart.Name;
+            MidiSettings = new MidiSettingsViewModel(cart.MidiSettings, devices);
+        }
         public KnownCartViewModel(KnownCartViewModel cart, List<MidiDeviceViewModel> devices)
         {
             DeviceHash = cart.DeviceHash;
@@ -65,31 +73,23 @@ namespace TeensyRom.Ui.Features.Settings
 
         public MidiSettingsViewModel(MidiSettingsViewModel s, List<MidiDeviceViewModel> devices)
         {
-            PlayPause = new MidiMappingViewModel(s.PlayPause);
-            Stop = new MidiMappingViewModel(s.Stop);
-            Next = new MidiMappingViewModel(s.Next);
-            Previous = new MidiMappingViewModel(s.Previous);
-            Seek = new MidiMappingViewModel(s.Seek);
-            FastForward = new MidiMappingViewModel(s.FastForward);
-            NudgeForward = new MidiMappingViewModel(s.NudgeForward);
-            NudgeBackward = new MidiMappingViewModel(s.NudgeBackward);
-            CurrentSpeed = new MidiMappingViewModel(s.CurrentSpeed);
-            CurrentSpeedFine = new MidiMappingViewModel(s.CurrentSpeedFine);
-            SetSpeedPlus50 = new MidiMappingViewModel(s.SetSpeedPlus50);
-            SetSpeedMinus50 = new MidiMappingViewModel(s.SetSpeedMinus50);
-            HomeSpeed = new MidiMappingViewModel(s.HomeSpeed);
-            Voice1Toggle = new MidiMappingViewModel(s.Voice1Toggle);
-            Voice2Toggle = new MidiMappingViewModel(s.Voice2Toggle);
-            Voice3Toggle = new MidiMappingViewModel(s.Voice3Toggle);
-            Voice1Kill = new MidiMappingViewModel(s.Voice1Kill);
-            Voice2Kill = new MidiMappingViewModel(s.Voice2Kill);
-            Voice3Kill = new MidiMappingViewModel(s.Voice3Kill);
-            Mode = new MidiMappingViewModel(s.Mode);
-            Restart = new MidiMappingViewModel(s.Restart);
-            SnapToSpeed = s.SnapToSpeed;
-            SnapToSeek = s.SnapToSeek;
-            MidiEnabled = s.MidiEnabled;
+            MapSettings(s.ToMidiSettings());
+            MapDevices(devices);
+        }
 
+        public MidiSettingsViewModel(MidiSettings s, List<MidiDeviceViewModel> devices)
+        {
+            MapSettings(s);
+            MapDevices(devices);
+        }
+
+        public MidiSettingsViewModel(MidiSettings s)
+        {
+            MapSettings(s);
+        }
+
+        private void MapDevices(List<MidiDeviceViewModel> devices)
+        {
             CurrentSpeed.Device = devices.FirstOrDefault(d => d.Name == CurrentSpeed.Device?.UnboundName) ?? CurrentSpeed.Device;
             CurrentSpeedFine.Device = devices.FirstOrDefault(d => d.Name == CurrentSpeedFine.Device?.UnboundName) ?? CurrentSpeedFine.Device;
             FastForward.Device = devices.FirstOrDefault(d => d.Name == FastForward.Device?.UnboundName) ?? FastForward.Device;
@@ -112,9 +112,9 @@ namespace TeensyRom.Ui.Features.Settings
             Mode.Device = devices.FirstOrDefault(d => d.Name == Mode.Device?.UnboundName) ?? Mode.Device;
             Restart.Device = devices.FirstOrDefault(d => d.Name == Restart.Device?.UnboundName) ?? Restart.Device;
         }
-        public MidiSettingsViewModel(MidiSettings s)
+
+        private void MapSettings(MidiSettings s)
         {
-            MidiEnabled = s.MidiEnabled;
             PlayPause = new MidiMappingViewModel(s.PlayPause);
             Stop = new MidiMappingViewModel(s.Stop);
             Next = new MidiMappingViewModel(s.Next);
@@ -138,6 +138,7 @@ namespace TeensyRom.Ui.Features.Settings
             Restart = new MidiMappingViewModel(s.Restart);
             SnapToSpeed = s.SnapToSpeed;
             SnapToSeek = s.SnapToSeek;
+            MidiEnabled = s.MidiEnabled;
         }
 
         public MidiSettings ToMidiSettings()
