@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reactive.Concurrency;
+using System.Text.RegularExpressions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
@@ -17,7 +18,7 @@ namespace TeensyRom.Core.Storage.Services
     /// - hitting previous in shuffle mode when you're at the beginning of the history will do nothing.
     /// - clicking a song in your current directory will pull you out of shuffle mode and clear history.Clicking next or previous will go to the next or previous song in the current directory.
     /// </summary>
-    public class StorageCache : Dictionary<string, StorageCacheItem>
+    public class StorageCache : Dictionary<string, StorageCacheItem>, IStorageCache
     {
         private List<string> _bannedFolders = [];
         private List<string> _bannedFiles = [];
@@ -147,6 +148,145 @@ namespace TeensyRom.Core.Storage.Services
             if (parentDir is null) return;
 
             parentDir.DeleteFile(path);
+        }
+
+        private Func<KeyValuePair<string, StorageCacheItem>, bool> NotFavoriteFilter(List<string> favPaths) =>
+            kvp => !favPaths
+                .Select(p => p.RemoveLeadingAndTrailingSlash())
+                .Any(favPath => kvp.Key.Contains(favPath));
+
+        public IEnumerable<ILaunchableItem> Search(string searchText, List<string> favPaths, List<string> stopSearchWords, SearchWeights searchWeights, params TeensyFileType[] fileTypes)
+        {
+            var quotedMatches = Regex
+                .Matches(searchText, @"(\+?""([^""]+)"")|\+?\S+")
+                .Cast<Match>()
+                .Select(m => m.Groups[2].Success ? (m.Groups[1].Value.StartsWith("+") ? "+" : "") + m.Groups[2].Value : m.Groups[0].Value)
+                .Where(m => !string.IsNullOrEmpty(m))
+                .ToList();
+
+            searchText = searchText.Replace("\"", "");
+            searchText = searchText.Replace("+", "");
+
+            foreach (var quotedMatch in quotedMatches)
+            {
+                var noPlusQuotedMatch = string.IsNullOrWhiteSpace(quotedMatch)
+                    ? string.Empty
+                    : quotedMatch.Replace("+", "");
+
+                searchText = string.IsNullOrWhiteSpace(searchText)
+                    ? string.Empty
+                    : searchText.Replace($"{noPlusQuotedMatch}", "");
+            }
+
+            var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            searchTerms.RemoveAll(term => stopSearchWords.Contains(term.ToLower()));
+
+            searchTerms.AddRange(quotedMatches);
+
+            var requiredTerms = searchTerms
+                .Where(term => term.StartsWith("+"))
+                .Select(term => term.Substring(1))
+                .ToList();
+
+            searchTerms = searchTerms.Select(term => term.TrimStart('+')).ToList();
+
+            return this
+                .Where(NotFavoriteFilter(favPaths))
+                .SelectMany(c => c.Value.Files)
+                .OfType<ILaunchableItem>()
+                .Where(f => fileTypes.Contains(f.FileType) &&
+                            requiredTerms.All(requiredTerm =>
+                                f.Title.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase) ||
+                                f.Name.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase) ||
+                                f.Creator.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase) ||
+                                f.Path.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase) ||
+                                f.Description.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase)))
+                .Select(file => new
+                {
+                    File = file,
+                    Score = searchTerms.Sum(term =>
+                        (file.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ? searchWeights.Title : 0) +
+                        (file.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ? searchWeights.FileName : 0) +
+                        (file.Creator.Contains(term, StringComparison.OrdinalIgnoreCase) ? searchWeights.Creator : 0) +
+                        (file.Path.Contains(term, StringComparison.OrdinalIgnoreCase) ? searchWeights.FilePath : 0) +
+                        (file.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ? searchWeights.Description : 0))
+                })
+                .Where(result => result.Score > 0)
+                .OrderByDescending(result => result.Score)
+                .ThenBy(result => result.File.Title)
+                .Select(result => result.File);
+        }
+
+        public ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, params TeensyFileType[] fileTypes)
+        {
+            scopePath = $"{scopePath.RemoveLeadingAndTrailingSlash().EnsureUnixPathEnding()}";
+
+            if (fileTypes.Length == 0)
+            {
+                fileTypes = TeensyFileTypeExtensions.GetLaunchFileTypes();
+            }
+            var selection = this
+                .SelectMany(c => c.Value.Files)
+                .Where(f => fileTypes.Contains(f.FileType))
+                .Where(f => scope switch
+                {
+                    StorageScope.DirDeep => f.Path
+                        .RemoveLeadingAndTrailingSlash()
+                        .StartsWith(scopePath.RemoveLeadingAndTrailingSlash()),
+
+                    StorageScope.DirShallow => f.Path
+                        .GetUnixParentPath()
+                        .RemoveLeadingAndTrailingSlash()
+                        .EnsureUnixPathEnding() == scopePath
+                            .RemoveLeadingAndTrailingSlash()
+                            .EnsureUnixPathEnding(),
+
+                    _ => true
+                })
+                .OfType<ILaunchableItem>()
+                .ToArray();
+
+            if (selection.Length == 0) return null;
+
+            return selection[new Random().Next(selection.Length - 1)];
+        }
+
+        public void EnsureFavorites(List<string> favPaths)
+        {
+            List<ILaunchableItem> favsToFavorite = GetFavoriteItemsFromCache(favPaths);
+
+            favsToFavorite.ForEach(fav => fav.IsFavorite = true);
+
+            this
+                .Where(NotFavoriteFilter(favPaths))
+                .SelectMany(c => c.Value.Files)
+                .Where(f => favsToFavorite.Any(fav => fav.Id == f.Id))
+                .ToList()
+                .ForEach(parentFile =>
+                {
+                    var fav = favsToFavorite.First(fav => fav.Id == parentFile.Id);
+                    fav.FavParentPath = parentFile.Path;
+                    fav.MetadataSourcePath = parentFile.MetadataSourcePath;
+                    parentFile.IsFavorite = true;
+                    parentFile.FavChildPath = fav.Path;
+                    UpsertFile(parentFile);
+                    UpsertFile(fav);
+                });
+        }
+
+        public List<ILaunchableItem> GetFavoriteItemsFromCache(List<string> favPaths)
+        {
+            List<ILaunchableItem> favs = [];
+
+            foreach (var target in favPaths)
+            {
+                favs.AddRange(this
+                    .Where(c => c.Key.RemoveLeadingAndTrailingSlash().Contains(target.RemoveLeadingAndTrailingSlash()))
+                    .SelectMany(c => c.Value.Files)
+                    .ToList()
+                    .Cast<ILaunchableItem>());
+            }
+            return favs;
         }
 
         private static string CleanPath(string path) => path

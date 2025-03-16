@@ -41,7 +41,7 @@ namespace TeensyRom.Core.Storage.Services
             ? _sdCacheFileName
             : _usbCacheFileName;
 
-        private StorageCache _storageCache = null!;
+        private IStorageCache _storageCache = null!;
         
         public CachedStorageService(ISettingsService settings, IGameMetadataService gameMetadata, ISidMetadataService sidMetadata, IMediator mediator, IAlertService alert)
         {
@@ -208,44 +208,6 @@ namespace TeensyRom.Core.Storage.Services
             stopwatch.Stop();
         }
 
-        public void EnsureFavorites()
-        {
-            List<ILaunchableItem> favsToFavorite = GetFavoriteItemsFromCache();
-
-            favsToFavorite.ForEach(fav => fav.IsFavorite = true);
-
-            _storageCache
-                .Where(NotFavoriteFilter)
-                .SelectMany(c => c.Value.Files)                
-                .Where(f => favsToFavorite.Any(fav => fav.Id == f.Id))
-                .ToList()
-                .ForEach(parentFile => 
-                {                       
-                    var fav = favsToFavorite.First(fav => fav.Id == parentFile.Id);
-                    fav.FavParentPath = parentFile.Path;
-                    fav.MetadataSourcePath = parentFile.MetadataSourcePath;
-                    parentFile.IsFavorite = true;
-                    parentFile.FavChildPath = fav.Path;
-                    _storageCache.UpsertFile(parentFile);
-                    _storageCache.UpsertFile(fav);
-                });
-        }
-
-        public List<ILaunchableItem> GetFavoriteItemsFromCache()
-        {
-            List<ILaunchableItem> favs = [];
-
-            foreach (var target in _settings.GetFavoritePaths())
-            {
-                favs.AddRange(_storageCache
-                    .Where(c => c.Key.RemoveLeadingAndTrailingSlash().Contains(target.RemoveLeadingAndTrailingSlash()))
-                    .SelectMany(c => c.Value.Files)
-                    .ToList()
-                    .Cast<ILaunchableItem>());
-            }
-            return favs;
-        }
-
         private void SaveCacheToDisk()
         {
             var stopwatch = new Stopwatch();
@@ -395,107 +357,22 @@ namespace TeensyRom.Core.Storage.Services
         }
         public void Dispose() => _settingsSubscription?.Dispose();
 
-        public ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, params TeensyFileType[] fileTypes) 
+        public ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, params TeensyFileType[] fileTypes)
         {
-            scopePath = $"{scopePath.RemoveLeadingAndTrailingSlash().EnsureUnixPathEnding()}";
-
-            if (fileTypes.Length == 0)
-            {
-                fileTypes = TeensyFileTypeExtensions.GetLaunchFileTypes();
-            }
-            var selection = _storageCache
-                .SelectMany(c => c.Value.Files)                
-                .Where(f => fileTypes.Contains(f.FileType))
-                .Where(f => scope switch
-                {
-                    StorageScope.DirDeep => f.Path
-                        .RemoveLeadingAndTrailingSlash()
-                        .StartsWith(scopePath.RemoveLeadingAndTrailingSlash()),
-
-                    StorageScope.DirShallow => f.Path
-                        .GetUnixParentPath()
-                        .RemoveLeadingAndTrailingSlash()
-                        .EnsureUnixPathEnding() == scopePath
-                            .RemoveLeadingAndTrailingSlash()
-                            .EnsureUnixPathEnding(),
-
-                    _ => true
-                })
-                .OfType<ILaunchableItem>()                
-                .ToArray();
-
-            if (selection.Length == 0) return null;
-
-            return selection[new Random().Next(selection.Length - 1)];
+            return _storageCache.GetRandomFile(scope, scopePath, fileTypes);
         }
 
         public IEnumerable<ILaunchableItem> Search(string searchText, params TeensyFileType[] fileTypes)
         {
-            var quotedMatches = Regex
-                .Matches(searchText, @"(\+?""([^""]+)"")|\+?\S+")
-                .Cast<Match>()
-                .Select(m => m.Groups[2].Success ? (m.Groups[1].Value.StartsWith("+") ? "+" : "") + m.Groups[2].Value : m.Groups[0].Value)
-                .Where(m => !string.IsNullOrEmpty(m))
-                .ToList();
-
-            searchText = searchText.Replace("\"", "");
-            searchText = searchText.Replace("+", "");
-
-            foreach (var quotedMatch in quotedMatches)
-            {
-                var noPlusQuotedMatch = string.IsNullOrWhiteSpace(quotedMatch) 
-                    ? string.Empty
-                    : quotedMatch.Replace("+", "");
-
-                searchText = string.IsNullOrWhiteSpace(searchText) 
-                    ? string.Empty 
-                    : searchText.Replace($"{noPlusQuotedMatch}", "");
-            }
-
-            var searchTerms = searchText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            searchTerms.RemoveAll(term => _settings.SearchStopWords.Contains(term.ToLower()));
-
-            searchTerms.AddRange(quotedMatches);
-
-            var requiredTerms = searchTerms
-                .Where(term => term.StartsWith("+"))
-                .Select(term => term.Substring(1))
-                .ToList();
-
-            searchTerms = searchTerms.Select(term => term.TrimStart('+')).ToList();
-
-            return _storageCache
-                .Where(NotFavoriteFilter)
-                .SelectMany(c => c.Value.Files)
-                .OfType<ILaunchableItem>()
-                .Where(f => fileTypes.Contains(f.FileType) &&
-                            requiredTerms.All(requiredTerm =>
-                                f.Title.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase) ||
-                                f.Name.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase) ||
-                                f.Creator.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase) ||
-                                f.Path.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase) ||
-                                f.Description.Contains(requiredTerm, StringComparison.OrdinalIgnoreCase)))
-                .Select(file => new
-                {
-                    File = file,
-                    Score = searchTerms.Sum(term =>
-                        (file.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Title : 0) +
-                        (file.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.FileName : 0) +
-                        (file.Creator.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Creator : 0) +
-                        (file.Path.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.FilePath : 0) +
-                        (file.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ? _settings.SearchWeights.Description : 0))
-                })
-                .Where(result => result.Score > 0)
-                .OrderByDescending(result => result.Score)
-                .ThenBy(result => result.File.Title)
-                .Select(result => result.File);
+            return _storageCache.Search
+            (
+                searchText, 
+                _settings.GetFavoritePaths(), 
+                _settings.SearchStopWords, 
+                _settings.SearchWeights, 
+                fileTypes
+            );
         }
-
-        Func<KeyValuePair<string, StorageCacheItem>, bool> NotFavoriteFilter => 
-            kvp => !_settings
-                .GetFavoritePaths()
-                .Select(p => p.RemoveLeadingAndTrailingSlash())
-                .Any(favPath => kvp.Key.Contains(favPath));
 
         public Task CacheAll() => CacheAll(StorageConstants.Remote_Path_Root);
 
@@ -528,7 +405,7 @@ namespace TeensyRom.Core.Storage.Services
 
                     SaveDirectoryToCache(filteredContent);
                 }
-                EnsureFavorites();
+                _storageCache.EnsureFavorites(_settings.GetFavoritePaths());
                 SaveCacheToDisk();
             });
             _alert.Publish($"Indexing completed for {_settings.StorageType} storage.");
