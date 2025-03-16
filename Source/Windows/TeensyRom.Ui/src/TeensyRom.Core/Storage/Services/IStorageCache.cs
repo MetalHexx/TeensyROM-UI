@@ -20,5 +20,6 @@ namespace TeensyRom.Core.Storage.Services
         void EnsureFavorites(List<string> favPaths);
         IEnumerable<ILaunchableItem> Search(string searchText, List<string> favPaths, List<string> stopSearchWords, SearchWeights searchWeights, params TeensyFileType[] fileTypes);
         ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, params TeensyFileType[] fileTypes);
+        void WriteToDisk();
     }
 }

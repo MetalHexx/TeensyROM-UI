@@ -75,7 +75,7 @@ namespace TeensyRom.Core.Storage.Services
 
             if (previousSettings is null || _settings.StorageType != previousSettings.StorageType || _settings.LastCart.DeviceHash != previousSettings.LastCart?.DeviceHash)
             {
-                LoadCache();
+                _storageCache = new StorageCache(CacheFilePath, _settings.BannedDirectories, _settings.BannedDirectories);
                 _storageReady.OnNext(Unit.Value);
             }            
         }
@@ -115,7 +115,7 @@ namespace TeensyRom.Core.Storage.Services
             _storageCache.UpsertFile(launchItem);
             _storageCache.UpsertFile(favItem);
 
-            SaveCacheToDisk();
+            _storageCache.WriteToDisk();
 
             return favItem as ILaunchableItem;
         }
@@ -162,8 +162,7 @@ namespace TeensyRom.Core.Storage.Services
         {
             launchItem.IsCompatible = false;
             _storageCache.UpsertFile(launchItem);
-
-            SaveCacheToDisk();
+            _storageCache.WriteToDisk();
         }
 
         public void ClearCache()
@@ -176,57 +175,10 @@ namespace TeensyRom.Core.Storage.Services
         }
         public void ClearCache(string path) => _storageCache.DeleteDirectoryWithChildren(path);
 
-        private void LoadCache()
-        {
-            if (!File.Exists(CacheFilePath)) 
-            {
-                _storageCache = new StorageCache(_settings.BannedDirectories, _settings.BannedFiles);
-                SaveCacheToDisk();
-                return;
-            }
-            LoadCacheFromDisk();
-        }
-
-        private void LoadCacheFromDisk()
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            using var stream = File.Open(CacheFilePath, FileMode.Open, FileAccess.Read);
-            using var reader = new StreamReader(stream);
-            var content = reader.ReadToEnd();
-
-            var cacheFromDisk = JsonConvert.DeserializeObject<StorageCache>(content, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Auto,
-                Formatting = Formatting.Indented
-            });
-            cacheFromDisk?.SetBanLists(_settings.BannedDirectories, _settings.BannedFiles);
-
-            if(cacheFromDisk is null) return;
-
-            _storageCache = cacheFromDisk;
-            stopwatch.Stop();
-        }
-
-        private void SaveCacheToDisk()
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            if (!Directory.Exists(Path.GetDirectoryName(CacheFilePath)))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(CacheFilePath)!);
-            }
-
-            File.WriteAllText(CacheFilePath, JsonConvert.SerializeObject(_storageCache, Formatting.Indented, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Auto,
-                Formatting = Formatting.Indented
-            }));
-            stopwatch.Stop();
-        }
+        
         public async Task<StorageCacheItem?> GetDirectory(string path)
         {
-            var isBanned = _settings.BannedDirectories.Any(b => path.Contains(b));
+            var isBanned = _settings.BannedDirectories.Any(path.Contains);
 
             if(isBanned) return null;
             
@@ -244,7 +196,7 @@ namespace TeensyRom.Core.Storage.Services
             var filteredContent = FilterBannedItems(response.DirectoryContent);
 
             cacheItem = SaveDirectoryToCache(filteredContent);
-            SaveCacheToDisk();
+            _storageCache.WriteToDisk();
             return cacheItem;
         }
 
@@ -252,12 +204,11 @@ namespace TeensyRom.Core.Storage.Services
         {
             StorageCacheItem? cacheItem;
             var files = MapAndOrderFiles(dirContent);
-            var directories = MapAndOrderDirectories(dirContent);
 
             cacheItem = new StorageCacheItem
             {
                 Path = dirContent.Path,
-                Directories = directories.ToList(),
+                Directories = dirContent.MapAndOrderDirectories(),
                 Files = files
             };
 
@@ -270,18 +221,6 @@ namespace TeensyRom.Core.Storage.Services
         }
 
         private static void FavCacheItems(StorageCacheItem cacheItem) => cacheItem.Files.ForEach(f => f.IsFavorite = true);
-
-        private static IEnumerable<DirectoryItem> MapAndOrderDirectories(DirectoryContent? directoryContent)
-        {
-            return directoryContent?.Directories
-                .Select(d => new DirectoryItem
-                {
-                    Name = d.Name,
-                    Path = d.Path
-                })
-                .OrderBy(d => d.Name)
-                .ToList() ?? new List<DirectoryItem>();
-        }
 
         private List<IFileItem> MapAndOrderFiles(DirectoryContent? directoryContent)
         {
@@ -298,31 +237,15 @@ namespace TeensyRom.Core.Storage.Services
             {
                 SongItem s => _sidMetadata.EnrichSong(s),
                 GameItem g => _gameMetadata.EnrichGame(g),
-                HexItem h => MapHexItem(h),
+                HexItem h => HexItem.MapHexItem(h),
                 ImageItem i => i,
                 _ => file
             };
-        }
-
-        private HexItem MapHexItem(HexItem h) 
-        {
-            if (h.Images.Count != 0) return h;
-
-            var hardwareFileInfo = new FileInfo(AssetConstants.TeensyRomHardwareFilePath);
-
-            h.Images.Add(new ViewableItemImage
-            {
-                FileName = hardwareFileInfo.Name,
-                Path = hardwareFileInfo.FullName,
-                Source = "Sensorium Embedded"
-            });
-            return h;
-        }
-        
+        }        
 
         public async Task<SaveFilesResult> SaveFiles(IEnumerable<FileTransferItem> files)
         {
-            List<IFileItem> addedFiles = new();
+            List<IFileItem> addedFiles = [];
             SaveFilesResult saveResults = new();
 
             var result = await _mediator.Send(new SaveFilesCommand(files.ToList()));         
@@ -333,14 +256,14 @@ namespace TeensyRom.Core.Storage.Services
 
                 if (storageItem is SongItem song) _sidMetadata.EnrichSong(song);
                 if (storageItem is GameItem game) _gameMetadata.EnrichGame(game);
-                if (storageItem is HexItem hex) MapHexItem(hex);
+                if (storageItem is HexItem hex) HexItem.MapHexItem(hex);
                 if (storageItem is FileItem file)
                 {
                     _storageCache.UpsertFile(file);
                     addedFiles.Add(file);
                 }
             }
-            SaveCacheToDisk();
+            _storageCache.WriteToDisk();
             _filesAdded.OnNext(addedFiles);
             return saveResults;
         }
@@ -406,7 +329,7 @@ namespace TeensyRom.Core.Storage.Services
                     SaveDirectoryToCache(filteredContent);
                 }
                 _storageCache.EnsureFavorites(_settings.GetFavoritePaths());
-                SaveCacheToDisk();
+                _storageCache.WriteToDisk();
             });
             _alert.Publish($"Indexing completed for {_settings.StorageType} storage.");
         }
@@ -455,9 +378,9 @@ namespace TeensyRom.Core.Storage.Services
                 _alert.Publish($"There was an error copying files.");
                 return;
             }
-            _alert.Publish($"File(s) have been copied successfully.");            
+            _alert.Publish($"File(s) have been copied successfully.");
 
-            SaveCacheToDisk();
+            _storageCache.WriteToDisk();
             _filesCopied.OnNext(filesAdded);
         }
 
