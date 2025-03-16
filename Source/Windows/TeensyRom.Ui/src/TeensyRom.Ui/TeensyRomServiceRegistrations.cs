@@ -59,6 +59,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
             services.AddSingleton<IMidiService, MidiService>();
             services.AddSingleton<ICachedStorageService, CachedStorageService>();
+            services.AddSingleton<IStorageCache, StorageCache>();
             services.AddSingleton<IPlayerContext, PlayerContext>();
             services.AddSingleton<IDiscoveryTreeState, DiscoverTreeState>();
             services.AddSingleton<ISetupService, SetupService>();  

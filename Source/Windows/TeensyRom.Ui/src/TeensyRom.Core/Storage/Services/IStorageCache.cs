@@ -1,4 +1,5 @@
 ﻿
+using System.Reactive;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 
@@ -6,6 +7,8 @@ namespace TeensyRom.Core.Storage.Services
 {
     public interface IStorageCache
     {
+        IObservable<Unit> StorageReady { get; }
+
         void DeleteDirectory(string path);
         void DeleteDirectoryWithChildren(string path);
         void DeleteFile(string path);
@@ -13,7 +16,6 @@ namespace TeensyRom.Core.Storage.Services
         StorageCacheItem? GetByDirPath(string path);
         List<IFileItem> GetFileByName(string name);
         IFileItem? GetFileByPath(string filePath);
-        void SetBanLists(List<string> bannedFolders, List<string> bannedFiles);
         void UpsertDirectory(string path, StorageCacheItem directory);
         void UpsertFile(IFileItem fileItem);
         void Clear();
@@ -21,5 +23,6 @@ namespace TeensyRom.Core.Storage.Services
         IEnumerable<ILaunchableItem> Search(string searchText, List<string> favPaths, List<string> stopSearchWords, SearchWeights searchWeights, params TeensyFileType[] fileTypes);
         ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, params TeensyFileType[] fileTypes);
         void WriteToDisk();
+        void ClearCache();
     }
 }

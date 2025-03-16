@@ -24,59 +24,31 @@ namespace TeensyRom.Core.Storage.Services
         public IObservable<IEnumerable<IFileItem>> FilesCopied => _filesCopied.AsObservable();
         private Subject<IEnumerable<IFileItem>> _filesCopied = new();
 
-        public IObservable<Unit> StorageReady => _storageReady.AsObservable();
-        private Subject<Unit> _storageReady = new();
+        public IObservable<System.Reactive.Unit> StorageReady => _storageCache.StorageReady;
 
         protected readonly ISettingsService _settingsService;
+        protected readonly IAlertService _alert;
         private readonly IGameMetadataService _gameMetadata;
         private readonly ISidMetadataService _sidMetadata;
         private readonly IMediator _mediator;
-        private readonly IAlertService _alert;
         private TeensySettings _settings = null!;
         private IDisposable? _settingsSubscription;
-        private string _usbCacheFileName = string.Empty; 
-        private string _sdCacheFileName = string.Empty;
-        private string CacheFilePath => _settings.StorageType is TeensyStorageType.SD
-            ? _sdCacheFileName
-            : _usbCacheFileName;
-
-        private IStorageCache _storageCache = null!;
         
-        public CachedStorageService(ISettingsService settings, IGameMetadataService gameMetadata, ISidMetadataService sidMetadata, IMediator mediator, IAlertService alert)
+
+        private IStorageCache _storageCache;
+        
+        public CachedStorageService(ISettingsService settingsService, IGameMetadataService gameMetadata, ISidMetadataService sidMetadata, IMediator mediator, IAlertService alert, IStorageCache storageCache)
         {
-            _settingsService = settings;
+            _settingsService = settingsService;
             _gameMetadata = gameMetadata;
             _sidMetadata = sidMetadata;
             _mediator = mediator;
             _alert = alert;
+            _storageCache = storageCache;
+            _settings = settingsService.GetSettings();
             _settingsSubscription = _settingsService.Settings
                 .Where(s => s is not null && s.LastCart is not null)
-                .Subscribe(OnSettingsChanged);
-        }
-
-        private void OnSettingsChanged(TeensySettings newSettings)
-        {   
-            var previousSettings = _settings == null 
-                ?  null 
-                : _settings with { };
-            
-            _settings = newSettings;
-
-            _usbCacheFileName = Path.Combine(
-                Assembly.GetExecutingAssembly().GetPath(),
-                StorageConstants.Usb_Cache_File_Relative_Path,
-                $"{StorageConstants.Usb_Cache_File_Name}{_settings.LastCart.DeviceHash}{StorageConstants.Cache_File_Extension}");
-
-            _sdCacheFileName = Path.Combine(
-                Assembly.GetExecutingAssembly().GetPath(),
-                StorageConstants.Sd_Cache_File_Relative_Path,
-                $"{StorageConstants.Sd_Cache_File_Name}{_settings.LastCart.DeviceHash}{StorageConstants.Cache_File_Extension}");
-
-            if (previousSettings is null || _settings.StorageType != previousSettings.StorageType || _settings.LastCart.DeviceHash != previousSettings.LastCart?.DeviceHash)
-            {
-                _storageCache = new StorageCache(CacheFilePath, _settings.BannedDirectories, _settings.BannedDirectories);
-                _storageReady.OnNext(Unit.Value);
-            }            
+                .Subscribe(s => _settings = s);
         }
         
         public async Task<ILaunchableItem?> SaveFavorite(ILaunchableItem launchItem)
@@ -164,23 +136,12 @@ namespace TeensyRom.Core.Storage.Services
             _storageCache.WriteToDisk();
         }
 
-        public void ClearCache()
-        {
-            _storageCache.Clear();
-
-            if (!File.Exists(CacheFilePath)) return;
-
-            File.Delete(CacheFilePath);
-        }
+        public void ClearCache() => _storageCache.ClearCache();
         public void ClearCache(string path) => _storageCache.DeleteDirectoryWithChildren(path);
 
         
         public async Task<StorageCacheItem?> GetDirectory(string path)
-        {
-            var isBanned = _settings.BannedDirectories.Any(path.Contains);
-
-            if(isBanned) return null;
-            
+        {   
             var cacheItem = _storageCache.GetByDirPath(path);
 
             if (cacheItem != null)

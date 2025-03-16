@@ -4,28 +4,66 @@ using System.Text.RegularExpressions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
+using System.Reflection;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Reactive;
 
 namespace TeensyRom.Core.Storage.Services
 {
-    public class StorageCache : Dictionary<string, StorageCacheItem>, IStorageCache
-    {
+    public class StorageCache : Dictionary<string, StorageCacheItem>, IStorageCache, IDisposable
+    {        
+        public IObservable<Unit> StorageReady => _storageReady.AsObservable();
+        private Subject<Unit> _storageReady = new();
+
         private List<string> _bannedFolders = [];
         private List<string> _bannedFiles = [];
         private string _cacheFilePath = string.Empty;
+        private ISettingsService _settingsService;
+        private TeensySettings _settings = null!;
+        private IDisposable? _settingsSubscription;
+        private string _usbCacheFileName = string.Empty;
+        private string _sdCacheFileName = string.Empty;
+        private string CacheFilePath => _settings.StorageType is TeensyStorageType.SD
+            ? _sdCacheFileName
+            : _usbCacheFileName;
 
         public StorageCache() { }
 
-        public StorageCache(string cacheFilePath, List<string> bannedFolders, List<string> bannedFiles)
+        public StorageCache(ISettingsService settingsService) 
         {
-            _bannedFolders = bannedFolders;
-            _bannedFiles = bannedFiles;
-            _cacheFilePath = cacheFilePath;
-            ReadFromDisk();
+            _settingsService = settingsService;
+            _settingsSubscription = _settingsService.Settings
+                .Where(s => s is not null && s.LastCart is not null)
+                .Subscribe(OnSettingsChanged);
         }
-        public void SetBanLists(List<string> bannedFolders, List<string> bannedFiles)
+
+        private void OnSettingsChanged(TeensySettings newSettings)
         {
-            _bannedFolders = bannedFolders;
-            _bannedFiles = bannedFiles;
+            var previousSettings = _settings == null
+                ? null
+                : _settings with { };
+
+            _settings = newSettings;
+
+            _usbCacheFileName = Path.Combine(
+                Assembly.GetExecutingAssembly().GetPath(),
+                StorageConstants.Usb_Cache_File_Relative_Path,
+                $"{StorageConstants.Usb_Cache_File_Name}{_settings.LastCart.DeviceHash}{StorageConstants.Cache_File_Extension}");
+
+            _sdCacheFileName = Path.Combine(
+                Assembly.GetExecutingAssembly().GetPath(),
+                StorageConstants.Sd_Cache_File_Relative_Path,
+                $"{StorageConstants.Sd_Cache_File_Name}{_settings.LastCart.DeviceHash}{StorageConstants.Cache_File_Extension}");
+
+            if (previousSettings is null || _settings.StorageType != previousSettings.StorageType || _settings.LastCart.DeviceHash != previousSettings.LastCart?.DeviceHash)
+            {
+                _cacheFilePath = CacheFilePath;
+                _bannedFolders = _settings.BannedDirectories.ToList();
+                _bannedFiles = _settings.BannedFiles.ToList();
+                ReadFromDisk();
+                _storageReady.OnNext(Unit.Default);
+            }
         }
         public void UpsertDirectory(string path, StorageCacheItem directory)
         {
@@ -104,8 +142,21 @@ namespace TeensyRom.Core.Storage.Services
             DeleteDirectory(currentDir.Path);
         }
 
+        public void ClearCache()
+        {
+            Clear();
+
+            if (!File.Exists(CacheFilePath)) return;
+
+            File.Delete(CacheFilePath);
+        }
+
         public StorageCacheItem? GetByDirPath(string path)
         {
+            var isBanned = _settings.BannedDirectories.Any(path.Contains);
+
+            if (isBanned) return null;
+
             var cleanPath = CleanPath(path);
 
             if (!TryGetValue(cleanPath, out var item)) return null;
@@ -346,6 +397,11 @@ namespace TeensyRom.Core.Storage.Services
                 .ToList();
 
             return cacheItem;
+        }
+
+        public void Dispose()
+        {
+            _settingsSubscription?.Dispose();
         }
     }
 }
