@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Reactive.Concurrency;
+﻿using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TeensyRom.Core.Storage.Services
 {
@@ -22,12 +17,16 @@ namespace TeensyRom.Core.Storage.Services
     {
         private List<string> _bannedFolders = [];
         private List<string> _bannedFiles = [];
+        private string _cacheFilePath = string.Empty;
 
         public StorageCache() { }
-        public StorageCache(List<string> bannedFolders, List<string> bannedFiles)
+
+        public StorageCache(string cacheFilePath, List<string> bannedFolders, List<string> bannedFiles)
         {
             _bannedFolders = bannedFolders;
             _bannedFiles = bannedFiles;
+            _cacheFilePath = cacheFilePath;
+            ReadFromDisk();
         }
         public void SetBanLists(List<string> bannedFolders, List<string> bannedFiles)
         {
@@ -287,6 +286,47 @@ namespace TeensyRom.Core.Storage.Services
                     .Cast<ILaunchableItem>());
             }
             return favs;
+        }
+
+        public void ReadFromDisk()
+        {
+            if (!File.Exists(_cacheFilePath))
+            {
+                WriteToDisk();
+                return;
+            }
+            using var stream = File.Open(_cacheFilePath, FileMode.Open, FileAccess.Read);
+            using var reader = new StreamReader(stream);
+            var content = reader.ReadToEnd();
+
+            var cacheFromDisk = JsonConvert.DeserializeObject<StorageCache>(content, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto,
+                Formatting = Formatting.Indented
+            });
+
+            if (cacheFromDisk is null) return;
+
+            Clear();
+
+            foreach (var item in cacheFromDisk)
+            {
+                TryAdd(item.Key, item.Value);
+            }
+        }
+
+        public void WriteToDisk()
+        {
+            if (!Directory.Exists(Path.GetDirectoryName(_cacheFilePath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(_cacheFilePath)!);
+            }
+
+            File.WriteAllText(_cacheFilePath, JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto,
+                Formatting = Formatting.Indented
+            }));
         }
 
         private static string CleanPath(string path) => path

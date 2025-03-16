@@ -1,18 +1,22 @@
-﻿using Newtonsoft.Json;
-
-namespace TeensyRom.Core.Storage.Entities
+﻿namespace TeensyRom.Core.Storage.Entities
 {
     public class DirectoryContent
     {
         public string Path { get; set; } = string.Empty;
         public int TotalCount => Directories.Count() + Files.Count();
-        public List<DirectoryItem> Directories { get; set; } = new();
-        public List<IFileItem> Files { get; set; } = new();
+        public List<DirectoryItem> Directories { get; set; } = [];
+        public List<IFileItem> Files { get; set; } = [];
 
-        public void Add(DirectoryContent content)
+        public List<DirectoryItem> MapAndOrderDirectories()
         {
-            Directories.AddRange(content.Directories);
-            Files.AddRange(content.Files);
+            return Directories
+                .Select(d => new DirectoryItem
+                {
+                    Name = d.Name,
+                    Path = d.Path
+                })
+                .OrderBy(d => d.Name)
+                .ToList() ?? [];
         }
     }
 }
