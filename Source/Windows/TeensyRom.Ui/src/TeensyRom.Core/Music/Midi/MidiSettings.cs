@@ -5,8 +5,9 @@
         public bool MidiEnabled { get; set; }
         public MidiMapping PlayPause { get; set; } = new() 
         {
-            MidiEventType = MidiEventType.NoteOff,
+            MidiEventType = MidiEventType.NoteChange,
             DJEventType = DJEventType.PlayPause,
+            RequiredValue = 127
         };
         public MidiMapping Stop { get; set; } = new()
         {

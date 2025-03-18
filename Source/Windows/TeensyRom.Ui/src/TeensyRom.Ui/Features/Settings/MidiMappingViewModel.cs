@@ -10,6 +10,7 @@ namespace TeensyRom.Ui.Features.Settings
         [Reactive] public MidiDeviceViewModel Device { get; set; } = null!;
         [Reactive] public int MidiChannel { get; set; }
         [Reactive] public int NoteOrCC { get; set; }
+        [Reactive] public int? RequiredValue { get; set; } //Could be velocity or CC value or no requirement (null)
 
         public MidiMappingViewModel(MidiMapping m)
         {

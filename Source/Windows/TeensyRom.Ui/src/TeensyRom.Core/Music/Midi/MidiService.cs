@@ -113,12 +113,14 @@ namespace TeensyRom.Core.Music.Midi
                     .Select(cc =>
                     (
                             CCEvent: cc,
-                            Mapping: ccMappings.FirstOrDefault(m => m.MidiChannel == cc.Channel && m.Value == (int)cc.Controller)
+                            Mapping: ccMappings.FirstOrDefault(m => m.MidiChannel == cc.Channel 
+                            && m.NoteOrCC == (int)cc.Controller 
+                            && (m.RequiredValue is null || m.RequiredValue == cc.ControllerValue))
                     ))
                     .Where(ccMapping => ccMapping.Mapping is not null)
                     .Subscribe(ccMapping =>
                     {
-                        //Debug.WriteLine($"[MIDI IN --- Device: {ccMapping.Mapping!.Device.Name}Channel: {ccMapping.CCEvent.Channel} CC: {ccMapping.CCEvent.Controller} Value: {ccMapping.CCEvent.ControllerValue}");
+                        Debug.WriteLine($"[MIDI IN --- Device: {ccMapping.Mapping!.Device.Name}Channel: {ccMapping.CCEvent.Channel} CC: {ccMapping.CCEvent.Controller} Value: {ccMapping.CCEvent.ControllerValue}");
 
                         _midiEvents.OnNext(new MidiEvent
                         (
@@ -135,12 +137,12 @@ namespace TeensyRom.Core.Music.Midi
 
                 var noteSubscription = midiObservable
                    .Select(e => e.EventArgs.MidiEvent)
-                   .OfType<NoteEvent>()
-                   .Where(e => e.CommandCode is not MidiCommandCode.KeyAfterTouch)
+                   .Where(e => e.CommandCode is MidiCommandCode.NoteOn or MidiCommandCode.NoteOff)
+                   .Cast<NoteEvent>()
                    .Select(noteEvent =>
                    (
                         NoteEvent: noteEvent,
-                        Mapping: noteMappings.FirstOrDefault(m => m.MidiChannel == noteEvent.Channel && m.Value == noteEvent.NoteNumber
+                        Mapping: noteMappings.FirstOrDefault(m => m.MidiChannel == noteEvent.Channel && m.NoteOrCC == noteEvent.NoteNumber
                         &&
                         (
                             m.MidiEventType == MidiEventType.NoteChange && (noteEvent.CommandCode is MidiCommandCode.NoteOn or MidiCommandCode.NoteOff)
@@ -149,19 +151,21 @@ namespace TeensyRom.Core.Music.Midi
                             ||
                             (m.MidiEventType == MidiEventType.NoteOff && noteEvent.CommandCode == MidiCommandCode.NoteOff)
                         )
+                        &&
+                        (m.RequiredValue is null || m.RequiredValue == noteEvent.Velocity)
                    )))
-                   .Where(ccMapping => ccMapping.Mapping is not null)
-                   .Subscribe(ccMapping =>
+                   .Where(eventMapping => eventMapping.Mapping is not null)
+                   .Subscribe(eventMapping =>
                    {
-                       //Debug.WriteLine($"[MIDI IN --- Device: {ccMapping.Mapping!.Device.Name}Channel: {ccMapping.NoteEvent.Channel} Note: {ccMapping.NoteEvent.NoteNumber} {ccMapping.NoteEvent.CommandCode}");
+                       Debug.WriteLine($"[MIDI IN --- Device: {eventMapping.Mapping!.Device.Name}Channel: {eventMapping.NoteEvent.Channel} Note: {eventMapping.NoteEvent.NoteNumber} {eventMapping.NoteEvent.CommandCode}");
 
                        _midiEvents.OnNext(new MidiEvent
                        (
-                           ccMapping.Mapping!.DJEventType,
-                           ccMapping.NoteEvent.CommandCode == MidiCommandCode.NoteOn
+                           eventMapping.Mapping!.DJEventType,
+                           eventMapping.NoteEvent.CommandCode == MidiCommandCode.NoteOn
                             ? MidiEventType.NoteOn
                             : MidiEventType.NoteOff,
-                           ccMapping.NoteEvent.NoteNumber
+                           eventMapping.NoteEvent.NoteNumber
                        ));
                    });
 
@@ -253,8 +257,8 @@ namespace TeensyRom.Core.Music.Midi
                     .Take(1)
                     .Select(result => result.Event switch
                     {
-                        ControlChangeEvent ccEvent => new MidiResult(result.Device, (int)ccEvent.Controller, ccEvent.Channel),
-                        NoteOnEvent noteOn => new MidiResult(result.Device, noteOn.NoteNumber, noteOn.Channel),
+                        ControlChangeEvent ccEvent => new MidiResult(result.Device, (int)ccEvent.Controller, ccEvent.Channel, ccEvent.ControllerValue),
+                        NoteOnEvent noteOn => new MidiResult(result.Device, noteOn.NoteNumber, noteOn.Channel, noteOn.Velocity),
                         _ => throw new InvalidOperationException("Unhandled MIDI event type.")
                     });
             }
@@ -407,6 +411,6 @@ namespace TeensyRom.Core.Music.Midi
         }
     }
 
-    public record MidiResult(MidiDevice Device, int Value, int Channel);
+    public record MidiResult(MidiDevice Device, int CCOrNote, int Channel, int Value);
 
 }

@@ -136,7 +136,7 @@ namespace TeensyRom.Ui.Features.Settings
                 {
                     mapping.Device = device;
                     mapping.MidiChannel = midiResult.Channel;
-                    mapping.NoteOrCC = midiResult.Value;
+                    mapping.NoteOrCC = midiResult.CCOrNote;
                 }
                 var lastCart = LastCart;
                 LastCart = null!;
