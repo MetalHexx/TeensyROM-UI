@@ -136,7 +136,7 @@ namespace TeensyRom.Ui.Features.Settings
                 {
                     mapping.Device = device;
                     mapping.MidiChannel = midiResult.Channel;
-                    mapping.Value = midiResult.Value;
+                    mapping.NoteOrCC = midiResult.Value;
                 }
                 var lastCart = LastCart;
                 LastCart = null!;
@@ -152,7 +152,7 @@ namespace TeensyRom.Ui.Features.Settings
                 {
                     mapping.Device = new MidiDeviceViewModel(new MidiDevice());
                     mapping.MidiChannel = 0;
-                    mapping.Value = -1;
+                    mapping.NoteOrCC = -1;
                 }
                 var lastCart = LastCart;
                 LastCart = null!;

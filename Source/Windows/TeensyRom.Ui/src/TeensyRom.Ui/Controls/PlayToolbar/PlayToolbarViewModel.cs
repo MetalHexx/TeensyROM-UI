@@ -493,7 +493,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
 
-                    double delta = e.GetRelativeCCDelta(1);
+                    double delta = e.GetRelativeValue_TwosComplement(1);
 
                     if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
                     {
@@ -515,7 +515,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
 
-                    double delta = e.GetRelativeCCDelta(0.01);
+                    double delta = e.GetRelativeValue_TwosComplement(0.01);
 
                     if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
                     {
@@ -591,7 +591,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.Seek)
                 .Where(_ => Progress is not null)
-                .Select(e => e.GetRelativeCCDelta(0.005))
+                .Select(e => e.GetRelativeValue_BinaryOffset(0.005))
                 .Do(delta =>
                 {
                     _midiTrackSeekInProgress = true;

@@ -201,7 +201,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-                        SelectedItem="{Binding LastCart.MidiSettings.CurrentSpeed.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding LastCart.MidiSettings.CurrentSpeed.NoteOrCC, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -248,7 +248,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-                        SelectedItem="{Binding LastCart.MidiSettings.CurrentSpeedFine.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding LastCart.MidiSettings.CurrentSpeedFine.NoteOrCC, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -295,7 +295,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}"
-                        SelectedItem="{Binding LastCart.MidiSettings.SetSpeedPlus50.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding LastCart.MidiSettings.SetSpeedPlus50.NoteOrCC, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -342,7 +342,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-                        SelectedItem="{Binding LastCart.MidiSettings.SetSpeedMinus50.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding LastCart.MidiSettings.SetSpeedMinus50.NoteOrCC, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -389,7 +389,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-                        SelectedItem="{Binding LastCart.MidiSettings.HomeSpeed.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding LastCart.MidiSettings.HomeSpeed.NoteOrCC, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -437,7 +437,7 @@
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}" 
                         materialDesign:HintAssist.Hint="Val" 
-                        SelectedItem="{Binding LastCart.MidiSettings.NudgeForward.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding LastCart.MidiSettings.NudgeForward.NoteOrCC, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -485,7 +485,7 @@
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}" 
                         materialDesign:HintAssist.Hint="Val"
-                        SelectedItem="{Binding LastCart.MidiSettings.NudgeBackward.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding LastCart.MidiSettings.NudgeBackward.NoteOrCC, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -533,7 +533,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-                        SelectedItem="{Binding LastCart.MidiSettings.Voice1Toggle.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding LastCart.MidiSettings.Voice1Toggle.NoteOrCC, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -580,7 +580,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-                        SelectedItem="{Binding LastCart.MidiSettings.Voice2Toggle.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding LastCart.MidiSettings.Voice2Toggle.NoteOrCC, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -627,7 +627,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-                        SelectedItem="{Binding LastCart.MidiSettings.Voice3Toggle.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding LastCart.MidiSettings.Voice3Toggle.NoteOrCC, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -673,7 +673,7 @@
 
     <ComboBox                
         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-        SelectedItem="{Binding LastCart.MidiSettings.Voice1Kill.Value, Mode=TwoWay}" 
+        SelectedItem="{Binding LastCart.MidiSettings.Voice1Kill.NoteOrCC, Mode=TwoWay}" 
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -720,7 +720,7 @@
 
     <ComboBox                
         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-        SelectedItem="{Binding LastCart.MidiSettings.Voice2Kill.Value, Mode=TwoWay}" 
+        SelectedItem="{Binding LastCart.MidiSettings.Voice2Kill.NoteOrCC, Mode=TwoWay}" 
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -767,7 +767,7 @@
 
     <ComboBox                
         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-        SelectedItem="{Binding LastCart.MidiSettings.Voice3Kill.Value, Mode=TwoWay}" 
+        SelectedItem="{Binding LastCart.MidiSettings.Voice3Kill.NoteOrCC, Mode=TwoWay}" 
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -814,7 +814,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-                        SelectedItem="{Binding LastCart.MidiSettings.Seek.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding LastCart.MidiSettings.Seek.NoteOrCC, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -861,7 +861,7 @@
 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-                        SelectedItem="{Binding LastCart.MidiSettings.Mode.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding LastCart.MidiSettings.Mode.NoteOrCC, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -908,7 +908,7 @@
                 
                     <ComboBox                
                         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-                        SelectedItem="{Binding LastCart.MidiSettings.PlayPause.Value, Mode=TwoWay}" 
+                        SelectedItem="{Binding LastCart.MidiSettings.PlayPause.NoteOrCC, Mode=TwoWay}" 
                         FontFamily="Arial"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -955,7 +955,7 @@
 
                    <ComboBox                
                        ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-                       SelectedItem="{Binding LastCart.MidiSettings.FastForward.Value, Mode=TwoWay}" 
+                       SelectedItem="{Binding LastCart.MidiSettings.FastForward.NoteOrCC, Mode=TwoWay}" 
                        FontFamily="Arial"
                        materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                        materialDesign:HintAssist.HelperTextFontSize="12"
@@ -1002,7 +1002,7 @@
 
     <ComboBox                
         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-        SelectedItem="{Binding LastCart.MidiSettings.Previous.Value, Mode=TwoWay}" 
+        SelectedItem="{Binding LastCart.MidiSettings.Previous.NoteOrCC, Mode=TwoWay}" 
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -1049,7 +1049,7 @@
 
     <ComboBox                
         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-        SelectedItem="{Binding LastCart.MidiSettings.Next.Value, Mode=TwoWay}" 
+        SelectedItem="{Binding LastCart.MidiSettings.Next.NoteOrCC, Mode=TwoWay}" 
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
         materialDesign:HintAssist.HelperTextFontSize="12"
@@ -1096,7 +1096,7 @@
 
     <ComboBox                
         ItemsSource="{Binding PossibleNoteOrCCValues}" materialDesign:HintAssist.Hint="Val" 
-        SelectedItem="{Binding LastCart.MidiSettings.Restart.Value, Mode=TwoWay}" 
+        SelectedItem="{Binding LastCart.MidiSettings.Restart.NoteOrCC, Mode=TwoWay}" 
         FontFamily="Arial"
         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
         materialDesign:HintAssist.HelperTextFontSize="12"

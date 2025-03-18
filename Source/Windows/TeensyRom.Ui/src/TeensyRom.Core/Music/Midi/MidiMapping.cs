@@ -8,10 +8,10 @@ namespace TeensyRom.Core.Music.Midi
         public MidiEventType MidiEventType { get; set; }
         public MidiDevice Device { get; set; } = new();
         public int MidiChannel { get; set; }
-        public int Value { get; set; }
+        public int NoteOrCC { get; set; }
 
         [JsonIgnore]
-        public bool IsEnabled => Device is not null && Value > 0;
+        public bool IsEnabled => Device is not null && NoteOrCC > 0;
 
     }
 }
