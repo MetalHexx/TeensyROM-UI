@@ -115,7 +115,7 @@ namespace TeensyRom.Core.Music.Midi
                             CCEvent: cc,
                             Mapping: ccMappings.FirstOrDefault(m => m.MidiChannel == cc.Channel 
                             && m.NoteOrCC == (int)cc.Controller 
-                            && (m.RequiredValue is null || m.RequiredValue == cc.ControllerValue))
+                            && (m.FilterValue is null || m.FilterValue == cc.ControllerValue))
                     ))
                     .Where(ccMapping => ccMapping.Mapping is not null)
                     .Subscribe(ccMapping =>
@@ -152,7 +152,7 @@ namespace TeensyRom.Core.Music.Midi
                             (m.MidiEventType == MidiEventType.NoteOff && noteEvent.CommandCode == MidiCommandCode.NoteOff)
                         )
                         &&
-                        (m.RequiredValue is null || m.RequiredValue == noteEvent.Velocity)
+                        (m.FilterValue is null || m.FilterValue == noteEvent.Velocity)
                    )))
                    .Where(eventMapping => eventMapping.Mapping is not null)
                    .Subscribe(eventMapping =>

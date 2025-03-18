@@ -19,6 +19,7 @@ namespace TeensyRom.Ui.Features.Settings
             Device = new MidiDeviceViewModel(m.Device);
             MidiChannel = m.MidiChannel;
             NoteOrCC = m.NoteOrCC;
+            RequiredValue = m.FilterValue;
         }
 
         public MidiMappingViewModel(MidiMappingViewModel m)
@@ -28,6 +29,7 @@ namespace TeensyRom.Ui.Features.Settings
             Device = new MidiDeviceViewModel(m.Device);
             MidiChannel = m.MidiChannel;
             NoteOrCC = m.NoteOrCC;
+            RequiredValue = m.RequiredValue;
         }
 
         public MidiMapping ToMidiMapping()
@@ -38,7 +40,8 @@ namespace TeensyRom.Ui.Features.Settings
                 MidiEventType = MidiEventType,
                 Device = Device.ToMidiDevice(),
                 MidiChannel = MidiChannel,
-                NoteOrCC = NoteOrCC
+                NoteOrCC = NoteOrCC,
+                FilterValue = RequiredValue
             };
         }
     }

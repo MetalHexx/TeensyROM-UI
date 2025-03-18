@@ -7,7 +7,6 @@
         {
             MidiEventType = MidiEventType.NoteChange,
             DJEventType = DJEventType.PlayPause,
-            RequiredValue = 127
         };
         public MidiMapping Stop { get; set; } = new()
         {
@@ -18,6 +17,7 @@
         {
             MidiEventType = MidiEventType.NoteOff,
             DJEventType = DJEventType.Next,
+            FilterValue = 127
         };
         public MidiMapping Previous { get; set; } = new()
         {
@@ -47,7 +47,7 @@
         public MidiMapping CurrentSpeed { get; set; } = new() 
         {
             MidiEventType = MidiEventType.ControlChange,
-            DJEventType = DJEventType.CurrentSpeed,
+            DJEventType = DJEventType.CurrentSpeed
         };
         public MidiMapping CurrentSpeedFine { get; set; } = new()
         {
