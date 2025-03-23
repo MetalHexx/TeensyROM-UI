@@ -103,6 +103,18 @@
             <DataTemplate DataType="{x:Type SerialCommand:SerialCommandViewModel}">
                 <SerialCommand:SerialCommandView/>
             </DataTemplate>
+            
+            <DataTemplate DataType="{x:Type Settings:NoteMappingViewModel}">
+                <Settings:NoteMappingView/>
+            </DataTemplate>
+            
+            <DataTemplate DataType="{x:Type Settings:DualNoteMappingViewModel}">
+                <Settings:DualNoteMappingView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type Settings:CCMappingViewModel}">
+                <Settings:CCMappingView/>
+            </DataTemplate>
 
         </ResourceDictionary>
     </Application.Resources>

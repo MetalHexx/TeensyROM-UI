@@ -1,0 +1,97 @@
+﻿<UserControl x:Class="TeensyRom.Ui.Features.Settings.MidiSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:TeensyRom.Ui.Features.Settings"
+             mc:Ignorable="d" 
+             DataContext="{Binding}">
+    
+    <UserControl.Resources>
+        
+        <DataTemplate x:Key="CCMappingTemplate">
+            <local:CCMappingView/>
+        </DataTemplate>
+        
+        <DataTemplate x:Key="DualNoteMappingTemplate">
+            <local:DualNoteMappingView/>
+        </DataTemplate>
+        
+        <DataTemplate x:Key="NoteMappingTemplate">
+            <local:NoteMappingView/>
+        </DataTemplate>
+
+        <local:MidiMappingTemplateSelector x:Key="MidiMappingTemplateSelector"
+            NoteMappingTemplate="{StaticResource NoteMappingTemplate}"
+            DualNoteMappingTemplate="{StaticResource DualNoteMappingTemplate}"
+            CCMappingTemplate="{StaticResource CCMappingTemplate}"/>
+        
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            
+        </Grid.RowDefinitions>
+        
+        <StackPanel Grid.Row="0">            
+            <StackPanel                              
+                Margin="16 0 0 0"
+                Orientation="Horizontal" HorizontalAlignment="Left">
+            
+                <Label VerticalAlignment="Center" Margin="0 4 10 0">Midi Enabled</Label>
+                
+                <ToggleButton                  
+                    x:Name="MidiEnabledCheckBox"
+                    IsChecked="{Binding MidiEnabled, Mode=TwoWay}"
+                    Style="{StaticResource MaterialDesignSwitchToggleButton}"               
+                    ToolTip="Enables MIDI support."                
+                    VerticalAlignment="Center" Margin="0 4 0 0"/>            
+                
+            </StackPanel>
+            <Separator 
+                Margin="10 5"
+                Style="{StaticResource MaterialDesignSeparator}" />
+        </StackPanel>
+        
+        <Grid Grid.Row="1">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="15 0 0 0">
+                    <StackPanel>
+                        <Label Style="{StaticResource Heading}" Content="One-Shot Note Triggers"/>
+                        <ItemsControl ItemsSource="{Binding NoteMappings}">
+                            <ItemsControl.ItemTemplateSelector>
+                                <StaticResource ResourceKey="MidiMappingTemplateSelector"/>
+                            </ItemsControl.ItemTemplateSelector>
+                        </ItemsControl>
+                        
+                        <Separator 
+                            Margin="10 5"
+                            Style="{StaticResource MaterialDesignSeparator}" />
+
+                        <Label Style="{StaticResource Heading}" Content="Sustained Note Triggers"/>
+
+                        <ItemsControl ItemsSource="{Binding DualNoteMappings}">
+                            <ItemsControl.ItemTemplateSelector>
+                                <StaticResource ResourceKey="MidiMappingTemplateSelector"/>
+                            </ItemsControl.ItemTemplateSelector>
+                        </ItemsControl>
+                        
+                        <Separator 
+                            Margin="10 5"
+                            Style="{StaticResource MaterialDesignSeparator}" />
+                        
+                        <Label Style="{StaticResource Heading}" Content="Control Change (CC)"/>
+
+                        
+                            <ItemsControl ItemsSource="{Binding CCMappings}">
+                                <ItemsControl.ItemTemplateSelector>
+                                    <StaticResource ResourceKey="MidiMappingTemplateSelector"/>
+                                </ItemsControl.ItemTemplateSelector>
+                            </ItemsControl>                
+                    </StackPanel>      
+                </ScrollViewer>
+        </Grid>
+    </Grid>
+
+</UserControl>

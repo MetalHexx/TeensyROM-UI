@@ -1,119 +1,33 @@
 ﻿namespace TeensyRom.Core.Music.Midi
 {
-    public class MidiSettings 
+    public class MidiSettings
     {
         public bool MidiEnabled { get; set; }
-        public MidiMapping PlayPause { get; set; } = new() 
-        {
-            MidiEventType = MidiEventType.NoteChange,
-            DJEventType = DJEventType.PlayPause,
-        };
-        public MidiMapping Stop { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.Stop,
-        };
-        public MidiMapping Next { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.Next,
-            FilterValue = 127
-        };
-        public MidiMapping Previous { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.Previous,
-        };
-        public MidiMapping Seek { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.ControlChange,
-            DJEventType = DJEventType.Seek,
-        };
-        public MidiMapping FastForward { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.FastForward,
-        };
-        public MidiMapping NudgeForward { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteChange,
-            DJEventType = DJEventType.NudgeForward,
-        };
-        public MidiMapping NudgeBackward { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteChange,
-            DJEventType = DJEventType.NudgeBackward,
-        };
-        public MidiMapping CurrentSpeed { get; set; } = new() 
-        {
-            MidiEventType = MidiEventType.ControlChange,
-            DJEventType = DJEventType.CurrentSpeed
-        };
-        public MidiMapping CurrentSpeedFine { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.ControlChange,
-            DJEventType = DJEventType.CurrentSpeedFine,
-        };
-        public MidiMapping SetSpeedPlus50 { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.SetSpeedPlus50,
-        };
-        public MidiMapping SetSpeedMinus50 { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.SetSpeedMinus50,
-        };
-        public MidiMapping HomeSpeed { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.HomeSpeed,
-        };
-        public MidiMapping Voice1Toggle { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.Voice1Toggle,
-        };
-        public MidiMapping Voice2Toggle { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.Voice2Toggle,
-        };
-        public MidiMapping Voice3Toggle { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.Voice3Toggle,
-        };
 
-        public MidiMapping Voice1Kill { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteChange,
-            DJEventType = DJEventType.Voice1Kill,
-        };
-        public MidiMapping Voice2Kill { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteChange,
-            DJEventType = DJEventType.Voice2Kill,
-        };
-        public MidiMapping Voice3Kill { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteChange,
-            DJEventType = DJEventType.Voice3Kill,
-        };
-
-        public MidiMapping Mode { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteOff,
-            DJEventType = DJEventType.Mode,
-        };
-
-        public MidiMapping Restart { get; set; } = new()
-        {
-            MidiEventType = MidiEventType.NoteOn,
-            DJEventType = DJEventType.Restart,
-        };
-
-        public bool SnapToSpeed { get; set; } = false;
-        public bool SnapToSeek { get; set; } = false;
+        public List<MidiMapping> Mappings { get; set; } =
+        [
+            new CCMapping()   { DJEventType = DJEventType.CurrentSpeed, DisplayName = "Set Speed +-1%", RelativeType = RelativeCCType.Relative1 },
+            new CCMapping()   { DJEventType = DJEventType.CurrentSpeedFine, DisplayName = "Set Speed +-0.1%", RelativeType = RelativeCCType.Relative1 },
+            new NoteMapping() { DJEventType = DJEventType.SpeedPlus50Toggle, DisplayName = "Toggle Speed +50%" },
+            new NoteMapping() { DJEventType = DJEventType.HomeSpeedToggle, DisplayName = "Toggle Home Speed" },
+            new NoteMapping() { DJEventType = DJEventType.SpeedMinus50Toggle, DisplayName = "Toggle Speed -50%" },            
+            new DualNoteMapping() { DJEventType = DJEventType.NudgeForward, DisplayName = "Nudge +5%" },
+            new DualNoteMapping() { DJEventType = DJEventType.NudgeBackward, DisplayName = "Nudge -5%" },
+            new NoteMapping() { DJEventType = DJEventType.Voice1Toggle, DisplayName = "Toggle Voice 1" },
+            new NoteMapping() { DJEventType = DJEventType.Voice2Toggle, DisplayName = "Toggle Voice 2" },
+            new NoteMapping() { DJEventType = DJEventType.Voice3Toggle, DisplayName = "Toggle Voice 3" },
+            new DualNoteMapping() { DJEventType = DJEventType.Voice1Kill, DisplayName = "Kill Voice 1" },
+            new DualNoteMapping() { DJEventType = DJEventType.Voice2Kill, DisplayName = "Kill Voice 2" },
+            new DualNoteMapping() { DJEventType = DJEventType.Voice3Kill, DisplayName = "Kill Voice 3" },
+            new CCMapping()   { DJEventType = DJEventType.Seek, DisplayName = "Seek / Scrub", RelativeType = RelativeCCType.Relative1 },
+            new NoteMapping() { DJEventType = DJEventType.Mode, DisplayName = "Toggle Shuffle Mode" },
+            new NoteMapping() { DJEventType = DJEventType.PlayPause, DisplayName = "Play / Pause" },
+            new NoteMapping() { DJEventType = DJEventType.FastForward, DisplayName = "Fast Forward" },
+            new NoteMapping() { DJEventType = DJEventType.Previous, DisplayName = "Previous" },
+            new NoteMapping() { DJEventType = DJEventType.Next, DisplayName = "Next" },
+            new NoteMapping() { DJEventType = DJEventType.Restart, DisplayName = "Restart Song" },
+            new NoteMapping() { DJEventType = DJEventType.SeekForward, DisplayName = "Seek Forward" },
+            new NoteMapping() { DJEventType = DJEventType.SeekBackward, DisplayName = "Seek Backward" }
+        ];
     }
 }

@@ -3,12 +3,12 @@ using NAudio.Midi;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Windows.Navigation;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Core.Music.Midi
 {
-
     public class MidiService : IMidiService
     {
         public IObservable<MidiEvent> MidiEvents => _midiEvents.AsObservable();
@@ -20,6 +20,7 @@ namespace TeensyRom.Core.Music.Midi
         private List<MidiDevice> _registeredDevices = [];
         private readonly List<IDisposable> _midiSubscriptions = [];
         private readonly List<MidiIn> _midiIns = [];
+        private readonly List<MidiDevice> _midiDevices = [];
 
         public MidiService(ISettingsService settingsService, IAlertService alertService, ILoggingService log)
         {
@@ -41,11 +42,7 @@ namespace TeensyRom.Core.Music.Midi
 
             var devices = GetMidiDevices().ToDictionary(d => d.Name);
 
-            var mappings = midiSettings.GetType().GetProperties()
-                .Where(p => p.PropertyType == typeof(MidiMapping))
-                .Select(p => p.GetValue(midiSettings))
-                .Cast<MidiMapping>()
-                .Where(mapping => mapping.IsEnabled);
+            var mappings = midiSettings.Mappings;
 
             _registeredMappings = mappings
                 .Where(m => devices.Any(d => d.Value.Name == m.Device.Name || m.Device.ProductName == d.Value.ProductName))
@@ -105,7 +102,7 @@ namespace TeensyRom.Core.Music.Midi
                     .Where(m => m.Device.Id == device.Id);
 
                 var ccMappings = deviceMappings
-                    .Where(m => m.MidiEventType is MidiEventType.ControlChange);
+                    .Where(m => m is CCMapping);
 
                 var ccSubscription = midiObservable
                     .Select(e => e.EventArgs.MidiEvent)
@@ -126,6 +123,7 @@ namespace TeensyRom.Core.Music.Midi
                         (
                             ccMapping.Mapping!.DJEventType,
                             MidiEventType.ControlChange,
+                            ccMapping.Mapping,
                             ccMapping.CCEvent.ControllerValue
                         ));
                     });
@@ -133,41 +131,50 @@ namespace TeensyRom.Core.Music.Midi
                 _midiSubscriptions.Add(ccSubscription);
 
                 var noteMappings = deviceMappings
-                    .Where(m => m.MidiEventType is MidiEventType.NoteChange or MidiEventType.NoteOn or MidiEventType.NoteOff);
+                    .Where(m => m is NoteMapping and not DualNoteMapping)
+                    .Cast<NoteMapping>();
 
-                var noteSubscription = midiObservable
+                var dualNoteMappings = deviceMappings
+                    .OfType<DualNoteMapping>();
+
+                var noteMidiEvents = midiObservable
                    .Select(e => e.EventArgs.MidiEvent)
                    .Where(e => e.CommandCode is MidiCommandCode.NoteOn or MidiCommandCode.NoteOff)
-                   .Cast<NoteEvent>()
-                   .Select(noteEvent =>
+                   .Cast<NoteEvent>();
+
+                var noteMappingEvents = noteMidiEvents
+                   .Select(noteEvent => 
                    (
                         NoteEvent: noteEvent,
-                        Mapping: noteMappings.FirstOrDefault(m => m.MidiChannel == noteEvent.Channel && m.NoteOrCC == noteEvent.NoteNumber
-                        &&
-                        (
-                            m.MidiEventType == MidiEventType.NoteChange && (noteEvent.CommandCode is MidiCommandCode.NoteOn or MidiCommandCode.NoteOff)
-                            ||
-                            (m.MidiEventType == MidiEventType.NoteOn && noteEvent.CommandCode == MidiCommandCode.NoteOn)
-                            ||
-                            (m.MidiEventType == MidiEventType.NoteOff && noteEvent.CommandCode == MidiCommandCode.NoteOff)
-                        )
-                        &&
-                        (m.FilterValue is null || m.FilterValue == noteEvent.Velocity)
-                   )))
-                   .Where(eventMapping => eventMapping.Mapping is not null)
-                   .Subscribe(eventMapping =>
-                   {
-                       Debug.WriteLine($"[MIDI IN --- Device: {eventMapping.Mapping!.Device.Name}Channel: {eventMapping.NoteEvent.Channel} Note: {eventMapping.NoteEvent.NoteNumber} {eventMapping.NoteEvent.CommandCode}");
+                        Mapping: MatchMapping(noteEvent, noteMappings)
+                   ));
 
-                       _midiEvents.OnNext(new MidiEvent
-                       (
-                           eventMapping.Mapping!.DJEventType,
-                           eventMapping.NoteEvent.CommandCode == MidiCommandCode.NoteOn
+                var dualNoteMappingEvents = noteMidiEvents
+                   .Select(noteEvent => 
+                   (
+                        NoteEvent: noteEvent,
+                        Mapping: MatchMapping(noteEvent, dualNoteMappings)
+                   ));
+
+                var combinedNoteMappings = noteMappingEvents
+                    .Merge(dualNoteMappingEvents)
+                    .Where(eventMapping => eventMapping.Mapping is not null);
+
+                var noteSubscription = combinedNoteMappings
+                    .Subscribe(eventMapping =>
+                    {
+                        Debug.WriteLine($"[MIDI IN --- Device: {eventMapping.Mapping!.Device.Name}Channel: {eventMapping.NoteEvent.Channel} Note: {eventMapping.NoteEvent.NoteNumber} {eventMapping.NoteEvent.CommandCode}");
+
+                        _midiEvents.OnNext(new MidiEvent
+                        (
+                            eventMapping.Mapping!.DJEventType,
+                            eventMapping.NoteEvent.CommandCode == MidiCommandCode.NoteOn
                             ? MidiEventType.NoteOn
                             : MidiEventType.NoteOff,
-                           eventMapping.NoteEvent.NoteNumber
-                       ));
-                   });
+                            eventMapping.Mapping,
+                            eventMapping.NoteEvent.NoteNumber
+                        ));
+                    });
 
                 _midiSubscriptions.Add(noteSubscription);
 
@@ -175,13 +182,43 @@ namespace TeensyRom.Core.Music.Midi
             }
         }
 
+        private static NoteMapping? MatchMapping(NoteEvent noteEvent, IEnumerable<NoteMapping> noteMappings)
+        {
+            return noteMappings.FirstOrDefault
+             (
+                 m => m.MidiChannel == noteEvent.Channel && m.NoteOrCC == noteEvent.NoteNumber
+                 &&
+                 m.NoteEvent.EqualsMidiCommand(noteEvent.CommandCode)
+                 &&
+                 (m.FilterValue is null || m.FilterValue == noteEvent.Velocity)
+             );
+        }
+
+        private static NoteMapping? MatchMapping(NoteEvent noteEvent, IEnumerable<DualNoteMapping> dualNoteMappings)
+        {
+            return dualNoteMappings
+                .Cast<DualNoteMapping>()
+                .FirstOrDefault
+                 (
+                     m => m.MidiChannel == noteEvent.Channel && m.NoteOrCC == noteEvent.NoteNumber
+                     &&
+                     (
+                         m.NoteEvent.EqualsMidiCommand(noteEvent.CommandCode)
+                         ||
+                         m.NoteEvent2.EqualsMidiCommand(noteEvent.CommandCode)
+                     )
+                     &&
+                     (m.FilterValue is null || m.FilterValue == noteEvent.Velocity)
+                 );
+        }
+
         public void DisengageMidi()
         {
             _midiIns.ForEach(DisposeMidiIn);
             _midiSubscriptions.ForEach(DisposeMidiIn);
-            _registeredMappings.Clear();
-            _registeredDevices.Clear();
             _midiSubscriptions.Clear();
+            _registeredMappings.Clear();
+            _registeredDevices.Clear();            
         }
 
         public async Task<MidiResult?> GetFirstMidiEvent(MidiEventType targetEventType)
@@ -287,8 +324,16 @@ namespace TeensyRom.Core.Music.Midi
             return null;
         }
 
+        public IEnumerable<MidiDevice> RefreshMidiDevices() 
+        {
+            _midiDevices.Clear();
+            return GetMidiDevices();
+        }
+
         public IEnumerable<MidiDevice> GetMidiDevices()
         {
+            if (_midiDevices.Count != 0) return _midiDevices;
+
             var devices = new List<MidiDevice>();
             var nameCounts = new Dictionary<string, int>();
 
@@ -321,7 +366,9 @@ namespace TeensyRom.Core.Music.Midi
                 });
                 DisposeMidiIn(midiIn);
             }
-            return devices.OrderBy(d => d.Name);
+            _midiDevices.AddRange(devices.OrderBy(d => d.Name));
+
+            return _midiDevices;
         }
 
         public void DisposeMidiIn(IDisposable midiIn) 
@@ -411,6 +458,19 @@ namespace TeensyRom.Core.Music.Midi
         }
     }
 
+    public static class NoteEventTypeExtensions
+    {
+        public static bool EqualsMidiCommand(this NoteEventType noteEventType, MidiCommandCode commandCode)
+        {
+            return (noteEventType, commandCode) switch
+            {
+                (NoteEventType.NoteOn, MidiCommandCode.NoteOn) => true,
+                (NoteEventType.NoteOff, MidiCommandCode.NoteOff) => true,
+                // Add more mappings if needed
+                _ => false
+            };
+        }
+    }
     public record MidiResult(MidiDevice Device, int CCOrNote, int Channel, int Value);
 
 }

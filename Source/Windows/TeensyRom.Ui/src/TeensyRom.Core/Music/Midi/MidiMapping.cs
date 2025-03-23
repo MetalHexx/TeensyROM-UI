@@ -1,18 +1,20 @@
 ﻿using System.Text.Json.Serialization;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Music.Midi
 {
-    public class MidiMapping()
-    {
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]    
+    [JsonDerivedType(typeof(DualNoteMapping), "DualNoteMapping")]
+    [JsonDerivedType(typeof(NoteMapping), "NoteMapping")]
+    [JsonDerivedType(typeof(CCMapping), "CCMapping")]
+    public abstract class MidiMapping()
+    {  
         public DJEventType DJEventType { get; set; }
-        public MidiEventType MidiEventType { get; set; }
         public MidiDevice Device { get; set; } = new();
         public int MidiChannel { get; set; }
-        public int NoteOrCC { get; set; }
         public int? FilterValue { get; set; } //Could be velocity or CC value or nothing (null)
-
-        [JsonIgnore]
-        public bool IsEnabled => Device is not null && NoteOrCC > 0;
-
+        public string DisplayName { get; set; } = string.Empty;
+        public abstract bool IsEnabled { get; }
+        public abstract int NoteOrCC { get; }
     }
 }

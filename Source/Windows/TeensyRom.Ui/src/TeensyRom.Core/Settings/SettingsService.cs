@@ -131,36 +131,7 @@ namespace TeensyRom.Core.Settings
         {
             return settings with
             {
-                LastCart = settings.LastCart is null ? null : settings.LastCart with
-                {
-                    MidiSettings = new Music.Midi.MidiSettings
-                    {
-                        CurrentSpeed = settings.LastCart.MidiSettings.CurrentSpeed,
-                        CurrentSpeedFine = settings.LastCart.MidiSettings.CurrentSpeedFine,
-                        FastForward = settings.LastCart.MidiSettings.FastForward,
-                        HomeSpeed = settings.LastCart.MidiSettings.HomeSpeed,
-                        MidiEnabled = settings.LastCart.MidiSettings.MidiEnabled,
-                        Mode = settings.LastCart.MidiSettings.Mode,
-                        Next = settings.LastCart.MidiSettings.Next,
-                        Previous = settings.LastCart.MidiSettings.Previous,
-                        NudgeBackward = settings.LastCart.MidiSettings.NudgeBackward,
-                        NudgeForward = settings.LastCart.MidiSettings.NudgeForward,
-                        PlayPause = settings.LastCart.MidiSettings.PlayPause,
-                        Restart = settings.LastCart.MidiSettings.Restart,
-                        Seek = settings.LastCart.MidiSettings.Seek,
-                        SetSpeedMinus50 = settings.LastCart.MidiSettings.SetSpeedMinus50,
-                        SetSpeedPlus50 = settings.LastCart.MidiSettings.SetSpeedPlus50,
-                        SnapToSeek = settings.LastCart.MidiSettings.SnapToSeek,
-                        SnapToSpeed = settings.LastCart.MidiSettings.SnapToSpeed,
-                        Stop = settings.LastCart.MidiSettings.Stop,
-                        Voice1Kill = settings.LastCart.MidiSettings.Voice1Kill,
-                        Voice1Toggle = settings.LastCart.MidiSettings.Voice1Toggle,
-                        Voice2Kill = settings.LastCart.MidiSettings.Voice2Kill,
-                        Voice2Toggle = settings.LastCart.MidiSettings.Voice2Toggle,
-                        Voice3Kill = settings.LastCart.MidiSettings.Voice3Kill,
-                        Voice3Toggle = settings.LastCart.MidiSettings.Voice3Toggle
-                    }
-                }
+                LastCart = settings.LastCart is null ? null : settings.LastCart with { }
             };
         }
 

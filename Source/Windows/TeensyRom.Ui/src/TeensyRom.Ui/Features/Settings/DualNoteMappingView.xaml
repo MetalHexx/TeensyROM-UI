@@ -1,0 +1,108 @@
+﻿<UserControl x:Class="TeensyRom.Ui.Features.Settings.DualNoteMappingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:TeensyRom.Ui.Features.Settings"
+             mc:Ignorable="d"
+             DataContext="{Binding}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/> <!-- Display Name -->
+            <ColumnDefinition Width="150"/> <!-- Device -->
+            <ColumnDefinition Width="75"/>  <!-- Channel -->
+            <ColumnDefinition Width="75"/>  <!-- Note Number -->
+            <ColumnDefinition Width="100"/> <!-- Velocity -->
+            <ColumnDefinition Width="Auto"/> <!-- Learn -->
+            <ColumnDefinition Width="Auto"/> <!-- Clear -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Display Name -->
+        <TextBlock 
+            Grid.Row="0" Grid.Column="0"
+            Text="{Binding DisplayName}" 
+            FontSize="14" FontWeight="Bold"
+            Foreground="{StaticResource MaterialDesignBody}"
+            VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5 0 10 0"/>
+
+        <!-- Device Name -->
+        <ComboBox              
+            Grid.Row="0" Grid.Column="1"
+            ItemsSource="{Binding AvailableDevices}"
+            SelectedItem="{Binding Device, Mode=TwoWay}" 
+            SelectedValuePath="Device"
+            DisplayMemberPath="Name"
+            FontFamily="Arial"
+            materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+            materialDesign:HintAssist.HelperTextFontSize="12"
+            materialDesign:HintAssist.Hint="Midi Device"
+            ToolTip="Select a MIDI device to map speed to." 
+            Width="150"
+            Margin="0 2 0 0"/>
+
+        <!-- MIDI Channel -->
+        <ComboBox 
+            Grid.Row="0" Grid.Column="2"
+            SelectedItem="{Binding MidiChannel, Mode=TwoWay}" 
+            ItemsSource="{Binding AvailableChannels}"
+            materialDesign:HintAssist.Hint="Ch"
+            ToolTip="Use only messages sent on this channel."
+            Margin="10 0 10 10"
+            Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+
+        <!-- Note Number -->
+        <ComboBox 
+            Grid.Row="0" Grid.Column="3"
+            SelectedItem="{Binding NoteNumber, Mode=TwoWay}" 
+            ItemsSource="{Binding AvailableMidiValues}"
+            materialDesign:HintAssist.Hint="Note"
+            ToolTip="Note number to respond to."
+            Margin="10 0 10 10"
+            Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+
+        <!-- Velocity -->
+        <ComboBox 
+            Grid.Row="0" Grid.Column="4"
+            ItemsSource="{Binding AvailableVelocityOptions}"
+            SelectedItem="{Binding SelectedVelocityOption, Mode=TwoWay}"
+            DisplayMemberPath="DisplayText"
+            Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+            materialDesign:HintAssist.Hint="Velocity"
+            Margin="10 0 10 10">
+            <ComboBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock Text="Filters note messages by velocity:"/>
+                        <TextBlock Text="• Leave blank to accept any velocity."/>
+                        <TextBlock Text="• Set a velocity to respond only when it is received."/>
+                        <TextBlock Text="• Useful for pads or keys with fixed output values to indicate state."/>
+                    </StackPanel>
+                </ToolTip>
+            </ComboBox.ToolTip>
+        </ComboBox>
+
+        <!-- Learn Button -->
+        <Button 
+            Grid.Row="0" Grid.Column="5"
+            Command="{Binding LearnCommand}"
+            ToolTip="Detects and fills fields from incoming MIDI note input."
+            Style="{StaticResource StorageIconButton}">
+            <materialDesign:PackIcon Kind="Piano" Width="20" Height="20"/>
+        </Button>
+
+        <!-- Clear Button -->
+        <Button 
+            Grid.Row="0" Grid.Column="6"
+            Command="{Binding ClearCommand}"
+            ToolTip="Clear this mapping."
+            Style="{StaticResource StorageIconButton}">
+            <materialDesign:PackIcon Kind="Cancel" Width="20" Height="20"/>
+        </Button>
+    </Grid>
+</UserControl>

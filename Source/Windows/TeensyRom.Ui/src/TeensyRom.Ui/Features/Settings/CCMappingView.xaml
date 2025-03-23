@@ -1,0 +1,135 @@
+﻿<UserControl x:Class="TeensyRom.Ui.Features.Settings.CCMappingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:TeensyRom.Ui.Features.Settings"
+             xmlns:midi="clr-namespace:TeensyRom.Core.Music.Midi;assembly=TeensyRom.Core"
+             mc:Ignorable="d"
+             DataContext="{Binding}">
+    <UserControl.Resources>
+    <ObjectDataProvider 
+        x:Key="RelativeCCTypeProvider" 
+        MethodName="GetValues"
+        ObjectType="{x:Type sys:Enum}">
+        <ObjectDataProvider.MethodParameters>
+            <x:Type TypeName="midi:RelativeCCType"/>
+        </ObjectDataProvider.MethodParameters>
+    </ObjectDataProvider>
+</UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/> <!-- Display Name -->
+            <ColumnDefinition Width="150"/> <!-- Device -->
+            <ColumnDefinition Width="75"/>  <!-- Channel -->
+            <ColumnDefinition Width="75"/>  <!-- CC Number -->
+            <ColumnDefinition Width="100"/>  <!-- Relative Type -->
+            <ColumnDefinition Width="100"/> <!-- Required Value -->
+            <ColumnDefinition Width="Auto"/> <!-- Learn -->
+            <ColumnDefinition Width="Auto"/> <!-- Clear -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Display Name -->
+        <TextBlock 
+            Grid.Row="0" Grid.Column="0"
+            Text="{Binding DisplayName}" 
+            FontSize="14" FontWeight="Bold"
+            Foreground="{StaticResource MaterialDesignBody}"
+            VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5 0 10 0"/>
+
+        <!-- Device Name -->
+        <ComboBox
+            Grid.Row="0" Grid.Column="1"
+            ItemsSource="{Binding AvailableDevices}"
+            SelectedItem="{Binding Device, Mode=TwoWay}" 
+            SelectedValuePath="Device"
+            DisplayMemberPath="Name"
+            FontFamily="Arial"
+            materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
+            materialDesign:HintAssist.HelperTextFontSize="12"
+            materialDesign:HintAssist.Hint="Midi Device"
+            ToolTip="Select a MIDI device to map speed to." 
+            Width="150"
+            Margin="0 2 0 0"/>
+
+        <!-- MIDI Channel -->
+        <ComboBox 
+            Grid.Row="0" Grid.Column="2"
+            SelectedItem="{Binding MidiChannel, Mode=TwoWay}" 
+            ItemsSource="{Binding AvailableChannels}"
+            materialDesign:HintAssist.Hint="Ch"
+            ToolTip="Use only messages sent on this channel."
+            Margin="10 0 10 10"
+            Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+
+        <!-- CC Number -->
+        <ComboBox 
+            Grid.Row="0" Grid.Column="3"
+            SelectedItem="{Binding CCNumber, Mode=TwoWay}" 
+            ItemsSource="{Binding AvailableMidiValues}"
+            materialDesign:HintAssist.Hint="CC"
+            ToolTip="Control Change number to respond to."
+            Margin="10 0 10 10"
+            Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+        
+        <!-- Relative CC Type -->
+        <ComboBox 
+            Grid.Row="0" Grid.Column="4"
+            ItemsSource="{Binding Source={StaticResource RelativeCCTypeProvider}}"
+            SelectedItem="{Binding RelativeType, Mode=TwoWay}"
+            materialDesign:HintAssist.Hint="Relative Type"
+            ToolTip="Type of relative CC to respond to."
+            Margin="10 0 10 10"
+            Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+
+        <!-- Required Value -->
+        <ComboBox 
+            Grid.Row="0" Grid.Column="5"
+            ItemsSource="{Binding AvailableValueOptions}"
+            SelectedItem="{Binding SelectedValueOption, Mode=TwoWay}"
+            DisplayMemberPath="DisplayText"
+            Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+            materialDesign:HintAssist.Hint="Value"
+            Margin="10 0 10 10">
+            <ComboBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock Text="Filters CC messages by value:"/>
+                        <TextBlock Text="• Leave blank to accept any value."/>
+                        <TextBlock Text="• Set a value to respond only when it is received."/>
+                        <TextBlock Text="• Useful for encoders that send fixed values to indicate relative change."/>
+                    </StackPanel>
+                </ToolTip>
+            </ComboBox.ToolTip>
+        </ComboBox>
+
+        <!-- Learn Button -->
+        <Button 
+            Grid.Row="0" Grid.Column="6"
+            Command="{Binding LearnCommand}"
+            ToolTip="MIDI Learn based on incoming CC input."
+            Style="{StaticResource StorageIconButton}">
+            <materialDesign:PackIcon Kind="Tune" Width="23" Height="23">
+                <materialDesign:PackIcon.RenderTransform>
+                    <RotateTransform Angle="90" CenterX="12" CenterY="12"/>
+                </materialDesign:PackIcon.RenderTransform>
+            </materialDesign:PackIcon>
+        </Button>
+
+        <!-- Clear Button -->
+        <Button 
+            Grid.Row="0" Grid.Column="7"
+            Command="{Binding ClearCommand}"
+            ToolTip="Clear this mapping."
+            Style="{StaticResource StorageIconButton}">
+            <materialDesign:PackIcon Kind="Cancel" Width="20" Height="20"/>
+        </Button>
+    </Grid>
+</UserControl>

@@ -558,19 +558,19 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(e => e.DJEventType is DJEventType.SetSpeedPlus50)
+                .Where(e => e.DJEventType is DJEventType.SpeedPlus50Toggle)
                 .Where(_ => IsSong)
                 .Subscribe(e => HandleIncrease50());
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(e => e.DJEventType is DJEventType.SetSpeedMinus50)
+                .Where(e => e.DJEventType is DJEventType.SpeedMinus50Toggle)
                 .Where(_ => IsSong)
                 .Subscribe(e => HandleDecrease50());
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(e => e.DJEventType is DJEventType.HomeSpeed)
+                .Where(e => e.DJEventType is DJEventType.HomeSpeedToggle)
                 .Where(_ => IsSong)
                 .Subscribe(e => HandleHomeSpeed());
 
@@ -591,7 +591,14 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.Seek)
                 .Where(_ => Progress is not null)
-                .Select(e => e.GetRelativeValue_BinaryOffset(0.005))
+                .Select(e => 
+                {
+                    var ccMapping = e.mapping as CCMapping;
+
+                    return ccMapping!.RelativeType == RelativeCCType.Relative1
+                        ? e.GetRelativeValue_TwosComplement(0.005)
+                        : e.GetRelativeValue_BinaryOffset(0.005);
+                })
                 .Do(delta =>
                 {
                     _midiTrackSeekInProgress = true;
@@ -609,6 +616,38 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Subscribe(async deltaPercent =>
                 {
                     TimeSpan targetTime = Progress.TotalTimeSpan.GetTimeFromPercent(ProgressSliderPercentage);                    
+
+                    await HandleSeek(restartSong, playSubtune, targetTime);
+                });
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong)
+                .Where(e => e.DJEventType is DJEventType.SeekForward or DJEventType.SeekBackward)
+                .Where(_ => Progress is not null)
+                .Select(e => 
+                {
+                    return e.DJEventType is DJEventType.SeekForward
+                        ? 0.005
+                        : -0.005;
+                })
+                .Do(delta =>
+                {
+                    _midiTrackSeekInProgress = true;
+                    var newProgressValue = ProgressSliderPercentage + delta;
+
+                    if (newProgressValue > 1) //greater than 100% song length, wrap around.
+                    {
+                        ProgressSliderPercentage = newProgressValue - ProgressSliderPercentage;
+                        return;
+                    }
+                    ProgressSliderPercentage = newProgressValue;
+                })
+                .Throttle(TimeSpan.FromMilliseconds(300))
+                .Do(_ => _midiTrackSeekInProgress = false)
+                .Subscribe(async deltaPercent =>
+                {
+                    TimeSpan targetTime = Progress.TotalTimeSpan.GetTimeFromPercent(ProgressSliderPercentage);
 
                     await HandleSeek(restartSong, playSubtune, targetTime);
                 });

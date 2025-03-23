@@ -7,4 +7,10 @@
         NoteOff,
         NoteOn       
     }
+
+    public enum NoteEventType 
+    {
+        NoteOff,
+        NoteOn
+    }
 }

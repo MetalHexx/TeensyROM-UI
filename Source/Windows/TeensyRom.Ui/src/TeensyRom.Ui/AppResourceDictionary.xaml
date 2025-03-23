@@ -17,6 +17,15 @@
     </ResourceDictionary.MergedDictionaries>
 
     <SolidColorBrush x:Key="EnabledColor" Color="#7FDBD6"/>
+    
+    <Style x:Key="NullAsNone" TargetType="TextBlock">
+        <Setter Property="Text" Value="{Binding}" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding}" Value="{x:Null}">
+                <Setter Property="Text" Value="None" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
 
     <Style x:Key="PlaybarButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
 
@@ -314,5 +323,6 @@
     <helpers:NullOrEmptyToVisibilityConverter x:Key="NullOrEmptyToVisibilityConverter"/>
     <helpers:InverseNullOrEmptyToVisibilityConverter x:Key="InverseNullOrEmptyToVisibilityConverter"/>
     <helpers:StringToPackIconKindConverter x:Key="StringToPackIconKindConverter"/>
+    <helpers:EnumDisplayNameConverter x:Key="EnumDisplayNameConverter" />
 
 </ResourceDictionary>

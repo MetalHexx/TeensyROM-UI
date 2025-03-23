@@ -12,5 +12,6 @@ namespace TeensyRom.Core.Music.Midi
         void SendRandomMidiNotes(int deviceId, int durationMs = 200, int count = 50);
         void SendRandomMidiNotesToAllDevices();
         void DisengageMidi();
+        IEnumerable<MidiDevice> RefreshMidiDevices();
     }
 }
