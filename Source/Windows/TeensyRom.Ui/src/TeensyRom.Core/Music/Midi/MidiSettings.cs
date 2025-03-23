@@ -27,7 +27,7 @@
                 new DualNoteMapping() { DJEventType = DJEventType.Voice1Kill, DisplayName = "Kill Voice 1" },
                 new DualNoteMapping() { DJEventType = DJEventType.Voice2Kill, DisplayName = "Kill Voice 2" },
                 new DualNoteMapping() { DJEventType = DJEventType.Voice3Kill, DisplayName = "Kill Voice 3" },
-                new CCMapping()   { DJEventType = DJEventType.Seek, DisplayName = "Seek / Scrub", RelativeType = RelativeCCType.Relative1 },
+                new CCMapping()   { DJEventType = DJEventType.Seek, DisplayName = "Seek / Scrub", RelativeType = RelativeCCType.Relative1, AmountEnabled = true, Amount = 0.005 },
                 new NoteMapping() { DJEventType = DJEventType.Mode, DisplayName = "Toggle Shuffle Mode" },
                 new NoteMapping() { DJEventType = DJEventType.PlayPause, DisplayName = "Play / Pause" },
                 new NoteMapping() { DJEventType = DJEventType.FastForward, DisplayName = "Fast Forward" },

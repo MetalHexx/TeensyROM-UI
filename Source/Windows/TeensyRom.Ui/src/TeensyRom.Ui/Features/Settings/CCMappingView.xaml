@@ -91,7 +91,7 @@
         
         <!-- Relative CC Type -->
         <ComboBox 
-            Grid.Row="0" Grid.Column="4"
+            Grid.Row="0" Grid.Column="5"
             ItemsSource="{Binding Source={StaticResource RelativeCCTypeProvider}}"
             SelectedItem="{Binding RelativeType, Mode=TwoWay}"
             materialDesign:HintAssist.Hint="Relative Type"
@@ -101,7 +101,7 @@
 
         <!-- Required Value -->
         <ComboBox 
-            Grid.Row="0" Grid.Column="5"
+            Grid.Row="0" Grid.Column="6"
             ItemsSource="{Binding AvailableValueOptions}"
             SelectedItem="{Binding SelectedValueOption, Mode=TwoWay}"
             DisplayMemberPath="DisplayText"
@@ -122,7 +122,7 @@
 
         <!-- Learn Button -->
         <Button 
-            Grid.Row="0" Grid.Column="6"
+            Grid.Row="0" Grid.Column="7"
             Command="{Binding LearnCommand}"
             ToolTip="MIDI Learn based on incoming CC input."
             Style="{StaticResource StorageIconButton}">
@@ -135,7 +135,7 @@
 
         <!-- Clear Button -->
         <Button 
-            Grid.Row="0" Grid.Column="7"
+            Grid.Row="0" Grid.Column="8"
             Command="{Binding ClearCommand}"
             ToolTip="Clear this mapping."
             Style="{StaticResource StorageIconButton}">

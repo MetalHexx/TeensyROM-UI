@@ -617,8 +617,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     var ccMapping = e.Mapping as CCMapping;
 
                     return ccMapping!.RelativeType == RelativeCCType.Relative1
-                        ? e.GetRelativeValue_TwosComplement(0.005)
-                        : e.GetRelativeValue_BinaryOffset(0.005);
+                        ? e.GetRelativeValue_TwosComplement(e.Mapping.Amount)
+                        : e.GetRelativeValue_BinaryOffset(e.Mapping.Amount);
                 })
                 .Do(delta =>
                 {
