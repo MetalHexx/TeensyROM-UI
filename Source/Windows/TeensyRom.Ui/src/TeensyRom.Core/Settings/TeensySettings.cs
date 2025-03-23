@@ -46,7 +46,6 @@ namespace TeensyRom.Core.Settings
         public bool MuteFastForward { get; set; } = false;
         public bool MuteRandomSeek { get; set; } = false;
         public bool FirstTimeSetup { get; set; } = true;
-        public int NudgeAmount { get; set; } = 5;
 
         public List<string> BannedDirectories = [];
         public List<string> BannedFiles = [];

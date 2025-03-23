@@ -32,7 +32,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            
         </Grid.RowDefinitions>
         
         <StackPanel Grid.Row="0">            
@@ -58,7 +57,9 @@
         <Grid Grid.Row="1">
             <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="15 0 0 0">
                     <StackPanel>
+                        
                         <Label Style="{StaticResource Heading}" Content="One-Shot Note Triggers"/>
+                        
                         <ItemsControl ItemsSource="{Binding NoteMappings}">
                             <ItemsControl.ItemTemplateSelector>
                                 <StaticResource ResourceKey="MidiMappingTemplateSelector"/>

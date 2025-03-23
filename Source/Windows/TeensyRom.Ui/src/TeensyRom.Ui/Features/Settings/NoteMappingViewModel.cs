@@ -29,6 +29,8 @@ namespace TeensyRom.Ui.Features.Settings
             NoteNumber = m.NoteNumber;
             NoteEvent = m.NoteEvent;
             RequiredVelocity = m.RequiredVelocity;
+            Amount = m.Amount;
+            AmountEnabled = m.AmountEnabled;
             SetAvailableVelocity();
         }
 
@@ -38,6 +40,8 @@ namespace TeensyRom.Ui.Features.Settings
             NoteNumber = m.NoteNumber;
             NoteEvent = m.NoteEvent;
             RequiredVelocity = m.RequiredVelocity;
+            Amount = m.Amount;
+            AmountEnabled = m.AmountEnabled;
 
             this.WhenAnyValue(x => x.RequiredVelocity)
                 .Subscribe(v => 
@@ -64,6 +68,7 @@ namespace TeensyRom.Ui.Features.Settings
             MidiChannel = 1;
             NoteNumber = null;
             RequiredVelocity = null;
+            AmountEnabled = AmountEnabled;
         }
 
         public override async Task HandleLearnCommand()
@@ -103,7 +108,9 @@ namespace TeensyRom.Ui.Features.Settings
                 FilterValue = FilterValue,
                 NoteNumber = NoteNumber,
                 NoteEvent = NoteEvent,
-                RequiredVelocity = RequiredVelocity
+                RequiredVelocity = RequiredVelocity,
+                Amount = Amount,
+                AmountEnabled = AmountEnabled
             };
         }
     }

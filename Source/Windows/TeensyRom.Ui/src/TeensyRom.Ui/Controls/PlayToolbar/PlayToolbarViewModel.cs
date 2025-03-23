@@ -532,6 +532,27 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong)
+                .Where(e => e.DJEventType is DJEventType.IncreaseCurrentSpeed or DJEventType.DecreaseCurrentSpeed or DJEventType.IncreaseCurrentSpeedFine or DJEventType.DecreaseCurrentSpeedFine)
+                .Select(e => e.Mapping.Amount)
+                .Subscribe(delta =>
+                {
+                    if (FastForwardInProgress) DisableFastForward(true);
+
+                    if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
+                    {
+                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(delta));
+                        _previousRawSpeed = 0;
+                        return;
+                    }
+                    var finalSpeed = ClampSpeed(RawSpeedValue + delta);
+
+                    RawSpeedValue = finalSpeed;
+                    _previousRawSpeed = 0;
+                });
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.Voice1Kill or DJEventType.Voice2Kill or DJEventType.Voice3Kill)                
                 .Subscribe(e =>
                 {
@@ -578,13 +599,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.NudgeForward)
                 .Where(_ => IsSong)
-                .Subscribe(e => HandleNudge(DJEventType.NudgeForward, e.MidiEventType));
+                .Subscribe(HandleNudge);
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.NudgeBackward)
                 .Where(_ => IsSong)
-                .Subscribe(e => HandleNudge(DJEventType.NudgeBackward, e.MidiEventType));
+                .Subscribe(HandleNudge);
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -593,7 +614,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => Progress is not null)
                 .Select(e => 
                 {
-                    var ccMapping = e.mapping as CCMapping;
+                    var ccMapping = e.Mapping as CCMapping;
 
                     return ccMapping!.RelativeType == RelativeCCType.Relative1
                         ? e.GetRelativeValue_TwosComplement(0.005)
@@ -625,12 +646,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.SeekForward or DJEventType.SeekBackward)
                 .Where(_ => Progress is not null)
-                .Select(e => 
-                {
-                    return e.DJEventType is DJEventType.SeekForward
-                        ? 0.005
-                        : -0.005;
-                })
+                .Select(e => e.Mapping.Amount)
                 .Do(delta =>
                 {
                     _midiTrackSeekInProgress = true;
@@ -800,15 +816,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Subscribe(async buffer => await mute(!Voice1Enabled, !Voice2Enabled, !Voice3Enabled));
         }
 
-        private void HandleNudge(DJEventType djEvent, MidiEventType midiEvent) 
+        private void HandleNudge(MidiEvent midiEvent) 
         {
-            var offset = djEvent is DJEventType.NudgeForward
-                ? _settings.NudgeAmount
-                : _settings.NudgeAmount * -1;
+            var offset = midiEvent.Mapping.Amount;
 
             if (FastForwardInProgress) DisableFastForward(false);
 
-            if (midiEvent is MidiEventType.NoteOn)
+            if (midiEvent.MidiEventType is MidiEventType.NoteOn)
             {
                 _nudgeOffset = offset;
 
@@ -817,7 +831,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     : ClampSpeed(RawSpeedValue + offset);
                 return;
             }
-            if (midiEvent is MidiEventType.NoteOff)
+            if (midiEvent.MidiEventType is MidiEventType.NoteOff)
             {
                 RawSpeedValue -= _nudgeOffset;                
                 _nudgeOffset = 0;

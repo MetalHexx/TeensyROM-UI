@@ -79,6 +79,8 @@ namespace TeensyRom.Core.Settings
                 LastCart = device is null ? new KnownCart(deviceHash, pnpDeviceId, comPort, $"TeensyROM #{settings.KnownCarts.Count() + 1}", new()) : device
             };
 
+            settings.LastCart.MidiSettings.InitMappings();
+
             if (device is null)
             {
                 settings.KnownCarts.Add(settings.LastCart with { });
@@ -90,6 +92,7 @@ namespace TeensyRom.Core.Settings
             }
             var currentCart = settings.KnownCarts.FirstOrDefault(x => x.DeviceHash == deviceHash);
             settings.LastCart = currentCart;
+
             SaveSettings(settings);          
         }
 

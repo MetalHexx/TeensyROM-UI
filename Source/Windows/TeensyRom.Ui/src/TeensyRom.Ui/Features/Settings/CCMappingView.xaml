@@ -26,10 +26,11 @@
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150"/> <!-- Display Name -->
+            <ColumnDefinition Width="160"/> <!-- Display Name -->
             <ColumnDefinition Width="150"/> <!-- Device -->
             <ColumnDefinition Width="75"/>  <!-- Channel -->
             <ColumnDefinition Width="75"/>  <!-- CC Number -->
+            <ColumnDefinition Width="75"/>  <!-- Amount -->
             <ColumnDefinition Width="100"/>  <!-- Relative Type -->
             <ColumnDefinition Width="100"/> <!-- Required Value -->
             <ColumnDefinition Width="Auto"/> <!-- Learn -->
@@ -78,6 +79,15 @@
             ToolTip="Control Change number to respond to."
             Margin="10 0 10 10"
             Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+        
+        <!-- Amount -->
+        <TextBox Grid.Row="0" Grid.Column="4"
+            Text="{Binding Amount, Mode=TwoWay, StringFormat=F3}"
+            Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+            materialDesign:HintAssist.Hint="Amount"
+            ToolTip="The amount of change to the affected parameter.  Value meaning depends on the mapping."
+            Width="70" Margin="10 0 10 10"
+            IsEnabled="{Binding AmountEnabled}" />
         
         <!-- Relative CC Type -->
         <ComboBox 

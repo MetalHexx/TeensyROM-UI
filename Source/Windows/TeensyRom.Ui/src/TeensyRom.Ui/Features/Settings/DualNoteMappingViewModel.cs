@@ -16,6 +16,8 @@ namespace TeensyRom.Ui.Features.Settings
             MidiChannel = m.MidiChannel;
             FilterValue = m.FilterValue;
             DisplayName = m.DisplayName;
+            Amount = m.Amount;
+            AmountEnabled = m.AmountEnabled;
         }
 
         public DualNoteMappingViewModel(DualNoteMappingViewModel m, IMidiService midiService, IAlertService alert) : base(m, midiService, alert)
@@ -26,6 +28,8 @@ namespace TeensyRom.Ui.Features.Settings
             MidiChannel = m.MidiChannel;
             FilterValue = m.FilterValue;
             DisplayName = m.DisplayName;
+            Amount = m.Amount;
+            AmountEnabled = m.AmountEnabled;
         }
 
         public override DualNoteMapping ToMidiMapping()
@@ -40,7 +44,8 @@ namespace TeensyRom.Ui.Features.Settings
                 NoteEvent = NoteEvent,
                 RequiredVelocity = RequiredVelocity,
                 NoteEvent2 = NoteEvent2,
-                DisplayName = DisplayName
+                DisplayName = DisplayName,
+                Amount = Amount,
             };
         }
     }

@@ -115,7 +115,7 @@
                         ToolTip="Controls the speed of the playing song."
                         Margin="0 0 10 0"/>
 
-                    <TextBlock Text="{Binding ActualSpeedPercent}"
+                    <TextBlock Text="{Binding ActualSpeedPercent, StringFormat=F2}"
                         IsEnabled="{Binding SetSpeedEnabled}"
                         VerticalAlignment="Center"                        
                         FontSize="14"

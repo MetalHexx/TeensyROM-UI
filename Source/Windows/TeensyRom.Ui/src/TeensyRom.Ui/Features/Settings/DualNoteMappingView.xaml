@@ -14,10 +14,11 @@
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150"/> <!-- Display Name -->
+            <ColumnDefinition Width="160"/> <!-- Display Name -->
             <ColumnDefinition Width="150"/> <!-- Device -->
             <ColumnDefinition Width="75"/>  <!-- Channel -->
             <ColumnDefinition Width="75"/>  <!-- Note Number -->
+            <ColumnDefinition Width="75"/>  <!-- Amount -->
             <ColumnDefinition Width="100"/> <!-- Velocity -->
             <ColumnDefinition Width="Auto"/> <!-- Learn -->
             <ColumnDefinition Width="Auto"/> <!-- Clear -->
@@ -65,10 +66,19 @@
             ToolTip="Note number to respond to."
             Margin="10 0 10 10"
             Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+        
+        <!-- Amount -->
+        <TextBox Grid.Row="0" Grid.Column="4"
+            Text="{Binding Amount, Mode=TwoWay, StringFormat=F3}"
+            Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+            materialDesign:HintAssist.Hint="Amount"
+            ToolTip="The amount of change to the affected parameter.  Value meaning depends on the mapping."
+            Width="70" Margin="10 0 10 10"
+            IsEnabled="{Binding AmountEnabled}" />
 
         <!-- Velocity -->
         <ComboBox 
-            Grid.Row="0" Grid.Column="4"
+            Grid.Row="0" Grid.Column="5"
             ItemsSource="{Binding AvailableVelocityOptions}"
             SelectedItem="{Binding SelectedVelocityOption, Mode=TwoWay}"
             DisplayMemberPath="DisplayText"
@@ -89,7 +99,7 @@
 
         <!-- Learn Button -->
         <Button 
-            Grid.Row="0" Grid.Column="5"
+            Grid.Row="0" Grid.Column="6"
             Command="{Binding LearnCommand}"
             ToolTip="Detects and fills fields from incoming MIDI note input."
             Style="{StaticResource StorageIconButton}">
@@ -98,7 +108,7 @@
 
         <!-- Clear Button -->
         <Button 
-            Grid.Row="0" Grid.Column="6"
+            Grid.Row="0" Grid.Column="7"
             Command="{Binding ClearCommand}"
             ToolTip="Clear this mapping."
             Style="{StaticResource StorageIconButton}">

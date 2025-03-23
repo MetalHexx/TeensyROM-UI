@@ -16,6 +16,8 @@ namespace TeensyRom.Ui.Features.Settings
         [Reactive] public int MidiChannel { get; set; }
         [Reactive] public int? FilterValue { get; set; } //Could be velocity or CC value or no requirement (null)
         [Reactive] public string DisplayName { get; set; } = string.Empty;
+        [Reactive] public double Amount { get; set; } = 0.0;
+        [Reactive] public bool AmountEnabled { get; set; } = false;
         [Reactive] public List<MidiDeviceViewModel> AvailableDevices { get; set; } = [];
         [Reactive] public List<int> AvailableChannels { get; set; } = Enumerable.Range(1, 16).ToList();
         [Reactive] public List<int> AvailableMidiValues { get; set; } = Enumerable.Range(0, 128).ToList();

@@ -16,5 +16,7 @@ namespace TeensyRom.Core.Music.Midi
         public string DisplayName { get; set; } = string.Empty;
         public abstract bool IsEnabled { get; }
         public abstract int NoteOrCC { get; }
+        public double Amount { get; set; } = 0.0;
+        public bool AmountEnabled { get; set; } = false;
     }
 }

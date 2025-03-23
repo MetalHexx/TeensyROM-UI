@@ -30,6 +30,8 @@ namespace TeensyRom.Ui.Features.Settings
             FilterValue = m.FilterValue;
             DisplayName = m.DisplayName;
             RelativeType = m.RelativeType;
+            Amount = m.Amount;
+            AmountEnabled = m.AmountEnabled;
             SetAvailableVelocity();
         }
 
@@ -43,6 +45,8 @@ namespace TeensyRom.Ui.Features.Settings
             FilterValue = m.FilterValue;
             DisplayName = m.DisplayName;
             RelativeType = m.RelativeType;
+            Amount = m.Amount;
+            AmountEnabled = m.AmountEnabled;
             SetAvailableVelocity();
         }
 
@@ -61,7 +65,7 @@ namespace TeensyRom.Ui.Features.Settings
             Device = new MidiDeviceViewModel(new MidiDevice());
             MidiChannel = 1;
             CCNumber = null;
-            RequiredValue = null;
+            RequiredValue = null;         
         }
 
         public override async Task HandleLearnCommand()
@@ -100,7 +104,9 @@ namespace TeensyRom.Ui.Features.Settings
                 CCNumber = CCNumber,
                 RequiredValue = RequiredValue,                               
                 DisplayName = DisplayName,
-                RelativeType = RelativeType
+                RelativeType = RelativeType,
+                Amount = Amount,
+                AmountEnabled = AmountEnabled
             };
         }
     }
