@@ -6,7 +6,7 @@ namespace TeensyRom.Core.Music.Midi
     {
         public int? CCNumber { get; set; } = null;
         public int? RequiredValue { get; set; } = null;
-        public RelativeCCType RelativeType { get; set; } = RelativeCCType.Relative1;
+        public CCType CCType { get; set; } = CCType.Relative1;
 
         [JsonIgnore]
         public override int NoteOrCC

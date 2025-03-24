@@ -11,11 +11,11 @@
              DataContext="{Binding}">
     <UserControl.Resources>
     <ObjectDataProvider 
-        x:Key="RelativeCCTypeProvider" 
+        x:Key="CCTypeProvider" 
         MethodName="GetValues"
         ObjectType="{x:Type sys:Enum}">
         <ObjectDataProvider.MethodParameters>
-            <x:Type TypeName="midi:RelativeCCType"/>
+            <x:Type TypeName="midi:CCType"/>
         </ObjectDataProvider.MethodParameters>
     </ObjectDataProvider>
 </UserControl.Resources>
@@ -89,15 +89,26 @@
             Width="70" Margin="10 0 10 10"
             IsEnabled="{Binding AmountEnabled}" />
         
-        <!-- Relative CC Type -->
+        <!-- CC Type -->
         <ComboBox 
             Grid.Row="0" Grid.Column="5"
-            ItemsSource="{Binding Source={StaticResource RelativeCCTypeProvider}}"
-            SelectedItem="{Binding RelativeType, Mode=TwoWay}"
-            materialDesign:HintAssist.Hint="Relative Type"
-            ToolTip="Type of relative CC to respond to."
+            ItemsSource="{Binding Source={StaticResource CCTypeProvider}}"
+            SelectedItem="{Binding CCType, Mode=TwoWay}"
+            materialDesign:HintAssist.Hint="CC Type"
             Margin="10 0 10 10"
-            Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+            Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+            <ComboBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock Text="Type of CC to respond to:"/>
+                        <TextBlock Text="• Absolute is good for sliders and pots."/>
+                        <TextBlock Text="• Relative for endless encoders."/>
+                        <TextBlock Text="• Relative1: Twos Compliment"/>
+                        <TextBlock Text="• Relative2: Binary Offset"/>
+                    </StackPanel>
+                </ToolTip>
+            </ComboBox.ToolTip>
+        </ComboBox>
 
         <!-- Required Value -->
         <ComboBox 

@@ -18,5 +18,14 @@ namespace TeensyRom.Core.Music.Midi
                 ? e.Value * multiplier 
                 : (e.Value - 128) * multiplier;
         }
+
+        public static double GetAbsoluteValueDelta(this MidiEvent e, double min, double max, double currentValue)
+        {
+            double normalized = e.Value / 127.0;
+
+            double targetValue = min + (normalized * (max - min));
+
+            return targetValue - currentValue;
+        }
     }
 }

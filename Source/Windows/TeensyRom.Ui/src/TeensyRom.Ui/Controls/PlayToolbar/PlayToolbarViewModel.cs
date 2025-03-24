@@ -493,9 +493,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     var ccMapping = e.Mapping as CCMapping;
 
-                    return ccMapping!.RelativeType == RelativeCCType.Relative1
-                        ? e.GetRelativeValue_TwosComplement(e.Mapping.Amount)
-                        : e.GetRelativeValue_BinaryOffset(e.Mapping.Amount);
+                    return ccMapping!.CCType switch
+                    {
+                        CCType.Absolute => e.GetAbsoluteValueDelta(MinSpeed, MaxSpeed, RawSpeedValue),
+                        CCType.Relative1 => e.GetRelativeValue_TwosComplement(e.Mapping.Amount),
+                        CCType.Relative2 => e.GetRelativeValue_BinaryOffset(e.Mapping.Amount),
+                        _ => 0
+                    };
                 })
                 .Subscribe(delta =>
                 {
@@ -521,9 +525,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     var ccMapping = e.Mapping as CCMapping;
 
-                    return ccMapping!.RelativeType == RelativeCCType.Relative1
-                        ? e.GetRelativeValue_TwosComplement(e.Mapping.Amount)
-                        : e.GetRelativeValue_BinaryOffset(e.Mapping.Amount);
+                    return ccMapping!.CCType switch
+                    {
+                        CCType.Absolute => e.GetAbsoluteValueDelta(MinSpeed, MaxSpeed, RawSpeedValue),
+                        CCType.Relative1 => e.GetRelativeValue_TwosComplement(e.Mapping.Amount),
+                        CCType.Relative2 => e.GetRelativeValue_BinaryOffset(e.Mapping.Amount),
+                        _ => 0
+                    };
                 })
                 .Subscribe(delta =>
                 {
@@ -628,7 +636,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     var ccMapping = e.Mapping as CCMapping;
 
-                    return ccMapping!.RelativeType == RelativeCCType.Relative1
+                    return ccMapping!.CCType == CCType.Relative1
                         ? e.GetRelativeValue_TwosComplement(e.Mapping.Amount)
                         : e.GetRelativeValue_BinaryOffset(e.Mapping.Amount);
                 })

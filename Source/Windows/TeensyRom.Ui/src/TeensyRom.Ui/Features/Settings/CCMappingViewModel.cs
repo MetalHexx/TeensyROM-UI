@@ -11,7 +11,7 @@ namespace TeensyRom.Ui.Features.Settings
     {
         [Reactive] public int? CCNumber { get; set; }
         [Reactive] public int? RequiredValue { get; set; }
-        [Reactive] public RelativeCCType RelativeType { get; set; }
+        [Reactive] public CCType CCType { get; set; }
 
         public List<MidiValueOption> AvailableValueOptions { get; set; }
 
@@ -29,7 +29,7 @@ namespace TeensyRom.Ui.Features.Settings
             MidiChannel = m.MidiChannel;
             FilterValue = m.FilterValue;
             DisplayName = m.DisplayName;
-            RelativeType = m.RelativeType;
+            CCType = m.CCType;
             Amount = m.Amount;
             AmountEnabled = m.AmountEnabled;
             SetAvailableVelocity();
@@ -44,7 +44,7 @@ namespace TeensyRom.Ui.Features.Settings
             MidiChannel = m.MidiChannel;
             FilterValue = m.FilterValue;
             DisplayName = m.DisplayName;
-            RelativeType = m.RelativeType;
+            CCType = m.CCType;
             Amount = m.Amount;
             AmountEnabled = m.AmountEnabled;
             SetAvailableVelocity();
@@ -104,7 +104,7 @@ namespace TeensyRom.Ui.Features.Settings
                 CCNumber = CCNumber,
                 RequiredValue = RequiredValue,                               
                 DisplayName = DisplayName,
-                RelativeType = RelativeType,
+                CCType = CCType,
                 Amount = Amount,
                 AmountEnabled = AmountEnabled
             };
