@@ -46,6 +46,7 @@ namespace TeensyRom.Ui.Features.Settings
                 NoteEvent2 = NoteEvent2,
                 DisplayName = DisplayName,
                 Amount = Amount,
+                AmountEnabled = AmountEnabled
             };
         }
     }
