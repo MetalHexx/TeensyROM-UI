@@ -489,11 +489,17 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.CurrentSpeed)
-                .Subscribe(e =>
+                .Select(e =>
+                {
+                    var ccMapping = e.Mapping as CCMapping;
+
+                    return ccMapping!.RelativeType == RelativeCCType.Relative1
+                        ? e.GetRelativeValue_TwosComplement(e.Mapping.Amount)
+                        : e.GetRelativeValue_BinaryOffset(e.Mapping.Amount);
+                })
+                .Subscribe(delta =>
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
-
-                    double delta = e.GetRelativeValue_TwosComplement(e.Mapping.Amount);
 
                     if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
                     {
@@ -511,11 +517,17 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.CurrentSpeedFine)
-                .Subscribe(e =>
+                .Select(e =>
+                {
+                    var ccMapping = e.Mapping as CCMapping;
+
+                    return ccMapping!.RelativeType == RelativeCCType.Relative1
+                        ? e.GetRelativeValue_TwosComplement(e.Mapping.Amount)
+                        : e.GetRelativeValue_BinaryOffset(e.Mapping.Amount);
+                })
+                .Subscribe(delta =>
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
-
-                    double delta = e.GetRelativeValue_TwosComplement(e.Mapping.Amount);
 
                     if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
                     {
