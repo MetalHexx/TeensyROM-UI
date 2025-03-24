@@ -493,7 +493,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
 
-                    double delta = e.GetRelativeValue_TwosComplement(1);
+                    double delta = e.GetRelativeValue_TwosComplement(e.Mapping.Amount);
 
                     if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
                     {
@@ -515,7 +515,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     if (FastForwardInProgress) DisableFastForward(true);
 
-                    double delta = e.GetRelativeValue_TwosComplement(0.01);
+                    double delta = e.GetRelativeValue_TwosComplement(e.Mapping.Amount);
 
                     if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
                     {
