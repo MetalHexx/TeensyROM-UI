@@ -631,14 +631,23 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.Seek)
+                .Where(e => 
+                {
+                    var ccMapping = e.Mapping as CCMapping;
+                    return ccMapping!.CCType is CCType.Relative1 or CCType.Relative2;
+                })
                 .Where(_ => Progress is not null)
-                .Select(e => 
+                .Select(e =>
                 {
                     var ccMapping = e.Mapping as CCMapping;
 
-                    return ccMapping!.CCType == CCType.Relative1
-                        ? e.GetRelativeValue_TwosComplement(e.Mapping.Amount)
-                        : e.GetRelativeValue_BinaryOffset(e.Mapping.Amount);
+                    return ccMapping!.CCType switch
+                    {
+                        CCType.Absolute => e.GetAbsoluteValueDelta(0, 1, Progress!.CurrentSpan / _currentSong!.PlayLength),
+                        CCType.Relative1 => e.GetRelativeValue_TwosComplement(e.Mapping.Amount),
+                        CCType.Relative2 => e.GetRelativeValue_BinaryOffset(e.Mapping.Amount),
+                        _ => 0
+                    };
                 })
                 .Do(delta =>
                 {
@@ -657,6 +666,31 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Subscribe(async deltaPercent =>
                 {
                     TimeSpan targetTime = Progress.TotalTimeSpan.GetTimeFromPercent(ProgressSliderPercentage);                    
+
+                    await HandleSeek(restartSong, playSubtune, targetTime);
+                });
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(_ => IsSong)
+                .Where(e => e.DJEventType is DJEventType.Seek)
+                .Where(e =>
+                {
+                    var ccMapping = e.Mapping as CCMapping;
+                    return ccMapping!.CCType is CCType.Absolute;
+                })
+                .Where(_ => Progress is not null)
+                .Do(e =>
+                {   
+                    _midiTrackSeekInProgress = true;
+                    double percent = e.Value / 127.0;
+                    ProgressSliderPercentage = percent;
+                })
+                .Throttle(TimeSpan.FromMilliseconds(300))
+                .Do(_ => _midiTrackSeekInProgress = false)
+                .Subscribe(async _ =>
+                {
+                    TimeSpan targetTime = Progress.TotalTimeSpan.GetTimeFromPercent(ProgressSliderPercentage);
 
                     await HandleSeek(restartSong, playSubtune, targetTime);
                 });
