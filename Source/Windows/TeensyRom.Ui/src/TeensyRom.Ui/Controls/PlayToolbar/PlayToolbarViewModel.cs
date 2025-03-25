@@ -734,6 +734,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(e => e.DJEventType is DJEventType.PlayPause)
                 .Subscribe(e => HandleTogglePlay());
 
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.DJEventType is DJEventType.HoldPause)                
+                .Subscribe(e => HandleTogglePlay());
+
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)

@@ -28,6 +28,7 @@
         Voice2Kill,
         Voice3Kill,
         Mode,
-        Restart
+        Restart,
+        HoldPause
     }
 }
