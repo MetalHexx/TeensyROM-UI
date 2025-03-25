@@ -24,7 +24,7 @@ static void ReceiveMidiInputLoop()
 
             midiIn.MessageReceived += (sender, e) =>
             {
-                Console.WriteLine($"{e.MidiEvent}");
+                Console.WriteLine($"{deviceName} - {e.MidiEvent}");
             };
             midiIn.Start();
         }
