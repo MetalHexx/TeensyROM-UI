@@ -190,7 +190,7 @@ namespace TeensyRom.Core.Music.Midi
                  &&
                  m.NoteEvent.EqualsMidiCommand(noteEvent.CommandCode)
                  &&
-                 (m.FilterValue is null || m.FilterValue == noteEvent.Velocity)
+                 (m.RequiredVelocity is null || m.RequiredVelocity == noteEvent.Velocity)
              );
         }
 
@@ -208,7 +208,7 @@ namespace TeensyRom.Core.Music.Midi
                          m.NoteEvent2.EqualsMidiCommand(noteEvent.CommandCode)
                      )
                      &&
-                     (m.FilterValue is null || m.FilterValue == noteEvent.Velocity)
+                     (m.RequiredVelocity is null || m.RequiredVelocity == noteEvent.Velocity)
                  );
         }
 
@@ -224,7 +224,6 @@ namespace TeensyRom.Core.Music.Midi
         public async Task<MidiResult?> GetFirstMidiEvent(MidiEventType targetEventType)
         {
             var settings = _settingsService.GetSettings();
-
             if (settings.LastCart is null) return null;
 
             DisengageMidi();
@@ -238,80 +237,83 @@ namespace TeensyRom.Core.Music.Midi
             }
 
             var midiInList = new List<MidiIn>();
-            var errorThrottle = new Subject<string>();
+            var tcs = new TaskCompletionSource<MidiResult>();
+            var errorThrottleTimer = new System.Timers.Timer(500) { AutoReset = false };
+            bool errorDisplayed = false;
+
+            void ThrottleError(string message)
+            {
+                if (!errorDisplayed)
+                {
+                    errorDisplayed = true;
+                    _alert.Publish(message);
+                    errorThrottleTimer.Start();
+                }
+            }
+
+            errorThrottleTimer.Elapsed += (_, _) => errorDisplayed = false;
 
             try
             {
-                errorThrottle
-                    .Throttle(TimeSpan.FromMilliseconds(500))
-                    .Subscribe(_alert.Publish);
+                foreach (var device in devices)
+                {
+                    var midiIn = TryGetMidiIn(device.Id);
+                    if (midiIn is null) continue;
 
-                var midiEventObservable = devices
-                    .Select(d =>
+                    midiIn.MessageReceived += (sender, args) =>
                     {
-                        var midiIn = TryGetMidiIn(d.Id);
+                        var midiEvent = args.MidiEvent;
 
-                        if (midiIn is null) return null;
-
-                        return new { Device = d, MidiIn = midiIn };
-                    })
-                    .Where(deviceAndMidiIn => deviceAndMidiIn is not null)
-                    .Select(deviceAndMidiIn =>
-                    {
-                        midiInList.Add(deviceAndMidiIn!.MidiIn);
-
-                        var observable = Observable.FromEventPattern<MidiInMessageEventArgs>(
-                                h => deviceAndMidiIn.MidiIn.MessageReceived += h,
-                                h => deviceAndMidiIn.MidiIn.MessageReceived -= h)
-                            .Select(e => new { Event = e.EventArgs.MidiEvent, Device = deviceAndMidiIn.Device });
-
-                        deviceAndMidiIn.MidiIn.Start();
-                        return observable;
-                    })
-                    .Merge();
-
-                return await midiEventObservable
-                    .Select(result => new
-                    {
-                        Result = result,
-                        IsValid = targetEventType switch
+                        bool isValid = targetEventType switch
                         {
-                            MidiEventType.ControlChange => result.Event is ControlChangeEvent,
-                            MidiEventType.NoteOn or MidiEventType.NoteOff or MidiEventType.NoteChange => result.Event is NoteOnEvent,
+                            MidiEventType.ControlChange => midiEvent is ControlChangeEvent,
+                            MidiEventType.NoteOn or MidiEventType.NoteOff or MidiEventType.NoteChange => midiEvent is NoteOnEvent,
                             _ => false
-                        }
-                    })
-                    .Do(x =>
-                    {
-                        if (!x.IsValid)
+                        };
+
+                        if (!isValid)
                         {
-                            var expectedType = targetEventType == MidiEventType.ControlChange ? "a knob or slider (CC)" : "a key or pad (Note)";
-                            errorThrottle.OnNext($"Please use {expectedType} to bind this control.");
+                            var expected = targetEventType == MidiEventType.ControlChange ? "a knob or slider (CC)" : "a key or pad (Note)";
+                            ThrottleError($"Please use {expected} to bind this control.");
+                            return;
                         }
-                    })
-                    .Where(x => x.IsValid)
-                    .Select(x => x.Result)
-                    .Take(1)
-                    .Select(result => result.Event switch
-                    {
-                        ControlChangeEvent ccEvent => new MidiResult(result.Device, (int)ccEvent.Controller, ccEvent.Channel, ccEvent.ControllerValue),
-                        NoteOnEvent noteOn => new MidiResult(result.Device, noteOn.NoteNumber, noteOn.Channel, noteOn.Velocity),
-                        _ => throw new InvalidOperationException("Unhandled MIDI event type.")
-                    });
+
+                        MidiResult result = midiEvent switch
+                        {
+                            ControlChangeEvent cc => new MidiResult(device, (int)cc.Controller, cc.Channel, cc.ControllerValue),
+                            NoteOnEvent note => new MidiResult(device, note.NoteNumber, note.Channel, note.Velocity),
+                            _ => throw new InvalidOperationException("Unhandled MIDI event type.")
+                        };
+                        tcs.TrySetResult(result);
+                    };
+
+                    midiInList.Add(midiIn);
+                    midiIn.Start();
+                }
+
+                // Cancel after 30 seconds if nothing comes in
+                var timeout = Task.Delay(TimeSpan.FromSeconds(30));
+                var completedTask = await Task.WhenAny(tcs.Task, timeout);
+
+                return completedTask == tcs.Task ? tcs.Task.Result : null;
             }
             finally
             {
+                errorThrottleTimer.Dispose();
+
                 foreach (var midiIn in midiInList)
                 {
                     midiIn.Stop();
                     midiIn.Dispose();
                 }
-                if (settings.LastCart.MidiSettings is not null) 
+
+                if (settings.LastCart.MidiSettings is not null && settings.LastCart.MidiSettings.MidiEnabled)
                 {
                     EngageMidi(settings.LastCart.MidiSettings);
                 }
-            }            
+            }
         }
+
 
         public MidiIn? TryGetMidiIn(int deviceId) 
         {

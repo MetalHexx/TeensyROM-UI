@@ -81,7 +81,7 @@ namespace TeensyRom.Ui.Features.Settings
 
             if (midiResult is null)
             {
-                _alert.Publish("Not connected to a TeensyROM cart.");
+                _alert.Publish("No midi event detected.  Cancelling midi learn.");
                 return;
             }
 
