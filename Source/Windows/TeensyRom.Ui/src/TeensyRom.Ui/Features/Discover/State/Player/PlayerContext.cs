@@ -150,13 +150,25 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             _settingsSubscription = _settingsService.Settings
                 .Do(settings => _settings = settings)
                 .Do(settings => _currentFilter = _settings.GetStartupFilter())
-                .CombineLatest(_serial.CurrentState, _nav.SelectedNavigationView, _storage.StorageReady, (settings, serial, navView, storageReady) => (settings, serial, navView))
-                .Where(state => state.navView?.Type == NavigationLocation.Discover && state.serial is SerialConnectedState)
-                .DistinctUntilChanged(state => state.settings.StorageType)
-                .Select(state => (path: _currentFilter, state.settings.StorageType))
-                .Select(storage => storage.path)
+                .CombineLatest(
+                    _serial.CurrentState,
+                    _nav.SelectedNavigationView,
+                    _storage.StorageReady,
+                    (settings, serial, navView, storageReady) => (settings, serial, navView))
+                .Where(state =>
+                    state.navView?.Type == NavigationLocation.Discover &&
+                    state.serial is SerialConnectedState)
+                .Select(state => new
+                {
+                    Path = _currentFilter,
+                    StorageType = state.settings.StorageType,
+                    DeviceHash = state.settings?.LastCart?.DeviceHash
+                })
+                .DistinctUntilChanged(x => $"{x.StorageType}|{x.DeviceHash}")
+                .Select(x => x.Path)
                 .Do(path => _tree.ResetDirectoryTree(StorageConstants.Remote_Path_Root))
                 .Subscribe(async path => await LoadDirectory(StorageConstants.Remote_Path_Root));
+
 
             _serial.CurrentState
                 .Where(_ => _settings.StartupLaunchEnabled && _settings.FirstTimeSetup == false)
