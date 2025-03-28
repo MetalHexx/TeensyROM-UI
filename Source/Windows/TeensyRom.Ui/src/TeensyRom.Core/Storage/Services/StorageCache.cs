@@ -337,7 +337,7 @@ namespace TeensyRom.Core.Storage.Services
         {
             if (!File.Exists(_cacheFilePath))
             {
-                WriteToDisk();
+                Clear();
                 return;
             }
             using var stream = File.Open(_cacheFilePath, FileMode.Open, FileAccess.Read);
@@ -360,19 +360,25 @@ namespace TeensyRom.Core.Storage.Services
                 TryAdd(item.Key, item.Value);
             }
         }
+        private static readonly object _writeLock = new();
 
         public void WriteToDisk()
         {
-            if (!Directory.Exists(Path.GetDirectoryName(_cacheFilePath)))
+            lock (_writeLock)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(_cacheFilePath)!);
+                var directory = Path.GetDirectoryName(_cacheFilePath);
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory!);
+                }
+
+                var options = new JsonSerializerOptions
+                {
+                    TypeInfoResolver = JsonTypeInfoResolver.Combine(new DefaultJsonTypeInfoResolver()),
+                    WriteIndented = true
+                };                
+                File.WriteAllText(_cacheFilePath, JsonSerializer.Serialize(this, options));
             }
-            var options = new JsonSerializerOptions
-            {
-                TypeInfoResolver = JsonTypeInfoResolver.Combine(new DefaultJsonTypeInfoResolver()),
-                WriteIndented = true
-            };
-            File.WriteAllText(_cacheFilePath, JsonSerializer.Serialize(this, options));
         }
 
         private static string CleanPath(string path) => path
