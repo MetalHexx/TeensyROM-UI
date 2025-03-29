@@ -1,10 +1,6 @@
 ﻿using MediatR;
-using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using TeensyRom.Core.Assets;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.DeleteFile;
 using TeensyRom.Core.Common;
@@ -72,19 +68,9 @@ namespace TeensyRom.Core.Storage.Services
             _alert.Publish($"{launchItem.Name} has been tagged as a favorite.");
             _alert.Publish($"A copy was placed in {favPath}.");
 
-            var favItem = CloneToFileItem(launchItem);
-
             if (!favoriteResult.IsSuccess) return null;
 
-            favItem.IsFavorite = true;
-            favItem.Path = favPath.UnixPathCombine(favItem.Name);
-            favItem.FavParentPath = launchItem.Path;
-
-            launchItem.IsFavorite = true;            
-            launchItem.FavChildPath = favItem.Path;
-
-            _storageCache.UpsertFile(launchItem);
-            _storageCache.UpsertFile(favItem);
+            var favItem = MaybeEnsureFavoriteAndStoreCache(launchItem, favPath.UnixPathCombine(launchItem.Name));
 
             _storageCache.WriteToDisk();
 
@@ -327,11 +313,11 @@ namespace TeensyRom.Core.Storage.Services
                 );
                 var result = await _mediator.Send(copyItem);
                 results.Add(result);
-                var cloned = CloneToFileItem(item.SourceItem);
-                cloned.Path = targetFullPath;
-                cloned.FavParentPath = item.TargetPath;
-                _storageCache.UpsertFile(cloned);
-                filesAdded.Add(cloned);
+
+                if (!result.IsSuccess) continue;
+                
+                var newFile = MaybeEnsureFavoriteAndStoreCache(item.SourceItem, targetFullPath);
+                filesAdded.Add(newFile);
             }
             if (results.Any(r => r.IsSuccess is false))
             {
@@ -342,6 +328,29 @@ namespace TeensyRom.Core.Storage.Services
 
             _storageCache.WriteToDisk();
             _filesCopied.OnNext(filesAdded);
+        }
+
+        public IFileItem MaybeEnsureFavoriteAndStoreCache(ILaunchableItem sourceFile, string targetFullPath) 
+        {
+            var favPaths = _settings.GetAllFavoritePaths();
+
+            var newFile = CloneToFileItem(sourceFile);
+            newFile.Path = targetFullPath;
+            newFile.FavParentPath = sourceFile.Path;
+
+            if (favPaths.Any(fav => targetFullPath.StartsWith(fav, StringComparison.OrdinalIgnoreCase)))
+            {
+                sourceFile.FavChildPath = targetFullPath;
+                sourceFile.IsFavorite = true;                
+                newFile.IsFavorite = true;
+                _storageCache.UpsertFile(sourceFile);
+            }
+            else 
+            {
+                newFile.IsFavorite = false;
+            }
+            _storageCache.UpsertFile(newFile);
+            return newFile;
         }
 
         public FileItem CloneToFileItem(ILaunchableItem launchItem)
