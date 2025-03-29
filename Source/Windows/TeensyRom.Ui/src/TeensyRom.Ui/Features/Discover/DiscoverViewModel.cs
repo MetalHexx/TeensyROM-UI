@@ -56,9 +56,9 @@ namespace TeensyRom.Ui.Features.Discover
         [Reactive] public SearchResultsToolbarViewModel SearchResultsToolbar { get; set; } = new();
         [Reactive] public StorageSelectorViewModel StorageSelector { get; set; }
 
-        private TeensySettings _settings = null!;
+        private TeensySettings _settings = null!;        
 
-        public DiscoverViewModel(IPlayerContext player, ISerialStateContext serial, IDialogService dialog, IAlertService alert, IProgressService progress, ISettingsService settingsService, INavigationService nav, IGameMetadataService metadata, IProgressTimer? timer, IMidiService midiService, IPlaylistDialogService playlist)
+        public DiscoverViewModel(IPlayerContext player, ISerialStateContext serial, IDialogService dialog, IAlertService alert, IProgressService progress, ISettingsService settingsService, INavigationService nav, IGameMetadataService metadata, IProgressTimer? timer, IMidiService midiService, IPlaylistDialogService playlist, ICrossProcessService crossProcess)
         {
             Title = new FeatureTitleViewModel("Discover");
             FileInfo = new FileInfoViewModel(player, metadata);
@@ -109,7 +109,7 @@ namespace TeensyRom.Ui.Features.Discover
                 player.RestartSong,
                 player.RestartSubtune,
                 player.PlaySubtune,
-                player.SaveFavorite,
+                crossProcess.SaveFavorite,
                 player.RemoveFavorite,
                 player.LoadDirectory,
                 player.SetSpeed,
@@ -129,7 +129,7 @@ namespace TeensyRom.Ui.Features.Discover
                 player.TotalPages.ObserveOn(RxApp.MainThreadScheduler),
                 player.PlayFile,
                 player.SelectFile,
-                player.SaveFavorite,
+                crossProcess.SaveFavorite,
                 player.RemoveFavorite,
                 player.StoreFiles,
                 player.DeleteFile,

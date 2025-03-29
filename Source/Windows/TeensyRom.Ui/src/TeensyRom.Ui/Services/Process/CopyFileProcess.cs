@@ -44,5 +44,5 @@ namespace TeensyRom.Ui.Services.Process
                 await player.PlayFile(game);
             }
         }
-    }
+    }    
 }

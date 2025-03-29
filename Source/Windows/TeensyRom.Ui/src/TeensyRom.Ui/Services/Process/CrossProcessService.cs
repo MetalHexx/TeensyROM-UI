@@ -15,6 +15,7 @@ using System.Linq;
 public interface ICrossProcessService
 {
     Task CopyFiles(IEnumerable<CopyFileItem> files);
+    Task SaveFavorite(ILaunchableItem file);
     Task SendMessageAsync<T>(ProcessCommand<T> message);
 }
 
@@ -23,15 +24,17 @@ public class CrossProcessService : ICrossProcessService, IDisposable
     private const string _pipePrefix = "TeensyRomPipe_";
 
     private readonly ICopyFileProcess _copyFile;
+    private readonly IFavoriteFileProcess _favFile;
     private readonly ILoggingService _log;
     private readonly ISettingsService _settingsService;
 
     private IDisposable? _settingsSubscription;
     private CancellationTokenSource? _listenerCts;
 
-    public CrossProcessService(ICopyFileProcess copyFile, ILoggingService log, ISettingsService settingsService)
+    public CrossProcessService(ICopyFileProcess copyFile, IFavoriteFileProcess favFile, ILoggingService log, ISettingsService settingsService)
     {
         _copyFile = copyFile;
+        _favFile = favFile;
         _log = log;
         _settingsService = settingsService;
 
@@ -59,13 +62,12 @@ public class CrossProcessService : ICrossProcessService, IDisposable
         {
             try
             {
-                using var server = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
+                using var server = new NamedPipeServerStream(pipeName, PipeDirection.In, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
                 await server.WaitForConnectionAsync(ct);
 
                 _log.Internal($"Client connected to {pipeName}");
 
                 using var reader = new StreamReader(server);
-                using var writer = new StreamWriter(server) { AutoFlush = true };
 
                 while (server.IsConnected && !ct.IsCancellationRequested)
                 {
@@ -91,13 +93,19 @@ public class CrossProcessService : ICrossProcessService, IDisposable
                                 if (message?.Value != null)
                                     await _copyFile.CopyFiles(message.Value);
                                 break;
+                            case ProcessCommandType.FavoriteFile:
+                                var favoriteMessage = LaunchableItemSerializer.Deserialize<ProcessCommand<ILaunchableItem>>(raw);
+                                if (favoriteMessage?.Value != null)
+                                {
+                                    await _favFile.SaveFavorite(favoriteMessage.Value);
+                                    _log.Internal($"Received favorite file: {favoriteMessage.Value.Name}");
+                                }
+                                break;
 
                             default:
                                 _log.Internal($"Unhandled message type: {type}");
                                 break;
                         }
-
-                        await writer.WriteLineAsync("ACK");
                     }
                     catch (IOException ioEx) when (ioEx.Message.Contains("pipe is broken", StringComparison.OrdinalIgnoreCase))
                     {
@@ -140,6 +148,18 @@ public class CrossProcessService : ICrossProcessService, IDisposable
         await SendMessageAsync(message);
     }
 
+    public async Task SaveFavorite(ILaunchableItem file)
+    {
+        var message = new ProcessCommand<ILaunchableItem>
+        {
+            MessageType = ProcessCommandType.FavoriteFile,
+            Value = file
+        };
+
+        await _favFile.SaveFavorite(file);
+        await SendMessageAsync(message);
+    }
+
     public async Task SendMessageAsync<T>(ProcessCommand<T> message)
     {
         var myHash = _settingsService.GetSettings().LastCart?.DeviceHash;
@@ -155,7 +175,7 @@ public class CrossProcessService : ICrossProcessService, IDisposable
 
             try
             {
-                using var client = new NamedPipeClientStream(".", targetPipe, PipeDirection.InOut);
+                using var client = new NamedPipeClientStream(".", targetPipe, PipeDirection.Out);
 
                 if (!await TryConnectAsync(client))
                 {
@@ -164,21 +184,9 @@ public class CrossProcessService : ICrossProcessService, IDisposable
                 }
 
                 using var writer = new StreamWriter(client) { AutoFlush = true };
-                using var reader = new StreamReader(client);
 
                 var json = LaunchableItemSerializer.Serialize(message);
                 await writer.WriteLineAsync(json);
-
-                var readTask = reader.ReadLineAsync();
-                if (await Task.WhenAny(readTask, Task.Delay(500)) == readTask)
-                {
-                    var response = await readTask;
-                    _log.Internal($"Process Reply from {cart.Name}: {response}");
-                }
-                else
-                {
-                    _log.Internal($"No response from {cart.Name}");
-                }
             }
             catch (Exception ex)
             {

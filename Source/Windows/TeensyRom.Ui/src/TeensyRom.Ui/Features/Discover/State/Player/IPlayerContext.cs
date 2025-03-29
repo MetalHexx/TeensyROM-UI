@@ -42,7 +42,6 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         void UpdateHistory(ILaunchableItem fileToLoad);
         Unit PreviousPage();
         Task RefreshDirectory(bool bustCache = true);
-        Task SaveFavorite(ILaunchableItem file);
         Unit SearchFiles(string keyword);
         Unit SetPageSize(int pageSize);
         Unit SelectFile(ILaunchableItem file);

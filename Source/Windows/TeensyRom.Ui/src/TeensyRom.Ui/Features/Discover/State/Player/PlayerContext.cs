@@ -83,7 +83,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         protected readonly ISerialStateContext _serial;
         protected readonly INavigationService _nav;
         protected readonly IDiscoveryTreeState _tree;
-        private readonly ILoggingService _log;
+        private readonly ILoggingService _log;        
         protected readonly Dictionary<Type, PlayerState> _states;
         protected readonly List<IDisposable> _stateSubscriptions = new();
         protected TeensyFilter _currentFilter;
@@ -378,28 +378,6 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             _launchHistory.Remove(file);
 
             return PlayNext();
-        }
-
-        public virtual async Task SaveFavorite(ILaunchableItem file)
-        {
-            if (await IsBusy()) return;
-
-            if (_launchedFile.Value?.File is GameItem)
-            {
-                _alert.Enqueue("Your game will re-launch to allow favorite to be tagged.");
-                await _mediator.Send(new ResetCommand());
-            }
-            var favFile = await _storage.SaveFavorite(file);
-
-            if (_launchedFile?.Value?.File is GameItem)
-            {
-                await Task.Delay(2000);
-                await _mediator.Send(new LaunchFileCommand(_settings.StorageType, _launchedFile.Value.File));
-            }
-            if (_currentState.Value is not SearchState) 
-            {
-                await LoadDirectory(_directoryState.Value.CurrentPath, file.Path);
-            }            
         }
 
         public async Task RemoveFavorite(ILaunchableItem file)
