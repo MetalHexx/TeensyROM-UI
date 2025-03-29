@@ -43,15 +43,15 @@ namespace TeensyRom.Ui.Controls.Playlist
         private readonly ICachedStorageService _cache;
         private readonly IAlertService _alert;
         private readonly ISettingsService _settingService;
-        private readonly ICopyFileProcess _copyFileProcess;
+        private readonly ICrossProcessService _crossProcess;
         private const string Playlist_Path = "/playlists";
 
-        public PlaylistViewModel(ICachedStorageService cache, IAlertService alert, ISettingsService settingService, IPlayerContext playerContext, ICopyFileProcess copyFileProcess)
+        public PlaylistViewModel(ICachedStorageService cache, IAlertService alert, ISettingsService settingService, IPlayerContext playerContext, ICrossProcessService crossProcess)
         {
             _cache = cache;
             _alert = alert;
             _settingService = settingService;
-            _copyFileProcess = copyFileProcess;
+            _crossProcess = crossProcess;
             SaveCommand = ReactiveCommand.CreateFromTask(HandleSave);
 
             _canCreatePlaylist = this.WhenAnyValue(vm => vm.NewPlaylist.Name)
@@ -95,14 +95,12 @@ namespace TeensyRom.Ui.Controls.Playlist
                 .Select(i => new CopyFileItem(FileToAdd, i.Path))
                 .ToList();
 
-            await _copyFileProcess.CopyFiles(filesToCopy);
-
             if (filesToCopy.Count == 0)
             {
                 _alert.Publish("No playlists selected.");
                 return;
             }
-            await _cache.CopyFiles(filesToCopy);
+            await _crossProcess.CopyFiles(filesToCopy);
 
             CloseDialog();
         }

@@ -16,6 +16,7 @@ using TeensyRom.Core.Music;
 using TeensyRom.Core.Assets;
 using TeensyRom.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Core.Storage.Tools.Zip;
+using TeensyRom.Ui.Services.Process;
 
 namespace TeensyRom.Ui
 {
@@ -42,10 +43,16 @@ namespace TeensyRom.Ui
             var mainViewModel = _serviceProvider.GetRequiredService<NavigationHostViewModel>();
             mainWindow.DataContext = mainViewModel;
             mainWindow.Show();
-            _ = _serviceProvider.GetRequiredService<IFileWatchService>(); //triggers file watch service to construct and start
 
-            _ = Task.Run(UnpackAssets);
+            StartBackgroundProcesses();            
             CleanupOldAssets();
+        }
+
+        private void StartBackgroundProcesses()
+        {
+            _ = _serviceProvider.GetRequiredService<IFileWatchService>();
+            _ = _serviceProvider.GetRequiredService<ICrossProcessService>();
+            _ = Task.Run(UnpackAssets);
         }
 
         private Task UnpackAssets()

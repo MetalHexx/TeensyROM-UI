@@ -34,7 +34,6 @@ namespace TeensyRom.Ui.Services.Process
             if (currentFile?.File is GameItem && playState is PlayState.Playing)
             {
                 await player.StopFile();
-                await Task.Delay(500);
                 alert.Publish("Game will restart momentarily.");
             }
 
@@ -42,7 +41,6 @@ namespace TeensyRom.Ui.Services.Process
 
             if (currentFile?.File is GameItem game)
             {
-                await Task.Delay(3000);
                 await player.PlayFile(game);
             }
         }

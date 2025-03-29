@@ -68,6 +68,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IZipExtractor, ZipExtractor>();
             services.AddSingleton<IFwVersionChecker, FwVersionChecker>();
             services.AddSingleton<ICopyFileProcess, CopyFileProcess>();
+            services.AddSingleton<ICrossProcessService, CrossProcessService>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<TerminalViewModel>();
             services.AddSingleton<SettingsViewModel>();
