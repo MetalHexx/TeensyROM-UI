@@ -19,6 +19,7 @@ using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Ui.Helpers;
+using TeensyRom.Ui.Services.Process;
 
 namespace TeensyRom.Ui.Controls.Playlist
 {
@@ -42,15 +43,15 @@ namespace TeensyRom.Ui.Controls.Playlist
         private readonly ICachedStorageService _cache;
         private readonly IAlertService _alert;
         private readonly ISettingsService _settingService;
-        private readonly IPlayerContext _playerContext;
+        private readonly ICopyFileProcess _copyFileProcess;
         private const string Playlist_Path = "/playlists";
 
-        public PlaylistViewModel(ICachedStorageService cache, IAlertService alert, ISettingsService settingService, IPlayerContext playerContext)
+        public PlaylistViewModel(ICachedStorageService cache, IAlertService alert, ISettingsService settingService, IPlayerContext playerContext, ICopyFileProcess copyFileProcess)
         {
             _cache = cache;
             _alert = alert;
             _settingService = settingService;
-            _playerContext = playerContext;
+            _copyFileProcess = copyFileProcess;
             SaveCommand = ReactiveCommand.CreateFromTask(HandleSave);
 
             _canCreatePlaylist = this.WhenAnyValue(vm => vm.NewPlaylist.Name)
@@ -89,26 +90,12 @@ namespace TeensyRom.Ui.Controls.Playlist
 
         private async Task HandleSave()
         {
-            var currentFile = await _playerContext.LaunchedFile.FirstAsync();
-            var playState = await _playerContext.PlayingState.FirstAsync();
-
-            if (currentFile?.File is HexItem && playState is PlayState.Playing) 
-            {
-                _alert.Publish("Hex file is running, cannot add file to playlist");
-                return;
-            }
-
-            if (currentFile?.File is GameItem && playState is PlayState.Playing) 
-            {
-                await _playerContext.StopFile();
-                await Task.Delay(500);
-                _alert.Publish("Game will restart momentarily.");
-            }
-
             var filesToCopy = PlaylistItems
                 .Where(i => i.IsSelected)
                 .Select(i => new CopyFileItem(FileToAdd, i.Path))
-                .ToList();            
+                .ToList();
+
+            await _copyFileProcess.CopyFiles(filesToCopy);
 
             if (filesToCopy.Count == 0)
             {
@@ -117,11 +104,6 @@ namespace TeensyRom.Ui.Controls.Playlist
             }
             await _cache.CopyFiles(filesToCopy);
 
-            if (currentFile?.File is GameItem game)
-            {
-                await Task.Delay(3000);
-                await _playerContext.PlayFile(game);
-            }
             CloseDialog();
         }
 

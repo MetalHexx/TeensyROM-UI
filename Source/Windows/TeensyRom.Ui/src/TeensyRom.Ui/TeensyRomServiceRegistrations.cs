@@ -34,6 +34,7 @@ using TeensyRom.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Core.Storage.Tools.Zip;
 using TeensyRom.Core.Music.Midi;
 using TeensyRom.Ui.Controls.Playlist;
+using TeensyRom.Ui.Services.Process;
 
 namespace TeensyRom.Ui
 {
@@ -66,6 +67,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<ID64Extractor, D64Extractor>();
             services.AddSingleton<IZipExtractor, ZipExtractor>();
             services.AddSingleton<IFwVersionChecker, FwVersionChecker>();
+            services.AddSingleton<ICopyFileProcess, CopyFileProcess>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<TerminalViewModel>();
             services.AddSingleton<SettingsViewModel>();
