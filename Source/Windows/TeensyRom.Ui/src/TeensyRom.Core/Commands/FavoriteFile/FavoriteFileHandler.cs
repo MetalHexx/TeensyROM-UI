@@ -21,6 +21,7 @@ namespace TeensyRom.Core.Commands
         public Task<FavoriteFileResult> Handle(FavoriteFileCommand request, CancellationToken cancellationToken)
         {
             _serialState.SendIntBytes(TeensyToken.CopyFile, 2);
+            _serialState.HandleAck();
             _serialState.SendIntBytes(request.StorageType.GetStorageToken(), 1);
             _serialState.Write($"{request.SourcePath}\0");
             _serialState.Write($"{request.TargetPath}\0");

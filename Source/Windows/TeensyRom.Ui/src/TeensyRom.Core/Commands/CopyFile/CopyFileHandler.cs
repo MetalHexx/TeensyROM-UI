@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using System.Diagnostics;
 using System.Reactive.Linq;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial;
@@ -20,6 +21,7 @@ namespace TeensyRom.Core.Commands
         public Task<CopyFileResult> Handle(CopyFileCommand request, CancellationToken cancellationToken)
         {
             _serialState.SendIntBytes(TeensyToken.CopyFile, 2);
+            _serialState.HandleAck();
             _serialState.SendIntBytes(request.StorageType.GetStorageToken(), 1);
             _serialState.Write($"{request.SourcePath}\0");
             _serialState.Write($"{request.DestPath}\0");
