@@ -401,7 +401,12 @@ namespace TeensyRom.Core.Serial
 
             while (sw.ElapsedMilliseconds < timeoutMs)
             {
-                if (_serialPort.BytesToRead >= numBytes) return;
+                if (_serialPort.BytesToRead >= numBytes) 
+                {
+                    sw.Stop();
+                    Debug.WriteLine($"WaitForSerialData - {sw.ElapsedMilliseconds}ms");
+                    return;
+                }
                 Thread.Sleep(10);
             }
             throw new TimeoutException("Timed out waiting for data to be received");
