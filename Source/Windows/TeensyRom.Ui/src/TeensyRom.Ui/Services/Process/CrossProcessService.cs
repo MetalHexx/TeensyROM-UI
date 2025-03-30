@@ -27,21 +27,25 @@ public class CrossProcessService : ICrossProcessService, IDisposable
     private readonly IFavoriteFileProcess _favFile;
     private readonly ILoggingService _log;
     private readonly ISettingsService _settingsService;
-
+    private readonly ISyncService _syncService;
     private IDisposable? _settingsSubscription;
     private CancellationTokenSource? _listenerCts;
 
-    public CrossProcessService(ICopyFileProcess copyFile, IFavoriteFileProcess favFile, ILoggingService log, ISettingsService settingsService)
+    public CrossProcessService(ICopyFileProcess copyFile, IFavoriteFileProcess favFile, ILoggingService log, ISettingsService settingsService, ISyncService syncService)
     {
         _copyFile = copyFile;
         _favFile = favFile;
         _log = log;
         _settingsService = settingsService;
-
+        _syncService = syncService;
         _settingsSubscription = _settingsService.Settings
             .Where(s => s is not null && s.LastCart is not null)
             .DistinctUntilChanged(s => s.LastCart!.DeviceHash)
-            .Subscribe(settings => RestartListener(settings.LastCart!.DeviceHash));
+            .Subscribe(settings => 
+            {
+                _syncService.ProcessCommands(settings.LastCart!);
+                RestartListener(settings.LastCart!.DeviceHash);
+            });
     }
 
     private void RestartListener(string deviceHash)
@@ -180,6 +184,17 @@ public class CrossProcessService : ICrossProcessService, IDisposable
                 if (!await TryConnectAsync(client))
                 {
                     _log.Internal($"Timed out trying to connect to {cart.Name}");
+
+                    if (message.Value is List<CopyFileItem> items)
+                    {
+                        _syncService.AddCopyFiles(cart, items);
+                        continue;
+                    }
+                    if (message.Value is ILaunchableItem item) 
+                    {
+                        _syncService.AddFavFile(cart, item);
+                        _log.Internal($"Saved favorite file for sync: {item.Name}");
+                    }
                     continue;
                 }
 

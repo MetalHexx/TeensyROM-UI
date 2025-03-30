@@ -70,6 +70,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<ICopyFileProcess, CopyFileProcess>();
             services.AddSingleton<IFavoriteFileProcess, FavoriteFileProcess>();
             services.AddSingleton<ICrossProcessService, CrossProcessService>();
+            services.AddSingleton<ISyncService, SyncService>();
             services.AddSingleton<NavigationHostViewModel>();
             services.AddSingleton<TerminalViewModel>();
             services.AddSingleton<SettingsViewModel>();
