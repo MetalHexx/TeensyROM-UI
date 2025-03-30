@@ -23,7 +23,7 @@ namespace TeensyRom.Core.Settings
     /// Used to persist and retrieve user preference from disk.  See: Settings.json in the bin folder
     /// </summary>
     public record TeensySettings
-    {
+    {   
         [JsonIgnore]
         public KnownCart? LastCart { get; set; }
         public List<KnownCart> KnownCarts { get; set; } = [];
@@ -46,6 +46,7 @@ namespace TeensyRom.Core.Settings
         public bool MuteFastForward { get; set; } = false;
         public bool MuteRandomSeek { get; set; } = false;
         public bool FirstTimeSetup { get; set; } = true;
+        public bool SyncFilesEnabled { get; set; } = false;
 
         public List<string> BannedDirectories = [];
         public List<string> BannedFiles = [];

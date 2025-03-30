@@ -34,6 +34,7 @@ namespace TeensyRom.Ui.Features.Settings
         public bool NavToDirOnLaunch { get; set; } = true;
         public bool MuteFastForward { get; set; } = true;
         public bool MuteRandomSeek { get; set; } = true;
+        public bool SyncFilesEnabled { get; set; } = false;
         [Reactive] public KnownCartViewModel LastCart { get; set; }
         [Reactive] public ObservableCollection<MidiDeviceViewModel> AvailableDevices { get; set; } = [];
         [Reactive] public bool MidiConfigEnabled { get; set; } = false;
@@ -107,6 +108,7 @@ namespace TeensyRom.Ui.Features.Settings
             NavToDirOnLaunch = s.NavToDirOnLaunch;
             MuteFastForward = s.MuteFastForward;
             MuteRandomSeek = s.MuteRandomSeek;
+            SyncFilesEnabled = s.SyncFilesEnabled;
 
             if (s.LastCart is not null)
             {
@@ -137,7 +139,8 @@ namespace TeensyRom.Ui.Features.Settings
                 PlayTimerEnabled = PlayTimerEnabled,
                 NavToDirOnLaunch = NavToDirOnLaunch,
                 MuteFastForward = MuteFastForward,
-                MuteRandomSeek = MuteRandomSeek
+                MuteRandomSeek = MuteRandomSeek,
+                SyncFilesEnabled = SyncFilesEnabled
             };
 
 

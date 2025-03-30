@@ -1,16 +1,12 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TeensyRom.Core.Games;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
-using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.CacheButton;
 using TeensyRom.Ui.Controls.DirectoryChips;
@@ -23,8 +19,6 @@ using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Controls.Search;
 using TeensyRom.Ui.Controls.SearchResultsToolbar;
 using TeensyRom.Ui.Controls.StorageSelector;
-using TeensyRom.Ui.Features.Common.Config;
-using TeensyRom.Ui.Features.Common.Models;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Ui.Core.Progress;
@@ -32,6 +26,7 @@ using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Music.Midi;
 using TeensyRom.Ui.Controls.Playlist;
+using TeensyRom.Ui.Services.Process;
 
 namespace TeensyRom.Ui.Features.Discover
 {
