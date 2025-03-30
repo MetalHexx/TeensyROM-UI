@@ -12,43 +12,47 @@ namespace TeensyRom.Ui.Services.Process
 {
     public interface ISyncService
     {
-        void AddCopyFiles(KnownCart cart, List<CopyFileItem> items);
-        void AddFavFile(KnownCart cart, ILaunchableItem command);
+        void QueueCopyFiles(KnownCart cart, List<CopyFileItem> items);
+        void QueueFavFile(KnownCart cart, ILaunchableItem command);
         Task ProcessCommands(KnownCart cart);
     }
 
-    public class SyncService(ICopyFileProcess fileCopy, IFavoriteFileProcess favoriteFile, IAlertService alert) : ISyncService
+    public class SyncService(ICopyFileProcess fileCopyProcess, IFavoriteFileProcess favoriteFileProcess, IAlertService alert, ILoggingService logger) : ISyncService
     {
         private const string SyncFavoritesPrefix = "SyncFavoriteFiles";
         private const string SyncCopyPrefix = "SyncCopyFiles";
 
-        public void AddFavFile(KnownCart cart, ILaunchableItem newFile)
+        public void QueueFavFile(KnownCart cart, ILaunchableItem file)
         {
             var path = GetSyncFilePath(SyncFavoritesPrefix, cart.DeviceHash);
-            AddToSyncFile(path, [newFile]);
+            AddToSyncFile(path, [file]);
+            logger.Internal($"Queued favorite item for next sync: {file.Name}");            
         }
 
-        public void AddCopyFiles(KnownCart cart, List<CopyFileItem> newItems)
+        public void QueueCopyFiles(KnownCart cart, List<CopyFileItem> itemsForQueue)
         {
             var filePath = GetSyncFilePath(SyncCopyPrefix, cart.DeviceHash);
-            AddToSyncFile(filePath, newItems);
+            AddToSyncFile(filePath, itemsForQueue);
+            itemsForQueue.ForEach(item => logger.Internal($"Queued playlist item for next sync: {item.TargetPath}"));
         }
 
         public async Task ProcessCommands(KnownCart cart)
         {
             await ProcessSyncFile<ILaunchableItem>(
                 GetSyncFilePath(SyncFavoritesPrefix, cart.DeviceHash),
-                "Syncing previously tagged favorites...",
+                "Syncing favorites queue...",
                 async items =>
                 {
                     foreach (var item in items)
-                        await favoriteFile.SaveFavorite(item);
+                    { 
+                        await favoriteFileProcess.SaveFavorite(item);
+                    }
                 });
 
             await ProcessSyncFile<CopyFileItem>(
                 GetSyncFilePath(SyncCopyPrefix, cart.DeviceHash),
-                "Syncing previous playlist updates...",
-                fileCopy.CopyFiles);
+                "Syncing playlist queue...",
+                fileCopyProcess.CopyFiles);
         }
 
         private void AddToSyncFile<T>(string filePath, List<T> newItems)
@@ -74,6 +78,7 @@ namespace TeensyRom.Ui.Services.Process
                 return;
 
             alert.Publish(alertMessage);
+            logger.Internal(alertMessage);
 
             var json = await File.ReadAllTextAsync(filePath);
             var items = LaunchableItemSerializer.Deserialize<List<T>>(json) ?? [];

@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO.Pipes;
-using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Threading;
@@ -12,215 +10,210 @@ using TeensyRom.Ui.Services.Process;
 using System.Reactive.Linq;
 using System.Linq;
 
-public interface ICrossProcessService
+namespace TeensyRom.Ui.Services.Process
 {
-    Task CopyFiles(IEnumerable<CopyFileItem> files);
-    Task SaveFavorite(ILaunchableItem file);
-    Task SendMessageAsync<T>(ProcessCommand<T> message);
-}
 
-public class CrossProcessService : ICrossProcessService, IDisposable
-{
-    private const string _pipePrefix = "TeensyRomPipe_";
-
-    private readonly ICopyFileProcess _copyFile;
-    private readonly IFavoriteFileProcess _favFile;
-    private readonly ILoggingService _log;
-    private readonly ISettingsService _settingsService;
-    private readonly ISyncService _syncService;
-    private IDisposable? _settingsSubscription;
-    private CancellationTokenSource? _listenerCts;
-
-    public CrossProcessService(ICopyFileProcess copyFile, IFavoriteFileProcess favFile, ILoggingService log, ISettingsService settingsService, ISyncService syncService)
+    public interface ICrossProcessService
     {
-        _copyFile = copyFile;
-        _favFile = favFile;
-        _log = log;
-        _settingsService = settingsService;
-        _syncService = syncService;
-        _settingsSubscription = _settingsService.Settings
-            .Where(s => s is not null && s.LastCart is not null)
-            .DistinctUntilChanged(s => s.LastCart!.DeviceHash)
-            .Subscribe(settings => 
+        Task CopyFiles(IEnumerable<CopyFileItem> files);
+        Task SaveFavorite(ILaunchableItem file);
+        Task SendMessageAsync<T>(ProcessCommand<T> message);
+    }
+
+    public class CrossProcessService : ICrossProcessService, IDisposable
+    {
+        private readonly ICopyFileProcess _copyFile;
+        private readonly IFavoriteFileProcess _favFile;
+        private readonly ILoggingService _log;
+        private readonly ISettingsService _settingsService;
+        private readonly ISyncService _syncService;
+        private readonly INamedPipeServer _server;
+        private readonly INamedPipeClient _client;
+        private TeensySettings _settings = new();
+        private IDisposable? _settingsSubscription;
+        private CancellationTokenSource? _listenerCts;
+
+        public CrossProcessService(
+            ICopyFileProcess copyFile,
+            IFavoriteFileProcess favFile,
+            ILoggingService log,
+            ISettingsService settingsService,
+            ISyncService syncService,
+            INamedPipeServer server,
+            INamedPipeClient client)
+        {
+            _copyFile = copyFile;
+            _favFile = favFile;
+            _log = log;
+            _settingsService = settingsService;
+            _syncService = syncService;
+            _server = server;
+            _client = client;
+            _settingsSubscription = _settingsService.Settings
+                .Do(s => _settings = s)
+                .Where(s => s?.LastCart is not null)
+                .DistinctUntilChanged(s => (s.SyncFilesEnabled, s.LastCart!.DeviceHash))
+                .Subscribe(settings =>
+                {
+                    if (settings.SyncFilesEnabled)
+                    { 
+                        _syncService.ProcessCommands(settings.LastCart!);
+                    }
+
+                    RestartListener(settings.LastCart!.DeviceHash);
+                });
+        }
+
+        private void RestartListener(string deviceHash)
+        {
+            _listenerCts?.Cancel();
+            _listenerCts?.Dispose();
+
+            if (!_settings.SyncFilesEnabled)
             {
-                _syncService.ProcessCommands(settings.LastCart!);
-                RestartListener(settings.LastCart!.DeviceHash);
-            });
-    }
+                _log.InternalSuccess("Sync service stopped.");
+                return;
+            }
 
-    private void RestartListener(string deviceHash)
-    {
-        _listenerCts?.Cancel();
-        _listenerCts = new CancellationTokenSource();
-        var ct = _listenerCts.Token;
+            _listenerCts = new CancellationTokenSource();
+            var ct = _listenerCts.Token;
 
-        _ = Task.Run(() => ListenAsync(deviceHash, ct), ct);
-    }
+            var pipeName = $"{PipeConstants.PipePrefix}{deviceHash}";
 
-    private async Task ListenAsync(string deviceHash, CancellationToken ct)
-    {
-        string pipeName = $"{_pipePrefix}{deviceHash}";
-        _log.Internal($"Starting named pipe listener on {pipeName}");
+            _ = Task.Run(() => 
+            {
+                _server.ListenAsync(pipeName, HandleIncomingMessage, ct);
+            }, ct);
 
-        while (!ct.IsCancellationRequested)
+            _log.InternalSuccess("Sync service started.");
+        }
+
+        private async Task HandleIncomingMessage(ProcessCommandType type, string raw)
         {
             try
             {
-                using var server = new NamedPipeServerStream(pipeName, PipeDirection.In, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
-                await server.WaitForConnectionAsync(ct);
-
-                _log.Internal($"Client connected to {pipeName}");
-
-                using var reader = new StreamReader(server);
-
-                while (server.IsConnected && !ct.IsCancellationRequested)
+                switch (type)
                 {
-                    string? raw = null;
+                    case ProcessCommandType.CopyFile:
+                        await HandleCopyFile(raw);
+                        break;
 
-                    try
+                    case ProcessCommandType.FavoriteFile:
+                        await HandleFavoriteFile(raw);
+                        break;
+
+                    default:
+                        _log.InternalError($"Unhandled message type: {type}");
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.InternalError($"Error while handling incoming pipe message: {ex.Message}\nRaw: {raw}");
+            }
+        }
+
+        private async Task HandleCopyFile(string raw)
+        {
+            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<List<CopyFileItem>>>(raw);
+
+            if (message?.Value is { Count: > 0 })
+            {
+                _log.InternalSuccess($"Sync Playlist Request: {message.Value.First().SourceItem.Name}");
+                await _copyFile.CopyFiles(message.Value);
+            }
+        }
+
+        private async Task HandleFavoriteFile(string raw)
+        {
+            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<ILaunchableItem>>(raw);
+            if (message?.Value != null)
+            {
+                _log.InternalSuccess($"Sync Favorite Received: {message.Value.Name}");
+                await _favFile.SaveFavorite(message.Value);
+            }
+        }
+
+        public async Task CopyFiles(IEnumerable<CopyFileItem> files)
+        {
+            var list = files.ToList();
+            await _copyFile.CopyFiles(list);
+
+            await SendMessageAsync(new ProcessCommand<List<CopyFileItem>>
+            {
+                MessageType = ProcessCommandType.CopyFile,
+                Value = list
+            });
+        }
+
+        public async Task SaveFavorite(ILaunchableItem file)
+        {
+            await _favFile.SaveFavorite(file);
+            await SendMessageAsync(new ProcessCommand<ILaunchableItem>
+            {
+                MessageType = ProcessCommandType.FavoriteFile,
+                Value = file
+            });
+        }
+
+        public async Task SendMessageAsync<T>(ProcessCommand<T> message)
+        {
+            if (!_settings.SyncFilesEnabled) return;
+
+            var myHash = _settingsService.GetSettings().LastCart?.DeviceHash;
+            if (string.IsNullOrEmpty(myHash)) return;
+
+            var knownCarts = _settingsService
+                .GetSettings().KnownCarts
+                .Where(c => c.DeviceHash != myHash);
+
+            foreach (var cart in knownCarts)
+            {
+                var pipeName = $"{PipeConstants.PipePrefix}{cart.DeviceHash}";
+
+                var json = LaunchableItemSerializer.Serialize(message);
+
+                try
+                {
+                    var sent = await _client.SendAsync(pipeName, json);
+
+                    if (!sent)
                     {
-                        raw = await reader.ReadLineAsync(ct);
-                        if (raw is null) break;
-
-                        using var jsonDoc = JsonDocument.Parse(raw);
-                        var root = jsonDoc.RootElement;
-
-                        if (!root.TryGetProperty("messageType", out var messageTypeElement))
-                            throw new Exception("Missing 'messageType' field.");
-
-                        var type = (ProcessCommandType)messageTypeElement.GetInt32();
-
-                        switch (type)
+                        switch (message.MessageType)
                         {
                             case ProcessCommandType.CopyFile:
-                                var message = LaunchableItemSerializer.Deserialize<ProcessCommand<List<CopyFileItem>>>(raw);
-                                if (message?.Value != null)
-                                    await _copyFile.CopyFiles(message.Value);
-                                break;
-                            case ProcessCommandType.FavoriteFile:
-                                var favoriteMessage = LaunchableItemSerializer.Deserialize<ProcessCommand<ILaunchableItem>>(raw);
-                                if (favoriteMessage?.Value != null)
+
+                                _log.InternalError($"Sync Failed (Favorite): Cart {cart.Name} was not found.  Queuing for later.");
+
+                                if (message.Value is List<CopyFileItem> items) 
                                 {
-                                    await _favFile.SaveFavorite(favoriteMessage.Value);
-                                    _log.Internal($"Received favorite file: {favoriteMessage.Value.Name}");
-                                }
+                                    _syncService.QueueCopyFiles(cart, items);
+                                }   
                                 break;
 
-                            default:
-                                _log.Internal($"Unhandled message type: {type}");
+                            case ProcessCommandType.FavoriteFile:
+
+                                _log.InternalError($"Sync Failed (Playlist): Cart {cart.Name} was not found.  Queuing for later.");
+
+                                if (message.Value is ILaunchableItem item)
+                                    _syncService.QueueFavFile(cart, item);
                                 break;
                         }
                     }
-                    catch (IOException ioEx) when (ioEx.Message.Contains("pipe is broken", StringComparison.OrdinalIgnoreCase))
-                    {
-                        _log.Internal($"Client disconnected on {pipeName}.");
-                        break;
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        _log.Internal($"Read cancelled on {pipeName}");
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.Internal($"Error while handling message: {ex.Message}\nRaw: {raw}");
-                    }
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                _log.Internal($"Listener on {pipeName} canceled.");
-                break;
-            }
-            catch (Exception ex)
-            {
-                _log.Internal($"Listener error on {pipeName}: {ex.Message}");
-                await Task.Delay(1000, ct);
-            }
-        }
-    }
-
-    public async Task CopyFiles(IEnumerable<CopyFileItem> files)
-    {
-        var message = new ProcessCommand<List<CopyFileItem>>
-        {
-            MessageType = ProcessCommandType.CopyFile,
-            Value = files.ToList()
-        };
-
-        await _copyFile.CopyFiles(files);
-        await SendMessageAsync(message);
-    }
-
-    public async Task SaveFavorite(ILaunchableItem file)
-    {
-        var message = new ProcessCommand<ILaunchableItem>
-        {
-            MessageType = ProcessCommandType.FavoriteFile,
-            Value = file
-        };
-
-        await _favFile.SaveFavorite(file);
-        await SendMessageAsync(message);
-    }
-
-    public async Task SendMessageAsync<T>(ProcessCommand<T> message)
-    {
-        var myHash = _settingsService.GetSettings().LastCart?.DeviceHash;
-        if (string.IsNullOrEmpty(myHash)) return;
-
-        var knownCarts = _settingsService
-            .GetSettings().KnownCarts
-            .Where(c => c.DeviceHash != myHash);
-
-        foreach (var cart in knownCarts)
-        {
-            var targetPipe = $"{_pipePrefix}{cart.DeviceHash}";
-
-            try
-            {
-                using var client = new NamedPipeClientStream(".", targetPipe, PipeDirection.Out);
-
-                if (!await TryConnectAsync(client))
+                catch (Exception ex)
                 {
-                    _log.Internal($"Timed out trying to connect to {cart.Name}");
-
-                    if (message.Value is List<CopyFileItem> items)
-                    {
-                        _syncService.AddCopyFiles(cart, items);
-                        continue;
-                    }
-                    if (message.Value is ILaunchableItem item) 
-                    {
-                        _syncService.AddFavFile(cart, item);
-                        _log.Internal($"Saved favorite file for sync: {item.Name}");
-                    }
-                    continue;
+                    _log.InternalError($"Sync Failed: Error sending to Cart {cart.Name}:");
+                    _log.InternalError(ex.Message);
                 }
-
-                using var writer = new StreamWriter(client) { AutoFlush = true };
-
-                var json = LaunchableItemSerializer.Serialize(message);
-                await writer.WriteLineAsync(json);
-            }
-            catch (Exception ex)
-            {
-                _log.Internal($"Failed to send to {cart.Name}: {ex.Message}");
             }
         }
-    }
 
-    private async Task<bool> TryConnectAsync(NamedPipeClientStream client, int timeoutMs = 500)
-    {
-        var connectTask = client.ConnectAsync(timeoutMs);
-        var completedTask = await Task.WhenAny(connectTask, Task.Delay(timeoutMs));
-        return completedTask == connectTask && client.IsConnected;
-    }
-
-    public void Dispose()
-    {
-        _settingsSubscription?.Dispose();
-        _listenerCts?.Cancel();
-        _listenerCts?.Dispose();
+        public void Dispose()
+        {
+            _settingsSubscription?.Dispose();
+            _listenerCts?.Cancel();
+            _listenerCts?.Dispose();
+        }
     }
 }
