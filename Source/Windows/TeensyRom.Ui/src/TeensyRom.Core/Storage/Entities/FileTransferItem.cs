@@ -40,14 +40,44 @@
 
         public void GetBinaryFileData(string filePath)
         {
-            using var reader = new BinaryReader(File.Open(filePath, FileMode.Open));
-            StreamLength = (uint)reader.BaseStream.Length;
-            Buffer = reader.ReadBytes((int)StreamLength);
-            reader.Close();
+            const int maxRetries = 5;
+            const int delayMs = 200;
 
-            for (uint num = 0; num < StreamLength; num++)
+            //TODO: This method does retries in a situation where 2 UI processes are trying to handle the same file.  Could be improved.
+
+            for (int attempt = 0; attempt < maxRetries; attempt++)
             {
-                Checksum += Buffer[num];
+                try
+                {
+                    using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    using var reader = new BinaryReader(stream);
+
+                    var length = (uint)reader.BaseStream.Length;
+                    var buffer = reader.ReadBytes((int)length);
+
+                    if (buffer.Length != length)
+                    {
+                        throw new IOException("File read incomplete.");
+                    }
+
+                    StreamLength = length;
+                    Buffer = buffer;
+                    Checksum = 0;
+
+                    for (uint i = 0; i < StreamLength; i++)
+                    {
+                        Checksum += Buffer[i];
+                    }
+
+                    return;
+                }
+                catch (IOException ex)
+                {
+                    if (attempt == maxRetries - 1)
+                        throw;
+
+                    Thread.Sleep(delayMs);
+                }
             }
         }
     }
