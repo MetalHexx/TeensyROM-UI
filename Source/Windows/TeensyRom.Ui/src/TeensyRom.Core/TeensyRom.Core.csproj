@@ -28,16 +28,16 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Assets\Game\Images\OneLoad64.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Assets\Music\Images\Composers\Composers.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Assets\Music\SidList\SIDlist_79_UTF8.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Assets\Music\SidList\SIDlist_81_UTF8.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Update="Assets\Music\SidList\SIDlist_82_UTF8.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Assets\Other\Sensorium.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -54,6 +54,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Assets\Game\Images\" />
+    <Folder Include="Assets\Music\Images\Composers\" />
     <Folder Include="Assets\Music\SidList\" />
   </ItemGroup>
 
