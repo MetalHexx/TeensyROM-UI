@@ -67,7 +67,14 @@ namespace TeensyRom.Ui.Services.Process
 
         private void RestartListener(string deviceHash)
         {
-            _listenerCts?.Cancel();
+            try
+            {
+                _listenerCts?.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // If already cancelled — safe to ignore
+            }
             _listenerCts?.Dispose();
 
             if (!_settings.SyncFilesEnabled)
