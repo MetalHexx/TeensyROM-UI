@@ -105,15 +105,18 @@
                         <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
                             <TextBlock Text="Automatic File Transfer" Width="250" TextAlignment="Right" VerticalAlignment="Center"
                                        ToolTip="Files that are copied to the watch directory will automatically be transferred to the TeensyROM Device."/>
-                            <ToggleButton IsChecked="{Binding AutoFileCopyEnabled}" Margin="16,0,0,0"
+                            <ToggleButton x:Name="AutoFileCopyButton"
+                                          IsChecked="{Binding AutoFileCopyEnabled}" Margin="16,0,0,0"
                                           Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                           ToolTip="Files that are copied to the watch directory will automatically be transferred to the TeensyROM Device."/>
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
-                            <TextBlock Text="Watch Directory" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                            <TextBlock IsEnabled="{Binding IsChecked, ElementName=AutoFileCopyButton}"
+                                       Text="Watch Directory" Width="250" TextAlignment="Right" VerticalAlignment="Center"
                                        ToolTip="Set a local folder path to monitor files that are copied to it for automatic file transfer to the TeensyROM device"/>
-                            <TextBox Text="{Binding WatchDirectoryLocation, Mode=TwoWay}" Width="400" Margin="16,0,0,0"
+                            <TextBox IsEnabled="{Binding IsChecked, ElementName=AutoFileCopyButton}"
+                                     Text="{Binding WatchDirectoryLocation, Mode=TwoWay}" Width="400" Margin="16,0,0,0"
                                      ToolTip="Set a local folder path to monitor files that are copied to it for automatic file transfer to the TeensyROM device"/>
                         </StackPanel>
                         
