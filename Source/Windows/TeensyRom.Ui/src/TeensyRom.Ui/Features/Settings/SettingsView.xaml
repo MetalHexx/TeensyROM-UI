@@ -39,58 +39,114 @@
                     materialDesign:ColorZoneAssist.Mode="PrimaryLight"
                     TabStripPlacement="Left"
                     Width="Auto">
-            
 
             <!-- General Settings Tab -->
             <TabItem Header="General">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="16 0 0 0">
-                        <StackPanel Orientation="Horizontal" Margin="0 0 10 10">
-                            <TextBlock Text="Nav to Dir on Launch" Width="250" VerticalAlignment="Center"/>
-                            <CheckBox IsChecked="{Binding NavToDirOnLaunch}"/>
+                    <StackPanel Margin="0">
+
+                        <!--<StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
+                            <TextBlock Text="Nav to Dir on Launch" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                                       ToolTip="Automatically navigate to the directory of the current file that is launched."/>
+                            <ToggleButton IsChecked="{Binding NavToDirOnLaunch}" Margin="16,0,0,0"
+                                          Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                          ToolTip="Automatically navigate to the directory of the current file that is launched."/>
+                        </StackPanel>-->                       
+                        
+                        <Label Style="{StaticResource Heading}" Margin="10 0 0 20" Content="Startup Settings"/>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
+                            <TextBlock Text="Auto-Connect to TeensyROM" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                                       ToolTip="Automatically scans for a TeensyROM to connect to on startup."/>
+                            <ToggleButton IsChecked="{Binding AutoConnectEnabled}" Margin="16,0,0,0"
+                                          Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                          ToolTip="Automatically scans for a TeensyROM to connect to on startup."/>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0 10">
-                            <TextBlock Text="Auto-Launch on Copy" Width="250" VerticalAlignment="Center"/>
-                            <CheckBox IsChecked="{Binding AutoLaunchOnCopyEnabled}"/>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
+                            <TextBlock Text="Play Timer Enabled on Startup" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                                       ToolTip="Play timer is automatically enabled for games and images."/>
+                            <ToggleButton IsChecked="{Binding PlayTimerEnabled}" Margin="16,0,0,0"
+                                          Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                          ToolTip="Play timer is automatically enabled for games and images."/>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0 10">
-                            <TextBlock Text="Enable File Auto-Transfer" Width="250" VerticalAlignment="Center"/>
-                            <CheckBox IsChecked="{Binding AutoFileCopyEnabled}"/>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
+                            <TextBlock Text="Auto-Launch File on Startup" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                                       ToolTip="Automatically launches a random file on startup."/>
+                            <ToggleButton IsChecked="{Binding StartupLaunchEnabled}" Margin="16,0,0,0"
+                                          Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                          ToolTip="Automatically launches a random file on startup."/>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0 10">
-                            <TextBlock Text="Watch Directory" Width="250" VerticalAlignment="Center"/>
-                            <TextBox Text="{Binding WatchDirectoryLocation, Mode=TwoWay}" Width="400"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0 10">
-                            <TextBlock Text="Enable Play Timer on Startup" Width="250" VerticalAlignment="Center"/>
-                            <CheckBox IsChecked="{Binding PlayTimerEnabled}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0 10">
-                            <TextBlock Text="Auto-Connect to TeensyROM" Width="250" VerticalAlignment="Center"/>
-                            <CheckBox IsChecked="{Binding AutoConnectEnabled}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0 10">
-                            <TextBlock Text="Auto-Launch File on Startup" Width="250" VerticalAlignment="Center"/>
-                            <CheckBox IsChecked="{Binding StartupLaunchEnabled}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0 10">
-                            <TextBlock Text="Mute on Fast Forward" Width="250" VerticalAlignment="Center"/>
-                            <CheckBox IsChecked="{Binding MuteFastForward}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0 10">
-                            <TextBlock Text="Mute on Random Seek" Width="250" VerticalAlignment="Center"/>
-                            <CheckBox IsChecked="{Binding MuteRandomSeek}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0 10">
-                            <TextBlock Text="Sync Favorites and Playlists" Width="250" VerticalAlignment="Center"/>
-                            <CheckBox IsChecked="{Binding SyncFilesEnabled}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0 10">
-                            <TextBlock Text="Default Filter" Width="250" VerticalAlignment="Center"/>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
+                            <TextBlock Text="Default Filter" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                                       ToolTip="Select the default file filter to use when the app starts."/>
                             <ComboBox ItemsSource="{Binding FilterOptions}"
                                       SelectedItem="{Binding StartupFilter}"
-                                      Width="200" />
+                                      Width="200" Margin="16,0,0,0"
+                                      ToolTip="Select the default file filter to use when the app starts."/>
                         </StackPanel>
+                        
+                        <Separator 
+                            Margin="10 5"
+                            Style="{StaticResource MaterialDesignSeparator}" />
+
+                        <Label Style="{StaticResource Heading}" Margin="10 0 0 20" Content="File Transfer"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
+                            <TextBlock Text="Auto-Launch on File Transfer" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                                       ToolTip="Automatically launches the file after copying it to the TeensyROM device."/>
+                            <ToggleButton IsChecked="{Binding AutoLaunchOnCopyEnabled}" Margin="16,0,0,0"
+                                          Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                          ToolTip="Automatically launches the file after copying it to the TeensyROM device."/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
+                            <TextBlock Text="Automatic File Transfer" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                                       ToolTip="Files that are copied to the watch directory will automatically be transferred to the TeensyROM Device."/>
+                            <ToggleButton IsChecked="{Binding AutoFileCopyEnabled}" Margin="16,0,0,0"
+                                          Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                          ToolTip="Files that are copied to the watch directory will automatically be transferred to the TeensyROM Device."/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
+                            <TextBlock Text="Watch Directory" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                                       ToolTip="Set a local folder path to monitor files that are copied to it for automatic file transfer to the TeensyROM device"/>
+                            <TextBox Text="{Binding WatchDirectoryLocation, Mode=TwoWay}" Width="400" Margin="16,0,0,0"
+                                     ToolTip="Set a local folder path to monitor files that are copied to it for automatic file transfer to the TeensyROM device"/>
+                        </StackPanel>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
+                            <TextBlock Text="Sync Favorites and Playlists" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                                       ToolTip="Keeps your favorite files and playlists in sync across multiple UI / TeensyROM device instances."/>
+                            <ToggleButton IsChecked="{Binding SyncFilesEnabled}" Margin="16,0,0,0"
+                                          Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                          ToolTip="Keeps your favorite files and playlists in sync across multiple UI / TeensyROM device instances."/>
+                        </StackPanel>
+                        
+                        <Separator 
+                            Margin="10 5"
+                            Style="{StaticResource MaterialDesignSeparator}" />
+                        
+                        <Label Style="{StaticResource Heading}" Margin="10 0 0 20" Content="Music Options"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
+                            <TextBlock Text="Mute on Fast Forward" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                                       ToolTip="Temporarily mutes the SID voices when fast-forwarding to reduce noise."/>
+                            <ToggleButton IsChecked="{Binding MuteFastForward}" Margin="16,0,0,0"
+                                          Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                          ToolTip="Temporarily mutes the SID voices when fast-forwarding to reduce noise."/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
+                            <TextBlock Text="Mute on Random Seek" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                                       ToolTip="Temporarily mutes the SID voices when seeking to reduce noise."/>
+                            <ToggleButton IsChecked="{Binding MuteRandomSeek}" Margin="16,0,0,0"
+                                          Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                          ToolTip="Temporarily mutes the SID voices when seeking to reduce noise."/>
+                        </StackPanel>
+
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
@@ -101,20 +157,17 @@
                     <Grid>
                         <Grid Visibility="{Binding MidiConfigEnabled, Converter={StaticResource BoolToVisibilityConvertor}}">
                             <local:MidiSettingsView Grid.Row="0"
-                                DataContext="{Binding LastCart.MidiSettings}"/>
+                                                    DataContext="{Binding LastCart.MidiSettings}"/>
                         </Grid>
-                        
 
                         <TextBlock Grid.Row="0"
                                    Margin="10"
                                    Foreground="{StaticResource MaterialDesignValidationErrorBrush}"
                                    Visibility="{Binding MidiConfigEnabled, Converter={StaticResource InverseBoolToVisibilityConvertor}}">
-                            
-                            • You must connect to a TeensyROM cart to unlock MIDI settings.  
+                            • You must connect to a TeensyROM cart to unlock MIDI settings.
                             <LineBreak/>
                             <LineBreak/>
                             • Midi settings are uniquely saved per cart.
-                            
                         </TextBlock>
                     </Grid>
                 </ScrollViewer>
