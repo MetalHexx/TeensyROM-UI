@@ -86,12 +86,12 @@ namespace TeensyRom.Core.Storage.Services
 
             if(string.IsNullOrWhiteSpace(file.FavChildPath))
             {
-                favFile = file;
+                favFile = file.Clone();
                 sourceFile = _storageCache.GetFileByPath(file.FavParentPath);
             }
             else
             {
-                sourceFile = file;
+                sourceFile = file.Clone();
                 favFile = _storageCache.GetFileByPath(file.FavChildPath);
             }
             if(sourceFile is not null)

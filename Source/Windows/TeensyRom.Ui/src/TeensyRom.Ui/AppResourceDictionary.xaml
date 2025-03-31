@@ -100,6 +100,22 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+    
+    <Style x:Key="StorageToggleIconButton" TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignIconButton}">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Height" Value="35"/>
+        <Setter Property="Width" Value="35"/>
+    
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource EnabledColor}"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="False">
+                <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
 
     <Style x:Key="DropShadowButton" TargetType="Button" BasedOn="{StaticResource StorageIconButton}">
         <Setter Property="Effect">

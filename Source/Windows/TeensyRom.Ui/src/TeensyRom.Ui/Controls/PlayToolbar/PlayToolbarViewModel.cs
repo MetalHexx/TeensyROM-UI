@@ -95,8 +95,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<Unit, Unit> ToggleShuffleCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ToggleRepeatCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ToggleTimedPlay { get; set; }
-        public ReactiveCommand<Unit, Unit> FavoriteCommand { get; set; }
-        public ReactiveCommand<Unit, Unit> RemoveFavoriteCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ToggleFavoriteCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ShareCommand { get; set; }
         public ReactiveCommand<Unit, Unit> NavigateToFileDirCommand { get; set; }
         public ReactiveCommand<Unit, Unit> NextSubtuneCommand { get; set; }
@@ -391,8 +390,15 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 RepeatModeEnabled = !RepeatModeEnabled;
                 return Unit.Default;
             });
-            FavoriteCommand = ReactiveCommand.CreateFromTask(_ => saveFav(File!));
-            RemoveFavoriteCommand = ReactiveCommand.CreateFromTask(_ => removeFav(File!));
+            ToggleFavoriteCommand = ReactiveCommand.CreateFromTask(_ => 
+            {
+                if (File!.IsFavorite) 
+                {
+                    return removeFav(File!);                    
+                }
+                return saveFav(File!);
+            });
+
             ShareCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleShareCommand());
             NavigateToFileDirCommand = ReactiveCommand.CreateFromTask(_ => loadDirectory(File!.Path.GetUnixParentPath()!));
 

@@ -353,7 +353,6 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel 
@@ -460,30 +459,28 @@
                     Margin="5 10 5 5">
                     <materialDesign:PackIcon Kind="PlaylistAdd"/>
                 </Button>
-
-                <Button
+                
+                <ToggleButton
                     Grid.Column="9"
-                    x:Name="FavoriteButton"
-                    Command="{Binding FavoriteCommand}"  
-                    Visibility="{Binding File.IsFavorite, Converter={StaticResource InverseBooleanToVisibilityConverter}, Mode=OneWay}"
-                    ToolTip="Tags the current file as favorite.&#x0a;• Your file will be saved to the /favorites folder."
-                    Style="{StaticResource StorageIconButton}"
-                    Padding="0"
-                    Margin="5 10 5 5">
-                    <materialDesign:PackIcon Kind="HeartOutline"/>
-                </Button>
+                    IsChecked="{Binding File.IsFavorite, Mode=OneWay}"
+                    Command="{Binding ToggleFavoriteCommand}"
+                    Style="{StaticResource StorageToggleIconButton}"
+                    Margin="5 10 10 5"
+                    ToolTip="Toggle favorite status.">
+                    <materialDesign:PackIcon Width="24" Height="24">
+                        <materialDesign:PackIcon.Style>
+                            <Style TargetType="materialDesign:PackIcon">
+                                <Setter Property="Kind" Value="HeartOutline"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding File.IsFavorite, Mode=OneWay}" Value="True">
+                                        <Setter Property="Kind" Value="Heart"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </materialDesign:PackIcon.Style>
+                    </materialDesign:PackIcon>
+                </ToggleButton>
 
-                <Button
-                    Grid.Column="10"
-                    x:Name="RemoveFavoriteButton"
-                    Command="{Binding RemoveFavoriteCommand}"  
-                    Visibility="{Binding File.IsFavorite, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
-                    ToolTip="Untags the current file as favorite."
-                    Style="{StaticResource StorageIconButton}"
-                    Padding="0"
-                    Margin="5 10 5 5">
-                    <materialDesign:PackIcon Kind="Heart"/>
-                </Button>
             </Grid>
 
         </Grid>        
