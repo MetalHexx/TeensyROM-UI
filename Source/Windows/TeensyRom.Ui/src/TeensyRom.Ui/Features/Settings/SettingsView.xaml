@@ -80,7 +80,7 @@
                         </StackPanel>
                         
                         <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
-                            <TextBlock Text="Default Filter" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                            <TextBlock Text="Startup File Filter" Width="250" TextAlignment="Right" VerticalAlignment="Center"
                                        ToolTip="Select the default file filter to use when the app starts."/>
                             <ComboBox ItemsSource="{Binding FilterOptions}"
                                       SelectedItem="{Binding StartupFilter}"
@@ -92,7 +92,7 @@
                             Margin="10 5"
                             Style="{StaticResource MaterialDesignSeparator}" />
 
-                        <Label Style="{StaticResource Heading}" Margin="10 0 0 20" Content="File Transfer"/>
+                        <Label Style="{StaticResource Heading}" Margin="10 0 0 20" Content="File Transfer Settings"/>
 
                         <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
                             <TextBlock Text="Auto-Launch on File Transfer" Width="250" TextAlignment="Right" VerticalAlignment="Center"
@@ -129,7 +129,7 @@
                             Margin="10 5"
                             Style="{StaticResource MaterialDesignSeparator}" />
                         
-                        <Label Style="{StaticResource Heading}" Margin="10 0 0 20" Content="Music Options"/>
+                        <Label Style="{StaticResource Heading}" Margin="10 0 0 20" Content="Music Settings"/>
 
                         <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
                             <TextBlock Text="Mute on Fast Forward" Width="250" TextAlignment="Right" VerticalAlignment="Center"
