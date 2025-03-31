@@ -17,6 +17,7 @@ namespace TeensyRom.Ui.Services.Process
     {
         Task CopyFiles(IEnumerable<CopyFileItem> files);
         Task SaveFavorite(ILaunchableItem file);
+        Task RemoveFavorite(ILaunchableItem file);
         Task SendMessageAsync<T>(ProcessCommand<T> message);
     }
 
@@ -102,6 +103,10 @@ namespace TeensyRom.Ui.Services.Process
                         await HandleFavoriteFile(raw);
                         break;
 
+                    case ProcessCommandType.RemoveFavoriteFile:
+                        await HandleRemoveFavorite(raw);
+                        break;
+
                     default:
                         _log.InternalError($"Unhandled message type: {type}");
                         break;
@@ -134,6 +139,17 @@ namespace TeensyRom.Ui.Services.Process
             }
         }
 
+        private async Task HandleRemoveFavorite(string raw)
+        {
+            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<ILaunchableItem>>(raw);
+
+            if (message?.Value != null)
+            {
+                _log.InternalSuccess($"Sync Remove Favorite Received: {message.Value.Name}");
+                await _favFile.RemoveFavorite(message.Value);
+            }
+        }
+
         public async Task CopyFiles(IEnumerable<CopyFileItem> files)
         {
             var list = files.ToList();
@@ -147,13 +163,23 @@ namespace TeensyRom.Ui.Services.Process
         }
 
         public async Task SaveFavorite(ILaunchableItem file)
-        {
-            await _favFile.SaveFavorite(file);
+        {            
             await SendMessageAsync(new ProcessCommand<ILaunchableItem>
             {
                 MessageType = ProcessCommandType.FavoriteFile,
                 Value = file
             });
+            await _favFile.SaveFavorite(file);
+        }
+
+        public async Task RemoveFavorite(ILaunchableItem file)
+        {            
+            await SendMessageAsync(new ProcessCommand<ILaunchableItem>
+            {
+                MessageType = ProcessCommandType.RemoveFavoriteFile,
+                Value = file
+            });
+            await _favFile.RemoveFavorite(file);
         }
 
         public async Task SendMessageAsync<T>(ProcessCommand<T> message)
@@ -161,6 +187,7 @@ namespace TeensyRom.Ui.Services.Process
             if (!_settings.SyncFilesEnabled) return;
 
             var myHash = _settingsService.GetSettings().LastCart?.DeviceHash;
+
             if (string.IsNullOrEmpty(myHash)) return;
 
             var knownCarts = _settingsService
@@ -195,8 +222,20 @@ namespace TeensyRom.Ui.Services.Process
 
                                 _log.InternalError($"Sync Failed (Playlist): Cart {cart.Name} was not found.  Queuing for later.");
 
-                                if (message.Value is ILaunchableItem item)
-                                    _syncService.QueueFavFile(cart, item);
+                                if (message.Value is ILaunchableItem favItem)
+                                {
+                                    _syncService.QueueFavFile(cart, favItem);
+                                }                                    
+                                break;
+
+                            case ProcessCommandType.RemoveFavoriteFile:
+                                
+                                _log.InternalError($"Sync Failed (Remove Playlist): Cart {cart.Name} was not found.  Queuing for later.");
+                                
+                                if (message.Value is ILaunchableItem removeFavItem)
+                                {
+                                    _syncService.QueueRemoveFavFile(cart, removeFavItem);
+                                }                                    
                                 break;
                         }
                     }

@@ -14,6 +14,8 @@ namespace TeensyRom.Core.Storage.Services
 {
     public class CachedStorageService : ICachedStorageService
     {
+        public IObservable<IEnumerable<IFileItem>> FilesDeleted => _filesDeleted.AsObservable();
+        private Subject<IEnumerable<IFileItem>> _filesDeleted = new();
         public IObservable<IEnumerable<IFileItem>> FilesAdded => _filesAdded.AsObservable();
         private Subject<IEnumerable<IFileItem>> _filesAdded = new();
 
@@ -82,12 +84,6 @@ namespace TeensyRom.Core.Storage.Services
             IFileItem? sourceFile;
             IFileItem? favFile;
 
-            if (string.IsNullOrWhiteSpace(file.FavChildPath) && string.IsNullOrWhiteSpace(file.FavParentPath)) 
-            {
-                _alert.Publish($"{file.Path} is an orphan.  Try re-indexing your files.");
-                return;
-            }
-
             if(string.IsNullOrWhiteSpace(file.FavChildPath))
             {
                 favFile = file;
@@ -106,13 +102,19 @@ namespace TeensyRom.Core.Storage.Services
             }
             if(favFile is null) return;
 
-            favFile.IsFavorite = false; 
+            favFile.IsFavorite = false;
+            
+            var result = await _mediator.Send(new DeleteFileCommand(_settings.StorageType, favFile.Path));
 
-            _storageCache.DeleteFile(favFile.Path);            
-            _alert.Publish($"{favFile.Path} was untagged as a favorite.");            
-            await _mediator.Send(new DeleteFileCommand(_settings.StorageType, favFile.Path));
+            if (!result.IsSuccess) return;
+
+            ClearCache(favFile.Path.GetUnixParentPath());
+            ClearCache(favFile.FavParentPath.GetUnixParentPath());
+
             favFile.Path = sourceFile?.Path ?? favFile.Path; //TODO: smell - this fixes a bug if favorite is re-favorited from play toolbar.
-            return;
+
+            _filesDeleted.OnNext([favFile]);
+            _alert.Publish($"{favFile.Path} was untagged as a favorite.");            
         }
 
         public void MarkIncompatible(ILaunchableItem launchItem)
@@ -223,6 +225,8 @@ namespace TeensyRom.Core.Storage.Services
             _storageCache
                 .GetFileByName(file.Name)
                 .ForEach(f => f.IsFavorite = false);
+
+            _filesDeleted.OnNext([file]);
         }
         public void Dispose() => _settingsSubscription?.Dispose();
 

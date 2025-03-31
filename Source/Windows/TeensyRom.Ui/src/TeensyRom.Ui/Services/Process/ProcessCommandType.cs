@@ -3,6 +3,7 @@
     public enum ProcessCommandType
     {
         FavoriteFile,
-        CopyFile
+        CopyFile,
+        RemoveFavoriteFile
     }
 }

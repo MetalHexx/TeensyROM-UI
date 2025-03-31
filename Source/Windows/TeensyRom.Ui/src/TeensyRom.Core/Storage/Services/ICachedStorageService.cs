@@ -10,6 +10,7 @@ namespace TeensyRom.Core.Storage.Services
         IObservable<IEnumerable<IFileItem>> FilesAdded { get; }
         IObservable<IEnumerable<IFileItem>> FilesCopied { get; }
         IObservable<Unit> StorageReady { get; }
+        IObservable<IEnumerable<IFileItem>> FilesDeleted { get; }
 
         void ClearCache();
         void ClearCache(string path);

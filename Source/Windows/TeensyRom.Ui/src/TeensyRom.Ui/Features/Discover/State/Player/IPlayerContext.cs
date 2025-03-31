@@ -51,7 +51,6 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         Task SwitchFilter(TeensyFilter filter);
         Task StoreFiles(IEnumerable<DragNDropFile> files);
         Task AutoStoreFiles(IEnumerable<FileTransferItem> files);
-        Task RemoveFavorite(ILaunchableItem file);
         void SetScope(StorageScope scope);
         void SetScopePath(string path);
         string GetScopePath();

@@ -15,11 +15,13 @@ namespace TeensyRom.Ui.Services.Process
         void QueueCopyFiles(KnownCart cart, List<CopyFileItem> items);
         void QueueFavFile(KnownCart cart, ILaunchableItem command);
         Task ProcessCommands(KnownCart cart);
+        void QueueRemoveFavFile(KnownCart cart, ILaunchableItem file);
     }
 
     public class SyncService(ICopyFileProcess fileCopyProcess, IFavoriteFileProcess favoriteFileProcess, IAlertService alert, ILoggingService logger) : ISyncService
     {
         private const string SyncFavoritesPrefix = "SyncFavoriteFiles";
+        private const string SyncRemoveFavoritesPrefix = "SyncRemoveFavoriteFiles";
         private const string SyncCopyPrefix = "SyncCopyFiles";
 
         public void QueueFavFile(KnownCart cart, ILaunchableItem file)
@@ -27,6 +29,13 @@ namespace TeensyRom.Ui.Services.Process
             var path = GetSyncFilePath(SyncFavoritesPrefix, cart.DeviceHash);
             AddToSyncFile(path, [file]);
             logger.Internal($"Queued favorite item for next sync: {file.Name}");            
+        }
+
+        public void QueueRemoveFavFile(KnownCart cart, ILaunchableItem file)
+        {
+            var path = GetSyncFilePath(SyncRemoveFavoritesPrefix, cart.DeviceHash);
+            AddToSyncFile(path, [file]);
+            logger.Internal($"Queued favorite item for next sync: {file.Name}");
         }
 
         public void QueueCopyFiles(KnownCart cart, List<CopyFileItem> itemsForQueue)
@@ -38,6 +47,8 @@ namespace TeensyRom.Ui.Services.Process
 
         public async Task ProcessCommands(KnownCart cart)
         {
+            await Task.Delay(200); //TODO: I noticed a race condition on removing favorites while cache was being saved to disk.  Ugly workaround, I know.
+
             await ProcessSyncFile<ILaunchableItem>(
                 GetSyncFilePath(SyncFavoritesPrefix, cart.DeviceHash),
                 "Syncing favorites queue...",
@@ -46,6 +57,17 @@ namespace TeensyRom.Ui.Services.Process
                     foreach (var item in items)
                     { 
                         await favoriteFileProcess.SaveFavorite(item);
+                    }
+                });
+
+            await ProcessSyncFile<ILaunchableItem>(
+                GetSyncFilePath(SyncRemoveFavoritesPrefix, cart.DeviceHash),
+                "Syncing favorite removal queue...",
+                async items =>
+                {
+                    foreach (var item in items)
+                    {
+                        await favoriteFileProcess.RemoveFavorite(item);
                     }
                 });
 

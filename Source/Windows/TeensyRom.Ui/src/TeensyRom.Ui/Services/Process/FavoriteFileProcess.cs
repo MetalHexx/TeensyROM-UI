@@ -12,6 +12,7 @@ namespace TeensyRom.Ui.Services.Process
     public interface IFavoriteFileProcess
     {
         Task SaveFavorite(ILaunchableItem file);
+        Task RemoveFavorite(ILaunchableItem file);
     }
 
     public class FavoriteFileProcess(
@@ -20,6 +21,16 @@ namespace TeensyRom.Ui.Services.Process
         IAlertService alert) : IFavoriteFileProcess
     {
         public async Task SaveFavorite(ILaunchableItem file)
+        {
+            await ProcessFavorite(file, async () => await storage.SaveFavorite(file) ?? file);
+        }
+
+        public async Task RemoveFavorite(ILaunchableItem file)
+        {
+            await ProcessFavorite(file, async () => { await storage.RemoveFavorite(file); return file; });
+        }
+
+        private async Task ProcessFavorite(ILaunchableItem file, Func<Task<ILaunchableItem>> storageAction)
         {
             var currentFile = await player.LaunchedFile.FirstAsync();
             var playState = await player.PlayingState.FirstAsync();
@@ -31,17 +42,22 @@ namespace TeensyRom.Ui.Services.Process
                 alert.Publish("Hex file is running, cannot tag favorite.");
                 return;
             }
-            if (currentFile.File is GameItem)
+
+            var isGame = currentFile.File is GameItem;
+
+            if (isGame)
             {
                 alert.Publish("Your game will re-launch to allow favorite to be tagged.");
                 await player.StopFile();
             }
-            var favFile = await storage.SaveFavorite(file);
 
-            if (currentFile.File is GameItem)
+            await storageAction();
+
+            if (isGame)
             {
                 await player.PlayFile(currentFile.File);
             }
+
             if (playerState is not SearchState)
             {
                 await player.LoadDirectory(currentPath, file.Path);

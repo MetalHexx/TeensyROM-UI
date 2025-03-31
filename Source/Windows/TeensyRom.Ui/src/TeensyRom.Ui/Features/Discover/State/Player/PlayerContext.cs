@@ -132,6 +132,11 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                     await UpdateDirectoryTree(files.ToList());
                 });
 
+            storage.FilesDeleted
+                .SubscribeOn(RxApp.MainThreadScheduler)
+                .SelectMany(m => m)
+                .Subscribe(async file => await OnDelete(file));
+
             watchService.WatchFiles
                 .SubscribeOn(RxApp.MainThreadScheduler)
                 .Where(files => files is not null && files.Any())
@@ -380,34 +385,18 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             return PlayNext();
         }
 
-        public async Task RemoveFavorite(ILaunchableItem file)
+        private async Task OnDelete(IFileItem file) 
         {
-            if (await IsBusy()) return;
+            await Task.Delay(200);            
 
-            var isGameItem = _launchedFile.Value?.File is GameItem;
-
-            if (_launchedFile.Value?.File is GameItem)
-            {
-                _alert.Enqueue("Resetting TR to allow favorite to be untagged.");
-                await _mediator.Send(new ResetCommand());
-            }
-            await _storage.RemoveFavorite(file);
-
-            if(_currentState.Value is not SearchState)
-            {
-                await LoadDirectory(_directoryState.Value.CurrentPath, file.Path);
-            }
+            await LoadDirectory(_directoryState.Value.CurrentPath);
         }
 
-        public Task DeleteFile(IFileItem file)
+        public async Task DeleteFile(IFileItem file)
         {
-            if (_directoryState.Value is null) return Task.CompletedTask;
+            if (_directoryState.Value is null) return;
 
-            _storage.DeleteFile(file, _settings.StorageType);
-
-            _storage.ClearCache(_directoryState.Value.CurrentPath);
-
-            return LoadDirectory(_directoryState.Value.CurrentPath);
+            await _storage.DeleteFile(file, _settings.StorageType);
         }
         public async Task PlayNext()
         {
