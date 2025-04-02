@@ -33,6 +33,7 @@ namespace TeensyRom.Core.Storage
     /// </summary>
     public class FileWatchService: IFileWatchService
     {
+        private readonly string _assemblyDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!;
         public IObservable<List<FileTransferItem>> WatchFiles => _watchFiles.AsObservable();
         private readonly Subject<List<FileTransferItem>> _watchFiles = new();
 
@@ -87,9 +88,10 @@ namespace TeensyRom.Core.Storage
                 typesToWatch.ToArray());
 
             _fileWatchSubscription ??= _fileWatcher.FilesFound
-                .CombineLatest(_serialState.CurrentState, (file, serialState) => (file, serialState))
-                .Where(fileSerial => fileSerial.serialState is SerialConnectedState && _settings.AutoFileCopyEnabled)
-                .Select(fileSerial => fileSerial.file)
+                .Where(NotInAssemblyDirectory)
+                .CombineLatest(_serialState.CurrentState, (files, serialState) => (files, serialState))
+                .Where(fileSerial => fileSerial.serialState is SerialConnectedState && _settings.AutoFileCopyEnabled)                
+                .Select(fileSerial => fileSerial.files)
                 .DistinctUntilChanged()
                 .SubscribeOn(TaskPoolScheduler.Default)
                 .Select(files => files.Select(f => new FileTransferItem
@@ -101,6 +103,11 @@ namespace TeensyRom.Core.Storage
                 .ObserveOn(Scheduler.Default)
                 .Select(Extract)
                 .Subscribe(fti => _watchFiles.OnNext(fti.ToList()));
+        }
+
+        private bool NotInAssemblyDirectory(List<FileInfo> files)
+        {
+            return !files.Any(f => f.DirectoryName is not null && f.DirectoryName.Contains(_assemblyDirectory));
         }
 
         private string GetTargetPath(FileInfo file)
