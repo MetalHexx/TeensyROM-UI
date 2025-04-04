@@ -54,45 +54,42 @@
                 Style="{StaticResource MaterialDesignSeparator}" />
         </StackPanel>
         
-        <Grid Grid.Row="1">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="15 0 0 0">
-                    <StackPanel>
+        <Grid Grid.Row="1" Margin="15 0 0 0">
+            <StackPanel>
                         
-                        <Label Style="{StaticResource Heading}" Content="One-Shot Note Triggers"/>
+                <Label Style="{StaticResource Heading}" Content="One-Shot Note Triggers"/>
                         
-                        <ItemsControl ItemsSource="{Binding NoteMappings}">
-                            <ItemsControl.ItemTemplateSelector>
-                                <StaticResource ResourceKey="MidiMappingTemplateSelector"/>
-                            </ItemsControl.ItemTemplateSelector>
-                        </ItemsControl>
+                <ItemsControl ItemsSource="{Binding NoteMappings}">
+                    <ItemsControl.ItemTemplateSelector>
+                        <StaticResource ResourceKey="MidiMappingTemplateSelector"/>
+                    </ItemsControl.ItemTemplateSelector>
+                </ItemsControl>
                         
-                        <Separator 
-                            Margin="10 5"
-                            Style="{StaticResource MaterialDesignSeparator}" />
+                <Separator 
+                    Margin="10 5"
+                    Style="{StaticResource MaterialDesignSeparator}" />
 
-                        <Label Style="{StaticResource Heading}" Content="Sustained Note Triggers"/>
+                <Label Style="{StaticResource Heading}" Content="Sustained Note Triggers"/>
 
-                        <ItemsControl ItemsSource="{Binding DualNoteMappings}">
-                            <ItemsControl.ItemTemplateSelector>
-                                <StaticResource ResourceKey="MidiMappingTemplateSelector"/>
-                            </ItemsControl.ItemTemplateSelector>
-                        </ItemsControl>
+                <ItemsControl ItemsSource="{Binding DualNoteMappings}">
+                    <ItemsControl.ItemTemplateSelector>
+                        <StaticResource ResourceKey="MidiMappingTemplateSelector"/>
+                    </ItemsControl.ItemTemplateSelector>
+                </ItemsControl>
                         
-                        <Separator 
-                            Margin="10 5"
-                            Style="{StaticResource MaterialDesignSeparator}" />
+                <Separator 
+                    Margin="10 5"
+                    Style="{StaticResource MaterialDesignSeparator}" />
                         
-                        <Label Style="{StaticResource Heading}" Content="Control Change (CC)"/>
+                <Label Style="{StaticResource Heading}" Content="Control Change (CC)"/>
 
                         
-                            <ItemsControl ItemsSource="{Binding CCMappings}">
-                                <ItemsControl.ItemTemplateSelector>
-                                    <StaticResource ResourceKey="MidiMappingTemplateSelector"/>
-                                </ItemsControl.ItemTemplateSelector>
-                            </ItemsControl>                
-                    </StackPanel>      
-                </ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding CCMappings}">
+                        <ItemsControl.ItemTemplateSelector>
+                            <StaticResource ResourceKey="MidiMappingTemplateSelector"/>
+                        </ItemsControl.ItemTemplateSelector>
+                    </ItemsControl>                
+            </StackPanel>      
         </Grid>
     </Grid>
-
 </UserControl>
