@@ -2,105 +2,113 @@
              xmlns:controls="clr-namespace:TeensyRom.Ui.Controls"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"             
-             mc:Ignorable="d" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d"
              Height="auto" Width="auto">
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0 10 0 0">
-            
-            <TextBlock FontSize="20" Text="Help and Project Resources" HorizontalAlignment="Center" Margin="10"/>
-            
-            <controls:DetailButton 
-                ClickCommand="{Binding NavigateToUiGithubCommand}"
-                Title="Desktop UI Project" 
-                Subtitle="Code, new releases and help documentation can be found at the UI GitHub repository."
-                Icon="Github"
-                Margin="0 0 0 20"/>
+            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0 10 0 0">
 
-            <controls:DetailButton 
-                ClickCommand="{Binding NavigateToTrGithubCommand}"
-                Title="Hardware Project" 
-                Subtitle="Technical specifications, help documentation and firmware releases can be found at the TeensyROM GitHub Repository."
-                Icon="Github"
-                Margin="0 0 0 20"/>
+                <TextBlock FontSize="20" Text="Help and Project Resources" HorizontalAlignment="Center" Margin="10"/>
 
-            <controls:DetailButton 
-                ClickCommand="{Binding NavigateToDiscordCommand}"
-                Title="Discord" 
-                Subtitle="Join the community and talk about TeensyROM or get some help."
-                Icon="ChatOutline"
-                Margin="0 0 0 20"/>
+                <controls:DetailButton 
+                    ClickCommand="{Binding NavigateToUiGithubCommand}"
+                    Title="Desktop UI Project"
+                    Subtitle="Code, new releases and help documentation can be found at the UI GitHub repository."
+                    Icon="Github"
+                    Margin="0 0 0 20"/>
 
-            <TextBlock FontSize="20" Text="Buy TeensyROM" HorizontalAlignment="Center" Margin="10"/>
+                <controls:DetailButton 
+                    ClickCommand="{Binding NavigateToTrGithubCommand}"
+                    Title="Hardware Project"
+                    Subtitle="Technical specifications, help documentation and firmware releases can be found at the TeensyROM GitHub Repository."
+                    Icon="Github"
+                    Margin="0 0 0 20"/>
 
-            <controls:DetailButton 
-                ClickCommand="{Binding NavigateToTindieCommand}"
-                Title="tindie" 
-                Subtitle="Purchase a new TeensyROM hardware cartridge on tindie."
-                Icon="Cow"
-                Margin="0 0 0 20"/>
+                <controls:DetailButton 
+                    ClickCommand="{Binding NavigateToDiscordCommand}"
+                    Title="Discord"
+                    Subtitle="Join the community and talk about TeensyROM or get some help."
+                    Icon="ChatOutline"
+                    Margin="0 0 0 20"/>
 
-            <controls:DetailButton 
-                ClickCommand="{Binding NavigateToEbayCommand}"
-                Title="eBay" 
-                Subtitle="Purchase a new TeensyROM hardware cartridge on eBay."
-                Icon="PiggyBankOutline"
-                Margin="0 0 0 20"/>
-        </StackPanel>
+                <TextBlock FontSize="20" Text="Buy TeensyROM" HorizontalAlignment="Center" Margin="10"/>
 
-        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0 10 0 0">
-            
-            <TextBlock FontSize="20" Text="Tutorials" HorizontalAlignment="Center" Margin="10"/>
+                <controls:DetailButton 
+                    ClickCommand="{Binding NavigateToTindieCommand}"
+                    Title="tindie"
+                    Subtitle="Purchase a new TeensyROM hardware cartridge on tindie."
+                    Icon="Cow"
+                    Margin="0 0 0 20"/>
 
-            <controls:DetailButton 
-                ClickCommand="{Binding StartTutorialCommand}"
-                Title="Setup and Feature Review" 
-                Subtitle="Click here to run through the first time startup tutorial again.  "
-                Icon="GhostOutline"
-                Margin="0 0 0 20"/>
+                <controls:DetailButton 
+                    ClickCommand="{Binding NavigateToEbayCommand}"
+                    Title="eBay"
+                    Subtitle="Purchase a new TeensyROM hardware cartridge on eBay."
+                    Icon="PiggyBankOutline"
+                    Margin="0 0 0 20"/>
+            </StackPanel>
 
-            <TextBlock FontSize="20" Text="Add Ons" HorizontalAlignment="Center" Margin="10"/>
+            <StackPanel Grid.Row="1" Grid.Column="2" Margin="0 10 0 0">
 
-            <controls:DetailButton 
-                ClickCommand="{Binding NavigateToOneLoad64Command}"
-                Title="OneLoad64" 
-                Subtitle="A highly recommended companion game library that synergizes well with the TR.  Install this, and you'll get an enhanced experience with screen previews. See help docs for setup info."
-                Icon="GhostOutline"
-                Margin="0 0 0 20"/>
+                <TextBlock FontSize="20" Text="Tutorials" HorizontalAlignment="Center" Margin="10"/>
 
-            <controls:DetailButton 
-                ClickCommand="{Binding NavigateToHvscCommand}"
-                Title="High Voltage Sid Collection" 
-                Subtitle="A highly recommended companion music library.  Install this and you'll get enhanced sid music info and composer images.  See help docs for setup info."
-                Icon="MusicClefTreble"
-                Margin="0 0 0 20"/>
+                <controls:DetailButton 
+                    ClickCommand="{Binding StartTutorialCommand}"
+                    Title="Setup and Feature Review"
+                    Subtitle="Click here to run through the first time startup tutorial again."
+                    Icon="School"
+                    Margin="0 0 0 20"/>
 
-            <controls:DetailButton 
-                ClickCommand="{Binding NavigateToSidListCommand}"
-                Title="SID List (STIL)" 
-                Subtitle="SID List a database based on the STIL file from HVSC.  This comes pre-installed.  To update to the latest version manually, see help docs."
-                Icon="FileMusicOutline"
-                Margin="0 0 0 20"/>
+                <controls:DetailButton 
+                    ClickCommand="{Binding StartDemoCommand}"
+                    Title="Demo / Tutorial Videos"
+                    Subtitle="The demo videos available on YouTube are structured much like tutorials. Definitely check these out to get a better understanding of how to use the many features in the app."
+                    Icon="School"
+                    Margin="0 0 0 20"/>
 
-            <controls:DetailButton 
-                ClickCommand="{Binding NavigateToDeepSidCommand}"
-                Title="DeepSID Composer Images" 
-                Subtitle="Composer images from the DeepSID open source project.  This comes pre-installed.  To update the latest version manually, see help docs."
-                Icon="FileImageOutline"
-                Margin="0 0 0 20"/>
+                <TextBlock FontSize="20" Text="Add Ons" HorizontalAlignment="Center" Margin="10"/>
 
-        </StackPanel>
-    </Grid>
+                <controls:DetailButton 
+                    ClickCommand="{Binding NavigateToOneLoad64Command}"
+                    Title="OneLoad64"
+                    Subtitle="A highly recommended companion game library that synergizes well with the TR. Install this, and you'll get an enhanced experience with screen previews. See help docs for setup info."
+                    Icon="GhostOutline"
+                    Margin="0 0 0 20"/>
+
+                <controls:DetailButton 
+                    ClickCommand="{Binding NavigateToHvscCommand}"
+                    Title="High Voltage Sid Collection"
+                    Subtitle="A highly recommended companion music library. Install this and you'll get enhanced sid music info and composer images. See help docs for setup info."
+                    Icon="MusicClefTreble"
+                    Margin="0 0 0 20"/>
+
+                <controls:DetailButton 
+                    ClickCommand="{Binding NavigateToSidListCommand}"
+                    Title="SID List (STIL)"
+                    Subtitle="SID List a database based on the STIL file from HVSC. This comes pre-installed. To update to the latest version manually, see help docs."
+                    Icon="FileMusicOutline"
+                    Margin="0 0 0 20"/>
+
+                <controls:DetailButton 
+                    ClickCommand="{Binding NavigateToDeepSidCommand}"
+                    Title="DeepSID Composer Images"
+                    Subtitle="Composer images from the DeepSID open source project. This comes pre-installed. To update the latest version manually, see help docs."
+                    Icon="FileImageOutline"
+                    Margin="0 0 0 20"/>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 
 </UserControl>
