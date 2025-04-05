@@ -184,7 +184,7 @@ namespace TeensyRom.Ui.Services
                     return;
                 }
 
-                result = await _dialog.ShowConfirmation("Copy Some Files!", $"Copy some files to your SD or USB storage now before we start the indexing process.  \r\rTotally optional, but strongly recommended, consider copying HVSC and OneLoad64 onto your {_settings.StorageType} storage. You can always do this later if you want.\r\rFor information on the HVSC or OneLoad64, go to the help view.\r\rClicking \"Ok\" will start the indexing process.");
+                result = await _dialog.ShowConfirmation("Copy Some Files!", $"Copy some files to your SD or USB storage now before we start the indexing process.  \r\rTotally optional, but strongly recommended, consider copying HVSC and OneLoad64 onto your {_settings.StorageType} storage. You can always do this later if you want.\r\rFor information on the HVSC or OneLoad64, go to the help screen.\r\rClicking \"Ok\" will start the indexing process.");
 
                 if (!result)
                 {
@@ -198,7 +198,7 @@ namespace TeensyRom.Ui.Services
 
         public async Task OnCacheSD()
         {   
-            var result = await _dialog.ShowConfirmation("Let's navigate back to the terminal screen.  You can watch as all the files are indexed from the TR.");
+            var result = await _dialog.ShowConfirmation("Let's navigate back to the terminal screen.  You can watch as all the files on your TeensyROM storage are indexed.");
             
             _navigation.NavigateTo(NavigationLocation.Terminal);
 
@@ -403,7 +403,7 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Continuous Play", $"All file types support continuous play.  \r\r• When a SIDs play time ends, it automatically go to the next SID. \r• For Games and Images, you can set optional play timer for a similar behavior.");
+                    result = await _dialog.ShowConfirmation("Continuous Play", $"All file types support continuous play.  \r\r• When a SIDs play time ends, it automatically plays the next SID. \r• For Games and Images, you can set an optional play timer for a similar behavior as SIDs.");
 
                     if (!result)
                     {
@@ -411,7 +411,7 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
-                    result = await _dialog.ShowConfirmation("Play Timer", $"Try clicking the \"Games\" or \"Images\" filter.  You will notice a \"Stopwatch\" icon in the \"Play\" toolbar.\r\rClicking the \"Stopwatch\" button will enable continuous play on games and images.  You can select a play time length that best suits your needs.");
+                    result = await _dialog.ShowConfirmation("Play Timer", $"When playing a game or image, you will notice a \"Stopwatch\" icon in the \"Play\" toolbar.\r\rClicking the \"Stopwatch\" button will enable continuous play on games and images.  You can select a play time length that best suits your needs.");
 
                     if (!result)
                     {
