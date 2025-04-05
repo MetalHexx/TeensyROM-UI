@@ -18,7 +18,6 @@ namespace TeensyRom.Core.Storage.Services
 
         private List<string> _bannedFolders = [];
         private List<string> _bannedFiles = [];
-        private string _cacheFilePath = string.Empty;
         private ISettingsService _settingsService;
         private TeensySettings _settings = null!;
         private IDisposable? _settingsSubscription;
@@ -44,7 +43,7 @@ namespace TeensyRom.Core.Storage.Services
                 ? null
                 : _settings with { };
 
-            _settings = newSettings;
+            _settings = newSettings with { };
 
             _usbCacheFileName = Path.Combine(
                 Assembly.GetExecutingAssembly().GetPath(),
@@ -58,7 +57,6 @@ namespace TeensyRom.Core.Storage.Services
 
             if (previousSettings is null || _settings.StorageType != previousSettings.StorageType || _settings.LastCart.DeviceHash != previousSettings.LastCart?.DeviceHash)
             {
-                _cacheFilePath = CacheFilePath;
                 _bannedFolders = _settings.BannedDirectories.ToList();
                 _bannedFiles = _settings.BannedFiles.ToList();
                 ReadFromDisk();
@@ -335,12 +333,12 @@ namespace TeensyRom.Core.Storage.Services
 
         public void ReadFromDisk()
         {
-            if (!File.Exists(_cacheFilePath))
+            if (!File.Exists(CacheFilePath))
             {
                 Clear();
                 return;
             }
-            using var stream = File.Open(_cacheFilePath, FileMode.Open, FileAccess.Read);
+            using var stream = File.Open(CacheFilePath, FileMode.Open, FileAccess.Read);
             using var reader = new StreamReader(stream);
             var content = reader.ReadToEnd();
 
@@ -366,7 +364,7 @@ namespace TeensyRom.Core.Storage.Services
         {
             lock (_writeLock)
             {
-                var directory = Path.GetDirectoryName(_cacheFilePath);
+                var directory = Path.GetDirectoryName(CacheFilePath);
                 if (!Directory.Exists(directory))
                 {
                     Directory.CreateDirectory(directory!);
@@ -377,9 +375,11 @@ namespace TeensyRom.Core.Storage.Services
                     TypeInfoResolver = JsonTypeInfoResolver.Combine(new DefaultJsonTypeInfoResolver()),
                     WriteIndented = true
                 };                
-                File.WriteAllText(_cacheFilePath, JsonSerializer.Serialize(this, options));
+                File.WriteAllText(CacheFilePath, JsonSerializer.Serialize(this, options));
             }
         }
+
+        public int GetCacheSize() => this.Aggregate(0, (acc, item) => acc + item.Value.Files.Count);
 
         private static string CleanPath(string path) => path
             .RemoveLeadingAndTrailingSlash();

@@ -24,5 +24,6 @@ namespace TeensyRom.Core.Storage.Services
         ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, params TeensyFileType[] fileTypes);
         void WriteToDisk();
         void ClearCache();
+        int GetCacheSize();
     }
 }

@@ -25,5 +25,6 @@ namespace TeensyRom.Core.Storage.Services
         IEnumerable<ILaunchableItem> Search(string searchText, params TeensyFileType[] fileTypes);
         Task RemoveFavorite(ILaunchableItem file);
         Task CopyFiles(List<CopyFileItem> fileItems);
+        int GetCacheSize();
     }
 }

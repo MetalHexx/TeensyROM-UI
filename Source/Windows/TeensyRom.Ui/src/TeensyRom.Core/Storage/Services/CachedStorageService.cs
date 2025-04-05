@@ -357,6 +357,8 @@ namespace TeensyRom.Core.Storage.Services
             return newFile;
         }
 
+        public int GetCacheSize() => _storageCache.GetCacheSize();
+
         public FileItem CloneToFileItem(ILaunchableItem launchItem)
         {
             var clone = launchItem switch
