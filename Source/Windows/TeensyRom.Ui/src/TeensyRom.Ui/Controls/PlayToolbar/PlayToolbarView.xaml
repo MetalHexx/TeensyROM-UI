@@ -277,10 +277,10 @@
                     <materialDesign:PackIcon Kind="Stop" />
                 </Button>
 
-                <Button x:Name="FastFowardButton"
+                <Button x:Name="FastForwardButton"
                     Visibility="{Binding IsSong, Converter={StaticResource BoolToVisibilityConvertor}}"
                     Command="{Binding FastForwardCommand}"  
-                    ToolTip="Fast Foward Song."
+                    ToolTip="Fast Forward Song."
                     Style="{StaticResource FastForwardButtonStyle}"
                     Margin="10 0 0 0">
                     <materialDesign:PackIcon Kind="FastForwardOutline" />
