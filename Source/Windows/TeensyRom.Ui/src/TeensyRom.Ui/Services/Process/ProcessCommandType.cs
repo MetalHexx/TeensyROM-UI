@@ -5,6 +5,7 @@
         FavoriteFile,
         CopyFile,
         RemoveFavoriteFile,
-        UpsertFile
+        UpsertFile,
+        LaunchFile
     }
 }

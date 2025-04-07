@@ -106,6 +106,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<Unit, Unit> PauseTimerCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PlaylistCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SaveSongSettingsCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> SendSongCommand { get; set; }
 
         private readonly IAlertService _alert;
         private IProgressTimer? _timer;
@@ -898,6 +899,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 song.DefaultSpeedCurve = SelectedSpeedCurve;
 
                 await crossProcess.UpsertFile(song);
+            });
+
+            SendSongCommand = ReactiveCommand.CreateFromTask(async () =>
+            {
+                if (File is not SongItem song) return;
+
+                await crossProcess.LaunchFile(song);
             });
         }
 
