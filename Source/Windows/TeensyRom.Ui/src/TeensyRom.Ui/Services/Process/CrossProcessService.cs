@@ -15,6 +15,7 @@ namespace TeensyRom.Ui.Services.Process
 
     public interface ICrossProcessService
     {
+        Task UpsertFile(ILaunchableItem file);
         Task CopyFiles(IEnumerable<CopyFileItem> files);
         Task SaveFavorite(ILaunchableItem file);
         Task RemoveFavorite(ILaunchableItem file);
@@ -23,6 +24,7 @@ namespace TeensyRom.Ui.Services.Process
 
     public class CrossProcessService : ICrossProcessService, IDisposable
     {
+        private readonly IUpsertFileProcess _upsertFile;
         private readonly ICopyFileProcess _copyFile;
         private readonly IFavoriteFileProcess _favFile;
         private readonly ILoggingService _log;
@@ -35,6 +37,7 @@ namespace TeensyRom.Ui.Services.Process
         private CancellationTokenSource? _listenerCts;
 
         public CrossProcessService(
+            IUpsertFileProcess upsertFile,
             ICopyFileProcess copyFile,
             IFavoriteFileProcess favFile,
             ILoggingService log,
@@ -43,6 +46,7 @@ namespace TeensyRom.Ui.Services.Process
             INamedPipeServer server,
             INamedPipeClient client)
         {
+            _upsertFile = upsertFile;
             _copyFile = copyFile;
             _favFile = favFile;
             _log = log;
@@ -114,6 +118,10 @@ namespace TeensyRom.Ui.Services.Process
                         await HandleRemoveFavorite(raw);
                         break;
 
+                    case ProcessCommandType.UpsertFile:
+                        HandleUpsertFile(raw);
+                        break;
+
                     default:
                         _log.InternalError($"Unhandled message type: {type}");
                         break;
@@ -123,6 +131,16 @@ namespace TeensyRom.Ui.Services.Process
             {
                 _log.InternalError($"Error while handling incoming pipe message: {ex.Message}\nRaw: {raw}");
             }
+        }
+
+        private void HandleUpsertFile(string raw) 
+        {
+            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<ILaunchableItem>>(raw);
+
+            if (message is null) return;
+
+            _log.InternalSuccess($"Sync File Request: {message.Value.Name}");
+            _upsertFile.UpsertFile(message.Value);
         }
 
         private async Task HandleCopyFile(string raw)
@@ -155,6 +173,17 @@ namespace TeensyRom.Ui.Services.Process
                 _log.InternalSuccess($"Sync Remove Favorite Received: {message.Value.Name}");
                 await _favFile.RemoveFavorite(message.Value);
             }
+        }
+
+        public async Task UpsertFile(ILaunchableItem file)
+        {
+            _upsertFile.UpsertFile(file);
+
+            await SendMessageAsync(new ProcessCommand<ILaunchableItem>
+            {
+                MessageType = ProcessCommandType.UpsertFile,
+                Value = file
+            });
         }
 
         public async Task CopyFiles(IEnumerable<CopyFileItem> files)
@@ -215,6 +244,16 @@ namespace TeensyRom.Ui.Services.Process
                     {
                         switch (message.MessageType)
                         {
+                            case ProcessCommandType.UpsertFile:
+
+                                _log.InternalError($"Sync Failed (Upsert): Cart {cart.Name} was not found.  Queuing for later.");
+
+                                if (message.Value is ILaunchableItem item)
+                                {
+                                    _syncService.QueueUpsertFiles(cart, [item]);
+                                }
+                                break;
+
                             case ProcessCommandType.CopyFile:
 
                                 _log.InternalError($"Sync Failed (Favorite): Cart {cart.Name} was not found.  Queuing for later.");

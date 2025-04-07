@@ -20,6 +20,7 @@ using TeensyRom.Core.Music.Midi;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Controls.Playlist;
 using System.Runtime.CompilerServices;
+using TeensyRom.Ui.Services.Process;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -104,6 +105,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<double, Unit> TrackTimeChangedCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PauseTimerCommand { get; set; }
         public ReactiveCommand<Unit, Unit> PlaylistCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> SaveSongSettingsCommand { get; set; }
 
         private readonly IAlertService _alert;
         private IProgressTimer? _timer;
@@ -152,7 +154,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             IAlertService alert, 
             IMidiService midiService,
             ISettingsService settingsService,
-            IPlaylistDialogService playlist)
+            IPlaylistDialogService playlist,
+            ICrossProcessService crossProcess)
         {
             _timer = timer;
             _changeSpeed = changeSpeed;
@@ -284,6 +287,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     Voice2Enabled = true;
                     Voice3Enabled = true;
                 });
+            
 
             song.Select(s => s.StartSubtuneNum)
                 .Subscribe(startIndex =>
@@ -295,7 +299,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(lengths => lengths.Count > 1)
                 .ToPropertyEx(this, vm => vm.SubtuneNumberList);
 
-            song.Subscribe(StartSong);
+            song.Subscribe(async s => await StartSong(s));
 
             gameOrImage.Subscribe(item =>
             {
@@ -455,8 +459,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     MaxSpeed = selectedSpeedCurve == MusicSpeedCurveTypes.Linear
                         ? MusicConstants.Linear_Speed_Max
                         : MusicConstants.Log_Speed_Max;
-
-                    RawSpeedValue = 0;
                 });
 
             var speedChanges = this.WhenAnyValue(x => x.RawSpeedValue)                
@@ -473,7 +475,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .DistinctUntilChanged()
                 .ObserveOn(TaskPoolScheduler.Default)
                 .Subscribe(async rawSpeed =>
-                {
+                {                    
                     await _changeSpeed(rawSpeed, SelectedSpeedCurve).ConfigureAwait(false);
                 });
 
@@ -887,6 +889,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(buffer => buffer.Any())
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async buffer => await mute(!Voice1Enabled, !Voice2Enabled, !Voice3Enabled));
+
+            SaveSongSettingsCommand = ReactiveCommand.CreateFromTask(async () =>
+            {
+                if (File is not SongItem song) return;
+
+                song.DefaultSpeed = RawSpeedValue;
+                song.DefaultSpeedCurve = SelectedSpeedCurve;
+
+                await crossProcess.UpsertFile(song);
+            });
         }
 
         private void HandleNudge(MidiEvent midiEvent) 
@@ -921,14 +933,25 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             _timer.ResetTimer();
         }
 
-        private void StartSong(SongItem item)
+        private async Task StartSong(SongItem s)
         {
             TimedPlayButtonEnabled = false;
             TimedPlayComboBoxEnabled = false;
             ProgressEnabled = true;
-            RawSpeedValue = 0;
+
+            if (s.DefaultSpeed != 0)
+            {
+                await Task.Delay(200);
+                SelectedSpeedCurve = s.DefaultSpeedCurve;
+                RawSpeedValue = s.DefaultSpeed;                
+            }
+            else 
+            {
+                await Task.Delay(200);
+                RawSpeedValue = 0;                
+            }            
             _previousRawSpeed = RawSpeedValue;
-            InitializeProgress(_playNext, item);
+            InitializeProgress(_playNext, s);
         }
 
 

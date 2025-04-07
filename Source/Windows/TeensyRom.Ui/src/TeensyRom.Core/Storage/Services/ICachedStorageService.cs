@@ -8,12 +8,12 @@ namespace TeensyRom.Core.Storage.Services
     public interface ICachedStorageService: IDisposable
     {
         IObservable<IEnumerable<IFileItem>> FilesAdded { get; }
-        IObservable<IEnumerable<IFileItem>> FilesCopied { get; }
+        IObservable<IEnumerable<IFileItem>> FilesChanged { get; }
         IObservable<Unit> StorageReady { get; }
         IObservable<IEnumerable<IFileItem>> FilesDeleted { get; }
 
         void ClearCache();
-        void ClearCache(string path);
+        void ClearCache(string path);        
         Task<StorageCacheItem?> GetDirectory(string path);
         Task<ILaunchableItem?> SaveFavorite(ILaunchableItem file);
         Task<SaveFilesResult> SaveFiles(IEnumerable<FileTransferItem> files);
@@ -26,5 +26,6 @@ namespace TeensyRom.Core.Storage.Services
         Task RemoveFavorite(ILaunchableItem file);
         Task CopyFiles(List<CopyFileItem> fileItems);
         int GetCacheSize();
+        void UpsertFiles(IEnumerable<ILaunchableItem> files);
     }
 }

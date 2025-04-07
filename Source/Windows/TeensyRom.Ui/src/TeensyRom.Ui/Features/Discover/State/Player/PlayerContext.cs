@@ -125,7 +125,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                     }
                 });
 
-            storage.FilesCopied
+            storage.FilesChanged
                 .SubscribeOn(RxApp.MainThreadScheduler)
                 .Subscribe(async files =>
                 {

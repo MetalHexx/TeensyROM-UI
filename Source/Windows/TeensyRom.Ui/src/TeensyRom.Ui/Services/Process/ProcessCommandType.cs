@@ -4,6 +4,7 @@
     {
         FavoriteFile,
         CopyFile,
-        RemoveFavoriteFile
+        RemoveFavoriteFile,
+        UpsertFile
     }
 }

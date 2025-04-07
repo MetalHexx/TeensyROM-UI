@@ -12,17 +12,26 @@ namespace TeensyRom.Ui.Services.Process
 {
     public interface ISyncService
     {
+        void QueueUpsertFiles(KnownCart cart, List<ILaunchableItem> items);
         void QueueCopyFiles(KnownCart cart, List<CopyFileItem> items);
         void QueueFavFile(KnownCart cart, ILaunchableItem command);
         Task ProcessCommands(KnownCart cart);
         void QueueRemoveFavFile(KnownCart cart, ILaunchableItem file);
     }
 
-    public class SyncService(ICopyFileProcess fileCopyProcess, IFavoriteFileProcess favoriteFileProcess, IAlertService alert, ILoggingService logger) : ISyncService
+    public class SyncService(ICopyFileProcess fileCopyProcess, IFavoriteFileProcess favoriteFileProcess, IUpsertFileProcess upsertFile, IAlertService alert, ILoggingService logger) : ISyncService
     {
+        private const string SyncUpsertFilesPrefix = "SyncUpsertFiles";
         private const string SyncFavoritesPrefix = "SyncFavoriteFiles";
         private const string SyncRemoveFavoritesPrefix = "SyncRemoveFavoriteFiles";
         private const string SyncCopyPrefix = "SyncCopyFiles";
+
+        public void QueueUpsertFiles(KnownCart cart, List<ILaunchableItem> files)
+        {
+            var path = GetSyncFilePath(SyncUpsertFilesPrefix, cart.DeviceHash);
+            AddToSyncFile(path, files);
+            logger.Internal($"Queued file updates for next sync");
+        }
 
         public void QueueFavFile(KnownCart cart, ILaunchableItem file)
         {
@@ -75,6 +84,18 @@ namespace TeensyRom.Ui.Services.Process
                 GetSyncFilePath(SyncCopyPrefix, cart.DeviceHash),
                 "Syncing playlist queue...",
                 fileCopyProcess.CopyFiles);
+
+            await ProcessSyncFile<ILaunchableItem>(
+                GetSyncFilePath(SyncUpsertFilesPrefix, cart.DeviceHash),
+                "Syncing file updates queue...",
+                items =>
+                {
+                    foreach (var item in items)
+                    {
+                        upsertFile.UpsertFile(item);
+                    }
+                    return Task.CompletedTask;
+                });
         }
 
         private void AddToSyncFile<T>(string filePath, List<T> newItems)

@@ -113,7 +113,8 @@ namespace TeensyRom.Ui.Features.Discover
                 alert,
                 midiService,
                 settingsService,
-                playlist
+                playlist,
+                crossProcess
             );
 
             DirectoryList = new DirectoryListViewModel

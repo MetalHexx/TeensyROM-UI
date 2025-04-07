@@ -2,6 +2,8 @@
 using System.Numerics;
 using System.Text.Json.Serialization;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Music;
+using TeensyRom.Core.Storage.Services;
 
 namespace TeensyRom.Core.Storage.Entities
 {
@@ -10,7 +12,12 @@ namespace TeensyRom.Core.Storage.Entities
         public TimeSpan PlayLength { get; set; } = TimeSpan.FromMinutes(3);
         public List<TimeSpan> SubtuneLengths { get; set; } = [];
         public int StartSubtuneNum { get; set; }
-        public List<ViewableItemImage> Images { get; init; } = [];        
+        public double DefaultSpeed { get; set; } = 0;
+        public MusicSpeedCurveTypes DefaultSpeedCurve { get; set; } = MusicSpeedCurveTypes.Linear;
+
+        public List<ViewableItemImage> Images { get; init; } = [];
+
+        public bool IsPlaylistedOrFavorite => Path.Contains(StorageConstants.Playlist_Path) || Path.Contains(StorageConstants.Favorites_Path);
 
         public SongItem()
         {

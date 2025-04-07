@@ -19,8 +19,8 @@ namespace TeensyRom.Core.Storage.Services
         public IObservable<IEnumerable<IFileItem>> FilesAdded => _filesAdded.AsObservable();
         private Subject<IEnumerable<IFileItem>> _filesAdded = new();
 
-        public IObservable<IEnumerable<IFileItem>> FilesCopied => _filesCopied.AsObservable();
-        private Subject<IEnumerable<IFileItem>> _filesCopied = new();
+        public IObservable<IEnumerable<IFileItem>> FilesChanged => _filesChanged.AsObservable();
+        private Subject<IEnumerable<IFileItem>> _filesChanged = new();
 
         public IObservable<System.Reactive.Unit> StorageReady => _storageCache.StorageReady;
 
@@ -331,7 +331,7 @@ namespace TeensyRom.Core.Storage.Services
             _alert.Publish($"File(s) have been copied successfully.");
 
             _storageCache.WriteToDisk();
-            _filesCopied.OnNext(filesAdded);
+            _filesChanged.OnNext(filesAdded);
         }
 
         public IFileItem MaybeEnsureFavoriteAndStoreCache(ILaunchableItem sourceFile, string targetFullPath) 
@@ -371,6 +371,16 @@ namespace TeensyRom.Core.Storage.Services
                 _ => throw new TeensyException("Unknown file type")
             };
             return clone;
+        }
+
+        public void UpsertFiles(IEnumerable<ILaunchableItem> files) 
+        {
+            foreach (var f in files)
+            {
+                _storageCache.UpsertFile(f);                
+            }            
+            _storageCache.WriteToDisk();
+            _filesChanged.OnNext(files);
         }
     }
 }

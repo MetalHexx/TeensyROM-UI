@@ -69,6 +69,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IFwVersionChecker, FwVersionChecker>();
             services.AddSingleton<ICopyFileProcess, CopyFileProcess>();
             services.AddSingleton<IFavoriteFileProcess, FavoriteFileProcess>();
+            services.AddSingleton<IUpsertFileProcess, UpsertFileProcess>();
             services.AddSingleton<ICrossProcessService, CrossProcessService>();
             services.AddSingleton<INamedPipeServer, NamedPipeServer>();
             services.AddSingleton<INamedPipeClient, NamedPipeClient>();
