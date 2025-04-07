@@ -36,7 +36,9 @@
                 new NoteMapping() { DJEventType = DJEventType.Next, DisplayName = "Next" },
                 new NoteMapping() { DJEventType = DJEventType.Restart, DisplayName = "Restart Song" },
                 new NoteMapping() { DJEventType = DJEventType.SeekForward, DisplayName = "Seek Forward", AmountEnabled = true, Amount = 0.005  },
-                new NoteMapping() { DJEventType = DJEventType.SeekBackward, DisplayName = "Seek Backward", AmountEnabled = true, Amount = -0.005  }
+                new NoteMapping() { DJEventType = DJEventType.SeekBackward, DisplayName = "Seek Backward", AmountEnabled = true, Amount = -0.005  },
+                new NoteMapping() { DJEventType = DJEventType.CrossLaunch, DisplayName = "Launch on 2nd Device", AmountEnabled = false },
+                new NoteMapping() { DJEventType = DJEventType.SaveSongSettings, DisplayName = "Save Song Speed", AmountEnabled = false },
             ];
 
             foreach (MidiMapping mapping in possibleMappings)

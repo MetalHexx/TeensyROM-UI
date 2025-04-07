@@ -109,6 +109,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public ReactiveCommand<Unit, Unit> SendSongCommand { get; set; }
 
         private readonly IAlertService _alert;
+        private readonly ICrossProcessService _crossProcess;
         private IProgressTimer? _timer;
         private readonly Func<double, MusicSpeedCurveTypes, Task> _changeSpeed;
         private IDisposable? _timerCompleteSubscription;
@@ -161,6 +162,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             _timer = timer;
             _changeSpeed = changeSpeed;
             _alert = alert;
+            _crossProcess = crossProcess;
             _mute = mute;
             _togglePlay = togglePlay;
             _restartSong = restartSong;
@@ -776,6 +778,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Do(async _ => await DisableFastForward(true))
                 .Subscribe(async e => await HandleRestart());
 
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.DJEventType is DJEventType.CrossLaunch)
+                .Subscribe(async _ => await HandleCrossLaunch());
+
+            midiService.MidiEvents
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(e => e.DJEventType is DJEventType.SaveSongSettings)
+                .Subscribe(async _ => await HandleSaveSongSettings());
+
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.RestartKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong)
@@ -891,22 +903,26 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async buffer => await mute(!Voice1Enabled, !Voice2Enabled, !Voice3Enabled));
 
-            SaveSongSettingsCommand = ReactiveCommand.CreateFromTask(async () =>
-            {
-                if (File is not SongItem song) return;
+            SaveSongSettingsCommand = ReactiveCommand.CreateFromTask(HandleSaveSongSettings);
 
-                song.DefaultSpeed = RawSpeedValue;
-                song.DefaultSpeedCurve = SelectedSpeedCurve;
+            SendSongCommand = ReactiveCommand.CreateFromTask(HandleCrossLaunch);
+        }
 
-                await crossProcess.UpsertFile(song);
-            });
+        private async Task HandleSaveSongSettings()
+        {
+            if (File is not SongItem song) return;
 
-            SendSongCommand = ReactiveCommand.CreateFromTask(async () =>
-            {
-                if (File is not SongItem song) return;
+            song.DefaultSpeed = RawSpeedValue;
+            song.DefaultSpeedCurve = SelectedSpeedCurve;
 
-                await crossProcess.LaunchFile(song);
-            });
+            await _crossProcess.UpsertFile(song);
+        }
+
+        private async Task HandleCrossLaunch()
+        {
+            if (File is not SongItem song) return;
+
+            await _crossProcess.LaunchFile(song);
         }
 
         private void HandleNudge(MidiEvent midiEvent) 

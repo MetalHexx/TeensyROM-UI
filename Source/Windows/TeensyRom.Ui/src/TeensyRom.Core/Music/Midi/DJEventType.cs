@@ -29,6 +29,8 @@
         Voice3Kill,
         Mode,
         Restart,
-        HoldPause
+        HoldPause,
+        CrossLaunch,
+        SaveSongSettings
     }
 }
