@@ -809,7 +809,15 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         }
 
         public void SetScope(StorageScope scope) => _currentScope.OnNext(scope);
-        public void SetScopePath(string path) => _currentScopePath.OnNext(path);
+        public void SetScopePath(string path) 
+        {
+            if (path.Equals(path)) 
+            {
+                _currentScopePath.OnNext(StorageConstants.Remote_Path_Root);
+                return;
+            }
+            _currentScopePath.OnNext(path);
+        }
         public StorageScope GetScope() => _currentScope.Value;
         public string GetScopePath() => _currentScopePath.Value;
 
