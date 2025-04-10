@@ -1,5 +1,4 @@
-﻿using DynamicData.Kernel;
-using MediatR;
+﻿using MediatR;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -8,18 +7,13 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Reflection;
-using System.Runtime;
 using System.Threading.Tasks;
-using System.Transactions;
 using System.Windows;
-using System.Windows.Input;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Commands.PlaySubtune;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage;
@@ -28,10 +22,7 @@ using TeensyRom.Core.Storage.Services;
 using TeensyRom.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Core.Storage.Tools.Zip;
 using TeensyRom.Ui.Controls.DirectoryTree;
-using TeensyRom.Ui.Controls.PlayToolbar;
-using TeensyRom.Ui.Features.Common.Config;
 using TeensyRom.Ui.Features.Common.Models;
-using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Discover.State.Directory;
 using TeensyRom.Ui.Core.Progress;
 using TeensyRom.Ui.Features.NavigationHost;
@@ -52,7 +43,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         public IObservable<bool> PagingEnabled => _directoryState.Select(d => d.PagingEnabled);
         public IObservable<DirectoryNodeViewModel?> DirectoryTree => _tree.DirectoryTree.AsObservable();
         public IObservable<ObservableCollection<IStorageItem>> DirectoryContent => _directoryState.Select(d => d.DirectoryContent);
-        public IObservable<LaunchedFileResult> LaunchedFile => _launchedFile.AsObservable();
+        public IObservable<LaunchedFileResult> LaunchedFile => _launchedFile.AsObservable();        
         public IObservable<ILaunchableItem> SelectedFile => _selectedFile.AsObservable();
         public IObservable<PlayState> PlayingState => _playingState.AsObservable();
         public IObservable<StorageScope> CurrentScope => _currentScope.AsObservable();
@@ -64,7 +55,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
         protected PlayerState? _previousState;
         protected readonly BehaviorSubject<PlayerState> _currentState;
-        protected readonly BehaviorSubject<LaunchedFileResult> _launchedFile = new(null!);
+        protected readonly BehaviorSubject<LaunchedFileResult> _launchedFile = new(null!);        
         protected readonly BehaviorSubject<ILaunchableItem> _selectedFile = new(null!);
         protected readonly BehaviorSubject<PlayState> _playingState = new(PlayState.Stopped);
         protected readonly BehaviorSubject<StorageScope> _currentScope = new(StorageScope.Storage);
@@ -87,6 +78,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         protected readonly Dictionary<Type, PlayerState> _states;
         protected readonly List<IDisposable> _stateSubscriptions = new();
         protected TeensyFilter _currentFilter;
+        protected bool _isInitLoadedOnly = false;
 
         public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, IFileWatchService watchService, ID64Extractor d64Extractor, IZipExtractor zipExtractor, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDiscoveryTreeState tree, IProgressTimer timer, ILoggingService log)
         {
@@ -147,14 +139,12 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
         private void SubscribeToStateObservables()
         {
-            _settingsService.Settings
+            var settingsObservable = _settingsService.Settings
                 .Where(settings => settings is not null)
-                .Take(1)
-                .Subscribe(settings => _currentFilter = settings.FileFilters.First(lib => lib.Type == TeensyFilterType.All));
-
-            _settingsSubscription = _settingsService.Settings
                 .Do(settings => _settings = settings)
                 .Do(settings => _currentFilter = _settings.GetStartupFilter())
+                .Where(s => s.FirstTimeSetup == false)
+                .Where(s => s.LastCart is not null)
                 .CombineLatest(
                     _serial.CurrentState,
                     _nav.SelectedNavigationView,
@@ -163,24 +153,49 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 .Where(state =>
                     state.navView?.Type == NavigationLocation.Discover &&
                     state.serial is SerialConnectedState)
-                .Select(state => new
+                .Select(state => state.settings)
+                .DistinctUntilChanged(settings => $"{settings.StorageType}|{settings.LastCart?.DeviceHash}");
+                
+
+            _settingsSubscription = settingsObservable                
+                .Subscribe(async _ => 
                 {
-                    Path = _currentFilter,
-                    StorageType = state.settings.StorageType,
-                    DeviceHash = state.settings?.LastCart?.DeviceHash
-                })
-                .DistinctUntilChanged(x => $"{x.StorageType}|{x.DeviceHash}")
-                .Select(x => x.Path)
-                .Do(path => _tree.ResetDirectoryTree(StorageConstants.Remote_Path_Root))
-                .Subscribe(async path => await LoadDirectory(StorageConstants.Remote_Path_Root));
+                    _tree.ResetDirectoryTree(StorageConstants.Remote_Path_Root);
+                    await LoadDirectory(StorageConstants.Remote_Path_Root);
+                });
 
+            var initializeObservable = settingsObservable.Take(1);
 
-            _serial.CurrentState
-                .Where(_ => _settings.StartupLaunchEnabled && _settings.FirstTimeSetup == false)
-                .CombineLatest(_storage.StorageReady, (serial, ready) => serial)
-                .OfType<SerialConnectedState>()
-                .Take(1)
-                .Subscribe(async _ => await SwitchFilter(_settings.GetStartupFilter()));
+            initializeObservable
+                .Where(settings => settings.StartupLaunchEnabled)
+                .Subscribe(async _ => await HandleStartupLaunch());
+
+            initializeObservable
+                .Where(s => s.StartupLaunchEnabled is false)
+                .Subscribe(async s => await HandleStartupWithoutLaunch());
+        }
+
+        private async Task HandleStartupWithoutLaunch()
+        {
+            if (_settings.LastCart!.LastFile is not null)
+            {
+                await LoadDirectory(_settings.LastCart.LastFile.Path.GetUnixParentPath(), _settings.LastCart.LastFile.Path);
+                _isInitLoadedOnly = true;
+                await LoadFileWithoutLaunch(_settings.LastCart.LastFile);
+                return;
+            }
+            await LoadDirectory(StorageConstants.Remote_Path_Root);
+        }
+
+        private async Task HandleStartupLaunch()
+        {
+            if (_settings.LastCart!.LastFile is not null)
+            {
+                await LoadDirectory(_settings.LastCart.LastFile.Path.GetUnixParentPath(), _settings.LastCart.LastFile.Path);
+                await PlayFile(_settings.LastCart.LastFile);
+                return;
+            }
+            var file = await PlayRandom();
         }
 
         private async Task UpdateDirectoryTree(List<IFileItem> files)
@@ -283,6 +298,12 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
         public async Task TogglePlay()
         {
+            if (_isInitLoadedOnly) 
+            {
+                _isInitLoadedOnly = false;
+                await PlayFile(_launchedFile.Value.File);
+                return;
+            }
             if (_launchedFile.Value.File is SongItem)
             {
                 var result = await _mediator.Send(new ToggleMusicCommand());
@@ -310,6 +331,34 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             return;
         }
 
+        private async Task LoadFileWithoutLaunch(ILaunchableItem file)
+        {
+            if (file is null) return;
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                file.IsSelected = true;
+
+                var shouldUpdateCurrent = _launchedFile.Value?.File is not null
+                    && file.Path.Equals(_launchedFile.Value?.File.Path) == false;
+
+                if (shouldUpdateCurrent)
+                {
+                    _launchedFile.Value!.File.IsSelected = false;
+                }
+            });
+            await LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
+            _launchedFile.OnNext(GetLaunchResult(file));
+            _selectedFile.OnNext(file);
+
+            if (file is SongItem)
+            {
+                _playingState.OnNext(PlayState.Paused);
+                return;
+            }
+            _playingState.OnNext(PlayState.Stopped);
+        }
+
         public virtual async Task PlayFile(ILaunchableItem file)
         {
             if (file is null) return;
@@ -320,7 +369,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 return;
             }
             if (await IsBusy()) return;
-
+            SaveLastPlayedFile(file);
             LaunchFileAsync(file);
 
             Application.Current.Dispatcher.Invoke(() =>
@@ -338,6 +387,22 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             _launchedFile.OnNext(GetLaunchResult(file));
             _selectedFile.OnNext(file);
             _playingState.OnNext(PlayState.Playing);
+        }
+
+        private void SaveLastPlayedFile(ILaunchableItem file)
+        {
+            var settings = _settingsService.GetSettings();
+
+            var cart = settings.KnownCarts.FirstOrDefault(c => c.DeviceHash == settings.LastCart?.DeviceHash);
+
+            if (cart is not null)
+            {
+                var newCart = cart with { LastFile = file };
+                var cartIndex = settings.KnownCarts.IndexOf(cart);
+                settings.KnownCarts.Remove(cart);
+                settings.KnownCarts.Add(newCart);
+                _settingsService.SaveSettings(settings);
+            }
         }
 
         private LaunchedFileResult GetLaunchResult(ILaunchableItem file) 
@@ -406,8 +471,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
             if (file is null) 
             {
-                _alert.Enqueue("No file was found.  Check your filters and pinned directory.");
-                await StopFile();
+                _alert.Enqueue("No file was found matching you selected filter.");
                 return;
             }
             await PlayFile(file);
@@ -555,7 +619,19 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             return Unit.Default;
         }
 
-        public async Task SwitchFilter(TeensyFilter filter)
+        private void SwitchFilterByFileType(ILaunchableItem file) 
+        {
+            _currentFilter = file switch
+            {
+                SongItem songItem => _settings.FileFilters.First(f => f.Type == TeensyFilterType.Music),
+                GameItem gameItem => _settings.FileFilters.First(f => f.Type == TeensyFilterType.Games),
+                ImageItem imageItem => _settings.FileFilters.First(f => f.Type == TeensyFilterType.Images),
+                _ => _settings.FileFilters.First(f => f.Type == TeensyFilterType.All)
+
+            };
+        }
+
+        public async Task SwitchFilterAndLaunch(TeensyFilter filter)
         {
             _currentFilter = filter;
 

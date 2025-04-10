@@ -19,7 +19,6 @@ using TeensyRom.Ui.Main;
 using TeensyRom.Core.Music.Midi;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Controls.Playlist;
-using System.Runtime.CompilerServices;
 using TeensyRom.Ui.Services.Process;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
@@ -302,7 +301,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(lengths => lengths.Count > 1)
                 .ToPropertyEx(this, vm => vm.SubtuneNumberList);
 
-            song.Subscribe(async s => await StartSong(s));
+            song
+                .WithLatestFrom(playState, (song, state) => (song, state))
+                .Where(pair => pair.state.PlayState is PlayState.Playing)
+                .Select(pair => pair.song)
+                .Subscribe(async s => await StartSong(s));
 
             gameOrImage.Subscribe(item =>
             {
@@ -328,7 +331,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     TimedPlayButtonEnabled = true;
                     TimedPlayComboBoxEnabled = false;
                     ProgressEnabled = false;
-                    _timer?.PauseTimer();
+                    _currentTimeSubscription?.Dispose();
+                    _currentTimeSubscription = null;
                 });
 
             hexItem.Subscribe(item =>
@@ -338,7 +342,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 TimedPlayButtonEnabled = false;
                 TimedPlayComboBoxEnabled = false;
                 ProgressEnabled = false;
-                _timer?.PauseTimer();
+                _currentTimeSubscription?.Dispose();
+                _currentTimeSubscription = null;
             });
 
             this.WhenAnyValue(x => x.TimerSeconds)

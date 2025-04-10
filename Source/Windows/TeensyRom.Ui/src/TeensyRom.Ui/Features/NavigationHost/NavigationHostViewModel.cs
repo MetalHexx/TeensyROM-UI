@@ -72,7 +72,7 @@ namespace TeensyRom.Ui.Features.NavigationHost
         private void TryNavToDiscover()
         {
             var settings = _settingsService.GetSettings();
-            if (settings.StartupLaunchEnabled && !settings.FirstTimeSetup) 
+            if (settings.AutoConnectEnabled && !settings.FirstTimeSetup) 
             { 
                 _navService.NavigateTo(NavigationLocation.Discover);
             }

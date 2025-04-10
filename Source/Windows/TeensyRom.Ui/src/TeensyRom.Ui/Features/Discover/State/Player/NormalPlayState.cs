@@ -1,10 +1,8 @@
-﻿using DynamicData;
-using MediatR;
+﻿using MediatR;
 using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
@@ -36,6 +34,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
             var launchableItems = directoryResult.Files
                 .OfType<ILaunchableItem>()
+                .Where(f => _playerContext.GetFileTypes().Any(type => f.FileType == type))                
                 .ToList();
 
             var currentFile = launchableItems.FirstOrDefault(s => s.Id == currentLaunchable.Id);
@@ -63,13 +62,19 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             var parentPath = currentFile.Path.GetUnixParentPath();
             var directoryResult = await _storage.GetDirectory(parentPath);
-            var launchableItems = directoryResult?.Files.OfType<ILaunchableItem>().ToList();
+
+            var launchableItems = directoryResult?.Files
+                .OfType<ILaunchableItem>()
+                .Where(f => _playerContext.GetFileTypes().Any(type => f.FileType == type))
+                .ToList();
 
             if (launchableItems is null)
             {
                 return currentFile;
             }
             var index = launchableItems.IndexOf(currentFile);
+
+            index = index < 0 ? 0 : index;
 
             if (!launchableItems.Any()) return null;
 

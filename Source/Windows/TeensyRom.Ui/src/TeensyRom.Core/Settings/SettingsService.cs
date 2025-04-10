@@ -4,9 +4,9 @@ using System.Reactive.Subjects;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Core.Settings
 {
@@ -36,12 +36,7 @@ namespace TeensyRom.Core.Settings
                 using var reader = new StreamReader(stream);
                 var content = reader.ReadToEnd();
 
-                var options = new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                };
-
-                _currentSettings = JsonSerializer.Deserialize<TeensySettings>(content, options);
+                _currentSettings = LaunchableItemSerializer.Deserialize<TeensySettings>(content);
             }
             if (_currentSettings is null)
             {
@@ -76,7 +71,7 @@ namespace TeensyRom.Core.Settings
 
             settings = settings with
             {
-                LastCart = device is null ? new KnownCart(deviceHash, pnpDeviceId, comPort, $"TeensyROM #{settings.KnownCarts.Count() + 1}", new()) : device
+                LastCart = device is null ? new KnownCart(deviceHash, pnpDeviceId, comPort, $"TeensyROM #{settings.KnownCarts.Count() + 1}", new(), null) : device
             };
 
             settings.LastCart.MidiSettings.InitMappings();
@@ -144,11 +139,7 @@ namespace TeensyRom.Core.Settings
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(_settingsFilePath)!);
             }
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-            File.WriteAllText(_settingsFilePath, JsonSerializer.Serialize(settings, options));
+            File.WriteAllText(_settingsFilePath, LaunchableItemSerializer.Serialize(settings));
 
         }
 

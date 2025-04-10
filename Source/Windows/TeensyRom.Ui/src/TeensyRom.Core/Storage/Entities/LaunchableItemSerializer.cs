@@ -10,7 +10,8 @@ namespace TeensyRom.Core.Storage.Entities
         {
             var options = new JsonSerializerOptions
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
             };
             options.Converters.Add(new LaunchableItemConverter());
 

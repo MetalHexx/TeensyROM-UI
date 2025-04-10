@@ -170,14 +170,14 @@ namespace TeensyRom.Ui.Features.Discover
 
                 var libs = _settings.FileFilters.Where(lib => lib.Type is not TeensyFilterType.Hex);
 
-                Filter = new LibraryFilterViewModel(
-                    libs, 
-                    _settings.GetStartupFilter(), 
+                Filter ??= new LibraryFilterViewModel(
+                    libs,
+                    _settings.GetStartupFilter(),
                     player.LaunchedFile.Where(f => f is not null && f.Random).Select(_ => Unit.Default),
-                    filterFunc: (filter) => player.SwitchFilter(filter),
+                    filterFunc: (filter) => player.SwitchFilterAndLaunch(filter),
                     launchRandomFunc: () => player.PlayRandom());
 
-                DirectoryChips = new DirectoryChipsViewModel
+                DirectoryChips ??= new DirectoryChipsViewModel
                 (
                     path: player.CurrentPath.ObserveOn(RxApp.MainThreadScheduler),
                     basePath: StorageConstants.Remote_Path_Root,

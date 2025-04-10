@@ -211,13 +211,14 @@
             </Grid>                        
         </Border>
 
-        <Grid Grid.Row="1" VerticalAlignment="Top"
-            x:Name="ProgressContainer"
+        <Grid Grid.Row="1" VerticalAlignment="Top"            
+            x:Name="ProgressContainer"            
             MouseEnter="ProgressContainer_MouseEnter"
             MouseLeave="ProgressContainer_MouseLeave">
 
             <ProgressBar x:Name="ProgressIndicator"
                 Value="{Binding ProgressSliderPercentage, Mode=OneWay}"
+                Visibility="{Binding ProgressEnabled, Converter={StaticResource BoolToVisibilityConvertor}}"
                 Maximum="1"
                 Minimum="0"
                 Height="4"
@@ -226,7 +227,8 @@
                 Opacity="1"/>
 
             <Slider x:Name="ProgressSlider"
-                Value="{Binding ProgressSliderPercentage, Mode=TwoWay}" 
+                Value="{Binding ProgressSliderPercentage, Mode=TwoWay}"
+                Visibility="{Binding IsSong, Converter={StaticResource BoolToVisibilityConvertor}}"
                 Maximum="1"
                 Minimum="0"
                 HorizontalAlignment="Stretch"
@@ -234,6 +236,11 @@
                 Margin="0 -8 0 -8"
                 Style="{StaticResource MaterialDesignSlider}"
                 Opacity="0"/>
+            
+            <Separator 
+                Visibility="{Binding ProgressEnabled, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
+                Margin="0 -8 0 -8"
+                Style="{StaticResource MaterialDesignSeparator}" />
         </Grid>
 
 

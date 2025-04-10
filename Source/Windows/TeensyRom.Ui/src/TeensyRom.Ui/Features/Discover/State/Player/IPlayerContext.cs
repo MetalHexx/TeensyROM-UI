@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using System.Windows.Documents;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
-using TeensyRom.Ui.Features.Discover.State;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {
@@ -48,7 +46,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         Task StopFile();
         Unit ToggleShuffleMode();
         bool TryTransitionTo(Type nextStateType);
-        Task SwitchFilter(TeensyFilter filter);
+        Task SwitchFilterAndLaunch(TeensyFilter filter);
         Task StoreFiles(IEnumerable<DragNDropFile> files);
         Task AutoStoreFiles(IEnumerable<FileTransferItem> files);
         void SetScope(StorageScope scope);

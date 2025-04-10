@@ -1,8 +1,8 @@
 ﻿using ReactiveUI.Fody.Helpers;
-using System.Collections.Generic;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Music.Midi;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Features.Settings
 {
@@ -12,6 +12,7 @@ namespace TeensyRom.Ui.Features.Settings
         public string PnpDeviceId { get; set; } = string.Empty;
         public string ComPort { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
+        public IFileItem? LastFile { get; set; } = null;
         [Reactive] public MidiSettingsViewModel MidiSettings { get; set; }
         public KnownCartViewModel(KnownCart cart, IMidiService midiService, IAlertService alert)
         {
@@ -29,11 +30,6 @@ namespace TeensyRom.Ui.Features.Settings
             ComPort = cart.ComPort;
             Name = cart.Name;
             MidiSettings = new MidiSettingsViewModel(cart.MidiSettings, midiService, alert);
-        }
-
-        public KnownCart ToKnownCart()
-        {
-            return new KnownCart(DeviceHash, PnpDeviceId, ComPort, Name, MidiSettings.ToMidiSettings());
         }
     }
 }

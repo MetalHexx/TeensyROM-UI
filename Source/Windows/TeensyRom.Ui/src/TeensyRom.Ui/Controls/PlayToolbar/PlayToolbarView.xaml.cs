@@ -64,6 +64,10 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         private void ProgressContainer_MouseEnter(object sender, MouseEventArgs e)
         {
+            if (!IsSong()) 
+            {
+                return;
+            }
             var fadeOut = new DoubleAnimation(0, TimeSpan.FromMilliseconds(200));
             var fadeIn = new DoubleAnimation(1, TimeSpan.FromMilliseconds(200));
 
@@ -73,6 +77,10 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         private void ProgressContainer_MouseLeave(object sender, MouseEventArgs e)
         {
+            if (!IsSong())
+            {
+                return;
+            }
             if (!_progressMouseDowned)
             {
                 var fadeOut = new DoubleAnimation(0, TimeSpan.FromMilliseconds(200));
