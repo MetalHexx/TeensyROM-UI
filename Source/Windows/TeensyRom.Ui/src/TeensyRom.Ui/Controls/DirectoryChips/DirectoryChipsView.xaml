@@ -7,15 +7,22 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="PinnedButtonStyle" TargetType="Button" BasedOn="{StaticResource StorageIconButton}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding PinEnabled}" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource EnabledColor}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
 
 
-    <Border Style="{StaticResource ToolbarBorder}">
+        <Border Style="{StaticResource ToolbarBorder}">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
 
@@ -44,11 +51,11 @@
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
 
-
+    
             <Button                     
                 Command="{Binding PinCommand}" 
                 ToolTip="Pins the current for directory shuffle mode / random launch"
-                Style="{StaticResource StorageIconButton}"
+                Style="{StaticResource PinnedButtonStyle}"
                 HorizontalAlignment="Right"
                 Grid.Column="2"
                 Margin="0 3 0 0">

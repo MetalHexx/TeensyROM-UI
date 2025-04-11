@@ -1,14 +1,11 @@
 ﻿using DynamicData;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Xml.XPath;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Storage.Services;
 
@@ -17,14 +14,19 @@ namespace TeensyRom.Ui.Controls.DirectoryChips
 
     public class DirectoryChipsViewModel : ReactiveObject
     {
+        [ObservableAsProperty] public bool PinEnabled { get; } = false;
         public ObservableCollection<string> PathItems { get; set; } = [];
         public ReactiveCommand<string, Unit> PathItemClickCommand { get; set; }
         public ReactiveCommand<string, Unit> PinCommand { get; set; }
         private string _currentPath = string.Empty;
 
-        public DirectoryChipsViewModel(IObservable<string> path, string basePath, Action<string> onClick, Action<string> onPin)
+        public DirectoryChipsViewModel(IObservable<string> path, IObservable<string> pinnedDirectory, string basePath, Action<string> onClick, Action<string> onPin)
         {
             var root = StorageConstants.Remote_Path_Root;
+
+            pinnedDirectory
+                .CombineLatest(path, (pinned, path) => !string.IsNullOrWhiteSpace(pinned) && pinned == path && pinned != StorageConstants.Remote_Path_Root)
+                .ToPropertyEx(this, vm => vm.PinEnabled);
 
             var pathItems = path
                 .Where(path => !string.IsNullOrWhiteSpace(path))
