@@ -290,7 +290,7 @@ namespace TeensyRom.Core.Storage.Services
 
             if (selection.Length == 0) return null;
 
-            return selection[new Random().Next(selection.Length - 1)];
+            return selection[new Random().Next(selection.Length)];
         }
 
         public void EnsureFavorites(List<string> favPaths)
