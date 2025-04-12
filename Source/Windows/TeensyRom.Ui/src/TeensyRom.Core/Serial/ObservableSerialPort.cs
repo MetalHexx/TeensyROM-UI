@@ -404,7 +404,7 @@ namespace TeensyRom.Core.Serial
                 if (_serialPort.BytesToRead >= numBytes) 
                 {
                     sw.Stop();
-                    Debug.WriteLine($"WaitForSerialData - {sw.ElapsedMilliseconds}ms");
+                    //Debug.WriteLine($"WaitForSerialData - {sw.ElapsedMilliseconds}ms");
                     return;
                 }
                 Thread.Sleep(10);
