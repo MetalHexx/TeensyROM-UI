@@ -192,12 +192,12 @@ namespace TeensyRom.Core.Storage.Services
             parentDir.DeleteFile(path);
         }
 
-        private Func<KeyValuePair<string, StorageCacheItem>, bool> FileExcludeFilter(List<string> excludePaths) =>
+        private Func<KeyValuePair<string, StorageCacheItem>, bool> FileExcludeFilter(IEnumerable<string> excludePaths) =>
             kvp => !excludePaths
                 .Select(p => p.RemoveLeadingAndTrailingSlash())
                 .Any(excludePath => kvp.Key.Contains(excludePath));
 
-        public IEnumerable<ILaunchableItem> Search(string searchText, List<string> excludePaths, List<string> stopSearchWords, SearchWeights searchWeights, params TeensyFileType[] fileTypes)
+        public IEnumerable<ILaunchableItem> Search(string searchText, IEnumerable<string> excludePaths, List<string> stopSearchWords, SearchWeights searchWeights, params TeensyFileType[] fileTypes)
         {
             var quotedMatches = Regex
                 .Matches(searchText, @"(\+?""([^""]+)"")|\+?\S+")
@@ -259,7 +259,7 @@ namespace TeensyRom.Core.Storage.Services
                 .Select(result => result.File);
         }
 
-        public ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, params TeensyFileType[] fileTypes)
+        public ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, IEnumerable<string> excludePaths, params TeensyFileType[] fileTypes)
         {
             scopePath = $"{scopePath.RemoveLeadingAndTrailingSlash().EnsureUnixPathEnding()}";
 
@@ -268,7 +268,8 @@ namespace TeensyRom.Core.Storage.Services
                 fileTypes = TeensyFileTypeExtensions.GetLaunchFileTypes();
             }
             var selection = this
-                .SelectMany(c => c.Value.Files)
+                .Where(FileExcludeFilter(excludePaths))
+                .SelectMany(c => c.Value.Files)                
                 .Where(f => fileTypes.Contains(f.FileType))
                 .Where(f => scope switch
                 {
@@ -285,7 +286,7 @@ namespace TeensyRom.Core.Storage.Services
 
                     _ => true
                 })
-                .OfType<ILaunchableItem>()
+                .OfType<ILaunchableItem>()                
                 .ToArray();
 
             if (selection.Length == 0) return null;

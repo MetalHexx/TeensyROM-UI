@@ -232,13 +232,13 @@ namespace TeensyRom.Core.Storage.Services
 
         public ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, params TeensyFileType[] fileTypes)
         {
-            return _storageCache.GetRandomFile(scope, scopePath, fileTypes);
+            var excludePaths = GetExcludePaths();
+            return _storageCache.GetRandomFile(scope, scopePath, excludePaths, fileTypes);
         }
 
         public IEnumerable<ILaunchableItem> Search(string searchText, params TeensyFileType[] fileTypes)
         {
-            var excludePaths = _settings.GetFavoritePaths();
-            excludePaths.Add(StorageConstants.Playlist_Path);
+            var excludePaths = GetExcludePaths();
 
             return _storageCache.Search
             (
@@ -248,6 +248,14 @@ namespace TeensyRom.Core.Storage.Services
                 _settings.SearchWeights, 
                 fileTypes
             );
+        }
+
+        private List<string> GetExcludePaths() 
+        {
+            var excludePaths = _settings.GetFavoritePaths();
+            excludePaths.Add(StorageConstants.Playlist_Path);
+
+            return excludePaths;
         }
 
         public Task CacheAll() => CacheAll(StorageConstants.Remote_Path_Root);
