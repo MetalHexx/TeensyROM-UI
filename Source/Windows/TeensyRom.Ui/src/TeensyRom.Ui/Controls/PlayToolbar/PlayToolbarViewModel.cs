@@ -46,7 +46,9 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [Reactive] public bool TimedPlayEnabled { get; set; }
         [Reactive] public bool TimedPlayButtonEnabled { get; set; }
         [Reactive] public bool TimedPlayComboBoxEnabled { get; set; }
-        [Reactive] public bool ProgressEnabled { get; set; }                
+        [Reactive] public bool ProgressEnabled { get; set; }
+        [Reactive] public bool ProgressSeparatorEnabled { get; set; } = false;
+        [Reactive] public bool AdvancedEnabled { get; set; } = false;
         [Reactive] public string TimerSeconds { get; set; } = "3m";
         [Reactive] public List<string> TimerOptions { get; set; } = ["5s", "10s", "15s", "30s", "1m", "3m", "5m", "10m", "15m", "30m"];
         [Reactive] public bool FastForwardInProgress { get; set; }

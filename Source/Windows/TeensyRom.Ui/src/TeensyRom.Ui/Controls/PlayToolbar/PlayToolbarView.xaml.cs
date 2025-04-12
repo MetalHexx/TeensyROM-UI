@@ -1,7 +1,5 @@
-﻿using MaterialDesignThemes.Wpf;
-using ReactiveUI;
+﻿using ReactiveUI;
 using System;
-using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,53 +17,68 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
     /// </summary>
     public partial class PlayToolbarView : UserControl
     {
-        private bool _isAdvancedVisible = false;
         private Binding? _progressSliderBinding;
         private bool _progressMouseDowned = false;
+        private PlayToolbarViewModel _vm;
 
         public PlayToolbarView()
         {
             InitializeComponent();
             Loaded += PlayToolbarView_Loaded;
+            DataContextChanged += OnDataContextChanged;
+        }
 
-            MessageBus.Current.Listen<MidiEvent>(MessageBusConstants.MidiCommandsReceived)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => TriggerAdvancedMenu());
+        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is PlayToolbarViewModel vm)
+            {
+                _vm = vm;
 
-            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidVoiceMuteKeyPressed)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(_ => _isAdvancedVisible is false)
-                .Subscribe(_ => TriggerAdvancedMenu());
+                _vm.WhenAnyValue(x => x.IsSong)
+                    .Subscribe(_ => ToggleAdvancedSeparator());
 
-            MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedIncreaseKeyPressed)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(_ => _isAdvancedVisible is false)
-                .Subscribe(_ => TriggerAdvancedMenu());
+                _vm.WhenAnyValue(x => x.ProgressEnabled)
+                    .Subscribe(_ => ToggleAdvancedSeparator());
 
-            MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedDecreaseKeyPressed)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(_ => _isAdvancedVisible is false)
-                .Subscribe(_ => TriggerAdvancedMenu());
+                MessageBus.Current.Listen<MidiEvent>(MessageBusConstants.MidiCommandsReceived)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(_ => TriggerAdvancedMenu());
 
-            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedIncrease50KeyPressed)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(_ => _isAdvancedVisible is false)
-                .Subscribe(_ => TriggerAdvancedMenu());
+                MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidVoiceMuteKeyPressed)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Where(_ => _vm.AdvancedEnabled is false)
+                    .Subscribe(_ => TriggerAdvancedMenu());
 
-            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDecrease50KeyPressed)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(_ => _isAdvancedVisible is false)
-                .Subscribe(_ => TriggerAdvancedMenu());
+                MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedIncreaseKeyPressed)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Where(_ => _vm.AdvancedEnabled is false)
+                    .Subscribe(_ => TriggerAdvancedMenu());
 
-            MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedHomeKeyPressed)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(_ => _isAdvancedVisible is false)
-                .Subscribe(_ => TriggerAdvancedMenu());
+                MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedDecreaseKeyPressed)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Where(_ => _vm.AdvancedEnabled is false)
+                    .Subscribe(_ => TriggerAdvancedMenu());
+
+                MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedIncrease50KeyPressed)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Where(_ => _vm.AdvancedEnabled is false)
+                    .Subscribe(_ => TriggerAdvancedMenu());
+
+                MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDecrease50KeyPressed)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Where(_ => _vm.AdvancedEnabled is false)
+                    .Subscribe(_ => TriggerAdvancedMenu());
+
+                MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedHomeKeyPressed)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Where(_ => _vm.AdvancedEnabled is false)
+                    .Subscribe(_ => TriggerAdvancedMenu());
+            }
         }
 
         private void ProgressContainer_MouseEnter(object sender, MouseEventArgs e)
         {
-            if (!IsSong()) 
+            if (!_vm.IsSong || !_vm.ProgressEnabled) 
             {
                 return;
             }
@@ -78,7 +91,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         private void ProgressContainer_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (!IsSong())
+            if (!_vm.IsSong || !_vm.ProgressEnabled)
             {
                 return;
             }
@@ -94,10 +107,10 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         private void TriggerAdvancedMenu()
         {
-            if (!_isAdvancedVisible)
+            if (!_vm.AdvancedEnabled)
             {
                 AdvancedControlButton_Click(this, null);                
-            }
+            }            
         }
 
         private void PlayToolbarView_Loaded(object sender, RoutedEventArgs e)
@@ -117,8 +130,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         private void AdvancedControlButton_Click(object sender, RoutedEventArgs? e)
         {
-            double fromHeight = _isAdvancedVisible ? PopupContent.ActualHeight : 0;
-            double toHeight = _isAdvancedVisible ? 0 : 50;
+            double fromHeight = _vm.AdvancedEnabled ? PopupContent.ActualHeight : 0;
+            double toHeight = _vm.AdvancedEnabled ? 0 : 50;
 
             var heightAnimation = new DoubleAnimation
             {
@@ -129,7 +142,9 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             };
             PopupContent.BeginAnimation(FrameworkElement.HeightProperty, heightAnimation);
 
-            _isAdvancedVisible = !_isAdvancedVisible;
+            _vm.AdvancedEnabled = !_vm.AdvancedEnabled;
+
+            ToggleAdvancedSeparator();
         }
 
         private void SetSpeedSlider_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -139,7 +154,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         private void ProgressSlider_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount > 1 || !IsSong()) //hack to avoid issues with double-click
+            if (e.ClickCount > 1 || !_vm.IsSong) //hack to avoid issues with double-click
             {
                 e.Handled = true;
                 return;
@@ -156,7 +171,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         private void ProgressSlider_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (_progressMouseDowned == false || !IsSong()) //hack to avoid issues with double-click
+            if (_progressMouseDowned == false || !_vm.IsSong) //hack to avoid issues with double-click
             {
                 e.Handled = true;
                 return;
@@ -177,9 +192,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             }
         }
 
-        private bool IsSong() 
+        private void ToggleAdvancedSeparator() 
         {
-            return DataContext is PlayToolbarViewModel viewModel && viewModel.IsSong;
+            var shouldEnableSeparator = _vm.AdvancedEnabled && ((_vm.IsSong && !_vm.ProgressEnabled) || (_vm.IsSong is false && !_vm.TimedPlayEnabled));
+
+            AdvancedSeparator.Visibility = shouldEnableSeparator ? Visibility.Visible : Visibility.Hidden;
         }
     }
 }

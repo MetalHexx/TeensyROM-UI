@@ -254,7 +254,7 @@
                 Opacity="0"/>
             
             <Separator 
-                Visibility="{Binding ProgressEnabled, Converter={StaticResource InverseBoolToVisibilityConvertor}}"
+                x:Name="AdvancedSeparator"
                 Margin="0 -8 0 -8"
                 Style="{StaticResource MaterialDesignSeparator}" />
         </Grid>
