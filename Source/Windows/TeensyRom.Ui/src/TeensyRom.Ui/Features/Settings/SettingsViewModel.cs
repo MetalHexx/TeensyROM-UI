@@ -13,6 +13,7 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Core.Music.Midi;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Controls.FeatureTitle;
+using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Helpers.ViewModel;
 
@@ -28,13 +29,15 @@ namespace TeensyRom.Ui.Features.Settings
         public bool AutoFileCopyEnabled { get; set; } = false;
         public bool AutoLaunchOnCopyEnabled { get; set; } = true;
         public bool AutoConnectEnabled { get; set; } = true;
-        public TeensyFilterType StartupFilter { get; set; } = TeensyFilterType.All;
-        public bool StartupLaunchEnabled { get; set; } = true;
+        public TeensyFilterType StartupFilter { get; set; } = TeensyFilterType.All;        
         public bool PlayTimerEnabled { get; set; } = false;
         public bool NavToDirOnLaunch { get; set; } = true;
         public bool MuteFastForward { get; set; } = true;
         public bool MuteRandomSeek { get; set; } = true;
         public bool SyncFilesEnabled { get; set; } = false;
+        [Reactive] public bool StartupLaunchEnabled { get; set; } = true;
+        [Reactive] public List<string> StartupLaunchOptions { get; set; } = [Last_Played, Random];
+        [Reactive] public string SelectedStartupLaunchType { get; set; } = Random;
         [Reactive] public KnownCartViewModel LastCart { get; set; }
         [Reactive] public ObservableCollection<MidiDeviceViewModel> AvailableDevices { get; set; } = [];
         [Reactive] public bool MidiConfigEnabled { get; set; } = false;
@@ -59,6 +62,8 @@ namespace TeensyRom.Ui.Features.Settings
         private readonly IMidiService _midiService;
         private readonly IDisposable _logsSubscription;
         private readonly StringBuilder _logBuilder = new StringBuilder();
+        private const string Random = "Random";
+        private const string Last_Played = "Last Played";
 
         public SettingsViewModel(ISettingsService settings, IAlertService alert, ILoggingService logService, IMidiService midiService, INavigationService nav)
         {
@@ -103,12 +108,14 @@ namespace TeensyRom.Ui.Features.Settings
             AutoLaunchOnCopyEnabled = s.AutoLaunchOnCopyEnabled;
             AutoConnectEnabled = s.AutoConnectEnabled;
             StartupFilter = s.StartupFilter;
-            StartupLaunchEnabled = s.StartupLaunchEnabled;
+            StartupLaunchEnabled = s.StartupLaunchEnabled;            
             PlayTimerEnabled = s.PlayTimerEnabled;
             NavToDirOnLaunch = s.NavToDirOnLaunch;
             MuteFastForward = s.MuteFastForward;
             MuteRandomSeek = s.MuteRandomSeek;
             SyncFilesEnabled = s.SyncFilesEnabled;
+
+            SelectedStartupLaunchType = s.StartupLaunchRandom ? Random : Last_Played;
 
             if (s.LastCart is not null)
             {
@@ -140,7 +147,8 @@ namespace TeensyRom.Ui.Features.Settings
                 NavToDirOnLaunch = NavToDirOnLaunch,
                 MuteFastForward = MuteFastForward,
                 MuteRandomSeek = MuteRandomSeek,
-                SyncFilesEnabled = SyncFilesEnabled
+                SyncFilesEnabled = SyncFilesEnabled,
+                StartupLaunchRandom = SelectedStartupLaunchType == Random ? true : false
             };
 
 
