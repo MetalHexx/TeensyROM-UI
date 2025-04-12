@@ -27,7 +27,30 @@ namespace TeensyRom.Core.Commands
             {
                 var result = new GetDirectoryRecursiveResult();
                 StringBuilder sb = new();
-                GetDirectoryContent(r.Path, r.StorageType, result, sb);                
+
+                try
+                {
+                    GetDirectoryContent(r.Path, r.StorageType, result, sb);
+                }
+                catch (TimeoutException) 
+                {
+                    result.IsSuccess = false;
+                    result.Error = "There was a timeout when trying to fetch file data.  This can be caused when the storage device is not installed on the TeensyROM device.";
+                    return result;
+                }
+                var count = 0;
+
+                foreach (var directory in result.DirectoryContent)
+                {
+                    count += directory?.Files.Count ?? 0;
+                    count += directory?.Directories.Count ?? 0;
+                }
+
+                if (count == 0) 
+                {
+                    result.IsSuccess = false;
+                    result.Error = "No data was returned from the TR.";
+                }
                 return result;
             }, x);
         }
