@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using MaterialDesignThemes.Wpf;
+using ReactiveUI;
 using System;
 using System.Diagnostics;
 using System.Reactive.Linq;
@@ -117,7 +118,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private void AdvancedControlButton_Click(object sender, RoutedEventArgs? e)
         {
             double fromHeight = _isAdvancedVisible ? PopupContent.ActualHeight : 0;
-            double toHeight = _isAdvancedVisible ? 0 : 50; 
+            double toHeight = _isAdvancedVisible ? 0 : 50;
 
             var heightAnimation = new DoubleAnimation
             {
@@ -127,6 +128,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
             };
             PopupContent.BeginAnimation(FrameworkElement.HeightProperty, heightAnimation);
+
             _isAdvancedVisible = !_isAdvancedVisible;
         }
 

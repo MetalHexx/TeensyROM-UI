@@ -141,8 +141,13 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             var settingsObservable = _settingsService.Settings
                 .Where(settings => settings is not null)
-                .Do(settings => _settings = settings)                
-                .Where(s => s.FirstTimeSetup == false)
+                .Do(settings => _settings = settings);
+
+            settingsObservable
+                .Take(1)
+                .Subscribe(s => _currentFilter = _settings.GetStartupFilter());
+
+            var navAndStorageObservable = settingsObservable
                 .Where(s => s.LastCart is not null)
                 .CombineLatest(
                     _serial.CurrentState,
@@ -156,22 +161,23 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 .DistinctUntilChanged(settings => $"{settings.StorageType}|{settings.LastCart?.DeviceHash}");
                 
 
-            _settingsSubscription = settingsObservable                
+            _settingsSubscription = navAndStorageObservable
                 .Subscribe(async _ => 
                 {
                     _tree.ResetDirectoryTree(StorageConstants.Remote_Path_Root);
                     await LoadDirectory(StorageConstants.Remote_Path_Root);
                 });
 
-            var initializeObservable = settingsObservable
-                .Take(1)
-                .Do(settings => _currentFilter = _settings.GetStartupFilter());
+            var initializeObservable = navAndStorageObservable
+                .Where(s => s.FirstTimeSetup == false)
+                .Take(1);
+                
 
             initializeObservable
                 .Where(settings => settings.StartupLaunchEnabled)                
-                .Subscribe(async _ => await HandleStartupLaunch());
+                .Subscribe(async _ => await HandleStartupWithLaunch());
 
-            initializeObservable                
+            initializeObservable
                 .Where(s => s.StartupLaunchEnabled is false)                
                 .Subscribe(async s => await HandleStartupWithoutLaunch());
         }
@@ -188,15 +194,16 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             await LoadDirectory(StorageConstants.Remote_Path_Root);
         }
 
-        private async Task HandleStartupLaunch()
+        private async Task HandleStartupWithLaunch()
         {
-            if (_settings.LastCart!.LastFile is not null)
+            if (_settings.StartupLaunchRandom || _settings.LastCart!.LastFile is null) 
             {
-                await LoadDirectory(_settings.LastCart.LastFile.Path.GetUnixParentPath(), _settings.LastCart.LastFile.Path);
-                await PlayFile(_settings.LastCart.LastFile);
+                await PlayRandom();
                 return;
             }
-            var file = await PlayRandom();
+
+            await LoadDirectory(_settings.LastCart.LastFile.Path.GetUnixParentPath(), _settings.LastCart.LastFile.Path);
+            await PlayFile(_settings.LastCart.LastFile);
         }
 
         private async Task UpdateDirectoryTree(List<IFileItem> files)

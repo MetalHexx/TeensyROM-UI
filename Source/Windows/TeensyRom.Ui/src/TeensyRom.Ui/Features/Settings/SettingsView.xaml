@@ -80,6 +80,31 @@
                         </StackPanel>
                         
                         <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
+                            <TextBlock Text="Auto-Launch Type" Width="250" TextAlignment="Right" VerticalAlignment="Center">
+                                <TextBlock.ToolTip>
+                                    <ToolTip>
+                                        <TextBlock TextAlignment="Left" TextWrapping="Wrap">
+                                            <Run Text="The UI will automatically load either:"/>
+                                            <LineBreak/>
+                                            <Run Text="• A random file based on selected filter."/>
+                                            <LineBreak/>
+                                            <Run Text="• The last file you had playing."/>
+                                        </TextBlock>
+                                    </ToolTip>
+                                </TextBlock.ToolTip>
+                            </TextBlock>
+                            <ComboBox
+                                x:Name="StartupLaunchType"
+                                ItemsSource="{Binding StartupLaunchOptions}"
+                                SelectedItem="{Binding SelectedStartupLaunchType, Mode=TwoWay}"
+                                IsEnabled="{Binding StartupLaunchEnabled}"                    
+                                FontFamily="Arial"
+                                materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource PrimaryHueLightBrush}"
+                                ToolTip="The curve used for the speed control."
+                                Margin="10 0 10 0"/>
+                        </StackPanel>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
                             <TextBlock Text="Startup File Filter" Width="250" TextAlignment="Right" VerticalAlignment="Center"
                                        ToolTip="Select the default file filter to use when the app starts."/>
                             <ComboBox ItemsSource="{Binding FilterOptions}"

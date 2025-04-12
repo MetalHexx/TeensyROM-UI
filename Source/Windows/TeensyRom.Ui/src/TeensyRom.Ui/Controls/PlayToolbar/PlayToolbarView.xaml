@@ -91,7 +91,7 @@
                         Foreground="LightGray"
                         Opacity="0.3"
                         ToolTip="Controls the speed of the playing song."
-                        Margin="0 4 10 0"/>
+                        Margin="0 6 10 0"/>
 
                     <Slider Style="{StaticResource MaterialDesignSlider}"
                         x:Name="SetSpeedSlider"
@@ -106,7 +106,7 @@
                         LargeChange="1" 
                         Value="{Binding RawSpeedValue}"
                         Width="190"
-                        Margin="0 6 0 0"/>
+                        Margin="0 7 0 0"/>
 
                     <materialDesign:PackIcon 
                         Kind="Rabbit" 
@@ -114,7 +114,7 @@
                         Height="24" Width="24" 
                         Foreground="LightGray"
                         ToolTip="Controls the speed of the playing song."
-                        Margin="3 4 5 0"/>
+                        Margin="3 6 5 0"/>
 
                     <TextBlock Text="{Binding ActualSpeedPercent, StringFormat=F2}"
                         IsEnabled="{Binding SetSpeedEnabled}"
@@ -125,11 +125,24 @@
                     
                     <TextBlock VerticalAlignment="Center">%</TextBlock>
                     
-                    <StackPanel IsEnabled="{Binding IsSong}" Orientation="Horizontal" Margin="15 0 0 0">
+                     <Rectangle Width="1"
+                        Fill="Gray"
+                        VerticalAlignment="Stretch"                        
+                        Opacity="0.5"
+                        Margin="15 0 15 0"/>
+
+                    
+                    <StackPanel IsEnabled="{Binding IsSong}" Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding Voice1Enabled}" Foreground="{StaticResource PrimaryHueLightBrush}">Voice 1</CheckBox>
                         <CheckBox IsChecked="{Binding Voice2Enabled}" Margin="10 0 0 0" Foreground="{StaticResource PrimaryHueLightBrush}">Voice 2</CheckBox>
                         <CheckBox IsChecked="{Binding Voice3Enabled}" Margin="10 0 0 0" Foreground="{StaticResource PrimaryHueLightBrush}">Voice 3</CheckBox>                        
                     </StackPanel>
+                    
+                    <Rectangle Width="1"
+                        Fill="Gray"
+                        VerticalAlignment="Stretch"                        
+                        Opacity="0.5"
+                        Margin="15 0 15 0"/>
                     
                     <ComboBox
                         x:Name="SpeedCurveList"
@@ -141,7 +154,7 @@
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource PrimaryHueLightBrush}"
                         materialDesign:TextFieldAssist.PrefixText="Curve"
                         ToolTip="The curve used for the speed control."
-                        Margin="20 0 10 0"/>
+                        Margin="0 0 10 0"/>
                     
                     <ComboBox
                         x:Name="SeekSpeedList"
@@ -153,31 +166,36 @@
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource PrimaryHueLightBrush}"
                         materialDesign:TextFieldAssist.PrefixText="Seek"
                         ToolTip="The curve used for the speed control."
-                        Margin="10 0 10 0"/>
+                        Margin="10 0 0 0"/>
+                    
+                    <Rectangle Width="1"
+                        Fill="Gray"
+                        VerticalAlignment="Stretch"                        
+                        Opacity="0.5"
+                        Margin="15 0 15 0"/>
                     
                     <Button
                         Grid.Column="1"
-                        Visibility="{Binding IsSong, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        IsEnabled="{Binding IsSong}"
                         Command="{Binding SendSongCommand}"                      
                         ToolTip="Launch song on another TeensyROM UI instance."
                         Style="{StaticResource StorageIconButton}"
-                        Margin="5 2 0 0">
+                        Margin="-5 2 0 0">
                         <materialDesign:PackIcon Kind="SendCircleOutline"/>
                     </Button>
                     
                     <Button
                         Grid.Column="1"
-                        Visibility="{Binding IsSong, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        IsEnabled="{Binding IsSong}"
                         Command="{Binding SaveSongSettingsCommand}"                      
                         ToolTip="Save current song speed settings"
                         Style="{StaticResource StorageIconButton}"
                         Margin="10 2 0 0">
                         <materialDesign:PackIcon Kind="FloppyDiscCogOutline"/>
                     </Button>
-                   
                 </StackPanel>
 
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0 0 10 0">
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="0 13 10 0">
                     
                     <ComboBox
                         x:Name="TimerComboBox"
@@ -200,8 +218,6 @@
                         Foreground="{StaticResource EnabledColor}"
                         materialDesign:TextFieldAssist.UnderlineBrush="{StaticResource EnabledColor}"
                         materialDesign:TextFieldAssist.PrefixText="Shuffle Scope:"
-                        materialDesign:HintAssist.HelperText="{Binding StorageScopePath}"
-                        materialDesign:HintAssist.HelperTextFontSize="12"
                         ToolTip="Shuffle mode will randomly select files at varying depths:&#x0a;• Selected Storage: Files across your entire selected storage device.&#x0a;• Directory (Shallow): Files in the pinned directory only.&#x0a;• Directory (Deep): Files in the pinned directory and deeply nested in directories below it."
                         Margin="20 0 0 0"/>
 
