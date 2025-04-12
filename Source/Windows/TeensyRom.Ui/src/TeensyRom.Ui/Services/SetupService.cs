@@ -66,12 +66,6 @@ namespace TeensyRom.Ui.Services
 
             if (!_settings.FirstTimeSetup) return;
 
-            if (connected) 
-            {
-                _alert.Publish("Disconnecting from TR to run first time setup wizard.");
-                _serial.ClosePort();
-            }
-
             var currentView = await _navigation.SelectedNavigationView.FirstOrDefaultAsync();
 
             if (currentView.Type is not NavigationLocation.Terminal)
@@ -85,8 +79,29 @@ namespace TeensyRom.Ui.Services
             {
                 await Complete();
                 return;
-            }            
-            await OnConnectable();
+            }
+            result = await _dialog.ShowConfirmation("Terminal View", "On this screen, you will find a few utility features that might come in handy.\r\r•  Ping: This is useful for troubleshooting connectivity. \r•  Reset: Will reset the C64. \r•  Logs: Useful for troubleshooting or debugging. \r•  CLI: Will send serial commands to the TR");
+
+            if (!result)
+            {
+                await Complete();
+                return;
+            }
+            if (connected)
+            {
+                result = await _dialog.ShowConfirmation("Connection", "I see you're already connected, so we'll head straight over to the settings view to get things configured.");
+
+                if (!result)
+                {
+                    await Complete();
+                    return;
+                }
+                await OnSettings();
+            }
+            else 
+            {
+                await OnConnectable();
+            }
         }
 
         public async Task OnConnectable()
@@ -106,13 +121,13 @@ namespace TeensyRom.Ui.Services
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(async _ =>
                 {
-                    var result = await _dialog.ShowConfirmation("Connect to the TR", "Click on the Connect button.  If things go ok, we'll continue to the next step. \r\rNote, your TR will reset once you connect.  This is normal.");
+                    var result = await _dialog.ShowConfirmation("Connect to the TR", "Click on the Connect button.  If things go ok, we'll continue to the next step.");
 
                     if (!result)
                     {
                         await Complete();
                         return;
-                    }
+                    }                    
                     OnConnected();
                 });
         }
@@ -131,13 +146,6 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Connection View", "On this screen, you will find a few utility features that might come in handy.\r\r•  Ping: This is useful for troubleshooting connectivity. \r•  Reset: Will reset the C64. \r•  Logs: Useful for troubleshooting or debugging. \r•  CLI: Will send serial commands to the TR");
-
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
                     result = await _dialog.ShowConfirmation("Settings", "Let's head over to the settings view and get your preferences configured.");
 
                     if (!result)
@@ -146,26 +154,38 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
-                    _navigation.NavigateTo(NavigationLocation.Settings);
-
-                    result = await _dialog.ShowConfirmation("Settings", "There are various settings here to customize the application behavior to your preferences.  \r\rMouse over the different settings to see a tooltip for what they do.\r\r Note: Help tooltips are present on most controls in the app. ");
-
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
-
-                    result = await _dialog.ShowConfirmation("Save Your Settings", "Once you're done configuring your settings, click the \"Save Settings\" button and we'll go to the next step.");
-
-                    if (!result)
-                    {
-                        await Complete();
-                        return;
-                    }
-
-                    OnSettingsSaved();
+                    await OnSettings();
                 });
+        }
+
+        private async Task OnSettings()
+        {
+            _navigation.NavigateTo(NavigationLocation.Settings);
+
+            var result = await _dialog.ShowConfirmation("Settings", "There are various settings here to customize the application behavior to your preferences.  \r\rMouse over the different settings to see a tooltip for what they do.\r\r Note: Help tooltips are present on most controls in the app. ");
+
+            if (!result)
+            {
+                await Complete();
+                return;
+            }
+            result = await _dialog.ShowConfirmation("MIDI Settings", "You'll see there is also a MIDI tab.  If you have interest in DJing or alternate control methods, there are a lot of options available.");
+
+            if (!result)
+            {
+                await Complete();
+                return;
+            }
+
+            result = await _dialog.ShowConfirmation("Save Your Settings", "Once you're done configuring your settings, click the \"Save Settings\" button and we'll go to the next step.");
+
+            if (!result)
+            {
+                await Complete();
+                return;
+            }
+
+            OnSettingsSaved();
         }
 
         public void OnSettingsSaved()
@@ -184,7 +204,7 @@ namespace TeensyRom.Ui.Services
                     return;
                 }
 
-                result = await _dialog.ShowConfirmation("Copy Some Files!", $"Copy some files to your SD or USB storage now before we start the indexing process.  \r\rTotally optional, but strongly recommended, consider copying HVSC and OneLoad64 onto your {_settings.StorageType} storage. You can always do this later if you want.\r\rFor information on the HVSC or OneLoad64, go to the help screen.\r\rClicking \"Ok\" will start the indexing process.");
+                result = await _dialog.ShowConfirmation("Copy Some Files!", $"Copy some files to your SD or USB storage now before we start the indexing process.  \r\rTotally optional, but strongly recommended, consider copying HVSC and OneLoad64 onto your {_settings.StorageType} storage. You can always do this later if you want.\r\rFor information on the HVSC or OneLoad64, go to the help screen later.\r\rClicking \"Ok\" will start the indexing process.");
 
                 if (!result)
                 {
@@ -202,7 +222,7 @@ namespace TeensyRom.Ui.Services
             
             _navigation.NavigateTo(NavigationLocation.Terminal);
 
-            _dialog.ShowNoClose("Indexing SD Storage", "This may a few minutes.  Don't touch your commodore while indexing is in progress.");
+            _dialog.ShowNoClose("Indexing SD Storage", "This may take a few minutes.  Don't touch your commodore while indexing is in progress!");
 
             _settings.StorageType = TeensyStorageType.SD;
             _settingsService.SaveSettings(_settings);
@@ -219,14 +239,31 @@ namespace TeensyRom.Ui.Services
             _dialog.ShowNoClose("Indexing USB Storage", "This may take a few minutes.  Don't touch your commodore while indexing is in progress.");
             _settings.StorageType = TeensyStorageType.USB;
             _settingsService.SaveSettings(_settings);
-            await Task.Delay(1000);
+            await Task.Delay(3000);
             await _storage.CacheAll(StorageConstants.Remote_Path_Root);
             _usbCount = _storage.GetCacheSize();
 
-            _settings.StorageType = _sdCount > _usbCount ? TeensyStorageType.SD : TeensyStorageType.USB;
+            _settings.StorageType = _usbCount > _sdCount ? TeensyStorageType.USB : TeensyStorageType.SD;
             _settingsService.SaveSettings(_settings);
 
+            if (_usbCount == 0 && _sdCount == 0) 
+            {
+                _dialog.HideNoClose();
+                await _dialog.ShowConfirmation("File Indexing Completed", $"I noticed nothing was indexed.  \r\r• Do you have TR storage installed?  \r\r• Check your TR storage and make sure it's working ok.\r\r• Restart the tutorial once you have storage sorted out.");
+                return;
+            }
             _dialog.HideNoClose();
+
+            if (_usbCount == 0 || _sdCount == 0) 
+            {
+                var possibleErrorResult = await _dialog.ShowConfirmation("File Indexing Completed", $"Note: It's possible you saw an error.  This is expected if you either have SD or USB but not both connected to your TeensyROM device.");
+
+                if (!possibleErrorResult)
+                {
+                    await Complete();
+                    return;
+                }
+            }
 
             var result = await _dialog.ShowConfirmation("File Indexing Completed", $"Now that your file information has been indexed, lets head over to the Discover view and do some exploring.");
 
@@ -235,15 +272,12 @@ namespace TeensyRom.Ui.Services
                 await Complete();
                 return;
             }
-
             await OnDiscover();
         }
 
         public async Task OnDiscover() 
         {
             _navigation.NavigateTo(NavigationLocation.Discover);
-
-            _discoverView.StorageSelector.SelectedStorage = TeensyStorageType.SD;
 
             var result = await _dialog.ShowConfirmation("Discovery View", $"In the \"Discover\" view, you can launch music, games, images or text files.\r\r You can also easily install TeensyROM Firmware (hex file) updates from here.");
 
@@ -261,7 +295,7 @@ namespace TeensyRom.Ui.Services
                 return;
             }
 
-            result = await _dialog.ShowConfirmation("Re-indexing Storage", $"If you make changes to your selected storage outside of this application, you can re-index it clicking on the down arrow button next to the storage dropdown.");
+            result = await _dialog.ShowConfirmation("Re-indexing Storage", $"If you make changes to your selected storage outside of this application, you can re-index it by clicking on the down arrow button next to the storage dropdown.");
 
             if (!result)
             {
@@ -357,7 +391,14 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Shuffle Mode", "Currently we're in \"Shuffle Mode\". This is indicated by the blue crossed arrows on the right side of the player.  \r\rClicking \"Next\" will launch a random file based on the filter you have selected.");
+                    result = await _dialog.ShowConfirmation("Shuffle Mode", "Currently we're in \"Shuffle Mode\". This is indicated by the blue crossed arrows on the right side of the player.  \r\rVarious functions will launch a random file in this mode.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+                    result = await _dialog.ShowConfirmation("Shuffle Mode", "For example, clicking \"Next\" to launch the next random file.  The filter will determine the type of file that is launched.");
 
                     if (!result)
                     {
@@ -418,14 +459,49 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Tag Your Favorites!", $"Whenever you see a \"Heart\" button throughout the application, when you click it, the file will be saved to the /favorites folder on your TeensyROM storage device.");
+                    result = await _dialog.ShowConfirmation("Play Timer", $"There are a lot of interesting uses for this.\r\r• Create a screensaver with images.\r\r• Continuously stream demos\r\r• Demo Booth at a convention");
 
                     if (!result)
                     {
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Search", $"In the upper right, you can search for files.\r\r Tip: Make sure you index your storage to get the most out of search.");
+                    result = await _dialog.ShowConfirmation("Advanced Mode", $"Try clicking the gear icon to reveal some advanced features:\r\r• SID Speed Control\r\r• Voice Muting\r\r• Additional timer and launch options.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+                    result = await _dialog.ShowConfirmation("Seek / Scrub", $"When playing SIDs, you can slide the progress bar to seek to track. Forward OR Reverse!  \r\rTry \"Insane\" mode for some fun. ;)");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+                    result = await _dialog.ShowConfirmation("SID DJing", $"All these options combined with a MIDI controller make this a capable SID DJ tool!  Check out the demos in the help section.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+                    result = await _dialog.ShowConfirmation("Tag Your Favorites!", $"Whenever you see a \"Heart\" button throughout the application, when you click it, the file will be saved to the /favorites folder to TeensyROM storage device.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+                    result = await _dialog.ShowConfirmation("Playlists", $"There a \"List w/plus\" button next to the heart.  Click this to add items to custom playlists.  \r\rThese will be saved to TeensyROM storage under the /playlists folder.");
+
+                    if (!result)
+                    {
+                        await Complete();
+                        return;
+                    }
+                    result = await _dialog.ShowConfirmation("Search", $"In the upper right, you can search for files.\r\r Tip: Make sure you index your storage to get the most out of search and randomization features.");
 
                     if (!result)
                     {
@@ -447,7 +523,7 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
-                    result = await _dialog.ShowConfirmation("Search Filtering", $"Note: filters will not trigger a file launch when viewing search results.  Instead, search results will be filtered by the selected filter type.");
+                    result = await _dialog.ShowConfirmation("Search Filtering", $"Special Note: \r\rFilters will not trigger a file launch when viewing search results.  Instead, search results will be filtered by the selected filter type.");
 
                     if (!result)
                     {
@@ -455,7 +531,7 @@ namespace TeensyRom.Ui.Services
                         return;
                     }
 
-                    result = await _dialog.ShowConfirmation("", $"I hope these tools help you have fun finding some great content!  \r\rThere are other features you can learn about in the docs or tooltips throughout the app.  \r\rLet's head over to the \"Help\" section now.");
+                    result = await _dialog.ShowConfirmation("", $"I hope enjoy the UI and find some creative ways to use it! :)  \r\rThere are other features you can learn about in the docs or tooltips throughout the app.  \r\rLet's head over to the \"Help\" section now.");
 
                     await Complete();
                 });
@@ -469,7 +545,7 @@ namespace TeensyRom.Ui.Services
 
             _navigation.NavigateTo(NavigationLocation.Help);
 
-            return _dialog.ShowConfirmation("Setup Wizard Complete", "The help section is a great place to find out more about the project.\r\rVisit the GitHub project page for more detailed documentation on the application features or troubleshooting tips.\r\rIf you'd like to re-run this tutorial, you can do so from here.\r\rEnjoy! ;)");
+            return _dialog.ShowConfirmation("Setup Wizard Complete", "The help section is a great place to find out more about the project.  \r\rBe sure to check out the Demo/Tutorial videos for more help!\r\rVisit the GitHub project page for more detailed documentation on the application features or troubleshooting tips.\r\rIf you'd like to re-run this tutorial, you can do so from here.\r\rEnjoy! ;)");
         }
     }
 }
