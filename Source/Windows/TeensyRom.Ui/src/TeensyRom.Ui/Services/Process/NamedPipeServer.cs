@@ -5,6 +5,7 @@ using System.Threading;
 using System;
 using TeensyRom.Core.Logging;
 using System.Text.Json;
+using System.Text;
 
 namespace TeensyRom.Ui.Services.Process
 {
@@ -26,11 +27,26 @@ namespace TeensyRom.Ui.Services.Process
                     using var server = new NamedPipeServerStream(pipeName, PipeDirection.In, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
                     await server.WaitForConnectionAsync(ct);
 
-                    using var reader = new StreamReader(server);
+                    var buffer = new byte[4096];
+
                     while (server.IsConnected && !ct.IsCancellationRequested)
                     {
-                        var raw = await reader.ReadLineAsync(ct);
-                        if (raw is null) break;
+                        var messageBuilder = new StringBuilder();
+
+                        do
+                        {
+                            var bytesRead = await server.ReadAsync(buffer, 0, buffer.Length, ct);
+                            if (bytesRead == 0)
+                                break;
+
+                            var chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                            messageBuilder.Append(chunk);
+
+                        } while (!server.IsMessageComplete);
+
+                        var raw = messageBuilder.ToString();
+                        if (string.IsNullOrWhiteSpace(raw))
+                            continue;
 
                         var type = GetMessageType(raw);
                         await onMessage(type, raw);

@@ -1,9 +1,9 @@
 ﻿using System.IO.Pipes;
-using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
 using TeensyRom.Core.Logging;
+using System.Text;
 
 namespace TeensyRom.Ui.Services.Process
 {
@@ -27,8 +27,10 @@ namespace TeensyRom.Ui.Services.Process
                 using var client = new NamedPipeClientStream(".", pipeName, PipeDirection.Out);
                 await client.ConnectAsync(500, ct);
 
-                using var writer = new StreamWriter(client) { AutoFlush = true };
-                await writer.WriteLineAsync(message);
+                var bytes = Encoding.UTF8.GetBytes(message);
+                await client.WriteAsync(bytes, 0, bytes.Length, ct);
+                await client.FlushAsync();
+
                 return true;
             }
             catch (Exception ex)
