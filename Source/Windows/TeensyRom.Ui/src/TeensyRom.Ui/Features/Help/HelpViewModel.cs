@@ -23,6 +23,9 @@ namespace TeensyRom.Ui.Features.Help
         public ReactiveCommand<Unit, Unit> NavigateToDeepSidCommand { get; }
         public ReactiveCommand<Unit, Unit> StartTutorialCommand { get; }
         public ReactiveCommand<Unit, Unit> StartDemoCommand { get; }
+        public ReactiveCommand<Unit, Unit> NavigateToCliGithubCommand { get; }
+
+        
 
 
         public HelpViewModel(ISetupService setupService) 
@@ -32,6 +35,10 @@ namespace TeensyRom.Ui.Features.Help
             NavigateToUiGithubCommand = ReactiveCommand.Create(() => 
             {
                 OpenBrowser("https://github.com/MetalHexx/TeensyROM-UI");
+            });
+            NavigateToCliGithubCommand = ReactiveCommand.Create(() =>
+            {
+                OpenBrowser("https://github.com/MetalHexx/TeensyROM-CLI");
             });
             NavigateToTrGithubCommand = ReactiveCommand.Create(() => 
             {
@@ -74,7 +81,6 @@ namespace TeensyRom.Ui.Features.Help
             {
                 OpenBrowser("https://www.youtube.com/playlist?list=PLEfbVPgE4gQKmuOmCOBz_qRZOzlppLdyz");
             });
-
         }
 
         private void OpenBrowser(string url)

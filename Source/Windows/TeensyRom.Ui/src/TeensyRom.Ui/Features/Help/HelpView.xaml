@@ -20,12 +20,19 @@
 
             <StackPanel Grid.Row="1" Grid.Column="0" Margin="0 10 0 0">
 
-                <TextBlock FontSize="20" Text="Help and Project Resources" HorizontalAlignment="Center" Margin="10"/>
+                <TextBlock FontSize="20" Text="Project Resources" HorizontalAlignment="Center" Margin="10"/>
 
                 <controls:DetailButton 
                     ClickCommand="{Binding NavigateToUiGithubCommand}"
                     Title="Desktop UI Project"
                     Subtitle="Code, new releases and help documentation can be found at the UI GitHub repository."
+                    Icon="Github"
+                    Margin="0 0 0 20"/>
+                
+                <controls:DetailButton 
+                    ClickCommand="{Binding NavigateToCliGithubCommand}"
+                    Title="Cross-Platform CLI Project"
+                    Subtitle="Check out the CLI application for use on Mac, Linux or Windows.  It has many of the features found in the UI, but with a dope BBS style interface."
                     Icon="Github"
                     Margin="0 0 0 20"/>
 
