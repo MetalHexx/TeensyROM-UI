@@ -42,37 +42,37 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                 MessageBus.Current.Listen<MidiEvent>(MessageBusConstants.MidiCommandsReceived)
                     .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(_ => TriggerAdvancedMenu());
+                    .Subscribe(_ => OpenAdvancedMenu());
 
                 MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidVoiceMuteKeyPressed)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Where(_ => _vm.AdvancedEnabled is false)
-                    .Subscribe(_ => TriggerAdvancedMenu());
+                    .Subscribe(_ => OpenAdvancedMenu());
 
                 MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedIncreaseKeyPressed)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Where(_ => _vm.AdvancedEnabled is false)
-                    .Subscribe(_ => TriggerAdvancedMenu());
+                    .Subscribe(_ => OpenAdvancedMenu());
 
                 MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedDecreaseKeyPressed)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Where(_ => _vm.AdvancedEnabled is false)
-                    .Subscribe(_ => TriggerAdvancedMenu());
+                    .Subscribe(_ => OpenAdvancedMenu());
 
                 MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedIncrease50KeyPressed)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Where(_ => _vm.AdvancedEnabled is false)
-                    .Subscribe(_ => TriggerAdvancedMenu());
+                    .Subscribe(_ => OpenAdvancedMenu());
 
                 MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDecrease50KeyPressed)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Where(_ => _vm.AdvancedEnabled is false)
-                    .Subscribe(_ => TriggerAdvancedMenu());
+                    .Subscribe(_ => OpenAdvancedMenu());
 
                 MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedHomeKeyPressed)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Where(_ => _vm.AdvancedEnabled is false)
-                    .Subscribe(_ => TriggerAdvancedMenu());
+                    .Subscribe(_ => OpenAdvancedMenu());
             }
         }
 
@@ -105,11 +105,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             }
         }
 
-        private void TriggerAdvancedMenu()
+        private void OpenAdvancedMenu()
         {
-            if (!_vm.AdvancedEnabled)
+            if (!_vm.AdvancedEnabled) 
             {
-                AdvancedControlButton_Click(this, null);                
+                AdvancedControlButton_Click(this, null);
             }            
         }
 
