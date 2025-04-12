@@ -162,7 +162,7 @@ namespace TeensyRom.Ui.Services
         {
             _navigation.NavigateTo(NavigationLocation.Settings);
 
-            var result = await _dialog.ShowConfirmation("Settings", "There are various settings here to customize the application behavior to your preferences.  \r\rMouse over the different settings to see a tooltip for what they do.\r\r Note: Help tooltips are present on most controls in the app. ");
+            var result = await _dialog.ShowConfirmation("Settings", "There are various settings here to customize the application behavior to your preferences.  \r\rMouse over the different settings to see a tooltip for what they do.\r\rNote: Help tooltips are present on most controls in the app. ");
 
             if (!result)
             {
@@ -279,7 +279,7 @@ namespace TeensyRom.Ui.Services
         {
             _navigation.NavigateTo(NavigationLocation.Discover);
 
-            var result = await _dialog.ShowConfirmation("Discovery View", $"In the \"Discover\" view, you can launch music, games, images or text files.\r\r You can also easily install TeensyROM Firmware (hex file) updates from here.");
+            var result = await _dialog.ShowConfirmation("Discovery View", $"In the \"Discover\" view, you can launch music, games, images or text files.\r\rYou can also easily install TeensyROM Firmware (hex file) updates from here.");
 
             if (!result)
             {
@@ -295,7 +295,7 @@ namespace TeensyRom.Ui.Services
                 return;
             }
 
-            result = await _dialog.ShowConfirmation("Re-indexing Storage", $"If you make changes to your selected storage outside of this application, you can re-index it by clicking on the down arrow button next to the storage dropdown.");
+            result = await _dialog.ShowConfirmation("Re-indexing Storage", $"If you make changes to your selected storage outside of this application, you can re-index by clicking on the down arrow button next to the storage dropdown.");
 
             if (!result)
             {
@@ -459,7 +459,7 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Play Timer", $"There are a lot of interesting uses for this.\r\r• Create a screensaver with images.\r\r• Continuously stream demos\r\r• Demo Booth at a convention");
+                    result = await _dialog.ShowConfirmation("Play Timer", $"There are a lot of interesting uses for this:\r\r• Create a screensaver with images.\r\r• Continuously stream demos\r\r• Demo Booth at a convention");
 
                     if (!result)
                     {
@@ -494,28 +494,28 @@ namespace TeensyRom.Ui.Services
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Playlists", $"There a \"List w/plus\" button next to the heart.  Click this to add items to custom playlists.  \r\rThese will be saved to TeensyROM storage under the /playlists folder.");
+                    result = await _dialog.ShowConfirmation("Playlists", $"You can create playlists with the \"List\" button next to the heart on the play toolbar.  Click this to add items to custom playlists.  \r\rThese will be saved to TeensyROM storage under the /playlists folder.");
 
                     if (!result)
                     {
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Search", $"In the upper right, you can search for files.\r\r Tip: Make sure you index your storage to get the most out of search and randomization features.");
+                    result = await _dialog.ShowConfirmation("Search", $"In the upper right, you can search for files.\r\rTip: Make sure you index your storage to get the most out of search and randomization features.");
 
                     if (!result)
                     {
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Search Phrases", $"You can search for specific phrases by grouping keywords together in double quotes.\r\r Ex: \"Iron Maiden\" Aces High");
+                    result = await _dialog.ShowConfirmation("Search Phrases", $"You can search for specific phrases by grouping keywords together in double quotes.\r\rEx: \"Iron Maiden\" Aces High");
 
                     if (!result)
                     {
                         await Complete();
                         return;
                     }
-                    result = await _dialog.ShowConfirmation("Search Required Terms", $"If a search result MUST have a specific keyword or phrase, you can place a + in front of it\r\r Ex: +\"Iron Maiden\" Aces +High.");
+                    result = await _dialog.ShowConfirmation("Search Required Terms", $"If a search result MUST have a specific keyword or phrase, you can place a + in front of it\r\rEx: +\"Iron Maiden\" Aces +High.");
 
                     if (!result)
                     {
