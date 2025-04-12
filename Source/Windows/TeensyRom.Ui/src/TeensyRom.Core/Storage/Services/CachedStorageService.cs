@@ -237,10 +237,13 @@ namespace TeensyRom.Core.Storage.Services
 
         public IEnumerable<ILaunchableItem> Search(string searchText, params TeensyFileType[] fileTypes)
         {
+            var excludePaths = _settings.GetFavoritePaths();
+            excludePaths.Add(StorageConstants.Playlist_Path);
+
             return _storageCache.Search
             (
-                searchText, 
-                _settings.GetFavoritePaths(), 
+                searchText,
+                excludePaths, 
                 _settings.SearchStopWords, 
                 _settings.SearchWeights, 
                 fileTypes

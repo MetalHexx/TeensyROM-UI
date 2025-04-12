@@ -192,12 +192,12 @@ namespace TeensyRom.Core.Storage.Services
             parentDir.DeleteFile(path);
         }
 
-        private Func<KeyValuePair<string, StorageCacheItem>, bool> NotFavoriteFilter(List<string> favPaths) =>
-            kvp => !favPaths
+        private Func<KeyValuePair<string, StorageCacheItem>, bool> FileExcludeFilter(List<string> excludePaths) =>
+            kvp => !excludePaths
                 .Select(p => p.RemoveLeadingAndTrailingSlash())
-                .Any(favPath => kvp.Key.Contains(favPath));
+                .Any(excludePath => kvp.Key.Contains(excludePath));
 
-        public IEnumerable<ILaunchableItem> Search(string searchText, List<string> favPaths, List<string> stopSearchWords, SearchWeights searchWeights, params TeensyFileType[] fileTypes)
+        public IEnumerable<ILaunchableItem> Search(string searchText, List<string> excludePaths, List<string> stopSearchWords, SearchWeights searchWeights, params TeensyFileType[] fileTypes)
         {
             var quotedMatches = Regex
                 .Matches(searchText, @"(\+?""([^""]+)"")|\+?\S+")
@@ -233,7 +233,7 @@ namespace TeensyRom.Core.Storage.Services
             searchTerms = searchTerms.Select(term => term.TrimStart('+')).ToList();
 
             return this
-                .Where(NotFavoriteFilter(favPaths))
+                .Where(FileExcludeFilter(excludePaths))
                 .SelectMany(c => c.Value.Files)
                 .OfType<ILaunchableItem>()
                 .Where(f => fileTypes.Contains(f.FileType) &&
@@ -300,7 +300,7 @@ namespace TeensyRom.Core.Storage.Services
             favsToFavorite.ForEach(fav => fav.IsFavorite = true);
 
             this
-                .Where(NotFavoriteFilter(favPaths))
+                .Where(FileExcludeFilter(favPaths))
                 .SelectMany(c => c.Value.Files)
                 .Where(f => favsToFavorite.Any(fav => fav.Id == f.Id))
                 .ToList()
