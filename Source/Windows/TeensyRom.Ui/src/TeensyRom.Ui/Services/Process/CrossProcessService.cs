@@ -146,7 +146,8 @@ namespace TeensyRom.Ui.Services.Process
 
             if (message is null) return;
 
-            _log.InternalSuccess($"Laumch File Request: {message.Value.Name}");
+            _log.InternalSuccess($"Sync Service: Received Launch File Request: {message.Value.Name}");
+
             _launchFile.LaunchFile(message.Value);
         }
 
@@ -156,7 +157,7 @@ namespace TeensyRom.Ui.Services.Process
 
             if (message is null) return;
 
-            _log.InternalSuccess($"Sync File Request: {message.Value.Name}");
+            _log.InternalSuccess($"Sync Service: Received Upsert File Request: {message.Value.Name}");
             _upsertFile.UpsertFile(message.Value);
         }
 
@@ -166,7 +167,7 @@ namespace TeensyRom.Ui.Services.Process
 
             if (message?.Value is { Count: > 0 })
             {
-                _log.InternalSuccess($"Sync Playlist Request: {message.Value.First().SourceItem.Name}");
+                _log.InternalSuccess($"Sync Service: Received Copy File Request: {message.Value.First().SourceItem.Name}");
                 await _copyFile.CopyFiles(message.Value);
             }
         }
@@ -176,7 +177,7 @@ namespace TeensyRom.Ui.Services.Process
             var message = LaunchableItemSerializer.Deserialize<ProcessCommand<ILaunchableItem>>(raw);
             if (message?.Value != null)
             {
-                _log.InternalSuccess($"Sync Favorite Received: {message.Value.Name}");
+                _log.InternalSuccess($"Sync Service: Received Favorite Request: {message.Value.Name}");
                 await _favFile.SaveFavorite(message.Value);
             }
         }
@@ -187,7 +188,7 @@ namespace TeensyRom.Ui.Services.Process
 
             if (message?.Value != null)
             {
-                _log.InternalSuccess($"Sync Remove Favorite Received: {message.Value.Name}");
+                _log.InternalSuccess($"Sync Service: Received Removed Favorite Request: {message.Value.Name}");
                 await _favFile.RemoveFavorite(message.Value);
             }
         }
