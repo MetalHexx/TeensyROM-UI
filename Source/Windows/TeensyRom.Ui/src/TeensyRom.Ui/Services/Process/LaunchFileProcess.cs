@@ -1,4 +1,5 @@
-﻿using TeensyRom.Core.Storage.Entities;
+﻿using TeensyRom.Core.Common;
+using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Features.Discover.State.Player;
 
 namespace TeensyRom.Ui.Services.Process
@@ -9,6 +10,10 @@ namespace TeensyRom.Ui.Services.Process
     }
     public class LaunchFileProcess(IPlayerContext player) : ILaunchFileProcess
     {
-        public void LaunchFile(ILaunchableItem file) => player.PlayFile(file);
+        public void LaunchFile(ILaunchableItem file) 
+        {
+            player.PlayFile(file);
+            player.LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
+        }
     }
 }
