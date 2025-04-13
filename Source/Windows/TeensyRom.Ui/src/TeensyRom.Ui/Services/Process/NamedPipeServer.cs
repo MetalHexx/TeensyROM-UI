@@ -13,8 +13,10 @@ namespace TeensyRom.Ui.Services.Process
     {
         Task ListenAsync(string pipeName, Func<ProcessCommandType, string, Task> onMessage, CancellationToken ct);
     }
+
     public class NamedPipeServer(ILoggingService log) : INamedPipeServer
     {
+        private NamedPipeServerStream? _previousServer;
 
         public async Task ListenAsync(string pipeName, Func<ProcessCommandType, string, Task> onMessage, CancellationToken ct)
         {
@@ -23,8 +25,12 @@ namespace TeensyRom.Ui.Services.Process
             while (!ct.IsCancellationRequested)
             {
                 try
-                {
+                {                    
+                    _previousServer?.Dispose();
+
                     using var server = new NamedPipeServerStream(pipeName, PipeDirection.In, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
+                    _previousServer = server;
+
                     await server.WaitForConnectionAsync(ct);
 
                     var buffer = new byte[4096];
@@ -58,6 +64,8 @@ namespace TeensyRom.Ui.Services.Process
                     await Task.Delay(1000, ct);
                 }
             }
+
+            _previousServer?.Dispose();
         }
 
         private static ProcessCommandType GetMessageType(string raw)
