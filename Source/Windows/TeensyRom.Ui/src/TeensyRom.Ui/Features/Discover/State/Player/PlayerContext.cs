@@ -212,34 +212,45 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 .Select(f => f.Path.GetUnixParentPath().RemoveLeadingAndTrailingSlash())
                 .Distinct();
 
+            if (Application.Current?.Dispatcher is null) 
+            {
+                await UpdateDirectoryTree(uniquePaths);
+                return;
+            }
+
             await Application.Current.Dispatcher.Invoke(async () =>
             {
-                foreach (var path in uniquePaths)
+                await UpdateDirectoryTree(uniquePaths);
+            });
+        }
+
+        private async Task UpdateDirectoryTree(IEnumerable<string> uniquePaths)
+        {
+            foreach (var path in uniquePaths)
+            {
+                List<string> directoryParts = ["/"];
+
+                directoryParts.AddRange(path.ToPathArray());
+
+                var currentDir = string.Empty;
+
+                List<DirectoryItem> dirsToAdd = [];
+
+                foreach (var directory in directoryParts.Take(2))
                 {
-                    List<string> directoryParts = ["/"];
+                    currentDir = currentDir.UnixPathCombine(directory);
+                    var cacheItem = await _storage.GetDirectory(currentDir);
 
-                    directoryParts.AddRange(path.ToPathArray());
-
-                    var currentDir = string.Empty;
-
-                    List<DirectoryItem> dirsToAdd = [];
-
-                    foreach (var directory in directoryParts.Take(2))
+                    if (cacheItem is not null)
                     {
-                        currentDir = currentDir.UnixPathCombine(directory);
-                        var cacheItem = await _storage.GetDirectory(currentDir);
-
-                        if (cacheItem is not null)
-                        {
-                            _tree.Insert(cacheItem.Directories);
-                        }
+                        _tree.Insert(cacheItem.Directories);
                     }
                 }
-                if (_currentState.Value is not SearchState) 
-                {
-                    await LoadDirectory(_directoryState.Value.CurrentPath);
-                }
-            });
+            }
+            if (_currentState.Value is not SearchState)
+            {
+                await LoadDirectory(_directoryState.Value.CurrentPath);
+            }
         }
 
         public bool TryTransitionTo(Type nextStateType)
@@ -371,11 +382,11 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             if (file is null) return;
 
-            if (!file.IsCompatible)
-            {
-                await HandleBadFile(file);
-                return;
-            }
+            //if (!file.IsCompatible)
+            //{
+            //    await HandleBadFile(file);
+            //    return;
+            //}
             if (await IsBusy()) return;
             SaveLastPlayedFile(file);
             LaunchFileAsync(file);
