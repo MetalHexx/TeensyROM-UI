@@ -1,5 +1,7 @@
 ﻿using ReactiveUI;
 using System;
+using System.Collections.Generic;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,12 +22,14 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private Binding? _progressSliderBinding;
         private bool _progressMouseDowned = false;
         private PlayToolbarViewModel _vm;
+        private List<IDisposable> _subscriptions = [];
 
         public PlayToolbarView()
         {
             InitializeComponent();
-            Loaded += PlayToolbarView_Loaded;
+            Loaded += PlayToolbarView_Loaded;            
             DataContextChanged += OnDataContextChanged;
+            Unloaded += (s, e) => Dispose();
         }
 
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -34,45 +38,72 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             {
                 _vm = vm;
 
-                _vm.WhenAnyValue(x => x.IsSong)
-                    .Subscribe(_ => ToggleAdvancedSeparator());
+                _subscriptions.Add
+                (
+                    _vm.WhenAnyValue(x => x.IsSong)
+                    .Subscribe(_ => ToggleAdvancedSeparator())
+                );
 
-                _vm.WhenAnyValue(x => x.ProgressEnabled)
-                    .Subscribe(_ => ToggleAdvancedSeparator());
+                _subscriptions.Add
+                (
+                    _vm.WhenAnyValue(x => x.ProgressEnabled)
+                        .Subscribe(_ => ToggleAdvancedSeparator())
+                );
 
-                MessageBus.Current.Listen<MidiEvent>(MessageBusConstants.MidiCommandsReceived)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(_ => OpenAdvancedMenu());
+                _subscriptions.Add
+                (
+                    MessageBus.Current.Listen<MidiEvent>(MessageBusConstants.MidiCommandsReceived)
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Subscribe(_ => OpenAdvancedMenu())
+                );
 
-                MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidVoiceMuteKeyPressed)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Where(_ => _vm.AdvancedEnabled is false)
-                    .Subscribe(_ => OpenAdvancedMenu());
+                _subscriptions.Add
+                (
+                    MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidVoiceMuteKeyPressed)
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Where(_ => _vm.AdvancedEnabled is false)
+                        .Subscribe(_ => OpenAdvancedMenu())
+                );
 
-                MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedIncreaseKeyPressed)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Where(_ => _vm.AdvancedEnabled is false)
-                    .Subscribe(_ => OpenAdvancedMenu());
+                _subscriptions.Add
+                (
+                    MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedIncreaseKeyPressed)
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Where(_ => _vm.AdvancedEnabled is false)
+                        .Subscribe(_ => OpenAdvancedMenu())
+                );
 
-                MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedDecreaseKeyPressed)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Where(_ => _vm.AdvancedEnabled is false)
-                    .Subscribe(_ => OpenAdvancedMenu());
+                _subscriptions.Add
+                (
+                    MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedDecreaseKeyPressed)
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Where(_ => _vm.AdvancedEnabled is false)
+                        .Subscribe(_ => OpenAdvancedMenu())
+                );
 
-                MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedIncrease50KeyPressed)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Where(_ => _vm.AdvancedEnabled is false)
-                    .Subscribe(_ => OpenAdvancedMenu());
+                _subscriptions.Add
+                (
+                    MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedIncrease50KeyPressed)
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Where(_ => _vm.AdvancedEnabled is false)
+                        .Subscribe(_ => OpenAdvancedMenu())
+                );
 
-                MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDecrease50KeyPressed)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Where(_ => _vm.AdvancedEnabled is false)
-                    .Subscribe(_ => OpenAdvancedMenu());
+                _subscriptions.Add
+                (
+                    MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDecrease50KeyPressed)
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Where(_ => _vm.AdvancedEnabled is false)
+                        .Subscribe(_ => OpenAdvancedMenu())
+                );
 
-                MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedHomeKeyPressed)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Where(_ => _vm.AdvancedEnabled is false)
-                    .Subscribe(_ => OpenAdvancedMenu());
+                _subscriptions.Add
+                (
+                    MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedHomeKeyPressed)
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Where(_ => _vm.AdvancedEnabled is false)
+                        .Subscribe(_ => OpenAdvancedMenu())
+                );
             }
         }
 
@@ -197,6 +228,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             var shouldEnableSeparator = _vm.AdvancedEnabled && ((_vm.IsSong && !_vm.ProgressEnabled) || (_vm.IsSong is false && !_vm.TimedPlayEnabled));
 
             AdvancedSeparator.Visibility = shouldEnableSeparator ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        public void Dispose()
+        {
+            _subscriptions.ForEach(s => s?.Dispose());
         }
     }
 }
