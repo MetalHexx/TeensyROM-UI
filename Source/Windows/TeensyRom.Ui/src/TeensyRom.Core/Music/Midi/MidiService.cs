@@ -3,7 +3,7 @@ using NAudio.Midi;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Windows.Navigation;
+using System.Text.Json;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
 
@@ -21,6 +21,7 @@ namespace TeensyRom.Core.Music.Midi
         private readonly List<IDisposable> _midiSubscriptions = [];
         private readonly List<MidiIn> _midiIns = [];
         private readonly List<MidiDevice> _midiDevices = [];
+        private MidiSettings? _midiSettings;
 
         public MidiService(ISettingsService settingsService, IAlertService alertService, ILoggingService log)
         {
@@ -30,12 +31,13 @@ namespace TeensyRom.Core.Music.Midi
 
             _settingsService.Settings                
                 .Where(s => s.LastCart is not null && s.LastCart.MidiSettings is not null)
+                .Where(s => MidiSettingsChanged(s.LastCart!.MidiSettings))
                 .Select(s => s.LastCart!.MidiSettings)
                 .Subscribe(EngageMidi);
         }
 
         public void EngageMidi(MidiSettings midiSettings)
-        { 
+        {
             DisengageMidi();
 
             if (midiSettings.MidiEnabled is false) return;
@@ -368,6 +370,7 @@ namespace TeensyRom.Core.Music.Midi
                 });
                 DisposeMidiIn(midiIn);
             }
+            _midiDevices.Clear();
             _midiDevices.AddRange(devices.OrderBy(d => d.Name));
 
             return _midiDevices;
@@ -457,6 +460,18 @@ namespace TeensyRom.Core.Music.Midi
             {
                 System.Threading.Thread.Sleep(1000);
             }
+        }
+        private bool MidiSettingsChanged(MidiSettings midiSettings)
+        {
+            if (_midiSettings is not null)
+            {
+                var previousSettings = JsonSerializer.Serialize(_midiSettings);
+                var newSettings = JsonSerializer.Serialize(midiSettings);
+
+                if (previousSettings == newSettings) return false;
+            }
+            _midiSettings = midiSettings;
+            return true;
         }
     }
 
