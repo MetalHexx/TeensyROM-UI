@@ -1,27 +1,106 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using TeensyRom.Core.Music.Midi;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Ui.Controls.DirectoryList;
 
 namespace TeensyRom.Ui.Controls.DirectoryList
 {
     public partial class DirectoryListView : UserControl
     {
+        private List<IDisposable> _subscriptions = [];
+        private DirectoryListViewModel _vm;
+
         public DirectoryListView()
         {
             InitializeComponent();
+            DataContextChanged += OnDataContextChanged;
+            Unloaded += (s, e) => Dispose();
+        }
+
+        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is DirectoryListViewModel vm)
+            {
+                _vm = vm;
+
+                _subscriptions.Add
+                (
+                    _vm.MidiEvents
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Where(e => e.DJEventType is DJEventType.NavigateDirectory)                        
+                        .Select(e => 
+                        {
+                            var ccMapping = e.Mapping as CCMapping;
+
+                            if (ccMapping == null) return 0;
+
+                            return ccMapping.CCType switch
+                            {
+                                CCType.Absolute => e.GetAbsoluteValueDelta(-1, 1, e.Value),
+                                CCType.Relative1 => e.GetRelativeValue_TwosComplement(e.Value),
+                                CCType.Relative2 => e.GetRelativeValue_BinaryOffset(),
+                                _ => 0
+                            };
+                        })
+                        .Select(doubleAmt => doubleAmt > 0 ? 1 : -1)
+                        .Subscribe(direction => 
+                        {
+                            
+                            if (!DirectoryList.IsFocused) 
+                            {
+                                DirectoryList.Focus();
+                            }
+                            if (DirectoryList.Items.Count == 0) return;
+
+                            if (DirectoryList.SelectedIndex == -1)
+                            {
+                                DirectoryList.SelectedIndex = 0;
+                            }
+                            else
+                            {
+                                int newIndex = DirectoryList.SelectedIndex + direction;
+
+                                if (newIndex < 0)
+                                {
+                                    newIndex = DirectoryList.Items.Count - 1;
+                                }
+                                else if (newIndex >= DirectoryList.Items.Count)
+                                {
+                                    newIndex = 0;
+                                }
+                                DirectoryList.SelectedIndex = newIndex;
+                            }
+
+                            DirectoryList.ScrollIntoView(DirectoryList.SelectedItem);
+
+                        })
+                );
+
+                _subscriptions.Add
+                (
+                    _vm.MidiEvents
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Where(e => e.DJEventType is DJEventType.LaunchSelectedFile)
+                        .Subscribe(direction =>
+                        {
+                            if (DirectoryList.SelectedItem is DirectoryItem directoryItem)
+                            {
+                                _vm.LoadDirectoryCommand.Execute(directoryItem).Subscribe();
+                                return;
+                            }
+                            if (DirectoryList.SelectedItem is ILaunchableItem launchable)                             
+                            {
+                                _vm.PlayCommand.Execute(launchable).Subscribe();
+                            }
+                        })
+                );
+            }
         }
 
         private void OnListViewDoubleClicked(object sender, MouseButtonEventArgs e)
@@ -94,6 +173,11 @@ namespace TeensyRom.Ui.Controls.DirectoryList
             {
                 listView.ScrollIntoView(listView.SelectedItem);
             }
+        }
+
+        public void Dispose()
+        {
+            _subscriptions.ForEach(s => s?.Dispose());
         }
     }
 }

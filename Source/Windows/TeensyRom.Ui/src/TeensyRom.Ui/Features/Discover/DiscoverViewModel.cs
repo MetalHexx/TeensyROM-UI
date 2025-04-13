@@ -135,7 +135,8 @@ namespace TeensyRom.Ui.Features.Discover
                 player.SetPageSize,
                 alert,
                 dialog,
-                progress
+                progress,
+                midiService
             );
 
             StorageSelector = new StorageSelectorViewModel(settingsService);

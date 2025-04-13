@@ -31,6 +31,8 @@
         Restart,
         HoldPause,
         CrossLaunch,
-        SaveSongSettings
+        SaveSongSettings,
+        NavigateDirectory,
+        LaunchSelectedFile
     }
 }

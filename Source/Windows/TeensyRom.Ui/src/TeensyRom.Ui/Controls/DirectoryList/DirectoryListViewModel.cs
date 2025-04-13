@@ -4,23 +4,22 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Windows;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Services;
-using System.CodeDom.Compiler;
 using TeensyRom.Ui.Controls.Paging;
-using TeensyRom.Ui.Features.Common.Models;
 using File = System.IO.File;
 using DragNDropFile = TeensyRom.Ui.Features.Common.Models.DragNDropFile;
+using TeensyRom.Core.Music.Midi;
 
 namespace TeensyRom.Ui.Controls.DirectoryList
 {
     public class DirectoryListViewModel : ReactiveObject
     {
+        public IObservable<MidiEvent> MidiEvents { get; set; }
         [ObservableAsProperty] public ObservableCollection<IStorageItem>? DirectoryContent { get; }
         [ObservableAsProperty] public bool ShowPaging { get; }
         [Reactive] public PagingViewModel Paging { get; set; }
@@ -32,6 +31,8 @@ namespace TeensyRom.Ui.Controls.DirectoryList
         public ReactiveCommand<DragEventArgs, Unit> FileDropCommand { get; private set; }
         public ReactiveCommand<DragEventArgs, Unit> DragOverCommand { get; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }
+
+        private readonly IMidiService _midiService;
 
         public DirectoryListViewModel
         (
@@ -51,11 +52,13 @@ namespace TeensyRom.Ui.Controls.DirectoryList
             Func<int, Unit> setPageSizeFunc,
             IAlertService alert, 
             IDialogService dialog,
-            IProgressService progress
+            IProgressService progress,
+            IMidiService midiService
         )
         {
             directoryContent.ToPropertyEx(this, x => x.DirectoryContent);
             pagingEnabled.ToPropertyEx(this, x => x.ShowPaging);
+            MidiEvents = midiService.MidiEvents; 
 
             Paging = new(currentPage, totalPages)
             {
