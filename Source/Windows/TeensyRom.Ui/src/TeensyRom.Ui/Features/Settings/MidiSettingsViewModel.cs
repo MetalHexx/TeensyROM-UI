@@ -28,7 +28,9 @@ namespace TeensyRom.Ui.Features.Settings
             _midiService = midiService;
             MidiEnabled = s.MidiEnabled;
             MapMappings(s.Mappings);
-            MapDevices();
+            RefreshMidiDevices();
+
+            RefreshMidiDevicesCommand = ReactiveCommand.Create(RefreshMidiDevices);
         }
 
         public MidiSettingsViewModel(MidiSettings s, IMidiService midiService, IAlertService alert)
@@ -37,17 +39,27 @@ namespace TeensyRom.Ui.Features.Settings
             _midiService = midiService;
             MidiEnabled = s.MidiEnabled;            
             MapMappings(s.Mappings);
-            MapDevices();
+            RefreshMidiDevices();
+            RefreshMidiDevicesCommand = ReactiveCommand.Create(RefreshMidiDevices);
         }
 
-        private void MapDevices()
+        private void RefreshMidiDevices()
         {
-            var devices = _midiService.GetMidiDevices().Select(d => new MidiDeviceViewModel(d)).ToList();
+            var engaged = _midiService.IsMidiEngaged;
+
+            if (engaged) _midiService.DisengageMidi();
+
+            var devices = _midiService
+                .GetMidiDevices()
+                .Select(d => new MidiDeviceViewModel(d)).ToList();
 
             foreach (var mapping in Mappings)
             {
+                mapping.AvailableDevices = devices;
                 mapping.Device = devices.FirstOrDefault(d => d.Name == mapping.Device?.UnboundName) ?? mapping.Device;
             }
+
+            if (engaged) _midiService.EngageMidi();
         }
 
         private void MapMappings(List<MidiMapping> mappings) 

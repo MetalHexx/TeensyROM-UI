@@ -9,7 +9,7 @@ using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Core.Music.Midi
 {
-    public class MidiService : IMidiService
+    public class MidiService : IMidiService, IDisposable
     {
         public IObservable<MidiEvent> MidiEvents => _midiEvents.AsObservable();
         private readonly Subject<MidiEvent> _midiEvents = new();
@@ -20,8 +20,8 @@ namespace TeensyRom.Core.Music.Midi
         private List<MidiDevice> _registeredDevices = [];
         private readonly List<IDisposable> _midiSubscriptions = [];
         private readonly List<MidiIn> _midiIns = [];
-        private readonly List<MidiDevice> _midiDevices = [];
         private MidiSettings? _midiSettings;
+        private bool _midiEngaged = false;
 
         public MidiService(ISettingsService settingsService, IAlertService alertService, ILoggingService log)
         {
@@ -34,6 +34,25 @@ namespace TeensyRom.Core.Music.Midi
                 .Where(s => MidiSettingsChanged(s.LastCart!.MidiSettings))
                 .Select(s => s.LastCart!.MidiSettings)
                 .Subscribe(EngageMidi);
+        }
+
+        public bool IsMidiEngaged => _midiEngaged;
+
+        public void EngageMidi() 
+        {
+            if (_midiSettings is null) 
+            {
+                var midiSettings =  _settingsService.GetSettings().LastCart?.MidiSettings;
+
+                if (midiSettings is null) 
+                {
+                    _alert.Publish("Engaging Midi Failed.  Midi Settings were not found.");
+                    _log.InternalError("Engaging Midi Failed.  Midi Settings were not found.");
+                    return;
+                }
+                _midiSettings = midiSettings;
+            }
+            EngageMidi(_midiSettings);
         }
 
         public void EngageMidi(MidiSettings midiSettings)
@@ -182,6 +201,7 @@ namespace TeensyRom.Core.Music.Midi
 
                 midiIn.Start();
             }
+            _midiEngaged = true;
         }
 
         private static NoteMapping? MatchMapping(NoteEvent noteEvent, IEnumerable<NoteMapping> noteMappings)
@@ -216,17 +236,23 @@ namespace TeensyRom.Core.Music.Midi
 
         public void DisengageMidi()
         {
+            if (!_midiEngaged) return;
+
             _midiIns.ForEach(DisposeMidiIn);
-            _midiSubscriptions.ForEach(DisposeMidiIn);
+            _midiIns.Clear();
+            _midiSubscriptions.ForEach(s => s?.Dispose());
             _midiSubscriptions.Clear();
             _registeredMappings.Clear();
             _registeredDevices.Clear();            
+            _midiEngaged = false;
         }
 
         public async Task<MidiResult?> GetFirstMidiEvent(MidiEventType targetEventType)
         {
             var settings = _settingsService.GetSettings();
             if (settings.LastCart is null) return null;
+
+            var shouldEngage = _midiEngaged;
 
             DisengageMidi();
 
@@ -303,13 +329,9 @@ namespace TeensyRom.Core.Music.Midi
             {
                 errorThrottleTimer.Dispose();
 
-                foreach (var midiIn in midiInList)
-                {
-                    midiIn.Stop();
-                    midiIn.Dispose();
-                }
+                midiInList.ForEach(DisposeMidiIn);
 
-                if (settings.LastCart.MidiSettings is not null && settings.LastCart.MidiSettings.MidiEnabled)
+                if (shouldEngage == true)
                 {
                     EngageMidi(settings.LastCart.MidiSettings);
                 }
@@ -328,16 +350,8 @@ namespace TeensyRom.Core.Music.Midi
             return null;
         }
 
-        public IEnumerable<MidiDevice> RefreshMidiDevices() 
-        {
-            _midiDevices.Clear();
-            return GetMidiDevices();
-        }
-
         public IEnumerable<MidiDevice> GetMidiDevices()
         {
-            if (_midiDevices.Count != 0) return _midiDevices;
-
             var devices = new List<MidiDevice>();
             var nameCounts = new Dictionary<string, int>();
 
@@ -346,6 +360,8 @@ namespace TeensyRom.Core.Music.Midi
                 var midiIn = TryGetMidiIn(deviceId);
 
                 if (midiIn is null) continue;
+
+                DisposeMidiIn(midiIn);
 
                 var capabilities = MidiIn.DeviceInfo(deviceId);
                 string displayName = capabilities.ProductName;
@@ -367,100 +383,26 @@ namespace TeensyRom.Core.Music.Midi
                     ManufacturerName = capabilities.Manufacturer.ToString(),
                     ProductId = capabilities.ProductId,
                     ProductName = capabilities.ProductName
-                });
-                DisposeMidiIn(midiIn);
+                });                
             }
-            _midiDevices.Clear();
-            _midiDevices.AddRange(devices.OrderBy(d => d.Name));
 
-            return _midiDevices;
+            return devices.OrderBy(d => d.Name);
         }
 
-        public void DisposeMidiIn(IDisposable midiIn) 
+        public void DisposeMidiIn(MidiIn midiIn) 
         {
             try
             {
+                midiIn?.Stop();
                 midiIn?.Dispose();
+                midiIn = null!;
             }
-            catch (Exception ex)
+            catch (AccessViolationException)
             {
-                //TODO: not sure why this happens
+                //TODO: Not sure why MMAudio crashes here.
             }
         }
 
-        public void SendRandomMidiNotesToAllDevices()
-        {
-            var devices = GetMidiDevices();
-
-            foreach (var device in devices)
-            {
-                try
-                {
-                    using (var midiOut = new MidiOut(device.Id))
-                    {
-                        var random = new Random();
-                        for (int channel = 1; channel <= 3; channel++)
-                        {
-                            for (int i = 0; i < 5; i++)
-                            {
-                                int note = random.Next(60, 72);
-                                midiOut.Send(MidiMessage.StartNote(note, 127, channel).RawData);
-                                System.Threading.Thread.Sleep(100);
-                                midiOut.Send(MidiMessage.StopNote(note, 0, channel).RawData);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error sending MIDI to device {device.Name}: {ex.Message}");
-                }
-            }
-        }
-
-        public void SendRandomMidiNotes(int deviceId, int durationMs = 200, int count = 50)
-        {
-            using var midiOut = new MidiOut(deviceId);
-            var random = new Random();
-            for (int i = 0; i < count; i++)
-            {
-                int note = random.Next(60, 72); // C4 to B4
-                midiOut.Send(MidiMessage.StartNote(note, 127, 1).RawData);
-                Thread.Sleep(durationMs);
-                midiOut.Send(MidiMessage.StopNote(note, 0, 1).RawData);
-            }
-        }
-
-        public void ReceiveMidiInputLoop()
-        {
-            for (int i = 0; i < MidiIn.NumberOfDevices; i++)
-            {
-                try
-                {
-                    var midiIn = TryGetMidiIn(i);
-
-                    if (midiIn is null) continue;
-
-                    string deviceName = "Unknown Device";
-                    try { deviceName = MidiIn.DeviceInfo(i).ProductName; } catch { }
-
-                    midiIn.MessageReceived += (sender, e) =>
-                    {
-                        Debug.WriteLine($"[MIDI IN {deviceName}] {e.MidiEvent}");
-                    };
-                    midiIn.Start();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error receiving MIDI from device index {i}: {ex.Message}");
-                }
-            }
-
-            while (true)
-            {
-                System.Threading.Thread.Sleep(1000);
-            }
-        }
         private bool MidiSettingsChanged(MidiSettings midiSettings)
         {
             if (_midiSettings is not null)
@@ -472,6 +414,11 @@ namespace TeensyRom.Core.Music.Midi
             }
             _midiSettings = midiSettings;
             return true;
+        }
+
+        public void Dispose()
+        {
+            DisengageMidi();
         }
     }
 

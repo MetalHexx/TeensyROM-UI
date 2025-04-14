@@ -32,7 +32,6 @@ namespace TeensyRom.Ui.Features.Settings
             _alert = alert;
             _midiService = midiService;
             DisplayName = m.DisplayName;
-            AvailableDevices = midiService.GetMidiDevices().Select(d => new MidiDeviceViewModel(d)).ToList();
             DJEventType = m.DJEventType;
             Device = new MidiDeviceViewModel(m.Device);
             MidiChannel = m.MidiChannel;
@@ -44,7 +43,6 @@ namespace TeensyRom.Ui.Features.Settings
         {
             _alert = alert;
             _midiService = midiService;
-            AvailableDevices = midiService.GetMidiDevices().Select(d => new MidiDeviceViewModel(d)).ToList();
             DisplayName = m.DisplayName;
             DJEventType = m.DJEventType;
             Device = new MidiDeviceViewModel(m.Device);

@@ -40,7 +40,7 @@
                 new NoteMapping() { DJEventType = DJEventType.CrossLaunch, DisplayName = "Launch on 2nd Device", AmountEnabled = false },
                 new NoteMapping() { DJEventType = DJEventType.SaveSongSettings, DisplayName = "Save Song Speed", AmountEnabled = false },
                 new CCMapping()   { DJEventType = DJEventType.NavigateDirectory, DisplayName = "Navigate Directory", CCType = CCType.Relative1, AmountEnabled = false, Amount = 1 },
-                new NoteMapping() { DJEventType = DJEventType.LaunchSelectedFile, DisplayName = "Launch Navigated File" },
+                new NoteMapping() { DJEventType = DJEventType.LaunchSelectedFile, DisplayName = "Launch Selected File" },
             ];
 
             foreach (MidiMapping mapping in possibleMappings)

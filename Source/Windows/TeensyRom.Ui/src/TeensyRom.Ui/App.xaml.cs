@@ -17,6 +17,7 @@ using TeensyRom.Core.Assets;
 using TeensyRom.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Core.Storage.Tools.Zip;
 using TeensyRom.Ui.Services.Process;
+using TeensyRom.Core.Music.Midi;
 
 namespace TeensyRom.Ui
 {
@@ -46,6 +47,13 @@ namespace TeensyRom.Ui
 
             StartBackgroundProcesses();            
             CleanupOldAssets();
+            Exit += OnAppExit;
+        }
+
+        private void OnAppExit(object sender, ExitEventArgs e)
+        {
+            var midiService =  _serviceProvider.GetService<IMidiService>();
+            midiService?.Dispose();
         }
 
         private void StartBackgroundProcesses()
