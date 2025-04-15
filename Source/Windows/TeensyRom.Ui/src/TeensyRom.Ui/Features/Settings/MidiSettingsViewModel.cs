@@ -17,7 +17,7 @@ namespace TeensyRom.Ui.Features.Settings
         [Reactive] public List<NoteMappingViewModel> NoteMappings { get; set; } = [];
         [Reactive] public List<DualNoteMappingViewModel> DualNoteMappings { get; set; } = [];
         [Reactive] public List<CCMappingViewModel> CCMappings { get; set; } = [];
-        public ReactiveCommand<Unit, Unit> RefreshMidiDevicesCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> RestartMidiCommand { get; set; }
 
         private IMidiService _midiService;
         private IAlertService _alert;
@@ -28,9 +28,9 @@ namespace TeensyRom.Ui.Features.Settings
             _midiService = midiService;
             MidiEnabled = s.MidiEnabled;
             MapMappings(s.Mappings);
-            RefreshMidiDevices();
+            RestartMidi();
 
-            RefreshMidiDevicesCommand = ReactiveCommand.Create(RefreshMidiDevices);
+            RestartMidiCommand = ReactiveCommand.Create(RestartMidi);
         }
 
         public MidiSettingsViewModel(MidiSettings s, IMidiService midiService, IAlertService alert)
@@ -39,15 +39,13 @@ namespace TeensyRom.Ui.Features.Settings
             _midiService = midiService;
             MidiEnabled = s.MidiEnabled;            
             MapMappings(s.Mappings);
-            RefreshMidiDevices();
-            RefreshMidiDevicesCommand = ReactiveCommand.Create(RefreshMidiDevices);
+            RestartMidi();
+            RestartMidiCommand = ReactiveCommand.Create(RestartMidi);
         }
 
-        private void RefreshMidiDevices()
+        private void RestartMidi()
         {
-            var engaged = _midiService.IsMidiEngaged;
-
-            if (engaged) _midiService.DisengageMidi();
+            _midiService.DisengageMidi();
 
             var devices = _midiService
                 .GetMidiDevices()
@@ -59,7 +57,7 @@ namespace TeensyRom.Ui.Features.Settings
                 mapping.Device = devices.FirstOrDefault(d => d.Name == mapping.Device?.UnboundName) ?? mapping.Device;
             }
 
-            if (engaged) _midiService.EngageMidi();
+            _midiService.EngageMidi();
         }
 
         private void MapMappings(List<MidiMapping> mappings) 

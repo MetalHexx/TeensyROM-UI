@@ -48,10 +48,15 @@
                     ToolTip="Enables MIDI support."                
                     VerticalAlignment="Center" Margin="0 4 0 0"/>
                 
-                <Button Content="Refresh Midi"
-                    Command="{Binding RefreshMidiDevicesCommand}"
-                    Width="150" Margin="16"
-                    HorizontalAlignment="Left"/>
+                <Button
+                    Grid.Column="1"
+                    IsEnabled="{Binding IsSong}"
+                    Command="{Binding RestartMidiCommand}"                     
+                    ToolTip="Restarts the midi service.  Use like a panic button or to discover recently connected MIDI devices."
+                    Style="{StaticResource StorageIconButton}"
+                    Margin="5 2 0 0">
+                    <materialDesign:PackIcon Kind="Refresh"/>
+                </Button>
                 
             </StackPanel>
             <Separator 
