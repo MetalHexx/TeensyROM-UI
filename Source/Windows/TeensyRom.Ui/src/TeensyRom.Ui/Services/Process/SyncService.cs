@@ -88,13 +88,12 @@ namespace TeensyRom.Ui.Services.Process
             await ProcessSyncFile<ILaunchableItem>(
                 GetSyncFilePath(SyncUpsertFilesPrefix, cart.DeviceHash),
                 "Syncing file updates queue...",
-                items =>
+                async items =>
                 {
                     foreach (var item in items)
                     {
-                        upsertFile.UpsertFile(item);
+                        await upsertFile.UpsertFile(item);
                     }
-                    return Task.CompletedTask;
                 });
         }
 

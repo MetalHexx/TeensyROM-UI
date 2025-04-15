@@ -15,6 +15,7 @@ namespace TeensyRom.Core.Storage.Entities
         public string MetadataSourcePath { get; set; } = string.Empty;
         public string FavChildPath { get; set; } = string.Empty;
         public string FavParentPath { get; set; } = string.Empty;
+        public PlaylistItem? Custom { get; set; } = null;
         public string Id => $"{Size}{Path.GetFileNameFromPath()}";
         public TeensyFileType FileType => Path.GetUnixFileExtension().GetFileType();
 
@@ -36,7 +37,8 @@ namespace TeensyRom.Core.Storage.Entities
                 MetadataSource = MetadataSource,
                 Meta1 = Meta1,
                 Meta2 = Meta2,
-                MetadataSourcePath = MetadataSourcePath
+                MetadataSourcePath = MetadataSourcePath,
+                Custom = Custom?.Clone()
             };
         }
     }

@@ -25,7 +25,8 @@ namespace TeensyRom.Core.Storage.Entities
             ShareUrl = ShareUrl,
             MetadataSource = MetadataSource,
             MetadataSourcePath = MetadataSourcePath,
-            Images = Images.Select(x => x.Clone()).ToList()
+            Images = Images.Select(x => x.Clone()).ToList(),
+            Custom = Custom?.Clone()
         };
 
         public static HexItem MapHexItem(HexItem h)

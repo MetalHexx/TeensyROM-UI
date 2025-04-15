@@ -1,14 +1,15 @@
-﻿using TeensyRom.Core.Storage.Entities;
+﻿using System.Threading.Tasks;
+using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Core.Storage.Services;
 
 namespace TeensyRom.Ui.Services.Process
 {
     public interface IUpsertFileProcess
     {
-        void UpsertFile(ILaunchableItem file);
+        Task UpsertFile(ILaunchableItem file);
     }
     public class UpsertFileProcess(ICachedStorageService storage) : IUpsertFileProcess
     {     
-        public void UpsertFile(ILaunchableItem file) => storage.UpsertFiles([file]);
+        public async Task UpsertFile(ILaunchableItem file) => await storage.UpsertFiles([file]);
     }
 }

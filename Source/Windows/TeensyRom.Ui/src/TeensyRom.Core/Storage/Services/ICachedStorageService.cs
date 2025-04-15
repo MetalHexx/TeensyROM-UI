@@ -26,6 +26,6 @@ namespace TeensyRom.Core.Storage.Services
         Task RemoveFavorite(ILaunchableItem file);
         Task CopyFiles(List<CopyFileItem> fileItems);
         int GetCacheSize();
-        void UpsertFiles(IEnumerable<ILaunchableItem> files);
+        Task UpsertFiles(IEnumerable<ILaunchableItem> files);
     }
 }

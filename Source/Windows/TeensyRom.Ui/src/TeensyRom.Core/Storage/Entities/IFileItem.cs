@@ -23,6 +23,7 @@ namespace TeensyRom.Core.Storage.Entities
         string MetadataSourcePath { get; set; }
         string FavChildPath { get; set; }
         string FavParentPath { get; set; }
+        PlaylistItem? Custom { get; set; }
 
         FileItem Clone();
     }

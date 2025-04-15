@@ -12,5 +12,7 @@
         public const string Extraction_Path = @"Extraction\Output";
         public const string Playlist_Path = "/playlists/";
         public const string Favorites_Path = $"/favorites/";
+        public const string Playlist_File_Name = "playlist.json";
+        public const string Temp_Path = @"Temp";
     }
 }

@@ -126,7 +126,7 @@ namespace TeensyRom.Ui.Services.Process
                         break;
 
                     case ProcessCommandType.UpsertFile:
-                        HandleUpsertFile(raw);
+                        await HandleUpsertFile(raw);
                         break;
 
                     default:
@@ -151,14 +151,14 @@ namespace TeensyRom.Ui.Services.Process
             _launchFile.LaunchFile(message.Value);
         }
 
-        private void HandleUpsertFile(string raw) 
+        private async Task HandleUpsertFile(string raw) 
         {
             var message = LaunchableItemSerializer.Deserialize<ProcessCommand<ILaunchableItem>>(raw);
 
             if (message is null) return;
 
             _log.InternalSuccess($"Sync Service: Received Upsert File Request: {message.Value.Name}");
-            _upsertFile.UpsertFile(message.Value);
+            await _upsertFile.UpsertFile(message.Value);
         }
 
         private async Task HandleCopyFile(string raw)

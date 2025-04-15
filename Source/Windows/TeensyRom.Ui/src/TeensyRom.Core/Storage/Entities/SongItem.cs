@@ -11,10 +11,7 @@ namespace TeensyRom.Core.Storage.Entities
     {   
         public TimeSpan PlayLength { get; set; } = TimeSpan.FromMinutes(3);
         public List<TimeSpan> SubtuneLengths { get; set; } = [];
-        public int StartSubtuneNum { get; set; }
-        public double DefaultSpeed { get; set; } = 0;
-        public MusicSpeedCurveTypes DefaultSpeedCurve { get; set; } = MusicSpeedCurveTypes.Linear;
-
+        public int StartSubtuneNum { get; set; }        
         public List<ViewableItemImage> Images { get; init; } = [];
 
         public bool IsPlaylistedOrFavorite => Path.Contains(StorageConstants.Playlist_Path) || Path.Contains(StorageConstants.Favorites_Path);
@@ -42,7 +39,8 @@ namespace TeensyRom.Core.Storage.Entities
             Meta2 = Meta2,
             MetadataSourcePath = MetadataSourcePath,
             PlayLength = PlayLength,
-            Images = Images.Select(x => x.Clone()).ToList()
+            Images = Images.Select(x => x.Clone()).ToList(),
+            Custom = Custom?.Clone()
         };
     }
 }

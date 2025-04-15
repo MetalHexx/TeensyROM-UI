@@ -1,8 +1,11 @@
 ﻿using MediatR;
+using System.IO;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reflection;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.DeleteFile;
+using TeensyRom.Core.Commands.GetFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Games;
 using TeensyRom.Core.Logging;
@@ -143,15 +146,40 @@ namespace TeensyRom.Core.Storage.Services
 
             var filteredContent = FilterBannedItems(response.DirectoryContent);
 
-            cacheItem = SaveDirectoryToCache(filteredContent);
+            if (filteredContent is null) return null;
+
+            cacheItem = await SaveDirectoryToCache(filteredContent);
+
             _storageCache.WriteToDisk();
             return cacheItem;
         }
 
-        private StorageCacheItem SaveDirectoryToCache(DirectoryContent dirContent)
+        private async Task<StorageCacheItem> SaveDirectoryToCache(DirectoryContent dirContent)
         {
             StorageCacheItem? cacheItem;
             var files = MapAndOrderFiles(dirContent);
+
+            var playlistFile = dirContent.Files
+                        .FirstOrDefault(f => f.Path.GetFileNameFromPath() == StorageConstants.Playlist_File_Name);
+
+            if (playlistFile is not null)
+            {
+                var customResult = await _mediator.Send(new GetFileCommand(_settings.StorageType, playlistFile.Path));
+
+                var playlist = LaunchableItemSerializer.Deserialize<Playlist>(customResult.FileData);
+
+                if (playlist is not null)
+                {
+                    foreach (var file in files)
+                    {
+                        var customization = playlist.Items
+                            .FirstOrDefault(c => c.FilePath.RemoveLeadingAndTrailingSlash() == file.Path.RemoveLeadingAndTrailingSlash());
+
+                        file.Custom = customization;
+                    }
+                }
+            }
+            
 
             cacheItem = new StorageCacheItem
             {
@@ -277,7 +305,7 @@ namespace TeensyRom.Core.Storage.Services
 
             _alert.Publish($"Enriching music and games.");
 
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 foreach (var directory in response.DirectoryContent)
                 {
@@ -285,9 +313,9 @@ namespace TeensyRom.Core.Storage.Services
 
                     var filteredContent = FilterBannedItems(directory);
 
-                    if(filteredContent is null) continue;
+                    if (filteredContent is null) continue;
 
-                    SaveDirectoryToCache(filteredContent);
+                    await SaveDirectoryToCache(filteredContent);
                 }
                 _storageCache.EnsureFavorites(_settings.GetFavoritePaths());
                 _storageCache.WriteToDisk();
@@ -384,14 +412,81 @@ namespace TeensyRom.Core.Storage.Services
             return clone;
         }
 
-        public void UpsertFiles(IEnumerable<ILaunchableItem> files) 
+        public async Task UpsertFiles(IEnumerable<ILaunchableItem> files) 
         {
             foreach (var f in files)
             {
-                _storageCache.UpsertFile(f);                
+                _storageCache.UpsertFile(f);
+
+                if (f.Custom is not null)
+                {
+                    await TransferPlaylist(f);
+                }
             }            
             _storageCache.WriteToDisk();
             _filesChanged.OnNext(files);
+        }
+
+        private async Task TransferPlaylist(ILaunchableItem f)
+        {
+            var parentPath = f.Path.GetUnixParentPath();
+            var cacheItem = _storageCache.GetByDirPath(parentPath);
+
+            var customizedFiles = cacheItem!.Files
+                .Where(f => f.Custom is not null)
+                .Select(f => f.Custom);
+
+            if (customizedFiles is null || customizedFiles.Count() == 0) return;
+
+            var playlist = new Playlist
+            {
+                Path = parentPath,
+                Items = customizedFiles.ToList() as List<PlaylistItem>
+            };
+
+            var directoryPath = Path.Combine(
+                Assembly.GetExecutingAssembly().GetPath(),
+                StorageConstants.Temp_Path);
+
+            var filePath = Path.Combine(directoryPath, StorageConstants.Playlist_File_Name);
+
+            var playlistJson = LaunchableItemSerializer.Serialize(playlist);
+
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            File.WriteAllText(filePath, playlistJson);
+
+            FileInfo fileInfo = new(filePath);
+            var transferItem = new FileTransferItem(fileInfo, parentPath, _settings.StorageType);
+            await _mediator.Send(new SaveFilesCommand([transferItem]));            
+
+            var playlistFileItem = new FileItem
+            {
+                Path = parentPath.UnixPathCombine(fileInfo.Name),
+                Name = fileInfo.Name,
+                Size = fileInfo.Length,
+                Custom = null,
+                Description = "TeensyROM UI custom playlist file.",
+                Creator = "TeensyROM UI",
+                ReleaseInfo = "TeensyRom",
+                Title = "Playlist File"
+            };
+            var existingItem = _storageCache.GetFileByPath(playlistFileItem.Path);
+            _storageCache.UpsertFile(playlistFileItem);
+
+            File.Delete(filePath);
+
+            if (existingItem is not null)
+            {
+                _filesChanged.OnNext([playlistFileItem]);
+            }
+            else 
+            {
+                _filesAdded.OnNext([playlistFileItem]);
+            }
         }
     }
 }

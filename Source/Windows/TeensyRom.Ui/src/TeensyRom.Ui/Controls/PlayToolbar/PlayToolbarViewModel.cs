@@ -919,9 +919,12 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         {
             if (File is not SongItem song) return;
 
-            song.DefaultSpeed = RawSpeedValue;
-            song.DefaultSpeedCurve = SelectedSpeedCurve;
-
+            song.Custom = new PlaylistItem
+            {
+                FilePath = song.Path,
+                DefaultSpeed = RawSpeedValue,
+                DefaultSpeedCurve = SelectedSpeedCurve,
+            };
             await _crossProcess.UpsertFile(song);
         }
 
@@ -970,11 +973,14 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             TimedPlayComboBoxEnabled = false;
             ProgressEnabled = true;
 
-            if (s.DefaultSpeed != 0)
+            if (s.Custom is not null) 
             {
-                await Task.Delay(200);
-                SelectedSpeedCurve = s.DefaultSpeedCurve;
-                RawSpeedValue = s.DefaultSpeed;                
+                if (s.Custom.DefaultSpeed != 0)
+                {
+                    await Task.Delay(200);
+                    SelectedSpeedCurve = s.Custom.DefaultSpeedCurve;
+                    RawSpeedValue = s.Custom.DefaultSpeed;
+                }
             }
             else 
             {

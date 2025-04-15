@@ -28,6 +28,11 @@ namespace TeensyRom.Core.Storage.Entities
             return JsonSerializer.Deserialize<T>(json, _options);
         }
 
+        public static T? Deserialize<T>(byte[] jsonBytes)
+        {
+            return JsonSerializer.Deserialize<T>(jsonBytes, _options);
+        }
+
         public static JsonSerializerOptions Options => _options;
     }
 }

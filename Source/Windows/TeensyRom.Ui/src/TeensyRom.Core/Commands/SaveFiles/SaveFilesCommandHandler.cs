@@ -109,7 +109,7 @@ namespace TeensyRom.Core.Commands
                 _serialState.SendIntBytes(file.TargetStorage.GetStorageToken(), 1);
                 _serialState.Write($"{file.TargetPath.UnixPathCombine(file.Name)}\0");
                 _serialState.HandleAck();
-                _logService.InternalSuccess($"Deleted file {file} successfully");
+                _logService.InternalSuccess($"Deleted file {file.TargetPath} successfully");
             }
             catch (Exception ex)
             {
