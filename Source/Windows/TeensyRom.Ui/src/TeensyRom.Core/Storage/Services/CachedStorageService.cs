@@ -254,6 +254,8 @@ namespace TeensyRom.Core.Storage.Services
                 .GetFileByName(file.Name)
                 .ForEach(f => f.IsFavorite = false);
 
+            _storageCache.WriteToDisk();
+
             _filesDeleted.OnNext([file]);
         }
         public void Dispose() => _settingsSubscription?.Dispose();
@@ -412,38 +414,39 @@ namespace TeensyRom.Core.Storage.Services
             return clone;
         }
 
-        public async Task UpsertFiles(IEnumerable<ILaunchableItem> files) 
+        public async Task UpsertFiles(IEnumerable<IFileItem> files) 
         {
+            var storagePath = files.First().Path.GetUnixParentPath();
+
             foreach (var f in files)
             {
                 _storageCache.UpsertFile(f);
+            }
 
-                if (f.Custom is not null)
-                {
-                    await TransferPlaylist(f);
-                }
-            }            
+            var directoryCache = _storageCache.GetByDirPath(storagePath);
+
+            if (directoryCache is null) 
+            {
+                _alert.Publish($"Unable to find the indexed directory: {storagePath}");
+                return;
+            }
+            var customItems = directoryCache!.Files
+                .Select(f => f.Custom)
+                .Cast<PlaylistItem>()
+                .ToList();
+
+            var playlist = new Playlist
+            {
+                Path = Path.Combine(storagePath, StorageConstants.Playlist_File_Name),
+                Items = customItems
+            };
+            await TransferPlaylist(playlist);
             _storageCache.WriteToDisk();
             _filesChanged.OnNext(files);
         }
 
-        private async Task TransferPlaylist(ILaunchableItem f)
+        private async Task TransferPlaylist(Playlist playlist)
         {
-            var parentPath = f.Path.GetUnixParentPath();
-            var cacheItem = _storageCache.GetByDirPath(parentPath);
-
-            var customizedFiles = cacheItem!.Files
-                .Where(f => f.Custom is not null)
-                .Select(f => f.Custom);
-
-            if (customizedFiles is null || customizedFiles.Count() == 0) return;
-
-            var playlist = new Playlist
-            {
-                Path = parentPath,
-                Items = customizedFiles.ToList() as List<PlaylistItem>
-            };
-
             var directoryPath = Path.Combine(
                 Assembly.GetExecutingAssembly().GetPath(),
                 StorageConstants.Temp_Path);
@@ -460,30 +463,47 @@ namespace TeensyRom.Core.Storage.Services
             File.WriteAllText(filePath, playlistJson);
 
             FileInfo fileInfo = new(filePath);
-            var transferItem = new FileTransferItem(fileInfo, parentPath, _settings.StorageType);
-            await _mediator.Send(new SaveFilesCommand([transferItem]));            
 
-            var playlistFileItem = new FileItem
+            var playlistTransferItem = new FileTransferItem(fileInfo, playlist.Path.GetUnixParentPath(), _settings.StorageType);
+
+            var result = await _mediator.Send(new SaveFilesCommand([playlistTransferItem]));
+
+            if (!result.IsSuccess) 
             {
-                Path = parentPath.UnixPathCombine(fileInfo.Name),
+                _alert.Publish("There was an issue transferring the playlist file to TeensyROM.");
+                return;
+            }
+
+            var playlistPath = playlist.Path.RemoveLeadingAndTrailingSlash();
+
+            var playlistItem = playlist.Items.FirstOrDefault(i => i.FilePath.RemoveLeadingAndTrailingSlash() == playlistPath);
+
+            FileItem playlistFileItem = new()
+            {
+                Path = playlistPath,
                 Name = fileInfo.Name,
                 Size = fileInfo.Length,
-                Custom = null,
+                Custom = playlistItem is not null ? playlistItem : new PlaylistItem 
+                {
+                    FilePath = playlistPath,
+                    
+                },
                 Description = "TeensyROM UI custom playlist file.",
                 Creator = "TeensyROM UI",
                 ReleaseInfo = "TeensyRom",
                 Title = "Playlist File"
             };
-            var existingItem = _storageCache.GetFileByPath(playlistFileItem.Path);
-            _storageCache.UpsertFile(playlistFileItem);
-
             File.Delete(filePath);
+
+            var existingItem = _storageCache.GetFileByPath(playlistFileItem.Path);
+
+            _storageCache.UpsertFile(playlistFileItem);            
 
             if (existingItem is not null)
             {
                 _filesChanged.OnNext([playlistFileItem]);
             }
-            else 
+            else
             {
                 _filesAdded.OnNext([playlistFileItem]);
             }

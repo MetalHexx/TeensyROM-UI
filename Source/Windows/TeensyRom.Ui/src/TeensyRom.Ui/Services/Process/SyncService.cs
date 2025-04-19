@@ -12,7 +12,8 @@ namespace TeensyRom.Ui.Services.Process
 {
     public interface ISyncService
     {
-        void QueueUpsertFiles(KnownCart cart, List<ILaunchableItem> items);
+        void QueueReorderFiles(KnownCart cart, List<IFileItem> items);
+        void QueueUpsertFiles(KnownCart cart, List<IFileItem> items);
         void QueueCopyFiles(KnownCart cart, List<CopyFileItem> items);
         void QueueFavFile(KnownCart cart, ILaunchableItem command);
         Task ProcessCommands(KnownCart cart);
@@ -21,12 +22,20 @@ namespace TeensyRom.Ui.Services.Process
 
     public class SyncService(ICopyFileProcess fileCopyProcess, IFavoriteFileProcess favoriteFileProcess, IUpsertFileProcess upsertFile, IAlertService alert, ILoggingService logger) : ISyncService
     {
+        private const string SyncReorderFilesPrefix = "SyncReorderFiles";
         private const string SyncUpsertFilesPrefix = "SyncUpsertFiles";
         private const string SyncFavoritesPrefix = "SyncFavoriteFiles";
         private const string SyncRemoveFavoritesPrefix = "SyncRemoveFavoriteFiles";
         private const string SyncCopyPrefix = "SyncCopyFiles";
 
-        public void QueueUpsertFiles(KnownCart cart, List<ILaunchableItem> files)
+        public void QueueReorderFiles(KnownCart cart, List<IFileItem> files)
+        {
+            var path = GetSyncFilePath(SyncReorderFilesPrefix, cart.DeviceHash);
+            AddToSyncFile(path, files);
+            logger.Internal($"Queued file reorders for next sync");
+        }
+
+        public void QueueUpsertFiles(KnownCart cart, List<IFileItem> files)
         {
             var path = GetSyncFilePath(SyncUpsertFilesPrefix, cart.DeviceHash);
             AddToSyncFile(path, files);
@@ -85,7 +94,7 @@ namespace TeensyRom.Ui.Services.Process
                 "Syncing playlist queue...",
                 fileCopyProcess.CopyFiles);
 
-            await ProcessSyncFile<ILaunchableItem>(
+            await ProcessSyncFile<IFileItem>(
                 GetSyncFilePath(SyncUpsertFilesPrefix, cart.DeviceHash),
                 "Syncing file updates queue...",
                 async items =>
@@ -94,6 +103,14 @@ namespace TeensyRom.Ui.Services.Process
                     {
                         await upsertFile.UpsertFile(item);
                     }
+                });
+
+            await ProcessSyncFile<IFileItem>(
+                GetSyncFilePath(SyncReorderFilesPrefix, cart.DeviceHash),
+                "Syncing file reorders queue...",
+                async items => 
+                {
+                    await upsertFile.ReorderFiles(items);
                 });
         }
 
@@ -108,7 +125,6 @@ namespace TeensyRom.Ui.Services.Process
                     var json = File.ReadAllText(filePath);
                     existingItems = LaunchableItemSerializer.Deserialize<List<T>>(json) ?? [];
                 }
-
                 existingItems.AddRange(newItems);
                 File.WriteAllText(filePath, LaunchableItemSerializer.Serialize(existingItems));
             }

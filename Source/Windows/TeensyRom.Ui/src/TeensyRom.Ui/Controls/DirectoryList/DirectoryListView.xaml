@@ -225,17 +225,20 @@
         </Grid.RowDefinitions>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="0">
-
+            
             <ListView Name="DirectoryList"
                 ItemsSource="{Binding DirectoryContent}"
                 AllowDrop="True"
-                behaviors:FileDragDropBehavior.FileDropCommand="{Binding FileDropCommand}"
+                behaviors:FileDragDropBehavior.FileDropCommand="{Binding DropCommand}"
                 behaviors:FileDragDropBehavior.DragOverCommand="{Binding DragOverCommand}"
                 SelectionMode="Single"             
                 SelectionChanged="DirectoryListView_SelectionChanged"
                 PreviewMouseWheel="OnListViewPreviewMouseWheel"
                 MouseDoubleClick="OnListViewDoubleClicked"
                 MouseLeftButtonUp="OnListViewClicked"
+                PreviewMouseLeftButtonDown="DirectoryList_PreviewMouseLeftButtonDown"
+                Drop="DirectoryList_Drop"
+                DragOver="DirectoryList_DragOver"
                 VirtualizingStackPanel.IsVirtualizing="True"
                 VirtualizingStackPanel.VirtualizationMode="Recycling"
                 HorizontalContentAlignment="Stretch"                    

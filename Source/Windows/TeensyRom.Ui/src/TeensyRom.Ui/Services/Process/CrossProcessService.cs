@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Ui.Services.Process;
 using System.Reactive.Linq;
 using System.Linq;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Ui.Services.Process
 {
@@ -16,7 +15,8 @@ namespace TeensyRom.Ui.Services.Process
     public interface ICrossProcessService
     {
         Task LaunchFile(ILaunchableItem file);
-        Task UpsertFile(ILaunchableItem file);
+        Task UpsertFile(IFileItem file);
+        Task ReorderFiles(IEnumerable<IFileItem> files);
         Task CopyFiles(IEnumerable<CopyFileItem> files);
         Task SaveFavorite(ILaunchableItem file);
         Task RemoveFavorite(ILaunchableItem file);
@@ -129,6 +129,10 @@ namespace TeensyRom.Ui.Services.Process
                         await HandleUpsertFile(raw);
                         break;
 
+                    case ProcessCommandType.ReorderFiles:
+                        await HandleReorderFiles(raw);
+                        break;
+
                     default:
                         _log.InternalError($"Unhandled message type: {type}");
                         break;
@@ -149,6 +153,16 @@ namespace TeensyRom.Ui.Services.Process
             _log.InternalSuccess($"Sync Service: Received Launch File Request: {message.Value.Name}");
 
             _launchFile.LaunchFile(message.Value);
+        }
+
+        private async Task HandleReorderFiles(string raw)
+        {
+            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<List<IFileItem>>>(raw);
+
+            if (message is null) return;
+
+            _log.InternalSuccess($"Sync Service: Received playlist reorder: { message.Value.First().Path.GetUnixParentPath() }");
+            await _upsertFile.ReorderFiles(message.Value);
         }
 
         private async Task HandleUpsertFile(string raw) 
@@ -201,12 +215,22 @@ namespace TeensyRom.Ui.Services.Process
                 Value = file
             });
         }
-
-        public async Task UpsertFile(ILaunchableItem file)
+        public async Task ReorderFiles(IEnumerable<IFileItem> files)
         {
-            _upsertFile.UpsertFile(file);
+            await _upsertFile.ReorderFiles(files);
 
-            await SendMessageAsync(new ProcessCommand<ILaunchableItem>
+            await SendMessageAsync(new ProcessCommand<IEnumerable<IFileItem>>
+            {
+                MessageType = ProcessCommandType.ReorderFiles,
+                Value = files
+            });
+        }
+
+        public async Task UpsertFile(IFileItem file)
+        {
+            await _upsertFile.UpsertFile(file);
+
+            await SendMessageAsync(new ProcessCommand<IFileItem>
             {
                 MessageType = ProcessCommandType.UpsertFile,
                 Value = file
@@ -280,9 +304,19 @@ namespace TeensyRom.Ui.Services.Process
 
                                 _log.InternalError($"Sync Failed (Upsert): Cart {cart.Name} was not found.  Queuing for later.");
 
-                                if (message.Value is ILaunchableItem item)
+                                if (message.Value is IFileItem item)
                                 {
                                     _syncService.QueueUpsertFiles(cart, [item]);
+                                }
+                                break;
+
+                            case ProcessCommandType.ReorderFiles:
+
+                                _log.InternalError($"Sync Failed (Reorder): Cart {cart.Name} was not found.  Queuing for later.");
+
+                                if (message.Value is IEnumerable<IFileItem> reorderItems)
+                                {
+                                    _syncService.QueueReorderFiles(cart, reorderItems.ToList());
                                 }
                                 break;
 

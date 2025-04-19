@@ -127,6 +127,7 @@ namespace TeensyRom.Ui.Features.Discover
                 player.SelectFile,
                 crossProcess.SaveFavorite,
                 crossProcess.RemoveFavorite,
+                crossProcess.ReorderFiles,
                 player.StoreFiles,
                 player.DeleteFile,
                 player.LoadDirectory,

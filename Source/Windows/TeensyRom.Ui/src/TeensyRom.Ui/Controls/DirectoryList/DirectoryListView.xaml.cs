@@ -1,11 +1,13 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using TeensyRom.Core.Music.Midi;
 using TeensyRom.Core.Storage.Entities;
 
@@ -20,6 +22,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
         {
             InitializeComponent();
             DataContextChanged += OnDataContextChanged;
+            DirectoryList.MouseMove += DirectoryList_MouseMove;
             Unloaded += (s, e) => Dispose();
         }
 
@@ -173,6 +176,70 @@ namespace TeensyRom.Ui.Controls.DirectoryList
             {
                 listView.ScrollIntoView(listView.SelectedItem);
             }
+        }
+
+        private Point _dragStartPoint;
+
+        private void DirectoryList_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _dragStartPoint = e.GetPosition(null);
+        }
+
+        private void DirectoryList_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                Point currentPosition = e.GetPosition(null);
+
+                if (Math.Abs(currentPosition.X - _dragStartPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                    Math.Abs(currentPosition.Y - _dragStartPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
+                {
+                    if (DirectoryList.SelectedItem is IStorageItem item)
+                    {
+                        var data = new DataObject(typeof(IStorageItem), item); // Explicit format
+                        DragDrop.DoDragDrop(DirectoryList, data, DragDropEffects.Move);
+                    }
+                }
+            }
+        }
+
+        private void DirectoryList_DragOver(object sender, DragEventArgs e)
+        {
+            e.Effects = DragDropEffects.Move;
+            e.Handled = true;
+        }
+
+        private void DirectoryList_Drop(object sender, DragEventArgs e)
+        {
+            var droppedData = e.Data.GetData(typeof(IStorageItem)) as IStorageItem;
+            if (droppedData == null) return;
+
+            var target = GetElementAtMousePosition<IStorageItem>(e.GetPosition, DirectoryList);
+            if (target == null || droppedData == target) return;
+
+            var list = DirectoryList.ItemsSource as ObservableCollection<IStorageItem>;
+            if (list == null) return;
+
+            int removedIndex = list.IndexOf(droppedData);
+            int targetIndex = list.IndexOf(target);
+
+            if (removedIndex < 0 || targetIndex < 0 || removedIndex == targetIndex) return;
+
+            list.Move(removedIndex, targetIndex);
+        }
+
+
+        private static T? GetElementAtMousePosition<T>(Func<IInputElement, Point> getPosition, ListView listView)
+        {
+            var point = getPosition(listView);
+            var element = listView.InputHitTest(point) as DependencyObject;
+
+            while (element != null && !(element is ListViewItem))
+            {
+                element = VisualTreeHelper.GetParent(element);
+            }
+
+            return element != null ? (T)((ListViewItem)element).Content : default;
         }
 
         public void Dispose()

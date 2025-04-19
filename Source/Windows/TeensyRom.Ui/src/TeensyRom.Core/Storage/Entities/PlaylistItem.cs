@@ -9,6 +9,7 @@ namespace TeensyRom.Core.Storage.Entities
 {
     public class PlaylistItem
     {
+        public int Order { get; set; } = 0;
         public string FilePath { get; set; } = string.Empty;
         public double DefaultSpeed { get; set; } = 0;
         public MusicSpeedCurveTypes DefaultSpeedCurve { get; set; } = MusicSpeedCurveTypes.Linear;
