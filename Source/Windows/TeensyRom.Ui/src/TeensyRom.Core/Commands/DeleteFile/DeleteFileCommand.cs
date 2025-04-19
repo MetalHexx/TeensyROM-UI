@@ -30,14 +30,25 @@ namespace TeensyRom.Core.Commands.DeleteFile
 
         public Task<DeleteFileResult> Handle(DeleteFileCommand r, CancellationToken cancellationToken)
         {
-            _serialState.SendIntBytes(TeensyToken.DeleteFile, 2);
+            try
+            {
+                _serialState.SendIntBytes(TeensyToken.DeleteFile, 2);
 
-            _serialState.HandleAck();
-            _serialState.SendIntBytes(r.StorageType.GetStorageToken(), 1);
-            _serialState.Write($"{r.Path}\0");
-            _serialState.HandleAck();
+                _serialState.HandleAck();
+                _serialState.SendIntBytes(r.StorageType.GetStorageToken(), 1);
+                _serialState.Write($"{r.Path}\0");
+                _serialState.HandleAck();
 
-            return Task.FromResult(new DeleteFileResult());
+                return Task.FromResult(new DeleteFileResult());
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(new DeleteFileResult
+                {
+                    Error = ex.ToString(),
+                    IsSuccess = false
+                });
+            }
         }
     }
 }
