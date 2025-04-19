@@ -975,12 +975,9 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             if (s.Custom is not null) 
             {
-                if (s.Custom.DefaultSpeed != 0)
-                {
-                    await Task.Delay(200);
-                    SelectedSpeedCurve = s.Custom.DefaultSpeedCurve;
-                    RawSpeedValue = s.Custom.DefaultSpeed;
-                }
+                await Task.Delay(200);
+                SelectedSpeedCurve = s.Custom.DefaultSpeedCurve;
+                RawSpeedValue = s.Custom.DefaultSpeed;
             }
             else 
             {
