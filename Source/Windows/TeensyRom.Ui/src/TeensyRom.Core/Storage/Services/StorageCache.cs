@@ -327,7 +327,7 @@ namespace TeensyRom.Core.Storage.Services
                     .Where(c => c.Key.RemoveLeadingAndTrailingSlash().Contains(target.RemoveLeadingAndTrailingSlash()))
                     .SelectMany(c => c.Value.Files)
                     .ToList()
-                    .Cast<ILaunchableItem>());
+                    .OfType<ILaunchableItem>());
             }
             return favs;
         }
