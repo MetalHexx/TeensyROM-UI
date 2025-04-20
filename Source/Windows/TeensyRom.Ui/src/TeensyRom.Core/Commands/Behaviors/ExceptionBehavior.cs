@@ -48,7 +48,7 @@ public class ExceptionBehavior<TRequest, TResponse>(IAlertService alert) : IPipe
         ex switch
         {
             _ when ex.Message.Contains("port is closed", StringComparison.OrdinalIgnoreCase) => "Disconnected from TeensyROM",
-            _ when ex.Message.Contains("Cannot perform serial operations in", StringComparison.OrdinalIgnoreCase) => "Error communicating with TeensyROM.\rGo to the terminal to check the logs and connection.",
-            _ => $"Unexpected Error: {ex.Message}. See logs."
+            _ when ex.Message.Contains("Cannot perform serial operations in", StringComparison.OrdinalIgnoreCase) => "Error communicating with TeensyROM.",
+            _ => $"Unexpected Error: {ex.Message}"
         };
 }
