@@ -73,7 +73,8 @@ namespace TeensyRom.Core.Music.Sid
             song.SubtuneLengths = sidRecord.SubTuneSongLengths.Select(s => s).ToList();
             song.ReleaseInfo = sidRecord.Released;            
             song.Meta1 = sidRecord.Clock;
-            song.Meta2 = sidRecord.SidModel;            
+            song.Meta2 = sidRecord.SidModel;
+            song.IsCompatible = sidRecord.Format == MusicConstants.RSID ? false : true;
             
             song.MetadataSourcePath = song.MetadataSourcePath.RemoveLeadingAndTrailingSlash().Contains(sidRecord.Filepath.RemoveLeadingAndTrailingSlash()) 
                 ? song.MetadataSourcePath 

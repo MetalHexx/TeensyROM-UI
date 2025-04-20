@@ -7,7 +7,7 @@ namespace TeensyRom.Core.Music.Sid
         public SidRecordMap()
         {
             Map(m => m.Filename).Name("FILENAME");
-            //Map(m => m.Format).Name("FORMAT");
+            Map(m => m.Format).Name("FORMAT");
             //Map(m => m.Version).Name("VERSION");
             //Map(m => m.DataOffset).Name("DATAOFFSET");
             //Map(m => m.Md5).Name("MD5");

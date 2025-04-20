@@ -9,6 +9,7 @@ namespace TeensyRom.Core.Music
     public static class MusicConstants
     {
         public readonly static TimeSpan DefaultLength = TimeSpan.FromMinutes(3);
+        public const string RSID = "RSID";
         public const string Hvsc = "HVSC";
         public const string SidList_Local_Path = @"Assets\Music\SidList\";
         public const string DeepSid = "DeepSID";

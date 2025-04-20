@@ -4,7 +4,7 @@
     {
         public string Filename { get; set; } = string.Empty;
         public string Filepath { get; set; } = string.Empty;
-        //public string Format { get; set; } = string.Empty;
+        public string Format { get; set; } = string.Empty;
         //public string Version { get; set; } = string.Empty;
         //public string DataOffset { get; set; } = string.Empty;
         //public string Md5 { get; set; } = string.Empty;
