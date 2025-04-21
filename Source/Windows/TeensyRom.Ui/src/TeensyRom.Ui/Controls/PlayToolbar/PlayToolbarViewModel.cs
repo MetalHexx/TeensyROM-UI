@@ -20,6 +20,8 @@ using TeensyRom.Core.Music.Midi;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Controls.Playlist;
 using TeensyRom.Ui.Services.Process;
+using System.Reactive.Subjects;
+using System.Diagnostics;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -56,6 +58,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [Reactive] public FastForwardSpeed FastForwardSpeed { get; set; } = FastForwardSpeed.Off;
         [Reactive] public bool SetSpeedEnabled { get; set; }
         [Reactive] public double RawSpeedValue { get; set; }
+        private BehaviorSubject<double> _rawSpeedValue { get; set; } = new(0);
         [Reactive] public double ActualSpeedPercent { get; set; }
         [Reactive] public List<MusicSpeedCurveTypes> SpeedCurveOptions { get; set; } = [MusicSpeedCurveTypes.Linear, MusicSpeedCurveTypes.Logarithmic];
         [Reactive] public MusicSpeedCurveTypes SelectedSpeedCurve { get; set; } = MusicSpeedCurveTypes.Linear;
@@ -117,6 +120,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private IDisposable? _fastForwardTimerSubscription;
         private IDisposable? _currentTimeSubscription;
         private double _previousRawSpeed = 0;
+        private bool _forceSpeedChange = false;
         private SongItem? _currentSong;
         private MusicSpeedCurveTypes _previousSpeedCurve = MusicSpeedCurveTypes.Linear;
         private bool _muteFastForward;
@@ -130,7 +134,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private TimeSpan? _currentSeekTargetTime;
         private double _originalSpeed = 0;
         private double _nudgeOffset = 0;
-        private TeensySettings _settings;
+        private TeensySettings _settings;        
 
         public PlayToolbarViewModel(
             IObservable<ILaunchableItem> file,
@@ -187,7 +191,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             var showCreatorInfo = currentFile
                 .Select(item => !string.IsNullOrWhiteSpace(item.Creator));
 
-            currentFile.Subscribe(async _ => await DisableFastForward());
+            currentFile.Subscribe(async _ => await CancelSpeed());
 
             currentFile.ToPropertyEx(this, f => f.File);
 
@@ -250,7 +254,12 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             var playToggle = playState
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(state => state.PlayState == PlayState.Playing)
-                .Do(_ => PlayButtonEnabled = false);
+                .Do(_ => 
+                {
+                    if (TrackSeekInProgress) return;
+
+                    PlayButtonEnabled = false;
+                });
 
             playToggle
                 .Where(_ => File is GameItem or HexItem or ImageItem)
@@ -264,6 +273,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => File is SongItem)
                 .Subscribe(_ =>
                 {
+                    if (TrackSeekInProgress) return;
+
                     StopButtonEnabled = false;
                     PauseButtonEnabled = true;                   
                 });
@@ -312,7 +323,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             gameOrImage.Subscribe(item =>
             {
                 RepeatModeEnabled = false;
-                RawSpeedValue = 0;
+                SetSpeed(0);
             });
 
             gameOrImage
@@ -339,7 +350,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             hexItem.Subscribe(item =>
             {
-                RawSpeedValue = 0;
+                SetSpeed(0);
                 RepeatModeEnabled = false;
                 TimedPlayButtonEnabled = false;
                 TimedPlayComboBoxEnabled = false;
@@ -469,10 +480,9 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     MaxSpeed = selectedSpeedCurve == MusicSpeedCurveTypes.Linear
                         ? MusicConstants.Linear_Speed_Max
                         : MusicConstants.Log_Speed_Max;
-                });
-
-            var speedChanges = this.WhenAnyValue(x => x.RawSpeedValue)                
-                .Skip(1)
+                });  
+                
+            _rawSpeedValue
                 .Where(_ => IsSong)
                 .Do(rawSpeed =>
                 {
@@ -482,10 +492,28 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                     _timer?.UpdateSpeed(ActualSpeedPercent);
                 })
-                .DistinctUntilChanged()
                 .ObserveOn(TaskPoolScheduler.Default)
+                .Scan
+                (
+                   (Previous: (double?)null, Current: (double?)null),
+                   (acc, next) => (acc.Current, next)
+                )    
+                .Where(t =>
+                {
+                    var prev = t.Previous;
+                    var next = t.Current;
+
+                    if (_forceSpeedChange)
+                    {
+                        _forceSpeedChange = false;
+                        return true;
+                    }
+                    return prev != next;
+                })
+                .Select(t => t.Current!.Value)                
                 .Subscribe(async rawSpeed =>
-                {                    
+                {
+                    Debug.WriteLine($"Raw Speed: {rawSpeed}");
                     await _changeSpeed(rawSpeed, SelectedSpeedCurve).ConfigureAwait(false);
                 });
 
@@ -494,7 +522,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => File is SongItem item && item.SubtuneLengths.Count > 1)
                 .Subscribe(async songAndIndex =>
                 {
-                    await DisableFastForward(true);
+                    await CancelSpeed(true);
                     InitializeSubtuneProgress(CurrentSubtuneIndex, playNext);
                     ResetSubtuneButtonState();
                     await playSubtune(CurrentSubtuneIndex);
@@ -504,6 +532,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.CurrentSpeed)
+                .Do(async _ => await CancelSpeed(true))
                 .Select(e =>
                 {
                     var ccMapping = e.Mapping as CCMapping;
@@ -518,17 +547,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 })
                 .Subscribe(async delta =>
                 {
-                    if (FastForwardInProgress) await DisableFastForward(true);
 
                     if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
                     {
-                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(delta));
+                        SetSpeed(ClampSpeed(_rawSpeedValue.Value.GetNearestPercentValue(delta)));
                         _previousRawSpeed = 0;
                         return;
                     }
-                    var finalSpeed = ClampSpeed(RawSpeedValue + delta);
+                    var finalSpeed = ClampSpeed(_rawSpeedValue.Value + delta);
 
-                    RawSpeedValue = finalSpeed;
+                    SetSpeed(finalSpeed);
                     _previousRawSpeed = 0;
                 });
 
@@ -536,6 +564,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.CurrentSpeedFine)
+                .Do(async _ => await CancelSpeed(true))
                 .Select(e =>
                 {
                     var ccMapping = e.Mapping as CCMapping;
@@ -550,38 +579,36 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 })
                 .Subscribe(async delta =>
                 {
-                    if (FastForwardInProgress) await DisableFastForward(true);
-
                     if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
                     {
-                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(delta));
-                        _previousRawSpeed = RawSpeedValue;
+                        SetSpeed(ClampSpeed(_rawSpeedValue.Value.GetNearestPercentValue(delta)));
+                        _previousRawSpeed = _rawSpeedValue.Value;
                         return;
                     }
-                    var finalSpeed = ClampSpeed(RawSpeedValue + delta);
+                    var finalSpeed = ClampSpeed(_rawSpeedValue.Value + delta);
 
-                    RawSpeedValue = finalSpeed;
-                    _previousRawSpeed = RawSpeedValue;
+                    SetSpeed(finalSpeed);
+                    _previousRawSpeed = _rawSpeedValue.Value;
                 });
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.IncreaseCurrentSpeed or DJEventType.DecreaseCurrentSpeed or DJEventType.IncreaseCurrentSpeedFine or DJEventType.DecreaseCurrentSpeedFine)
+                .Do(async _ => await CancelSpeed(true))
                 .Select(e => e.Mapping.Amount)
                 .Subscribe(async delta =>
                 {
-                    if (FastForwardInProgress) await DisableFastForward(true);
 
                     if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
                     {
-                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(delta));
+                        SetSpeed(ClampSpeed(_rawSpeedValue.Value.GetNearestPercentValue(delta)));
                         _previousRawSpeed = 0;
                         return;
                     }
-                    var finalSpeed = ClampSpeed(RawSpeedValue + delta);
+                    var finalSpeed = ClampSpeed(_rawSpeedValue.Value + delta);
 
-                    RawSpeedValue = finalSpeed;
+                    SetSpeed(finalSpeed);
                     _previousRawSpeed = 0;
                 });
 
@@ -616,41 +643,42 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.SpeedPlus50Toggle)
                 .Where(_ => IsSong)
-                .Do(async _ => await DisableFastForward(true))
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(_ => HandleIncrease50());
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.SpeedMinus50Toggle)
                 .Where(_ => IsSong)
-                .Do(async _ => await DisableFastForward(true))
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(e => HandleDecrease50());
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.HomeSpeedToggle)
                 .Where(_ => IsSong)
-                .Do(async _ => await DisableFastForward(true))
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(e => HandleHomeSpeed());
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.NudgeForward)
                 .Where(_ => IsSong)
-                .Do(async _ => await DisableFastForward(true))
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(e => HandleNudge(e));
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.NudgeBackward)
                 .Where(_ => IsSong)
-                .Do(async _ => await DisableFastForward(true))
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(e => HandleNudge(e));
 
+            //For Relative CC
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong)
-                .Where(e => e.DJEventType is DJEventType.Seek)                
+                .Where(e => e.DJEventType is DJEventType.Seek)
                 .Where(e => 
                 {
                     var ccMapping = e.Mapping as CCMapping;
@@ -682,7 +710,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     ProgressSliderPercentage = newProgressValue;
                 })
                 .Throttle(TimeSpan.FromMilliseconds(300))
-                .Do(async _ => await DisableFastForward(true))
+                .Do(async _ => await CancelFastForward(true))
                 .Do(_ => _midiTrackSeekInProgress = false)
                 .Subscribe(async deltaPercent =>
                 {
@@ -691,6 +719,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     await HandleSeek(restartSong, playSubtune, targetTime);
                 });
 
+            //For absolute CC
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong)
@@ -708,7 +737,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     ProgressSliderPercentage = percent;
                 })
                 .Throttle(TimeSpan.FromMilliseconds(300))
-                .Do(async _ => await DisableFastForward(true))
+                .Do(async _ => await CancelFastForward(true))
                 .Do(_ => _midiTrackSeekInProgress = false)
                 .Subscribe(async _ =>
                 {
@@ -721,7 +750,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.SeekForward or DJEventType.SeekBackward)
-                .Where(_ => Progress is not null)
+                .Where(_ => Progress is not null)                
                 .Select(e => e.Mapping.Amount)
                 .Do(delta =>
                 {
@@ -736,7 +765,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     ProgressSliderPercentage = newProgressValue;
                 })
                 .Throttle(TimeSpan.FromMilliseconds(300))
-                .Do(async _ => await DisableFastForward(true))
+                .Do(async _ => await CancelFastForward(true))
                 .Do(_ => _midiTrackSeekInProgress = false)
                 .Subscribe(async deltaPercent =>
                 {
@@ -759,19 +788,22 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(e => e.DJEventType is DJEventType.HoldPause)                
+                .Where(e => e.DJEventType is DJEventType.HoldPause)
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(async e => await HandleHoldPause());
 
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.Previous)
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(e => playPrevious());
 
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.Next)
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(e => playNext());
 
             midiService.MidiEvents
@@ -781,8 +813,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(e => e.DJEventType is DJEventType.Restart)
-                .Do(async _ => await DisableFastForward(true))
+                .Where(e => e.DJEventType is DJEventType.Restart)                
                 .Subscribe(async e => await HandleRestart());
 
             midiService.MidiEvents
@@ -798,11 +829,12 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.RestartKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong)
-                .Do(async _ => await DisableFastForward(true))
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(async e => await HandleRestart());
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.MediaPlayerKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(async key => 
                 {
                     switch (key) 
@@ -835,42 +867,44 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedIncreaseKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong is true)
-                .Do(async _ => await DisableFastForward(true))
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(amt =>
                 {
                     if(SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
                     {
-                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(amt));
-                        _previousRawSpeed = RawSpeedValue;
+                        SetSpeed(ClampSpeed(_rawSpeedValue.Value.GetNearestPercentValue(amt)));
+                        _previousRawSpeed = _rawSpeedValue.Value;
                         return;
                     }
+                    var newSpeed = _rawSpeedValue.Value + amt;
+                    var finalSpeed = ClampSpeed(newSpeed);
 
-                    var finalSpeed = ClampSpeed(RawSpeedValue += amt);
-
-                    RawSpeedValue = finalSpeed;
-                    _previousRawSpeed = RawSpeedValue;
+                    SetSpeed(finalSpeed);
+                    _previousRawSpeed = _rawSpeedValue.Value;
                 });
 
             MessageBus.Current.Listen<double>(MessageBusConstants.SidSpeedDecreaseKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong is true)
-                .Do(async _ => await DisableFastForward(true))
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(amt =>
                 {
                     if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
                     {
-                        RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(amt));
-                        _previousRawSpeed = RawSpeedValue;
+                        SetSpeed(ClampSpeed(_rawSpeedValue.Value.GetNearestPercentValue(amt)));
+                        _previousRawSpeed = _rawSpeedValue.Value;
                         return;
                     }
-                    var finalSpeed = ClampSpeed(RawSpeedValue += amt);
-                    RawSpeedValue = finalSpeed;
-                    _previousRawSpeed = RawSpeedValue;
+                    var newSpeed = _rawSpeedValue.Value + amt;
+                    var finalSpeed = ClampSpeed(newSpeed);
+                    SetSpeed(finalSpeed);
+                    _previousRawSpeed = _rawSpeedValue.Value;
                 });
 
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedIncrease50KeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong is true)
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(_ =>
                 {
                     HandleIncrease50();
@@ -879,7 +913,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedDecrease50KeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong is true)
-                .Do(async _ => await DisableFastForward(true))
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(_ =>
                 {
                     HandleDecrease50();
@@ -888,7 +922,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             MessageBus.Current.Listen<KeyboardShortcut>(MessageBusConstants.SidSpeedHomeKeyPressed)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong is true)
-                .Do(async _ => await DisableFastForward(true))
+                .Do(async _ => await CancelSpeed(true))
                 .Subscribe(_ =>
                 {
                     HandleHomeSpeed();
@@ -943,14 +977,16 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             {
                 _nudgeOffset = offset;
 
-                RawSpeedValue = SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic
-                    ? ClampSpeed(RawSpeedValue.GetNearestPercentValue(offset))
-                    : ClampSpeed(RawSpeedValue + offset);
+                var newSpeed = SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic
+                    ? ClampSpeed(_rawSpeedValue.Value.GetNearestPercentValue(offset))
+                    : ClampSpeed(_rawSpeedValue.Value + offset);
+
+                SetSpeed(newSpeed);
                 return;
             }
             if (midiEvent.MidiEventType is MidiEventType.NoteOff)
             {
-                RawSpeedValue -= _nudgeOffset;                
+                SetSpeed(_rawSpeedValue.Value - _nudgeOffset);
                 _nudgeOffset = 0;
             }
         }
@@ -958,6 +994,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private async Task HandleRestart()
         {
             if (_timer is null) return;
+
+            await CancelSpeed(true);
 
             if (PlayButtonEnabled)
             {
@@ -971,20 +1009,22 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         {
             TimedPlayButtonEnabled = false;
             TimedPlayComboBoxEnabled = false;
-            ProgressEnabled = true;
+            ProgressEnabled = true;           
 
             if (s.Custom is not null) 
             {
-                await Task.Delay(200);
+                await Task.Delay(300);
                 SelectedSpeedCurve = s.Custom.DefaultSpeedCurve;
-                RawSpeedValue = s.Custom.DefaultSpeed;
+                _forceSpeedChange = true;
+                SetSpeed(s.Custom.DefaultSpeed);
             }
             else 
             {
-                await Task.Delay(200);
-                RawSpeedValue = 0;                
+                await Task.Delay(300);
+                SelectedSpeedCurve = MusicSpeedCurveTypes.Linear;
+                SetSpeed(0);
             }            
-            _previousRawSpeed = RawSpeedValue;
+            _previousRawSpeed = _rawSpeedValue.Value;
             InitializeProgress(_playNext, s);
         }
 
@@ -999,6 +1039,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             {
                 await CancelSeek();
             }
+            TrackSeekInProgress = true;
 
             var isPaused = false;
 
@@ -1052,7 +1093,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 await _changeSpeed(seekSpeed, MusicSpeedCurveTypes.Logarithmic);
                 _timer?.UpdateSpeed(seekSpeed.GetLogPercentage());
                 _midiTrackSeekInProgress = false;
-                TrackSeekInProgress = true;
+                //TrackSeekInProgress = true;
 
                 _fastForwardTimerSubscription?.Dispose();
 
@@ -1079,19 +1120,34 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             }
         }
 
-        private async Task CancelSeek()
+        private async Task<bool> CancelSpeed(bool resumePreviousSpeed = false) 
+        {            
+            var cancelled = await CancelFastForward(resumePreviousSpeed);
+
+            cancelled =  cancelled || await CancelSeek();
+
+            if (cancelled) 
+            {
+                await Task.Delay(100);
+            }
+            return cancelled;
+        }
+
+        private async Task<bool> CancelSeek()
         {
+            if (TrackSeekInProgress is false) return false;
+
             try
             {
                 _currentSeekTargetTime = null;
                 _fastForwardTimerSubscription?.Dispose();
 
-                var originalSpeed = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear
-                    ? Math.Round(RawSpeedValue, 2)
-                    : RawSpeedValue.GetLogPercentage();
+                _originalSpeed = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear
+                    ? Math.Round(_rawSpeedValue.Value, 2)
+                    : _rawSpeedValue.Value.GetLogPercentage();
 
                 _timer?.UpdateSpeed(_originalSpeed);
-                RawSpeedValue = _originalSpeed;
+                //SetSpeed(_originalSpeed);
                 await _changeSpeed(_originalSpeed, SelectedSpeedCurve);
                 TrackSeekInProgress = false;
                 PlayButtonEnabled = false;
@@ -1103,68 +1159,91 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 //swallow the exception.  Not much we can do.  This could be a problemmatic SID.
                 _alert.Publish("This SID might be incompatible with DJ functions");
             }
+            return true;
+        }
+
+        private async Task<bool> CancelFastForward(bool resumePreviousSpeed = false)
+        {
+            if (FastForwardInProgress is false) return false;
+
+            PlayButtonEnabled = false;
+            PauseButtonEnabled = true;
+            FastForwardInProgress = false;
+            SetSpeedEnabled = true;
+            FastForwardSpeed = FastForwardSpeed.Off;
+            SelectedSpeedCurve = _previousSpeedCurve;
+
+            if (_muteFastForward)
+            {
+                await _mute(false, false, false);
+                await Task.Delay(100);
+            }
+
+            SetSpeed(resumePreviousSpeed ? _previousRawSpeed : 0);
+
+            return true;
         }
 
         private void HandleHomeSpeed()
         {
-            if (_previousRawSpeed == RawSpeedValue)
+            if (_previousRawSpeed == _rawSpeedValue.Value)
             {
-                RawSpeedValue = 0;
+                SetSpeed(0);
                 return;
             }
-            RawSpeedValue = _previousRawSpeed;
+            SetSpeed(_previousRawSpeed);
         }
 
         private void HandleDecrease50()
         {
             if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
             {
-                if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(-50) && RawSpeedValue != 0) return;
+                if (_rawSpeedValue.Value == _previousRawSpeed.GetNearestPercentValue(-50) && _rawSpeedValue.Value != 0) return;
 
-                if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(50))
+                if (_rawSpeedValue.Value == _previousRawSpeed.GetNearestPercentValue(50))
                 {
-                    RawSpeedValue = _previousRawSpeed;
+                    SetSpeed(_previousRawSpeed);
                     return;
                 }
-                RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(-50));
+                SetSpeed(ClampSpeed(_rawSpeedValue.Value.GetNearestPercentValue(-50)));
                 return;
             }
-            if (RawSpeedValue == _previousRawSpeed - 50 && RawSpeedValue != 0) return;
+            if (_rawSpeedValue.Value == _previousRawSpeed - 50 && _rawSpeedValue.Value != 0) return;
 
-            if (RawSpeedValue == _previousRawSpeed + 50)
+            if (_rawSpeedValue.Value == _previousRawSpeed + 50)
             {
-                RawSpeedValue = _previousRawSpeed;
+                SetSpeed(_previousRawSpeed);
                 return;
             }
-            _previousRawSpeed = RawSpeedValue;
+            _previousRawSpeed = _rawSpeedValue.Value;
 
-            RawSpeedValue = ClampSpeed(RawSpeedValue - 50);
+            SetSpeed(ClampSpeed(_rawSpeedValue.Value - 50));
         }
 
         private void HandleIncrease50()
         {
             if (SelectedSpeedCurve == MusicSpeedCurveTypes.Logarithmic)
             {
-                if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(50) && RawSpeedValue != 0) return;
+                if (_rawSpeedValue.Value == _previousRawSpeed.GetNearestPercentValue(50) && _rawSpeedValue.Value != 0) return;
 
-                if (RawSpeedValue == _previousRawSpeed.GetNearestPercentValue(-50))
+                if (_rawSpeedValue.Value == _previousRawSpeed.GetNearestPercentValue(-50))
                 {
-                    RawSpeedValue = _previousRawSpeed;
+                    SetSpeed(_previousRawSpeed);
                     return;
                 }
-                RawSpeedValue = ClampSpeed(RawSpeedValue.GetNearestPercentValue(50));
+                SetSpeed(ClampSpeed(_rawSpeedValue.Value.GetNearestPercentValue(50)));
                 return;
             }
-            if (RawSpeedValue == _previousRawSpeed + 50 && RawSpeedValue != 0) return;
+            if (_rawSpeedValue.Value == _previousRawSpeed + 50 && _rawSpeedValue.Value != 0) return;
 
-            if (RawSpeedValue == _previousRawSpeed - 50)
+            if (_rawSpeedValue.Value == _previousRawSpeed - 50)
             {
-                RawSpeedValue = _previousRawSpeed;
+                SetSpeed(_previousRawSpeed);
                 return;
             }
-            _previousRawSpeed = RawSpeedValue;
+            _previousRawSpeed = _rawSpeedValue.Value;
 
-            RawSpeedValue = ClampSpeed(RawSpeedValue + 50);
+            SetSpeed(ClampSpeed(_rawSpeedValue.Value + 50));
         }
 
         private async Task HandleHoldPause()
@@ -1185,19 +1264,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         private async Task HandleTogglePlay()
         {
-            if (FastForwardInProgress)
-            {
-                await DisableFastForward(true);
-                return;
-            }
-            if (TrackSeekInProgress)
-            {
-                await CancelSeek();
-                return;
-            }
             if (PlayButtonEnabled) _timer?.ResumeTimer();
             if (PauseButtonEnabled) _timer?.PauseTimer();
-            
+
+            if (await CancelSpeed(true)) 
+            {
+                return;
+            }
             await _togglePlay();
 
             return;
@@ -1223,21 +1296,21 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     FastForwardInProgress = true;
                     SetSpeedEnabled = false;
                     FastForwardSpeed = FastForwardSpeed.Medium;
-                    _previousRawSpeed = RawSpeedValue;
+                    _previousRawSpeed = _rawSpeedValue.Value;
                     _previousSpeedCurve = SelectedSpeedCurve;
                     SelectedSpeedCurve = MusicSpeedCurveTypes.Logarithmic;
 
                     if (_muteFastForward) await _mute(true, true, true);
-                    
-                    RawSpeedValue = 25;                    
+
+                    SetSpeed(25);                    
                     return;
 
                 case FastForwardSpeed.Medium:
                     FastForwardSpeed = FastForwardSpeed.MediumFast;
 
                     if (_muteFastForward) await _mute(true, true, true);
-                    
-                    RawSpeedValue = 50;                    
+
+                    SetSpeed(50);
                     return;
 
                 case FastForwardSpeed.MediumFast:
@@ -1245,7 +1318,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                     if (_muteFastForward) await _mute(true, true, true);
 
-                    RawSpeedValue = 75;                    
+                    SetSpeed(75);                    
                     return;
 
                 case FastForwardSpeed.Fast:
@@ -1253,33 +1326,17 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                     if (_muteFastForward) await _mute(true, true, true);
 
-                    RawSpeedValue = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear ? MusicConstants.Linear_Speed_Max : MusicConstants.Log_Speed_Max_Accurate;                    
+                    var newSpeed = SelectedSpeedCurve == MusicSpeedCurveTypes.Linear 
+                        ? MusicConstants.Linear_Speed_Max 
+                        : MusicConstants.Log_Speed_Max_Accurate;
+
+                    SetSpeed(newSpeed);                 
                     return;
 
                 case FastForwardSpeed.Hyper:
-                    await DisableFastForward(true);
+                    await CancelFastForward(true);
                     return;
             }
-        }
-
-        private async Task  DisableFastForward(bool resumePreviousSpeed = false)
-        {
-            if(FastForwardInProgress is false) return;
-
-            PlayButtonEnabled = false;
-            PauseButtonEnabled = true;
-            FastForwardInProgress = false;
-            SetSpeedEnabled = true;
-            FastForwardSpeed = FastForwardSpeed.Off;
-            SelectedSpeedCurve = _previousSpeedCurve;
-
-            if (_muteFastForward) 
-            {
-                await _mute(false, false, false);
-                await Task.Delay(100);
-            }
-            
-            RawSpeedValue = resumePreviousSpeed ? _previousRawSpeed : 0;
         }
 
         private void ResetSubtuneButtonState()
@@ -1374,10 +1431,10 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             {
                 InitializeProgress(_playNext, _currentSong);
             }
-            if (RawSpeedValue != 0)
+            if (_rawSpeedValue.Value != 0)
             {
                 await Task.Delay(200);
-                await _changeSpeed(RawSpeedValue, SelectedSpeedCurve);
+                await _changeSpeed(_rawSpeedValue.Value, SelectedSpeedCurve);
             }        
         }
 
@@ -1412,6 +1469,12 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 };
             }
             return TimeSpan.Zero;
+        }
+
+        public void SetSpeed(double speed) 
+        {
+            _rawSpeedValue.OnNext(speed);
+            RawSpeedValue = speed;            
         }
     }
 }

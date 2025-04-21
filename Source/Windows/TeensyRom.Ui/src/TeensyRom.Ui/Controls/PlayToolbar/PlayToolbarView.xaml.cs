@@ -185,7 +185,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
         private void SetSpeedSlider_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            SetSpeedSlider.Value = 0;
+            SetSpeedSlider.Value = 0;            
         }
 
         private void ProgressSlider_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -238,6 +238,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         public void Dispose()
         {
             _subscriptions.ForEach(s => s?.Dispose());
+        }
+
+        private void SetSpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _vm.SetSpeed(SetSpeedSlider.Value);
         }
     }
 }

@@ -97,6 +97,7 @@
                         x:Name="SetSpeedSlider"
                         IsEnabled="{Binding SetSpeedEnabled}"
                         MouseDoubleClick="SetSpeedSlider_MouseDoubleClick"
+                        ValueChanged="SetSpeedSlider_ValueChanged"
                         ToolTip="Controls the speed of the playing song.  &#x0a;• Keyboard arrows adjust the speed by 1.  &#x0a;• Page Up/Down buttons adjusts speed by 10. &#x0a;• Double-click to reverts to default speed."
                         Maximum="{Binding MaxSpeed}"
                         Minimum="{Binding MinSpeed}"
@@ -104,7 +105,7 @@
                         TickFrequency="0.01"           
                         SmallChange="0.01"
                         LargeChange="1" 
-                        Value="{Binding RawSpeedValue}"
+                        Value="{Binding RawSpeedValue, Mode=OneWay}"
                         Width="190"
                         Margin="0 7 0 0"/>
 
