@@ -71,8 +71,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Directory
         public ILaunchableItem? SelectFirst()
         {
             var firstItem = DirectoryContent
-                .Where(item => item is ILaunchableItem)
-                .Cast<ILaunchableItem>()
+                .OfType<ILaunchableItem>()
                 .FirstOrDefault();
 
             if (firstItem is not null)
