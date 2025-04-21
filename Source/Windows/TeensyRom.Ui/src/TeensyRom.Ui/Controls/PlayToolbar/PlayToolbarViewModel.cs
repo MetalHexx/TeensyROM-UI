@@ -710,7 +710,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     ProgressSliderPercentage = newProgressValue;
                 })
                 .Throttle(TimeSpan.FromMilliseconds(300))
-                .Do(async _ => await CancelFastForward(true))
                 .Do(_ => _midiTrackSeekInProgress = false)
                 .Subscribe(async deltaPercent =>
                 {
@@ -737,7 +736,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     ProgressSliderPercentage = percent;
                 })
                 .Throttle(TimeSpan.FromMilliseconds(300))
-                .Do(async _ => await CancelFastForward(true))
                 .Do(_ => _midiTrackSeekInProgress = false)
                 .Subscribe(async _ =>
                 {
@@ -1035,10 +1033,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             if (targetTime == _currentSeekTargetTime) return;
 
-            if (TrackSeekInProgress)
-            {
-                await CancelSeek();
-            }
+            await CancelSpeed(true);
+
             TrackSeekInProgress = true;
 
             var isPaused = false;
