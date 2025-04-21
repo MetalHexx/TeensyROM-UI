@@ -184,7 +184,7 @@ namespace TeensyRom.Core.Music.Midi
                 var noteSubscription = combinedNoteMappings
                     .Subscribe(eventMapping =>
                     {
-                        Debug.WriteLine($"[MIDI IN --- Device: {eventMapping.Mapping!.Device.Name}Channel: {eventMapping.NoteEvent.Channel} Note: {eventMapping.NoteEvent.NoteNumber} {eventMapping.NoteEvent.CommandCode}");
+                        //Debug.WriteLine($"[MIDI IN --- Device: {eventMapping.Mapping!.Device.Name}Channel: {eventMapping.NoteEvent.Channel} Note: {eventMapping.NoteEvent.NoteNumber} {eventMapping.NoteEvent.CommandCode}");
 
                         _midiEvents.OnNext(new MidiEvent
                         (
