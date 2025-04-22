@@ -41,29 +41,27 @@ namespace TeensyRom.Ui.Core.Progress
         public void StartNewTimer(TimeSpan length)
         {
             _currentTime = TimeSpan.Zero;
+            _timeLeft = length;
             _length = length;
             _speedMultiplier = 1;
             TryStopObservables();
-            StartObservables(length);
+            StartObservables();
         }
 
-        public void PauseTimer()
-        {
-            _timeLeft = _length.Subtract(_currentTime);
-            TryStopObservables();
-        }
+        public void PauseTimer() => TryStopObservables();
 
         public void ResumeTimer()
         {
             TryStopObservables();
-            StartObservables(_timeLeft);
+            StartObservables();
         }
 
         public void ResetTimer() 
         {
             _currentTime = TimeSpan.Zero;
+            _timeLeft = _length;
             TryStopObservables();
-            StartObservables(_length);
+            StartObservables();
         }
 
         public void UpdateSpeed(double percentage)
@@ -83,7 +81,7 @@ namespace TeensyRom.Ui.Core.Progress
             }
         }
 
-        private void StartObservables(TimeSpan length)
+        private void StartObservables()
         {
             _stopwatch.Restart();
 
@@ -92,9 +90,10 @@ namespace TeensyRom.Ui.Core.Progress
                 {
                     var timeStep = TimeSpan.FromMilliseconds(_stopwatch.ElapsedMilliseconds * _speedMultiplier);
                     _currentTime = _currentTime.Add(timeStep);
+                    _timeLeft = _length.Subtract(_currentTime);
                     _stopwatch.Restart();
 
-                    if (_currentTime >= length) 
+                    if (_currentTime >= _length) 
                     { 
                         TryStopObservables();
                         _stopwatch.Reset();
