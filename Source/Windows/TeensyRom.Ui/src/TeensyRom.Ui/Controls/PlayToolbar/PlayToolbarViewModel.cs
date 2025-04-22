@@ -338,7 +338,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     TimedPlayButtonEnabled = true;
                     TimedPlayComboBoxEnabled = true;
                     ProgressEnabled = true;
-                    InitializeProgress(playNext, item);
+                    InitializeProgress(item);
                 });
 
             gameOrImage
@@ -368,7 +368,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Where(_ => TimedPlayEnabled)
                 .Subscribe(timeSpan =>
                 {
-                    InitializeProgress(playNext, File);
+                    InitializeProgress(File);
                 });
 
             this.WhenAnyValue(x => x.SelectedScope)
@@ -382,7 +382,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     TimedPlayEnabled = true;
                     TimedPlayComboBoxEnabled = true;
                     ProgressEnabled = true;
-                    InitializeProgress(playNext, (File));
+                    InitializeProgress(File);
                 });
 
             TogglePlayCommand = ReactiveCommand.CreateFromTask(_ => HandleTogglePlay());
@@ -395,7 +395,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 {
                     TimedPlayComboBoxEnabled = true;
                     ProgressEnabled = true;
-                    InitializeProgress(playNext, (File));
+                    InitializeProgress(File);
                     return;
                 }
                 TimedPlayComboBoxEnabled = false;
@@ -405,7 +405,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             FastForwardCommand = ReactiveCommand.CreateFromTask(HandleFastForward);
 
-            NextCommand = ReactiveCommand.CreateFromTask(playNext);
+            NextCommand = ReactiveCommand.CreateFromTask(_playNext);
 
             PreviousCommand = ReactiveCommand.CreateFromTask(playPrevious);
             ToggleShuffleCommand = ReactiveCommand.Create(toggleMode);
@@ -528,7 +528,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .Subscribe(async songAndIndex =>
                 {
                     await CancelSpeed(true);
-                    InitializeSubtuneProgress(CurrentSubtuneIndex, playNext);
+                    InitializeSubtuneProgress(CurrentSubtuneIndex);
                     ResetSubtuneButtonState();
                     await playSubtune(CurrentSubtuneIndex);
                 });
@@ -807,7 +807,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(e => e.DJEventType is DJEventType.Next)
                 .Do(async _ => await CancelSpeed(true))
-                .Subscribe(e => playNext());
+                .Subscribe(e => _playNext());
 
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -852,7 +852,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                             await playPrevious();
                             break;
                         case KeyboardShortcut.NextTrack:
-                            await playNext();
+                            await _playNext();
                             break;
                     } 
                 });
@@ -1028,7 +1028,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 SetSpeed(0);
             }            
             _previousRawSpeed = _rawSpeedValue.Value;
-            InitializeProgress(_playNext, s);
+            InitializeProgress(s);
         }
 
 
@@ -1350,7 +1350,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             SubtunePreviousButtonEnabled = CurrentSubtuneIndex > 1;
         }
 
-        private void InitializeSubtuneProgress(int subtuneIndex, Func<Task> playNext) 
+        private void InitializeSubtuneProgress(int subtuneIndex) 
         {
             var song = File as SongItem;
 
@@ -1360,10 +1360,10 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             var subtuneLength = song.SubtuneLengths[zeroBasedIndex];
 
-            StartTimerObservables(subtuneLength, playNext);
+            StartTimerObservables(subtuneLength, _playNext);
         }
 
-        private void InitializeProgress(Func<Task> playNext, ILaunchableItem? item)
+        private void InitializeProgress(ILaunchableItem? item)
         {
             if (item == null) return;            
 
@@ -1383,7 +1383,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             {
                 playLength = ConvertToTimeSpan(TimerSeconds);
             }
-            StartTimerObservables(playLength, playNext);            
+            StartTimerObservables(playLength, _playNext);            
         }
 
         private void StartTimerObservables(TimeSpan timespan, Func<Task> onNext, bool startNewTimer = true) 
@@ -1425,12 +1425,12 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         {
             if (CurrentSubtuneIndex > 1)
             {
-                InitializeSubtuneProgress(CurrentSubtuneIndex, _playNext);
+                InitializeSubtuneProgress(CurrentSubtuneIndex);
                 return;
             }
             else 
             {
-                InitializeProgress(_playNext, _currentSong);
+                InitializeProgress(_currentSong);
             }
             if (_rawSpeedValue.Value != 0)
             {
