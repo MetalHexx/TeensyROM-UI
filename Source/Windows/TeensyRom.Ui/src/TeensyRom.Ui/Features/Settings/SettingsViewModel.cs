@@ -35,6 +35,7 @@ namespace TeensyRom.Ui.Features.Settings
         public bool MuteFastForward { get; set; } = true;
         public bool MuteRandomSeek { get; set; } = true;
         public bool SyncFilesEnabled { get; set; } = false;
+        public bool RepeatModeOnStartup { get; set; } = false;
         [Reactive] public bool StartupLaunchEnabled { get; set; } = true;
         [Reactive] public List<string> StartupLaunchOptions { get; set; } = [Last_Played, Random];
         [Reactive] public string SelectedStartupLaunchType { get; set; } = Random;
@@ -114,6 +115,7 @@ namespace TeensyRom.Ui.Features.Settings
             MuteFastForward = s.MuteFastForward;
             MuteRandomSeek = s.MuteRandomSeek;
             SyncFilesEnabled = s.SyncFilesEnabled;
+            RepeatModeOnStartup = s.RepeatModeOnStartup;
 
             SelectedStartupLaunchType = s.StartupLaunchRandom ? Random : Last_Played;
 
@@ -148,7 +150,8 @@ namespace TeensyRom.Ui.Features.Settings
                 MuteFastForward = MuteFastForward,
                 MuteRandomSeek = MuteRandomSeek,
                 SyncFilesEnabled = SyncFilesEnabled,
-                StartupLaunchRandom = SelectedStartupLaunchType == Random ? true : false
+                StartupLaunchRandom = SelectedStartupLaunchType == Random ? true : false,
+                RepeatModeOnStartup = RepeatModeOnStartup
             };
 
 

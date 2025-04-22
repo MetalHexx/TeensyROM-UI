@@ -64,7 +64,7 @@
                         </StackPanel>
                         
                         <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
-                            <TextBlock Text="Play Timer Enabled on Startup" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                            <TextBlock Text="Play Timer on Startup" Width="250" TextAlignment="Right" VerticalAlignment="Center"
                                        ToolTip="Play timer is automatically enabled for games and images."/>
                             <ToggleButton IsChecked="{Binding PlayTimerEnabled}" Margin="16,0,0,0"
                                           Style="{StaticResource MaterialDesignSwitchToggleButton}"
@@ -77,6 +77,14 @@
                             <ToggleButton IsChecked="{Binding StartupLaunchEnabled}" Margin="16,0,0,0"
                                           Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                           ToolTip="Automatically launches a random file on startup."/>
+                        </StackPanel>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">
+                            <TextBlock Text="Song Repeat Mode on Startup" Width="250" TextAlignment="Right" VerticalAlignment="Center"
+                                       ToolTip="Song repeat mode is enabled on startup."/>
+                            <ToggleButton IsChecked="{Binding RepeatModeOnStartup}" Margin="16,0,0,0"
+                                          Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                          ToolTip="Song repeat mode is enabled on startup."/>
                         </StackPanel>
                         
                         <StackPanel Orientation="Horizontal" Margin="-30 0 0 20">

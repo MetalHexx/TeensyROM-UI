@@ -42,6 +42,7 @@ namespace TeensyRom.Core.Settings
         public TeensyFilterType StartupFilter { get; set; } = TeensyFilterType.All;
         public bool StartupLaunchEnabled { get; set; } = true;
         public bool StartupLaunchRandom { get; set; } = false;
+        public bool RepeatModeOnStartup { get; set; } = false;
         public bool PlayTimerEnabled { get; set; } = false;  
         public bool NavToDirOnLaunch { get; set; } = true;
         public bool MuteFastForward { get; set; } = false;

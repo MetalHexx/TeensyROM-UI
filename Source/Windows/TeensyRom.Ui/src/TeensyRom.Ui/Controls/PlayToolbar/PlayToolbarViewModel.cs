@@ -180,6 +180,11 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 _settings = s;
             });
 
+            settingsService.Settings
+                .Where(s => s is not null)
+                .Take(1)
+                .Subscribe(s => RepeatModeEnabled = s.RepeatModeOnStartup);
+
             muteFastForward.Subscribe(enabled => _muteFastForward = enabled);
             muteRandomSeek.Subscribe(enabled => _muteRandomSeek = enabled);
 
