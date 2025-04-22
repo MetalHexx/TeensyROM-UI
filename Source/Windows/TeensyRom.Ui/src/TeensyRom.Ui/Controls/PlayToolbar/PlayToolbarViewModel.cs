@@ -1303,7 +1303,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                     if (_muteFastForward) await _mute(true, true, true);
 
-                    SetSpeed(25);                    
+                    SetSpeed(33.334);                    
                     return;
 
                 case FastForwardSpeed.Medium:
@@ -1319,7 +1319,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                     if (_muteFastForward) await _mute(true, true, true);
 
-                    SetSpeed(75);                    
+                    SetSpeed(80);                    
                     return;
 
                 case FastForwardSpeed.Fast:

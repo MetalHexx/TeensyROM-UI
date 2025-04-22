@@ -107,6 +107,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 { 36, 56 },
                 { 35, 54 },
                 { 34, 52 },
+                { 33.334, 50 },
                 { 33, 49 },
                 { 32, 47 },
                 { 31, 45 },
