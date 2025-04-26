@@ -3,6 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:helpers="clr-namespace:TeensyRom.Ui.Helpers"
     xmlns:playlist="clr-namespace:TeensyRom.Ui.Controls.Playlist"
+    xmlns:behaviors="clr-namespace:TeensyRom.Ui.Helpers.Behaviors"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
@@ -242,48 +243,56 @@
         </StackPanel>
     </DataTemplate>
     
-    <DataTemplate x:Key="PlayListDialogTemplate">
-        <StackPanel Background="#424242" MaxWidth="500" HorizontalAlignment="Center">
+<DataTemplate x:Key="PlayListDialogTemplate">
+    <StackPanel Background="#424242" MaxWidth="500" HorizontalAlignment="Center">
 
-            <Rectangle HorizontalAlignment="Stretch" Height="8" Fill="{StaticResource PrimaryHueDarkBrush}"/>
+        <Rectangle HorizontalAlignment="Stretch" Height="8" Fill="{StaticResource PrimaryHueDarkBrush}"/>
+        <TextBlock Text="Add to Playlist" TextAlignment="Center" HorizontalAlignment="Stretch" Height="17" Background="{StaticResource PrimaryHueDarkBrush}"/>
+        <Rectangle HorizontalAlignment="Stretch" Height="5" Fill="{StaticResource PrimaryHueDarkBrush}"/>
 
-            <TextBlock Text="Add to Playlist" TextAlignment="Center" HorizontalAlignment="Stretch" Height="17"  Background="{StaticResource PrimaryHueDarkBrush}"/>
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-            <Rectangle HorizontalAlignment="Stretch" Height="5" Fill="{StaticResource PrimaryHueDarkBrush}"/>
-            
-        
-            <Grid Margin="10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>               
-            
-                <ListBox ItemsSource="{Binding PlaylistItems}" Grid.Row="1" Margin="0 0 0 10">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <CheckBox IsChecked="{Binding IsSelected}" Margin="0 0 10 0"/>
-                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+            <!-- Playlist Items -->
+            <Border Grid.Row="1" Height="400" Margin="0 0 0 10">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                              CanContentScroll="True" 
+                              Padding="0"
+                              Focusable="False">
+                    <ListBox ItemsSource="{Binding PlaylistItems}"
+                             ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                             behaviors:ScrollOnMouseWheelBehavior.EnableScrollOnMouseWheel="True">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <CheckBox IsChecked="{Binding IsSelected}" Margin="0 0 10 0"/>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </ScrollViewer>
+            </Border>
 
-                <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="20 0 0 0">
-                    <TextBox Width="300" 
-                        ToolTip="Enter playlist name..."
-                        materialDesign:HintAssist.Hint="Name">
-                        <TextBox.Text>
-                            <Binding Path="NewPlaylist.Name" UpdateSourceTrigger="PropertyChanged">
-                                <Binding.ValidationRules>
-                                    <playlist:DirectoryNameValidationRule ValidatesOnTargetUpdated="True" />
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </TextBox.Text>
-                    </TextBox>
-                    <Button Content="Create Playlist"
+            <!-- Playlist Creation -->
+            <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="20 0 0 0">
+                <TextBox Width="300"
+                         ToolTip="Enter playlist name..."
+                         materialDesign:HintAssist.Hint="Name">
+                    <TextBox.Text>
+                        <Binding Path="NewPlaylist.Name" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <playlist:DirectoryNameValidationRule ValidatesOnTargetUpdated="True" />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+                <Button Content="Create Playlist"
                         Style="{StaticResource MaterialDesignFlatLightButton}"
                         Command="{Binding CreatePlaylistCommand}"
                         CommandParameter="{Binding NewPlaylist}"
@@ -292,24 +301,25 @@
                         Height="30"
                         Padding="0"
                         Margin="10 0 10 0"/>
-                </StackPanel>            
-            </Grid>
-            
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 0 0 10">
-                <Button Grid.Row="3"
-                    Content="Save"
-                    Command="{Binding SaveCommand}"
-                    HorizontalAlignment="Right"
-                    Width="100"/>
-                <Button Content="Cancel" 
-                    Style="{StaticResource MaterialDesignFlatLightButton}" 
-                    IsCancel="True" 
-                    Command="materialDesign:DialogHost.CloseDialogCommand" 
-                    CommandParameter="{x:Static sys:Boolean.FalseString}"
-                    Margin="10"/>
             </StackPanel>
+
+            <!-- Save and Cancel Buttons -->
+            <StackPanel Orientation="Horizontal" Grid.Row="3" HorizontalAlignment="Center" Margin="0 10 0 10">
+                <Button Content="Save"
+                        Command="{Binding SaveCommand}"
+                        Width="100"/>
+                <Button Content="Cancel"
+                        Style="{StaticResource MaterialDesignFlatLightButton}"
+                        IsCancel="True"
+                        Command="materialDesign:DialogHost.CloseDialogCommand"
+                        CommandParameter="{x:Static sys:Boolean.FalseString}"
+                        Margin="10 0 0 0"/>
+            </StackPanel>
+        </Grid>
     </StackPanel>
 </DataTemplate>
+
+
 
     <DataTemplate x:Key="NoCloseDialogTemplate">
         <StackPanel Background="#424242" MaxWidth="500">
