@@ -7,8 +7,6 @@
         Next,
         Previous,
         Seek,
-        SeekForward,
-        SeekBackward,
         FastForward,
         NudgeForward,
         NudgeBackward,

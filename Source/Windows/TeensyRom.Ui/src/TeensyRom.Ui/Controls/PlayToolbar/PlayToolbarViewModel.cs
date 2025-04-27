@@ -752,35 +752,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             midiService.MidiEvents
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Where(_ => IsSong)
-                .Where(e => e.DJEventType is DJEventType.SeekForward or DJEventType.SeekBackward)
-                .Where(_ => Progress is not null)                
-                .Select(e => e.Mapping.Amount)
-                .Do(delta =>
-                {
-                    _midiTrackSeekInProgress = true;
-                    var newProgressValue = ProgressSliderPercentage + delta;
-
-                    if (newProgressValue > 1) //greater than 100% song length, wrap around.
-                    {
-                        ProgressSliderPercentage = newProgressValue - ProgressSliderPercentage;
-                        return;
-                    }
-                    ProgressSliderPercentage = newProgressValue;
-                })
-                .Throttle(TimeSpan.FromMilliseconds(300))
-                .Do(async _ => await CancelFastForward(true))
-                .Do(_ => _midiTrackSeekInProgress = false)
-                .Subscribe(async deltaPercent =>
-                {
-                    TimeSpan targetTime = Progress.TotalTimeSpan.GetTimeFromPercent(ProgressSliderPercentage);
-
-                    await HandleSeek(restartSong, playSubtune, targetTime);
-                });
-
-
-            midiService.MidiEvents
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Where(_ => IsSong)
                 .Where(e => e.DJEventType is DJEventType.FastForward)
                 .Subscribe(async e => await HandleFastForward());
 
@@ -1061,7 +1032,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     {
                         await playSubtune(CurrentSubtuneIndex);
                     }
-                    else 
+                    else
                     {
                         await restartSong();
                     }
@@ -1073,7 +1044,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                         return;
                     }
                     _timer?.ResetTimer();
-                    await Task.Delay(500);
                 }
                 _currentSeekTargetTime = targetTime;
 
