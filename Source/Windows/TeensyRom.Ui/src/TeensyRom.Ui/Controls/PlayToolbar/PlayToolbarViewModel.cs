@@ -714,7 +714,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     }
                     ProgressSliderPercentage = newProgressValue;
                 })
-                .Throttle(TimeSpan.FromMilliseconds(300))
+                .Throttle(TimeSpan.FromMilliseconds(100))
                 .Do(_ => _midiTrackSeekInProgress = false)
                 .Subscribe(async deltaPercent =>
                 {
@@ -740,7 +740,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     double percent = e.Value / 127.0;
                     ProgressSliderPercentage = percent;
                 })
-                .Throttle(TimeSpan.FromMilliseconds(300))
+                .Throttle(TimeSpan.FromMilliseconds(100))
                 .Do(_ => _midiTrackSeekInProgress = false)
                 .Subscribe(async _ =>
                 {
@@ -1028,14 +1028,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                 if (targetTime < Progress!.CurrentSpan || nearlyEndOfSong)
                 {
-                    if (_currentSong.SubtuneLengths?.Count > 1)
-                    {
-                        await playSubtune(CurrentSubtuneIndex);
-                    }
-                    else
-                    {
-                        await restartSong();
-                    }
+                    await playSubtune(CurrentSubtuneIndex);
+
                     if (targetTime <= TimeSpan.Zero || nearlyEndOfSong)
                     {
                         _timer?.ResetTimer();
