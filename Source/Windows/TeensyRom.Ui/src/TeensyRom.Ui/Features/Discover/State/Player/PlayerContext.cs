@@ -839,11 +839,11 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         public StorageScope GetScope() => _currentScope.Value;
         public string GetScopePath() => _currentScopePath.Value;
 
-        public async Task PlaySubtune(int subtuneIndex)
+        public async Task<PlaySubtuneResult?> PlaySubtune(int subtuneIndex)
         {
-            if (await IsBusy()) return;
+            if (await IsBusy()) return null;
 
-            await _mediator.Send(new PlaySubtuneCommand(subtuneIndex));
+            return await _mediator.Send(new PlaySubtuneCommand(subtuneIndex));
         }
 
         public async Task Mute(bool voice1, bool voice2, bool voice3)
@@ -870,10 +870,15 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             _playingState.OnNext(PlayState.Playing);
         }
 
-        public async Task RestartSubtune(int subtuneIndex)
+        public async Task<PlaySubtuneResult?> RestartSubtune(int subtuneIndex)
         {
-            await _mediator.Send(new PlaySubtuneCommand(subtuneIndex));
-            _playingState.OnNext(PlayState.Playing);
+            var result = await _mediator.Send(new PlaySubtuneCommand(subtuneIndex));
+
+            if (result.IsSuccess is true) 
+            {
+                _playingState.OnNext(PlayState.Playing);
+            }
+            return result;
         }
     }
 }

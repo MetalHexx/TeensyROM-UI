@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using TeensyRom.Core.Commands.PlaySubtune;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Entities;
@@ -35,7 +36,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         Unit NextPage();
         Task PlayNext();
         Task PlayPrevious();
-        Task PlaySubtune(int subtuneIndex);
+        Task<PlaySubtuneResult?> PlaySubtune(int subtuneIndex);
         Task<ILaunchableItem?> PlayRandom();
         void UpdateHistory(ILaunchableItem fileToLoad);
         Unit PreviousPage();
@@ -54,7 +55,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         string GetScopePath();
         Task SetSpeed(double percentage, MusicSpeedCurveTypes curveType);
         Task RestartSong();
-        Task RestartSubtune(int subtuneIndex);
+        Task<PlaySubtuneResult?> RestartSubtune(int subtuneIndex);
         Task Mute(bool voice1, bool voice2, bool voice3);        
     }
 }

@@ -22,6 +22,7 @@ using TeensyRom.Ui.Controls.Playlist;
 using TeensyRom.Ui.Services.Process;
 using System.Reactive.Subjects;
 using System.Diagnostics;
+using TeensyRom.Core.Commands.PlaySubtune;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -127,7 +128,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private bool _muteRandomSeek;
         private Func<bool, bool, bool, Task> _mute;
         private Func<Task> _restartSong;
-        private Func<int, Task> _restartSubtune;
+        private Func<int, Task<PlaySubtuneResult?>> _restartSubtune;
+        private Func<int, Task<PlaySubtuneResult?>> _playSubtune;
         private Func<Task> _playNext;
         private Func<Task> _togglePlay;
         private bool _midiTrackSeekInProgress;
@@ -150,8 +152,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             Func<Task> playPrevious,
             Func<Task> playNext,
             Func<Task> restartSong,
-            Func<int, Task> restartSubtune,
-            Func<int, Task> playSubtune,
+            Func<int, Task<PlaySubtuneResult?>> restartSubtune,
+            Func<int, Task<PlaySubtuneResult?>> playSubtune,
             Func<ILaunchableItem, Task> saveFav,
             Func<ILaunchableItem, Task> removeFav,
             Func<string, Task> loadDirectory,
@@ -172,6 +174,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             _togglePlay = togglePlay;
             _restartSong = restartSong;
             _restartSubtune = restartSubtune;
+            _playSubtune = playSubtune;
             _playNext = playNext;
             _settings = settingsService.GetSettings();
 
@@ -461,7 +464,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                 TimeSpan targetTime = Progress!.TotalTimeSpan.GetTimeFromPercent(targetPercent);
 
-                await HandleSeek(restartSong, playSubtune, targetTime);
+                await HandleSeek(targetTime);
             });
 
             PlaylistCommand = ReactiveCommand.CreateFromTask(async () =>
@@ -714,13 +717,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     }
                     ProgressSliderPercentage = newProgressValue;
                 })
-                .Throttle(TimeSpan.FromMilliseconds(100))
+                .Throttle(TimeSpan.FromMilliseconds(200))
                 .Do(_ => _midiTrackSeekInProgress = false)
                 .Subscribe(async deltaPercent =>
                 {
                     TimeSpan targetTime = Progress.TotalTimeSpan.GetTimeFromPercent(ProgressSliderPercentage);                    
 
-                    await HandleSeek(restartSong, playSubtune, targetTime);
+                    await HandleSeek(targetTime);
                 });
 
             //For absolute CC
@@ -740,13 +743,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     double percent = e.Value / 127.0;
                     ProgressSliderPercentage = percent;
                 })
-                .Throttle(TimeSpan.FromMilliseconds(100))
+                .Throttle(TimeSpan.FromMilliseconds(200))
                 .Do(_ => _midiTrackSeekInProgress = false)
                 .Subscribe(async _ =>
                 {
                     TimeSpan targetTime = Progress.TotalTimeSpan.GetTimeFromPercent(ProgressSliderPercentage);
 
-                    await HandleSeek(restartSong, playSubtune, targetTime);
+                    await HandleSeek(targetTime);
                 });
 
             midiService.MidiEvents
@@ -1003,7 +1006,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         }
 
 
-        private async Task HandleSeek(Func<Task> restartSong, Func<int, Task> playSubtune, TimeSpan targetTime)
+        private async Task HandleSeek(TimeSpan targetTime)
         {
             if (_currentSong is null || Progress is null || _timer is null) return;
 
@@ -1028,7 +1031,24 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                 if (targetTime < Progress!.CurrentSpan || nearlyEndOfSong)
                 {
-                    await playSubtune(CurrentSubtuneIndex);
+                    if (_currentSong.SubtuneLengths?.Count > 1)
+                    {
+                        await _playSubtune(CurrentSubtuneIndex);
+                    }
+                    else
+                    {
+                        var result = await _playSubtune(CurrentSubtuneIndex);
+
+                        if (result is null) 
+                        {
+                            await CancelSeek();
+                            return;
+                        }
+                        if (result.IsSuccess is false) 
+                        {
+                            await _restartSong();
+                        }
+                    }
 
                     if (targetTime <= TimeSpan.Zero || nearlyEndOfSong)
                     {

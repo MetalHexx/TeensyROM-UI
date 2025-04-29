@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Core.Commands.PlaySubtune
 {
@@ -24,7 +25,19 @@ namespace TeensyRom.Core.Commands.PlaySubtune
             serialState.ClearBuffers();
             serialState.SendIntBytes(TeensyToken.PlaySubtune, 2);
             serialState.SendIntBytes((uint)request.SubtuneIndex - 1, 1);
-            serialState.HandleAck();
+
+            try
+            {
+                serialState.HandleAck();
+            }
+            catch (TeensyException ex)
+            {
+                return new PlaySubtuneResult
+                {
+                    IsSuccess = false,
+                    Error = ex.Message
+                };
+            }
             return new PlaySubtuneResult();
         }
     }
