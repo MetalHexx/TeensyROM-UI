@@ -173,7 +173,7 @@ namespace TeensyRom.Core.Storage.Services
                     foreach (var file in files)
                     {
                         var customization = playlist.Items
-                            .FirstOrDefault(c => c.FilePath.RemoveLeadingAndTrailingSlash() == file.Path.RemoveLeadingAndTrailingSlash());
+                            .FirstOrDefault(c => c?.FilePath.RemoveLeadingAndTrailingSlash() == file.Path.RemoveLeadingAndTrailingSlash());
 
                         file.Custom = customization;
                     }
@@ -433,6 +433,7 @@ namespace TeensyRom.Core.Storage.Services
             var customItems = directoryCache!.Files
                 .Select(f => f.Custom)
                 .Cast<PlaylistItem>()
+                .Where(f => f is not null)
                 .ToList();
 
             var playlist = new Playlist
