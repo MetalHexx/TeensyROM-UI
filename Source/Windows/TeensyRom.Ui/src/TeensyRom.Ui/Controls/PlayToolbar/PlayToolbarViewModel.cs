@@ -988,19 +988,19 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             TimedPlayComboBoxEnabled = false;
             ProgressEnabled = true;           
 
-            if (s.Custom is not null) 
+            if (s.Custom is not null && s.Custom.DefaultSpeedCurve != 0) 
             {
                 await Task.Delay(300);
                 SelectedSpeedCurve = s.Custom.DefaultSpeedCurve;
                 _forceSpeedChange = true;
                 SetSpeed(s.Custom.DefaultSpeed);
             }
-            else 
+            else if(_rawSpeedValue.Value != 0)
             {
                 await Task.Delay(300);
                 SelectedSpeedCurve = MusicSpeedCurveTypes.Linear;
                 SetSpeed(0);
-            }            
+            }
             _previousRawSpeed = _rawSpeedValue.Value;
             InitializeProgress(s);
         }
