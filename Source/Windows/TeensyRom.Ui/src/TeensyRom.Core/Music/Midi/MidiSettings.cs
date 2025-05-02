@@ -50,6 +50,7 @@
                     Mappings.Add(mapping);
                 }
             }
+            Mappings = Mappings.DistinctBy(m => m.DJEventType).ToList();
         }
     }
 }
