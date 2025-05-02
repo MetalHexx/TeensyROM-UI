@@ -22,9 +22,13 @@ namespace TeensyRom.Core.Commands.PlaySubtune
     {
         public async Task<PlaySubtuneResult> Handle(PlaySubtuneCommand request, CancellationToken cancellationToken)
         {
+            uint subtuneIndex = request.SubtuneIndex > 0 
+                ? (uint)request.SubtuneIndex - 1
+                : 0;
+
             serialState.ClearBuffers();
             serialState.SendIntBytes(TeensyToken.PlaySubtune, 2);
-            serialState.SendIntBytes((uint)request.SubtuneIndex - 1, 1);
+            serialState.SendIntBytes(subtuneIndex, 1);
 
             try
             {
