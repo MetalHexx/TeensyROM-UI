@@ -1053,7 +1053,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 await _changeSpeed(seekSpeed, MusicSpeedCurveTypes.Logarithmic);
                 _timer?.UpdateSpeed(seekSpeed.GetLogPercentage());
                 _midiTrackSeekInProgress = false;
-                //TrackSeekInProgress = true;
 
                 _fastForwardTimerSubscription?.Dispose();
 
