@@ -1032,14 +1032,6 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 if (targetTime < Progress!.CurrentSpan || nearlyEndOfSong)
                 {
                     await _playSubtune(CurrentSubtuneIndex);
-
-                    if (targetTime <= TimeSpan.Zero || nearlyEndOfSong)
-                    {
-                        _timer?.ResetTimer();
-                        _midiTrackSeekInProgress = false;
-                        TrackSeekInProgress = false;
-                        return;
-                    }
                     _timer?.ResetTimer();
                 }
                 _currentSeekTargetTime = targetTime;
