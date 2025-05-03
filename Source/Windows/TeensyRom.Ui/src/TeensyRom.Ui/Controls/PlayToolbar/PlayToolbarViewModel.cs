@@ -1016,17 +1016,17 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             TrackSeekInProgress = true;
 
-            var isPaused = false;
-
-            if (PlayButtonEnabled) 
-            {
-                isPaused = true;
-            }
-            PlayButtonEnabled = true;
-            PauseButtonEnabled = false;
-
             try
-            {
+            {   
+                _currentSeekTargetTime = targetTime;
+
+                if (PlayButtonEnabled) 
+                {
+                    _timer?.ResumeTimer();
+                    await _togglePlay();
+                }
+                PlayButtonEnabled = true;
+                PauseButtonEnabled = false;
                 var nearlyEndOfSong = targetTime >= Progress.TotalTimeSpan - TimeSpan.FromMilliseconds(500);  //The subtraction avoids a potential loop.
 
                 if (targetTime < Progress!.CurrentSpan || nearlyEndOfSong)
@@ -1034,21 +1034,12 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                     await _playSubtune(CurrentSubtuneIndex);
                     _timer?.ResetTimer();
                 }
-                _currentSeekTargetTime = targetTime;
-
-                if (_muteRandomSeek) await _mute(true, true, true);
-
-                if (isPaused) 
-                {
-                    PlayButtonEnabled = false;
-                    PauseButtonEnabled = true;
-                    _timer?.ResumeTimer();
-                    await _togglePlay();                    
-                }
 
                 var seekSpeed = SelectedSeekSpeed is SeekSpeed.Accurate
                 ? MusicConstants.Log_Speed_Max_Accurate
                 : MusicConstants.Log_Speed_Max;
+
+                if (_muteRandomSeek) await _mute(true, true, true);
 
                 await _changeSpeed(seekSpeed, MusicSpeedCurveTypes.Logarithmic);
                 _timer?.UpdateSpeed(seekSpeed.GetLogPercentage());
@@ -1058,22 +1049,27 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                 _fastForwardTimerSubscription = _timer?.CurrentTime.Subscribe(async currentTime =>
                 {
-                    try
-                    {
-                        if (currentTime >= _currentSeekTargetTime || _currentSeekTargetTime == null)   //TODO: Smell: checking for null here to prevent runaway timer.  Find out why _changeSpeed() threw an Ex to cause the null.
-                        {
-                            await CancelSeek();
-                        }
-                    }
-                    catch (TeensyDjException)
-                    {
-                        await CancelSeek();
-                        return;
-                    }
+                    await OnSeekTick(currentTime);
                 });
             }
             catch (TeensyDjException)
             {   
+                await CancelSeek();
+                return;
+            }
+        }
+
+        private async Task OnSeekTick(TimeSpan currentTime)
+        {
+            try
+            {
+                if (currentTime >= _currentSeekTargetTime || _currentSeekTargetTime == null)   //TODO: Smell: checking for null here to prevent runaway timer.  Find out why _changeSpeed() threw an Ex to cause the null.
+                {
+                    await CancelSeek();
+                }
+            }
+            catch (TeensyDjException)
+            {
                 await CancelSeek();
                 return;
             }
