@@ -31,6 +31,10 @@ using SystemDirectory = System.IO.Directory;
 using TeensyRom.Core.Commands.SetMusicSpeed;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Commands.MuteSidVoices;
+using TeensyRom.Core.Commands.Composite.StartSeek;
+using TeensyRom.Core.Commands.Composite.EndSeek;
+using TeensyRom.Core.Commands.Composite.FastForward;
+using TeensyRom.Core.Commands.Composite.EndFastForward;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {
@@ -846,7 +850,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             return await _mediator.Send(new PlaySubtuneCommand(subtuneIndex));
         }
 
-        public async Task Mute(bool voice1, bool voice2, bool voice3)
+        public async Task Mute(VoiceState voice1, VoiceState voice2, VoiceState voice3)
         {
             if (await IsBusy()) return;
 
@@ -879,6 +883,70 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 _playingState.OnNext(PlayState.Playing);
             }
             return result;
+        }
+
+        public async Task StartSeek(int subtuneIndex, bool togglePlay, bool muteVoices, double speed, SeekDirection direction)
+        {
+            if (await IsBusy()) return;
+
+            var result = await _mediator.Send(new StartSeekCommand 
+            {
+                SubtuneIndex = subtuneIndex,
+                ShouldTogglePlay = togglePlay,                
+                ShouldMuteVoices = muteVoices,
+                SeekSpeed = speed,
+                Direction = direction
+            });
+
+            if (togglePlay) 
+            {
+                _playingState.OnNext(_playingState.Value == PlayState.Paused
+                    ? PlayState.Playing
+                    : PlayState.Paused);
+            }
+        }
+
+        public async Task EndSeek(bool enableVoices, double originalSpeed, MusicSpeedCurveTypes speedCurve)
+        {
+            if (await IsBusy()) return;
+
+            var result = await _mediator.Send(new EndSeekCommand
+            {
+                ShouldEnableVoices = enableVoices,
+                SeekSpeed = originalSpeed,
+                SpeedCurve = speedCurve
+            });
+        }
+
+        public async Task FastForward(bool togglePlay, bool muteVoices, double speed)
+        {
+            if (await IsBusy()) return;
+
+            var result = await _mediator.Send(new FastForwardCommand
+            {
+                ShouldTogglePlay = togglePlay,
+                ShouldMuteVoices = muteVoices,
+                Speed = speed,
+            });
+
+            if (togglePlay)
+            {
+                _playingState.OnNext(_playingState.Value == PlayState.Paused
+                    ? PlayState.Playing
+                    : PlayState.Paused);
+            }
+        }
+
+        public async Task EndFastForward(bool enableVoices, double originalSpeed, MusicSpeedCurveTypes speedCurve)
+        {
+            if (await IsBusy()) return;
+
+            var result = await _mediator.Send(new EndFastForwardCommand
+            {
+                ShouldEnableVoices = enableVoices,
+                OriginalSpeed = originalSpeed,
+                SpeedCurve = speedCurve
+            });
         }
     }
 }

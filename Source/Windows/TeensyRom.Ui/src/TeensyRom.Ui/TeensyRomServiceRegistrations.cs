@@ -35,6 +35,9 @@ using TeensyRom.Core.Storage.Tools.Zip;
 using TeensyRom.Core.Music.Midi;
 using TeensyRom.Ui.Controls.Playlist;
 using TeensyRom.Ui.Services.Process;
+using TeensyRom.Core.Commands.MuteSidVoices;
+using TeensyRom.Core.Commands.SetMusicSpeed;
+using TeensyRom.Core.Commands.PlaySubtune;
 
 namespace TeensyRom.Ui
 {
@@ -83,6 +86,10 @@ namespace TeensyRom.Ui
             services.AddSingleton<PlaylistViewModel>();
             services.AddSingleton<IPlaylistDialogService, PlaylistDialogService>();
             services.AddSingleton<ISerialCommandViewModel, SerialCommandViewModel>();
+            services.AddSingleton<IMuteSidVoicesSerialRoutine, MuteSidVoicesSerialRoutine>();
+            services.AddSingleton<IToggleMusicSerialRoutine, ToggleMusicSerialRoutine>();
+            services.AddSingleton<ISetMusicSpeedSerialRoutine,  SetMusicSpeedSerialRoutine>();
+            services.AddSingleton<IPlaySubtuneSerialRoutine, PlaySubtuneSerialRoutine>();
             services.AddSingleton<MainWindow>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));

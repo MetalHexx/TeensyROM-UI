@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using TeensyRom.Core.Commands.Composite.StartSeek;
+using TeensyRom.Core.Commands.MuteSidVoices;
 using TeensyRom.Core.Commands.PlaySubtune;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Settings;
@@ -56,6 +58,11 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         Task SetSpeed(double percentage, MusicSpeedCurveTypes curveType);
         Task RestartSong();
         Task<PlaySubtuneResult?> RestartSubtune(int subtuneIndex);
-        Task Mute(bool voice1, bool voice2, bool voice3);        
+        Task Mute(VoiceState voice1, VoiceState voice2, VoiceState voice3);
+        Task StartSeek(int subtuneIndex, bool togglePlay, bool muteVoices, double seekSpeed, SeekDirection direction);
+        Task EndSeek(bool enableVoices, double originalSpeed, MusicSpeedCurveTypes speedCurve);
+        Task FastForward(bool togglePlay, bool muteVoices, double speed);
+        Task EndFastForward(bool enableVoices, double originalSpeed, MusicSpeedCurveTypes originalSpeedCurve);
+
     }
 }
