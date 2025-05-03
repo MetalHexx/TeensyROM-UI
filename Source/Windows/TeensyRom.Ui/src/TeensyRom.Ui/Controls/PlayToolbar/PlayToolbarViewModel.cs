@@ -1031,24 +1031,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
                 if (targetTime < Progress!.CurrentSpan || nearlyEndOfSong)
                 {
-                    if (_currentSong.SubtuneLengths?.Count > 1)
-                    {
-                        await _playSubtune(CurrentSubtuneIndex);
-                    }
-                    else
-                    {
-                        var result = await _playSubtune(CurrentSubtuneIndex);
-
-                        if (result is null) 
-                        {
-                            await CancelSeek();
-                            return;
-                        }
-                        if (result.IsSuccess is false) 
-                        {
-                            await _restartSong();
-                        }
-                    }
+                    await _playSubtune(CurrentSubtuneIndex);
 
                     if (targetTime <= TimeSpan.Zero || nearlyEndOfSong)
                     {
