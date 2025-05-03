@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Music.Midi;
+using TeensyRom.Core.Midi;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Controls.PlayToolbar;

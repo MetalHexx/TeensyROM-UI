@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Ui.Controls.DirectoryTree
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TeensyRom.Core.Music.Midi;
+using TeensyRom.Core.Midi;
 using FluentAssertions;
 using NAudio.Midi;
 using System.Diagnostics;

@@ -4,15 +4,10 @@ using System.Windows.Media.Imaging;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System.Reactive.Linq;
-using System.Diagnostics;
 using System.Windows;
 using TeensyRom.Core.Games;
-using TeensyRom.Core.Storage.Entities;
-using System.Collections;
+using TeensyRom.Core.Entities.Storage;
 using System.Collections.ObjectModel;
-using TeensyRom.Core.Common;
-using System.Drawing;
-using System.Collections.Generic;
 using System.Linq;
 using TeensyRom.Ui.Features.Discover.State.Player;
 

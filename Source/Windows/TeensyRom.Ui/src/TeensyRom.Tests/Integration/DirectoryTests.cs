@@ -1,6 +1,6 @@
 ﻿//using FluentAssertions;
 //using System.Reactive.Threading.Tasks;
-//using TeensyRom.Core.Storage.Entities;
+//using TeensyRom.Core.Entities.Storage;
 
 //namespace TeensyRom.Tests.Integration
 //{

@@ -1,5 +1,5 @@
 ﻿using TeensyRom.Core.Common;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Ui.Features.Discover.State.Player;
 
 namespace TeensyRom.Ui.Services.Process

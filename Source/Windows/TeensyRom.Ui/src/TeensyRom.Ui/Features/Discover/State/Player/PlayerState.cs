@@ -1,30 +1,14 @@
-﻿using DynamicData;
-using MaterialDesignThemes.Wpf;
-using MediatR;
-using ReactiveUI;
+﻿using MediatR;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO.Ports;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Runtime;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using TeensyRom.Core.Commands;
-using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
-using TeensyRom.Core.Serial.State;
+using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Settings;
-using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Services;
-using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Core.Storage;
 using TeensyRom.Ui.Features.Discover.State.Directory;
-using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
-using PlayState = TeensyRom.Ui.Features.Discover.State.PlayState;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {

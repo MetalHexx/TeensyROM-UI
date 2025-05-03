@@ -76,6 +76,24 @@
           "ReactiveUI": "19.5.41"
         }
       },
+      "System.Drawing.Common": {
+        "type": "Direct",
+        "requested": "[8.0.1, )",
+        "resolved": "8.0.1",
+        "contentHash": "x0rAZECxIGx/YVjN28YRdpqka0+H7YMN9741FUDzipXPDzesd60gef/LI0ZCOcYSDsacTLTHvMAvxHG+TjbNNQ==",
+        "dependencies": {
+          "Microsoft.Win32.SystemEvents": "8.0.0"
+        }
+      },
+      "System.Management": {
+        "type": "Direct",
+        "requested": "[9.0.2, )",
+        "resolved": "9.0.2",
+        "contentHash": "U6SXFe1kfJySAvcPPdbdb+fycaY+3c/KV0PwTjurvrALMnlSm37s5z8zcoI7qbkV2kYhxiLfsZRGiF0XeSsqSQ==",
+        "dependencies": {
+          "System.CodeDom": "9.0.2"
+        }
+      },
       "System.Text.Json": {
         "type": "Direct",
         "requested": "[8.0.5, )",
@@ -194,28 +212,12 @@
         "resolved": "5.0.0",
         "contentHash": "dMkqfy2el8A8/I76n2Hi1oBFEbG1SfxD2l5nhwXV3XjlnOmwxJlQbYpJH4W51odnU9sARCSAgv7S3CyAFMkpYg=="
       },
-      "System.Drawing.Common": {
-        "type": "Transitive",
-        "resolved": "8.0.1",
-        "contentHash": "x0rAZECxIGx/YVjN28YRdpqka0+H7YMN9741FUDzipXPDzesd60gef/LI0ZCOcYSDsacTLTHvMAvxHG+TjbNNQ==",
-        "dependencies": {
-          "Microsoft.Win32.SystemEvents": "8.0.0"
-        }
-      },
       "System.IO.Ports": {
         "type": "Transitive",
         "resolved": "6.0.0",
         "contentHash": "dRyGI7fUESar5ZLIpiBOaaNLW7YyOBGftjj5Of+xcduC/Rjl7RjhEnWDvvNBmHuF3d0tdXoqdVI/yrVA8f00XA==",
         "dependencies": {
           "runtime.native.System.IO.Ports": "6.0.0"
-        }
-      },
-      "System.Management": {
-        "type": "Transitive",
-        "resolved": "9.0.2",
-        "contentHash": "U6SXFe1kfJySAvcPPdbdb+fycaY+3c/KV0PwTjurvrALMnlSm37s5z8zcoI7qbkV2kYhxiLfsZRGiF0XeSsqSQ==",
-        "dependencies": {
-          "System.CodeDom": "9.0.2"
         }
       },
       "System.Reactive": {
@@ -229,16 +231,42 @@
           "Ardalis.SmartEnum": "[7.0.0, )",
           "CsvHelper": "[30.0.1, )",
           "MediatR": "[12.2.0, )",
-          "NAudio.Midi": "[2.2.1, )",
-          "System.Drawing.Common": "[8.0.1, )",
           "System.IO.Ports": "[6.0.0, )",
-          "System.Management": "[9.0.2, )",
           "System.Reactive": "[6.0.0, )",
           "System.Text.Json": "[8.0.5, )"
+        }
+      },
+      "teensyrom.core.midi": {
+        "type": "Project",
+        "dependencies": {
+          "NAudio.Midi": "[2.2.1, )",
+          "TeensyRom.Core": "[1.0.0, )"
+        }
+      },
+      "teensyrom.core.serial": {
+        "type": "Project",
+        "dependencies": {
+          "TeensyRom.Core": "[1.0.0, )"
+        }
+      },
+      "teensyrom.core.storage": {
+        "type": "Project",
+        "dependencies": {
+          "TeensyRom.Core": "[1.0.0, )",
+          "TeensyRom.Core.Serial": "[1.0.0, )"
         }
       }
     },
     "net8.0-windows10.0.19041/win-x64": {
+      "System.Management": {
+        "type": "Direct",
+        "requested": "[9.0.2, )",
+        "resolved": "9.0.2",
+        "contentHash": "U6SXFe1kfJySAvcPPdbdb+fycaY+3c/KV0PwTjurvrALMnlSm37s5z8zcoI7qbkV2kYhxiLfsZRGiF0XeSsqSQ==",
+        "dependencies": {
+          "System.CodeDom": "9.0.2"
+        }
+      },
       "Microsoft.Win32.SystemEvents": {
         "type": "Transitive",
         "resolved": "8.0.0",
@@ -275,14 +303,6 @@
         "contentHash": "dRyGI7fUESar5ZLIpiBOaaNLW7YyOBGftjj5Of+xcduC/Rjl7RjhEnWDvvNBmHuF3d0tdXoqdVI/yrVA8f00XA==",
         "dependencies": {
           "runtime.native.System.IO.Ports": "6.0.0"
-        }
-      },
-      "System.Management": {
-        "type": "Transitive",
-        "resolved": "9.0.2",
-        "contentHash": "U6SXFe1kfJySAvcPPdbdb+fycaY+3c/KV0PwTjurvrALMnlSm37s5z8zcoI7qbkV2kYhxiLfsZRGiF0XeSsqSQ==",
-        "dependencies": {
-          "System.CodeDom": "9.0.2"
         }
       }
     }

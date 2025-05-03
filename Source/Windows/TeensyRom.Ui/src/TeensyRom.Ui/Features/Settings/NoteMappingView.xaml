@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:TeensyRom.Ui.Features.Settings"
-             xmlns:midi="clr-namespace:TeensyRom.Core.Music.Midi;assembly=TeensyRom.Core"
+             xmlns:midi="clr-namespace:TeensyRom.Core.Entities.Midi;assembly=TeensyRom.Core"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
              DataContext="{Binding}">

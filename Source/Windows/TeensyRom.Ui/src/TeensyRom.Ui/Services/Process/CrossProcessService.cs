@@ -4,7 +4,7 @@ using System.Threading;
 using System;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Entities.Storage;
 using System.Reactive.Linq;
 using System.Linq;
 using TeensyRom.Core.Common;

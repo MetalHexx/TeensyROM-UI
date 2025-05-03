@@ -17,7 +17,7 @@ using TeensyRom.Core.Assets;
 using TeensyRom.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Core.Storage.Tools.Zip;
 using TeensyRom.Ui.Services.Process;
-using TeensyRom.Core.Music.Midi;
+using TeensyRom.Core.Midi;
 
 namespace TeensyRom.Ui
 {

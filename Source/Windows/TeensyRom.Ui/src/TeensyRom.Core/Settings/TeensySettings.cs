@@ -1,24 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 using TeensyRom.Core.Common;
-using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Core.Settings
 {
-    public enum TeensyFilterType
-    {
-        All,
-        Games,
-        Music,
-        Hex,
-        Images
-    }
-    public class TeensyFilter
-    {
-        public TeensyFilterType Type { get; set; }
-        public string DisplayName { get; set; } = string.Empty;
-        public string Icon { get; set; } = string.Empty;
-    }
     /// <summary>
     /// Used to persist and retrieve user preference from disk.  See: Settings.json in the bin folder
     /// </summary>

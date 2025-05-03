@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Windows;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Ui.Services;
 using TeensyRom.Ui.Controls.Paging;
 using File = System.IO.File;
 using DragNDropFile = TeensyRom.Ui.Features.Common.Models.DragNDropFile;
-using TeensyRom.Core.Music.Midi;
+using TeensyRom.Core.Midi;
 using System.Reactive.Linq;
 using DynamicData;
 

@@ -1,14 +1,11 @@
 ﻿using MediatR;
 using System;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
-using System.Windows;
-using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
-using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Storage;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Discover.State.Directory;
 using TeensyRom.Ui.Features.NavigationHost;

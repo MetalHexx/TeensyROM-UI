@@ -24,6 +24,8 @@
 	  <PackageReference Include="ReactiveUI.WPF" Version="19.5.41">
 		  <NoWarn>NU1701</NoWarn>
 	  </PackageReference>
+	  <PackageReference Include="System.Drawing.Common" Version="8.0.1" />
+	  <PackageReference Include="System.Management" Version="9.0.2" />
 	  <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
@@ -38,6 +40,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\TeensyRom.Core.Midi\TeensyRom.Core.Midi.csproj" />
+    <ProjectReference Include="..\TeensyRom.Core.Serial\TeensyRom.Core.Serial.csproj" />
+    <ProjectReference Include="..\TeensyRom.Core.Storage\TeensyRom.Core.Storage.csproj" />
     <ProjectReference Include="..\TeensyRom.Core\TeensyRom.Core.csproj" />
   </ItemGroup>
 

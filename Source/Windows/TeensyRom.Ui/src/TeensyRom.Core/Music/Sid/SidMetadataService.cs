@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using TeensyRom.Core.Common;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Core.Music.Sid
 {

@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
-using TeensyRom.Core.Music.Midi;
+using TeensyRom.Core.Midi;
 using TeensyRom.Ui.Main;
 using TeensyRom.Ui.Services;
 

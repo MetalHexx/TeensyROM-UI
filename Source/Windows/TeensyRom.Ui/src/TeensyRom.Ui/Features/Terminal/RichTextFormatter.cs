@@ -1,7 +1,7 @@
 ﻿using System.Windows.Documents;
 using System.Windows.Media;
 using System.Text.RegularExpressions;
-using TeensyRom.Core.Logging;
+using TeensyRom.Ui.Services;
 
 namespace TeensyRom.Ui.Features.Terminal
 {

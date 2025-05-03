@@ -1,4 +1,4 @@
-﻿using TeensyRom.Core.Storage.Entities;
+﻿using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Core.Games
 {

@@ -8,23 +8,23 @@ using System.Threading.Tasks;
 using System.Windows;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Core.Progress;
 using System.Reactive.Concurrency;
 using TeensyRom.Core.Music;
 using TeensyRom.Ui.Services;
 using TeensyRom.Ui.Main;
-using TeensyRom.Core.Music.Midi;
+using TeensyRom.Core.Midi;
 using TeensyRom.Core.Settings;
 using TeensyRom.Ui.Controls.Playlist;
 using TeensyRom.Ui.Services.Process;
 using System.Reactive.Subjects;
 using System.Diagnostics;
+using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.Entities.Midi;
 using TeensyRom.Core.Commands.PlaySubtune;
-using TeensyRom.Core.Commands.Composite.StartSeek;
 using TeensyRom.Core.Commands.MuteSidVoices;
+using TeensyRom.Core.Serial.Commands.Composite.StartSeek;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {

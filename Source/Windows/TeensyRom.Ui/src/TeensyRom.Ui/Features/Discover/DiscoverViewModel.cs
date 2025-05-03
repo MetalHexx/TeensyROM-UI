@@ -7,7 +7,6 @@ using TeensyRom.Core.Games;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
-using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Controls.CacheButton;
 using TeensyRom.Ui.Controls.DirectoryChips;
 using TeensyRom.Ui.Controls.DirectoryList;
@@ -24,9 +23,10 @@ using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Ui.Core.Progress;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
-using TeensyRom.Core.Music.Midi;
+using TeensyRom.Core.Midi;
 using TeensyRom.Ui.Controls.Playlist;
 using TeensyRom.Ui.Services.Process;
+using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Ui.Features.Discover
 {

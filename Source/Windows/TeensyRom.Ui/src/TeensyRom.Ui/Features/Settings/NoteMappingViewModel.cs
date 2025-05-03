@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using TeensyRom.Core.Entities.Midi;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Music.Midi;
+using TeensyRom.Core.Midi;
 
 namespace TeensyRom.Ui.Features.Settings
 {

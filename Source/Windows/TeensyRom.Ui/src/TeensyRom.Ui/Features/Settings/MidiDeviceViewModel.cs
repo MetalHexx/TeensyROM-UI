@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
-using TeensyRom.Core.Music.Midi;
+using TeensyRom.Core.Entities.Midi;
 
 namespace TeensyRom.Ui.Features.Settings
 {

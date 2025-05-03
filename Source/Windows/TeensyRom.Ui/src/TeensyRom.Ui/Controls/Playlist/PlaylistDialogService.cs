@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Ui.Helpers;
 
 namespace TeensyRom.Ui.Controls.Playlist

@@ -1,0 +1,38 @@
+﻿namespace TeensyRom.Core.Entities.Midi
+{
+    public enum DJEventType
+    {
+        PlayPause,
+        Stop,
+        Next,
+        Previous,
+        Seek,
+        SeekForward,
+        SeekBackward,
+        FastForward,
+        NudgeForward,
+        NudgeBackward,
+        IncreaseCurrentSpeed,
+        IncreaseCurrentSpeedFine,
+        DecreaseCurrentSpeed,
+        DecreaseCurrentSpeedFine,
+        CurrentSpeed,
+        CurrentSpeedFine,
+        SpeedPlus50Toggle,
+        SpeedMinus50Toggle,
+        HomeSpeedToggle,
+        Voice1Toggle,
+        Voice2Toggle,
+        Voice3Toggle,
+        Voice1Kill,
+        Voice2Kill,
+        Voice3Kill,
+        Mode,
+        Restart,
+        HoldPause,
+        CrossLaunch,
+        SaveSongSettings,
+        NavigateDirectory,
+        LaunchSelectedFile
+    }
+}

@@ -4,12 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Threading.Tasks;
-using System.Windows;
-using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Services;
-using TeensyRom.Ui.Controls.DirectoryTree;
+using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Ui.Features.Discover.State.Directory
 {

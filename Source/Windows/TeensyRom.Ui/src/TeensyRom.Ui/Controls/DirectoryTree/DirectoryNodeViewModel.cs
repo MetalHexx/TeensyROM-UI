@@ -1,7 +1,7 @@
 ﻿using ReactiveUI.Fody.Helpers;
 using System.Collections.Generic;
 using System.Linq;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Entities.Storage;
 using System.Reactive.Linq;
 using System.Collections.ObjectModel;
 using TeensyRom.Core.Common;

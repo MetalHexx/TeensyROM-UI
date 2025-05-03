@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace TeensyRom.Core.Logging
+﻿namespace TeensyRom.Core.Logging
 {
     public interface ILoggingService
     {

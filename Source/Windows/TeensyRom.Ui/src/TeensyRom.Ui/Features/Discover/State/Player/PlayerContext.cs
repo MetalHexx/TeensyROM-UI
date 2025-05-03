@@ -16,9 +16,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
-using TeensyRom.Core.Storage;
-using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Core.Storage.Tools.Zip;
 using TeensyRom.Ui.Controls.DirectoryTree;
@@ -31,10 +29,12 @@ using SystemDirectory = System.IO.Directory;
 using TeensyRom.Core.Commands.SetMusicSpeed;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Commands.MuteSidVoices;
-using TeensyRom.Core.Commands.Composite.StartSeek;
-using TeensyRom.Core.Commands.Composite.EndSeek;
-using TeensyRom.Core.Commands.Composite.FastForward;
-using TeensyRom.Core.Commands.Composite.EndFastForward;
+using TeensyRom.Core.Serial.Commands.Composite.StartSeek;
+using TeensyRom.Core.Serial.Commands.Composite.EndSeek;
+using TeensyRom.Core.Serial.Commands.Composite.FastForward;
+using TeensyRom.Core.Serial.Commands.Composite.EndFastForward;
+using TeensyRom.Core.Storage;
+using TeensyRom.Core.Serial.Commands.ToggleMusic;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {

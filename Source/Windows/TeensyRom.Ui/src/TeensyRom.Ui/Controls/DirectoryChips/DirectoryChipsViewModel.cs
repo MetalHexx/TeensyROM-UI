@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using TeensyRom.Core.Common;
-using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Ui.Controls.DirectoryChips
 {

@@ -1,5 +1,5 @@
-﻿using TeensyRom.Core.Music.Midi;
-using TeensyRom.Core.Storage.Entities;
+﻿using TeensyRom.Core.Entities.Midi;
+using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Core.Settings
 {

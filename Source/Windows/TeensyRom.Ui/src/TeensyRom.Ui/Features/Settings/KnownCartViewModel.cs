@@ -1,8 +1,8 @@
 ﻿using ReactiveUI.Fody.Helpers;
+using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Music.Midi;
+using TeensyRom.Core.Midi;
 using TeensyRom.Core.Settings;
-using TeensyRom.Core.Storage.Entities;
 
 namespace TeensyRom.Ui.Features.Settings
 {

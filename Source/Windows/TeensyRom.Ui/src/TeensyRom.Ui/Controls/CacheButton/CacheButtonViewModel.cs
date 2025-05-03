@@ -7,7 +7,7 @@ using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Core.Settings;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Services;
 

@@ -8,8 +8,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using TeensyRom.Core.Music.Midi;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Entities.Midi;
+using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.Midi;
 
 namespace TeensyRom.Ui.Controls.DirectoryList
 {

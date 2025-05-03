@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TeensyRom.Core.Storage.Entities;
-using TeensyRom.Core.Storage.Services;
+using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.Storage;
 
 namespace TeensyRom.Ui.Services.Process
 {

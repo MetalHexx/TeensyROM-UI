@@ -20,6 +20,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7E3C6ECA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Sandbox", "src\TeensyRom.Sandbox\TeensyRom.Sandbox.csproj", "{92B66FA4-D2A5-4C32-875D-4F67C78213CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Core.Serial", "src\TeensyRom.Core.Serial\TeensyRom.Core.Serial.csproj", "{CBBEC5BE-853A-4BD8-8F64-22B8ECE4F6F4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Core.Storage", "src\TeensyRom.Core.Storage\TeensyRom.Core.Storage.csproj", "{DF947B64-0B87-4D44-A4B6-5E3D393470F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Core.Midi", "TeensyRom.Core.Midi\TeensyRom.Core.Midi.csproj", "{F26D9198-BB1A-4AFB-9CCE-0B79A8373905}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Assets", "src\TeensyRom.Assets\TeensyRom.Assets.csproj", "{ECFE6389-D41F-4573-A7B8-F94C99AF1419}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +54,22 @@ Global
 		{92B66FA4-D2A5-4C32-875D-4F67C78213CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92B66FA4-D2A5-4C32-875D-4F67C78213CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92B66FA4-D2A5-4C32-875D-4F67C78213CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBBEC5BE-853A-4BD8-8F64-22B8ECE4F6F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBBEC5BE-853A-4BD8-8F64-22B8ECE4F6F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBBEC5BE-853A-4BD8-8F64-22B8ECE4F6F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBBEC5BE-853A-4BD8-8F64-22B8ECE4F6F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF947B64-0B87-4D44-A4B6-5E3D393470F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF947B64-0B87-4D44-A4B6-5E3D393470F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF947B64-0B87-4D44-A4B6-5E3D393470F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF947B64-0B87-4D44-A4B6-5E3D393470F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F26D9198-BB1A-4AFB-9CCE-0B79A8373905}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F26D9198-BB1A-4AFB-9CCE-0B79A8373905}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F26D9198-BB1A-4AFB-9CCE-0B79A8373905}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F26D9198-BB1A-4AFB-9CCE-0B79A8373905}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECFE6389-D41F-4573-A7B8-F94C99AF1419}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECFE6389-D41F-4573-A7B8-F94C99AF1419}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECFE6389-D41F-4573-A7B8-F94C99AF1419}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECFE6389-D41F-4573-A7B8-F94C99AF1419}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

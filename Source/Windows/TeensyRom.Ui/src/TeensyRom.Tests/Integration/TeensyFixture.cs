@@ -1,21 +1,15 @@
 ﻿using Newtonsoft.Json;
 using System.Windows.Threading;
-using TeensyRom.Core.Commands.File.LaunchFile;
-using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
-using TeensyRom.Core.Storage.Services;
-using TeensyRom.Core.Storage;
-using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Settings;
 using TeensyRom.Ui.Features.Terminal;
 using TeensyRom.Core.Settings;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using TeensyRom.Core;
 using TeensyRom.Ui;
-using System.Text;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.Storage;
 
 namespace TeensyRom.Tests.Integration
 {

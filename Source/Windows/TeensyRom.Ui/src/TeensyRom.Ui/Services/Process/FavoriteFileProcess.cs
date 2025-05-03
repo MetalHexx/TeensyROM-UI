@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Ui.Features.Discover.State.Player;
-using TeensyRom.Core.Storage.Services;
 using System.Reactive.Linq;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Core.Logging;
+using TeensyRom.Core.Storage;
 
 namespace TeensyRom.Ui.Services.Process
 {

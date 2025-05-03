@@ -1,6 +1,6 @@
 ﻿using System.Reactive.Linq;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Storage.Entities;
+using TeensyRom.Core.Entities.Storage;
 using System.Reflection;
 using TeensyRom.Core.Common;
 using System.Text.Json;

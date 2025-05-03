@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TeensyRom.Core.Assets
+﻿namespace TeensyRom.Core.Assets
 {
     public class AssetConstants
     {

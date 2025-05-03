@@ -6,7 +6,7 @@
 //using TeensyRom.Core.Commands.DeleteFile;
 //using TeensyRom.Core.Commands;
 //using TeensyRom.Core.Common;
-//using TeensyRom.Core.Storage.Entities;
+//using TeensyRom.Core.Entities.Storage;
 //using FluentAssertions;
 //using System.Diagnostics;
 

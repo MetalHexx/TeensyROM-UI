@@ -1,30 +1,19 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using TeensyRom.Core.Commands.File.LaunchFile;
-using TeensyRom.Core.Commands;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Music;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Settings;
-using TeensyRom.Core.Storage;
-using TeensyRom.Core.Storage.Services;
 using TeensyRom.Ui.Features.Terminal;
 using TeensyRom.Ui.Features.Help;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Settings;
 using TeensyRom.Ui.Main;
 using TeensyRom.Core;
-using System.Windows;
 using System.Windows.Threading;
 using MediatR;
 using TeensyRom.Core.Music.Sid;
-using TeensyRom.Core.Storage.Entities;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Games;
-using TeensyRom.Ui.Controls.DirectoryTree;
-using TeensyRom.Ui.Controls.DirectoryChips;
-using TeensyRom.Ui.Controls.Search;
-using TeensyRom.Ui.Controls.DirectoryList;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State;
 using TeensyRom.Ui.Features.Terminal.SerialCommand;
@@ -32,12 +21,17 @@ using TeensyRom.Ui.Core.Progress;
 using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Core.Storage.Tools.Zip;
-using TeensyRom.Core.Music.Midi;
+using TeensyRom.Core.Midi;
 using TeensyRom.Ui.Controls.Playlist;
 using TeensyRom.Ui.Services.Process;
 using TeensyRom.Core.Commands.MuteSidVoices;
 using TeensyRom.Core.Commands.SetMusicSpeed;
 using TeensyRom.Core.Commands.PlaySubtune;
+using TeensyRom.Core.Storage;
+using TeensyRom.Ui.Services.Logging;
+using TeensyRom.Ui.Services.Settings;
+using TeensyRom.Core.Serial.Commands.ToggleMusic;
+using TeensyRom.Core.Serial.Commands.Behaviors;
 
 namespace TeensyRom.Ui
 {
@@ -91,7 +85,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<ISetMusicSpeedSerialRoutine,  SetMusicSpeedSerialRoutine>();
             services.AddSingleton<IPlaySubtuneSerialRoutine, PlaySubtuneSerialRoutine>();
             services.AddSingleton<MainWindow>();
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreAssemblyMarker>());            
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreSerialAssemblyMarker>());            
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(SerialBehavior<,>)); 
