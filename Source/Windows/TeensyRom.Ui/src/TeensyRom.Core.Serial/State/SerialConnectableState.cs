@@ -13,6 +13,6 @@ namespace TeensyRom.Core.Serial.State
                 || nextStateType == typeof(SerialBusyState);
         }
         public override Unit SetPort(string port) => _serialPort.SetPort(port);
-        public override Unit OpenPort() => _serialPort.OpenPort();
+        public override string? OpenPort() => _serialPort.OpenPort();
     }
 }

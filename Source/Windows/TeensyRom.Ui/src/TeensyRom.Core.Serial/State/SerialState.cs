@@ -20,10 +20,10 @@ namespace TeensyRom.Core.Serial.State
         public virtual void Write(byte[] buffer, int offset, int count) => throw new TeensyStateException(ExceptionMessage);
         public virtual void Write(char[] buffer, int offset, int count) => throw new TeensyStateException(ExceptionMessage);
         public virtual Unit SetPort(string port) => throw new TeensyStateException(ExceptionMessage);
-        public virtual Unit OpenPort() => throw new TeensyStateException(ExceptionMessage);
+        public virtual string? OpenPort() => throw new TeensyStateException(ExceptionMessage);
         public virtual Unit ClosePort() => throw new TeensyStateException(ExceptionMessage);
         public virtual void EnsureConnection(int waitTimeMs = 200) => throw new TeensyStateException(ExceptionMessage);
-        public virtual void StartHealthCheck() => throw new TeensyStateException(ExceptionMessage);
+        public virtual string? StartHealthCheck() => throw new TeensyStateException(ExceptionMessage);
         public virtual void StopHealthCheck() => throw new TeensyStateException(ExceptionMessage);
         public virtual void SendIntBytes(uint intToSend, short numBytes) => throw new TeensyStateException(ExceptionMessage);
         public virtual void SendSignedChar(sbyte charToSend) => throw new TeensyStateException(ExceptionMessage);

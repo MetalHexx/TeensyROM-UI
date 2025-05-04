@@ -29,7 +29,7 @@ namespace TeensyRom.Core.Serial.State
         public override byte[] ReadSerialBytes() => _serialPort.ReadSerialBytes();
         public override void WaitForSerialData(int numBytes, int timeoutMs) => _serialPort.WaitForSerialData(numBytes, timeoutMs);
         public override void ClearBuffers() => _serialPort.ClearBuffers();
-        public override void StartHealthCheck() => _serialPort.StartHealthCheck();
+        public override string? StartHealthCheck() => _serialPort.StartHealthCheck();
         public override void StopHealthCheck() => _serialPort.StopHealthCheck();
         public override void EnsureConnection(int waitTimeMs = 200) => _serialPort.EnsureConnection(waitTimeMs);
     }

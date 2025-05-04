@@ -51,7 +51,10 @@ namespace TeensyRom.Core.Serial
         /// <summary>
         /// Opens the port with the current set port
         /// </summary>
-        Unit OpenPort();
+        /// <returns>
+        /// COM port successfully opened
+        /// </returns>
+        string? OpenPort();
 
         /// <summary>
         /// Closes the port
@@ -127,7 +130,14 @@ namespace TeensyRom.Core.Serial
         /// Starts polling the serial port for available ports
         /// </summary>
         void StartPortPoll();
-        void StartHealthCheck();
+
+        /// <summary>
+        /// Ensures a connection to the serial port and starts a periodic health check.
+        /// <returns>
+        /// COM port successfully opened
+        /// </returns>
+        /// </summary>
+        string? StartHealthCheck();
         void StopHealthCheck();
         void EnsureConnection(int waitTimeMs = 200);
         void SendSignedChar(sbyte charToSend);

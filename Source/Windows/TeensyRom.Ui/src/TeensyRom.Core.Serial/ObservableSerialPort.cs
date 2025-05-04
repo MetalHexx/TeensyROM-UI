@@ -148,13 +148,12 @@ namespace TeensyRom.Core.Serial
             throw new TeensyException($"ObservableSerialPort.EnsureConnection: Failed to ensure the connection to {_serialPort.PortName}. Retrying in {SerialPortConstants.Health_Check_Milliseconds} ms.");
         }
 
-        public Unit OpenPort()
+        public string? OpenPort()
         {
-            StartHealthCheck();
-            return Unit.Default;
+            return StartHealthCheck();
         }
 
-        public void StartHealthCheck() 
+        public string? StartHealthCheck() 
         {
             _healthCheckSubscription?.Dispose();
 
@@ -211,6 +210,12 @@ namespace TeensyRom.Core.Serial
                 }))
                 .RetryWhen(ex => ex.DelaySubscription(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds)))
                 .Subscribe();
+
+            if (_serialPort.IsOpen) 
+            {
+                return _serialPort.PortName;
+            }
+            return null;
         }
 
         public void StopHealthCheck()

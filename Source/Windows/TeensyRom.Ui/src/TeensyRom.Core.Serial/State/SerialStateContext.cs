@@ -49,9 +49,9 @@ namespace TeensyRom.Core.Serial.State
             _log.InternalError($"Transition to {nextStateType.Name} is not allowed from {_currentState.Value.GetType().Name}");
         }
 
-        public Unit OpenPort() => _currentState.Value.OpenPort();
+        public string? OpenPort() => _currentState.Value.OpenPort();
         public Unit ClosePort() => _currentState.Value.ClosePort();
-        public void StartHealthCheck() => _currentState.Value.StartHealthCheck();
+        public string? StartHealthCheck() => _currentState.Value.StartHealthCheck();
         public void StopHealthCheck() => _currentState.Value.StopHealthCheck();
         public void EnsureConnection(int waitTimeMs = 200) => _currentState.Value.EnsureConnection(waitTimeMs);
         public Unit SetPort(string port) => _currentState.Value.SetPort( port);

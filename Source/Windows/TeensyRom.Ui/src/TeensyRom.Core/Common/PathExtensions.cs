@@ -170,5 +170,35 @@ namespace TeensyRom.Core.Common
 
             return true;
         }
+
+        public static bool IsValidUnixFilePath(this string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return false;
+
+            if (!path.StartsWith("/"))
+                return false;
+
+            var invalidChars = new Regex(@"[\0:*?""<>|\\]");
+            if (invalidChars.IsMatch(path))
+                return false;
+
+            var segments = path.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
+            foreach (var segment in segments)
+            {
+                if (segment == "." || segment == "..")
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static string DecodeWebEncodedPath(this string encodedPath)
+        {
+            if (string.IsNullOrEmpty(encodedPath))
+                return string.Empty;
+
+            return Uri.UnescapeDataString(encodedPath.Replace("+", " "));
+        }
     }
 }
