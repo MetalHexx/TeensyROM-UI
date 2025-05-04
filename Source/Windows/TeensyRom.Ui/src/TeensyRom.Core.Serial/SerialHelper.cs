@@ -9,7 +9,8 @@ using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Core.Serial
 {
-    public static class TeensySerialExtensions
+    public static class SerialHelper
+
     {
         public static TeensyToken HandleAck(this ISerialStateContext serialState)
         {
@@ -50,5 +51,12 @@ namespace TeensyRom.Core.Serial
                 _ => TeensyToken.Unnknown,
             };
         }
+        public static bool IsTeensyRom(this string response)
+        {
+            return response.Contains("teensyrom", StringComparison.OrdinalIgnoreCase)
+                || response.Contains("busy", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static List<string> GetPorts() => SerialPort.GetPortNames().Distinct().ToList();
     }
 }

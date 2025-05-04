@@ -8,6 +8,7 @@ namespace TeensyRom.Core.Common
 {
     public static class ByteExtensions
     {
+        public static string ToLogString(this byte[] bytes) => new(bytes.Select(b => (char)b).ToArray());
         public static ushort ToInt16(this byte[] bytes) => (ushort)(bytes[1] * 256 + bytes[0]);
         public static string ToAscii(this byte[] bytes) 
         {

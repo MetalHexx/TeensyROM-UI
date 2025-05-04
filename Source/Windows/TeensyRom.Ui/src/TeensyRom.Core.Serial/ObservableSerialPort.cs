@@ -280,7 +280,7 @@ namespace TeensyRom.Core.Serial
             )
             .Select(serialEvent => ReadSerialBytes())
             .Where(bytes => bytes.Length > 0)
-            .Select(ToLogString)
+            .Select(bytes => bytes.ToLogString())
             .Where(log => !string.IsNullOrWhiteSpace(log))
             .Publish()
             .RefCount()
@@ -291,7 +291,7 @@ namespace TeensyRom.Core.Serial
         {
             _log.Internal("ObservableSerialPort.Lock: Locking serial port to prevent interruptions of command processing.");
 
-            ClearBuffers();
+            _serialPort.ClearBuffers();
 
             _serialEventSubscription?.Dispose();
             _serialEventSubscription = null;
@@ -300,25 +300,9 @@ namespace TeensyRom.Core.Serial
         /// <summary>
         /// Reads the available bytes in the buffer
         /// </summary>
-        public byte[] ReadSerialBytes()
-        {
-            if (_serialPort.BytesToRead == 0) return [];
+        public byte[] ReadSerialBytes() => _serialPort.ReadSerialBytes();
 
-            var data = new byte[_serialPort.BytesToRead];
-            _serialPort.Read(data, 0, data.Length);
-            return data;
-        }
-
-        public byte[] ReadSerialBytes(int msToWait = 0)
-        {
-            Thread.Sleep(msToWait);
-            if (_serialPort.BytesToRead == 0) return [];
-
-            byte[] receivedData = new byte[_serialPort.BytesToRead];
-            _serialPort.Read(receivedData, 0, receivedData.Length);
-
-            return receivedData;
-        }
+        public byte[] ReadSerialBytes(int msToWait = 0) => _serialPort.ReadSerialBytes(msToWait);
 
         public string ReadAndLogSerialAsString(int msToWait = 0)
         {
@@ -332,90 +316,17 @@ namespace TeensyRom.Core.Serial
         }
 
         //TODO: Make it return Task<string>
-        public string ReadSerialAsString(int msToWait = 0)
-        {
-            Thread.Sleep(msToWait);
-            if (_serialPort.BytesToRead == 0) return string.Empty;
+        public string ReadSerialAsString(int msToWait = 0) => _serialPort.ReadSerialAsString(msToWait);
 
-            byte[] receivedData = new byte[_serialPort.BytesToRead];
-            _serialPort.Read(receivedData, 0, receivedData.Length);
+        public void SendIntBytes(uint intToSend, short byteLength) => _serialPort.SendIntBytes(intToSend, byteLength);
 
-            var dataString = Encoding.ASCII.GetString(receivedData);
+        public void SendSignedChar(sbyte charToSend) => _serialPort.SendSignedChar(charToSend);
 
-            if (string.IsNullOrWhiteSpace(dataString)) return string.Empty;
+        public void SendSignedShort(short value) => _serialPort.SendSignedShort(value);
 
-            return dataString;
-        }
+        public uint ReadIntBytes(short byteLength) => _serialPort.ReadIntBytes(byteLength);
 
-        public void SendIntBytes(uint intToSend, short byteLength)
-        {
-            var bytesToSend = BitConverter.GetBytes(intToSend);
-
-            for (short byteNum = (short)(byteLength - 1); byteNum >= 0; byteNum--)
-            {
-                _serialPort.Write(bytesToSend, byteNum, 1);
-            }
-        }
-
-        public void SendSignedChar(sbyte charToSend)
-        {
-            byte[] byteToSend = { (byte)charToSend };
-            _log.Internal($"Sending byte: {byteToSend[0]} (0x{byteToSend[0]:X2})");
-            _serialPort.Write(byteToSend, 0, 1);
-        }
-
-        public void SendSignedShort(short value)
-        {
-            byte highByte = (byte)((value >> 8) & 0xFF); 
-            byte lowByte = (byte)(value & 0xFF);
-
-            _serialPort.Write([highByte], 0, 1);
-            _serialPort.Write([lowByte], 0, 1);
-        }
-
-        public uint ReadIntBytes(short byteLength)
-        {
-            byte[] receivedBytes = new byte[byteLength];
-            int bytesReadTotal = 0;
-
-            while (bytesReadTotal < byteLength)
-            {
-                int bytesRead = _serialPort.Read(receivedBytes, bytesReadTotal, byteLength - bytesReadTotal);
-                if (bytesRead == 0)
-                {
-                    throw new TimeoutException("Timeout while reading bytes from serial port.");
-                }
-                bytesReadTotal += bytesRead;
-            }
-
-            uint result = 0;
-
-            // Reconstruct the uint value in little-endian order
-            for (short byteNum = 0; byteNum < byteLength; byteNum++)
-            {
-                result |= (uint)(receivedBytes[byteNum] << (8 * byteNum));
-            }
-
-            return result;
-        }
-
-        public void WaitForSerialData(int numBytes, int timeoutMs)
-        {
-            var sw = new Stopwatch();
-            sw.Start();
-
-            while (sw.ElapsedMilliseconds < timeoutMs)
-            {
-                if (_serialPort.BytesToRead >= numBytes) 
-                {
-                    sw.Stop();
-                    //Debug.WriteLine($"WaitForSerialData - {sw.ElapsedMilliseconds}ms");
-                    return;
-                }
-                Thread.Sleep(10);
-            }
-            throw new TimeoutException("Timed out waiting for data to be received");
-        }
+        public void WaitForSerialData(int numBytes, int timeoutMs) => _serialPort.WaitForSerialData(numBytes, timeoutMs);
 
         /// <summary>
         /// Once operations are completed, this method will read and log any remaining bytes in the buffer.
@@ -424,17 +335,14 @@ namespace TeensyRom.Core.Serial
         {
             _log.Internal("ObservableSerialPort.ReadAndLogStaleBuffer: Reading and logging any remaining bytes in the buffer.");
             var bytes = ReadSerialBytes();
-            var log = ToLogString(bytes);
+            var log = bytes.ToLogString();
 
             if(string.IsNullOrWhiteSpace(log)) return;  
 
             _log.External(log);
         }
 
-        /// <summary>
-        /// Outputs bytes as a string for log output
-        /// </summary>
-        private static string ToLogString(byte[] bytes) => new(bytes.Select(b => (char)b).ToArray());
+        public void ClearBuffers() => _serialPort.ClearBuffers();
 
         public void Dispose()
         {
@@ -445,15 +353,6 @@ namespace TeensyRom.Core.Serial
             _portRefresherSubscription?.Dispose();
             _healthCheckSubscription?.Dispose();
             _serialEventSubscription?.Dispose();
-        }
-
-        public void ClearBuffers()
-        {
-            if(!_serialPort.IsOpen) return;
-
-            //_log.Internal("ObservableSerialPort.ClearBuffers: Clearing serial I/O buffers");
-            _serialPort.DiscardInBuffer();
-            _serialPort.DiscardOutBuffer();
         }
 
         private IDisposable? _serialEventSubscription;
