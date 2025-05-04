@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Assets", "src\Tee
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Api", "src\TeensyRom.Api\TeensyRom.Api.csproj", "{2676BA53-6477-48A6-8027-3CEC22E5DA2C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeensyRom.Api.Tests.Integration", "src\TeensyRom.Api.Tests.Integration\TeensyRom.Api.Tests.Integration.csproj", "{8BC14A39-60F0-4332-95B6-C456EC6C8763}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,10 @@ Global
 		{2676BA53-6477-48A6-8027-3CEC22E5DA2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2676BA53-6477-48A6-8027-3CEC22E5DA2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2676BA53-6477-48A6-8027-3CEC22E5DA2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BC14A39-60F0-4332-95B6-C456EC6C8763}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BC14A39-60F0-4332-95B6-C456EC6C8763}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BC14A39-60F0-4332-95B6-C456EC6C8763}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BC14A39-60F0-4332-95B6-C456EC6C8763}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
