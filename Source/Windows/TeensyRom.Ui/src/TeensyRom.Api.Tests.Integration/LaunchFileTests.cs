@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using TeensyRom.Api.Endpoints.LaunchFile;
+using TeensyRom.Api.Endpoints.Files.LaunchFile;
 using TeensyRom.Api.Endpoints.OpenPort;
 
 namespace TeensyRom.Api.Tests.Integration

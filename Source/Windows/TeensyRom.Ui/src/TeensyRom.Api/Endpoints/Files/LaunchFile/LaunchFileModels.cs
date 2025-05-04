@@ -4,9 +4,9 @@ using RadEndpoints;
 using System.Text.RegularExpressions;
 using TeensyRom.Core.Common;
 
-namespace TeensyRom.Api.Endpoints.LaunchFile
+namespace TeensyRom.Api.Endpoints.Files.LaunchFile
 {
-    public class LaunchFileRequest 
+    public class LaunchFileRequest
     {
         [FromRoute]
         public string Path { get; set; } = string.Empty;
