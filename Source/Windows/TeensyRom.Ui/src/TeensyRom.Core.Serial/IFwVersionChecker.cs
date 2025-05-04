@@ -2,6 +2,6 @@
 {
     public interface IFwVersionChecker
     {
-        bool VersionCheck(string response);
+        (bool, Version?) VersionCheck(string response);
     }
 }

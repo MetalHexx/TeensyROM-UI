@@ -28,14 +28,14 @@ namespace TeensyRom.Core.Serial
             return (parsedVersion, false);
         }
 
-        public bool VersionCheck(string response)
+        public (bool, Version?) VersionCheck(string response)
         {
             var (version, passed) = IsVersionSupported(response);
 
             if (passed)
             {
                 log.InternalSuccess($"Version Check Success: Found TeensyROM firmware v{version}.");
-                return true;
+                return (true, version);
             }
             alert.Publish($"TeensyROM firmware check failed. v{FullRomVersion}+ is required. (See: Terminal Logs)");
             log.InternalError($"TeensyROM firmware check failed. v{FullRomVersion}+ is required.");
@@ -52,7 +52,7 @@ namespace TeensyRom.Core.Serial
             log.InternalError("FW Download: https://github.com/SensoriumEmbedded/TeensyROM/tree/main/bin/TeensyROM");
             log.InternalError("FW Instructions: https://github.com/SensoriumEmbedded/TeensyROM/blob/main/docs/General_Usage.md#firmware-updates");
 
-            return false;
+            return (false,version);
         }
     }
 }
