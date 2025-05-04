@@ -9,21 +9,20 @@ using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Core.Serial
 {
-
     public interface ICartFinder
     {
-        List<Cart> DiscoverCarts();
+        List<Cart> FindCarts();
     }
 
     public class CartFinder(ILoggingService log, IFwVersionChecker versionChecker) : ICartFinder
     {
         private readonly SerialPort _serial = new() { BaudRate = 115200 };
 
-        public List<Cart> DiscoverCarts()
+        public List<Cart> FindCarts()
         {
             if (_serial.IsOpen) _serial.Close();
 
-            var ports = GetPorts();
+            var ports = SerialHelper.GetPorts();
 
             List<Cart> foundCarts = [];
 
@@ -43,7 +42,7 @@ namespace TeensyRom.Core.Serial
 
                 var response = _serial.ReadAndLogSerialAsString(200);
 
-                var isTeensyRom = IsTeensyRom(response);
+                var isTeensyRom = response.IsTeensyRom();
                 var (isCompatible, version) = GetVersion(response);
 
                 if (isTeensyRom)
@@ -60,12 +59,6 @@ namespace TeensyRom.Core.Serial
             return foundCarts;
         }
 
-        private bool IsTeensyRom(string response)
-        {
-            return response.Contains("teensyrom", StringComparison.OrdinalIgnoreCase)
-                || response.Contains("busy", StringComparison.OrdinalIgnoreCase);
-        }
-
         private (bool, Version?) GetVersion(string response)
         {
             if (!response.Contains("busy", StringComparison.OrdinalIgnoreCase))
@@ -74,7 +67,5 @@ namespace TeensyRom.Core.Serial
             }
             return (false, null);
         }
-
-        private List<string> GetPorts() => SerialPort.GetPortNames().Distinct().ToList();
     }
 }
