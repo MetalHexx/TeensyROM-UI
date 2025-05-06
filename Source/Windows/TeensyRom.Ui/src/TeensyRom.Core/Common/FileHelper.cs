@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace TeensyRom.Core.Common
 {
@@ -54,8 +55,17 @@ namespace TeensyRom.Core.Common
             return date.ToString("yyyy-MM-dd_HH-mm-ss");
         }
 
-        public static string GetFileNameSafeHash(this string stringToHash, int length = 8)
+        public static bool IsValidFilenameSafeHash(this string? deviceId)
         {
+            return !string.IsNullOrEmpty(deviceId)
+                && Regex.IsMatch(deviceId, @"^[A-Z2-7]{8}$");
+        }
+
+
+        public static string GenerateFilenameSafeHash(this string stringToHash)
+        {
+            var length = 8;
+
             using var md5 = MD5.Create();
             byte[] inputBytes = Encoding.UTF8.GetBytes(stringToHash);
             byte[] hashBytes = md5.ComputeHash(inputBytes);

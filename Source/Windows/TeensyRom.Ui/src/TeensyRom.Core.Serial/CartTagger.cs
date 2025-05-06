@@ -31,7 +31,7 @@ namespace TeensyRom.Core.Serial
                 };
             }
 
-            var deviceHash = Guid.NewGuid().ToString().GetFileNameSafeHash();
+            var deviceHash = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
 
             cart = cart with
             {
