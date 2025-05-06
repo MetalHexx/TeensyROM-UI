@@ -3,32 +3,48 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Entities.Storage;
+using System.IO.Ports;
 
 namespace TeensyRom.Core.Commands.GetFile
 {
-    public class GetFileCommandHandler(ISerialStateContext serialState) : IRequestHandler<GetFileCommand, GetFileResult>
+    public class GetFileCommandHandler(ISerialStateContext serial) : IRequestHandler<GetFileCommand, GetFileResult>
     {
         public async Task<GetFileResult> Handle(GetFileCommand r, CancellationToken cancellationToken)
         {
-            await Task.CompletedTask;
+            serial.ClearBuffers();
+            serial.SendIntBytes(TeensyToken.GetFile, 2);
+            serial.HandleAck();
+            serial.SendIntBytes(r.StorageType.GetStorageToken(), 1);
+            serial.Write($"{r.FilePath}\0");
 
-            serialState.SendIntBytes(TeensyToken.GetFile, 2);
-            serialState.HandleAck();
-            serialState.SendIntBytes(r.StorageType.GetStorageToken(), 1);
-            serialState.Write($"{r.FilePath}\0");
-            
-            var fileLength = serialState.ReadIntBytes(4);
-            var checksum = serialState.ReadIntBytes(4);
+            try
+            {
+                serial.HandleAck();
+            }
+            catch (Exception ex)
+            {
+                return new GetFileResult
+                {
+                    IsSuccess = false,
+                    Error = $"Error fetching {r.FilePath}."
+                };
+            }
+
+            var fileLength = serial.ReadIntBytes(4);
+            var checksum = serial.ReadIntBytes(4);
             var buffer = GetFileBytes(fileLength);
-            serialState.HandleAck();
+            serial.HandleAck();
 
-            var receivedChecksum = CalculateChecksum(buffer);
+            var receivedChecksum = buffer.CalculateChecksum();
 
             if (receivedChecksum != checksum)
             {
-                return new GetFileResult { IsSuccess = false, Error = "Checksum Mismatch" };
+                throw new TeensyException("Checksum Mismatch");
             }
-            return new GetFileResult { FileData = buffer };
+            return new GetFileResult 
+            {
+                FileData = buffer
+            };
         }
 
         private byte[] GetFileBytes(uint fileLength)
@@ -43,19 +59,10 @@ namespace TeensyRom.Core.Commands.GetFile
 
             while (bytesRead < fileLength)
             {
-                bytesRead += serialState.Read(buffer, bytesRead, fileLengthInt - bytesRead);
+                bytesRead += serial.Read(buffer, bytesRead, fileLengthInt - bytesRead);
             }
 
             return buffer;
-        }
-        private ushort CalculateChecksum(byte[] data)
-        {
-            uint checksum = 0;
-            foreach (var b in data)
-            {
-                checksum += b;
-            }
-            return (ushort)(checksum & 0xffff);
         }
     }
 }
