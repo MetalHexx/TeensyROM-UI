@@ -16,45 +16,39 @@ namespace TeensyRom.Core.Serial
 
     public class CartFinder(ILoggingService log, IFwVersionChecker versionChecker) : ICartFinder
     {
-        private readonly SerialPort _serial = new() { BaudRate = 115200 };
-
         public List<Cart> FindCarts()
         {
-            if (_serial.IsOpen) _serial.Close();
-
             var ports = SerialHelper.GetPorts();
+
+            using var serial = new SerialPort { BaudRate = 115200 };
 
             List<Cart> foundCarts = [];
 
             foreach (var port in ports)
             {
+                if (serial.IsOpen) serial.Close();
+
                 try
                 {
-                    _serial.PortName = port;
-                    _serial.Open();
+                    serial.PortName = port;
+                    serial.Open();
                 }
                 catch (Exception)
                 {
-                    log.ExternalError($"CartFinder.Find: Unable to connect to {_serial.PortName}");
+                    log.ExternalError($"CartFinder.Find: Unable to connect to {serial.PortName}");
                     continue;
                 }
-                _serial.Write([(byte)TeensyToken.VersionCheck.Value], 0, 1);
+                serial.Write([(byte)TeensyToken.VersionCheck.Value], 0, 1);
 
-                var response = _serial.ReadAndLogSerialAsString(200);
+                var response = serial.ReadAndLogSerialAsString(200);
 
                 var isTeensyRom = response.IsTeensyRom();
                 var (isCompatible, version) = GetVersion(response);
 
                 if (isTeensyRom)
                 {
-                    foundCarts.Add(new Cart
-                    {
-                        ComPort = port,
-                        FwVersion = version,
-                        IsCompatible = isCompatible
-                    });
+                    foundCarts.Add(new Cart("", port, "Unnamed", version?.ToString() ?? "", isCompatible));                    
                 }
-                _serial.Close();
             }
             return foundCarts;
         }

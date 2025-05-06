@@ -14,36 +14,61 @@
         public TeensyFileType Type => _fileInfo.Extension.GetFileType();
         public string TargetPath { get; private set; } = string.Empty;
         public TeensyStorageType TargetStorage { get; set; } = TeensyStorageType.SD;
-        public byte[] Buffer { get; set; } = new byte[0];
+        public byte[] Buffer { get; set; } = [];
         public uint StreamLength { get; private set; }
         public ushort Checksum { get; private set; }
 
         public FileTransferItem(string sourcePath, string targetPath, TeensyStorageType targetStorage)
         {
             if (!File.Exists(sourcePath))
-            {
                 throw new FileNotFoundException($"A file was not found at: {sourcePath}");
-            }
+
+            _fileInfo = new FileInfo(sourcePath);
             TargetPath = targetPath;
             TargetStorage = targetStorage;
-            _fileInfo = new FileInfo(sourcePath);
-            GetBinaryFileData(SourcePath);
+
+            var buffer = ReadFileWithRetry(sourcePath);
+            InitializeFromBuffer(buffer);
         }
 
         public FileTransferItem(FileInfo fileInfo, string targetPath, TeensyStorageType targetStorage)
         {
+            _fileInfo = fileInfo ?? throw new ArgumentNullException(nameof(fileInfo));
             TargetPath = targetPath;
             TargetStorage = targetStorage;
-            _fileInfo = fileInfo;
-            GetBinaryFileData(SourcePath);
+
+            var buffer = ReadFileWithRetry(fileInfo.FullName);
+            InitializeFromBuffer(buffer);
         }
 
-        public void GetBinaryFileData(string filePath)
+        public FileTransferItem(byte[] buffer, string name, string targetPath, TeensyStorageType targetStorage)
+        {
+            if (buffer == null || buffer.Length == 0)
+                throw new ArgumentException("Buffer is null or empty.", nameof(buffer));
+
+            _fileInfo = new FileInfo(Path.Combine(Path.GetTempPath(), name));
+            TargetPath = targetPath;
+            TargetStorage = targetStorage;
+
+            InitializeFromBuffer(buffer);
+        }
+
+        private void InitializeFromBuffer(byte[] buffer)
+        {
+            Buffer = buffer;
+            StreamLength = (uint)buffer.Length;
+            Checksum = 0;
+
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                Checksum += buffer[i];
+            }
+        }
+
+        private static byte[] ReadFileWithRetry(string filePath)
         {
             const int maxRetries = 5;
             const int delayMs = 200;
-
-            //TODO: This method does retries in a situation where 2 UI processes are trying to handle the same file.  Could be improved.
 
             for (int attempt = 0; attempt < maxRetries; attempt++)
             {
@@ -52,26 +77,15 @@
                     using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     using var reader = new BinaryReader(stream);
 
-                    var length = (uint)reader.BaseStream.Length;
-                    var buffer = reader.ReadBytes((int)length);
+                    var length = (int)reader.BaseStream.Length;
+                    var buffer = reader.ReadBytes(length);
 
                     if (buffer.Length != length)
-                    {
                         throw new IOException("File read incomplete.");
-                    }
 
-                    StreamLength = length;
-                    Buffer = buffer;
-                    Checksum = 0;
-
-                    for (uint i = 0; i < StreamLength; i++)
-                    {
-                        Checksum += Buffer[i];
-                    }
-
-                    return;
+                    return buffer;
                 }
-                catch (IOException ex)
+                catch (IOException)
                 {
                     if (attempt == maxRetries - 1)
                         throw;
@@ -79,6 +93,8 @@
                     Thread.Sleep(delayMs);
                 }
             }
+
+            throw new IOException("Failed to read file after multiple attempts.");
         }
     }
 }

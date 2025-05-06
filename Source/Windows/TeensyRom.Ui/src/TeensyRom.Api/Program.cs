@@ -27,6 +27,7 @@ builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<IFwVersionChecker, FwVersionChecker>();
 builder.Services.AddSingleton<ICachedStorageService, CachedStorageService>();
 builder.Services.AddSingleton<ICartFinder, CartFinder>();
+builder.Services.AddSingleton<ICartTagger, CartTagger>();
 builder.Services.AddSingleton<IDeviceConnectionManager, DeviceConnectionManager>();
 builder.Services.AddSingleton<IStorageCache, StorageCache>();
 builder.Services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();

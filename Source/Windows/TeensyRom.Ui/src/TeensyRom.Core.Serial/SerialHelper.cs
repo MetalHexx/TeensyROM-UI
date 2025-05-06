@@ -35,6 +35,47 @@ namespace TeensyRom.Core.Serial
 
             throw new TeensyException($"Received unexpected response from TR ({responseString}) with data: {rawResponse}");
         }
+        public static TeensyToken HandleAck(this SerialPort serial)
+        {
+            var response = serial.GetAck();
+
+
+            if (response == TeensyToken.Ack) return TeensyToken.Ack;
+            if (response == TeensyToken.RetryLaunch) return TeensyToken.RetryLaunch;
+
+            var rawResponse = serial.ReadAndLogSerialAsString();
+
+            if (rawResponse.Contains("Busy!"))
+            {
+                throw new TeensyBusyException($"TeensyROM is currently busy.  If you have a program runnning, stop it first. Try caching your files.");
+            }
+            var responseString = response switch
+            {
+                var token when token == TeensyToken.Fail => "Fail Token",
+                _ => "Unknown",
+            };
+            if (rawResponse.Length == 0) rawResponse = "No Data";
+
+            throw new TeensyException($"Received unexpected response from TR ({responseString}) with data: {rawResponse}");
+        }
+
+        public static TeensyToken GetAck(this SerialPort serial)
+        {
+            serial.WaitForSerialData(numBytes: 2, timeoutMs: 10000);
+
+            byte[] recBuf = new byte[2];
+            serial.Read(recBuf, 0, 2);
+            ushort recU16 = BitConverter.ToUInt16(recBuf, 0);
+
+            return recU16 switch
+            {
+                var _ when recU16 == TeensyToken.Ack.Value => TeensyToken.Ack,
+                var _ when recU16 == TeensyToken.Fail.Value => TeensyToken.Fail,
+                var _ when recU16 == TeensyToken.RetryLaunch.Value => TeensyToken.RetryLaunch,
+                _ => TeensyToken.Unnknown,
+            };
+        }
+
         public static TeensyToken GetAck(this ISerialStateContext serialState)
         {
             serialState.WaitForSerialData(numBytes: 2, timeoutMs: 10000);

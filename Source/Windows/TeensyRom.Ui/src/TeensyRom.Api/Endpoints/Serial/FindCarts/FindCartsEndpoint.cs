@@ -5,7 +5,7 @@ using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Api.Endpoints.FindCarts
 {
-    public class FindCartsEndpoint(ISerialStateContext serialContext, IDeviceConnectionManager deviceManager) : RadEndpointWithoutRequest<FindCartsResponse>
+    public class FindCartsEndpoint(IDeviceConnectionManager deviceManager) : RadEndpointWithoutRequest<FindCartsResponse>
     {
         public override void Configure()
         {
@@ -17,41 +17,22 @@ namespace TeensyRom.Api.Endpoints.FindCarts
 
         public override Task Handle(CancellationToken ct)
         {
-            bool shouldReconnect = Disconnect();
+            var availableCarts = deviceManager.FindAvailableCarts();
+            var connectedCarts = deviceManager.GetConnectedCarts();
 
-            var carts = deviceManager.FindCarts();
-
-            if (carts.Count == 0)
+            if (availableCarts.Count == 0)
             {
                 SendNotFound("No TeensyRom devices found.");
                 return Task.CompletedTask;
             }
-
-
-
             Response = new()
             {
-                Carts = carts,
+                AvailableCarts = availableCarts,
+                ConnectedCarts = connectedCarts,
                 Message = "Success!"
             };
-            if (shouldReconnect)
-            {
-                serialContext.OpenPort();
-            }
             Send();
             return Task.CompletedTask;
-        }
-
-        private bool Disconnect()
-        {
-            var serialState = serialContext.CurrentState.FirstOrDefaultAsync();
-            var shouldReconnect = serialState is SerialBusyState or SerialConnectedState or SerialConnectionLostState;
-
-            if (shouldReconnect)
-            {
-                serialContext.ClosePort();
-            }
-            return shouldReconnect;
         }
     }
 }

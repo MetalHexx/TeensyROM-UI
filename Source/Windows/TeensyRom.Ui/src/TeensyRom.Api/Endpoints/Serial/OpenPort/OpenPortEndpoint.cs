@@ -1,33 +1,34 @@
 using RadEndpoints;
+using System.Reactive.Linq;
+using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Api.Endpoints.OpenPort
 {
-    public class OpenPortEndpoint (ISerialStateContext serial) : RadEndpointWithoutRequest<OpenPortResponse>
+    public class OpenPortEndpoint (IDeviceConnectionManager deviceManager) : RadEndpoint<OpenPortRequest, OpenPortResponse>
     {
         public override void Configure()
         {
-            Post("open")
+            Get("/serial/carts/{deviceId}/open")
                 .Produces<OpenPortResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .WithDocument(tag: "Serial", desc: "Automatically connects to the first available TeensyRom cartridge.");
+                .WithDocument(tag: "Serial", desc: "Connects to a TeensyRom device given an ID.");
         }
 
-        public override Task Handle(CancellationToken _)
+        public override async Task Handle(OpenPortRequest r, CancellationToken _)
         {
-            var comPort = serial.OpenPort();
-            Response = new();
+            var device = await deviceManager.Connect(r.DeviceId);
 
-            if (comPort is not null) 
+            if (device is not null) 
             {
-                Response.ComPort = comPort;
-                Response.Message = $"Successfully connected to {comPort}";
+                Response = new()
+                {
+                    ConnectedCart = device.Cart
+                };
                 Send();
-                return Task.CompletedTask;
+                return;
             }
-            Response.Message = "No TeensyRom cartridge found.  Retrying...";
-            SendNotFound("No TeensyRom cartridge found.  A connection will continue to be attempted.  Make sure your Commodore is turned on and connected via serial.");
-            return Task.CompletedTask;
+            SendNotFound("Could not connect.  I'll keep trying to re-connect.  Make sure your Commodore is turned on and connected via serial.");
         }
     }
 }

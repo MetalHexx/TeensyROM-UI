@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace TeensyRom.Core.Common
@@ -26,5 +27,57 @@ namespace TeensyRom.Core.Common
 
             return BitConverter.ToString(bytes).Replace("-", "");
         }
+
+        public static ushort CalculateChecksum(this byte[] data)
+        {
+            uint checksum = 0;
+            foreach (var b in data)
+            {
+                checksum += b;
+            }
+            return (ushort)(checksum & 0xffff);
+        }
+
+        public static T? Deserialize<T>(this byte[]? jsonBytes)
+        {
+            if (jsonBytes == null || jsonBytes.Length == 0)
+                return default;
+
+            try
+            {
+                var json = Encoding.UTF8.GetString(jsonBytes);
+
+                return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    ReadCommentHandling = JsonCommentHandling.Skip,
+                    AllowTrailingCommas = true
+                });
+            }
+            catch
+            {
+                return default;
+            }
+        }
+
+        public static byte[]? Serialize<T>(this T? value)
+        {
+            if (value == null) return null;
+
+            try
+            {
+                var json = JsonSerializer.Serialize(value, new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                });
+
+                return Encoding.UTF8.GetBytes(json);
+            }
+            catch
+            {
+                return [];
+            }
+        }
+
     }
 }

@@ -1,9 +1,7 @@
-﻿namespace TeensyRom.Core.Serial
+﻿using TeensyRom.Core.Entities.Midi;
+using TeensyRom.Core.Entities.Storage;
+
+namespace TeensyRom.Core.Serial
 {
-    public class Cart 
-    {
-        public string ComPort { get; set; } = string.Empty;
-        public Version? FwVersion { get; set; }
-        public bool IsCompatible { get; set; }
-    }
+    public record Cart(string DeviceId, string ComPort, string Name, string? FwVersion, bool IsCompatible);
 }
