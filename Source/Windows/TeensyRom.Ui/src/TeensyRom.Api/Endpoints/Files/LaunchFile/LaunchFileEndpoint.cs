@@ -1,5 +1,4 @@
 using MediatR;
-using RadEndpoints;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
@@ -10,7 +9,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
     {
         public override void Configure()
         {
-            Get("/launch/{path}")
+            Get("device/{deviceId}/files/launch")
                 .Produces<LaunchFileResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .WithDocument(tag: "Files", desc: "Launches a file given a valid path to a file stored on the TeensyRom.");
@@ -20,11 +19,11 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
         {
             var testItem = new SongItem
             {
-                Path = r.Path.DecodeWebEncodedPath(),
+                Path = r.Path,
                 Name = r.Path.GetFileNameFromPath(),
                 Size = 200
             };
-            var launchCommand = new LaunchFileCommand(TeensyStorageType.SD, testItem);
+            var launchCommand = new LaunchFileCommand(TeensyStorageType.SD, testItem, r.DeviceId);
             var result = await mediator.Send(launchCommand, ct);
 
             Response = new();

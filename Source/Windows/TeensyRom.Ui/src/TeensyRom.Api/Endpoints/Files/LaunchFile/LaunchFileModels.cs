@@ -9,18 +9,24 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
     public class LaunchFileRequest
     {
         [FromRoute]
+        public string DeviceId { get; set; } = string.Empty;
+        [FromQuery]
         public string Path { get; set; } = string.Empty;
     }
 
-    //public class LaunchFileRequestValidator : AbstractValidator<LaunchFileRequest>
-    //{
-    //    public LaunchFileRequestValidator()
-    //    {
-    //        RuleFor(x => x.Path)
-    //        .NotEmpty().WithMessage("Path is required.")
-    //        .Must(path => path.IsValidUnixFilePath()).WithMessage("Path must be a valid Unix-style file path.");
-    //    }
-    //}
+    public class LaunchFileRequestValidator : AbstractValidator<LaunchFileRequest>
+    {
+        public LaunchFileRequestValidator()
+        {
+            RuleFor(x => x.DeviceId)
+                .NotEmpty().WithMessage("Device ID is required.")
+                .Must(deviceId => deviceId.IsValidFilenameSafeHash()).WithMessage("Device ID must be a valid filename-safe hash of 8 characters long.");
+
+            RuleFor(x => x.Path)
+            .NotEmpty().WithMessage("Path is required.")
+            .Must(path => path.IsValidUnixFilePath()).WithMessage("Path must be a valid Unix-style file path.");
+        }
+    }
 
     public class LaunchFileResponse
     {
