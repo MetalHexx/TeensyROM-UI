@@ -262,7 +262,7 @@ namespace TeensyRom.Core.Serial
 
         public void StopHealthCheck()
         {
-            throw new NotImplementedException();
+            _healthCheckSubscription?.Dispose();
         }
 
         public void Dispose()
