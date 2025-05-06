@@ -19,7 +19,7 @@ namespace TeensyRom.Api.Endpoints.Serial.GetPorts
 
             Response = new()
             {
-                Message = ports.Length > 0 ? "Ports found." : "No ports found.",
+                Message = ports.Length > 0 ? "Ports found" : "No ports found",
                 Ports = ports
             };
             Send();
