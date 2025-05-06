@@ -8,9 +8,10 @@ using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Core.Commands.File.LaunchFile
 {
-    public class LaunchFileHandler(ISerialStateContext serialState, ILoggingService log, IAlertService alert) : IRequestHandler<LaunchFileCommand, LaunchFileResult>
+    public class LaunchFileHandler(ILoggingService log, IAlertService alert) : IRequestHandler<LaunchFileCommand, LaunchFileResult>
     {
         private const int _reconnectDelayMs = 4000;
+
         public async Task<LaunchFileResult> Handle(LaunchFileCommand request, CancellationToken cancellationToken)
         {
             var ack = AttemptLaunch(request);
@@ -30,15 +31,15 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             };
         }
 
-        private TeensyToken AttemptLaunch(LaunchFileCommand request)
+        private TeensyToken AttemptLaunch(LaunchFileCommand command)
         {
             log.Internal($"LaunchFileHandler: Clearing serial buffers");
-            serialState.ClearBuffers();
+            command.Serial.ClearBuffers();
 
             log.Internal($"LaunchFileHandler: Sending {TeensyToken.LaunchFile} token.");
-            serialState.SendIntBytes(TeensyToken.LaunchFile, 2);
+            command.Serial.SendIntBytes(TeensyToken.LaunchFile, 2);
 
-            var ack = serialState.HandleAck();
+            var ack = command.Serial.HandleAck();
 
             LogAck(ack);
 
@@ -48,60 +49,60 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             }
 
             log.Internal($"LaunchFileHandler: Sending storage token to TeensyROM");
-            serialState.SendIntBytes(request.StorageType.GetStorageToken(), 1);
+            command.Serial.SendIntBytes(command.StorageType.GetStorageToken(), 1);
 
-            log.Internal($"LaunchFileHandler: Sending {request.LaunchItem.Path} to TeensyROM");
+            log.Internal($"LaunchFileHandler: Sending {command.LaunchItem.Path} to TeensyROM");
 
-            serialState.Write($"{request.LaunchItem.Path}\0");
-            ack = serialState.HandleAck();
+            command.Serial.Write($"{command.LaunchItem.Path}\0");
+            ack = command.Serial.HandleAck();
 
             LogAck(ack);
 
             return ack;
         }
 
-        private async Task<LaunchFileResult> HandleAckResponse(LaunchFileCommand request)
+        private async Task<LaunchFileResult> HandleAckResponse(LaunchFileCommand command)
         {
-            if (request.LaunchItem is HexItem or ImageItem)
+            if (command.LaunchItem is HexItem or ImageItem)
             {
                 return new() { LaunchResult = LaunchFileResultType.Success };
             }
-            var response = PollResponse();
+            var response = PollResponse(command);
 
             if (response != LaunchFileResultType.Disconnected) 
             {
                 return GetFinalResult(response);
             }
-            if (request.LaunchItem.Size >= 575000)
+            if (command.LaunchItem.Size >= 575000)
             {
                 alert.Publish("Detected a large file launch. A reconnection will occur.");
             }
-            await HandleReconnection();
-            return GetFinalResult(PollResponse());
+            await HandleReconnection(command);
+            return GetFinalResult(PollResponse(command));
         }
 
-        private async Task<LaunchFileResult> HandleRetryResponse(LaunchFileCommand request) 
+        private async Task<LaunchFileResult> HandleRetryResponse(LaunchFileCommand command) 
         {
             alert.Publish("Detected launch retry request from TeensyROM. A reconnection will occur.");
-            log.Internal($"LaunchFileHandler: Initiating Launch Retry of {request.LaunchItem.Name}");
+            log.Internal($"LaunchFileHandler: Initiating Launch Retry of {command.LaunchItem.Name}");
 
             log.Internal("LaunchFileHandler: Waiting for re-connection to TeensyROM");
 
             log.Internal($"LaunchFileHandler: Waiting {_reconnectDelayMs}ms for TeensyROM to catch up");
 
-            await HandleReconnection();
+            await HandleReconnection(command);
 
-            AttemptLaunch(request);
+            AttemptLaunch(command);
 
-            if (request.LaunchItem.Size >= 575000)
+            if (command.LaunchItem.Size >= 575000)
             {
                 log.Internal($"LaunchFileHandler: Reconnecting again to new COM port due to large file launch retry.");
-                await HandleReconnection();
+                await HandleReconnection(command);
             }
-            return GetFinalResult(PollResponse());
+            return GetFinalResult(PollResponse(command));
         }
 
-        private LaunchFileResultType PollResponse()
+        private LaunchFileResultType PollResponse(LaunchFileCommand command)
         {
             try
             {
@@ -110,7 +111,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
                 for (int i = 0; i < 40; i++)
                 {
-                    var responseBytes = serialState.ReadSerialBytes(25);
+                    var responseBytes = command.Serial.ReadSerialBytes(25);
                     bytesRead.AddRange(responseBytes);
                     resultType = ParseResponse([.. bytesRead]);
 
@@ -165,7 +166,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             return LaunchFileResultType.NoResponse;
         }
 
-        private async Task HandleReconnection()
+        private async Task HandleReconnection(LaunchFileCommand command)
         {
             await Task.Delay(1000);
 
@@ -173,7 +174,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
             {
                 try
                 {
-                    serialState.EnsureConnection(_reconnectDelayMs);
+                    command.Serial.EnsureConnection(_reconnectDelayMs);
                     return;
                 }
                 catch (TeensyException)
