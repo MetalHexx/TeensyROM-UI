@@ -53,6 +53,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<ILaunchHistory,  LaunchHistory>();
             services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();
             services.AddSingleton<ISerialStateContext, SerialStateContext>();
+            services.AddSingleton<ISerialFactory, SerialFactory>();
             services.AddSingleton<ICartFinder, CartFinder>();
             services.AddSingleton<ICartTagger, CartTagger>();
             services.AddSingleton<IDeviceConnectionManager, DeviceConnectionManager>();

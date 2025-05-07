@@ -15,15 +15,14 @@ namespace TeensyRom.Api.Endpoints.FindCarts
                 .WithDocument(tag: "Serial", desc: "Scans all the serial ports and attempts to identify ports that have a TeensyRom device.");
         }
 
-        public override Task Handle(CancellationToken ct)
+        public override async Task Handle(CancellationToken ct)
         {
-            var availableCarts = deviceManager.FindAvailableCarts();
+            var availableCarts = await deviceManager.FindAvailableCarts();
             var connectedCarts = deviceManager.GetConnectedCarts();
 
             if (availableCarts.Count == 0)
             {
                 SendNotFound("No TeensyRom devices found.");
-                return Task.CompletedTask;
             }
             Response = new()
             {
@@ -32,7 +31,6 @@ namespace TeensyRom.Api.Endpoints.FindCarts
                 Message = "Success!"
             };
             Send();
-            return Task.CompletedTask;
         }
     }
 }

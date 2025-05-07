@@ -54,25 +54,27 @@ namespace TeensyRom.Core.Serial.Commands.Behaviors
         {
             if (request is ITeensyCommand<TResponse> command)
             {
+                if (command.Serial is not null) 
+                {
+                    _serial = command.Serial;
+                    return;
+                }
                 if (command.DeviceId is null) 
                 {
                     command.Serial = _singleDeviceContext;
                     return;
                 }
-
                 var device = _deviceManager.GetConnectedDevice(command.DeviceId);
 
-                if (device is null)
+                if (device is not null)
                 {
-                    throw new TeensyException($"Failed to find device with ID: {command.DeviceId}");
+                    _serial = device.SerialState;
+                    command.Serial = device.SerialState;
+                    return;
                 }
-                _serial = device.SerialState;
-                command.Serial = device.SerialState;
+                
             }
-            else 
-            {
-                _serial = _singleDeviceContext;
-            }
+            _serial = _singleDeviceContext;
         }
     }
 }

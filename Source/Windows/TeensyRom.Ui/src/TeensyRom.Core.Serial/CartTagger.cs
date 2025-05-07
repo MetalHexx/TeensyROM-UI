@@ -1,4 +1,8 @@
-﻿using System.IO.Ports;
+﻿using MediatR;
+using System.IO.Ports;
+using System.Reactive.Linq;
+using TeensyRom.Core.Commands;
+using TeensyRom.Core.Commands.GetFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Logging;
@@ -10,18 +14,29 @@ namespace TeensyRom.Core.Serial
 {
     public interface ICartTagger
     {
-        Cart EnsureCartTag(Cart cart);
+        Task<Cart> EnsureCartTag(Cart cart);
     }
-    public class CartTagger(ILoggingService log) : ICartTagger
+    public class CartTagger(ILoggingService log, ISerialFactory serialFactory, IMediator mediator) : ICartTagger
     {
-        public Cart EnsureCartTag(Cart cart)
+        public async Task<Cart> EnsureCartTag(Cart cart)
         {
-            using var serialPort = new SerialPort(cart.ComPort, 115200);
-            serialPort.PortName = cart.ComPort;
-            serialPort.Open();
-            var buffer = serialPort.GetFile("/remote-config.txt", TeensyStorageType.SD);
+            using var serialPort = serialFactory.Create(cart.ComPort);
+            serialPort.OpenPort();
 
-            var cartFromTr = buffer.Deserialize<Cart>();
+            var state = await serialPort.CurrentState.FirstOrDefaultAsync();
+            
+            var getFileCommand = new GetFileCommand(TeensyStorageType.SD, "/remote-config.txt")
+            {
+                Serial = serialPort
+            };
+            var getFileResult = await mediator.Send(getFileCommand);
+
+            if (getFileResult.IsSuccess is false) 
+            {
+                log.InternalError("Failed to get remote config file");
+                throw new TeensyException("Failed to get remote config file");
+            }
+            var cartFromTr = getFileResult.FileData.Deserialize<Cart>();
 
             if (cartFromTr is not null)
             {
@@ -47,8 +62,17 @@ namespace TeensyRom.Core.Serial
                 targetStorage: TeensyStorageType.SD
             );
 
-            serialPort.SaveFiles([fileTransferItem], log);
+            var saveFileCommand = new SaveFilesCommand([fileTransferItem])
+            {
+                Serial = serialPort
+            };
+            var saveFileResult = await mediator.Send(getFileCommand);
 
+            if(saveFileResult.IsSuccess is false)
+            {
+                log.InternalError("Failed to save remote config file");
+                throw new TeensyException("Failed to save remote config file");
+            }
             return cart;
         }
     }

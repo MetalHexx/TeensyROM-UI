@@ -7,21 +7,16 @@ using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Core.Commands
 {
-    public class SaveFilesCommandHandler : IRequestHandler<SaveFilesCommand, SaveFilesResult>
+    public class SaveFilesCommandHandler(ILoggingService logService) : IRequestHandler<SaveFilesCommand, SaveFilesResult>
     {
-        private readonly ISerialStateContext _serialState;
-        private readonly ILoggingService _logService;
+        private ISerialStateContext _serialState = null!;
         private readonly int _retryLimit = 3;
-
-        public SaveFilesCommandHandler(ISerialStateContext serialState, ILoggingService logService)
-        {
-            _serialState = serialState;
-            _logService = logService;
-        }
 
         public Task<SaveFilesResult> Handle(SaveFilesCommand command, CancellationToken ct)
         {
-            _logService.Internal($"Saving {command.Files.Count} file(s) to the TR");
+            _serialState = command.Serial;
+
+            logService.Internal($"Saving {command.Files.Count} file(s) to the TR");
 
             var result = new SaveFilesResult();
 
@@ -31,12 +26,12 @@ namespace TeensyRom.Core.Commands
 
                 if (success)
                 {
-                    _logService.Internal($"Copying: {file.TargetPath.UnixPathCombine(file.Name)}");
+                    logService.Internal($"Copying: {file.TargetPath.UnixPathCombine(file.Name)}");
                     result.SuccessfulFiles.Add(file);
                 }
                 else
                 {
-                    _logService.InternalError($"Failed to copy {file.Name} after {_retryLimit} attempts");
+                    logService.InternalError($"Failed to copy {file.Name} after {_retryLimit} attempts");
                     result.FailedFiles.Add(file);
                 }
             }
@@ -85,13 +80,13 @@ namespace TeensyRom.Core.Commands
 
                     if (isDuplicateFile)
                     {
-                        _logService.InternalError($"Attempting to overwrite: {file.TargetPath.UnixPathCombine(file.Name)}");
+                        logService.InternalError($"Attempting to overwrite: {file.TargetPath.UnixPathCombine(file.Name)}");
                         TryDelete(file);
                         continue;
                     }
-                    _logService.InternalError($"Waiting {retry} seconds to retry.");
+                    logService.InternalError($"Waiting {retry} seconds to retry.");
                     Thread.Sleep(1000 * retry);
-                    _logService.InternalError($"Retry {retry} of {_retryLimit}");
+                    logService.InternalError($"Retry {retry} of {_retryLimit}");
                 }
             }
             return false;
@@ -107,11 +102,11 @@ namespace TeensyRom.Core.Commands
                 _serialState.SendIntBytes(file.TargetStorage.GetStorageToken(), 1);
                 _serialState.Write($"{file.TargetPath.UnixPathCombine(file.Name)}\0");
                 _serialState.HandleAck();
-                _logService.InternalSuccess($"Deleted file {file.TargetPath} successfully");
+                logService.InternalSuccess($"Deleted file {file.TargetPath} successfully");
             }
             catch (Exception ex)
             {
-                _logService.InternalError($"Error deleting file {file} \r\n => {ex.Message}");
+                logService.InternalError($"Error deleting file {file} \r\n => {ex.Message}");
             }
         }
     }

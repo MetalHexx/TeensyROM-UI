@@ -7,19 +7,22 @@ using System.IO.Ports;
 
 namespace TeensyRom.Core.Commands.GetFile
 {
-    public class GetFileCommandHandler(ISerialStateContext serial) : IRequestHandler<GetFileCommand, GetFileResult>
+    public class GetFileCommandHandler() : IRequestHandler<GetFileCommand, GetFileResult>
     {
+        private ISerialStateContext _serial = null!;
         public async Task<GetFileResult> Handle(GetFileCommand r, CancellationToken cancellationToken)
         {
-            serial.ClearBuffers();
-            serial.SendIntBytes(TeensyToken.GetFile, 2);
-            serial.HandleAck();
-            serial.SendIntBytes(r.StorageType.GetStorageToken(), 1);
-            serial.Write($"{r.FilePath}\0");
+            _serial = r.Serial;
+
+            _serial.ClearBuffers();
+            _serial.SendIntBytes(TeensyToken.GetFile, 2);
+            _serial.HandleAck();
+            _serial.SendIntBytes(r.StorageType.GetStorageToken(), 1);
+            _serial.Write($"{r.FilePath}\0");
 
             try
             {
-                serial.HandleAck();
+                _serial.HandleAck();
             }
             catch (Exception ex)
             {
@@ -30,10 +33,10 @@ namespace TeensyRom.Core.Commands.GetFile
                 };
             }
 
-            var fileLength = serial.ReadIntBytes(4);
-            var checksum = serial.ReadIntBytes(4);
+            var fileLength = _serial.ReadIntBytes(4);
+            var checksum = _serial.ReadIntBytes(4);
             var buffer = GetFileBytes(fileLength);
-            serial.HandleAck();
+            _serial.HandleAck();
 
             var receivedChecksum = buffer.CalculateChecksum();
 
@@ -59,7 +62,7 @@ namespace TeensyRom.Core.Commands.GetFile
 
             while (bytesRead < fileLength)
             {
-                bytesRead += serial.Read(buffer, bytesRead, fileLengthInt - bytesRead);
+                bytesRead += _serial.Read(buffer, bytesRead, fileLengthInt - bytesRead);
             }
 
             return buffer;

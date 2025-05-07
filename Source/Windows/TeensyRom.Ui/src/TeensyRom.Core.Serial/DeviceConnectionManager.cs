@@ -13,7 +13,7 @@ namespace TeensyRom.Core.Serial
     public interface IDeviceConnectionManager 
     {
         Task<TeensyRomDevice?> Connect(string deviceId);
-        List<Cart> FindAvailableCarts();
+        Task<List<Cart>> FindAvailableCarts();
         List<Cart> GetConnectedCarts();
         TeensyRomDevice? GetConnectedDevice(string portName);
     }
@@ -29,7 +29,7 @@ namespace TeensyRom.Core.Serial
 
         public List<Cart> GetConnectedCarts() => _connectedDevices.Select(c => c.Cart).ToList();
 
-        public List<Cart> FindAvailableCarts() 
+        public async Task<List<Cart>> FindAvailableCarts() 
         {
             _connectedDevices.ForEach(d => d.SerialState.Dispose());
             _knownDevices.ForEach(d => d.SerialState.Dispose());
@@ -39,7 +39,7 @@ namespace TeensyRom.Core.Serial
 
             foreach (var cart in carts)
             {   
-                var cartData = tagger.EnsureCartTag(cart);
+                var cartData = await tagger.EnsureCartTag(cart);
                 UpdateCart(cartData);                
             }
             var devicesToReconnect = _knownDevices
