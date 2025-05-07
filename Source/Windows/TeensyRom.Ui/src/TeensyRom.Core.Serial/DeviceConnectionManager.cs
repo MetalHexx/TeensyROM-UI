@@ -17,7 +17,7 @@ namespace TeensyRom.Core.Serial
         List<Cart> GetConnectedCarts();
         TeensyRomDevice? GetConnectedDevice(string portName);
     }
-    public class DeviceConnectionManager(ICartFinder finder, ICartTagger tagger, ILoggingService log, IAlertService alert) : IDeviceConnectionManager
+    public class DeviceConnectionManager(ICartFinder finder, ICartTagger tagger, ILoggingService log, IAlertService alert, ISerialFactory serialFactory) : IDeviceConnectionManager
     {
         private List<TeensyRomDevice> _connectedDevices = [];
         private List<TeensyRomDevice> _knownDevices = [];
@@ -38,10 +38,9 @@ namespace TeensyRom.Core.Serial
             var carts = finder.FindCarts();
 
             foreach (var cart in carts)
-            {
-                var port = new SimpleObservableSerialPort(log, alert);
+            {   
                 var cartData = tagger.EnsureCartTag(cart);
-                UpdateCart(cartData, port);                
+                UpdateCart(cartData);                
             }
             var devicesToReconnect = _knownDevices
                 .Where(d => _connectedDevices
@@ -81,12 +80,12 @@ namespace TeensyRom.Core.Serial
             return null;
         }
 
-        private void UpdateCart(Cart cartData, IObservableSerialPort port)
+        private void UpdateCart(Cart cartData)
         {
             TeensyRomDevice newDevice = new
             (
                 cartData,
-                new SerialStateContext(port, log)
+                serialFactory.Create(cartData.ComPort)
             );
             newDevice.SerialState.SetPort(cartData.ComPort);
 

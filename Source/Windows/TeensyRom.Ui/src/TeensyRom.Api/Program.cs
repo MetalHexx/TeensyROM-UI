@@ -32,6 +32,7 @@ builder.Services.AddSingleton<IDeviceConnectionManager, DeviceConnectionManager>
 builder.Services.AddSingleton<IStorageCache, StorageCache>();
 builder.Services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();
 builder.Services.AddSingleton<ISerialStateContext, SerialStateContext>();
+builder.Services.AddSingleton<ISerialFactory, SerialFactory>();
 builder.Services.AddSingleton<IGameMetadataService, GameMetadataService>();
 builder.Services.AddSingleton<ISidMetadataService, SidMetadataService>();
 
