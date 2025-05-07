@@ -9,7 +9,7 @@ namespace TeensyRom.Api.Tests.Integration
     public class LaunchFileTests(EndpointFixture f)
     {
         [Fact]
-        public async void Give_DeviceConnected_When_LaunchCalled_WithValidPath_ReturnsSuccess()
+        public async void Given_DeviceConnected_When_LaunchCalled_WithValidPath_ReturnsSuccess()
         {
             // Arrange              
             var availableDevices = await RadTestClientExtensions.GetAsync<FindCartsEndpoint, FindCartsResponse>(f.Client);
