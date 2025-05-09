@@ -32,6 +32,11 @@ namespace TeensyRom.Api.Services
             Debug.WriteLine($"Internal Error: {message}");
         }
 
+        public void InternalWarning(string message)
+        {
+            Debug.WriteLine($"Internal Warning: {message}");
+        }
+
         public void InternalSuccess(string message)
         {
             Debug.WriteLine($"Internal Success: {message}");

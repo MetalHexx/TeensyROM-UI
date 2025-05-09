@@ -1,5 +1,6 @@
 ﻿using System.IO.Ports;
 using System.Reactive.Linq;
+using TeensyRom.Core.Commands.MuteSidVoices;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Logging;
@@ -20,7 +21,8 @@ namespace TeensyRom.Core.Serial
     public class DeviceConnectionManager(ICartFinder finder, ICartTagger tagger, ILoggingService log, IAlertService alert, ISerialFactory serialFactory) : IDeviceConnectionManager
     {
         private List<TeensyRomDevice> _connectedDevices = [];
-        private List<TeensyRomDevice> _knownDevices = [];
+        private List<TeensyRomDevice> _availableDevices = [];
+        private const string UndefinedDeviceIdBase = "Unidentified";
 
         public TeensyRomDevice? GetConnectedDevice(string deviceId)
         {
@@ -32,28 +34,25 @@ namespace TeensyRom.Core.Serial
         public async Task<List<Cart>> FindAvailableCarts() 
         {
             _connectedDevices.ForEach(d => d.SerialState.Dispose());
-            _knownDevices.ForEach(d => d.SerialState.Dispose());
-            _knownDevices.Clear();
+            _availableDevices.ForEach(d => d.SerialState.Dispose());
+            _availableDevices.Clear();
 
             var carts = finder.FindCarts();
 
             foreach (var cart in carts)
-            {   
-                var cartData = await tagger.EnsureCartTag(cart);
-                UpdateCart(cartData);                
+            {
+                Cart cartResult = await tagger.EnsureCartTag(cart);
+                UpdateCart(cartResult!);                
             }
-            var devicesToReconnect = _knownDevices
-                .Where(d => _connectedDevices
-                    .Any(cd => cd.Cart.DeviceId == d.Cart.DeviceId))
+            var devicesToReconnect = _availableDevices
+                .Where(d => _connectedDevices.Any(cd => cd.Cart.DeviceId == d.Cart.DeviceId))
                 .ToList();
 
             _connectedDevices.Clear();
             _connectedDevices.AddRange(devicesToReconnect);
             _connectedDevices.ForEach(d => d.SerialState.OpenPort());
 
-            return _knownDevices
-                .Select(d => d.Cart)
-                .ToList();
+            return _availableDevices.Select(d => d.Cart).ToList();
         }
 
         public async Task<TeensyRomDevice?> Connect(string deviceId) 
@@ -62,11 +61,11 @@ namespace TeensyRom.Core.Serial
 
             if (alreadyConnected is not null) return alreadyConnected;
 
-            var knownDevice = _knownDevices.FirstOrDefault(d => d.Cart.DeviceId == deviceId);
+            var knownDevice = _availableDevices.FirstOrDefault(d => d.Cart.DeviceId == deviceId);
 
             if (knownDevice is null) 
             {
-                throw new Exception("Unknown deviceId.");
+                return null;
             }
             knownDevice.SerialState.OpenPort();
 
@@ -82,6 +81,15 @@ namespace TeensyRom.Core.Serial
 
         private void UpdateCart(Cart cartData)
         {
+            if (cartData.DeviceId is null) 
+            {
+                var unknownCartId = _availableDevices
+                    .Where(d => d.Cart.DeviceId!.Contains(UndefinedDeviceIdBase))
+                    .ToList()
+                    .Count();
+
+                cartData.DeviceId = $"{UndefinedDeviceIdBase}[{unknownCartId}]";
+            }
             TeensyRomDevice newDevice = new
             (
                 cartData,
@@ -89,13 +97,13 @@ namespace TeensyRom.Core.Serial
             );
             newDevice.SerialState.SetPort(cartData.ComPort);
 
-            var existingDevice = _knownDevices.FirstOrDefault(d => d.Cart.DeviceId == cartData.DeviceId);
+            var existingDevice = _availableDevices.FirstOrDefault(d => d.Cart.DeviceId == cartData.DeviceId);
 
             if (existingDevice is not null)
             {
-                _knownDevices.Remove(existingDevice);
+                _availableDevices.Remove(existingDevice);
             }
-            _knownDevices.Add(newDevice);
+            _availableDevices.Add(newDevice);
         }
     }
 }

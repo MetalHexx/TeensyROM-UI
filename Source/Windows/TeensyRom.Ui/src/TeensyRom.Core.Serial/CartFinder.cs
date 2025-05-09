@@ -47,7 +47,13 @@ namespace TeensyRom.Core.Serial
 
                 if (isTeensyRom)
                 {
-                    foundCarts.Add(new Cart("", port, "Unnamed", version?.ToString() ?? "", isCompatible));                    
+                    foundCarts.Add(new Cart
+                    {
+                        ComPort = port,
+                        Name = "Unnamed",
+                        FwVersion = version?.ToString() ?? "",
+                        IsCompatible = isCompatible
+                    });
                 }
             }
             return foundCarts;

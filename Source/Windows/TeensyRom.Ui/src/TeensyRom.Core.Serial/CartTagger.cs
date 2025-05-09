@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using System.IO.Ports;
 using System.Reactive.Linq;
+using System.Transactions;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.GetFile;
 using TeensyRom.Core.Common;
@@ -20,60 +21,81 @@ namespace TeensyRom.Core.Serial
     {
         public async Task<Cart> EnsureCartTag(Cart cart)
         {
-            using var serialPort = serialFactory.Create(cart.ComPort);
+            var sdResult = await EnsureCartTag(cart.ComPort, cart.SdStorage);
+            var usbResult = await EnsureCartTag(cart.ComPort, cart.UsbStorage);
+
+            if (sdResult is null && usbResult is null) return cart;
+
+            cart.DeviceId = sdResult ?? usbResult;
+
+            return cart;
+        }
+
+        private async Task<string?> EnsureCartTag(string comPort, CartStorage storage) 
+        {
+            using var serialPort = serialFactory.Create(comPort);
             serialPort.OpenPort();
 
             var state = await serialPort.CurrentState.FirstOrDefaultAsync();
-            
-            var getFileCommand = new GetFileCommand(TeensyStorageType.SD, "/remote-config.txt")
+
+            var getFileCommand = new GetFileCommand(storage.Type, "/cart-tag.txt")
             {
                 Serial = serialPort
             };
             var getFileResult = await mediator.Send(getFileCommand);
 
-            if (getFileResult.IsSuccess is false) 
+            if (getFileResult.ErrorCode is GetFileErrorCode.StorageUnavailable) 
             {
-                log.InternalError("Failed to get remote config file");
-                throw new TeensyException("Failed to get remote config file");
+                log.InternalWarning($"{storage.Type} storage is unavailable.");     
+                storage.Available = false;
+                return null;
             }
-            var cartFromTr = getFileResult.FileData.Deserialize<Cart>();
 
-            if (cartFromTr is not null)
+            if (getFileResult.ErrorCode is GetFileErrorCode.FileNotFound)
             {
-                return cartFromTr with
+                log.InternalWarning($"Failed to get remote config file from {storage.Type}");
+            }
+            else 
+            {
+                var tagFromTr = getFileResult.FileData.Deserialize<CartTag>();
+
+                if (tagFromTr is not null)
                 {
-                    ComPort = cart.ComPort,
-                };
+                    storage.Available = true;
+                    return tagFromTr.DeviceId!;
+                }
             }
-
             var deviceHash = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
 
-            cart = cart with
-            {
-                DeviceId = deviceHash
-            };
-            var cartBuffer = cart.Serialize() ?? throw new Exception("Unable to serialize cart config");
+            var newTag = new CartTag { DeviceId = deviceHash };
+            var newTagBuffer = newTag.Serialize();
 
+            if (newTagBuffer is null) 
+            {
+                log.InternalError("Unable to serialize cart config.  Skipping device.");
+                storage.Available = false;
+                return null;
+            }
             var fileTransferItem = new FileTransferItem
             (
-                buffer: cartBuffer,
-                name: "remote-config.txt",
+                buffer: newTagBuffer,
+                name: "cart-tag.txt",
                 targetPath: StorageConstants.Remote_Path_Root,
-                targetStorage: TeensyStorageType.SD
+                targetStorage: storage.Type
             );
-
             var saveFileCommand = new SaveFilesCommand([fileTransferItem])
             {
                 Serial = serialPort
             };
-            var saveFileResult = await mediator.Send(getFileCommand);
+            var saveFileResult = await mediator.Send(saveFileCommand);
 
-            if(saveFileResult.IsSuccess is false)
+            if (saveFileResult.IsSuccess is false)
             {
                 log.InternalError("Failed to save remote config file");
-                throw new TeensyException("Failed to save remote config file");
+                return null;
             }
-            return cart;
+            storage.Available = true;
+            return deviceHash;
         }
     }
 }

@@ -49,6 +49,7 @@ namespace TeensyRom.Ui.Services.Logging
         }
 
         public void Internal(string message) => Log(message, LogConstants.InternalColor);
+        public void InternalWarning(string message) => Log(message, LogConstants.InternalColor);
         public void InternalSuccess(string message) => Log(message, LogConstants.InternalSuccessColor);
         public void InternalError(string message) => Log(message, LogConstants.InternalErrorColor);
         public void External(string message) => Log($"[TR]: {message}", LogConstants.ExternalColor);

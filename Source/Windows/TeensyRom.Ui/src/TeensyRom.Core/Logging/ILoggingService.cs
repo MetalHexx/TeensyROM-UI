@@ -9,6 +9,7 @@
         void ExternalError(string message);
         void Internal(string message);
         void InternalError(string message);
+        void InternalWarning(string message);
         void InternalSuccess(string message);
     }
 }

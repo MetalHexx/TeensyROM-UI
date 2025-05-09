@@ -1,7 +1,5 @@
-using RadEndpoints;
 using System.Reactive.Linq;
 using TeensyRom.Core.Serial;
-using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Api.Endpoints.FindCarts
 {
@@ -11,22 +9,24 @@ namespace TeensyRom.Api.Endpoints.FindCarts
         {
             Get("/serial/carts")
                 .Produces<FindCartsResponse>(StatusCodes.Status200OK)
+                .ProducesProblem(StatusCodes.Status503ServiceUnavailable)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .WithDocument(tag: "Serial", desc: "Scans all the serial ports and attempts to identify ports that have a TeensyRom device.");
         }
 
         public override async Task Handle(CancellationToken ct)
         {
-            var availableCarts = await deviceManager.FindAvailableCarts();
+            var findResults = await deviceManager.FindAvailableCarts();
             var connectedCarts = deviceManager.GetConnectedCarts();
 
-            if (availableCarts.Count == 0)
+            if (findResults.Count == 0)
             {
                 SendNotFound("No TeensyRom devices found.");
+                return;
             }
             Response = new()
             {
-                AvailableCarts = availableCarts,
+                AvailableCarts = findResults,
                 ConnectedCarts = connectedCarts,
                 Message = "Success!"
             };

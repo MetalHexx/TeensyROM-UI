@@ -15,12 +15,13 @@ namespace TeensyRom.Api.Tests.Integration
             var r = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
 
             // Assert
-            r.Should().BeSuccessful<FindCartsResponse>()
+            r.Should()
+                .BeSuccessful<FindCartsResponse>()
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
             r.Content.Message.Should().Be("Success!");
-            r.Content.AvailableCarts.Should().NotBeNullOrEmpty();
+            r.Content.AvailableCarts.Should().NotBeNullOrEmpty();            
             r.Content.ConnectedCarts.Should().BeEmpty();
         }
 
