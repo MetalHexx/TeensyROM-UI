@@ -7,6 +7,16 @@ using System.IO.Ports;
 
 namespace TeensyRom.Core.Commands.GetFile
 {
+    public enum GetFileErrorCode
+    {
+        StorageParamError = 1,
+        PathParamError = 2,
+        StorageUnavailable = 3,
+        FileNotFound = 4,
+        FileOpenError = 5,
+        UnknownError = 6
+    }
+
     public class GetFileCommandHandler() : IRequestHandler<GetFileCommand, GetFileResult>
     {
         private ISerialStateContext _serial = null!;
@@ -26,10 +36,20 @@ namespace TeensyRom.Core.Commands.GetFile
             }
             catch (Exception ex)
             {
+                GetFileErrorCode errorCode = ex.Message switch
+                {
+                    string msg when msg.Contains("Error 1") => GetFileErrorCode.StorageParamError,
+                    string msg when msg.Contains("Error 2") => GetFileErrorCode.PathParamError,
+                    string msg when msg.Contains("Error 3") => GetFileErrorCode.StorageUnavailable,
+                    string msg when msg.Contains("Error 4") => GetFileErrorCode.FileNotFound,
+                    string msg when msg.Contains("Error 5") => GetFileErrorCode.FileOpenError,
+                    _ => GetFileErrorCode.UnknownError
+                };
                 return new GetFileResult
                 {
                     IsSuccess = false,
-                    Error = $"Error fetching {r.FilePath}."
+                    Error = ex.Message,
+                    ErrorCode = errorCode
                 };
             }
 
