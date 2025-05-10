@@ -236,6 +236,13 @@
           "System.Text.Json": "[8.0.5, )"
         }
       },
+      "teensyrom.core.device": {
+        "type": "Project",
+        "dependencies": {
+          "TeensyRom.Core.Serial": "[1.0.0, )",
+          "TeensyRom.Core.Storage": "[1.0.0, )"
+        }
+      },
       "teensyrom.core.midi": {
         "type": "Project",
         "dependencies": {

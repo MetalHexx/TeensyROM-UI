@@ -1,9 +1,8 @@
 ﻿using MediatR;
 using TeensyRom.Core.Common;
-using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Entities.Storage;
-using System.IO.Ports;
+using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Core.Commands.GetFile
 {

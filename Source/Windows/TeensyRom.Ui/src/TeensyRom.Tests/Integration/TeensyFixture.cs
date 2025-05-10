@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Windows.Threading;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Serial;
 using TeensyRom.Ui.Features.Settings;
 using TeensyRom.Ui.Features.Terminal;
 using TeensyRom.Core.Settings;
@@ -10,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TeensyRom.Ui;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Storage;
+using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Tests.Integration
 {

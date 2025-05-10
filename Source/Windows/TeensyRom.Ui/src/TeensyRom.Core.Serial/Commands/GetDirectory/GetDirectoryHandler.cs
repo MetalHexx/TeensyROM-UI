@@ -2,11 +2,10 @@
 using System.Reactive.Linq;
 using System.Text;
 using System.Text.Json;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Serial;
-using TeensyRom.Core.Serial.State;
-using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Core.Commands
 {

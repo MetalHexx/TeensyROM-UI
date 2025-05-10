@@ -1,5 +1,4 @@
-﻿using TeensyRom.Core.Common;
-using TeensyRom.Core.Logging;
+﻿using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Core.Serial.State
 {

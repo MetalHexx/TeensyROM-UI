@@ -1,8 +1,5 @@
-using RadEndpoints;
-using System.Runtime.CompilerServices;
 using TeensyRom.Core.Games;
 using TeensyRom.Core.Music.Sid;
-using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Storage;
 using TeensyRom.Core.Settings;
@@ -14,6 +11,14 @@ using TeensyRom.Core.Commands.MuteSidVoices;
 using TeensyRom.Core.Commands.PlaySubtune;
 using TeensyRom.Core.Commands.SetMusicSpeed;
 using TeensyRom.Core.Serial.Commands.ToggleMusic;
+using TeensyRom.Core.Device;
+using TeensyRom.Core.Abstractions;
+using TeensyRom.Core.Serial.State;
+using TeensyRom.Core.Assets;
+using TeensyRom.Core.Common;
+using TeensyRom.Core.Music;
+
+UnpackAssets();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,16 +30,16 @@ builder.Services.AddSingleton<ILoggingService, LoggingService>();
 builder.Services.AddSingleton<IAlertService, AlertService>();
 builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<IFwVersionChecker, FwVersionChecker>();
-builder.Services.AddSingleton<ICachedStorageService, CachedStorageService>();
+builder.Services.AddSingleton<ISerialStateContext, SerialStateContext>();
 builder.Services.AddSingleton<ICartFinder, CartFinder>();
 builder.Services.AddSingleton<ICartTagger, CartTagger>();
 builder.Services.AddSingleton<IDeviceConnectionManager, DeviceConnectionManager>();
-builder.Services.AddSingleton<IStorageCache, StorageCache>();
 builder.Services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();
-builder.Services.AddSingleton<ISerialStateContext, SerialStateContext>();
 builder.Services.AddSingleton<ISerialFactory, SerialFactory>();
+builder.Services.AddSingleton<IStorageFactory, StorageFactory>();
 builder.Services.AddSingleton<IGameMetadataService, GameMetadataService>();
 builder.Services.AddSingleton<ISidMetadataService, SidMetadataService>();
+
 
 builder.Services.AddSingleton<IMuteSidVoicesSerialRoutine, MuteSidVoicesSerialRoutine>();
 builder.Services.AddSingleton<IToggleMusicSerialRoutine, ToggleMusicSerialRoutine>();
@@ -57,5 +62,12 @@ if (app.Environment.IsDevelopment())
 
 app.MapRadEndpoints();
 app.Run();
+
+void UnpackAssets()
+{
+    AssetHelper.UnpackAssets(GameConstants.Game_Image_Local_Path, "OneLoad64.zip");
+    AssetHelper.UnpackAssets(MusicConstants.Musician_Image_Local_Path, "Composers.zip");
+    AssetHelper.UnpackAssets(AssetConstants.VicePath, "vice-bins.zip");
+}
 
 public partial class Program;

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO.Ports;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO.Ports;
+using TeensyRom.Core.Entities.Device;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Settings;
+using TeensyRom.Core.Serial;
 
-namespace TeensyRom.Core.Serial
+namespace TeensyRom.Core.Device
 {
     public interface ICartFinder
     {

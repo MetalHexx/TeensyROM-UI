@@ -1,4 +1,4 @@
-﻿using TeensyRom.Core.Serial.State;
+﻿using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Core.Serial.Commands.ToggleMusic
 {

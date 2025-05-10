@@ -1,11 +1,11 @@
 ﻿using MediatR;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Commands;
-using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial.State;
 
-namespace TeensyRom.Core.Serial.Commands.Behaviors 
+namespace TeensyRom.Core.Serial.Commands.Behaviors
 {
     /// <summary>
     /// Disables the serial read auto-poll behavior for the duration of the command and reneables it after.

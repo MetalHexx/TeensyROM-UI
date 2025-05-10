@@ -1,24 +1,14 @@
-﻿using System.IO.Ports;
-using System.Reactive.Linq;
-using TeensyRom.Core.Commands.MuteSidVoices;
-using TeensyRom.Core.Common;
-using TeensyRom.Core.Entities.Storage;
+﻿using System.Reactive.Linq;
+using TeensyRom.Core.Abstractions;
+using TeensyRom.Core.Entities.Device;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Serial.Commands.GetFile;
-using TeensyRom.Core.Serial.Commands.SaveFiles;
+using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
+using TeensyRom.Core.Storage;
 
-namespace TeensyRom.Core.Serial
+namespace TeensyRom.Core.Device
 {
-    public record TeensyRomDevice(Cart Cart, ISerialStateContext SerialState);
-    public interface IDeviceConnectionManager 
-    {
-        Task<TeensyRomDevice?> Connect(string deviceId);
-        Task<List<Cart>> FindAvailableCarts();
-        List<Cart> GetConnectedCarts();
-        TeensyRomDevice? GetConnectedDevice(string portName);
-    }
-    public class DeviceConnectionManager(ICartFinder finder, ICartTagger tagger, ILoggingService log, IAlertService alert, ISerialFactory serialFactory) : IDeviceConnectionManager
+    public class DeviceConnectionManager(ICartFinder finder, ICartTagger tagger, ILoggingService log, IAlertService alert, ISerialFactory serialFactory, IStorageFactory storageFactory) : IDeviceConnectionManager
     {
         private List<TeensyRomDevice> _connectedDevices = [];
         private List<TeensyRomDevice> _availableDevices = [];
@@ -31,7 +21,7 @@ namespace TeensyRom.Core.Serial
 
         public List<Cart> GetConnectedCarts() => _connectedDevices.Select(c => c.Cart).ToList();
 
-        public async Task<List<Cart>> FindAvailableCarts() 
+        public async Task<List<Cart>> FindAvailableCarts()
         {
             _connectedDevices.ForEach(d => d.SerialState.Dispose());
             _availableDevices.ForEach(d => d.SerialState.Dispose());
@@ -42,7 +32,7 @@ namespace TeensyRom.Core.Serial
             foreach (var cart in carts)
             {
                 Cart cartResult = await tagger.EnsureCartTag(cart);
-                UpdateCart(cartResult!);                
+                UpdateCart(cartResult!);
             }
             var devicesToReconnect = _availableDevices
                 .Where(d => _connectedDevices.Any(cd => cd.Cart.DeviceId == d.Cart.DeviceId))
@@ -55,7 +45,7 @@ namespace TeensyRom.Core.Serial
             return _availableDevices.Select(d => d.Cart).ToList();
         }
 
-        public async Task<TeensyRomDevice?> Connect(string deviceId) 
+        public async Task<TeensyRomDevice?> Connect(string deviceId)
         {
             var alreadyConnected = _connectedDevices.FirstOrDefault(d => d.Cart.DeviceId == deviceId);
 
@@ -63,7 +53,7 @@ namespace TeensyRom.Core.Serial
 
             var knownDevice = _availableDevices.FirstOrDefault(d => d.Cart.DeviceId == deviceId);
 
-            if (knownDevice is null) 
+            if (knownDevice is null)
             {
                 return null;
             }
@@ -71,7 +61,7 @@ namespace TeensyRom.Core.Serial
 
             var connected = await knownDevice.SerialState.CurrentState.FirstAsync();
 
-            if (connected is SerialConnectedState) 
+            if (connected is SerialConnectedState)
             {
                 _connectedDevices.Add(knownDevice);
                 return knownDevice;
@@ -81,7 +71,7 @@ namespace TeensyRom.Core.Serial
 
         private void UpdateCart(Cart cartData)
         {
-            if (cartData.DeviceId is null) 
+            if (cartData.DeviceId is null)
             {
                 var unknownCartId = _availableDevices
                     .Where(d => d.Cart.DeviceId!.Contains(UndefinedDeviceIdBase))
@@ -89,11 +79,15 @@ namespace TeensyRom.Core.Serial
                     .Count();
 
                 cartData.DeviceId = $"{UndefinedDeviceIdBase}[{unknownCartId}]";
+                cartData.SdStorage.DeviceId = cartData.DeviceId;
+                cartData.UsbStorage.DeviceId = cartData.DeviceId;
             }
             TeensyRomDevice newDevice = new
             (
                 cartData,
-                serialFactory.Create(cartData.ComPort)
+                serialFactory.Create(cartData.ComPort),
+                storageFactory.Create(cartData.SdStorage),
+                storageFactory.Create(cartData.UsbStorage)
             );
             newDevice.SerialState.SetPort(cartData.ComPort);
 

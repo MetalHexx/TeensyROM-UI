@@ -1,8 +1,9 @@
-﻿using TeensyRom.Core.Serial.State;
+﻿using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Core.Commands.PlaySubtune
-{   public interface IPlaySubtuneSerialRoutine
+{
+    public interface IPlaySubtuneSerialRoutine
     {
         void Execute(uint subtuneIndex);
     }

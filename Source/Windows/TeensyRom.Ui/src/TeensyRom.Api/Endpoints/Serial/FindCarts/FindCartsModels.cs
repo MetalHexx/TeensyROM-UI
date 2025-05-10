@@ -1,6 +1,4 @@
-using RadEndpoints;
-using TeensyRom.Core.Serial;
-using TeensyRom.Core.Settings;
+using TeensyRom.Core.Entities.Device;
 
 namespace TeensyRom.Api.Endpoints.FindCarts
 {

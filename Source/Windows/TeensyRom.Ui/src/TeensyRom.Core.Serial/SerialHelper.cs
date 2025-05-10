@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO.Ports;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Common;
-using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Core.Serial
 {

@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using System;
 using System.Threading.Tasks;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
-using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage;
 using TeensyRom.Ui.Controls.DirectoryTree;

@@ -1,7 +1,6 @@
-﻿using TeensyRom.Core.Entities.Midi;
-using TeensyRom.Core.Entities.Storage;
+﻿using TeensyRom.Core.Entities.Storage;
 
-namespace TeensyRom.Core.Serial
+namespace TeensyRom.Core.Entities.Device
 {
     public class Cart
     {

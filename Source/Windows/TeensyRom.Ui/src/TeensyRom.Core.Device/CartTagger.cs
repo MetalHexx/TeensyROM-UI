@@ -5,13 +5,15 @@ using System.Transactions;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.GetFile;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Entities.Device;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Logging;
+using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.Commands.GetFile;
 using TeensyRom.Core.Serial.Commands.SaveFiles;
 using TeensyRom.Core.Settings;
 
-namespace TeensyRom.Core.Serial
+namespace TeensyRom.Core.Device
 {
     public interface ICartTagger
     {
@@ -24,6 +26,9 @@ namespace TeensyRom.Core.Serial
             var sdResult = await EnsureCartTag(cart.ComPort, cart.SdStorage);
             var usbResult = await EnsureCartTag(cart.ComPort, cart.UsbStorage);
 
+            cart.SdStorage.DeviceId = sdResult ?? string.Empty;
+            cart.UsbStorage.DeviceId = usbResult ?? string.Empty;
+
             if (sdResult is null && usbResult is null) return cart;
 
             cart.DeviceId = sdResult ?? usbResult;
@@ -31,7 +36,7 @@ namespace TeensyRom.Core.Serial
             return cart;
         }
 
-        private async Task<string?> EnsureCartTag(string comPort, CartStorage storage) 
+        private async Task<string?> EnsureCartTag(string comPort, CartStorage storage)
         {
             using var serialPort = serialFactory.Create(comPort);
             serialPort.OpenPort();
@@ -44,9 +49,9 @@ namespace TeensyRom.Core.Serial
             };
             var getFileResult = await mediator.Send(getFileCommand);
 
-            if (getFileResult.ErrorCode is GetFileErrorCode.StorageUnavailable) 
+            if (getFileResult.ErrorCode is GetFileErrorCode.StorageUnavailable)
             {
-                log.InternalWarning($"{storage.Type} storage is unavailable.");     
+                log.InternalWarning($"{storage.Type} storage is unavailable.");
                 storage.Available = false;
                 return null;
             }
@@ -55,7 +60,7 @@ namespace TeensyRom.Core.Serial
             {
                 log.InternalWarning($"Failed to get remote config file from {storage.Type}");
             }
-            else 
+            else
             {
                 var tagFromTr = getFileResult.FileData.Deserialize<CartTag>();
 
@@ -70,7 +75,7 @@ namespace TeensyRom.Core.Serial
             var newTag = new CartTag { DeviceId = deviceHash };
             var newTagBuffer = newTag.Serialize();
 
-            if (newTagBuffer is null) 
+            if (newTagBuffer is null)
             {
                 log.InternalError("Unable to serialize cart config.  Skipping device.");
                 storage.Available = false;

@@ -1,6 +1,6 @@
 ﻿using System.Reactive;
 
-namespace TeensyRom.Core.Serial
+namespace TeensyRom.Core.Abstractions
 {
     /// <summary>
     /// Provides an observable interface to a serial port that can be interacted with
@@ -80,18 +80,18 @@ namespace TeensyRom.Core.Serial
         /// Auto-polling behavior is disabled while the port is locked.
         /// </summary>
         void Lock();
-        
+
         /// <summary>
         /// Removes the lock on the serial port and automatically reads and logs
         /// the serial port on an interval.
         /// </summary>        
         void Unlock();
-        
+
         /// <summary>
         /// Reads the buffer from the serial port
         /// </summary>
         int Read(byte[] buffer, int offset, int count);
-        
+
         /// <summary>
         /// Reads a byte from the serial port
         /// </summary>        
@@ -107,7 +107,7 @@ namespace TeensyRom.Core.Serial
         /// Results also recorded to the output log.
         /// </summary>        
         string ReadAndLogSerialAsString(int msToWait = 0);
-        
+
         /// <summary>
         /// Reads the serial port as a byte array
         /// </summary>

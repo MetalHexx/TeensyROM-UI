@@ -1,7 +1,6 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System.Collections.Generic;
-using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Linq;
@@ -10,7 +9,6 @@ using TeensyRom.Ui.Features.Terminal;
 using TeensyRom.Ui.Features.Settings;
 using MaterialDesignThemes.Wpf;
 using TeensyRom.Core.Storage;
-using TeensyRom.Core.Serial;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Serial.State;
 using System.Reflection;
@@ -19,6 +17,7 @@ using TeensyRom.Ui.Features.Discover;
 using System.Threading.Tasks;
 using System.Windows;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Ui.Features.NavigationHost
 {
@@ -135,10 +134,10 @@ namespace TeensyRom.Ui.Features.NavigationHost
             _navService.SelectedNavigationView
                 .Where(n => n is not null)
                 .Select(n => n.ViewModel)
-                .ToPropertyEx(this, vm => vm.CurrentViewModel);
+                .ToPropertyEx(this, vm => vm.CurrentViewModel, scheduler: RxApp.MainThreadScheduler);
 
             _navService.NavigationItems
-                .ToPropertyEx(this, vm => vm.NavigationItems);
+                .ToPropertyEx(this, vm => vm.NavigationItems, scheduler: RxApp.MainThreadScheduler);
 
             var fileTransferInProgress = _progressService.InProgress
                 .WithLatestFrom(_watchService.IsProcessing, (inProgress, watchProcessing) => inProgress || watchProcessing);
@@ -147,16 +146,17 @@ namespace TeensyRom.Ui.Features.NavigationHost
                 .ObserveOn(RxApp.MainThreadScheduler);
 
             var serialBusy = serialState
-                .Scan((previous: (SerialState?)null, current: (SerialState?)null), (stateTuple, currentState) => (stateTuple.current, currentState))
+                .Scan((previous: (ISerialState?)null, current: (ISerialState?)null), (stateTuple, currentState) => (stateTuple.current, currentState))
                 .Where(s => s.previous is not null && s.previous is not SerialConnectableState)
                 .Select(s => s.current is SerialBusyState);
 
             serialBusy
                 .CombineLatest(fileTransferInProgress, (serialBusy, fileTransfer) => serialBusy || fileTransfer)
-                .ToPropertyEx(this, vm => vm.SerialBusy);
+                .ToPropertyEx(this, vm => vm.SerialBusy, scheduler: RxApp.MainThreadScheduler);
 
             serialState
-                .OfType<SerialConnectedState>()                
+                .OfType<SerialConnectedState>()
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(connected =>
                 {
                     _navService.Enable(NavigationLocation.Discover);

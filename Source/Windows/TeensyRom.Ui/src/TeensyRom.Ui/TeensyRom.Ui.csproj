@@ -12,6 +12,10 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <PropertyGroup>
+	<SupportedOSPlatform>windows</SupportedOSPlatform>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="CommonServiceLocator" Version="2.0.7" />
     <PackageReference Include="gong-wpf-dragdrop" Version="3.2.1" />
@@ -41,6 +45,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\TeensyRom.Core.Midi\TeensyRom.Core.Midi.csproj" />
+    <ProjectReference Include="..\TeensyRom.Core.Device\TeensyRom.Core.Device.csproj" />
     <ProjectReference Include="..\TeensyRom.Core.Serial\TeensyRom.Core.Serial.csproj" />
     <ProjectReference Include="..\TeensyRom.Core.Storage\TeensyRom.Core.Storage.csproj" />
     <ProjectReference Include="..\TeensyRom.Core\TeensyRom.Core.csproj" />

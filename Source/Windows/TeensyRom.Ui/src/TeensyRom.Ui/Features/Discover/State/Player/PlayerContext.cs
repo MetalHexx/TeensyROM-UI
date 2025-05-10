@@ -35,6 +35,7 @@ using TeensyRom.Core.Serial.Commands.Composite.FastForward;
 using TeensyRom.Core.Serial.Commands.Composite.EndFastForward;
 using TeensyRom.Core.Storage;
 using TeensyRom.Core.Serial.Commands.ToggleMusic;
+using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Ui.Features.Discover.State.Player
 {

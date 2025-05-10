@@ -1,10 +1,9 @@
 ﻿using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Entities.Storage;
-using TeensyRom.Core.Serial.Commands;
 
-namespace TeensyRom.Core.Commands.GetFile
+namespace TeensyRom.Core.Serial.Commands.CheckStorageCommand
 {
-    public class GetFileCommand(TeensyStorageType storageType, string filePath, string? deviceId = null) : ITeensyCommand<GetFileResult>
+    public class CheckStorageCommand(TeensyStorageType storageType, string filePath, string? deviceId = null) : ITeensyCommand<CheckStorageResult>
     {
         public TeensyStorageType StorageType { get; } = storageType;
         public string FilePath { get; } = filePath;

@@ -1,7 +1,7 @@
 ﻿using MediatR;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Serial;
-using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Core.Commands.DeleteFile
 {

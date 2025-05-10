@@ -2,27 +2,28 @@
 using System.Reactive.Linq;
 using System.Text;
 using System.Text.Json;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
-using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Core.Commands
 {
     public class GetDirectoryRecursiveHandler : IRequestHandler<GetDirectoryRecursiveCommand, GetDirectoryRecursiveResult>
     {
-        private readonly ISerialStateContext _serialState;
+        private ISerialStateContext _serialState;
         private readonly ILoggingService _log;
 
-        public GetDirectoryRecursiveHandler(ISerialStateContext serialState, ILoggingService log)
-        {
-            _serialState = serialState;
+        public GetDirectoryRecursiveHandler(ILoggingService log)
+        {            
             _log = log;
         }
 
         public Task<GetDirectoryRecursiveResult> Handle(GetDirectoryRecursiveCommand r, CancellationToken x)
         {
+            _serialState = r.Serial;
+
             return Task.Run(() =>
             {
                 var result = new GetDirectoryRecursiveResult();

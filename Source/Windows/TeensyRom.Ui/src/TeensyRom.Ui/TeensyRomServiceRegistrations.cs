@@ -7,7 +7,6 @@ using TeensyRom.Ui.Features.Help;
 using TeensyRom.Ui.Features.NavigationHost;
 using TeensyRom.Ui.Features.Settings;
 using TeensyRom.Ui.Main;
-using TeensyRom.Core;
 using System.Windows.Threading;
 using MediatR;
 using TeensyRom.Core.Music.Sid;
@@ -32,6 +31,8 @@ using TeensyRom.Ui.Services.Logging;
 using TeensyRom.Ui.Services.Settings;
 using TeensyRom.Core.Serial.Commands.ToggleMusic;
 using TeensyRom.Core.Serial.Commands.Behaviors;
+using TeensyRom.Core.Abstractions;
+using TeensyRom.Core.Device;
 
 namespace TeensyRom.Ui
 {
@@ -54,6 +55,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();
             services.AddSingleton<ISerialStateContext, SerialStateContext>();
             services.AddSingleton<ISerialFactory, SerialFactory>();
+            services.AddSingleton<IStorageFactory, StorageFactory>();
             services.AddSingleton<ICartFinder, CartFinder>();
             services.AddSingleton<ICartTagger, CartTagger>();
             services.AddSingleton<IDeviceConnectionManager, DeviceConnectionManager>();

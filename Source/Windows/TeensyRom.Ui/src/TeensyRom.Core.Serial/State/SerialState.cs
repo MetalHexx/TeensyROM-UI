@@ -4,16 +4,17 @@ using System.Linq;
 using System.Reactive;
 using System.Text;
 using System.Threading.Tasks;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Core.Serial.State
 {
-    public abstract class SerialState : IObservableSerialPort
+    public abstract class SerialState : IObservableSerialPort, ISerialState
     {
         public abstract bool CanTransitionTo(Type nextStateType);
         protected readonly IObservableSerialPort _serialPort;
-        public SerialState(IObservableSerialPort serialPort) => _serialPort = serialPort;                
+        public SerialState(IObservableSerialPort serialPort) => _serialPort = serialPort;
         public IObservable<string[]> Ports => _serialPort.Ports;
         public virtual int BytesToRead => throw new TeensyStateException(ExceptionMessage);
         public virtual void Write(string text) => throw new TeensyStateException(ExceptionMessage);

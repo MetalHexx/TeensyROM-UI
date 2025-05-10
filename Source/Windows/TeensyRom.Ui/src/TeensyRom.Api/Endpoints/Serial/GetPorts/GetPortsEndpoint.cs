@@ -1,4 +1,5 @@
 ﻿using System.Reactive.Linq;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Api.Endpoints.Serial.GetPorts

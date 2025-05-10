@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using RadEndpoints;
-using TeensyRom.Api.Endpoints.Common;
-using TeensyRom.Core.Serial;
+using TeensyRom.Core.Entities.Device;
 
 namespace TeensyRom.Api.Endpoints.OpenPort
 {

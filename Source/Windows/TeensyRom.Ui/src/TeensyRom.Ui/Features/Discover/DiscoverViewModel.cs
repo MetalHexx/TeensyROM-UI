@@ -27,6 +27,7 @@ using TeensyRom.Core.Midi;
 using TeensyRom.Ui.Controls.Playlist;
 using TeensyRom.Ui.Services.Process;
 using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Ui.Features.Discover
 {

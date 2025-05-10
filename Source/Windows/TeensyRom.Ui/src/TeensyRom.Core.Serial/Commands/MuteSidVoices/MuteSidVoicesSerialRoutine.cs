@@ -1,6 +1,6 @@
-﻿using TeensyRom.Core.Serial.State;
-using TeensyRom.Core.Serial;
+﻿using TeensyRom.Core.Serial;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Core.Commands.MuteSidVoices
 {

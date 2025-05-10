@@ -1,7 +1,4 @@
-using RadEndpoints;
-using System.Reactive.Linq;
-using TeensyRom.Core.Serial;
-using TeensyRom.Core.Serial.State;
+using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Api.Endpoints.OpenPort
 {

@@ -1,16 +1,17 @@
 ﻿using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Core.Serial.State
 {
     public class SerialStateContext : ISerialStateContext, IObservableSerialPort
     {
-        public IObservable<SerialState> CurrentState => _currentState.AsObservable();
-        private readonly BehaviorSubject<SerialState> _currentState;
+        public IObservable<ISerialState> CurrentState => _currentState.AsObservable();
+        private readonly BehaviorSubject<ISerialState> _currentState;
         public IObservable<string[]> Ports => _serialPort.Ports;
-        private readonly Dictionary<Type, SerialState> _states;
+        private readonly Dictionary<Type, ISerialState> _states;
         private readonly IObservableSerialPort _serialPort;
         private readonly ILoggingService _log;
         private readonly IDisposable _stateSubscription;
