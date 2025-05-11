@@ -14,7 +14,7 @@ namespace TeensyRom.Api.Endpoints.OpenPort
 
         public override async Task Handle(OpenPortRequest r, CancellationToken _)
         {
-            var device = await deviceManager.Connect(r.DeviceId);
+            var device = deviceManager.Connect(r.DeviceId);
 
             if (device is not null) 
             {

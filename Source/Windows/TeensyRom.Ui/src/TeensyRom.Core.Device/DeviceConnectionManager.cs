@@ -10,9 +10,8 @@ namespace TeensyRom.Core.Device
 {
     public class DeviceConnectionManager(ICartFinder finder, ICartTagger tagger, ILoggingService log, IAlertService alert, ISerialFactory serialFactory, IStorageFactory storageFactory) : IDeviceConnectionManager
     {
-        private List<TeensyRomDevice> _connectedDevices = [];
         private List<TeensyRomDevice> _availableDevices = [];
-        private const string UndefinedDeviceIdBase = "Unidentified";
+        private List<TeensyRomDevice> _connectedDevices = [];
 
         public TeensyRomDevice? GetConnectedDevice(string deviceId)
         {
@@ -21,31 +20,37 @@ namespace TeensyRom.Core.Device
 
         public List<Cart> GetConnectedCarts() => _connectedDevices.Select(c => c.Cart).ToList();
 
+        public List<TeensyRomDevice> GetAllConnectedDevices() 
+        {  
+            return _connectedDevices.ToList();
+        }
+
         public async Task<List<Cart>> FindAvailableCarts()
         {
-            _connectedDevices.ForEach(d => d.SerialState.Dispose());
             _availableDevices.ForEach(d => d.SerialState.Dispose());
+            _connectedDevices.ForEach(d => d.SerialState.Dispose());
             _availableDevices.Clear();
 
-            var carts = finder.FindCarts();
+            var devices = await finder.FindDevices();
+            _availableDevices.AddRange(devices);
 
-            foreach (var cart in carts)
-            {
-                Cart cartResult = await tagger.EnsureCartTag(cart);
-                UpdateCart(cartResult!);
-            }
-            var devicesToReconnect = _availableDevices
-                .Where(d => _connectedDevices.Any(cd => cd.Cart.DeviceId == d.Cart.DeviceId))
-                .ToList();
+            var connectedDevices = _availableDevices
+                .Where(d => _connectedDevices
+                    .Any(c => c.Cart.DeviceId == d.Cart.DeviceId)).ToList();
+
+            var disconnectedDevices = _availableDevices
+                .Where(d => !connectedDevices
+                    .Any(c => c.Cart.DeviceId == d.Cart.DeviceId)).ToList();
+
+            disconnectedDevices.ForEach(d => d.SerialState.ClosePort());
 
             _connectedDevices.Clear();
-            _connectedDevices.AddRange(devicesToReconnect);
-            _connectedDevices.ForEach(d => d.SerialState.OpenPort());
+            _connectedDevices.AddRange(connectedDevices);
 
             return _availableDevices.Select(d => d.Cart).ToList();
         }
 
-        public async Task<TeensyRomDevice?> Connect(string deviceId)
+        public TeensyRomDevice? Connect(string deviceId)
         {
             var alreadyConnected = _connectedDevices.FirstOrDefault(d => d.Cart.DeviceId == deviceId);
 
@@ -57,47 +62,9 @@ namespace TeensyRom.Core.Device
             {
                 return null;
             }
+            _connectedDevices.Add(knownDevice);
             knownDevice.SerialState.OpenPort();
-
-            var connected = await knownDevice.SerialState.CurrentState.FirstAsync();
-
-            if (connected is SerialConnectedState)
-            {
-                _connectedDevices.Add(knownDevice);
-                return knownDevice;
-            }
-            return null;
-        }
-
-        private void UpdateCart(Cart cartData)
-        {
-            if (cartData.DeviceId is null)
-            {
-                var unknownCartId = _availableDevices
-                    .Where(d => d.Cart.DeviceId!.Contains(UndefinedDeviceIdBase))
-                    .ToList()
-                    .Count();
-
-                cartData.DeviceId = $"{UndefinedDeviceIdBase}[{unknownCartId}]";
-                cartData.SdStorage.DeviceId = cartData.DeviceId;
-                cartData.UsbStorage.DeviceId = cartData.DeviceId;
-            }
-            TeensyRomDevice newDevice = new
-            (
-                cartData,
-                serialFactory.Create(cartData.ComPort),
-                storageFactory.Create(cartData.SdStorage),
-                storageFactory.Create(cartData.UsbStorage)
-            );
-            newDevice.SerialState.SetPort(cartData.ComPort);
-
-            var existingDevice = _availableDevices.FirstOrDefault(d => d.Cart.DeviceId == cartData.DeviceId);
-
-            if (existingDevice is not null)
-            {
-                _availableDevices.Remove(existingDevice);
-            }
-            _availableDevices.Add(newDevice);
+            return knownDevice;
         }
     }
 }

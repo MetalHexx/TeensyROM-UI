@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using System.IO.Ports;
 using System.Reactive.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Transactions;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.GetFile;
 using TeensyRom.Core.Common;
@@ -17,48 +19,31 @@ namespace TeensyRom.Core.Device
 {
     public interface ICartTagger
     {
-        Task<Cart> EnsureCartTag(Cart cart);
+        Task<CartStorage> EnsureTag(ISerialStateContext serial, TeensyStorageType storageType);
     }
-    public class CartTagger(ILoggingService log, ISerialFactory serialFactory, IMediator mediator) : ICartTagger
+    public class CartTagger(ILoggingService log, IMediator mediator) : ICartTagger
     {
-        public async Task<Cart> EnsureCartTag(Cart cart)
+        public async Task<CartStorage> EnsureTag(ISerialStateContext serial, TeensyStorageType storageType)
         {
-            var sdResult = await EnsureCartTag(cart.ComPort, cart.SdStorage);
-            var usbResult = await EnsureCartTag(cart.ComPort, cart.UsbStorage);
-
-            cart.SdStorage.DeviceId = sdResult ?? string.Empty;
-            cart.UsbStorage.DeviceId = usbResult ?? string.Empty;
-
-            if (sdResult is null && usbResult is null) return cart;
-
-            cart.DeviceId = sdResult ?? usbResult;
-
-            return cart;
-        }
-
-        private async Task<string?> EnsureCartTag(string comPort, CartStorage storage)
-        {
-            using var serialPort = serialFactory.Create(comPort);
-            serialPort.OpenPort();
-
-            var state = await serialPort.CurrentState.FirstOrDefaultAsync();
-
-            var getFileCommand = new GetFileCommand(storage.Type, "/cart-tag.txt")
+            var getFileCommand = new GetFileCommand(storageType, "/cart-tag.txt")
             {
-                Serial = serialPort
+                Serial = serial
             };
             var getFileResult = await mediator.Send(getFileCommand);
 
             if (getFileResult.ErrorCode is GetFileErrorCode.StorageUnavailable)
             {
-                log.InternalWarning($"{storage.Type} storage is unavailable.");
-                storage.Available = false;
-                return null;
-            }
+                log.InternalWarning($"{storageType} storage is unavailable.");
 
+                return new CartStorage
+                {
+                    Available = false,
+                    Type = storageType
+                };
+            }
             if (getFileResult.ErrorCode is GetFileErrorCode.FileNotFound)
             {
-                log.InternalWarning($"Failed to get remote config file from {storage.Type}");
+                log.InternalWarning($"Failed to get remote config file from {storageType}");
             }
             else
             {
@@ -66,8 +51,12 @@ namespace TeensyRom.Core.Device
 
                 if (tagFromTr is not null)
                 {
-                    storage.Available = true;
-                    return tagFromTr.DeviceId!;
+                    return new CartStorage
+                    {
+                        Available = true,
+                        Type = storageType,
+                        DeviceId = tagFromTr.DeviceId
+                    };
                 }
             }
             var deviceHash = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
@@ -78,29 +67,40 @@ namespace TeensyRom.Core.Device
             if (newTagBuffer is null)
             {
                 log.InternalError("Unable to serialize cart config.  Skipping device.");
-                storage.Available = false;
-                return null;
+                return new CartStorage
+                {
+                    Available = false,
+                    Type = storageType
+                };
             }
             var fileTransferItem = new FileTransferItem
             (
                 buffer: newTagBuffer,
                 name: "cart-tag.txt",
                 targetPath: StorageConstants.Remote_Path_Root,
-                targetStorage: storage.Type
+                targetStorage: storageType
             );
             var saveFileCommand = new SaveFilesCommand([fileTransferItem])
             {
-                Serial = serialPort
+                Serial = serial
             };
             var saveFileResult = await mediator.Send(saveFileCommand);
 
             if (saveFileResult.IsSuccess is false)
             {
                 log.InternalError("Failed to save remote config file");
-                return null;
+                return new CartStorage
+                {
+                    Available = false,
+                    Type = storageType
+                };
             }
-            storage.Available = true;
-            return deviceHash;
+            return new CartStorage
+            {
+                Available = true,
+                Type = storageType,
+                DeviceId = deviceHash
+            };
         }
     }
 }

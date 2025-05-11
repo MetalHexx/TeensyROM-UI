@@ -14,67 +14,62 @@ namespace TeensyRom.Core.Serial.Commands.Behaviors
         where TRequest : IRequest<TResponse>
         where TResponse : TeensyCommandResult, new()
     {
-        private ISerialStateContext _singleDeviceContext;
         private ISerialStateContext _serial;
         private readonly IDeviceConnectionManager _deviceManager;
 
         public SerialBehavior(ISerialStateContext serial, IDeviceConnectionManager deviceManager)
         {
             _serial = serial;
-            _singleDeviceContext = serial;
             _deviceManager = deviceManager;
         }
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             TResponse response = default!;
 
-            BindSerial(request);
-
-            await _serial.CurrentState
+            var serial = BindSerial(request);
+            
+            await serial.CurrentState
                 .Where(state => state is not SerialBusyState)
                 .FirstAsync()
                 .ToTask(cancellationToken);
 
             try
             {
-                _serial.Lock();
-                _serial.StopHealthCheck();
-                _serial.TransitionTo(typeof(SerialBusyState));
+                serial.Lock();
+                serial.StopHealthCheck();
+                serial.TransitionTo(typeof(SerialBusyState));
                 response = await next();
             }
             finally
             {
-                _serial.Unlock();
-                _serial.StartHealthCheck();
+                serial.Unlock();
+                serial.StartHealthCheck();
             }
             return response;
         }
 
-        public void BindSerial(TRequest request) 
+        public ISerialStateContext BindSerial(TRequest request) 
         {
             if (request is ITeensyCommand<TResponse> command)
             {
                 if (command.Serial is not null) 
                 {
-                    _serial = command.Serial;
-                    return;
+                    return command.Serial;
                 }
                 if (command.DeviceId is null) 
                 {
-                    command.Serial = _singleDeviceContext;
-                    return;
+                    command.Serial = _serial;
+                    return _serial;
                 }
                 var device = _deviceManager.GetConnectedDevice(command.DeviceId);
 
                 if (device is not null)
                 {
-                    _serial = device.SerialState;
                     command.Serial = device.SerialState;
-                    return;
+                    return device.SerialState;
                 }
-                
             }
-            _serial = _singleDeviceContext;
+            return _serial;
         }
     }
 }

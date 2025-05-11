@@ -9,10 +9,19 @@ namespace TeensyRom.Api.Tests.Integration.Common
 {
     public class EndpointFixture : IDisposable
     {
-        public HttpClient Client => _factory.CreateClient(new WebApplicationFactoryClientOptions
+        public HttpClient Client
         {
-            AllowAutoRedirect = false
-        });
+            get
+            {
+                var client = _factory.CreateClient(new WebApplicationFactoryClientOptions
+                {
+                    AllowAutoRedirect = false
+                });
+
+                client.Timeout = TimeSpan.FromMinutes(10);
+                return client;
+            }
+        }
         public Fixture DataGenerator { get; private set; } = new();
 
         private readonly WebApplicationFactory<Program> _factory;

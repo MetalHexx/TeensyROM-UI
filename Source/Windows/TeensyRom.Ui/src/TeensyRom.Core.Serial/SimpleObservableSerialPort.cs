@@ -50,6 +50,7 @@ namespace TeensyRom.Core.Serial
         }
         public Unit ClosePort()
         {
+            StopHealthCheck();
             log.Internal($"Disconnecting from {_serialPort.PortName}.");
 
             if (_serialPort.IsOpen) _serialPort.Close();
@@ -89,39 +90,39 @@ namespace TeensyRom.Core.Serial
             }
 
             log.InternalSuccess($"ObservableSerialPort.EnsureConnection: Successfully connected to {_serialPort.PortName}");
-            log.Internal($"ObservableSerialPort.EnsureConnection: Pinging {_serialPort.PortName} to verify connection to TeensyROM");
+            //log.Internal($"ObservableSerialPort.EnsureConnection: Pinging {_serialPort.PortName} to verify connection to TeensyROM");
 
-            try
-            {
-                _serialPort.WriteTimeout = 2000;
-                SendIntBytes(TeensyToken.Ping, 2);
-            }
-            catch (Exception)
-            {
-                var timeoutMessage = $"ObservableSerialPort.EnsureConnection: Timed out connecting to {_serialPort.PortName}";
-                log.InternalError(timeoutMessage);
-                throw new TeensyException(timeoutMessage);
-            }
-            finally
-            {
-                _serialPort.WriteTimeout = SerialPort.InfiniteTimeout;
-            }
+            //try
+            //{
+            //    _serialPort.WriteTimeout = 2000;
+            //    SendIntBytes(TeensyToken.Ping, 2);
+            //}
+            //catch (Exception)
+            //{
+            //    var timeoutMessage = $"ObservableSerialPort.EnsureConnection: Timed out connecting to {_serialPort.PortName}";
+            //    log.InternalError(timeoutMessage);
+            //    throw new TeensyException(timeoutMessage);
+            //}
+            //finally
+            //{
+            //    _serialPort.WriteTimeout = SerialPort.InfiniteTimeout;
+            //}
 
-            var response = ReadAndLogSerialAsString(waitTimeMs);
+            //var response = ReadAndLogSerialAsString(waitTimeMs);
 
-            if (!response.IsTeensyRom())
-            {
+            //if (!response.IsTeensyRom())
+            //{
 
-                var trErrorMessage = $"ObservableSerialPort.EnsureConnection: TeensyROM was not detected on {_serialPort.PortName}";
-                log.ExternalError(trErrorMessage);
-                throw new TeensyException(trErrorMessage);
-            }
-            if (response.Contains("minimal", StringComparison.OrdinalIgnoreCase))
-            {
-                alert.Publish($"Detected TeensyROM minimal mode. You've been reconnected to {_serialPort.PortName}");
-            }
+            //    var trErrorMessage = $"ObservableSerialPort.EnsureConnection: TeensyROM was not detected on {_serialPort.PortName}";
+            //    log.ExternalError(trErrorMessage);
+            //    throw new TeensyException(trErrorMessage);
+            //}
+            //if (response.Contains("minimal", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    alert.Publish($"Detected TeensyROM minimal mode. You've been reconnected to {_serialPort.PortName}");
+            //}
 
-            ReadAndLogStaleBuffer();
+            //ReadAndLogStaleBuffer();
             Unlock();
             return;
         }
@@ -238,27 +239,27 @@ namespace TeensyRom.Core.Serial
 
             if (initialPorts.Length > 0) _state.OnNext(typeof(SerialConnectableState));
 
-            _portRefresherSubscription = Observable
-                .Interval(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds))
-                .Select(_ => SerialPort.GetPortNames())
-                .Scan(initialPorts, (previousPorts, currentPorts) =>
-                {
-                    var previousHasPorts = previousPorts.Length > 0;
-                    var currentHasPorts = currentPorts.Length > 0;
+            //_portRefresherSubscription = Observable
+            //    .Interval(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds))
+            //    .Select(_ => SerialPort.GetPortNames())
+            //    .Scan(initialPorts, (previousPorts, currentPorts) =>
+            //    {
+            //        var previousHasPorts = previousPorts.Length > 0;
+            //        var currentHasPorts = currentPorts.Length > 0;
 
-                    if (currentPorts.Length == 0)
-                    {
-                        log.InternalError($"Failed to find connectable ports.  Check your USB connection to the TeensyROM cart and make sure your C64 is turned on.");
-                        _state.OnNext(typeof(SerialStartState));
-                    }
-                    else if (!previousHasPorts && currentPorts.Length > 0)
-                    {
-                        log.InternalSuccess("Successfully located connectable ports.");
-                        _state.OnNext(typeof(SerialConnectableState));
-                    }
-                    return currentPorts;
-                })
-                .Subscribe(_ports.OnNext);
+            //        if (currentPorts.Length == 0)
+            //        {
+            //            log.InternalError($"Failed to find connectable ports.  Check your USB connection to the TeensyROM cart and make sure your C64 is turned on.");
+            //            _state.OnNext(typeof(SerialStartState));
+            //        }
+            //        else if (!previousHasPorts && currentPorts.Length > 0)
+            //        {
+            //            log.InternalSuccess("Successfully located connectable ports.");
+            //            _state.OnNext(typeof(SerialConnectableState));
+            //        }
+            //        return currentPorts;
+            //    })
+            //    .Subscribe(_ports.OnNext);
         }
 
         public void StopHealthCheck()
