@@ -6,12 +6,15 @@ using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Core.Commands
 {
-    public class ResetCommandHandler(ISerialStateContext serialState, IAlertService alert) : IRequestHandler<ResetCommand, ResetResult>
+    public class ResetCommandHandler(IAlertService alert) : IRequestHandler<ResetCommand, ResetResult>
     {
+        private ISerialStateContext _serialState = null!;
+        
         public async Task<ResetResult> Handle(ResetCommand request, CancellationToken cancellationToken)
         {
+            _serialState = request.Serial;
             //serialState.Write(TeensyByteToken.Reset_Bytes.ToArray(), 0, 2);
-            serialState.SendIntBytes(TeensyToken.Reset, 2);
+            _serialState.SendIntBytes(TeensyToken.Reset, 2);
 
             var pollResult = await PollForSuccess();
                      
@@ -32,7 +35,7 @@ namespace TeensyRom.Core.Commands
             {
                 for (int i = 0; i < 10; i++)
                 {
-                    response = $"{response}{serialState.ReadAndLogSerialAsString(1000)}";
+                    response = $"{response}{_serialState.ReadAndLogSerialAsString(1000)}";
                     if (response.Contains("Resetting C64"))
                     {
                         return true;
@@ -61,7 +64,7 @@ namespace TeensyRom.Core.Commands
             {
                 try
                 {
-                    serialState.EnsureConnection();
+                    _serialState.EnsureConnection();
                     return;
                 }
                 catch (TeensyException)

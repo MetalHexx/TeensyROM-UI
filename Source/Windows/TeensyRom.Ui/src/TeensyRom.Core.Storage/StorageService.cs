@@ -34,6 +34,12 @@ namespace TeensyRom.Core.Storage
             {
                 ClearCache(path);
             }
+            alert.Publish("Resetting TeensyROM");
+
+            var _ = await mediator.Send(new ResetCommand
+            {
+                DeviceId = settings.CartStorage.DeviceId
+            });
             alert.Publish($"Refreshing cache for {path} and all nested directories.");
             var response = await mediator.Send(new GetDirectoryRecursiveCommand(settings.CartStorage.Type, path, settings.CartStorage.DeviceId));
 
