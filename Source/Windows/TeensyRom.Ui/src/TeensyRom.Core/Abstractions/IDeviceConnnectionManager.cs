@@ -9,5 +9,7 @@ namespace TeensyRom.Core.Abstractions
         List<TeensyRomDevice> GetAllConnectedDevices();
         List<Cart> GetConnectedCarts();
         TeensyRomDevice? GetConnectedDevice(string portName);
+        Task<bool> ConnectToNextPort(string deviceId);
+        List<string> GetAvailablePorts();
     }
 }

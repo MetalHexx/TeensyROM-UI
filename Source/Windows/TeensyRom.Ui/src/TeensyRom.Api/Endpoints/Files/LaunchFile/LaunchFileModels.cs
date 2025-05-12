@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RadEndpoints;
 using System.Text.RegularExpressions;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Api.Endpoints.Files.LaunchFile
 {

@@ -6,7 +6,11 @@ namespace TeensyRom.Core.Abstractions
     /// Provides an observable interface to a serial port that can be interacted with
     /// </summary>
     public interface IObservableSerialPort : IDisposable
-    {
+    {   
+        /// <summary>
+        /// Gets the connection state of the serial port
+        /// </summary>
+        bool IsOpen { get; }
         /// <summary>
         /// Connections can be dropped, thus ports can change, so we want to observe those changes.
         /// </summary>

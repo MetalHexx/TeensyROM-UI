@@ -33,6 +33,8 @@ namespace TeensyRom.Core.Serial.State
             _serialPort.StartPortPoll();
         }
 
+        public bool IsOpen => _serialPort.IsOpen;
+
         public void TransitionTo(Type nextStateType)
         {
             if (nextStateType == _currentState.Value.GetType())

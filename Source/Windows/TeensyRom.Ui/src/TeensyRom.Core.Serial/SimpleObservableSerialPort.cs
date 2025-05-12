@@ -19,6 +19,8 @@ namespace TeensyRom.Core.Serial
 
         public int BytesToRead => _serialPort.BytesToRead;
 
+        public bool IsOpen => _serialPort.IsOpen;
+
         private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
 
         public void ClearBuffers() => _serialPort.ClearBuffers();

@@ -26,6 +26,9 @@ namespace TeensyRom.Core.Serial
         private bool _healthCheckEnabled = true;
 
         public int BytesToRead => _serialPort.BytesToRead;
+
+        public bool IsOpen => _serialPort.IsOpen;
+
         public void Write(string text) => _serialPort.Write(text);
         public void Write(byte[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);
         public void Write(char[] buffer, int offset, int count) => _serialPort.Write(buffer, offset, count);

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using System.Reactive.Linq;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Logging;
@@ -8,7 +9,7 @@ using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Core.Commands.File.LaunchFile
 {
-    public class LaunchFileHandler(ILoggingService log, IAlertService alert) : IRequestHandler<LaunchFileCommand, LaunchFileResult>
+    public class LaunchFileHandler(ILoggingService log, IAlertService alert, IDeviceConnectionManager deviceManager) : IRequestHandler<LaunchFileCommand, LaunchFileResult>
     {
         private const int _reconnectDelayMs = 4000;
 
@@ -168,18 +169,30 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
         private async Task HandleReconnection(LaunchFileCommand command)
         {
-            await Task.Delay(1000);
-
             for (int i = 0; i < 3; i++)
             {
-                try
+                if (command.DeviceId is not null)
                 {
-                    command.Serial.EnsureConnection(_reconnectDelayMs);
-                    return;
+                    await Task.Delay(4000);
+                    var connected = await deviceManager.ConnectToNextPort(command.DeviceId);
+
+                    if (connected) 
+                    {
+                        return;
+                    }
+                    if (i == 2) throw new TeensyException("Failed to handle launch file reconnection.");
                 }
-                catch (TeensyException)
+                else 
                 {
-                    if (i == 2) throw;
+                    try
+                    {
+                        command.Serial.EnsureConnection(_reconnectDelayMs);
+                        return;
+                    }
+                    catch (TeensyException)
+                    {
+                        if (i == 2) throw;
+                    }
                 }
             }
         }

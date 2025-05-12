@@ -12,6 +12,7 @@ namespace TeensyRom.Core.Serial.State
 {
     public abstract class SerialState : IObservableSerialPort, ISerialState
     {
+        public bool IsOpen => _serialPort.IsOpen;
         public abstract bool CanTransitionTo(Type nextStateType);
         protected readonly IObservableSerialPort _serialPort;
         public SerialState(IObservableSerialPort serialPort) => _serialPort = serialPort;
@@ -20,8 +21,8 @@ namespace TeensyRom.Core.Serial.State
         public virtual void Write(string text) => throw new TeensyStateException(ExceptionMessage);
         public virtual void Write(byte[] buffer, int offset, int count) => throw new TeensyStateException(ExceptionMessage);
         public virtual void Write(char[] buffer, int offset, int count) => throw new TeensyStateException(ExceptionMessage);
-        public virtual Unit SetPort(string port) => throw new TeensyStateException(ExceptionMessage);
-        public virtual string? OpenPort() => throw new TeensyStateException(ExceptionMessage);
+        public virtual Unit SetPort(string port) => _serialPort.SetPort(port);
+        public virtual string? OpenPort() => _serialPort.OpenPort();
         public virtual Unit ClosePort() => throw new TeensyStateException(ExceptionMessage);
         public virtual void EnsureConnection(int waitTimeMs = 200) => throw new TeensyStateException(ExceptionMessage);
         public virtual string? StartHealthCheck() => throw new TeensyStateException(ExceptionMessage);
