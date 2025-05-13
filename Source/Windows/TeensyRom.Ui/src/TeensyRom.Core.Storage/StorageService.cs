@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using System.Collections.Immutable;
 using System.Runtime;
 using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Commands;
@@ -14,7 +15,6 @@ namespace TeensyRom.Core.Storage
     public class StorageSettings 
     {
         public CartStorage CartStorage { get; init; } = null!;
-        public List<string> FavoritePaths { get; set; } = [];
         public List<string> BannedDirectories { get; set; } = [];
         public List<string> BannedFiles { get; set; } = [];
     }
@@ -59,7 +59,7 @@ namespace TeensyRom.Core.Storage
 
                     await SaveDirectoryToCache(filteredContent);
                 }
-                cache.EnsureFavorites(settings.FavoritePaths);
+                cache.EnsureFavorites([.. StorageHelper.FavoritePaths]);
                 cache.WriteToDisk();
             });
             alert.Publish($"Indexing completed for {settings.CartStorage.Type} storage.");
@@ -118,7 +118,7 @@ namespace TeensyRom.Core.Storage
                 Files = files
             };
 
-            var favPaths = settings.FavoritePaths;
+            var favPaths = StorageHelper.FavoritePaths;
 
             if (favPaths.Any(dirContent.Path.Contains)) FavCacheItems(cacheItem);
 
