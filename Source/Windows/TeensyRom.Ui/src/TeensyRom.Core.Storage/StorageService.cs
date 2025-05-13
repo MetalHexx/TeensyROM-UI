@@ -1,6 +1,4 @@
 ﻿using MediatR;
-using System.Collections.Immutable;
-using System.Runtime;
 using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Commands.GetFile;
@@ -20,6 +18,51 @@ namespace TeensyRom.Core.Storage
     }
     public class StorageService(IStorageCache cache, StorageSettings settings, IMediator mediator, IAlertService alert, ILoggingService log, ISidMetadataService sidMetadata, IGameMetadataService gameMetadata) : IStorageService
     {
+        public async Task<IFileItem?> GetFile(string path)
+        {
+            var parentPath = path.GetUnixParentPath();
+
+            var directory = await GetDirectory(parentPath);
+
+            if (directory is null) 
+            {
+                log.InternalWarning($"The parent directory {parentPath} was not found");
+                return null;
+            }
+            var file = directory.Files
+                .FirstOrDefault(f => f.Path.RemoveLeadingAndTrailingSlash()
+                    .Equals(path.RemoveLeadingAndTrailingSlash(), StringComparison.OrdinalIgnoreCase));
+
+            if (file is null) 
+            {
+                log.InternalWarning($"The file {path.GetFileNameFromPath()} was not found in the directory {parentPath}");
+                return null;
+            }
+            return file;
+        }
+
+        public async Task<IStorageCacheItem?> GetDirectory(string path)
+        {
+            var cacheItem = cache.GetByDirPath(path);
+
+            if (cacheItem != null)
+            {
+                return cacheItem;
+            }
+
+            var response = await mediator.Send(new GetDirectoryCommand(settings.CartStorage.Type, path, settings.CartStorage.DeviceId));
+
+            if (response.DirectoryContent is null) return null;
+
+            var filteredContent = FilterBannedItems(response.DirectoryContent);
+
+            if (filteredContent is null) return null;
+
+            cacheItem = await SaveDirectoryToCache(filteredContent);
+
+            cache.WriteToDisk();
+            return cacheItem;
+        }        
         public async Task CacheAll()
         {
             await Cache(StorageHelper.Remote_Path_Root);
@@ -84,9 +127,9 @@ namespace TeensyRom.Core.Storage
             };
         }
 
-        private async Task<StorageCacheItem> SaveDirectoryToCache(DirectoryContent dirContent)
+        private async Task<IStorageCacheItem> SaveDirectoryToCache(DirectoryContent dirContent)
         {
-            StorageCacheItem? cacheItem;
+            IStorageCacheItem? cacheItem;
             var files = MapAndOrderFiles(dirContent);
 
             var playlistFile = dirContent.Files
@@ -126,7 +169,7 @@ namespace TeensyRom.Core.Storage
             return cacheItem;
         }
 
-        private static void FavCacheItems(StorageCacheItem cacheItem) => cacheItem.Files.ForEach(f => f.IsFavorite = true);
+        private static void FavCacheItems(IStorageCacheItem cacheItem) => cacheItem.Files.ForEach(f => f.IsFavorite = true);
 
         private List<IFileItem> MapAndOrderFiles(DirectoryContent? directoryContent)
         {

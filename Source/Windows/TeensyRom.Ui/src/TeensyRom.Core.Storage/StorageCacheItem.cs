@@ -2,7 +2,7 @@
 
 namespace TeensyRom.Core.Storage
 {
-    public class StorageCacheItem
+    public class StorageCacheItem : IStorageCacheItem
     {
         public string Path { get; set; } = string.Empty;
         public List<DirectoryItem> Directories { get; set; } = new();

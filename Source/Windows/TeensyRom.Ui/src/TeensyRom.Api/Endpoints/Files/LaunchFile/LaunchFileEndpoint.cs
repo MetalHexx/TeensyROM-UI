@@ -1,11 +1,12 @@
 using MediatR;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Api.Endpoints.Files.LaunchFile
 {
-    public class LaunchFileEndpoint(IMediator mediator) : RadEndpoint<LaunchFileRequest, LaunchFileResponse>
+    public class LaunchFileEndpoint(IMediator mediator, IDeviceConnectionManager deviceManager) : RadEndpoint<LaunchFileRequest, LaunchFileResponse>
     {
         public override void Configure()
         {
@@ -17,13 +18,51 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
 
         public override async Task Handle(LaunchFileRequest r, CancellationToken ct)
         {
-            var testItem = new GameItem
+            var device = deviceManager.GetConnectedDevice(r.DeviceId);
+
+            if (device is null)
             {
-                Path = r.Path,
-                Name = r.Path.GetFileNameFromPath(),
-                Size = 575001
-            };
-            var launchCommand = new LaunchFileCommand(TeensyStorageType.SD, testItem, r.DeviceId);
+                SendNotFound($"The device {r.DeviceId} was not found.");
+                return;
+            }
+
+            IStorageService storage = null!;
+
+            if (r.StorageType is TeensyStorageType.SD) 
+            {
+                if (!device.Cart.SdStorage.Available)
+                {
+                    SendNotFound($"The device {r.DeviceId} does not have an SD card.");
+                    return;
+                }
+                storage = device.SdStorage;
+
+            }
+            else if (r.StorageType is TeensyStorageType.USB)
+            {
+                if (!device.Cart.UsbStorage.Available)
+                {
+                    SendNotFound($"The device {r.DeviceId} does not have USB storage.");
+                    return;
+                }
+                storage = device.UsbStorage;
+            }
+
+            var file = await storage.GetFile(r.Path);
+
+            if (file is null) 
+            {
+                SendNotFound($"The file {r.Path} was not found.");
+                return;
+            }
+
+            if(file is not ILaunchableItem launchItem)
+            {
+                SendValidationError($"The file {r.Path} is not launchable.");
+                return;
+            }
+;
+            var launchCommand = new LaunchFileCommand(TeensyStorageType.SD, launchItem, r.DeviceId);
             var result = await mediator.Send(launchCommand, ct);
 
             Response = new();

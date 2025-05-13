@@ -13,6 +13,8 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
         public string DeviceId { get; set; } = string.Empty;
         [FromQuery]
         public string Path { get; set; } = string.Empty;
+        [FromQuery]
+        public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;
     }
 
     public class LaunchFileRequestValidator : AbstractValidator<LaunchFileRequest>
@@ -26,6 +28,9 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
             RuleFor(x => x.Path)
             .NotEmpty().WithMessage("Path is required.")
             .Must(path => path.IsValidUnixFilePath()).WithMessage("Path must be a valid Unix-style file path.");
+
+            RuleFor(x => x.StorageType)
+                .IsInEnum().WithMessage("Storage type must be a valid enum value.");
         }
     }
 

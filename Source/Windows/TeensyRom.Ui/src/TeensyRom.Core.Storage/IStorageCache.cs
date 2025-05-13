@@ -12,11 +12,11 @@ namespace TeensyRom.Core.Storage
         void DeleteDirectory(string path);
         void DeleteDirectoryWithChildren(string path);
         void DeleteFile(string path);
-        StorageCacheItem EnsureParents(string path);
-        StorageCacheItem? GetByDirPath(string path);
+        IStorageCacheItem EnsureParents(string path);
+        IStorageCacheItem? GetByDirPath(string path);
         List<IFileItem> GetFileByName(string name);
         IFileItem? GetFileByPath(string filePath);
-        void UpsertDirectory(string path, StorageCacheItem directory);
+        void UpsertDirectory(string path, IStorageCacheItem directory);
         void UpsertFile(IFileItem fileItem);
         void Clear();
         void EnsureFavorites(List<string> favPaths);

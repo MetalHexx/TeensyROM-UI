@@ -11,7 +11,7 @@ using System.Reactive;
 
 namespace TeensyRom.Core.Storage
 {
-    public class SimpleStorageCache : Dictionary<string, StorageCacheItem>, IStorageCache
+    public class SimpleStorageCache : Dictionary<string, IStorageCacheItem>, IStorageCache
     {
         public IObservable<Unit> StorageReady => _storageReady.AsObservable();
         private Subject<Unit> _storageReady = new();
@@ -43,7 +43,7 @@ namespace TeensyRom.Core.Storage
             _storageReady.OnNext(Unit.Default);
         }
 
-        public void UpsertDirectory(string path, StorageCacheItem directory)
+        public void UpsertDirectory(string path, IStorageCacheItem directory)
         {
             if (IsBannedFolder(path)) return;
 
@@ -61,7 +61,7 @@ namespace TeensyRom.Core.Storage
             UpsertDirectory(fileParentDir.Path, fileParentDir);
         }
 
-        public StorageCacheItem EnsureParents(string path)
+        public IStorageCacheItem EnsureParents(string path)
         {
             var parentPath = CleanPath(path.GetUnixParentPath());
             var fileParentDir = GetByDirPath(parentPath);
@@ -88,7 +88,7 @@ namespace TeensyRom.Core.Storage
             return fileParentDir;
         }
 
-        private void Insert(string path, StorageCacheItem cacheItem)
+        private void Insert(string path, IStorageCacheItem cacheItem)
         {
             if (IsBannedFolder(path)) return;
 
@@ -129,7 +129,7 @@ namespace TeensyRom.Core.Storage
             File.Delete(_cacheFilePath);
         }
 
-        public StorageCacheItem? GetByDirPath(string path)
+        public IStorageCacheItem? GetByDirPath(string path)
         {
             var isBanned = _bannedDirectories.Any(path.Contains);
 
@@ -145,7 +145,7 @@ namespace TeensyRom.Core.Storage
         public IFileItem? GetFileByPath(string filePath)
         {
             var parentPath = CleanPath(filePath.GetUnixParentPath());
-            TryGetValue(parentPath, out StorageCacheItem? dir);
+            TryGetValue(parentPath, out IStorageCacheItem? dir);
 
             if (dir is not null)
             {
@@ -172,7 +172,7 @@ namespace TeensyRom.Core.Storage
             parentDir.DeleteFile(path);
         }
 
-        private Func<KeyValuePair<string, StorageCacheItem>, bool> FileExcludeFilter(IEnumerable<string> excludePaths) =>
+        private Func<KeyValuePair<string, IStorageCacheItem>, bool> FileExcludeFilter(IEnumerable<string> excludePaths) =>
             kvp => !excludePaths
                 .Select(p => p.RemoveLeadingAndTrailingSlash())
                 .Any(excludePath => kvp.Key.Contains(excludePath));
@@ -323,11 +323,7 @@ namespace TeensyRom.Core.Storage
             using var reader = new StreamReader(stream);
             var content = reader.ReadToEnd();
 
-            var cacheFromDisk = JsonSerializer.Deserialize<StorageCache>(content, new JsonSerializerOptions
-            {
-                TypeInfoResolver = JsonTypeInfoResolver.Combine(new DefaultJsonTypeInfoResolver()),
-                WriteIndented = true
-            });
+            var cacheFromDisk = StorageCacheItemSerializer.Deserialize<Dictionary<string, IStorageCacheItem>>(content);
 
             if (cacheFromDisk is null) return;
 
@@ -345,17 +341,13 @@ namespace TeensyRom.Core.Storage
             lock (_writeLock)
             {
                 var directory = Path.GetDirectoryName(_cacheFilePath);
+                
                 if (!Directory.Exists(directory))
                 {
                     Directory.CreateDirectory(directory!);
                 }
+                File.WriteAllText(_cacheFilePath, StorageCacheItemSerializer.Serialize(this as Dictionary<string, IStorageCacheItem>));
 
-                var options = new JsonSerializerOptions
-                {
-                    TypeInfoResolver = JsonTypeInfoResolver.Combine(new DefaultJsonTypeInfoResolver()),
-                    WriteIndented = true
-                };
-                File.WriteAllText(_cacheFilePath, JsonSerializer.Serialize(this, options));
             }
         }
 
@@ -372,7 +364,7 @@ namespace TeensyRom.Core.Storage
         }
         private bool IsBannedFile(string fileName) => _bannedFiles.Any(b => b.RemoveLeadingAndTrailingSlash().Equals(fileName.RemoveLeadingAndTrailingSlash()));
 
-        private StorageCacheItem CleanBadFilesAndFolders(StorageCacheItem cacheItem)
+        private IStorageCacheItem CleanBadFilesAndFolders(IStorageCacheItem cacheItem)
         {
             cacheItem.Directories = cacheItem.Directories
                 .Where(d => !IsBannedFolder(d.Path))

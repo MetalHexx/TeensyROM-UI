@@ -130,7 +130,7 @@ namespace TeensyRom.Core.Storage
         public void ClearCache(string path) => _storageCache.DeleteDirectoryWithChildren(path);
 
 
-        public async Task<StorageCacheItem?> GetDirectory(string path)
+        public async Task<IStorageCacheItem?> GetDirectory(string path)
         {
             var cacheItem = _storageCache.GetByDirPath(path);
 
@@ -153,9 +153,9 @@ namespace TeensyRom.Core.Storage
             return cacheItem;
         }
 
-        private async Task<StorageCacheItem> SaveDirectoryToCache(DirectoryContent dirContent)
+        private async Task<IStorageCacheItem> SaveDirectoryToCache(DirectoryContent dirContent)
         {
-            StorageCacheItem? cacheItem;
+            IStorageCacheItem? cacheItem;
             var files = MapAndOrderFiles(dirContent);
 
             var playlistFile = dirContent.Files
@@ -195,7 +195,7 @@ namespace TeensyRom.Core.Storage
             return cacheItem;
         }
 
-        private static void FavCacheItems(StorageCacheItem cacheItem) => cacheItem.Files.ForEach(f => f.IsFavorite = true);
+        private static void FavCacheItems(IStorageCacheItem cacheItem) => cacheItem.Files.ForEach(f => f.IsFavorite = true);
 
         private List<IFileItem> MapAndOrderFiles(DirectoryContent? directoryContent)
         {
