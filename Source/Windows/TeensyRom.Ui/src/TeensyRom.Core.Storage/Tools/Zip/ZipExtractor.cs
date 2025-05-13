@@ -8,7 +8,7 @@ namespace TeensyRom.Core.Storage.Tools.Zip
     public class ZipExtractor : IZipExtractor
     {
         private string? AssemblyBasePath => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        private string OutputPath => Path.Combine(AssemblyBasePath!, StorageConstants.Extraction_Path);
+        private string OutputPath => Path.Combine(AssemblyBasePath!, StorageHelper.Extraction_Path);
         public void ClearOutputDirectory()
         {
             if (Directory.Exists(OutputPath))

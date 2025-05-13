@@ -1,20 +1,10 @@
 ﻿using ReactiveUI;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Ui.Controls.LibraryFilter
 {
@@ -54,12 +44,17 @@ namespace TeensyRom.Ui.Controls.LibraryFilter
 
             if (viewModel == null) return;
 
-            if (viewModel.SelectedLibrary is not null && radioButton.DataContext == viewModel.SelectedLibrary)
+            if (viewModel.SelectedLibrary is TeensyFilter selected &&
+                radioButton.DataContext is TeensyFilter current &&
+                selected.Equals(current))
             {
                 radioButton.IsChecked = true;
                 return;
             }
-            if (viewModel.SelectedLibrary is null && radioButton.DataContext == viewModel.Libraries.FirstOrDefault())
+
+            if (viewModel.SelectedLibrary is null &&
+                radioButton.DataContext is TeensyFilter first &&
+                first.Equals(viewModel.Libraries.FirstOrDefault()))
             {
                 radioButton.IsChecked = true;
             }

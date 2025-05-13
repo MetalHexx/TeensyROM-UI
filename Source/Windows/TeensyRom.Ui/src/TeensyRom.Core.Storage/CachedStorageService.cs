@@ -53,7 +53,7 @@ namespace TeensyRom.Core.Storage
 
         public async Task<ILaunchableItem?> SaveFavorite(ILaunchableItem launchItem)
         {
-            var favPath = _settings.GetFavoritePath(launchItem.FileType);
+            var favPath = StorageHelper.GetFavoritePath(launchItem.FileType);
 
             var favCommand = new FavoriteFileCommand
             (
@@ -159,7 +159,7 @@ namespace TeensyRom.Core.Storage
             var files = MapAndOrderFiles(dirContent);
 
             var playlistFile = dirContent.Files
-                        .FirstOrDefault(f => f.Path.GetFileNameFromPath() == StorageConstants.Playlist_File_Name);
+                        .FirstOrDefault(f => f.Path.GetFileNameFromPath() == StorageHelper.Playlist_File_Name);
 
             if (playlistFile is not null)
             {
@@ -187,7 +187,7 @@ namespace TeensyRom.Core.Storage
                 Files = files
             };
 
-            var favPaths = _settings.GetFavoritePaths();
+            var favPaths = StorageHelper.FavoritePaths;
 
             if (favPaths.Any(dirContent.Path.Contains)) FavCacheItems(cacheItem);
 
@@ -281,17 +281,17 @@ namespace TeensyRom.Core.Storage
 
         private List<string> GetExcludePaths()
         {
-            var excludePaths = _settings.GetFavoritePaths();
-            excludePaths.Add(StorageConstants.Playlist_Path);
+            var excludePaths = StorageHelper.FavoritePaths;
+            excludePaths.Add(StorageHelper.Playlist_Path);
 
-            return excludePaths;
+            return excludePaths.ToList();
         }
 
-        public Task CacheAll() => CacheAll(StorageConstants.Remote_Path_Root);
+        public Task CacheAll() => CacheAll(StorageHelper.Remote_Path_Root);
 
         public async Task CacheAll(string path)
         {
-            if (path == StorageConstants.Remote_Path_Root)
+            if (path == StorageHelper.Remote_Path_Root)
             {
                 ClearCache();
             }
@@ -318,7 +318,7 @@ namespace TeensyRom.Core.Storage
 
                     await SaveDirectoryToCache(filteredContent);
                 }
-                _storageCache.EnsureFavorites(_settings.GetFavoritePaths());
+                _storageCache.EnsureFavorites(StorageHelper.FavoritePaths.ToList());
                 _storageCache.WriteToDisk();
             });
             _alert.Publish($"Indexing completed for {_settings.StorageType} storage.");
@@ -437,7 +437,7 @@ namespace TeensyRom.Core.Storage
 
             var playlist = new Playlist
             {
-                Path = Path.Combine(storagePath, StorageConstants.Playlist_File_Name),
+                Path = Path.Combine(storagePath, StorageHelper.Playlist_File_Name),
                 Items = customItems
             };
             await TransferPlaylist(playlist);
@@ -449,9 +449,9 @@ namespace TeensyRom.Core.Storage
         {
             var directoryPath = Path.Combine(
                 Assembly.GetExecutingAssembly().GetPath(),
-                StorageConstants.Temp_Path);
+                StorageHelper.Temp_Path);
 
-            var filePath = Path.Combine(directoryPath, StorageConstants.Playlist_File_Name);
+            var filePath = Path.Combine(directoryPath, StorageHelper.Playlist_File_Name);
 
             var playlistJson = LaunchableItemSerializer.Serialize(playlist);
 

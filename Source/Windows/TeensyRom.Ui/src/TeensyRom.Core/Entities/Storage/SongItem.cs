@@ -7,7 +7,7 @@
         public int StartSubtuneNum { get; set; }
         public List<ViewableItemImage> Images { get; init; } = [];
 
-        public bool IsPlaylistedOrFavorite => Path.Contains(StorageConstants.Playlist_Path) || Path.Contains(StorageConstants.Favorites_Path);
+        public bool IsPlaylistedOrFavorite => Path.Contains(StorageHelper.Playlist_Path) || Path.Contains(StorageHelper.Favorites_Path);
 
         public SongItem()
         {

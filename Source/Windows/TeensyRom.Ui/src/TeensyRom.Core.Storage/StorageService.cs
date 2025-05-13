@@ -22,11 +22,11 @@ namespace TeensyRom.Core.Storage
     {
         public async Task CacheAll()
         {
-            await Cache(StorageConstants.Remote_Path_Root);
+            await Cache(StorageHelper.Remote_Path_Root);
         }
         public async Task Cache(string path)
         {
-            if (path == StorageConstants.Remote_Path_Root)
+            if (path == StorageHelper.Remote_Path_Root)
             {
                 ClearCache();
             }
@@ -90,7 +90,7 @@ namespace TeensyRom.Core.Storage
             var files = MapAndOrderFiles(dirContent);
 
             var playlistFile = dirContent.Files
-                        .FirstOrDefault(f => f.Path.GetFileNameFromPath() == StorageConstants.Playlist_File_Name);
+                        .FirstOrDefault(f => f.Path.GetFileNameFromPath() == StorageHelper.Playlist_File_Name);
 
             if (playlistFile is not null)
             {

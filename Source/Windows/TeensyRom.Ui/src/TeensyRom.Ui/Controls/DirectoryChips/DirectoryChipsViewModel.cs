@@ -22,10 +22,10 @@ namespace TeensyRom.Ui.Controls.DirectoryChips
 
         public DirectoryChipsViewModel(IObservable<string> path, IObservable<string> pinnedDirectory, string basePath, Action<string> onClick, Action<string> onPin)
         {
-            var root = StorageConstants.Remote_Path_Root;
+            var root = StorageHelper.Remote_Path_Root;
 
             pinnedDirectory
-                .CombineLatest(path, (pinned, path) => !string.IsNullOrWhiteSpace(pinned) && pinned == path && pinned != StorageConstants.Remote_Path_Root)
+                .CombineLatest(path, (pinned, path) => !string.IsNullOrWhiteSpace(pinned) && pinned == path && pinned != StorageHelper.Remote_Path_Root)
                 .ToPropertyEx(this, vm => vm.PinEnabled);
 
             var pathItems = path
@@ -47,7 +47,7 @@ namespace TeensyRom.Ui.Controls.DirectoryChips
                     {
                         PathItems.Add("/root");
                     }
-                    PathItems.AddRange(pathList.Where(p => p != StorageConstants.Remote_Path_Root));
+                    PathItems.AddRange(pathList.Where(p => p != StorageHelper.Remote_Path_Root));
                 });
 
             PathItemClickCommand = ReactiveCommand.Create<string>(item =>

@@ -39,7 +39,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             { 
                 StorageScope.DirShallow => _playerContext.GetScopePath(), 
                 StorageScope.DirDeep => _playerContext.GetScopePath(), 
-                _ => StorageConstants.Remote_Path_Root 
+                _ => StorageHelper.Remote_Path_Root 
             };
             var randomFile = _storage.GetRandomFile(currentScope, currentScopePath, fileTypes);
 

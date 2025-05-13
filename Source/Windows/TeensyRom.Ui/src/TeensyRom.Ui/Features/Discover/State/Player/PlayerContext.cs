@@ -64,7 +64,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         protected readonly BehaviorSubject<ILaunchableItem> _selectedFile = new(null!);
         protected readonly BehaviorSubject<PlayState> _playingState = new(PlayState.Stopped);
         protected readonly BehaviorSubject<StorageScope> _currentScope = new(StorageScope.Storage);
-        protected readonly BehaviorSubject<string> _currentScopePath = new(StorageConstants.Remote_Path_Root);
+        protected readonly BehaviorSubject<string> _currentScopePath = new(StorageHelper.Remote_Path_Root);
         protected BehaviorSubject<DirectoryState> _directoryState = new(new());
 
         protected IDisposable? _settingsSubscription;
@@ -169,8 +169,8 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             _settingsSubscription = navAndStorageObservable
                 .Subscribe(async _ => 
                 {
-                    _tree.ResetDirectoryTree(StorageConstants.Remote_Path_Root);
-                    await LoadDirectory(StorageConstants.Remote_Path_Root);
+                    _tree.ResetDirectoryTree(StorageHelper.Remote_Path_Root);
+                    await LoadDirectory(StorageHelper.Remote_Path_Root);
                 });
 
             var initializeObservable = navAndStorageObservable
@@ -196,7 +196,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 await LoadFileWithoutLaunch(_settings.LastCart.LastFile);
                 return;
             }
-            await LoadDirectory(StorageConstants.Remote_Path_Root);
+            await LoadDirectory(StorageHelper.Remote_Path_Root);
         }
 
         private async Task HandleStartupWithLaunch()
@@ -602,8 +602,8 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             await _mediator.Send(new ResetCommand());
             await _storage.CacheAll();
-            _tree.ResetDirectoryTree(StorageConstants.Remote_Path_Root);
-            await LoadDirectory(StorageConstants.Remote_Path_Root);
+            _tree.ResetDirectoryTree(StorageHelper.Remote_Path_Root);
+            await LoadDirectory(StorageHelper.Remote_Path_Root);
         }
         public Unit SelectFile(ILaunchableItem file)
         {
@@ -836,7 +836,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         {
             if (_currentScopePath.Value.Equals(path)) 
             {
-                _currentScopePath.OnNext(StorageConstants.Remote_Path_Root);
+                _currentScopePath.OnNext(StorageHelper.Remote_Path_Root);
                 return;
             }
             _currentScopePath.OnNext(path);

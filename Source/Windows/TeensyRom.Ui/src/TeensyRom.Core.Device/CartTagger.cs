@@ -77,7 +77,7 @@ namespace TeensyRom.Core.Device
             (
                 buffer: newTagBuffer,
                 name: "cart-tag.txt",
-                targetPath: StorageConstants.Remote_Path_Root,
+                targetPath: StorageHelper.Remote_Path_Root,
                 targetStorage: storageType
             );
             var saveFileCommand = new SaveFilesCommand([fileTransferItem])

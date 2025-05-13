@@ -146,7 +146,7 @@ namespace TeensyRom.Ui.Services.Process
         private static string GetSyncFilePath(string prefix, string deviceHash)
         {
             var fileName = $"{prefix}_{deviceHash}.json";
-            return Path.Combine(StorageConstants.CachePath, fileName);
+            return Path.Combine(StorageHelper.CachePath, fileName);
         }
     }
 }

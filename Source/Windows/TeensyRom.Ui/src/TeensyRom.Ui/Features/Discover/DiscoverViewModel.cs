@@ -188,7 +188,7 @@ namespace TeensyRom.Ui.Features.Discover
                 (
                     path: player.CurrentPath.ObserveOn(RxApp.MainThreadScheduler),
                     pinnedDirectory: player.CurrentScopePath.ObserveOn(RxApp.MainThreadScheduler),
-                    basePath: StorageConstants.Remote_Path_Root,
+                    basePath: StorageHelper.Remote_Path_Root,
                     onClick: async path => await player.LoadDirectory(path),
                     onPin: path => 
                     {

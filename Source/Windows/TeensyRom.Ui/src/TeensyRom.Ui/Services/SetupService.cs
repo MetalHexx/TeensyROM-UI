@@ -223,7 +223,7 @@ namespace TeensyRom.Ui.Services
             _settings.StorageType = TeensyStorageType.SD;
             _settingsService.SaveSettings(_settings);
             await Task.Delay(1000);
-            await _storage.CacheAll(StorageConstants.Remote_Path_Root);
+            await _storage.CacheAll(StorageHelper.Remote_Path_Root);
             _sdCount = _storage.GetCacheSize();
             _dialog.HideNoClose();
 
@@ -236,7 +236,7 @@ namespace TeensyRom.Ui.Services
             _settings.StorageType = TeensyStorageType.USB;
             _settingsService.SaveSettings(_settings);
             await Task.Delay(3000);
-            await _storage.CacheAll(StorageConstants.Remote_Path_Root);
+            await _storage.CacheAll(StorageHelper.Remote_Path_Root);
             _usbCount = _storage.GetCacheSize();
 
             _settings.StorageType = _usbCount > _sdCount ? TeensyStorageType.USB : TeensyStorageType.SD;

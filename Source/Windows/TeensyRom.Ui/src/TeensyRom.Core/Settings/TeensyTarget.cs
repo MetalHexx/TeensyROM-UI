@@ -2,11 +2,11 @@
 
 namespace TeensyRom.Core.Settings
 {
-    public class TeensyTarget
-    {        
-        public TeensyFileType Type { get; set; }
-        public TeensyFilterType FilterType { get; set; }
-        public string DisplayName { get; set; } = string.Empty;
-        public string Extension { get; set; } = string.Empty;
-    }
+    public readonly record struct TeensyTarget
+    (
+        TeensyFileType Type,
+        TeensyFilterType FilterType,
+        string DisplayName,
+        string Extension
+    );
 }

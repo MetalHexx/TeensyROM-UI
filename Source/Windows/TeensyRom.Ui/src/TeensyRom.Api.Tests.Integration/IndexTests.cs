@@ -162,15 +162,15 @@ namespace TeensyRom.Api.Tests.Integration
             {
                 path = Path.Combine(
                     Assembly.GetExecutingAssembly().GetPath(),
-                    StorageConstants.Sd_Cache_File_Relative_Path,
-                    $"{StorageConstants.Sd_Cache_File_Name}{deviceId}{StorageConstants.Cache_File_Extension}");
+                    StorageHelper.Sd_Cache_File_Relative_Path,
+                    $"{StorageHelper.Sd_Cache_File_Name}{deviceId}{StorageHelper.Cache_File_Extension}");
             }
             else
             {
                 path = Path.Combine(
                     Assembly.GetExecutingAssembly().GetPath(),
-                    StorageConstants.Usb_Cache_File_Relative_Path,
-                    $"{StorageConstants.Usb_Cache_File_Name}{deviceId}{StorageConstants.Cache_File_Extension}");
+                    StorageHelper.Usb_Cache_File_Relative_Path,
+                    $"{StorageHelper.Usb_Cache_File_Name}{deviceId}{StorageHelper.Cache_File_Extension}");
             }
             return path;
         }

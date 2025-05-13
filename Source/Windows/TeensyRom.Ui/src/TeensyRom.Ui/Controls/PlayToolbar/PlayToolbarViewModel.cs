@@ -246,7 +246,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 .CombineLatest(storageScopePath, (scope, path) => (scope, path))
                 .Select(scopeAndPath =>
                 {
-                    if (scopeAndPath.path == StorageConstants.Remote_Path_Root) return scopeAndPath;
+                    if (scopeAndPath.path == StorageHelper.Remote_Path_Root) return scopeAndPath;
 
                     if (scopeAndPath.path.Length <= 10) return scopeAndPath;
 

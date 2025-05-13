@@ -43,134 +43,8 @@ namespace TeensyRom.Core.Settings
         public TeensySettings()
         {
             GetDefaultBrowserDownloadPath();
-            FileFilters.AddRange(new List<TeensyFilter>
-            {
-                new TeensyFilter
-                {
-                    Type = TeensyFilterType.All,
-                    DisplayName = "All",
-                    Icon = "AllInclusive",
-
-                },
-                new TeensyFilter
-                {
-                    Type = TeensyFilterType.Music,
-                    DisplayName = "Music",
-                    Icon = "MusicClefTreble"
-                },
-                new TeensyFilter
-                {
-                    Type = TeensyFilterType.Games,
-                    DisplayName = "Games",
-                    Icon = "Ghost"
-                },
-                new TeensyFilter
-                {
-                    Type = TeensyFilterType.Hex,
-                    DisplayName = "Hex",
-                    Icon = "ArrowUpBoldHexagonOutline"
-                },
-                new TeensyFilter
-                {
-                    Type = TeensyFilterType.Images,
-                    DisplayName = "Images",
-                    Icon = "FileImageOutline"
-                }
-            });
-            FileTargets.AddRange(new List<TeensyTarget>
-            {
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Sid,
-                    FilterType = TeensyFilterType.Music,
-                    DisplayName = "SID",
-                    Extension = ".sid"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Prg,
-                    FilterType = TeensyFilterType.Games,
-                    DisplayName = "PRG",
-                    Extension = ".prg"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.P00,
-                    FilterType = TeensyFilterType.Games,
-                    DisplayName = "P00",
-                    Extension = ".p00"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Crt,
-                    FilterType = TeensyFilterType.Games,
-                    DisplayName = "CRT",
-                    Extension = ".crt"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Hex,
-                    FilterType = TeensyFilterType.Hex,
-                    DisplayName = "HEX",
-                    Extension = ".hex"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Kla,
-                    FilterType = TeensyFilterType.Images,
-                    DisplayName = "KLA",
-                    Extension = ".kla"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Koa,
-                    FilterType = TeensyFilterType.Images,
-                    DisplayName = "KOA",
-                    Extension = ".koa"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Art,
-                    FilterType = TeensyFilterType.Images,
-                    DisplayName = "ART",
-                    Extension = ".art"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Aas,
-                    FilterType = TeensyFilterType.Images,
-                    DisplayName = "AAS",
-                    Extension = ".aas"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Hpi,
-                    FilterType = TeensyFilterType.Images,
-                    DisplayName = "HPI",
-                    Extension = ".hpi"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Seq,
-                    FilterType = TeensyFilterType.Images,
-                    DisplayName = "SEQ",
-                    Extension = ".seq"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.Txt,
-                    FilterType = TeensyFilterType.Images,
-                    DisplayName = "TXT",
-                    Extension = ".txt"
-                },
-                new TeensyTarget
-                {
-                    Type = TeensyFileType.D64,
-                    FilterType = TeensyFilterType.Games,
-                    DisplayName = "D64",
-                    Extension = ".d64"
-                }
-            });
+            FileFilters.AddRange(StorageHelper.Filters);
+            FileTargets.AddRange(StorageHelper.FileTargets);
         }
 
         public void InitializeDefaults()
@@ -182,46 +56,22 @@ namespace TeensyRom.Core.Settings
 
         public string GetFileTypePath(TeensyFileType type)
         {
-            return FileTargets
-                .FirstOrDefault(FileTargets => FileTargets.Type == type)?.Extension
-                .RemoveFirstOccurrence(".")
-
-                ?? string.Empty;
+            var target = FileTargets.FirstOrDefault(t => t.Type == type);
+            return target.Equals(default)
+                ? string.Empty
+                : target.Extension.RemoveFirstOccurrence(".");
         }
 
         public TeensyFilter GetStartupFilter() => FileFilters.First(f => f.Type == StartupFilter);
-
-        public List<string> GetFavoritePaths() => FileTargets.Select(t => GetFavoritePath(t.Type)).ToList();
-
-        public string GetFavoritePath(TeensyFileType type) 
-        {
-            return type switch
-            {
-                TeensyFileType.Sid => $"{StorageConstants.Favorites_Path}music",
-                TeensyFileType.Prg => $"{StorageConstants.Favorites_Path}games",
-                TeensyFileType.P00 => $"{StorageConstants.Favorites_Path}games",
-                TeensyFileType.Crt => $"{StorageConstants.Favorites_Path}games",
-                TeensyFileType.Txt => $"{StorageConstants.Favorites_Path}text",
-                TeensyFileType.Seq => $"{StorageConstants.Favorites_Path}images",
-                TeensyFileType.Kla => $"{StorageConstants.Favorites_Path}images",
-                TeensyFileType.Koa => $"{StorageConstants.Favorites_Path}images",
-                TeensyFileType.Art => $"{StorageConstants.Favorites_Path}images",
-                TeensyFileType.Aas => $"{StorageConstants.Favorites_Path}images",
-                TeensyFileType.Hpi => $"{StorageConstants.Favorites_Path}images",
-                TeensyFileType.Hex => "/firmware",
-
-                _ => $"{StorageConstants.Favorites_Path}unknown"
-            };
-        }
 
         public List<string> GetAllFavoritePaths()
         {
             return
             [
-                $"{StorageConstants.Favorites_Path}music",
-                $"{StorageConstants.Favorites_Path}games",
-                $"{StorageConstants.Favorites_Path}text",
-                $"{StorageConstants.Favorites_Path}images"
+                $"{StorageHelper.Favorites_Path}music",
+                $"{StorageHelper.Favorites_Path}games",
+                $"{StorageHelper.Favorites_Path}text",
+                $"{StorageHelper.Favorites_Path}images"
             ];
         }
 

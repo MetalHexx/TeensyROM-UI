@@ -78,7 +78,7 @@ namespace TeensyRom.Ui.Controls.Playlist
             else 
             {
                 item.IsSelected = true;
-                item.Path = $"{StorageConstants.Playlist_Path}{item.Name}";
+                item.Path = $"{StorageHelper.Playlist_Path}{item.Name}";
                 PlaylistItems.Add(item);
             }
             NewPlaylist = new();
@@ -110,7 +110,7 @@ namespace TeensyRom.Ui.Controls.Playlist
                 return;
             }
 
-            var favoritesPath = StorageConstants.Favorites_Path.RemoveLeadingAndTrailingSlash();
+            var favoritesPath = StorageHelper.Favorites_Path.RemoveLeadingAndTrailingSlash();
 
             var items = playlistDirectory!.Directories
                 .Where(d => !d.Path.RemoveLeadingAndTrailingSlash().Equals(favoritesPath))
@@ -126,7 +126,7 @@ namespace TeensyRom.Ui.Controls.Playlist
                 .GetAllFavoritePaths()
                 .Select(p => 
                 {
-                    var favoritesPath = settings.GetFavoritePath(FileToAdd.FileType).RemoveLeadingAndTrailingSlash();
+                    var favoritesPath = StorageHelper.GetFavoritePath(FileToAdd.FileType).RemoveLeadingAndTrailingSlash();
                     var parentPath = p.RemoveLeadingAndTrailingSlash();
 
                     return new PlaylistItemViewModel

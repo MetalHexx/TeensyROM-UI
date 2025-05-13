@@ -47,13 +47,13 @@ namespace TeensyRom.Core.Storage
 
             _usbCacheFileName = Path.Combine(
                 Assembly.GetExecutingAssembly().GetPath(),
-                StorageConstants.Usb_Cache_File_Relative_Path,
-                $"{StorageConstants.Usb_Cache_File_Name}{_settings.LastCart.DeviceHash}{StorageConstants.Cache_File_Extension}");
+                StorageHelper.Usb_Cache_File_Relative_Path,
+                $"{StorageHelper.Usb_Cache_File_Name}{_settings.LastCart.DeviceHash}{StorageHelper.Cache_File_Extension}");
 
             _sdCacheFileName = Path.Combine(
                 Assembly.GetExecutingAssembly().GetPath(),
-                StorageConstants.Sd_Cache_File_Relative_Path,
-                $"{StorageConstants.Sd_Cache_File_Name}{_settings.LastCart.DeviceHash}{StorageConstants.Cache_File_Extension}");
+                StorageHelper.Sd_Cache_File_Relative_Path,
+                $"{StorageHelper.Sd_Cache_File_Name}{_settings.LastCart.DeviceHash}{StorageHelper.Cache_File_Extension}");
 
             if (previousSettings is null || _settings.StorageType != previousSettings.StorageType || _settings.LastCart.DeviceHash != previousSettings.LastCart?.DeviceHash)
             {
@@ -387,7 +387,7 @@ namespace TeensyRom.Core.Storage
 
         private bool IsBannedFolder(string folder)
         {
-            if (folder == StorageConstants.Remote_Path_Root) return false;
+            if (folder == StorageHelper.Remote_Path_Root) return false;
 
             return _bannedFolders.Any(b => b.RemoveLeadingAndTrailingSlash().Equals(folder.RemoveLeadingAndTrailingSlash()));
         }
