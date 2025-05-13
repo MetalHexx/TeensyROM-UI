@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using TeensyRom.Core.Commands;
 using TeensyRom.Core.Entities.Device;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Logging;
@@ -54,6 +55,12 @@ namespace TeensyRom.Core.Device
                     FwVersion = versionResult.Version?.ToString() ?? "",
                     IsCompatible = versionResult.IsCompatible
                 };
+                var resetCommand = new ResetCommand
+                {
+                    Serial = serial
+                };
+                var resetResult = await mediator.Send(resetCommand);
+
                 var sdStorage = await tagger.EnsureTag(serial, TeensyStorageType.SD);
                 var usbStorage = await tagger.EnsureTag(serial, TeensyStorageType.USB);
 

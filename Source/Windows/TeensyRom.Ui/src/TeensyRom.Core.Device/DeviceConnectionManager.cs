@@ -73,6 +73,27 @@ namespace TeensyRom.Core.Device
             return _connectedDevices.FirstOrDefault(d => d.Cart.DeviceId == deviceId);
         }
 
+        public void CloseAllPorts()
+        {
+            foreach (var device in _connectedDevices)
+            {
+                device.SerialState.Dispose();
+            }
+            _connectedDevices.Clear();
+        }
+
+        public void ClosePort(string deviceId)
+        {
+            var device = _connectedDevices.FirstOrDefault(d => d.Cart.DeviceId == deviceId);
+
+            if (device is null)
+            {
+                throw new TeensyException($"Device with ID {deviceId} not found in connected devices.");
+            }
+            device.SerialState.ClosePort();
+            _connectedDevices.Remove(device);
+        }
+
         public List<Cart> GetConnectedCarts() => _connectedDevices.Select(c => c.Cart).ToList();
 
         public List<TeensyRomDevice> GetAllConnectedDevices() 

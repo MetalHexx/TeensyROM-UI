@@ -11,5 +11,6 @@ namespace TeensyRom.Core.Abstractions
         TeensyRomDevice? GetConnectedDevice(string portName);
         Task<bool> ConnectToNextPort(string deviceId);
         List<string> GetAvailablePorts();
+        void ClosePort(string deviceId);
     }
 }
