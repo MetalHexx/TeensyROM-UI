@@ -1,25 +1,23 @@
-using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 using RadEndpoints;
-using System.Text.RegularExpressions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.Storage;
 
-namespace TeensyRom.Api.Endpoints.Files.LaunchFile
+namespace TeensyRom.Api.Endpoints.GetDirectory
 {
-    public class LaunchFileRequest
+    public class GetDirectoryRequest 
     {
         [FromRoute]
-        public string DeviceId { get; set; } = string.Empty;
+        public string? DeviceId { get; set; } = string.Empty;
         [FromQuery]
-        public string Path { get; set; } = string.Empty;
-        [FromQuery]
+        public string? Path { get; set; } = string.Empty;
+        [FromRoute]
         public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;
     }
 
-    public class LaunchFileRequestValidator : AbstractValidator<LaunchFileRequest>
+    public class GetDirectoryRequestValidator : AbstractValidator<GetDirectoryRequest>
     {
-        public LaunchFileRequestValidator()
+        public GetDirectoryRequestValidator()
         {
             RuleFor(x => x.DeviceId)
                 .NotEmpty().WithMessage("Device ID is required.")
@@ -27,15 +25,16 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
 
             RuleFor(x => x.Path)
                 .NotEmpty().WithMessage("Path is required.")
-                .Must(path => path.IsValidUnixFilePath()).WithMessage("Path must be a valid Unix-style file path.");
+                .Must(path => path!.IsValidUnixFilePath()).WithMessage("Path must be a valid Unix-style file path.");
 
             RuleFor(x => x.StorageType)
                 .IsInEnum().WithMessage("Storage type must be a valid enum value.");
         }
     }
 
-    public class LaunchFileResponse
+    public class GetDirectoryResponse
     {
+        public IStorageCacheItem StorageItem { get; set; } = null!;
         public string Message { get; set; } = "Success!";
     }
 }
