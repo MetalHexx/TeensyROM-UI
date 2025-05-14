@@ -6,6 +6,7 @@ using TeensyRom.Api.Endpoints.OpenPort;
 using TeensyRom.Api.Endpoints.ResetDevice;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TeensyRom.Api.Tests.Integration
 {
@@ -28,6 +29,15 @@ namespace TeensyRom.Api.Tests.Integration
             {
                 DeviceId = deviceId!,
                 Path = "/music/MUSICIANS/L/LukHash/Alpha.sid",
+                StorageType = TeensyStorageType.SD
+            });
+
+            await Task.Delay(3000);
+
+            r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
+            {
+                DeviceId = deviceId!,
+                Path = "/images/Dio2.kla",
                 StorageType = TeensyStorageType.SD
             });
 
