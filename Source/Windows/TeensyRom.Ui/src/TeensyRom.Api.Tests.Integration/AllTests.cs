@@ -131,7 +131,7 @@ namespace TeensyRom.Api.Tests.Integration
             var r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
                 DeviceId = deviceId!,
-                Path = "/music/MUSICIANS/L/LukHash/Alpha.sid",
+                FilePath = "/music/MUSICIANS/L/LukHash/Alpha.sid",
                 StorageType = TeensyStorageType.SD
             });
 
@@ -140,7 +140,7 @@ namespace TeensyRom.Api.Tests.Integration
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
                 DeviceId = deviceId!,
-                Path = "/music/MUSICIANS/J/Jammic/Wasted_Years.sid",
+                FilePath = "/music/MUSICIANS/J/Jammic/Wasted_Years.sid",
                 StorageType = TeensyStorageType.SD
             });
 
@@ -149,7 +149,7 @@ namespace TeensyRom.Api.Tests.Integration
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
                 DeviceId = deviceId!,
-                Path = "/games/Large/706k The Secret of Monkey Island (D42) [EasyFlash].crt",
+                FilePath = "/games/Large/706k The Secret of Monkey Island (D42) [EasyFlash].crt",
                 StorageType = TeensyStorageType.SD
             });
 
@@ -158,7 +158,7 @@ namespace TeensyRom.Api.Tests.Integration
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
                 DeviceId = deviceId!,
-                Path = "/games/Large/738k Elvira II - The Jaws of Cerberus (by $olo1870) [EasyFlash].crt",
+                FilePath = "/games/Large/738k Elvira II - The Jaws of Cerberus (by $olo1870) [EasyFlash].crt",
                 StorageType = TeensyStorageType.SD
             });
 
@@ -167,7 +167,7 @@ namespace TeensyRom.Api.Tests.Integration
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
                 DeviceId = deviceId!,
-                Path = "/music/MUSICIANS/L/LukHash/Alpha.sid",
+                FilePath = "/music/MUSICIANS/L/LukHash/Alpha.sid",
                 StorageType = TeensyStorageType.SD
             });
 
@@ -176,7 +176,7 @@ namespace TeensyRom.Api.Tests.Integration
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
                 DeviceId = deviceId!,
-                Path = "/music/MUSICIANS/J/Jammic/Wasted_Years.sid",
+                FilePath = "/music/MUSICIANS/J/Jammic/Wasted_Years.sid",
                 StorageType = TeensyStorageType.SD
             });
 
@@ -185,14 +185,14 @@ namespace TeensyRom.Api.Tests.Integration
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
                 DeviceId = deviceId!,
-                Path = "/games/Large/738k Elvira II - The Jaws of Cerberus (by $olo1870) [EasyFlash].crt",
+                FilePath = "/games/Large/738k Elvira II - The Jaws of Cerberus (by $olo1870) [EasyFlash].crt",
                 StorageType = TeensyStorageType.SD
             });
 
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
                 DeviceId = deviceId!,
-                Path = "/music/MUSICIANS/J/Jammic/Wasted_Years.sid",
+                FilePath = "/music/MUSICIANS/J/Jammic/Wasted_Years.sid",
                 StorageType = TeensyStorageType.SD
             });
 
@@ -218,7 +218,7 @@ namespace TeensyRom.Api.Tests.Integration
             var request = new LaunchFileRequest
             {
                 DeviceId = deviceId!,
-                Path = NonExistentPath,
+                FilePath = NonExistentPath,
                 StorageType = TeensyStorageType.SD
             };
 
@@ -235,7 +235,7 @@ namespace TeensyRom.Api.Tests.Integration
             var request = new LaunchFileRequest
             {
                 DeviceId = "invalid-device-id",
-                Path = NonExistentPath,
+                FilePath = NonExistentPath,
                 StorageType = TeensyStorageType.SD
             };
             var r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, ValidationProblemDetails>(request);
@@ -251,7 +251,7 @@ namespace TeensyRom.Api.Tests.Integration
             var request = new LaunchFileRequest
             {
                 DeviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash(),
-                Path = NonExistentPath
+                FilePath = NonExistentPath
             };
             var r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, ProblemDetails>(request);
             // Assert  
@@ -266,7 +266,7 @@ namespace TeensyRom.Api.Tests.Integration
             var request = new LaunchFileRequest
             {
                 DeviceId = "invalid-device-id",
-                Path = NonExistentPath,
+                FilePath = NonExistentPath,
                 StorageType = (TeensyStorageType)999
             };
             var r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, ProblemDetails>(request);

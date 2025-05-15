@@ -10,7 +10,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
     {
         public override void Configure()
         {
-            Get("device/{deviceId}/files/launch")
+            Get("/devices/{deviceId}/storage/{storageType}/launch")
                 .Produces<LaunchFileResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .WithDocument(tag: "Files", desc: "Launches a file given a valid path to a file stored on the TeensyRom.");
@@ -48,17 +48,17 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
                 storage = device.UsbStorage;
             }
 
-            var file = await storage.GetFile(r.Path);
+            var file = await storage.GetFile(r.FilePath);
 
             if (file is null) 
             {
-                SendNotFound($"The file {r.Path} was not found.");
+                SendNotFound($"The file {r.FilePath} was not found.");
                 return;
             }
 
             if(file is not ILaunchableItem launchItem)
             {
-                SendValidationError($"The file {r.Path} is not launchable.");
+                SendValidationError($"The file {r.FilePath} is not launchable.");
                 return;
             }
 ;

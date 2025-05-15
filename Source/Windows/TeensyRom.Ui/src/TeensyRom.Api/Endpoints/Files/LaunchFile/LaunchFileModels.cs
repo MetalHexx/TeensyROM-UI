@@ -11,10 +11,11 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
     {
         [FromRoute]
         public string DeviceId { get; set; } = string.Empty;
-        [FromQuery]
-        public string Path { get; set; } = string.Empty;
-        [FromQuery]
+        [FromRoute]
         public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;
+        [FromQuery]
+        public string FilePath { get; set; } = string.Empty;
+        
     }
 
     public class LaunchFileRequestValidator : AbstractValidator<LaunchFileRequest>
@@ -25,7 +26,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
                 .NotEmpty().WithMessage("Device ID is required.")
                 .Must(deviceId => deviceId.IsValidFilenameSafeHash()).WithMessage("Device ID must be a valid filename-safe hash of 8 characters long.");
 
-            RuleFor(x => x.Path)
+            RuleFor(x => x.FilePath)
                 .NotEmpty().WithMessage("Path is required.")
                 .Must(path => path.IsValidUnixFilePath()).WithMessage("Path must be a valid Unix-style file path.");
 
