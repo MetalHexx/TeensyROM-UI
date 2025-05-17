@@ -8,11 +8,11 @@ namespace TeensyRom.Api.Endpoints.GetDirectory
     public class GetDirectoryRequest 
     {
         [FromRoute]
-        public string? DeviceId { get; set; } = string.Empty;
-        [FromQuery]
-        public string? Path { get; set; } = string.Empty;
+        public string DeviceId { get; set; } = string.Empty;
         [FromRoute]
         public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;
+        [FromQuery]
+        public string? Path { get; set; } = string.Empty;        
     }
 
     public class GetDirectoryRequestValidator : AbstractValidator<GetDirectoryRequest>
