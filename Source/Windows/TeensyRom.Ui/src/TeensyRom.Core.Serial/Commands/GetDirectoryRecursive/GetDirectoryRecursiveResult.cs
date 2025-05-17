@@ -5,5 +5,6 @@ namespace TeensyRom.Core.Commands
     public class GetDirectoryRecursiveResult : TeensyCommandResult
     {
         public List<DirectoryContent?> DirectoryContent { get; set; } = new();
+        public GetDirectoryErrorCode ErrorCode { get; set; }
     }
 }

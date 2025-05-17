@@ -5,8 +5,8 @@ namespace TeensyRom.Core.Abstractions
 {
     public interface IStorageService
     {
-        Task CacheAll();
-        Task Cache(string path);
+        Task<bool> CacheAll();
+        Task<bool> Cache(string path);
         public void ClearCache();
         public void ClearCache(string path);
         public Task<IFileItem?> GetFile(string filePath);

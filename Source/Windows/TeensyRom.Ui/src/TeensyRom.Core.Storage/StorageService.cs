@@ -65,11 +65,11 @@ namespace TeensyRom.Core.Storage
             cache.WriteToDisk();
             return cacheItem;
         }        
-        public async Task CacheAll()
+        public async Task<bool> CacheAll()
         {
-            await Cache(StorageHelper.Remote_Path_Root);
+            return await Cache(StorageHelper.Remote_Path_Root);
         }
-        public async Task Cache(string path)
+        public async Task<bool> Cache(string path)
         {
             if (path == StorageHelper.Remote_Path_Root)
             {
@@ -88,7 +88,7 @@ namespace TeensyRom.Core.Storage
             alert.Publish($"Refreshing cache for {path} and all nested directories.");
             var response = await mediator.Send(new GetDirectoryRecursiveCommand(settings.CartStorage.Type, path, settings.CartStorage.DeviceId));
 
-            if (!response.IsSuccess) return;
+            if (!response.IsSuccess) return false;
 
             alert.Publish($"Enriching music and games.");
 
@@ -108,6 +108,8 @@ namespace TeensyRom.Core.Storage
                 cache.WriteToDisk();
             });
             alert.Publish($"Indexing completed for {settings.CartStorage.Type} storage.");
+
+            return true;
         }
 
         public void ClearCache() => cache.ClearCache();

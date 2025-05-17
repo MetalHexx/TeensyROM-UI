@@ -31,7 +31,28 @@ namespace TeensyRom.Core.Commands
 
                 try
                 {
-                    GetDirectoryContent(r.Path, r.StorageType, result, sb);
+                    try
+                    {
+                        GetDirectoryContent(r.Path, r.StorageType, result, sb);
+                    }
+                    catch (Exception ex)
+                    {
+                        GetDirectoryErrorCode errorCode = ex.Message switch
+                        {
+                            string msg when msg.Contains("Error 1") => GetDirectoryErrorCode.StorageTypeParamError,
+                            string msg when msg.Contains("Error 2") => GetDirectoryErrorCode.SkipParamError,
+                            string msg when msg.Contains("Error 3") => GetDirectoryErrorCode.TakeParamError,
+                            string msg when msg.Contains("Error 4") => GetDirectoryErrorCode.PathParamError,
+                            string msg when msg.Contains("Error 5") => GetDirectoryErrorCode.DirectoryNotFoundError,
+                            _ => GetDirectoryErrorCode.UnknownError
+                        };
+                        return new GetDirectoryRecursiveResult
+                        {
+                            IsSuccess = false,
+                            Error = ex.Message,
+                            ErrorCode = errorCode
+                        };
+                    }
                 }
                 catch (TimeoutException) 
                 {
@@ -51,7 +72,7 @@ namespace TeensyRom.Core.Commands
                 {
                     result.IsSuccess = false;
                     result.Error = "No data was returned from the TR.";
-                }
+                }                
                 return result;
             }, x);
         }
@@ -69,6 +90,7 @@ namespace TeensyRom.Core.Commands
             _serialState.SendIntBytes(0, 2); //skip
             _serialState.SendIntBytes(9999, 2); //take
             _serialState.Write($"{path}\0");
+            _serialState.HandleAck();
 
             if (WaitForDirectoryStartToken() != TeensyToken.StartDirectoryList)
             {

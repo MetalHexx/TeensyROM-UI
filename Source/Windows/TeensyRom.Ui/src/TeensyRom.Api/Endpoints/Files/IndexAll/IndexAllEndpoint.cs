@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using RadEndpoints;
 using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Device;
@@ -25,17 +27,57 @@ namespace TeensyRom.Api.Endpoints.Files.IndexAll
                 SendNotFound("No devices found.");
                 return;
             }
+
             var sdTasks = devices
                 .Where(d => d.Cart.SdStorage.Available)
-                .Select(d => d.SdStorage.CacheAll());
-
-            await Task.WhenAll(sdTasks);
+                .Select(d => new
+                {
+                    DeviceId = d.Cart.DeviceId,
+                    StorageType = "SD",
+                    Task = d.SdStorage.CacheAll()
+                })
+                .ToList();
 
             var usbTasks = devices
                 .Where(d => d.Cart.UsbStorage.Available)
-                .Select(d => d.UsbStorage.CacheAll());
+                .Select(d => new
+                {
+                    d.Cart.DeviceId,
+                    StorageType = "USB",
+                    Task = d.UsbStorage.CacheAll()
+                })
+                .ToList();
 
-            await Task.WhenAll(usbTasks);
+            await Task.WhenAll(sdTasks.Select(t => t.Task));
+            await Task.WhenAll(usbTasks.Select(t => t.Task));
+
+            var failedItems = sdTasks
+                .Where(t => !t.Task.Result)
+                .Concat(usbTasks.Where(t => !t.Task.Result))
+                .Select(t => new
+                {
+                    t.DeviceId,
+                    t.StorageType
+                })
+                .ToList();
+
+            if (failedItems.Count > 0)
+            {
+                var extensions = failedItems
+                    .GroupBy(f => f.DeviceId!)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => (object)g.Select(x => x.StorageType).ToList()
+                    );
+
+                SendProblem(TypedResults.Problem(
+                    title: "Indexing failure.",
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    detail: "Some storage devices had issues indexing.  See error list.",
+                    extensions: extensions!
+                ));
+                return;
+            }
 
             Response = new();
             Send();

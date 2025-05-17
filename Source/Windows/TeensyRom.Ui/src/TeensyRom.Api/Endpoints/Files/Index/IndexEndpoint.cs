@@ -25,27 +25,34 @@ namespace TeensyRom.Api.Endpoints.Files.Index
                 return;
             }
 
+            var result = true;
+
             if (r.StorageType is TeensyStorageType.SD) 
             {
-                await HandleCaching(r, device.SdStorage);
+                result = await HandleCaching(r, device.SdStorage);
             }
             else
             {
-                await HandleCaching(r, device.UsbStorage);
+                result = await HandleCaching(r, device.UsbStorage);
+            }
+            if(!result)
+            {
+                SendInternalError("There was an error indexing.");
+                return;
             }
             Response = new();
             Send();
         }
 
-        private async Task HandleCaching(IndexRequest r, IStorageService s) 
+        private async Task<bool> HandleCaching(IndexRequest r, IStorageService s) 
         {
             if (!string.IsNullOrWhiteSpace(r.Path))
             {
-                await s.Cache(r.Path);
+                return await s.Cache(r.Path);
             }
             else
             {
-                await s.CacheAll();
+                return await s.CacheAll();
             }
         }
     }
