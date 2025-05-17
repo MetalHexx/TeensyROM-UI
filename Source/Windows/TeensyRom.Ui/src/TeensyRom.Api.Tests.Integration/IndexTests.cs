@@ -1,5 +1,4 @@
-﻿using RadEndpoints.Testing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -17,13 +16,13 @@ namespace TeensyRom.Api.Tests.Integration
 {
 
     [Collection("Endpoint")]
-    public class IndexTests(EndpointFixture f)
+    public class IndexTests(EndpointFixture f) : IDisposable
     {
         [Fact]
         public async Task When_Indexing_WithoutPath_SuccessReturned()
         {
             // Arrange
-            var deviceResult = await RadTestClientExtensions.GetAsync<FindCartsEndpoint, FindCartsResponse>(f.Client);
+            var deviceResult = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
             var deviceId = deviceResult.Content.AvailableCarts.First().DeviceId;
             var openPortRequest = new OpenPortRequest
             {
@@ -54,7 +53,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_Indexing_WithGamePath_SuccessReturned()
         {
             // Arrange
-            var deviceResult = await RadTestClientExtensions.GetAsync<FindCartsEndpoint, FindCartsResponse>(f.Client);
+            var deviceResult = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
             var deviceId = deviceResult.Content.AvailableCarts.First().DeviceId;
             var openPortRequest = new OpenPortRequest
             {
@@ -85,7 +84,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_Indexing_WithBadPath_BadRequestReturned()
         {
             // Arrange
-            var availableDevices = await RadTestClientExtensions.GetAsync<FindCartsEndpoint, FindCartsResponse>(f.Client);
+            var availableDevices = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
             var deviceId = availableDevices.Content.AvailableCarts.First().DeviceId;
 
             // Act
@@ -117,7 +116,7 @@ namespace TeensyRom.Api.Tests.Integration
             // Assert
             response.Should()
                 .BeValidationProblem()
-                .WithKeyAndValue("DeviceId", "Device ID is required.");
+                .WithKeyAndValue("DeviceId", "Invalid Device Id.");
         }
 
         [Fact]
@@ -135,7 +134,7 @@ namespace TeensyRom.Api.Tests.Integration
             // Assert
             response.Should()
                 .BeValidationProblem()
-                .WithKeyAndValue("DeviceId", "Device ID must be a valid deviceId.  Only a string of 8 numbers and letters are supported.  No other special characters or spaces.");
+                .WithKeyAndValue("DeviceId", "Invalid Device Id.");
         }
 
         private string DeleteCache(string deviceId, TeensyStorageType storageType)
@@ -174,5 +173,7 @@ namespace TeensyRom.Api.Tests.Integration
             }
             return path;
         }
+
+        public void Dispose() => f.Reset();
     }
 }

@@ -6,9 +6,12 @@ namespace TeensyRom.Api.Endpoints.Files.Index
 {
     public class IndexRequest 
     {
+        [FromRoute]
         public string DeviceId { get; set; } = null!;
+        [FromRoute]
         public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;
-        public string? Path { get; set; } = null;
+        [FromBody]
+        public string? Path { get; set; }
     }
 
     public class IndexRequestValidator : AbstractValidator<IndexRequest>
@@ -16,10 +19,8 @@ namespace TeensyRom.Api.Endpoints.Files.Index
         public IndexRequestValidator()
         {
             RuleFor(x => x.DeviceId)
-                .NotEmpty()
-                .WithMessage("Device ID is required.")
                 .Must(deviceId => deviceId.IsValidFilenameSafeHash())
-                .WithMessage("Device ID must be a valid deviceId.  Only a string of 8 numbers and letters are supported.  No other special characters or spaces.");
+                .WithMessage("Invalid Device Id.");
 
             RuleFor(x => x.StorageType)
                 .IsInEnum()

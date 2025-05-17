@@ -9,7 +9,7 @@ namespace TeensyRom.Api.Endpoints.Files.Index
     {
         public override void Configure()
         {
-            Post("/files/index")
+            Post("/devices/{deviceId}/storage/{storageType}/index")
                 .Produces<IndexResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .WithDocument(tag: "Files", desc: "Indexes the directory structure of a given TR device and storage  type.");
@@ -39,7 +39,7 @@ namespace TeensyRom.Api.Endpoints.Files.Index
 
         private async Task HandleCaching(IndexRequest r, IStorageService s) 
         {
-            if (r.Path is not null)
+            if (!string.IsNullOrWhiteSpace(r.Path))
             {
                 await s.Cache(r.Path);
             }
