@@ -312,43 +312,51 @@ namespace TeensyRom.Core.Storage
             return favs;
         }
 
+        private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
+
         public void ReadFromDisk()
         {
-            if (!File.Exists(_cacheFilePath))
+            _lock.EnterWriteLock();
+            try
             {
+                if (!File.Exists(_cacheFilePath))
+                {
+                    Clear();
+                    return;
+                }
+
+                using var stream = File.Open(_cacheFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                using var reader = new StreamReader(stream);
+                var content = reader.ReadToEnd();
+
+                var cacheFromDisk = StorageCacheItemSerializer.Deserialize<Dictionary<string, IStorageCacheItem>>(content);
+
+                if (cacheFromDisk is null) return;
+
                 Clear();
-                return;
+
+                foreach (var item in cacheFromDisk)
+                {
+                    TryAdd(item.Key, item.Value);
+                }
             }
-            using var stream = File.Open(_cacheFilePath, FileMode.Open, FileAccess.Read);
-            using var reader = new StreamReader(stream);
-            var content = reader.ReadToEnd();
-
-            var cacheFromDisk = StorageCacheItemSerializer.Deserialize<Dictionary<string, IStorageCacheItem>>(content);
-
-            if (cacheFromDisk is null) return;
-
-            Clear();
-
-            foreach (var item in cacheFromDisk)
+            finally
             {
-                TryAdd(item.Key, item.Value);
+                _lock.ExitWriteLock();
             }
         }
-        private static readonly object _writeLock = new();
 
         public void WriteToDisk()
         {
-            lock (_writeLock)
-            {
-                var directory = Path.GetDirectoryName(_cacheFilePath);
-                
-                if (!Directory.Exists(directory))
-                {
-                    Directory.CreateDirectory(directory!);
-                }
-                File.WriteAllText(_cacheFilePath, StorageCacheItemSerializer.Serialize(this as Dictionary<string, IStorageCacheItem>));
+            _lock.EnterReadLock();
 
+            var directory = Path.GetDirectoryName(_cacheFilePath);
+
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory!);
             }
+            File.WriteAllText(_cacheFilePath, StorageCacheItemSerializer.Serialize(this as Dictionary<string, IStorageCacheItem>));
         }
 
         public int GetCacheSize() => this.Aggregate(0, (acc, item) => acc + item.Value.Files.Count);
