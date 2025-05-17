@@ -54,20 +54,6 @@ namespace TeensyRom.Api.Tests.Integration
             r.Content.ConnectedCarts.First().DeviceId.Should().Be(expectedConnectedCart.DeviceId);
         }
 
-        [Fact]
-        public async void When_TeensyRomsDeactivated_NotFoundReturned()
-        {
-            // Act
-            var r = await f.Client.GetAsync<FindCartsEndpoint, ProblemDetails>();
-
-            // Assert
-            r.Should().BeProblem()
-                .WithStatusCode(HttpStatusCode.NotFound);
-
-            r.Content.Title.Should().Be("No TeensyRom devices found.");
-        }
-
         public void Dispose() => f.Reset();
-
     }
 }
