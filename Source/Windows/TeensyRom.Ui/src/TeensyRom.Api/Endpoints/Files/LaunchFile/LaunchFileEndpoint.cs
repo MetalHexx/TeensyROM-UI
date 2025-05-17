@@ -10,7 +10,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
     {
         public override void Configure()
         {
-            Get("/devices/{deviceId}/storage/{storageType}/launch")
+            Post("/devices/{deviceId}/storage/{storageType}/launch")
                 .Produces<LaunchFileResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .WithDocument(tag: "Files", desc: "Launches a file given a valid path to a file stored on the TeensyRom.");
