@@ -3,12 +3,23 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Text.Json;
 using TeensyRom.Core.Abstractions;
+using TeensyRom.Core.Commands.GetFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Core.Commands
 {
+    public enum GetDirectoryErrorCode
+    {
+        StorageTypeParamError = 1,
+        SkipParamError = 2,
+        TakeParamError = 3,
+        PathParamError = 4,
+        DirectoryNotFoundError = 5,
+        UnknownError = 6
+    }
+
     public class GetDirectoryHandler : IRequestHandler<GetDirectoryCommand, GetDirectoryResult>
     {
         private ISerialStateContext _serialState;
@@ -28,6 +39,29 @@ namespace TeensyRom.Core.Commands
                 _serialState.SendIntBytes(0, 2);
                 _serialState.SendIntBytes(9999, 2);
                 _serialState.Write($"{r.Path}\0");
+
+                try
+                {
+                    _serialState.HandleAck();
+                }
+                catch (Exception ex)
+                {
+                    GetDirectoryErrorCode errorCode = ex.Message switch
+                    {
+                        string msg when msg.Contains("Error 1") => GetDirectoryErrorCode.StorageTypeParamError,
+                        string msg when msg.Contains("Error 2") => GetDirectoryErrorCode.SkipParamError,
+                        string msg when msg.Contains("Error 3") => GetDirectoryErrorCode.TakeParamError,
+                        string msg when msg.Contains("Error 4") => GetDirectoryErrorCode.PathParamError,
+                        string msg when msg.Contains("Error 5") => GetDirectoryErrorCode.DirectoryNotFoundError,
+                        _ => GetDirectoryErrorCode.UnknownError
+                    };
+                    return new GetDirectoryResult
+                    {
+                        IsSuccess = false,
+                        Error = ex.Message,
+                        ErrorCode = errorCode
+                    };
+                }
 
                 if (WaitForDirectoryStartToken() != TeensyToken.StartDirectoryList)
                 {

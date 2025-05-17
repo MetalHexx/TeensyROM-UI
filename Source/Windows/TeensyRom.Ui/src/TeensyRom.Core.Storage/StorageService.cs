@@ -52,8 +52,10 @@ namespace TeensyRom.Core.Storage
 
             var response = await mediator.Send(new GetDirectoryCommand(settings.CartStorage.Type, path, settings.CartStorage.DeviceId));
 
-            if (response.DirectoryContent is null) return null;
-
+            if (!response.IsSuccess) 
+            {
+                return null;
+            }
             var filteredContent = FilterBannedItems(response.DirectoryContent);
 
             if (filteredContent is null) return null;

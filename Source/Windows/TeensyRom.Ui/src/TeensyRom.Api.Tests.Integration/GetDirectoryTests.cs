@@ -167,7 +167,7 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
         var request = new GetDirectoryRequest
         {
             DeviceId = device.DeviceId,
-            Path = "/not/a/real/path",
+            Path = "/fake/path",
             StorageType = TeensyStorageType.SD
         };
 
