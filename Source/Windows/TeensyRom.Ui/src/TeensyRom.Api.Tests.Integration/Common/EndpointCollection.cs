@@ -1,9 +1,8 @@
-﻿using Microsoft.VisualStudio.TestPlatform.TestHost;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
+using TeensyRom.Api.Endpoints.ClosePort;
+using TeensyRom.Api.Endpoints.FindCarts;
+using TeensyRom.Core.Common;
+using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Api.Tests.Integration.Common
 {
@@ -29,6 +28,56 @@ namespace TeensyRom.Api.Tests.Integration.Common
         public EndpointFixture()
         {
             _factory = new WebApplicationFactory<Program>();
+        }
+
+        public void Reset() 
+        {
+            var initialCarts = Client.GetAsync<FindCartsEndpoint, FindCartsResponse>().Result;
+
+            initialCarts.Content.ConnectedCarts.ForEach(d =>
+            {
+                _ = Client.DeleteAsync<ClosePortEndpoint, ClosePortRequest, ClosePortResponse>(new ClosePortRequest
+                {
+                    DeviceId = d.DeviceId!
+                }).Result;
+            });
+        }
+
+        public string DeleteCache(string deviceId, TeensyStorageType storageType)
+        {
+            var path = GetCachePath(deviceId, storageType);
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            return path;
+        }
+
+        public bool CacheExists(string deviceId, TeensyStorageType storageType)
+        {
+            var path = GetCachePath(deviceId, storageType);
+            return File.Exists(path);
+        }
+
+        public string GetCachePath(string deviceId, TeensyStorageType storageType)
+        {
+            var path = string.Empty;
+
+            if (storageType == TeensyStorageType.SD)
+            {
+                path = Path.Combine(
+                    Assembly.GetExecutingAssembly().GetPath(),
+                    StorageHelper.Sd_Cache_File_Relative_Path,
+                    $"{StorageHelper.Sd_Cache_File_Name}{deviceId}{StorageHelper.Cache_File_Extension}");
+            }
+            else
+            {
+                path = Path.Combine(
+                    Assembly.GetExecutingAssembly().GetPath(),
+                    StorageHelper.Usb_Cache_File_Relative_Path,
+                    $"{StorageHelper.Usb_Cache_File_Name}{deviceId}{StorageHelper.Cache_File_Extension}");
+            }
+            return path;
         }
 
         public void Dispose() => _factory.Dispose();
