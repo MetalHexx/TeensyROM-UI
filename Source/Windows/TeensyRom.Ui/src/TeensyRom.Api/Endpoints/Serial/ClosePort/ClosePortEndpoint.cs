@@ -22,6 +22,7 @@ namespace TeensyRom.Api.Endpoints.ClosePort
                 SendNotFound($"The device {r.DeviceId} was not found.");
                 return;
             }
+            deviceManager.ClosePort(device.Cart.DeviceId!);
             
             Response = new();
             Send();

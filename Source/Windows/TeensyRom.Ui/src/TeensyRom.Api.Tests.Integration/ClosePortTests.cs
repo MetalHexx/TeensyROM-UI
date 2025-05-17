@@ -6,7 +6,7 @@ using TeensyRom.Core.Common;
 namespace TeensyRom.Api.Tests.Integration
 {
     [Collection("Endpoint")]
-    public class ClosePortTests(EndpointFixture f)
+    public class ClosePortTests(EndpointFixture f) : IDisposable
     {
         [Fact]
         public async Task When_Closing_ValidDevice_ResponseSuccessful()
@@ -22,10 +22,14 @@ namespace TeensyRom.Api.Tests.Integration
             var closeRequest = new ClosePortRequest { DeviceId = deviceId };
             var r = await f.Client.DeleteAsync<ClosePortEndpoint, ClosePortRequest, ClosePortResponse>(closeRequest);
 
+            findResponse = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
+
             // Assert
             r.Should().BeSuccessful<ClosePortResponse>()
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
+
+            findResponse.Content.ConnectedCarts.Count.Should().Be(0);
 
             r.Content.Message.Should().Be("Success!");
         }
@@ -59,6 +63,8 @@ namespace TeensyRom.Api.Tests.Integration
 
             r.Content.Title.Should().Contain($"The device {deviceId} was not found.");
         }
+
+        public void Dispose() => f.Reset();
     }
 
 }
