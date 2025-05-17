@@ -19,15 +19,11 @@ namespace TeensyRom.Api.Tests.Integration
         public async void When_LaunchingVariousFiles_ReturnsSuccess()
         {
             // Arrange              
-            var availableDevices = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
-            var deviceId = availableDevices.Content.AvailableCarts.First().DeviceId;
-            var openPortRequest = new OpenPortRequest { DeviceId = deviceId };
-
-            await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(openPortRequest);
+            var deviceId = await f.ConnectToFirstDevice();
 
             var r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
-                DeviceId = deviceId!,
+                DeviceId = deviceId,
                 FilePath = "/music/MUSICIANS/L/LukHash/Alpha.sid",
                 StorageType = TeensyStorageType.SD
             });
@@ -36,7 +32,7 @@ namespace TeensyRom.Api.Tests.Integration
 
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
-                DeviceId = deviceId!,
+                DeviceId = deviceId,
                 FilePath = "/images/Dio2.kla",
                 StorageType = TeensyStorageType.SD
             });
@@ -45,7 +41,7 @@ namespace TeensyRom.Api.Tests.Integration
 
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
-                DeviceId = deviceId!,
+                DeviceId = deviceId,
                 FilePath = "/music/MUSICIANS/J/Jammic/Wasted_Years.sid",
                 StorageType = TeensyStorageType.SD
             });
@@ -54,7 +50,7 @@ namespace TeensyRom.Api.Tests.Integration
 
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
-                DeviceId = deviceId!,
+                DeviceId = deviceId,
                 FilePath = "/games/Large/706k The Secret of Monkey Island (D42) [EasyFlash].crt",
                 StorageType = TeensyStorageType.SD
             });
@@ -63,7 +59,7 @@ namespace TeensyRom.Api.Tests.Integration
 
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
-                DeviceId = deviceId!,
+                DeviceId = deviceId,
                 FilePath = "/games/Large/738k Elvira II - The Jaws of Cerberus (by $olo1870) [EasyFlash].crt",
                 StorageType = TeensyStorageType.SD
             });
@@ -72,7 +68,7 @@ namespace TeensyRom.Api.Tests.Integration
 
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
-                DeviceId = deviceId!,
+                DeviceId = deviceId,
                 FilePath = "/music/MUSICIANS/L/LukHash/Alpha.sid",
                 StorageType = TeensyStorageType.SD
             });
@@ -81,7 +77,7 @@ namespace TeensyRom.Api.Tests.Integration
 
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
-                DeviceId = deviceId!,
+                DeviceId = deviceId,
                 FilePath = "/music/MUSICIANS/J/Jammic/Wasted_Years.sid",
                 StorageType = TeensyStorageType.SD
             });
@@ -90,14 +86,14 @@ namespace TeensyRom.Api.Tests.Integration
 
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
-                DeviceId = deviceId!,
+                DeviceId = deviceId,
                 FilePath = "/games/Large/738k Elvira II - The Jaws of Cerberus (by $olo1870) [EasyFlash].crt",
                 StorageType = TeensyStorageType.SD
             });
 
             r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
             {
-                DeviceId = deviceId!,
+                DeviceId = deviceId,
                 FilePath = "/music/MUSICIANS/J/Jammic/Wasted_Years.sid",
                 StorageType = TeensyStorageType.SD
             });
@@ -114,16 +110,12 @@ namespace TeensyRom.Api.Tests.Integration
         public async void When_LaunchCalled_WithInvalidPath_ReturnsNotFound()
         {
             // Arrange              
-            var availableDevices = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
-            var deviceId = availableDevices.Content.AvailableCarts.First().DeviceId;
-            var openPortRequest = new OpenPortRequest { DeviceId = deviceId! };
-
-            await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(openPortRequest);
+            var deviceId = await f.ConnectToFirstDevice();
 
             // Act  
             var request = new LaunchFileRequest
             {
-                DeviceId = deviceId!,
+                DeviceId = deviceId,
                 FilePath = NonExistentPath,
                 StorageType = TeensyStorageType.SD
             };
@@ -145,6 +137,7 @@ namespace TeensyRom.Api.Tests.Integration
                 StorageType = TeensyStorageType.SD
             };
             var r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, ValidationProblemDetails>(request);
+
             // Assert  
             r.Should().BeValidationProblem()
                 .WithStatusCode(HttpStatusCode.BadRequest);
@@ -160,6 +153,7 @@ namespace TeensyRom.Api.Tests.Integration
                 FilePath = NonExistentPath
             };
             var r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, ProblemDetails>(request);
+
             // Assert  
             r.Should().BeProblem()
                 .WithStatusCode(HttpStatusCode.NotFound);
@@ -176,6 +170,7 @@ namespace TeensyRom.Api.Tests.Integration
                 StorageType = (TeensyStorageType)999
             };
             var r = await f.Client.GetAsync<LaunchFileEndpoint, LaunchFileRequest, ProblemDetails>(request);
+
             // Assert  
             r.Should().BeProblem()
                 .WithStatusCode(HttpStatusCode.BadRequest);

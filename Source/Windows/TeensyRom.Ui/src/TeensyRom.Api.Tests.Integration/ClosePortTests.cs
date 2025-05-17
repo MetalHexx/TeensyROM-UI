@@ -12,17 +12,13 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_Closing_ValidDevice_ResponseSuccessful()
         {
             // Arrange
-            var findResponse = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
-            var deviceId = findResponse.Content.AvailableCarts.First().DeviceId;
-
-            await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(
-                new OpenPortRequest { DeviceId = deviceId });
+            var deviceId = await f.ConnectToFirstDevice();
 
             // Act
             var closeRequest = new ClosePortRequest { DeviceId = deviceId };
             var r = await f.Client.DeleteAsync<ClosePortEndpoint, ClosePortRequest, ClosePortResponse>(closeRequest);
 
-            findResponse = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
+            var findResponse = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
 
             // Assert
             r.Should().BeSuccessful<ClosePortResponse>()

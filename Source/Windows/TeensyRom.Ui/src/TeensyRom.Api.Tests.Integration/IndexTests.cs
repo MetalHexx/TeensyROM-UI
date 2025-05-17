@@ -22,19 +22,13 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_Indexing_WithoutPath_SuccessReturned()
         {
             // Arrange
-            var deviceResult = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
-            var deviceId = deviceResult.Content.AvailableCarts.First().DeviceId;
-            var openPortRequest = new OpenPortRequest
-            {
-                DeviceId = deviceId!
-            };
-            var openPortResponse = await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(openPortRequest);
-            DeleteCache(deviceId!, TeensyStorageType.SD);
+            var deviceId = await f.ConnectToFirstDevice();
+            f.DeleteCache(deviceId, TeensyStorageType.SD);
 
             // Act
             var request = new IndexRequest
             {
-                DeviceId = deviceId!,
+                DeviceId = deviceId,
                 StorageType = TeensyStorageType.SD,
                 Path = null
             };
@@ -45,7 +39,7 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
-            CacheExists(deviceId!, TeensyStorageType.SD).Should().BeTrue();
+            f.CacheExists(deviceId, TeensyStorageType.SD).Should().BeTrue();
             response.Content.Message.Should().Contain("Success");
         }
 
@@ -53,19 +47,13 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_Indexing_WithGamePath_SuccessReturned()
         {
             // Arrange
-            var deviceResult = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
-            var deviceId = deviceResult.Content.AvailableCarts.First().DeviceId;
-            var openPortRequest = new OpenPortRequest
-            {
-                DeviceId = deviceId!
-            };
-            var openPortResponse = await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(openPortRequest);
-            DeleteCache(deviceId!, TeensyStorageType.SD);
+            var deviceId = await f.ConnectToFirstDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
 
             // Act
             var request = new IndexRequest
             {
-                DeviceId = deviceId!,
+                DeviceId = deviceId,
                 StorageType = TeensyStorageType.SD,
                 Path = "/games"
             };
@@ -76,7 +64,7 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
-            CacheExists(deviceId!, TeensyStorageType.SD).Should().BeTrue();
+            f.CacheExists(deviceId, TeensyStorageType.SD).Should().BeTrue();
             response.Content.Message.Should().Contain("Success");
         }
 
@@ -137,42 +125,6 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithKeyAndValue("DeviceId", "Invalid Device Id.");
         }
 
-        private string DeleteCache(string deviceId, TeensyStorageType storageType)
-        {
-            var path = GetCachePath(deviceId, storageType);
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
-            return path;
-        }
-
-        private bool CacheExists(string deviceId, TeensyStorageType storageType)
-        {
-            var path = GetCachePath(deviceId, storageType);
-            return File.Exists(path);
-        }
-
-        private string GetCachePath(string deviceId, TeensyStorageType storageType)
-        {
-            var path = string.Empty;
-
-            if (storageType == TeensyStorageType.SD)
-            {
-                path = Path.Combine(
-                    Assembly.GetExecutingAssembly().GetPath(),
-                    StorageHelper.Sd_Cache_File_Relative_Path,
-                    $"{StorageHelper.Sd_Cache_File_Name}{deviceId}{StorageHelper.Cache_File_Extension}");
-            }
-            else
-            {
-                path = Path.Combine(
-                    Assembly.GetExecutingAssembly().GetPath(),
-                    StorageHelper.Usb_Cache_File_Relative_Path,
-                    $"{StorageHelper.Usb_Cache_File_Name}{deviceId}{StorageHelper.Cache_File_Extension}");
-            }
-            return path;
-        }
 
         public void Dispose() => f.Reset();
     }

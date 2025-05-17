@@ -24,26 +24,16 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     public async Task When_ValidRequest_DirectoryReturned(string path)
     {
         // Arrange
-        var deviceResult = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
-        var deviceId = deviceResult.Content.AvailableCarts.First().DeviceId;
-
-        var openPortRequest = new OpenPortRequest
-        {
-            DeviceId = deviceId
-        };
-        var openPortResponse = await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(openPortRequest);
-
-        // Arrange
+        var deviceId = await f.ConnectToFirstDevice();
         var directoryPath = Path.GetDirectoryName(path)!.Replace('\\', '/');
-        var dirRequest = new GetDirectoryRequest
+
+        // Act
+        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, dynamic>(new GetDirectoryRequest
         {
             DeviceId = deviceId,
             Path = directoryPath,
             StorageType = TeensyStorageType.SD
-        };
-
-        // Act
-        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, dynamic>(dirRequest);
+        });
 
         // Assert
         r.Should().BeSuccessful<dynamic>()
@@ -57,14 +47,15 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     [Fact]
     public async Task When_DeviceIdInvalid_ReturnsBadRequest()
     {
-        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ValidationProblemDetails>(
-            new GetDirectoryRequest
-            {
-                DeviceId = "!!invalid",
-                Path = "/music",
-                StorageType = TeensyStorageType.SD
-            });
+        // Act
+        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ValidationProblemDetails>(new GetDirectoryRequest
+        {
+            DeviceId = "!!invalid",
+            Path = "/music",
+            StorageType = TeensyStorageType.SD
+        });
 
+        // Assert
         r.Should().BeValidationProblem()
             .WithKeyAndValue("DeviceId", "Device ID must be a valid filename-safe hash of 8 characters long.");
     }
@@ -74,13 +65,12 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     {
         var validDeviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
 
-        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ValidationProblemDetails>(
-            new GetDirectoryRequest
-            {
-                DeviceId = validDeviceId,
-                Path = "@!bad-path!!",
-                StorageType = TeensyStorageType.SD
-            });
+        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ValidationProblemDetails>(new GetDirectoryRequest            
+        {
+            DeviceId = validDeviceId,
+            Path = "@!bad-path!!",
+            StorageType = TeensyStorageType.SD
+        });
 
         r.Should().BeValidationProblem()
             .WithKeyAndValue("Path", "Path must be a valid Unix-style file path.");
@@ -91,13 +81,12 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     {
         var validDeviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
 
-        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ValidationProblemDetails>(
-            new GetDirectoryRequest
-            {
-                DeviceId = validDeviceId,
-                Path = "",
-                StorageType = TeensyStorageType.SD
-            });
+        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ValidationProblemDetails>(new GetDirectoryRequest            
+        {
+            DeviceId = validDeviceId,
+            Path = "",
+            StorageType = TeensyStorageType.SD
+        });
 
         r.Should().BeValidationProblem()
             .WithKeyAndValue("Path", "Path is required.");
@@ -106,16 +95,18 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     [Fact]
     public async Task When_InvalidStorageType_ReturnsBadRequest()
     {
+        // Arrange
         var validDeviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
 
-        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ValidationProblemDetails>(
-            new GetDirectoryRequest
-            {
-                DeviceId = validDeviceId,
-                Path = "/music",
-                StorageType = (TeensyStorageType)999
-            });
+        // Act
+        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ValidationProblemDetails>(new GetDirectoryRequest            
+        {
+            DeviceId = validDeviceId,
+            Path = "/music",
+            StorageType = (TeensyStorageType)999
+        });
 
+        // Assert
         r.Should().BeValidationProblem()
             .WithKeyAndValue("StorageType", "Storage type must be a valid enum value.");
     }
@@ -124,26 +115,16 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     public async Task When_StorageNotAvailable_ReturnsNotFound()
     {
         // Arrange
-        var cart = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
-        var device = cart.Content.AvailableCarts.First();
-        string deviceId = device.DeviceId!;
-
-        await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(new OpenPortRequest
-        {
-            DeviceId = deviceId
-        });
-
+        var deviceId = await f.ConnectToFirstDevice();
         var expectedPath = "/music";
 
-        var request = new GetDirectoryRequest
+        // Act
+        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ProblemDetails>(new GetDirectoryRequest
         {
             DeviceId = deviceId,
             Path = expectedPath,
-            StorageType = TeensyStorageType.USB 
-        };
-
-        // Act
-        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ProblemDetails>(request);
+            StorageType = TeensyStorageType.USB
+        });
 
         // Assert
         r.Should().BeProblem()
@@ -156,45 +137,32 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     public async Task When_DirectoryNotFound_ReturnsNotFound()
     {
         // Arrange
-        var cart = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
-        var device = cart.Content.AvailableCarts.First();
-
-        await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(new OpenPortRequest
-        {
-            DeviceId = device.DeviceId!
-        });
-
-        var request = new GetDirectoryRequest
-        {
-            DeviceId = device.DeviceId,
-            Path = "/fake/path",
-            StorageType = TeensyStorageType.SD
-        };
+        var deviceId = await f.ConnectToFirstDevice();
+        var expectedPath = "/fake/path";
 
         // Act
-        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ProblemDetails>(request);
+        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ProblemDetails>(new GetDirectoryRequest
+        {
+            DeviceId = deviceId,
+            Path = expectedPath,
+            StorageType = TeensyStorageType.SD
+        });
 
         // Assert
         r.Should().BeProblem()
             .WithStatusCode(HttpStatusCode.NotFound)
-            .WithMessage($"The directory {request.Path} was not found.");
+            .WithMessage($"The directory {expectedPath} was not found.");
     }
 
     [Fact]
     public async Task When_Directory_IsAFilePath_BadRequestReturned()
     {
         // Arrange
-        var availableDevices = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
-        string deviceId = availableDevices.Content.AvailableCarts.First().DeviceId!;
-
-        await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(new OpenPortRequest
-        {
-            DeviceId = deviceId
-        });
-
-        // Act
+        var deviceId = await f.ConnectToFirstDevice();
         var expectedPath = "/music/MUSICIANS/L/LukHash/Alpha.sid";
-        
+
+        // Act        
+
         var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ProblemDetails>(new GetDirectoryRequest
         {
             DeviceId = deviceId,

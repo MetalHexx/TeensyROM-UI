@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using TeensyRom.Api.Endpoints.ClosePort;
 using TeensyRom.Api.Endpoints.FindCarts;
+using TeensyRom.Api.Endpoints.OpenPort;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 
@@ -28,6 +29,17 @@ namespace TeensyRom.Api.Tests.Integration.Common
         public EndpointFixture()
         {
             _factory = new WebApplicationFactory<Program>();
+        }
+
+        public async Task<string> ConnectToFirstDevice() 
+        {
+            var findResponse = await Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
+            var deviceId = findResponse.Content.AvailableCarts.First().DeviceId!;
+
+            await Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(
+                new OpenPortRequest { DeviceId = deviceId });
+
+            return deviceId;
         }
 
         public void Reset() 

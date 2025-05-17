@@ -13,12 +13,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_Resetting_ValidDevice_ResponseSuccessful()
         {
             // Arrange
-            var findCartsResponse = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
-            var deviceId = findCartsResponse.Content.AvailableCarts.First().DeviceId;
-
-            // Ensure the port is opened
-            var openRequest = new OpenPortRequest { DeviceId = deviceId };
-            await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(openRequest);
+            var deviceId = await f.ConnectToFirstDevice();
 
             // Act
             var resetRequest = new ResetDeviceRequest { DeviceId = deviceId };
