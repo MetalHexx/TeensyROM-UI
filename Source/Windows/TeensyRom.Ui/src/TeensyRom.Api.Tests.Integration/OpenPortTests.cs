@@ -5,8 +5,7 @@ using TeensyRom.Api.Endpoints.OpenPort;
 namespace TeensyRom.Api.Tests.Integration
 {
     [Collection("Endpoint")]
-    public class OpenPortTests(EndpointFixture f)
-
+    public class OpenPortTests(EndpointFixture f) : IDisposable
     {
         [Fact]
         public async void When_Called_ResponseSuccessful()
@@ -34,5 +33,7 @@ namespace TeensyRom.Api.Tests.Integration
 
             r.Content.Message.Should().Contain("Connection successful!");
         }
+
+        public void Dispose() => f.Reset();
     }
 }

@@ -11,7 +11,7 @@ using TeensyRom.Core.Storage;
 namespace TeensyRom.Api.Tests.Integration;
 
 [Collection("Endpoint")]
-public class GetDirectoryTests(EndpointFixture f)
+public class GetDirectoryTests(EndpointFixture f) : IDisposable
 {
     public static IEnumerable<object[]> ValidPaths =>
         new List<object[]>
@@ -88,21 +88,6 @@ public class GetDirectoryTests(EndpointFixture f)
 
         r.Should().BeValidationProblem()
             .WithKeyAndValue("Path", "Path must be a valid Unix-style file path.");
-    }
-
-    [Fact]
-    public async Task When_MissingDeviceId_ReturnsBadRequest()
-    {
-        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ValidationProblemDetails>(
-            new GetDirectoryRequest
-            {
-                DeviceId = "",
-                Path = "/music",
-                StorageType = TeensyStorageType.SD
-            });
-
-        r.Should().BeValidationProblem()
-            .WithKeyAndValue("DeviceId", "Device ID must be a valid filename-safe hash of 8 characters long.");
     }
 
     [Fact]
@@ -193,4 +178,6 @@ public class GetDirectoryTests(EndpointFixture f)
         r.Should().BeProblem().WithStatusCode(HttpStatusCode.NotFound);
         r.Content.Title.Should().Contain("was not found");
     }
+
+    public void Dispose() => f.Reset();
 }

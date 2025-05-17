@@ -1,11 +1,13 @@
 ﻿using FluentAssertions;
+using RadEndpoints.Testing;
+using TeensyRom.Api.Endpoints.ClosePort;
 using TeensyRom.Api.Endpoints.FindCarts;
 using TeensyRom.Api.Endpoints.OpenPort;
 
 namespace TeensyRom.Api.Tests.Integration
 {
     [Collection("Endpoint")]
-    public class FindCartsTests(EndpointFixture f)
+    public class FindCartsTests(EndpointFixture f) :IDisposable
 
     {
         [Fact]
@@ -64,5 +66,8 @@ namespace TeensyRom.Api.Tests.Integration
 
             r.Content.Title.Should().Be("No TeensyRom devices found.");
         }
+
+        public void Dispose() => f.Reset();
+
     }
 }

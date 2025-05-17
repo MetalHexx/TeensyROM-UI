@@ -4,8 +4,7 @@ using TeensyRom.Api.Endpoints.Serial.GetPorts;
 namespace TeensyRom.Api.Tests.Integration
 {
     [Collection("Endpoint")]
-    public class GetPortsTests(EndpointFixture f)
-
+    public class GetPortsTests(EndpointFixture f) : IDisposable
     {
         [Fact]
         public async void When_Called_PortsReturned()
@@ -21,5 +20,7 @@ namespace TeensyRom.Api.Tests.Integration
             r.Content.Message.Should().Be("Ports found");
             r.Content.Ports.Should().NotBeNullOrEmpty();
         }
+
+        public void Dispose() => f.Reset();
     }
 }

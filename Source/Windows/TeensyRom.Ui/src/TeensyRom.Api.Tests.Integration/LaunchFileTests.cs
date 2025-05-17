@@ -11,7 +11,7 @@ using static System.Net.Mime.MediaTypeNames;
 namespace TeensyRom.Api.Tests.Integration
 {
     [Collection("Endpoint")]
-    public class LaunchFileTests(EndpointFixture f)
+    public class LaunchFileTests(EndpointFixture f) : IDisposable
     {
         private const string NonExistentPath = "/something/that/doesnt/exist.sid";        
 
@@ -19,7 +19,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async void When_LaunchingVariousFiles_ReturnsSuccess()
         {
             // Arrange              
-            var availableDevices = await RadTestClientExtensions.GetAsync<FindCartsEndpoint, FindCartsResponse>(f.Client);
+            var availableDevices = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
             var deviceId = availableDevices.Content.AvailableCarts.First().DeviceId;
             var openPortRequest = new OpenPortRequest { DeviceId = deviceId };
 
@@ -114,7 +114,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async void When_LaunchCalled_WithInvalidPath_ReturnsNotFound()
         {
             // Arrange              
-            var availableDevices = await RadTestClientExtensions.GetAsync<FindCartsEndpoint, FindCartsResponse>(f.Client);
+            var availableDevices = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
             var deviceId = availableDevices.Content.AvailableCarts.First().DeviceId;
             var openPortRequest = new OpenPortRequest { DeviceId = deviceId! };
 
@@ -180,5 +180,7 @@ namespace TeensyRom.Api.Tests.Integration
             r.Should().BeProblem()
                 .WithStatusCode(HttpStatusCode.BadRequest);
         }
+
+        public void Dispose() => f.Reset();
     }
 }

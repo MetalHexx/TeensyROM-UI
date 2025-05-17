@@ -7,7 +7,7 @@ using TeensyRom.Core.Entities.Storage;
 namespace TeensyRom.Api.Tests.Integration
 {
     [Collection("Endpoint")]
-    public class ResetDeviceTests(EndpointFixture f)
+    public class ResetDeviceTests(EndpointFixture f) : IDisposable
     {
         [Fact]
         public async Task When_Resetting_ValidDevice_ResponseSuccessful()
@@ -43,6 +43,7 @@ namespace TeensyRom.Api.Tests.Integration
 
             r.Content.Title.Should().Contain("The device invalid-device-id was not found.");
         }
-    }
 
+        public void Dispose() => f.Reset();
+    }
 }
