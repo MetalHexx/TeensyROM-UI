@@ -7,6 +7,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.Commands.Common;
 
 namespace TeensyRom.Core.Commands
 {
@@ -37,15 +38,8 @@ namespace TeensyRom.Core.Commands
                     }
                     catch (Exception ex)
                     {
-                        GetDirectoryErrorCode errorCode = ex.Message switch
-                        {
-                            string msg when msg.Contains("Error 1") => GetDirectoryErrorCode.StorageTypeParamError,
-                            string msg when msg.Contains("Error 2") => GetDirectoryErrorCode.SkipParamError,
-                            string msg when msg.Contains("Error 3") => GetDirectoryErrorCode.TakeParamError,
-                            string msg when msg.Contains("Error 4") => GetDirectoryErrorCode.PathParamError,
-                            string msg when msg.Contains("Error 5") => GetDirectoryErrorCode.DirectoryNotFoundError,
-                            _ => GetDirectoryErrorCode.UnknownError
-                        };
+                        GetDirectoryErrorCode errorCode = ex.Message.GetDirectoryErrorCode();
+
                         return new GetDirectoryRecursiveResult
                         {
                             IsSuccess = false,

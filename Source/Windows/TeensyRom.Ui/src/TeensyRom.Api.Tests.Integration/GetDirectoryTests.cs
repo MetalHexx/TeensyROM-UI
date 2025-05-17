@@ -1,12 +1,8 @@
-﻿using System.Net;
-using System.Text.Json;
-using FluentAssertions;
-using TeensyRom.Api.Endpoints.FindCarts;
+﻿using TeensyRom.Api.Endpoints.FindCarts;
 using TeensyRom.Api.Endpoints.GetDirectory;
 using TeensyRom.Api.Endpoints.OpenPort;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
-using TeensyRom.Core.Storage;
 
 namespace TeensyRom.Api.Tests.Integration;
 
@@ -130,16 +126,19 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
         // Arrange
         var cart = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
         var device = cart.Content.AvailableCarts.First();
+        string deviceId = device.DeviceId!;
 
         await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(new OpenPortRequest
         {
-            DeviceId = device.DeviceId!
+            DeviceId = deviceId
         });
+
+        var expectedPath = "/music";
 
         var request = new GetDirectoryRequest
         {
-            DeviceId = device.DeviceId,
-            Path = "/music",
+            DeviceId = deviceId,
+            Path = expectedPath,
             StorageType = TeensyStorageType.USB 
         };
 
@@ -147,8 +146,9 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
         var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ProblemDetails>(request);
 
         // Assert
-        r.Should().BeProblem().WithStatusCode(HttpStatusCode.NotFound);
-        r.Content.Title.Should().Contain("not available");
+        r.Should().BeProblem()
+            .WithStatusCode(HttpStatusCode.NotFound)
+            .WithMessage($"The directory {expectedPath} was not found.");
     }
 
     //TODO: Fix a bug that causes directories that are not found to be added as an empty directory in the cache.
@@ -175,8 +175,37 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
         var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ProblemDetails>(request);
 
         // Assert
-        r.Should().BeProblem().WithStatusCode(HttpStatusCode.NotFound);
-        r.Content.Title.Should().Contain("was not found");
+        r.Should().BeProblem()
+            .WithStatusCode(HttpStatusCode.NotFound)
+            .WithMessage($"The directory {request.Path} was not found.");
+    }
+
+    [Fact]
+    public async Task When_Directory_IsAFilePath_BadRequestReturned()
+    {
+        // Arrange
+        var availableDevices = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
+        string deviceId = availableDevices.Content.AvailableCarts.First().DeviceId!;
+
+        await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(new OpenPortRequest
+        {
+            DeviceId = deviceId
+        });
+
+        // Act
+        var expectedPath = "/music/MUSICIANS/L/LukHash/Alpha.sid";
+        
+        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ProblemDetails>(new GetDirectoryRequest
+        {
+            DeviceId = deviceId,
+            StorageType = TeensyStorageType.SD,
+            Path = expectedPath
+        });
+
+        // Assert
+        r.Should().BeProblem()
+            .WithStatusCode(HttpStatusCode.NotFound)
+            .WithMessage($"The directory {expectedPath} was not found.");            
     }
 
     public void Dispose() => f.Reset();

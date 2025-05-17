@@ -1,5 +1,6 @@
 ﻿using TeensyRom.Core.Commands.GetFile;
 using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.Serial.Commands.Common;
 
 namespace TeensyRom.Core.Commands
 {

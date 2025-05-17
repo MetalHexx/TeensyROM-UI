@@ -7,18 +7,10 @@ using TeensyRom.Core.Commands.GetFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.Commands.Common;
 
 namespace TeensyRom.Core.Commands
 {
-    public enum GetDirectoryErrorCode
-    {
-        StorageTypeParamError = 1,
-        SkipParamError = 2,
-        TakeParamError = 3,
-        PathParamError = 4,
-        DirectoryNotFoundError = 5,
-        UnknownError = 6
-    }
 
     public class GetDirectoryHandler : IRequestHandler<GetDirectoryCommand, GetDirectoryResult>
     {
@@ -46,15 +38,7 @@ namespace TeensyRom.Core.Commands
                 }
                 catch (Exception ex)
                 {
-                    GetDirectoryErrorCode errorCode = ex.Message switch
-                    {
-                        string msg when msg.Contains("Error 1") => GetDirectoryErrorCode.StorageTypeParamError,
-                        string msg when msg.Contains("Error 2") => GetDirectoryErrorCode.SkipParamError,
-                        string msg when msg.Contains("Error 3") => GetDirectoryErrorCode.TakeParamError,
-                        string msg when msg.Contains("Error 4") => GetDirectoryErrorCode.PathParamError,
-                        string msg when msg.Contains("Error 5") => GetDirectoryErrorCode.DirectoryNotFoundError,
-                        _ => GetDirectoryErrorCode.UnknownError
-                    };
+                    GetDirectoryErrorCode errorCode = ex.Message.GetDirectoryErrorCode();
                     return new GetDirectoryResult
                     {
                         IsSuccess = false,
@@ -83,7 +67,6 @@ namespace TeensyRom.Core.Commands
                 };
             }, x);
         }
-
         public List<byte> GetRawDirectoryData()
         {
             var receivedBytes = new List<byte>();
