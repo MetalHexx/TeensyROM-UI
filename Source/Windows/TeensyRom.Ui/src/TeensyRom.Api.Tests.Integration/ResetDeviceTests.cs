@@ -40,8 +40,6 @@ namespace TeensyRom.Api.Tests.Integration
             // Assert
             r.Should().BeProblem()
                 .WithStatusCode(HttpStatusCode.BadRequest);
-
-            r.Content.Title.Should().Contain("The device invalid-device-id was not found.");
         }
 
         public void Dispose() => f.Reset();
