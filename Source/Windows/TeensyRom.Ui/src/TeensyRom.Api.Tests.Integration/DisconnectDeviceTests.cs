@@ -1,12 +1,12 @@
 ﻿using TeensyRom.Api.Endpoints.ClosePort;
 using TeensyRom.Api.Endpoints.FindCarts;
-using TeensyRom.Api.Endpoints.OpenPort;
+using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Core.Common;
 
 namespace TeensyRom.Api.Tests.Integration
 {
     [Collection("Endpoint")]
-    public class ClosePortTests(EndpointFixture f) : IDisposable
+    public class DisconnectDeviceTests(EndpointFixture f) : IDisposable
     {
         [Fact]
         public async Task When_Closing_ValidDevice_ResponseSuccessful()
@@ -15,13 +15,13 @@ namespace TeensyRom.Api.Tests.Integration
             var deviceId = await f.ConnectToFirstDevice();
 
             // Act
-            var closeRequest = new ClosePortRequest { DeviceId = deviceId };
-            var r = await f.Client.DeleteAsync<ClosePortEndpoint, ClosePortRequest, ClosePortResponse>(closeRequest);
+            var closeRequest = new DisconnectDeviceRequest { DeviceId = deviceId };
+            var r = await f.Client.DeleteAsync<DisconnectDeviceEndpoint, DisconnectDeviceRequest, DisconnectDeviceResponse>(closeRequest);
 
-            var findResponse = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
+            var findResponse = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
 
             // Assert
-            r.Should().BeSuccessful<ClosePortResponse>()
+            r.Should().BeSuccessful<DisconnectDeviceResponse>()
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
@@ -34,8 +34,8 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_Closing_WithInvalidFormatDeviceId_ReturnsBadRequest()
         {
             // Act
-            var closeRequest = new ClosePortRequest { DeviceId = "!!!BAD!!!" };
-            var r = await f.Client.DeleteAsync<ClosePortEndpoint, ClosePortRequest, ValidationProblemDetails>(closeRequest);
+            var closeRequest = new DisconnectDeviceRequest { DeviceId = "!!!BAD!!!" };
+            var r = await f.Client.DeleteAsync<DisconnectDeviceEndpoint, DisconnectDeviceRequest, ValidationProblemDetails>(closeRequest);
 
             // Assert
             r.Should().BeValidationProblem()
@@ -50,8 +50,8 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Act
             var deviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
-            var closeRequest = new ClosePortRequest { DeviceId = deviceId };
-            var r = await f.Client.DeleteAsync<ClosePortEndpoint, ClosePortRequest, ProblemDetails>(closeRequest);
+            var closeRequest = new DisconnectDeviceRequest { DeviceId = deviceId };
+            var r = await f.Client.DeleteAsync<DisconnectDeviceEndpoint, DisconnectDeviceRequest, ProblemDetails>(closeRequest);
 
             // Assert
             r.Should().BeProblem()

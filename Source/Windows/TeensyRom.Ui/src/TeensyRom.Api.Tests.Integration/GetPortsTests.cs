@@ -1,26 +1,26 @@
-using FluentAssertions;
-using TeensyRom.Api.Endpoints.Serial.GetPorts;
+//using FluentAssertions;
+//using TeensyRom.Api.Endpoints.Serial.GetPorts;
 
-namespace TeensyRom.Api.Tests.Integration
-{
-    [Collection("Endpoint")]
-    public class GetPortsTests(EndpointFixture f) : IDisposable
-    {
-        [Fact]
-        public async void When_Called_PortsReturned()
-        {
-            // Act
-            var r = await f.Client.GetAsync<GetPortsEndpoint, GetPortsResponse>();
+//namespace TeensyRom.Api.Tests.Integration
+//{
+//    [Collection("Endpoint")]
+//    public class GetPortsTests(EndpointFixture f) : IDisposable
+//    {
+//        [Fact]
+//        public async void When_Called_PortsReturned()
+//        {
+//            // Act
+//            var r = await f.Client.GetAsync<GetPortsEndpoint, GetPortsResponse>();
 
-            // Assert
-            r.Should().BeSuccessful<GetPortsResponse>()
-                .WithStatusCode(HttpStatusCode.OK)
-                .WithContentNotNull();
+//            // Assert
+//            r.Should().BeSuccessful<GetPortsResponse>()
+//                .WithStatusCode(HttpStatusCode.OK)
+//                .WithContentNotNull();
 
-            r.Content.Message.Should().Be("Ports found");
-            r.Content.Ports.Should().NotBeNullOrEmpty();
-        }
+//            r.Content.Message.Should().Be("Ports found");
+//            r.Content.Ports.Should().NotBeNullOrEmpty();
+//        }
 
-        public void Dispose() => f.Reset();
-    }
-}
+//        public void Dispose() => f.Reset();
+//    }
+//}

@@ -1,18 +1,18 @@
 using TeensyRom.Core.Abstractions;
 
-namespace TeensyRom.Api.Endpoints.OpenPort
+namespace TeensyRom.Api.Endpoints.ConnectDevice
 {
-    public class OpenPortEndpoint (IDeviceConnectionManager deviceManager) : RadEndpoint<OpenPortRequest, OpenPortResponse>
+    public class ConnectDeviceEndpoint (IDeviceConnectionManager deviceManager) : RadEndpoint<ConnectDeviceRequest, ConnectDeviceResponse>
     {
         public override void Configure()
         {
-            Get("/serial/carts/{deviceId}/open")
-                .Produces<OpenPortResponse>(StatusCodes.Status200OK)
+            Post("/devices/{deviceId}/connect")
+                .Produces<ConnectDeviceResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .WithDocument(tag: "Serial", desc: "Connects to a TeensyRom device given an ID.");
+                .WithDocument(tag: "Devices", desc: "Connects to a TeensyRom device given an ID.");
         }
 
-        public override async Task Handle(OpenPortRequest r, CancellationToken _)
+        public override async Task Handle(ConnectDeviceRequest r, CancellationToken _)
         {
             var device = deviceManager.Connect(r.DeviceId);
 

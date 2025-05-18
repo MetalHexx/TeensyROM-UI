@@ -2,7 +2,7 @@
 using TeensyRom.Api.Endpoints.Files.Index;
 using TeensyRom.Api.Endpoints.Files.IndexAll;
 using TeensyRom.Api.Endpoints.FindCarts;
-using TeensyRom.Api.Endpoints.OpenPort;
+using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 
@@ -15,11 +15,11 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_IndexingAll_SuccessReturned()
         {
             // Arrange
-            var deviceResult = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
+            var deviceResult = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
 
             foreach (var item in deviceResult.Content.AvailableCarts)
             {
-                await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(new OpenPortRequest
+                await f.Client.PostAsync<ConnectDeviceEndpoint, ConnectDeviceRequest, ConnectDeviceResponse>(new ConnectDeviceRequest
                 {
                     DeviceId = item.DeviceId!
                 });

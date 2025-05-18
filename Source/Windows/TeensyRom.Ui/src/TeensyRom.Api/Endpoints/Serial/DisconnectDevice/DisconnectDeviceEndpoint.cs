@@ -3,17 +3,17 @@ using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Api.Endpoints.ClosePort
 {
-    public class ClosePortEndpoint(IDeviceConnectionManager deviceManager) : RadEndpoint<ClosePortRequest, ClosePortResponse>
+    public class DisconnectDeviceEndpoint(IDeviceConnectionManager deviceManager) : RadEndpoint<DisconnectDeviceRequest, DisconnectDeviceResponse>
     {
         public override void Configure()
         {
-            Delete("/serials/{deviceId}")
-                .Produces<ClosePortResponse>(StatusCodes.Status200OK)
+            Delete("/devices/{deviceId}")
+                .Produces<DisconnectDeviceResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .WithDocument(tag: "Serial", desc: "Close device port.");
+                .WithDocument(tag: "Devices", desc: "Close device port.");
         }
 
-        public override async Task Handle(ClosePortRequest r, CancellationToken ct)
+        public override async Task Handle(DisconnectDeviceRequest r, CancellationToken ct)
         {
             var device = deviceManager.GetConnectedDevice(r.DeviceId);
             

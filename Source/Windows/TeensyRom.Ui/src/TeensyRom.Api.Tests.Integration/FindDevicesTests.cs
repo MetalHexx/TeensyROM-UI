@@ -1,24 +1,22 @@
-﻿using FluentAssertions;
-using RadEndpoints.Testing;
-using TeensyRom.Api.Endpoints.ClosePort;
+﻿using TeensyRom.Api.Endpoints.ClosePort;
 using TeensyRom.Api.Endpoints.FindCarts;
-using TeensyRom.Api.Endpoints.OpenPort;
+using TeensyRom.Api.Endpoints.ConnectDevice;
 
 namespace TeensyRom.Api.Tests.Integration
 {
     [Collection("Endpoint")]
-    public class FindCartsTests(EndpointFixture f) :IDisposable
+    public class FindDevicesTests(EndpointFixture f) :IDisposable
 
     {
         [Fact]
         public async void When_Called_AvailableCartsReturned()
         {
             // Act
-            var r = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
+            var r = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
 
             // Assert
             r.Should()
-                .BeSuccessful<FindCartsResponse>()
+                .BeSuccessful<FindDevicesResponse>()
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
@@ -31,20 +29,20 @@ namespace TeensyRom.Api.Tests.Integration
         public async void Given_CartWasOpened_When_FindCalled_ConnectedCartsReturned()
         {
             // Arrange
-            var initialCarts = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
+            var initialCarts = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
             var expectedConnectedCart = initialCarts.Content.AvailableCarts.First();
             var expectedAvailableCount = initialCarts.Content.AvailableCarts.Count;
-            var openRequest = new OpenPortRequest
+            var openRequest = new ConnectDeviceRequest
             {
                 DeviceId = expectedConnectedCart.DeviceId
             };
-            var openResponse = await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(openRequest);
+            var openResponse = await f.Client.PostAsync<ConnectDeviceEndpoint, Endpoints.ConnectDevice.ConnectDeviceRequest, ConnectDeviceResponse>(openRequest);
 
             // Act
-            var r = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
+            var r = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
 
             // Assert
-            r.Should().BeSuccessful<FindCartsResponse>()
+            r.Should().BeSuccessful<FindDevicesResponse>()
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 

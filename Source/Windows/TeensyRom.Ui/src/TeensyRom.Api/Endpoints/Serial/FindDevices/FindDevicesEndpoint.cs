@@ -2,15 +2,15 @@ using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Api.Endpoints.FindCarts
 {
-    public class FindCartsEndpoint(IDeviceConnectionManager deviceManager) : RadEndpointWithoutRequest<FindCartsResponse>
+    public class FindDevicesEndpoint(IDeviceConnectionManager deviceManager) : RadEndpointWithoutRequest<FindDevicesResponse>
     {
         public override void Configure()
         {
-            Get("/serial/carts")
-                .Produces<FindCartsResponse>(StatusCodes.Status200OK)
+            Get("/devices")
+                .Produces<FindDevicesResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status503ServiceUnavailable)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .WithDocument(tag: "Serial", desc: "Scans all the serial ports and attempts to identify ports that have a TeensyRom device.");
+                .WithDocument(tag: "Devices", desc: "Returns all available and connected TeensyROM devices.");
         }
 
         public override async Task Handle(CancellationToken ct)

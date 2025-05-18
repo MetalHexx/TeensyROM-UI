@@ -1,27 +1,27 @@
 ﻿using FluentAssertions;
 using TeensyRom.Api.Endpoints.FindCarts;
-using TeensyRom.Api.Endpoints.OpenPort;
+using TeensyRom.Api.Endpoints.ConnectDevice;
 
 namespace TeensyRom.Api.Tests.Integration
 {
     [Collection("Endpoint")]
-    public class OpenPortTests(EndpointFixture f) : IDisposable
+    public class ConnectDeviceTests(EndpointFixture f) : IDisposable
     {
         [Fact]
         public async void When_Called_ResponseSuccessful()
         {
             // Arrange
-            var devices = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
+            var devices = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
 
             // Act
-            var openRequest = new OpenPortRequest
+            var openRequest = new ConnectDeviceRequest
             {
                 DeviceId = devices.Content.AvailableCarts.First().DeviceId
             };
-            var r = await f.Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(openRequest);
+            var r = await f.Client.PostAsync<ConnectDeviceEndpoint, ConnectDeviceRequest, ConnectDeviceResponse>(openRequest);
 
             // Assert
-            r.Should().BeSuccessful<OpenPortResponse>()
+            r.Should().BeSuccessful<ConnectDeviceResponse>()
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 

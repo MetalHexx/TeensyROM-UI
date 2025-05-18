@@ -2,7 +2,7 @@
 using TeensyRom.Api.Endpoints.ClosePort;
 using TeensyRom.Api.Endpoints.Files.LaunchFile;
 using TeensyRom.Api.Endpoints.FindCarts;
-using TeensyRom.Api.Endpoints.OpenPort;
+using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Api.Endpoints.ResetDevice;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;

@@ -1,15 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using TeensyRom.Core.Entities.Device;
 
-namespace TeensyRom.Api.Endpoints.OpenPort
+namespace TeensyRom.Api.Endpoints.ConnectDevice
 {
-    public class OpenPortRequest 
+    public class ConnectDeviceRequest 
     {
         [FromRoute]
         public string DeviceId { get; set; } = string.Empty;
     }
 
-    public class OpenPortRequestValidator : AbstractValidator<OpenPortRequest>
+    public class OpenPortRequestValidator : AbstractValidator<ConnectDeviceRequest>
     {
         public OpenPortRequestValidator()
         {
@@ -19,7 +19,7 @@ namespace TeensyRom.Api.Endpoints.OpenPort
         }
     }
 
-    public class OpenPortResponse : ApiResponse
+    public class ConnectDeviceResponse : ApiResponse
     {
         public Cart ConnectedCart { get; set; } = null!;
         public override string Message { get; set; } = "Connection successful!";

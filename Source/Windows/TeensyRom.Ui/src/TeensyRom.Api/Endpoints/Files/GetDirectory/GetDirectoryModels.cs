@@ -3,16 +3,16 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Storage;
 
-namespace TeensyRom.Api.Endpoints.GetDirectory
+namespace TeensyRom.Api.Endpoints.Files.GetDirectory
 {
-    public class GetDirectoryRequest 
+    public class GetDirectoryRequest
     {
         [FromRoute]
         public string DeviceId { get; set; } = string.Empty;
         [FromRoute]
         public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;
         [FromQuery]
-        public string? Path { get; set; } = string.Empty;        
+        public string? Path { get; set; } = string.Empty;
     }
 
     public class GetDirectoryRequestValidator : AbstractValidator<GetDirectoryRequest>

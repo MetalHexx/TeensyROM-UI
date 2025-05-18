@@ -1,7 +1,7 @@
 using RadEndpoints;
 using TeensyRom.Core.Abstractions;
 
-namespace TeensyRom.Api.Endpoints.GetDirectory
+namespace TeensyRom.Api.Endpoints.Files.GetDirectory
 {
     public class GetDirectoryEndpoint(IDeviceConnectionManager deviceManager) : RadEndpoint<GetDirectoryRequest, GetDirectoryResponse>
     {
@@ -10,7 +10,7 @@ namespace TeensyRom.Api.Endpoints.GetDirectory
             Get("/devices/{deviceId}/storage/{storageType}/directories")
                 .Produces<GetDirectoryResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .WithDocument(tag: "Storage", desc: "Gets a directory for given storage device");
+                .WithDocument(tag: "Files", desc: "Gets a directory for given storage device");
         }
 
         public override async Task Handle(GetDirectoryRequest r, CancellationToken ct)

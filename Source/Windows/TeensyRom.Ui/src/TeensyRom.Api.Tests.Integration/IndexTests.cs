@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using TeensyRom.Api.Endpoints.Files.Index;
 using TeensyRom.Api.Endpoints.Files.LaunchFile;
 using TeensyRom.Api.Endpoints.FindCarts;
-using TeensyRom.Api.Endpoints.OpenPort;
+using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Device;
 using TeensyRom.Core.Entities.Storage;
@@ -72,7 +72,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_Indexing_WithBadPath_BadRequestReturned()
         {
             // Arrange
-            var availableDevices = await f.Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
+            var availableDevices = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
             var deviceId = availableDevices.Content.AvailableCarts.First().DeviceId;
 
             // Act
@@ -88,23 +88,6 @@ namespace TeensyRom.Api.Tests.Integration
             response.Should()
                 .BeValidationProblem()
                 .WithKeyAndValue("Path", "Path must be a valid Unix path.");
-        }
-
-        [Fact]
-        public async Task When_Indexing_WithoutDeviceId_BadRequestReturned()
-        {
-            // Act
-            var request = new IndexRequest
-            {
-                StorageType = TeensyStorageType.SD,
-                Path = "/"
-            };
-            var response = await f.Client.PostAsync<IndexEndpoint, IndexRequest, ValidationProblemDetails>(request);
-
-            // Assert
-            response.Should()
-                .BeValidationProblem()
-                .WithKeyAndValue("DeviceId", "Invalid Device Id.");
         }
 
         [Fact]

@@ -3,15 +3,15 @@ using TeensyRom.Core.Common;
 
 namespace TeensyRom.Api.Endpoints.ClosePort
 {
-    public class ClosePortRequest 
+    public class DisconnectDeviceRequest 
     {
         [FromRoute]
         public string DeviceId { get; set; } = string.Empty;
     }
 
-    public class ClosePortRequestValidator : AbstractValidator<ClosePortRequest>
+    public class DisconnectDeviceRequestValidator : AbstractValidator<DisconnectDeviceRequest>
     {
-        public ClosePortRequestValidator()
+        public DisconnectDeviceRequestValidator()
         {
             RuleFor(x => x.DeviceId)
                 .NotEmpty().WithMessage("Device ID is required.")
@@ -19,7 +19,7 @@ namespace TeensyRom.Api.Endpoints.ClosePort
         }
     }
 
-    public class ClosePortResponse
+    public class DisconnectDeviceResponse
     {
         public string Message { get; set; } = "Success!";
     }

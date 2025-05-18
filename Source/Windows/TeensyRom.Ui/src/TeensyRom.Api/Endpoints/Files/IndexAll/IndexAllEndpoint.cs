@@ -15,7 +15,7 @@ namespace TeensyRom.Api.Endpoints.Files.IndexAll
             Post("/files/index/all")
                 .Produces<IndexAllResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status404NotFound)
-                .WithDocument(tag: "File", desc: "Indexes all storage for all connected TeensyRom devices.");
+                .WithDocument(tag: "Files", desc: "Indexes all storage for all connected TeensyRom devices.");
         }
 
         public override async Task Handle(CancellationToken ct)

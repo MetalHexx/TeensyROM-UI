@@ -1,6 +1,6 @@
-﻿using TeensyRom.Api.Endpoints.FindCarts;
-using TeensyRom.Api.Endpoints.GetDirectory;
-using TeensyRom.Api.Endpoints.OpenPort;
+﻿using TeensyRom.Api.Endpoints.Files.GetDirectory;
+using TeensyRom.Api.Endpoints.FindCarts;
+using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 
