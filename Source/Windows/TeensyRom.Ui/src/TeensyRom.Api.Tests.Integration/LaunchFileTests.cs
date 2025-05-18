@@ -13,10 +13,31 @@ namespace TeensyRom.Api.Tests.Integration
     [Collection("Endpoint")]
     public class LaunchFileTests(EndpointFixture f) : IDisposable
     {
-        private const string NonExistentPath = "/something/that/doesnt/exist.sid";        
+        private const string NonExistentPath = "/something/that/doesnt/exist.sid";
+        private const string IncompatibleSid = "/music/MUSICIANS/J/Jammer/Immigrant_Song.sid";
 
         [Fact]
-        public async void When_LaunchingVariousFiles_ReturnsSuccess()
+        public async Task When_LaunchingIncompatibleSid_ReturnsBadRequest()
+        {
+            // Arrange              
+            var deviceId = await f.ConnectToFirstDevice();
+
+            // Act  
+            var request = new LaunchFileRequest
+            {
+                DeviceId = deviceId,
+                FilePath = IncompatibleSid,
+                StorageType = TeensyStorageType.SD
+            };
+            var r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, ProblemDetails>(request);
+            
+            // Assert  
+            r.Should().BeProblem()
+                .WithStatusCode(HttpStatusCode.BadGateway);
+        }
+
+        [Fact]
+        public async Task When_LaunchingVariousFiles_ReturnsSuccess()
         {
             // Arrange              
             var deviceId = await f.ConnectToFirstDevice();

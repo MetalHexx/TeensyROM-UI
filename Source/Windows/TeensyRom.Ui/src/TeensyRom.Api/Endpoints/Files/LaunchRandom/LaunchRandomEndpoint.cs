@@ -15,6 +15,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
                 .Produces<LaunchRandomResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status404NotFound)
+                .ProducesProblem(StatusCodes.Status502BadGateway)
                 .WithDocument(tag: "Files", desc: "Launches a random file given a device, storage and starting directory location.");
         }
 
@@ -66,7 +67,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
 
             if (!result.IsSuccess) 
             {
-                SendExternalError($"There was an error launching {file.Name}");
+                SendExternalError($"There was an error launching {file.Path}");
                 return;
             }
             Response = new() 
