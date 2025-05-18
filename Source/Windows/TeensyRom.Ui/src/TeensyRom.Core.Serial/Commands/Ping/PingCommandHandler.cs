@@ -4,12 +4,18 @@ using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Core.Commands
 {
-    public class PingCommandHandler(ISerialStateContext serialState) : IRequestHandler<PingCommand, PingResult>
+    public class PingCommandHandler : IRequestHandler<PingCommand, PingResult>
     {
         public Task<PingResult> Handle(PingCommand request, CancellationToken cancellationToken)
         {
-            serialState.SendIntBytes(TeensyToken.Ping, 2);
-            return Task.FromResult(new PingResult());
+            request.Serial.SendIntBytes(TeensyToken.Ping, 2);
+            var response = request.Serial.ReadAndLogSerialAsString(30);
+
+            return Task.FromResult(new PingResult 
+            {
+                Response = response,
+                IsBusy = response.Contains("busy", StringComparison.OrdinalIgnoreCase)
+            });
         }
     }
 }

@@ -25,6 +25,17 @@ namespace TeensyRom.Core.Device
     {
         public async Task<CartStorage> EnsureTag(ISerialStateContext serial, TeensyStorageType storageType)
         {
+            var pingResult = await mediator.Send(new PingCommand 
+            {
+                Serial = serial
+            });
+            if (pingResult.IsBusy) 
+            {
+                await mediator.Send(new ResetCommand
+                {
+                    Serial = serial
+                });
+            }
             var getFileCommand = new GetFileCommand(storageType, "/cart-tag.txt")
             {
                 Serial = serial
