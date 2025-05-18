@@ -7,10 +7,11 @@ using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Games;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Music.Sid;
+using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Core.Storage
 {
-    public class StorageSettings 
+    public class StorageSettings
     {
         public CartStorage CartStorage { get; init; } = null!;
         public List<string> BannedDirectories { get; set; } = [];
@@ -24,7 +25,7 @@ namespace TeensyRom.Core.Storage
 
             var directory = await GetDirectory(parentPath);
 
-            if (directory is null) 
+            if (directory is null)
             {
                 log.InternalWarning($"The parent directory {parentPath} was not found");
                 return null;
@@ -33,7 +34,7 @@ namespace TeensyRom.Core.Storage
                 .FirstOrDefault(f => f.Path.RemoveLeadingAndTrailingSlash()
                     .Equals(path.RemoveLeadingAndTrailingSlash(), StringComparison.OrdinalIgnoreCase));
 
-            if (file is null) 
+            if (file is null)
             {
                 log.InternalWarning($"The file {path.GetFileNameFromPath()} was not found in the directory {parentPath}");
                 return null;
@@ -52,7 +53,7 @@ namespace TeensyRom.Core.Storage
 
             var response = await mediator.Send(new GetDirectoryCommand(settings.CartStorage.Type, path, settings.CartStorage.DeviceId));
 
-            if (!response.IsSuccess) 
+            if (!response.IsSuccess)
             {
                 return null;
             }
@@ -64,7 +65,7 @@ namespace TeensyRom.Core.Storage
 
             cache.WriteToDisk();
             return cacheItem;
-        }        
+        }
         public async Task<bool> CacheAll()
         {
             return await Cache(StorageHelper.Remote_Path_Root);
@@ -194,6 +195,33 @@ namespace TeensyRom.Core.Storage
                 ImageItem i => i,
                 _ => file
             };
+        }
+
+        public ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, TeensyFilterType filterType)
+        {
+            var fileTypes = GetFileTypes(filterType);
+            var excludePaths = GetExcludePaths();
+            return cache.GetRandomFile(scope, scopePath, excludePaths, fileTypes);
+        }
+
+        private List<string> GetExcludePaths()
+        {
+            var excludePaths = StorageHelper.FavoritePaths;
+            excludePaths.Add(StorageHelper.Playlist_Path);
+
+            return excludePaths.ToList();
+        }
+        public TeensyFileType[] GetFileTypes(TeensyFilterType filterType)
+        {
+            if (filterType == TeensyFilterType.All)
+            {
+                return StorageHelper.FileTargets
+                    .Where(ft => ft.Type != TeensyFileType.Hex)
+                    .Select(t => t.Type).ToArray();
+            }
+            return StorageHelper.FileTargets
+                .Where(ft => ft.FilterType == filterType)
+                .Select(t => t.Type).ToArray();
         }
     }
 }

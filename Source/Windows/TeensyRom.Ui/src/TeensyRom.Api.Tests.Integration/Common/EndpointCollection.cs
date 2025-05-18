@@ -1,7 +1,8 @@
 ﻿using System.Reflection;
 using TeensyRom.Api.Endpoints.ClosePort;
+using TeensyRom.Api.Endpoints.Files.Index;
 using TeensyRom.Api.Endpoints.FindCarts;
-using TeensyRom.Api.Endpoints.OpenPort;
+using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 
@@ -33,22 +34,36 @@ namespace TeensyRom.Api.Tests.Integration.Common
 
         public async Task<string> ConnectToFirstDevice() 
         {
-            var findResponse = await Client.GetAsync<FindCartsEndpoint, FindCartsResponse>();
+            var findResponse = await Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
             var deviceId = findResponse.Content.AvailableCarts.First().DeviceId!;
 
-            await Client.GetAsync<OpenPortEndpoint, OpenPortRequest, OpenPortResponse>(
-                new OpenPortRequest { DeviceId = deviceId });
+            await Client.PostAsync<ConnectDeviceEndpoint, ConnectDeviceRequest, ConnectDeviceResponse>(new ConnectDeviceRequest 
+            { 
+                DeviceId = deviceId 
+            });
 
             return deviceId;
         }
 
+        public async Task Preindex(string deviceId, TeensyStorageType storageType, string path) 
+        {
+            var request = new IndexRequest
+            {
+                DeviceId = deviceId,
+                StorageType = storageType,
+                Path = path
+            };
+            var response = await Client.PostAsync<IndexEndpoint, IndexRequest, IndexResponse>(request);
+            await Task.Delay(3000);
+        }
+
         public void Reset() 
         {
-            var initialCarts = Client.GetAsync<FindCartsEndpoint, FindCartsResponse>().Result;
+            var initialCarts = Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>().Result;
 
             initialCarts.Content.ConnectedCarts.ForEach(d =>
             {
-                _ = Client.DeleteAsync<ClosePortEndpoint, ClosePortRequest, ClosePortResponse>(new ClosePortRequest
+                _ = Client.DeleteAsync<DisconnectDeviceEndpoint, Endpoints.ClosePort.DisconnectDeviceRequest, DisconnectDeviceResponse>(new Endpoints.ClosePort.DisconnectDeviceRequest
                 {
                     DeviceId = d.DeviceId!
                 }).Result;
