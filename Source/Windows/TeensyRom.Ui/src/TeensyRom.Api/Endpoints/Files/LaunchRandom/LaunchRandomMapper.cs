@@ -2,9 +2,9 @@
 
 namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
 {
-    public class LaunchRandomMapper : IRadMapper<LaunchableItemViewModel, ILaunchableItem>
+    public class LaunchRandomMapper : IRadMapper<FileItemViewModel, ILaunchableItem>
     {
-        public LaunchableItemViewModel FromEntity(ILaunchableItem e) => LaunchableItemViewModel.FromLaunchable(e);
+        public FileItemViewModel FromEntity(ILaunchableItem e) => FileItemViewModel.FromLaunchable(e);
 
     }
 }

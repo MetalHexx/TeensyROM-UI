@@ -2,16 +2,7 @@
 
 namespace TeensyRom.Api.Endpoints.Common
 {
-    public enum LaunchableItemType
-    {
-        Unknown,
-        Song,
-        Game,
-        Image,
-        Hex
-    }
-
-    public class LaunchableItemViewModel
+    public class FileItemViewModel
     {
         public string Name { get; set; } = string.Empty;
         public string Path { get; set; } = string.Empty;
@@ -36,11 +27,11 @@ namespace TeensyRom.Api.Endpoints.Common
         public int? StartSubtuneNum { get; set; }
         public List<ViewableItemImage>? Images { get; set; }
 
-        public LaunchableItemType Type { get; set; } = LaunchableItemType.Unknown;
+        public FileItemType Type { get; set; } = FileItemType.Unknown;
 
-        public static LaunchableItemViewModel FromLaunchable(ILaunchableItem item)
+        public static FileItemViewModel FromLaunchable(ILaunchableItem item)
         {
-            var vm = new LaunchableItemViewModel
+            var vm = new FileItemViewModel
             {
                 Name = item.Name,
                 Path = item.Path,
@@ -62,7 +53,7 @@ namespace TeensyRom.Api.Endpoints.Common
             switch (item)
             {
                 case SongItem song:
-                    vm.Type = LaunchableItemType.Song;
+                    vm.Type = FileItemType.Song;
                     vm.PlayLength = song.PlayLength;
                     vm.SubtuneLengths = song.SubtuneLengths;
                     vm.StartSubtuneNum = song.StartSubtuneNum;
@@ -70,23 +61,23 @@ namespace TeensyRom.Api.Endpoints.Common
                     break;
 
                 case GameItem game:
-                    vm.Type = LaunchableItemType.Game;
+                    vm.Type = FileItemType.Game;
                     vm.PlayLength = game.PlayLength;
                     vm.Images = game.Images;
                     break;
 
                 case ImageItem image:
-                    vm.Type = LaunchableItemType.Image;
+                    vm.Type = FileItemType.Image;
                     vm.PlayLength = image.PlayLength;
                     break;
 
                 case HexItem hex:
-                    vm.Type = LaunchableItemType.Hex;
+                    vm.Type = FileItemType.Hex;
                     vm.Images = hex.Images;
                     break;
 
                 default:
-                    vm.Type = LaunchableItemType.Unknown;
+                    vm.Type = FileItemType.Unknown;
                     break;
             }
 

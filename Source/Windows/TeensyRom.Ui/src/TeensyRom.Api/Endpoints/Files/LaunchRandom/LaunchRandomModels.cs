@@ -41,7 +41,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
 
     public class LaunchRandomResponse
     {
-        public LaunchableItemViewModel LaunchedFile { get; set; } = null!;
+        public FileItemViewModel LaunchedFile { get; set; } = null!;
         public string Message { get; set; } = "Success!";
     }
 }

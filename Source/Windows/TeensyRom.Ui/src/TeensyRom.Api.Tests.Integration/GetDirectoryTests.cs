@@ -129,7 +129,7 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
         // Assert
         r.Should().BeProblem()
             .WithStatusCode(HttpStatusCode.NotFound)
-            .WithMessage($"The directory {expectedPath} was not found.");
+            .WithMessage($"The storage {TeensyStorageType.USB} is not available.");
     }
 
     //TODO: Fix a bug that causes directories that are not found to be added as an empty directory in the cache.

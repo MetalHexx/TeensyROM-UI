@@ -1,7 +1,7 @@
+using CsvHelper.Configuration.Attributes;
 using RadEndpoints;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
-using TeensyRom.Core.Storage;
 
 namespace TeensyRom.Api.Endpoints.Files.GetDirectory
 {
@@ -34,7 +34,7 @@ namespace TeensyRom.Api.Endpoints.Files.GetDirectory
 
     public class GetDirectoryResponse
     {
-        public IStorageCacheItem StorageItem { get; set; } = null!;
+        public StorageCacheViewModel StorageItem { get; set; } = null!;
         public string Message { get; set; } = "Success!";
     }
 }

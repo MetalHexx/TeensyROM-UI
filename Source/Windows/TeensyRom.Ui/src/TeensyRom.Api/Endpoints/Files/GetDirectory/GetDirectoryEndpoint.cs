@@ -3,7 +3,7 @@ using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Api.Endpoints.Files.GetDirectory
 {
-    public class GetDirectoryEndpoint(IDeviceConnectionManager deviceManager) : RadEndpoint<GetDirectoryRequest, GetDirectoryResponse>
+    public class GetDirectoryEndpoint(IDeviceConnectionManager deviceManager) : RadEndpoint<GetDirectoryRequest, GetDirectoryResponse, GetDirectoryMapper>
     {
         public override void Configure()
         {
@@ -33,10 +33,7 @@ namespace TeensyRom.Api.Endpoints.Files.GetDirectory
                 SendNotFound($"The directory {r.Path} was not found.");
                 return;
             }
-            Response = new()
-            {
-                StorageItem = storageItem
-            };
+            Response = Map.FromEntity(storageItem);
             Send();
         }
     }
