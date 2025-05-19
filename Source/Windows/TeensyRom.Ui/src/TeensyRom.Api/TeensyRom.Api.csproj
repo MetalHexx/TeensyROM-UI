@@ -22,4 +22,8 @@
     <ProjectReference Include="..\TeensyRom.Core\TeensyRom.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ClientApp\" />
+  </ItemGroup>
+
 </Project>
