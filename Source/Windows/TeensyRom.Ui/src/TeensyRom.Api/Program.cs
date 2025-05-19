@@ -51,6 +51,18 @@ builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavi
 builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
 builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(SerialBehavior<,>));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularDevServer",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:4200") // Angular dev server
+                   .AllowAnyMethod()
+                   .AllowAnyHeader()
+                   .AllowCredentials();
+        });
+});
+
 
 var app = builder.Build();
 
@@ -59,7 +71,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("AllowAngularDevServer");
 app.MapRadEndpoints();
 app.Run();
 
