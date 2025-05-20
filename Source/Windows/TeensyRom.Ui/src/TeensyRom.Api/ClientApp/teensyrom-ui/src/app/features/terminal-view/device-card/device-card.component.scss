@@ -1,0 +1,101 @@
+.device-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  color: var(--mat-mdc-card-foreground-text-color, #fff);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  mat-card-header,
+  mat-card-content,
+  mat-card-actions,
+  .device-info,
+  .info-row,
+  .storage-info,
+  .storage-item {
+    color: inherit;
+  }
+
+  mat-card-header {
+    margin-bottom: 16px;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    mat-card-subtitle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  mat-card-content {
+    flex: 1;
+
+    .device-info {
+      .info-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+
+        mat-icon {
+          width: 20px;
+          height: 20px;
+          font-size: 20px;
+        }
+      }
+    }
+
+    .storage-info {
+      h3 {
+        margin: 0 0 16px 0;
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .storage-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+
+        .storage-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          padding: 16px;
+          background: var(--mat-mdc-card-background-color, #222);
+          border-radius: 8px;
+
+          mat-icon {
+            width: 32px;
+            height: 32px;
+            font-size: 32px;
+          }
+
+          span {
+            font-weight: 500;
+          }
+        }
+      }
+    }
+  }
+
+  mat-card-actions {
+    padding: 16px;
+    gap: 8px;
+  }
+}
+
+.my-4 {
+  margin: 1.5rem 0;
+} 

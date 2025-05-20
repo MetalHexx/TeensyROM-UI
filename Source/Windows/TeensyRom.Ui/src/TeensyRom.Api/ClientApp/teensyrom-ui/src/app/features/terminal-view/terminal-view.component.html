@@ -1,67 +1,52 @@
 <div class="terminal-view">
-  <h2>Devices</h2>
-
-  <div *ngIf="loading" class="loading">
-    Loading devices...
+  <div class="header">
+    <h2>Devices</h2>
+    <button mat-raised-button color="primary" (click)="loadDevices()">
+      <mat-icon>refresh</mat-icon>
+      Refresh Devices
+    </button>
   </div>
 
-  <div *ngIf="error" class="error">
-    {{ error }}
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+    <br>
+    <p>Loading devices...</p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
   </div>
 
   <div *ngIf="!loading && !error">
-
     <div *ngIf="devices.availableCarts?.length === 0 && devices.connectedCarts?.length === 0" class="no-devices">
-      No devices found
+      <mat-icon>devices_other</mat-icon>
+      <p>No devices found</p>
+      <button mat-raised-button color="primary" (click)="loadDevices()">
+        <mat-icon>refresh</mat-icon>
+        Try Again
+      </button>
     </div>
 
     <div *ngIf="devices.availableCarts && devices.availableCarts.length > 0" class="section">
       <h3>Available Devices</h3>
-      <div class="devices-list">
-        <div *ngFor="let cart of devices.availableCarts" class="device-item">
-          <div class="device-header">
-            <h4>{{ cart.name || 'Unnamed Device' }}</h4>
-            <span class="status-badge available">Available</span>
-          </div>
-          
-          <div class="device-details">
-            <p><strong>Device ID:</strong> {{ cart.deviceId || 'N/A' }}</p>
-            <p><strong>Device Name:</strong> {{ cart.name }}</p>
-            <p><strong>COM Port:</strong> {{ cart.comPort || 'N/A' }}</p>
-            <p><strong>Firmware:</strong> {{ cart.fwVersion || 'N/A' }}</p>
-            <p><strong>Compatible:</strong> 
-              <span [class.compatible]="cart.isCompatible" [class.incompatible]="!cart.isCompatible">
-                {{ cart.isCompatible ? 'Yes' : 'No' }}
-              </span>
-            </p>
-          </div>
-
-          <div class="storage-info" *ngIf="cart.sdStorage || cart.usbStorage">
-            <h5>Storage</h5>
-            <div class="storage-details">
-              <div *ngIf="cart.sdStorage" class="storage-item">
-                <p><strong>SD Card:</strong> {{ cart.sdStorage.available ? 'Available' : 'Not Available' }}</p>
-              </div>
-              <div *ngIf="cart.usbStorage" class="storage-item">
-                <p><strong>USB:</strong> {{ cart.usbStorage.available ? 'Available' : 'Not Available' }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="devices-grid">
+        <app-device-card
+          *ngFor="let cart of devices.availableCarts"
+          [cart]="cart"
+          [isConnected]="false">
+        </app-device-card>
       </div>
     </div>
 
     <div *ngIf="devices.connectedCarts && devices.connectedCarts.length > 0" class="section">
       <h3>Connected Devices</h3>
-      <div class="devices-list">
-        <div *ngFor="let cart of devices.connectedCarts" class="device-item">
-          <h4>{{ cart.name }}</h4>
-          <p><strong>Device ID:</strong> {{ cart.deviceId || 'N/A' }}</p>
-          <p><strong>Device Name:</strong> {{ cart.name }}</p>
-          <p><strong>COM Port:</strong> {{ cart.comPort || 'N/A' }}</p>
-          <p><strong>Firmware:</strong> {{ cart.fwVersion || 'N/A' }}</p>
-          <p><strong>Compatible:</strong> 
-        </div>
+      <div class="devices-grid">
+        <app-device-card
+          *ngFor="let cart of devices.connectedCarts"
+          [cart]="cart"
+          [isConnected]="true">
+        </app-device-card>
       </div>
     </div>
   </div>

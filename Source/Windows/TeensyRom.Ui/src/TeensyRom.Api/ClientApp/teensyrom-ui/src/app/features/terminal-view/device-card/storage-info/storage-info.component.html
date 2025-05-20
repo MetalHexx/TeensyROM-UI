@@ -1,0 +1,23 @@
+<div class="storage-info" *ngIf="sdStorage || usbStorage">
+  <h3>Storage</h3>
+  <div class="storage-grid">
+    <div class="storage-item" *ngIf="sdStorage">
+      <mat-icon [color]="sdStorage.available ?? false ? 'primary' : 'warn'">
+        {{ sdStorage.available ?? false ? 'sd_card' : 'sd_card_alert' }}
+      </mat-icon>
+      <span>SD Card</span>
+      <mat-chip [color]="sdStorage.available ?? false ? 'primary' : 'warn'" selected>
+        {{ sdStorage.available ?? false ? 'Available' : 'Not Available' }}
+      </mat-chip>
+    </div>
+    <div class="storage-item" *ngIf="usbStorage">
+      <mat-icon [color]="usbStorage.available ?? false ? 'primary' : 'warn'">
+        {{ usbStorage.available ?? false ? 'usb' : 'usb_off' }}
+      </mat-icon>
+      <span>USB</span>
+      <mat-chip [color]="usbStorage.available ?? false ? 'primary' : 'warn'" selected>
+        {{ usbStorage.available ?? false ? 'Available' : 'Not Available' }}
+      </mat-chip>
+    </div>
+  </div>
+</div> 

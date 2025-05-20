@@ -1,4 +1,8 @@
-
 html, body { height: 100%; }
 
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+body, .mat-mdc-dark-theme {
+  background: #121212 !important;
+  color: var(--mat-mdc-card-foreground-text-color, #fff);
+}

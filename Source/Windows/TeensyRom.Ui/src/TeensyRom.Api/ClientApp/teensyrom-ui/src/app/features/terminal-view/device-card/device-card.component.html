@@ -1,0 +1,42 @@
+<mat-card class="device-card">
+  <mat-card-header>
+    <mat-card-title>
+      {{ cart.name || 'Unnamed Device' }}
+      <mat-chip-listbox>
+        <mat-chip [color]="isConnected ? 'primary' : 'accent'" selected>
+          {{ isConnected ? 'Connected' : 'Available' }}
+        </mat-chip>
+      </mat-chip-listbox>
+    </mat-card-title>
+    <mat-card-subtitle>
+      <mat-icon>memory</mat-icon>
+      {{ cart.deviceId || 'N/A' }}
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="device-info">
+      <div class="info-row">
+        <mat-icon>settings</mat-icon>
+        <span>Firmware: {{ cart.fwVersion || 'N/A' }}</span>
+      </div>
+      <div class="info-row">
+        <mat-icon>usb</mat-icon>
+        <span>Port: {{ cart.comPort || 'N/A' }}</span>
+      </div>
+      <div class="info-row">
+        <mat-icon [color]="cart.isCompatible ? 'primary' : 'warn'">
+          {{ cart.isCompatible ? 'check_circle' : 'error' }}
+        </mat-icon>
+        <span>Compatible: {{ cart.isCompatible ? 'Yes' : 'No' }}</span>
+      </div>
+    </div>
+
+    <mat-divider class="my-4"></mat-divider>
+
+    <app-storage-info
+      [sdStorage]="cart.sdStorage"
+      [usbStorage]="cart.usbStorage">
+    </app-storage-info>
+  </mat-card-content>
+</mat-card> 
