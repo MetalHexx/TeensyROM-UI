@@ -1,0 +1,33 @@
+// layout.scss
+
+.section        { width: 100%; }
+.section-title  { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
+
+.grid-cols-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.surface {
+  background-color: var(--mat-mdc-card-background-color, #222);
+}
+
+.flex            { display: flex !important; }
+.flex-col        { display: flex !important; flex-direction: column !important; }
+.items-center    { align-items: center !important; }
+.justify-between { justify-content: space-between !important; }
+
+.rounded       { border-radius: 0.5rem !important; }
+.rounded-sm    { border-radius: 0.25rem !important; }
+.rounded-lg    { border-radius: 0.75rem !important; }
+.rounded-full  { border-radius: 9999px !important; }
+
+.text-center   { text-align: center !important; }
+.text-right    { text-align: right !important; }
+.text-left     { text-align: left !important; }
+.fw-medium     { font-weight: 500 !important; }
+.fw-bold       { font-weight: 700 !important; }
+
+.icon-sm { font-size: 1rem !important; width: 1rem !important; height: 1rem !important; }
+.icon-md { font-size: 1.5rem !important; width: 1.5rem !important; height: 1.5rem !important; }
+.icon-lg { font-size: 2rem !important; width: 2rem !important; height: 2rem !important; }
