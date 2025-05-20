@@ -1,8 +1,18 @@
-html, body { height: 100%; }
+@use './app/styles/spacing' as *;
 
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
-body, .mat-mdc-dark-theme {
-  background: #121212 !important;
-  color: var(--mat-mdc-card-foreground-text-color, #fff);
+body {
+  background-color: var(--mat-mdc-background, #fff);
+  color: var(--mat-mdc-foreground-text-color, #000);
+}
+
+.mat-mdc-dark-theme {
+  // Optional: override colors only when this class is present
+  background-color: var(--mat-mdc-background, #121212);
+  color: var(--mat-mdc-foreground-text-color, #fff);
 }
