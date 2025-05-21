@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+cd Source/Windows/TeensyRom.Ui/src/TeensyRom.Api/ClientApp/teensyrom-ui
+npx lint-staged

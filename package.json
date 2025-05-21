@@ -1,0 +1,23 @@
+{
+  "name": "teensyrom-ui",
+  "version": "1.0.0",
+  "description": "Command your Commodore 64 / 128 with a modern desktop user experience.  This user interface is designed to compliment the [TeensyROM Hardware Cartridge](https://github.com/SensoriumEmbedded/TeensyROM), *designed by Travis S/Sensorium* to enable lighting fast exploration of Games, Scene Demos, Music and Images in very large file collections.  Coupled with remote launch capability, you will cover a lot of ground very quickly and discover great content faster than ever.",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MetalHexx/TeensyROM.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MetalHexx/TeensyROM/issues"
+  },
+  "homepage": "https://github.com/MetalHexx/TeensyROM#readme",
+  "devDependencies": {
+    "husky": "^8.0.0"
+  }
+}

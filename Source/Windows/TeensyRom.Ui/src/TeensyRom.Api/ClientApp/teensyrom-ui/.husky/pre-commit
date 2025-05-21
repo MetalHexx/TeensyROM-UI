@@ -1,3 +1,0 @@
-#!/bin/sh
-echo "✅ Husky pre-commit is firing"
-exit 1
