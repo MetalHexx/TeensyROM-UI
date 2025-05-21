@@ -6,4 +6,4 @@ bootstrapApplication(AppComponent, appConfig).catch((err) =>
   console.error(err),
 );
 
-const test = "hello"; const foo="bar"
+const test = "hello"; const foo="bar" 
