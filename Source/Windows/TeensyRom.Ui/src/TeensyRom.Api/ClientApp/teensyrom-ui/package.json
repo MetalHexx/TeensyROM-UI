@@ -12,11 +12,11 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "src/**/*.{ts,html,scss}": [
-      "prettier --write",
-      "eslint --fix"
-    ]
-  },
+  "**/*.{ts,html,scss}": [
+    "prettier --write",
+    "eslint --fix"
+  ]
+},
   "private": true,
   "dependencies": {
     "@angular/common": "^19.2.0",
