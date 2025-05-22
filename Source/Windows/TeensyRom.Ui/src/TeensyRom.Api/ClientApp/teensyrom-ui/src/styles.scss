@@ -13,7 +13,7 @@ html {
   color-scheme: light dark;
   @include mat.theme(
     (
-      color: mat.$violet-palette,
+      color: mat.$magenta-palette,
       typography: Roboto,
       density: 0,
     )
