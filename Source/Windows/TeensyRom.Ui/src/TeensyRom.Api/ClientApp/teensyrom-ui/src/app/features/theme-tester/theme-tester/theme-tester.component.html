@@ -1,0 +1,73 @@
+<main class="preview-content p-6">
+  <section class="section mb-2">
+    <h2 class="section-title">Form Controls</h2>
+    <mat-card class="p-4 mb-4">
+      <form class="grid-cols-2 gap-4">
+        <mat-form-field appearance="outline">
+          <mat-label>Full Name</mat-label>
+          <input matInput placeholder="John Doe" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Gender</mat-label>
+          <mat-select>
+            <mat-option value="m">Male</mat-option>
+            <mat-option value="f">Female</mat-option>
+            <mat-option value="o">Other</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Message</mat-label>
+          <textarea matInput rows="4"></textarea>
+        </mat-form-field>
+
+        <div>
+          <mat-label>Favorite Color</mat-label>
+          <mat-radio-group>
+            <mat-radio-button value="red">Red</mat-radio-button>
+            <mat-radio-button value="blue">Blue</mat-radio-button>
+            <mat-radio-button value="green">Green</mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <div>
+          <mat-checkbox>Subscribe to newsletter</mat-checkbox>
+          <mat-slide-toggle class="mt-2">Enable Notifications</mat-slide-toggle>
+        </div>
+      </form>
+    </mat-card>
+  </section>
+
+  <section class="section mb-2 example-bright-container">
+    <h2 class="section-title">Progress & Indicators</h2>
+    <mat-card class="p-4 mb-4">
+      <mat-progress-bar mode="indeterminate" class="mb-4"></mat-progress-bar>
+      <mat-slider min="0" max="100" step="1" value="30"></mat-slider>
+    </mat-card>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Chips & Lists</h2>
+    <mat-card class="p-4">
+      <mat-chip-set>
+        <mat-chip color="primary" selected>Chip One</mat-chip>
+        <mat-chip color="accent" selected>Chip Two</mat-chip>
+        <mat-chip color="warn" selected>Chip Three</mat-chip>
+      </mat-chip-set>
+
+      <mat-list class="mt-4">
+        <mat-list-item *ngFor="let item of [1, 2, 3]">
+          <mat-icon matListIcon>folder</mat-icon>
+          <h4 matLine>Item {{ item }}</h4>
+          <p matLine>Subtext for item {{ item }}</p>
+        </mat-list-item>
+      </mat-list>
+    </mat-card>
+  </section>
+</main>
