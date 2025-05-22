@@ -1,10 +1,29 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
 
-html,
-body {
-  height: 100%;
+html {
+  color-scheme: light dark;
+  @include mat.theme(
+    (
+      color: mat.$violet-palette,
+      typography: Roboto,
+      density: 0,
+    )
+  );
 }
+
+.example-bright-container {
+  @include mat.theme(
+    (
+      color: mat.$cyan-palette,
+    )
+  );
+}
+
+.mat-toolbar.mat-primary {
+  --mat-toolbar-container-background-color: #890089;
+}
+
 body {
-  margin: 0;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
 }
