@@ -3,6 +3,12 @@
 
 echo "🐛 Entered Husky pre-commit hook"
 
+# Move into the web project directory where eslint.config.js lives
+cd Source/Windows/TeensyRom.Ui/src/TeensyRom.Api/ClientApp/teensyrom-ui || {
+  echo "❌ Failed to cd into UI directory"
+  exit 1
+}
+
 # Only try to run lint-staged if npx can actually be invoked
 if command -v npx >/dev/null 2>&1 && npx --version >/dev/null 2>&1; then
   echo "✅ Running lint-staged with working npx"
@@ -11,3 +17,4 @@ else
   echo "⚠️  Skipping lint-staged — npx not available or broken in this environment"
   echo "ℹ️  You’re probably committing from Visual Studio’s built-in Git, which lacks full environment support"
 fi
+
