@@ -37,95 +37,46 @@ namespace TeensyRom.Api.Tests.Integration
         }
 
         [Fact]
-        public async Task When_LaunchingVariousFiles_ReturnsSuccess()
+        public async Task When_LaunchingVariousFilesInSequence_ReturnsSuccess()
         {
-            // Arrange              
+            // Arrange
             var deviceId = await f.ConnectToFirstDevice();
 
-            var r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
+            List<string> filePaths =
+            [
+                "/music/MUSICIANS/L/LukHash/Alpha.sid",
+                "/images/Dio2.kla",
+                "/music/MUSICIANS/J/Jammic/Wasted_Years.sid",
+                "/games/Large/706k The Secret of Monkey Island (D42) [EasyFlash].crt",
+                "/music/MUSICIANS/E/Eclipse/True.sid",
+                "/games/Large/738k Elvira II - The Jaws of Cerberus (by $olo1870) [EasyFlash].crt",
+                "/music/MUSICIANS/M/Manganoid/Le_Shagma.sid",
+                "/games/Very Large/A_Pig_Quest_1.02_ef.crt",
+                "/games/Very Large/Lemmings [EasyFlash].crt",
+                "/music/MUSICIANS/T/TDS/Under.sid"
+            ];
+
+            foreach (var filePath in filePaths)
             {
-                DeviceId = deviceId,
-                FilePath = "/music/MUSICIANS/L/LukHash/Alpha.sid",
-                StorageType = TeensyStorageType.SD
-            });
+                var r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
+                {
+                    DeviceId = deviceId,
+                    FilePath = filePath,
+                    StorageType = TeensyStorageType.SD
+                });
 
-            await Task.Delay(3000);
+                await Task.Delay(3000);
 
-            r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
-            {
-                DeviceId = deviceId,
-                FilePath = "/images/Dio2.kla",
-                StorageType = TeensyStorageType.SD
-            });
+                // Assert after each
+                r.Should().BeSuccessful<LaunchFileResponse>()
+                    .WithStatusCode(HttpStatusCode.OK)
+                    .WithContentNotNull();
 
-            await Task.Delay(3000);
-
-            r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
-            {
-                DeviceId = deviceId,
-                FilePath = "/music/MUSICIANS/J/Jammic/Wasted_Years.sid",
-                StorageType = TeensyStorageType.SD
-            });
-
-            await Task.Delay(3000);
-
-            r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
-            {
-                DeviceId = deviceId,
-                FilePath = "/games/Large/706k The Secret of Monkey Island (D42) [EasyFlash].crt",
-                StorageType = TeensyStorageType.SD
-            });
-
-            await Task.Delay(3000);
-
-            r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
-            {
-                DeviceId = deviceId,
-                FilePath = "/games/Large/738k Elvira II - The Jaws of Cerberus (by $olo1870) [EasyFlash].crt",
-                StorageType = TeensyStorageType.SD
-            });
-
-            await Task.Delay(3000);
-
-            r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
-            {
-                DeviceId = deviceId,
-                FilePath = "/music/MUSICIANS/L/LukHash/Alpha.sid",
-                StorageType = TeensyStorageType.SD
-            });
-
-            await Task.Delay(3000);
-
-            r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
-            {
-                DeviceId = deviceId,
-                FilePath = "/music/MUSICIANS/J/Jammic/Wasted_Years.sid",
-                StorageType = TeensyStorageType.SD
-            });
-
-            await Task.Delay(3000);
-
-            r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
-            {
-                DeviceId = deviceId,
-                FilePath = "/games/Large/738k Elvira II - The Jaws of Cerberus (by $olo1870) [EasyFlash].crt",
-                StorageType = TeensyStorageType.SD
-            });
-
-            r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
-            {
-                DeviceId = deviceId,
-                FilePath = "/music/MUSICIANS/J/Jammic/Wasted_Years.sid",
-                StorageType = TeensyStorageType.SD
-            });
-
-            // Assert  
-            r.Should().BeSuccessful<LaunchFileResponse>()
-                .WithStatusCode(HttpStatusCode.OK)
-                .WithContentNotNull();
-
-            r.Content.Message.Should().Contain("Success");
+                r.Content.Message.Should().Contain("Success");
+            }
         }
+
+
 
         [Fact]
         public async void When_LaunchCalled_WithInvalidPath_ReturnsNotFound()
