@@ -11,7 +11,7 @@
     "format": "prettier --write \"src/**/*.{ts,html,scss}\""
   },
   "lint-staged": {
-  "**/src/**/*.{ts,html,scss}": [
+  "**/src/**/*.{ts,html,scss,json,js}": [
     "npx prettier --write",
     "npx eslint --fix"
   ]

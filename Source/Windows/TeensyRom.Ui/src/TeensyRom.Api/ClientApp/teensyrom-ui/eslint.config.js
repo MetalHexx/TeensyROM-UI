@@ -41,5 +41,12 @@ module.exports = tseslint.config(
       prettier
     ],
     rules: {},
+  },
+  {
+    files: ["**/*.{js,json}"],
+    languageOptions: {
+      ecmaVersion: "latest"
+    },
+    rules: {}
   }
 );
