@@ -1,6 +1,11 @@
 <app-header></app-header>
 <mat-sidenav-container class="sidenav-container">
-  <mat-sidenav mode="over" [opened]="navService.isNavOpen()" (closedStart)="navService.closeNav()">
+  <mat-sidenav
+    class="custom-sidenav glassy"
+    mode="over"
+    [opened]="navService.isNavOpen()"
+    (closedStart)="navService.closeNav()"
+  >
     <app-nav-menu></app-nav-menu>
   </mat-sidenav>
   <mat-sidenav-content>

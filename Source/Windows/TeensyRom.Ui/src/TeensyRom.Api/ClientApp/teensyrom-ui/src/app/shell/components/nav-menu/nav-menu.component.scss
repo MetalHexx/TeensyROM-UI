@@ -1,17 +1,23 @@
-:host {
-  display: block;
-}
-
-:host ::ng-deep .mat-drawer,
-:host ::ng-deep .mat-sidenav {
-  width: 180px !important;
-  min-width: 180px !important;
-  max-width: 180px !important;
-  overflow-y: hidden !important;
-}
-
-mat-nav-list {
+.nav-menu-list {
   padding: 0;
-  width: 100%;
-  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.flat-list-item {
+  --mat-list-item-one-line-container-height: 56px;
+  border-radius: 0 !important;
+  min-height: 56px;
+  padding: 0 16px;
+  position: relative;
+
+  .mat-list-item-content {
+    border-radius: 0 !important;
+    min-height: inherit;
+  }
+
+  // Optional: remove hover shape layer manually
+  .mat-mdc-list-item-interactive::before {
+    border-radius: 0 !important;
+  }
 }
