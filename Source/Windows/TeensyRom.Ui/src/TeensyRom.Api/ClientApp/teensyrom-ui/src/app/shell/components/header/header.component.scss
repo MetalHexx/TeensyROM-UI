@@ -2,6 +2,11 @@
   display: block;
 }
 
+app-nav-button,
+.nav-toggle-btn {
+  margin-left: -7px; // or 24px, match your nav icon!
+}
+
 mat-toolbar {
   display: flex;
   align-items: center;

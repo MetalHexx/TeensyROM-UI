@@ -1,8 +1,9 @@
 @use '@angular/material' as mat;
-:host {
+
+mat-sidenav-content {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  height: 100vh;
 }
 
 app-header {
@@ -16,24 +17,12 @@ app-nav-menu {
   margin-top: 5px;
 }
 
-.custom-sidenav {
-  height: 100vh;
-  width: 220px;
-  @include mat.elevation(6);
-}
-
 .glassy {
   width: 220px;
   height: 100vh;
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.3);
+  @include mat.elevation(6);
   border-radius: 0;
-}
-
-mat-sidenav-content {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
