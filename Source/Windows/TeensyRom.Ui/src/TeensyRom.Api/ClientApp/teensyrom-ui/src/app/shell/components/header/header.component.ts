@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
 import { ThemeService } from '../../../libs/themes/theme.service';
+import { NavButtonComponent } from './nav-button/nav-button.component';
 
 @Component({
   selector: 'app-header',
@@ -21,6 +22,7 @@ import { ThemeService } from '../../../libs/themes/theme.service';
     MatSelectModule,
     MatMenuModule,
     MatRadioModule,
+    NavButtonComponent,
   ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
@@ -28,8 +30,4 @@ import { ThemeService } from '../../../libs/themes/theme.service';
 export class HeaderComponent {
   readonly themeService = inject(ThemeService);
   readonly currentTheme = this.themeService.currentTheme;
-
-  toggleTheme() {
-    this.themeService.toggleTheme();
-  }
 }

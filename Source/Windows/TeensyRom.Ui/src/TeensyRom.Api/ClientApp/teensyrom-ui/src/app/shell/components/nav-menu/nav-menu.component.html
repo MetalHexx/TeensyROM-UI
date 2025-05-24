@@ -1,0 +1,5 @@
+<mat-nav-list>
+  @for (item of menuItems(); track item.name) {
+    <app-menu-item [item]="item" (menuClick)="onMenuClicked($event)"></app-menu-item>
+  }
+</mat-nav-list>

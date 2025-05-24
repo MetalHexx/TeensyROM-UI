@@ -1,0 +1,17 @@
+:host {
+  display: block;
+}
+
+:host ::ng-deep .mat-drawer,
+:host ::ng-deep .mat-sidenav {
+  width: 180px !important;
+  min-width: 180px !important;
+  max-width: 180px !important;
+  overflow-y: hidden !important;
+}
+
+mat-nav-list {
+  padding: 0;
+  width: 100%;
+  box-sizing: border-box;
+}

@@ -1,0 +1,26 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+app-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+app-nav-menu {
+  flex: 1;
+  margin-top: 64px; /* Height of the toolbar */
+}
+
+.sidenav-container {
+  height: 100vh;
+}
+
+mat-sidenav-content {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

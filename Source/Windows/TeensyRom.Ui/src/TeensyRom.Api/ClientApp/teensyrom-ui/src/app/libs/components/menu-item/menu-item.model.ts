@@ -1,5 +1,5 @@
-export interface MenuItem<T = unknown> {
+export interface MenuItem<T> {
   name: string;
   icon: string;
-  data?: T;
+  payload?: T;
 }

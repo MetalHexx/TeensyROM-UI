@@ -1,2 +1,9 @@
 <app-header></app-header>
-<router-outlet />
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav mode="over" [opened]="navService.isNavOpen()" (closedStart)="navService.closeNav()">
+    <app-nav-menu></app-nav-menu>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <router-outlet />
+  </mat-sidenav-content>
+</mat-sidenav-container>
