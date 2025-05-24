@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+in components, make sure you use the new Angular @ syntax in the template.  For example @if, @else-if, @else, @switch, @for, etc.
