@@ -65,9 +65,9 @@ body {
   --mat-toolbar-container-background-color: #890089;
 }
 
-mat-toolbar {
-  height: 40px;
-  min-height: 40px;
+.mat-toolbar {
+  height: 50px !important;
+  min-height: 50px !important;
   box-shadow: var(--mat-sys-level3);
 }
 
