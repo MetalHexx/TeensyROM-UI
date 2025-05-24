@@ -10,7 +10,23 @@ body {
 }
 
 html {
-  color-scheme: light dark;
+  color-scheme: light;
+
+  @include mat.theme(
+    (
+      color: mat.$azure-palette,
+      typography: Roboto,
+      density: 0,
+    )
+  );
+
+  & {
+    --mat-sys-surface-container-low: #cdcdcd;
+  }
+}
+
+html.dark-mode {
+  color-scheme: dark;
   @include mat.theme(
     (
       color: mat.$magenta-palette,
@@ -18,10 +34,14 @@ html {
       density: 0,
     )
   );
+
+  & {
+    --mat-sys-surface-container-low: #231e22;
+  }
 }
 
 body {
-  background: var(--mat-sys-surface);
+  background: var(--mat-sys-surface-container-low);
   color: var(--mat-sys-on-surface);
 }
 
@@ -43,6 +63,12 @@ body {
 
 .mat-toolbar.mat-primary {
   --mat-toolbar-container-background-color: #890089;
+}
+
+mat-toolbar {
+  height: 40px;
+  min-height: 40px;
+  box-shadow: var(--mat-sys-level3);
 }
 
 // ─────────────────────────────────────────────

@@ -48,7 +48,9 @@
     <h2 class="section-title">Progress & Indicators</h2>
     <mat-card class="p-4 mb-4">
       <mat-progress-bar mode="indeterminate" class="mb-4"></mat-progress-bar>
-      <mat-slider min="0" max="100" step="1" value="30"></mat-slider>
+      <mat-slider min="0" max="100" step="1">
+        <input matSliderThumb value="30" />
+      </mat-slider>
     </mat-card>
   </section>
 
@@ -62,11 +64,13 @@
       </mat-chip-set>
 
       <mat-list class="mt-4">
-        <mat-list-item *ngFor="let item of [1, 2, 3]">
-          <mat-icon matListIcon>folder</mat-icon>
-          <h4 matLine>Item {{ item }}</h4>
-          <p matLine>Subtext for item {{ item }}</p>
-        </mat-list-item>
+        @for (item of [1, 2, 3]; track $index) {
+          <mat-list-item>
+            <mat-icon matListIcon>folder</mat-icon>
+            <h4 matLine>Item {{ item }}</h4>
+            <p matLine>Subtext for item {{ item }}</p>
+          </mat-list-item>
+        }
       </mat-list>
     </mat-card>
   </section>

@@ -1,3 +1,19 @@
-<mat-toolbar color="primary">
-  <span>TeensyROM</span>
+<mat-toolbar class="mat-elevation-z6+" color="primary">
+  <!-- Nav Toggle -->
+  <button mat-icon-button aria-label="Menu">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <span class="app-title">TeensyROM</span>
+
+  <span class="spacer"></span>
+
+  <!-- Dark/Light Toggle -->
+  <button mat-icon-button aria-label="Toggle dark/light theme" (click)="themeService.toggleTheme()">
+    @if (currentTheme() === 'dark') {
+      <mat-icon>dark_mode</mat-icon>
+    } @else {
+      <mat-icon>light_mode</mat-icon>
+    }
+  </button>
 </mat-toolbar>
