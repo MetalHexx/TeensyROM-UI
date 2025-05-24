@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Make sure components always have their own template and css file.  You don't need to mark components as standalone since that comes by default in angular 19.
