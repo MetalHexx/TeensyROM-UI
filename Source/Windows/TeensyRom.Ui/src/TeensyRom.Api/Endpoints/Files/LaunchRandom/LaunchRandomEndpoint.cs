@@ -7,7 +7,7 @@ using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
 {
-    public class LaunchRandomEndpoint(IDeviceConnectionManager deviceManager, IMediator mediator) : RadEndpoint<LaunchRandomRequest, LaunchRandomResponse, LaunchRandomMapper>
+    public class LaunchRandomEndpoint(IDeviceConnectionManager deviceManager, IMediator mediator) : RadEndpoint<LaunchRandomRequest, LaunchRandomResponse>
     {
         public override void Configure()
         {
@@ -72,7 +72,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
             }
             Response = new() 
             {
-                LaunchedFile = Map.FromEntity(file),
+                LaunchedFile = FileItemDto.FromLaunchable(file),
             };
             Send();
         }

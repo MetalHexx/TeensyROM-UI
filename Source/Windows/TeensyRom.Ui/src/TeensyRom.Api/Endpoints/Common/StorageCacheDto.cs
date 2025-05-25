@@ -3,19 +3,19 @@ using TeensyRom.Core.Storage;
 
 namespace TeensyRom.Api.Endpoints.Common
 {
-    public class StorageCacheViewModel
+    public class StorageCacheDto
     {
-        public List<DirectoryItemViewModel> Directories { get; set; } = new();
-        public List<FileItemViewModel> Files { get; set; } = new();
+        public List<DirectoryItemDto> Directories { get; set; } = [];
+        public List<FileItemDto> Files { get; set; } = [];
         public string Path { get; set; } = string.Empty;
 
-        public static StorageCacheViewModel FromCache(IStorageCacheItem cache)
+        public static StorageCacheDto FromCache(IStorageCacheItem cache)
         {
-            return new StorageCacheViewModel
+            return new ()
             {
                 Path = cache.Path,
                 Directories = cache.Directories
-                    .Select(d => new DirectoryItemViewModel
+                    .Select(d => new DirectoryItemDto
                     {
                         Name = d.Name,
                         Path = d.Path
@@ -23,7 +23,7 @@ namespace TeensyRom.Api.Endpoints.Common
                     .ToList(),
                 Files = cache.Files
                     .OfType<ILaunchableItem>()
-                    .Select(FileItemViewModel.FromLaunchable)
+                    .Select(FileItemDto.FromLaunchable)
                     .ToList()
             };
         }

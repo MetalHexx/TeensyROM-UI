@@ -2,14 +2,14 @@
 
 namespace TeensyRom.Api.Endpoints.Common
 {
-    public class DirectoryItemViewModel
+    public class DirectoryItemDto
     {
         public string Name { get; set; } = string.Empty;
         public string Path { get; set; } = string.Empty;
 
-        public static DirectoryItemViewModel FromDirectory(DirectoryItem item)
+        public static DirectoryItemDto FromDirectory(DirectoryItem item)
         {
-            return new DirectoryItemViewModel
+            return new DirectoryItemDto
             {
                 Name = item.Name,
                 Path = item.Path,

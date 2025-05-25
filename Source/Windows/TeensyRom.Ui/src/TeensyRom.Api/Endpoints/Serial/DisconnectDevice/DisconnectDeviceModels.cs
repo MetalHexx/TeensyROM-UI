@@ -1,5 +1,7 @@
 using RadEndpoints;
+using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Entities.Device;
 
 namespace TeensyRom.Api.Endpoints.ClosePort
 {

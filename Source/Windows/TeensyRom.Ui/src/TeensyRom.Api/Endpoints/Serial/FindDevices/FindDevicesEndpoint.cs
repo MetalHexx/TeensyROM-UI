@@ -15,18 +15,18 @@ namespace TeensyRom.Api.Endpoints.FindCarts
 
         public override async Task Handle(CancellationToken ct)
         {
-            var findResults = await deviceManager.FindAvailableCarts();
+            var availableResults = await deviceManager.FindAvailableCarts();
             var connectedCarts = deviceManager.GetConnectedCarts();
 
-            if (findResults.Count == 0)
+            if (availableResults.Count == 0)
             {
                 SendNotFound("No TeensyRom devices found.");
                 return;
             }
             Response = new()
             {
-                AvailableCarts = findResults,
-                ConnectedCarts = connectedCarts,
+                AvailableCarts = availableResults.Select(CartDto.FromCart).ToList(),
+                ConnectedCarts = connectedCarts.Select(CartDto.FromCart).ToList(),
                 Message = "Success!"
             };
             Send();

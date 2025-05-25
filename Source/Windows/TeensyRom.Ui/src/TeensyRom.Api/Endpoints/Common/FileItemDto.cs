@@ -2,7 +2,7 @@
 
 namespace TeensyRom.Api.Endpoints.Common
 {
-    public class FileItemViewModel
+    public class FileItemDto
     {
         public string Name { get; set; } = string.Empty;
         public string Path { get; set; } = string.Empty;
@@ -25,13 +25,13 @@ namespace TeensyRom.Api.Endpoints.Common
         public TimeSpan? PlayLength { get; set; }
         public List<TimeSpan>? SubtuneLengths { get; set; }
         public int? StartSubtuneNum { get; set; }
-        public List<ViewableItemImage>? Images { get; set; }
+        public List<ViewableItemImageDto>? Images { get; set; }
 
         public FileItemType Type { get; set; } = FileItemType.Unknown;
 
-        public static FileItemViewModel FromLaunchable(ILaunchableItem item)
+        public static FileItemDto FromLaunchable(ILaunchableItem item)
         {
-            var vm = new FileItemViewModel
+            var vm = new FileItemDto
             {
                 Name = item.Name,
                 Path = item.Path,
@@ -57,13 +57,13 @@ namespace TeensyRom.Api.Endpoints.Common
                     vm.PlayLength = song.PlayLength;
                     vm.SubtuneLengths = song.SubtuneLengths;
                     vm.StartSubtuneNum = song.StartSubtuneNum;
-                    vm.Images = song.Images;
+                    vm.Images = song.Images.Select(ViewableItemImageDto.FromViewableItemImage).ToList();
                     break;
 
                 case GameItem game:
                     vm.Type = FileItemType.Game;
                     vm.PlayLength = game.PlayLength;
-                    vm.Images = game.Images;
+                    vm.Images = game.Images.Select(ViewableItemImageDto.FromViewableItemImage).ToList();
                     break;
 
                 case ImageItem image:
@@ -73,7 +73,7 @@ namespace TeensyRom.Api.Endpoints.Common
 
                 case HexItem hex:
                     vm.Type = FileItemType.Hex;
-                    vm.Images = hex.Images;
+                    vm.Images = hex.Images.Select(ViewableItemImageDto.FromViewableItemImage).ToList();
                     break;
 
                 default:

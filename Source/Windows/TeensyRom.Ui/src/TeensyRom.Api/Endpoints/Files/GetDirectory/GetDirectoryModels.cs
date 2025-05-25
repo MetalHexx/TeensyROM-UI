@@ -34,7 +34,7 @@ namespace TeensyRom.Api.Endpoints.Files.GetDirectory
 
     public class GetDirectoryResponse
     {
-        public StorageCacheViewModel StorageItem { get; set; } = null!;
+        public StorageCacheDto StorageItem { get; set; } = null!;
         public string Message { get; set; } = "Success!";
     }
 }

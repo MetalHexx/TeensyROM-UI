@@ -9,9 +9,9 @@ namespace TeensyRom.Api.Endpoints.ConnectDevice
         public string DeviceId { get; set; } = string.Empty;
     }
 
-    public class OpenPortRequestValidator : AbstractValidator<ConnectDeviceRequest>
+    public class ConnectDeviceRequestValidator : AbstractValidator<ConnectDeviceRequest>
     {
-        public OpenPortRequestValidator()
+        public ConnectDeviceRequestValidator()
         {
             RuleFor(x => x.DeviceId)
                 .NotEmpty()
@@ -21,7 +21,7 @@ namespace TeensyRom.Api.Endpoints.ConnectDevice
 
     public class ConnectDeviceResponse : ApiResponse
     {
-        public Cart ConnectedCart { get; set; } = null!;
+        public CartDto ConnectedCart { get; set; } = null!;
         public override string Message { get; set; } = "Connection successful!";
     }
 }
