@@ -20,7 +20,7 @@ using TeensyRom.Core.Music;
 using Scalar.AspNetCore;
 using TeensyRom.Api.Startup;
 
-UnpackAssets();
+AssetStartupHelper.UnpackAssets();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,12 +71,5 @@ app.UseCors("AllowAngularDevServer");
 app.MapRadEndpoints();
 
 app.Run();
-
-void UnpackAssets()
-{
-    AssetHelper.UnpackAssets(GameConstants.Game_Image_Local_Path, "OneLoad64.zip");
-    AssetHelper.UnpackAssets(MusicConstants.Musician_Image_Local_Path, "Composers.zip");
-    AssetHelper.UnpackAssets(AssetConstants.VicePath, "vice-bins.zip");
-}
 
 public partial class Program;
