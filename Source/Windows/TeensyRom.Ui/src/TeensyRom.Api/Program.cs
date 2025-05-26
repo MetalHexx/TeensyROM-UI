@@ -26,27 +26,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRadEndpoints(typeof(Program));
 builder.Services.AddApiDocs();
-
-builder.Services.AddSingleton<ILoggingService, LoggingService>();
-builder.Services.AddSingleton<IAlertService, AlertService>();
-builder.Services.AddSingleton<ISettingsService, SettingsService>();
-builder.Services.AddSingleton<IFwVersionChecker, FwVersionChecker>();
-builder.Services.AddSingleton<ISerialStateContext, SerialStateContext>();
-builder.Services.AddSingleton<ICartFinder, CartFinder>();
-builder.Services.AddSingleton<ICartTagger, CartTagger>();
-builder.Services.AddSingleton<IDeviceConnectionManager, DeviceConnectionManager>();
-builder.Services.AddSingleton<IObservableSerialPort, ObservableSerialPort>();
-builder.Services.AddSingleton<ISerialFactory, SerialFactory>();
-builder.Services.AddSingleton<IStorageFactory, StorageFactory>();
-builder.Services.AddSingleton<IGameMetadataService, GameMetadataService>();
-builder.Services.AddSingleton<ISidMetadataService, SidMetadataService>();
-builder.Services.AddSingleton<IMuteSidVoicesSerialRoutine, MuteSidVoicesSerialRoutine>();
-builder.Services.AddSingleton<IToggleMusicSerialRoutine, ToggleMusicSerialRoutine>();
-builder.Services.AddSingleton<ISetMusicSpeedSerialRoutine, SetMusicSpeedSerialRoutine>();
-builder.Services.AddSingleton<IPlaySubtuneSerialRoutine, PlaySubtuneSerialRoutine>();
-
 builder.Services.AddTeensyRomMediatR();
 builder.Services.AddUiCors();
+builder.Services.AddTeensyRomServices();
 
 var app = builder.Build();
 
