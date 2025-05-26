@@ -20,12 +20,15 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
                 .WithSummary("Launch Random File")
                 .WithTags("Files")
                 .WithDescription(
-                    "Launches a random file given a device, storage, and starting directory location.\n\n" +
-                    "- You can also specify a filter to make sure only files of a specific type are launched.\n" +
-                    "  - Games: will launch any file type associated to games (e.g., .prg, .crt, etc).\n" +
-                    "  - Games: are any type program. Including demos and non-games.\n" +
-                    "  - Images: will launch any file type associated to images (e.g, .koa, etc).\n" + 
-                    "  - Images: also include text files.  Will be improved in a future release."
+                    "Launches a random file given a device, storage, filter and starting directory location.\n\n" +
+                    "- Starting Directory: Starting directory to look for a random file.\n" + 
+                    "- Scope: `Storage` - Selects a random file anywhere on the specified storage device.\n" +
+                    "- Scope: `DirDeep` - Selects a random file from the starting directory or any of its subdirectories.\n" +
+                    "- Scope: `DirShallow` - Selects a random file from the starting directory only (subdirectories are not included).\n" +
+                    "- Filter: `All` - Any file type will be randomly selected.\n" +
+                    "- Filter: `Games` - Only game-related files will be selected (e.g., .prg, .crt, .d64, etc). Includes demos and non-games.\n" +
+                    "- Filter: `Music` - Only music or song files will be selected (e.g., .sid, .mus, .mp3, etc).\n" +
+                    "- Filter: `Images` - Only image files will be selected (e.g., .koa, .png, etc). Also includes text files (may be improved in a future release)"
                 );
         }
 
