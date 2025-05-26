@@ -51,17 +51,7 @@ builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavi
 builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
 builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(SerialBehavior<,>));
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngularDevServer",
-        builder =>
-        {
-            builder.WithOrigins("http://localhost:4200") // Angular dev server
-                   .AllowAnyMethod()
-                   .AllowAnyHeader()
-                   .AllowCredentials();
-        });
-});
+builder.Services.AddUiCors();
 
 var app = builder.Build();
 
