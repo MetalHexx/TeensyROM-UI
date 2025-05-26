@@ -17,6 +17,7 @@ using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Assets;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Music;
+using Scalar.AspNetCore;
 
 UnpackAssets();
 
@@ -24,7 +25,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRadEndpoints(typeof(Program));
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
 
 builder.Services.AddSingleton<ILoggingService, LoggingService>();
 builder.Services.AddSingleton<IAlertService, AlertService>();
@@ -66,11 +67,15 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+app.MapOpenApi();
+app.MapScalarApiReference(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    options
+    .WithTitle("TeensyROM API")
+    .WithTheme(ScalarTheme.Laserwave);
+
+});
+
 app.UseCors("AllowAngularDevServer");
 app.MapRadEndpoints();
 app.Run();
