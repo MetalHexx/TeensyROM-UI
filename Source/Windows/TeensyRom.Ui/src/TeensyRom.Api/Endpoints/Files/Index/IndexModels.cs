@@ -4,12 +4,26 @@ using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Api.Endpoints.Files.Index
 {
+    /// <summary>
+    /// Request model for indexing the directory structure of a TeensyROM device's storage.
+    /// </summary>
     public class IndexRequest 
     {
+        /// <summary>
+        /// The unique ID of the TeensyROM device.
+        /// </summary>
         [FromRoute]
         public string DeviceId { get; set; } = null!;
+
+        /// <summary>
+        /// The storage type to index (SD or USB).
+        /// </summary>
         [FromRoute]
         public TeensyStorageType StorageType { get; set; } = TeensyStorageType.SD;
+
+        /// <summary>
+        /// The path to the directory to start indexing from. If null, the whole storage device will be indexed.
+        /// </summary>
         [FromBody]
         public string? Path { get; set; }
     }
@@ -29,12 +43,17 @@ namespace TeensyRom.Api.Endpoints.Files.Index
             RuleFor(x => x.Path)
                 .Must(path => string.IsNullOrWhiteSpace(path) || path.IsSafeUnixDirectoryName())
                 .WithMessage("Path must be a valid Unix path.");
-
         }
     }
 
+    /// <summary>
+    /// Response model for the result of an index operation.
+    /// </summary>
     public class IndexResponse
     {
+        /// <summary>
+        /// A message indicating the result of the operation.
+        /// </summary>
         public string Message { get; set; } = "Success!";
     }
 }

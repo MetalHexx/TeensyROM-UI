@@ -5,8 +5,14 @@ using TeensyRom.Core.Entities.Device;
 
 namespace TeensyRom.Api.Endpoints.ClosePort
 {
-    public class DisconnectDeviceRequest 
+    /// <summary>
+    /// Request model for disconnecting from a TeensyROM device.
+    /// </summary>
+    public class DisconnectDeviceRequest
     {
+        /// <summary>
+        /// The unique ID of the TeensyROM device.
+        /// </summary>
         [FromRoute]
         public string DeviceId { get; set; } = string.Empty;
     }
@@ -21,8 +27,14 @@ namespace TeensyRom.Api.Endpoints.ClosePort
         }
     }
 
+    /// <summary>
+    /// Response model for the result of a disconnect device operation.
+    /// </summary>
     public class DisconnectDeviceResponse
     {
+        /// <summary>
+        /// A message indicating the result of the operation.
+        /// </summary>
         public string Message { get; set; } = "Success!";
     }
 }

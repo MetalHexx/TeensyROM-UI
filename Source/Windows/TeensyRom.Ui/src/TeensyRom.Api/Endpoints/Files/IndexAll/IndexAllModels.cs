@@ -2,6 +2,9 @@ using RadEndpoints;
 
 namespace TeensyRom.Api.Endpoints.Files.IndexAll
 {
+    /// <summary>
+    /// Request model for indexing all storage on all connected TeensyROM devices.
+    /// </summary>
     public class IndexAllRequest { }
 
     public class IndexAllRequestValidator : AbstractValidator<IndexAllRequest>
@@ -12,8 +15,14 @@ namespace TeensyRom.Api.Endpoints.Files.IndexAll
         }
     }
 
+    /// <summary>
+    /// Response model for the result of an index all operation.
+    /// </summary>
     public class IndexAllResponse
     {
+        /// <summary>
+        /// A message indicating the result of the operation.
+        /// </summary>
         public string Message { get; set; } = "Success!";
     }
 }

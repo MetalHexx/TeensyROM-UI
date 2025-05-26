@@ -7,12 +7,34 @@ using TeensyRom.Core.Settings;
 
 namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
 {
+    /// <summary>
+    /// Request model for launching a random file from a TeensyROM device's storage.
+    /// </summary>
     public class LaunchRandomRequest 
     {
+        /// <summary>
+        /// The unique ID of the TeensyROM device.
+        /// </summary>
         [FromRoute] public string DeviceId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The storage type to launch the file from (SD or USB).
+        /// </summary>
         [FromRoute] public TeensyStorageType StorageType { get; set; }
+
+        /// <summary>
+        /// The filter type to apply when selecting a random file (e.g., All, Games, Music).
+        /// </summary>
         [FromQuery] public TeensyFilterType? FilterType { get; set; } = TeensyFilterType.All;
+
+        /// <summary>
+        /// The scope to use when searching for a random file (e.g., entire storage, directory deep, directory shallow).
+        /// </summary>
         [FromQuery] public StorageScope? Scope { get; set; } = StorageScope.DirDeep;
+
+        /// <summary>
+        /// The starting directory path for the random file search.
+        /// </summary>
         [FromQuery] public string? StartingDirectory { get; set; } = StorageHelper.Remote_Path_Root;
     }
 
@@ -40,9 +62,19 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
         }
     }
 
+    /// <summary>
+    /// Response model for the result of a launch random file operation.
+    /// </summary>
     public class LaunchRandomResponse
     {
+        /// <summary>
+        /// The file that was randomly launched.
+        /// </summary>
         public FileItemDto LaunchedFile { get; set; } = null!;
+
+        /// <summary>
+        /// A message indicating the result of the operation.
+        /// </summary>
         public string Message { get; set; } = "Success!";
     }
 }

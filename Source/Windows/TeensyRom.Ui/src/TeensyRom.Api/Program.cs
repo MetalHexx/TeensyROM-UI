@@ -41,7 +41,6 @@ builder.Services.AddSingleton<IStorageFactory, StorageFactory>();
 builder.Services.AddSingleton<IGameMetadataService, GameMetadataService>();
 builder.Services.AddSingleton<ISidMetadataService, SidMetadataService>();
 
-
 builder.Services.AddSingleton<IMuteSidVoicesSerialRoutine, MuteSidVoicesSerialRoutine>();
 builder.Services.AddSingleton<IToggleMusicSerialRoutine, ToggleMusicSerialRoutine>();
 builder.Services.AddSingleton<ISetMusicSpeedSerialRoutine, SetMusicSpeedSerialRoutine>();
@@ -64,13 +63,13 @@ builder.Services.AddCors(options =>
         });
 });
 
-
 var app = builder.Build();
 
 app.MapApiDocs();
 
 app.UseCors("AllowAngularDevServer");
 app.MapRadEndpoints();
+
 app.Run();
 
 void UnpackAssets()

@@ -3,16 +3,49 @@ using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Api.Models
 {
+    /// <summary>
+    /// Data transfer object representing a TeensyROM cartridge.
+    /// </summary>
     public class CartDto
     {
+        /// <summary>
+        /// The unique ID of the TeensyROM device.
+        /// </summary>
         public string? DeviceId { get; set; }
+
+        /// <summary>
+        /// The COM port the device is connected to.
+        /// </summary>
         public string ComPort { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The user-friendly name of the device.
+        /// </summary>
         public string Name { get; set; } = "Unnamed";
+
+        /// <summary>
+        /// The firmware version of the device.
+        /// </summary>
         public string FwVersion { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Indicates whether the device is compatible with the current application version.
+        /// </summary>
         public bool IsCompatible { get; set; }
+
+        /// <summary>
+        /// Information about the SD storage on the device.
+        /// </summary>
         public CartStorageDto SdStorage { get; set; } = null!;
+
+        /// <summary>
+        /// Information about the USB storage on the device.
+        /// </summary>
         public CartStorageDto UsbStorage { get; set; } = null!;
 
+        /// <summary>
+        /// Creates a <see cref="CartDto"/> from a <see cref="Cart"/> entity.
+        /// </summary>
         public static CartDto FromCart(Cart cart)
         {
             return new CartDto
@@ -28,12 +61,29 @@ namespace TeensyRom.Api.Models
         }
     }
 
+    /// <summary>
+    /// Data transfer object representing storage information for a TeensyROM device.
+    /// </summary>
     public class CartStorageDto
     {
+        /// <summary>
+        /// The unique ID of the TeensyROM device.
+        /// </summary>
         public string DeviceId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The type of storage (SD or USB).
+        /// </summary>
         public TeensyStorageType Type { get; set; }
+
+        /// <summary>
+        /// Indicates whether the storage is available.
+        /// </summary>
         public bool Available { get; set; }
 
+        /// <summary>
+        /// Creates a <see cref="CartStorageDto"/> from a <see cref="CartStorage"/> entity.
+        /// </summary>
         public static CartStorageDto FromStorage(CartStorage storage)
         {
             return new ()

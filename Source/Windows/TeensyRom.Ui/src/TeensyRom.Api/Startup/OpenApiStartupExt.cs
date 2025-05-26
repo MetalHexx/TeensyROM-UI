@@ -10,7 +10,6 @@ namespace TeensyRom.Api.Startup
         /// </summary>
         public static IServiceCollection AddApiDocs(this IServiceCollection services)
         {
-            services.AddEndpointsApiExplorer();
             services.AddOpenApi();
             return services;
         }
