@@ -234,7 +234,7 @@ namespace TeensyRom.Api.Tests.Integration
             await f.ResetDevice(deviceId);
         }
 
-      [Fact]
+        [Fact]
         public async Task When_ValidGame_Request_With_StorageScope_LaunchesRandomGame()
         {
             // Arrange
@@ -327,7 +327,7 @@ namespace TeensyRom.Api.Tests.Integration
             r.Content.Message.Should().Contain("Success");
         }
 
-      [Fact]
+        [Fact]
         public async Task When_ValidMusic_Request_With_StorageScope_LaunchesRandomSong()
         {
             // Arrange
@@ -354,7 +354,7 @@ namespace TeensyRom.Api.Tests.Integration
 
             var actualPath = r.Content.LaunchedFile.Path.GetUnixParentPath().EnsureUnixPathEnding();
 
-            r.Content.LaunchedFile.Should().NotBeNull();
+            r.Content.LaunchedFile.Should().NotBeNull();            
             actualPath.Should().Be(Music_Path);
             r.Content.Message.Should().Contain("Success");
         }
@@ -449,6 +449,90 @@ namespace TeensyRom.Api.Tests.Integration
 
             r.Content.LaunchedFile.Should().NotBeNull();
             actualPath.Should().Be(Images_Path);
+            r.Content.Message.Should().Contain("Success");
+        }
+
+        [Fact]
+        public async Task When_ValidGame_Request_With_GameFilter_LaunchesRandomGame()
+        {
+            // Arrange
+            var deviceId = await f.ConnectToFirstDevice();
+            await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
+
+            var request = new LaunchRandomRequest
+            {
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                FilterType = TeensyFilterType.Games
+            };
+
+            // Act
+            var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
+            await Task.Delay(3000);
+
+            // Assert
+            r.Should().BeSuccessful<LaunchRandomResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
+
+            r.Content.LaunchedFile.Should().NotBeNull();
+            r.Content.LaunchedFile.Type.Should().Be(Models.FileItemType.Game);
+            r.Content.Message.Should().Contain("Success");
+        }
+
+        [Fact]
+        public async Task When_ValidImage_Request_With_ImageFilter_LaunchesRandomImage()
+        {
+            // Arrange
+            var deviceId = await f.ConnectToFirstDevice();
+            await f.Preindex(deviceId, TeensyStorageType.SD, Images_Path);
+
+            var request = new LaunchRandomRequest
+            {
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                FilterType = TeensyFilterType.Images
+            };
+
+            // Act
+            var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
+            await Task.Delay(3000);
+
+            // Assert
+            r.Should().BeSuccessful<LaunchRandomResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
+
+            r.Content.LaunchedFile.Should().NotBeNull();
+            r.Content.LaunchedFile.Type.Should().Be(Models.FileItemType.Image);
+            r.Content.Message.Should().Contain("Success");
+        }
+
+        [Fact]
+        public async Task When_ValidMusic_Request_With_MusicFilter_LaunchesRandomSong()
+        {
+            // Arrange
+            var deviceId = await f.ConnectToFirstDevice();
+            await f.Preindex(deviceId, TeensyStorageType.SD, Music_Path);
+
+            var request = new LaunchRandomRequest
+            {
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                FilterType = TeensyFilterType.Music
+            };
+
+            // Act
+            var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
+            await Task.Delay(3000);
+
+            // Assert
+            r.Should().BeSuccessful<LaunchRandomResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
+
+            r.Content.LaunchedFile.Should().NotBeNull();
+            r.Content.LaunchedFile.Type.Should().Be(Models.FileItemType.Song);
             r.Content.Message.Should().Contain("Success");
         }
 
