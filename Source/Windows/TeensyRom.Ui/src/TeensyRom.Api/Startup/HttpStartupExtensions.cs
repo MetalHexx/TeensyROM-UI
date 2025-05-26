@@ -20,5 +20,14 @@ namespace TeensyRom.Api.Startup
             });
             return services;
         }
+
+        /// <summary>
+        /// Applies the CORS policy for the Angular development server.
+        /// </summary>
+        public static WebApplication UseUiCors(this WebApplication app) 
+        {
+            app.UseCors("AllowAngularDevServer");
+            return app;
+        }
     }
 }

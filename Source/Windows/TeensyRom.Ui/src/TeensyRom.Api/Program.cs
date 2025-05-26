@@ -34,7 +34,7 @@ var app = builder.Build();
 
 app.MapApiDocs();
 
-app.UseCors("AllowAngularDevServer");
+app.UseUiCors();
 app.MapRadEndpoints();
 
 app.Run();
