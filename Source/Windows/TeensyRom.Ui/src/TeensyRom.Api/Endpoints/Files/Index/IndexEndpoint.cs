@@ -12,7 +12,14 @@ namespace TeensyRom.Api.Endpoints.Files.Index
             Post("/devices/{deviceId}/storage/{storageType}/index")
                 .Produces<IndexResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .WithDocument(tag: "Files", desc: "Indexes the directory structure of a given TR device and storage  type.");
+                .WithSummary("Index")
+                .WithTags("Files")
+                .WithDescription(
+                    "Indexes the directory structure of a given TeensyROM device and storage type.\n\n" +
+                    "- Providing a path will index starting at that directory and all subdirectories below it.\n" +
+                    "- Providing no path will index the whole storage device.\n" +
+                    "- Don't touch your commodore while indexing is in progress."
+                );
         }
 
         public override async Task Handle(IndexRequest r, CancellationToken ct)

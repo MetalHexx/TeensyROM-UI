@@ -10,7 +10,12 @@ namespace TeensyRom.Api.Endpoints.ClosePort
             Delete("/devices/{deviceId}")
                 .Produces<DisconnectDeviceResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .WithDocument(tag: "Devices", desc: "Close device port.");
+                .WithSummary("Disconnect Device")
+                .WithTags("Devices")
+                .WithDescription(
+                    "Disconnnects from a TeensyROM device.\n\n" +
+                    "- Once you disconnect from a device, most endpoints won't work until you reconnect."
+                );
         }
 
         public override async Task Handle(DisconnectDeviceRequest r, CancellationToken ct)

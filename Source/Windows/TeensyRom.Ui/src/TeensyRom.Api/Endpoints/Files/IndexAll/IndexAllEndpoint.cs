@@ -15,7 +15,15 @@ namespace TeensyRom.Api.Endpoints.Files.IndexAll
             Post("/files/index/all")
                 .Produces<IndexAllResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status404NotFound)
-                .WithDocument(tag: "Files", desc: "Indexes all storage for all connected TeensyRom devices.");
+                .WithSummary("Index All")
+                .WithTags("Files")
+                .WithDescription(
+                    "Indexes all storage for all connected TeensyROM devices.\n\n" +
+                    "- This will recursively index all storage devices.\n" +
+                    "- Multiple devices will be indexed in parallel, one device type at a time.\n" +
+                    "- This could take a few minutes if you have a lot of data.\n" +
+                    "- Don't touch your commodores while indexing is in progress."
+                );
         }
 
         public override async Task Handle(CancellationToken ct)

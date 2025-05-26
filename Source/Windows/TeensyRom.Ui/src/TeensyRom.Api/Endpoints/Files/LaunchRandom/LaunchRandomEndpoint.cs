@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.OpenApi.Writers;
+using TeensyRom.Api.Models;
 using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Entities.Storage;
@@ -16,7 +17,16 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status404NotFound)
                 .ProducesProblem(StatusCodes.Status502BadGateway)
-                .WithDocument(tag: "Files", desc: "Launches a random file given a device, storage and starting directory location.");
+                .WithSummary("Launch Random File")
+                .WithTags("Files")
+                .WithDescription(
+                    "Launches a random file given a device, storage, and starting directory location.\n\n" +
+                    "- You can also specify a filter to make sure only files of a specific type are launched.\n" +
+                    "  - Games: will launch any file type associated to games (e.g., .prg, .crt, etc).\n" +
+                    "  - Games: are any type program. Including demos and non-games.\n" +
+                    "  - Images: will launch any file type associated to images (e.g, .koa, etc).\n" + 
+                    "  - Images: also include text files.  Will be improved in a future release."
+                );
         }
 
         public override async Task Handle(LaunchRandomRequest r, CancellationToken ct)

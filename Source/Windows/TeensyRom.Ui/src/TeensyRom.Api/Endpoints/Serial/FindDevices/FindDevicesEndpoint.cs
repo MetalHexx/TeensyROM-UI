@@ -1,3 +1,4 @@
+using TeensyRom.Api.Models;
 using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Api.Endpoints.FindCarts
@@ -10,7 +11,14 @@ namespace TeensyRom.Api.Endpoints.FindCarts
                 .Produces<FindDevicesResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status503ServiceUnavailable)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .WithDocument(tag: "Devices", desc: "Returns all available and connected TeensyROM devices.");
+                .WithSummary("Find Devices")
+                .WithTags("Devices")
+                .WithDescription(
+                    "Returns all available and connected TeensyROM devices.\n\n" +
+                    "- This will momentarily disconnect all devices.\n" +
+                    "- All available COM ports will be scanned for TeensyROM devices.\n" +
+                    "- All previously connected devices will reconnect."
+                );
         }
 
         public override async Task Handle(CancellationToken ct)

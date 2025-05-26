@@ -12,7 +12,12 @@ namespace TeensyRom.Api.Endpoints.ResetDevice
             Put("/devices/{deviceId}/reset")
                 .Produces<ResetDeviceResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .WithDocument(tag: "Devices", desc: "Resets the given device matching the give device id.");
+                .WithSummary("Reset Device")
+                .WithTags("Devices")
+                .WithDescription(
+                    "Resets a TeensyROM device.\n\n" +
+                    "- Works the same as clicking the cartridge reset button."
+                );
         }
 
         public override async Task Handle(ResetDeviceRequest r, CancellationToken ct)

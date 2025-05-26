@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using TeensyRom.Api.Models;
 using TeensyRom.Core.Entities.Device;
 
 namespace TeensyRom.Api.Endpoints.ConnectDevice

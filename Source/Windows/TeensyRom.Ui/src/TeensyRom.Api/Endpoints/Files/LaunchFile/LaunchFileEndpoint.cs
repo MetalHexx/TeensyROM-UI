@@ -14,7 +14,9 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
                 .Produces<LaunchFileResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status502BadGateway)
-                .WithDocument(tag: "Files", desc: "Launches a file given a valid path to a file stored on the TeensyRom.");
+                .WithSummary("Launch File")
+                .WithDescription("Launches a file given a valid path to a file stored on the TeensyRom.")
+                .WithTags("Files");
         }
 
         public override async Task Handle(LaunchFileRequest r, CancellationToken ct)

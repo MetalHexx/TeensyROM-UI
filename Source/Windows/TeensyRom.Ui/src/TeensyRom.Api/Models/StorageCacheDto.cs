@@ -1,7 +1,7 @@
 ﻿using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Storage;
 
-namespace TeensyRom.Api.Endpoints.Common
+namespace TeensyRom.Api.Models
 {
     public class StorageCacheDto
     {

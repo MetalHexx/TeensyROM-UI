@@ -1,4 +1,4 @@
-﻿namespace TeensyRom.Api.Endpoints.Common
+﻿namespace TeensyRom.Api.Models
 {
     public class ApiResponse
     {

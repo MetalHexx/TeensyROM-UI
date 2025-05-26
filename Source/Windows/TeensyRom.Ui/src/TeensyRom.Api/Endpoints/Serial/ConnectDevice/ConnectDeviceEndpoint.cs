@@ -1,3 +1,4 @@
+using TeensyRom.Api.Models;
 using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Api.Endpoints.ConnectDevice
@@ -9,7 +10,12 @@ namespace TeensyRom.Api.Endpoints.ConnectDevice
             Post("/devices/{deviceId}/connect")
                 .Produces<ConnectDeviceResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .WithDocument(tag: "Devices", desc: "Connects to a TeensyRom device given an ID.");
+                .WithSummary("Connect Device")
+                .WithTags("Devices")
+                .WithDescription(
+                    "Connects to a TeensyROM device.\n\n" +
+                    "- You must be connected to a TeensyROM device in order to call most other endpoints."
+                );
         }
 
         public override async Task Handle(ConnectDeviceRequest r, CancellationToken _)

@@ -1,4 +1,5 @@
 using RadEndpoints;
+using TeensyRom.Api.Models;
 using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Api.Endpoints.Files.GetDirectory
@@ -10,7 +11,14 @@ namespace TeensyRom.Api.Endpoints.Files.GetDirectory
             Get("/devices/{deviceId}/storage/{storageType}/directories")
                 .Produces<GetDirectoryResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .WithDocument(tag: "Files", desc: "Gets a directory for given storage device");
+                .WithSummary("Get Directory")
+                .WithTags("Files")
+                .WithDescription(
+                    "Gets a directory for given storage device.\n\n" +
+                    "- Returns metadata for all files in the directory.\n" +
+                    "- This is not recursive and will only include the files for the requested directory.\n" +
+                    "- Make another request to get subdirectory content."
+                );
         }
 
         public override async Task Handle(GetDirectoryRequest r, CancellationToken ct)

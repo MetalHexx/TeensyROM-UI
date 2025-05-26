@@ -1,7 +1,7 @@
 ﻿using TeensyRom.Core.Entities.Device;
 using TeensyRom.Core.Entities.Storage;
 
-namespace TeensyRom.Api.Endpoints.Common
+namespace TeensyRom.Api.Models
 {
     public class CartDto
     {
