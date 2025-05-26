@@ -3,7 +3,7 @@ using Scalar.AspNetCore;
 
 namespace TeensyRom.Api.Startup
 {
-    public static class OpenApiStartupExt
+    public static class ApiDocStartupExtensions
     {
         /// <summary>
         /// Adds and configures OpenAPI/Scalar with XML comments and custom UI options.
