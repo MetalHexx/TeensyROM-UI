@@ -30,7 +30,7 @@ namespace TeensyRom.Api.Tests.Integration
             {
                 DeviceId = deviceId,
                 StorageType = TeensyStorageType.SD,
-                Path = null
+                StartingPath = null
             };
             var response = await f.Client.PostAsync<IndexEndpoint, IndexRequest, IndexResponse>(request);
 
@@ -55,7 +55,7 @@ namespace TeensyRom.Api.Tests.Integration
             {
                 DeviceId = deviceId,
                 StorageType = TeensyStorageType.SD,
-                Path = "/games"
+                StartingPath = "/games"
             };
             var response = await f.Client.PostAsync<IndexEndpoint, IndexRequest, IndexResponse>(request);
 
@@ -80,7 +80,7 @@ namespace TeensyRom.Api.Tests.Integration
             {
                 DeviceId = deviceId,
                 StorageType = TeensyStorageType.SD,
-                Path = "#(*&_#_()*&$"
+                StartingPath = "#(*&_#_()*&$"
             };
             var response = await f.Client.PostAsync<IndexEndpoint, IndexRequest, ValidationProblemDetails>(request);
 
@@ -98,7 +98,7 @@ namespace TeensyRom.Api.Tests.Integration
             {
                 DeviceId = "12345!!&^#",
                 StorageType = TeensyStorageType.SD,
-                Path = "/"
+                StartingPath = "/"
             };
             var response = await f.Client.PostAsync<IndexEndpoint, IndexRequest, ValidationProblemDetails>(request);
 

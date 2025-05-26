@@ -51,7 +51,7 @@ namespace TeensyRom.Api.Tests.Integration.Common
             {
                 DeviceId = deviceId,
                 StorageType = storageType,
-                Path = path
+                StartingPath = path
             };
             var response = await Client.PostAsync<IndexEndpoint, IndexRequest, IndexResponse>(request);
             await Task.Delay(3000);

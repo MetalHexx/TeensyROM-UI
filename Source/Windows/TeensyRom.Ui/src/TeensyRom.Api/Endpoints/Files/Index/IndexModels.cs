@@ -24,8 +24,8 @@ namespace TeensyRom.Api.Endpoints.Files.Index
         /// <summary>
         /// The path to the directory to start indexing from. If null, the whole storage device will be indexed.
         /// </summary>
-        [FromBody]
-        public string? Path { get; set; }
+        [FromQuery]
+        public string? StartingPath { get; set; }
     }
 
     public class IndexRequestValidator : AbstractValidator<IndexRequest>
@@ -40,7 +40,7 @@ namespace TeensyRom.Api.Endpoints.Files.Index
                 .IsInEnum()
                 .WithMessage("Storage type must be either SD or USB.");
 
-            RuleFor(x => x.Path)
+            RuleFor(x => x.StartingPath)
                 .Must(path => string.IsNullOrWhiteSpace(path) || path.IsSafeUnixDirectoryName())
                 .WithMessage("Path must be a valid Unix path.");
         }

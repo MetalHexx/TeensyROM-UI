@@ -53,9 +53,9 @@ namespace TeensyRom.Api.Endpoints.Files.Index
 
         private async Task<bool> HandleCaching(IndexRequest r, IStorageService s) 
         {
-            if (!string.IsNullOrWhiteSpace(r.Path))
+            if (!string.IsNullOrWhiteSpace(r.StartingPath))
             {
-                return await s.Cache(r.Path);
+                return await s.Cache(r.StartingPath);
             }
             else
             {
