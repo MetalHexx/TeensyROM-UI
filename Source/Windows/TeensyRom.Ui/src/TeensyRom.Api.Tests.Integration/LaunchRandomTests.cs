@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using TeensyRom.Api.Endpoints.Files.LaunchRandom;
+using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Settings;
 
@@ -11,6 +12,10 @@ namespace TeensyRom.Api.Tests.Integration
     [Collection("Endpoint")]
     public class LaunchRandomTests(EndpointFixture f) : IDisposable
     {
+        public const string Games_Path = "/games/";
+        public const string Music_Path = "/music/MUSICIANS/L/Lukhash/";
+        public const string Images_Path = "/images/";
+
         [Fact]
         public async Task When_DeviceIsInvalidFormat_ReturnsBadRequest()
         {
@@ -132,17 +137,18 @@ namespace TeensyRom.Api.Tests.Integration
         }
 
         [Fact]
-        public async Task When_ValidRequest_LaunchesRandomFile()
+        public async Task When_ValidGame_Request_With_DeepScope_LaunchesRandomFile()
         {
             // Arrange
             var deviceId = await f.ConnectToFirstDevice();
-            await f.Preindex(deviceId, TeensyStorageType.SD, "/games");
+            await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
+
 
             var request = new LaunchRandomRequest
             {
                 DeviceId = deviceId,
                 StorageType = TeensyStorageType.SD,
-                StartingDirectory = "/games",
+                StartingDirectory = Games_Path,
                 FilterType = TeensyFilterType.All,
                 Scope = StorageScope.DirDeep
             };
@@ -158,6 +164,159 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithContentNotNull();
 
             r.Content.LaunchedFile.Should().NotBeNull();
+            r.Content.LaunchedFile.Path.Should().StartWith(Games_Path);
+            r.Content.Message.Should().Contain("Success");
+        }
+
+        [Fact]
+        public async Task When_ValidGame_Request_With_ShallowScope_LaunchesRandomFile()
+        {
+            // Arrange
+            var deviceId = await f.ConnectToFirstDevice();
+            await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
+            var request = new LaunchRandomRequest
+            {
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                StartingDirectory = Games_Path,
+                FilterType = TeensyFilterType.All,
+                Scope = StorageScope.DirShallow
+            };
+            // Act
+            var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
+            await Task.Delay(3000);
+
+            // Assert
+            r.Should().BeSuccessful<LaunchRandomResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
+
+            var actualPath = r.Content.LaunchedFile.Path.GetUnixParentPath().EnsureUnixPathEnding();
+
+            r.Content.LaunchedFile.Should().NotBeNull();
+            actualPath.Should().Be(Games_Path);
+            r.Content.Message.Should().Contain("Success");
+        }
+
+        [Fact]
+        public async Task When_ValidMusic_Request_With_DeepScope_LaunchesRandomFile()
+        {
+            // Arrange
+            var deviceId = await f.ConnectToFirstDevice();
+            await f.Preindex(deviceId, TeensyStorageType.SD, Music_Path);
+
+            var request = new LaunchRandomRequest
+            {
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                StartingDirectory = Music_Path,
+                FilterType = TeensyFilterType.All,
+                Scope = StorageScope.DirDeep
+            };
+
+            // Act
+            var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
+            await Task.Delay(3000);
+
+            // Assert
+            r.Should().BeSuccessful<LaunchRandomResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
+            r.Content.LaunchedFile.Should().NotBeNull();
+            r.Content.LaunchedFile.Path.Should().StartWith(Music_Path);
+            r.Content.Message.Should().Contain("Success");
+        }
+
+        [Fact]
+        public async Task When_ValidMusic_Request_With_ShallowScope_LaunchesRandomFile()
+        {
+            // Arrange
+            var deviceId = await f.ConnectToFirstDevice();
+            await f.Preindex(deviceId, TeensyStorageType.SD, Music_Path);
+
+            var request = new LaunchRandomRequest
+            {
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                StartingDirectory = Music_Path,
+                FilterType = TeensyFilterType.All,
+                Scope = StorageScope.DirShallow
+            };
+
+            // Act
+            var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
+            await Task.Delay(3000);
+
+            // Assert
+            r.Should().BeSuccessful<LaunchRandomResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
+
+            var actualPath = r.Content.LaunchedFile.Path.GetUnixParentPath().EnsureUnixPathEnding();
+
+            r.Content.LaunchedFile.Should().NotBeNull();
+            actualPath.Should().Be(Music_Path);
+            r.Content.Message.Should().Contain("Success");
+        }
+
+        [Fact]
+        public async Task When_ValidImage_Request_With_DeepScope_LaunchesRandomFile()
+        {
+            // Arrange
+            var deviceId = await f.ConnectToFirstDevice();
+            await f.Preindex(deviceId, TeensyStorageType.SD, Images_Path);
+
+            var request = new LaunchRandomRequest
+            {
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                StartingDirectory = Images_Path,
+                FilterType = TeensyFilterType.All,
+                Scope = StorageScope.DirDeep
+            };
+
+            // Act
+            var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
+            await Task.Delay(3000);
+
+            // Assert
+            r.Should().BeSuccessful<LaunchRandomResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
+            r.Content.LaunchedFile.Should().NotBeNull();
+            r.Content.LaunchedFile.Path.Should().StartWith(Images_Path);
+            r.Content.Message.Should().Contain("Success");
+        }
+
+        [Fact]
+        public async Task When_ValidImage_Request_With_ShallowScope_LaunchesRandomFile()
+        {
+            // Arrange
+            var deviceId = await f.ConnectToFirstDevice();
+            await f.Preindex(deviceId, TeensyStorageType.SD, Images_Path);
+
+            var request = new LaunchRandomRequest
+            {
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                StartingDirectory = Images_Path,
+                FilterType = TeensyFilterType.All,
+                Scope = StorageScope.DirShallow
+            };
+
+            // Act
+            var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
+            await Task.Delay(3000);
+
+            // Assert
+            r.Should().BeSuccessful<LaunchRandomResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
+
+            var actualPath = r.Content.LaunchedFile.Path.GetUnixParentPath().EnsureUnixPathEnding();
+
+            r.Content.LaunchedFile.Should().NotBeNull();
+            actualPath.Should().Be(Images_Path);
             r.Content.Message.Should().Contain("Success");
         }
 
