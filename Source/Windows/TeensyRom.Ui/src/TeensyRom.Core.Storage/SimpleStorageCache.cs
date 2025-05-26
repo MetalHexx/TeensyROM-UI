@@ -264,6 +264,10 @@ namespace TeensyRom.Core.Storage
                             .RemoveLeadingAndTrailingSlash()
                             .EnsureUnixPathEnding(),
 
+                    StorageScope.Storage => f.Path
+                        .RemoveLeadingAndTrailingSlash()
+                        .StartsWith(scopePath.RemoveLeadingAndTrailingSlash()),
+
                     _ => true
                 })
                 .OfType<ILaunchableItem>()

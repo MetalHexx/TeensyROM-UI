@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using TeensyRom.Api.Endpoints.Files.LaunchRandom;
+using TeensyRom.Api.Endpoints.ResetDevice;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Settings;
@@ -13,6 +14,7 @@ namespace TeensyRom.Api.Tests.Integration
     public class LaunchRandomTests(EndpointFixture f) : IDisposable
     {
         public const string Games_Path = "/games/";
+        public const string Very_Large_Games_Path = "/games/Very Large/";
         public const string Music_Path = "/music/MUSICIANS/L/Lukhash/";
         public const string Images_Path = "/images/";
 
@@ -137,7 +139,7 @@ namespace TeensyRom.Api.Tests.Integration
         }
 
         [Fact]
-        public async Task When_ValidGame_Request_With_DeepScope_LaunchesRandomFile()
+        public async Task When_ValidGame_Request_With_DeepScope_LaunchesRandomGame()
         {
             // Arrange
             var deviceId = await f.ConnectToFirstDevice();
@@ -169,7 +171,7 @@ namespace TeensyRom.Api.Tests.Integration
         }
 
         [Fact]
-        public async Task When_ValidGame_Request_With_ShallowScope_LaunchesRandomFile()
+        public async Task When_ValidGame_Request_With_ShallowScope_LaunchesRandomGame()
         {
             // Arrange
             var deviceId = await f.ConnectToFirstDevice();
@@ -199,7 +201,73 @@ namespace TeensyRom.Api.Tests.Integration
         }
 
         [Fact]
-        public async Task When_ValidMusic_Request_With_DeepScope_LaunchesRandomFile()
+        public async Task When_ValidGame_Request_With_ShallowScope_And_VeryLargeGame_LaunchesRandomGame()
+        {
+            // Arrange
+            var deviceId = await f.ConnectToFirstDevice();
+            await f.Preindex(deviceId, TeensyStorageType.SD, Very_Large_Games_Path);
+
+            var request = new LaunchRandomRequest
+            {
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                StartingDirectory = Very_Large_Games_Path,
+                FilterType = TeensyFilterType.All,
+                Scope = StorageScope.DirShallow
+            };
+            // Act
+            var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
+            await Task.Delay(3000);
+
+            // Assert
+            r.Should().BeSuccessful<LaunchRandomResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
+
+            var actualPath = r.Content.LaunchedFile.Path.GetUnixParentPath().EnsureUnixPathEnding();
+
+            r.Content.LaunchedFile.Should().NotBeNull();
+            actualPath.Should().Be(Very_Large_Games_Path);
+            r.Content.Message.Should().Contain("Success");
+
+            // Cleanup
+            await f.ResetDevice(deviceId);
+        }
+
+      [Fact]
+        public async Task When_ValidGame_Request_With_StorageScope_LaunchesRandomGame()
+        {
+            // Arrange
+            var deviceId = await f.ConnectToFirstDevice();
+            await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
+
+            var request = new LaunchRandomRequest
+            {
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                StartingDirectory = Games_Path,
+                FilterType = TeensyFilterType.All,
+                Scope = StorageScope.Storage
+            };
+
+            // Act
+            var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
+            await Task.Delay(3000);
+
+            // Assert
+            r.Should().BeSuccessful<LaunchRandomResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
+
+            var actualPath = r.Content.LaunchedFile.Path.GetUnixParentPath().EnsureUnixPathEnding();
+
+            r.Content.LaunchedFile.Should().NotBeNull();
+            actualPath.Should().Be(Games_Path);
+            r.Content.Message.Should().Contain("Success");
+        }
+
+        [Fact]
+        public async Task When_ValidMusic_Request_With_DeepScope_LaunchesRandomSong()
         {
             // Arrange
             var deviceId = await f.ConnectToFirstDevice();
@@ -228,7 +296,7 @@ namespace TeensyRom.Api.Tests.Integration
         }
 
         [Fact]
-        public async Task When_ValidMusic_Request_With_ShallowScope_LaunchesRandomFile()
+        public async Task When_ValidMusic_Request_With_ShallowScope_LaunchesRandomSong()
         {
             // Arrange
             var deviceId = await f.ConnectToFirstDevice();
@@ -259,8 +327,40 @@ namespace TeensyRom.Api.Tests.Integration
             r.Content.Message.Should().Contain("Success");
         }
 
+      [Fact]
+        public async Task When_ValidMusic_Request_With_StorageScope_LaunchesRandomSong()
+        {
+            // Arrange
+            var deviceId = await f.ConnectToFirstDevice();
+            await f.Preindex(deviceId, TeensyStorageType.SD, Music_Path);
+
+            var request = new LaunchRandomRequest
+            {
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                StartingDirectory = Music_Path,
+                FilterType = TeensyFilterType.All,
+                Scope = StorageScope.Storage
+            };
+
+            // Act
+            var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
+            await Task.Delay(3000);
+
+            // Assert
+            r.Should().BeSuccessful<LaunchRandomResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
+
+            var actualPath = r.Content.LaunchedFile.Path.GetUnixParentPath().EnsureUnixPathEnding();
+
+            r.Content.LaunchedFile.Should().NotBeNull();
+            actualPath.Should().Be(Music_Path);
+            r.Content.Message.Should().Contain("Success");
+        }
+
         [Fact]
-        public async Task When_ValidImage_Request_With_DeepScope_LaunchesRandomFile()
+        public async Task When_ValidImage_Request_With_DeepScope_LaunchesRandomImage()
         {
             // Arrange
             var deviceId = await f.ConnectToFirstDevice();
@@ -289,7 +389,7 @@ namespace TeensyRom.Api.Tests.Integration
         }
 
         [Fact]
-        public async Task When_ValidImage_Request_With_ShallowScope_LaunchesRandomFile()
+        public async Task When_ValidImage_Request_With_ShallowScope_LaunchesRandomImage()
         {
             // Arrange
             var deviceId = await f.ConnectToFirstDevice();
@@ -302,6 +402,38 @@ namespace TeensyRom.Api.Tests.Integration
                 StartingDirectory = Images_Path,
                 FilterType = TeensyFilterType.All,
                 Scope = StorageScope.DirShallow
+            };
+
+            // Act
+            var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
+            await Task.Delay(3000);
+
+            // Assert
+            r.Should().BeSuccessful<LaunchRandomResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
+
+            var actualPath = r.Content.LaunchedFile.Path.GetUnixParentPath().EnsureUnixPathEnding();
+
+            r.Content.LaunchedFile.Should().NotBeNull();
+            actualPath.Should().Be(Images_Path);
+            r.Content.Message.Should().Contain("Success");
+        }
+
+        [Fact]
+        public async Task When_ValidImage_Request_With_StorageScope_LaunchesRandomImage()
+        {
+            // Arrange
+            var deviceId = await f.ConnectToFirstDevice();
+            await f.Preindex(deviceId, TeensyStorageType.SD, Images_Path);
+
+            var request = new LaunchRandomRequest
+            {
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                StartingDirectory = Images_Path,
+                FilterType = TeensyFilterType.All,
+                Scope = StorageScope.Storage
             };
 
             // Act
