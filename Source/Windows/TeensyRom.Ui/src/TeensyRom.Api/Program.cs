@@ -40,17 +40,12 @@ builder.Services.AddSingleton<ISerialFactory, SerialFactory>();
 builder.Services.AddSingleton<IStorageFactory, StorageFactory>();
 builder.Services.AddSingleton<IGameMetadataService, GameMetadataService>();
 builder.Services.AddSingleton<ISidMetadataService, SidMetadataService>();
-
 builder.Services.AddSingleton<IMuteSidVoicesSerialRoutine, MuteSidVoicesSerialRoutine>();
 builder.Services.AddSingleton<IToggleMusicSerialRoutine, ToggleMusicSerialRoutine>();
 builder.Services.AddSingleton<ISetMusicSpeedSerialRoutine, SetMusicSpeedSerialRoutine>();
 builder.Services.AddSingleton<IPlaySubtuneSerialRoutine, PlaySubtuneSerialRoutine>();
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreSerialAssemblyMarker>());
-builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
-builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(SerialBehavior<,>));
-
+builder.Services.AddTeensyRomMediatR();
 builder.Services.AddUiCors();
 
 var app = builder.Build();
