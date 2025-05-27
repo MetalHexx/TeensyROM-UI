@@ -21,30 +21,25 @@ export const NAV_ITEMS: NavItem[] = [
     name: ROUTE_TITLES[ROUTES.PLAYER],
     icon: 'play_arrow',
     route: ROUTES.PLAYER,
-    payload: { route: ROUTES.PLAYER },
   },
   {
     name: ROUTE_TITLES[ROUTES.MIXER],
     icon: 'tune',
     route: ROUTES.MIXER,
-    payload: { route: ROUTES.MIXER },
   },
   {
     name: ROUTE_TITLES[ROUTES.DEVICES],
     icon: 'devices',
     route: ROUTES.DEVICES,
-    payload: { route: ROUTES.DEVICES },
   },
   {
     name: ROUTE_TITLES[ROUTES.SETTINGS],
     icon: 'settings',
     route: ROUTES.SETTINGS,
-    payload: { route: ROUTES.SETTINGS },
   },
   {
     name: ROUTE_TITLES[ROUTES.THEME_TESTER],
     icon: 'palette',
     route: ROUTES.THEME_TESTER,
-    payload: { route: ROUTES.THEME_TESTER },
   },
 ] as const;

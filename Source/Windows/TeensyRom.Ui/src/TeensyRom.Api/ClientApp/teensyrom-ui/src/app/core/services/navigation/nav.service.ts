@@ -27,8 +27,8 @@ export class NavService {
   }
 
   navigateTo(navItem: NavItem) {
-    if (navItem.payload?.route) {
-      this._router.navigate([navItem.payload.route]);
+    if (navItem.route) {
+      this._router.navigate([navItem.route]);
       this.closeNav();
     }
   }
