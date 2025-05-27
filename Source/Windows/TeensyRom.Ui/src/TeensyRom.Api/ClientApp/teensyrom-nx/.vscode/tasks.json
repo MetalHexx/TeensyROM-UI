@@ -22,12 +22,8 @@
          "pattern": "$tsc", 
          "background": { 
            "activeOnStart": true, 
-           "beginsPattern": { 
-             "regexp": "(.*?)" 
-           }, 
-           "endsPattern": { 
-             "regexp": "Compiled |Failed to compile.", 
-           } 
+           "beginsPattern": "Building\\.\\.\\.", 
+           "endsPattern": "Local:   http://localhost:4200/" 
          } 
        } 
      } 
