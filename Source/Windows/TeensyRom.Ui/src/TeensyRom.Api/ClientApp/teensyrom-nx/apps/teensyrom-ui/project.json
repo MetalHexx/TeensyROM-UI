@@ -78,6 +78,15 @@
         "reportsDirectory": "../../coverage/apps/teensyrom-ui"
       }
     },
+    "test-ui-watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest --ui --watch",
+        "cwd": "apps/teensyrom-ui",
+        "color": true
+      }
+    },
+
     "serve-static": {
       "continuous": true,
       "executor": "@nx/web:file-server",
