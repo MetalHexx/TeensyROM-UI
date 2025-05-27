@@ -11,11 +11,12 @@
     "format": "prettier --write \"src/**/*.{ts,html,scss}\""
   },
   "lint-staged": {
-  "**/src/**/*.{ts,html,scss,json,js}": [
-    "npx prettier --write",
-    "npx eslint --fix"
-  ]
-},
+    "**/src/**/*.{ts,html,scss,json,js}": [
+      "npx prettier --write",
+      "npx eslint --fix",
+      "npx ng test --browsers=ChromeHeadless --watch=false"
+    ]
+  },
   "private": true,
   "dependencies": {
     "@angular/cdk": "^19.2.17",
