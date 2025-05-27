@@ -45,7 +45,7 @@ describe('HeaderComponent', () => {
 
   it('should call theme service toggle method when toggleTheme is called', () => {
     const toggleSpy = spyOn(themeService, 'toggleTheme');
-    component.toggleTheme();
+    component.themeService.toggleTheme();
     expect(toggleSpy).toHaveBeenCalled();
   });
 });
