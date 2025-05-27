@@ -24,4 +24,4 @@ export default defineConfig(() => ({
       provider: 'v8' as const,
     },
   },
-});
+}));
