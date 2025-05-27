@@ -12,9 +12,15 @@ cd Source/Windows/TeensyRom.Ui/src/TeensyRom.Api/ClientApp/teensyrom-ui || {
 # Only try to run lint-staged if npx can actually be invoked
 if command -v npx >/dev/null 2>&1 && npx --version >/dev/null 2>&1; then
   echo "✅ Running lint-staged with working npx"
-  npx lint-staged
+  npx lint-staged || exit 1
 else
   echo "⚠️  Skipping lint-staged — npx not available or broken in this environment"
   echo "ℹ️  You’re probably committing from Visual Studio’s built-in Git, which lacks full environment support"
 fi
 
+# Run unit tests (block commit if they fail)
+echo "🧪 Running unit tests..."
+npx ng test --configuration=ci --watch=false || {
+  echo "❌ Unit tests failed. Commit aborted."
+  exit 1
+}

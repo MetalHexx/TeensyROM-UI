@@ -94,8 +94,15 @@
               "src/styles.scss"
             ],
             "scripts": []
-          }
           },
+          "configurations": {
+            "ci": {
+              "browsers": "ChromeHeadless",
+              "watch": false,
+              "codeCoverage": true
+            }
+          }
+        },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {

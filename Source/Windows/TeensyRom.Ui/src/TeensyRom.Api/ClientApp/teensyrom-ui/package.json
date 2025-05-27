@@ -13,8 +13,7 @@
   "lint-staged": {
     "**/src/**/*.{ts,html,scss,json,js}": [
       "npx prettier --write",
-      "npx eslint --fix",
-      "npx ng test --browsers=ChromeHeadless --watch=false"
+      "npx eslint --fix"
     ]
   },
   "private": true,
