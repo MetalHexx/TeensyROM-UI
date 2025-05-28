@@ -12,11 +12,16 @@
   },
   "lint-staged": {
     "*.{ts,js}": [
-      "nx lint",
       "prettier --write"
     ],
     "*.{json,md,html,scss}": [
       "prettier --write"
+    ],
+    "apps/**/*.{ts,js}": [
+      "node scripts/lint-staged.js"
+    ],
+    "libs/**/*.{ts,js}": [
+      "node scripts/lint-staged.js"
     ]
   },
   "private": true,
