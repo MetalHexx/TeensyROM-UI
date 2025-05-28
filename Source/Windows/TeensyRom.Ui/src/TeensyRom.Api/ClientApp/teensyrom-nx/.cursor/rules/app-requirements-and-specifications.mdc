@@ -1,6 +1,6 @@
 ---
 description: 
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 The agent must follow the architecture and structural guidance defined in `docs/requirements/REQUIREMENTS.md` when assisting with application structure, service boundaries, or state management.
