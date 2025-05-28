@@ -3,9 +3,9 @@
 
 echo "🐛 Entered Husky pre-commit hook"
 
-# Move into the web project directory where eslint.config.js lives
-cd Source/Windows/TeensyRom.Ui/src/TeensyRom.Api/ClientApp/teensyrom-ui || {
-  echo "❌ Failed to cd into UI directory"
+# Move into the Nx workspace directory
+cd Source/Windows/TeensyRom.Ui/src/TeensyRom.Api/ClientApp/teensyrom-nx || {
+  echo "❌ Failed to cd into Nx workspace directory"
   exit 1
 }
 
@@ -20,7 +20,7 @@ fi
 
 # Run unit tests (block commit if they fail)
 echo "🧪 Running unit tests..."
-npx ng test --configuration=ci --watch=false || {
+npx nx run-many --target=test --all --watch=false || {
   echo "❌ Unit tests failed. Commit aborted."
   exit 1
 }
