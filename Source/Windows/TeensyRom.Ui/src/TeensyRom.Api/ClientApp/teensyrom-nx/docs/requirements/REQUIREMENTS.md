@@ -36,6 +36,8 @@
 - Perform backend API calls to discover, connect, and manage TeensyROM devices.
 - Isolated in `services/device`, consuming the generated API client.
 - Each device can have multiple associated storage types (SD and USB).
+- All mapping between API response types and frontend application models must be implemented in `device.mapper.ts`.
+- Domain models used by the device service are defined in `device.models.ts` within the same library.
 
 ### 4. Storage Services
 
@@ -43,6 +45,8 @@
 - Accessed via `(deviceId, storageType)` pair.
 - Responsible for file metadata, directory structures, indexing, and file launch logic.
 - Encapsulation improves maintainability and isolates storage concerns from device connectivity.
+- All mapping between API response types and frontend application models must be implemented in `storage.mapper.ts`.
+- Domain models used by the storage service are defined in `storage.models.ts` within the same library.
 
 ### 5. Application State
 
@@ -56,6 +60,7 @@
 
 - Located in `libs/api-client`, generated using OpenAPI generator CLI.
 - Consumed by services only (not directly by components).
+- API responses are mapped into frontend models using domain-specific `.mapper.ts` files.
 
 ---
 
@@ -71,7 +76,7 @@ apps/
 
 libs/
 ├── app-boot/                              # [library] Domain: Bootstrapping
-│   └── app-bootstrap/                     # [folder]
+│   └── app-bootstrap/
 │       └── app-bootstrap.service.ts
 
 ├── app-state/                             # [library group] Domain: Global State Stores
@@ -80,9 +85,16 @@ libs/
 │   └── settings-store/                    # [library] App/user settings state
 
 ├── services/                              # [library group] Domain: Business Logic Services
-│   ├── device/                            # [library] Device interaction logic
-│   ├── storage/                           # [library] Storage logic (file ops, indexing)
-│   └── settings/                          # [library] Settings logic (persistence)
+│   ├── device/                            # [library] Device: houses device domain business logic
+│   │   ├── device.service.ts              # Device orchestration logic
+│   │   ├── device.mapper.ts               # Maps API responses to frontend models
+│   │   └── device.models.ts               # Domain model definitions for device logic
+│   ├── storage/                           # [library] Storage: houses storage domain business logic
+│   │   ├── storage.service.ts             # File metadata, launch logic
+│   │   ├── storage.mapper.ts              # Maps API responses to frontend models
+│   │   └── storage.models.ts              # Domain model definitions for storage logic
+│   └── settings/                          # [library] Settings: houses settings domain business logic
+│       └── settings.service.ts            # Settings persistence logic
 
 ├── features/                              # [library group] Domain: Feature Modules
 │   ├── devices/                           # [library] UI for device overview
