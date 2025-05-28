@@ -1,5 +1,5 @@
-using System.Reflection;
 using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 
 namespace TeensyRom.Api.Startup
 {
@@ -10,6 +10,11 @@ namespace TeensyRom.Api.Startup
         /// </summary>
         public static IServiceCollection AddApiDocs(this IServiceCollection services)
         {
+            //Needed to avoid adding patterns to nullable ints.
+            services.ConfigureHttpJsonOptions(options =>
+            {
+                options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+            });
             services.AddOpenApi();
             return services;
         }

@@ -1,4 +1,5 @@
-﻿using TeensyRom.Core.Entities.Storage;
+﻿using System.Text.Json.Serialization;
+using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Api.Models
 {

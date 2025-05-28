@@ -2,8 +2,10 @@
   "name": "@teensyrom-nx/source",
   "version": "0.0.0",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "start": "nx run teensyrom-ui:serve",
+    "generate:api-client": "nx run data-access-api-client:generate",
     "vite": "vite"
   },
   "private": true,
@@ -26,6 +28,7 @@
     "@nx/vite": "21.1.2",
     "@nx/web": "21.1.2",
     "@nx/workspace": "21.1.2",
+    "@openapitools/openapi-generator-cli": "^2.20.2",
     "@schematics/angular": "~19.2.0",
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",
@@ -43,6 +46,7 @@
     "jsdom": "~22.1.0",
     "nx": "21.1.2",
     "prettier": "^2.6.2",
+    "rimraf": "^6.0.1",
     "tslib": "^2.3.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.19.0",
