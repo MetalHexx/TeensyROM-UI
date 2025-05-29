@@ -10,10 +10,5 @@
       "executor": "@nx/eslint:lint"
     }
   },
-  "dependencies": [
-    {
-      "project": "device-services",
-      "type": "static"
-    }
-  ]
+  "implicitDependencies": ["device-services"]
 }

@@ -5,20 +5,7 @@
   "prefix": "app",
   "sourceRoot": "apps/teensyrom-ui/src",
   "tags": [],
-  "dependencies": [
-    {
-      "project": "device-features",
-      "type": "static"
-    },
-    {
-      "project": "device-services",
-      "type": "static"
-    },
-    {
-      "project": "device-store",
-      "type": "static"
-    }
-  ],
+  "implicitDependencies": ["device-features", "device-services", "device-store"],
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:application",
@@ -100,7 +87,6 @@
         "color": true
       }
     },
-
     "serve-static": {
       "continuous": true,
       "executor": "@nx/web:file-server",

@@ -35,10 +35,5 @@
       }
     }
   },
-  "dependencies": [
-    {
-      "project": "api-client",
-      "type": "static"
-    }
-  ]
+  "implicitDependencies": ["api-client"]
 }
