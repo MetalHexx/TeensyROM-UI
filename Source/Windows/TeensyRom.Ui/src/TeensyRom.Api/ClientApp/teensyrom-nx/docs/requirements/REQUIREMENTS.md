@@ -77,14 +77,14 @@ apps/                                       # [group] Applications
 │       └── app.config.ts                  # [file] Root providers/bootstrap config
 
 libs/                                       # [group] Libraries
-├── app-boot/                               # [library] Application startup logic
-│   └── app-bootstrap/
-│       └── app-bootstrap.service.ts       # [file] Bootstrap orchestrator
+├── app-bootstrap/                          # [library] Application startup orchestration
+│   └── src/lib/
+│       └── app-bootstrap.service.ts       # [file] Bootstrap orchestration logic
 
 ├── app-state/                              # [group] Global state libraries (NgRx Signal Store)
 │   ├── device-store/                       # [library] Device state
-│   │   ├── device-store.ts                 # [file] SignalStore definition
-│   │   └── device-store.models.ts          # [file] Optional: View model types
+│   │   ├── device-store.ts                 # [file] Signal store logic
+│   │   └── device-store.models.ts          # [file] State model types
 │
 │   ├── storage-store/                      # [library] Storage metadata state
 │   │   ├── storage-store.ts
@@ -98,7 +98,7 @@ libs/                                       # [group] Libraries
 │   ├── device/                             # [library] Device business logic
 │   │   ├── device.service.ts               # [file] Device orchestration
 │   │   ├── device.mapper.ts                # [file] Maps API DTOs to frontend models
-│   │   └── device.models.ts                # [file] Device domain model types
+│   │   └── device.models.ts                # [file] Domain model types
 │
 │   ├── storage/                            # [library] Storage business logic
 │   │   ├── storage.service.ts
@@ -118,7 +118,8 @@ libs/                                       # [group] Libraries
 ├── api-client/                             # [library] OpenAPI-generated client
 │   ├── apis/                               # [folder] API service classes
 │   ├── models/                             # [folder] Generated types/interfaces
-│   └── scripts/generate-client.ts          # [file] OpenAPI generator script
+│   └── scripts/                            # [folder] OpenAPI generator tools
 
 ├── ui/                                     # [library] Shared presentational components
+
 ```
