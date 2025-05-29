@@ -1,28 +1,28 @@
-import { inject, Injectable } from '@angular/core';
-import { DeviceService } from '@teensyrom-nx/device-services';
-import { firstValueFrom } from 'rxjs';
+import { effect, inject, Injectable, runInInjectionContext, Injector } from '@angular/core';
+import { DeviceStore } from '@teensyrom-nx/device-store';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppBootstrapService {
-  private readonly deviceService = inject(DeviceService);
+  private readonly deviceStore = inject(DeviceStore);
+  private readonly injector = inject(Injector);
 
   async init(): Promise<void> {
-    const allDevices = await firstValueFrom(this.deviceService.findDevices());
+    return new Promise((resolve, reject) => {
+      runInInjectionContext(this.injector, () => {
+        effect(() => {
+          if (this.deviceStore.hasInitialised()) {
+            if (this.deviceStore.availableDevices().length === 0) {
+              reject(new Error('No available devices found'));
+            } else {
+              resolve();
+            }
+          }
+        });
+      });
 
-    if (allDevices.availableCarts.length === 0) {
-      throw new Error('No available devices found');
-    }
-
-    // Optionally auto-connect logic here:
-    for (const device of allDevices.availableCarts) {
-      if (device.isCompatible) {
-        await firstValueFrom(this.deviceService.connectDevice(device.deviceId));
-      }
-    }
-
-    // Extend this later to load settings
-    // or initialize feature-specific state
+      this.deviceStore.findDevices({});
+    });
   }
 }

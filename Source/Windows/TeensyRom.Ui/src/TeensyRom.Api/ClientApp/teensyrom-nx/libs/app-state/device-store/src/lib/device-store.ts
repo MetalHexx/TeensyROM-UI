@@ -1,51 +1,57 @@
-import { signalStore, withState } from '@ngrx/signals';
-import { Device } from '@teensyrom-nx/device-services';
+import { inject } from '@angular/core';
+import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
+import { withDevtools } from '@angular-architects/ngrx-toolkit';
+import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { AllDevices, Device, DeviceService } from '@teensyrom-nx/device-services';
+import { distinctUntilChanged, pipe, switchMap, tap, catchError } from 'rxjs';
 
 type DeviceState = {
-  devices: Device[];
+  availableDevices: Device[];
+  connectedDevices: Device[];
+  hasInitialised: boolean;
   isLoading: boolean;
   error: string | null;
 };
 
 const initialState: DeviceState = {
-  devices: [
-    {
-      deviceId: '123',
-      name: 'Test Device',
-      fwVersion: '1.0.0',
-      isCompatible: true,
-      sdStorage: {
-        deviceId: '123',
-        type: 1,
-        available: true,
-      },
-      usbStorage: {
-        deviceId: '123',
-        type: 0,
-        available: true,
-      },
-      comPort: 'COM1',
-    },
-    {
-      deviceId: '123',
-      name: 'Test Device 2',
-      fwVersion: '1.0.0',
-      isCompatible: true,
-      sdStorage: {
-        deviceId: '123',
-        type: 1,
-        available: true,
-      },
-      usbStorage: {
-        deviceId: '123',
-        type: 0,
-        available: true,
-      },
-      comPort: 'COM1',
-    },
-  ],
+  availableDevices: [],
+  connectedDevices: [],
+  hasInitialised: false,
   isLoading: false,
   error: null,
 };
 
-export const DeviceStore = signalStore(withState(initialState));
+export const DeviceStore = signalStore(
+  { providedIn: 'root' },
+  withDevtools('devices'),
+  withState(initialState),
+  withMethods((store, deviceService: DeviceService = inject(DeviceService)) => ({
+    findDevices: rxMethod(
+      pipe(
+        distinctUntilChanged(),
+        tap(() => patchState(store, { isLoading: true })),
+        switchMap(() =>
+          deviceService.findDevices().pipe(
+            tap((allDevices: AllDevices) => {
+              patchState(store, {
+                availableDevices: allDevices.availableCarts,
+                connectedDevices: allDevices.connectedCarts,
+                error: allDevices.availableCarts.length === 0 ? 'No available devices found' : null,
+                isLoading: false,
+                hasInitialised: true,
+              });
+            }),
+            catchError((error: string) => {
+              patchState(store, {
+                error: error,
+                isLoading: false,
+                hasInitialised: true,
+              });
+              return [];
+            })
+          )
+        )
+      )
+    ),
+  }))
+);

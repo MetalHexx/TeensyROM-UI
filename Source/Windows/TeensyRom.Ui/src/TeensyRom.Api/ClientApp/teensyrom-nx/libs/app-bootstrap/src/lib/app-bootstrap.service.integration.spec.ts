@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { AppBootstrapService } from './app-bootstrap.service';
 import { DeviceService } from '@teensyrom-nx/device-services';
 import { DevicesApiService, Configuration } from '@teensyrom-nx/api-client';
@@ -12,7 +12,7 @@ describe('AppBootstrapService Integration Tests', () => {
   let deviceService: DeviceService;
   let originalFindDevices: () => Observable<AllDevices>;
 
-  beforeAll(() => {
+  beforeEach(() => {
     const httpHandler = new HttpXhrBackend({ build: () => new XMLHttpRequest() });
     const httpClient = new HttpClient(httpHandler);
     const config = new Configuration({ basePath: 'http://localhost:5168' });
@@ -40,6 +40,8 @@ describe('AppBootstrapService Integration Tests', () => {
       }
       // Restore original findDevices method after each test
       deviceService.findDevices = originalFindDevices;
+      // Clean up TestBed
+      TestBed.resetTestingModule();
     } catch (error) {
       console.warn('Error during cleanup:', error);
     }
@@ -54,11 +56,8 @@ describe('AppBootstrapService Integration Tests', () => {
     await expect(appBootstrapService.init()).resolves.not.toThrow();
 
     // Assert
-    const connectedDevices = await getConnectedDevices();
-    //output the connected devices
-    console.log('Connected devices:', connectedDevices);
-
-    expect(connectedDevices.length).toBeGreaterThan(0);
+    const result = await firstValueFrom(deviceService.findDevices());
+    expect(result.availableCarts.length).toBeGreaterThan(0);
   });
 
   it('should throw error when no devices are available', async () => {
