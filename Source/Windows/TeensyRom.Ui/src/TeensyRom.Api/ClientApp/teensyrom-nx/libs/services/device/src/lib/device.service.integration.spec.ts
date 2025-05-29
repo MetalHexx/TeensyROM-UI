@@ -52,8 +52,6 @@ describe('DeviceService Integration Tests', () => {
   it('should connect to a device', async () => {
     //Arrange
     const expectedDevice = await getAvailableDevice();
-
-    if (!expectedDevice?.deviceId) throw new Error('No available devices found!');
     //Act
     const result = await deviceService.connectDevice(expectedDevice.deviceId).toPromise();
 
@@ -65,8 +63,6 @@ describe('DeviceService Integration Tests', () => {
   it('should disconnect from a connected device', async () => {
     //Arrange
     const expectedDevice = await getAvailableDevice();
-
-    if (!expectedDevice?.deviceId) throw new Error('No available devices found!');
 
     await deviceService.connectDevice(expectedDevice.deviceId).toPromise();
 

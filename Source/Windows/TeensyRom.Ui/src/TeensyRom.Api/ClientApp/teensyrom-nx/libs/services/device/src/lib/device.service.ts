@@ -13,7 +13,7 @@ import { Observable, map } from 'rxjs';
   providedIn: 'root',
 })
 export class DeviceService {
-  constructor(private devicesService: DevicesApiService) {}
+  constructor(private readonly devicesService: DevicesApiService) {}
 
   findDevices(): Observable<AllDevices> {
     return this.devicesService
@@ -35,9 +35,7 @@ export class DeviceService {
     return this.devicesService
       .connectDevice(deviceId)
       .pipe(
-        map((response: ConnectDeviceResponse) =>
-          DeviceMapper.toDevice(response.connectedCart || {})
-        )
+        map((response: ConnectDeviceResponse) => DeviceMapper.toDevice(response.connectedCart))
       );
   }
 

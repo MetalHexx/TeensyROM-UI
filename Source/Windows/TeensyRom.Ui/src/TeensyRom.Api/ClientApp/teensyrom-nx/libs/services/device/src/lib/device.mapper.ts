@@ -18,11 +18,7 @@ export class DeviceMapper {
     };
   }
 
-  static toDeviceStorage(storageDto?: CartStorageDto): DeviceStorage | undefined {
-    if (!storageDto) {
-      return undefined;
-    }
-
+  static toDeviceStorage(storageDto: CartStorageDto): DeviceStorage {
     return {
       deviceId: storageDto.deviceId,
       type: storageDto.type,
