@@ -1,4 +1,5 @@
-﻿using TeensyRom.Core.Entities.Storage;
+﻿using System.ComponentModel.DataAnnotations;
+using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Api.Models
 {
@@ -10,12 +11,12 @@ namespace TeensyRom.Api.Models
         /// <summary>
         /// The name of the directory.
         /// </summary>
-        public string Name { get; set; } = string.Empty;
+        [Required] public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// The full path to the directory.
         /// </summary>
-        public string Path { get; set; } = string.Empty;
+        [Required] public string Path { get; set; } = string.Empty;
 
         /// <summary>
         /// Creates a <see cref="DirectoryItemDto"/> from a <see cref="DirectoryItem"/> entity.

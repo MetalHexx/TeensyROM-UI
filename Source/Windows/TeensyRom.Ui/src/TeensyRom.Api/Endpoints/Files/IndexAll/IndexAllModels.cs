@@ -1,4 +1,5 @@
 using RadEndpoints;
+using System.ComponentModel.DataAnnotations;
 
 namespace TeensyRom.Api.Endpoints.Files.IndexAll
 {
@@ -23,6 +24,6 @@ namespace TeensyRom.Api.Endpoints.Files.IndexAll
         /// <summary>
         /// A message indicating the result of the operation.
         /// </summary>
-        public string Message { get; set; } = "Success!";
+        [Required] public string Message { get; set; } = "Success!";
     }
 }

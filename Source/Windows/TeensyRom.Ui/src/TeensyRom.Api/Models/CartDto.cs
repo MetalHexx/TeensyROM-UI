@@ -1,4 +1,5 @@
-﻿using TeensyRom.Core.Entities.Device;
+﻿using System.ComponentModel.DataAnnotations;
+using TeensyRom.Core.Entities.Device;
 using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Api.Models
@@ -11,37 +12,37 @@ namespace TeensyRom.Api.Models
         /// <summary>
         /// The unique ID of the TeensyROM device.
         /// </summary>
-        public string? DeviceId { get; set; }
+        [Required] public string DeviceId { get; set; } = string.Empty;
 
         /// <summary>
         /// The COM port the device is connected to.
         /// </summary>
-        public string ComPort { get; set; } = string.Empty;
+        [Required] public string ComPort { get; set; } = string.Empty;
 
         /// <summary>
         /// The user-friendly name of the device.
         /// </summary>
-        public string Name { get; set; } = "Unnamed";
+        [Required] public string Name { get; set; } = "Unnamed";
 
         /// <summary>
         /// The firmware version of the device.
         /// </summary>
-        public string FwVersion { get; set; } = string.Empty;
+        [Required] public string FwVersion { get; set; } = string.Empty;
 
         /// <summary>
         /// Indicates whether the device is compatible with the current application version.
         /// </summary>
-        public bool IsCompatible { get; set; }
+        [Required] public bool IsCompatible { get; set; }
 
         /// <summary>
         /// Information about the SD storage on the device.
         /// </summary>
-        public CartStorageDto SdStorage { get; set; } = null!;
+        [Required] public CartStorageDto SdStorage { get; set; } = null!;
 
         /// <summary>
         /// Information about the USB storage on the device.
         /// </summary>
-        public CartStorageDto UsbStorage { get; set; } = null!;
+        [Required] public CartStorageDto UsbStorage { get; set; } = null!;
 
         /// <summary>
         /// Creates a <see cref="CartDto"/> from a <see cref="Cart"/> entity.
@@ -50,7 +51,7 @@ namespace TeensyRom.Api.Models
         {
             return new CartDto
             {
-                DeviceId = cart.DeviceId,
+                DeviceId = cart.DeviceId ?? string.Empty,
                 ComPort = cart.ComPort,
                 Name = cart.Name,
                 FwVersion = cart.FwVersion,
@@ -69,17 +70,17 @@ namespace TeensyRom.Api.Models
         /// <summary>
         /// The unique ID of the TeensyROM device.
         /// </summary>
-        public string DeviceId { get; set; } = string.Empty;
+        [Required] public string DeviceId { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of storage (SD or USB).
         /// </summary>
-        public TeensyStorageType Type { get; set; }
+        [Required] public TeensyStorageType Type { get; set; }
 
         /// <summary>
         /// Indicates whether the storage is available.
         /// </summary>
-        public bool Available { get; set; }
+        [Required] public bool Available { get; set; }
 
         /// <summary>
         /// Creates a <see cref="CartStorageDto"/> from a <see cref="CartStorage"/> entity.

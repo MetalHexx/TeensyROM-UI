@@ -1,4 +1,5 @@
 using RadEndpoints;
+using System.ComponentModel.DataAnnotations;
 using TeensyRom.Core.Common;
 
 namespace TeensyRom.Api.Endpoints.ResetDevice
@@ -33,6 +34,6 @@ namespace TeensyRom.Api.Endpoints.ResetDevice
         /// <summary>
         /// A message indicating the result of the operation.
         /// </summary>
-        public string Message { get; set; } = "Success!";
+        [Required] public string Message { get; set; } = "Success!";
     }
 }

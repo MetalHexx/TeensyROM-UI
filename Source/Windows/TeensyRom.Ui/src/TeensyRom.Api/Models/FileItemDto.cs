@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Api.Models
@@ -11,102 +12,102 @@ namespace TeensyRom.Api.Models
         /// <summary>
         /// The name of the file.
         /// </summary>
-        public string Name { get; set; } = string.Empty;
+        [Required] public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// The full path to the file.
         /// </summary>
-        public string Path { get; set; } = string.Empty;
+        [Required] public string Path { get; set; } = string.Empty;
 
         /// <summary>
         /// The size of the file in bytes.
         /// </summary>
-        public long Size { get; set; }
+        [Required] public long Size { get; set; }
 
         /// <summary>
         /// Indicates whether the file is marked as a favorite.
         /// </summary>
-        public bool IsFavorite { get; set; }
+        [Required] public bool IsFavorite { get; set; }
 
         /// <summary>
         /// The title of the file, if available.
         /// </summary>
-        public string Title { get; set; } = string.Empty;
+        [Required] public string Title { get; set; } = string.Empty;
 
         /// <summary>
         /// The creator or author of the file, if available.
         /// </summary>
-        public string Creator { get; set; } = string.Empty;
+        [Required] public string Creator { get; set; } = string.Empty;
 
         /// <summary>
         /// Release information for the file, if available.
         /// </summary>
-        public string ReleaseInfo { get; set; } = string.Empty;
+        [Required] public string ReleaseInfo { get; set; } = string.Empty;
 
         /// <summary>
         /// A description of the file, if available.
         /// </summary>
-        public string Description { get; set; } = string.Empty;
+        [Required] public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// A shareable URL for the file, if available.
         /// </summary>
-        public string ShareUrl { get; set; } = string.Empty;
+        [Required] public string ShareUrl { get; set; } = string.Empty;
 
         /// <summary>
         /// The source of the metadata for the file.
         /// </summary>
-        public string MetadataSource { get; set; } = string.Empty;
+        [Required] public string MetadataSource { get; set; } = string.Empty;
 
         /// <summary>
         /// Additional metadata field 1.
         /// </summary>
-        public string Meta1 { get; set; } = string.Empty;
+        [Required] public string Meta1 { get; set; } = string.Empty;
 
         /// <summary>
         /// Additional metadata field 2.
         /// </summary>
-        public string Meta2 { get; set; } = string.Empty;
+        [Required] public string Meta2 { get; set; } = string.Empty;
 
         /// <summary>
         /// The path to the metadata source file, if available.
         /// </summary>
-        public string MetadataSourcePath { get; set; } = string.Empty;
+        [Required] public string MetadataSourcePath { get; set; } = string.Empty;
 
         /// <summary>
         /// The path to the favorite child, if applicable.
         /// </summary>
-        public string FavChildPath { get; set; } = string.Empty;
+        [Required] public string FavChildPath { get; set; } = string.Empty;
 
         /// <summary>
         /// The path to the favorite parent, if applicable.
         /// </summary>
-        public string FavParentPath { get; set; } = string.Empty;
+        [Required] public string FavParentPath { get; set; } = string.Empty;
 
         /// <summary>
         /// The total play length of the file, if applicable.
         /// </summary>
-        public TimeSpan? PlayLength { get; set; }
+        [Required] public TimeSpan PlayLength { get; set; }
 
         /// <summary>
         /// The play lengths of subtunes, if applicable.
         /// </summary>
-        public List<TimeSpan>? SubtuneLengths { get; set; }
+        [Required] public List<TimeSpan> SubtuneLengths { get; set; } = [];
 
         /// <summary>
         /// The starting subtune number, if applicable.
         /// </summary>
-        public int? StartSubtuneNum { get; set; }
+        [Required] public int StartSubtuneNum { get; set; }
 
         /// <summary>
         /// A list of images associated with the file.
         /// </summary>
-        public List<ViewableItemImageDto>? Images { get; set; }
+        [Required] public List<ViewableItemImageDto> Images { get; set; } = [];
 
         /// <summary>
         /// The type of the file (e.g., Song, Game, Image, Hex, Unknown).
         /// </summary>
-        public FileItemType Type { get; set; } = FileItemType.Unknown;
+        [Required] public FileItemType Type { get; set; } = FileItemType.Unknown;
 
         /// <summary>
         /// Creates a <see cref="FileItemDto"/> from an <see cref="ILaunchableItem"/> entity.

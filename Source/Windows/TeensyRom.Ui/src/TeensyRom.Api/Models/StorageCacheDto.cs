@@ -1,4 +1,5 @@
-﻿using TeensyRom.Core.Entities.Storage;
+﻿using System.ComponentModel.DataAnnotations;
+using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Storage;
 
 namespace TeensyRom.Api.Models
@@ -11,17 +12,17 @@ namespace TeensyRom.Api.Models
         /// <summary>
         /// The list of subdirectories in the cached directory.
         /// </summary>
-        public List<DirectoryItemDto> Directories { get; set; } = [];
+        [Required] public List<DirectoryItemDto> Directories { get; set; } = [];
 
         /// <summary>
         /// The list of files in the cached directory.
         /// </summary>
-        public List<FileItemDto> Files { get; set; } = [];
+        [Required] public List<FileItemDto> Files { get; set; } = [];
 
         /// <summary>
         /// The full path to the cached directory.
         /// </summary>
-        public string Path { get; set; } = string.Empty;
+        [Required] public string Path { get; set; } = string.Empty;
 
         /// <summary>
         /// Creates a <see cref="StorageCacheDto"/> from an <see cref="IStorageCacheItem"/> entity.
@@ -31,17 +32,15 @@ namespace TeensyRom.Api.Models
             return new ()
             {
                 Path = cache.Path,
-                Directories = cache.Directories
+                Directories = [.. cache.Directories
                     .Select(d => new DirectoryItemDto
                     {
                         Name = d.Name,
                         Path = d.Path
-                    })
-                    .ToList(),
-                Files = cache.Files
+                    })],
+                Files = [.. cache.Files
                     .OfType<ILaunchableItem>()
-                    .Select(FileItemDto.FromLaunchable)
-                    .ToList()
+                    .Select(FileItemDto.FromLaunchable)]
             };
         }
     }

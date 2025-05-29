@@ -1,8 +1,9 @@
-﻿namespace TeensyRom.Api.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TeensyRom.Api.Models
 {
     public class ApiResponse
     {
-        public bool Success { get; set; } = true;
-        public virtual string Message { get; set; } = "Success";
+        [Required] public virtual string Message { get; set; } = "Success";
     }
 }

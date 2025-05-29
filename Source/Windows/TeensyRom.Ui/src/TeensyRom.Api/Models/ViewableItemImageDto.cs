@@ -1,4 +1,5 @@
-﻿using TeensyRom.Core.Entities.Storage;
+﻿using System.ComponentModel.DataAnnotations;
+using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Api.Models
 {
@@ -10,17 +11,17 @@ namespace TeensyRom.Api.Models
         /// <summary>
         /// The file name of the image.
         /// </summary>
-        public string FileName { get; set; } = string.Empty;
+        [Required] public string FileName { get; set; } = string.Empty;
 
         /// <summary>
         /// The full path to the image file.
         /// </summary>
-        public string Path { get; set; } = string.Empty;
+        [Required] public string Path { get; set; } = string.Empty;
 
         /// <summary>
         /// The source or origin of the image.
         /// </summary>
-        public string Source { get; set; } = string.Empty;
+        [Required] public string Source { get; set; } = string.Empty;
 
         /// <summary>
         /// Creates a <see cref="ViewableItemImageDto"/> from a <see cref="ViewableItemImage"/> entity.

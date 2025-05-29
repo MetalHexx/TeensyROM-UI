@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using RadEndpoints;
+using System.ComponentModel.DataAnnotations;
 using TeensyRom.Api.Models;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
@@ -70,11 +71,11 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
         /// <summary>
         /// The file that was randomly launched.
         /// </summary>
-        public FileItemDto LaunchedFile { get; set; } = null!;
+        [Required] public FileItemDto LaunchedFile { get; set; } = null!;
 
         /// <summary>
         /// A message indicating the result of the operation.
         /// </summary>
-        public string Message { get; set; } = "Success!";
+        [Required] public string Message { get; set; } = "Success!";
     }
 }

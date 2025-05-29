@@ -1,5 +1,6 @@
 using CsvHelper.Configuration.Attributes;
 using RadEndpoints;
+using System.ComponentModel.DataAnnotations;
 using TeensyRom.Api.Models;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
@@ -52,11 +53,11 @@ namespace TeensyRom.Api.Endpoints.Files.GetDirectory
         /// <summary>
         /// The directory and its immediate files and subdirectories.
         /// </summary>
-        public StorageCacheDto StorageItem { get; set; } = null!;
+        [Required] public StorageCacheDto StorageItem { get; set; } = null!;
 
         /// <summary>
         /// A message indicating the result of the operation.
         /// </summary>
-        public string Message { get; set; } = "Success!";
+        [Required] public string Message { get; set; } = "Success!";
     }
 }

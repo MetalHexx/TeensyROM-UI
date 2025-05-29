@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using TeensyRom.Api.Models;
 using TeensyRom.Core.Entities.Device;
 
@@ -34,11 +35,11 @@ namespace TeensyRom.Api.Endpoints.ConnectDevice
         /// <summary>
         /// The connected TeensyROM cartridge information.
         /// </summary>
-        public CartDto ConnectedCart { get; set; } = null!;
+        [Required] public CartDto ConnectedCart { get; set; } = null!;
 
         /// <summary>
         /// A message indicating the result of the operation.
         /// </summary>
-        public override string Message { get; set; } = "Connection successful!";
+        [Required] public override string Message { get; set; } = "Connection successful!";
     }
 }

@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using RadEndpoints;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
@@ -56,6 +57,6 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
         /// <summary>
         /// A message indicating the result of the operation.
         /// </summary>
-        public string Message { get; set; } = "Success!";
+        [Required] public string Message { get; set; } = "Success!";
     }
 }

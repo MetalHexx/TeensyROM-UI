@@ -1,10 +1,11 @@
-﻿using TeensyRom.Api.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using TeensyRom.Api.Models;
 
 namespace TeensyRom.Api.Endpoints.Serial.GetPorts
 {
     public class GetPortsRequest();
     public class GetPortsResponse : ApiResponse
     {
-        public string[] Ports { get; set; } = [];
+        [Required] public string[] Ports { get; set; } = [];
     };
 }

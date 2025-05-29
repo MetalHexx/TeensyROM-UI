@@ -1,4 +1,5 @@
 using RadEndpoints;
+using System.ComponentModel.DataAnnotations;
 using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Device;
@@ -35,6 +36,6 @@ namespace TeensyRom.Api.Endpoints.ClosePort
         /// <summary>
         /// A message indicating the result of the operation.
         /// </summary>
-        public string Message { get; set; } = "Success!";
+        [Required] public string Message { get; set; } = "Success!";
     }
 }
