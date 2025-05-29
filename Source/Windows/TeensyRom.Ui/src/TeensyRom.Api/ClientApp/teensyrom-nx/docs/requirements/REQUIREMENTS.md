@@ -55,6 +55,8 @@
 - `storage-store` maintains directory and file metadata per connected device and per storage type (SD or USB).
   - Includes most recently launched files, cached directory indexes, or file filtering state.
 - Reactive approach (Signals or RxJS) for change propagation.
+- All application state libraries use **NgRx Signal Store** for consistency, immutability, and effect-driven updates.
+- State is organized and owned per domain; shared state across domains must be intentional and minimal.
 
 ### 6. API Client
 
@@ -64,49 +66,59 @@
 
 ---
 
-## Nx Workspace Tree (Explicit Structure)
+## Nx Workspace Tree (Explicit Structure + Annotated)
 
 ```bash
-apps/
-├── teensyrom-ui/                          # [app] Main Angular standalone application
+apps/                                       # [group] Applications
+├── teensyrom-ui/                           # [app] Main Angular application
 │   └── src/app/
-│       ├── app.component.ts
-│       ├── routes.ts
-│       └── app.config.ts                 # Boot providers
+│       ├── app.component.ts               # [file] Root component
+│       ├── routes.ts                      # [file] Application routes
+│       └── app.config.ts                  # [file] Root providers/bootstrap config
 
-libs/
-├── app-boot/                              # [library] Domain: Bootstrapping
+libs/                                       # [group] Libraries
+├── app-boot/                               # [library] Application startup logic
 │   └── app-bootstrap/
-│       └── app-bootstrap.service.ts
+│       └── app-bootstrap.service.ts       # [file] Bootstrap orchestrator
 
-├── app-state/                             # [library group] Domain: Global State Stores
-│   ├── device-store/                      # [library] Connected device state
-│   ├── storage-store/                     # [library] File/directory state
-│   └── settings-store/                    # [library] App/user settings state
+├── app-state/                              # [group] Global state libraries (NgRx Signal Store)
+│   ├── device-store/                       # [library] Device state
+│   │   ├── device-store.ts                 # [file] SignalStore definition
+│   │   └── device-store.models.ts          # [file] Optional: View model types
+│
+│   ├── storage-store/                      # [library] Storage metadata state
+│   │   ├── storage-store.ts
+│   │   └── storage-store.models.ts
+│
+│   └── settings-store/                     # [library] Settings and preferences state
+│       ├── settings-store.ts
+│       └── settings-store.models.ts
 
-├── services/                              # [library group] Domain: Business Logic Services
-│   ├── device/                            # [library] Device: houses device domain business logic
-│   │   ├── device.service.ts              # Device orchestration logic
-│   │   ├── device.mapper.ts               # Maps API responses to frontend models
-│   │   └── device.models.ts               # Domain model definitions for device logic
-│   ├── storage/                           # [library] Storage: houses storage domain business logic
-│   │   ├── storage.service.ts             # File metadata, launch logic
-│   │   ├── storage.mapper.ts              # Maps API responses to frontend models
-│   │   └── storage.models.ts              # Domain model definitions for storage logic
-│   └── settings/                          # [library] Settings: houses settings domain business logic
-│       └── settings.service.ts            # Settings persistence logic
+├── services/                               # [group] Domain service libraries
+│   ├── device/                             # [library] Device business logic
+│   │   ├── device.service.ts               # [file] Device orchestration
+│   │   ├── device.mapper.ts                # [file] Maps API DTOs to frontend models
+│   │   └── device.models.ts                # [file] Device domain model types
+│
+│   ├── storage/                            # [library] Storage business logic
+│   │   ├── storage.service.ts
+│   │   ├── storage.mapper.ts
+│   │   └── storage.models.ts
+│
+│   └── settings/                           # [library] Settings persistence logic
+│       └── settings.service.ts
 
-├── features/                              # [library group] Domain: Feature Modules
-│   ├── devices/                           # [library] UI for device overview
-│   └── settings/                          # [library] UI for application settings
+├── features/                               # [group] Feature UI modules
+│   ├── devices/                            # [library] Device-related views and components
+│   └── settings/                           # [library] Settings UI and route logic
 
-├── layout/                                # [library group] Domain: App Layout
-│   └── shell/                             # [library] App frame with nav + header
+├── layout/                                 # [group] Global layout libraries
+│   └── shell/                              # [library] Application shell (header/nav)
 
-├── api-client/                            # [library] Generated OpenAPI client
-│   ├── apis/                              # [folder] API service classes
-│   ├── models/                            # [folder] Data models
-│   └── scripts/generate-client.ts         # [script] OpenAPI generator CLI integration
+├── api-client/                             # [library] OpenAPI-generated client
+│   ├── apis/                               # [folder] API service classes
+│   ├── models/                             # [folder] Generated types/interfaces
+│   └── scripts/generate-client.ts          # [file] OpenAPI generator script
 
-├── ui/                                    # [library] Presentational-only reusable components
+├── ui/                                     # [library] Shared presentational components
 ```
