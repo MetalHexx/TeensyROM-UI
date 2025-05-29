@@ -6,16 +6,6 @@
   "projectType": "library",
   "tags": [],
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/services/device",
-        "main": "libs/services/device/src/index.ts",
-        "tsConfig": "libs/services/device/tsconfig.lib.json",
-        "assets": ["libs/services/device/*.md"]
-      }
-    },
     "lint": {
       "executor": "@nx/eslint:lint"
     },
