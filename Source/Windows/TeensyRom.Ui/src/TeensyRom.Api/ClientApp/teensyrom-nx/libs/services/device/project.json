@@ -1,5 +1,5 @@
 {
-  "name": "device",
+  "name": "device-services",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "/libs/services/device/src",
   "prefix": "lib",

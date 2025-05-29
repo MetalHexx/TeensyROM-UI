@@ -1,5 +1,5 @@
 import { signalStore, withState } from '@ngrx/signals';
-import { Device } from '@teensyrom-nx/device';
+import { Device } from '@teensyrom-nx/device-services';
 
 type DeviceState = {
   devices: Device[];
@@ -26,9 +26,26 @@ const initialState: DeviceState = {
       },
       comPort: 'COM1',
     },
+    {
+      deviceId: '123',
+      name: 'Test Device 2',
+      fwVersion: '1.0.0',
+      isCompatible: true,
+      sdStorage: {
+        deviceId: '123',
+        type: 1,
+        available: true,
+      },
+      usbStorage: {
+        deviceId: '123',
+        type: 0,
+        available: true,
+      },
+      comPort: 'COM1',
+    },
   ],
   isLoading: false,
   error: null,
 };
 
-export const deviceStore = signalStore(withState(initialState));
+export const DeviceStore = signalStore(withState(initialState));

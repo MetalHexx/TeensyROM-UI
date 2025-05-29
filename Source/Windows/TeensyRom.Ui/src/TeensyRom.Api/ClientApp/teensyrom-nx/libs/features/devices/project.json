@@ -1,7 +1,7 @@
 {
-  "name": "device-store",
+  "name": "device-features",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "/libs/app-state/device-store/src",
+  "sourceRoot": "/libs/features/devices/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [],
@@ -12,7 +12,7 @@
   },
   "dependencies": [
     {
-      "project": "device-services",
+      "project": "device-store",
       "type": "static"
     }
   ]
