@@ -14,6 +14,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
                 .Produces<LaunchFileResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status502BadGateway)
+                .WithName("LaunchFile")
                 .WithSummary("Launch File")
                 .WithDescription("Launches a file given a valid path to a file stored on the TeensyRom.")
                 .WithTags("Files");

@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@teensyrom-nx/api-client": ["libs/api-client/src/index.ts"],
+      "@teensyrom-nx/device": ["/libs/services/device/src/index.ts"],
       "@teensyrom-nx/ui": ["libs/ui/src/index.ts"]
     }
   },

@@ -11,6 +11,7 @@ namespace TeensyRom.Api.Endpoints.Files.GetDirectory
             Get("/devices/{deviceId}/storage/{storageType}/directories")
                 .Produces<GetDirectoryResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
+                .WithName("GetDirectory")
                 .WithSummary("Get Directory")
                 .WithTags("Files")
                 .WithDescription(

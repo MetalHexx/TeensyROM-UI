@@ -15,6 +15,7 @@ namespace TeensyRom.Api.Endpoints.Files.IndexAll
             Post("/files/index/all")
                 .Produces<IndexAllResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status404NotFound)
+                .WithName("IndexAll")
                 .WithSummary("Index All")
                 .WithTags("Files")
                 .WithDescription(

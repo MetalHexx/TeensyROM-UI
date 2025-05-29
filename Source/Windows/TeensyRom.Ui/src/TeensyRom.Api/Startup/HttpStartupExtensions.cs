@@ -16,6 +16,11 @@ namespace TeensyRom.Api.Startup
                                .AllowAnyMethod()
                                .AllowAnyHeader()
                                .AllowCredentials();
+
+                        builder.WithOrigins("http://localhost:3000") // Front-end integration tests
+                               .AllowAnyMethod()
+                               .AllowAnyHeader()
+                               .AllowCredentials();
                     });
             });
             return services;

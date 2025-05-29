@@ -17,6 +17,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status404NotFound)
                 .ProducesProblem(StatusCodes.Status502BadGateway)
+                .WithName("LaunchRandom")
                 .WithSummary("Launch Random File")
                 .WithTags("Files")
                 .WithDescription(

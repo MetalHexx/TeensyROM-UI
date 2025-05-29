@@ -10,6 +10,7 @@ namespace TeensyRom.Api.Endpoints.ClosePort
             Delete("/devices/{deviceId}")
                 .Produces<DisconnectDeviceResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
+                .WithName("DisconnectDevice")
                 .WithSummary("Disconnect Device")
                 .WithTags("Devices")
                 .WithDescription(

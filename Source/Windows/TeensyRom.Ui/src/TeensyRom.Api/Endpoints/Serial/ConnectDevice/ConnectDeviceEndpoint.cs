@@ -10,6 +10,7 @@ namespace TeensyRom.Api.Endpoints.ConnectDevice
             Post("/devices/{deviceId}/connect")
                 .Produces<ConnectDeviceResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
+                .WithName("ConnectDevice")
                 .WithSummary("Connect Device")
                 .WithTags("Devices")
                 .WithDescription(

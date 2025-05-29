@@ -12,6 +12,7 @@ namespace TeensyRom.Api.Endpoints.ResetDevice
             Put("/devices/{deviceId}/reset")
                 .Produces<ResetDeviceResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
+                .WithName("ResetDevice")
                 .WithSummary("Reset Device")
                 .WithTags("Devices")
                 .WithDescription(

@@ -12,6 +12,7 @@ namespace TeensyRom.Api.Endpoints.Files.Index
             Post("/devices/{deviceId}/storage/{storageType}/index")
                 .Produces<IndexResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
+                .WithName("Index")
                 .WithSummary("Index")
                 .WithTags("Files")
                 .WithDescription(
