@@ -1,2 +1,2 @@
-export * from './device.models';
-export * from './device.service';
+export * from './lib/device.models';
+export * from './lib/device.service';

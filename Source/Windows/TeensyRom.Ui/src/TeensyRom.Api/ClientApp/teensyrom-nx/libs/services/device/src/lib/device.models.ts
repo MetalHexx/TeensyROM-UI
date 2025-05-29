@@ -1,5 +1,3 @@
-import { CartDto, CartStorageDto } from '@teensyrom-nx/api-client';
-
 export interface DeviceStorage {
   deviceId?: string;
   type?: number;
