@@ -20,7 +20,8 @@
       "@teensyrom-nx/device-features": ["libs/features/devices/src/index.ts"],
       "@teensyrom-nx/device-services": ["libs/services/device/src/index.ts"],
       "@teensyrom-nx/device-store": ["libs/app-state/device-store/src/index.ts"],
-      "@teensyrom-nx/ui": ["libs/ui/src/index.ts"]
+      "@teensyrom-nx/ui": ["libs/ui/src/index.ts"],
+      "@teensyrom/ui-styles": ["libs/ui-styles/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
