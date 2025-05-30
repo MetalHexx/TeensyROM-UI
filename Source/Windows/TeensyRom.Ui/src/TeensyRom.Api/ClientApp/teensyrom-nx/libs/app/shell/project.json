@@ -5,7 +5,7 @@
   "prefix": "lib",
   "projectType": "library",
   "tags": [],
-  "implicitDependencies": ["navigation", "components"],
+  "implicitDependencies": ["app-navigation", "components"],
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint"
