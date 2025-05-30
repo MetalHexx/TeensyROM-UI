@@ -1,5 +1,5 @@
 {
-  "name": "app-bootstrap",
+  "name": "bootstrap",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "/libs/app/bootstrap/src",
   "prefix": "lib",
