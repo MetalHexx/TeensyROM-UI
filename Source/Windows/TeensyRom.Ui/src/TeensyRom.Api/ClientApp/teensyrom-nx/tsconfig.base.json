@@ -21,7 +21,7 @@
       "@teensyrom-nx/app/navigation": ["libs/app/navigation/src/index.ts"],
       "@teensyrom-nx/features/device": ["libs/features/devices/src/index.ts"],
       "@teensyrom-nx/device-store": ["libs/domain/devices/state/src/index.ts"],
-      "@teensyrom-nx/domain/devices/services": ["libs/domain/devices/services/src/index.ts"],
+      "@teensyrom-nx/domain/device/services": ["libs/domain/devices/services/src/index.ts"],
       "@teensyrom-nx/ui/components": ["libs/ui/components/src/index.ts"],
       "@teensyrom-nx/ui/styles": ["libs/ui/styles/src/index.ts"]
     }

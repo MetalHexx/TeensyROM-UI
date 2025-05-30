@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { AllDevices, Device, DeviceService } from '@teensyrom-nx/domain/devices/services';
+import { AllDevices, Device, DeviceService } from '@teensyrom-nx/domain/device/services';
 import { distinctUntilChanged, pipe, switchMap, tap, catchError } from 'rxjs';
 
 type DeviceState = {

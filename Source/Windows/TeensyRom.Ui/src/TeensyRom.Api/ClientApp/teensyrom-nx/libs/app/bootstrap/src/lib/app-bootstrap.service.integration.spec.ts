@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { AppBootstrapService } from './app-bootstrap.service';
-import { DeviceService, AllDevices } from '@teensyrom-nx/domain/devices/services';
+import { DeviceService, AllDevices } from '@teensyrom-nx/domain/device/services';
 import { DevicesApiService, Configuration } from '@teensyrom-nx/api-client';
 import { HttpClient, HttpXhrBackend } from '@angular/common/http';
 import { firstValueFrom, of, Observable } from 'rxjs';
