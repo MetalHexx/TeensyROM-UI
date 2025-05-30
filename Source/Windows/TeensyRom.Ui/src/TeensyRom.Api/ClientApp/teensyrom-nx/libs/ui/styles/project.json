@@ -1,5 +1,5 @@
 {
-  "name": "styles",
+  "name": "ui-styles",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/ui/styles/src",
   "prefix": "lib",
