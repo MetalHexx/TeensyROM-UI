@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
 import { NavButtonComponent } from './nav-button/nav-button.component';
-import { ThemeService } from '@teensyrom/ui-styles';
+import { ThemeService } from '@teensyrom-nx/ui/styles';
 
 @Component({
   selector: 'lib-header',
