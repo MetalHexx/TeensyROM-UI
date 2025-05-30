@@ -1,0 +1,14 @@
+<lib-header></lib-header>
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav
+    class="custom-sidenav glassy"
+    mode="over"
+    [opened]="navService.isNavOpen()"
+    (closedStart)="navService.closeNav()"
+  >
+    <lib-nav-menu></lib-nav-menu>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <router-outlet />
+  </mat-sidenav-content>
+</mat-sidenav-container>

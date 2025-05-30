@@ -1,0 +1,23 @@
+.nav-menu-list {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.flat-list-item {
+  --mat-list-item-one-line-container-height: 56px;
+  border-radius: 0 !important;
+  min-height: 56px;
+  padding: 0 16px;
+  position: relative;
+
+  .mat-list-item-content {
+    border-radius: 0 !important;
+    min-height: inherit;
+  }
+
+  // Optional: remove hover shape layer manually
+  .mat-mdc-list-item-interactive::before {
+    border-radius: 0 !important;
+  }
+}

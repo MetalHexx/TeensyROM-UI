@@ -17,11 +17,12 @@
     "paths": {
       "@teensyrom-nx/api-client": ["libs/api-client/src/index.ts"],
       "@teensyrom-nx/app-bootstrap": ["libs/app-bootstrap/src/index.ts"],
-      "@teensyrom-nx/app-layout": ["../../../../../../../../../../libs/app-layout/src/index.ts"],
+      "@teensyrom-nx/app-shell": ["libs/app-shell/src/index.ts"],
       "@teensyrom-nx/device-features": ["libs/features/devices/src/index.ts"],
       "@teensyrom-nx/device-services": ["libs/services/device/src/index.ts"],
       "@teensyrom-nx/device-store": ["libs/app-state/device-store/src/index.ts"],
-      "@teensyrom-nx/ui": ["libs/ui-components/src/index.ts"],
+      "@teensyrom-nx/navigation": ["libs/services/navigation/src/index.ts"],
+      "@teensyrom-nx/ui-components": ["libs/ui-components/src/index.ts"],
       "@teensyrom/ui-styles": ["libs/ui-styles/src/index.ts"]
     }
   },

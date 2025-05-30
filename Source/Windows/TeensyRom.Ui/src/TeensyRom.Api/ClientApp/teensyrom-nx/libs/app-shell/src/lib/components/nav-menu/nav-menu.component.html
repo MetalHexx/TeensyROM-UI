@@ -1,0 +1,7 @@
+<mat-nav-list class="nav-menu-list">
+  @for (item of menuItems(); track item.name) {
+  <mat-list-item disableRipple class="flat-list-item">
+    <lib-menu-item [item]="item" (menuClick)="onMenuClicked($event)"></lib-menu-item>
+  </mat-list-item>
+  }
+</mat-nav-list>

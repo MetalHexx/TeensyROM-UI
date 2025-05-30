@@ -1,0 +1,20 @@
+.menu-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  transition: background 0.2s;
+  border-radius: 6px;
+}
+
+.menu-icon {
+  margin-right: 16px;
+  font-size: 24px;
+}
+
+.menu-title {
+  font-size: 16px;
+  font-weight: 500;
+  flex: 1;
+}

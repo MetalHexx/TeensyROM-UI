@@ -1,5 +1,5 @@
 {
-  "name": "app-layout",
+  "name": "app-shell",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "/libs/app-shell/src",
   "prefix": "lib",
@@ -9,5 +9,6 @@
     "lint": {
       "executor": "@nx/eslint:lint"
     }
-  }
+  },
+  "implicitDependencies": ["navigation", "ui-components"]
 }
