@@ -4,7 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { appRoutes } from './app.routes';
 import { AppBootstrapService } from '@teensyrom-nx/app-bootstrap';
-import { DeviceService } from '@teensyrom-nx/device-services';
+import { DeviceService } from '@teensyrom-nx/domain/devices/services';
 import { DevicesApiService, Configuration } from '@teensyrom-nx/api-client';
 import { HttpClient } from '@angular/common/http';
 

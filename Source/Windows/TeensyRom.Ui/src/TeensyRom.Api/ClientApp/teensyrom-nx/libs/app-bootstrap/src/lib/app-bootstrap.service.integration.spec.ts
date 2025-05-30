@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { AppBootstrapService } from './app-bootstrap.service';
-import { DeviceService } from '@teensyrom-nx/device-services';
+import { DeviceService, AllDevices } from '@teensyrom-nx/domain/devices/services';
 import { DevicesApiService, Configuration } from '@teensyrom-nx/api-client';
 import { HttpClient, HttpXhrBackend } from '@angular/common/http';
 import { firstValueFrom, of, Observable } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
-import { AllDevices } from '@teensyrom-nx/device-services';
 
 describe('AppBootstrapService Integration Tests', () => {
   let appBootstrapService: AppBootstrapService;
