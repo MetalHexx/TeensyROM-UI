@@ -6,7 +6,7 @@
   "sourceRoot": "apps/teensyrom-ui/src",
   "tags": [],
   "implicitDependencies": [
-    "device-features",
+    "features-device",
     "device-services",
     "device-store",
     "ui-styles",
