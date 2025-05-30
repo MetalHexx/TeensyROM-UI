@@ -4,7 +4,7 @@ import {
   FindDevicesResponse,
   ConnectDeviceResponse,
   DisconnectDeviceResponse,
-} from '@teensyrom-nx/api-client';
+} from '@teensyrom-nx/data-access/api-client';
 import { AllDevices, Device } from './device.models';
 import { DeviceMapper } from './device.mapper';
 import { Observable, map } from 'rxjs';

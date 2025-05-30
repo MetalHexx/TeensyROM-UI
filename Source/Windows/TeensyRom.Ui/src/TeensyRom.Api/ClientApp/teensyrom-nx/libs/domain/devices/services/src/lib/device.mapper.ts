@@ -1,4 +1,4 @@
-import { CartDto, CartStorageDto, FindDevicesResponse } from '@teensyrom-nx/api-client';
+import { CartDto, CartStorageDto, FindDevicesResponse } from '@teensyrom-nx/data-access/api-client';
 import { AllDevices, Device, DeviceStorage } from './device.models';
 
 export class DeviceMapper {

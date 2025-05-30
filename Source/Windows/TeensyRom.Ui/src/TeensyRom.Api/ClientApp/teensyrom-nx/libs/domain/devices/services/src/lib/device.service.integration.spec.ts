@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { DeviceService } from './device.service';
-import { DevicesApiService, Configuration } from '@teensyrom-nx/api-client';
+import { DevicesApiService, Configuration } from '@teensyrom-nx/data-access/api-client';
 import { HttpClient, HttpXhrBackend } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 

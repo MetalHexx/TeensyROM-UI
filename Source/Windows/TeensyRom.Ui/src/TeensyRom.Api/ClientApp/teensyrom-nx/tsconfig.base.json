@@ -15,7 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@teensyrom-nx/api-client": ["libs/data-access/api-client/src/index.ts"],
+      "@teensyrom-nx/data-access/api-client": ["libs/data-access/api-client/src/index.ts"],
       "@teensyrom-nx/app/shell": ["libs/app/shell/src/index.ts"],
       "@teensyrom-nx/app/bootstrap": ["libs/app/bootstrap/src/index.ts"],
       "@teensyrom-nx/app/navigation": ["libs/app/navigation/src/index.ts"],
