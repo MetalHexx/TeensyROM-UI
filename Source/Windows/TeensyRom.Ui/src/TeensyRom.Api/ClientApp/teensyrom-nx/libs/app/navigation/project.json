@@ -1,7 +1,7 @@
 {
   "name": "navigation",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "/libs/services/navigation/src",
+  "sourceRoot": "/libs/app/navigation/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [],

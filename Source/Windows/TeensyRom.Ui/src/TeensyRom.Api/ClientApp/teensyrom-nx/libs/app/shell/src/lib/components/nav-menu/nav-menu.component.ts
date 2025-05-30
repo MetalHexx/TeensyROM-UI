@@ -3,7 +3,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MenuItemComponent } from '@teensyrom-nx/ui-components';
-import { NavigationService, NavItem } from '@teensyrom-nx/navigation';
+import { NavigationService, NavItem } from '@teensyrom-nx/app/navigation';
 import { MenuItem } from '@teensyrom-nx/ui-components';
 
 @Component({

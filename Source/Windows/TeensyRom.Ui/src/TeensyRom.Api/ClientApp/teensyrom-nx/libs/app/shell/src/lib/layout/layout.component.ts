@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { HeaderComponent } from '../components/header/header.component';
-import { NavigationService } from '@teensyrom-nx/navigation';
+import { NavigationService } from '@teensyrom-nx/app/navigation';
 import { NavMenuComponent } from '../components/nav-menu/nav-menu.component';
 
 @Component({

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { NavigationService } from '@teensyrom-nx/navigation';
+import { NavigationService } from '@teensyrom-nx/app/navigation';
 
 @Component({
   selector: 'lib-nav-button',
