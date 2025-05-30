@@ -1,3 +1,7 @@
 {
-    "nxConsole.generateAiAgentRules": true
+  "nxConsole.generateAiAgentRules": true,
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true
+  }
 }
