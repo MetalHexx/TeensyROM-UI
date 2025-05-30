@@ -32,7 +32,7 @@
         "styles": ["apps/teensyrom-ui/src/styles.scss"],
         "scripts": [],
         "stylePreprocessorOptions": {
-          "includePaths": ["libs/ui-styles/src/lib"]
+          "includePaths": ["libs/ui/styles/src/lib"]
         }
       },
       "configurations": {
