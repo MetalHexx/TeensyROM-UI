@@ -1,0 +1,14 @@
+{
+  "name": "device-store",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "/libs/domain/devices/state/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": [],
+  "implicitDependencies": ["device-services"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

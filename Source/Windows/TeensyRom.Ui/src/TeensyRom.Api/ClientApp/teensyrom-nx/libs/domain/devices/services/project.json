@@ -1,10 +1,11 @@
 {
   "name": "device-services",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "/libs/services/device/src",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "/libs/domain/devices/services/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [],
+  "implicitDependencies": ["api-client"],
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint"
@@ -30,10 +31,9 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "vitest --ui --watch",
-        "cwd": "libs/services/device",
+        "cwd": "libs/domain/devices/services",
         "color": true
       }
     }
-  },
-  "implicitDependencies": ["api-client"]
+  }
 }
