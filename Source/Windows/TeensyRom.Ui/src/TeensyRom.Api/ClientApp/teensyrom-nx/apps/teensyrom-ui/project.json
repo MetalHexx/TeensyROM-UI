@@ -10,7 +10,7 @@
     "device-services",
     "device-store",
     "ui-styles",
-    "app-shell"
+    "shell"
   ],
   "targets": {
     "build": {

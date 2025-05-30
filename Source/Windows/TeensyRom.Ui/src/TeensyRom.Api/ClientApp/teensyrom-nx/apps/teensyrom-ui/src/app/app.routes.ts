@@ -1,5 +1,5 @@
 import { Route } from '@angular/router';
-import { LayoutComponent } from '@teensyrom-nx/app-shell';
+import { LayoutComponent } from '@teensyrom-nx/app/shell';
 
 export const appRoutes: Route[] = [
   {
