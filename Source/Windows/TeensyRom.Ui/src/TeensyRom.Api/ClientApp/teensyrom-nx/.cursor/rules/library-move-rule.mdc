@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+For every Nx library move, rename, or path alias change, follow the checklist in `docs\CURSOR_RULES_LIBRARY_MOVE.md` to ensure all references, imports, and dependencies are updated consistently and in line with the structure that NX expects.
