@@ -2,25 +2,88 @@
 // For more information: https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
 html {
+  color-scheme: light;
+
   @include mat.theme(
     (
-      color: (
-        theme-type: light,
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
-      ),
+      color: mat.$azure-palette,
       typography: Roboto,
       density: 0,
     )
   );
+
+  & {
+    --mat-sys-surface-container-low: #cdcdcd;
+  }
 }
 
-html,
-body {
-  height: 100%;
+html.dark-mode {
+  color-scheme: dark;
+  @include mat.theme(
+    (
+      color: mat.$magenta-palette,
+      typography: Roboto,
+      density: 0,
+    )
+  );
+
+  & {
+    --mat-sys-surface-container-low: #231e22;
+  }
 }
+
 body {
-  margin: 0;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface);
+}
+
+// ─────────────────────────────────────────────
+//  MATERIAL THEME EXAMPLES
+// ─────────────────────────────────────────────
+
+.example-bright-container {
+  @include mat.theme(
+    (
+      color: mat.$cyan-palette,
+    )
+  );
+}
+
+// ─────────────────────────────────────────────
+//  MATERIAL COMPONENT SPECIFIC STYLES
+// ─────────────────────────────────────────────
+
+.mat-toolbar.mat-primary {
+  --mat-toolbar-container-background-color: #890089;
+}
+
+.mat-toolbar {
+  height: 50px !important;
+  min-height: 50px !important;
+  box-shadow: var(--mat-sys-level3);
+}
+
+// ─────────────────────────────────────────────
+//  LAYOUT / FONT STYLES
+// ─────────────────────────────────────────────
+
+.section {
+  width: 100%;
+
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+    font-family: Roboto;
+  }
 }
