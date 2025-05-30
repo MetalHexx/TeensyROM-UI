@@ -22,7 +22,7 @@
       "@teensyrom-nx/device-features": ["libs/features/devices/src/index.ts"],
       "@teensyrom-nx/device-store": ["libs/domain/devices/state/src/index.ts"],
       "@teensyrom-nx/domain/devices/services": ["libs/domain/devices/services/src/index.ts"],
-      "@teensyrom-nx/ui-components": ["libs/ui-components/src/index.ts"],
+      "@teensyrom-nx/ui-components": ["libs/ui/components/src/index.ts"],
       "@teensyrom/ui-styles": ["libs/ui-styles/src/index.ts"]
     }
   },
