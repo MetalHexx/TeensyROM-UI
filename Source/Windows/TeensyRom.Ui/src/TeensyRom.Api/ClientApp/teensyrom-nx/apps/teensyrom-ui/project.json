@@ -5,7 +5,7 @@
   "prefix": "app",
   "sourceRoot": "apps/teensyrom-ui/src",
   "tags": [],
-  "implicitDependencies": ["device-features", "device-services", "device-store"],
+  "implicitDependencies": ["device-features", "device-services", "device-store", "ui-styles"],
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:application",
@@ -24,7 +24,10 @@
           }
         ],
         "styles": ["apps/teensyrom-ui/src/styles.scss"],
-        "scripts": []
+        "scripts": [],
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/ui-styles/src/lib"]
+        }
       },
       "configurations": {
         "production": {
