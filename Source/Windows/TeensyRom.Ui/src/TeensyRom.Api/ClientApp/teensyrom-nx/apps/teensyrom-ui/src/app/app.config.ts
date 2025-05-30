@@ -1,6 +1,7 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { appRoutes } from './app.routes';
 import { AppBootstrapService } from '@teensyrom-nx/app-bootstrap';
 import { DeviceService } from '@teensyrom-nx/device-services';
@@ -12,6 +13,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
     provideHttpClient(),
+    provideAnimations(),
     {
       provide: DevicesApiService,
       useFactory: (httpClient: HttpClient) => {
