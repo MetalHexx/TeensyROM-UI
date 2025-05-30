@@ -16,8 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@teensyrom-nx/api-client": ["libs/api-client/src/index.ts"],
+      "@teensyrom-nx/app-shell": ["libs/app/shell/src/index.ts"],
       "@teensyrom-nx/app/bootstrap": ["libs/app/bootstrap/src/index.ts"],
-      "@teensyrom-nx/app-shell": ["libs/app-shell/src/index.ts"],
       "@teensyrom-nx/device-features": ["libs/features/devices/src/index.ts"],
       "@teensyrom-nx/device-store": ["libs/domain/devices/state/src/index.ts"],
       "@teensyrom-nx/domain/devices/services": ["libs/domain/devices/services/src/index.ts"],
