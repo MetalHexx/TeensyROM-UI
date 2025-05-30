@@ -3,7 +3,7 @@ import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
 import { runInInjectionContext, inject } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
-import { AppBootstrapService } from '@teensyrom-nx/app-bootstrap';
+import { AppBootstrapService } from '@teensyrom-nx/app/bootstrap';
 
 async function bootstrap() {
   console.log('Starting application bootstrap...');

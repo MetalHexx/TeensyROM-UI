@@ -1,7 +1,7 @@
 {
   "name": "app-bootstrap",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "/libs/app-bootstrap/src",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "/libs/app/bootstrap/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [],
@@ -14,7 +14,7 @@
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "passWithNoTests": true,
-        "reportsDirectory": "../../coverage/{projectRoot}"
+        "reportsDirectory": "../../../coverage/{projectRoot}"
       }
     },
     "test:integration": {
@@ -22,7 +22,7 @@
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "passWithNoTests": true,
-        "reportsDirectory": "../../coverage/{projectRoot}",
+        "reportsDirectory": "../../../coverage/{projectRoot}",
         "testFilePattern": "**/*.integration.spec.ts"
       }
     }
