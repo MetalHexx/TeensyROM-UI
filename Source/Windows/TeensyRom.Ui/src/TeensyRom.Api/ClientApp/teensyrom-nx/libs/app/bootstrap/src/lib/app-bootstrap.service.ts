@@ -1,5 +1,5 @@
 import { effect, inject, Injectable, runInInjectionContext, Injector } from '@angular/core';
-import { DeviceStore } from '@teensyrom-nx/device-store';
+import { DeviceStore } from '@teensyrom-nx/domain/device/state';
 
 @Injectable({
   providedIn: 'root',

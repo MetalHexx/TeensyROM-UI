@@ -1,7 +1,7 @@
 {
-  "name": "device-store",
+  "name": "device-state",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "/libs/domain/devices/state/src",
+  "sourceRoot": "/libs/domain/device/state/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [],

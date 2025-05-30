@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DeviceStore } from '@teensyrom-nx/device-store';
+import { DeviceStore } from '@teensyrom-nx/domain/device/state';
 
 @Component({
   selector: 'lib-devices',

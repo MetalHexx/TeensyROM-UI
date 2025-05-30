@@ -8,7 +8,7 @@
   "implicitDependencies": [
     "features-device",
     "device-services",
-    "device-store",
+    "device-state",
     "ui-styles",
     "app-shell"
   ],
