@@ -1,18 +1,14 @@
 @if (isLoading()) {
 <p>Loading...</p>
 } @else {
-<h2>Available Devices</h2>
-@for (device of availableDevices(); track device.deviceId) {
-<p>Name: {{ device.name }}</p>
-<p>Device ID: {{ device.deviceId }}</p>
-<p>Firmware Version: {{ device.fwVersion }}</p>
-<p>COM Port: {{ device.comPort }}</p>
-<p>Is Compatible: {{ device.isCompatible }}</p>
-<p>--------------------------------</p>
-}
 
-<h2>Connected Devices</h2>
-@for (device of connectedDevices(); track device.deviceId) {
+<h2>Available Devices</h2>
+
+@if (availableDevices().length === 0) {
+
+<p>No available devices</p>
+
+} @else { @for (device of availableDevices(); track device.deviceId) {
 <p>Name: {{ device.name }}</p>
 <p>Device ID: {{ device.deviceId }}</p>
 <p>Firmware Version: {{ device.fwVersion }}</p>
@@ -20,3 +16,18 @@
 <p>Is Compatible: {{ device.isCompatible }}</p>
 <p>--------------------------------</p>
 } }
+
+<h2>Connected Devices</h2>
+
+@if (connectedDevices().length === 0) {
+
+<p>No connected devices</p>
+
+} @else { @for (device of connectedDevices(); track device.deviceId) {
+<p>Name: {{ device.name }}</p>
+<p>Device ID: {{ device.deviceId }}</p>
+<p>Firmware Version: {{ device.fwVersion }}</p>
+<p>COM Port: {{ device.comPort }}</p>
+<p>Is Compatible: {{ device.isCompatible }}</p>
+<p>--------------------------------</p>
+} } }

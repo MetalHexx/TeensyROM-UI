@@ -1,1 +1,1 @@
-export * from './lib/devices/devices.component';
+export * from './lib/device-view/device-view.component';

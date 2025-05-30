@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { DeviceStore } from '@teensyrom-nx/domain/device/state';
 
 @Component({
-  selector: 'lib-devices',
+  selector: 'lib-device-view',
   imports: [CommonModule],
-  templateUrl: './devices.component.html',
-  styleUrl: './devices.component.css',
+  templateUrl: './device-view.component.html',
+  styleUrl: './device-view.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DevicesComponent {
+export class DeviceViewComponent {
   private readonly deviceStore = inject(DeviceStore);
   availableDevices = this.deviceStore.availableDevices;
   connectedDevices = this.deviceStore.connectedDevices;
