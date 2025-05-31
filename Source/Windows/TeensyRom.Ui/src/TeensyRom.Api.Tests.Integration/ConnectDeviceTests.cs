@@ -16,7 +16,7 @@ namespace TeensyRom.Api.Tests.Integration
             // Act
             var openRequest = new ConnectDeviceRequest
             {
-                DeviceId = devices.Content.AvailableCarts.First().DeviceId
+                DeviceId = devices.Content.Devices.First().DeviceId
             };
             var r = await f.Client.PostAsync<ConnectDeviceEndpoint, ConnectDeviceRequest, ConnectDeviceResponse>(openRequest);
 

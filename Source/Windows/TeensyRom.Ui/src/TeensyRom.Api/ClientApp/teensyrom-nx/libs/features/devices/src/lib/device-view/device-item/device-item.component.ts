@@ -23,11 +23,10 @@ import { StorageStatusComponent } from '../storage-status/storage-status.compone
 })
 export class DeviceItemComponent {
   device = input<Device>();
-  isConnected = input<boolean>(false);
   connect = output<string>();
   disconnect = output<string>();
 
-  readonly connectionStatus = computed(() => this.isConnected());
+  readonly connectionStatus = computed(() => this.device()?.isConnected);
   readonly usbStatus = computed(() => this.device()?.usbStorage?.available);
   readonly sdStatus = computed(() => this.device()?.sdStorage?.available);
 

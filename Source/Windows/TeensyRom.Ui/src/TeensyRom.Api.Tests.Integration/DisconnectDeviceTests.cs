@@ -25,7 +25,11 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
-            findResponse.Content.ConnectedCarts.Count.Should().Be(0);
+            var connectDevices = findResponse.Content.Devices
+                .Where(d => d.IsConnected)
+                .ToList();
+
+            connectDevices.Count.Should().Be(0);
 
             r.Content.Message.Should().Be("Success!");
         }

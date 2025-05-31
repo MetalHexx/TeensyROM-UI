@@ -17,7 +17,7 @@ namespace TeensyRom.Api.Tests.Integration
             // Arrange
             var deviceResult = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
 
-            foreach (var item in deviceResult.Content.AvailableCarts)
+            foreach (var item in deviceResult.Content.Devices)
             {
                 await f.Client.PostAsync<ConnectDeviceEndpoint, ConnectDeviceRequest, ConnectDeviceResponse>(new ConnectDeviceRequest
                 {
@@ -35,7 +35,7 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
-            var availableSdDevices = deviceResult.Content.AvailableCarts
+            var availableSdDevices = deviceResult.Content.Devices
                 .Where(d => d.SdStorage.Available)
                 .ToList();
 
@@ -49,7 +49,7 @@ namespace TeensyRom.Api.Tests.Integration
                 });
             }
 
-            var availableUsbDevices = deviceResult.Content.AvailableCarts
+            var availableUsbDevices = deviceResult.Content.Devices
                     .Where(d => d.UsbStorage.Available)
                     .ToList();
 

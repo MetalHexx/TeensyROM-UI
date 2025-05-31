@@ -10,11 +10,7 @@ export interface Device {
   name: string;
   fwVersion: string;
   isCompatible: boolean;
+  isConnected: boolean;
   sdStorage: DeviceStorage;
   usbStorage: DeviceStorage;
-}
-
-export interface AllDevices {
-  availableCarts: Device[];
-  connectedCarts: Device[];
 }

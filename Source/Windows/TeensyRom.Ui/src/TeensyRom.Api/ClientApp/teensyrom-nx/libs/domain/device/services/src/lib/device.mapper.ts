@@ -1,5 +1,5 @@
-import { CartDto, CartStorageDto, FindDevicesResponse } from '@teensyrom-nx/data-access/api-client';
-import { AllDevices, Device, DeviceStorage } from './device.models';
+import { CartDto, CartStorageDto } from '@teensyrom-nx/data-access/api-client';
+import { Device, DeviceStorage } from './device.models';
 
 export class DeviceMapper {
   static toDevice(cartDto: CartDto): Device {
@@ -13,6 +13,7 @@ export class DeviceMapper {
       name: cartDto.name,
       fwVersion: cartDto.fwVersion,
       isCompatible: cartDto.isCompatible,
+      isConnected: cartDto.isConnected,
       sdStorage: this.toDeviceStorage(cartDto.sdStorage),
       usbStorage: this.toDeviceStorage(cartDto.usbStorage),
     };
@@ -28,12 +29,5 @@ export class DeviceMapper {
 
   static toDeviceList(cartDtos: CartDto[]): Device[] {
     return cartDtos.map((cart) => this.toDevice(cart));
-  }
-
-  static toAllDevices(findDevicesResponse: FindDevicesResponse): AllDevices {
-    return {
-      availableCarts: this.toDeviceList(findDevicesResponse.availableCarts || []),
-      connectedCarts: this.toDeviceList(findDevicesResponse.connectedCarts || []),
-    };
   }
 }

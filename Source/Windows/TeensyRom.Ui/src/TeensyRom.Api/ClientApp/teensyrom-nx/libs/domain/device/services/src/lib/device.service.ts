@@ -5,7 +5,7 @@ import {
   ConnectDeviceResponse,
   DisconnectDeviceResponse,
 } from '@teensyrom-nx/data-access/api-client';
-import { AllDevices, Device } from './device.models';
+import { Device } from './device.models';
 import { DeviceMapper } from './device.mapper';
 import { Observable, map } from 'rxjs';
 
@@ -15,10 +15,10 @@ import { Observable, map } from 'rxjs';
 export class DeviceService {
   constructor(private readonly devicesService: DevicesApiService) {}
 
-  findDevices(): Observable<AllDevices> {
+  findDevices(): Observable<Device[]> {
     return this.devicesService
       .findDevices()
-      .pipe(map((response: FindDevicesResponse) => DeviceMapper.toAllDevices(response)));
+      .pipe(map((response: FindDevicesResponse) => DeviceMapper.toDeviceList(response.devices)));
   }
 
   getConnectedDevices(): Observable<Device[]> {
@@ -26,7 +26,7 @@ export class DeviceService {
       .findDevices()
       .pipe(
         map((response: FindDevicesResponse) =>
-          DeviceMapper.toDeviceList(response.connectedCarts || [])
+          DeviceMapper.toDeviceList(response.devices.filter((d) => d.isConnected) || [])
         )
       );
   }

@@ -11,7 +11,7 @@ export class AppBootstrapService {
   async init(): Promise<void> {
     return new Promise((resolve) => {
       runInInjectionContext(this.injector, () => {
-        effect(() => {
+        const effectRef = effect(() => {
           if (this.deviceStore.hasInitialised()) {
             if (this.deviceStore.error() === null) {
               resolve();
@@ -21,13 +21,11 @@ export class AppBootstrapService {
               });
               resolve();
             }
+            Promise.resolve().then(() => effectRef.destroy());
           }
         });
       });
       this.deviceStore.findDevices({});
     });
   }
-}
-function reject(arg0: string | null) {
-  throw new Error('Function not implemented.');
 }

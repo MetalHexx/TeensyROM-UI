@@ -16,11 +16,7 @@ export interface FindDevicesResponse {
   /**
    * The list of TeensyROM devices that are available to connect.
    */
-  availableCarts: Array<CartDto>;
-  /**
-   * The list of TeensyROM devices that are currently connected.
-   */
-  connectedCarts: Array<CartDto>;
+  devices: Array<CartDto>;
   /**
    * A message indicating the result of the operation.
    */

@@ -12,8 +12,7 @@ import { DeviceItemComponent } from './device-item/device-item.component';
 })
 export class DeviceViewComponent {
   private readonly deviceStore = inject(DeviceStore);
-  availableDevices = this.deviceStore.availableDevices;
-  connectedDevices = this.deviceStore.connectedDevices;
+  devices = this.deviceStore.devices;
   isLoading = this.deviceStore.isLoading;
 
   onConnect(deviceId: string) {

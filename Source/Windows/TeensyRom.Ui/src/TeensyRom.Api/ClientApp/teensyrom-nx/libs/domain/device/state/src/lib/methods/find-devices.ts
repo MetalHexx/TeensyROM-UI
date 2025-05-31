@@ -1,6 +1,6 @@
 import { patchState, WritableStateSource } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { AllDevices, Device, DeviceService } from '@teensyrom-nx/domain/device/services';
+import { DeviceService } from '@teensyrom-nx/domain/device/services';
 import { distinctUntilChanged, pipe, switchMap, tap, catchError } from 'rxjs';
 import { DeviceState } from '../device-store';
 
@@ -19,19 +19,10 @@ export function findDevices(
         tap(() => patchState(store, { isLoading: true })),
         switchMap(() =>
           deviceService.findDevices().pipe(
-            tap((allDevices: AllDevices) => {
-              const connectedIds = new Set(
-                allDevices.connectedCarts.map((device: Device) => device.deviceId)
-              );
-
-              const available = allDevices.availableCarts.filter(
-                (device: Device) => !connectedIds.has(device.deviceId)
-              );
-
+            tap((devices) => {
               patchState(store, {
-                availableDevices: available,
-                connectedDevices: allDevices.connectedCarts,
-                error: available.length === 0 ? 'No available devices found' : null,
+                devices: devices,
+                error: devices.length === 0 ? 'No devices found' : null,
                 isLoading: false,
                 hasInitialised: true,
               });

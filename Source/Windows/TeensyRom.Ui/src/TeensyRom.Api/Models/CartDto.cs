@@ -15,6 +15,11 @@ namespace TeensyRom.Api.Models
         [Required] public string DeviceId { get; set; } = string.Empty;
 
         /// <summary>
+        /// Indicates whether the TeensyROM device is connected.
+        /// </summary>
+        [Required] public bool IsConnected { get; set; }
+
+        /// <summary>
         /// The COM port the device is connected to.
         /// </summary>
         [Required] public string ComPort { get; set; } = string.Empty;

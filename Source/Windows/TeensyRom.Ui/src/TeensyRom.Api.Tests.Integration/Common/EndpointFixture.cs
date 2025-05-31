@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net.Http.Headers;
+using System.Reflection;
 using TeensyRom.Api.Endpoints.ClosePort;
 using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Api.Endpoints.Files.Index;
@@ -21,6 +22,12 @@ namespace TeensyRom.Api.Tests.Integration.Common
                 });
 
                 client.Timeout = TimeSpan.FromMinutes(10);
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+                {
+                    NoCache = true,
+                    NoStore = true,
+                    MustRevalidate = true
+                };
                 return client;
             }
         }
@@ -36,7 +43,7 @@ namespace TeensyRom.Api.Tests.Integration.Common
         public async Task<string> ConnectToFirstDevice() 
         {
             var findResponse = await Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
-            var deviceId = findResponse.Content.AvailableCarts.First().DeviceId!;
+            var deviceId = findResponse.Content.Devices.First().DeviceId!;
 
             await Client.PostAsync<ConnectDeviceEndpoint, ConnectDeviceRequest, ConnectDeviceResponse>(new ConnectDeviceRequest 
             { 
@@ -62,7 +69,11 @@ namespace TeensyRom.Api.Tests.Integration.Common
         {
             var initialCarts = Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>().Result;
 
-            initialCarts.Content.ConnectedCarts.ForEach(d =>
+            var connectDevices = initialCarts.Content.Devices
+                .Where(d => d.IsConnected)
+                .ToList();
+
+            connectDevices.ForEach(d =>
             {
                 _ = Client.DeleteAsync<DisconnectDeviceEndpoint, Endpoints.ClosePort.DisconnectDeviceRequest, DisconnectDeviceResponse>(new Endpoints.ClosePort.DisconnectDeviceRequest
                 {

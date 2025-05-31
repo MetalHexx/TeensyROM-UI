@@ -18,13 +18,10 @@ export function disconnectDevice(
         switchMap((deviceId: string) =>
           deviceService.disconnectDevice(deviceId).pipe(
             tap(() => {
-              const connected = store.connectedDevices();
-              const available = store.availableDevices();
-              const removed = connected.find((d) => d.deviceId === deviceId);
-
               patchState(store, {
-                connectedDevices: connected.filter((d) => d.deviceId !== deviceId),
-                availableDevices: removed ? [...available, removed] : available,
+                devices: store
+                  .devices()
+                  .map((d) => (d.deviceId === deviceId ? { ...d, isConnected: false } : d)),
               });
             }),
             catchError((error: unknown) => {

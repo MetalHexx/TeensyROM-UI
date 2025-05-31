@@ -5,16 +5,14 @@ import { Device, DeviceService } from '@teensyrom-nx/domain/device/services';
 import { findDevices, connectDevice, disconnectDevice } from './methods/index';
 
 export type DeviceState = {
-  availableDevices: Device[];
-  connectedDevices: Device[];
+  devices: Device[];
   hasInitialised: boolean;
   isLoading: boolean;
   error: string | null;
 };
 
 const initialState: DeviceState = {
-  availableDevices: [],
-  connectedDevices: [],
+  devices: [],
   hasInitialised: false,
   isLoading: false,
   error: null,

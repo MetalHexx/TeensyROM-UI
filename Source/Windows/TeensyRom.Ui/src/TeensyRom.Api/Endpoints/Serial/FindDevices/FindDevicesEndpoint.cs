@@ -32,10 +32,27 @@ namespace TeensyRom.Api.Endpoints.FindCarts
                 SendNotFound("No TeensyRom devices found.");
                 return;
             }
+            var connectedDevices = connectedCarts
+                .Select(d => 
+                {
+                    var device = CartDto.FromCart(d);
+                    device.IsConnected = true;
+                    return device;
+                })
+                .ToList();
+
+            var availableDevices = availableResults
+                .Select(CartDto.FromCart)
+                .Where(d => !connectedDevices.Any(connected => connected.DeviceId == d.DeviceId))
+                .ToList();
+
+            List<CartDto> allDevices = [];
+            allDevices.AddRange(connectedDevices);
+            allDevices.AddRange(availableDevices);
+
             Response = new()
             {
-                AvailableCarts = availableResults.Select(CartDto.FromCart).ToList(),
-                ConnectedCarts = connectedCarts.Select(CartDto.FromCart).ToList(),
+                Devices = allDevices,
                 Message = "Success!"
             };
             Send();

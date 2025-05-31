@@ -18,6 +18,10 @@ export interface CartDto {
    */
   deviceId: string;
   /**
+   * Indicates whether the TeensyROM device is connected.
+   */
+  isConnected: boolean;
+  /**
    * The COM port the device is connected to.
    */
   comPort: string;

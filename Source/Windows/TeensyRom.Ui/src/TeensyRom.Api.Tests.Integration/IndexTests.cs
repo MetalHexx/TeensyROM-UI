@@ -73,7 +73,7 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var availableDevices = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
-            var deviceId = availableDevices.Content.AvailableCarts.First().DeviceId;
+            var deviceId = availableDevices.Content.Devices.First().DeviceId;
 
             // Act
             var request = new IndexRequest
@@ -87,7 +87,7 @@ namespace TeensyRom.Api.Tests.Integration
             // Assert
             response.Should()
                 .BeValidationProblem()
-                .WithKeyAndValue("Path", "Path must be a valid Unix path.");
+                .WithKeyAndValue("StartingPath", "Path must be a valid Unix path.");
         }
 
         [Fact]

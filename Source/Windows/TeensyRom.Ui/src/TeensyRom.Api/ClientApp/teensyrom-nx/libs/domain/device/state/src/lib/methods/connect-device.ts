@@ -18,19 +18,12 @@ export function connectDevice(
         tap(() => patchState(store, { isLoading: true, error: null })),
         switchMap((deviceId: string) =>
           deviceService.connectDevice(deviceId).pipe(
-            tap((device: Device) => {
-              const currentAvailable = store.availableDevices();
-              const currentConnected = store.connectedDevices();
-
-              const updatedAvailable = currentAvailable.filter(
-                (d) => d.deviceId !== device.deviceId
-              );
-              const updatedConnected = [...currentConnected, device];
-
+            tap(() => {
               patchState(store, {
                 isLoading: false,
-                availableDevices: updatedAvailable,
-                connectedDevices: updatedConnected,
+                devices: store
+                  .devices()
+                  .map((d) => (d.deviceId === deviceId ? { ...d, isConnected: true } : d)),
               });
             }),
             catchError((error: unknown) => {

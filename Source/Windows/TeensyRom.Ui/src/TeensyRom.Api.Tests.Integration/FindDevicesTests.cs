@@ -20,9 +20,11 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
+            var connectDevices = r.Content.Devices.Where(d => d.IsConnected);
+
             r.Content.Message.Should().Be("Success!");
-            r.Content.AvailableCarts.Should().NotBeNullOrEmpty();            
-            r.Content.ConnectedCarts.Should().BeEmpty();
+            r.Content.Devices.Should().NotBeNullOrEmpty();
+            connectDevices.Should().BeEmpty();
         }
 
         [Fact]
@@ -30,8 +32,8 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var initialCarts = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
-            var expectedConnectedCart = initialCarts.Content.AvailableCarts.First();
-            var expectedAvailableCount = initialCarts.Content.AvailableCarts.Count;
+            var expectedConnectedCart = initialCarts.Content.Devices.First();
+            var expectedAvailableCount = initialCarts.Content.Devices.Count;
             var openRequest = new ConnectDeviceRequest
             {
                 DeviceId = expectedConnectedCart.DeviceId
@@ -46,10 +48,14 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
-            r.Content.AvailableCarts.Should().NotBeNullOrEmpty();
-            r.Content.AvailableCarts.Count.Should().Be(expectedAvailableCount);
-            r.Content.ConnectedCarts.Count.Should().Be(1);
-            r.Content.ConnectedCarts.First().DeviceId.Should().Be(expectedConnectedCart.DeviceId);
+            var connectedDevices = r.Content.Devices
+                .Where(d => d.IsConnected)
+                .ToList();
+
+            r.Content.Devices.Should().NotBeNullOrEmpty();
+            r.Content.Devices.Count.Should().Be(expectedAvailableCount);
+            connectedDevices.Count().Should().Be(1);
+            connectedDevices.First().DeviceId.Should().Be(expectedConnectedCart.DeviceId);
         }
 
         public void Dispose() => f.Reset();

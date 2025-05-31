@@ -13,12 +13,7 @@ namespace TeensyRom.Api.Endpoints.FindCarts
         /// <summary>
         /// The list of TeensyROM devices that are available to connect.
         /// </summary>
-        [Required] public List<CartDto> AvailableCarts { get; set; } = [];
-
-        /// <summary>
-        /// The list of TeensyROM devices that are currently connected.
-        /// </summary>
-        [Required] public List<CartDto> ConnectedCarts { get; set; } = [];
+        [Required] public List<CartDto> Devices { get; set; } = [];
 
         /// <summary>
         /// A message indicating the result of the operation.

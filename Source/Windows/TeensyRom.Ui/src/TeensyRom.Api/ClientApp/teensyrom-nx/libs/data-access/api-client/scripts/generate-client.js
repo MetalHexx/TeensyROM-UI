@@ -33,6 +33,7 @@ function main() {
       additionalPropsStr
     );
     renameApiServiceClasses(config.outputDir);
+    patchApiBarrelFile(config.outputDir);
 
     console.log('OpenAPI client generation completed successfully!');
   } catch (error) {
@@ -91,6 +92,28 @@ function renameApiServiceClasses(outputDir) {
   }
 
   console.log('Renaming complete!');
+}
+
+function patchApiBarrelFile(outputDir) {
+  console.log('Patching api.ts to use renamed *ApiService files and class names...');
+  const apiDir = join(outputDir, 'api');
+  const apiTsPath = join(apiDir, 'api.ts');
+
+  if (!apiTsPath || !apiTsPath.endsWith('api.ts')) {
+    console.warn('api.ts path not valid or missing.');
+    return;
+  }
+
+  let content = readFileSync(apiTsPath, 'utf8');
+
+  // Replace import/export paths
+  content = content.replace(/\.\/(\w+)\.service/g, './$1.api.service');
+
+  // Replace class references in APIS array
+  content = content.replace(/(\w+)Service/g, '$1ApiService');
+
+  writeFileSync(apiTsPath, content, 'utf8');
+  console.log('api.ts updated successfully!');
 }
 
 main();
