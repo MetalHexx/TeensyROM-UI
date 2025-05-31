@@ -42,6 +42,10 @@ mat-card-header {
   margin: 1.5rem auto;
 }
 
+.device-card.disconnected {
+  opacity: 0.5;
+}
+
 .device-content {
   display: flex;
   flex-direction: row;

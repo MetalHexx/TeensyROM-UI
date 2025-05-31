@@ -1,4 +1,4 @@
-<mat-card class="device-card">
+<mat-card class="device-card" [ngClass]="{ disconnected: !connectionStatus() }">
   <mat-card-header>
     <mat-card-title>
       {{ device()?.name }}
