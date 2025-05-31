@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { AppBootstrapService } from './app-bootstrap.service';
 import { DeviceService, AllDevices } from '@teensyrom-nx/domain/device/services';
 import { DevicesApiService, Configuration } from '@teensyrom-nx/data-access/api-client';
 import { HttpClient, HttpXhrBackend } from '@angular/common/http';
 import { firstValueFrom, of, Observable } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 describe('AppBootstrapService Integration Tests', () => {
   let appBootstrapService: AppBootstrapService;
@@ -67,7 +68,18 @@ describe('AppBootstrapService Integration Tests', () => {
         connectedCarts: [],
       });
 
-    // Act & Assert
-    await expect(appBootstrapService.init()).rejects.toThrow('No available devices found');
+    // Spy on MatSnackBar.open
+    const snackBar = TestBed.inject(MatSnackBar);
+    const openSpy = vi.spyOn(snackBar, 'open');
+
+    // Act
+    await appBootstrapService.init();
+
+    // Assert
+    expect(openSpy).toHaveBeenCalledWith(
+      'Could not find any TeensyROM devices.',
+      'Close',
+      expect.objectContaining({ duration: 5000 })
+    );
   });
 });
