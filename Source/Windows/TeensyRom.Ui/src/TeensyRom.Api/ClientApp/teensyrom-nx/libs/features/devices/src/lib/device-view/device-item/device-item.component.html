@@ -1,11 +1,13 @@
-<mat-card
-  class="device-card"
-  [ngClass]="{ connected: connectionStatus(), available: !connectionStatus() }"
->
+<mat-card class="device-card">
   <mat-card-header>
     <mat-card-title>
-      {{ device()?.name }}
+      {{ device()?.name }}{{ connectionStatus() ? ' (Connected)' : ' (Disconnected)' }}
     </mat-card-title>
+    <button mat-icon-button color="primary" class="power-fab" aria-label="Power">
+      <mat-icon [ngClass]="{ success: connectionStatus(), error: !connectionStatus() }"
+        >power_settings_new</mat-icon
+      >
+    </button>
   </mat-card-header>
   <mat-card-content>
     <div class="device-content">

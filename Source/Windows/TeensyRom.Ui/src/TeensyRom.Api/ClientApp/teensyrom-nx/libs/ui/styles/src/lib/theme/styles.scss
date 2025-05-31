@@ -25,6 +25,8 @@ html {
   & {
     --mat-sys-surface-container-low: #cdcdcd;
   }
+  --color-success: #86c691;
+  --color-error: #cc666c;
 }
 
 html.dark-mode {
@@ -40,6 +42,8 @@ html.dark-mode {
   & {
     --mat-sys-surface-container-low: #231e22;
   }
+  --color-success: #6fdc8c;
+  --color-error: #ff6f6f;
 }
 
 body {

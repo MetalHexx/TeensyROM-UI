@@ -4,6 +4,37 @@ mat-card-title {
   padding-bottom: 1rem;
 }
 
+mat-card-header {
+  position: relative;
+}
+
+.power-fab {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  .mat-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+    width: 1em;
+    height: 1em;
+    display: block;
+    &.success {
+      color: var(--color-success);
+    }
+    &.error {
+      color: var(--color-error);
+    }
+  }
+}
+
 .device-card {
   border-radius: 24px;
   min-width: 500px;
@@ -41,8 +72,9 @@ mat-card-title {
 
 @media (max-width: 500px) {
   .device-card {
-    min-width: 300px;
-    max-width: 600px;
+    min-width: 200px;
+    max-width: 500px;
+    margin: 1.5rem 1rem;
   }
   .device-content {
     display: flex;
