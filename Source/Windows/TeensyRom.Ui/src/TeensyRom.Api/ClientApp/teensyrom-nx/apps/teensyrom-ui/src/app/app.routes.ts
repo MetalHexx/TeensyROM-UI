@@ -13,6 +13,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'devices',
+        data: { title: 'Devices' },
         loadComponent: () =>
           import('@teensyrom-nx/features/device').then((m) => m.DeviceViewComponent),
       },

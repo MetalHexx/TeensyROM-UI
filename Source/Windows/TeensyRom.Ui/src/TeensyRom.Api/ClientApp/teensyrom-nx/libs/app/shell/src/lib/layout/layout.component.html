@@ -1,4 +1,5 @@
 <lib-header></lib-header>
+
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav
     class="custom-sidenav glassy"
@@ -8,7 +9,10 @@
   >
     <lib-nav-menu></lib-nav-menu>
   </mat-sidenav>
+
   <mat-sidenav-content>
+    <h2>{{ pageTitle() }}</h2>
+
     <router-outlet />
   </mat-sidenav-content>
 </mat-sidenav-container>
