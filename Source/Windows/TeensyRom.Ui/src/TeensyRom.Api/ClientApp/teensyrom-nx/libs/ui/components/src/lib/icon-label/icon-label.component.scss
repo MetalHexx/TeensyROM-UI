@@ -1,0 +1,14 @@
+.icon-label-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon-label-text {
+  max-width: 20ch;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: middle;
+}

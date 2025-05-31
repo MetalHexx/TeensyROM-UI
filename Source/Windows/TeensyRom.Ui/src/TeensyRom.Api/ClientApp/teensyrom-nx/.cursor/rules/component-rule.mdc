@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+- Components should use input/output isgnals instead of classic @Input() @Output()
+- Components should use @If style syntax (and other control flow) instead of the classic *ngIf style directives.
+- Components should always have their own html and scss file
+- Use scss, not css files
+

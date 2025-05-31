@@ -1,0 +1,9 @@
+<span class="status-container">
+  <lib-icon-label [icon]="icon()" [label]="label()"></lib-icon-label>
+
+  @if (status() === true) {
+  <mat-icon class="status-icon success">check_circle</mat-icon>
+  } @else if (status() === false) {
+  <mat-icon class="status-icon error">cancel</mat-icon>
+  }
+</span>

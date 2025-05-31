@@ -1,0 +1,29 @@
+.status-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 150px;
+  padding: 0.5rem;
+}
+
+.status-icon {
+  font-size: 1.6em;
+  margin-left: auto;
+  vertical-align: middle;
+  &.success {
+    color: #43a047;
+  }
+  &.error {
+    color: #e53935;
+  }
+}
+
+.visible {
+  display: inline;
+}
+
+.hidden {
+  display: none;
+}

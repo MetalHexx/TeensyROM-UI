@@ -1,0 +1,41 @@
+<mat-card
+  class="device-card"
+  [ngClass]="{ connected: connectionStatus(), available: !connectionStatus() }"
+>
+  <mat-card-header>
+    <mat-card-title>
+      {{ device()?.name }}
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="device-content">
+      <div class="device-info">
+        <lib-icon-label
+          icon="tag"
+          [label]="'Device ID: ' + (device()?.deviceId ?? '')"
+        ></lib-icon-label>
+        <lib-icon-label
+          icon="developer_board"
+          [label]="'Firmware: ' + (device()?.fwVersion ?? '')"
+        ></lib-icon-label>
+        <lib-icon-label icon="usb" [label]="'Port: ' + (device()?.comPort ?? '')"></lib-icon-label>
+        <lib-icon-label
+          icon="verified_user"
+          [label]="'Compatible: ' + (device()?.isCompatible ? 'Yes' : 'No')"
+        ></lib-icon-label>
+      </div>
+      <div class="device-storage">
+        <lib-storage-status
+          icon="usb"
+          label="USB Stick"
+          [status]="usbStatus()"
+        ></lib-storage-status>
+        <lib-storage-status
+          icon="sd_card"
+          label="SD Card"
+          [status]="sdStatus()"
+        ></lib-storage-status>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
