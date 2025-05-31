@@ -1,6 +1,6 @@
 import { patchState, WritableStateSource } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { DeviceService, Device } from '@teensyrom-nx/domain/device/services';
+import { DeviceService } from '@teensyrom-nx/domain/device/services';
 import { pipe, switchMap, tap, catchError } from 'rxjs';
 import { DeviceState } from '../device-store';
 
@@ -15,7 +15,7 @@ export function connectDevice(
   return {
     connectDevice: rxMethod<string>(
       pipe(
-        tap(() => patchState(store, { isLoading: true, error: null })),
+        tap(() => patchState(store, { error: null })),
         switchMap((deviceId: string) =>
           deviceService.connectDevice(deviceId).pipe(
             tap(() => {
@@ -27,7 +27,7 @@ export function connectDevice(
               });
             }),
             catchError((error: unknown) => {
-              patchState(store, { isLoading: false, error: String(error) });
+              patchState(store, { error: String(error) });
               return [];
             })
           )
