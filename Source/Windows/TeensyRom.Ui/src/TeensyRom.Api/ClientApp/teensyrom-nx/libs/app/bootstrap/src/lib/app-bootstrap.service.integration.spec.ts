@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { AppBootstrapService } from './app-bootstrap.service';
-import { DeviceService, AllDevices } from '@teensyrom-nx/domain/device/services';
+import { Device, DeviceService } from '@teensyrom-nx/domain/device/services';
 import { DevicesApiService, Configuration } from '@teensyrom-nx/data-access/api-client';
 import { HttpClient, HttpXhrBackend } from '@angular/common/http';
 import { firstValueFrom, of, Observable } from 'rxjs';
@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 describe('AppBootstrapService Integration Tests', () => {
   let appBootstrapService: AppBootstrapService;
   let deviceService: DeviceService;
-  let originalFindDevices: () => Observable<AllDevices>;
+  let originalFindDevices: () => Observable<Device[]>;
 
   beforeEach(() => {
     const httpHandler = new HttpXhrBackend({ build: () => new XMLHttpRequest() });
@@ -56,17 +56,13 @@ describe('AppBootstrapService Integration Tests', () => {
     await expect(appBootstrapService.init()).resolves.not.toThrow();
 
     // Assert
-    const result = await firstValueFrom(deviceService.findDevices());
-    expect(result.availableCarts.length).toBeGreaterThan(0);
+    const devices = await firstValueFrom(deviceService.findDevices());
+    expect(devices.length).toBeGreaterThan(0);
   });
 
   it('should throw error when no devices are available', async () => {
     // Arrange - mock findDevices to return no available devices
-    deviceService.findDevices = () =>
-      of({
-        availableCarts: [],
-        connectedCarts: [],
-      });
+    deviceService.findDevices = () => of([]);
 
     // Spy on MatSnackBar.open
     const snackBar = TestBed.inject(MatSnackBar);

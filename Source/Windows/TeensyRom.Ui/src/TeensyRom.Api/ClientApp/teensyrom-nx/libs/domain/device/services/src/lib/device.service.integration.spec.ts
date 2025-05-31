@@ -36,28 +36,27 @@ describe('DeviceService Integration Tests', () => {
   async function getAvailableDevice() {
     const result = await firstValueFrom(deviceService.findDevices());
 
-    return result?.availableCarts?.[0];
+    return result?.[0];
   }
 
   it('should find available and connected devices', async () => {
     //Act
-    const result = await firstValueFrom(deviceService.findDevices());
+    const devices = await firstValueFrom(deviceService.findDevices());
 
     //Assert
-    expect(result).toBeDefined();
-    expect(Array.isArray(result?.availableCarts)).toBe(true);
-    expect(Array.isArray(result?.connectedCarts)).toBe(true);
+    expect(devices).toBeDefined();
+    expect(Array.isArray(devices)).toBe(true);
   });
 
   it('should connect to a device', async () => {
     //Arrange
     const expectedDevice = await getAvailableDevice();
     //Act
-    const result = await deviceService.connectDevice(expectedDevice.deviceId).toPromise();
+    const device = await deviceService.connectDevice(expectedDevice.deviceId).toPromise();
 
     //Asert
-    expect(result).toBeDefined();
-    expect(result?.deviceId).toBe(expectedDevice.deviceId);
+    expect(device).toBeDefined();
+    expect(device?.deviceId).toBe(expectedDevice.deviceId);
   });
 
   it('should disconnect from a connected device', async () => {
