@@ -15,4 +15,12 @@ export class DeviceViewComponent {
   availableDevices = this.deviceStore.availableDevices;
   connectedDevices = this.deviceStore.connectedDevices;
   isLoading = this.deviceStore.isLoading;
+
+  onConnect(deviceId: string) {
+    this.deviceStore.connectDevice(deviceId);
+  }
+
+  onDisconnect(deviceId: string) {
+    this.deviceStore.disconnectDevice(deviceId);
+  }
 }

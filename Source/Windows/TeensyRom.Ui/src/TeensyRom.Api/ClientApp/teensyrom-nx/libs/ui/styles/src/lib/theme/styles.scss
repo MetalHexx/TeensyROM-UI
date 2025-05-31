@@ -27,6 +27,8 @@ html {
   }
   --color-success: #86c691;
   --color-error: #cc666c;
+  --color-highlight: #00f7ff;
+  --color-dimmed: #656363;
 }
 
 html.dark-mode {
@@ -44,6 +46,8 @@ html.dark-mode {
   }
   --color-success: #6fdc8c;
   --color-error: #ff6f6f;
+  --color-highlight: #00f7ff;
+  --color-dimmed: #656363;
 }
 
 body {

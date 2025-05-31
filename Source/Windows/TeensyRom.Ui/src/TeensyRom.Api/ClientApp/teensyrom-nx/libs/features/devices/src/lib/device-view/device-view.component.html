@@ -7,16 +7,26 @@
   @if (availableDevices().length === 0) {
   <p>No available devices</p>
   } @else { @for (device of availableDevices(); track device.deviceId) {
-  <lib-device-item [device]="device" [isConnected]="false"></lib-device-item>
+  <lib-device-item
+    [device]="device"
+    [isConnected]="false"
+    (connect)="onConnect($event)"
+  ></lib-device-item>
   } }
 </div>
 
 <h2>Connected Devices</h2>
 <div class="device-list">
   @if (connectedDevices().length === 0) {
+
   <p>No connected devices</p>
+
   } @else { @for (device of connectedDevices(); track device.deviceId) {
-  <lib-device-item [device]="device" [isConnected]="true"></lib-device-item>
+  <lib-device-item
+    [device]="device"
+    [isConnected]="true"
+    (disconnect)="onDisconnect($event)"
+  ></lib-device-item>
   } }
 </div>
 }

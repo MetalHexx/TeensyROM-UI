@@ -21,10 +21,10 @@ mat-card * {
 
   .status-label {
     &.success {
-      color: var(--color-success);
+      color: var(--color-highlight);
     }
     &.error {
-      color: var(--color-error);
+      color: var(--color-dimmed);
     }
   }
 }
