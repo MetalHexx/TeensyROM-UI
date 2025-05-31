@@ -1,28 +1,33 @@
 import { effect, inject, Injectable, runInInjectionContext, Injector } from '@angular/core';
 import { DeviceStore } from '@teensyrom-nx/domain/device/state';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class AppBootstrapService {
   private readonly deviceStore = inject(DeviceStore);
   private readonly injector = inject(Injector);
+  private readonly snackBar = inject(MatSnackBar);
 
   async init(): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       runInInjectionContext(this.injector, () => {
         effect(() => {
           if (this.deviceStore.hasInitialised()) {
-            if (this.deviceStore.availableDevices().length === 0) {
-              reject(new Error('No available devices found'));
+            if (this.deviceStore.error() === null) {
+              resolve();
             } else {
+              this.snackBar.open('Could not find any TeensyROM devices.', 'Close', {
+                duration: 5000,
+              });
               resolve();
             }
           }
         });
       });
-
       this.deviceStore.findDevices({});
     });
   }
+}
+function reject(arg0: string | null) {
+  throw new Error('Function not implemented.');
 }
