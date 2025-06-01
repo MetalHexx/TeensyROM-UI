@@ -286,7 +286,7 @@ namespace TeensyRom.Core.Serial
             .Where(log => !string.IsNullOrWhiteSpace(log))
             .Publish()
             .RefCount()
-            .Subscribe(_log.External);
+            .Subscribe(logs => _log.External(logs));
         }
 
         public void Lock()
