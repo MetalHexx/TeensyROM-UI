@@ -1,34 +1,24 @@
-<mat-card class="device-card" [ngClass]="{ disconnected: !connectionStatus() }">
+<mat-card class="device-card" [ngClass]="{ dimmed: !connectionStatus() }">
   <mat-card-header>
     <mat-card-title>
       {{ device()?.name }}
     </mat-card-title>
 
-    @if (!connectionStatus()) {
     <button
-      (click)="onConnect()"
+      (click)="connectionStatus() ? onDisconnect() : onConnect()"
       mat-icon-button
-      color="primary"
-      class="power-fab"
+      class="icon-button-medium power-button"
       aria-label="Power"
     >
-      <mat-icon [ngClass]="{ success: connectionStatus(), error: !connectionStatus() }">
+      <mat-icon
+        [ngClass]="{
+          highlight: connectionStatus(),
+          dimmed: !connectionStatus()
+        }"
+      >
         power_settings_new
       </mat-icon>
     </button>
-    } @else {
-    <button
-      (click)="onDisconnect()"
-      mat-icon-button
-      color="primary"
-      class="power-fab"
-      aria-label="Power"
-    >
-      <mat-icon [ngClass]="{ success: connectionStatus(), error: !connectionStatus() }">
-        power_settings_new
-      </mat-icon>
-    </button>
-    }
   </mat-card-header>
   <mat-card-content>
     <div class="device-content">

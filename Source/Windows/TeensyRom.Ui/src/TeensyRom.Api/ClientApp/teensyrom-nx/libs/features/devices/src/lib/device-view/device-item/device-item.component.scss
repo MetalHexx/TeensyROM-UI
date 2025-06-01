@@ -13,31 +13,11 @@ mat-card-header {
   position: relative;
 }
 
-.power-fab {
+.power-button {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
   z-index: 1;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  .mat-icon {
-    font-size: 1.2rem;
-    line-height: 1;
-    width: 1em;
-    height: 1em;
-    display: block;
-    &.success {
-      color: var(--color-highlight);
-    }
-    &.error {
-      color: var(--color-dimmed);
-    }
-  }
 }
 
 .device-card {
@@ -45,10 +25,6 @@ mat-card-header {
   min-width: 500px;
   max-width: 600px;
   margin: 1.5rem auto;
-}
-
-.device-card.disconnected {
-  opacity: 0.5;
 }
 
 .device-content {

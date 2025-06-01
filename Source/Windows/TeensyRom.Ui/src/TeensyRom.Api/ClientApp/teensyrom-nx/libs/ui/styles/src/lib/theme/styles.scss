@@ -56,6 +56,14 @@ body {
 }
 
 // ─────────────────────────────────────────────
+//  General Utility Styles
+// ─────────────────────────────────────────────
+
+.dimmed {
+  opacity: 0.5;
+}
+
+// ─────────────────────────────────────────────
 //  MATERIAL THEME EXAMPLES
 // ─────────────────────────────────────────────
 
@@ -79,6 +87,41 @@ body {
   height: 50px !important;
   min-height: 50px !important;
   box-shadow: var(--mat-sys-level3);
+}
+
+.icon-button-medium {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+
+.icon-button-medium .mat-icon {
+  font-size: 20px;
+  line-height: 1;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &.highlight {
+    color: var(--color-highlight);
+  }
+  &.dimmed {
+    color: var(--color-dimmed);
+  }
+  &.success {
+    color: var(--color-success);
+  }
+  &.error {
+    color: var(--color-error);
+  }
 }
 
 // ─────────────────────────────────────────────

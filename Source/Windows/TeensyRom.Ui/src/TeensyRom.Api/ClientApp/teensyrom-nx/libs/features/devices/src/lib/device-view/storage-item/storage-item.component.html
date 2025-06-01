@@ -1,0 +1,23 @@
+<mat-card [ngClass]="{ dimmed: !status() }">
+  <mat-card-content>
+    <div class="storage-container">
+      <div class="left-container">
+        <lib-icon-label [icon]="icon()" [label]="label()"></lib-icon-label>
+
+        <span class="status-container">
+          @if (status()) {
+          <span class="status-label success">Available</span>
+          } @else if (!status()) {
+          <span class="status-label error">Unavailable</span>
+          }
+        </span>
+      </div>
+
+      <div class="right-container">
+        <button [disabled]="!status()" mat-icon-button class="icon-button-medium">
+          <mat-icon>download</mat-icon>
+        </button>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

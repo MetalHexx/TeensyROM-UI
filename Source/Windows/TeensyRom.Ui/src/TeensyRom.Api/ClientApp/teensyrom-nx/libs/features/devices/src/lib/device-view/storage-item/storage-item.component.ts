@@ -4,12 +4,19 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
+import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'lib-storage-status',
-  standalone: true,
-  imports: [MatIconModule, CommonModule, MatCardModule, MatChipsModule, IconLabelComponent],
-  templateUrl: './storage-status.component.html',
-  styleUrl: './storage-status.component.scss',
+  imports: [
+    MatIconModule,
+    CommonModule,
+    MatCardModule,
+    MatChipsModule,
+    IconLabelComponent,
+    MatButtonModule,
+  ],
+  templateUrl: './storage-item.component.html',
+  styleUrl: './storage-item.component.scss',
 })
 export class StorageStatusComponent {
   icon = input<string>('');
