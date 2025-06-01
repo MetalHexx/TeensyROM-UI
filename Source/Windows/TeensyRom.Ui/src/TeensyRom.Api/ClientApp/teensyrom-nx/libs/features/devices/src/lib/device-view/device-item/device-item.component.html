@@ -3,23 +3,32 @@
     <mat-card-title>
       {{ device()?.name }}
     </mat-card-title>
-    <button mat-icon-button color="primary" class="power-fab" aria-label="Power">
-      @if (!connectionStatus()) {
-      <mat-icon
-        (click)="onConnect()"
-        [ngClass]="{ success: connectionStatus(), error: !connectionStatus() }"
-      >
+
+    @if (!connectionStatus()) {
+    <button
+      (click)="onConnect()"
+      mat-icon-button
+      color="primary"
+      class="power-fab"
+      aria-label="Power"
+    >
+      <mat-icon [ngClass]="{ success: connectionStatus(), error: !connectionStatus() }">
         power_settings_new
       </mat-icon>
-      } @else {
-      <mat-icon
-        (click)="onDisconnect()"
-        [ngClass]="{ success: connectionStatus(), error: !connectionStatus() }"
-      >
-        power_settings_new
-      </mat-icon>
-      }
     </button>
+    } @else {
+    <button
+      (click)="onDisconnect()"
+      mat-icon-button
+      color="primary"
+      class="power-fab"
+      aria-label="Power"
+    >
+      <mat-icon [ngClass]="{ success: connectionStatus(), error: !connectionStatus() }">
+        power_settings_new
+      </mat-icon>
+    </button>
+    }
   </mat-card-header>
   <mat-card-content>
     <div class="device-content">

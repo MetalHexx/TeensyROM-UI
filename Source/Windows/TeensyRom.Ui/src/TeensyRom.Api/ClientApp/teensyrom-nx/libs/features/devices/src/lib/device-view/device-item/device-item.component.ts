@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { NgClass } from '@angular/common';
 import { Device } from '@teensyrom-nx/domain/device/services';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
-import { StorageStatusComponent } from '../storage-status/storage-status.component';
+import { StorageStatusComponent as StorageItemComponent } from '../storage-item/storage-item.component';
 
 @Component({
   selector: 'lib-device-item',
@@ -16,7 +16,7 @@ import { StorageStatusComponent } from '../storage-status/storage-status.compone
     MatButtonModule,
     NgClass,
     IconLabelComponent,
-    StorageStatusComponent,
+    StorageItemComponent,
   ],
   templateUrl: './device-item.component.html',
   styleUrl: './device-item.component.scss',
