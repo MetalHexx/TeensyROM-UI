@@ -8,6 +8,8 @@
 - Use a shared generated API client library based on OpenAPI.
 - Keep services domain-specific and state reactive and isolated.
 - Maintain application-wide storage metadata state, including file launch history.
+- When at all possible (and pragmatic) use Signals over observables.
+- Observables are fine when its well suited to the task.
 
 ---
 
