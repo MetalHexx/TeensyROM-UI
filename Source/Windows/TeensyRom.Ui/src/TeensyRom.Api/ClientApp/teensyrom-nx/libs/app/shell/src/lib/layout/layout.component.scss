@@ -17,6 +17,14 @@ app-nav-menu {
   margin-top: 5px;
 }
 
+.router-container {
+  padding: 1rem;
+  .view-title {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
+
 .glassy {
   width: 220px;
   height: 100vh;
