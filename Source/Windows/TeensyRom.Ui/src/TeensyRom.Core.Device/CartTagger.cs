@@ -25,6 +25,7 @@ namespace TeensyRom.Core.Device
     {
         public async Task<CartStorage> EnsureTag(ISerialStateContext serial, TeensyStorageType storageType)
         {
+            var methodName = "CartTagger.EnsureTag:";
             var pingResult = await mediator.Send(new PingCommand 
             {
                 Serial = serial
@@ -44,7 +45,7 @@ namespace TeensyRom.Core.Device
 
             if (getFileResult.ErrorCode is GetFileErrorCode.StorageUnavailable)
             {
-                log.InternalWarning($"{storageType} storage is unavailable.");
+                log.InternalWarning($"{methodName} {storageType} storage is unavailable.");
 
                 return new CartStorage
                 {
@@ -54,7 +55,7 @@ namespace TeensyRom.Core.Device
             }
             if (getFileResult.ErrorCode is GetFileErrorCode.FileNotFound)
             {
-                log.InternalWarning($"Failed to get remote config file from {storageType}");
+                log.InternalWarning($"{methodName} Failed to get remote config file from {storageType}");
             }
             else
             {
@@ -62,6 +63,7 @@ namespace TeensyRom.Core.Device
 
                 if (tagFromTr is not null)
                 {
+                    log.InternalSuccess($"{methodName} Succesfully retrieved tag from device.", tagFromTr.DeviceId);
                     return new CartStorage
                     {
                         Available = true,
@@ -77,7 +79,7 @@ namespace TeensyRom.Core.Device
 
             if (newTagBuffer is null)
             {
-                log.InternalError("Unable to serialize cart config.  Skipping device.");
+                log.InternalError($"{methodName} Unable to serialize cart config.  Skipping device.");
                 return new CartStorage
                 {
                     Available = false,
@@ -99,7 +101,7 @@ namespace TeensyRom.Core.Device
 
             if (saveFileResult.IsSuccess is false)
             {
-                log.InternalError("Failed to save remote config file");
+                log.InternalError($"{methodName} Failed to save remote config file");
                 return new CartStorage
                 {
                     Available = false,

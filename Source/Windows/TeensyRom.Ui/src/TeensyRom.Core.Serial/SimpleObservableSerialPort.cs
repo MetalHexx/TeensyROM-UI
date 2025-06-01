@@ -167,7 +167,7 @@ namespace TeensyRom.Core.Serial
             .Where(log => !string.IsNullOrWhiteSpace(log))
             .Publish()
             .RefCount()
-            .Subscribe(log.External);
+            .Subscribe(logs => log.External(logs));
         }
 
         public string? StartHealthCheck()

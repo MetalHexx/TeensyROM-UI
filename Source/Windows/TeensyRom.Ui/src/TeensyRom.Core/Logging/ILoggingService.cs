@@ -4,12 +4,12 @@
     {
         IObservable<string> Logs { get; }
 
-        void External(string message);
-        void ExternalSuccess(string message);
-        void ExternalError(string message);
-        void Internal(string message);
-        void InternalError(string message);
-        void InternalWarning(string message);
-        void InternalSuccess(string message);
+        void External(string message, string? deviceId = null);
+        void ExternalSuccess(string message, string? deviceId = null);
+        void ExternalError(string message, string? deviceId = null);
+        void Internal(string message, string? deviceId = null);
+        void InternalError(string message, string? deviceId = null);
+        void InternalWarning(string message, string? deviceId = null);
+        void InternalSuccess(string message, string? deviceId = null);
     }
 }

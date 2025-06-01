@@ -1,45 +1,69 @@
 ﻿using System.Diagnostics;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Api.Services
 {
     public class LoggingService : ILoggingService
     {
-        public IObservable<string> Logs => throw new NotImplementedException();
+        private Subject<string> _logs = new();
+        public IObservable<string> Logs => _logs.AsObservable();
 
-        public void External(string message)
+        public void External(string message, string? deviceId = null)
         {
-            Debug.WriteLine($"External: {message}");
+            var logMessage = deviceId is not null ? $"({deviceId}) External: {message}" : message;
+
+            _logs.OnNext(logMessage);
+            Debug.WriteLine(logMessage);
         }
 
-        public void ExternalError(string message)
+        public void ExternalError(string message, string? deviceId = null)
         {
-            Debug.WriteLine($"External Error: {message}");
+            var logMessage = deviceId is not null ? $"({deviceId}) External Error: {message}" : message;
+
+            _logs.OnNext(logMessage);
+            Debug.WriteLine(logMessage);
         }
 
-        public void ExternalSuccess(string message)
+        public void ExternalSuccess(string message, string? deviceId = null)
         {
-            Debug.WriteLine($"External Success: {message}");
+            var logMessage = deviceId is not null ? $"({deviceId}) External Success: {message}" : message;
+
+            _logs.OnNext(logMessage);            
+            Debug.WriteLine(logMessage);
         }
 
-        public void Internal(string message)
+        public void Internal(string message, string? deviceId = null)
         {
-            Debug.WriteLine($"Internal: {message}");
+            var logMessage = deviceId is not null ? $"({deviceId}) Internal: {message}" : message;
+
+            _logs.OnNext(logMessage);
+            Debug.WriteLine(logMessage);
         }
 
-        public void InternalError(string message)
+        public void InternalError(string message, string? deviceId = null)
         {
-            Debug.WriteLine($"Internal Error: {message}");
+            var logMessage = deviceId is not null ? $"({deviceId}) Internal Error: {message}" : message;
+
+            _logs.OnNext(logMessage);            
+            Debug.WriteLine(logMessage);
         }
 
-        public void InternalWarning(string message)
+        public void InternalWarning(string message, string? deviceId = null)
         {
-            Debug.WriteLine($"Internal Warning: {message}");
+            var logMessage = deviceId is not null ? $"({deviceId}) Internal Warning: {message}" : message;
+
+            _logs.OnNext(logMessage);
+            Debug.WriteLine(logMessage);
         }
 
-        public void InternalSuccess(string message)
+        public void InternalSuccess(string message, string? deviceId = null)
         {
-            Debug.WriteLine($"Internal Success: {message}");
+            var logMessage = deviceId is not null ? $"({deviceId}) Internal Success: {message}" : message;
+
+            _logs.OnNext(message);
+            Debug.WriteLine(logMessage);
         }
     }
 }

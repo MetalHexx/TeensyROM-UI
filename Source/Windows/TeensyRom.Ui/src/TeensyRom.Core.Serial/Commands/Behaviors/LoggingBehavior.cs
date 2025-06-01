@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
@@ -24,8 +25,9 @@ namespace TeensyRom.Core.Serial.Commands.Behaviors
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             var requestType = typeof(TRequest).Name;
+            var deviceId = GetDeviceId(request);            
 
-            _logService.Internal($"{requestType} Started {LoggingBehavior<TRequest, TResponse>.FormatRequest(request)}");
+            _logService.Internal($"{requestType} Started {LoggingBehavior<TRequest, TResponse>.FormatRequest(request)}", deviceId);
 
             var sw = Stopwatch.StartNew();
 
@@ -35,11 +37,11 @@ namespace TeensyRom.Core.Serial.Commands.Behaviors
 
             if (IsSuccess(response))
             {
-                _logService.InternalSuccess($"{requestType} Completed in {sw.ElapsedMilliseconds}ms {FormatResponse(response)}\n");
+                _logService.InternalSuccess($"{requestType} Completed in {sw.ElapsedMilliseconds}ms {FormatResponse(response)}\n", deviceId);
                 return response;
             }
 
-            _logService.InternalError($"{requestType} Completed {FormatResponse(response)}\n");
+            _logService.InternalError($"{requestType} Completed {FormatResponse(response)}\n", deviceId);
 
             return response;
         }
@@ -73,5 +75,14 @@ namespace TeensyRom.Core.Serial.Commands.Behaviors
                 : $"(Failure) => {response.Error}";
 
         private bool IsSuccess(TResponse response) => string.IsNullOrWhiteSpace(response.Error);
+
+        public string? GetDeviceId(TRequest request)
+        {
+            if (request is ITeensyCommand<TResponse> command)
+            {
+                return command.DeviceId;
+            }
+            return null;
+        }
     }
 }

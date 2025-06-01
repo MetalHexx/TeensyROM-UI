@@ -27,7 +27,7 @@ namespace TeensyRom.Core.Storage
 
             if (directory is null)
             {
-                log.InternalWarning($"The parent directory {parentPath} was not found");
+                log.InternalWarning($"The parent directory {parentPath} was not found", settings.CartStorage.DeviceId);
                 return null;
             }
             var file = directory.Files
@@ -36,7 +36,7 @@ namespace TeensyRom.Core.Storage
 
             if (file is null)
             {
-                log.InternalWarning($"The file {path.GetFileNameFromPath()} was not found in the directory {parentPath}");
+                log.InternalWarning($"The file {path.GetFileNameFromPath()} was not found in the directory {parentPath}", settings.CartStorage.DeviceId);
                 return null;
             }
             return file;
@@ -80,18 +80,18 @@ namespace TeensyRom.Core.Storage
             {
                 ClearCache(path);
             }
-            alert.Publish("Resetting TeensyROM");
+            log.Internal("Resetting TeensyROM", settings.CartStorage.DeviceId);
 
             var _ = await mediator.Send(new ResetCommand
             {
                 DeviceId = settings.CartStorage.DeviceId
             });
-            alert.Publish($"Refreshing cache for {path} and all nested directories.");
+            log.Internal($"Refreshing cache for {path} and all nested directories.", settings.CartStorage.DeviceId);
             var response = await mediator.Send(new GetDirectoryRecursiveCommand(settings.CartStorage.Type, path, settings.CartStorage.DeviceId));
 
             if (!response.IsSuccess) return false;
 
-            alert.Publish($"Enriching music and games.");
+            log.Internal($"Enriching music and games.", settings.CartStorage.DeviceId);
 
             await Task.Run(async () =>
             {
@@ -108,7 +108,7 @@ namespace TeensyRom.Core.Storage
                 cache.EnsureFavorites([.. StorageHelper.FavoritePaths]);
                 cache.WriteToDisk();
             });
-            alert.Publish($"Indexing completed for {settings.CartStorage.Type} storage.");
+            log.Internal($"Indexing completed for {settings.CartStorage.Type} storage.", settings.CartStorage.DeviceId);
 
             return true;
         }

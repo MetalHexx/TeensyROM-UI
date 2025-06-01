@@ -15,6 +15,7 @@ namespace TeensyRom.Core.Commands
     {
         private ISerialStateContext _serialState;
         private readonly ILoggingService _log;
+        private string? _deviceId = null;
 
         public GetDirectoryRecursiveHandler(ILoggingService log)
         {            
@@ -23,6 +24,7 @@ namespace TeensyRom.Core.Commands
 
         public Task<GetDirectoryRecursiveResult> Handle(GetDirectoryRecursiveCommand r, CancellationToken x)
         {
+            _deviceId = r.DeviceId;
             _serialState = r.Serial;
 
             return Task.Run(() =>
@@ -72,8 +74,8 @@ namespace TeensyRom.Core.Commands
         }
 
         private void GetDirectoryContent(string path, TeensyStorageType storageType, GetDirectoryRecursiveResult result, StringBuilder directoryLogs)
-        {            
-            _log.Internal($"=> Indexing: {path}");
+        {    
+            _log.Internal($"=> Indexing: {path}", _deviceId);
 
             DirectoryContent? directoryContent;
 

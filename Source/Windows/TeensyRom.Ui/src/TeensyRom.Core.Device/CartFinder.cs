@@ -18,7 +18,8 @@ namespace TeensyRom.Core.Device
     {
         private const string UndefinedDeviceIdBase = "Unidentified";
         public async Task<List<TeensyRomDevice>> FindDevices()
-        {   
+        {
+            string methodName = "CartFiner.Find:";
             var ports = SerialHelper.GetPorts();
 
             List<TeensyRomDevice> foundDevices = [];
@@ -32,7 +33,7 @@ namespace TeensyRom.Core.Device
                 }
                 catch (Exception)
                 {
-                    log.ExternalError($"CartFinder.Find: Unable to connect to {port}");
+                    log.ExternalError($"{methodName} Unable to connect to {port}");
                     continue;
                 }
                 var versionCheckCommand = new FwVersionCheckCommand
