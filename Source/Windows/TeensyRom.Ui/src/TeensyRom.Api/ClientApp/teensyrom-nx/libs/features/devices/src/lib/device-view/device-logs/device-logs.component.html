@@ -1,0 +1,47 @@
+<mat-card class="device-card device-logs-card">
+  <mat-card-header>
+    <mat-card-title>Logs</mat-card-title>
+    <div class="logs-actions">
+      @if (!isConnected()) {
+      <button
+        mat-icon-button
+        class="icon-button-medium"
+        aria-label="Start Logs"
+        (click)="startLogs()"
+      >
+        <mat-icon class="success">play_arrow</mat-icon>
+      </button>
+      } @else {
+      <button
+        mat-icon-button
+        class="icon-button-medium"
+        aria-label="Stop Logs"
+        (click)="stopLogs()"
+      >
+        <mat-icon class="error">stop</mat-icon>
+      </button>
+      }
+      <button
+        mat-icon-button
+        class="icon-button-medium"
+        aria-label="Clear Logs"
+        (click)="clearLogs()"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </mat-card-header>
+  <mat-card-content>
+    <div (scroll)="onScroll()" class="logs-content" #logsContent>
+      @if (logs().length) {
+      <div class="logs-list">
+        @for (line of logs(); track $index) {
+        <div class="log-line">{{ line }}</div>
+        }
+      </div>
+      } @else {
+      <div class="no-logs dimmed">No logs to display.</div>
+      }
+    </div>
+  </mat-card-content>
+</mat-card>

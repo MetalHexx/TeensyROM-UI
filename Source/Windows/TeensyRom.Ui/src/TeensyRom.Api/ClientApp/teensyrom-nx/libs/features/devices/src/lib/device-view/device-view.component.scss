@@ -4,9 +4,16 @@
   justify-content: flex-start;
   align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 2rem;
 }
 
+.device-logs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
 @media (max-width: 600px) {
   .device-list {
     flex-direction: column;

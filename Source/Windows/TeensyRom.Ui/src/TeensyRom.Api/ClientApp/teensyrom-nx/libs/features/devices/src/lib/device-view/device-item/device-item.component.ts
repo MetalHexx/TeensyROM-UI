@@ -1,4 +1,4 @@
-import { Component, input, computed, output } from '@angular/core';
+import { Component, input, computed, output, inject, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,6 +6,7 @@ import { NgClass } from '@angular/common';
 import { Device } from '@teensyrom-nx/domain/device/services';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
 import { StorageStatusComponent as StorageItemComponent } from '../storage-item/storage-item.component';
+import { DeviceLogsComponent } from '../device-logs/device-logs.component';
 
 @Component({
   selector: 'lib-device-item',
@@ -17,6 +18,7 @@ import { StorageStatusComponent as StorageItemComponent } from '../storage-item/
     NgClass,
     IconLabelComponent,
     StorageItemComponent,
+    DeviceLogsComponent,
   ],
   templateUrl: './device-item.component.html',
   styleUrl: './device-item.component.scss',
