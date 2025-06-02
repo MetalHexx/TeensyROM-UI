@@ -24,11 +24,10 @@ export class DeviceLogsComponent {
   private readonly logsService = inject(DeviceLogsService);
   readonly logs = this.logsService.logs;
   readonly isConnected = signal(false);
-  readonly shouldAutoScroll = signal(true);
 
   logEffectRef: EffectRef | undefined = effect(() => {
     const logs = this.logs();
-    if (logs.length && this.shouldAutoScroll()) {
+    if (logs.length) {
       queueMicrotask(() => this.scrollToElement());
     }
   });
@@ -48,12 +47,6 @@ export class DeviceLogsComponent {
 
   clearLogs() {
     this.logsService.clear();
-  }
-
-  onScroll() {
-    const el = this.logsContentRef.nativeElement;
-    const isAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 10;
-    this.shouldAutoScroll.set(isAtBottom);
   }
 
   scrollToElement(): void {

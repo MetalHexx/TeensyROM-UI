@@ -32,7 +32,7 @@
     </div>
   </mat-card-header>
   <mat-card-content>
-    <div (scroll)="onScroll()" class="logs-content" #logsContent>
+    <div class="logs-content" #logsContent>
       @if (logs().length) {
       <div class="logs-list">
         @for (line of logs(); track $index) {
