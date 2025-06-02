@@ -24,35 +24,17 @@ namespace TeensyRom.Api.Endpoints.FindCarts
 
         public override async Task Handle(CancellationToken ct)
         {
-            var availableResults = await deviceManager.FindAvailableCarts();
-            var connectedCarts = deviceManager.GetConnectedCarts();
+            var devices = await deviceManager.FindDevices();
 
-            if (availableResults.Count == 0)
+            if (devices.Count == 0)
             {
                 SendNotFound("No TeensyRom devices found.");
                 return;
             }
-            var connectedDevices = connectedCarts
-                .Select(d => 
-                {
-                    var device = CartDto.FromCart(d);
-                    device.IsConnected = true;
-                    return device;
-                })
-                .ToList();
-
-            var availableDevices = availableResults
-                .Select(CartDto.FromCart)
-                .Where(d => !connectedDevices.Any(connected => connected.DeviceId == d.DeviceId))
-                .ToList();
-
-            List<CartDto> allDevices = [];
-            allDevices.AddRange(connectedDevices);
-            allDevices.AddRange(availableDevices);
 
             Response = new()
             {
-                Devices = allDevices,
+                Devices = [.. devices.Select(CartDto.FromDevice)],
                 Message = "Success!"
             };
             Send();

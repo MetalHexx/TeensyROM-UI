@@ -5,12 +5,10 @@ namespace TeensyRom.Core.Abstractions
     public interface IDeviceConnectionManager
     {
         TeensyRomDevice? Connect(string deviceId);
-        Task<List<Cart>> FindAvailableCarts();
-        List<TeensyRomDevice> GetAllConnectedDevices();
-        List<Cart> GetConnectedCarts();
+        Task<List<TeensyRomDevice>> FindDevices();
+        List<TeensyRomDevice> GetConnectedDevices();
         TeensyRomDevice? GetConnectedDevice(string portName);
         Task<bool> ConnectToNextPort(string deviceId);
-        List<string> GetAvailablePorts();
         void ClosePort(string deviceId);
     }
 }

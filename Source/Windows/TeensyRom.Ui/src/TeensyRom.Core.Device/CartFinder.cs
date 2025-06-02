@@ -86,10 +86,10 @@ namespace TeensyRom.Core.Device
                 cart.UsbStorage = usbStorage;
                 var device = new TeensyRomDevice
                 (
-                    Cart: cart,
-                    SerialState: serial,
-                    SdStorage: storageFactory.Create(sdStorage),
-                    UsbStorage: storageFactory.Create(usbStorage)
+                    cart,
+                    serial,
+                    storageFactory.Create(sdStorage),
+                    storageFactory.Create(usbStorage)
                 );
                 foundDevices.Add(device);
             }            

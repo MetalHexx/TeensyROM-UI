@@ -52,17 +52,18 @@ namespace TeensyRom.Api.Models
         /// <summary>
         /// Creates a <see cref="CartDto"/> from a <see cref="Cart"/> entity.
         /// </summary>
-        public static CartDto FromCart(Cart cart)
+        public static CartDto FromDevice(TeensyRomDevice device)
         {
             return new CartDto
             {
-                DeviceId = cart.DeviceId ?? string.Empty,
-                ComPort = cart.ComPort,
-                Name = cart.Name,
-                FwVersion = cart.FwVersion,
-                IsCompatible = cart.IsCompatible,
-                SdStorage = CartStorageDto.FromStorage(cart.SdStorage),
-                UsbStorage = CartStorageDto.FromStorage(cart.UsbStorage)
+                DeviceId = device.DeviceId ?? string.Empty,
+                ComPort = device.Cart.ComPort,
+                Name = device.Cart.Name,
+                FwVersion = device.Cart.FwVersion,
+                IsCompatible = device.Cart.IsCompatible,
+                IsConnected = device.IsConnected,
+                SdStorage = CartStorageDto.FromStorage(device.Cart.SdStorage),
+                UsbStorage = CartStorageDto.FromStorage(device.Cart.UsbStorage)
             };
         }
     }

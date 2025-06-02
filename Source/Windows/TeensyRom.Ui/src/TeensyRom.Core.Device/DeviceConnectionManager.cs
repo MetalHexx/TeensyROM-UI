@@ -1,4 +1,5 @@
-﻿using System.Reactive.Linq;
+﻿using CsvHelper.Configuration.Attributes;
+using System.Reactive.Linq;
 using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Device;
@@ -11,13 +12,17 @@ namespace TeensyRom.Core.Device
 {
     public class DeviceConnectionManager(ICartFinder finder, ICartTagger tagger, ILoggingService log, IAlertService alert, ISerialFactory serialFactory, IStorageFactory storageFactory, IFwVersionChecker versionChecker) : IDeviceConnectionManager
     {
-        private List<TeensyRomDevice> _availableDevices = [];
-        private List<TeensyRomDevice> _connectedDevices = [];
+        private List<TeensyRomDevice> _devices = [];
 
-        public List<string> GetAvailablePorts()
+        public void ClosePort(string deviceId) => GetConnectedDevice(deviceId)?.SerialState.Dispose();
+        public List<TeensyRomDevice> GetConnectedDevices() => _devices.Where(d => d.IsConnected).ToList();
+        public TeensyRomDevice? GetDevice(string deviceId) => _devices.FirstOrDefault(d => d.DeviceId == deviceId);
+        public TeensyRomDevice? GetConnectedDevice(string deviceId) => GetConnectedDevices().FirstOrDefault(d => d.DeviceId == deviceId);
+
+        private List<string> GetAvailablePorts()
         {
             var ports = SerialHelper.GetPorts();
-            var availablePorts = ports.Except(_connectedDevices.Select(d => d.Cart.ComPort)).ToList();
+            var availablePorts = ports.Except(_devices.Select(d => d.Cart.ComPort)).ToList();
             return availablePorts;
         }
 
@@ -25,7 +30,7 @@ namespace TeensyRom.Core.Device
         {            
             var availablePorts = GetAvailablePorts();
 
-            var device = _connectedDevices.FirstOrDefault(d => d.Cart.DeviceId == deviceId);
+            var device = GetDevice(deviceId);
 
             if (device is null)
             {
@@ -64,83 +69,41 @@ namespace TeensyRom.Core.Device
             }
             log.InternalError($"Could not reconnect to {deviceId}.  Check your devices and try reconnnecting.");
             device.SerialState.ClosePort();
-            _connectedDevices.Remove(device);
+
             return false;
         }
 
-        public TeensyRomDevice? GetConnectedDevice(string deviceId)
+        public async Task<List<TeensyRomDevice>> FindDevices()
         {
-            return _connectedDevices.FirstOrDefault(d => d.Cart.DeviceId == deviceId);
-        }
-
-        public void CloseAllPorts()
-        {
-            foreach (var device in _connectedDevices)
-            {
-                device.SerialState.Dispose();
-            }
-            _connectedDevices.Clear();
-        }
-
-        public void ClosePort(string deviceId)
-        {
-            var device = _connectedDevices.FirstOrDefault(d => d.Cart.DeviceId == deviceId);
-
-            if (device is null)
-            {
-                throw new TeensyException($"Device with ID {deviceId} not found in connected devices.");
-            }
-            device.SerialState.ClosePort();
-            _connectedDevices.Remove(device);
-        }
-
-        public List<Cart> GetConnectedCarts() => _connectedDevices.Select(c => c.Cart).ToList();
-
-        public List<TeensyRomDevice> GetAllConnectedDevices() 
-        {  
-            return _connectedDevices.ToList();
-        }
-
-        public async Task<List<Cart>> FindAvailableCarts()
-        {
-            _availableDevices.ForEach(d => d.SerialState.Dispose());
-            _connectedDevices.ForEach(d => d.SerialState.Dispose());
-            _availableDevices.Clear();
+            var previouslyConnected = GetConnectedDevices();
+            _devices.ForEach(d => d.SerialState.Dispose());
+            _devices.Clear();
 
             var devices = await finder.FindDevices();
-            _availableDevices.AddRange(devices);
 
-            var connectedDevices = _availableDevices
-                .Where(d => _connectedDevices
-                    .Any(c => c.Cart.DeviceId == d.Cart.DeviceId)).ToList();
+            _devices.AddRange(devices);
 
-            var disconnectedDevices = _availableDevices
-                .Where(d => !connectedDevices
-                    .Any(c => c.Cart.DeviceId == d.Cart.DeviceId)).ToList();
+            var devicesToDisconnect = _devices
+                .Where(d => !previouslyConnected.Any(d => d.DeviceId == d.DeviceId))
+                .ToList();
 
-            disconnectedDevices.ForEach(d => d.SerialState.ClosePort());
+            devicesToDisconnect.ForEach(d => d.SerialState.ClosePort());
 
-            _connectedDevices.Clear();
-            _connectedDevices.AddRange(connectedDevices);
-
-            return _availableDevices.Select(d => d.Cart).ToList();
+            return _devices;
         }
 
         public TeensyRomDevice? Connect(string deviceId)
         {
-            var alreadyConnected = _connectedDevices.FirstOrDefault(d => d.Cart.DeviceId == deviceId);
+            var connectedDevice = GetConnectedDevice(deviceId);
 
-            if (alreadyConnected is not null) return alreadyConnected;
+            if (connectedDevice is not null) return connectedDevice;
 
-            var knownDevice = _availableDevices.FirstOrDefault(d => d.Cart.DeviceId == deviceId);
+            var device = GetDevice(deviceId);
 
-            if (knownDevice is null)
-            {
-                return null;
-            }
-            _connectedDevices.Add(knownDevice);
-            knownDevice.SerialState.OpenPort();
-            return knownDevice;
+            if (device is null) return null;
+
+            device.SerialState.OpenPort();
+            return device;
         }
     }
 }
