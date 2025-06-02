@@ -6,6 +6,7 @@ namespace TeensyRom.Core.Abstractions
     {
         IObservable<ISerialState> CurrentState { get; }
 
+        void SetDeviceId(string? deviceId);
         void TransitionTo(Type nextStateType);
     }
 }

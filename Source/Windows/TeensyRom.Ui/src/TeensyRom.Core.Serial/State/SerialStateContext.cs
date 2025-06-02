@@ -15,11 +15,12 @@ namespace TeensyRom.Core.Serial.State
         private readonly IObservableSerialPort _serialPort;
         private readonly ILoggingService _log;
         private readonly IDisposable _stateSubscription;
+        private string? _deviceId;
 
         public SerialStateContext(IObservableSerialPort serialPort, ILoggingService log)
         {
             _log = log;
-            _serialPort = serialPort;            
+            _serialPort = serialPort;  
             _states = new()
             {
                 { typeof(SerialStartState), new SerialStartState(serialPort) },
@@ -35,6 +36,16 @@ namespace TeensyRom.Core.Serial.State
 
         public bool IsOpen => _serialPort.IsOpen;
 
+        public void SetDeviceId(string? deviceId)
+        {
+            if(_deviceId != null)
+            {   
+                _log.InternalWarning($"Device ID is already set to {_deviceId}", deviceId);
+                return;
+            }      
+            _deviceId = deviceId;
+        }
+
         public void TransitionTo(Type nextStateType)
         {
             if (nextStateType == _currentState.Value.GetType())
@@ -46,10 +57,10 @@ namespace TeensyRom.Core.Serial.State
             if (_currentState.Value.CanTransitionTo(nextStateType))
             {
                 _currentState.OnNext(_states[nextStateType]);
-                _log.Internal($"Transitioned to state: {_currentState.Value.GetType().Name}");
+                _log.Internal($"Transitioned to state: {_currentState.Value.GetType().Name}", _deviceId);
                 return;
             }
-            _log.InternalError($"Transition to {nextStateType.Name} is not allowed from {_currentState.Value.GetType().Name}");
+            _log.InternalError($"Transition to {nextStateType.Name} is not allowed from {_currentState.Value.GetType().Name}", _deviceId);
         }
 
         public string? OpenPort() => _currentState.Value.OpenPort();

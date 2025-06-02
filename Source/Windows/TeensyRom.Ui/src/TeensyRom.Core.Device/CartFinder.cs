@@ -75,10 +75,12 @@ namespace TeensyRom.Core.Device
                     cart.DeviceId = deviceId;
                     sdStorage.DeviceId = deviceId;
                     usbStorage.DeviceId = deviceId;
+                    serial.SetDeviceId(deviceId);
                 }
                 else
                 {
                     cart.DeviceId = deviceId;
+                    serial.SetDeviceId(deviceId);
                 }
                 sdStorage.DeviceId = deviceId;
                 usbStorage.DeviceId = deviceId;
