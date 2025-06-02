@@ -29,7 +29,7 @@ namespace TeensyRom.Api.Endpoints.Files.IndexAll
 
         public override async Task Handle(CancellationToken ct)
         {
-            var devices = deviceManager.GetAllConnectedDevices();
+            var devices = deviceManager.GetConnectedDevices();
 
             if (devices.Count == 0)
             {
@@ -41,23 +41,24 @@ namespace TeensyRom.Api.Endpoints.Files.IndexAll
                 .Where(d => d.Cart.SdStorage.Available)
                 .Select(d => new
                 {
-                    DeviceId = d.Cart.DeviceId,
+                    DeviceId = d.DeviceId,
                     StorageType = "SD",
                     Task = d.SdStorage.CacheAll()
                 })
-                .ToList();
+                .ToList();            
+
+            await Task.WhenAll(sdTasks.Select(t => t.Task));
 
             var usbTasks = devices
                 .Where(d => d.Cart.UsbStorage.Available)
                 .Select(d => new
                 {
-                    d.Cart.DeviceId,
+                    d.DeviceId,
                     StorageType = "USB",
                     Task = d.UsbStorage.CacheAll()
                 })
                 .ToList();
 
-            await Task.WhenAll(sdTasks.Select(t => t.Task));
             await Task.WhenAll(usbTasks.Select(t => t.Task));
 
             var failedItems = sdTasks
