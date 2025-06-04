@@ -113,7 +113,6 @@ namespace TeensyRom.Core.Device
             try
             {
                 devices = await _finder.FindDevices(ct);
-                _log.Internal($"{randomNumber} Devices found");
             }
             catch (OperationCanceledException)
             {
