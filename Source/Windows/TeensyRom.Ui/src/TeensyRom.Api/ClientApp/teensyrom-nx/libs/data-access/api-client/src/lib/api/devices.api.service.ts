@@ -253,10 +253,12 @@ export class DevicesApiService extends BaseService {
   /**
    * Find Devices
    * Returns all available and connected TeensyROM devices.  - This will momentarily disconnect all devices. - All available COM ports will be scanned for TeensyROM devices. - All previously connected devices will reconnect.
+   * @param autoConnectNew
    * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
    * @param reportProgress flag to report request and response progress.
    */
   public findDevices(
+    autoConnectNew?: boolean,
     observe?: 'body',
     reportProgress?: boolean,
     options?: {
@@ -266,6 +268,7 @@ export class DevicesApiService extends BaseService {
     }
   ): Observable<FindDevicesResponse>;
   public findDevices(
+    autoConnectNew?: boolean,
     observe?: 'response',
     reportProgress?: boolean,
     options?: {
@@ -275,6 +278,7 @@ export class DevicesApiService extends BaseService {
     }
   ): Observable<HttpResponse<FindDevicesResponse>>;
   public findDevices(
+    autoConnectNew?: boolean,
     observe?: 'events',
     reportProgress?: boolean,
     options?: {
@@ -284,6 +288,7 @@ export class DevicesApiService extends BaseService {
     }
   ): Observable<HttpEvent<FindDevicesResponse>>;
   public findDevices(
+    autoConnectNew?: boolean,
     observe: any = 'body',
     reportProgress: boolean = false,
     options?: {
@@ -292,6 +297,13 @@ export class DevicesApiService extends BaseService {
       transferCache?: boolean;
     }
   ): Observable<any> {
+    let localVarQueryParameters = new HttpParams({ encoder: this.encoder });
+    localVarQueryParameters = this.addToHttpParams(
+      localVarQueryParameters,
+      <any>autoConnectNew,
+      'AutoConnectNew'
+    );
+
     let localVarHeaders = this.defaultHeaders;
 
     const localVarHttpHeaderAcceptSelected: string | undefined =
@@ -320,6 +332,7 @@ export class DevicesApiService extends BaseService {
     const { basePath, withCredentials } = this.configuration;
     return this.httpClient.request<FindDevicesResponse>('get', `${basePath}${localVarPath}`, {
       context: localVarHttpContext,
+      params: localVarQueryParameters,
       responseType: <any>responseType_,
       ...(withCredentials ? { withCredentials } : {}),
       headers: localVarHeaders,

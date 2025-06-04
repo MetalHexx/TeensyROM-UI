@@ -6,11 +6,20 @@ import { HttpClient, HttpXhrBackend } from '@angular/common/http';
 import { firstValueFrom, of, Observable } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DeviceLogsService } from '@teensyrom-nx/domain/device/services';
+
+class MockDeviceLogsService {
+  connect = vi.fn();
+  disconnect = vi.fn();
+  clear = vi.fn();
+  logs = of([]);
+}
 
 describe('AppBootstrapService Integration Tests', () => {
   let appBootstrapService: AppBootstrapService;
   let deviceService: DeviceService;
-  let originalFindDevices: () => Observable<Device[]>;
+  let originalFindDevices: (autoConnectNew: boolean) => Observable<Device[]>;
+  let mockDeviceLogsService: MockDeviceLogsService;
 
   beforeEach(() => {
     const httpHandler = new HttpXhrBackend({ build: () => new XMLHttpRequest() });
@@ -23,8 +32,14 @@ describe('AppBootstrapService Integration Tests', () => {
     // Store the original findDevices method
     originalFindDevices = deviceService.findDevices.bind(deviceService);
 
+    mockDeviceLogsService = new MockDeviceLogsService();
+
     TestBed.configureTestingModule({
-      providers: [AppBootstrapService, { provide: DeviceService, useValue: deviceService }],
+      providers: [
+        AppBootstrapService,
+        { provide: DeviceService, useValue: deviceService },
+        { provide: DeviceLogsService, useValue: mockDeviceLogsService },
+      ],
     });
 
     appBootstrapService = TestBed.inject(AppBootstrapService);
@@ -51,14 +66,19 @@ describe('AppBootstrapService Integration Tests', () => {
     return firstValueFrom(deviceService.getConnectedDevices());
   }
 
+  it('should call DeviceLogsService.connect when initializing', async () => {
+    await appBootstrapService.init();
+    expect(mockDeviceLogsService.connect).toHaveBeenCalled();
+  }, 40000);
+
   it('should initialize successfully when compatible devices are available', async () => {
     // Act
     await expect(appBootstrapService.init()).resolves.not.toThrow();
 
     // Assert
-    const devices = await firstValueFrom(deviceService.findDevices());
+    const devices = await firstValueFrom(deviceService.findDevices(true));
     expect(devices.length).toBeGreaterThan(0);
-  });
+  }, 40000);
 
   it('should throw error when no devices are available', async () => {
     // Arrange - mock findDevices to return no available devices
@@ -77,5 +97,5 @@ describe('AppBootstrapService Integration Tests', () => {
       'Close',
       expect.objectContaining({ duration: 5000 })
     );
-  });
+  }, 40000);
 });

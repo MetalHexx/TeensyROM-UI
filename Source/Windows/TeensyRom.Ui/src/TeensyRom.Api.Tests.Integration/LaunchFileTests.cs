@@ -20,7 +20,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_LaunchingIncompatibleSid_ReturnsBadRequest()
         {
             // Arrange              
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
 
             // Act  
             var request = new LaunchFileRequest
@@ -40,7 +40,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_LaunchingVariousFilesInSequence_ReturnsSuccess()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
 
             List<string> filePaths =
             [
@@ -65,7 +65,7 @@ namespace TeensyRom.Api.Tests.Integration
                     StorageType = TeensyStorageType.SD
                 });
 
-                await Task.Delay(3000);
+                await Task.Delay(5000);
 
                 // Assert after each
                 r.Should().BeSuccessful<LaunchFileResponse>()
@@ -82,17 +82,16 @@ namespace TeensyRom.Api.Tests.Integration
         public async void When_LaunchCalled_WithInvalidPath_ReturnsNotFound()
         {
             // Arrange              
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
 
-            // Act  
-            var request = new LaunchFileRequest
+            // Act
+            var r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, ProblemDetails>(new LaunchFileRequest
             {
                 DeviceId = deviceId,
                 FilePath = NonExistentPath,
                 StorageType = TeensyStorageType.SD
-            };
+            });
 
-            var r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, ProblemDetails>(request);
             // Assert  
             r.Should().BeProblem()
                 .WithStatusCode(HttpStatusCode.NotFound);

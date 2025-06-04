@@ -1,9 +1,10 @@
 using RadEndpoints;
+using System.ComponentModel.DataAnnotations;
 
 namespace TeensyRom.Api.Endpoints.GetLogs
 {
     public class LogDto
     {
-        public string Message { get; set; } = string.Empty;
+        [Required] public string Message { get; set; } = string.Empty;
     }
 }

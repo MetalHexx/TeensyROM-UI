@@ -27,41 +27,47 @@ describe('DeviceService Integration Tests', () => {
     } catch (error) {
       console.warn('Error during cleanup:', error);
     }
-  });
+  }, 30000);
 
   async function getConnectedDevices() {
     return firstValueFrom(deviceService.getConnectedDevices());
   }
 
-  async function getAvailableDevice() {
-    const result = await firstValueFrom(deviceService.findDevices());
+  async function getConnectedDevice() {
+    const result = await firstValueFrom(deviceService.findDevices(true));
+
+    return result?.[0];
+  }
+
+  async function getDisconnectedDevice() {
+    const result = await firstValueFrom(deviceService.findDevices(false));
 
     return result?.[0];
   }
 
   it('should find available and connected devices', async () => {
     //Act
-    const devices = await firstValueFrom(deviceService.findDevices());
+    const devices = await firstValueFrom(deviceService.findDevices(true));
 
     //Assert
     expect(devices).toBeDefined();
     expect(Array.isArray(devices)).toBe(true);
-  });
+  }, 40000);
 
   it('should connect to a device', async () => {
     //Arrange
-    const expectedDevice = await getAvailableDevice();
+    const expectedDevice = await getDisconnectedDevice();
     //Act
     const device = await deviceService.connectDevice(expectedDevice.deviceId).toPromise();
 
     //Asert
     expect(device).toBeDefined();
     expect(device?.deviceId).toBe(expectedDevice.deviceId);
-  });
+  }, 40000); // 40 seconds
 
   it('should disconnect from a connected device', async () => {
     //Arrange
-    const expectedDevice = await getAvailableDevice();
+    const expectedDevice = await getConnectedDevice();
 
     await deviceService.connectDevice(expectedDevice.deviceId).toPromise();
 
@@ -71,5 +77,5 @@ describe('DeviceService Integration Tests', () => {
     //Assert
     expect(result).toBeDefined();
     expect(result?.message).toBeDefined();
-  });
+  }, 40000);
 });

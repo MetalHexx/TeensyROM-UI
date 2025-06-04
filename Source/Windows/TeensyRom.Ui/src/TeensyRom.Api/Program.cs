@@ -1,24 +1,27 @@
-using TeensyRom.Core.Games;
-using TeensyRom.Core.Music.Sid;
-using TeensyRom.Core.Serial;
-using TeensyRom.Core.Storage;
-using TeensyRom.Core.Settings;
 using MediatR;
-using TeensyRom.Core.Serial.Commands.Behaviors;
+using Microsoft.AspNetCore.RateLimiting;
+using Scalar.AspNetCore;
+using System.Threading.RateLimiting;
+using TeensyRom.Api.Http;
 using TeensyRom.Api.Services;
-using TeensyRom.Core.Logging;
+using TeensyRom.Api.Startup;
+using TeensyRom.Core.Abstractions;
+using TeensyRom.Core.Assets;
 using TeensyRom.Core.Commands.MuteSidVoices;
 using TeensyRom.Core.Commands.PlaySubtune;
 using TeensyRom.Core.Commands.SetMusicSpeed;
-using TeensyRom.Core.Serial.Commands.ToggleMusic;
-using TeensyRom.Core.Device;
-using TeensyRom.Core.Abstractions;
-using TeensyRom.Core.Serial.State;
-using TeensyRom.Core.Assets;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.Device;
+using TeensyRom.Core.Games;
+using TeensyRom.Core.Logging;
 using TeensyRom.Core.Music;
-using Scalar.AspNetCore;
-using TeensyRom.Api.Startup;
+using TeensyRom.Core.Music.Sid;
+using TeensyRom.Core.Serial;
+using TeensyRom.Core.Serial.Commands.Behaviors;
+using TeensyRom.Core.Serial.Commands.ToggleMusic;
+using TeensyRom.Core.Serial.State;
+using TeensyRom.Core.Settings;
+using TeensyRom.Core.Storage;
 
 AssetStartupHelper.UnpackAssets();
 
@@ -29,13 +32,14 @@ builder.Services.AddApiDocs();
 builder.Services.AddTeensyRomMediatR();
 builder.Services.AddUiCors();
 builder.Services.AddTeensyRomServices();
+builder.Services.AddStrictRateLimiting();
 
 var app = builder.Build();
 
-app.MapApiDocs();
-
-app.UseUiCors();
 app.MapRadEndpoints();
+app.UseUiCors();
+app.UseRateLimiter();
+app.MapApiDocs();
 
 app.Run();
 

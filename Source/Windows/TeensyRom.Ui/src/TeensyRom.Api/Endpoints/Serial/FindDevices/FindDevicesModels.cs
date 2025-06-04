@@ -5,6 +5,10 @@ using TeensyRom.Core.Entities.Device;
 
 namespace TeensyRom.Api.Endpoints.FindCarts
 {
+    public class FindDevicesRequest
+    {
+        [FromQuery] public bool? AutoConnectNew { get; set; }
+    }
     /// <summary>
     /// Response model for finding available and connected TeensyROM devices.
     /// </summary>

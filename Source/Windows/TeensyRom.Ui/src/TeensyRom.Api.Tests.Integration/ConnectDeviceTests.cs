@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using TeensyRom.Api.Endpoints.FindCarts;
 using TeensyRom.Api.Endpoints.ConnectDevice;
+using TeensyRom.Api.Endpoints.ClosePort;
+using TeensyRom.Api.Models;
 
 namespace TeensyRom.Api.Tests.Integration
 {
@@ -11,14 +13,22 @@ namespace TeensyRom.Api.Tests.Integration
         public async void When_Called_ResponseSuccessful()
         {
             // Arrange
-            var devices = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
+            var devices = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest 
+            {
+                AutoConnectNew = false
+            });
+            var expectedDeviceId = devices.Content.Devices.First().DeviceId;
 
             // Act
-            var openRequest = new ConnectDeviceRequest
+            var r = await f.Client.PostAsync<ConnectDeviceEndpoint, ConnectDeviceRequest, ConnectDeviceResponse>(new ConnectDeviceRequest
             {
-                DeviceId = devices.Content.Devices.First().DeviceId
-            };
-            var r = await f.Client.PostAsync<ConnectDeviceEndpoint, ConnectDeviceRequest, ConnectDeviceResponse>(openRequest);
+                DeviceId = expectedDeviceId
+            });
+
+            var finalDevices = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest 
+            {
+                AutoConnectNew = false
+            });
 
             // Assert
             r.Should().BeSuccessful<ConnectDeviceResponse>()
@@ -27,10 +37,9 @@ namespace TeensyRom.Api.Tests.Integration
 
             r.Content.Should().NotBeNull();
             r.Content.ConnectedCart.Should().NotBeNull();
-            r.Content.ConnectedCart.DeviceId.Should().NotBeNullOrEmpty();
-            r.Content.ConnectedCart.DeviceId.Should().Be(openRequest.DeviceId);
-            r.Content.ConnectedCart.ComPort.Should().NotBeNullOrEmpty();            
-
+            r.Content.ConnectedCart.DeviceId.Should().Be(expectedDeviceId);            
+            finalDevices.Content.Devices.Should().ContainSingle(d => d.DeviceId == expectedDeviceId && d.IsConnected);
+            finalDevices.Content.Devices.Where(d => d.IsConnected).Count().Should().Be(1);
             r.Content.Message.Should().Contain("Connection successful!");
         }
 

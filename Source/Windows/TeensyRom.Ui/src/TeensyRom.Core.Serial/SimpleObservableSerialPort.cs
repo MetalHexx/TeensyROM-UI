@@ -41,13 +41,26 @@ namespace TeensyRom.Core.Serial
 
         public Unit SetPort(string port)
         {
+            if (string.IsNullOrWhiteSpace(port)) 
+            {
+                throw new TeensyException("Port cannot be empty.");
+            }
+            var ports = SerialPort.GetPortNames();
+
+            if (!ports.Contains(port))
+            {
+                throw new TeensyException("The set port is currently unavailable");
+            }
             _serialPort.PortName = port;
+
+            _state.OnNext(typeof(SerialConnectableState));
+
             return Unit.Default;
         }
 
         public string? OpenPort()
         {
-            StartHealthCheck();
+            StartHealthCheck();            
             return _serialPort.PortName;
         }
         public Unit ClosePort()
@@ -80,6 +93,10 @@ namespace TeensyRom.Core.Serial
             {
                 _serialPort.Open();
             }
+            catch (UnauthorizedAccessException)
+            {
+                throw;
+            }
             catch (Exception)
             {
                 log.ExternalError(failureMessage);
@@ -92,39 +109,7 @@ namespace TeensyRom.Core.Serial
             }
 
             log.InternalSuccess($"ObservableSerialPort.EnsureConnection: Successfully connected to {_serialPort.PortName}");
-            //log.Internal($"ObservableSerialPort.EnsureConnection: Pinging {_serialPort.PortName} to verify connection to TeensyROM");
 
-            //try
-            //{
-            //    _serialPort.WriteTimeout = 2000;
-            //    SendIntBytes(TeensyToken.Ping, 2);
-            //}
-            //catch (Exception)
-            //{
-            //    var timeoutMessage = $"ObservableSerialPort.EnsureConnection: Timed out connecting to {_serialPort.PortName}";
-            //    log.InternalError(timeoutMessage);
-            //    throw new TeensyException(timeoutMessage);
-            //}
-            //finally
-            //{
-            //    _serialPort.WriteTimeout = SerialPort.InfiniteTimeout;
-            //}
-
-            //var response = ReadAndLogSerialAsString(waitTimeMs);
-
-            //if (!response.IsTeensyRom())
-            //{
-
-            //    var trErrorMessage = $"ObservableSerialPort.EnsureConnection: TeensyROM was not detected on {_serialPort.PortName}";
-            //    log.ExternalError(trErrorMessage);
-            //    throw new TeensyException(trErrorMessage);
-            //}
-            //if (response.Contains("minimal", StringComparison.OrdinalIgnoreCase))
-            //{
-            //    alert.Publish($"Detected TeensyROM minimal mode. You've been reconnected to {_serialPort.PortName}");
-            //}
-
-            //ReadAndLogStaleBuffer();
             Unlock();
             return;
         }
@@ -142,7 +127,7 @@ namespace TeensyRom.Core.Serial
 
         public void Lock()
         {
-            log.Internal("ObservableSerialPort.Lock: Locking serial port to prevent interruptions of command processing.");
+            //log.Internal("ObservableSerialPort.Lock: Locking serial port to prevent interruptions of command processing.");
 
             _serialPort.ClearBuffers();
 
@@ -152,7 +137,7 @@ namespace TeensyRom.Core.Serial
 
         public void Unlock()
         {
-            log.Internal("ObservableSerialPort.Unlock: Unlocking serial port");
+            //log.Internal("ObservableSerialPort.Unlock: Unlocking serial port");
 
             _serialEventSubscription?.Dispose();
 
@@ -172,7 +157,7 @@ namespace TeensyRom.Core.Serial
 
         public string? StartHealthCheck()
         {
-            _healthCheckSubscription?.Dispose();
+            //_healthCheckSubscription?.Dispose();
 
             try
             {
@@ -189,57 +174,60 @@ namespace TeensyRom.Core.Serial
             }
             catch (Exception) { }
 
-            _healthCheckSubscription = Observable
-                .Interval(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds))
-                .SelectMany(_ => Observable.Defer(() =>
-                {
-                    try
-                    {
-                        if (_serialPort.IsOpen)
-                        {
-                            if (_state.Value != typeof(SerialConnectedState))
-                            {
-                                _state.OnNext(typeof(SerialConnectedState));
-                            }
-                            return Observable.Empty<long>();
-                        }
-                        var showDisconnectedMessage = _serialPort.IsOpen == false
-                            && _state.Value != typeof(SerialConnectionLostState)
-                            && _state.Value != typeof(SerialStartState);
+            //_healthCheckSubscription = Observable
+            //    .Interval(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds))
+            //    .SelectMany(_ => Observable.Defer(() =>
+            //    {
+            //        try
+            //        {
+            //            if (_serialPort.IsOpen)
+            //            {
+            //                if (_state.Value != typeof(SerialConnectedState))
+            //                {
+            //                    _state.OnNext(typeof(SerialConnectedState));
+            //                }
+            //                return Observable.Empty<long>();
+            //            }
+            //            var showDisconnectedMessage = _serialPort.IsOpen == false
+            //                && _state.Value != typeof(SerialConnectionLostState)
+            //                && _state.Value != typeof(SerialStartState);
 
-                        if (showDisconnectedMessage)
-                        {
-                            alert.Publish($"Connection to {_serialPort.PortName} was lost.");
-                        }
-                        _state.OnNext(typeof(SerialConnectionLostState));
+            //            if (showDisconnectedMessage)
+            //            {
+            //                alert.Publish($"Connection to {_serialPort.PortName} was lost.");
+            //            }
+            //            _state.OnNext(typeof(SerialConnectionLostState));
 
-                        EnsureConnection();
+            //            EnsureConnection();
 
-                        _state.OnNext(typeof(SerialConnectedState));
-                    }
-                    catch (Exception ex)
-                    {
-                        _state.OnNext(typeof(SerialConnectionLostState));
-                        log.ExternalError($"Connection to {_serialPort.PortName} was lost.");
-                        return Observable.Throw<long>(ex);
-                    }
-                    return Observable.Empty<long>();
-                }))
-                .RetryWhen(ex => ex.DelaySubscription(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds)))
-                .Subscribe();
+            //            _state.OnNext(typeof(SerialConnectedState));
+            //        }
+            //        catch (UnauthorizedAccessException)
+            //        {
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            _state.OnNext(typeof(SerialConnectionLostState));
+            //            log.ExternalError($"Connection to {_serialPort.PortName} was lost.");
+            //            return Observable.Throw<long>(ex);
+            //        }                    
+            //        return Observable.Empty<long>();
+            //    }))
+            //    .RetryWhen(ex => ex.DelaySubscription(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds)))
+            //    .Subscribe();
 
-            if (_serialPort.IsOpen)
-            {
-                return _serialPort.PortName;
-            }
+            //if (_serialPort.IsOpen)
+            //{
+            //    return _serialPort.PortName;
+            //}
             return null;
         }
 
         public void StartPortPoll()
         {
-            string[] initialPorts = SerialPort.GetPortNames();
+            //string[] initialPorts = SerialPort.GetPortNames();
 
-            if (initialPorts.Length > 0) _state.OnNext(typeof(SerialConnectableState));
+            //if (initialPorts.Length > 0) _state.OnNext(typeof(SerialConnectableState));
 
             //_portRefresherSubscription = Observable
             //    .Interval(TimeSpan.FromMilliseconds(SerialPortConstants.Health_Check_Milliseconds))

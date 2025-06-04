@@ -101,7 +101,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_StorageTypeNotAvailable_ReturnsNotFound()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             var request = new LaunchRandomRequest
             {
                 DeviceId = deviceId,
@@ -121,7 +121,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_NoFilesFound_ReturnsNotFound()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             var request = new LaunchRandomRequest
             {
                 DeviceId = deviceId,
@@ -142,7 +142,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_ValidGame_Request_With_DeepScope_LaunchesRandomGame()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
 
 
@@ -174,7 +174,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_ValidGame_Request_With_ShallowScope_LaunchesRandomGame()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
             var request = new LaunchRandomRequest
             {
@@ -204,7 +204,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_ValidGame_Request_With_ShallowScope_And_VeryLargeGame_LaunchesRandomGame()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             await f.Preindex(deviceId, TeensyStorageType.SD, Very_Large_Games_Path);
 
             var request = new LaunchRandomRequest
@@ -238,7 +238,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_ValidGame_Request_With_StorageScope_LaunchesRandomGame()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
 
             var request = new LaunchRandomRequest
@@ -270,7 +270,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_ValidMusic_Request_With_DeepScope_LaunchesRandomSong()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             await f.Preindex(deviceId, TeensyStorageType.SD, Music_Path);
 
             var request = new LaunchRandomRequest
@@ -299,7 +299,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_ValidMusic_Request_With_ShallowScope_LaunchesRandomSong()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             await f.Preindex(deviceId, TeensyStorageType.SD, Music_Path);
 
             var request = new LaunchRandomRequest
@@ -331,7 +331,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_ValidMusic_Request_With_StorageScope_LaunchesRandomSong()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             await f.Preindex(deviceId, TeensyStorageType.SD, Music_Path);
 
             var request = new LaunchRandomRequest
@@ -363,7 +363,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_ValidImage_Request_With_DeepScope_LaunchesRandomImage()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             await f.Preindex(deviceId, TeensyStorageType.SD, Images_Path);
 
             var request = new LaunchRandomRequest
@@ -392,7 +392,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_ValidImage_Request_With_ShallowScope_LaunchesRandomImage()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             await f.Preindex(deviceId, TeensyStorageType.SD, Images_Path);
 
             var request = new LaunchRandomRequest
@@ -424,7 +424,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_ValidImage_Request_With_StorageScope_LaunchesRandomImage()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             await f.Preindex(deviceId, TeensyStorageType.SD, Images_Path);
 
             var request = new LaunchRandomRequest
@@ -456,7 +456,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_ValidGame_Request_With_GameFilter_LaunchesRandomGame()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
 
             var request = new LaunchRandomRequest
@@ -484,7 +484,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_ValidImage_Request_With_ImageFilter_LaunchesRandomImage()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             await f.Preindex(deviceId, TeensyStorageType.SD, Images_Path);
 
             var request = new LaunchRandomRequest
@@ -512,7 +512,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_ValidMusic_Request_With_MusicFilter_LaunchesRandomSong()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             await f.Preindex(deviceId, TeensyStorageType.SD, Music_Path);
 
             var request = new LaunchRandomRequest

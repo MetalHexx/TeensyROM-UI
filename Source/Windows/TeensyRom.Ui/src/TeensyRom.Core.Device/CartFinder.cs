@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Entities.Device;
 using TeensyRom.Core.Entities.Storage;
@@ -11,90 +12,107 @@ namespace TeensyRom.Core.Device
 {
     public interface ICartFinder
     {
-        Task<List<TeensyRomDevice>> FindDevices();
+        Task<List<TeensyRomDevice>> FindDevices(CancellationToken ct);
     }
 
     public class CartFinder(ILoggingService log, ISerialFactory serialFactory, IStorageFactory storageFactory,ICartTagger tagger, IFwVersionChecker versionChecker, IMediator mediator) : ICartFinder
     {
-        private const string UndefinedDeviceIdBase = "Unidentified";
-        public async Task<List<TeensyRomDevice>> FindDevices()
+        private const string _undefinedDeviceIdBase = "Unidentified";
+        public async Task<List<TeensyRomDevice>> FindDevices(CancellationToken ct)
         {
             string methodName = "CartFiner.Find:";
             var ports = SerialHelper.GetPorts();
 
+            ISerialStateContext serial = null!;
+
             List<TeensyRomDevice> foundDevices = [];
 
-            foreach (var port in ports)
+            try
             {
-                var serial = serialFactory.Create(port);
-                try
-                {   
-                    serial.OpenPort();                    
-                }
-                catch (Exception)
+                foreach (var port in ports)
                 {
-                    log.ExternalError($"{methodName} Unable to connect to {port}");
-                    continue;
-                }
-                var versionCheckCommand = new FwVersionCheckCommand
-                {
-                    Serial = serial
-                };
-                var versionResult = await mediator.Send(versionCheckCommand);
+                    ct.ThrowIfCancellationRequested();
 
-                if (versionResult.IsSuccess is false) continue;
+                    serial = serialFactory.Create(port);
+                    try
+                    {
+                        serial.OpenPort();
+                        ct.ThrowIfCancellationRequested();
+                    }
+                    catch (Exception)
+                    {
+                        log.ExternalError($"{methodName} Unable to connect to {port}");
+                        continue;
+                    }
+                    var versionCheckCommand = new FwVersionCheckCommand
+                    {
+                        Serial = serial
+                    };
+                    var versionResult = await mediator.Send(versionCheckCommand);
 
-                if (!versionResult.IsTeensyRom) 
-                {
-                    serial.Dispose();
-                    continue;
-                }
-                var cart = new Cart
-                {
-                    ComPort = port,
-                    Name = "Unnamed",
-                    FwVersion = versionResult.Version?.ToString() ?? "",
-                    IsCompatible = versionResult.IsCompatible
-                };
-                var sdStorage = await tagger.EnsureTag(serial, TeensyStorageType.SD);
-                var usbStorage = await tagger.EnsureTag(serial, TeensyStorageType.USB);
+                    if (versionResult.IsSuccess is false) continue;
 
-                var deviceId = string.IsNullOrWhiteSpace(sdStorage.DeviceId)
-                    ? usbStorage.DeviceId
-                    : sdStorage.DeviceId;
+                    if (!versionResult.IsTeensyRom)
+                    {
+                        serial.Dispose();
+                        continue;
+                    }
+                    var cart = new Cart
+                    {
+                        ComPort = port,
+                        Name = "Unnamed",
+                        FwVersion = versionResult.Version?.ToString() ?? "",
+                        IsCompatible = versionResult.IsCompatible
+                    };
+                    var sdStorage = await tagger.EnsureTag(serial, TeensyStorageType.SD);
+                    var usbStorage = await tagger.EnsureTag(serial, TeensyStorageType.USB);
 
-                if (string.IsNullOrWhiteSpace(deviceId))
-                {
-                    var unknownCartId = foundDevices
-                        .Where(d => d.Cart.DeviceId!.Contains(UndefinedDeviceIdBase))
-                        .ToList()
-                        .Count();
+                    var deviceId = string.IsNullOrWhiteSpace(sdStorage.DeviceId)
+                        ? usbStorage.DeviceId
+                        : sdStorage.DeviceId;
 
-                    deviceId = $"{UndefinedDeviceIdBase}[{unknownCartId}]";
+                    if (string.IsNullOrWhiteSpace(deviceId))
+                    {
+                        var unknownCartId = foundDevices
+                            .Where(d => d.Cart.DeviceId!.Contains(_undefinedDeviceIdBase))
+                            .ToList()
+                            .Count();
 
-                    cart.DeviceId = deviceId;
+                        deviceId = $"{_undefinedDeviceIdBase}[{unknownCartId}]";
+
+                        cart.DeviceId = deviceId;
+                        sdStorage.DeviceId = deviceId;
+                        usbStorage.DeviceId = deviceId;
+                        serial.SetDeviceId(deviceId);
+                    }
+                    else
+                    {
+                        cart.DeviceId = deviceId;
+                        serial.SetDeviceId(deviceId);
+                    }
                     sdStorage.DeviceId = deviceId;
                     usbStorage.DeviceId = deviceId;
-                    serial.SetDeviceId(deviceId);
+                    cart.SdStorage = sdStorage;
+                    cart.UsbStorage = usbStorage;
+                    var device = new TeensyRomDevice
+                    (
+                        cart,
+                        serial,
+                        storageFactory.Create(sdStorage),
+                        storageFactory.Create(usbStorage)
+                    );
+                    foundDevices.Add(device);
                 }
-                else
+            }
+            catch (OperationCanceledException ex)
+            {
+                foreach (var device in foundDevices)
                 {
-                    cart.DeviceId = deviceId;
-                    serial.SetDeviceId(deviceId);
+                    device.SerialState.Dispose();
                 }
-                sdStorage.DeviceId = deviceId;
-                usbStorage.DeviceId = deviceId;
-                cart.SdStorage = sdStorage;
-                cart.UsbStorage = usbStorage;
-                var device = new TeensyRomDevice
-                (
-                    cart,
-                    serial,
-                    storageFactory.Create(sdStorage),
-                    storageFactory.Create(usbStorage)
-                );
-                foundDevices.Add(device);
-            }            
+                serial?.Dispose();
+                throw;
+            }           
             return foundDevices;
         }
     }

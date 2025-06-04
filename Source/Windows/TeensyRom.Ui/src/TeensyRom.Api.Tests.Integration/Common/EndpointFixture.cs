@@ -5,6 +5,7 @@ using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Api.Endpoints.Files.Index;
 using TeensyRom.Api.Endpoints.FindCarts;
 using TeensyRom.Api.Endpoints.ResetDevice;
+using TeensyRom.Api.Models;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 
@@ -40,17 +41,34 @@ namespace TeensyRom.Api.Tests.Integration.Common
             _factory = new WebApplicationFactory<Program>();
         }
 
-        public async Task<string> ConnectToFirstDevice() 
+        public async Task<string> GetConnectedDevice() 
         {
-            var findResponse = await Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
+            var findResponse = await Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest()
+            {
+                AutoConnectNew = true
+            });
             var deviceId = findResponse.Content.Devices.First().DeviceId!;
 
-            await Client.PostAsync<ConnectDeviceEndpoint, ConnectDeviceRequest, ConnectDeviceResponse>(new ConnectDeviceRequest 
-            { 
-                DeviceId = deviceId 
-            });
-
             return deviceId;
+        }
+
+        public async Task<List<CartDto>> ConnectToDevices()
+        {
+            var findResponse = await Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest()
+            {
+                AutoConnectNew = true
+            });
+            return findResponse.Content.Devices;
+        }
+
+
+        public async Task DisconnectDevice(string deviceId) 
+        {
+            var request = new DisconnectDeviceRequest
+            {
+                DeviceId = deviceId
+            };
+            await Client.DeleteAsync<DisconnectDeviceEndpoint, DisconnectDeviceRequest, DisconnectDeviceResponse>(request);
         }
 
         public async Task Preindex(string deviceId, TeensyStorageType storageType, string path) 
@@ -67,7 +85,10 @@ namespace TeensyRom.Api.Tests.Integration.Common
 
         public void Reset() 
         {
-            var initialCarts = Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>().Result;
+            var initialCarts = Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest()
+            {
+                AutoConnectNew = true
+            }).Result;
 
             var connectDevices = initialCarts.Content.Devices
                 .Where(d => d.IsConnected)

@@ -9,10 +9,13 @@ namespace TeensyRom.Api.Tests.Integration
 
     {
         [Fact]
-        public async void When_Called_AvailableCartsReturned()
+        public async Task Given_NoDevicesConnected_When_Called_And_AutoConnectNew_false_NoDevicesConnected()
         {
             // Act
-            var r = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
+            var r = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest 
+            {
+                AutoConnectNew = false
+            });
 
             // Assert
             r.Should()
@@ -20,42 +23,52 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
-            var connectDevices = r.Content.Devices.Where(d => d.IsConnected);
-
             r.Content.Message.Should().Be("Success!");
-            r.Content.Devices.Should().NotBeNullOrEmpty();
-            connectDevices.Should().BeEmpty();
+            r.Content.Devices.All(d => d.IsConnected).Should().BeFalse();
+            r.Content.Devices.Count.Should().Be(2);
         }
 
         [Fact]
-        public async void Given_CartWasOpened_When_FindCalled_ConnectedCartsReturned()
+        public async Task Given_NoDevicesConnected_When_Called_And_AutoConnectNew_True_AllDevicesConnected()
+        {   
+            // Act
+            var r = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest 
+            { 
+                AutoConnectNew = true 
+            });
+
+            // Assert
+            r.Should().BeSuccessful<FindDevicesResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
+            r.Content.Devices.Should().NotBeNullOrEmpty();
+            r.Content.Devices.Count.Should().BeGreaterThan(0);
+            r.Content.Devices.All(d => d.IsConnected).Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Given_DeviceConnected_When_Called_And_AutoConnectNew_False_Then_Existing_DeviceRemainsConnected()
         {
             // Arrange
-            var initialCarts = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
-            var expectedConnectedCart = initialCarts.Content.Devices.First();
-            var expectedAvailableCount = initialCarts.Content.Devices.Count;
-            var openRequest = new ConnectDeviceRequest
-            {
-                DeviceId = expectedConnectedCart.DeviceId
-            };
-            var openResponse = await f.Client.PostAsync<ConnectDeviceEndpoint, Endpoints.ConnectDevice.ConnectDeviceRequest, ConnectDeviceResponse>(openRequest);
+            var deviceId = await f.ConnectToDevices();
+            var expectedDisconnectedDevice = deviceId.First().DeviceId;
+            await f.DisconnectDevice(expectedDisconnectedDevice);
+            var expectedConnectedDevice = deviceId.First(d => d.DeviceId != expectedDisconnectedDevice);
 
             // Act
-            var r = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
+            var r = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest 
+            { 
+                AutoConnectNew = false 
+            });
 
             // Assert
             r.Should().BeSuccessful<FindDevicesResponse>()
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
-            var connectedDevices = r.Content.Devices
-                .Where(d => d.IsConnected)
-                .ToList();
-
-            r.Content.Devices.Should().NotBeNullOrEmpty();
-            r.Content.Devices.Count.Should().Be(expectedAvailableCount);
-            connectedDevices.Count().Should().Be(1);
-            connectedDevices.First().DeviceId.Should().Be(expectedConnectedCart.DeviceId);
+            r.Content.Devices.Count.Should().Be(2);
+            r.Content.Devices.Should().ContainSingle(d => d.DeviceId == expectedConnectedDevice.DeviceId && d.IsConnected);
+            r.Content.Devices.Should().ContainSingle(d => d.DeviceId == expectedDisconnectedDevice && !d.IsConnected);
         }
 
         public void Dispose() => f.Reset();

@@ -4,6 +4,7 @@ using System.Net.ServerSentEvents;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
+using TeensyRom.Api.Http;
 using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Api.Endpoints.GetLogs
@@ -12,7 +13,10 @@ namespace TeensyRom.Api.Endpoints.GetLogs
     {
         public override void Configure()
         {
-            RouteBuilder.MapGet("/logs", (CancellationToken c) => Handle(c));
+            RouteBuilder
+                .MapGet("/logs", (CancellationToken c) => Handle(c))
+                .RequireRateLimiting(EndpointHelper.GetLogsRateLimiter)
+                .ExcludeFromDescription();
         }
 
         public ServerSentEventsResult<LogDto> Handle(CancellationToken c)
@@ -21,7 +25,8 @@ namespace TeensyRom.Api.Endpoints.GetLogs
 
             var subscription = loggingService.Logs
                 .Buffer(TimeSpan.FromMilliseconds(500), 10)
-                .Subscribe(logBatch =>    {
+                .Subscribe(logBatch =>
+                {
                     foreach (var log in logBatch)
                     {
                         channel.Writer.TryWrite(new SseItem<LogDto>(new LogDto { Message = log }, "log")
@@ -30,28 +35,43 @@ namespace TeensyRom.Api.Endpoints.GetLogs
                         });
                     }
                 });
-            
 
             c.Register(() =>
             {
                 subscription.Dispose();
-                channel.Writer.Complete();
+                channel.Writer.TryComplete();
             });
 
-            //TODO: fix the exception that gets thrown when the client disconnects.
+            return TypedResults.ServerSentEvents(ReadLogItemsAsync(channel, c));
+        }
 
-            async IAsyncEnumerable<SseItem<LogDto>> GetLogs([EnumeratorCancellation] CancellationToken ct)
+        private async IAsyncEnumerable<SseItem<LogDto>> ReadLogItemsAsync(Channel<SseItem<LogDto>> channel, [EnumeratorCancellation] CancellationToken ct)
+        {
+            while (true)
             {
-                while (await channel.Reader.WaitToReadAsync(ct))
+                if (ct.IsCancellationRequested)
+                    yield break;
+
+                var waitTask = channel.Reader.WaitToReadAsync(ct).AsTask();
+
+                bool canRead = false;
+                try
                 {
-                    while (channel.Reader.TryRead(out var item))
-                    {
-                        yield return item;
-                    }
+                    canRead = await waitTask.ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    yield break;
+                }
+
+                if (!canRead)
+                    yield break;
+
+                while (channel.Reader.TryRead(out var item))
+                {
+                    yield return item;
                 }
             }
-
-            return TypedResults.ServerSentEvents(GetLogs(c));
         }
     }
 }

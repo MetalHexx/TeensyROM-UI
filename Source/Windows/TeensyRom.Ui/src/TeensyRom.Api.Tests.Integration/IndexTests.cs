@@ -22,7 +22,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_Indexing_WithoutPath_SuccessReturned()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             f.DeleteCache(deviceId, TeensyStorageType.SD);
 
             // Act
@@ -47,7 +47,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_Indexing_WithGamePath_SuccessReturned()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
             f.DeleteCache(deviceId!, TeensyStorageType.SD);
 
             // Act

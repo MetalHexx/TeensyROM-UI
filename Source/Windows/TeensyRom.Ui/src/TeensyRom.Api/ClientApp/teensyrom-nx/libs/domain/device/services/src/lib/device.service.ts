@@ -15,9 +15,9 @@ import { Observable, map } from 'rxjs';
 export class DeviceService {
   constructor(private readonly devicesService: DevicesApiService) {}
 
-  findDevices(): Observable<Device[]> {
+  findDevices(autoConnectNew: boolean): Observable<Device[]> {
     return this.devicesService
-      .findDevices()
+      .findDevices(autoConnectNew)
       .pipe(map((response: FindDevicesResponse) => DeviceMapper.toDeviceList(response.devices)));
   }
 

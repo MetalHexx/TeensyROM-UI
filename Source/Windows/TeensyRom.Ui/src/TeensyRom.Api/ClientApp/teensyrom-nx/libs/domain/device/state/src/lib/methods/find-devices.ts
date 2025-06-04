@@ -18,7 +18,7 @@ export function findDevices(
         distinctUntilChanged(),
         tap(() => patchState(store, { isLoading: true })),
         switchMap(() =>
-          deviceService.findDevices().pipe(
+          deviceService.findDevices(false).pipe(
             tap((devices) => {
               patchState(store, {
                 devices: devices,

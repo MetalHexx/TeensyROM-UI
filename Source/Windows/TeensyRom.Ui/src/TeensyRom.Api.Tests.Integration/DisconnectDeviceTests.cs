@@ -11,14 +11,20 @@ namespace TeensyRom.Api.Tests.Integration
         [Fact]
         public async Task When_Closing_ValidDevice_ResponseSuccessful()
         {
-            // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            // Arrange            
+            var devices = await f.ConnectToDevices();
+            var deviceId = devices.First().DeviceId;
 
-            // Act
-            var closeRequest = new DisconnectDeviceRequest { DeviceId = deviceId };
-            var r = await f.Client.DeleteAsync<DisconnectDeviceEndpoint, DisconnectDeviceRequest, DisconnectDeviceResponse>(closeRequest);
+            // Act            
+            var r = await f.Client.DeleteAsync<DisconnectDeviceEndpoint, DisconnectDeviceRequest, DisconnectDeviceResponse>(new DisconnectDeviceRequest 
+            { 
+                DeviceId = deviceId 
+            });
 
-            var findResponse = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
+            var findResponse = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest() 
+            {
+                AutoConnectNew = false
+            });
 
             // Assert
             r.Should().BeSuccessful<DisconnectDeviceResponse>()
@@ -29,7 +35,7 @@ namespace TeensyRom.Api.Tests.Integration
                 .Where(d => d.IsConnected)
                 .ToList();
 
-            connectDevices.Count.Should().Be(0);
+            connectDevices.Count.Should().Be(devices.Count - 1);
 
             r.Content.Message.Should().Be("Success!");
         }

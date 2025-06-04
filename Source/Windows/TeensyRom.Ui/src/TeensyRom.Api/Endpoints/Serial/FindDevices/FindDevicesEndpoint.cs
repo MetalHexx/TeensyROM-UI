@@ -1,16 +1,18 @@
+using TeensyRom.Api.Http;
 using TeensyRom.Api.Models;
 using TeensyRom.Core.Abstractions;
 
 namespace TeensyRom.Api.Endpoints.FindCarts
 {
-    public class FindDevicesEndpoint(IDeviceConnectionManager deviceManager) : RadEndpointWithoutRequest<FindDevicesResponse>
+    public class FindDevicesEndpoint(IDeviceConnectionManager deviceManager) : RadEndpoint<FindDevicesRequest, FindDevicesResponse>
     {
         public override void Configure()
         {
-            Get("/devices")
+            Get("/devices/")
                 .Produces<FindDevicesResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status503ServiceUnavailable)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
+                .RequireRateLimiting(EndpointHelper.FindDevicesRateLimiter)
                 .WithName("FindDevices")
                 .WithSummary("Find Devices")
                 .WithTags("Devices")
@@ -22,9 +24,9 @@ namespace TeensyRom.Api.Endpoints.FindCarts
                 );
         }
 
-        public override async Task Handle(CancellationToken ct)
+        public override async Task Handle(FindDevicesRequest r, CancellationToken ct)
         {
-            var devices = await deviceManager.FindDevices();
+            var devices = await deviceManager.FindDevices(r.AutoConnectNew ?? false, ct);
 
             if (devices.Count == 0)
             {

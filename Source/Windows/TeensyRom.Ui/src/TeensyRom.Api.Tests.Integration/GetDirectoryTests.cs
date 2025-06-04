@@ -24,7 +24,7 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     public async Task When_ValidRequest_DirectoryReturned(string path)
     {
         // Arrange
-        var deviceId = await f.ConnectToFirstDevice();
+        var deviceId = await f.GetConnectedDevice();
         var directoryPath = Path.GetDirectoryName(path)!.Replace('\\', '/');
 
         // Act
@@ -115,7 +115,7 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     public async Task When_StorageNotAvailable_ReturnsNotFound()
     {
         // Arrange
-        var deviceId = await f.ConnectToFirstDevice();
+        var deviceId = await f.GetConnectedDevice();
         var expectedPath = "/music";
 
         // Act
@@ -137,7 +137,7 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     public async Task When_DirectoryNotFound_ReturnsNotFound()
     {
         // Arrange
-        var deviceId = await f.ConnectToFirstDevice();
+        var deviceId = await f.GetConnectedDevice();
         var expectedPath = "/fake/path";
 
         // Act
@@ -158,7 +158,7 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     public async Task When_Directory_IsAFilePath_BadRequestReturned()
     {
         // Arrange
-        var deviceId = await f.ConnectToFirstDevice();
+        var deviceId = await f.GetConnectedDevice();
         var expectedPath = "/music/MUSICIANS/L/LukHash/Alpha.sid";
 
         // Act        

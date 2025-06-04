@@ -13,7 +13,7 @@ namespace TeensyRom.Api.Tests.Integration
         public async Task When_Resetting_ValidDevice_ResponseSuccessful()
         {
             // Arrange
-            var deviceId = await f.ConnectToFirstDevice();
+            var deviceId = await f.GetConnectedDevice();
 
             // Act
             var resetRequest = new ResetDeviceRequest { DeviceId = deviceId };
