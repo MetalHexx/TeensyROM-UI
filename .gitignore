@@ -396,3 +396,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+Source/Windows/TeensyRom.Ui/src/TeensyRom.Api/ClientApp/teensyrom-nx/.vscode/settings.json
