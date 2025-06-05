@@ -38,7 +38,8 @@ bld/
 #wwwroot/
 
 # Visual Studio 2017 auto generated files
-Generated\ Files/
+# Generated\ Files/
+**/.vscode/settings.json
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -396,4 +397,3 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-Source/Windows/TeensyRom.Ui/src/TeensyRom.Api/ClientApp/teensyrom-nx/.vscode/settings.json
