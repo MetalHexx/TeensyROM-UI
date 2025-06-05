@@ -19,7 +19,7 @@ else
 fi
 
 # Run unit tests (block commit if they fail)
-echo "🧪 Running unit tests..."
+echo "🧪 Running Tests..."
 npx nx run-many --target=test --all --watch=false --parallel=false || {
   echo "❌ Unit tests failed. Commit aborted."
   exit 1
