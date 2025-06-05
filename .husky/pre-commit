@@ -3,24 +3,34 @@
 
 echo "🐛 Entered Husky pre-commit hook"
 
-# Move into the Nx workspace directory
 cd Source/Windows/TeensyRom.Ui/src/TeensyRom.Api/ClientApp/teensyrom-nx || {
   echo "❌ Failed to cd into Nx workspace directory"
   exit 1
 }
 
-# Only try to run lint-staged if npx can actually be invoked
+# Run lint-staged if possible
 if command -v npx >/dev/null 2>&1 && npx --version >/dev/null 2>&1; then
   echo "✅ Running lint-staged with working npx"
   npx lint-staged || exit 1
 else
-  echo "⚠️  Skipping lint-staged — npx not available or broken in this environment"
-  echo "ℹ️  You’re probably committing from Visual Studio’s built-in Git, which lacks full environment support"
+  echo "⚠️  Skipping lint-staged — npx not available"
 fi
 
-# Run unit tests (block commit if they fail)
-echo "🧪 Running Tests..."
-npx nx run-many --target=test --all --watch=false --parallel=false || {
-  echo "❌ Unit tests failed. Commit aborted."
-  exit 1
-}
+# Ask user whether to run tests, defaulting to "yes" after 5 seconds
+echo "❓ Do you want to run tests before committing? [Y/n] (auto-runs in 5s): "
+read -r -t 5 run_tests
+
+run_tests=${run_tests:-y} # default to 'y' if nothing entered
+
+case "$run_tests" in
+  [nN][oO]|[nN])
+    echo "⏭️  Skipping tests"
+    ;;
+  *)
+    echo "🧪 Running Tests..."
+    npx nx run-many --target=test --all --watch=false --parallel=false || {
+      echo "❌ Unit tests failed. Commit aborted."
+      exit 1
+    }
+    ;;
+esac
