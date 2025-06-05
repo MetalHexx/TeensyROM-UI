@@ -6,7 +6,6 @@ import { NgClass } from '@angular/common';
 import { Device } from '@teensyrom-nx/domain/device/services';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
 import { StorageStatusComponent as StorageItemComponent } from '../storage-item/storage-item.component';
-import { DeviceLogsComponent } from '../device-logs/device-logs.component';
 
 @Component({
   selector: 'lib-device-item',
@@ -18,7 +17,6 @@ import { DeviceLogsComponent } from '../device-logs/device-logs.component';
     NgClass,
     IconLabelComponent,
     StorageItemComponent,
-    DeviceLogsComponent,
   ],
   templateUrl: './device-item.component.html',
   styleUrl: './device-item.component.scss',
