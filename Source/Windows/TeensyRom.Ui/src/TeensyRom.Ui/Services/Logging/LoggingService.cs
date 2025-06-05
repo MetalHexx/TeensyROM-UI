@@ -48,13 +48,13 @@ namespace TeensyRom.Ui.Services.Logging
                 .DropLastNewLine());
         }
 
-        public void Internal(string message) => Log(message, LogConstants.InternalColor);
-        public void InternalWarning(string message) => Log(message, LogConstants.InternalColor);
-        public void InternalSuccess(string message) => Log(message, LogConstants.InternalSuccessColor);
-        public void InternalError(string message) => Log(message, LogConstants.InternalErrorColor);
-        public void External(string message) => Log($"[TR]: {message}", LogConstants.ExternalColor);
-        public void ExternalSuccess(string message) => Log($"[TR]: {message}", LogConstants.ExternalSuccessColor);
-        public void ExternalError(string message) => Log($"[TR]: {message}", LogConstants.ExternalErrorColor);
+        public void Internal(string message, string? deviceId = null) => Log(message, LogConstants.InternalColor);
+        public void InternalWarning(string message, string? deviceId = null) => Log(message, LogConstants.InternalColor);
+        public void InternalSuccess(string message, string? deviceId = null) => Log(message, LogConstants.InternalSuccessColor);
+        public void InternalError(string message, string? deviceId = null) => Log(message, LogConstants.InternalErrorColor);
+        public void External(string message, string? deviceId = null) => Log($"[TR]: {message}", LogConstants.ExternalColor);
+        public void ExternalSuccess(string message, string? deviceId = null) => Log($"[TR]: {message}", LogConstants.ExternalSuccessColor);
+        public void ExternalError(string message, string? deviceId = null) => Log($"[TR]: {message}", LogConstants.ExternalErrorColor);
 
         private void DeleteLogs()
         {
