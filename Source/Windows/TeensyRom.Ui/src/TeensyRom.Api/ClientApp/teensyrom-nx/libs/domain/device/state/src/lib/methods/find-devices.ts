@@ -1,8 +1,8 @@
+import { inject } from '@angular/core';
 import { patchState, WritableStateSource } from '@ngrx/signals';
-import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { DeviceService } from '@teensyrom-nx/domain/device/services';
-import { distinctUntilChanged, pipe, switchMap, tap, catchError } from 'rxjs';
 import { DeviceState } from '../device-store';
+import { firstValueFrom } from 'rxjs';
 
 type SignalStore<T> = {
   [K in keyof T]: () => T[K];
@@ -10,34 +10,27 @@ type SignalStore<T> = {
 
 export function findDevices(
   store: SignalStore<DeviceState> & WritableStateSource<DeviceState>,
-  deviceService: DeviceService
+  deviceService: DeviceService = inject(DeviceService)
 ) {
   return {
-    findDevices: rxMethod(
-      pipe(
-        distinctUntilChanged(),
-        tap(() => patchState(store, { isLoading: true })),
-        switchMap(() =>
-          deviceService.findDevices(false).pipe(
-            tap((devices) => {
-              patchState(store, {
-                devices: devices,
-                error: devices.length === 0 ? 'No devices found' : null,
-                isLoading: false,
-                hasInitialised: true,
-              });
-            }),
-            catchError((error: unknown) => {
-              patchState(store, {
-                error: String(error),
-                isLoading: false,
-                hasInitialised: true,
-              });
-              return [];
-            })
-          )
-        )
-      )
-    ),
+    findDevices: async () => {
+      patchState(store, { isLoading: true });
+
+      try {
+        const devices = await firstValueFrom(deviceService.findDevices(false));
+        patchState(store, {
+          devices,
+          error: devices.length === 0 ? 'No devices found' : null,
+          isLoading: false,
+          hasInitialised: true,
+        });
+      } catch (error) {
+        patchState(store, {
+          error: String(error),
+          isLoading: false,
+          hasInitialised: true,
+        });
+      }
+    },
   };
 }
