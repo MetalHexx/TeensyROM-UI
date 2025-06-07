@@ -27,6 +27,7 @@
   <ItemGroup>
     <Folder Include="ClientApp\" />
     <Folder Include="Endpoints\Common\" />
+    <Folder Include="Endpoints\Serial\LogHub\" />
   </ItemGroup>
 
 </Project>

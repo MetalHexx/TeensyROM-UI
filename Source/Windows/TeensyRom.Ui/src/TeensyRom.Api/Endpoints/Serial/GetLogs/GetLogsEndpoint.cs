@@ -7,7 +7,7 @@ using System.Threading.Channels;
 using TeensyRom.Api.Http;
 using TeensyRom.Core.Logging;
 
-namespace TeensyRom.Api.Endpoints.GetLogs
+namespace TeensyRom.Api.Endpoints.Serial.GetLogs
 {
     public class GetLogsEndpoint(ILoggingService loggingService) : RadEndpoint
     {
