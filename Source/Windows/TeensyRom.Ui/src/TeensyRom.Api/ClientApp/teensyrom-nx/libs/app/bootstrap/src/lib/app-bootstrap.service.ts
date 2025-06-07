@@ -28,7 +28,7 @@ export class AppBootstrapService {
         });
       });
       this.deviceLogsService.connect();
-      this.deviceStore.findDevices({});
+      this.deviceStore.findDevices();
     });
   }
 }
