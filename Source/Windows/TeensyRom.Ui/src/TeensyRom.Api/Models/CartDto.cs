@@ -1,9 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Net.NetworkInformation;
+using System.Reactive.Linq;
 using TeensyRom.Core.Entities.Device;
 using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Api.Models
 {
+    public enum DeviceState 
+    {        
+        Connected,
+        Connectable,
+        ConnectionLost,
+        Busy,
+        Unknown
+    }
+    
     /// <summary>
     /// Data transfer object representing a TeensyROM cartridge.
     /// </summary>
@@ -18,6 +30,7 @@ namespace TeensyRom.Api.Models
         /// Indicates whether the TeensyROM device is connected.
         /// </summary>
         [Required] public bool IsConnected { get; set; }
+        [Required] public DeviceState DeviceState { get; set; }
 
         /// <summary>
         /// The COM port the device is connected to.
@@ -52,7 +65,7 @@ namespace TeensyRom.Api.Models
         /// <summary>
         /// Creates a <see cref="CartDto"/> from a <see cref="Cart"/> entity.
         /// </summary>
-        public static CartDto FromDevice(TeensyRomDevice device)
+        public static async Task<CartDto> FromDevice(TeensyRomDevice device)
         {
             return new CartDto
             {
@@ -62,9 +75,24 @@ namespace TeensyRom.Api.Models
                 FwVersion = device.Cart.FwVersion,
                 IsCompatible = device.Cart.IsCompatible,
                 IsConnected = device.IsConnected,
+                DeviceState = await GetDeviceState(device),
                 SdStorage = CartStorageDto.FromStorage(device.Cart.SdStorage),
                 UsbStorage = CartStorageDto.FromStorage(device.Cart.UsbStorage)
             };
+        }
+
+        public static async Task<DeviceState> GetDeviceState(TeensyRomDevice device)
+        {
+            var state = await device.SerialState.CurrentState.FirstAsync();
+
+            return state switch
+            {
+                SerialConnectableState => DeviceState.Connectable,
+                SerialConnectedState => DeviceState.Connected,
+                SerialBusyState => DeviceState.Busy,
+                SerialConnectionLostState => DeviceState.ConnectionLost,
+                _ => DeviceState.Unknown
+            };            
         }
     }
 

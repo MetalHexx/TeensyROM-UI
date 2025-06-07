@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { ViewableItemImageDto } from './viewableItemImageDto';
+import { FileItemType } from './fileItemType';
 
 /**
  * Data transfer object representing a file item in TeensyROM storage.
@@ -89,8 +90,6 @@ export interface FileItemDto {
    * A list of images associated with the file.
    */
   images: Array<ViewableItemImageDto>;
-  /**
-   * The type of the file (e.g., Song, Game, Image, Hex, Unknown).
-   */
-  type: number;
+  type: FileItemType;
 }
+export namespace FileItemDto {}

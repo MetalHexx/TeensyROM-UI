@@ -33,10 +33,18 @@ namespace TeensyRom.Api.Endpoints.FindCarts
                 SendNotFound("No TeensyRom devices found.");
                 return;
             }
+            List<CartDto> deviceDtos = [.. await Task.WhenAll(devices.Select(CartDto.FromDevice))];
 
             Response = new()
             {
-                Devices = [.. devices.Select(CartDto.FromDevice)],
+                Devices = deviceDtos.ToList(),
+                Message = "Success!"
+            };
+
+
+            Response = new()
+            {
+                Devices = deviceDtos,
                 Message = "Success!"
             };
             Send();

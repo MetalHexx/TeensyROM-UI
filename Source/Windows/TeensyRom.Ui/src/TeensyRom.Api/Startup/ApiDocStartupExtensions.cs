@@ -14,6 +14,7 @@ namespace TeensyRom.Api.Startup
             services.ConfigureHttpJsonOptions(options =>
             {
                 options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
             services.AddOpenApi();
             return services;

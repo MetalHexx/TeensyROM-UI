@@ -1,6 +1,8 @@
+import { DeviceState, TeensyStorageType } from '@teensyrom-nx/data-access/api-client';
+
 export interface DeviceStorage {
   deviceId: string;
-  type: number;
+  type: TeensyStorageType;
   available: boolean;
 }
 
@@ -11,6 +13,7 @@ export interface Device {
   fwVersion: string;
   isCompatible: boolean;
   isConnected: boolean;
+  deviceState: DeviceState;
   sdStorage: DeviceStorage;
   usbStorage: DeviceStorage;
 }

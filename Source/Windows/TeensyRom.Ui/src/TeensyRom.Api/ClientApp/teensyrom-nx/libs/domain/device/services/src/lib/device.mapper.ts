@@ -14,6 +14,7 @@ export class DeviceMapper {
       fwVersion: cartDto.fwVersion,
       isCompatible: cartDto.isCompatible,
       isConnected: cartDto.isConnected,
+      deviceState: cartDto.deviceState,
       sdStorage: this.toDeviceStorage(cartDto.sdStorage),
       usbStorage: this.toDeviceStorage(cartDto.usbStorage),
     };

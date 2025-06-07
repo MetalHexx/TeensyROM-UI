@@ -1,4 +1,4 @@
-import { Component, input, computed, output, inject, OnInit } from '@angular/core';
+import { Component, input, computed, output } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,6 +27,7 @@ export class DeviceItemComponent {
   disconnect = output<string>();
 
   readonly connectionStatus = computed(() => this.device()?.isConnected);
+  readonly deviceState = computed(() => this.device()?.deviceState);
   readonly usbStatus = computed(() => this.device()?.usbStorage?.available);
   readonly sdStatus = computed(() => this.device()?.sdStorage?.available);
 

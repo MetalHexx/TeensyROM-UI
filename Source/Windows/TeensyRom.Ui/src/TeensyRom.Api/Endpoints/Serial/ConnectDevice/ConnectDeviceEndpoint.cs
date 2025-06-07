@@ -27,7 +27,7 @@ namespace TeensyRom.Api.Endpoints.ConnectDevice
             {
                 Response = new()
                 {
-                    ConnectedCart = CartDto.FromDevice(device)
+                    ConnectedCart = await CartDto.FromDevice(device)
                 };
                 Send();
                 return;

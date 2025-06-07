@@ -33,7 +33,13 @@ import { LaunchFileResponse } from '../model/launchFileResponse';
 // @ts-ignore
 import { LaunchRandomResponse } from '../model/launchRandomResponse';
 // @ts-ignore
+import { NullableOfStorageScope } from '../model/nullableOfStorageScope';
+// @ts-ignore
+import { NullableOfTeensyFilterType } from '../model/nullableOfTeensyFilterType';
+// @ts-ignore
 import { ProblemDetails } from '../model/problemDetails';
+// @ts-ignore
+import { TeensyStorageType } from '../model/teensyStorageType';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS } from '../variables';
@@ -63,7 +69,7 @@ export class FilesApiService extends BaseService {
    */
   public getDirectory(
     deviceId: string,
-    storageType: number,
+    storageType: TeensyStorageType,
     path?: string,
     observe?: 'body',
     reportProgress?: boolean,
@@ -75,7 +81,7 @@ export class FilesApiService extends BaseService {
   ): Observable<GetDirectoryResponse>;
   public getDirectory(
     deviceId: string,
-    storageType: number,
+    storageType: TeensyStorageType,
     path?: string,
     observe?: 'response',
     reportProgress?: boolean,
@@ -87,7 +93,7 @@ export class FilesApiService extends BaseService {
   ): Observable<HttpResponse<GetDirectoryResponse>>;
   public getDirectory(
     deviceId: string,
-    storageType: number,
+    storageType: TeensyStorageType,
     path?: string,
     observe?: 'events',
     reportProgress?: boolean,
@@ -99,7 +105,7 @@ export class FilesApiService extends BaseService {
   ): Observable<HttpEvent<GetDirectoryResponse>>;
   public getDirectory(
     deviceId: string,
-    storageType: number,
+    storageType: TeensyStorageType,
     path?: string,
     observe: any = 'body',
     reportProgress: boolean = false,
@@ -161,7 +167,7 @@ export class FilesApiService extends BaseService {
       in: 'path',
       style: 'simple',
       explode: false,
-      dataType: 'number',
+      dataType: 'TeensyStorageType',
       dataFormat: undefined,
     })}/directories`;
     const { basePath, withCredentials } = this.configuration;
@@ -188,7 +194,7 @@ export class FilesApiService extends BaseService {
    */
   public index(
     deviceId: string,
-    storageType: number,
+    storageType: TeensyStorageType,
     startingPath?: string,
     observe?: 'body',
     reportProgress?: boolean,
@@ -200,7 +206,7 @@ export class FilesApiService extends BaseService {
   ): Observable<IndexResponse>;
   public index(
     deviceId: string,
-    storageType: number,
+    storageType: TeensyStorageType,
     startingPath?: string,
     observe?: 'response',
     reportProgress?: boolean,
@@ -212,7 +218,7 @@ export class FilesApiService extends BaseService {
   ): Observable<HttpResponse<IndexResponse>>;
   public index(
     deviceId: string,
-    storageType: number,
+    storageType: TeensyStorageType,
     startingPath?: string,
     observe?: 'events',
     reportProgress?: boolean,
@@ -224,7 +230,7 @@ export class FilesApiService extends BaseService {
   ): Observable<HttpEvent<IndexResponse>>;
   public index(
     deviceId: string,
-    storageType: number,
+    storageType: TeensyStorageType,
     startingPath?: string,
     observe: any = 'body',
     reportProgress: boolean = false,
@@ -286,7 +292,7 @@ export class FilesApiService extends BaseService {
       in: 'path',
       style: 'simple',
       explode: false,
-      dataType: 'number',
+      dataType: 'TeensyStorageType',
       dataFormat: undefined,
     })}/index`;
     const { basePath, withCredentials } = this.configuration;
@@ -392,7 +398,7 @@ export class FilesApiService extends BaseService {
    */
   public launchFile(
     deviceId: string,
-    storageType: number,
+    storageType: TeensyStorageType,
     filePath: string,
     observe?: 'body',
     reportProgress?: boolean,
@@ -404,7 +410,7 @@ export class FilesApiService extends BaseService {
   ): Observable<LaunchFileResponse>;
   public launchFile(
     deviceId: string,
-    storageType: number,
+    storageType: TeensyStorageType,
     filePath: string,
     observe?: 'response',
     reportProgress?: boolean,
@@ -416,7 +422,7 @@ export class FilesApiService extends BaseService {
   ): Observable<HttpResponse<LaunchFileResponse>>;
   public launchFile(
     deviceId: string,
-    storageType: number,
+    storageType: TeensyStorageType,
     filePath: string,
     observe?: 'events',
     reportProgress?: boolean,
@@ -428,7 +434,7 @@ export class FilesApiService extends BaseService {
   ): Observable<HttpEvent<LaunchFileResponse>>;
   public launchFile(
     deviceId: string,
-    storageType: number,
+    storageType: TeensyStorageType,
     filePath: string,
     observe: any = 'body',
     reportProgress: boolean = false,
@@ -495,7 +501,7 @@ export class FilesApiService extends BaseService {
       in: 'path',
       style: 'simple',
       explode: false,
-      dataType: 'number',
+      dataType: 'TeensyStorageType',
       dataFormat: undefined,
     })}/launch`;
     const { basePath, withCredentials } = this.configuration;
@@ -524,9 +530,9 @@ export class FilesApiService extends BaseService {
    */
   public launchRandom(
     deviceId: string,
-    storageType: number,
-    filterType?: number,
-    scope?: number,
+    storageType: TeensyStorageType,
+    filterType?: NullableOfTeensyFilterType,
+    scope?: NullableOfStorageScope,
     startingDirectory?: string,
     observe?: 'body',
     reportProgress?: boolean,
@@ -538,9 +544,9 @@ export class FilesApiService extends BaseService {
   ): Observable<LaunchRandomResponse>;
   public launchRandom(
     deviceId: string,
-    storageType: number,
-    filterType?: number,
-    scope?: number,
+    storageType: TeensyStorageType,
+    filterType?: NullableOfTeensyFilterType,
+    scope?: NullableOfStorageScope,
     startingDirectory?: string,
     observe?: 'response',
     reportProgress?: boolean,
@@ -552,9 +558,9 @@ export class FilesApiService extends BaseService {
   ): Observable<HttpResponse<LaunchRandomResponse>>;
   public launchRandom(
     deviceId: string,
-    storageType: number,
-    filterType?: number,
-    scope?: number,
+    storageType: TeensyStorageType,
+    filterType?: NullableOfTeensyFilterType,
+    scope?: NullableOfStorageScope,
     startingDirectory?: string,
     observe?: 'events',
     reportProgress?: boolean,
@@ -566,9 +572,9 @@ export class FilesApiService extends BaseService {
   ): Observable<HttpEvent<LaunchRandomResponse>>;
   public launchRandom(
     deviceId: string,
-    storageType: number,
-    filterType?: number,
-    scope?: number,
+    storageType: TeensyStorageType,
+    filterType?: NullableOfTeensyFilterType,
+    scope?: NullableOfStorageScope,
     startingDirectory?: string,
     observe: any = 'body',
     reportProgress: boolean = false,
@@ -640,7 +646,7 @@ export class FilesApiService extends BaseService {
       in: 'path',
       style: 'simple',
       explode: false,
-      dataType: 'number',
+      dataType: 'TeensyStorageType',
       dataFormat: undefined,
     })}/random-launch`;
     const { basePath, withCredentials } = this.configuration;

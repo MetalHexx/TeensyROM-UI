@@ -31,7 +31,11 @@
           icon="developer_board"
           [label]="'Firmware: ' + (device()?.fwVersion ?? '')"
         ></lib-icon-label>
-        <lib-icon-label icon="usb" [label]="'Port: ' + (device()?.comPort ?? '')"></lib-icon-label>
+        <lib-icon-label icon="usb" [label]="'Port: ' + (device()?.comPort ?? '')"> </lib-icon-label>
+        <lib-icon-label
+          icon="device_hub"
+          [label]="'State: ' + (deviceState()?.toString() ?? '')"
+        ></lib-icon-label>
         <lib-icon-label
           icon="verified_user"
           [label]="'Compatible: ' + (device()?.isCompatible ? 'Yes' : 'No')"

@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { DeviceState } from './deviceState';
 import { CartStorageDto } from './cartStorageDto';
 
 /**
@@ -21,6 +22,7 @@ export interface CartDto {
    * Indicates whether the TeensyROM device is connected.
    */
   isConnected: boolean;
+  deviceState: DeviceState;
   /**
    * The COM port the device is connected to.
    */
@@ -40,3 +42,4 @@ export interface CartDto {
   sdStorage: CartStorageDto;
   usbStorage: CartStorageDto;
 }
+export namespace CartDto {}
