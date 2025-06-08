@@ -153,6 +153,9 @@ importers:
       jsdom:
         specifier: ~22.1.0
         version: 22.1.0
+      jsonc-eslint-parser:
+        specifier: ^2.1.0
+        version: 2.4.0
       nx:
         specifier: 21.1.2
         version: 21.1.2(@swc-node/register@1.9.2(@swc/core@1.5.29(@swc/helpers@0.5.13))(@swc/types@0.1.21)(typescript@5.7.3))(@swc/core@1.5.29(@swc/helpers@0.5.13))
