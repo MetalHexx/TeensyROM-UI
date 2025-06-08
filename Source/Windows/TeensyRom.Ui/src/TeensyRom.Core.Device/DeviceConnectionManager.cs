@@ -277,6 +277,13 @@ namespace TeensyRom.Core.Device
             try
             {
                 device.SerialState.EnsureConnection();
+
+                var currentState = await device.SerialState.CurrentState.FirstAsync();
+
+                if (currentState is SerialConnectionLostState)
+                {
+                    device.SerialState.TransitionTo(typeof(SerialConnectedState));
+                }
             }
             catch (UnauthorizedAccessException)
             {
