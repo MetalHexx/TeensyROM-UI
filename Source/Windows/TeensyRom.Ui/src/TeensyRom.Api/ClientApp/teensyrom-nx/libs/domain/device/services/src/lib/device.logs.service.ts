@@ -17,7 +17,6 @@ export class DeviceLogsService {
       const parsed = JSON.parse(event.data);
       const newLine = parsed.message;
       this._logLines.update((lines) => [...lines.slice(-199), newLine]);
-      console.log('Received log:', newLine);
     });
 
     this.eventSource.onerror = (err) => {
