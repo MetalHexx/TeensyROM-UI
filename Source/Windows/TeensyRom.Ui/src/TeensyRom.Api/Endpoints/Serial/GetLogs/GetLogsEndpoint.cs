@@ -15,7 +15,6 @@ namespace TeensyRom.Api.Endpoints.Serial.GetLogs
         {
             RouteBuilder
                 .MapGet("/logs", (CancellationToken c) => Handle(c))
-                .RequireRateLimiting(EndpointHelper.GetLogsRateLimiter)
                 .ExcludeFromDescription();
         }
 
@@ -23,55 +22,28 @@ namespace TeensyRom.Api.Endpoints.Serial.GetLogs
         {
             var channel = Channel.CreateUnbounded<SseItem<LogDto>>();
 
-            var subscription = loggingService.Logs
-                .Buffer(TimeSpan.FromMilliseconds(500), 10)
-                .Subscribe(logBatch =>
-                {
-                    foreach (var log in logBatch)
-                    {
-                        channel.Writer.TryWrite(new SseItem<LogDto>(new LogDto { Message = log }, "log")
-                        {
-                            ReconnectionInterval = TimeSpan.FromMinutes(1)
-                        });
-                    }
-                });
+            var logsObservable = loggingService.Logs
+                .Where(log => !string.IsNullOrWhiteSpace(log))
+                .Select(log => new LogDto { Message = log });
 
-            c.Register(() =>
-            {
-                subscription.Dispose();
-                channel.Writer.TryComplete();
-            });
+            var logSubscription = WriteLogsToChannel(logsObservable, channel, c);
+            var logs = channel.WriteObservableToChannel(logSubscription, c);
 
-            return TypedResults.ServerSentEvents(ReadLogItemsAsync(channel, c));
+            return TypedResults.ServerSentEvents(logs);
         }
 
-        private async IAsyncEnumerable<SseItem<LogDto>> ReadLogItemsAsync(Channel<SseItem<LogDto>> channel, [EnumeratorCancellation] CancellationToken ct)
+        private IDisposable WriteLogsToChannel(IObservable<LogDto> logsObservable, Channel<SseItem<LogDto>> channel, CancellationToken ct)
         {
-            while (true)
-            {
-                if (ct.IsCancellationRequested)
-                    yield break;
-
-                var waitTask = channel.Reader.WaitToReadAsync(ct).AsTask();
-
-                bool canRead = false;
-                try
+            return logsObservable
+                .Subscribe(log =>
                 {
-                    canRead = await waitTask.ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                    yield break;
-                }
-
-                if (!canRead)
-                    yield break;
-
-                while (channel.Reader.TryRead(out var item))
-                {
-                    yield return item;
-                }
-            }
+                    if (ct.IsCancellationRequested)
+                        return;
+                    channel.Writer.TryWrite(new SseItem<LogDto>(log, "log")
+                    {
+                        ReconnectionInterval = TimeSpan.FromMinutes(1)
+                    });
+                });
         }
     }
 }

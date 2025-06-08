@@ -12,7 +12,7 @@ namespace TeensyRom.Api.Endpoints.FindCarts
                 .Produces<FindDevicesResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status503ServiceUnavailable)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .RequireRateLimiting(EndpointHelper.FindDevicesRateLimiter)
+                .RequireRateLimiting(RateLimitHelper.FindDevicesRateLimiter)
                 .WithName("FindDevices")
                 .WithSummary("Find Devices")
                 .WithTags("Devices")

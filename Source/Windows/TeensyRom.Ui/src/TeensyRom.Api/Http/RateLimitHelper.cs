@@ -3,10 +3,23 @@ using System.Threading.RateLimiting;
 
 namespace TeensyRom.Api.Http
 {
-    public static class EndpointHelper
+    /// <summary>
+    /// 
+    /// These rate limiters help prevent fatal serial states should the user decide to spam their browser refresh.
+    /// 
+    /// <remarks>
+    /// 
+    /// Originally, this was developed because if the api receives a cancellation in the middle of the serial discovery 
+    /// phaase, it was causing a bad state.  
+    /// 
+    /// Rather than create a complex solution on the backend, this hack is a much
+    /// simpler and elegant solution for this sort of edge case.
+    /// 
+    /// </remarks>
+    /// </summary>
+    public static class RateLimitHelper
     {
         public const string FindDevicesRateLimiter = "FindDevicesRateLimiterPolicy";
-        public const string GetLogsRateLimiter = "GetLogsRateLimiterPolicy";
         public static IServiceCollection AddStrictRateLimiting(this IServiceCollection services)
         {
             services.AddRateLimiter(options =>
@@ -18,16 +31,8 @@ namespace TeensyRom.Api.Http
                     config.QueueProcessingOrder = QueueProcessingOrder.NewestFirst;
                     config.QueueLimit = 1;
                 });
-                options.AddFixedWindowLimiter(GetLogsRateLimiter, config =>
-                {
-                    config.PermitLimit = 1;
-                    config.Window = TimeSpan.FromSeconds(5);
-                    config.QueueProcessingOrder = QueueProcessingOrder.NewestFirst;
-                    config.QueueLimit = 1;
-                });
             });
             return services;
         }
-
     }
 }
