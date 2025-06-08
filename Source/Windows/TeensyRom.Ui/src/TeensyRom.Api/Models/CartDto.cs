@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Net.NetworkInformation;
 using System.Reactive.Linq;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Entities.Device;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Serial.State;
@@ -93,6 +94,18 @@ namespace TeensyRom.Api.Models
                 SerialConnectionLostState => DeviceState.ConnectionLost,
                 _ => DeviceState.Unknown
             };            
+        }
+
+        public static DeviceState FromSerialState(ISerialState state) 
+        {
+            return state switch
+            {
+                SerialConnectableState => DeviceState.Connectable,
+                SerialConnectedState => DeviceState.Connected,
+                SerialBusyState => DeviceState.Busy,
+                SerialConnectionLostState => DeviceState.ConnectionLost,
+                _ => DeviceState.Unknown
+            };
         }
     }
 

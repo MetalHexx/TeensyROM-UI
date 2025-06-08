@@ -9,5 +9,8 @@ namespace TeensyRom.Core.Serial.State
         {
             return nextStateType == typeof(SerialConnectedState);
         }
+
+        public override void EnsureConnection(int waitTimeMs = 200) => _serialPort.EnsureConnection(waitTimeMs);
+        
     }
 }

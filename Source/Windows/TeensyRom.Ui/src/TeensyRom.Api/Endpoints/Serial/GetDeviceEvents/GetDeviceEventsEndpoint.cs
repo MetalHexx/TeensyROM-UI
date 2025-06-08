@@ -1,31 +1,67 @@
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 using RadEndpoints;
+using System.Net.ServerSentEvents;
+using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Channels;
+using TeensyRom.Api.Endpoints.Serial.GetLogs;
+using TeensyRom.Api.Http;
 using TeensyRom.Core.Abstractions;
+using TeensyRom.Core.Entities.Device;
 
 namespace TeensyRom.Api.Endpoints.GetDeviceEvents
 {
     public class DeviceEventDto
     {
         public string DeviceId { get; set; } = string.Empty;
-        public string EventType { get; set; } = string.Empty;
-        public DateTime Timestamp { get; set; }
+        public DeviceState State { get; set; }
     }
-    public class GetDeviceEventsEndpoint(IDeviceConnectionManager deviceManager) : RadEndpoint<GetDeviceEventsRequest, GetDeviceEventsResponse>
+    public class GetDeviceEventsEndpoint(IDeviceConnectionManager deviceManager) : RadEndpoint
     {
         public override void Configure()
         {
-            Get("/devices/events")
-                .Produces<GetDeviceEventsResponse>(StatusCodes.Status200OK)
-                .ProducesProblem(StatusCodes.Status400BadRequest)
-                .WithDocument(tag: "Serial", desc: "Get device events");
+            RouteBuilder
+                .MapGet("/device/events", (CancellationToken c) => Handle(c))
+                .ExcludeFromDescription();
         }
 
-        public override async Task Handle(GetDeviceEventsRequest r, CancellationToken ct)
+        public ServerSentEventsResult<DeviceEventDto> Handle(CancellationToken ct)
         {
-            var devices = deviceManager.GetConnectedDevices();
+            var channel = Channel.CreateUnbounded<SseItem<DeviceEventDto>>();
 
+            var deviceEventObservable = deviceManager.DeviceStateChanges
+                .Where(x => x is not null)
+                .Select(x => new DeviceEventDto
+                {
+                    DeviceId = x!.DeviceId,
+                    State = CartDto.FromSerialState(x.State)
+                });
 
-            Response = new();
-            Send();
+            var eventSubscription = WriteStatesToChannel(deviceEventObservable, channel);            
+            var events = channel.WriteObservableToChannel(eventSubscription, ct);
+
+            return TypedResults.ServerSentEvents(events);
+        }        
+
+        public IDisposable WriteStatesToChannel(
+            IObservable<DeviceEventDto> deviceEventObservable, 
+            Channel<SseItem<DeviceEventDto>> channel) 
+        {
+            return deviceEventObservable
+                .Subscribe(state =>
+                {
+                    var deviceEvent = new DeviceEventDto
+                    {
+                        DeviceId = state.DeviceId,
+                        State = state.State
+                    };
+                    channel.Writer.TryWrite(new SseItem<DeviceEventDto>(deviceEvent, "device-event")
+                    {
+                        ReconnectionInterval = TimeSpan.FromMinutes(1)
+                    });
+                });
+
         }
     }
 }

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Runtime.CompilerServices;
 using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Device;
@@ -14,15 +16,22 @@ using TeensyRom.Core.Storage;
 
 namespace TeensyRom.Core.Device
 {
+    public record DeviceStateSubscription(string DeviceId, IDisposable EventSubscription);
+    
     public class DeviceConnectionManager : IDeviceConnectionManager
     {
+        public IObservable<DeviceStateChange?> DeviceStateChanges => _deviceStates.AsObservable();
+
         private ConcurrentDictionary<string, TeensyRomDevice> _connectedDevices = [];
         private ConcurrentDictionary<string, TeensyRomDevice> _disconnectedDevices = [];
+        private BehaviorSubject<DeviceStateChange?> _deviceStates = new(null);
 
         private readonly ICartFinder _finder;
         private readonly ILoggingService _log;
         private readonly IFwVersionChecker _versionChecker;
         private bool _healthCheckEnabled = false;
+
+        private readonly List<DeviceStateSubscription> _deviceEventSubscriptions = [];
 
         public DeviceConnectionManager(ICartFinder finder, ILoggingService log, IFwVersionChecker versionChecker)
         {
@@ -106,13 +115,15 @@ namespace TeensyRom.Core.Device
 
             var devicesToReconnect = _connectedDevices.Select(d => d.Key).ToList();
 
-            _connectedDevices.ToList().ForEach(d => d.Value.SerialState.Dispose());
+            ClearEventSubcriptions();
+            DisposeConnectedDevices();
 
             List<TeensyRomDevice> devices = [];
 
             try
             {
                 devices = await _finder.FindDevices(ct);
+                CreateEventSubscriptions(devices);
             }
             catch (OperationCanceledException)
             {
@@ -123,11 +134,12 @@ namespace TeensyRom.Core.Device
             {
                 _log.ExternalError($"An error occurred while finding devices: {ex.Message}");
                 return [];
-            }                        
+            }
 
             _connectedDevices.Clear();
+            _disconnectedDevices.Clear();
 
-            if (!autoConnectNew) 
+            if (!autoConnectNew)
             {
                 var devicesToKeep = devices.Where(d => devicesToReconnect.Contains(d.DeviceId)).ToList();
                 var devicesToDisconnect = devices.Where(d => !devicesToReconnect.Contains(d.DeviceId)).ToList();
@@ -141,6 +153,7 @@ namespace TeensyRom.Core.Device
                 {
                     var _ = _connectedDevices.TryAdd(device.DeviceId, device);
                 }
+                StartHealthCheck();
                 return devices;
             }
 
@@ -154,8 +167,34 @@ namespace TeensyRom.Core.Device
             }
 
             StartHealthCheck();
-
             return devices;
+        }
+
+        private void CreateEventSubscriptions(List<TeensyRomDevice> devices)
+        {
+            devices.ForEach(d =>
+            {
+                var subscription = d.SerialState.CurrentState.Subscribe(state => _deviceStates.OnNext(new DeviceStateChange(d.DeviceId, state)));
+                _deviceEventSubscriptions.Add(new DeviceStateSubscription(d.DeviceId, subscription));
+            });
+        }
+
+        private void DisposeConnectedDevices()
+        {
+            foreach (var device in _connectedDevices.Values)
+            {
+                device.SerialState.ClosePort();
+                device.SerialState.Dispose();
+            }
+        }
+
+        private void ClearEventSubcriptions()
+        {
+            foreach (var subscription in _deviceEventSubscriptions)
+            {
+                subscription.EventSubscription.Dispose();
+            }
+            _deviceEventSubscriptions.Clear();
         }
 
         public TeensyRomDevice? Connect(string deviceId)
@@ -193,7 +232,9 @@ namespace TeensyRom.Core.Device
 
                             if (currentState is SerialBusyState) continue;
 
-                            if (!_healthCheckEnabled) return;
+                            if (device.IsConnected is true) continue;
+
+                            if (!_healthCheckEnabled || device.IsConnected) return;
 
                             var result = await CheckDeviceHealth(device);
 
@@ -206,7 +247,14 @@ namespace TeensyRom.Core.Device
                         {
                             _log.InternalWarning($"Device {d.Cart.Name} - {d.DeviceId} @ {d.Cart.ComPort} is no longer connected.  Removing from device list.");
                             _connectedDevices.TryRemove(d.DeviceId, out TeensyRomDevice? device);
-                            device?.SerialState.Dispose();                            
+                            device?.SerialState.Dispose();
+                            var deviceSubscription = _deviceEventSubscriptions.FirstOrDefault(sub => sub.DeviceId == d.DeviceId);
+
+                            if (deviceSubscription?.EventSubscription is not null)
+                            {
+                                deviceSubscription.EventSubscription.Dispose();
+                                _deviceEventSubscriptions.Remove(deviceSubscription);
+                            }
                         });
                         _devicesToKill.Clear();
 
