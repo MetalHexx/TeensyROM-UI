@@ -6,6 +6,7 @@ import { NgClass } from '@angular/common';
 import { Device, DeviceEventsService } from '@teensyrom-nx/domain/device/services';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
 import { StorageStatusComponent as StorageItemComponent } from '../storage-item/storage-item.component';
+import { DeviceState } from '@teensyrom-nx/data-access/api-client';
 
 @Component({
   selector: 'lib-device-item',
@@ -33,7 +34,9 @@ export class DeviceItemComponent {
 
   readonly deviceState = computed(() => {
     const id = this.device()?.deviceId;
-    if (!id) return this.device()?.deviceState;
+
+    if (!id) return DeviceState.Unknown;
+
     return this.deviceEventsService.getDeviceState(id)();
   });
 
