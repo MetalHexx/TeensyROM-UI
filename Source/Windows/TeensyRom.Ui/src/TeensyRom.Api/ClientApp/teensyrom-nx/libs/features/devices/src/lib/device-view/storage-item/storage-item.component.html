@@ -14,7 +14,12 @@
       </div>
 
       <div class="right-container">
-        <button [disabled]="!status()" mat-icon-button class="icon-button-medium">
+        <button
+          (click)="onIndex()"
+          [disabled]="!status()"
+          mat-icon-button
+          class="icon-button-medium"
+        >
           <mat-icon>download</mat-icon>
         </button>
       </div>

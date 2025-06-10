@@ -5,7 +5,11 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { appRoutes } from './app.routes';
 import { AppBootstrapService } from '@teensyrom-nx/app/bootstrap';
 import { DeviceService } from '@teensyrom-nx/domain/device/services';
-import { DevicesApiService, Configuration } from '@teensyrom-nx/data-access/api-client';
+import {
+  DevicesApiService,
+  Configuration,
+  FilesApiService,
+} from '@teensyrom-nx/data-access/api-client';
 import { HttpClient } from '@angular/common/http';
 
 export const appConfig: ApplicationConfig = {
@@ -19,6 +23,14 @@ export const appConfig: ApplicationConfig = {
       useFactory: (httpClient: HttpClient) => {
         const config = new Configuration({ basePath: 'http://localhost:5168' });
         return new DevicesApiService(httpClient, config.basePath || '', config);
+      },
+      deps: [HttpClient],
+    },
+    {
+      provide: FilesApiService,
+      useFactory: (httpClient: HttpClient) => {
+        const config = new Configuration({ basePath: 'http://localhost:5168' });
+        return new FilesApiService(httpClient, config.basePath || '', config);
       },
       deps: [HttpClient],
     },

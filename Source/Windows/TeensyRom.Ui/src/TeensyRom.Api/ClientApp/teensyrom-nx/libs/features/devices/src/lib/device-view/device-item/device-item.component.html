@@ -46,11 +46,13 @@
           icon="usb"
           label="USB Stick"
           [status]="usbStatus()"
+          (index)="onIndex(TeensyStorageType.Usb)"
         ></lib-storage-status>
         <lib-storage-status
           icon="sd_card"
           label="SD Card"
           [status]="sdStatus()"
+          (index)="onIndex(TeensyStorageType.Sd)"
         ></lib-storage-status>
       </div>
     </div>
