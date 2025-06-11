@@ -43,18 +43,16 @@ export class LayoutComponent {
     );
 
     effect(() => {
-      if (this.showBusyDialog()) {
-        if (!this.busyDialogRef) {
-          this.busyDialogRef = this.dialog.open(BusyDialogComponent, {
-            data: {
-              message:
-                'Please wait...this make take a while if you have a lot of files.  Do not touch your commodore device while indexing.',
-              title: 'Indexing',
-            },
-            disableClose: true,
-            panelClass: 'busy-dialog-panel',
-          });
-        }
+      if (this.showBusyDialog() && !this.busyDialogRef) {
+        this.busyDialogRef = this.dialog.open(BusyDialogComponent, {
+          data: {
+            message:
+              'Please wait...this make take a while if you have a lot of files.  Do not touch your commodore device while indexing.',
+            title: 'Indexing',
+          },
+          disableClose: true,
+          panelClass: 'busy-dialog-panel',
+        });
       } else if (this.busyDialogRef) {
         this.busyDialogRef.close();
         this.busyDialogRef = null;
