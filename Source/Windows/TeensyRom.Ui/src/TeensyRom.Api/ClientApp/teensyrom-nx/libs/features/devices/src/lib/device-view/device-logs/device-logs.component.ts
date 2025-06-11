@@ -23,7 +23,7 @@ import { MatButtonModule } from '@angular/material/button';
 export class DeviceLogsComponent {
   private readonly logsService = inject(DeviceLogsService);
   readonly logs = this.logsService.logs;
-  readonly isConnected = signal(false);
+  readonly isConnected = this.logsService.isConnected;
 
   logEffectRef: EffectRef | undefined = effect(() => {
     const logs = this.logs();
@@ -36,12 +36,11 @@ export class DeviceLogsComponent {
 
   startLogs() {
     this.logsService.connect();
-    this.isConnected.set(true);
   }
 
   stopLogs() {
     this.logsService.disconnect();
-    this.isConnected.set(false);
+
     if (this.logEffectRef) this.logEffectRef.destroy();
   }
 

@@ -5,12 +5,15 @@ import { signal, Signal, WritableSignal, computed } from '@angular/core';
 export class DeviceLogsService {
   private eventSource: EventSource | null = null;
   private readonly _logLines: WritableSignal<string[]> = signal([]);
+  private readonly _isConnected = signal(false);
 
   readonly logs: Signal<string[]> = computed(() => this._logLines());
+  readonly isConnected = this._isConnected.asReadonly();
 
   connect() {
     if (!this.eventSource) {
       this.eventSource = new EventSource('http://localhost:5168/logs');
+      this._isConnected.set(true);
     }
 
     this.eventSource.addEventListener('log', (event: MessageEvent) => {
@@ -29,6 +32,7 @@ export class DeviceLogsService {
     if (this.eventSource) {
       this.eventSource?.close();
       this.eventSource = null;
+      this._isConnected.set(false);
     }
   }
 
