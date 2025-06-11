@@ -1,4 +1,4 @@
-import { Component, inject, Signal } from '@angular/core';
+import { Component, computed, inject, Signal, effect } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { HeaderComponent } from '../components/header/header.component';
@@ -6,6 +6,9 @@ import { NavigationService } from '@teensyrom-nx/app/navigation';
 import { NavMenuComponent } from '../components/nav-menu/nav-menu.component';
 import { filter, map, mergeMap } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { DeviceStore } from '@teensyrom-nx/domain/device/state';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { BusyDialogComponent } from '../components/busy-dialog/busy-dialog.component';
 
 @Component({
   selector: 'lib-layout',
@@ -15,10 +18,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent {
+  readonly deviceStore = inject(DeviceStore);
   readonly navService = inject(NavigationService);
   readonly router = inject(Router);
   readonly route = inject(ActivatedRoute);
+  readonly dialog = inject(MatDialog);
   pageTitle: Signal<string>;
+  showBusyDialog = computed(() => this.deviceStore.isIndexing());
+  private busyDialogRef: MatDialogRef<BusyDialogComponent> | null = null;
 
   constructor() {
     this.pageTitle = toSignal(
@@ -34,5 +41,24 @@ export class LayoutComponent {
       ),
       { initialValue: '' }
     );
+
+    effect(() => {
+      if (this.showBusyDialog()) {
+        if (!this.busyDialogRef) {
+          this.busyDialogRef = this.dialog.open(BusyDialogComponent, {
+            data: {
+              message:
+                'Please wait...this make take a while if you have a lot of files.  Do not touch your commodore device while indexing.',
+              title: 'Indexing',
+            },
+            disableClose: true,
+            panelClass: 'busy-dialog-panel',
+          });
+        }
+      } else if (this.busyDialogRef) {
+        this.busyDialogRef.close();
+        this.busyDialogRef = null;
+      }
+    });
   }
 }

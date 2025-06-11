@@ -1,0 +1,24 @@
+.busy-progress-bar {
+  position: absolute;
+  bottom: 0rem;
+  width: 100%;
+}
+
+.busy-dialog-content {
+  padding: 1rem 3rem 3rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 400px;
+}
+
+.busy-dialog-message {
+  font-size: 1.2rem;
+}
+
+.busy-dialog-panel .mat-dialog-container {
+  min-width: 400px;
+  max-width: 600px;
+  width: 100%;
+}

@@ -1,13 +1,15 @@
 import { inject } from '@angular/core';
 import { signalStore, withMethods, withState } from '@ngrx/signals';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
-import { Device, DeviceService } from '@teensyrom-nx/domain/device/services';
+import { Device, DeviceService, StorageService } from '@teensyrom-nx/domain/device/services';
 import { findDevices, connectDevice, disconnectDevice } from './methods/index';
+import { indexStorage } from './methods/index-storage';
 
 export type DeviceState = {
   devices: Device[];
   hasInitialised: boolean;
   isLoading: boolean;
+  isIndexing: boolean;
   error: string | null;
 };
 
@@ -15,6 +17,7 @@ const initialState: DeviceState = {
   devices: [],
   hasInitialised: false,
   isLoading: false,
+  isIndexing: false,
   error: null,
 };
 
@@ -22,9 +25,16 @@ export const DeviceStore = signalStore(
   { providedIn: 'root' },
   withDevtools('devices'),
   withState(initialState),
-  withMethods((store, deviceService: DeviceService = inject(DeviceService)) => ({
-    ...findDevices(store, deviceService),
-    ...connectDevice(store, deviceService),
-    ...disconnectDevice(store, deviceService),
-  }))
+  withMethods(
+    (
+      store,
+      deviceService: DeviceService = inject(DeviceService),
+      storageService: StorageService = inject(StorageService)
+    ) => ({
+      ...findDevices(store, deviceService),
+      ...connectDevice(store, deviceService),
+      ...disconnectDevice(store, deviceService),
+      ...indexStorage(store, storageService),
+    })
+  )
 );

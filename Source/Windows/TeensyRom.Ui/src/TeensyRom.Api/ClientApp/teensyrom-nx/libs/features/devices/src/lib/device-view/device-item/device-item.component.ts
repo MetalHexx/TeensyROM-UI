@@ -3,12 +3,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { NgClass } from '@angular/common';
-import { Device, DeviceEventsService } from '@teensyrom-nx/domain/device/services';
-import { FilesApiService, TeensyStorageType } from '@teensyrom-nx/data-access/api-client';
+import { Device, DeviceEventsService, StorageService } from '@teensyrom-nx/domain/device/services';
+import { TeensyStorageType } from '@teensyrom-nx/data-access/api-client';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
 import { StorageStatusComponent as StorageItemComponent } from '../storage-item/storage-item.component';
 import { DeviceState } from '@teensyrom-nx/data-access/api-client';
 import { firstValueFrom } from 'rxjs';
+import { DeviceStore } from '@teensyrom-nx/domain/device/state';
 
 @Component({
   selector: 'lib-device-item',
@@ -29,7 +30,7 @@ export class DeviceItemComponent {
   connect = output<string>();
   disconnect = output<string>();
   private readonly deviceEventsService = inject(DeviceEventsService);
-  private readonly storageService = inject(FilesApiService);
+  private readonly deviceStore = inject(DeviceStore);
 
   readonly connectionStatus = computed(() => this.device()?.isConnected);
   readonly usbStatus = computed(() => this.device()?.usbStorage?.available);
@@ -53,6 +54,7 @@ export class DeviceItemComponent {
   }
 
   async onIndex(storageType: TeensyStorageType) {
-    await firstValueFrom(this.storageService.index(this.device()?.deviceId ?? '', storageType));
+    const deviceId = this.device()?.deviceId ?? '';
+    await this.deviceStore.indexStorage(deviceId, storageType);
   }
 }
