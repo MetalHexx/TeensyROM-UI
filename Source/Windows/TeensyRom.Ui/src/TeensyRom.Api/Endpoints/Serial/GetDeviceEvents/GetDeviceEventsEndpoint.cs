@@ -36,32 +36,15 @@ namespace TeensyRom.Api.Endpoints.GetDeviceEvents
                 {
                     DeviceId = x!.DeviceId,
                     State = CartDto.FromSerialState(x.State)
+                })
+                .Select(deviceEvent => new SseItem<DeviceEventDto>(deviceEvent, "device-event")
+                {
+                    ReconnectionInterval = TimeSpan.FromMinutes(1)
                 });
-
-            var eventSubscription = WriteStatesToChannel(deviceEventObservable, channel);            
-            var events = channel.WriteObservableToChannel(eventSubscription, ct);
+         
+            var events = channel.WriteObservableToChannel(deviceEventObservable, ct);
 
             return TypedResults.ServerSentEvents(events);
         }        
-
-        public IDisposable WriteStatesToChannel(
-            IObservable<DeviceEventDto> deviceEventObservable, 
-            Channel<SseItem<DeviceEventDto>> channel) 
-        {
-            return deviceEventObservable
-                .Subscribe(state =>
-                {
-                    var deviceEvent = new DeviceEventDto
-                    {
-                        DeviceId = state.DeviceId,
-                        State = state.State
-                    };
-                    channel.Writer.TryWrite(new SseItem<DeviceEventDto>(deviceEvent, "device-event")
-                    {
-                        ReconnectionInterval = TimeSpan.FromMinutes(1)
-                    });
-                });
-
-        }
     }
 }

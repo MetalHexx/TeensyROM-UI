@@ -7,37 +7,22 @@ namespace TeensyRom.Api.Http
     public static class ChannelExtensions
     {
         public static async IAsyncEnumerable<SseItem<T>> WriteObservableToChannel<T>(
-            this Channel<SseItem<T>> channel,            
-            IDisposable observableSubscription,
+            this Channel<SseItem<T>> channel,
+            IObservable<SseItem<T>> observable,
             [EnumeratorCancellation] CancellationToken ct)
         {
-            ct.Register(() =>
+            var subscription = observable.Subscribe(item =>
             {
-                observableSubscription.Dispose();
-                channel.Writer.TryComplete();
+                if (!ct.IsCancellationRequested)
+                {
+                    channel.Writer.TryWrite(item);
+                }
             });
 
             try
             {
-                while (true)
+                while (await channel.Reader.WaitToReadAsync(ct))
                 {
-                    if (ct.IsCancellationRequested)
-                        yield break;
-
-                    var waitTask = channel.Reader.WaitToReadAsync(ct).AsTask();
-
-                    bool canRead = false;
-
-                    try
-                    {
-                        canRead = await waitTask.ConfigureAwait(false);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        yield break;
-                    }
-                    if (!canRead)
-                        yield break;
                     while (channel.Reader.TryRead(out var item))
                     {
                         yield return item;
@@ -46,10 +31,9 @@ namespace TeensyRom.Api.Http
             }
             finally
             {
-                observableSubscription.Dispose();
+                subscription?.Dispose();
                 channel.Writer.TryComplete();
             }
         }
-
     }
 }

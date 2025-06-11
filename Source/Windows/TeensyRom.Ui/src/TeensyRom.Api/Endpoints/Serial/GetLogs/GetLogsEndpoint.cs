@@ -24,26 +24,15 @@ namespace TeensyRom.Api.Endpoints.Serial.GetLogs
 
             var logsObservable = loggingService.Logs
                 .Where(log => !string.IsNullOrWhiteSpace(log))
-                .Select(log => new LogDto { Message = log });
-
-            var logSubscription = WriteLogsToChannel(logsObservable, channel, c);
-            var logs = channel.WriteObservableToChannel(logSubscription, c);
-
-            return TypedResults.ServerSentEvents(logs);
-        }
-
-        private IDisposable WriteLogsToChannel(IObservable<LogDto> logsObservable, Channel<SseItem<LogDto>> channel, CancellationToken ct)
-        {
-            return logsObservable
-                .Subscribe(log =>
+                .Select(log => new LogDto { Message = log })
+                .Select(logDto => new SseItem<LogDto>(logDto, "log")
                 {
-                    if (ct.IsCancellationRequested)
-                        return;
-                    channel.Writer.TryWrite(new SseItem<LogDto>(log, "log")
-                    {
-                        ReconnectionInterval = TimeSpan.FromMinutes(1)
-                    });
+                    ReconnectionInterval = TimeSpan.FromMinutes(1)
                 });
+
+            var logStream = channel.WriteObservableToChannel(logsObservable, c);
+
+            return TypedResults.ServerSentEvents(logStream);
         }
     }
 }
