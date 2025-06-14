@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using RadEndpoints;
 using System.Net.ServerSentEvents;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
@@ -19,6 +20,8 @@ namespace TeensyRom.Api.Endpoints.GetDeviceEvents
     }
     public class GetDeviceEventsEndpoint(IDeviceConnectionManager deviceManager) : RadEndpoint
     {
+        private static readonly IScheduler _eventScheduler = new EventLoopScheduler();
+
         public override void Configure()
         {
             RouteBuilder
@@ -31,6 +34,8 @@ namespace TeensyRom.Api.Endpoints.GetDeviceEvents
             var channel = Channel.CreateUnbounded<SseItem<DeviceEventDto>>();
 
             var deviceEventObservable = deviceManager.DeviceStateChanges
+                .SubscribeOn(_eventScheduler)
+                .ObserveOn(_eventScheduler)
                 .Where(x => x is not null)
                 .Select(x => new DeviceEventDto
                 {

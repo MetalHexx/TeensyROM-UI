@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using RadEndpoints;
 using System.Net.ServerSentEvents;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
@@ -11,6 +12,8 @@ namespace TeensyRom.Api.Endpoints.Serial.GetLogs
 {
     public class GetLogsEndpoint(ILoggingService loggingService) : RadEndpoint
     {
+        private static readonly IScheduler _logScheduler = new EventLoopScheduler();
+        
         public override void Configure()
         {
             RouteBuilder
@@ -23,7 +26,10 @@ namespace TeensyRom.Api.Endpoints.Serial.GetLogs
             var channel = Channel.CreateUnbounded<SseItem<LogDto>>();
 
             var logsObservable = loggingService.Logs
-                .Where(log => !string.IsNullOrWhiteSpace(log))
+                .SubscribeOn(_logScheduler)
+                .ObserveOn(_logScheduler)
+                .Buffer(TimeSpan.FromMilliseconds(200))
+                .SelectMany(x => x)
                 .Select(log => new LogDto { Message = log })
                 .Select(logDto => new SseItem<LogDto>(logDto, "log")
                 {

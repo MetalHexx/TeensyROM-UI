@@ -1,4 +1,6 @@
 ﻿using System.Net.ServerSentEvents;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
 
@@ -11,13 +13,18 @@ namespace TeensyRom.Api.Http
             IObservable<SseItem<T>> observable,
             [EnumeratorCancellation] CancellationToken ct)
         {
-            var subscription = observable.Subscribe(item =>
-            {
-                if (!ct.IsCancellationRequested)
+            var subscription = observable
+                .Buffer(TimeSpan.FromMilliseconds(100), 100)
+                .Where(buffer => buffer.Count > 0)          
+                .Subscribe(buffer =>
                 {
-                    channel.Writer.TryWrite(item);
-                }
-            });
+                    if (ct.IsCancellationRequested) return;
+
+                    foreach (var item in buffer)
+                    {
+                        channel.Writer.TryWrite(item);
+                    }
+                });
 
             try
             {
