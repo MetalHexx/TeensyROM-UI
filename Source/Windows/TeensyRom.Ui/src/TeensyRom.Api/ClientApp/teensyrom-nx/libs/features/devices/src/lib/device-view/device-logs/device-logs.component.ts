@@ -2,11 +2,10 @@ import {
   Component,
   ViewChild,
   ElementRef,
-  AfterViewChecked,
   inject,
-  signal,
   effect,
   EffectRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { DeviceLogsService } from '@teensyrom-nx/domain/device/services';
 import { MatCardModule } from '@angular/material/card';
@@ -17,7 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
   selector: 'lib-device-logs',
   templateUrl: './device-logs.component.html',
   styleUrls: ['./device-logs.component.scss'],
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatCardModule, MatIconModule, MatButtonModule],
 })
 export class DeviceLogsComponent {

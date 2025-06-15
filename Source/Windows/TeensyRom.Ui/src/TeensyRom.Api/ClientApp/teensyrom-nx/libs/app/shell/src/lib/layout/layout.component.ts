@@ -46,12 +46,11 @@ export class LayoutComponent {
       if (this.showBusyDialog() && !this.busyDialogRef) {
         this.busyDialogRef = this.dialog.open(BusyDialogComponent, {
           data: {
-            message:
-              'Please wait...this make take a while if you have a lot of files.  Do not touch your commodore device while indexing.',
-            title: 'Indexing',
+            message: 'This can take a few minutes.  Do not touch your commodore device.',
+            title: 'Indexing Storage',
           },
           disableClose: true,
-          panelClass: 'busy-dialog-panel',
+          panelClass: 'glassy-dialog',
         });
       } else if (this.busyDialogRef) {
         this.busyDialogRef.close();

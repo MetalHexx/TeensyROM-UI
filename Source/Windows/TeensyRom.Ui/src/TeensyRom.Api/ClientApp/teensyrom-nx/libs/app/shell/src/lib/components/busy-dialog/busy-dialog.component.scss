@@ -1,3 +1,10 @@
+.mat-mdc-dialog-surface {
+  padding: 0;
+  background-color: red !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
 .busy-progress-bar {
   position: absolute;
   bottom: 0rem;

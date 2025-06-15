@@ -24,7 +24,12 @@ html {
 
   & {
     --mat-sys-surface-container-low: #cdcdcd;
+    --dialog-backdrop-color: var(
+      --mat-sidenav-scrim-color,
+      color-mix(in srgb, var(--mat-sys-neutral-variant20) 40%, transparent)
+    );
   }
+
   --color-success: #86c691;
   --color-error: #cc666c;
   --color-highlight: #00f7ff;
@@ -33,6 +38,7 @@ html {
 
 html.dark-mode {
   color-scheme: dark;
+
   @include mat.theme(
     (
       color: mat.$magenta-palette,
@@ -43,7 +49,12 @@ html.dark-mode {
 
   & {
     --mat-sys-surface-container-low: #231e22;
+    --dialog-backdrop-color: var(
+      --mat-sidenav-scrim-color,
+      color-mix(in srgb, var(--mat-sys-neutral-variant20) 40%, transparent)
+    );
   }
+
   --color-success: #6fdc8c;
   --color-error: #ff6f6f;
   --color-highlight: #00f7ff;
@@ -128,6 +139,26 @@ body {
   &.error {
     color: var(--color-error);
   }
+}
+
+.glassy-dialog {
+  .mat-mdc-dialog-container {
+    @extend .glassy;
+    border-radius: var(--mat-sys-corner-large);
+    overflow: hidden;
+
+    box-shadow: var(--mat-sys-level4);
+  }
+
+  .mat-mdc-dialog-surface,
+  .mdc-dialog__surface {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+}
+
+.cdk-overlay-backdrop {
+  background-color: var(--dialog-backdrop-color) !important;
 }
 
 // ─────────────────────────────────────────────
