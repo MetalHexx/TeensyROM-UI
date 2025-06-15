@@ -22,7 +22,10 @@ namespace TeensyRom.Api.Startup
         /// </summary>
         public static IServiceCollection AddTeensyRomServices(this IServiceCollection services)
         {
-            services.AddSingleton<ILoggingService, LoggingService>();
+            var loggingService = new LoggingService();
+
+            services.AddSingleton<IQueuedChannelLogger>(loggingService);
+            services.AddSingleton<ILoggingService>(loggingService);
             services.AddSingleton<IAlertService, AlertService>();
             services.AddSingleton<ISettingsService, SettingsService>();
             services.AddSingleton<IFwVersionChecker, FwVersionChecker>();

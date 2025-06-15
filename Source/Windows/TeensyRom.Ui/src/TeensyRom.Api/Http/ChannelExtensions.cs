@@ -14,25 +14,25 @@ namespace TeensyRom.Api.Http
             [EnumeratorCancellation] CancellationToken ct)
         {
             var subscription = observable
-                .Buffer(TimeSpan.FromMilliseconds(100), 100)
-                .Where(buffer => buffer.Count > 0)          
-                .Subscribe(buffer =>
+                .Subscribe(item =>
                 {
                     if (ct.IsCancellationRequested) return;
 
-                    foreach (var item in buffer)
-                    {
-                        channel.Writer.TryWrite(item);
-                    }
-                });
+                    channel.Writer.TryWrite(item);
+                },
+                onError: ex => channel.Writer.TryComplete(ex),
+                onCompleted: () => channel.Writer.TryComplete());
 
             try
             {
-                while (await channel.Reader.WaitToReadAsync(ct))
+                while (!ct.IsCancellationRequested && await channel.Reader.WaitToReadAsync(ct).ConfigureAwait(false))
                 {
                     while (channel.Reader.TryRead(out var item))
                     {
-                        yield return item;
+                        if (!EqualityComparer<SseItem<T>>.Default.Equals(item, default))
+                        {
+                            yield return item;
+                        }
                     }
                 }
             }

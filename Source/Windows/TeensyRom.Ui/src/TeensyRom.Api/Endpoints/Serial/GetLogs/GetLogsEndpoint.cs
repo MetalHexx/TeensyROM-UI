@@ -1,19 +1,12 @@
 using Microsoft.AspNetCore.Http.HttpResults;
-using RadEndpoints;
 using System.Net.ServerSentEvents;
-using System.Reactive.Concurrency;
-using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Channels;
-using TeensyRom.Api.Http;
-using TeensyRom.Core.Logging;
+using TeensyRom.Api.Services;
 
 namespace TeensyRom.Api.Endpoints.Serial.GetLogs
 {
-    public class GetLogsEndpoint(ILoggingService loggingService) : RadEndpoint
+    public class GetLogsEndpoint(IQueuedChannelLogger loggingService) : RadEndpoint
     {
-        private static readonly IScheduler _logScheduler = new EventLoopScheduler();
-        
         public override void Configure()
         {
             RouteBuilder
@@ -23,22 +16,48 @@ namespace TeensyRom.Api.Endpoints.Serial.GetLogs
 
         public ServerSentEventsResult<LogDto> Handle(CancellationToken c)
         {
-            var channel = Channel.CreateUnbounded<SseItem<LogDto>>();
+            var sseChannel = Channel.CreateUnbounded<SseItem<LogDto>>();
 
-            var logsObservable = loggingService.Logs
-                .SubscribeOn(_logScheduler)
-                .ObserveOn(_logScheduler)
-                .Buffer(TimeSpan.FromMilliseconds(200))
-                .SelectMany(x => x)
-                .Select(log => new LogDto { Message = log })
-                .Select(logDto => new SseItem<LogDto>(logDto, "log")
+            loggingService.StartChannelLogging();
+
+            _ = ProcessLogsInBackground(loggingService.LogChannel, sseChannel.Writer, c);
+            
+            return TypedResults.ServerSentEvents(sseChannel.Reader.ReadAllAsync(c));
+        }
+
+        private static async Task ProcessLogsInBackground(
+            ChannelReader<string> logReader,
+            ChannelWriter<SseItem<LogDto>> writer,
+            CancellationToken ct)
+        {
+            try
+            {
+                await foreach (var message in logReader.ReadAllAsync(ct))
                 {
-                    ReconnectionInterval = TimeSpan.FromMinutes(1)
-                });
-
-            var logStream = channel.WriteObservableToChannel(logsObservable, c);
-
-            return TypedResults.ServerSentEvents(logStream);
+                    if (message != null)
+                    {
+                        var sseItem = new SseItem<LogDto>(
+                            new LogDto { Message = message },
+                            "log")
+                        {
+                            ReconnectionInterval = TimeSpan.FromMinutes(1)
+                        };
+                        
+                        await writer.WriteAsync(sseItem, ct);
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                writer.TryComplete(ex);
+            }
+            finally
+            {
+                writer.TryComplete();
+            }
         }
     }
 }

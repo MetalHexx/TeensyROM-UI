@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Text;
+using System.Threading.Channels;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Ui.Services;
@@ -18,6 +19,8 @@ namespace TeensyRom.Ui.Services.Logging
         protected Subject<string> _logs = new();
 
         private string _logPath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), LogConstants.LogPath, $"{LogConstants.LogFileName}{_uniqueLogId}{LogConstants.LogFileExtention}");
+
+        public ChannelReader<string> LogChannel => throw new NotImplementedException();
 
         public LoggingService()
         {

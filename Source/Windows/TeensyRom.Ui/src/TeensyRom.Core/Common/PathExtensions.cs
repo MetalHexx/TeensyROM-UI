@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace TeensyRom.Core.Common
 {
@@ -199,6 +200,14 @@ namespace TeensyRom.Core.Common
                 return string.Empty;
 
             return Uri.UnescapeDataString(encodedPath.Replace("+", " "));
+        }
+
+        public static void EnsureLocalPath(this string directoryPath) 
+        {
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
         }
     }
 }
