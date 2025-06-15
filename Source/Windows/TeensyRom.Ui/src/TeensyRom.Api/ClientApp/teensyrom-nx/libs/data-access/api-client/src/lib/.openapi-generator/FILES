@@ -6,7 +6,6 @@ api.module.ts
 api/api.ts
 api/devices.service.ts
 api/files.service.ts
-api/serial.service.ts
 configuration.ts
 encoder.ts
 git_push.sh
@@ -20,7 +19,6 @@ model/disconnectDeviceResponse.ts
 model/fileItemDto.ts
 model/fileItemType.ts
 model/findDevicesResponse.ts
-model/getDeviceEventsResponse.ts
 model/getDirectoryResponse.ts
 model/indexAllResponse.ts
 model/indexResponse.ts
@@ -31,6 +29,7 @@ model/nullableOfStorageScope.ts
 model/nullableOfTeensyFilterType.ts
 model/problemDetails.ts
 model/resetDeviceResponse.ts
+model/stopLogsResponse.ts
 model/storageCacheDto.ts
 model/teensyStorageType.ts
 model/viewableItemImageDto.ts

@@ -8,6 +8,6 @@
  * Do not edit the class manually.
  */
 
-export interface GetDeviceEventsResponse {
+export interface StopLogsResponse {
   message?: string;
 }

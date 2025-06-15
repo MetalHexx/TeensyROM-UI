@@ -7,6 +7,6 @@ namespace TeensyRom.Api.Services
     {
         ChannelReader<string> LogChannel { get; }
         void StartChannelLogging();
-        void StopChannelQueue();
+        Task StopChannelQueue();
     }
 }

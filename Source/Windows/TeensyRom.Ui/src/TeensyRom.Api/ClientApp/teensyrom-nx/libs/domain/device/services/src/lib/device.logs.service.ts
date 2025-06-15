@@ -1,8 +1,10 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { signal, Signal, WritableSignal, computed } from '@angular/core';
+import { DevicesApiService } from '@teensyrom-nx/data-access/api-client';
 
 @Injectable({ providedIn: 'root' })
 export class DeviceLogsService {
+  private readonly deviceService = inject(DevicesApiService);
   private eventSource: EventSource | null = null;
   private readonly _logLines: WritableSignal<string[]> = signal([]);
   private readonly _isConnected = signal(false);
@@ -29,6 +31,8 @@ export class DeviceLogsService {
   }
 
   disconnect() {
+    this.deviceService.stopLogs().subscribe();
+
     if (this.eventSource) {
       this.eventSource?.close();
       this.eventSource = null;
