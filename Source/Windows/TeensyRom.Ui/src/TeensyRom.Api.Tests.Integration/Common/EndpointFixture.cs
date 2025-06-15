@@ -1,5 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using TeensyRom.Api.Endpoints.ClosePort;
 using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Api.Endpoints.Files.Index;
@@ -12,7 +14,7 @@ using TeensyRom.Core.Entities.Storage;
 namespace TeensyRom.Api.Tests.Integration.Common
 {
     public class EndpointFixture : IDisposable
-    {
+    {   
         public HttpClient Client
         {
             get
@@ -29,6 +31,7 @@ namespace TeensyRom.Api.Tests.Integration.Common
                     NoStore = true,
                     MustRevalidate = true
                 };
+
                 return client;
             }
         }
@@ -149,5 +152,5 @@ namespace TeensyRom.Api.Tests.Integration.Common
         }
 
         public void Dispose() => _factory.Dispose();
-    }
+    }    
 }

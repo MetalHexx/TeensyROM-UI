@@ -25,22 +25,26 @@ namespace TeensyRom.Api.Tests.Integration
             var deviceId = await f.GetConnectedDevice();
             f.DeleteCache(deviceId, TeensyStorageType.SD);
 
-            // Act
-            var request = new IndexRequest
+            foreach (var item in Enumerable.Range(0, 10))
             {
-                DeviceId = deviceId,
-                StorageType = TeensyStorageType.SD,
-                StartingPath = null
-            };
-            var response = await f.Client.PostAsync<IndexEndpoint, IndexRequest, IndexResponse>(request);
+                // Act
+                var request = new IndexRequest
+                {
+                    DeviceId = deviceId,
+                    StorageType = TeensyStorageType.SD,
+                    StartingPath = null
+                };
+                var response = await f.Client.PostAsync<IndexEndpoint, IndexRequest, IndexResponse>(request);
 
-            // Assert
-            response.Should().BeSuccessful<IndexResponse>()
-                .WithStatusCode(HttpStatusCode.OK)
-                .WithContentNotNull();
+                // Assert
+                response.Should().BeSuccessful<IndexResponse>()
+                    .WithStatusCode(HttpStatusCode.OK)
+                    .WithContentNotNull();
 
-            f.CacheExists(deviceId, TeensyStorageType.SD).Should().BeTrue();
-            response.Content.Message.Should().Contain("Success");
+                f.CacheExists(deviceId, TeensyStorageType.SD).Should().BeTrue();
+                response.Content.Message.Should().Contain("Success");
+
+            }
         }
 
         [Fact]

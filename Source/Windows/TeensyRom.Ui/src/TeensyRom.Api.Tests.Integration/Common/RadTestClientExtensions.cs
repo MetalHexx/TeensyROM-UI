@@ -2,6 +2,7 @@
 using RadEndpoints;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TeensyRom.Api.Tests.Integration.Common
 {
@@ -12,6 +13,13 @@ namespace TeensyRom.Api.Tests.Integration.Common
     }
     public static class TestClientExtensions
     {
+        public static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true,
+            Converters = { new JsonStringEnumConverter() },
+            NumberHandling = JsonNumberHandling.Strict
+        };
+
         public async static Task<RadTestResult<TResponse>> GetAsync<TEndpoint, TResponse>(this HttpClient client, RadHttpClientOptions? options = null)
             where TEndpoint : RadEndpoint
         {
@@ -160,7 +168,8 @@ namespace TeensyRom.Api.Tests.Integration.Common
         {
             try
             {
-                return (await response!.Content!.ReadFromJsonAsync<TResponse>())!;
+                // Use the custom JsonOptions that include JsonStringEnumConverter
+                return (await response!.Content!.ReadFromJsonAsync<TResponse>(JsonOptions))!;
             }
             catch (JsonException ex)
             {
