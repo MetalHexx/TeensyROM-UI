@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.RateLimiting;
 using Scalar.AspNetCore;
 using System.Threading.RateLimiting;
@@ -27,19 +28,22 @@ AssetStartupHelper.UnpackAssets();
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRadEndpoints(typeof(Program));
-builder.Services.AddApiDocs();
-builder.Services.AddTeensyRomMediatR();
-builder.Services.AddUiCors();
-builder.Services.AddTeensyRomServices();
-builder.Services.AddStrictRateLimiting();
+
+builder.Services
+    .AddApiDocs()
+    .AddTeensyRomMediatR()
+    .AddUiCors()
+    .AddTeensyRomServices()
+    .AddStrictRateLimiting()
+    .AddProblemDetailsWithLogging()
+    .AddRadEndpoints(typeof(Program));
 
 var app = builder.Build();
 
-app.MapRadEndpoints();
 app.UseUiCors();
 app.UseRateLimiter();
 app.MapApiDocs();
+app.MapRadEndpoints();
 
 app.Run();
 
