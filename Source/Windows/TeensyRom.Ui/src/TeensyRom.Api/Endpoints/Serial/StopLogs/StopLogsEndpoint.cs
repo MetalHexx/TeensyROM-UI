@@ -20,7 +20,7 @@ namespace TeensyRom.Api.Endpoints.Serial.StopLogs
         }
         public override async Task Handle(CancellationToken cancellationToken)
         {
-            await logService.StopChannelQueue();
+            logService.StopChannelQueue();
             Send();
         }
     }

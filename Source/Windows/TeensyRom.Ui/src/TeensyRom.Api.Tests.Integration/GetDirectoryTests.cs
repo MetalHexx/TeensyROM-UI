@@ -1,6 +1,7 @@
-﻿using TeensyRom.Api.Endpoints.Files.GetDirectory;
-using TeensyRom.Api.Endpoints.FindCarts;
+﻿using System.Diagnostics;
 using TeensyRom.Api.Endpoints.ConnectDevice;
+using TeensyRom.Api.Endpoints.Files.GetDirectory;
+using TeensyRom.Api.Endpoints.FindCarts;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 
@@ -14,33 +15,52 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
         {
             new object[] { "/music/MUSICIANS/L/LukHash/" },
             new object[] { "/music/MUSICIANS/J/Jammic/" },
-            new object[] { "/games/Large/" }
+            new object[] { "/games/" }
         };
 
 
     //TODO: Come back and create a view model or solution for deserializing Interface types.
-    [Theory]
-    [MemberData(nameof(ValidPaths))]
-    public async Task When_ValidRequest_DirectoryReturned(string path)
+    [Fact]
+    public async Task When_ValidRequest_DirectoryReturned()
     {
         // Arrange
         var deviceId = await f.GetConnectedDevice();
-        var directoryPath = Path.GetDirectoryName(path)!.Replace('\\', '/');
+        var directoryPath = "/";        
 
-        // Act
-        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, dynamic>(new GetDirectoryRequest
+
+        foreach (var item in Enumerable.Range(0, 1000))
+        {
+            Debug.WriteLine($"***********************************");
+            Debug.WriteLine($"************Iteration {item}************");
+            Debug.WriteLine($"***********************************");
+
+            // Act
+            await GetDirectory(directoryPath, deviceId);
+
+            // Assert
+            
+        }
+    }
+
+    private async Task GetDirectory(string path, string deviceId) 
+    {
+        var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, GetDirectoryResponse>(new GetDirectoryRequest
         {
             DeviceId = deviceId,
-            Path = directoryPath,
+            Path = path,
             StorageType = TeensyStorageType.SD
         });
 
-        // Assert
-        r.Should().BeSuccessful<dynamic>()
-            .WithStatusCode(HttpStatusCode.OK)
-            .WithContentNotNull();
+        r.Should().BeSuccessful<GetDirectoryResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
 
         r.Should().NotBeNull();
+
+        foreach (var dir in r.Content.StorageItem.Directories)
+        {
+            await GetDirectory(dir.Path, deviceId);
+        }
     }
 
 

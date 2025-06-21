@@ -11,6 +11,7 @@ using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Device;
 using TeensyRom.Core.Entities.Storage;
+using System.Diagnostics;
 
 namespace TeensyRom.Api.Tests.Integration
 {
@@ -25,9 +26,11 @@ namespace TeensyRom.Api.Tests.Integration
             var deviceId = await f.GetConnectedDevice();
             f.DeleteCache(deviceId, TeensyStorageType.SD);
 
-            foreach (var item in Enumerable.Range(0, 10))
+            foreach (var item in Enumerable.Range(0, 100))
             {
                 // Act
+                Debug.WriteLine($"Iteration: {item}");
+
                 var request = new IndexRequest
                 {
                     DeviceId = deviceId,
@@ -54,22 +57,29 @@ namespace TeensyRom.Api.Tests.Integration
             var deviceId = await f.GetConnectedDevice();
             f.DeleteCache(deviceId!, TeensyStorageType.SD);
 
-            // Act
-            var request = new IndexRequest
+            foreach (var item in Enumerable.Range(0, 100))
             {
-                DeviceId = deviceId,
-                StorageType = TeensyStorageType.SD,
-                StartingPath = "/games"
-            };
-            var response = await f.Client.PostAsync<IndexEndpoint, IndexRequest, IndexResponse>(request);
+                Debug.WriteLine($"***********************************");
+                Debug.WriteLine($"************Iteration {item}************");
+                Debug.WriteLine($"***********************************");
 
-            // Assert
-            response.Should().BeSuccessful<IndexResponse>()
-                .WithStatusCode(HttpStatusCode.OK)
-                .WithContentNotNull();
+                // Act
+                var request = new IndexRequest
+                {
+                    DeviceId = deviceId,
+                    StorageType = TeensyStorageType.SD,
+                    StartingPath = "/games"
+                };
+                var response = await f.Client.PostAsync<IndexEndpoint, IndexRequest, IndexResponse>(request);
 
-            f.CacheExists(deviceId, TeensyStorageType.SD).Should().BeTrue();
-            response.Content.Message.Should().Contain("Success");
+                // Assert
+                response.Should().BeSuccessful<IndexResponse>()
+                    .WithStatusCode(HttpStatusCode.OK)
+                    .WithContentNotNull();
+
+                f.CacheExists(deviceId, TeensyStorageType.SD).Should().BeTrue();
+                response.Content.Message.Should().Contain("Success");
+            }
         }
 
         [Fact]

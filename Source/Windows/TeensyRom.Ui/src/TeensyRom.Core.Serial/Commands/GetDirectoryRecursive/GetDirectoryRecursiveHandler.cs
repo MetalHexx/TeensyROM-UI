@@ -8,6 +8,8 @@ using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.Commands.Common;
+using System.Diagnostics;
+using System.Buffers;
 
 namespace TeensyRom.Core.Commands
 {
@@ -112,32 +114,49 @@ namespace TeensyRom.Core.Commands
 
         public List<byte> GetRawDirectoryData()
         {
-            var receivedBytes = new List<byte>();
-
-            var startTime = DateTime.Now;
+            var receivedBytes = new List<byte>(1024);
+            var stopwatch = Stopwatch.StartNew();
             var timeout = TimeSpan.FromSeconds(300);
-
-            while (true)
+            
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(1024);
+            
+            try
             {
-                if (DateTime.Now - startTime > timeout)
+                while (true)
                 {
-                    throw new TeensyException($"Timeout waiting for expected reply from TeensyROM -- Received Bytes:\r\n{GetLogString(receivedBytes)}");
-                }
-
-                if (_serialState.BytesToRead > 0)
-                {
-                    byte[] buffer = new byte[_serialState.BytesToRead];
-                    int bytesRead = _serialState.Read(buffer, 0, buffer.Length);
-                    receivedBytes.AddRange(buffer.Take(bytesRead));
-
-                    ushort lastToken = CheckForLastToken(receivedBytes);
-                    if (lastToken == TeensyToken.Fail.Value || lastToken == TeensyToken.EndDirectoryList.Value)
+                    if (stopwatch.Elapsed > timeout)
                     {
-                        break;
+                        throw new TeensyException($"Timeout waiting for expected reply from TeensyROM -- Received Bytes:\r\n{GetLogString(receivedBytes)}");
+                    }
+
+                    if (_serialState.BytesToRead > 0)
+                    {
+                        int bytesToRead = Math.Min(_serialState.BytesToRead, buffer.Length);
+                        int bytesRead = _serialState.Read(buffer, 0, bytesToRead);
+                        
+                        for (int i = 0; i < bytesRead; i++)
+                        {
+                            receivedBytes.Add(buffer[i]);
+                        }
+
+                        ushort lastToken = CheckForLastToken(receivedBytes);
+                        if (lastToken == TeensyToken.Fail.Value || lastToken == TeensyToken.EndDirectoryList.Value)
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        Thread.Sleep(5);
                     }
                 }
+                
+                return receivedBytes;
             }
-            return receivedBytes;
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
         }
 
         private ushort CheckForLastToken(List<byte> receivedBytes)

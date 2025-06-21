@@ -47,4 +47,10 @@ app.MapRadEndpoints();
 
 app.Run();
 
+//TODO: Put this somewhere else.
+AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+{
+    Console.WriteLine("UNHANDLED: " + args.ExceptionObject);
+};
+
 public partial class Program;
