@@ -2,6 +2,7 @@
 using System.Reactive.Linq;
 using System.Text;
 using System.Text.Json;
+using TeensyRom.Core.Commands.Common;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.State;
@@ -12,12 +13,10 @@ namespace TeensyRom.Core.Commands
 {
     public class GetDirectoryHandler : IRequestHandler<GetDirectoryCommand, GetDirectoryResult>
     {
-        private TeensySettings _settings = null!;
         private readonly ISerialStateContext _serialState;
 
         public GetDirectoryHandler(ISerialStateContext serialState, ISettingsService settings)
         {
-            settings.Settings.Take(1).Subscribe(s => _settings = s);
             _serialState = serialState;
         }
 
@@ -30,10 +29,25 @@ namespace TeensyRom.Core.Commands
                 _serialState.SendIntBytes(TeensyToken.ListDirectory, 2);
 
                 _serialState.HandleAck();
-                _serialState.SendIntBytes(_settings.StorageType.GetStorageToken(), 1);
+                _serialState.SendIntBytes(r.StorageType.GetStorageToken(), 1);
                 _serialState.SendIntBytes(0, 2);
                 _serialState.SendIntBytes(9999, 2);
                 _serialState.Write($"{r.Path}\0");
+
+                try
+                {
+                    _serialState.HandleAck();
+                }
+                catch (Exception ex)
+                {
+                    GetDirectoryErrorCodeType errorCode = ex.Message.GetDirectoryErrorCode();
+                    return new GetDirectoryResult
+                    {
+                        IsSuccess = false,
+                        Error = ex.Message,
+                        ErrorCode = errorCode
+                    };
+                }
 
                 if (WaitForDirectoryStartToken() != TeensyToken.StartDirectoryList)
                 {
@@ -55,7 +69,6 @@ namespace TeensyRom.Core.Commands
                 };
             }, x);
         }
-
         public List<byte> GetRawDirectoryData()
         {
             var receivedBytes = new List<byte>();

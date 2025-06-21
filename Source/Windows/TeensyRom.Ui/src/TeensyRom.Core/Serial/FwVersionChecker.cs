@@ -10,8 +10,7 @@ namespace TeensyRom.Core.Serial
 {
     public class FwVersionChecker(ILoggingService log, IAlertService alert) : IFwVersionChecker
     {
-        public static readonly Version FullRomVersion = new(0, 6, 6);
-        public static readonly Version MinimalRomVersion = new(0, 0, 2);
+        public static readonly Version FWVersion = new(0, 6, 7);
 
         public static (Version? version, bool isSupported) IsVersionSupported(string input)
         {
@@ -21,9 +20,7 @@ namespace TeensyRom.Core.Serial
 
             if (match.Success && Version.TryParse(match.Value, out parsedVersion))
             {
-                return input.Contains("minimal")
-                    ? (parsedVersion, parsedVersion >= MinimalRomVersion)
-                    : (parsedVersion, parsedVersion >= FullRomVersion);
+                return (parsedVersion, parsedVersion >= FWVersion);
             }
             return (parsedVersion, false);
         }
@@ -37,8 +34,8 @@ namespace TeensyRom.Core.Serial
                 log.InternalSuccess($"Version Check Success: Found TeensyROM firmware v{version}.");
                 return true;
             }
-            alert.Publish($"TeensyROM firmware check failed. v{FullRomVersion}+ is required. (See: Terminal Logs)");
-            log.InternalError($"TeensyROM firmware check failed. v{FullRomVersion}+ is required.");
+            alert.Publish($"TeensyROM firmware check failed. v{FWVersion}+ is required. (See: Terminal Logs)");
+            log.InternalError($"TeensyROM firmware check failed. v{FWVersion}+ is required.");
 
             if (version is null)
             {

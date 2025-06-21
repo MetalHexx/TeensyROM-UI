@@ -120,22 +120,25 @@ namespace TeensyRom.Core.Serial
                     _log.ExternalError($"ObservableSerialPort.EnsureConnection: VERSION CHECK failed -- TeensyROM was not detected on {_serialPort.PortName}");
                     continue;
                 }
-                if(response.Contains("minimal", StringComparison.OrdinalIgnoreCase))
+                else 
+                {
+                    _log.Internal($"ObservableSerialPort.EnsureConnection: VERSION CHECK succeeded");
+                }
+                if (response.Contains("minimal", StringComparison.OrdinalIgnoreCase))
                 {
                     _alert.Publish($"Detected TeensyROM minimal mode. You've been reconnected to {_serialPort.PortName}");
                 }
                 else
                 {
-                    settingsService.SetCart(_serialPort.PortName);  
-                    
+                    settingsService.SetCart(_serialPort.PortName);
+
                     _alert.Publish($"Connected to TeensyROM on {_serialPort.PortName}");
 
-                    if (!response.Contains("busy", StringComparison.OrdinalIgnoreCase)) 
+                    if (!response.Contains("busy", StringComparison.OrdinalIgnoreCase))
                     {
                         versionChecker.VersionCheck(response);
-                    }                    
+                    }
                 }
-                _log.Internal($"ObservableSerialPort.EnsureConnection: VERSION CHECK succeeded");
                 
                 ReadAndLogStaleBuffer();
                 Unlock();
