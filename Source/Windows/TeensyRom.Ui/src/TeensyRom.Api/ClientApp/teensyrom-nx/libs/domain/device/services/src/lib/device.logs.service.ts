@@ -26,7 +26,6 @@ export class DeviceLogsService {
 
     this.eventSource.onerror = (err) => {
       console.error('SSE error:', err);
-      this.eventSource?.close();
     };
   }
 
