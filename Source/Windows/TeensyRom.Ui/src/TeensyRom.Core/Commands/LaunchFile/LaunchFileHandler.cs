@@ -136,7 +136,7 @@ namespace TeensyRom.Core.Commands.File.LaunchFile
 
         private LaunchFileResultType ParseResponse(byte[] responseBytes)
         {
-            var resultString = responseBytes.ToAscii();
+            var resultString = responseBytes.ToUtf8();
             var resultToCheck = resultString.Replace("Loading IO handler: TeensyROM", string.Empty);
             var foundTokens = responseBytes.FindTRTokens();
 

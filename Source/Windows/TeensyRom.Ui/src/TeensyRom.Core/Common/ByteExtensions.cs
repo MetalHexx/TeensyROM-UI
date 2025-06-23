@@ -9,13 +9,20 @@ namespace TeensyRom.Core.Common
     public static class ByteExtensions
     {
         public static ushort ToInt16(this byte[] bytes) => (ushort)(bytes[1] * 256 + bytes[0]);
-        public static string ToAscii(this byte[] bytes) 
+
+        /// Converts a byte array to a UTF-8 string, optionally trimming the last few bytes.        
+        public static string ToUtf8(this byte[] bytes, int trimEndBytes = 0)
         {
-            var dataString = Encoding.ASCII.GetString(bytes);
+            if (bytes == null || bytes.Length == 0) return string.Empty;
 
-            if (string.IsNullOrWhiteSpace(dataString)) return string.Empty;
+            int length = bytes.Length;
 
-            return dataString;
+            if (trimEndBytes > 0 && trimEndBytes < length)
+            {
+                length -= trimEndBytes;
+            }
+
+            return Encoding.UTF8.GetString(bytes, 0, length);
         }
 
         public static string ToHexString(this byte[] bytes)

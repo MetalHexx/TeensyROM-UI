@@ -149,7 +149,7 @@ namespace TeensyRom.Core.Commands
         {
             var byteString = string.Empty;
             receivedBytes.ForEach(b => byteString += b.ToString());
-            var logString = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
+            var logString = receivedBytes.ToArray().ToUtf8(trimEndBytes: 2);
             return logString;
         }
 
@@ -158,7 +158,7 @@ namespace TeensyRom.Core.Commands
             var receivedBytes = GetRawDirectoryData();
             var directoryContent = new DirectoryContent();
 
-            var data = Encoding.ASCII.GetString(receivedBytes.ToArray(), 0, receivedBytes.Count - 2);
+            var data = receivedBytes.ToArray().ToUtf8(trimEndBytes: 2);
 
             const string dirToken = "[Dir]";
             const string dirEndToken = "[/Dir]";

@@ -23,7 +23,11 @@ namespace TeensyRom.Core.Serial
         
         private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         private readonly BehaviorSubject<Type> _state = new(typeof(SerialStartState));
-        private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
+        private readonly SerialPort _serialPort = new() 
+        {
+            Encoding = Encoding.UTF8,
+            BaudRate = 115200 
+        };
         private bool _healthCheckEnabled = true;
 
         public int BytesToRead => _serialPort.BytesToRead;
@@ -338,7 +342,7 @@ namespace TeensyRom.Core.Serial
             byte[] receivedData = new byte[_serialPort.BytesToRead];
             _serialPort.Read(receivedData, 0, receivedData.Length);
 
-            var dataString = Encoding.ASCII.GetString(receivedData);
+            var dataString = receivedData.ToUtf8();
 
             if (string.IsNullOrWhiteSpace(dataString)) return string.Empty;
 
