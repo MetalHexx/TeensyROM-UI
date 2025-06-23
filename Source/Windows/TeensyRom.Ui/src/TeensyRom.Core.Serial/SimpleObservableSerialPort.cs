@@ -2,6 +2,7 @@
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Text;
 using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
@@ -21,7 +22,11 @@ namespace TeensyRom.Core.Serial
 
         public bool IsOpen => _serialPort.IsOpen;
 
-        private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
+        private readonly SerialPort _serialPort = new() 
+        {
+            Encoding = Encoding.UTF8,
+            BaudRate = 115200 
+        };
 
         public void ClearBuffers() => _serialPort.ClearBuffers();
         public int Read(byte[] buffer, int offset, int count) => _serialPort.Read(buffer, offset, count);

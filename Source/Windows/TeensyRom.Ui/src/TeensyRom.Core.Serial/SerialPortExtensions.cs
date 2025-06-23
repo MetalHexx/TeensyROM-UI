@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO.Ports;
 using System.Text;
+using TeensyRom.Core.Common;
 
 namespace TeensyRom.Core.Serial
 {
@@ -20,7 +21,7 @@ namespace TeensyRom.Core.Serial
             byte[] receivedData = new byte[serial.BytesToRead];
             serial.Read(receivedData, 0, receivedData.Length);
 
-            var dataString = Encoding.ASCII.GetString(receivedData);
+            var dataString = receivedData.ToUtf8();
 
             if (string.IsNullOrWhiteSpace(dataString)) return string.Empty;
 

@@ -2,6 +2,7 @@
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Text;
 using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
@@ -22,7 +23,11 @@ namespace TeensyRom.Core.Serial
         
         private readonly BehaviorSubject<string[]> _ports = new(SerialPort.GetPortNames());
         private readonly BehaviorSubject<Type> _state = new(typeof(SerialStartState));
-        private readonly SerialPort _serialPort = new() { BaudRate = 115200 };
+        private readonly SerialPort _serialPort = new() 
+        {
+            Encoding = Encoding.UTF8,
+            BaudRate = 115200 
+        };
         private bool _healthCheckEnabled = true;
 
         public int BytesToRead => _serialPort.BytesToRead;
