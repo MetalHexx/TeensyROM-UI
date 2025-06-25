@@ -29,7 +29,17 @@ namespace TeensyRom.Api.Tests.Integration
             foreach (var item in Enumerable.Range(0, 100))
             {
                 // Act
-                Debug.WriteLine($"Iteration: {item}");
+                Debug.WriteLine($"*********************************Iteration {item}*********************************");
+                Debug.WriteLine($"*********************************Iteration {item}*********************************");
+                Debug.WriteLine($"*********************************Iteration {item}*********************************");
+                Debug.WriteLine($"*********************************Iteration {item}*********************************");
+                Debug.WriteLine($"*********************************Iteration {item}*********************************");
+                Debug.WriteLine($"*********************************Iteration {item}*********************************");
+                Debug.WriteLine($"*********************************Iteration {item}*********************************");
+                Debug.WriteLine($"*********************************Iteration {item}*********************************");
+                Debug.WriteLine($"*********************************Iteration {item}*********************************");
+                Debug.WriteLine($"*********************************Iteration {item}*********************************");
+                Debug.WriteLine($"*********************************Iteration {item}*********************************");
 
                 var request = new IndexRequest
                 {

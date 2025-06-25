@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using RadEndpoints;
-using System.Net.ServerSentEvents;
+//using System.Net.ServerSentEvents;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
@@ -29,27 +29,29 @@ namespace TeensyRom.Api.Endpoints.GetDeviceEvents
                 .ExcludeFromDescription();
         }
 
-        public ServerSentEventsResult<DeviceEventDto> Handle(CancellationToken ct)
+        public IResult Handle(CancellationToken ct)
         {
-            var channel = Channel.CreateUnbounded<SseItem<DeviceEventDto>>();
+            //var channel = Channel.CreateUnbounded<SseItem<DeviceEventDto>>();
 
-            var deviceEventObservable = deviceManager.DeviceStateChanges
-                .SubscribeOn(_eventScheduler)
-                .ObserveOn(_eventScheduler)
-                .Where(x => x is not null)
-                .Select(x => new DeviceEventDto
-                {
-                    DeviceId = x!.DeviceId,
-                    State = CartDto.FromSerialState(x.State)
-                })
-                .Select(deviceEvent => new SseItem<DeviceEventDto>(deviceEvent, "device-event")
-                {
-                    ReconnectionInterval = TimeSpan.FromMinutes(1)
-                });
+            //var deviceEventObservable = deviceManager.DeviceStateChanges
+            //    .SubscribeOn(_eventScheduler)
+            //    .ObserveOn(_eventScheduler)
+            //    .Where(x => x is not null)
+            //    .Select(x => new DeviceEventDto
+            //    {
+            //        DeviceId = x!.DeviceId,
+            //        State = CartDto.FromSerialState(x.State)
+            //    })
+            //    .Select(deviceEvent => new SseItem<DeviceEventDto>(deviceEvent, "device-event")
+            //    {
+            //        ReconnectionInterval = TimeSpan.FromMinutes(1)
+            //    });
          
-            var events = channel.WriteObservableToChannel(deviceEventObservable, ct);
+            //var events = channel.WriteObservableToChannel(deviceEventObservable, ct);
 
-            return TypedResults.ServerSentEvents(events);
+            //return TypedResults.ServerSentEvents(events);
+
+            return TypedResults.Ok("Success");
         }        
     }
 }
