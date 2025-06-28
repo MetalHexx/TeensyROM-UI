@@ -2,6 +2,7 @@
 
 namespace TeensyRom.Core.Abstractions
 {
+    public record DeviceStateChange(string DeviceId, ISerialState State);
     public interface IDeviceConnectionManager
     {
         IObservable<DeviceStateChange?> DeviceStateChanges { get; }

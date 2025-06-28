@@ -8,15 +8,7 @@ using TeensyRom.Core.Serial.State;
 
 namespace TeensyRom.Api.Models
 {
-    public enum DeviceState 
-    {        
-        Connected,
-        Connectable,
-        ConnectionLost,
-        Busy,
-        Unknown
-    }
-    
+
     /// <summary>
     /// Data transfer object representing a TeensyROM cartridge.
     /// </summary>

@@ -1,5 +1,6 @@
-import { Injectable, computed, signal, WritableSignal, Signal } from '@angular/core';
-import { DeviceState } from '@teensyrom-nx/data-access/api-client';
+import { Injectable, computed, signal, WritableSignal, Signal, inject } from '@angular/core';
+import { DevicesApiService, DeviceState } from '@teensyrom-nx/data-access/api-client';
+import * as signalR from '@microsoft/signalr';
 
 export type DeviceEvent = {
   deviceId: string;
@@ -8,38 +9,40 @@ export type DeviceEvent = {
 
 @Injectable({ providedIn: 'root' })
 export class DeviceEventsService {
-  private eventSource: EventSource | null = null;
-
+  private readonly deviceService = inject(DevicesApiService);
+  private hubConnection: signalR.HubConnection | null = null;
   private readonly _deviceEventMap: WritableSignal<Map<string, DeviceState>> = signal(new Map());
-
   readonly allEvents: Signal<Map<string, DeviceState>> = computed(() => this._deviceEventMap());
 
-  private deviceEventHandler = (event: MessageEvent) => {
-    const deviceEvent: DeviceEvent = JSON.parse(event.data);
-    this._deviceEventMap.update((prevMap) => {
-      const updatedMap = new Map(prevMap);
-      updatedMap.set(deviceEvent.deviceId, deviceEvent.state);
-      return updatedMap;
-    });
-  };
-
   connect() {
-    if (!this.eventSource) {
-      this.eventSource = new EventSource('http://localhost:5168/device/events');
-      this.eventSource.addEventListener('device-event', this.deviceEventHandler);
-      this.eventSource.onerror = (err) => {
-        console.error('SSE error:', err);
-        this.eventSource?.close();
-      };
-    }
+    this.deviceService.startDeviceEvents().subscribe();
+    this.hubConnection = new signalR.HubConnectionBuilder()
+      .withUrl('http://localhost:5168/deviceEventHub')
+      .withAutomaticReconnect()
+      .build();
+
+    this.hubConnection.on('DeviceEvent', (event: DeviceEvent) => {
+      this._deviceEventMap.update((prevMap) => {
+        const updatedMap = new Map(prevMap);
+        updatedMap.set(event.deviceId, event.state);
+        return updatedMap;
+      });
+    });
+
+    this.hubConnection
+      .start()
+      .then(() => {
+        console.log('Device Events Connection started');
+      })
+      .catch((err) => {
+        console.error('Error starting Device Events connection:', err);
+      });
   }
 
   disconnect() {
-    if (this.eventSource) {
-      this.eventSource.removeEventListener('device-event', this.deviceEventHandler);
-      this.eventSource.close();
-      this.eventSource = null;
-    }
+    this.deviceService.stopDeviceEvents().subscribe();
+    this.hubConnection?.stop();
+    this.hubConnection = null;
   }
 
   getDeviceState(deviceId: string): Signal<DeviceState | null> {
