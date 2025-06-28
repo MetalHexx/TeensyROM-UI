@@ -9,13 +9,7 @@
  */
 import { StorageCacheDto } from './storageCacheDto';
 
-/**
- * Response model containing the directory metadata and its contents.
- */
 export interface GetDirectoryResponse {
   storageItem: StorageCacheDto;
-  /**
-   * A message indicating the result of the operation.
-   */
   message: string;
 }

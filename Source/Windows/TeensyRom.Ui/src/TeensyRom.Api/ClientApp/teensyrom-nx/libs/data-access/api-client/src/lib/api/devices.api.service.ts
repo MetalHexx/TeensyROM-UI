@@ -25,6 +25,10 @@ import { Observable } from 'rxjs';
 // @ts-ignore
 import { ConnectDeviceResponse } from '../model/connectDeviceResponse';
 // @ts-ignore
+import { DeviceStartResponse } from '../model/deviceStartResponse';
+// @ts-ignore
+import { DeviceStopResponse } from '../model/deviceStopResponse';
+// @ts-ignore
 import { DisconnectDeviceResponse } from '../model/disconnectDeviceResponse';
 // @ts-ignore
 import { FindDevicesResponse } from '../model/findDevicesResponse';
@@ -32,6 +36,8 @@ import { FindDevicesResponse } from '../model/findDevicesResponse';
 import { ProblemDetails } from '../model/problemDetails';
 // @ts-ignore
 import { ResetDeviceResponse } from '../model/resetDeviceResponse';
+// @ts-ignore
+import { StartLogsResponse } from '../model/startLogsResponse';
 // @ts-ignore
 import { StopLogsResponse } from '../model/stopLogsResponse';
 
@@ -432,6 +438,240 @@ export class DevicesApiService extends BaseService {
     })}/reset`;
     const { basePath, withCredentials } = this.configuration;
     return this.httpClient.request<ResetDeviceResponse>('put', `${basePath}${localVarPath}`, {
+      context: localVarHttpContext,
+      responseType: <any>responseType_,
+      ...(withCredentials ? { withCredentials } : {}),
+      headers: localVarHeaders,
+      observe: observe,
+      transferCache: localVarTransferCache,
+      reportProgress: reportProgress,
+    });
+  }
+
+  /**
+   * Start Device Event Stream
+   * Starts the device event stream.
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public startDeviceEvents(
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    }
+  ): Observable<DeviceStartResponse>;
+  public startDeviceEvents(
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    }
+  ): Observable<HttpResponse<DeviceStartResponse>>;
+  public startDeviceEvents(
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    }
+  ): Observable<HttpEvent<DeviceStartResponse>>;
+  public startDeviceEvents(
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    }
+  ): Observable<any> {
+    let localVarHeaders = this.defaultHeaders;
+
+    const localVarHttpHeaderAcceptSelected: string | undefined =
+      options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept(['application/json']);
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+    }
+
+    const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+    const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/devices/events`;
+    const { basePath, withCredentials } = this.configuration;
+    return this.httpClient.request<DeviceStartResponse>('get', `${basePath}${localVarPath}`, {
+      context: localVarHttpContext,
+      responseType: <any>responseType_,
+      ...(withCredentials ? { withCredentials } : {}),
+      headers: localVarHeaders,
+      observe: observe,
+      transferCache: localVarTransferCache,
+      reportProgress: reportProgress,
+    });
+  }
+
+  /**
+   * Start Logging Hub
+   * Starts the logging service and returns a success message.
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public startLogs(
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    }
+  ): Observable<StartLogsResponse>;
+  public startLogs(
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    }
+  ): Observable<HttpResponse<StartLogsResponse>>;
+  public startLogs(
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    }
+  ): Observable<HttpEvent<StartLogsResponse>>;
+  public startLogs(
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    }
+  ): Observable<any> {
+    let localVarHeaders = this.defaultHeaders;
+
+    const localVarHttpHeaderAcceptSelected: string | undefined =
+      options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept(['application/json']);
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+    }
+
+    const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+    const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/logs`;
+    const { basePath, withCredentials } = this.configuration;
+    return this.httpClient.request<StartLogsResponse>('post', `${basePath}${localVarPath}`, {
+      context: localVarHttpContext,
+      responseType: <any>responseType_,
+      ...(withCredentials ? { withCredentials } : {}),
+      headers: localVarHeaders,
+      observe: observe,
+      transferCache: localVarTransferCache,
+      reportProgress: reportProgress,
+    });
+  }
+
+  /**
+   * Stop Device Event Stream
+   * Stops the device event stream.
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public stopDeviceEvents(
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    }
+  ): Observable<DeviceStopResponse>;
+  public stopDeviceEvents(
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    }
+  ): Observable<HttpResponse<DeviceStopResponse>>;
+  public stopDeviceEvents(
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    }
+  ): Observable<HttpEvent<DeviceStopResponse>>;
+  public stopDeviceEvents(
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    }
+  ): Observable<any> {
+    let localVarHeaders = this.defaultHeaders;
+
+    const localVarHttpHeaderAcceptSelected: string | undefined =
+      options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept(['application/json']);
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+    }
+
+    const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+    const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/devices/events`;
+    const { basePath, withCredentials } = this.configuration;
+    return this.httpClient.request<DeviceStopResponse>('delete', `${basePath}${localVarPath}`, {
       context: localVarHttpContext,
       responseType: <any>responseType_,
       ...(withCredentials ? { withCredentials } : {}),

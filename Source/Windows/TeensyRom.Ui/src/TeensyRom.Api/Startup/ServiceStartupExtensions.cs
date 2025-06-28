@@ -12,6 +12,9 @@ using TeensyRom.Core.Commands.SetMusicSpeed;
 using TeensyRom.Core.Commands.PlaySubtune;
 using TeensyRom.Core.Serial.Commands.ToggleMusic;
 using TeensyRom.Core.Serial;
+using Microsoft.AspNetCore.SignalR;
+using TeensyRom.Api.Endpoints.Serial.GetLogs;
+using TeensyRom.Api.Endpoints.GetDeviceEvents;
 
 namespace TeensyRom.Api.Startup
 {
@@ -22,10 +25,11 @@ namespace TeensyRom.Api.Startup
         /// </summary>
         public static IServiceCollection AddTeensyRomServices(this IServiceCollection services)
         {
-            var loggingService = new LoggingService();
-
-            services.AddSingleton<IQueuedChannelLogger>(loggingService);
-            services.AddSingleton<ILoggingService>(loggingService);
+            services.AddSingleton<LoggingService>();
+            services.AddSingleton<ILoggingService>(sp => sp.GetRequiredService<LoggingService>());
+            services.AddSingleton<IQueuedChannelLogger>(sp => sp.GetRequiredService<LoggingService>());
+            services.AddSingleton<ILogStream, LogStream>();
+            services.AddSingleton<IDeviceEventStream, DeviceEventStream>();
             services.AddSingleton<IAlertService, AlertService>();
             services.AddSingleton<ISettingsService, SettingsService>();
             services.AddSingleton<IFwVersionChecker, FwVersionChecker>();

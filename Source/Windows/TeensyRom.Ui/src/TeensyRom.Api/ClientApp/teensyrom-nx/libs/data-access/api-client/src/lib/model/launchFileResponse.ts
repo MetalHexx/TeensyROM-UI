@@ -8,12 +8,6 @@
  * Do not edit the class manually.
  */
 
-/**
- * Response model for the result of a launch file operation.
- */
 export interface LaunchFileResponse {
-  /**
-   * A message indicating the result of the operation.
-   */
   message: string;
 }

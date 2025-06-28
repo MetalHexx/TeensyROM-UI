@@ -9,13 +9,7 @@
  */
 import { FileItemDto } from './fileItemDto';
 
-/**
- * Response model for the result of a launch random file operation.
- */
 export interface LaunchRandomResponse {
   launchedFile: FileItemDto;
-  /**
-   * A message indicating the result of the operation.
-   */
   message: string;
 }

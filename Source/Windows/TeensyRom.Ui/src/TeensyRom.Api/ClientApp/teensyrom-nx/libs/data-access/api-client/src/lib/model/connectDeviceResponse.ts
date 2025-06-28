@@ -9,13 +9,7 @@
  */
 import { CartDto } from './cartDto';
 
-/**
- * Response model for the result of a connect device operation.
- */
 export interface ConnectDeviceResponse {
   connectedCart: CartDto;
-  /**
-   * A message indicating the result of the operation.
-   */
   message: string;
 }

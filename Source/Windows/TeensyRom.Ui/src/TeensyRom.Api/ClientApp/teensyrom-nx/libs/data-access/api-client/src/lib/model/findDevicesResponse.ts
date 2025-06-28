@@ -9,16 +9,7 @@
  */
 import { CartDto } from './cartDto';
 
-/**
- * Response model for finding available and connected TeensyROM devices.
- */
 export interface FindDevicesResponse {
-  /**
-   * The list of TeensyROM devices that are available to connect.
-   */
   devices: Array<CartDto>;
-  /**
-   * A message indicating the result of the operation.
-   */
   message: string;
 }

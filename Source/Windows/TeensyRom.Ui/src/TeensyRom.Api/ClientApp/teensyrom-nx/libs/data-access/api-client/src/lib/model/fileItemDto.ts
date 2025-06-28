@@ -10,85 +10,25 @@
 import { ViewableItemImageDto } from './viewableItemImageDto';
 import { FileItemType } from './fileItemType';
 
-/**
- * Data transfer object representing a file item in TeensyROM storage.
- */
 export interface FileItemDto {
-  /**
-   * The name of the file.
-   */
   name: string;
-  /**
-   * The full path to the file.
-   */
   path: string;
-  /**
-   * The size of the file in bytes.
-   */
   size: number;
-  /**
-   * Indicates whether the file is marked as a favorite.
-   */
   isFavorite: boolean;
-  /**
-   * The title of the file, if available.
-   */
   title: string;
-  /**
-   * The creator or author of the file, if available.
-   */
   creator: string;
-  /**
-   * Release information for the file, if available.
-   */
   releaseInfo: string;
-  /**
-   * A description of the file, if available.
-   */
   description: string;
-  /**
-   * A shareable URL for the file, if available.
-   */
   shareUrl: string;
-  /**
-   * The source of the metadata for the file.
-   */
   metadataSource: string;
-  /**
-   * Additional metadata field 1.
-   */
   meta1: string;
-  /**
-   * Additional metadata field 2.
-   */
   meta2: string;
-  /**
-   * The path to the metadata source file, if available.
-   */
   metadataSourcePath: string;
-  /**
-   * The path to the favorite child, if applicable.
-   */
   favChildPath: string;
-  /**
-   * The path to the favorite parent, if applicable.
-   */
   favParentPath: string;
-  /**
-   * The total play length of the file, if applicable.
-   */
   playLength: string;
-  /**
-   * The play lengths of subtunes, if applicable.
-   */
   subtuneLengths: Array<string>;
-  /**
-   * The starting subtune number, if applicable.
-   */
   startSubtuneNum: number;
-  /**
-   * A list of images associated with the file.
-   */
   images: Array<ViewableItemImageDto>;
   type: FileItemType;
 }

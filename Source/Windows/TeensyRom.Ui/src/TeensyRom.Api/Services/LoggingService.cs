@@ -1,7 +1,10 @@
-﻿using System.Collections.Concurrent;
+﻿using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Channels;
+using TeensyRom.Api.Endpoints.Serial.GetLogs;
+using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 
@@ -12,10 +15,13 @@ namespace TeensyRom.Api.Services
         private readonly ConcurrentQueue<string> _channelQueue = new();
         private readonly ConcurrentQueue<string> _fileQueue = new();
         private CancellationTokenSource? _fileLoggingCancellationSource;
-        private bool _isChannelLoggingStarted = false;
-        private Task? _channelProcessingTask;
+        private CancellationTokenSource? _clientLoggingCancellationSource;
+        private Task? _logStreamTask;
         private readonly string _logPath = Path.Combine(Assembly.GetExecutingAssembly().GetPath(), LogConstants.LogPath);
         private readonly string _logFilename = $"{LogConstants.LogFileName}{DateTime.Now:yyyy-MM-dd_HH-mm-ss}{LogConstants.LogFileExtention}";
+        private readonly ILogStream _logStream;
+        private const int _batchSize = 20;
+
         public void External(string message, string? deviceId = null) => WriteLog(deviceId is not null ? $"({deviceId}) External: {message}" : message);
         public void ExternalError(string message, string? deviceId = null) => WriteLog(deviceId is not null ? $"({deviceId}) External Error: {message}" : message);
         public void ExternalSuccess(string message, string? deviceId = null) => WriteLog(deviceId is not null ? $"({deviceId}) External Success: {message}" : message);
@@ -25,12 +31,15 @@ namespace TeensyRom.Api.Services
         public void InternalSuccess(string message, string? deviceId = null) => WriteLog(deviceId is not null ? $"({deviceId}) Internal Success: {message}" : message);
         
 
-        public LoggingService()
+        public LoggingService(ILogStream logStream)
         {
             StartFileLogging();
+            _logStream = logStream;
         }
         private void StartFileLogging()
         {
+            if (_fileLoggingCancellationSource is not null) return; 
+
             _logPath.EnsureLocalPath();
 
             _fileLoggingCancellationSource = new CancellationTokenSource();
@@ -41,15 +50,28 @@ namespace TeensyRom.Api.Services
                 TaskScheduler.Default);
         }
 
-        public void StartChannelLogging()
+        public void StartLogStream()
         {
             _channelQueue.Clear();
-            _isChannelLoggingStarted = true;
+            _clientLoggingCancellationSource ??= new CancellationTokenSource();
+            _logStreamTask = StartLogStreaming(_clientLoggingCancellationSource.Token);
+
+            _logStreamTask.ContinueWith(task =>
+            {
+                if (task.IsFaulted && task.Exception is not null)
+                {
+                    foreach (var ex in task.Exception.Flatten().InnerExceptions)
+                    {
+                        WriteLog($"Log streaming faulted: {ex}");
+                    }
+                }
+            }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
-        public void StopChannelQueue()
+        public void StopLogStream()
         {
-            _isChannelLoggingStarted = false;
+            _clientLoggingCancellationSource?.Cancel();
+            _clientLoggingCancellationSource = null;
             _channelQueue.Clear();
         }
 
@@ -130,31 +152,64 @@ namespace TeensyRom.Api.Services
         {
             Debug.WriteLine(message);
                 
-            if(_isChannelLoggingStarted)
+            if(_clientLoggingCancellationSource is not null)
             {
                 _channelQueue.Enqueue(message);
             }
             _fileQueue.Enqueue(message);
         }
 
-        public List<string> GetLogBatch(int numLogs)
+        /// <summary>
+        /// Send out the logs through the log stream.  If the operation is cancelled, it will 
+        /// drain stop the logs.
+        /// </summary>
+        public Task StartLogStreaming(CancellationToken ct)
         {
-            numLogs = _channelQueue.Count < numLogs 
-                ? _channelQueue.Count 
-                : numLogs;
-
-            List<string> logBatch = [];
-            var currentCount = 0;
-
-            while (_channelQueue.TryDequeue(out string? result) && currentCount <= numLogs) 
+            return Task.Factory.StartNew(async () =>
             {
-                if (result != null) 
+                while (!ct.IsCancellationRequested || !_channelQueue.IsEmpty)
                 {
-                    logBatch.Add(result);
+                    var logBatch = new List<string>();
+                    var currentCount = 0;
+
+                    while (currentCount < _batchSize && _channelQueue.TryDequeue(out var log))
+                    {
+                        if (string.IsNullOrWhiteSpace(log)) continue;
+
+                        try
+                        {
+                            await _logStream.Push(log, ct);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            //Expected when the cancellation token is triggered
+                        }
+                        catch (Exception ex)
+                        {
+                            WriteLog(ex.ToString());
+                            break;
+                        }
+                        currentCount++;
+                    }
+                    if (ct.IsCancellationRequested && _channelQueue.IsEmpty) break;
+
+                    try
+                    {
+                        await Task.Delay(100, ct);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        // Expected when the cancellation token is triggered
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLog($"Error in log streaming: {ex}");
+                        break;
+                    }
                 }
-                currentCount++;
-            }
-            return logBatch;
+
+            }, ct, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
         }
 
         public IObservable<string> Logs => throw new NotImplementedException();

@@ -1,7 +1,9 @@
 export * from './cartDto';
 export * from './cartStorageDto';
 export * from './connectDeviceResponse';
+export * from './deviceStartResponse';
 export * from './deviceState';
+export * from './deviceStopResponse';
 export * from './directoryItemDto';
 export * from './disconnectDeviceResponse';
 export * from './fileItemDto';
@@ -16,6 +18,7 @@ export * from './nullableOfStorageScope';
 export * from './nullableOfTeensyFilterType';
 export * from './problemDetails';
 export * from './resetDeviceResponse';
+export * from './startLogsResponse';
 export * from './stopLogsResponse';
 export * from './storageCacheDto';
 export * from './teensyStorageType';

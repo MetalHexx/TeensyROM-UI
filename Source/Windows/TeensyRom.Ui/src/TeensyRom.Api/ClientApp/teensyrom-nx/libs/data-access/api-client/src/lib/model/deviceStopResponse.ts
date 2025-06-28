@@ -8,7 +8,6 @@
  * Do not edit the class manually.
  */
 
-export interface DirectoryItemDto {
-  name: string;
-  path: string;
+export interface DeviceStopResponse {
+  message?: string;
 }

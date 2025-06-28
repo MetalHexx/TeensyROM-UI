@@ -9,18 +9,9 @@
  */
 import { TeensyStorageType } from './teensyStorageType';
 
-/**
- * Data transfer object representing storage information for a TeensyROM device.
- */
 export interface CartStorageDto {
-  /**
-   * The unique ID of the TeensyROM device.
-   */
   deviceId: string;
   type: TeensyStorageType;
-  /**
-   * Indicates whether the storage is available.
-   */
   available: boolean;
 }
 export namespace CartStorageDto {}

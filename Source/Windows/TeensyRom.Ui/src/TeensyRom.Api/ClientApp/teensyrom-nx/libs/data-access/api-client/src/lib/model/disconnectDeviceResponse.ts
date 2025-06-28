@@ -8,12 +8,6 @@
  * Do not edit the class manually.
  */
 
-/**
- * Response model for the result of a disconnect device operation.
- */
 export interface DisconnectDeviceResponse {
-  /**
-   * A message indicating the result of the operation.
-   */
   message: string;
 }

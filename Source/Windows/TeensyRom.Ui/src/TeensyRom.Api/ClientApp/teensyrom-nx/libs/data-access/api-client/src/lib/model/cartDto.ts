@@ -10,34 +10,13 @@
 import { DeviceState } from './deviceState';
 import { CartStorageDto } from './cartStorageDto';
 
-/**
- * Data transfer object representing a TeensyROM cartridge.
- */
 export interface CartDto {
-  /**
-   * The unique ID of the TeensyROM device.
-   */
   deviceId: string;
-  /**
-   * Indicates whether the TeensyROM device is connected.
-   */
   isConnected: boolean;
   deviceState: DeviceState;
-  /**
-   * The COM port the device is connected to.
-   */
   comPort: string;
-  /**
-   * The user-friendly name of the device.
-   */
   name: string;
-  /**
-   * The firmware version of the device.
-   */
   fwVersion: string;
-  /**
-   * Indicates whether the device is compatible with the current application version.
-   */
   isCompatible: boolean;
   sdStorage: CartStorageDto;
   usbStorage: CartStorageDto;

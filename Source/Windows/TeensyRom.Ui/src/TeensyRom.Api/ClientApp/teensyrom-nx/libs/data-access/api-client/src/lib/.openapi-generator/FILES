@@ -13,7 +13,9 @@ index.ts
 model/cartDto.ts
 model/cartStorageDto.ts
 model/connectDeviceResponse.ts
+model/deviceStartResponse.ts
 model/deviceState.ts
+model/deviceStopResponse.ts
 model/directoryItemDto.ts
 model/disconnectDeviceResponse.ts
 model/fileItemDto.ts
@@ -29,6 +31,7 @@ model/nullableOfStorageScope.ts
 model/nullableOfTeensyFilterType.ts
 model/problemDetails.ts
 model/resetDeviceResponse.ts
+model/startLogsResponse.ts
 model/stopLogsResponse.ts
 model/storageCacheDto.ts
 model/teensyStorageType.ts

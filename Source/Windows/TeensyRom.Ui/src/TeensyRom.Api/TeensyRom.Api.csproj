@@ -28,6 +28,7 @@
     <Folder Include="ClientApp\" />
     <Folder Include="Endpoints\Common\" />
     <Folder Include="Endpoints\Serial\LogHub\" />
+    <Folder Include="Endpoints\Serial\StopLogs\" />
   </ItemGroup>
 
 </Project>

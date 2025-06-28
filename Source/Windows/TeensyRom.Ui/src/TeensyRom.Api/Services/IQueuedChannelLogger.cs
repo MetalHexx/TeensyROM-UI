@@ -5,8 +5,8 @@ namespace TeensyRom.Api.Services
 {
     public interface IQueuedChannelLogger : ILoggingService
     {
-        void StartChannelLogging();
-        void StopChannelQueue();
-        List<string> GetLogBatch(int numLogs);
+        void StartLogStream();
+        void StopLogStream();
+        Task StartLogStreaming(CancellationToken c);
     }
 }

@@ -10,20 +10,8 @@
 import { FileItemDto } from './fileItemDto';
 import { DirectoryItemDto } from './directoryItemDto';
 
-/**
- * Data transfer object representing a cached directory in TeensyROM storage, including its files and subdirectories.
- */
 export interface StorageCacheDto {
-  /**
-   * The list of subdirectories in the cached directory.
-   */
   directories: Array<DirectoryItemDto>;
-  /**
-   * The list of files in the cached directory.
-   */
   files: Array<FileItemDto>;
-  /**
-   * The full path to the cached directory.
-   */
   path: string;
 }

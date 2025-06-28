@@ -8,9 +8,6 @@
  * Do not edit the class manually.
  */
 
-/**
- * The type of the file (e.g., Song, Game, Image, Hex, Unknown).
- */
 export const FileItemType = {
   Unknown: 'Unknown',
   Song: 'Song',
