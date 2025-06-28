@@ -37,11 +37,11 @@ namespace TeensyRom.Api.Endpoints.Files.Index
 
             if (r.StorageType is TeensyStorageType.SD) 
             {
-                result = await HandleCaching(r, device.SdStorage);
+                result = await HandleCaching(r, device.SdStorage, ct);
             }
             else
             {
-                result = await HandleCaching(r, device.UsbStorage);
+                result = await HandleCaching(r, device.UsbStorage, ct);
             }
             if(!result)
             {
@@ -52,15 +52,15 @@ namespace TeensyRom.Api.Endpoints.Files.Index
             Send();
         }
 
-        private async Task<bool> HandleCaching(IndexRequest r, IStorageService s) 
+        private async Task<bool> HandleCaching(IndexRequest r, IStorageService s, CancellationToken ct) 
         {
             if (!string.IsNullOrWhiteSpace(r.StartingPath))
             {
-                return await s.Cache(r.StartingPath);
+                return await s.Cache(r.StartingPath, ct);
             }
             else
             {
-                return await s.CacheAll();
+                return await s.CacheAll(ct);
             }
         }
     }

@@ -24,7 +24,7 @@ namespace TeensyRom.Core.Commands
             _log = log;
         }
 
-        public Task<GetDirectoryRecursiveResult> Handle(GetDirectoryRecursiveCommand r, CancellationToken x)
+        public Task<GetDirectoryRecursiveResult> Handle(GetDirectoryRecursiveCommand r, CancellationToken ct = default)
         {
             _deviceId = r.DeviceId;
             _serialState = r.Serial;
@@ -36,9 +36,28 @@ namespace TeensyRom.Core.Commands
 
                 try
                 {
+                    if (ct.IsCancellationRequested)
+                    {
+                        return new GetDirectoryRecursiveResult
+                        {
+                            IsSuccess = false,
+                            Error = "The directory listing operation was cancelled.",
+                            ErrorCode = GetDirectoryErrorCode.UnknownError
+                        };
+                    }
+
                     try
                     {
-                        GetDirectoryContent(r.Path, r.StorageType, result, sb);
+                        GetDirectoryContent(r.Path, r.StorageType, result, sb, ct);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return new GetDirectoryRecursiveResult
+                        {
+                            IsSuccess = false,
+                            Error = "The directory listing operation was cancelled.",
+                            ErrorCode = GetDirectoryErrorCode.UnknownError
+                        };
                     }
                     catch (Exception ex)
                     {
@@ -52,12 +71,22 @@ namespace TeensyRom.Core.Commands
                         };
                     }
                 }
-                catch (TimeoutException) 
+                catch (TimeoutException)
                 {
                     result.IsSuccess = false;
-                    result.Error = "There was a timeout when trying to fetch file data.  This can be caused when the storage device is not installed on the TeensyROM device.";
+                    result.Error = "There was a timeout when trying to fetch file data. This can be caused when the storage device is not installed on the TeensyROM device.";
                     return result;
                 }
+                catch (OperationCanceledException)
+                {
+                    return new GetDirectoryRecursiveResult
+                    {
+                        IsSuccess = false,
+                        Error = "The directory listing operation was cancelled.",
+                        ErrorCode = GetDirectoryErrorCode.UnknownError
+                    };
+                }
+
                 var count = 0;
 
                 foreach (var directory in result.DirectoryContent)
@@ -66,17 +95,19 @@ namespace TeensyRom.Core.Commands
                     count += directory?.Directories.Count ?? 0;
                 }
 
-                if (count == 0) 
+                if (count == 0)
                 {
                     result.IsSuccess = false;
                     result.Error = "No data was returned from the TR.";
-                }                
+                }
                 return result;
-            }, x);
+            }, ct);
         }
 
-        private void GetDirectoryContent(string path, TeensyStorageType storageType, GetDirectoryRecursiveResult result, StringBuilder directoryLogs)
-        {    
+        private void GetDirectoryContent(string path, TeensyStorageType storageType, GetDirectoryRecursiveResult result, StringBuilder directoryLogs, CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+            
             _log.Internal($"=> Indexing: {path}", _deviceId);
 
             DirectoryContent? directoryContent;
@@ -95,7 +126,9 @@ namespace TeensyRom.Core.Commands
                 _serialState.ReadAndLogSerialAsString(msToWait: 100);
                 throw new TeensyException("Error waiting for Directory Start Token");
             }
-            directoryContent = ReceiveDirectoryContent();
+            ct.ThrowIfCancellationRequested();
+            
+            directoryContent = ReceiveDirectoryContent(ct);
 
             if (directoryContent is null)
             {
@@ -104,15 +137,61 @@ namespace TeensyRom.Core.Commands
             }
             directoryContent.Path = path;
 
-            result.DirectoryContent.Add(directoryContent);                        
+            result.DirectoryContent.Add(directoryContent);
 
             foreach (var directory in directoryContent.Directories)
             {
-                GetDirectoryContent(directory.Path, storageType, result, directoryLogs);
+                ct.ThrowIfCancellationRequested();
+                
+                GetDirectoryContent(directory.Path, storageType, result, directoryLogs, ct);
             }
         }
 
-        public List<byte> GetRawDirectoryData()
+        public DirectoryContent? ReceiveDirectoryContent(CancellationToken ct = default)
+        {
+            var receivedBytes = GetRawDirectoryData(ct);
+            var directoryContent = new DirectoryContent();
+
+            var data = receivedBytes.ToArray().ToUtf8(trimEndBytes: 2);
+
+            const string dirToken = "[Dir]";
+            const string dirEndToken = "[/Dir]";
+            const string fileToken = "[File]";
+            const string fileEndToken = "[/File]";
+
+            var directoryChunks = data.Split(new[] { dirEndToken, fileEndToken }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var chunk in directoryChunks)
+            {
+                ct.ThrowIfCancellationRequested();
+                
+                switch (chunk)
+                {
+                    case var item when item.StartsWith(dirToken):
+                        var dirJson = item.Substring(5);
+                        var dirItem = JsonSerializer.Deserialize<DirectoryItem>(dirJson);
+
+                        if (dirItem is null) continue;
+
+                        dirItem.Path = dirItem.Path.Replace("//", "/"); //workaround to save mem on teensy
+                        directoryContent.Directories.Add(dirItem);
+                        break;
+
+                    case var item when item.StartsWith(fileToken):
+                        var fileJson = item.Substring(6);
+                        var fileItem = JsonSerializer.Deserialize<FileItem>(fileJson);
+
+                        if (fileItem is null) continue;
+
+                        fileItem.Path = fileItem.Path.Replace("//", "/"); //workaround to save mem on teensy
+                        directoryContent.Files.Add(fileItem);
+                        break;
+                }
+            }
+            return directoryContent;
+        }
+
+        public List<byte> GetRawDirectoryData(CancellationToken ct = default)
         {
             var receivedBytes = new List<byte>(1024);
             var stopwatch = Stopwatch.StartNew();
@@ -124,6 +203,8 @@ namespace TeensyRom.Core.Commands
             {
                 while (true)
                 {
+                    ct.ThrowIfCancellationRequested();
+                    
                     if (stopwatch.Elapsed > timeout)
                     {
                         throw new TeensyException($"Timeout waiting for expected reply from TeensyROM -- Received Bytes:\r\n{GetLogString(receivedBytes)}");
@@ -147,7 +228,7 @@ namespace TeensyRom.Core.Commands
                     }
                     else
                     {
-                        Thread.Sleep(5);
+                        Task.Delay(5, ct).Wait(ct);
                     }
                 }
                 
@@ -174,49 +255,6 @@ namespace TeensyRom.Core.Commands
             receivedBytes.ForEach(b => byteString += b.ToString());
             var logString = receivedBytes.ToArray().ToUtf8(trimEndBytes: 2);
             return logString;
-        }
-
-        public DirectoryContent? ReceiveDirectoryContent()
-        {
-            var receivedBytes = GetRawDirectoryData();
-            var directoryContent = new DirectoryContent();
-
-            var data = receivedBytes.ToArray().ToUtf8(trimEndBytes: 2);
-
-            const string dirToken = "[Dir]";
-            const string dirEndToken = "[/Dir]";
-            const string fileToken = "[File]";
-            const string fileEndToken = "[/File]";
-
-            var directoryChunks = data.Split(new[] { dirEndToken, fileEndToken }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (var chunk in directoryChunks)
-            {
-                switch (chunk)
-                {
-                    case var item when item.StartsWith(dirToken):
-                        var dirJson = item.Substring(5);
-                        var dirItem = JsonSerializer.Deserialize<DirectoryItem>(dirJson);
-
-
-                        if (dirItem is null) continue;
-
-                        dirItem.Path = dirItem.Path.Replace("//", "/"); //workaround to save mem on teensy
-                        directoryContent.Directories.Add(dirItem);
-                        break;
-
-                    case var item when item.StartsWith(fileToken):
-                        var fileJson = item.Substring(6);
-                        var fileItem = JsonSerializer.Deserialize<FileItem>(fileJson);
-
-                        if (fileItem is null) continue;
-
-                        fileItem.Path = fileItem.Path.Replace("//", "/"); //workaround to save mem on teensy
-                        directoryContent.Files.Add(fileItem);
-                        break;
-                }
-            }
-            return directoryContent;
         }
 
         public TeensyToken WaitForDirectoryStartToken()

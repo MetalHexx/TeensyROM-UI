@@ -66,11 +66,11 @@ namespace TeensyRom.Core.Storage
             cache.WriteToDisk();
             return cacheItem;
         }
-        public async Task<bool> CacheAll()
+        public async Task<bool> CacheAll(CancellationToken ct)
         {
-            return await Cache(StorageHelper.Remote_Path_Root);
+            return await Cache(StorageHelper.Remote_Path_Root, ct);
         }
-        public async Task<bool> Cache(string path)
+        public async Task<bool> Cache(string path, CancellationToken ct)
         {
             if (path == StorageHelper.Remote_Path_Root)
             {
@@ -87,7 +87,7 @@ namespace TeensyRom.Core.Storage
                 DeviceId = settings.CartStorage.DeviceId
             });
             log.Internal($"Refreshing cache for {path} and all nested directories.", settings.CartStorage.DeviceId);
-            var response = await mediator.Send(new GetDirectoryRecursiveCommand(settings.CartStorage.Type, path, settings.CartStorage.DeviceId));
+            var response = await mediator.Send(new GetDirectoryRecursiveCommand(settings.CartStorage.Type, path, settings.CartStorage.DeviceId), ct);
 
             if (!response.IsSuccess) return false;
 

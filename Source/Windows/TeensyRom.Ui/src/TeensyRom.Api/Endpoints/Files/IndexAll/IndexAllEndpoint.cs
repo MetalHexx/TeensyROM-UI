@@ -43,7 +43,7 @@ namespace TeensyRom.Api.Endpoints.Files.IndexAll
                 {
                     DeviceId = d.DeviceId,
                     StorageType = "SD",
-                    Task = d.SdStorage.CacheAll()
+                    Task = d.SdStorage.CacheAll(ct)
                 })
                 .ToList();            
 
@@ -55,7 +55,7 @@ namespace TeensyRom.Api.Endpoints.Files.IndexAll
                 {
                     d.DeviceId,
                     StorageType = "USB",
-                    Task = d.UsbStorage.CacheAll()
+                    Task = d.UsbStorage.CacheAll(ct)
                 })
                 .ToList();
 
