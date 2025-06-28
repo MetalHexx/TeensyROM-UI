@@ -1,3 +1,11 @@
+.device-view {
+  margin: 1.5rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  gap: 1rem;
+}
+
 .device-list {
   display: flex;
   flex-wrap: wrap;
@@ -7,6 +15,11 @@
 }
 
 .device-logs {
+  max-width: calc(1000px + 1rem);
+  min-width: 300px;
+}
+
+.device-toolbar {
   max-width: calc(1000px + 1rem);
   min-width: 300px;
 }

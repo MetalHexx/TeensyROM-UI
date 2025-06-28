@@ -1,25 +1,32 @@
-@if (isLoading()) {
+<div class="device-view">
+  @if (isLoading()) {
 
-<p>Loading...</p>
-
-} @else {
-
-<div class="device-list">
-  @if (devices().length === 0) {
-
-  <p>No devices found</p>
-
-  } @else { @for (device of devices(); track device.deviceId) { @if (!device.isConnected) {
-
-  <lib-device-item [device]="device" (connect)="onConnect($event)"></lib-device-item>
+  <p>Loading...</p>
 
   } @else {
 
-  <lib-device-item [device]="device" (disconnect)="onDisconnect($event)"></lib-device-item>
+  <div class="device-list">
+    @if (devices().length === 0) {
 
-  } } }
+    <p>No devices found</p>
+
+    } @else { @for (device of devices(); track device.deviceId) { @if (!device.isConnected) {
+
+    <lib-device-item [device]="device" (connect)="onConnect($event)"></lib-device-item>
+
+    } @else {
+
+    <lib-device-item [device]="device" (disconnect)="onDisconnect($event)"></lib-device-item>
+
+    } } }
+  </div>
+
+  <div class="device-toolbar">
+    <lib-device-toolbar></lib-device-toolbar>
+  </div>
+
+  <div class="device-logs">
+    <lib-device-logs></lib-device-logs>
+  </div>
+  }
 </div>
-<div class="device-logs">
-  <lib-device-logs></lib-device-logs>
-</div>
-}

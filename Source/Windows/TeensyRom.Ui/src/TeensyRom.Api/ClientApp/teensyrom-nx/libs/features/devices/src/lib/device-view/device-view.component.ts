@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { DeviceStore } from '@teensyrom-nx/domain/device/state';
 import { DeviceItemComponent } from './device-item/device-item.component';
 import { DeviceLogsComponent } from './device-logs/device-logs.component';
+import { DeviceToolbarComponent } from '../device-toolbar/device-toolbar.component';
 
 @Component({
   selector: 'lib-device-view',
-  imports: [CommonModule, DeviceItemComponent, DeviceLogsComponent],
+  imports: [CommonModule, DeviceItemComponent, DeviceLogsComponent, DeviceToolbarComponent],
   templateUrl: './device-view.component.html',
   styleUrl: './device-view.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
