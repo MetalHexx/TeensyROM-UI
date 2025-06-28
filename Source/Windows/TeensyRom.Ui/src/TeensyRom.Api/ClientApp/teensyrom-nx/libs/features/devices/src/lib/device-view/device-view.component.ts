@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DeviceStore } from '@teensyrom-nx/domain/device/state';
 import { DeviceItemComponent } from './device-item/device-item.component';
 import { DeviceLogsComponent } from './device-logs/device-logs.component';
-import { DeviceToolbarComponent } from '../device-toolbar/device-toolbar.component';
+import { DeviceToolbarComponent } from './device-toolbar/device-toolbar.component';
 
 @Component({
   selector: 'lib-device-view',

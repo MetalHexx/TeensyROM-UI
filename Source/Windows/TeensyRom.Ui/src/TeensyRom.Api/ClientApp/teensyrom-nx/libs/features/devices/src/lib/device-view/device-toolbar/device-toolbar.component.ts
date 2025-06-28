@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
+import { DeviceStore } from '@teensyrom-nx/domain/device/state';
 
 @Component({
   selector: 'lib-device-toolbar',
@@ -11,4 +12,10 @@ import { IconLabelComponent } from '@teensyrom-nx/ui/components';
   templateUrl: './device-toolbar.component.html',
   styleUrl: './device-toolbar.component.css',
 })
-export class DeviceToolbarComponent {}
+export class DeviceToolbarComponent {
+  private readonly deviceStore = inject(DeviceStore);
+
+  onIndexAllStorage() {
+    this.deviceStore.indexStorageAllStorage();
+  }
+}

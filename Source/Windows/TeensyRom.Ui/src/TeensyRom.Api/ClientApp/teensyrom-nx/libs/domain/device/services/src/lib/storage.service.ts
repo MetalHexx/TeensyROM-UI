@@ -10,4 +10,8 @@ export class StorageService {
   index(deviceId: string, storageType: TeensyStorageType, startingPath?: string) {
     return this.filesApiService.index(deviceId, storageType, startingPath);
   }
+
+  indexAll() {
+    return this.filesApiService.indexAll();
+  }
 }

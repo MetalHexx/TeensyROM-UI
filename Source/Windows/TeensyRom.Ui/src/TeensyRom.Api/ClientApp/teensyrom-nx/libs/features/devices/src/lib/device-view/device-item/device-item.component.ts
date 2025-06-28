@@ -3,12 +3,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { NgClass } from '@angular/common';
-import { Device, DeviceEventsService, StorageService } from '@teensyrom-nx/domain/device/services';
+import { Device, DeviceEventsService } from '@teensyrom-nx/domain/device/services';
 import { TeensyStorageType } from '@teensyrom-nx/data-access/api-client';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
 import { StorageStatusComponent as StorageItemComponent } from '../storage-item/storage-item.component';
 import { DeviceState } from '@teensyrom-nx/data-access/api-client';
-import { firstValueFrom } from 'rxjs';
 import { DeviceStore } from '@teensyrom-nx/domain/device/state';
 
 @Component({

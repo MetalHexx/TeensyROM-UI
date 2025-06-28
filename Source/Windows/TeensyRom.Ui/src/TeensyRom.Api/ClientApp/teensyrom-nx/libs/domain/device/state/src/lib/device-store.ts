@@ -4,6 +4,7 @@ import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { Device, DeviceService, StorageService } from '@teensyrom-nx/domain/device/services';
 import { findDevices, connectDevice, disconnectDevice } from './methods/index';
 import { indexStorage } from './methods/index-storage';
+import { indexAllStorage } from './methods/index-all-storage';
 
 export type DeviceState = {
   devices: Device[];
@@ -35,6 +36,7 @@ export const DeviceStore = signalStore(
       ...connectDevice(store, deviceService),
       ...disconnectDevice(store, deviceService),
       ...indexStorage(store, storageService),
+      ...indexAllStorage(store, storageService),
     })
   )
 );
