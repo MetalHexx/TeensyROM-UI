@@ -17,7 +17,7 @@ export type DeviceState = {
 const initialState: DeviceState = {
   devices: [],
   hasInitialised: false,
-  isLoading: false,
+  isLoading: true,
   isIndexing: false,
   error: null,
 };

@@ -1,31 +1,12 @@
-<!-- <mat-accordion>
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <lib-icon-label icon="usb" [label]="'Actions'"> </lib-icon-label>
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-    <button mat-raised-button color="primary" (click)="onIndexAllStorage()">
-      Index All
-    </button>
-  </mat-expansion-panel>
-
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <lib-icon-label icon="usb" [label]="'Settings'"> </lib-icon-label>
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit
-    amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet consectetur
-    adipisicing elit. Quisquam, quos.
-  </mat-expansion-panel>
-</mat-accordion> -->
-
 <mat-card class="toolbar-card">
   <mat-card-content>
-    <button mat-raised-button color="primary" (click)="onIndexAllStorage()">
-      <lib-icon-label icon="usb" [label]="'Index All'"> </lib-icon-label>
-    </button>
+    <div class="toolbar-button-container">
+      <button mat-stroked-button color="primary" (click)="onIndexAllStorage()">
+        <lib-icon-label icon="download" [label]="'Index All'"> </lib-icon-label>
+      </button>
+      <button mat-stroked-button color="primary" (click)="onRefreshDevices()">
+        <lib-icon-label icon="refresh" [label]="'Refresh Devices'"> </lib-icon-label>
+      </button>
+    </div>
   </mat-card-content>
 </mat-card>

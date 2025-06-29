@@ -1,0 +1,17 @@
+@media (max-width: 500px) {
+  .toolbar-card {
+    min-width: 200px;
+    max-width: 500px;
+    margin: 1.5rem 1rem;
+  }
+}
+
+.toolbar-button-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.example-button-row .mat-mdc-button-base {
+  margin: 8px 8px 8px 0;
+}

@@ -24,10 +24,26 @@ export class LayoutComponent {
   readonly route = inject(ActivatedRoute);
   readonly dialog = inject(MatDialog);
   pageTitle: Signal<string>;
-  showBusyDialog = computed(() => this.deviceStore.isIndexing());
-  private busyDialogRef: MatDialogRef<BusyDialogComponent> | null = null;
+  showIndexDialog = computed(() => this.deviceStore.isIndexing());
+  showFindDeviceDialog = computed(() => this.deviceStore.isLoading());
+  private indexDialogRef: MatDialogRef<BusyDialogComponent> | null = null;
+  private findDeviceDialogRef: MatDialogRef<BusyDialogComponent> | null = null;
 
   constructor() {
+    this.initBusyDialog(
+      this.showFindDeviceDialog,
+      this.findDeviceDialogRef,
+      'Finding Devices',
+      'Scanning COM ports for TeensyROM devices.'
+    );
+
+    this.initBusyDialog(
+      this.showIndexDialog,
+      this.indexDialogRef,
+      'Indexing Storage',
+      'This can take a few minutes.  Do not touch your commodore device.'
+    );
+
     this.pageTitle = toSignal(
       this.router.events.pipe(
         filter((event) => event instanceof NavigationEnd),
@@ -41,20 +57,27 @@ export class LayoutComponent {
       ),
       { initialValue: '' }
     );
+  }
 
+  private initBusyDialog(
+    busySignal: Signal<boolean>,
+    dialogRef: MatDialogRef<BusyDialogComponent> | null,
+    title: string,
+    message: string
+  ) {
     effect(() => {
-      if (this.showBusyDialog() && !this.busyDialogRef) {
-        this.busyDialogRef = this.dialog.open(BusyDialogComponent, {
+      if (busySignal() && !dialogRef) {
+        dialogRef = this.dialog.open(BusyDialogComponent, {
           data: {
-            message: 'This can take a few minutes.  Do not touch your commodore device.',
-            title: 'Indexing Storage',
+            title: title,
+            message: message,
           },
           disableClose: true,
           panelClass: 'glassy-dialog',
         });
-      } else if (this.busyDialogRef) {
-        this.busyDialogRef.close();
-        this.busyDialogRef = null;
+      } else if (dialogRef) {
+        dialogRef.close();
+        dialogRef = null;
       }
     });
   }

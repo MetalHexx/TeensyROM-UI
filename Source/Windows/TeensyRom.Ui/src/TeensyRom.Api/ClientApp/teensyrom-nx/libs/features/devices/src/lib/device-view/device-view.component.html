@@ -1,9 +1,5 @@
 <div class="device-view">
-  @if (isLoading()) {
-
-  <p>Loading...</p>
-
-  } @else {
+  @if (isLoading()) { } @else {
 
   <div class="device-list">
     @if (devices().length === 0) {
