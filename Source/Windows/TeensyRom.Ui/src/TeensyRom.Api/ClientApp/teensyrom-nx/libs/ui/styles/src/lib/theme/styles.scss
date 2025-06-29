@@ -96,6 +96,10 @@ body {
 //  MATERIAL COMPONENT SPECIFIC STYLES
 // ─────────────────────────────────────────────
 
+mat-card-title {
+  padding-bottom: 1rem;
+}
+
 .mat-toolbar.mat-primary {
   --mat-toolbar-container-background-color: #890089;
 }
