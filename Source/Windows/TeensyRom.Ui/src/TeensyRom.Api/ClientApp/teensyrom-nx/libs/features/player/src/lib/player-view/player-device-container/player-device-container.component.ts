@@ -1,0 +1,25 @@
+import { Component, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Device } from '@teensyrom-nx/domain/device/services';
+import { MatCardModule } from '@angular/material/card';
+import { FileOtherComponent } from './file-other/file-other.component';
+import { FileImageComponent } from './file-image/file-image.component';
+import { PlayerToolbarComponent } from './player-toolbar/player-toolbar.component';
+import { StorageContainerComponent } from './storage-container/storage-container.component';
+
+@Component({
+  selector: 'lib-player-device-container',
+  imports: [
+    CommonModule,
+    MatCardModule,
+    FileImageComponent,
+    FileOtherComponent,
+    PlayerToolbarComponent,
+    StorageContainerComponent,
+  ],
+  templateUrl: './player-device-container.component.html',
+  styleUrl: './player-device-container.component.scss',
+})
+export class PlayerDeviceContainerComponent {
+  device = input<Device>();
+}

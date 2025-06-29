@@ -1,0 +1,19 @@
+@if (device()?.isConnected) {
+<div class="device-container">
+  <div class="device-header">
+    <lib-file-image [title]="device()?.deviceId"></lib-file-image>
+    <lib-file-other></lib-file-other>
+  </div>
+  <div class="player-toolbar">
+    <lib-player-toolbar></lib-player-toolbar>
+  </div>
+  <div class="storage-container">
+    <lib-storage-container></lib-storage-container>
+  </div>
+</div>
+
+} @else {
+
+<p>Device disconnected</p>
+
+}

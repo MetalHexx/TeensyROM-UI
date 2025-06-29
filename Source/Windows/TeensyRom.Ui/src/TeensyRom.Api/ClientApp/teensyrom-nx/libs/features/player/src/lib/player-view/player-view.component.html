@@ -1,1 +1,15 @@
-<p>Player works!</p>
+@if (deviceStore.devices().length === 0) {
+
+<p>No devices found</p>
+
+} @else {
+
+<div class="device-list">
+  @for (device of deviceStore.devices(); track device.deviceId) {
+  <div class="player-device-list-item">
+    <lib-player-device-container [device]="device"></lib-player-device-container>
+  </div>
+  }
+</div>
+
+}
