@@ -16,6 +16,7 @@ export * from './launchFileResponse';
 export * from './launchRandomResponse';
 export * from './nullableOfStorageScope';
 export * from './nullableOfTeensyFilterType';
+export * from './pingDeviceResponse';
 export * from './problemDetails';
 export * from './resetDeviceResponse';
 export * from './startLogsResponse';
