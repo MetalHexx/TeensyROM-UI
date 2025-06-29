@@ -1,4 +1,4 @@
-<mat-accordion>
+<!-- <mat-accordion>
   <mat-expansion-panel>
     <mat-expansion-panel-header>
       <mat-panel-title>
@@ -6,7 +6,7 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
     <button mat-raised-button color="primary" (click)="onIndexAllStorage()">
-      Index All Storage
+      Index All
     </button>
   </mat-expansion-panel>
 
@@ -20,13 +20,12 @@
     amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet consectetur
     adipisicing elit. Quisquam, quos.
   </mat-expansion-panel>
-</mat-accordion>
+</mat-accordion> -->
 
-<!-- <mat-card class="toolbar-card">
-  <mat-card-header>
-    <mat-card-title>Global Actions</mat-card-title>
-  </mat-card-header>
+<mat-card class="toolbar-card">
   <mat-card-content>
-    
+    <button mat-raised-button color="primary" (click)="onIndexAllStorage()">
+      <lib-icon-label icon="usb" [label]="'Index All'"> </lib-icon-label>
+    </button>
   </mat-card-content>
-</mat-card> -->
+</mat-card>
