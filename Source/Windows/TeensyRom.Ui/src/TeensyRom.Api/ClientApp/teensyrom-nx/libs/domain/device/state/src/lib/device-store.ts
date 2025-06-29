@@ -5,6 +5,8 @@ import { Device, DeviceService, StorageService } from '@teensyrom-nx/domain/devi
 import { findDevices, connectDevice, disconnectDevice } from './methods/index';
 import { indexStorage } from './methods/index-storage';
 import { indexAllStorage } from './methods/index-all-storage';
+import { firstValueFrom } from 'rxjs';
+import { resetAllDevices } from './methods/reset-all-devices';
 
 export type DeviceState = {
   devices: Device[];
@@ -37,6 +39,7 @@ export const DeviceStore = signalStore(
       ...disconnectDevice(store, deviceService),
       ...indexStorage(store, storageService),
       ...indexAllStorage(store, storageService),
+      ...resetAllDevices(store, deviceService),
     })
   )
 );

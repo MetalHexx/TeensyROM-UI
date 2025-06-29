@@ -30,4 +30,8 @@ export class DeviceToolbarComponent {
   onRefreshDevices() {
     this.deviceStore.findDevices();
   }
+
+  onResetDevices() {
+    this.deviceStore.resetAllDevices();
+  }
 }
