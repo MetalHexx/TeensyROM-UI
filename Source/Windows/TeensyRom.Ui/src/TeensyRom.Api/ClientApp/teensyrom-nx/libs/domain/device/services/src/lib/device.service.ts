@@ -5,6 +5,7 @@ import {
   ConnectDeviceResponse,
   DisconnectDeviceResponse,
   ResetDeviceResponse,
+  PingDeviceResponse,
 } from '@teensyrom-nx/data-access/api-client';
 import { Device } from './device.models';
 import { DeviceMapper } from './device.mapper';
@@ -46,5 +47,9 @@ export class DeviceService {
 
   resetDevice(deviceId: string): Observable<ResetDeviceResponse> {
     return this.apiService.resetDevice(deviceId);
+  }
+
+  pingDevice(deviceId: string): Observable<PingDeviceResponse> {
+    return this.apiService.pingDevice(deviceId);
   }
 }

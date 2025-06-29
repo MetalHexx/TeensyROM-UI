@@ -34,4 +34,8 @@ export class DeviceToolbarComponent {
   onResetDevices() {
     this.deviceStore.resetAllDevices();
   }
+
+  onPingDevices() {
+    this.deviceStore.pingAllDevices();
+  }
 }
