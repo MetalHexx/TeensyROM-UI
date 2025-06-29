@@ -9,10 +9,9 @@
 
 .logs-actions {
   position: absolute;
-  top: 0.5rem;
   right: 0.5rem;
   display: flex;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .logs-content {
@@ -20,14 +19,11 @@
   overflow-y: auto;
   background: var(--mat-sys-surface-container-low);
   border-radius: 12px;
-  padding: 1rem;
-  margin-top: 1rem;
 }
 
 .logs-list {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
 }
 
 .log-line {
@@ -49,10 +45,8 @@
   .device-logs-card {
     min-width: 200px;
     max-width: 500px;
-    margin: 1.5rem 1rem;
   }
   .logs-content {
     max-height: 200px;
-    padding: 0.5rem;
   }
 }
