@@ -183,7 +183,10 @@ namespace TeensyRom.Core.Device
         {
             foreach (var device in _connectedDevices.Values)
             {
-                device.SerialState.ClosePort();
+                if (device.IsConnected)
+                {
+                    device.SerialState.ClosePort();
+                }
                 device.SerialState.Dispose();
             }
         }
