@@ -3,7 +3,7 @@
 import { NavItem } from './navigation-item.model';
 
 export const ROUTES = {
-  PLAYER: 'jukebox',
+  PLAYER: 'player',
   MIXER: 'mixing',
   DEVICES: 'devices',
   SETTINGS: 'settings',
