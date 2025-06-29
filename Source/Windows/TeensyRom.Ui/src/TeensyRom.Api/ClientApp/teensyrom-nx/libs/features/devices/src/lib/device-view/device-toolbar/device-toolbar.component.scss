@@ -1,13 +1,24 @@
-@media (max-width: 650px) {
+@media (max-width: 775px) {
   .toolbar-card {
-    min-width: 200px;
-    max-width: 500px;
+    min-width: 250px;
+    max-width: 485px;
     margin: 1.5rem 1rem;
   }
 
   .toolbar-button-container {
     flex-direction: column !important;
     gap: 1rem !important;
+    width: 100%;
+    min-width: 220px;
+  }
+  .toolbar-button-container button,
+  .toolbar-button-container .mat-mdc-button-base {
+    width: 100%;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 48px;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
   }
   .toolbar-button-container button:last-child,
   .toolbar-button-container .mat-mdc-button-base:last-child {
@@ -17,8 +28,18 @@
 
 .toolbar-button-container {
   display: flex;
+  justify-content: center;
   flex-direction: row;
   gap: 1rem;
+  width: 100%;
+}
+
+.toolbar-button-container button,
+.toolbar-button-container .mat-mdc-button-base {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  font-size: 1rem;
 }
 
 .example-button-row .mat-mdc-button-base {

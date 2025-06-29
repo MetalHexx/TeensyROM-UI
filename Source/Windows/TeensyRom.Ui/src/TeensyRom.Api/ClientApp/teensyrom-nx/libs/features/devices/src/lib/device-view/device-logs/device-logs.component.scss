@@ -41,6 +41,10 @@
   padding: 2rem 0;
 }
 
+mat-card-title {
+  padding-bottom: 0.25;
+}
+
 @media (max-width: 500px) {
   .device-logs-card {
     min-width: 200px;
