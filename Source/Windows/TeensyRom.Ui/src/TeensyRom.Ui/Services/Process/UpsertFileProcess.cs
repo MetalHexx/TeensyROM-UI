@@ -8,13 +8,13 @@ namespace TeensyRom.Ui.Services.Process
 {
     public interface IUpsertFileProcess
     {
-        Task ReorderFiles(IEnumerable<IFileItem> files);
-        Task UpsertFile(IFileItem file);
+        Task ReorderFiles(IEnumerable<FileItem> files);
+        Task UpsertFile(FileItem file);
     }
     public class UpsertFileProcess(ICachedStorageService storage) : IUpsertFileProcess
     {     
-        public async Task UpsertFile(IFileItem file) => await storage.UpsertFiles([file]);
-        public async Task ReorderFiles(IEnumerable<IFileItem> files) 
+        public async Task UpsertFile(FileItem file) => await storage.UpsertFiles([file]);
+        public async Task ReorderFiles(IEnumerable<FileItem> files) 
         {
             var customFiles = files.Select((f, index) =>
             {

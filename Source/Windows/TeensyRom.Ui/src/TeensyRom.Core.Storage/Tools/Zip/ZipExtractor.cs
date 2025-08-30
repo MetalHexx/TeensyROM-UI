@@ -19,14 +19,14 @@ namespace TeensyRom.Core.Storage.Tools.Zip
 
         public ExtractionResult Extract(FileTransferItem zipItem)
         {
-            var assetFullPath = Path.Combine(Assembly.GetExecutingAssembly().GetPath(), zipItem.SourcePath);
+            var assetFullPath = Path.Combine(Assembly.GetExecutingAssembly().GetPath(), zipItem.FullSourcePath);
             var zipFullPath = Path.Combine(assetFullPath);
 
             if (!File.Exists(zipFullPath)) 
             {
-                return new ExtractionResult(zipItem.Name, []);
+                return new ExtractionResult(zipItem.TargetPath.FileName, []);
             }
-            var zipOutputPath = Path.Combine(OutputPath, Guid.NewGuid().ToString(), zipItem.Name);
+            var zipOutputPath = Path.Combine(OutputPath, Guid.NewGuid().ToString(), zipItem.TargetPath.FileName);
             EnsureOutputDirectory(zipOutputPath);
             ZipFile.ExtractToDirectory(zipFullPath, zipOutputPath, true);
 
@@ -34,10 +34,10 @@ namespace TeensyRom.Core.Storage.Tools.Zip
 
             if (files.Length == 0) 
             {
-                return new ExtractionResult(zipItem.Name, []);
+                return new ExtractionResult(zipItem.TargetPath.FileName, []);
             }
 
-            return new ExtractionResult(zipItem.Name, files.Select(f => new FileInfo(f)).ToList());
+            return new ExtractionResult(zipItem.TargetPath.FileName, files.Select(f => new FileInfo(f)).ToList());
         }
 
         private static void EnsureOutputDirectory(string outputPath)

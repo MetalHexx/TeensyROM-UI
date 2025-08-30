@@ -11,23 +11,25 @@ using TeensyRom.Core.Games;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Core.Storage
 {
     public class CachedStorageService : ICachedStorageService
     {
-        public IObservable<IEnumerable<IFileItem>> FilesDeleted => _filesDeleted.AsObservable();
-        private Subject<IEnumerable<IFileItem>> _filesDeleted = new();
-        public IObservable<IEnumerable<IFileItem>> FilesAdded => _filesAdded.AsObservable();
-        private Subject<IEnumerable<IFileItem>> _filesAdded = new();
+        public IObservable<IEnumerable<FileItem>> FilesDeleted => _filesDeleted.AsObservable();
+        private Subject<IEnumerable<FileItem>> _filesDeleted = new();
+        public IObservable<IEnumerable<FileItem>> FilesAdded => _filesAdded.AsObservable();
+        private Subject<IEnumerable<FileItem>> _filesAdded = new();
 
-        public IObservable<IEnumerable<IFileItem>> FilesChanged => _filesChanged.AsObservable();
-        private Subject<IEnumerable<IFileItem>> _filesChanged = new();
+        public IObservable<IEnumerable<FileItem>> FilesChanged => _filesChanged.AsObservable();
+        private Subject<IEnumerable<FileItem>> _filesChanged = new();
 
         public IObservable<System.Reactive.Unit> StorageReady => _storageCache.StorageReady;
 
         protected readonly ISettingsService _settingsService;
         protected readonly IAlertService _alert;
+        private readonly ILoggingService _log;
         private readonly IGameMetadataService _gameMetadata;
         private readonly ISidMetadataService _sidMetadata;
         private readonly IMediator _mediator;
@@ -37,13 +39,14 @@ namespace TeensyRom.Core.Storage
 
         private IStorageCache _storageCache;
 
-        public CachedStorageService(ISettingsService settingsService, IGameMetadataService gameMetadata, ISidMetadataService sidMetadata, IMediator mediator, IAlertService alert, IStorageCache storageCache)
+        public CachedStorageService(ISettingsService settingsService, IGameMetadataService gameMetadata, ISidMetadataService sidMetadata, IMediator mediator, IAlertService alert, ILoggingService log, IStorageCache storageCache)
         {
             _settingsService = settingsService;
             _gameMetadata = gameMetadata;
             _sidMetadata = sidMetadata;
             _mediator = mediator;
             _alert = alert;
+            _log = log;
             _storageCache = storageCache;
             _settings = settingsService.GetSettings();
             _settingsSubscription = _settingsService.Settings
@@ -51,20 +54,21 @@ namespace TeensyRom.Core.Storage
                 .Subscribe(s => _settings = s);
         }
 
-        public async Task<ILaunchableItem?> SaveFavorite(ILaunchableItem launchItem)
+        public async Task<LaunchableItem?> SaveFavorite(LaunchableItem launchItem)
         {
             var favPath = StorageHelper.GetFavoritePath(launchItem.FileType);
+            var newFavPath = favPath.Combine(new FilePath(launchItem.Name));
 
             var favCommand = new FavoriteFileCommand
             (
                 storageType: _settings.StorageType,
                 sourcePath: launchItem.Path,
-                targetPath: favPath.UnixPathCombine(launchItem.Name)
+                targetPath: newFavPath
             );
 
-            var favoriteResult = await _mediator.Send(favCommand);
+            var result = await _mediator.Send(favCommand);
 
-            if (!favoriteResult.IsSuccess)
+            if (!result.IsSuccess)
             {
                 _alert.Publish($"There was an error tagging {launchItem.Name} as favorite.");
                 return null;
@@ -72,54 +76,80 @@ namespace TeensyRom.Core.Storage
             _alert.Publish($"{launchItem.Name} has been tagged as a favorite.");
             _alert.Publish($"A copy was placed in {favPath}.");
 
-            if (!favoriteResult.IsSuccess) return null;
+            launchItem.IsFavorite = true;
+            _storageCache.UpsertFile(launchItem);
 
-            var favItem = MaybeEnsureFavoriteAndStoreCache(launchItem, favPath.UnixPathCombine(launchItem.Name));
+            var savedFav = launchItem.Clone();
+            savedFav.Path = newFavPath;
+            _storageCache.UpsertFile(savedFav);
 
+            var parent = _storageCache.FindParentFile(launchItem);
+
+            if (parent is not null)
+            {
+                parent.IsFavorite = true;
+                _storageCache.UpsertFile(parent);
+            }
+
+            var siblings = _storageCache.FindSiblings(savedFav);
+
+            foreach (var s in siblings)
+            {
+                s.IsFavorite = true;
+                _storageCache.UpsertFile(s);
+            }
             _storageCache.WriteToDisk();
 
-            return favItem as ILaunchableItem;
+            return savedFav as LaunchableItem;
         }
 
-        public async Task RemoveFavorite(ILaunchableItem file)
+        public async Task RemoveFavorite(LaunchableItem file)
         {
-            IFileItem? sourceFile;
-            IFileItem? favFile;
+            file.IsFavorite = false;
+            _storageCache.UpsertFile(file);
 
-            if (string.IsNullOrWhiteSpace(file.FavChildPath))
+            FileItem? fav = _storageCache
+                .GetFavoriteFiles()
+                .FirstOrDefault(f => f.Id == file.Id);
+
+            if (fav is null) 
             {
-                favFile = file.Clone();
-                sourceFile = _storageCache.GetFileByPath(file.FavParentPath);
+                _alert.Publish($"The file {file.Name} is not a favorite."); 
+                _log.InternalError($"The file {file.Name} is not a favorite.", _settings.StorageType.ToString());
+                _storageCache.WriteToDisk();
+                return;
             }
-            else
+            var result = await _mediator.Send(new DeleteFileCommand(_settings.StorageType, fav.Path));
+
+            if (!result.IsSuccess)
             {
-                sourceFile = file.Clone();
-                favFile = _storageCache.GetFileByPath(file.FavChildPath);
+                _alert.Publish($"There was an error untagging {file.Name} as a favorite.");
+                _log.InternalError($"There was an error untagging {file.Name} as a favorite.", _settings.StorageType.ToString());
+                _storageCache.WriteToDisk();
+                return;
             }
-            if (sourceFile is not null)
+            _storageCache.DeleteFile(fav.Path);
+
+            FileItem? parent = _storageCache.FindParentFile(file);
+
+            if (parent is not null) 
             {
-                sourceFile.IsFavorite = false;
-                sourceFile.FavChildPath = string.Empty;
-                _storageCache.UpsertFile(sourceFile);
+                parent.IsFavorite = false;
+                _storageCache.UpsertFile(parent);
             }
-            if (favFile is null) return;
+            var siblings = _storageCache.FindSiblings(file);
 
-            favFile.IsFavorite = false;
-
-            var result = await _mediator.Send(new DeleteFileCommand(_settings.StorageType, favFile.Path));
-
-            if (!result.IsSuccess) return;
-
-            ClearCache(favFile.Path.GetUnixParentPath());
-            ClearCache(favFile.FavParentPath.GetUnixParentPath());
-
-            favFile.Path = sourceFile?.Path ?? favFile.Path; //TODO: smell - this fixes a bug if favorite is re-favorited from play toolbar.
-
-            _filesDeleted.OnNext([favFile]);
-            _alert.Publish($"{favFile.Path} was untagged as a favorite.");
+            foreach (var s in siblings)
+            {
+                s.IsFavorite = false;
+                _storageCache.UpsertFile(s);
+            }
+            _filesDeleted.OnNext([fav]);
+            _alert.Publish($"{fav.Path} was untagged as a favorite.");
+            _storageCache.WriteToDisk();
         }
 
-        public void MarkIncompatible(ILaunchableItem launchItem)
+        public void MarkIncompatible(LaunchableItem launchItem)
         {
             launchItem.IsCompatible = false;
             _storageCache.UpsertFile(launchItem);
@@ -127,10 +157,10 @@ namespace TeensyRom.Core.Storage
         }
 
         public void ClearCache() => _storageCache.ClearCache();
-        public void ClearCache(string path) => _storageCache.DeleteDirectoryWithChildren(path);
+        public void ClearCache(DirectoryPath path) => _storageCache.DeleteDirectoryWithChildren(path);
 
 
-        public async Task<IStorageCacheItem?> GetDirectory(string path)
+        public async Task<IStorageCacheItem?> GetDirectory(DirectoryPath path)
         {
             var cacheItem = _storageCache.GetByDirPath(path);
 
@@ -139,11 +169,18 @@ namespace TeensyRom.Core.Storage
                 return cacheItem;
             }
 
-            var response = await _mediator.Send(new GetDirectoryCommand(_settings.StorageType, path));
+            var response = await _mediator.Send(new GetDirectoryRecursiveCommand(_settings.StorageType, path, false));
 
-            if (response.DirectoryContent is null) return null;
+            var directoryResult = response.DirectoryContent.FirstOrDefault();
 
-            var filteredContent = FilterBannedItems(response.DirectoryContent);
+            if (directoryResult is null) 
+            {
+                _alert.Publish($"{path} was not found on the TR {_settings.StorageType} storage.");
+                _log.InternalError($"{path} was not found on the TR {_settings.StorageType} storage.");
+                return null;
+            }
+
+            var filteredContent = FilterBannedItems(directoryResult);
 
             if (filteredContent is null) return null;
 
@@ -159,7 +196,7 @@ namespace TeensyRom.Core.Storage
             var files = MapAndOrderFiles(dirContent);
 
             var playlistFile = dirContent.Files
-                        .FirstOrDefault(f => f.Path.GetFileNameFromPath() == StorageHelper.Playlist_File_Name);
+                        .FirstOrDefault(f => f.Path.FileName == StorageHelper.Playlist_File_Name);
 
             if (playlistFile is not null)
             {
@@ -172,7 +209,7 @@ namespace TeensyRom.Core.Storage
                     foreach (var file in files)
                     {
                         var customization = playlist.Items
-                            .FirstOrDefault(c => c?.FilePath.RemoveLeadingAndTrailingSlash() == file.Path.RemoveLeadingAndTrailingSlash());
+                            .FirstOrDefault(c => c?.FilePath.Equals(file.Path) ?? false);
 
                         file.Custom = customization;
                     }
@@ -197,7 +234,7 @@ namespace TeensyRom.Core.Storage
 
         private static void FavCacheItems(IStorageCacheItem cacheItem) => cacheItem.Files.ForEach(f => f.IsFavorite = true);
 
-        private List<IFileItem> MapAndOrderFiles(DirectoryContent? directoryContent)
+        private List<FileItem> MapAndOrderFiles(DirectoryContent? directoryContent)
         {
             return directoryContent?.Files
                 .Select(MapFile)
@@ -205,7 +242,7 @@ namespace TeensyRom.Core.Storage
                 .ToList() ?? [];
         }
 
-        public IFileItem MapFile(IFileItem file)
+        public FileItem MapFile(FileItem file)
         {
             var mappedFile = file.MapFileItem();
             return mappedFile switch
@@ -218,34 +255,24 @@ namespace TeensyRom.Core.Storage
             };
         }
 
-        public async Task<SaveFilesResult> SaveFiles(IEnumerable<FileTransferItem> files)
+        public void SaveFiles(IEnumerable<FileItem> files)
         {
-            List<IFileItem> addedFiles = [];
-            SaveFilesResult saveResults = new();
-
-            var result = await _mediator.Send(new SaveFilesCommand(files.ToList()));
-
-            foreach (var f in result.SuccessfulFiles)
+            foreach (var f in files)
             {
-                var storageItem = f.ToFileItem();
-
-                if (storageItem is SongItem song) _sidMetadata.EnrichSong(song);
-                if (storageItem is GameItem game) _gameMetadata.EnrichGame(game);
-                if (storageItem is HexItem hex) HexItem.MapHexItem(hex);
-                if (storageItem is FileItem file)
-                {
-                    _storageCache.UpsertFile(file);
-                    addedFiles.Add(file);
-                }
+                _storageCache.UpsertFile(f);
             }
-            _storageCache.WriteToDisk();
-            _filesAdded.OnNext(addedFiles);
-            return saveResults;
+            _storageCache.WriteToDisk();            
         }
 
-        public async Task DeleteFile(IFileItem file, TeensyStorageType storageType)
+        public async Task DeleteFile(FileItem file, TeensyStorageType storageType)
         {
-            await _mediator.Send(new DeleteFileCommand(storageType, file.Path));
+            var deleteResult = await _mediator.Send(new DeleteFileCommand(storageType, file.Path));
+
+            if (!deleteResult.IsSuccess && deleteResult.IsBusy) 
+            {
+                _alert.Publish("Make sure you have no running programs before deleting.");
+                return;
+            }
 
             _storageCache.DeleteFile(file.Path);
 
@@ -259,13 +286,13 @@ namespace TeensyRom.Core.Storage
         }
         public void Dispose() => _settingsSubscription?.Dispose();
 
-        public ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, params TeensyFileType[] fileTypes)
+        public LaunchableItem? GetRandomFile(StorageScope scope, DirectoryPath scopePath, params TeensyFileType[] fileTypes)
         {
             var excludePaths = GetExcludePaths();
             return _storageCache.GetRandomFile(scope, scopePath, excludePaths, fileTypes);
         }
 
-        public IEnumerable<ILaunchableItem> Search(string searchText, params TeensyFileType[] fileTypes)
+        public IEnumerable<LaunchableItem> Search(string searchText, params TeensyFileType[] fileTypes)
         {
             var excludePaths = GetExcludePaths();
 
@@ -279,19 +306,19 @@ namespace TeensyRom.Core.Storage
             );
         }
 
-        private List<string> GetExcludePaths()
+        private List<DirectoryPath> GetExcludePaths()
         {
             var excludePaths = StorageHelper.FavoritePaths;
-            excludePaths.Add(StorageHelper.Playlist_Path);
+            excludePaths.Add(new DirectoryPath(StorageHelper.Playlist_Path));
 
             return excludePaths.ToList();
         }
 
-        public Task CacheAll() => CacheAll(StorageHelper.Remote_Path_Root);
+        public Task CacheAll() => CacheAll(new DirectoryPath(StorageHelper.Remote_Path_Root));
 
-        public async Task CacheAll(string path)
+        public async Task CacheAll(DirectoryPath path)
         {
-            if (path == StorageHelper.Remote_Path_Root)
+            if (path == new DirectoryPath(StorageHelper.Remote_Path_Root))
             {
                 ClearCache();
             }
@@ -300,7 +327,14 @@ namespace TeensyRom.Core.Storage
                 ClearCache(path);
             }
             _alert.Publish($"Refreshing cache for {path} and all nested directories.");
-            var response = await _mediator.Send(new GetDirectoryRecursiveCommand(_settings.StorageType, path));
+
+            var getDirectoryCommand = new GetDirectoryRecursiveCommand
+            (
+                storageType: _settings.StorageType,
+                path: path,
+                recursive: true
+            );
+            var response = await _mediator.Send(getDirectoryCommand);
 
             if (!response.IsSuccess) return;
 
@@ -318,7 +352,8 @@ namespace TeensyRom.Core.Storage
 
                     await SaveDirectoryToCache(filteredContent);
                 }
-                _storageCache.EnsureFavorites(StorageHelper.FavoritePaths.ToList());
+                _storageCache.EnsureFavorites();
+                _storageCache.EnsurePlaylists();
                 _storageCache.WriteToDisk();
             });
             _alert.Publish($"Indexing completed for {_settings.StorageType} storage.");
@@ -326,10 +361,10 @@ namespace TeensyRom.Core.Storage
 
         private DirectoryContent? FilterBannedItems(DirectoryContent directoryContent)
         {
-            var pathBanned = _settings.BannedDirectories.Any(d => directoryContent.Path.Contains(d));
+            var pathBanned = _settings.BannedDirectories.Any(d => directoryContent.Path.Value.Contains(d));
             if (pathBanned) return null;
 
-            var filteredDirectories = directoryContent.Directories.Where(d => _settings.BannedDirectories.All(b => !d.Path.Contains(b)));
+            var filteredDirectories = directoryContent.Directories.Where(d => _settings.BannedDirectories.All(b => !d.Path.Value.Contains(b)));
             var filteredFiles = directoryContent.Files.Where(f => _settings.BannedFiles.All(b => !f.Name.Contains(b)));
 
             return new DirectoryContent
@@ -343,11 +378,11 @@ namespace TeensyRom.Core.Storage
         public async Task CopyFiles(List<CopyFileItem> fileItems)
         {
             List<CopyFileResult> results = [];
-            List<IFileItem> filesAdded = [];
+            List<FileItem> filesAdded = [];
 
             foreach (var item in fileItems)
             {
-                var targetFullPath = item.TargetPath.UnixPathCombine(item.SourceItem.Path.GetFileNameFromPath());
+                var targetFullPath = item.TargetPath.Combine(new FilePath(item.SourceItem.Name));
 
                 var copyItem = new CopyFileCommand
                 (
@@ -360,7 +395,28 @@ namespace TeensyRom.Core.Storage
 
                 if (!result.IsSuccess) continue;
 
-                var newFile = MaybeEnsureFavoriteAndStoreCache(item.SourceItem, targetFullPath);
+                var newFile = CloneToFileItem(item.SourceItem);
+                newFile.Path = targetFullPath;
+
+                if (newFile.Path.Contains(StorageHelper.Favorites_Path)) 
+                {   
+                    newFile.IsFavorite = true;
+                    var parentFile = _storageCache.FindParentFile(newFile);
+
+                    if(parentFile is not null)
+                    {
+                        parentFile.IsFavorite = true;
+                        newFile.ParentPath = parentFile.Path;
+                        _storageCache.UpsertFile(parentFile);
+                    }
+                    var siblings = _storageCache.FindSiblings(newFile);
+                    foreach (var sibling in siblings)
+                    {
+                        sibling.IsFavorite = true;
+                        _storageCache.UpsertFile(sibling);
+                    }
+                }
+                _storageCache.UpsertFile(newFile);
                 filesAdded.Add(newFile);
             }
             if (results.Any(r => r.IsSuccess is false))
@@ -374,17 +430,16 @@ namespace TeensyRom.Core.Storage
             _filesChanged.OnNext(filesAdded);
         }
 
-        public IFileItem MaybeEnsureFavoriteAndStoreCache(ILaunchableItem sourceFile, string targetFullPath)
+        public FileItem MaybeEnsureFavoriteAndUpsert(LaunchableItem sourceFile, FilePath targetFullPath)
         {
             var favPaths = _settings.GetAllFavoritePaths();
 
             var newFile = CloneToFileItem(sourceFile);
             newFile.Path = targetFullPath;
-            newFile.FavParentPath = sourceFile.Path;
+            newFile.ParentPath = sourceFile.Path;
 
-            if (favPaths.Any(fav => targetFullPath.StartsWith(fav, StringComparison.OrdinalIgnoreCase)))
+            if (favPaths.Any(fav => targetFullPath.Value.StartsWith(fav.Value, StringComparison.OrdinalIgnoreCase)))
             {
-                sourceFile.FavChildPath = targetFullPath;
                 sourceFile.IsFavorite = true;
                 newFile.IsFavorite = true;
                 _storageCache.UpsertFile(sourceFile);
@@ -399,7 +454,7 @@ namespace TeensyRom.Core.Storage
 
         public int GetCacheSize() => _storageCache.GetCacheSize();
 
-        public FileItem CloneToFileItem(ILaunchableItem launchItem)
+        public FileItem CloneToFileItem(LaunchableItem launchItem)
         {
             var clone = launchItem switch
             {
@@ -413,9 +468,9 @@ namespace TeensyRom.Core.Storage
             return clone;
         }
 
-        public async Task UpsertFiles(IEnumerable<IFileItem> files)
+        public async Task UpsertFiles(IEnumerable<FileItem> files)
         {
-            var storagePath = files.First().Path.GetUnixParentPath();
+            var storagePath = files.First().Path.Directory;
 
             foreach (var f in files)
             {
@@ -437,7 +492,7 @@ namespace TeensyRom.Core.Storage
 
             var playlist = new Playlist
             {
-                Path = Path.Combine(storagePath, StorageHelper.Playlist_File_Name),
+                Path = storagePath.Combine(new FilePath(StorageHelper.Playlist_File_Name)),
                 Items = customItems
             };
             await TransferPlaylist(playlist);
@@ -464,7 +519,7 @@ namespace TeensyRom.Core.Storage
 
             FileInfo fileInfo = new(filePath);
 
-            var playlistTransferItem = new FileTransferItem(fileInfo, playlist.Path.GetUnixParentPath(), _settings.StorageType);
+            var playlistTransferItem = new FileTransferItem(fileInfo, playlist.Path, _settings.StorageType);
 
             var result = await _mediator.Send(new SaveFilesCommand([playlistTransferItem]));
 
@@ -474,18 +529,16 @@ namespace TeensyRom.Core.Storage
                 return;
             }
 
-            var playlistPath = playlist.Path.RemoveLeadingAndTrailingSlash();
-
-            var playlistItem = playlist.Items.FirstOrDefault(i => i.FilePath.RemoveLeadingAndTrailingSlash() == playlistPath);
+            var playlistItem = playlist.Items.FirstOrDefault(i => i.FilePath.Equals(playlist.Path));
 
             FileItem playlistFileItem = new()
             {
-                Path = playlistPath,
+                Path = playlist.Path,
                 Name = fileInfo.Name,
                 Size = fileInfo.Length,
                 Custom = playlistItem is not null ? playlistItem : new PlaylistItem
                 {
-                    FilePath = playlistPath,
+                    FilePath = playlist.Path,
 
                 },
                 Description = "TeensyROM UI custom playlist file.",

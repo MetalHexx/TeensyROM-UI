@@ -10,12 +10,12 @@ namespace TeensyRom.Ui.Services.Process
 {
     public interface ISyncService
     {
-        void QueueReorderFiles(KnownCart cart, List<IFileItem> items);
-        void QueueUpsertFiles(KnownCart cart, List<IFileItem> items);
+        void QueueReorderFiles(KnownCart cart, List<FileItem> items);
+        void QueueUpsertFiles(KnownCart cart, List<FileItem> items);
         void QueueCopyFiles(KnownCart cart, List<CopyFileItem> items);
-        void QueueFavFile(KnownCart cart, ILaunchableItem command);
+        void QueueFavFile(KnownCart cart, LaunchableItem command);
         Task ProcessCommands(KnownCart cart);
-        void QueueRemoveFavFile(KnownCart cart, ILaunchableItem file);
+        void QueueRemoveFavFile(KnownCart cart, LaunchableItem file);
     }
 
     public class SyncService(ICopyFileProcess fileCopyProcess, IFavoriteFileProcess favoriteFileProcess, IUpsertFileProcess upsertFile, IAlertService alert, ILoggingService logger) : ISyncService
@@ -26,28 +26,28 @@ namespace TeensyRom.Ui.Services.Process
         private const string SyncRemoveFavoritesPrefix = "SyncRemoveFavoriteFiles";
         private const string SyncCopyPrefix = "SyncCopyFiles";
 
-        public void QueueReorderFiles(KnownCart cart, List<IFileItem> files)
+        public void QueueReorderFiles(KnownCart cart, List<FileItem> files)
         {
             var path = GetSyncFilePath(SyncReorderFilesPrefix, cart.DeviceHash);
             AddToSyncFile(path, files);
             logger.Internal($"Queued file reorders for next sync");
         }
 
-        public void QueueUpsertFiles(KnownCart cart, List<IFileItem> files)
+        public void QueueUpsertFiles(KnownCart cart, List<FileItem> files)
         {
             var path = GetSyncFilePath(SyncUpsertFilesPrefix, cart.DeviceHash);
             AddToSyncFile(path, files);
             logger.Internal($"Queued file updates for next sync");
         }
 
-        public void QueueFavFile(KnownCart cart, ILaunchableItem file)
+        public void QueueFavFile(KnownCart cart, LaunchableItem file)
         {
             var path = GetSyncFilePath(SyncFavoritesPrefix, cart.DeviceHash);
             AddToSyncFile(path, [file]);
             logger.Internal($"Queued favorite item for next sync: {file.Name}");            
         }
 
-        public void QueueRemoveFavFile(KnownCart cart, ILaunchableItem file)
+        public void QueueRemoveFavFile(KnownCart cart, LaunchableItem file)
         {
             var path = GetSyncFilePath(SyncRemoveFavoritesPrefix, cart.DeviceHash);
             AddToSyncFile(path, [file]);
@@ -65,7 +65,7 @@ namespace TeensyRom.Ui.Services.Process
         {
             await Task.Delay(200); //TODO: I noticed a race condition on removing favorites while cache was being saved to disk.  Ugly workaround, I know.
 
-            await ProcessSyncFile<ILaunchableItem>(
+            await ProcessSyncFile<LaunchableItem>(
                 GetSyncFilePath(SyncFavoritesPrefix, cart.DeviceHash),
                 "Syncing favorites queue...",
                 async items =>
@@ -76,7 +76,7 @@ namespace TeensyRom.Ui.Services.Process
                     }
                 });
 
-            await ProcessSyncFile<ILaunchableItem>(
+            await ProcessSyncFile<LaunchableItem>(
                 GetSyncFilePath(SyncRemoveFavoritesPrefix, cart.DeviceHash),
                 "Syncing favorite removal queue...",
                 async items =>
@@ -92,7 +92,7 @@ namespace TeensyRom.Ui.Services.Process
                 "Syncing playlist queue...",
                 fileCopyProcess.CopyFiles);
 
-            await ProcessSyncFile<IFileItem>(
+            await ProcessSyncFile<FileItem>(
                 GetSyncFilePath(SyncUpsertFilesPrefix, cart.DeviceHash),
                 "Syncing file updates queue...",
                 async items =>
@@ -103,7 +103,7 @@ namespace TeensyRom.Ui.Services.Process
                     }
                 });
 
-            await ProcessSyncFile<IFileItem>(
+            await ProcessSyncFile<FileItem>(
                 GetSyncFilePath(SyncReorderFilesPrefix, cart.DeviceHash),
                 "Syncing file reorders queue...",
                 async items => 

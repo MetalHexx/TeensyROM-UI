@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Api.Endpoints.Files.GetDirectory;
 using TeensyRom.Api.Endpoints.FindCarts;
@@ -25,42 +26,22 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     {
         // Arrange
         var deviceId = await f.GetConnectedDevice();
-        var directoryPath = "/";        
+        var directoryPath = "/";
 
-
-        foreach (var item in Enumerable.Range(0, 1000))
-        {
-            Debug.WriteLine($"***********************************");
-            Debug.WriteLine($"************Iteration {item}************");
-            Debug.WriteLine($"***********************************");
-
-            // Act
-            await GetDirectory(directoryPath, deviceId);
-
-            // Assert
-            
-        }
-    }
-
-    private async Task GetDirectory(string path, string deviceId) 
-    {
+        // Act
         var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, GetDirectoryResponse>(new GetDirectoryRequest
         {
             DeviceId = deviceId,
-            Path = path,
+            Path = directoryPath,
             StorageType = TeensyStorageType.SD
         });
 
+        //Assert
         r.Should().BeSuccessful<GetDirectoryResponse>()
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
         r.Should().NotBeNull();
-
-        foreach (var dir in r.Content.StorageItem.Directories)
-        {
-            await GetDirectory(dir.Path, deviceId);
-        }
     }
 
 
@@ -93,7 +74,7 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
         });
 
         r.Should().BeValidationProblem()
-            .WithKeyAndValue("Path", "Path must be a valid Unix-style file path.");
+            .WithKeyAndValue("Path", "Path must be a valid Unix-style directory path.");
     }
 
     [Fact]

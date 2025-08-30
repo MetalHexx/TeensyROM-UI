@@ -6,14 +6,14 @@ namespace TeensyRom.Ui.Services.Process
 {
     public interface ILaunchFileProcess
     {
-        void LaunchFile(ILaunchableItem file);
+        void LaunchFile(LaunchableItem file);
     }
     public class LaunchFileProcess(IPlayerContext player) : ILaunchFileProcess
     {
-        public void LaunchFile(ILaunchableItem file) 
+        public void LaunchFile(LaunchableItem file) 
         {
             player.PlayFile(file);
-            player.LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
+            player.LoadDirectory(file.Path.Directory, file.Path);
         }
     }
 }

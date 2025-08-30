@@ -1,0 +1,68 @@
+﻿using TeensyRom.Core.Abstractions;
+using TeensyRom.Core.Common;
+using TeensyRom.Core.Logging;
+using TeensyRom.Core.Serial;
+
+namespace TeensyRom.Core.Commands
+{
+    public interface IResetSerialRoutine
+    {
+        Task<bool> Execute();
+    }
+
+    public class ResetSerialRoutine(ISerialStateContext serialState, IAlertService alert) : IResetSerialRoutine
+    {
+        public async Task<bool> Execute()
+        {
+            serialState.SendIntBytes(TeensyToken.Reset, 2);
+
+            return await PollForSuccess();
+        }
+        private async Task<bool> PollForSuccess()
+        {
+            var response = string.Empty;
+            try
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    response = $"{response}{serialState.ReadAndLogSerialAsString(1000)}";
+                    if (response.Contains("Resetting C64"))
+                    {
+                        return true;
+                    }
+                    await Task.Delay(1000);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("port is closed"))
+                {
+                    alert.Publish("Disconnected from TeensyROM minimal mode.  Reconnecting.");
+                    await HandleReconnection(1000);
+                    return true;
+                }
+                throw;
+            }
+            return false;
+        }
+
+        private async Task HandleReconnection(int waitMs)
+        {
+            await Task.Delay(waitMs);
+
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    serialState.EnsureConnection();
+                    return;
+                }
+                catch (TeensyException)
+                {
+                    if (i == 2) throw;
+                }
+            }
+        }
+
+    }
+}

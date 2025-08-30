@@ -24,19 +24,19 @@ namespace TeensyRom.Core.Storage.Tools.D64Extraction
 
         public ExtractionResult Extract(FileTransferItem d64)
         {
-            _log.Internal($"***Starting d64 extraction for {d64.Name}***");
+            _log.Internal($"***Starting d64 extraction for {d64.TargetPath.FileName}***");
 
-            var outputDir = Path.Combine(OutputPath, d64.Name);
+            var outputDir = Path.Combine(OutputPath, d64.TargetPath.FileName);
 
             EnsureOutputDirectory(outputDir);
 
-            var prgFileNames = GetPrgFiles(d64.SourcePath);
+            var prgFileNames = GetPrgFiles(d64.FullSourcePath);
 
-            var outputFiles = ExtractPrgFiles(d64.SourcePath, prgFileNames, outputDir);
+            var outputFiles = ExtractPrgFiles(d64.FullSourcePath, prgFileNames, outputDir);
 
             return new ExtractionResult
             (
-                fileName: d64.Name,
+                fileName: d64.TargetPath.FileName,
                 extractedFiles: outputFiles
             );
         }

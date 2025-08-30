@@ -10,6 +10,7 @@ using TeensyRom.Ui;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Storage;
 using TeensyRom.Core.Abstractions;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Tests.Integration
 {
@@ -59,9 +60,9 @@ namespace TeensyRom.Tests.Integration
             }
         }
 
-        public FileTransferItem CreateTeensyFileInfo(
+        public FileTransferItem CreateFileTransferItem(
             TeensyFileType fileType = TeensyFileType.Sid,
-            string? targetPath = null,
+            FilePath? targetFilePath = null,
             TeensyStorageType storageType = TeensyStorageType.SD)
         {
             string extension = GetFileExtension(fileType);
@@ -75,11 +76,15 @@ namespace TeensyRom.Tests.Integration
             var fileInfo = new FileTransferItem
             (
                 sourcePath: tempFilePath,
-                targetPath: targetPath ?? string.Empty,
+
+                targetFilePath: targetFilePath is null 
+                    ? new FilePath(string.Empty) 
+                    : targetFilePath,
+
                 targetStorage: storageType
             );
 
-            File.Delete(fileInfo.SourcePath);
+            File.Delete(fileInfo.FullSourcePath);
 
             return fileInfo;
         }

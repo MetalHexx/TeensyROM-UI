@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Core.Entities.Storage
 {
@@ -14,6 +15,8 @@ namespace TeensyRom.Core.Entities.Storage
                 WriteIndented = true
             };
             options.Converters.Add(new LaunchableItemConverter());
+            options.Converters.Add(new DirectoryPathJsonConverter());
+            options.Converters.Add(new FilePathJsonConverter());
 
             return options;
         }

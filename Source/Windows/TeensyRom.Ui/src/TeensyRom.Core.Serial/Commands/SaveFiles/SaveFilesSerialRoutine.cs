@@ -30,12 +30,12 @@ namespace TeensyRom.Core.Serial.Commands.SaveFiles
 
                 if (success)
                 {
-                    log.Internal($"Copying: {file.TargetPath.UnixPathCombine(file.Name)}");
+                    log.Internal($"Copying: {file.TargetPath.FileName} to {file.TargetPath.Directory}");
                     successfulFiles.Add(file);
                 }
                 else
                 {
-                    log.InternalError($"Failed to copy {file.Name} after {_retryLimit} attempts");
+                    log.InternalError($"Failed to copy {file.TargetPath.FileName} after {_retryLimit} attempts");
                     failedFiles.Add(file);
                 }
             }
@@ -56,7 +56,7 @@ namespace TeensyRom.Core.Serial.Commands.SaveFiles
                     serial.SendIntBytes(file.StreamLength, 4);
                     serial.SendIntBytes(file.Checksum, 2);
                     serial.SendIntBytes(file.TargetStorage.GetStorageToken(), 1);
-                    serial.Write($"{file.TargetPath.UnixPathCombine(file.Name)}\0");
+                    serial.Write($"{file.TargetPath.Value}\0");
                     serial.HandleAck();
                     serial.ClearBuffers();
 
@@ -84,8 +84,8 @@ namespace TeensyRom.Core.Serial.Commands.SaveFiles
 
                     if (isDuplicateFile)
                     {
-                        log.InternalError($"Attempting to overwrite: {file.TargetPath.UnixPathCombine(file.Name)}");
-                        TryDelete(serial,log, file);
+                        log.InternalError($"Attempting to overwrite: {file.TargetPath.Value}");
+                        TryDelete(serial, log, file);
                         continue;
                     }
                     log.InternalError($"Waiting {retry} seconds to retry.");
@@ -104,7 +104,7 @@ namespace TeensyRom.Core.Serial.Commands.SaveFiles
                 serial.SendIntBytes(TeensyToken.DeleteFile, 2);
                 serial.HandleAck();
                 serial.SendIntBytes(file.TargetStorage.GetStorageToken(), 1);
-                serial.Write($"{file.TargetPath.UnixPathCombine(file.Name)}\0");
+                serial.Write($"{file.TargetPath.Value}\0");
                 serial.HandleAck();
                 log.InternalSuccess($"Deleted file {file.TargetPath} successfully");
             }

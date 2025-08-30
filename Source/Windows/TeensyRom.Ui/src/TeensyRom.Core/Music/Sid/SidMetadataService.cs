@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Core.Music.Sid
 {
@@ -75,10 +76,10 @@ namespace TeensyRom.Core.Music.Sid
             song.Meta1 = sidRecord.Clock;
             song.Meta2 = sidRecord.SidModel;
             song.IsCompatible = sidRecord.Format == MusicConstants.RSID ? false : true;
-            
-            song.MetadataSourcePath = song.MetadataSourcePath.RemoveLeadingAndTrailingSlash().Contains(sidRecord.Filepath.RemoveLeadingAndTrailingSlash()) 
-                ? song.MetadataSourcePath 
-                : sidRecord.Filepath;
+
+            song.MetadataSourcePath = song.MetadataSourcePath.Value.Contains(sidRecord.Filepath)
+                ? song.MetadataSourcePath
+                : new FilePath(sidRecord.Filepath);
             
             song.ShareUrl = $"https://deepsid.chordian.net/?file={sidRecord.Filepath}";
         }
@@ -96,9 +97,9 @@ namespace TeensyRom.Core.Music.Sid
         private void EnrichWithHsvcMusicianImage(SongItem song) 
         {
             var currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var songPath = string.IsNullOrWhiteSpace(song.MetadataSourcePath) ? song.Path : song.MetadataSourcePath;
+            var songPath = song.MetadataSourcePath.IsEmpty ? song.Path : song.MetadataSourcePath;
 
-            var remainingPathSegments = songPath.GetRemainingPathSegments(MusicConstants.Hvsc_Musician_Base_Remote_Path);
+            var remainingPathSegments = songPath.Value.GetRemainingPathSegments(MusicConstants.Hvsc_Musician_Base_Remote_Path);
 
             var hsvcImageName = $"{Path.Combine(currentDirectory!, MusicConstants.Musician_Image_Local_Path)}musicians";
 
@@ -152,20 +153,20 @@ namespace TeensyRom.Core.Music.Sid
             .Select(r =>
             {
                 r.Filepath = r.Filename;
-                r.Filename = r.Filename.GetFileNameFromPath();
+                r.Filename = r.Filename.GetFileNameFromUnixPath();
                 return r;
             })
             .GroupBy(r => new { r.SizeInBytes, r.Filename })
             .Where(g => g.Count() == 1)
             .SelectMany(g => g)
             .ToList()
-            .ToDictionary(r => $"{r.SizeInBytes}{r.Filename.GetFileNameFromPath()}");
+            .ToDictionary(r => $"{r.SizeInBytes}{r.Filename.GetFileNameFromUnixPath()}");
 
         private static Dictionary<string, SidRecord> ParseSids(Dictionary<string, SidRecord> sids)
         {
             foreach (var sid in sids)
             {
-                sid.Value.Title = sid.Value.Title.EnsureNotEmpty(sid.Value.Filename.GetFileNameFromPath());
+                sid.Value.Title = sid.Value.Title.EnsureNotEmpty(sid.Value.Filename.GetFileNameFromUnixPath());
                 sid.Value.Author = sid.Value.Author.EnsureNotEmpty("Unknown Artist");
                 sid.Value.Released = sid.Value.Released.EnsureNotEmpty("No Release Info");
 

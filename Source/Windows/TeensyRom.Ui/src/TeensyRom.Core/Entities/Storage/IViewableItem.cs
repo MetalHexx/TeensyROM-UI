@@ -1,6 +1,6 @@
 ﻿namespace TeensyRom.Core.Entities.Storage
 {
-    public interface IViewableItem : IFileItem
+    public interface IViewableItem
     {
         List<ViewableItemImage> Images { get; }
 

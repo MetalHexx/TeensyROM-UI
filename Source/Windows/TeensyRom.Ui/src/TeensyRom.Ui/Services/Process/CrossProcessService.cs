@@ -14,12 +14,12 @@ namespace TeensyRom.Ui.Services.Process
 
     public interface ICrossProcessService
     {
-        Task LaunchFile(ILaunchableItem file);
-        Task UpsertFile(IFileItem file);
-        Task ReorderFiles(IEnumerable<IFileItem> files);
+        Task LaunchFile(LaunchableItem file);
+        Task UpsertFile(FileItem file);
+        Task ReorderFiles(IEnumerable<FileItem> files);
         Task CopyFiles(IEnumerable<CopyFileItem> files);
-        Task SaveFavorite(ILaunchableItem file);
-        Task RemoveFavorite(ILaunchableItem file);
+        Task SaveFavorite(LaunchableItem file);
+        Task RemoveFavorite(LaunchableItem file);
         Task SendMessageAsync<T>(ProcessCommand<T> message);
     }
 
@@ -146,7 +146,7 @@ namespace TeensyRom.Ui.Services.Process
 
         private void HandleLaunchFile(string raw)
         {
-            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<ILaunchableItem>>(raw);
+            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<LaunchableItem>>(raw);
 
             if (message is null) return;
 
@@ -157,17 +157,17 @@ namespace TeensyRom.Ui.Services.Process
 
         private async Task HandleReorderFiles(string raw)
         {
-            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<List<IFileItem>>>(raw);
+            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<List<FileItem>>>(raw);
 
             if (message is null) return;
 
-            _log.InternalSuccess($"Sync Service: Received playlist reorder: { message.Value.First().Path.GetUnixParentPath() }");
+            _log.InternalSuccess($"Sync Service: Received playlist reorder: { message.Value.First().Path.Directory}");
             await _upsertFile.ReorderFiles(message.Value);
         }
 
         private async Task HandleUpsertFile(string raw) 
         {
-            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<ILaunchableItem>>(raw);
+            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<LaunchableItem>>(raw);
 
             if (message is null) return;
 
@@ -188,7 +188,7 @@ namespace TeensyRom.Ui.Services.Process
 
         private async Task HandleFavoriteFile(string raw)
         {
-            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<ILaunchableItem>>(raw);
+            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<LaunchableItem>>(raw);
             if (message?.Value != null)
             {
                 _log.InternalSuccess($"Sync Service: Received Favorite Request: {message.Value.Name}");
@@ -198,7 +198,7 @@ namespace TeensyRom.Ui.Services.Process
 
         private async Task HandleRemoveFavorite(string raw)
         {
-            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<ILaunchableItem>>(raw);
+            var message = LaunchableItemSerializer.Deserialize<ProcessCommand<LaunchableItem>>(raw);
 
             if (message?.Value != null)
             {
@@ -207,30 +207,30 @@ namespace TeensyRom.Ui.Services.Process
             }
         }
 
-        public async Task LaunchFile(ILaunchableItem file)
+        public async Task LaunchFile(LaunchableItem file)
         {
-            await SendMessageAsync(new ProcessCommand<ILaunchableItem>
+            await SendMessageAsync(new ProcessCommand<LaunchableItem>
             {
                 MessageType = ProcessCommandType.LaunchFile,
                 Value = file
             });
         }
-        public async Task ReorderFiles(IEnumerable<IFileItem> files)
+        public async Task ReorderFiles(IEnumerable<FileItem> files)
         {
             await _upsertFile.ReorderFiles(files);
 
-            await SendMessageAsync(new ProcessCommand<IEnumerable<IFileItem>>
+            await SendMessageAsync(new ProcessCommand<IEnumerable<FileItem>>
             {
                 MessageType = ProcessCommandType.ReorderFiles,
                 Value = files
             });
         }
 
-        public async Task UpsertFile(IFileItem file)
+        public async Task UpsertFile(FileItem file)
         {
             await _upsertFile.UpsertFile(file);
 
-            await SendMessageAsync(new ProcessCommand<IFileItem>
+            await SendMessageAsync(new ProcessCommand<FileItem>
             {
                 MessageType = ProcessCommandType.UpsertFile,
                 Value = file
@@ -249,9 +249,9 @@ namespace TeensyRom.Ui.Services.Process
             });
         }
 
-        public async Task SaveFavorite(ILaunchableItem file)
+        public async Task SaveFavorite(LaunchableItem file)
         {            
-            await SendMessageAsync(new ProcessCommand<ILaunchableItem>
+            await SendMessageAsync(new ProcessCommand<LaunchableItem>
             {
                 MessageType = ProcessCommandType.FavoriteFile,
                 Value = file
@@ -259,9 +259,9 @@ namespace TeensyRom.Ui.Services.Process
             await _favFile.SaveFavorite(file);
         }
 
-        public async Task RemoveFavorite(ILaunchableItem file)
+        public async Task RemoveFavorite(LaunchableItem file)
         {            
-            await SendMessageAsync(new ProcessCommand<ILaunchableItem>
+            await SendMessageAsync(new ProcessCommand<LaunchableItem>
             {
                 MessageType = ProcessCommandType.RemoveFavoriteFile,
                 Value = file
@@ -304,7 +304,7 @@ namespace TeensyRom.Ui.Services.Process
 
                                 _log.InternalError($"Sync Failed (Upsert): Cart {cart.Name} was not found.  Queuing for later.");
 
-                                if (message.Value is IFileItem item)
+                                if (message.Value is FileItem item)
                                 {
                                     _syncService.QueueUpsertFiles(cart, [item]);
                                 }
@@ -314,7 +314,7 @@ namespace TeensyRom.Ui.Services.Process
 
                                 _log.InternalError($"Sync Failed (Reorder): Cart {cart.Name} was not found.  Queuing for later.");
 
-                                if (message.Value is IEnumerable<IFileItem> reorderItems)
+                                if (message.Value is IEnumerable<FileItem> reorderItems)
                                 {
                                     _syncService.QueueReorderFiles(cart, reorderItems.ToList());
                                 }
@@ -334,7 +334,7 @@ namespace TeensyRom.Ui.Services.Process
 
                                 _log.InternalError($"Sync Failed (Playlist): Cart {cart.Name} was not found.  Queuing for later.");
 
-                                if (message.Value is ILaunchableItem favItem)
+                                if (message.Value is LaunchableItem favItem)
                                 {
                                     _syncService.QueueFavFile(cart, favItem);
                                 }                                    
@@ -344,7 +344,7 @@ namespace TeensyRom.Ui.Services.Process
                                 
                                 _log.InternalError($"Sync Failed (Remove Playlist): Cart {cart.Name} was not found.  Queuing for later.");
                                 
-                                if (message.Value is ILaunchableItem removeFavItem)
+                                if (message.Value is LaunchableItem removeFavItem)
                                 {
                                     _syncService.QueueRemoveFavFile(cart, removeFavItem);
                                 }                                    

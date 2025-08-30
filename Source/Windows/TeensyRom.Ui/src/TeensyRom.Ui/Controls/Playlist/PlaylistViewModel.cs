@@ -13,6 +13,7 @@ using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage;
+using TeensyRom.Core.ValueObjects;
 using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Ui.Helpers;
 using TeensyRom.Ui.Services.Process;
@@ -22,7 +23,7 @@ namespace TeensyRom.Ui.Controls.Playlist
     public class PlaylistItemViewModel : ReactiveObject
     {
         [Reactive] public string Name { get; set; } = string.Empty;
-        [Reactive] public string Path { get; set; } = string.Empty;
+        [Reactive] public DirectoryPath Path { get; set; } = new DirectoryPath(string.Empty);
         [Reactive] public bool IsSelected { get; set; }
     }
 
@@ -32,7 +33,7 @@ namespace TeensyRom.Ui.Controls.Playlist
         public bool CanCreatePlaylist => _canCreatePlaylist.Value;
         [Reactive] public ObservableCollection<PlaylistItemViewModel> PlaylistItems { get; set; } = [];
         [Reactive] public PlaylistItemViewModel NewPlaylist { get; set; } = new();
-        [Reactive] public ILaunchableItem FileToAdd { get; private set; } = null!;
+        [Reactive] public LaunchableItem FileToAdd { get; private set; } = null!;
         public ReactiveCommand<PlaylistItemViewModel, Unit> CreatePlaylistCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SaveCommand { get; set; }
 
@@ -60,7 +61,7 @@ namespace TeensyRom.Ui.Controls.Playlist
             );
         }
 
-        public async Task InitializeAsync(ILaunchableItem fileToAdd)
+        public async Task InitializeAsync(LaunchableItem fileToAdd)
         {
             FileToAdd = fileToAdd;
             NewPlaylist = new();
@@ -78,7 +79,7 @@ namespace TeensyRom.Ui.Controls.Playlist
             else 
             {
                 item.IsSelected = true;
-                item.Path = $"{StorageHelper.Playlist_Path}{item.Name}";
+                item.Path = new DirectoryPath($"{StorageHelper.Playlist_Path}{item.Name}");
                 PlaylistItems.Add(item);
             }
             NewPlaylist = new();
@@ -103,7 +104,7 @@ namespace TeensyRom.Ui.Controls.Playlist
 
         private async Task LoadPlaylists()
         {
-            var playlistDirectory = await _cache.GetDirectory(Playlist_Path);
+            var playlistDirectory = await _cache.GetDirectory(new DirectoryPath(Playlist_Path));
             
             if (playlistDirectory is null || playlistDirectory?.Directories.Count == 0)
             {
@@ -113,7 +114,7 @@ namespace TeensyRom.Ui.Controls.Playlist
             var favoritesPath = StorageHelper.Favorites_Path.RemoveLeadingAndTrailingSlash();
 
             var items = playlistDirectory!.Directories
-                .Where(d => !d.Path.RemoveLeadingAndTrailingSlash().Equals(favoritesPath))
+                .Where(d => !d.Path.Equals(favoritesPath))
                 .Select(d => new PlaylistItemViewModel
                 {
                     Name = d.Name,
@@ -126,14 +127,13 @@ namespace TeensyRom.Ui.Controls.Playlist
                 .GetAllFavoritePaths()
                 .Select(p => 
                 {
-                    var favoritesPath = StorageHelper.GetFavoritePath(FileToAdd.FileType).RemoveLeadingAndTrailingSlash();
-                    var parentPath = p.RemoveLeadingAndTrailingSlash();
+                    var favoritesPath = StorageHelper.GetFavoritePath(FileToAdd.FileType);
 
                     return new PlaylistItemViewModel
                     {
-                        Name = GetFavoritesPlaylistNames(p),
+                        Name = GetFavoritesPlaylistNames(p.Value),
                         Path = p,
-                        IsSelected = favoritesPath.Equals(parentPath, StringComparison.OrdinalIgnoreCase)
+                        IsSelected = favoritesPath.Equals(p)
                     };
                 });
 

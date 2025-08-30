@@ -5,7 +5,7 @@ using TeensyRom.Core.Games;
 
 namespace TeensyRom.Core.Entities.Storage
 {
-    public class HexItem : FileItem, ILaunchableItem, IViewableItem
+    public class HexItem : LaunchableItem, IViewableItem
     {
         public override string Creator => "Firmware Update";
         public override string Title => $"{Name[..Name.LastIndexOf('.')]}";

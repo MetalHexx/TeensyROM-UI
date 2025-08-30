@@ -1,20 +1,23 @@
-﻿using TeensyRom.Core.Entities.Storage;
+﻿using System.Collections;
+using TeensyRom.Core.Common;
+using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Core.Storage
 {
     public class StorageCacheItem : IStorageCacheItem
     {
-        public string Path { get; set; } = string.Empty;
+        public DirectoryPath Path { get; set; }
         public List<DirectoryItem> Directories { get; set; } = new();
-        public List<IFileItem> Files { get; set; } = new();
+        public List<FileItem> Files { get; set; } = new();
 
         public StorageCacheItem() { }
         public StorageCacheItem(string path)
         {
-            Path = path;
+            Path = new DirectoryPath(path);
         }
 
-        public void UpsertFile(IFileItem fileItem)
+        public void UpsertFile(FileItem fileItem)
         {
             var existingFileIndex = Files.FindIndex(f => f.Name == fileItem.Name);
 
@@ -29,7 +32,7 @@ namespace TeensyRom.Core.Storage
 
         public void InsertSubdirectory(DirectoryItem directory)
         {
-            var subDir = Directories.Find(d => d.Path == directory.Path);
+            var subDir = Directories.Find(d => d.Path.Equals(directory.Path));
 
             if (subDir is not null) return;
 
@@ -38,18 +41,18 @@ namespace TeensyRom.Core.Storage
             return;
         }
 
-        public void DeleteFile(string path)
+        public void DeleteFile(FilePath path)
         {
-            var fileToRemove = Files.Find(f => f.Path == path);
+            var fileToRemove = Files.Find(f => f.Path.Equals(path));
 
             if (fileToRemove is null) return;
 
             Files.Remove(fileToRemove);
         }
 
-        public List<IStorageItem> ToList()
+        public List<StorageItem> ToList()
         {
-            var directoryList = new List<IStorageItem>();
+            var directoryList = new List<StorageItem>();
             directoryList.AddRange(Directories);
             directoryList.AddRange(Files);
 

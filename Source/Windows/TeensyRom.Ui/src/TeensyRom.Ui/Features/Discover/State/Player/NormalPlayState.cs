@@ -25,16 +25,19 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 || nextStateType == typeof(SearchState);
         }
 
-        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentLaunchable, TeensyFilterType filter, DirectoryState directoryState)
+        public override async Task<LaunchableItem?> GetNext(LaunchableItem currentLaunchable, TeensyFilterType filter, DirectoryState directoryState)
         {
-            var parentPath = currentLaunchable.Path.GetUnixParentPath();
+            var parentPath = currentLaunchable.Path.Directory;
             var directoryResult = await _storage.GetDirectory(parentPath);
 
             if (directoryResult is null) return null;
 
             var launchableItems = directoryResult.Files
-                .OfType<ILaunchableItem>()
-                .Where(f => _playerContext.GetFileTypes().Any(type => f.FileType == type))                
+                .OfType<LaunchableItem>()
+                .Where(f => _playerContext.GetFileTypes().Any(type => f.FileType == type))
+                .OrderBy(f => f.Custom is null)
+                .ThenBy(f => f.Custom?.Order)
+                .ThenBy(f => f.Custom == null ? f.Name : null)
                 .ToList();
 
             var currentFile = launchableItems.FirstOrDefault(s => s.Id == currentLaunchable.Id);
@@ -47,25 +50,28 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 ? launchableItems.First()
                 : launchableItems[++currentIndex];
 
-            if (nextFile is not ILaunchableItem) return null;
+            if (nextFile is not LaunchableItem) return null;
 
             if (nextFile.Path == currentLaunchable.Path) return currentLaunchable;
 
             if (_settings.NavToDirOnLaunch)
             {
-                await _playerContext.LoadDirectory(nextFile.Path.GetUnixParentPath(), nextFile.Path);
+                await _playerContext.LoadDirectory(nextFile.Path.Directory, nextFile.Path);
             }
             return nextFile;
         }
 
-        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState)
+        public override async Task<LaunchableItem?> GetPrevious(LaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState)
         {
-            var parentPath = currentFile.Path.GetUnixParentPath();
+            var parentPath = currentFile.Path.Directory;
             var directoryResult = await _storage.GetDirectory(parentPath);
 
             var launchableItems = directoryResult?.Files
-                .OfType<ILaunchableItem>()
+                .OfType<LaunchableItem>()
                 .Where(f => _playerContext.GetFileTypes().Any(type => f.FileType == type))
+                .OrderBy(f => f.Custom is null)
+                .ThenBy(f => f.Custom?.Order)
+                .ThenBy(f => f.Custom == null ? f.Name : null)
                 .ToList();
 
             if (launchableItems is null)
@@ -86,7 +92,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
             if (_settings.NavToDirOnLaunch)
             {
-                await _playerContext.LoadDirectory(nextFile.Path.GetUnixParentPath(), nextFile.Path);
+                await _playerContext.LoadDirectory(nextFile.Path.Directory, nextFile.Path);
             }
             return nextFile;
         }

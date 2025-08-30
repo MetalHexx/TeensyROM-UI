@@ -25,6 +25,7 @@ using TeensyRom.Core.Entities.Midi;
 using TeensyRom.Core.Commands.PlaySubtune;
 using TeensyRom.Core.Commands.MuteSidVoices;
 using TeensyRom.Core.Serial.Commands.Composite.StartSeek;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Ui.Controls.PlayToolbar
 {
@@ -73,7 +74,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [Reactive] public bool Voice2Enabled { get; set; } = true;
         [Reactive] public bool Voice3Enabled { get; set; } = true;
         [Reactive] public bool RepeatModeEnabled { get; set; }
-        [Reactive] public string SelectedScope { get; set; } = StorageScope.Storage.ToDescription();
+        [Reactive] public DirectoryPath SelectedScope { get; set; } = new DirectoryPath(StorageScope.Storage.ToDescription());
         [Reactive]
         public List<string> ScopeOptions { get; set; } = Enum
             .GetValues(typeof(StorageScope))
@@ -89,8 +90,8 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         [ObservableAsProperty] public bool IsSong { get; }
         [ObservableAsProperty] public List<int> SubtuneNumberList { get; }
         [ObservableAsProperty] public bool ShowTitleOnly { get; }
-        [ObservableAsProperty] public string StorageScopePath { get; }
-        [ObservableAsProperty] public ILaunchableItem? File { get; }        
+        [ObservableAsProperty] public DirectoryPath StorageScopePath { get; }
+        [ObservableAsProperty] public LaunchableItem? File { get; }        
         [ObservableAsProperty] public bool ShuffleModeEnabled { get; }
         [ObservableAsProperty] public bool ShareVisible { get; }        
         [ObservableAsProperty] public bool ShowCreator { get; }
@@ -146,13 +147,13 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
         private TeensySettings _settings;        
 
         public PlayToolbarViewModel(
-            IObservable<ILaunchableItem> file,
+            IObservable<LaunchableItem> file,
             IObservable<LaunchItemState> playState,
             IObservable<bool> timedPlayEnabled,
             IObservable<bool> muteFastForward,
             IObservable<bool> muteRandomSeek,
             IObservable<StorageScope> storageScope,
-            IObservable<string> storageScopePath,
+            IObservable<DirectoryPath> storageScopePath,
             IProgressTimer? timer,
             Func<Unit> toggleMode,
             Func<Task> togglePlay,
@@ -161,9 +162,9 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             Func<Task> restartSong,
             Func<int, Task<PlaySubtuneResult?>> restartSubtune,
             Func<int, Task<PlaySubtuneResult?>> playSubtune,
-            Func<ILaunchableItem, Task> saveFav,
-            Func<ILaunchableItem, Task> removeFav,
-            Func<string, Task> loadDirectory,
+            Func<LaunchableItem, Task> saveFav,
+            Func<LaunchableItem, Task> removeFav,
+            Func<DirectoryPath, Task> loadDirectory,
             Func<double, MusicSpeedCurveTypes, Task> changeSpeed,
             Func<VoiceState, VoiceState, VoiceState, Task> mute,
             Func<int, bool, bool, double, SeekDirection, Task> startSeek,
@@ -240,26 +241,26 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             storageScopePath
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Skip(1)
-                .Subscribe(_ => SelectedScope = StorageScope.DirDeep.ToDescription());
+                .Subscribe(_ => SelectedScope = new DirectoryPath(StorageScope.DirDeep.ToDescription()));
 
             storageScope
                 .CombineLatest(storageScopePath, (scope, path) => (scope, path))
                 .Select(scopeAndPath =>
                 {
-                    if (scopeAndPath.path == StorageHelper.Remote_Path_Root) return scopeAndPath;
+                    if (scopeAndPath.path.Value == StorageHelper.Remote_Path_Root) return scopeAndPath;
 
-                    if (scopeAndPath.path.Length <= 10) return scopeAndPath;
+                    if (scopeAndPath.path.Value.Length <= 10) return scopeAndPath;
 
-                    var rangeToTake = Math.Abs(24 - scopeAndPath.path.Length);
+                    var rangeToTake = Math.Abs(24 - scopeAndPath.path.Value.Length);
 
-                    scopeAndPath.path = $"...{scopeAndPath.path[rangeToTake..]}";
+                    scopeAndPath.path = new DirectoryPath($"...{scopeAndPath.path.Value[rangeToTake..]}");
                     return scopeAndPath;
                 })
                 .Select(scopeAndPath => scopeAndPath.scope switch
                 {
                     StorageScope.DirDeep => scopeAndPath.path,
                     StorageScope.DirShallow => scopeAndPath.path,
-                    _ => string.Empty
+                    _ => new DirectoryPath(string.Empty)
                 })
                 .ToPropertyEx(this, vm => vm.StorageScopePath);
 
@@ -390,7 +391,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
                 });
 
             this.WhenAnyValue(x => x.SelectedScope)
-                .Select(s => s.ToEnum<StorageScope>())
+                .Select(s => s.Value.RemoveLeadingAndTrailingSlash().ToEnum<StorageScope>())
                 .Subscribe(scope => setScope(scope));
 
             timedPlayEnabled
@@ -444,7 +445,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
 
             ShareCommand = ReactiveCommand.Create<Unit, Unit>(_ => HandleShareCommand());
 
-            NavigateToFileDirCommand = ReactiveCommand.CreateFromTask(_ => loadDirectory(File!.Path.GetUnixParentPath()!));
+            NavigateToFileDirCommand = ReactiveCommand.CreateFromTask(_ => loadDirectory(File!.Path.Directory!));
 
             PreviousSubtuneCommand = ReactiveCommand.Create<Unit, Unit>(_ =>
             {
@@ -1330,7 +1331,7 @@ namespace TeensyRom.Ui.Controls.PlayToolbar
             StartTimerObservables(subtuneLength, _playNext);
         }
 
-        private void InitializeProgress(ILaunchableItem? item)
+        private void InitializeProgress(LaunchableItem? item)
         {
             if (item == null) return;            
 

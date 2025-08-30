@@ -16,69 +16,83 @@ using DragNDropFile = TeensyRom.Ui.Features.Common.Models.DragNDropFile;
 using TeensyRom.Core.Midi;
 using System.Reactive.Linq;
 using DynamicData;
+using TeensyRom.Core.ValueObjects;
+using System.Runtime.CompilerServices;
+using TeensyRom.Core.Common;
+using TeensyRom.Core.Storage;
 
 namespace TeensyRom.Ui.Controls.DirectoryList
 {
     public class DirectoryListViewModel : ReactiveObject
     {
         public IObservable<MidiEvent> MidiEvents { get; set; }
-        [ObservableAsProperty] public ObservableCollection<IStorageItem>? DirectoryContent { get; }
+        [ObservableAsProperty] public ObservableCollection<StorageItem>? DirectoryContent { get; }
         [ObservableAsProperty] public bool ShowPaging { get; }
         [Reactive] public PagingViewModel Paging { get; set; }
-        public ReactiveCommand<ILaunchableItem, Unit> PlayCommand { get; set; }
-        public ReactiveCommand<ILaunchableItem, Unit> SelectCommand { get; set; }
-        public ReactiveCommand<ILaunchableItem, Unit> SaveFavoriteCommand { get; set; }
-        public ReactiveCommand<ILaunchableItem, Unit> RemoveFavoriteCommand { get; set; }
-        public ReactiveCommand<IFileItem, Unit> DeleteCommand { get; set; }
+        public ReactiveCommand<LaunchableItem, Unit> PlayCommand { get; set; }
+        public ReactiveCommand<LaunchableItem, Unit> SelectCommand { get; set; }
+        public ReactiveCommand<LaunchableItem, Unit> SaveFavoriteCommand { get; set; }
+        public ReactiveCommand<LaunchableItem, Unit> RemoveFavoriteCommand { get; set; }
+        public ReactiveCommand<FileItem, Unit> DeleteCommand { get; set; }
         public ReactiveCommand<DragEventArgs, Unit> DropCommand { get; private set; }
         public ReactiveCommand<DragEventArgs, Unit> DragOverCommand { get; }
         public ReactiveCommand<DirectoryItem, Unit> LoadDirectoryCommand { get; set; }
 
         private readonly IMidiService _midiService;
-        private readonly Func<List<IFileItem>, Task> _reorderFunc;
-        private readonly Func<IEnumerable<DragNDropFile>, Task> _storeFilesFunc;
+        private readonly Func<List<FileItem>, Task> _reorderFunc;
         private readonly IAlertService _alert;
         private readonly IProgressService _progress;
+        private readonly IFileTransferService _fileTransfer;
+
+        private DirectoryPath _currentDirectory = new(string.Empty);
+        private TeensyStorageType _currentStorage = TeensyStorageType.SD;        
 
         public DirectoryListViewModel
         (
-            IObservable<ObservableCollection<IStorageItem>> directoryContent,
+            IObservable<DirectoryPath> currentDirectory,
+            IObservable<TeensyStorageType> currentStorage,
+            IObservable<ObservableCollection<StorageItem>> directoryContent,
             IObservable<bool> pagingEnabled,
             IObservable<int> currentPage,
             IObservable<int> totalPages,
-            Func<ILaunchableItem, Task> launchGameFunc, 
-            Func<ILaunchableItem, Unit> setSelectedFunc,
-            Func<ILaunchableItem, Task> saveFavFunc,
-            Func<ILaunchableItem, Task> removeFavFunc,
-            Func<List<IFileItem>, Task> reorderFunc,
-            Func<IEnumerable<DragNDropFile>, Task> storeFilesFunc,
-            Func<IFileItem, Task> deleteFunc,
-            Func<string, string, Task> loadDirFunc,
+            Func<LaunchableItem, Task> launchGameFunc, 
+            Func<LaunchableItem, Unit> setSelectedFunc,
+            Func<LaunchableItem, Task> saveFavFunc,
+            Func<LaunchableItem, Task> removeFavFunc,
+            Func<List<FileItem>, Task> reorderFunc,
+            Func<FileItem, Task> deleteFunc,
+            Func<DirectoryPath, FilePath, Task> loadDirFunc,
             Func<Unit> nextPageFunc,
             Func<Unit> prevPageFunc,
             Func<int, Unit> setPageSizeFunc,
             IAlertService alert, 
             IDialogService dialog,
             IProgressService progress,
-            IMidiService midiService
+            IMidiService midiService,
+            IFileTransferService fileTransfer
         )
         {
             _reorderFunc = reorderFunc;
-            _storeFilesFunc = storeFilesFunc;
+            _fileTransfer = fileTransfer;
             _alert = alert;
             _progress = progress;
+
+            currentDirectory.Subscribe(d => _currentDirectory = d);
+            currentStorage.Subscribe(s => _currentStorage = s);
 
             directoryContent
                 .Select(d => 
                 {
-                    var files = d.OfType<IFileItem>();
+                    var files = d.OfType<FileItem>();
                     var directories = d.OfType<DirectoryItem>();
 
                     var orderedFiles = files
-                        .OrderBy(f => f.Custom?.Order)
+                        .OrderBy(f => f.Custom == null)          
+                        .ThenBy(f => f.Custom?.Order)            
+                        .ThenBy(f => f.Custom == null ? f.Name : null)
                         .ThenBy(f => f.Name);
 
-                    var newCollection = new ObservableCollection<IStorageItem>();
+                    var newCollection = new ObservableCollection<StorageItem>();
                     newCollection.AddRange(directories);
                     newCollection.AddRange(orderedFiles);
                     return newCollection;
@@ -115,7 +129,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
                 execute: directory => loadDirFunc(directory.Path, null!),
                 outputScheduler: RxApp.MainThreadScheduler);
 
-            DeleteCommand = ReactiveCommand.CreateFromTask<IFileItem, Unit>(
+            DeleteCommand = ReactiveCommand.CreateFromTask<FileItem, Unit>(
                 execute: async file => 
                 {
                     var confirmed = await dialog.ShowConfirmation($"Are you sure you want to delete {file.Path}?");
@@ -144,7 +158,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
             (
                 execute: (DragEventArgs e) =>
                 {
-                    if (e.Data.GetDataPresent(typeof(IStorageItem)))
+                    if (e.Data.GetDataPresent(typeof(StorageItem)))
                     {
                         return HandleInternalDrop(e);
                     }
@@ -165,38 +179,68 @@ namespace TeensyRom.Ui.Controls.DirectoryList
             return Task.Run(async () =>
             {
                 _progress.EnableProgress();
-
                 _alert.Publish("Transferring files.");
 
-                var items = (string[])e.Data.GetData(DataFormats.FileDrop);
+                List<FileTransferItem> fileTransferItems = ProcessDrop(e);
 
-                var singleDirectoryCopy = items.Length == 1 && !File.Exists(items[0]) && Directory.Exists(items[0]);
-
-                var depth = singleDirectoryCopy ? 1 : 0;
-
-                List<DragNDropFile> filePaths = [];
-
-                foreach (var item in items)
-                {
-                    if (File.Exists(item))
-                    {
-                        filePaths.Add(new DragNDropFile { Path = item });
-                    }
-                    else if (Directory.Exists(item))
-                    {
-                        ProcessDirectoryAsync(item, filePaths, depth);
-                    }
-                }
-                await _storeFilesFunc(filePaths);
+                _fileTransfer.Send(fileTransferItems);
                 _progress.DisableProgress();
             });
+        }
+        
+        private List<FileTransferItem> ProcessDrop(DragEventArgs e)
+        {
+            var items = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            var singleDirectoryCopy = items.Length == 1 && !File.Exists(items[0]) && Directory.Exists(items[0]);
+
+            var depth = singleDirectoryCopy ? 1 : 0;
+
+            List<DragNDropFile> filePaths = [];
+
+            foreach (var item in items)
+            {
+                if (File.Exists(item))
+                {
+                    filePaths.Add(new DragNDropFile(item));
+                }
+                else if (Directory.Exists(item))
+                {
+                    ProcessDirectoryAsync(item, filePaths, depth);
+                }
+            }
+
+            var commonDirectory = filePaths
+                .Select(f => f.File.FullName)
+                .GetCommonBasePath();
+
+            var baseDirectoryName = commonDirectory.GetLastDirectoryFromPath();
+
+            return filePaths.Select(f =>
+            {
+                var fullPath = f.File.FullName;
+                var relativePath = Path.GetRelativePath(commonDirectory, fullPath);
+
+                var targetFilePath = singleDirectoryCopy
+                    ? Path.Combine(baseDirectoryName, relativePath)
+                    : relativePath;
+
+                var targetPath = new FilePath(targetFilePath.ToUnixPath()).Combine(_currentDirectory);
+
+                return new FileTransferItem(
+                    fileInfo: f.File,
+                    targetFilePath: targetPath,
+                    targetStorage: _currentStorage
+                );
+            })
+            .ToList();
         }
 
         private Task HandleInternalDrop(DragEventArgs e)
         {
             var x = DirectoryContent;
 
-            var files = DirectoryContent?.Cast<IFileItem>().ToList();
+            var files = DirectoryContent?.Cast<FileItem>().ToList();
 
             if (files is null) return Task.CompletedTask;
 
@@ -213,11 +257,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
 
             filePaths.AddRange(Directory
                 .GetFiles(directoryPath)
-                .Select(path => new DragNDropFile
-                {
-                    Path = path,
-                    InSubdirectory = directoryLevel > 1
-                }));
+                .Select(path => new DragNDropFile(path, inSubdirectory: directoryLevel > 1)));
 
             foreach (var subdirectory in Directory.GetDirectories(directoryPath))
             {

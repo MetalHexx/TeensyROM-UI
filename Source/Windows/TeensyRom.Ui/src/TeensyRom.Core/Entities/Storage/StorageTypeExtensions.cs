@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using TeensyRom.Core.Common;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Core.Entities.Storage
 {
@@ -20,36 +21,38 @@ namespace TeensyRom.Core.Entities.Storage
     }
     public static class StorageFileExtensions
     {
-        public static IFileItem ToFileItem(this FileTransferItem fileInfo)
+        public static FileItem ToFileItem(this FileTransferItem transferItem)
         {
-            return fileInfo.Type switch
-            {
-                TeensyFileType.Sid => new SongItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.Crt => new GameItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.Prg => new GameItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.P00 => new GameItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.Hex => new HexItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.Kla => new ImageItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.Koa => new ImageItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.Art => new ImageItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.Aas => new ImageItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.Hpi => new ImageItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.Seq => new ImageItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
-                TeensyFileType.Txt => new ImageItem { Name = fileInfo.Name, Title = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+            var fileName = transferItem.TargetPath.FileName;
 
-                _ => new FileItem { Name = fileInfo.Name, Path = fileInfo.TargetPath.UnixPathCombine(fileInfo.Name), Size = fileInfo.Size },
+            return transferItem.Type switch
+            {
+                TeensyFileType.Sid => new SongItem  { Name = fileName, Title = fileName, Path = transferItem.TargetPath, Size = transferItem.Size },
+                TeensyFileType.Crt => new GameItem  { Name = fileName, Title = fileName, Path = transferItem.TargetPath, Size = transferItem.Size },
+                TeensyFileType.Prg => new GameItem  { Name = fileName, Title = fileName, Path = transferItem.TargetPath, Size = transferItem.Size },
+                TeensyFileType.P00 => new GameItem  { Name = fileName, Title = fileName, Path = transferItem.TargetPath, Size = transferItem.Size },
+                TeensyFileType.Hex => new HexItem   { Name = fileName, Title = fileName, Path = transferItem.TargetPath, Size = transferItem.Size },
+                TeensyFileType.Kla => new ImageItem { Name = fileName, Title = fileName, Path = transferItem.TargetPath, Size = transferItem.Size },
+                TeensyFileType.Koa => new ImageItem { Name = fileName, Title = fileName, Path = transferItem.TargetPath, Size = transferItem.Size },
+                TeensyFileType.Art => new ImageItem { Name = fileName, Title = fileName, Path = transferItem.TargetPath, Size = transferItem.Size },
+                TeensyFileType.Aas => new ImageItem { Name = fileName, Title = fileName, Path = transferItem.TargetPath, Size = transferItem.Size },
+                TeensyFileType.Hpi => new ImageItem { Name = fileName, Title = fileName, Path = transferItem.TargetPath, Size = transferItem.Size },
+                TeensyFileType.Seq => new ImageItem { Name = fileName, Title = fileName, Path = transferItem.TargetPath, Size = transferItem.Size },
+                TeensyFileType.Txt => new ImageItem { Name = fileName, Title = fileName, Path = transferItem.TargetPath, Size = transferItem.Size },
+                
+                _ => new FileItem { Name = fileName, Path = transferItem.TargetPath, Size = transferItem.Size },
             };
         }
 
-        public static IFileItem MapFileItem(this IFileItem fileItem)
+        public static FileItem MapFileItem(this FileItem fileItem)
         {
             return fileItem.FileType switch
             {
-                TeensyFileType.Sid => new SongItem { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
-                TeensyFileType.Crt => new GameItem { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
-                TeensyFileType.Prg => new GameItem { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
-                TeensyFileType.P00 => new GameItem { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
-                TeensyFileType.Hex => new HexItem { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
+                TeensyFileType.Sid => new SongItem  { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
+                TeensyFileType.Crt => new GameItem  { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
+                TeensyFileType.Prg => new GameItem  { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
+                TeensyFileType.P00 => new GameItem  { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
+                TeensyFileType.Hex => new HexItem   { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
                 TeensyFileType.Kla => new ImageItem { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
                 TeensyFileType.Koa => new ImageItem { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
                 TeensyFileType.Art => new ImageItem { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
@@ -57,7 +60,7 @@ namespace TeensyRom.Core.Entities.Storage
                 TeensyFileType.Hpi => new ImageItem { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
                 TeensyFileType.Seq => new ImageItem { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
                 TeensyFileType.Txt => new ImageItem { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
-                _ => new FileItem { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
+                _ =>                  new FileItem  { Name = fileItem.Name, Title = fileItem.Name, Path = fileItem.Path, Size = fileItem.Size },
             };
         }
     }
@@ -88,6 +91,7 @@ namespace TeensyRom.Core.Entities.Storage
             ".seq" => TeensyFileType.Seq,
             ".txt" => TeensyFileType.Txt,
             ".d64" => TeensyFileType.D64,
+            ".zip" => TeensyFileType.Zip,
             _ => TeensyFileType.Unknown
         };
     }

@@ -26,7 +26,7 @@ namespace TeensyRom.Ui.Controls.FileInfo
         [ObservableAsProperty] public string? ScreenshotPath { get; }
         [ObservableAsProperty] public ImageSource? CroppedLoadingScreen { get; }
         [ObservableAsProperty] public ImageSource? CroppedScreenshot { get; }
-        [ObservableAsProperty] public ILaunchableItem? SelectedFile { get; }
+        [ObservableAsProperty] public LaunchableItem? SelectedFile { get; }
 
         public FileInfoViewModel(IPlayerContext context, IGameMetadataService gameMetadata)
         {

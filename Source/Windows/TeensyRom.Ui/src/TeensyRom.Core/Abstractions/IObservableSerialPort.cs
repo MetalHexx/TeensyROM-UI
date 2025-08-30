@@ -127,7 +127,7 @@ namespace TeensyRom.Core.Abstractions
         /// </summary>
         /// <param name="numBytes"></param>
         /// <param name="timeoutMs">Total time to wait before a timeout exception is thrown</param>
-        /// cref="TimeoutException">Thrown if the timeout is reached before the specified number of bytes are available</cref>
+        /// <exception cref="TimeoutException">Thrown if the timeout is reached before the specified number of bytes are available</exception>
         void WaitForSerialData(int numBytes, int timeoutMs);
 
         /// <summary>

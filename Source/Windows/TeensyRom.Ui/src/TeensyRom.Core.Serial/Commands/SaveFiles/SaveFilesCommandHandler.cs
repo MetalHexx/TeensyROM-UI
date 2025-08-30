@@ -22,23 +22,25 @@ namespace TeensyRom.Core.Commands
 
             foreach (var file in command.Files)
             {
-                var success = CopyFile(file, command);
+                logService.Internal($"Saving File: {file.TargetPath.Value}");
+
+                var success = SaveFile(file, command);
 
                 if (success)
                 {
-                    logService.Internal($"Copying: {file.TargetPath.UnixPathCombine(file.Name)}");
+                    logService.InternalSuccess($"Save Success: {file.TargetPath.Value}");
                     result.SuccessfulFiles.Add(file);
                 }
                 else
                 {
-                    logService.InternalError($"Failed to copy {file.Name} after {_retryLimit} attempts");
+                    logService.InternalError($"Save Failed: Failed to copy {file.TargetPath.FileName} after {_retryLimit} attempts");
                     result.FailedFiles.Add(file);
                 }
             }
             return Task.FromResult(result);
         }
 
-        private bool CopyFile(FileTransferItem file, SaveFilesCommand command) 
+        private bool SaveFile(FileTransferItem file, SaveFilesCommand command) 
         {
             var retry = 0;
 
@@ -52,7 +54,7 @@ namespace TeensyRom.Core.Commands
                     _serialState.SendIntBytes(file.StreamLength, 4);
                     _serialState.SendIntBytes(file.Checksum, 2);
                     _serialState.SendIntBytes(file.TargetStorage.GetStorageToken(), 1);
-                    _serialState.Write($"{file.TargetPath.UnixPathCombine(file.Name)}\0");
+                    _serialState.Write($"{file.TargetPath.Value}\0");
                     _serialState.HandleAck();
                     _serialState.ClearBuffers();
 
@@ -73,20 +75,21 @@ namespace TeensyRom.Core.Commands
                 {
                     retry++;
                     var response = _serialState.ReadSerialAsString(500);
-                    var fileExistsMessage = "File already exists";
+                    var fileExistsParseMessage = "File already exists";
 
-                    var isDuplicateFile = response.Contains(fileExistsMessage, StringComparison.OrdinalIgnoreCase)
-                        || ex.Message.Contains(fileExistsMessage, StringComparison.OrdinalIgnoreCase);
+                    var fileExists = response.Contains(fileExistsParseMessage, StringComparison.OrdinalIgnoreCase)
+                        || ex.Message.Contains(fileExistsParseMessage, StringComparison.OrdinalIgnoreCase);
 
-                    if (isDuplicateFile)
+                    if (fileExists)
                     {
-                        logService.InternalError($"Attempting to overwrite: {file.TargetPath.UnixPathCombine(file.Name)}");
+                        logService.InternalError($"Save Error: {file.TargetPath.Value} already exists on TR.");
+                        logService.Internal($"Delete Attempt: {file.TargetPath.Value}");
                         TryDelete(file);
                         continue;
                     }
-                    logService.InternalError($"Waiting {retry} seconds to retry.");
+                    logService.InternalError($"Save Retry: {retry} seconds to retry.");
                     Thread.Sleep(1000 * retry);
-                    logService.InternalError($"Retry {retry} of {_retryLimit}");
+                    logService.InternalError($"Save Retry: {retry} of {_retryLimit}");
                 }
             }
             return false;
@@ -100,13 +103,13 @@ namespace TeensyRom.Core.Commands
                 _serialState.SendIntBytes(TeensyToken.DeleteFile, 2);
                 _serialState.HandleAck();
                 _serialState.SendIntBytes(file.TargetStorage.GetStorageToken(), 1);
-                _serialState.Write($"{file.TargetPath.UnixPathCombine(file.Name)}\0");
+                _serialState.Write($"{file.TargetPath.Value}\0");
                 _serialState.HandleAck();
-                logService.InternalSuccess($"Deleted file {file.TargetPath} successfully");
+                logService.InternalSuccess($"Delete Success: {file.TargetPath}");
             }
             catch (Exception ex)
             {
-                logService.InternalError($"Error deleting file {file} \r\n => {ex.Message}");
+                logService.InternalError($"Delete Error: {file} \r\n => {ex.Message}");
             }
         }
     }

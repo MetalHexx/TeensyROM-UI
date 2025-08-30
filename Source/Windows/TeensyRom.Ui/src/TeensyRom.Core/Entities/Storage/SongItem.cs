@@ -1,13 +1,13 @@
 ﻿namespace TeensyRom.Core.Entities.Storage
 {
-    public class SongItem : FileItem, ILaunchableItem, IViewableItem
+    public class SongItem : LaunchableItem, IViewableItem
     {
         public TimeSpan PlayLength { get; set; } = TimeSpan.FromMinutes(3);
         public List<TimeSpan> SubtuneLengths { get; set; } = [];
         public int StartSubtuneNum { get; set; }
         public List<ViewableItemImage> Images { get; init; } = [];
 
-        public bool IsPlaylistedOrFavorite => Path.Contains(StorageHelper.Playlist_Path) || Path.Contains(StorageHelper.Favorites_Path);
+        public bool IsPlaylistedOrFavorite => Path.Value.Contains(StorageHelper.Playlist_Path) || Path.ToString().Contains(StorageHelper.Favorites_Path);
 
         public SongItem()
         {

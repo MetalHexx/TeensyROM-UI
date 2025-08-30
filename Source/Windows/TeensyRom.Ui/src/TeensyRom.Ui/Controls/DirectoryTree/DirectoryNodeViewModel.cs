@@ -6,33 +6,37 @@ using System.Reactive.Linq;
 using System.Collections.ObjectModel;
 using TeensyRom.Core.Common;
 using ReactiveUI;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Ui.Controls.DirectoryTree
 {
     public class DirectoryNodeViewModel : ReactiveObject
     {
-        [Reactive] public string Path { get; set; } = string.Empty;
+        [Reactive] public DirectoryPath Path { get; set; } = new DirectoryPath(string.Empty);
         [Reactive] public string Name { get; set; } = string.Empty;
         [Reactive] public bool IsSelected { get; set; }
         [Reactive] public bool IsExpanded { get; set; }
         public ObservableCollection<DirectoryNodeViewModel> Directories { get; set; } = new ObservableCollection<DirectoryNodeViewModel>();
 
-        public void SelectDirectory(string directoryPath)
+        public void SelectDirectory(DirectoryPath targetPath)
         {
-            var normalizedTargetPath = directoryPath.RemoveLeadingAndTrailingSlash().ToLower();
-            var normalizedCurrentPath = Path.RemoveLeadingAndTrailingSlash().ToLower();
+            IsSelected = targetPath.Equals(Path);
 
-            IsSelected = normalizedCurrentPath.Equals(normalizedTargetPath);
-
-            if(Directories.Count == 0 && normalizedTargetPath.Contains(normalizedCurrentPath))
+            if (Directories.Count == 0)
             {
-                IsSelected = true;
-                return;
+                bool isParentOfTarget = targetPath.Value.StartsWith(Path.Value) 
+                    && Path.Value != "/" 
+                    && targetPath.Value != Path.Value;
+                
+                if (isParentOfTarget)
+                {
+                    IsSelected = true;
+                    return;
+                }
             }
-
             foreach (var directory in Directories)
             {
-                directory.SelectDirectory(directoryPath);
+                directory.SelectDirectory(targetPath);
             }
         }
 
@@ -40,16 +44,9 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
         {
             if (!newDirectories.Any()) return;
 
-            var parentPath = newDirectories.First().Path
-                .GetUnixParentPath()
-                .RemoveLeadingAndTrailingSlash()
-                .ToLower();
+            var parentPath = newDirectories.First().Path.ParentPath;
 
-            var currentPath = Path
-                .RemoveLeadingAndTrailingSlash()
-                .ToLower();
-
-            if (currentPath.Equals(parentPath))
+            if (Path.Equals(parentPath))
             {
                 AddDirectories(newDirectories);  
                 IsExpanded = true;

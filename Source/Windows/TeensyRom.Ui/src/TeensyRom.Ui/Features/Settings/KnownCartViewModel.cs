@@ -12,7 +12,7 @@ namespace TeensyRom.Ui.Features.Settings
         public string PnpDeviceId { get; set; } = string.Empty;
         public string ComPort { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
-        public IFileItem? LastFile { get; set; } = null;
+        public FileItem? LastFile { get; set; } = null;
         [Reactive] public MidiSettingsViewModel MidiSettings { get; set; }
         public KnownCartViewModel(KnownCart cart, IMidiService midiService, IAlertService alert)
         {

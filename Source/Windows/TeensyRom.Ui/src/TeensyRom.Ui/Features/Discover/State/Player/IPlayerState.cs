@@ -9,7 +9,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
     public interface IPlayerState
     {
         bool CanTransitionTo(Type nextStateType);
-        Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState);
-        Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState);
+        Task<LaunchableItem?> GetNext(LaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState);
+        Task<LaunchableItem?> GetPrevious(LaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState);
     }
 }

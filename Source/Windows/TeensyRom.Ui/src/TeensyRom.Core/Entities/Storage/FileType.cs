@@ -15,6 +15,8 @@
         D64,
         Seq,
         Txt,
+        Zip,
+        Nfo,
         Unknown
     }
 }

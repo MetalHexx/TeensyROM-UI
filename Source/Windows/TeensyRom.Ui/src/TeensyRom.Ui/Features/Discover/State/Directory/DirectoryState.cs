@@ -5,41 +5,42 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Ui.Features.Discover.State.Directory
 {
     public class DirectoryState
     {
-        public ObservableCollection<IStorageItem> DirectoryContent { get; private set; } = new();
-        public string CurrentPath => _currentPath ?? string.Empty;
+        public ObservableCollection<StorageItem> DirectoryContent { get; private set; } = new();
+        public DirectoryPath CurrentPath => _currentPath ?? new DirectoryPath(string.Empty);
         public int CurrentPage { get; private set; } = 1;
         public int TotalPages { get; private set; } = 1;
         public int PageSize { get; private set; } = 100;
         public bool PagingEnabled { get; private set; } = false;
         private int _skip => (CurrentPage - 1) * PageSize;
-        private List<IStorageItem> _fullDirectory = [];
-        private string? _currentPath;
+        private List<StorageItem> _fullDirectory = [];
+        private DirectoryPath? _currentPath;
 
-        public void LoadDirectory(List<IStorageItem> fullDirectory, string? path = null, string? filePathToSelect = null)
+        public void LoadDirectory(List<StorageItem> fullDirectory, DirectoryPath? path = null, FilePath? filePathToSelect = null)
         {
-            if (path is not null && path != _currentPath)
+            if (path is not null && !path.Equals(_currentPath))
             {
                 CurrentPage = 1;
-                _currentPath = path ?? string.Empty;
+                _currentPath = path ?? new DirectoryPath(string.Empty);
             }
             _fullDirectory = fullDirectory;
 
-            var directoryItems = new ObservableCollection<IStorageItem>();
+            var directoryItems = new ObservableCollection<StorageItem>();
 
             var skip = _skip;
 
             if (filePathToSelect is not null)
             {
-                var fileToSelect = fullDirectory.FirstOrDefault(i => i.Path == filePathToSelect);
+                var fileToSelect = fullDirectory.FirstOrDefault(i => i.Equals(filePathToSelect));
 
                 if (fileToSelect != null)
                 {
-                    fullDirectory.Where(items => items is IFileItem)
+                    fullDirectory.Where(items => items is FileItem)
                          .ToList()
                          .ForEach(i => i.IsSelected = false);
 
@@ -63,10 +64,10 @@ namespace TeensyRom.Ui.Features.Discover.State.Directory
             DirectoryContent.ToList().ForEach(i => i.IsSelected = false);
         }
 
-        public ILaunchableItem? SelectFirst()
+        public LaunchableItem? SelectFirst()
         {
             var firstItem = DirectoryContent
-                .OfType<ILaunchableItem>()
+                .OfType<LaunchableItem>()
                 .FirstOrDefault();
 
             if (firstItem is not null)

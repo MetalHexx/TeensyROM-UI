@@ -14,6 +14,7 @@ using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.Commands.GetFile;
 using TeensyRom.Core.Serial.Commands.SaveFiles;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Core.Device
 {
@@ -37,7 +38,7 @@ namespace TeensyRom.Core.Device
                     Serial = serial
                 });
             }
-            var getFileCommand = new GetFileCommand(storageType, "/cart-tag.txt")
+            var getFileCommand = new GetFileCommand(storageType, new FilePath("/cart-tag.txt"))
             {
                 Serial = serial
             };
@@ -89,8 +90,7 @@ namespace TeensyRom.Core.Device
             var fileTransferItem = new FileTransferItem
             (
                 buffer: newTagBuffer,
-                name: "cart-tag.txt",
-                targetPath: StorageHelper.Remote_Path_Root,
+                targetFilePath: new DirectoryPath(StorageHelper.Remote_Path_Root).Combine(new FilePath("cart-tag.txt")),
                 targetStorage: storageType
             );
             var saveFileCommand = new SaveFilesCommand([fileTransferItem])

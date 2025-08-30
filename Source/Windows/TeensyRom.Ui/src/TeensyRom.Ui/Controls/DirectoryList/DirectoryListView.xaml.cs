@@ -98,7 +98,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
                                 _vm.LoadDirectoryCommand.Execute(directoryItem).Subscribe();
                                 return;
                             }
-                            if (DirectoryList.SelectedItem is ILaunchableItem launchable)                             
+                            if (DirectoryList.SelectedItem is LaunchableItem launchable)                             
                             {
                                 _vm.PlayCommand.Execute(launchable).Subscribe();
                             }
@@ -123,7 +123,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
 
         private bool TrySelect(ListView? listView)
         {
-            if (listView?.SelectedItem is ILaunchableItem launchItem)
+            if (listView?.SelectedItem is LaunchableItem launchItem)
             {
                 var viewModel = (DirectoryListViewModel)DataContext;
                 viewModel.SelectCommand.Execute(launchItem).Subscribe();
@@ -134,7 +134,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
 
         private bool TryLaunch(ListView? listView)
         {
-            if (listView?.SelectedItem is ILaunchableItem launchable)
+            if (listView?.SelectedItem is LaunchableItem launchable)
             {
                 var viewModel = (DirectoryListViewModel)DataContext;
                 viewModel.PlayCommand.Execute(launchable).Subscribe();
@@ -195,9 +195,9 @@ namespace TeensyRom.Ui.Controls.DirectoryList
                 if (Math.Abs(currentPosition.X - _dragStartPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
                     Math.Abs(currentPosition.Y - _dragStartPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
                 {
-                    if (DirectoryList.SelectedItem is IStorageItem item)
+                    if (DirectoryList.SelectedItem is StorageItem item)
                     {
-                        var data = new DataObject(typeof(IStorageItem), item); // Explicit format
+                        var data = new DataObject(typeof(StorageItem), item); // Explicit format
                         DragDrop.DoDragDrop(DirectoryList, data, DragDropEffects.Move);
                     }
                 }
@@ -212,13 +212,13 @@ namespace TeensyRom.Ui.Controls.DirectoryList
 
         private void DirectoryList_Drop(object sender, DragEventArgs e)
         {
-            var droppedData = e.Data.GetData(typeof(IStorageItem)) as IStorageItem;
+            var droppedData = e.Data.GetData(typeof(StorageItem)) as StorageItem;
             if (droppedData == null) return;
 
-            var target = GetElementAtMousePosition<IStorageItem>(e.GetPosition, DirectoryList);
+            var target = GetElementAtMousePosition<StorageItem>(e.GetPosition, DirectoryList);
             if (target == null || droppedData == target) return;
 
-            var list = DirectoryList.ItemsSource as ObservableCollection<IStorageItem>;
+            var list = DirectoryList.ItemsSource as ObservableCollection<StorageItem>;
             if (list == null) return;
 
             int removedIndex = list.IndexOf(droppedData);

@@ -12,6 +12,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Logging;
 using TeensyRom.Core.Midi;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.ValueObjects;
 using TeensyRom.Ui.Controls.FeatureTitle;
 using TeensyRom.Ui.Controls.PlayToolbar;
 using TeensyRom.Ui.Features.NavigationHost;
@@ -25,7 +26,7 @@ namespace TeensyRom.Ui.Features.Settings
         [Reactive] public string Logs { get; set; } = string.Empty;
         [ObservableAsProperty] public bool IsDirty { get; }
         public string WatchDirectoryLocation { get; set; } = string.Empty;
-        public string AutoTransferPath { get; set; } = "auto-transfer";
+        public DirectoryPath AutoTransferPath { get; set; } = new("auto-transfer");
         public bool AutoFileCopyEnabled { get; set; } = false;
         public bool AutoLaunchOnCopyEnabled { get; set; } = true;
         public bool AutoConnectEnabled { get; set; } = true;

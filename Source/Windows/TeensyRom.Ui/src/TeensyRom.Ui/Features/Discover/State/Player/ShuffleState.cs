@@ -6,6 +6,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage;
+using TeensyRom.Core.ValueObjects;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Discover.State.Directory;
 using TeensyRom.Ui.Features.NavigationHost;
@@ -23,7 +24,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 || nextStateType == typeof(SearchState);
         }
 
-        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState)
+        public override async Task<LaunchableItem?> GetNext(LaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState)
         {
             var fileTypes = _playerContext.GetFileTypes();
 
@@ -31,15 +32,16 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
             if (nextFile is not null)
             {
-                await _playerContext.LoadDirectory(nextFile.Path.GetUnixParentPath(), nextFile.Path);
+                await _playerContext.LoadDirectory(nextFile.Path.Directory, nextFile.Path);
                 return nextFile;
             }
             var currentScope = _playerContext.GetScope();
+
             var currentScopePath = currentScope switch 
             { 
                 StorageScope.DirShallow => _playerContext.GetScopePath(), 
                 StorageScope.DirDeep => _playerContext.GetScopePath(), 
-                _ => StorageHelper.Remote_Path_Root 
+                _ => new DirectoryPath(StorageHelper.Remote_Path_Root)
             };
             var randomFile = _storage.GetRandomFile(currentScope, currentScopePath, fileTypes);
 
@@ -49,19 +51,19 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
 
                 if (_settings.NavToDirOnLaunch)
                 {
-                    await _playerContext.LoadDirectory(randomFile.Path.GetUnixParentPath(), randomFile.Path);
+                    await _playerContext.LoadDirectory(randomFile.Path.Directory, randomFile.Path);
                 }
             }
             return randomFile;
         }
 
-        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState)
+        public override async Task<LaunchableItem?> GetPrevious(LaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState)
         {
             var file = _launchHistory.GetPrevious(_playerContext.GetFileTypes());
 
             if (file is not null && _settings.NavToDirOnLaunch)
             {
-                await _playerContext.LoadDirectory(file.Path.GetUnixParentPath(), file.Path);
+                await _playerContext.LoadDirectory(file.Path.Directory, file.Path);
                 return file;
             }
             return currentFile;

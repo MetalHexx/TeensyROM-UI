@@ -38,7 +38,7 @@ namespace TeensyRom.Api.Endpoints.Files.GetDirectory
 
             RuleFor(x => x.Path)
                 .NotEmpty().WithMessage("Path is required.")
-                .Must(path => path!.IsValidUnixFilePath()).WithMessage("Path must be a valid Unix-style file path.");
+                .Must(path => path!.IsValidUnixPath()).WithMessage("Path must be a valid Unix-style directory path.");
 
             RuleFor(x => x.StorageType)
                 .IsInEnum().WithMessage("Storage type must be a valid enum value.");

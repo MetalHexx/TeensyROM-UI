@@ -28,6 +28,8 @@ using TeensyRom.Ui.Controls.Playlist;
 using TeensyRom.Ui.Services.Process;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Abstractions;
+using TeensyRom.Core.ValueObjects;
+using TeensyRom.Core.Storage;
 
 namespace TeensyRom.Ui.Features.Discover
 {
@@ -54,7 +56,7 @@ namespace TeensyRom.Ui.Features.Discover
 
         private TeensySettings _settings = null!;        
 
-        public DiscoverViewModel(IPlayerContext player, ISerialStateContext serial, IDialogService dialog, IAlertService alert, IProgressService progress, ISettingsService settingsService, INavigationService nav, IGameMetadataService metadata, IProgressTimer? timer, IMidiService midiService, IPlaylistDialogService playlist, ICrossProcessService crossProcess)
+        public DiscoverViewModel(IPlayerContext player, ISerialStateContext serial, IDialogService dialog, IAlertService alert, IProgressService progress, ISettingsService settingsService, INavigationService nav, IGameMetadataService metadata, IProgressTimer? timer, IMidiService midiService, IPlaylistDialogService playlist, ICrossProcessService crossProcess, IFileTransferService fileTransfer)
         {
             Title = new FeatureTitleViewModel("Discover");
             FileInfo = new FileInfoViewModel(player, metadata);
@@ -124,6 +126,8 @@ namespace TeensyRom.Ui.Features.Discover
 
             DirectoryList = new DirectoryListViewModel
             (
+                player.CurrentPath.ObserveOn(RxApp.MainThreadScheduler),
+                settingsService.Settings.Select(s => s.StorageType),
                 player.DirectoryContent.ObserveOn(RxApp.MainThreadScheduler),
                 player.PagingEnabled.ObserveOn(RxApp.MainThreadScheduler),
                 player.CurrentPage.ObserveOn(RxApp.MainThreadScheduler),
@@ -133,7 +137,6 @@ namespace TeensyRom.Ui.Features.Discover
                 crossProcess.SaveFavorite,
                 crossProcess.RemoveFavorite,
                 crossProcess.ReorderFiles,
-                player.StoreFiles,
                 player.DeleteFile,
                 player.LoadDirectory,
                 player.NextPage,
@@ -142,7 +145,8 @@ namespace TeensyRom.Ui.Features.Discover
                 alert,
                 dialog,
                 progress,
-                midiService
+                midiService,
+                fileTransfer
             );
 
             StorageSelector = new StorageSelectorViewModel(settingsService);
@@ -188,7 +192,7 @@ namespace TeensyRom.Ui.Features.Discover
                 (
                     path: player.CurrentPath.ObserveOn(RxApp.MainThreadScheduler),
                     pinnedDirectory: player.CurrentScopePath.ObserveOn(RxApp.MainThreadScheduler),
-                    basePath: StorageHelper.Remote_Path_Root,
+                    basePath: new DirectoryPath(StorageHelper.Remote_Path_Root),
                     onClick: async path => await player.LoadDirectory(path),
                     onPin: path => 
                     {

@@ -26,38 +26,42 @@ namespace TeensyRom.Api.Tests.Integration
             var deviceId = await f.GetConnectedDevice();
             f.DeleteCache(deviceId, TeensyStorageType.SD);
 
-            foreach (var item in Enumerable.Range(0, 100))
+            // Act
+
+            var request = new IndexRequest
             {
-                // Act
-                Debug.WriteLine($"*********************************Iteration {item}*********************************");
-                Debug.WriteLine($"*********************************Iteration {item}*********************************");
-                Debug.WriteLine($"*********************************Iteration {item}*********************************");
-                Debug.WriteLine($"*********************************Iteration {item}*********************************");
-                Debug.WriteLine($"*********************************Iteration {item}*********************************");
-                Debug.WriteLine($"*********************************Iteration {item}*********************************");
-                Debug.WriteLine($"*********************************Iteration {item}*********************************");
-                Debug.WriteLine($"*********************************Iteration {item}*********************************");
-                Debug.WriteLine($"*********************************Iteration {item}*********************************");
-                Debug.WriteLine($"*********************************Iteration {item}*********************************");
-                Debug.WriteLine($"*********************************Iteration {item}*********************************");
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                StartingPath = null
+            };
+            var response = await f.Client.PostAsync<IndexEndpoint, IndexRequest, IndexResponse>(request);
 
-                var request = new IndexRequest
-                {
-                    DeviceId = deviceId,
-                    StorageType = TeensyStorageType.SD,
-                    StartingPath = null
-                };
-                var response = await f.Client.PostAsync<IndexEndpoint, IndexRequest, IndexResponse>(request);
+            // Assert
+            response.Should().BeSuccessful<IndexResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
 
-                // Assert
-                response.Should().BeSuccessful<IndexResponse>()
-                    .WithStatusCode(HttpStatusCode.OK)
-                    .WithContentNotNull();
+            f.CacheExists(deviceId, TeensyStorageType.SD).Should().BeTrue();
+            response.Content.Message.Should().Contain("Success");
 
-                f.CacheExists(deviceId, TeensyStorageType.SD).Should().BeTrue();
-                response.Content.Message.Should().Contain("Success");
+            //foreach (var item in Enumerable.Range(0, 100))
+            //{
+            //    // Act
+            //    Debug.WriteLine($"*********************************Iteration {item}*********************************");
+            //    Debug.WriteLine($"*********************************Iteration {item}*********************************");
+            //    Debug.WriteLine($"*********************************Iteration {item}*********************************");
+            //    Debug.WriteLine($"*********************************Iteration {item}*********************************");
+            //    Debug.WriteLine($"*********************************Iteration {item}*********************************");
+            //    Debug.WriteLine($"*********************************Iteration {item}*********************************");
+            //    Debug.WriteLine($"*********************************Iteration {item}*********************************");
+            //    Debug.WriteLine($"*********************************Iteration {item}*********************************");
+            //    Debug.WriteLine($"*********************************Iteration {item}*********************************");
+            //    Debug.WriteLine($"*********************************Iteration {item}*********************************");
+            //    Debug.WriteLine($"*********************************Iteration {item}*********************************");
 
-            }
+                
+
+            //}
         }
 
         [Fact]
@@ -67,29 +71,31 @@ namespace TeensyRom.Api.Tests.Integration
             var deviceId = await f.GetConnectedDevice();
             f.DeleteCache(deviceId!, TeensyStorageType.SD);
 
-            foreach (var item in Enumerable.Range(0, 100))
+            // Act
+            var request = new IndexRequest
             {
-                Debug.WriteLine($"***********************************");
-                Debug.WriteLine($"************Iteration {item}************");
-                Debug.WriteLine($"***********************************");
+                DeviceId = deviceId,
+                StorageType = TeensyStorageType.SD,
+                StartingPath = "/games"
+            };
+            var response = await f.Client.PostAsync<IndexEndpoint, IndexRequest, IndexResponse>(request);
 
-                // Act
-                var request = new IndexRequest
-                {
-                    DeviceId = deviceId,
-                    StorageType = TeensyStorageType.SD,
-                    StartingPath = "/games"
-                };
-                var response = await f.Client.PostAsync<IndexEndpoint, IndexRequest, IndexResponse>(request);
+            // Assert
+            response.Should().BeSuccessful<IndexResponse>()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithContentNotNull();
 
-                // Assert
-                response.Should().BeSuccessful<IndexResponse>()
-                    .WithStatusCode(HttpStatusCode.OK)
-                    .WithContentNotNull();
+            f.CacheExists(deviceId, TeensyStorageType.SD).Should().BeTrue();
+            response.Content.Message.Should().Contain("Success");
 
-                f.CacheExists(deviceId, TeensyStorageType.SD).Should().BeTrue();
-                response.Content.Message.Should().Contain("Success");
-            }
+            //foreach (var item in Enumerable.Range(0, 100))
+            //{
+            //    Debug.WriteLine($"***********************************");
+            //    Debug.WriteLine($"************Iteration {item}************");
+            //    Debug.WriteLine($"***********************************");
+
+
+            //}
         }
 
         [Fact]

@@ -1,8 +1,16 @@
-﻿using TeensyRom.Core.Common;
+﻿using System.Text.Json.Serialization;
+using TeensyRom.Core.Common;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Core.Entities.Storage
 {
-    public class FileItem : StorageItem, IFileItem
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]
+    [JsonDerivedType(typeof(SongItem), "Song")]
+    [JsonDerivedType(typeof(GameItem), "Game")]
+    [JsonDerivedType(typeof(HexItem), "Hex")]
+    [JsonDerivedType(typeof(ImageItem), "Image")]
+    [JsonDerivedType(typeof(FileItem), "File")]
+    public class FileItem : StorageItem
     {
         public virtual string Title { get; set; } = string.Empty;
         public virtual string Creator { get; set; } = string.Empty;
@@ -12,12 +20,12 @@ namespace TeensyRom.Core.Entities.Storage
         public virtual string MetadataSource { get; set; } = string.Empty;
         public virtual string Meta1 { get; set; } = string.Empty;
         public virtual string Meta2 { get; set; } = string.Empty;
-        public string MetadataSourcePath { get; set; } = string.Empty;
-        public string FavChildPath { get; set; } = string.Empty;
-        public string FavParentPath { get; set; } = string.Empty;
+        public FilePath MetadataSourcePath { get; set; } = new FilePath(string.Empty);
+        public FilePath ParentPath { get; set; } = new FilePath(string.Empty);
         public PlaylistItem? Custom { get; set; } = null;
-        public string Id => $"{Size}{Path.GetFileNameFromPath()}";
-        public TeensyFileType FileType => Path.GetUnixFileExtension().GetFileType();
+        public FilePath Path { get; set; } = new FilePath(string.Empty);
+        public string Id => $"{Size}{Path.FileName}";
+        public TeensyFileType FileType => Path.Extension.GetFileType();
 
 
 

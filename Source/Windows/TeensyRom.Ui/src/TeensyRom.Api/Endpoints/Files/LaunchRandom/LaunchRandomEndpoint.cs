@@ -5,6 +5,7 @@ using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
 {
@@ -64,10 +65,15 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
                 }
                 storage = device.UsbStorage;
             }
+
             var file = storage.GetRandomFile
             (
-                r.Scope ?? StorageScope.Storage, 
-                r.StartingDirectory ?? StorageHelper.Remote_Path_Root, 
+                r.Scope ?? StorageScope.Storage,
+
+                r.StartingDirectory is null
+                    ? new DirectoryPath(StorageHelper.Remote_Path_Root)
+                    : new DirectoryPath(r.StartingDirectory), 
+
                 r.FilterType ?? TeensyFilterType.All
             );
 

@@ -1,17 +1,18 @@
 ﻿using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Core.Abstractions
 {
     public interface IStorageService
     {
         Task<bool> CacheAll(CancellationToken ct);
-        Task<bool> Cache(string path, CancellationToken ct);
+        Task<bool> Cache(DirectoryPath path, CancellationToken ct);
         public void ClearCache();
-        public void ClearCache(string path);
-        public Task<IFileItem?> GetFile(string filePath);
-        Task<IStorageCacheItem?> GetDirectory(string directoryPath);
-        ILaunchableItem? GetRandomFile(StorageScope scope, string scopePath, TeensyFilterType filterType);
+        public void ClearCache(DirectoryPath path);
+        public Task<FileItem?> GetFile(FilePath filePath);
+        Task<IStorageCacheItem?> GetDirectory(DirectoryPath directoryPath);
+        LaunchableItem? GetRandomFile(StorageScope scope, DirectoryPath scopePath, TeensyFilterType filterType);
     }
 }

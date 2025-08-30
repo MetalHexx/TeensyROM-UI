@@ -1,16 +1,18 @@
-﻿namespace TeensyRom.Core.Entities.Storage
+﻿using TeensyRom.Core.ValueObjects;
+
+namespace TeensyRom.Core.Entities.Storage
 {
     /// <summary>
     /// DTO for copying existing files to other locations on TR storage
     /// </summary>
     public class CopyFileItem
     {
-        public ILaunchableItem SourceItem { get; set; } = default!;
-        public string TargetPath { get; set; } = string.Empty;
+        public LaunchableItem SourceItem { get; set; } = default!;
+        public DirectoryPath TargetPath { get; set; } = new DirectoryPath(string.Empty);
 
         public CopyFileItem() { }
 
-        public CopyFileItem(ILaunchableItem item, string targetpath)
+        public CopyFileItem(LaunchableItem item, DirectoryPath targetpath)
         {
             SourceItem = item;
             TargetPath = targetpath;

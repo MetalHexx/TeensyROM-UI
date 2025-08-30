@@ -17,7 +17,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
             return item switch
             {
                 DirectoryItem _ => DirectoryTemplate,
-                ILaunchableItem _ => LaunchableTemplate,
+                LaunchableItem _ => LaunchableTemplate,
                 FileItem _ => FileTemplate,
                 _ => base.SelectTemplate(item, container),
             };

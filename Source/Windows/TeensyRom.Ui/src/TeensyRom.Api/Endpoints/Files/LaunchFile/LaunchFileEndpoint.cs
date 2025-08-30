@@ -3,6 +3,7 @@ using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Api.Endpoints.Files.LaunchFile
 {
@@ -52,7 +53,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
                 storage = device.UsbStorage;
             }
 
-            var file = await storage.GetFile(r.FilePath);
+            var file = await storage.GetFile(new FilePath(r.FilePath));
 
             if (file is null) 
             {
@@ -60,7 +61,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
                 return;
             }
 
-            if(file is not ILaunchableItem launchItem)
+            if(file is not LaunchableItem launchItem)
             {
                 SendValidationError($"The file {r.FilePath} is not launchable.");
                 return;

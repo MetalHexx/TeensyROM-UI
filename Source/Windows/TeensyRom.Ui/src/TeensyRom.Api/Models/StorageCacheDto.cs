@@ -31,15 +31,15 @@ namespace TeensyRom.Api.Models
         {
             return new ()
             {
-                Path = cache.Path,
+                Path = cache.Path.Value,
                 Directories = [.. cache.Directories
                     .Select(d => new DirectoryItemDto
                     {
                         Name = d.Name,
-                        Path = d.Path
+                        Path = d.Path.Value
                     })],
                 Files = [.. cache.Files
-                    .OfType<ILaunchableItem>()
+                    .OfType<LaunchableItem>()
                     .Select(FileItemDto.FromLaunchable)]
             };
         }

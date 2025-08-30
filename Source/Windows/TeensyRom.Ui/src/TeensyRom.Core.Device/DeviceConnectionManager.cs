@@ -109,8 +109,6 @@ namespace TeensyRom.Core.Device
 
         public async Task<List<TeensyRomDevice>> FindDevices(bool autoConnectNew, CancellationToken ct)
         {
-            var randomNumber = Random.Shared.Next(1000, 9999);
-
             _healthCheckEnabled = false;
 
             var devicesToReconnect = _connectedDevices.Select(d => d.Key).ToList();

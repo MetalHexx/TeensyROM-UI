@@ -4,16 +4,23 @@
       <mat-card-title>Directory Tree</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <p>
-        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis
-        egestas. Nullam non neque ex. Proin fermentum, metus sed tincidunt vehicula, sem purus
-        ultricies nulla, ac tempor leo lorem non libero. Etiam suscipit, ex sit amet sagittis
-        facilisis, neque lectus egestas sem, nec tincidunt justo mauris in magna. Sed mattis, velit
-        id porta vulputate, diam nunc commodo nulla, in luctus risus lorem nec lorem. Nam ac laoreet
-        est, ac eleifend elit. Praesent iaculis purus nec sagittis dapibus. Mauris a accumsan justo,
-        nec luctus libero. Vivamus nec imperdiet nulla. Cras posuere, erat nec fermentum luctus, leo
-        diam sollicitudin orci, vel sagittis purus velit sed tortor. Sed vel risus nunc.
-      </p>
+
+      <mat-tree #tree [dataSource]="directoryTree" [childrenAccessor]="childrenAccessor">
+        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+            <button mat-icon-button disabled> </button>
+            <mat-chip (click)="onDirectoryClick(node)">{{node.name}}</mat-chip>     
+        </mat-tree-node>
+        <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding matTreeNodeToggle [cdkTreeNodeTypeaheadLabel]="node.name">
+            <button mat-icon-button matTreeNodeToggle [attr.aria-label] = "'Toggle ' + node.name">
+                <mat-icon class="mat-icon-rtl-mirror">
+                    {{tree.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                </mat-icon>
+            </button>
+            <mat-chip (click)="onDirectoryClick(node)">{{node.name}}</mat-chip>
+        </mat-tree-node>
+      </mat-tree>
+      
+
     </mat-card-content>
   </mat-card>
 </div>

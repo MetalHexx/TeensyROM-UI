@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Ui.Controls.DirectoryTree
 {
@@ -11,17 +12,17 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
         public IObservable<DirectoryNodeViewModel> DirectoryTree => _directoryTree.AsQbservable();
         private readonly BehaviorSubject<DirectoryNodeViewModel> _directoryTree = new(new DirectoryNodeViewModel());
 
-        public void ResetDirectoryTree(string rootPath)
+        public void ResetDirectoryTree(DirectoryPath rootPath)
         {
             var dirItem = new DirectoryNodeViewModel
             {
                 Name = "Fake Root",  //TODO: Fake root required since UI view binds to enumerable -- design could use improvement
-                Path = "Fake Root",
+                Path = new DirectoryPath("Fake Root"),
                 Directories =
                 [
                     new DirectoryNodeViewModel
                     {
-                        Name = rootPath,
+                        Name = rootPath.DirectoryName,
                         Path = rootPath,
                         Directories = []
                     }
@@ -30,7 +31,7 @@ namespace TeensyRom.Ui.Controls.DirectoryTree
             _directoryTree.OnNext(dirItem);
         }
 
-        public void SelectDirectory(string path)
+        public void SelectDirectory(DirectoryPath path)
         {
             _directoryTree.Value.SelectDirectory(path);
             _directoryTree.OnNext(_directoryTree.Value);

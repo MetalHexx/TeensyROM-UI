@@ -26,7 +26,7 @@ namespace TeensyRom.Api.Models
             return new DirectoryItemDto
             {
                 Name = item.Name,
-                Path = item.Path,
+                Path = item.Path.Value,
             };
         }
     }

@@ -118,7 +118,7 @@
                 <Button                     
                     Command="{Binding ClearLogsCommand}"  
                     Style="{StaticResource MaterialDesignFloatingActionLightButton}" 
-                    ToolTip="Clears the the logs"
+                    ToolTip="Clear Logs"
                     Grid.Column="4"                    
                     HorizontalAlignment="Right"
                     VerticalAlignment="Bottom"

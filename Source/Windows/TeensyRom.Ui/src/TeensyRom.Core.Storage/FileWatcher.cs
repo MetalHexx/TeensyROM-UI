@@ -1,21 +1,35 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Data;
+using System.IO;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using TeensyRom.Core.Logging;
 
 namespace TeensyRom.Core.Storage
 {
-
     public class FileWatcher : IFileWatcher, IDisposable
     {
-        private readonly Subject<List<FileInfo>> _fileFound = new();
-        public IObservable<List<FileInfo>> FilesFound => _fileFound.AsObservable();
+        private readonly Subject<List<FileInfo>> _filesFound = new();
+        private readonly ILoggingService _logger;
+        private readonly IAlertService _alert;
+
+        public IObservable<List<FileInfo>> FilesFound => _filesFound.AsObservable();
 
         private FileSystemWatcher? _watcher = null;
         private string[] _fileTypes = Array.Empty<string>();
         private IDisposable? _watchSubscription;
+
+        // For tracking when a new batch of files starts being detected
+        private DateTime _lastBatchTime = DateTime.MinValue;
+        private const int NEW_BATCH_THRESHOLD_MS = 5000; // 10 seconds
+
+        public FileWatcher(ILoggingService log, IAlertService alert)
+        {
+            _logger = log;
+            _alert = alert;
+        }
 
         public void Disable()
         {
@@ -27,6 +41,7 @@ namespace TeensyRom.Core.Storage
         public void Enable(string path, params string[] fileTypes)
         {
             _fileTypes = fileTypes;
+            _lastBatchTime = DateTime.MinValue;
 
             _watchSubscription?.Dispose();
             _watcher?.Dispose();
@@ -43,7 +58,6 @@ namespace TeensyRom.Core.Storage
                 EnableRaisingEvents = true,
                 InternalBufferSize = 65536,
                 IncludeSubdirectories = true
-
             };
             _watchSubscription = InitializeWatcher();
         }
@@ -53,14 +67,14 @@ namespace TeensyRom.Core.Storage
             if (_watcher is null)
                 throw new InvalidOperationException("Watcher not initialized");
 
-            var changedEvents = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
-                    handler => _watcher.Changed += handler,
-                    handler => _watcher.Changed -= handler)
-                    .Select(evt => evt.EventArgs.FullPath);
-
             var createdEvents = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
                     handler => _watcher.Created += handler,
                     handler => _watcher.Created -= handler)
+                    .Select(evt => evt.EventArgs.FullPath);
+
+            var changedEvents = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+                    handler => _watcher.Changed += handler,
+                    handler => _watcher.Changed -= handler)
                     .Select(evt => evt.EventArgs.FullPath);
 
             var renamedEvents = Observable.FromEventPattern<RenamedEventHandler, RenamedEventArgs>(
@@ -68,28 +82,40 @@ namespace TeensyRom.Core.Storage
                     handler => _watcher.Renamed -= handler)
                     .Select(evt => evt.EventArgs.FullPath);
 
-            var folderCreatedEvents = createdEvents.Merge(renamedEvents)
-                .Where(Directory.Exists)
-                .Select(GetFilesRecursive)
-                .SelectMany(f => f);
+            // Create a merged stream of all events
+            var allFileEvents = createdEvents
+                .Merge(changedEvents)
+                .Merge(renamedEvents)
+                .Where(File.Exists)
+                .Select(path => new FileInfo(path))
+                .Where(AcceptedType)
+                .Where(_ => _watchSubscription is not null);
 
-            var fileCreatedEvents = createdEvents.Merge(renamedEvents)
-                .Where(File.Exists);
+            // Add a listener to provide early notification for each new batch
+            allFileEvents.Subscribe(file => {
+                var now = DateTime.UtcNow;
+                
+                // If it's been a while since we detected files, this is likely a new batch
+                if ((now - _lastBatchTime).TotalMilliseconds > NEW_BATCH_THRESHOLD_MS)
+                {
+                    _logger.Internal("Files detected. Preparing to process files for transfer...");
+                    _alert.Publish("Files detected. Preparing to process files for transfer...");
+                }
+                
+                // Update the last batch time
+                _lastBatchTime = now;
+            });
 
-            var fileChangedEvents = changedEvents
-                .Where(File.Exists);
-
-            return Observable
-                .Merge(fileCreatedEvents, folderCreatedEvents, fileChangedEvents)
-                .Where(_ => _watchSubscription is not null)
-                .Publish(paths => paths.Buffer(() => paths.Throttle(TimeSpan.FromMilliseconds(2000))))
-                .Select(paths => paths
-                    .Distinct()
-                    .Select(path => new FileInfo(path))
-                    .Where(AcceptedType)
-                    .ToList())
-                .Subscribe(files => _fileFound.OnNext([.. files]));
+            // The actual file buffering remains unchanged
+            return allFileEvents
+                .Publish(stream => stream
+                    .Buffer(() => stream.Throttle(TimeSpan.FromSeconds(5)))
+                    .Select(buffered => buffered
+                        .DistinctBy(file => file.FullName)
+                        .ToList()))
+                .Subscribe(_filesFound.OnNext);
         }
+
         private static List<string> GetFilesRecursive(string path)
         {
             if (File.Exists(path))
@@ -113,7 +139,8 @@ namespace TeensyRom.Core.Storage
             return [];
         }
 
-        private bool AcceptedType(FileInfo fileInfo) => _fileTypes.Any(t => t.Equals(fileInfo.Extension));
+        private bool AcceptedType(FileInfo fileInfo) => _fileTypes.Any(t => t.Equals(fileInfo.Extension, StringComparison.OrdinalIgnoreCase));
+        
         public void Dispose()
         {
             _watchSubscription?.Dispose();

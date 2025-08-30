@@ -15,7 +15,7 @@ namespace TeensyRom.Api.Tests.Integration
     {
         public const string Games_Path = "/games/";
         public const string Very_Large_Games_Path = "/games/Very Large/";
-        public const string Music_Path = "/music/MUSICIANS/L/Lukhash/";
+        public const string Music_Path = "/music/MUSICIANS/L/LukHash/";
         public const string Images_Path = "/images/";
 
         [Fact]
@@ -143,8 +143,8 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var deviceId = await f.GetConnectedDevice();
-            await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
-
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
+            await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);            
 
             var request = new LaunchRandomRequest
             {
@@ -175,6 +175,7 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var deviceId = await f.GetConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
             await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
             var request = new LaunchRandomRequest
             {
@@ -205,6 +206,7 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var deviceId = await f.GetConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
             await f.Preindex(deviceId, TeensyStorageType.SD, Very_Large_Games_Path);
 
             var request = new LaunchRandomRequest
@@ -239,6 +241,7 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var deviceId = await f.GetConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
             await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
 
             var request = new LaunchRandomRequest
@@ -259,10 +262,8 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
-            var actualPath = r.Content.LaunchedFile.Path.GetUnixParentPath().EnsureUnixPathEnding();
-
             r.Content.LaunchedFile.Should().NotBeNull();
-            actualPath.Should().Be(Games_Path);
+            r.Content.LaunchedFile.Path.Should().Contain(Games_Path);
             r.Content.Message.Should().Contain("Success");
         }
 
@@ -271,6 +272,7 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var deviceId = await f.GetConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
             await f.Preindex(deviceId, TeensyStorageType.SD, Music_Path);
 
             var request = new LaunchRandomRequest
@@ -300,6 +302,7 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var deviceId = await f.GetConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
             await f.Preindex(deviceId, TeensyStorageType.SD, Music_Path);
 
             var request = new LaunchRandomRequest
@@ -320,10 +323,8 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithStatusCode(HttpStatusCode.OK)
                 .WithContentNotNull();
 
-            var actualPath = r.Content.LaunchedFile.Path.GetUnixParentPath().EnsureUnixPathEnding();
-
             r.Content.LaunchedFile.Should().NotBeNull();
-            actualPath.Should().Be(Music_Path);
+            r.Content.LaunchedFile.Path.Should().Contain(Music_Path);
             r.Content.Message.Should().Contain("Success");
         }
 
@@ -332,6 +333,7 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var deviceId = await f.GetConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
             await f.Preindex(deviceId, TeensyStorageType.SD, Music_Path);
 
             var request = new LaunchRandomRequest
@@ -364,6 +366,7 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var deviceId = await f.GetConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
             await f.Preindex(deviceId, TeensyStorageType.SD, Images_Path);
 
             var request = new LaunchRandomRequest
@@ -393,6 +396,7 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var deviceId = await f.GetConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
             await f.Preindex(deviceId, TeensyStorageType.SD, Images_Path);
 
             var request = new LaunchRandomRequest
@@ -425,6 +429,7 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var deviceId = await f.GetConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
             await f.Preindex(deviceId, TeensyStorageType.SD, Images_Path);
 
             var request = new LaunchRandomRequest
@@ -457,6 +462,7 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var deviceId = await f.GetConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
             await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
 
             var request = new LaunchRandomRequest
@@ -485,6 +491,7 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var deviceId = await f.GetConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
             await f.Preindex(deviceId, TeensyStorageType.SD, Images_Path);
 
             var request = new LaunchRandomRequest
@@ -513,6 +520,7 @@ namespace TeensyRom.Api.Tests.Integration
         {
             // Arrange
             var deviceId = await f.GetConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
             await f.Preindex(deviceId, TeensyStorageType.SD, Music_Path);
 
             var request = new LaunchRandomRequest

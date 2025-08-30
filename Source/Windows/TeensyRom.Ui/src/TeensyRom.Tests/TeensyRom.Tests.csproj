@@ -28,10 +28,4 @@
     <ProjectReference Include="..\TeensyRom.Ui\TeensyRom.Ui.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Integration\ZipExtractor\test.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

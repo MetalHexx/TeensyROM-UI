@@ -9,6 +9,7 @@ using TeensyRom.Core.Logging;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage;
+using TeensyRom.Core.ValueObjects;
 using TeensyRom.Ui.Features.Discover;
 using TeensyRom.Ui.Features.Discover.State.Player;
 using TeensyRom.Ui.Features.NavigationHost;
@@ -223,7 +224,7 @@ namespace TeensyRom.Ui.Services
             _settings.StorageType = TeensyStorageType.SD;
             _settingsService.SaveSettings(_settings);
             await Task.Delay(1000);
-            await _storage.CacheAll(StorageHelper.Remote_Path_Root);
+            await _storage.CacheAll(new DirectoryPath(StorageHelper.Remote_Path_Root));
             _sdCount = _storage.GetCacheSize();
             _dialog.HideNoClose();
 
@@ -236,7 +237,7 @@ namespace TeensyRom.Ui.Services
             _settings.StorageType = TeensyStorageType.USB;
             _settingsService.SaveSettings(_settings);
             await Task.Delay(3000);
-            await _storage.CacheAll(StorageHelper.Remote_Path_Root);
+            await _storage.CacheAll(new DirectoryPath(StorageHelper.Remote_Path_Root));
             _usbCount = _storage.GetCacheSize();
 
             _settings.StorageType = _usbCount > _sdCount ? TeensyStorageType.USB : TeensyStorageType.SD;
@@ -314,7 +315,7 @@ namespace TeensyRom.Ui.Services
             _player.LaunchedFile
                 .Where(f => f?.File is not null)
                 .Select(f => f.File)
-                .OfType<ILaunchableItem>()
+                .OfType<LaunchableItem>()
                 .Where(file => file.IsCompatible is true)
                 .Take(1)
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -359,7 +360,7 @@ namespace TeensyRom.Ui.Services
             _player.LaunchedFile
                 .Where(f => f?.File is not null)
                 .Select(f => f.File)
-                .OfType<ILaunchableItem>()
+                .OfType<LaunchableItem>()
                 .Skip(1)
                 .Take(1)
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -418,7 +419,7 @@ namespace TeensyRom.Ui.Services
             _player.LaunchedFile
                 .Where(f => f?.File is not null)
                 .Select(f => f.File)
-                .OfType<ILaunchableItem>()
+                .OfType<LaunchableItem>()
                 .Skip(1)
                 .Take(1)
                 .ObserveOn(RxApp.MainThreadScheduler)

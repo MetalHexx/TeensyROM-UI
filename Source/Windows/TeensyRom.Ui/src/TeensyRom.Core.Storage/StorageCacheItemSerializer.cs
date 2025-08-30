@@ -5,6 +5,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Core.Storage
 {
@@ -20,6 +22,9 @@ namespace TeensyRom.Core.Storage
                 WriteIndented = true
             };
             options.Converters.Add(new StorageCacheItemConverter());
+            options.Converters.Add(new LaunchableItemConverter());
+            options.Converters.Add(new FilePathJsonConverter());
+            options.Converters.Add(new DirectoryPathJsonConverter());
             return options;
         }
 

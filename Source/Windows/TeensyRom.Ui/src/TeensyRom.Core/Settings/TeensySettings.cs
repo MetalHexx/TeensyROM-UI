@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Core.Settings
 {
@@ -20,7 +21,7 @@ namespace TeensyRom.Core.Settings
         public List<TeensyTarget> FileTargets { get; set; } = [];
         [JsonIgnore]
         public List<TeensyFilter> FileFilters { get; set; } = [];
-        public string AutoTransferPath { get; set; } = "auto-transfer";
+        public DirectoryPath AutoTransferPath { get; set; } = new DirectoryPath("auto-transfer");
         public bool AutoFileCopyEnabled { get; set; } = false;
         public bool AutoLaunchOnCopyEnabled { get; set; } = true;
         public bool AutoConnectEnabled { get; set; } = true;
@@ -64,36 +65,15 @@ namespace TeensyRom.Core.Settings
 
         public TeensyFilter GetStartupFilter() => FileFilters.First(f => f.Type == StartupFilter);
 
-        public List<string> GetAllFavoritePaths()
+        public List<DirectoryPath> GetAllFavoritePaths()
         {
             return
             [
-                $"{StorageHelper.Favorites_Path}music",
-                $"{StorageHelper.Favorites_Path}games",
-                $"{StorageHelper.Favorites_Path}text",
-                $"{StorageHelper.Favorites_Path}images"
+                new DirectoryPath($"{StorageHelper.Favorites_Path}music"),
+                new DirectoryPath($"{StorageHelper.Favorites_Path}games"),
+                new DirectoryPath($"{StorageHelper.Favorites_Path}text"),
+                new DirectoryPath($"{StorageHelper.Favorites_Path}images")
             ];
-        }
-
-        public string GetAutoTransferPath(TeensyFileType type)
-        {
-            return type switch
-            {
-                TeensyFileType.Sid => AutoTransferPath.UnixPathCombine("music"),
-                TeensyFileType.Prg => AutoTransferPath.UnixPathCombine("games"),
-                TeensyFileType.P00 => AutoTransferPath.UnixPathCombine("games"),
-                TeensyFileType.Crt => AutoTransferPath.UnixPathCombine("games"),
-                TeensyFileType.Kla => AutoTransferPath.UnixPathCombine("images"),
-                TeensyFileType.Koa => AutoTransferPath.UnixPathCombine("images"),
-                TeensyFileType.Art => AutoTransferPath.UnixPathCombine("images"),
-                TeensyFileType.Aas => AutoTransferPath.UnixPathCombine("images"),
-                TeensyFileType.Hpi => AutoTransferPath.UnixPathCombine("images"),
-                TeensyFileType.Seq => AutoTransferPath.UnixPathCombine("images"),
-                TeensyFileType.Txt => AutoTransferPath.UnixPathCombine("text"),
-                TeensyFileType.Hex => "/firmware",
-
-                _ => AutoTransferPath.UnixPathCombine("unknown")
-            };
         }
 
         /// <summary>

@@ -75,14 +75,9 @@ namespace TeensyRom.Api.Models
         [Required] public string MetadataSourcePath { get; set; } = string.Empty;
 
         /// <summary>
-        /// The path to the favorite child, if applicable.
-        /// </summary>
-        [Required] public string FavChildPath { get; set; } = string.Empty;
-
-        /// <summary>
         /// The path to the favorite parent, if applicable.
         /// </summary>
-        [Required] public string FavParentPath { get; set; } = string.Empty;
+        [Required] public string ParentPath { get; set; } = string.Empty;
 
         /// <summary>
         /// The total play length of the file, if applicable.
@@ -110,14 +105,14 @@ namespace TeensyRom.Api.Models
         [Required] public FileItemType Type { get; set; } = FileItemType.Unknown;
 
         /// <summary>
-        /// Creates a <see cref="FileItemDto"/> from an <see cref="ILaunchableItem"/> entity.
+        /// Creates a <see cref="FileItemDto"/> from an <see cref="LaunchableItem"/> entity.
         /// </summary>
-        public static FileItemDto FromLaunchable(ILaunchableItem item)
+        public static FileItemDto FromLaunchable(LaunchableItem item)
         {
             var vm = new FileItemDto
             {
                 Name = item.Name,
-                Path = item.Path,
+                Path = item.Path.Value,
                 Size = item.Size,
                 IsFavorite = item.IsFavorite,
                 Title = item.Title,
@@ -128,9 +123,8 @@ namespace TeensyRom.Api.Models
                 MetadataSource = item.MetadataSource,
                 Meta1 = item.Meta1,
                 Meta2 = item.Meta2,
-                MetadataSourcePath = item.MetadataSourcePath,
-                FavChildPath = item.FavChildPath,
-                FavParentPath = item.FavParentPath,
+                MetadataSourcePath = item.MetadataSourcePath.Value,
+                ParentPath = item.ParentPath.Value,
             };
 
             switch (item)

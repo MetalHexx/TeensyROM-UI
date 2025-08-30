@@ -1,50 +1,127 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace TeensyRom.Core.Common
 {
     public static class PathExtensions
     {
-        public static string EnsureUnixPathEnding(this string path) => path.EndsWith("/") ? path : path + "/";
-        public static string ToUnixPath(this string path) => path.Replace("\\", "/");
-        public static string UnixPathCombine(this string path, params string[] paths)
+        // === Core Path Utilities ===
+
+        public static string EnsureUnixPathEnding(this string path)
         {
-            if (!path.EndsWith("/"))
+            return path.EndsWith("/") ? path : path + "/";
+        }
+
+        public static string EnsureUnixPathStart(this string path)
+        {
+            return path.StartsWith("/") ? path : "/" + path;
+        }
+
+        public static string ToUnixPath(this string path)
+        {
+            return path.Replace("\\", "/");
+        }
+
+        public static string UnixPathCombine(this string basePath, params string[] paths)
+        {
+            var allSegments = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(basePath))
             {
-                path += "/";
+                allSegments.Add(basePath.Trim('/'));
             }
-            string combined = path + string.Join("/", paths);
-            return combined.Replace("//", "/");
+
+            foreach (var segment in paths)
+            {
+                if (!string.IsNullOrWhiteSpace(segment))
+                {
+                    allSegments.Add(segment.Trim('/'));
+                }
+            }
+
+            var result = "/" + string.Join("/", allSegments);
+            return result.EndsWith("/") ? result : result + "/";
+        }
+
+        public static string UnixPathCombineFilePath(this string filePath, params string[] directoryPaths)
+        {
+            var combinedPaths = "".UnixPathCombine(directoryPaths);
+            return (combinedPaths + filePath).Replace("//", "/");
         }
 
         public static string GetUnixParentPath(this string path)
         {
-            if (string.IsNullOrEmpty(path) || path == "/") return "/";
+            if (string.IsNullOrEmpty(path) || path == "/")
+            {
+                return "/";
+            }
 
-            if (!path.StartsWith("/")) path = "/" + path;
+            path = path.TrimEnd('/');
+            var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
-            if (path.EndsWith("/")) path = path.TrimEnd('/');
+            if (segments.Length <= 1)
+            {
+                return "/";
+            }
 
-            var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            return "/" + string.Join("/", segments[..^1]) + "/";
+        }
 
-            if (segments.Length <= 1) return "/";
+        public static string? GetParentPath(this string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || path.Equals("\\") || path.Equals("/"))
+            {
+                return null;
+            }
 
-            var parentPath = string.Join("/", segments.Take(segments.Length - 1));
+            char sep = path.Contains('\\') ? '\\' : '/';
+            path = path.Replace('\\', sep).Replace('/', sep);
 
-            return ("/" + parentPath).EnsureUnixPathEnding();
+            if (path.Length > 1 && path.EndsWith(sep))
+            {
+                path = path.TrimEnd(sep);
+            }
+
+            if (path == sep.ToString() || Path.GetPathRoot(path)?.TrimEnd(sep) == path)
+            {
+                return sep.ToString();
+            }
+
+            string? parent = Path.GetDirectoryName(path)?.Replace(Path.DirectorySeparatorChar, sep);
+
+            if (string.IsNullOrEmpty(parent))
+            {
+                return sep.ToString();
+            }
+
+            return parent;
         }
 
         public static string GetUnixFileExtension(this string path)
         {
+            return GetFileExtension(path);
+        }
+
+        public static string GetFileExtension(this string path)
+        {
             if (string.IsNullOrEmpty(path))
+            {
                 return string.Empty;
+            }
 
             int lastDotIndex = path.LastIndexOf('.');
 
             if (lastDotIndex <= 0)
+            {
                 return string.Empty;
+            }
 
-            return path.Substring(lastDotIndex).ToLower();
+            return path[lastDotIndex..].ToLower();
+        }
+
+        public static string RemoveLeadingSlash(this string path)
+        {
+            return string.IsNullOrEmpty(path) ? path : path.TrimStart('/', '\\');
         }
 
         public static string RemoveLeadingAndTrailingSlash(this string path)
@@ -53,20 +130,21 @@ namespace TeensyRom.Core.Common
             {
                 return path;
             }
-            if (path.StartsWith("/"))
+
+            if (path is "/" or "\\")
             {
-                path = path[1..];
+                return path;
             }
-            if (path.EndsWith("/"))
-            {
-                path = path[..^1];
-            }
-            return path;
+
+            return path.Trim('/', '\\');
         }
 
-        public static string GetFileNameFromPath(this string path)
+        public static string GetFileNameFromUnixPath(this string path)
         {
-            if (string.IsNullOrEmpty(path)) return string.Empty;
+            if (string.IsNullOrEmpty(path))
+            {
+                return string.Empty;
+            }
 
             var segments = path.Split('/');
             return segments.Length > 0 ? segments[^1] : string.Empty;
@@ -74,23 +152,38 @@ namespace TeensyRom.Core.Common
 
         public static string GetLastDirectoryFromPath(this string path)
         {
-            if (string.IsNullOrEmpty(path)) return string.Empty;
+            if (string.IsNullOrWhiteSpace(path))
+                return string.Empty;
 
-            var segments = path.Split('/');
+            path = path.Replace('\\', '/').TrimEnd('/');
+
+            if (path == "/")
+                return "/";
+
+            var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
             return segments.Length > 0 ? segments[^1] : string.Empty;
         }
 
         public static string ReplaceExtension(this string path, string newExtension)
         {
-            if (newExtension.StartsWith(".")) newExtension = newExtension[1..];
+            if (newExtension.StartsWith("."))
+            {
+                newExtension = newExtension[1..];
+            }
 
-            if (string.IsNullOrEmpty(path)) return string.Empty;
+            if (string.IsNullOrEmpty(path))
+            {
+                return string.Empty;
+            }
 
             var segments = path.Split('.');
+
             if (segments.Length > 0)
             {
                 segments[^1] = newExtension;
             }
+
             return string.Join('.', segments);
         }
 
@@ -100,12 +193,23 @@ namespace TeensyRom.Core.Common
             {
                 return [];
             }
-            return path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+            return path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static string GetCommonBasePath(this string path, params string[] paths) 
+        {
+            var combinedPaths = paths.ToList();
+            combinedPaths.Add(path);
+            return combinedPaths.GetCommonBasePath();
         }
 
         public static string GetCommonBasePath(this IEnumerable<string> directories)
         {
-            if (!directories.Any()) return string.Empty;
+            if (!directories.Any())
+            {
+                return string.Empty;
+            }
 
             string commonPath = directories.First();
 
@@ -113,101 +217,276 @@ namespace TeensyRom.Core.Common
             {
                 while (!path.StartsWith(commonPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    commonPath = commonPath.Substring(0, commonPath.LastIndexOf(Path.DirectorySeparatorChar));
+                    int lastSep = commonPath.LastIndexOf(Path.DirectorySeparatorChar);
+                    if (lastSep <= 0)
+                    {
+                        return string.Empty;
+                    }
+
+                    commonPath = commonPath.Substring(0, lastSep);
                 }
             }
+
             return commonPath;
         }
 
         public static List<string> GetRemainingPathSegments(this string fullPath, string basePath)
         {
-            var fullPathItems = fullPath.ToPathArray().ToList();
-            var basePathItems = basePath.ToPathArray().ToList();
+            var full = fullPath.ToPathArray().Select(x => x.ToLower()).ToList();
+            var baseParts = basePath.ToPathArray().Select(x => x.ToLower()).ToList();
 
-            fullPathItems = fullPathItems.Select(x => x.ToLower()).ToList();
-            basePathItems = basePathItems.Select(x => x.ToLower()).ToList();
+            int start = FindStartIndexOfBasePath(full, baseParts);
 
-            int startIndex = FindStartIndexOfBasePath(fullPathItems, basePathItems);
-            if (startIndex == -1)
+            if (start == -1)
             {
                 return [];
             }
-            int remainingPathLength = fullPathItems.Count - (startIndex + basePathItems.Count) - 1;
 
-            if (remainingPathLength <= 0)
+            int remainingLength = full.Count - (start + baseParts.Count) - 1;
+
+            if (remainingLength <= 0)
             {
                 return [];
             }
-            List<string> remainingPathSegments = fullPathItems.GetRange(startIndex + basePathItems.Count, remainingPathLength);
 
-            return remainingPathSegments;
+            return full.GetRange(start + baseParts.Count, remainingLength);
         }
 
-        private static int FindStartIndexOfBasePath(List<string> fullPath, List<string> basePath)
+        private static int FindStartIndexOfBasePath(List<string> full, List<string> basePath)
         {
-            for (int i = 0; i <= fullPath.Count - basePath.Count; i++)
+            for (int i = 0; i <= full.Count - basePath.Count; i++)
             {
-                var currentSlice = fullPath.GetRange(i, basePath.Count);
-
-                if (Enumerable.SequenceEqual(currentSlice, basePath))
+                if (full.GetRange(i, basePath.Count).SequenceEqual(basePath))
                 {
                     return i;
                 }
             }
+
             return -1;
         }
 
-        public static bool IsSafeUnixDirectoryName(this string name)
+        public static string DecodeWebEncodedPath(this string encodedPath)
         {
-            if (string.IsNullOrWhiteSpace(name)) return false;
+            if (string.IsNullOrEmpty(encodedPath))
+            {
+                return string.Empty;
+            }
 
-            string forbiddenPattern = @"[\0:*?""<>|;&$`'\\]";
+            return Uri.UnescapeDataString(encodedPath.Replace("+", " "));
+        }
 
-            if (Regex.IsMatch(name, forbiddenPattern) || name.StartsWith("-"))
+        public static void EnsureLocalPath(this string directoryPath)
+        {
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+        }
+
+        // === Validation Helpers ===
+
+        public static bool IsValidUnixPath(this string path)
+        {
+            if (path.Contains('\\') || (path.Length >= 2 && path[1] == ':'))
+            {
                 return false;
-
-            if (name == "." || name == "..")
+            }
+            if (string.IsNullOrWhiteSpace(path) || !path.StartsWith("/"))
+            {
                 return false;
+            }
+
+            if (path == "/")
+            {
+                return true;
+            }
+
+            var parts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var part in parts)
+            {
+                if (!IsValidUnixDirectoryName(part))
+                {
+                    return false;
+                }
+            }
 
             return true;
         }
 
         public static bool IsValidUnixFilePath(this string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
-                return false;
-
-            if (!path.StartsWith("/"))
-                return false;
-
-            var invalidChars = new Regex(@"[\0:*?""<>|\\]");
-            if (invalidChars.IsMatch(path))
-                return false;
-
-            var segments = path.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
-            foreach (var segment in segments)
+            if (path.Contains('\\') || (path.Length >= 2 && path[1] == ':'))
             {
-                if (segment == "." || segment == "..")
-                    return false;
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(path) || !path.StartsWith("/") || path == "/")
+            {
+                return false;
+            }
+
+            var parts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length == 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                bool isLast = i == parts.Length - 1;
+
+                if (isLast)
+                {
+                    if (!IsValidUnixFileName(parts[i]))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!IsValidUnixDirectoryName(parts[i]))
+                    {
+                        return false;
+                    }
+                }
             }
 
             return true;
         }
 
-        public static string DecodeWebEncodedPath(this string encodedPath)
+        public static bool IsValidUnixFileName(this string fileName)
         {
-            if (string.IsNullOrEmpty(encodedPath))
-                return string.Empty;
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                return false;
+            }
 
-            return Uri.UnescapeDataString(encodedPath.Replace("+", " "));
+            if (fileName == "." || fileName == "..")
+            {
+                return false;
+            }
+
+            if (fileName.Contains('/') || fileName.Contains('\0'))
+            {
+                return false;
+            }
+
+            foreach (char c in fileName)
+            {
+                if (!IsAllowedCharacter(c))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
-        public static void EnsureLocalPath(this string directoryPath) 
+        public static bool IsValidUnixDirectoryName(this string name)
         {
-            if (!Directory.Exists(directoryPath))
+            if (string.IsNullOrWhiteSpace(name))
             {
-                Directory.CreateDirectory(directoryPath);
+                return false;
             }
+
+            if (name == "." || name == "..")
+            {
+                return false;
+            }
+
+            if (name.StartsWith("-") || name.Contains('/') || name.Contains('\0'))
+            {
+                return false;
+            }
+
+            foreach (char c in name)
+            {
+                if (!IsAllowedCharacter(c))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool IsSafeUnixDirectoryName(this string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return false;
+            }
+
+            string forbiddenPattern = @"[\0:*?""<>|;&$`'\\]";
+
+            if (Regex.IsMatch(name, forbiddenPattern) || name.StartsWith("-"))
+            {
+                return false;
+            }
+
+            if (name == "." || name == "..")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static bool IsSafeWindowsDirectoryName(this string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return false;
+            }
+
+            string forbiddenPattern = @"[\0:*?""<>|]";
+
+            if (Regex.IsMatch(name, forbiddenPattern) || name.StartsWith("-"))
+            {
+                return false;
+            }
+
+            if (name == "." || name == "..")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsAllowedCharacter(char c)
+        {
+            if (char.IsLetterOrDigit(c))
+            {
+                return true;
+            }
+
+            const string safe = " ._-()[]{}@!$%^&=+~'`,;:#&";
+            const string retro = "©®™·•–—‘’“”øæß€¿¡★☆▓█▌✓✔←→↔∞";
+
+            if (safe.Contains(c) || retro.Contains(c))
+            {
+                return true;
+            }
+
+            var category = char.GetUnicodeCategory(c);
+
+            return category switch
+            {
+                UnicodeCategory.OtherSymbol => true,
+                UnicodeCategory.MathSymbol => true,
+                UnicodeCategory.ModifierSymbol => true,
+                UnicodeCategory.CurrencySymbol => true,
+                UnicodeCategory.LetterNumber => true,
+                UnicodeCategory.OtherPunctuation => true,
+                UnicodeCategory.DashPunctuation => true,
+                UnicodeCategory.ConnectorPunctuation => true,
+                UnicodeCategory.NonSpacingMark => true,
+                UnicodeCategory.SpacingCombiningMark => true,
+                UnicodeCategory.OtherNumber => true,
+                _ => false,
+            };
         }
     }
 }

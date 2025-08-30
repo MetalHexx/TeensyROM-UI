@@ -8,11 +8,11 @@ namespace TeensyRom.Ui.Controls.Playlist
 {
     public interface IPlaylistDialogService 
     {
-        Task<bool> ShowDialog(ILaunchableItem item);
+        Task<bool> ShowDialog(LaunchableItem item);
     }
     internal class PlaylistDialogService(PlaylistViewModel vm) : IPlaylistDialogService
     {
-        public async Task<bool> ShowDialog(ILaunchableItem item)
+        public async Task<bool> ShowDialog(LaunchableItem item)
         {
             await vm.InitializeAsync(item);
 

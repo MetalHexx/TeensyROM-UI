@@ -10,6 +10,7 @@ using TeensyRom.Core.Serial;
 using TeensyRom.Core.Serial.Commands.Common;
 using System.Diagnostics;
 using System.Buffers;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Core.Commands
 {
@@ -18,9 +19,10 @@ namespace TeensyRom.Core.Commands
         private ISerialStateContext _serialState;
         private readonly ILoggingService _log;
         private string? _deviceId = null;
+        private bool _recursive;
 
         public GetDirectoryRecursiveHandler(ILoggingService log)
-        {            
+        {
             _log = log;
         }
 
@@ -28,6 +30,7 @@ namespace TeensyRom.Core.Commands
         {
             _deviceId = r.DeviceId;
             _serialState = r.Serial;
+            _recursive = r.Recursive;
 
             return Task.Run(() =>
             {
@@ -104,10 +107,10 @@ namespace TeensyRom.Core.Commands
             }, ct);
         }
 
-        private void GetDirectoryContent(string path, TeensyStorageType storageType, GetDirectoryRecursiveResult result, StringBuilder directoryLogs, CancellationToken ct)
+        private void GetDirectoryContent(DirectoryPath path, TeensyStorageType storageType, GetDirectoryRecursiveResult result, StringBuilder directoryLogs, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
-            
+
             _log.Internal($"=> Indexing: {path}", _deviceId);
 
             DirectoryContent? directoryContent;
@@ -127,8 +130,8 @@ namespace TeensyRom.Core.Commands
                 throw new TeensyException("Error waiting for Directory Start Token");
             }
             ct.ThrowIfCancellationRequested();
-            
-            directoryContent = ReceiveDirectoryContent(ct);
+
+            directoryContent = ReceiveDirectoryContent(path, ct);
 
             if (directoryContent is null)
             {
@@ -139,55 +142,85 @@ namespace TeensyRom.Core.Commands
 
             result.DirectoryContent.Add(directoryContent);
 
-            foreach (var directory in directoryContent.Directories)
+            if (_recursive)
             {
-                ct.ThrowIfCancellationRequested();
-                
-                GetDirectoryContent(directory.Path, storageType, result, directoryLogs, ct);
+                foreach (var directory in directoryContent.Directories)
+                {
+                    ct.ThrowIfCancellationRequested();
+
+                    GetDirectoryContent(directory.Path, storageType, result, directoryLogs, ct);
+                }
             }
         }
 
-        public DirectoryContent? ReceiveDirectoryContent(CancellationToken ct = default)
+        public DirectoryContent? ReceiveDirectoryContent(DirectoryPath path, CancellationToken ct = default)
         {
             var receivedBytes = GetRawDirectoryData(ct);
+            return MapDirectoryContent(receivedBytes, path);
+        }
+
+        private DirectoryContent MapDirectoryContent(List<byte> receivedBytes, DirectoryPath basePath)
+        {
             var directoryContent = new DirectoryContent();
 
             var data = receivedBytes.ToArray().ToUtf8(trimEndBytes: 2);
 
-            const string dirToken = "[Dir]";
-            const string dirEndToken = "[/Dir]";
-            const string fileToken = "[File]";
-            const string fileEndToken = "[/File]";
+            var lines = data.Split(["\r\n", "\r", "\n"], StringSplitOptions.RemoveEmptyEntries);
 
-            var directoryChunks = data.Split(new[] { dirEndToken, fileEndToken }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (var chunk in directoryChunks)
+            foreach (var line in lines)
             {
-                ct.ThrowIfCancellationRequested();
-                
-                switch (chunk)
+                if (string.IsNullOrWhiteSpace(line)) continue;
+
+                try
                 {
-                    case var item when item.StartsWith(dirToken):
-                        var dirJson = item.Substring(5);
-                        var dirItem = JsonSerializer.Deserialize<DirectoryItem>(dirJson);
+                    using var doc = JsonDocument.Parse(line);
+                    var root = doc.RootElement;
 
-                        if (dirItem is null) continue;
+                    if (!root.TryGetProperty("type", out var typeProperty))
+                        continue;
 
-                        dirItem.Path = dirItem.Path.Replace("//", "/"); //workaround to save mem on teensy
-                        directoryContent.Directories.Add(dirItem);
-                        break;
+                    var itemType = typeProperty.GetString();
 
-                    case var item when item.StartsWith(fileToken):
-                        var fileJson = item.Substring(6);
-                        var fileItem = JsonSerializer.Deserialize<FileItem>(fileJson);
+                    if (!root.TryGetProperty("name", out var nameProperty))
+                        continue;
 
-                        if (fileItem is null) continue;
+                    var name = nameProperty.GetString();
+                    if (string.IsNullOrEmpty(name))
+                        continue;
 
-                        fileItem.Path = fileItem.Path.Replace("//", "/"); //workaround to save mem on teensy
-                        directoryContent.Files.Add(fileItem);
-                        break;
+                    switch (itemType)
+                    {
+                        case "dir":
+                            var directoryItem = new DirectoryItem
+                            {
+                                Path = basePath.Combine(new DirectoryPath(name))
+                            };
+                            directoryContent.Directories.Add(directoryItem);
+                            break;
+
+                        case "file":
+                            var size = root.TryGetProperty("size", out var sizeProperty) 
+                                ? sizeProperty.GetInt64() 
+                                : 0L;
+
+                            var fileItem = new FileItem
+                            {
+                                Name = name,
+                                Size = size,
+                                Path = basePath.Combine(new FilePath(name))
+                            };
+                            directoryContent.Files.Add(fileItem);
+                            break;
+                    }
+                }
+                catch (JsonException)
+                {
+                    _log.InternalError($"There was an error parsing a item in {basePath}");
+                    _log.InternalError("Continuing to next item.");
+                    continue;
                 }
             }
+
             return directoryContent;
         }
 
@@ -196,15 +229,15 @@ namespace TeensyRom.Core.Commands
             var receivedBytes = new List<byte>(1024);
             var stopwatch = Stopwatch.StartNew();
             var timeout = TimeSpan.FromSeconds(300);
-            
+
             byte[] buffer = ArrayPool<byte>.Shared.Rent(1024);
-            
+
             try
             {
                 while (true)
                 {
                     ct.ThrowIfCancellationRequested();
-                    
+
                     if (stopwatch.Elapsed > timeout)
                     {
                         throw new TeensyException($"Timeout waiting for expected reply from TeensyROM -- Received Bytes:\r\n{GetLogString(receivedBytes)}");
@@ -214,7 +247,7 @@ namespace TeensyRom.Core.Commands
                     {
                         int bytesToRead = Math.Min(_serialState.BytesToRead, buffer.Length);
                         int bytesRead = _serialState.Read(buffer, 0, bytesToRead);
-                        
+
                         for (int i = 0; i < bytesRead; i++)
                         {
                             receivedBytes.Add(buffer[i]);
@@ -231,7 +264,7 @@ namespace TeensyRom.Core.Commands
                         Task.Delay(5, ct).Wait(ct);
                     }
                 }
-                
+
                 return receivedBytes;
             }
             finally

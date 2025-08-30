@@ -9,13 +9,14 @@ using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.Storage.Tools.D64Extraction;
 using TeensyRom.Core.Storage.Tools.Zip;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Core.Storage
 {
     public interface IFileWatchService : IDisposable
     {
         IObservable<bool> IsProcessing { get; }
-        IObservable<List<FileTransferItem>> WatchFiles { get; }
+
         void ToggleFileWatch(TeensySettings settings);
     }
 
@@ -25,32 +26,26 @@ namespace TeensyRom.Core.Storage
     /// </summary>
     public class FileWatchService : IFileWatchService
     {
-        private readonly string _assemblyDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!;
-        public IObservable<List<FileTransferItem>> WatchFiles => _watchFiles.AsObservable();
-        private readonly Subject<List<FileTransferItem>> _watchFiles = new();
-
         public IObservable<bool> IsProcessing => _isProcessing.AsObservable();
         private readonly BehaviorSubject<bool> _isProcessing = new(false);
 
-
+        private readonly string _assemblyDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!;
+        private readonly IFileTransferService _fileTransfer;
         private readonly ISettingsService _settingsService;
         private readonly IFileWatcher _fileWatcher;
         private readonly ISerialStateContext _serialState;
-        private readonly ID64Extractor _d64Extractor;
-        private readonly IZipExtractor _zipExtractor;
         private readonly ILoggingService _log;
         private readonly IAlertService _alert;
         private TeensySettings _settings = null!;
         private IDisposable? _settingsSubscription = null!;
         private IDisposable? _fileWatchSubscription = null!;
 
-        public FileWatchService(ISettingsService settingsService, IFileWatcher fileWatcher, ISerialStateContext serialState, ID64Extractor d64Extractor, IZipExtractor zipExtractor, ILoggingService log, IAlertService alert)
+        public FileWatchService(IFileTransferService fileTransfer, ISettingsService settingsService, IFileWatcher fileWatcher, ISerialStateContext serialState, ILoggingService log, IAlertService alert)
         {
+            _fileTransfer = fileTransfer;
             _settingsService = settingsService;
             _fileWatcher = fileWatcher;
             _serialState = serialState;
-            _d64Extractor = d64Extractor;
-            _zipExtractor = zipExtractor;
             _log = log;
             _alert = alert;
             _settingsSubscription = _settingsService.Settings
@@ -74,7 +69,6 @@ namespace TeensyRom.Core.Storage
 
             typesToWatch.Add(".zip");
 
-
             _fileWatcher.Enable(
                 _settings.WatchDirectoryLocation,
                 typesToWatch.ToArray());
@@ -89,12 +83,22 @@ namespace TeensyRom.Core.Storage
                 .Select(files => files.Select(f => new FileTransferItem
                 (
                     fileInfo: f,
-                    targetPath: GetTargetPath(f),
+                    targetFilePath: GetTargetPath(f),
                     targetStorage: _settings.StorageType
                 )))
                 .ObserveOn(Scheduler.Default)
-                .Select(Extract)
-                .Subscribe(fti => _watchFiles.OnNext(fti.ToList()));
+                .Where(fti => fti.Any())
+                .Subscribe(fti =>
+                {
+                    int fileCount = fti.Count();
+                    
+                    _log.Internal($"Starting auto transfer of {fileCount} files.");
+                    _alert.Publish($"Starting auto transfer of {fileCount} files.");
+                    
+                    _isProcessing.OnNext(true);
+                    _fileTransfer.Send(fti.ToList());
+                    _isProcessing.OnNext(false);
+                });
         }
 
         private bool NotInAssemblyDirectory(List<FileInfo> files)
@@ -102,88 +106,13 @@ namespace TeensyRom.Core.Storage
             return !files.Any(f => f.DirectoryName is not null && f.DirectoryName.Contains(_assemblyDirectory));
         }
 
-        private string GetTargetPath(FileInfo file)
+        private FilePath GetTargetPath(FileInfo file)
         {
-            return _settings
-                .GetAutoTransferPath(file.Extension.GetFileType())
-                .UnixPathCombine(file.FullName
-                    .Replace(_settings.WatchDirectoryLocation, string.Empty)
-                    .ToUnixPath()
-                    .GetUnixParentPath());
-        }
+            var path = new FilePath(file.FullName
+                .Replace(_settings.WatchDirectoryLocation, string.Empty)
+                .ToUnixPath());
 
-        private IEnumerable<FileTransferItem> Extract(IEnumerable<FileTransferItem> files)
-        {
-            var transferItems = ExtractZip(files);
-            transferItems = ExtractD64(transferItems);
-            return transferItems;
-        }
-
-        private IEnumerable<FileTransferItem> ExtractZip(IEnumerable<FileTransferItem> files)
-        {
-            var zipFiles = files.Where(file => new FileInfo(file.SourcePath).Extension.Contains("zip", StringComparison.OrdinalIgnoreCase));
-
-            if (!zipFiles.Any())
-            {
-                return files;
-            }
-            var fileMessageString = zipFiles.Count() > 1 ? "files" : "file";
-            _alert.Publish($"Unpacking ZIP {fileMessageString}.");
-
-            var extractedFiles = zipFiles
-                .Select(f => _zipExtractor.Extract(f))
-                .Select(f => f.ExtractedFiles
-                    .Select(fileInfo => new FileTransferItem
-                    (
-                        sourcePath: fileInfo.FullName,
-                        targetPath: _settings.GetAutoTransferPath(fileInfo.Extension.GetFileType()),
-                        targetStorage: _settings.StorageType)
-                    ))
-                .SelectMany(f => f)
-                .Where(f => f.Type != TeensyFileType.Unknown)
-                .ToList();
-
-            if (!extractedFiles.Any())
-            {
-                _alert.Publish($"No compatible files found in ZIP {fileMessageString}.");
-            }
-
-            var finalList = files
-                .Where(f => !zipFiles.Any(zip => f.Name == zip.Name))
-                .ToList();
-
-            finalList.AddRange(extractedFiles);
-
-            return finalList;
-        }
-
-        private IEnumerable<FileTransferItem> ExtractD64(IEnumerable<FileTransferItem> files)
-        {
-            if (!files.Any(files => files.Type == TeensyFileType.D64))
-            {
-                return files;
-            }
-            _alert.Publish("D64 files detected.  Unpacking PRGs.");
-            var extractedPrgs = files
-                .Where(f => f.Type == TeensyFileType.D64)
-                .Select(f => _d64Extractor.Extract(f))
-                .Select(f => f.ExtractedFiles
-                    .Select(prgInfo => new FileTransferItem
-                    (
-                        sourcePath: prgInfo.FullName,
-                        targetPath: _settings.GetAutoTransferPath(prgInfo.Extension.GetFileType()).UnixPathCombine(f.OriginalFileName),
-                        targetStorage: _settings.StorageType)
-                    ))
-                .SelectMany(f => f)
-                .ToList();
-
-            var finalList = files
-                .Where(f => f.Type is not TeensyFileType.D64)
-                .ToList();
-
-            finalList.AddRange(extractedPrgs);
-
-            return finalList;
+            return _settings.AutoTransferPath.Combine(path);
         }
 
         public void Dispose()

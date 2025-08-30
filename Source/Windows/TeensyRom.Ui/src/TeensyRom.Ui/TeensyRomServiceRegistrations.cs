@@ -90,6 +90,7 @@ namespace TeensyRom.Ui
             services.AddSingleton<IToggleMusicSerialRoutine, ToggleMusicSerialRoutine>();
             services.AddSingleton<ISetMusicSpeedSerialRoutine,  SetMusicSpeedSerialRoutine>();
             services.AddSingleton<IPlaySubtuneSerialRoutine, PlaySubtuneSerialRoutine>();
+            services.AddSingleton<IFileTransferService,  FileTransferService>();
             services.AddSingleton<MainWindow>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CoreSerialAssemblyMarker>());            
             services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));

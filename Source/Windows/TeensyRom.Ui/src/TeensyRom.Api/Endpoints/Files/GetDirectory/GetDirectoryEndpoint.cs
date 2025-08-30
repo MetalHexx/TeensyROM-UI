@@ -1,6 +1,7 @@
 using RadEndpoints;
 using TeensyRom.Api.Models;
 using TeensyRom.Core.Abstractions;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Api.Endpoints.Files.GetDirectory
 {
@@ -36,7 +37,7 @@ namespace TeensyRom.Api.Endpoints.Files.GetDirectory
                 SendNotFound($"The storage {r.StorageType} is not available.");
                 return;
             }
-            var storageItem = await storage.GetDirectory(r.Path!);
+            var storageItem = await storage.GetDirectory(new DirectoryPath(r.Path!));
             if (storageItem is null)
             {
                 SendNotFound($"The directory {r.Path} was not found.");

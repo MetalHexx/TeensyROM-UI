@@ -1,4 +1,6 @@
-﻿namespace TeensyRom.Core.Entities.Storage
+﻿using TeensyRom.Core.ValueObjects;
+
+namespace TeensyRom.Core.Entities.Storage
 {
     /// <summary>
     /// A wrapper around FileInfo that automatically provides information necessary
@@ -7,47 +9,47 @@
     public class FileTransferItem
     {
         private readonly FileInfo _fileInfo;
-
-        public string Name => _fileInfo.Name;
-        public string SourcePath => _fileInfo.FullName;
+        public string FullSourcePath => _fileInfo.FullName;
+        public string SourceDirectory => _fileInfo.DirectoryName ?? string.Empty;
         public long Size => _fileInfo.Length;
         public TeensyFileType Type => _fileInfo.Extension.GetFileType();
-        public string TargetPath { get; private set; } = string.Empty;
-        public TeensyStorageType TargetStorage { get; set; } = TeensyStorageType.SD;
-        public byte[] Buffer { get; set; } = [];
+        public FilePath TargetPath { get; private set; } = new FilePath(string.Empty);
+        public TeensyStorageType TargetStorage { get; private set; } = TeensyStorageType.SD;
+        public byte[] Buffer { get; private set; } = [];
         public uint StreamLength { get; private set; }
         public ushort Checksum { get; private set; }
 
-        public FileTransferItem(string sourcePath, string targetPath, TeensyStorageType targetStorage)
+        public FileTransferItem(string sourcePath, FilePath targetFilePath, TeensyStorageType targetStorage)
         {
-            if (!File.Exists(sourcePath))
+            if (!File.Exists(sourcePath)) 
+            {
                 throw new FileNotFoundException($"A file was not found at: {sourcePath}");
-
+            }
             _fileInfo = new FileInfo(sourcePath);
-            TargetPath = targetPath;
+            TargetPath = targetFilePath;
             TargetStorage = targetStorage;
 
             var buffer = ReadFileWithRetry(sourcePath);
             InitializeFromBuffer(buffer);
         }
 
-        public FileTransferItem(FileInfo fileInfo, string targetPath, TeensyStorageType targetStorage)
+        public FileTransferItem(FileInfo fileInfo, FilePath targetFilePath, TeensyStorageType targetStorage)
         {
             _fileInfo = fileInfo ?? throw new ArgumentNullException(nameof(fileInfo));
-            TargetPath = targetPath;
+            TargetPath = targetFilePath ?? throw new ArgumentNullException(nameof(targetFilePath));
             TargetStorage = targetStorage;
 
             var buffer = ReadFileWithRetry(fileInfo.FullName);
             InitializeFromBuffer(buffer);
         }
 
-        public FileTransferItem(byte[] buffer, string name, string targetPath, TeensyStorageType targetStorage)
+        public FileTransferItem(byte[] buffer, FilePath targetFilePath, TeensyStorageType targetStorage)
         {
             if (buffer == null || buffer.Length == 0)
                 throw new ArgumentException("Buffer is null or empty.", nameof(buffer));
 
-            _fileInfo = new FileInfo(Path.Combine(Path.GetTempPath(), name));
-            TargetPath = targetPath;
+            _fileInfo = new FileInfo(Path.Combine(Path.GetTempPath(), targetFilePath.FileName));
+            TargetPath = targetFilePath;
             TargetStorage = targetStorage;
 
             InitializeFromBuffer(buffer);
@@ -65,7 +67,7 @@
             }
         }
 
-        private static byte[] ReadFileWithRetry(string filePath)
+        private static byte[] ReadFileWithRetry(string localFilePath)
         {
             const int maxRetries = 5;
             const int delayMs = 200;
@@ -74,7 +76,7 @@
             {
                 try
                 {
-                    using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    using var stream = new FileStream(localFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     using var reader = new BinaryReader(stream);
 
                     var length = (int)reader.BaseStream.Length;

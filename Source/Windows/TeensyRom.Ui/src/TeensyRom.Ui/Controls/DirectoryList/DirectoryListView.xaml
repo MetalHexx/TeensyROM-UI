@@ -39,7 +39,7 @@
 
         </HierarchicalDataTemplate>
 
-        <DataTemplate x:Key="LaunchableTemplate" DataType="{x:Type storage:ILaunchableItem}">
+        <DataTemplate x:Key="LaunchableTemplate" DataType="{x:Type storage:LaunchableItem}">
 
             <Grid x:Name="SongItemPanel">
                 <Grid.ColumnDefinitions>

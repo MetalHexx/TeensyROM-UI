@@ -23,38 +23,40 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 || nextStateType == typeof(ShuffleState);
         }
 
-        public override async Task<ILaunchableItem?> GetNext(ILaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState)
+        public override async Task<LaunchableItem?> GetNext(LaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState)
         {
             await Task.CompletedTask;
 
             var currentIndex = directoryState.DirectoryContent
-                .OfType<ILaunchableItem>()
+                .OfType<LaunchableItem>()
                 .ToList()
                 .IndexOf(currentFile);
 
             var nextFile = directoryState.DirectoryContent.Count == currentIndex + 1
-                ? directoryState.DirectoryContent.First()
-                : directoryState.DirectoryContent[++currentIndex];
+                ? directoryState.DirectoryContent.First() as FileItem
+                : directoryState.DirectoryContent[++currentIndex] as FileItem;
+
+            if(nextFile is  null) return null;
 
             if (nextFile.Path == currentFile.Path) return null;
 
-            if (nextFile is ILaunchableItem f)
+            if (nextFile is LaunchableItem f)
             {
                 return f;
             }
             return currentFile;
         }
 
-        public override async Task<ILaunchableItem?> GetPrevious(ILaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState)
+        public override async Task<LaunchableItem?> GetPrevious(LaunchableItem currentFile, TeensyFilterType filter, DirectoryState directoryState)
         {
             await Task.CompletedTask;
 
             var currentIndex = directoryState.DirectoryContent
-                .OfType<ILaunchableItem>()
+                .OfType<LaunchableItem>()
                 .ToList()
                 .IndexOf(currentFile);
 
-            IStorageItem file;
+            StorageItem file;
 
             if (directoryState.DirectoryContent.Count == 0) return null;
 
@@ -62,7 +64,7 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
                 ? directoryState.DirectoryContent[--currentIndex]
                 : directoryState.DirectoryContent.Last();
 
-            if (file is ILaunchableItem f)
+            if (file is LaunchableItem f)
             {
                 return f;
             }

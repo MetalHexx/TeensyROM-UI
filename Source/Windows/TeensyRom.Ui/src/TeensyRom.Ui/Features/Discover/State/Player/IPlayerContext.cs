@@ -8,6 +8,7 @@ using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Music;
 using TeensyRom.Core.Serial.Commands.Composite.StartSeek;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.ValueObjects;
 using TeensyRom.Ui.Controls.DirectoryTree;
 using TeensyRom.Ui.Features.Common.Models;
 
@@ -16,45 +17,43 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
     public interface IPlayerContext
     {
         TeensyFileType[] GetFileTypes();
-        IObservable<string> CurrentPath { get; }
+        IObservable<DirectoryPath> CurrentPath { get; }
         IObservable<int> CurrentPage { get; }
         IObservable<PlayState> PlayingState { get; }
         IObservable<PlayerState> CurrentState { get; }
-        IObservable<ObservableCollection<IStorageItem>> DirectoryContent { get; }
+        IObservable<ObservableCollection<StorageItem>> DirectoryContent { get; }
         IObservable<DirectoryNodeViewModel?> DirectoryTree { get; }
         IObservable<bool> PagingEnabled { get; }
         IObservable<LaunchedFileResult> LaunchedFile { get; }
-        IObservable<ILaunchableItem> SelectedFile { get; }
+        IObservable<LaunchableItem> SelectedFile { get; }
         IObservable<int> TotalPages { get; }
         IObservable<StorageScope> CurrentScope { get; }
-        IObservable<string> CurrentScopePath { get; }
+        IObservable<DirectoryPath> CurrentScopePath { get; }
         Task CacheAll();
         Task ClearSearch();
-        Task DeleteFile(IFileItem file);
-        Task LoadDirectory(string path);
-        Task LoadDirectory(string path, string? filePathToSelect = null);
-        Task PlayFile(ILaunchableItem file);
+        Task DeleteFile(FileItem file);
+        Task LoadDirectory(DirectoryPath path);
+        Task LoadDirectory(DirectoryPath path, FilePath? filePathToSelect = null);
+        Task PlayFile(LaunchableItem file);
         Task TogglePlay();
         Unit NextPage();
         Task PlayNext();
         Task PlayPrevious();
         Task<PlaySubtuneResult?> PlaySubtune(int subtuneIndex);
-        Task<ILaunchableItem?> PlayRandom();
-        void UpdateHistory(ILaunchableItem fileToLoad);
+        Task<LaunchableItem?> PlayRandom();
+        void UpdateHistory(LaunchableItem fileToLoad);
         Unit PreviousPage();
         Task RefreshDirectory(bool bustCache = true);
         Unit SearchFiles(string keyword);
         Unit SetPageSize(int pageSize);
-        Unit SelectFile(ILaunchableItem file);
+        Unit SelectFile(LaunchableItem file);
         Task StopFile();
         Unit ToggleShuffleMode();
         bool TryTransitionTo(Type nextStateType);
         Task SwitchFilterAndLaunch(TeensyFilter filter);
-        Task StoreFiles(IEnumerable<DragNDropFile> files);
-        Task AutoStoreFiles(IEnumerable<FileTransferItem> files);
         void SetScope(StorageScope scope);
-        void SetScopePath(string path);
-        string GetScopePath();
+        void SetScopePath(DirectoryPath path);
+        DirectoryPath GetScopePath();
         Task SetSpeed(double percentage, MusicSpeedCurveTypes curveType);
         Task RestartSong();
         Task<PlaySubtuneResult?> RestartSubtune(int subtuneIndex);

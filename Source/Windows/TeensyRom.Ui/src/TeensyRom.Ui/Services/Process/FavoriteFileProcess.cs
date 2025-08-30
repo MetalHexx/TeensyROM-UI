@@ -11,8 +11,8 @@ namespace TeensyRom.Ui.Services.Process
 {
     public interface IFavoriteFileProcess
     {
-        Task SaveFavorite(ILaunchableItem file);
-        Task RemoveFavorite(ILaunchableItem file);
+        Task SaveFavorite(LaunchableItem file);
+        Task RemoveFavorite(LaunchableItem file);
     }
 
     public class FavoriteFileProcess(
@@ -20,30 +20,30 @@ namespace TeensyRom.Ui.Services.Process
         ICachedStorageService storage,
         IAlertService alert) : IFavoriteFileProcess
     {
-        public async Task SaveFavorite(ILaunchableItem file)
+        public async Task SaveFavorite(LaunchableItem file)
         {
             await ProcessFavorite(file, async () => await storage.SaveFavorite(file) ?? file);
         }
 
-        public async Task RemoveFavorite(ILaunchableItem file)
+        public async Task RemoveFavorite(LaunchableItem file)
         {
             await ProcessFavorite(file, async () => { await storage.RemoveFavorite(file); return file; });
         }
 
-        private async Task ProcessFavorite(ILaunchableItem file, Func<Task<ILaunchableItem>> storageAction)
+        private async Task ProcessFavorite(LaunchableItem file, Func<Task<LaunchableItem>> storageAction)
         {
-            var currentFile = await player.LaunchedFile.FirstAsync();
-            var playState = await player.PlayingState.FirstAsync();
-            var playerState = await player.CurrentState.FirstAsync();
-            var currentPath = await player.CurrentPath.FirstAsync();
+            var currentFile = await player.LaunchedFile.FirstOrDefaultAsync();
+            var playState = await player.PlayingState.FirstOrDefaultAsync();
+            var playerState = await player.CurrentState.FirstOrDefaultAsync();
+            var currentPath = await player.CurrentPath.FirstOrDefaultAsync();
 
-            if (currentFile.File is HexItem && playState is PlayState.Playing)
+            if (currentFile?.File is HexItem && playState is PlayState.Playing)
             {
                 alert.Publish("Hex file is running, cannot tag favorite.");
                 return;
             }
 
-            var isGame = currentFile.File is GameItem;
+            var isGame = currentFile?.File is GameItem;
 
             if (isGame)
             {
@@ -53,7 +53,7 @@ namespace TeensyRom.Ui.Services.Process
 
             await storageAction();
 
-            if (isGame)
+            if (isGame && currentFile is not null)
             {
                 await player.PlayFile(currentFile.File);
             }

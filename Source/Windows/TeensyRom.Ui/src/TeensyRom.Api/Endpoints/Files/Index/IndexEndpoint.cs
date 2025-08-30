@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Storage;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Api.Endpoints.Files.Index
 {
@@ -56,7 +57,7 @@ namespace TeensyRom.Api.Endpoints.Files.Index
         {
             if (!string.IsNullOrWhiteSpace(r.StartingPath))
             {
-                return await s.Cache(r.StartingPath, ct);
+                return await s.Cache(new DirectoryPath(r.StartingPath), ct);
             }
             else
             {

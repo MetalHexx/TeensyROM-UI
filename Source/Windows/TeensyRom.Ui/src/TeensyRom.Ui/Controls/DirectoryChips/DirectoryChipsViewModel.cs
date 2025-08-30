@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Ui.Controls.DirectoryChips
 {
@@ -18,32 +19,32 @@ namespace TeensyRom.Ui.Controls.DirectoryChips
         public ObservableCollection<string> PathItems { get; set; } = [];
         public ReactiveCommand<string, Unit> PathItemClickCommand { get; set; }
         public ReactiveCommand<string, Unit> PinCommand { get; set; }
-        private string _currentPath = string.Empty;
+        private DirectoryPath _currentPath = new DirectoryPath(string.Empty);
 
-        public DirectoryChipsViewModel(IObservable<string> path, IObservable<string> pinnedDirectory, string basePath, Action<string> onClick, Action<string> onPin)
+        public DirectoryChipsViewModel(IObservable<DirectoryPath> path, IObservable<DirectoryPath> pinnedDirectory, DirectoryPath basePath, Action<DirectoryPath> onClick, Action<DirectoryPath> onPin)
         {
-            var root = StorageHelper.Remote_Path_Root;
+            var root = new DirectoryPath(StorageHelper.Remote_Path_Root);
 
             pinnedDirectory
-                .CombineLatest(path, (pinned, path) => !string.IsNullOrWhiteSpace(pinned) && pinned == path && pinned != StorageHelper.Remote_Path_Root)
+                .CombineLatest(path, (pinned, path) => !pinned.IsEmpty && pinned == path && pinned.Value != StorageHelper.Remote_Path_Root)
                 .ToPropertyEx(this, vm => vm.PinEnabled);
 
             var pathItems = path
-                .Where(path => !string.IsNullOrWhiteSpace(path))
+                .Where(path => !path.IsEmpty)
                 .Do(path => _currentPath = path)
-                .Select(p => basePath == root ? p : p.Replace(basePath, ""))
-                .Select(path => path.ToPathArray()
-                    .Select(item => item == root ? root : $"/{item}"))
+                .Select(p => basePath.Equals(root) ? p : new DirectoryPath(p.Value.Replace(basePath.Value, "")))
+                .Select(path => path.Value.ToPathArray()
+                    .Select(item => item == root.Value ? root.Value : $"/{item}"))
                 .Subscribe(pathList => 
                 {
                     PathItems.Clear();
 
                     if(pathList.Count() == 0)
                     {
-                        PathItems.Add(basePath);
+                        PathItems.Add(basePath.Value);
                         return;
                     }
-                    if(basePath == root)
+                    if(basePath.Equals(root))
                     {
                         PathItems.Add("/root");
                     }
@@ -54,9 +55,9 @@ namespace TeensyRom.Ui.Controls.DirectoryChips
             {
                 var index = PathItems.IndexOf(item);
 
-                var path = string.Join("", PathItems.Take(index + 1));
+                var path = new DirectoryPath(string.Join("", PathItems.Take(index + 1)));
 
-                if (path == _currentPath) return;
+                if (path.Equals(_currentPath)) return;
                 
                 var newPath = ReplaceRoot(path);
                 onClick(newPath);
@@ -69,17 +70,18 @@ namespace TeensyRom.Ui.Controls.DirectoryChips
 
 
         }
-        private string ReplaceRoot(string path)
+        private DirectoryPath ReplaceRoot(DirectoryPath path)
         {
             var newPath = path;
+            var rootPath = new DirectoryPath(StorageHelper.Remote_Path_Root);
 
-            if(path == "/root")
+            if (path.Equals(rootPath))
             {
-                return "/";
+                return rootPath;
             }
-            if (path.StartsWith("/root"))
+            if (path.Value.StartsWith("/root"))
             {
-                newPath = path.Replace("/root", "");
+                newPath = new DirectoryPath(path.Value.Replace("/root", ""));
             }
             return newPath;
         }

@@ -3,9 +3,9 @@ using System.Text.Json;
 
 namespace TeensyRom.Core.Entities.Storage
 {
-    public class LaunchableItemConverter : JsonConverter<ILaunchableItem>
+    public class LaunchableItemConverter : JsonConverter<LaunchableItem>
     {
-        public override ILaunchableItem? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override LaunchableItem? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             using var doc = JsonDocument.ParseValue(ref reader);
             var root = doc.RootElement;
@@ -25,7 +25,7 @@ namespace TeensyRom.Core.Entities.Storage
             };
         }
 
-        public override void Write(Utf8JsonWriter writer, ILaunchableItem value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, LaunchableItem value, JsonSerializerOptions options)
         {
             var type = value switch
             {

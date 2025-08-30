@@ -41,6 +41,7 @@ namespace TeensyRom.Ui.Features.Terminal
         private readonly IAlertService _alert;
         private readonly ISettingsService _settingsService;
         private bool _nfcWarningFlag = false;
+        private IDisposable _logSubscription;
 
         public TerminalViewModel(IMediator mediator, ISerialStateContext serial, ILoggingService log, IAlertService alertService, IDialogService dialog, ISerialCommandViewModel serialCommandVm, ISettingsService settingsService)
         {
@@ -117,21 +118,24 @@ namespace TeensyRom.Ui.Features.Terminal
                 canExecute: this.WhenAnyValue(x => x.Log.Logs.Count).Select(count => count > 0),
                 outputScheduler: RxApp.MainThreadScheduler);
 
-            log.Logs
-                .Buffer(TimeSpan.FromMilliseconds(1000))
+            // Use a throttled subscription to reduce UI updates when high volume logging occurs
+            _logSubscription = log.Logs
+                .Buffer(TimeSpan.FromMilliseconds(500))
                 .Where(logs => logs.Any())
-                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(logs =>
                 {
                     var combinedLog = string.Join("\n", logs);
-                    combinedLog.TrimStart('\n');
+                    combinedLog = combinedLog.TrimStart('\n');
+                    
                     if (combinedLog.Contains("PN53x board not found") && _nfcWarningFlag == false)
                     {
                         _nfcWarningFlag = true;
                         dialog.ShowConfirmation("NFC Not Found", "The TR is having an issue locating your NFC device.  This will cause a degraded experience with the Desktop UI.\r\rPlease plug in your NFC device or disable it by pressing F8 and 'F' on the C64.");
                     }
+                    
                     Log.AddLog(combinedLog);
                 });
+                
             _mediator = mediator;
             _serial = serial;
             _log = log;

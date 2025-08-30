@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using TeensyRom.Core.Settings;
+using TeensyRom.Core.ValueObjects;
 
 namespace TeensyRom.Core.Entities.Storage
 {
@@ -31,7 +32,9 @@ namespace TeensyRom.Core.Entities.Storage
             new(TeensyFileType.Hpi, TeensyFilterType.Images, "HPI", ".hpi"),
             new(TeensyFileType.Seq, TeensyFilterType.Images, "SEQ", ".seq"),
             new(TeensyFileType.Txt, TeensyFilterType.Images, "TXT", ".txt"),
-            new(TeensyFileType.D64, TeensyFilterType.Games, "D64", ".d64")
+            new(TeensyFileType.D64, TeensyFilterType.Images, "NFO", ".nfo"),
+            new(TeensyFileType.D64, TeensyFilterType.Games, "D64", ".d64"),            
+
         ];
         public static readonly ImmutableList<TeensyFilter> Filters =
         [
@@ -42,26 +45,30 @@ namespace TeensyRom.Core.Entities.Storage
             new(TeensyFilterType.Images, "Images", "FileImageOutline")
         ];
 
-        public static ImmutableList<string> FavoritePaths => FileTargets.Select(t => GetFavoritePath(t.Type)).ToImmutableList();
+        public static ImmutableList<DirectoryPath> FavoritePaths => FileTargets
+            .Select(t => GetFavoritePath(t.Type))
+            .Distinct()
+            .ToImmutableList();
 
-        public static string GetFavoritePath(TeensyFileType type)
+        public static DirectoryPath GetFavoritePath(TeensyFileType type)
         {
             return type switch
             {
-                TeensyFileType.Sid => $"{Favorites_Path}music",
-                TeensyFileType.Prg => $"{Favorites_Path}games",
-                TeensyFileType.P00 => $"{Favorites_Path}games",
-                TeensyFileType.Crt => $"{Favorites_Path}games",
-                TeensyFileType.Txt => $"{Favorites_Path}text",
-                TeensyFileType.Seq => $"{Favorites_Path}images",
-                TeensyFileType.Kla => $"{Favorites_Path}images",
-                TeensyFileType.Koa => $"{Favorites_Path}images",
-                TeensyFileType.Art => $"{Favorites_Path}images",
-                TeensyFileType.Aas => $"{Favorites_Path}images",
-                TeensyFileType.Hpi => $"{Favorites_Path}images",
-                TeensyFileType.Hex => "/firmware",
+                TeensyFileType.Sid => new DirectoryPath($"{Favorites_Path}music"),
+                TeensyFileType.Prg => new DirectoryPath($"{Favorites_Path}games"),
+                TeensyFileType.P00 => new DirectoryPath($"{Favorites_Path}games"),
+                TeensyFileType.Crt => new DirectoryPath($"{Favorites_Path}games"),
+                TeensyFileType.Txt => new DirectoryPath($"{Favorites_Path}text"),
+                TeensyFileType.Nfo => new DirectoryPath($"{Favorites_Path}text"),
+                TeensyFileType.Seq => new DirectoryPath($"{Favorites_Path}images"),
+                TeensyFileType.Kla => new DirectoryPath($"{Favorites_Path}images"),
+                TeensyFileType.Koa => new DirectoryPath($"{Favorites_Path}images"),
+                TeensyFileType.Art => new DirectoryPath($"{Favorites_Path}images"),
+                TeensyFileType.Aas => new DirectoryPath($"{Favorites_Path}images"),
+                TeensyFileType.Hpi => new DirectoryPath($"{Favorites_Path}images"),
+                TeensyFileType.Hex => new DirectoryPath("/firmware"),
 
-                _ => $"{Favorites_Path}unknown"
+                _ => new DirectoryPath($"{Favorites_Path}unknown")
             };
         }
     }
