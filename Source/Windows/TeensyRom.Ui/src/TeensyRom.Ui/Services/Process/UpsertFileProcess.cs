@@ -18,10 +18,13 @@ namespace TeensyRom.Ui.Services.Process
         {
             var customFiles = files.Select((f, index) =>
             {
-                f.Custom = f.Custom is not null ? f.Custom : new PlaylistItem
+                if (f.Custom is null)
                 {
-                    FilePath = f.Path
-                };
+                    f.Custom = new PlaylistItem
+                    {
+                        FilePath = f.Path
+                    };
+                }
                 f.Custom.Order = index;
                 return f;
             });

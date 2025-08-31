@@ -17,6 +17,7 @@ namespace TeensyRom.Core.Entities.Storage
 
         public PlaylistItem Clone() => new()
         {
+            Order = Order,
             FilePath = FilePath,
             DefaultSpeed = DefaultSpeed,
             DefaultSpeedCurve = DefaultSpeedCurve

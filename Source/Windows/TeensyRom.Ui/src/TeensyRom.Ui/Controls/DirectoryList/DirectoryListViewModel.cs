@@ -183,7 +183,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
 
                 List<FileTransferItem> fileTransferItems = ProcessDrop(e);
 
-                _fileTransfer.Send(fileTransferItems);
+                await _fileTransfer.Send(fileTransferItems);
                 _progress.DisableProgress();
             });
         }
@@ -240,7 +240,7 @@ namespace TeensyRom.Ui.Controls.DirectoryList
         {
             var x = DirectoryContent;
 
-            var files = DirectoryContent?.Cast<FileItem>().ToList();
+            var files = DirectoryContent?.OfType<FileItem>().ToList();
 
             if (files is null) return Task.CompletedTask;
 
