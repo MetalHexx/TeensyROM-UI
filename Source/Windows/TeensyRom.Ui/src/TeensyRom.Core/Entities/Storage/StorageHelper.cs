@@ -15,7 +15,8 @@ namespace TeensyRom.Core.Entities.Storage
         public const string Remote_Path_Root = @"/";
         public const string Extraction_Path = @"Extraction\Output";
         public const string Playlist_Path = "/playlists/";
-        public const string Favorites_Path = $"/favorites/";
+        public const string Favorites_Path = "/favorites/";
+        public const string Firmware_Path = "/firmware/";
         public const string Playlist_File_Name = "playlist.json";
         public const string Temp_Path = @"Temp";
         public static readonly ImmutableList<TeensyTarget> FileTargets =

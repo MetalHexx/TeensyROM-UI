@@ -112,6 +112,10 @@ namespace TeensyRom.Core.Storage
                 .Replace(_settings.WatchDirectoryLocation, string.Empty)
                 .ToUnixPath());
 
+            if (file.Extension.GetFileType() is TeensyFileType.Hex) 
+            {
+                return new DirectoryPath(StorageHelper.Firmware_Path).Combine(path);
+            }
             return _settings.AutoTransferPath.Combine(path);
         }
 
