@@ -74,8 +74,6 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         protected readonly ICachedStorageService _storage;
         protected readonly ISettingsService _settingsService;
         protected readonly ILaunchHistory _launchHistory;
-        private readonly ID64Extractor _d64Extractor;
-        private readonly IZipExtractor _zipExtractor;
         protected readonly ISnackbarService _alert;
         protected readonly ISerialStateContext _serial;
         protected readonly INavigationService _nav;
@@ -86,14 +84,23 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
         protected TeensyFilter _currentFilter;
         protected bool _isInitLoadedOnly = false;
 
-        public PlayerContext(IMediator mediator, ICachedStorageService storage, ISettingsService settingsService, ILaunchHistory launchHistory, ID64Extractor d64Extractor, IZipExtractor zipExtractor, ISnackbarService alert, ISerialStateContext serialContext, INavigationService nav, IDiscoveryTreeState tree, IProgressTimer timer, ILoggingService log, IFileTransferService fileTransfer)
+        public PlayerContext(
+            IMediator mediator, 
+            ICachedStorageService storage, 
+            ISettingsService settingsService, 
+            ILaunchHistory launchHistory,             
+            ISnackbarService alert, 
+            ISerialStateContext serialContext, 
+            INavigationService nav, 
+            IDiscoveryTreeState tree, 
+            IProgressTimer timer, 
+            ILoggingService log, 
+            IFileTransferService fileTransfer)
         {
             _mediator = mediator;
             _storage = storage;
             _settingsService = settingsService;
             _launchHistory = launchHistory;
-            _d64Extractor = d64Extractor;
-            _zipExtractor = zipExtractor;
             _alert = alert;
             _serial = serialContext;
             _nav = nav;
@@ -638,18 +645,6 @@ namespace TeensyRom.Ui.Features.Discover.State.Player
             _directoryState.Value.SetPageSize(pageSize);
             _directoryState.OnNext(_directoryState.Value);
             return Unit.Default;
-        }
-
-        private void SwitchFilterByFileType(LaunchableItem file) 
-        {
-            _currentFilter = file switch
-            {
-                SongItem songItem => _settings.FileFilters.First(f => f.Type == TeensyFilterType.Music),
-                GameItem gameItem => _settings.FileFilters.First(f => f.Type == TeensyFilterType.Games),
-                ImageItem imageItem => _settings.FileFilters.First(f => f.Type == TeensyFilterType.Images),
-                _ => _settings.FileFilters.First(f => f.Type == TeensyFilterType.All)
-
-            };
         }
 
         public async Task SwitchFilterAndLaunch(TeensyFilter filter)
