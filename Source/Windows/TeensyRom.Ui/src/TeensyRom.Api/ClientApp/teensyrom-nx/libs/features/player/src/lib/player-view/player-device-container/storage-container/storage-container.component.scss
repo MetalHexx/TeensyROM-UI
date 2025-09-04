@@ -1,21 +1,21 @@
 .storage-container {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
   .left-container {
     display: flex;
     flex-direction: column;
-    align-items: left;
-    justify-content: left;
+    align-items: stretch;
+    justify-content: flex-start;
     gap: 1rem;
   }
   .right-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: stretch;
+    justify-content: flex-start;
     gap: 1rem;
   }
 }
