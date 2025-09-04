@@ -1,24 +1,41 @@
 @use '@angular/material' as mat;
 
-mat-sidenav-content {
-  min-height: 100vh;
+:host {
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
-app-header {
+lib-header {
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 1000;
+  flex-shrink: 0;
 }
 
-app-nav-menu {
+.sidenav-container {
+  flex: 1;
+  overflow: hidden;
+}
+
+mat-sidenav-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+lib-nav-menu {
   flex: 1;
   margin-top: 5px;
 }
 
 .router-container {
   padding: 1rem;
+  flex: 1;
+  overflow: auto;
+
   .view-title {
     padding: 0 !important;
     margin: 0 !important;
@@ -27,7 +44,7 @@ app-nav-menu {
 
 .custom-sidenav {
   width: 220px;
-  height: 100vh;
+  height: 100%;
   border-radius: 0 !important;
   @include mat.elevation(6);
 }
