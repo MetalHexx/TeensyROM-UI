@@ -1,4 +1,4 @@
-# Cursor Rule: Nx Library Move/Rename/Path Change Consistency
+# Rule: Nx Library Move/Rename/Path Change Consistency
 
 Whenever you move, rename, or change the path alias of a library in an Nx workspace, follow this checklist to ensure all references and dependencies are updated consistently:
 
