@@ -23,7 +23,6 @@ mat-sidenav-content {
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: auto;
 }
 
 lib-nav-menu {
@@ -32,16 +31,26 @@ lib-nav-menu {
 }
 
 .router-container {
-  padding: 1rem;
   flex: 1;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 
   .view-title {
-    padding: 0 !important;
+    padding: 1rem 1rem 0 1rem !important;
     margin: 0 !important;
+    flex-shrink: 0;
+  }
+
+  .router-content {
+    flex: 1;
+    padding: 1rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 }
-
 .custom-sidenav {
   width: 220px;
   height: 100%;

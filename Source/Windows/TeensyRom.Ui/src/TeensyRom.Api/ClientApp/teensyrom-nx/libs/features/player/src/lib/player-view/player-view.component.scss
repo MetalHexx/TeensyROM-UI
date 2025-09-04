@@ -1,9 +1,16 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+}
+
 .device-list {
   display: flex;
   flex-direction: row;
   width: 100%;
   height: 100%;
-  min-height: 50vh;
   flex-wrap: nowrap;
   align-items: stretch;
   margin: 0;

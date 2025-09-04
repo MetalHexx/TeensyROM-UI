@@ -1,7 +1,15 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+}
+
 .storage-container {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: space-between;
   gap: 1rem;
   height: 100%;
@@ -14,8 +22,10 @@
     gap: 1rem;
     flex: 0 0 300px;
     height: 100%;
+    min-height: 0;
     min-width: 250px;
     max-width: 400px;
+    overflow: hidden;
   }
   .right-container {
     display: flex;
@@ -25,5 +35,7 @@
     gap: 1rem;
     flex: 1;
     height: 100%;
+    min-height: 0;
+    overflow: hidden;
   }
 }

@@ -1,26 +1,28 @@
 <div class="directory-tree">
-  <mat-card>
+  <mat-card class="stretch-card">
     <mat-card-header>
       <mat-card-title>Directory Tree</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-
       <mat-tree #tree [dataSource]="directoryTree" [childrenAccessor]="childrenAccessor">
         <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-            <button mat-icon-button disabled> </button>
-            <mat-chip (click)="onDirectoryClick(node)">{{node.name}}</mat-chip>     
+          <button mat-icon-button disabled></button>
+          <mat-chip (click)="onDirectoryClick(node)">{{ node.name }}</mat-chip>
         </mat-tree-node>
-        <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding matTreeNodeToggle [cdkTreeNodeTypeaheadLabel]="node.name">
-            <button mat-icon-button matTreeNodeToggle [attr.aria-label] = "'Toggle ' + node.name">
-                <mat-icon class="mat-icon-rtl-mirror">
-                    {{tree.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-                </mat-icon>
-            </button>
-            <mat-chip (click)="onDirectoryClick(node)">{{node.name}}</mat-chip>
+        <mat-tree-node
+          *matTreeNodeDef="let node; when: hasChild"
+          matTreeNodePadding
+          matTreeNodeToggle
+          [cdkTreeNodeTypeaheadLabel]="node.name"
+        >
+          <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
+            <mat-icon class="mat-icon-rtl-mirror">
+              {{ tree.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+            </mat-icon>
+          </button>
+          <mat-chip (click)="onDirectoryClick(node)">{{ node.name }}</mat-chip>
         </mat-tree-node>
       </mat-tree>
-      
-
     </mat-card-content>
   </mat-card>
 </div>
