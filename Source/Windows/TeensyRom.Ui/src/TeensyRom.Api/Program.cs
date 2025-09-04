@@ -45,6 +45,13 @@ builder.Services
     .AddProblemDetailsWithLogging()
     .AddRadEndpoints(typeof(Program));
 
+// Configure JSON options for HTTP endpoints (RadEndpoints)
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    options.SerializerOptions.PropertyNameCaseInsensitive = true;
+});
+
 builder.Services.AddSignalR().AddJsonProtocol(options =>
 {
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());

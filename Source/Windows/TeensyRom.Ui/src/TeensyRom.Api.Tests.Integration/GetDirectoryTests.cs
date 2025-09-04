@@ -19,16 +19,22 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
             new object[] { "/games/" }
         };
 
+    private async Task<string> GetCachedConnectedDevice()
+    {
+        // Always get a fresh connected device instead of using stale cache
+        // This prevents issues where cached device becomes disconnected between tests
+        return await f.GetConnectedDevice();
+    }
 
     //TODO: Come back and create a view model or solution for deserializing Interface types.
     [Fact]
     public async Task When_ValidRequest_DirectoryReturned()
     {
         // Arrange
-        var deviceId = await f.GetConnectedDevice();
+        var deviceId = await GetCachedConnectedDevice();
         var directoryPath = "/";
 
-        // Act
+        // Act - TrClient automatically handles enum serialization
         var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, GetDirectoryResponse>(new GetDirectoryRequest
         {
             DeviceId = deviceId,
@@ -48,7 +54,7 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     [Fact]
     public async Task When_DeviceIdInvalid_ReturnsBadRequest()
     {
-        // Act
+        // Act - TrClient automatically handles enum serialization
         var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ValidationProblemDetails>(new GetDirectoryRequest
         {
             DeviceId = "!!invalid",
@@ -66,6 +72,7 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     {
         var validDeviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
 
+        // TrClient automatically handles enum serialization
         var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ValidationProblemDetails>(new GetDirectoryRequest            
         {
             DeviceId = validDeviceId,
@@ -82,6 +89,7 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     {
         var validDeviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
 
+        // TrClient automatically handles enum serialization
         var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ValidationProblemDetails>(new GetDirectoryRequest            
         {
             DeviceId = validDeviceId,
@@ -99,7 +107,7 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
         // Arrange
         var validDeviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
 
-        // Act
+        // Act - TrClient automatically handles enum serialization
         var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ValidationProblemDetails>(new GetDirectoryRequest            
         {
             DeviceId = validDeviceId,
@@ -116,10 +124,10 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     public async Task When_StorageNotAvailable_ReturnsNotFound()
     {
         // Arrange
-        var deviceId = await f.GetConnectedDevice();
+        var deviceId = await GetCachedConnectedDevice();
         var expectedPath = "/music";
 
-        // Act
+        // Act - TrClient automatically handles enum serialization
         var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ProblemDetails>(new GetDirectoryRequest
         {
             DeviceId = deviceId,
@@ -138,10 +146,10 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     public async Task When_DirectoryNotFound_ReturnsNotFound()
     {
         // Arrange
-        var deviceId = await f.GetConnectedDevice();
+        var deviceId = await GetCachedConnectedDevice();
         var expectedPath = "/fake/path";
 
-        // Act
+        // Act - TrClient automatically handles enum serialization
         var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ProblemDetails>(new GetDirectoryRequest
         {
             DeviceId = deviceId,
@@ -159,11 +167,10 @@ public class GetDirectoryTests(EndpointFixture f) : IDisposable
     public async Task When_Directory_IsAFilePath_BadRequestReturned()
     {
         // Arrange
-        var deviceId = await f.GetConnectedDevice();
+        var deviceId = await GetCachedConnectedDevice();
         var expectedPath = "/music/MUSICIANS/L/LukHash/Alpha.sid";
 
-        // Act        
-
+        // Act - TrClient automatically handles enum serialization
         var r = await f.Client.GetAsync<GetDirectoryEndpoint, GetDirectoryRequest, ProblemDetails>(new GetDirectoryRequest
         {
             DeviceId = deviceId,

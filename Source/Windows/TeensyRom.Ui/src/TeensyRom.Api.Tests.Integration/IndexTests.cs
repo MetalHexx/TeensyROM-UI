@@ -26,8 +26,7 @@ namespace TeensyRom.Api.Tests.Integration
             var deviceId = await f.GetConnectedDevice();
             f.DeleteCache(deviceId, TeensyStorageType.SD);
 
-            // Act
-
+            // Act - TrClient automatically handles enum serialization
             var request = new IndexRequest
             {
                 DeviceId = deviceId,
@@ -71,7 +70,7 @@ namespace TeensyRom.Api.Tests.Integration
             var deviceId = await f.GetConnectedDevice();
             f.DeleteCache(deviceId!, TeensyStorageType.SD);
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var request = new IndexRequest
             {
                 DeviceId = deviceId,
@@ -101,11 +100,11 @@ namespace TeensyRom.Api.Tests.Integration
         [Fact]
         public async Task When_Indexing_WithBadPath_BadRequestReturned()
         {
-            // Arrange
-            var availableDevices = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
+            // Arrange - TrClient automatically handles enum serialization and proper request signature
+            var availableDevices = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest());
             var deviceId = availableDevices.Content.Devices.First().DeviceId;
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var request = new IndexRequest
             {
                 DeviceId = deviceId,
@@ -123,7 +122,7 @@ namespace TeensyRom.Api.Tests.Integration
         [Fact]
         public async Task When_Indexing_WithBadDeviceId_BadRequestReturned()
         {
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var request = new IndexRequest
             {
                 DeviceId = "12345!!&^#",

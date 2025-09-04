@@ -14,8 +14,8 @@ namespace TeensyRom.Api.Tests.Integration
         [Fact]
         public async Task When_IndexingAll_SuccessReturned()
         {
-            // Arrange
-            var deviceResult = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesResponse>();
+            // Arrange - TrClient automatically handles enum serialization
+            var deviceResult = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest());
 
             foreach (var item in deviceResult.Content.Devices)
             {
@@ -27,7 +27,7 @@ namespace TeensyRom.Api.Tests.Integration
                 f.DeleteCache(item.DeviceId!, TeensyStorageType.USB);
             }
 
-            // Act
+            // Act - TrClient automatically handles enum serialization for endpoints without request
             var response = await f.Client.PostAsync<IndexAllEndpoint, IndexResponse>();
 
             // Assert

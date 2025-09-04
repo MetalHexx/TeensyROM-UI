@@ -15,7 +15,7 @@ namespace TeensyRom.Api.Tests.Integration
             // Arrange
             var deviceId = await f.GetConnectedDevice();
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var resetRequest = new ResetDeviceRequest { DeviceId = deviceId };
             var r = await f.Client.PutAsync<ResetDeviceEndpoint, ResetDeviceRequest, ResetDeviceResponse>(resetRequest);
 
@@ -28,7 +28,7 @@ namespace TeensyRom.Api.Tests.Integration
         [Fact]
         public async Task When_Resetting_WithInvalidDeviceId_ReturnsBadRequest()
         {
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var resetRequest = new ResetDeviceRequest { DeviceId = "invalid-device-id" };
             var r = await f.Client.PutAsync<ResetDeviceEndpoint, ResetDeviceRequest, ProblemDetails>(resetRequest);
 

@@ -11,7 +11,7 @@ namespace TeensyRom.Api.Tests.Integration
         [Fact]
         public async Task Given_NoDevicesConnected_When_Called_And_AutoConnectNew_false_NoDevicesConnected()
         {
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest 
             {
                 AutoConnectNew = false
@@ -31,7 +31,7 @@ namespace TeensyRom.Api.Tests.Integration
         [Fact]
         public async Task Given_NoDevicesConnected_When_Called_And_AutoConnectNew_True_AllDevicesConnected()
         {   
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest 
             { 
                 AutoConnectNew = true 
@@ -55,7 +55,7 @@ namespace TeensyRom.Api.Tests.Integration
             await f.DisconnectDevice(expectedDisconnectedDevice);
             var expectedConnectedDevice = deviceId.First(d => d.DeviceId != expectedDisconnectedDevice);
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest 
             { 
                 AutoConnectNew = false 

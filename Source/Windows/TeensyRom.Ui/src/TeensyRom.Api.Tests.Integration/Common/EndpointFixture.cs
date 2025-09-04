@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using RadEndpoints.Testing;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -13,26 +14,27 @@ using TeensyRom.Core.Entities.Storage;
 
 namespace TeensyRom.Api.Tests.Integration.Common
 {
+
     public class EndpointFixture : IDisposable
-    {   
-        public HttpClient Client
+    {
+        public TrClient Client
         {
             get
             {
-                var client = _factory.CreateClient(new WebApplicationFactoryClientOptions
+                var httpClient = _factory.CreateClient(new WebApplicationFactoryClientOptions
                 {
                     AllowAutoRedirect = false
                 });
 
-                client.Timeout = TimeSpan.FromMinutes(10);
-                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+                httpClient.Timeout = TimeSpan.FromMinutes(10);
+                httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
                 {
                     NoCache = true,
                     NoStore = true,
                     MustRevalidate = true
                 };
 
-                return client;
+                return new TrClient(httpClient);
             }
         }
         public Fixture DataGenerator { get; private set; } = new();
@@ -63,7 +65,6 @@ namespace TeensyRom.Api.Tests.Integration.Common
             });
             return findResponse.Content.Devices;
         }
-
 
         public async Task DisconnectDevice(string deviceId) 
         {

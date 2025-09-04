@@ -28,7 +28,7 @@ namespace TeensyRom.Api.Tests.Integration
                 StorageType = TeensyStorageType.SD
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, ValidationProblemDetails>(request);
 
             // Assert
@@ -47,7 +47,7 @@ namespace TeensyRom.Api.Tests.Integration
                 StartingDirectory = ")(#$*#h"
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, ValidationProblemDetails>(request);
 
             // Assert
@@ -67,7 +67,7 @@ namespace TeensyRom.Api.Tests.Integration
                 Scope = (StorageScope)999
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, ValidationProblemDetails>(request);
 
             // Assert
@@ -88,7 +88,7 @@ namespace TeensyRom.Api.Tests.Integration
                 StorageType = TeensyStorageType.SD
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, ProblemDetails>(request);
 
             // Assert
@@ -108,7 +108,7 @@ namespace TeensyRom.Api.Tests.Integration
                 StorageType = TeensyStorageType.USB
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, ProblemDetails>(request);
 
             // Assert
@@ -129,7 +129,7 @@ namespace TeensyRom.Api.Tests.Integration
                 StartingDirectory = "/empty"
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, ProblemDetails>(request);
 
             // Assert
@@ -155,7 +155,7 @@ namespace TeensyRom.Api.Tests.Integration
                 Scope = StorageScope.DirDeep
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
 
             await Task.Delay(3000);
@@ -185,7 +185,7 @@ namespace TeensyRom.Api.Tests.Integration
                 FilterType = TeensyFilterType.All,
                 Scope = StorageScope.DirShallow
             };
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
             await Task.Delay(3000);
 
@@ -217,7 +217,7 @@ namespace TeensyRom.Api.Tests.Integration
                 FilterType = TeensyFilterType.All,
                 Scope = StorageScope.DirShallow
             };
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
             await Task.Delay(3000);
 
@@ -253,7 +253,7 @@ namespace TeensyRom.Api.Tests.Integration
                 Scope = StorageScope.Storage
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
             await Task.Delay(3000);
 
@@ -284,7 +284,7 @@ namespace TeensyRom.Api.Tests.Integration
                 Scope = StorageScope.DirDeep
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
             await Task.Delay(3000);
 
@@ -314,7 +314,7 @@ namespace TeensyRom.Api.Tests.Integration
                 Scope = StorageScope.DirShallow
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
             await Task.Delay(3000);
 
@@ -345,7 +345,7 @@ namespace TeensyRom.Api.Tests.Integration
                 Scope = StorageScope.Storage
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
             await Task.Delay(3000);
 
@@ -378,7 +378,7 @@ namespace TeensyRom.Api.Tests.Integration
                 Scope = StorageScope.DirDeep
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
             await Task.Delay(3000);
 
@@ -408,7 +408,7 @@ namespace TeensyRom.Api.Tests.Integration
                 Scope = StorageScope.DirShallow
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
             await Task.Delay(3000);
 
@@ -441,7 +441,7 @@ namespace TeensyRom.Api.Tests.Integration
                 Scope = StorageScope.Storage
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
             await Task.Delay(3000);
 
@@ -472,7 +472,7 @@ namespace TeensyRom.Api.Tests.Integration
                 FilterType = TeensyFilterType.Games
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
             await Task.Delay(3000);
 
@@ -501,7 +501,7 @@ namespace TeensyRom.Api.Tests.Integration
                 FilterType = TeensyFilterType.Images
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
             await Task.Delay(3000);
 
@@ -530,7 +530,7 @@ namespace TeensyRom.Api.Tests.Integration
                 FilterType = TeensyFilterType.Music
             };
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchRandomEndpoint, LaunchRandomRequest, LaunchRandomResponse>(request);
             await Task.Delay(3000);
 

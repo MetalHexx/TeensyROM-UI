@@ -12,14 +12,14 @@ namespace TeensyRom.Api.Tests.Integration
         [Fact]
         public async void When_Called_ResponseSuccessful()
         {
-            // Arrange
+            // Arrange - TrClient automatically handles enum serialization
             var devices = await f.Client.GetAsync<FindDevicesEndpoint, FindDevicesRequest, FindDevicesResponse>(new FindDevicesRequest 
             {
                 AutoConnectNew = false
             });
             var expectedDeviceId = devices.Content.Devices.First().DeviceId;
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<ConnectDeviceEndpoint, ConnectDeviceRequest, ConnectDeviceResponse>(new ConnectDeviceRequest
             {
                 DeviceId = expectedDeviceId

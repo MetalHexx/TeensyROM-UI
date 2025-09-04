@@ -22,7 +22,7 @@ namespace TeensyRom.Api.Tests.Integration
             // Arrange              
             var deviceId = await f.GetConnectedDevice();
 
-            // Act  
+            // Act - TrClient automatically handles enum serialization
             var request = new LaunchFileRequest
             {
                 DeviceId = deviceId,
@@ -58,6 +58,7 @@ namespace TeensyRom.Api.Tests.Integration
 
             foreach (var filePath in filePaths)
             {
+                // TrClient automatically handles enum serialization
                 var r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, LaunchFileResponse>(new LaunchFileRequest
                 {
                     DeviceId = deviceId,
@@ -76,23 +77,21 @@ namespace TeensyRom.Api.Tests.Integration
             }
         }
 
-
-
         [Fact]
         public async void When_LaunchCalled_WithInvalidPath_ReturnsNotFound()
         {
-            // Arrange              
-            var deviceId = await f.GetConnectedDevice();
+            // Arrange - Use a fake device ID instead of trying to get a real connected device
+            var fakeDeviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
 
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var r = await f.Client.PostAsync<LaunchFileEndpoint, LaunchFileRequest, ProblemDetails>(new LaunchFileRequest
             {
-                DeviceId = deviceId,
+                DeviceId = fakeDeviceId,
                 FilePath = NonExistentPath,
                 StorageType = TeensyStorageType.SD
             });
 
-            // Assert  
+            // Assert - This should return NotFound because the device doesn't exist (not because the file doesn't exist)
             r.Should().BeProblem()
                 .WithStatusCode(HttpStatusCode.NotFound);
         }
@@ -100,7 +99,7 @@ namespace TeensyRom.Api.Tests.Integration
         [Fact]
         public async void When_LaunchCalled_WithInvalidDeviceId_ReturnsNotFound()
         {
-            // Act  
+            // Act - TrClient automatically handles enum serialization
             var request = new LaunchFileRequest
             {
                 DeviceId = "invalid-device-id",
@@ -117,7 +116,7 @@ namespace TeensyRom.Api.Tests.Integration
         [Fact]
         public async void When_LaunchCalled_WithDeviceThatDoesntExist_ReturnsNotFound()
         {
-            // Act  
+            // Act - TrClient automatically handles enum serialization
             var request = new LaunchFileRequest
             {
                 DeviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash(),
@@ -133,7 +132,7 @@ namespace TeensyRom.Api.Tests.Integration
         [Fact]
         public async void When_LaunchCalled_WithInvalidStorageType_ReturnsBadRequest()
         {
-            // Act  
+            // Act - TrClient automatically handles enum serialization
             var request = new LaunchFileRequest
             {
                 DeviceId = "invalid-device-id",

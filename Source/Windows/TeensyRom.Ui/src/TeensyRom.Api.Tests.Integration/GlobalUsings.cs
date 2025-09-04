@@ -5,4 +5,4 @@ global using System.Net;
 global using Microsoft.AspNetCore.Mvc;
 global using AutoFixture;
 global using FluentAssertions;
-//global using RadEndpoints.Testing;
+global using RadEndpoints.Testing;

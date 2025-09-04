@@ -15,7 +15,7 @@ namespace TeensyRom.Api.Tests.Integration
             var devices = await f.ConnectToDevices();
             var deviceId = devices.First().DeviceId;
 
-            // Act            
+            // Act - TrClient automatically handles enum serialization          
             var r = await f.Client.DeleteAsync<DisconnectDeviceEndpoint, DisconnectDeviceRequest, DisconnectDeviceResponse>(new DisconnectDeviceRequest 
             { 
                 DeviceId = deviceId 
@@ -43,7 +43,7 @@ namespace TeensyRom.Api.Tests.Integration
         [Fact]
         public async Task When_Closing_WithInvalidFormatDeviceId_ReturnsBadRequest()
         {
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var closeRequest = new DisconnectDeviceRequest { DeviceId = "!!!BAD!!!" };
             var r = await f.Client.DeleteAsync<DisconnectDeviceEndpoint, DisconnectDeviceRequest, ValidationProblemDetails>(closeRequest);
 
@@ -58,7 +58,7 @@ namespace TeensyRom.Api.Tests.Integration
         [Fact]
         public async Task When_Closing_UnknownDeviceId_ReturnsNotFound()
         {
-            // Act
+            // Act - TrClient automatically handles enum serialization
             var deviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
             var closeRequest = new DisconnectDeviceRequest { DeviceId = deviceId };
             var r = await f.Client.DeleteAsync<DisconnectDeviceEndpoint, DisconnectDeviceRequest, ProblemDetails>(closeRequest);
@@ -72,5 +72,4 @@ namespace TeensyRom.Api.Tests.Integration
 
         public void Dispose() => f.Reset();
     }
-
 }
