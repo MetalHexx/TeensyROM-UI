@@ -37,6 +37,8 @@
 - Lives in `libs/domain/device/services`.
 - DTOs mapped to domain models via `device.mapper.ts`.
 - Strong types in `device.models.ts`.
+- Includes real-time logging via `device.logs.service.ts`.
+- SignalR integration through `device.events.service.ts`.
 
 ### 4. Storage Services _(Planned)_
 
@@ -61,6 +63,30 @@
 
 ---
 
+## Implementation Status
+
+### ✅ Completed Features
+
+- **Device Management**: Discovery, connection, disconnection, and status monitoring
+- **Real-time Communication**: SignalR integration for device logs and events
+- **API Integration**: Complete OpenAPI-generated client with post-processing
+- **Application Shell**: Navigation, layout, and routing infrastructure
+
+### 🚧 In Progress
+
+- **Player Interface**: Basic layout and component structure created, but functionality not implemented
+- **Storage Domain**: Partially implemented through player features, needs dedicated domain library
+- **Settings Management**: Bootstrap service exists, full settings UI and persistence pending
+
+### 📋 Planned Features
+
+- **Player Functionality**: File browsing, directory navigation, playback controls, and storage management
+- **DJ Mixer**: Advanced audio mixing and MIDI I/O capabilities
+- **Theme System**: Complete theming infrastructure and customization
+- **File Launch History**: Persistent metadata and usage tracking
+
+---
+
 ## Nx Workspace Tree (Explicit Structure + Annotated)
 
 ```bash
@@ -81,7 +107,9 @@ libs/
 │   │   ├── services/                            # [library] Device API logic
 │   │   │   ├── device.service.ts                # [file] Core orchestration logic
 │   │   │   ├── device.mapper.ts                 # [file] Translates DTOs to domain models
-│   │   │   └── device.models.ts                 # [file] Domain-side device models
+│   │   │   ├── device.models.ts                 # [file] Domain-side device models
+│   │   │   ├── device.logs.service.ts           # [file] Real-time device logging
+│   │   │   └── device.events.service.ts         # [file] SignalR event handling
 │   │   └── state/                               # [library] Signal store for devices
 │   │       ├── device-store.ts                  # [file] Main SignalStore definition
 │   │       └── methods/                         # [folder] Store methods (RxJS powered)
@@ -107,19 +135,30 @@ libs/
 
 ├── features/                                   # [group] Route-level features (UI logic)
 │   ├── devices/                                 # [library] Device UI
-│   │   └── device-view.component.ts             # [file] Device list with connect/disconnect
+│   │   ├── device-view.component.ts             # [file] Device list with connect/disconnect
+│   │   ├── device-item/                         # [component] Individual device display
+│   │   ├── device-logs/                         # [component] Real-time device logging
+│   │   └── device-toolbar/                      # [component] Device management actions
 │
 │   ├── settings/ *(planned)*                    # [library] Settings UI and forms
 │   │   └── settings-view.component.ts           # [file] Preferences panel and UI toggles
 │
-│   ├── player/ *(planned)*                      # [library] Playback and music features
-│   │   └── player-view.component.ts             # [file] Playback controls and voice toggles
+│   ├── player/ *(in progress)*                  # [library] File browsing and playback features
+│   │   └── player-view/                         # [component] Main player interface (layout only)
+│   │       ├── player-device-container/         # [component] Device-specific player UI (scaffolding)
+│   │       │   ├── storage-container/           # [component] File system browser (placeholder)
+│   │       │   │   ├── directory-tree/          # [component] Folder navigation (not implemented)
+│   │       │   │   ├── directory-files/         # [component] File listing (not implemented)
+│   │       │   │   └── search-toolbar/          # [component] File search functionality (not implemented)
+│   │       │   ├── file-image/                  # [component] Image file preview (not implemented)
+│   │       │   ├── file-other/                  # [component] Generic file display (not implemented)
+│   │       │   └── player-toolbar/              # [component] Playback controls (not implemented)
 │
 │   └── dj/ *(planned)*                          # [library] DJ-oriented features
 │       └── dj-panel.component.ts                # [file] Advanced track control and MIDI I/O
 
 ├── ui/                                         # [group] Shared presentational components
-│   ├── components/
+│   ├── ui-components/
 │   │   ├── icon-label/                          # [component] Icon+label display
 │   │   └── storage-status/                      # [component] USB/SD card status indicators
 │   └── styles/
