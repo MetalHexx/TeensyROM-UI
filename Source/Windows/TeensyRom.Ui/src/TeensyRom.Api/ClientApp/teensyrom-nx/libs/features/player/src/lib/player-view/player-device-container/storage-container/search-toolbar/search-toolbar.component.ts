@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'lib-search-toolbar',
-  imports: [CommonModule, MatCardModule],
+  imports: [CommonModule, MatCardModule, MatInputModule, MatFormFieldModule, MatIconModule],
   templateUrl: './search-toolbar.component.html',
   styleUrl: './search-toolbar.component.scss',
 })

@@ -100,6 +100,17 @@ mat-card-title {
   padding-bottom: 0.8rem;
 }
 
+.compact-card {
+  padding: 16px !important;
+  margin: 0 !important;
+  overflow: hidden;
+
+  mat-form-field {
+    width: 100%;
+    margin-bottom: -20px;
+  }
+}
+
 .mat-toolbar.mat-primary {
   --mat-toolbar-container-background-color: #890089;
 }
