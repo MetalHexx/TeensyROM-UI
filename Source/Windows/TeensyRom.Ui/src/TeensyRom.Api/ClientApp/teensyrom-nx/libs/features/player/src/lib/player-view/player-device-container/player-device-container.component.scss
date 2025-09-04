@@ -24,5 +24,7 @@
   .storage-container {
     display: flex;
     gap: 1rem;
+    flex: 1;
+    height: 100%;
   }
 }
