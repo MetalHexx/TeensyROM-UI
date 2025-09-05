@@ -210,3 +210,22 @@ mat-card-title {
     font-family: Roboto;
   }
 }
+
+// ─────────────────────────────────────────────
+//  CHIPS
+// ─────────────────────────────────────────────
+
+:root {
+  @include mat.chips-overrides(
+    (
+      container-shape-radius: 24px,
+    )
+  );
+}
+
+.corner-chips {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+}

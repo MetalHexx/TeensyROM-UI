@@ -1,6 +1,18 @@
 <mat-card class="stretch-card">
+  @if (meta1() || meta2()) {
+  <mat-chip-set class="corner-chips">
+    @if (meta1()) {
+    <mat-chip>{{ meta1() }}</mat-chip>
+    } @if (meta2()) {
+    <mat-chip>{{ meta2() }}</mat-chip>
+    }
+  </mat-chip-set>
+  }
   <mat-card-header>
-    <mat-card-title>File Info</mat-card-title>
+    <mat-card-title>{{ filename() }}</mat-card-title>
+    @if (releaseInfo()) {
+    <mat-card-subtitle>{{ releaseInfo() }}</mat-card-subtitle>
+    }
   </mat-card-header>
   <mat-card-content>
     <p>

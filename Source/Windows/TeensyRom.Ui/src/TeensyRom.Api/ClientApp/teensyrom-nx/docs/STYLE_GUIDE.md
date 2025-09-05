@@ -78,6 +78,28 @@ Available color variables for semantic styling:
 
 **Best Practice:** Use `.glassy` for overlay effects and modern UI elements to maintain consistent visual hierarchy.
 
+### `.corner-chips`
+
+**Purpose**: Positions chip sets in the upper right corner of relatively positioned containers
+
+**Usage Example:**
+
+```html
+<mat-card style="position: relative;">
+  <mat-chip-set class="corner-chips">
+    <mat-chip>Tag 1</mat-chip>
+    <mat-chip>Tag 2</mat-chip>
+  </mat-chip-set>
+  <!-- card content -->
+</mat-card>
+```
+
+**Used In:**
+
+- [`file-other.component.html`](../libs/features/player/src/lib/player-view/player-device-container/file-other/file-other.component.html) - Metadata chips in file info cards
+
+**Best Practice:** Ensure the parent container has `position: relative` for proper absolute positioning. Use for non-intrusive metadata or tag display that shouldn't interfere with main content layout.
+
 ---
 
 ## Material Component Customizations
