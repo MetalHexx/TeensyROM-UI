@@ -54,7 +54,11 @@ Available color variables for semantic styling:
 <p class="dimmed">Secondary text</p>
 ```
 
-**Used In:** Disabled device states, secondary UI elements
+**Used In:**
+
+- [`device-logs.component.html`](../libs/features/devices/src/lib/device-view/device-logs/device-logs.component.html) - For "No logs to display" message
+- [`storage-item.component.html`](../libs/features/devices/src/lib/device-view/storage-item/storage-item.component.html) - For disabled storage items
+- [`device-item.component.html`](../libs/features/devices/src/lib/device-view/device-item/device-item.component.html) - For disconnected devices
 
 ### `.glassy`
 
@@ -67,7 +71,10 @@ Available color variables for semantic styling:
 <mat-dialog class="glassy-dialog">...</mat-dialog>
 ```
 
-**Used In:** Navigation sidenav, modal dialogs
+**Used In:**
+
+- [`layout.component.html`](../libs/app/shell/src/lib/layout/layout.component.html) - Navigation sidenav
+- [`layout.component.ts`](../libs/app/shell/src/lib/layout/layout.component.ts) - Modal dialogs (via `panelClass: 'glassy-dialog'`)
 
 **Best Practice:** Use `.glassy` for overlay effects and modern UI elements to maintain consistent visual hierarchy.
 
@@ -91,48 +98,33 @@ Available color variables for semantic styling:
 </mat-card>
 ```
 
-**Used In:** Search toolbar components, form-based card layouts
+**Used In:**
 
-**Best Practice:** Apply `.compact-card` for any card containing Material form fields to ensure proper spacing and avoid layout issues.
+- [`search-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.html) - Search input field container
 
-#### `.stretch-card`
+**Used In:**
 
-**Purpose**: Creates full-height cards with scrollable content areas
-
-**Usage Example:**
-
-```html
-<mat-card class="stretch-card">
-  <mat-card-header>
-    <mat-card-title>Your Title</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <!-- Your scrollable content here -->
-  </mat-card-content>
-</mat-card>
-```
-
-**Features:**
-
-- Header stays fixed at top
-- Content area fills remaining space
-- Automatic scrollbars when content overflows
-- Properly handles flex layout constraints
-
-**Used In:** Directory tree component, directory files component
+- [`directory-tree.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.html) - Directory tree component
+- [`directory-files.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.html) - Directory files component
+- [`file-other.component.html`](../libs/features/player/src/lib/player-view/player-device-container/file-other/file-other.component.html) - File info component
 
 **Best Practice:** Use `.stretch-card` for cards that need to fill container height with scrollable content. This ensures consistent behavior and proper flex layout handling.
 
 **Used In:**
 
-- `SearchToolbarComponent` - for search input field
-- Any card containing Material form fields
-
 #### `mat-card-title`
 
 **Purpose**: Adds consistent bottom padding to card titles
 
-**Used In:** All cards with titles throughout the application
+**Used In:**
+
+- [`file-other.component.html`](../libs/features/player/src/lib/player-view/player-device-container/file-other/file-other.component.html) - File info card title
+- [`file-image.component.html`](../libs/features/player/src/lib/player-view/player-device-container/file-image/file-image.component.html) - Image viewer card title
+- [`directory-tree.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.html) - Directory tree card title
+- [`directory-files.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.html) - Directory files card title
+- [`player-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.html) - Player toolbar card title
+- [`device-logs.component.html`](../libs/features/devices/src/lib/device-view/device-logs/device-logs.component.html) - Device logs card title
+- [`device-item.component.html`](../libs/features/devices/src/lib/device-view/device-item/device-item.component.html) - Device item card title
 
 ### Toolbars
 
@@ -140,11 +132,17 @@ Available color variables for semantic styling:
 
 **Purpose**: Customizes Material toolbar height and styling
 
-**Used In:** Main application header, any component using `mat-toolbar`
+**Used In:**
+
+- [`header.component.html`](../libs/app/shell/src/lib/components/header/header.component.html) - Main application header
 
 #### `.mat-toolbar.mat-primary`
 
 **Purpose**: Custom background color for primary toolbars
+
+**Used In:**
+
+- [`header.component.html`](../libs/app/shell/src/lib/components/header/header.component.html) - Primary toolbar styling
 
 ### Buttons & Icons
 
@@ -160,7 +158,11 @@ Available color variables for semantic styling:
 </button>
 ```
 
-**Used In:** Navigation controls, action buttons in toolbars
+**Used In:**
+
+- [`device-logs.component.html`](../libs/features/devices/src/lib/device-view/device-logs/device-logs.component.html) - Log control buttons (clear, start/stop logging, download)
+- [`storage-item.component.html`](../libs/features/devices/src/lib/device-view/storage-item/storage-item.component.html) - Storage action buttons
+- [`device-item.component.html`](../libs/features/devices/src/lib/device-view/device-item/device-item.component.html) - Device power button
 
 #### Icon Color Classes
 
@@ -175,7 +177,9 @@ Available color variables for semantic styling:
 <mat-icon class="dimmed">info</mat-icon>
 ```
 
-**Used In:** Device status indicators, connection state icons, action feedback icons
+**Used In:**
+
+- [`device-logs.component.html`](../libs/features/devices/src/lib/device-view/device-logs/device-logs.component.html) - Success (play) and error (stop) icons for log controls
 
 **Best Practice:** Use these semantic icon classes instead of hardcoded colors to ensure proper theme support and consistent visual language.
 
@@ -193,7 +197,9 @@ Available color variables for semantic styling:
 </mat-dialog>
 ```
 
-**Used In:** Modal dialogs, settings panels, confirmation dialogs
+**Used In:**
+
+- [`layout.component.ts`](../libs/app/shell/src/lib/layout/layout.component.ts) - Modal dialogs via `panelClass: 'glassy-dialog'` configuration
 
 ### Overlays
 
@@ -201,7 +207,10 @@ Available color variables for semantic styling:
 
 **Purpose**: Custom backdrop color for overlays
 
-**Used In:** Dialog backdrops, sidenav overlays
+**Used In:**
+
+- Dialog backdrops created by Angular Material
+- Sidenav overlays in [`layout.component.html`](../libs/app/shell/src/lib/layout/layout.component.html)
 
 ---
 
@@ -220,7 +229,7 @@ Available color variables for semantic styling:
 </div>
 ```
 
-**Used In:** Content sections in feature components, grouped UI elements
+**Used In:** Currently not used in any component templates (available for future use)
 
 ---
 
@@ -238,7 +247,7 @@ Available color variables for semantic styling:
 </div>
 ```
 
-**Used In:** Theme testing and demonstrations, special highlighted containers
+**Used In:** Currently not used in any component templates (available for theme testing and demonstrations)
 
 ---
 
