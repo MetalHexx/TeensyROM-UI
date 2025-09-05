@@ -9,6 +9,6 @@ import { MatCardModule } from '@angular/material/card';
   styleUrl: './file-image.component.scss',
 })
 export class FileImageComponent {
-  title = input<string>();
+  creatorName = input<string>();
   metadataSource = input<string>('Metadata Source');
 }
