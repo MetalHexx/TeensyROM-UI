@@ -14,10 +14,7 @@
 mat-card {
   width: 370px;
   height: 400px;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
-  padding: 0;
 
   // Match host width at smallest breakpoint
   @media (max-width: 500px) {
@@ -25,18 +22,12 @@ mat-card {
   }
 }
 
-mat-card-header {
-  flex-shrink: 0;
-  padding: 16px 16px 0 16px;
-}
-
 mat-card-content {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px !important;
-  overflow: hidden;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 img {
@@ -46,4 +37,5 @@ img {
   height: auto;
   object-fit: contain;
   display: block;
+  border-radius: 8px;
 }
