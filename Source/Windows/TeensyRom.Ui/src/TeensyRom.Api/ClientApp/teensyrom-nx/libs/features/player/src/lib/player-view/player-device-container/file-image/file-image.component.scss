@@ -1,0 +1,37 @@
+:host {
+  display: block;
+  width: 370px;
+  height: 400px;
+  flex-shrink: 0;
+}
+
+mat-card {
+  width: 370px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 16px;
+}
+
+mat-card-header {
+  flex-shrink: 0;
+}
+
+mat-card-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px !important;
+  overflow: hidden;
+}
+
+img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
