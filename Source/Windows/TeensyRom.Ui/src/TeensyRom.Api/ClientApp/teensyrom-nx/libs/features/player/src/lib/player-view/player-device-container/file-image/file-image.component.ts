@@ -7,7 +7,7 @@ import { Device } from '@teensyrom-nx/domain/device/services';
   selector: 'lib-file-image',
   imports: [CommonModule, MatCardModule],
   templateUrl: './file-image.component.html',
-  styleUrl: './file-image.component.css',
+  styleUrl: './file-image.component.scss',
 })
 export class FileImageComponent {
   title = input<string>();
