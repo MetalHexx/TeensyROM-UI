@@ -4,6 +4,13 @@
   height: 100%;
   width: 100%;
   min-height: 0;
+
+  // Allow scrolling when content stacks vertically
+  @media (max-width: 1200px) {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
 }
 
 .device-list {
@@ -16,6 +23,14 @@
   margin: 0;
   padding: 0;
   gap: 1rem;
+
+  // Responsive breakpoints for stacking device containers
+  @media (max-width: 1200px) {
+    flex-direction: column;
+    overflow-y: auto;
+    height: auto;
+    min-height: 100%;
+  }
 }
 
 .player-device-list-item {
@@ -27,6 +42,13 @@
   width: 100%;
   margin: 0;
   padding: 0;
+
+  // Responsive adjustments for stacked layout
+  @media (max-width: 1200px) {
+    height: auto;
+    min-height: 600px; // Ensure each device container has minimum height when stacked
+    flex: none;
+  }
 }
 
 .device-item {

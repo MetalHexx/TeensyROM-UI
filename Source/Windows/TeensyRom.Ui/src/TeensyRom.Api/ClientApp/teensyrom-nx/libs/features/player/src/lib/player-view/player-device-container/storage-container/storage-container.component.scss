@@ -14,6 +14,14 @@
   gap: 1rem;
   height: 100%;
   flex: 1;
+
+  // Stack left and right containers vertically on smaller screens
+  @media (max-width: 900px) {
+    flex-direction: column;
+    height: auto;
+    overflow-y: auto;
+  }
+
   .left-container {
     display: flex;
     flex-direction: column;
@@ -26,7 +34,17 @@
     min-width: 250px;
     max-width: 400px;
     overflow: hidden;
+
+    // Responsive adjustments for stacked layout
+    @media (max-width: 900px) {
+      flex: none;
+      max-width: none;
+      min-width: 0;
+      height: auto;
+      min-height: 300px;
+    }
   }
+
   .right-container {
     display: flex;
     flex-direction: column;
@@ -37,5 +55,12 @@
     height: 100%;
     min-height: 0;
     overflow: hidden;
+
+    // Responsive adjustments for stacked layout
+    @media (max-width: 900px) {
+      flex: none;
+      height: auto;
+      min-height: 400px;
+    }
   }
 }
