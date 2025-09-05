@@ -100,6 +100,24 @@ Available color variables for semantic styling:
 
 **Best Practice:** Ensure the parent container has `position: relative` for proper absolute positioning. Use for non-intrusive metadata or tag display that shouldn't interfere with main content layout.
 
+### `.metadata-source`
+
+**Purpose**: Styles metadata source text with right-aligned, subtle appearance for card footers
+
+**Usage Example:**
+
+```html
+<mat-card-footer>
+  <p class="metadata-source">Source: Database Name</p>
+</mat-card-footer>
+```
+
+**Used In:**
+
+- [`file-other.component.html`](../libs/features/player/src/lib/player-view/player-device-container/file-other/file-other.component.html) - Metadata source attribution in card footer
+
+**Best Practice:** Use for displaying data source attribution or metadata origin information. The light grey, italic styling ensures it remains subtle and doesn't compete with main content.
+
 ---
 
 ## Material Component Customizations
