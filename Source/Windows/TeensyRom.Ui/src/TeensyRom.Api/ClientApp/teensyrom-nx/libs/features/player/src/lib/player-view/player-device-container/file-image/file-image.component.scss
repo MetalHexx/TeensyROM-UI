@@ -3,6 +3,12 @@
   width: 370px;
   height: 400px;
   flex-shrink: 0;
+
+  // Take full width at smallest breakpoint
+  @media (max-width: 500px) {
+    width: 100%;
+    flex-shrink: 1;
+  }
 }
 
 mat-card {
@@ -12,6 +18,11 @@ mat-card {
   flex-direction: column;
   overflow: hidden;
   padding: 0px 16px 16px 16px;
+
+  // Match host width at smallest breakpoint
+  @media (max-width: 500px) {
+    width: 100%;
+  }
 }
 
 mat-card-header {
