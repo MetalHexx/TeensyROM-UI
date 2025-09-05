@@ -115,7 +115,7 @@ export class ExampleComponent {
 export class ExampleComponent implements OnInit, OnDestroy {
   // 1. Input properties
   title = input<string>('');
-  data = input<any[]>([]);
+  data = input<DataItem[]>([]);
 
   // 2. Output properties
   itemSelected = output<string>();
@@ -150,6 +150,74 @@ export class ExampleComponent implements OnInit, OnDestroy {
   }
 }
 ```
+
+### Template Syntax
+
+**Standard**: Use Angular's modern control flow syntax instead of legacy structural directives
+
+**Modern Control Flow**:
+
+- Use `@if` instead of `*ngIf`
+- Use `@for` instead of `*ngFor`
+- Use `@switch` instead of `*ngSwitch`
+- Use `@empty` for empty states in loops
+- Use `@else` for alternative conditions
+
+**Usage Examples**:
+
+```html
+<!-- ✅ CORRECT: Modern @if syntax -->
+@if (deviceStore.devices().length === 0) {
+<p>No devices found</p>
+} @else {
+<div class="device-list">
+  @for (device of deviceStore.devices(); track device.deviceId) {
+  <lib-player-device-container [device]="device"></lib-player-device-container>
+  } @empty {
+  <p>Loading devices...</p>
+  }
+</div>
+}
+
+<!-- ✅ CORRECT: Modern @switch syntax -->
+@switch (status) { @case ('active') {
+<mat-icon class="success">check_circle</mat-icon>
+} @case ('inactive') {
+<mat-icon class="error">error</mat-icon>
+} @default {
+<mat-icon class="dimmed">help</mat-icon>
+} }
+```
+
+```html
+<!-- ❌ INCORRECT: Legacy structural directives -->
+<div *ngIf="deviceStore.devices().length === 0">
+  <p>No devices found</p>
+</div>
+<div *ngIf="deviceStore.devices().length > 0">
+  <div class="device-list">
+    <lib-player-device-container
+      *ngFor="let device of deviceStore.devices(); trackBy: trackByDeviceId"
+      [device]="device"
+    >
+    </lib-player-device-container>
+  </div>
+</div>
+```
+
+**Requirements**:
+
+- Always use `track` expressions in `@for` loops for performance
+- Use `@empty` blocks when appropriate for better UX
+- Prefer `@if/@else` over multiple separate `@if` blocks when conditions are mutually exclusive
+- Use meaningful variable names in `@for` loops
+
+**Used In**:
+
+- [`player-view.component.html`](../libs/features/player/src/lib/player-view/player-view.component.html) - Device list rendering with @if and @for
+- All modern template implementations
+
+**Best Practice**: Modern control flow syntax provides better type checking, performance, and readability compared to legacy structural directives.
 
 ---
 
