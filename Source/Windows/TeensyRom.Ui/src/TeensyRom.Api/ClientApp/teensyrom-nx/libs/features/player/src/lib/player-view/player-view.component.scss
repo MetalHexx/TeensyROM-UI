@@ -5,11 +5,9 @@
   width: 100%;
   min-height: 0;
 
-  // Allow scrolling when content stacks vertically
   @media (max-width: 1200px) {
-    height: auto;
-    min-height: 100vh;
-    overflow-y: auto;
+    height: 100%;
+    min-height: 0;
   }
 }
 
@@ -27,7 +25,6 @@
   // Responsive breakpoints for stacking device containers
   @media (max-width: 1200px) {
     flex-direction: column;
-    overflow-y: auto;
     height: auto;
     min-height: 100%;
   }

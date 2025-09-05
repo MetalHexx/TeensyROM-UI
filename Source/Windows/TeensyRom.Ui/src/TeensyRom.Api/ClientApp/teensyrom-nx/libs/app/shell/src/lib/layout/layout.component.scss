@@ -36,12 +36,6 @@ lib-nav-menu {
   flex-direction: column;
   overflow: hidden;
 
-  .view-title {
-    padding: 1rem 1rem 0 1rem !important;
-    margin: 0 !important;
-    flex-shrink: 0;
-  }
-
   .router-content {
     flex: 1;
     padding: 1rem;
@@ -49,6 +43,16 @@ lib-nav-menu {
     display: flex;
     flex-direction: column;
     min-height: 0;
+
+    @media (max-width: 1200px) {
+      overflow-y: auto;
+    }
+
+    .view-title {
+      padding: 0 0 1rem 0 !important;
+      margin: 0 !important;
+      flex-shrink: 0;
+    }
   }
 }
 .custom-sidenav {
