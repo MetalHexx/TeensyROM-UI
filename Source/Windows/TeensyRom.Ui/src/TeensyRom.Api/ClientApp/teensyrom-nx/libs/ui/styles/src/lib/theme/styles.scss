@@ -32,6 +32,7 @@ html {
     );
   }
 
+  --color-primary: #890089;
   --color-success: #86c691;
   --color-error: #cc666c;
   --color-highlight: #00f7ff;
@@ -57,6 +58,7 @@ html.dark-mode {
     );
   }
 
+  --color-primary: #890089;
   --color-success: #6fdc8c;
   --color-error: #ff6f6f;
   --color-highlight: #00f7ff;
@@ -132,7 +134,7 @@ mat-card-title {
   }
 }
 .mat-toolbar.mat-primary {
-  --mat-toolbar-container-background-color: #890089;
+  --mat-toolbar-container-background-color: var(--color-primary);
 }
 
 .mat-toolbar {
@@ -152,6 +154,17 @@ mat-card-title {
   background: transparent;
   box-shadow: none;
   border: none;
+}
+
+.icon-button-rounded-primary {
+  border-radius: 50%;
+  background-color: var(--color-primary) !important;
+  color: white !important;
+}
+
+.icon-button-rounded-transparent {
+  border-radius: 50%;
+  background-color: transparent;
 }
 
 .icon-button-medium .mat-icon {

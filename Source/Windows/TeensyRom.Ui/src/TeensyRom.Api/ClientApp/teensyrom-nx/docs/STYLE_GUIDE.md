@@ -24,6 +24,7 @@ This document catalogs all global styles, utility classes, and Material Design c
 
 Available color variables for semantic styling:
 
+- `--color-primary`: Purple brand color for primary actions and branding
 - `--color-success`: Green variants for success states
 - `--color-error`: Red variants for error states
 - `--color-highlight`: Cyan accent color
@@ -34,6 +35,10 @@ Available color variables for semantic styling:
 ```scss
 .my-icon {
   color: var(--color-success);
+}
+
+.primary-button {
+  background-color: var(--color-primary);
 }
 ```
 
@@ -203,6 +208,42 @@ Available color variables for semantic styling:
 - [`device-logs.component.html`](../libs/features/devices/src/lib/device-view/device-logs/device-logs.component.html) - Log control buttons (clear, start/stop logging, download)
 - [`storage-item.component.html`](../libs/features/devices/src/lib/device-view/storage-item/storage-item.component.html) - Storage action buttons
 - [`device-item.component.html`](../libs/features/devices/src/lib/device-view/device-item/device-item.component.html) - Device power button
+
+#### `.icon-button-rounded-primary`
+
+**Purpose**: Rounded icon buttons with primary background color for main actions
+
+**Usage Example:**
+
+```html
+<button mat-icon-button class="icon-button-rounded-primary">
+  <mat-icon>play_arrow</mat-icon>
+</button>
+```
+
+**Used In:**
+
+- [`player-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.html) - Primary play/pause button
+
+**Best Practice:** Use for primary actions in media controls or other prominent interactive elements that need to stand out with brand color.
+
+#### `.icon-button-rounded-transparent`
+
+**Purpose**: Rounded icon buttons with transparent background for secondary actions
+
+**Usage Example:**
+
+```html
+<button mat-icon-button class="icon-button-rounded-transparent">
+  <mat-icon>skip_next</mat-icon>
+</button>
+```
+
+**Used In:**
+
+- [`player-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.html) - Secondary media control buttons (previous, fast forward, next)
+
+**Best Practice:** Use for secondary actions that should maintain visual consistency with primary rounded buttons but remain subtle.
 
 #### Icon Color Classes
 

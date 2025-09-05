@@ -7,3 +7,10 @@ mat-card {
   width: 100%;
   margin: 0;
 }
+
+.player-controls {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 16px;
+}
