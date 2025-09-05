@@ -219,6 +219,43 @@ export class ExampleComponent implements OnInit, OnDestroy {
 
 **Best Practice**: Modern control flow syntax provides better type checking, performance, and readability compared to legacy structural directives.
 
+### Standalone Components
+
+**Standard**: Angular 19+ components are standalone by default - no explicit marking required
+
+**Default Behavior**:
+
+- Components are automatically standalone (SCAM) in Angular 19+
+- No need to add `standalone: true` unless opting out
+- Import dependencies directly in the component decorator
+
+**Usage Example**:
+
+```typescript
+@Component({
+  selector: 'lib-example',
+  imports: [
+    MatIconModule,
+    MatCardModule,
+    CommonModule,
+    // Other dependencies
+  ],
+  templateUrl: './example.component.html',
+  styleUrl: './example.component.scss',
+})
+export class ExampleComponent {
+  // Component implementation
+}
+```
+
+**Requirements**:
+
+- Import all dependencies directly in the `imports` array
+- Remove `standalone: true` from existing components (redundant in Angular 19+)
+- Organize imports in the same order as TypeScript imports (Angular, Material, third-party, application)
+
+**Best Practice**: Embrace the default standalone behavior for better tree-shaking and module organization.
+
 ---
 
 ## TypeScript Standards
