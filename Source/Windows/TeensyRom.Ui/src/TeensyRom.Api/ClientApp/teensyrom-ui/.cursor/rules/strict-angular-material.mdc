@@ -1,6 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: true
----
-When updating SCSS or component styling, we must be sure to follow conventions that are compatible for Angular Material theming to ensure we don't break anything with theming.
