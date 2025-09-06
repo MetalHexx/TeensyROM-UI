@@ -1,14 +1,19 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 import { DeviceStore } from '@teensyrom-nx/domain/device/state';
 import { PlayerDeviceContainerComponent } from './player-device-container/player-device-container.component';
 
 @Component({
   selector: 'lib-player-view',
-  imports: [CommonModule, PlayerDeviceContainerComponent],
+  imports: [CommonModule, MatIconModule, PlayerDeviceContainerComponent],
   templateUrl: './player-view.component.html',
   styleUrl: './player-view.component.scss',
 })
 export class PlayerViewComponent {
   readonly deviceStore = inject(DeviceStore);
+
+  readonly connectedDevices = computed(() =>
+    this.deviceStore.devices().filter((device) => device.isConnected)
+  );
 }

@@ -1,11 +1,16 @@
-@if (deviceStore.devices().length === 0) {
+@if (connectedDevices().length === 0) {
 
-<p>No devices found</p>
+<div class="no-devices-message">
+  <mat-icon class="large-icon">devices</mat-icon>
+  <h2>No Connected Devices</h2>
+  <p>Connect a TeensyROM device to get started.</p>
+  <p class="dimmed">Visit the <strong>Device View</strong> to manage your connected devices.</p>
+</div>
 
 } @else {
 
 <div class="device-list">
-  @for (device of deviceStore.devices(); track device.deviceId) {
+  @for (device of connectedDevices(); track device.deviceId) {
   <div class="player-device-list-item">
     <lib-player-device-container [device]="device"></lib-player-device-container>
   </div>

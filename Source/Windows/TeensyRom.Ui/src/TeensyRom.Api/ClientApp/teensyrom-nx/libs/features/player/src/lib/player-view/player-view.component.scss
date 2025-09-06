@@ -11,40 +11,73 @@
   }
 }
 
-.device-list {
+.no-devices-message {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  gap: 1rem;
+  padding: 2rem;
+
+  .large-icon {
+    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
+    color: var(--color-dimmed);
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    margin: 0;
+    color: var(--mat-sys-on-surface);
+    font-weight: 400;
+  }
+
+  p {
+    margin: 0.5rem 0;
+    color: var(--mat-sys-on-surface);
+    font-size: 1.1rem;
+
+    &.dimmed {
+      font-size: 1rem;
+    }
+  }
+}
+
+.device-list {
+  display: grid;
   width: 100%;
   height: 100%;
-  flex-wrap: nowrap;
-  align-items: stretch;
+  gap: 1rem;
   margin: 0;
   padding: 0;
-  gap: 1rem;
+
+  // Auto-fit grid columns with minimum width
+  // Single device will take full width, multiple devices will share evenly
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
 
   // Responsive breakpoints for stacking device containers
   @media (max-width: 1200px) {
-    flex-direction: column;
+    grid-template-columns: 1fr; // Stack vertically on smaller screens
     height: auto;
     min-height: 100%;
   }
 }
 
 .player-device-list-item {
-  flex: 1 1 0;
-  min-width: 0;
   display: flex;
   align-items: stretch;
   height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
+  min-height: 600px; // Ensure minimum height for content
 
   // Responsive adjustments for stacked layout
   @media (max-width: 1200px) {
     height: auto;
-    min-height: 600px; // Ensure each device container has minimum height when stacked
-    flex: none;
   }
 }
 
