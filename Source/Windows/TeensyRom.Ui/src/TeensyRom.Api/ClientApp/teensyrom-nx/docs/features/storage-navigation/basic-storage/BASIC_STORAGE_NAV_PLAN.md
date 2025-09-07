@@ -45,6 +45,8 @@ Create HTTP client integration with clean domain model transformation layer.
 4. **Data Mapping**: Transform API DTOs to clean domain models
 5. **Service Wrapper**: HTTP client wrapper with domain model transformation
 
+**Detailed Specification**: [Phase 1 Specification](./BASIC_STORAGE_NAV_SPEC_P1.md)
+
 ---
 
 ## Phase 2: State Management
@@ -66,6 +68,8 @@ Implement NgRx Signal Store for multi-device storage navigation state.
 3. **Store Methods**: loadDirectory, navigateToDirectory, initializeUnloadedDevices
 4. **Device Integration**: Cross-reference with existing device store
 5. **Smart Initialization**: Load root only for uninitialized devices
+
+**Detailed Specification**: [Phase 2 Specification](./BASIC_STORAGE_NAV_SPEC_P2.md)
 
 ---
 
@@ -131,6 +135,8 @@ _Note: Each device renders independently in its own `player-device-container` wi
 6. **Storage Selection**: Enable switching between available storage types within tree
 7. **Storage Filtering**: Hide unavailable storage types from tree display
 
+**Detailed Specification**: [Phase 3 Specification](./BASIC_STORAGE_NAV_SPEC_P3.md)
+
 ---
 
 ## Phase 4: Internal Storage Integration Planning
@@ -162,6 +168,8 @@ Plan and prepare for backend implementation of internal storage support through 
 
 **Note**: This phase focuses on planning and coordination. Implementation will follow after backend infrastructure is complete.
 
+**Detailed Specification**: [Phase 4 Specification](./BASIC_STORAGE_NAV_SPEC_P4.md)
+
 ---
 
 ## Phase 5: Virtual Scrolling Preparation
@@ -183,6 +191,8 @@ Prepare architecture for high-performance rendering of large directory listings.
 3. **Performance Threshold**: Define when to implement virtual scrolling (~1000+ items)
 4. **Integration Strategy**: Plan Angular CDK Virtual Scrolling integration
 5. **Tree Virtualization**: Research tree virtualization libraries for directory tree
+
+**Detailed Specification**: [Phase 5 Specification](./BASIC_STORAGE_NAV_SPEC_P5.md)
 
 ---
 

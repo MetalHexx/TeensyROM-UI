@@ -1,5 +1,7 @@
 # Phase 1: HTTP Client & Domain Models Specification
 
+**Related Documentation**: [Player View Storage Navigation Plan](./BASIC_STORAGE_NAV_PLAN.md)
+
 ## Objective
 
 Create HTTP client integration with clean domain model transformation layer for TeensyROM storage navigation.
