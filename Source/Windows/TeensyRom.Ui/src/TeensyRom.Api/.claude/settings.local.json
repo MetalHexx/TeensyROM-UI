@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/dev/src/TeensyROM-UI/Source/Windows/TeensyRom.Ui/**)",
+      "Read(//c/dev/src/TeensyROM-UI/Source/Windows/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
