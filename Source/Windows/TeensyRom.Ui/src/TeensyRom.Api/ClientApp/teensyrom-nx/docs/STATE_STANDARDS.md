@@ -1,8 +1,8 @@
-# TeensyROM UI State Management Standards
+# State Management Standards
 
 ## Overview
 
-This document establishes standards for state management using NgRx Signal Store in the TeensyROM application. These standards ensure consistency, maintainability, and scalability across all state management implementations.
+This document establishes standards for state management using NgRx Signal Store. These standards ensure consistency, maintainability, and scalability across all state management implementations.
 
 ---
 
@@ -10,65 +10,24 @@ This document establishes standards for state management using NgRx Signal Store
 
 ### Store Structure
 
-**Standard**: Use NgRx Signal Store with modular method organization
+**Standard**: Use NgRx Signal Store with modular function organization
 
 **Format**:
 
 ```typescript
-export const StoreService = signalStore(
+export const ExampleStore = signalStore(
   { providedIn: 'root' },
   withDevtools('storeName'),
   withState(initialState),
   withMethods((store, ...services) => ({
-    ...methodGroup1(store, service1),
-    ...methodGroup2(store, service2),
-    // Additional method groups
+    ...methodFunction1(store, service1),
+    ...methodFunction2(store, service2),
+    // Additional functions
   }))
 );
 ```
 
-**Usage Example**:
-
-```typescript
-import { inject } from '@angular/core';
-import { signalStore, withMethods, withState } from '@ngrx/signals';
-import { withDevtools } from '@angular-architects/ngrx-toolkit';
-import { Device, DeviceService, StorageService } from '@teensyrom-nx/domain/device/services';
-import { findDevices, connectDevice, disconnectDevice } from './methods/index';
-import { indexStorage } from './methods/index-storage';
-
-export type DeviceState = {
-  devices: Device[];
-  hasInitialised: boolean;
-  isLoading: boolean;
-  error: string | null;
-};
-
-const initialState: DeviceState = {
-  devices: [],
-  hasInitialised: false,
-  isLoading: true,
-  error: null,
-};
-
-export const DeviceStore = signalStore(
-  { providedIn: 'root' },
-  withDevtools('devices'),
-  withState(initialState),
-  withMethods(
-    (
-      store,
-      deviceService: DeviceService = inject(DeviceService),
-      storageService: StorageService = inject(StorageService)
-    ) => ({
-      ...findDevices(store, deviceService),
-      ...connectDevice(store, deviceService),
-      ...disconnectDevice(store, deviceService),
-      ...indexStorage(store, storageService),
-    })
-  )
-);
-```
+**Implementation Example**: See [DeviceStore](../libs/domain/device/state/src/lib/device-store.ts) for a complete implementation following this pattern.
 
 **Requirements**:
 
@@ -76,129 +35,91 @@ export const DeviceStore = signalStore(
 - Always include `withDevtools()` with descriptive store name
 - Define explicit TypeScript interfaces for state
 - Inject services with default parameters using `inject()`
-- Group related methods using spread operator
+- Group related functions using spread operator
 
-**Used In**:
-
-- [`device-store.ts`](../libs/domain/device/state/src/lib/device-store.ts) - Main device state management
+**Reference Implementation**: [`device-store.ts`](../libs/domain/device/state/src/lib/device-store.ts)
 
 ---
 
-## Method Organization
+## Function Organization
 
-### Separate Method Files
+### One Function Per File Pattern
 
-**Standard**: Extract each logical group of actions into separate files within a `methods/` directory
+**Standard**: Extract each individual function in its own file within a `methods/` directory
 
 **Structure**:
 
 ```
 state/
-├── store-name.ts
+├── example-store.ts
 └── methods/
     ├── index.ts
-    ├── action-group-1.ts
-    ├── action-group-2.ts
-    └── specific-action.ts
+    ├── load-data.ts         # loadData function
+    ├── create-item.ts       # createItem function
+    ├── update-item.ts       # updateItem function
+    └── delete-item.ts       # deleteItem function
 ```
 
 **File Naming Convention**:
 
-- Use kebab-case for method files
-- Name files based on the primary action or action group
-- Use descriptive names that indicate the operation
+- Use kebab-case for function files
+- Name files based on the individual function name
+- Each file exports one function that returns an object with one property (a function)
+- Use descriptive names that indicate the specific operation
 
-**Usage Example**:
+**Implementation Examples**: See the following files for concrete implementations:
 
-```typescript
-// methods/connect-device.ts
-import { inject } from '@angular/core';
-import { patchState, WritableStateSource } from '@ngrx/signals';
-import { DeviceService } from '@teensyrom-nx/domain/device/services';
-import { firstValueFrom } from 'rxjs';
-import { DeviceState } from '../device-store';
+- [`connect-device.ts`](../libs/domain/device/state/src/lib/methods/connect-device.ts) - Single function example
+- [`find-devices.ts`](../libs/domain/device/state/src/lib/methods/find-devices.ts) - Async operation with state updates
+- [`disconnect-device.ts`](../libs/domain/device/state/src/lib/methods/disconnect-device.ts) - Error handling patterns
 
-type SignalStore<T> = {
-  [K in keyof T]: () => T[K];
-};
+**Key Principles**:
 
-export function connectDevice(
-  store: SignalStore<DeviceState> & WritableStateSource<DeviceState>,
-  deviceService: DeviceService = inject(DeviceService)
-) {
-  return {
-    connectDevice: async (deviceId: string) => {
-      patchState(store, { error: null });
+- Each function returns an object with exactly one property (a function)
+- Functions are pure and focused on single responsibility
+- All external dependencies are injected as parameters
+- State updates use `patchState` for immutable updates
 
-      try {
-        await firstValueFrom(deviceService.connectDevice(deviceId));
+### Function File Structure
 
-        patchState(store, {
-          isLoading: false,
-          devices: store
-            .devices()
-            .map((d) => (d.deviceId === deviceId ? { ...d, isConnected: true } : d)),
-        });
-      } catch (error) {
-        patchState(store, { error: String(error) });
-      }
-    },
-  };
-}
-```
-
-**Used In**:
-
-- [`connect-device.ts`](../libs/domain/device/state/src/lib/methods/connect-device.ts) - Device connection logic
-- [`disconnect-device.ts`](../libs/domain/device/state/src/lib/methods/disconnect-device.ts) - Device disconnection logic
-- [`find-devices.ts`](../libs/domain/device/state/src/lib/methods/find-devices.ts) - Device discovery logic
-- [`index-storage.ts`](../libs/domain/device/state/src/lib/methods/index-storage.ts) - Storage indexing operations
-
-### Method File Structure
-
-**Standard**: Follow consistent structure for method files
+**Standard**: Follow consistent structure for function files
 
 **Requirements**:
 
 1. Import necessary dependencies at the top
 2. Define SignalStore type helper (if needed)
-3. Export single function that returns method object
+3. Export single function that returns object with one property (a function)
 4. Use descriptive parameter names
 5. Include proper error handling
 6. Clear state updates with `patchState`
 
-**Template**:
+**Template Pattern**:
 
 ```typescript
 import { inject } from '@angular/core';
 import { patchState, WritableStateSource } from '@ngrx/signals';
-import { ServiceType } from '@teensyrom-nx/domain/service-path';
+import { ExampleService } from '@teensyrom-nx/domain/example/services';
 import { firstValueFrom } from 'rxjs';
-import { StateType } from '../store-name';
+import { ExampleState } from '../example-store';
 
 type SignalStore<T> = {
   [K in keyof T]: () => T[K];
 };
 
-export function methodGroupName(
-  store: SignalStore<StateType> & WritableStateSource<StateType>,
-  service: ServiceType = inject(ServiceType)
+export function methodName(
+  store: SignalStore<ExampleState> & WritableStateSource<ExampleState>,
+  service: ExampleService = inject(ExampleService)
 ) {
   return {
     methodName: async (param: ParamType) => {
-      // Clear any previous errors
       patchState(store, { error: null });
 
       try {
-        // Perform async operation
         const result = await firstValueFrom(service.operation(param));
-
-        // Update state on success
         patchState(store, {
-          // state updates
+          /* state updates */
         });
       } catch (error) {
-        // Handle errors
         patchState(store, { error: String(error) });
       }
     },
@@ -208,36 +129,26 @@ export function methodGroupName(
 
 ### Index File Management
 
-**Standard**: Use index files to organize and export method groups
+**Standard**: Use index files to organize and export individual functions
 
 **Format**:
 
 ```typescript
-// methods/index.ts
-export * from './method-group-1';
-export * from './method-group-2';
-export * from './specific-action';
-```
-
-**Usage Example**:
-
-```typescript
-// methods/index.ts
-export * from './find-devices';
-export * from './connect-device';
-export * from './disconnect-device';
+// src/lib/methods/index.ts
+export * from './load-data';
+export * from './create-item';
+export * from './update-item';
+export * from './delete-item';
 ```
 
 **Requirements**:
 
-- Group related exports together
-- Use barrel exports for cleaner imports
-- Keep individual action files separate when they have different service dependencies
-- Update index when adding new method files
+- Export each function individually
+- Use barrel exports for cleaner imports in store files
+- Update index when adding new function files
+- Group related function exports together for readability
 
-**Used In**:
-
-- [`methods/index.ts`](../libs/domain/device/state/src/lib/methods/index.ts) - Core device operations export
+**Reference Implementation**: [`methods/index.ts`](../libs/domain/device/state/src/lib/methods/index.ts)
 
 ---
 
@@ -250,7 +161,7 @@ export * from './disconnect-device';
 **Format**:
 
 ```typescript
-export type StoreName = {
+export type ExampleState = {
   // Core data
   items: ItemType[];
 
@@ -266,17 +177,7 @@ export type StoreName = {
 };
 ```
 
-**Usage Example**:
-
-```typescript
-export type DeviceState = {
-  devices: Device[];
-  hasInitialised: boolean;
-  isLoading: boolean;
-  isIndexing: boolean;
-  error: string | null;
-};
-```
+**Reference Implementation**: See [`DeviceState`](../libs/domain/device/state/src/lib/device-store.ts) for a concrete example of state interface definition.
 
 **Requirements**:
 
@@ -293,7 +194,7 @@ export type DeviceState = {
 **Format**:
 
 ```typescript
-const initialState: StateType = {
+const initialState: ExampleState = {
   // Set appropriate defaults for each property
   items: [],
   isLoading: false,
@@ -317,14 +218,14 @@ const initialState: StateType = {
 
 ### Error State Management
 
-**Standard**: Implement consistent error handling across all methods
+**Standard**: Implement consistent error handling across all functions
 
 **Pattern**:
 
 ```typescript
-export function actionMethod(store, service) {
+export function exampleMethod(store, service) {
   return {
-    actionName: async (params) => {
+    methodName: async (params) => {
       // 1. Clear previous errors
       patchState(store, { error: null });
 
@@ -368,11 +269,15 @@ export function actionMethod(store, service) {
 **Format**:
 
 ```typescript
-export function methodGroup(
-  store: SignalStore<StateType> & WritableStateSource<StateType>,
-  service: ServiceType = inject(ServiceType)
+export function exampleMethod(
+  store: SignalStore<ExampleState> & WritableStateSource<ExampleState>,
+  service: ExampleService = inject(ExampleService)
 ) {
-  // method implementations
+  return {
+    methodName: async (params) => {
+      // function implementation
+    },
+  };
 }
 ```
 
@@ -393,7 +298,7 @@ export function methodGroup(
 
 - Single HTTP requests (GET, POST, PUT, DELETE)
 - One-time operations that return a single result
-- State update methods in stores
+- State update operations in stores
 - Simple asynchronous operations
 
 **Pattern**:
@@ -416,8 +321,8 @@ const result = await firstValueFrom(service.operation(params));
 
 ```typescript
 // In services - return observables
-public getDataStream(): Observable<Data[]> {
-  return this.http.get<Data[]>('/api/data').pipe(
+public getDataStream(): Observable<ExampleData[]> {
+  return this.http.get<ExampleData[]>('/api/data').pipe(
     retry(3),
     catchError(this.handleError)
   );
@@ -426,19 +331,19 @@ public getDataStream(): Observable<Data[]> {
 // In components - subscribe to store signals
 ngOnInit() {
   // Signal store state is automatically reactive
-  this.devices = this.deviceStore.devices;
+  this.items = this.exampleStore.items;
 }
 ```
 
 **Requirements**:
 
-- Use `firstValueFrom()` when converting observables to promises in store methods
-- Use `async/await` for store method implementations
+- Use `firstValueFrom()` when converting observables to promises in store functions
+- Use `async/await` for store function implementations
 - Return observables from services for reactive data
 - Handle RxJS observables appropriately in each context
 - Implement proper error propagation for both patterns
 
-**Best Practice**: Use async/await in store methods for simplicity and RxJS patterns when you need reactive capabilities or complex async coordination.
+**Best Practice**: Use async/await in store functions for simplicity and RxJS patterns when you need reactive capabilities or complex async coordination.
 
 ---
 
@@ -453,28 +358,34 @@ ngOnInit() {
 - Use composition for complex state requirements
 - Maintain clear boundaries between different data domains
 
-### Method Grouping
+### Function Usage
 
 **Guidelines**:
 
-- Group methods by functionality (CRUD operations, UI actions, etc.)
-- Separate methods that use different services
+- Each function should handle one specific operation
+- Separate functions that use different services into different files
 - Keep individual files focused on single responsibility
-- Use descriptive names that indicate the operation scope
+- Use descriptive names that clearly indicate the operation
 
 ### Testing Considerations
 
 **Standards**:
 
-- Method separation enables easier unit testing
-- Mock services through parameter injection
-- Test error conditions and success paths
-- Verify state updates are immutable
+- One-function-per-file pattern enables easier unit testing
+- Mock services through parameter injection for isolated testing
+- Test error conditions and success paths for each function
+- Verify state updates are immutable and consistent
 
 ---
 
-## Related Files
+## Related Documentation
 
-- **Coding Standards**: [`CODING_STANDARDS.md`](./CODING_STANDARDS.md) - General coding patterns and conventions
-- **Style Guide**: [`STYLE_GUIDE.md`](./STYLE_GUIDE.md) - UI styling standards
-- **Store Implementation**: [`device-store.ts`](../libs/domain/device/state/src/lib/device-store.ts) - Reference implementation
+- **Testing Standards**: [`TESTING_STANDARDS.md`](./TESTING_STANDARDS.md) - Unit, integration, and E2E testing patterns.
+- **Coding Standards**: [`CODING_STANDARDS.md`](./CODING_STANDARDS.md) - General coding patterns and conventions.
+- **Nx Library Standards**: [`NX_LIBRARY_STANDARDS.md`](./NX_LIBRARY_STANDARDS.md) - Library creation and integration patterns.
+- **Style Guide**: [`STYLE_GUIDE.md`](./STYLE_GUIDE.md) - UI styling standards.
+
+## Reference Implementation
+
+- **DeviceStore**: [`device-store.ts`](../libs/domain/device/state/src/lib/device-store.ts) - Complete store implementation example
+- **Function Examples**: [`methods/`](../libs/domain/device/state/src/lib/methods/) - Individual function implementations
