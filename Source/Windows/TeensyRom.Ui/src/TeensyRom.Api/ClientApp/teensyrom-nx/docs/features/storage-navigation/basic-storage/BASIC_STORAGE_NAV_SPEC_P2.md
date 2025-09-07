@@ -6,6 +6,7 @@
 
 - **State Standards**: [`STATE_STANDARDS.md`](../../../STATE_STANDARDS.md) - NgRx Signal Store patterns.
 - **Coding Standards**: [`CODING_STANDARDS.md`](../../../CODING_STANDARDS.md) - Component and TypeScript standards.
+- **Testing Standards**: [`TESTING_STANDARDS.md`](../../../TESTING_STANDARDS.md) - Unit, integration, and E2E testing patterns.
 
 ## Objective
 

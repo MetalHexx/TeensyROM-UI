@@ -340,6 +340,7 @@ And when Device A reconnects, all storage types should start from root directori
 
 ## Related Documentation
 
+- **Testing Standards**: [`TESTING_STANDARDS.md`](../../../TESTING_STANDARDS.md) - Unit, integration, and E2E testing patterns.
 - **State Standards**: [`STATE_STANDARDS.md`](../../../STATE_STANDARDS.md) - NgRx Signal Store patterns.
 - **Coding Standards**: [`CODING_STANDARDS.md`](../../../CODING_STANDARDS.md) - Component and TypeScript standards.
 - **Architecture Overview**: [`OVERVIEW_CONTEXT.md`](../../../OVERVIEW_CONTEXT.md) - Overall application architecture.
