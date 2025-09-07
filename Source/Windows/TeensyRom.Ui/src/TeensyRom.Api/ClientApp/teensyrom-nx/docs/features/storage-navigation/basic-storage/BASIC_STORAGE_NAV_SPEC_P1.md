@@ -137,8 +137,6 @@ npx nx generate @nrwl/angular:library --name=services --directory=libs/domain/st
 
 **Purpose**: Wire up the new domain library to the teensyrom-ui application
 
-**TDD Approach**: Create integration tests that verify the library works correctly within the application context before finalizing the integration. Test actual service injection and usage patterns.
-
 **Standards Reference**: Follow [Integration Verification](../../../NX_LIBRARY_STANDARDS.md#integration-verification) checklist for complete integration requirements.
 
 **Key Integration Tasks**:
