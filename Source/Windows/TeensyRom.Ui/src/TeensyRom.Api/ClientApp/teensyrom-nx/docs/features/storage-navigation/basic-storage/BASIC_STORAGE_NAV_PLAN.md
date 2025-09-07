@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the high level plan for directory browsing and file navigation in the player view across multiple TeensyROM devices with SD, USB and internal storage support. The feature enables users to navigate file systems and maintain independent navigation state per device-storage combination.
+This document outlines the plan for directory browsing and file navigation in the player view across multiple TeensyROM devices with SD, USB and internal storage support. The feature enables users to navigate file systems and maintain independent navigation state per device-storage combination.
 
 ---
 
