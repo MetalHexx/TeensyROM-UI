@@ -9,18 +9,20 @@ cd Source/Windows/TeensyRom.Ui/src/TeensyRom.Api/ClientApp/teensyrom-nx || {
   exit 1
 }
 
-# Only try to run lint-staged if npx can actually be invoked
-if command -v npx >/dev/null 2>&1 && npx --version >/dev/null 2>&1; then
-  echo "✅ Running lint-staged with working npx"
-  npx lint-staged || exit 1
-else
-  echo "⚠️  Skipping lint-staged — npx not available or broken in this environment"
-  echo "ℹ️  You’re probably committing from Visual Studio’s built-in Git, which lacks full environment support"
-fi
+# Use pnpm for pnpm workspace
+echo "✅ Running lint-staged with pnpm dlx"
+pnpm dlx lint-staged || exit 1
 
 # Run unit tests (block commit if they fail)
 echo "🧪 Running Tests..."
-npx nx run-many --target=test --all --watch=false --parallel=false || {
-  echo "❌ Unit tests failed. Commit aborted."
-  exit 1
-}
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm dlx nx run-many --target=test --all --watch=false --parallel=false || {
+    echo "❌ Unit tests failed. Commit aborted."
+    exit 1
+  }
+else
+  npx nx run-many --target=test --all --watch=false --parallel=false || {
+    echo "❌ Unit tests failed. Commit aborted."
+    exit 1
+  }
+fi
