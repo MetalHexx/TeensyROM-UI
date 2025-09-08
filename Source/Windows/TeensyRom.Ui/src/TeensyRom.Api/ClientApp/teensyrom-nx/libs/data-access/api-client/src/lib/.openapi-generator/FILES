@@ -27,8 +27,6 @@ model/indexResponse.ts
 model/launchFileResponse.ts
 model/launchRandomResponse.ts
 model/models.ts
-model/nullableOfStorageScope.ts
-model/nullableOfTeensyFilterType.ts
 model/pingDeviceResponse.ts
 model/problemDetails.ts
 model/resetDeviceResponse.ts

@@ -24,8 +24,7 @@ export interface FileItemDto {
   meta1: string;
   meta2: string;
   metadataSourcePath: string;
-  favChildPath: string;
-  favParentPath: string;
+  parentPath: string;
   playLength: string;
   subtuneLengths: Array<string>;
   startSubtuneNum: number;

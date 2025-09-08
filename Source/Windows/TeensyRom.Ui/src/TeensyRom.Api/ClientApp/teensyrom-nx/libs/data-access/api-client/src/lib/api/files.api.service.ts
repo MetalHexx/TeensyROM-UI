@@ -33,10 +33,6 @@ import { LaunchFileResponse } from '../model/launchFileResponse';
 // @ts-ignore
 import { LaunchRandomResponse } from '../model/launchRandomResponse';
 // @ts-ignore
-import { NullableOfStorageScope } from '../model/nullableOfStorageScope';
-// @ts-ignore
-import { NullableOfTeensyFilterType } from '../model/nullableOfTeensyFilterType';
-// @ts-ignore
 import { ProblemDetails } from '../model/problemDetails';
 // @ts-ignore
 import { TeensyStorageType } from '../model/teensyStorageType';
@@ -531,8 +527,8 @@ export class FilesApiService extends BaseService {
   public launchRandom(
     deviceId: string,
     storageType: TeensyStorageType,
-    filterType?: NullableOfTeensyFilterType,
-    scope?: NullableOfStorageScope,
+    filterType?: 'All' | 'Games' | 'Music' | 'Hex' | 'Images' | 'null',
+    scope?: 'Storage' | 'DirDeep' | 'DirShallow' | 'null',
     startingDirectory?: string,
     observe?: 'body',
     reportProgress?: boolean,
@@ -545,8 +541,8 @@ export class FilesApiService extends BaseService {
   public launchRandom(
     deviceId: string,
     storageType: TeensyStorageType,
-    filterType?: NullableOfTeensyFilterType,
-    scope?: NullableOfStorageScope,
+    filterType?: 'All' | 'Games' | 'Music' | 'Hex' | 'Images' | 'null',
+    scope?: 'Storage' | 'DirDeep' | 'DirShallow' | 'null',
     startingDirectory?: string,
     observe?: 'response',
     reportProgress?: boolean,
@@ -559,8 +555,8 @@ export class FilesApiService extends BaseService {
   public launchRandom(
     deviceId: string,
     storageType: TeensyStorageType,
-    filterType?: NullableOfTeensyFilterType,
-    scope?: NullableOfStorageScope,
+    filterType?: 'All' | 'Games' | 'Music' | 'Hex' | 'Images' | 'null',
+    scope?: 'Storage' | 'DirDeep' | 'DirShallow' | 'null',
     startingDirectory?: string,
     observe?: 'events',
     reportProgress?: boolean,
@@ -573,8 +569,8 @@ export class FilesApiService extends BaseService {
   public launchRandom(
     deviceId: string,
     storageType: TeensyStorageType,
-    filterType?: NullableOfTeensyFilterType,
-    scope?: NullableOfStorageScope,
+    filterType?: 'All' | 'Games' | 'Music' | 'Hex' | 'Images' | 'null',
+    scope?: 'Storage' | 'DirDeep' | 'DirShallow' | 'null',
     startingDirectory?: string,
     observe: any = 'body',
     reportProgress: boolean = false,
