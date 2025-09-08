@@ -1,6 +1,9 @@
 {
   "permissions": {
     "allow": [
+      "Read(//c/dev/src/TeensyROM-UI/Source/WIndows/TeensyRom.Ui/src/TeensyRom.Api/clientapp/teensyrom-nx/**)",
+      "Bash(npx nx show project:*)",
+      "Read(//c/dev/src/TeensyROM-UI/Source/WIndows/TeensyRom.Ui/src/TeensyRom.Api/**)",
       "Read(//c/dev/src/TeensyROM-UI/Source/Windows/TeensyRom.Ui/**)",
       "Read(//c/dev/src/TeensyROM-UI/Source/Windows/**)"
     ],

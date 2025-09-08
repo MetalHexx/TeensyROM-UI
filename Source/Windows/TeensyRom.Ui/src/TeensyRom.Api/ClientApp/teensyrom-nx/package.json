@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "nx run teensyrom-ui:serve",
-    "generate:api-client": "nx run data-access-api-client:generate",
+    "generate:api-client": "nx run api-client:generate",
     "vite": "vite",
     "format": "prettier --write \"**/*.{ts,js,json,md,html,scss}\"",
     "lint": "nx lint"

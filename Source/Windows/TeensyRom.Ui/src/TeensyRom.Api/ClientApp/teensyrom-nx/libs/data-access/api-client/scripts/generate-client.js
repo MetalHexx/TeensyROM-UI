@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const config = {
-  openApiUrl: 'http://localhost:5168/openapi/v1.json',
+  openApiUrl: join(__dirname, '../../../../../../api-spec/TeensyRom.Api.json'),
   outputDir: join(__dirname, '../src/lib'),
   generator: 'typescript-angular',
   additionalProps: {

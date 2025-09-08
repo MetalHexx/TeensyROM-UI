@@ -23,12 +23,9 @@ Create HTTP client integration with clean domain model transformation layer for 
 
 **Purpose**: Ensure API client includes latest `GetDirectoryEndpoint` and related models
 
-**Commands**:
+**Instructions**:
 
-```bash
-cd ClientApp/teensyrom-nx
-npm run generate:api-client
-```
+Follow the steps in [`API_CLIENT_GENERATION.md`](../../API_CLIENT_GENERATION.md) to regenerate the API client. This document provides up-to-date instructions for build the open api spec doc from the api project and generating a client from it.
 
 **Process Overview**:
 

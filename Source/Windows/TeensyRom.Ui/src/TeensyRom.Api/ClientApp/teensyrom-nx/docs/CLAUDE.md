@@ -69,9 +69,26 @@ npx nx lint
 # Format code
 npm run format
 
-# Generate API client (requires backend running)
-npm run generate:api-client
+# Generate API client (see docs/API_CLIENT_GENERATION.md for details)
+pnpm run generate:api-client
 ```
+
+## API Client Generation
+
+When the .NET API changes and you need to regenerate the TypeScript client:
+
+1. **See detailed instructions**: `docs/API_CLIENT_GENERATION.md`
+2. **Quick commands** from Angular workspace (`ClientApp/teensyrom-nx`):
+
+   ```bash
+   # Build API and generate OpenAPI spec (no server needed)
+   dotnet build ../../TeensyRom.Api.csproj
+
+   # Generate TypeScript client
+   pnpm run generate:api-client
+   ```
+
+This uses build-time OpenAPI generation - no running server required.
 
 ## Key Technologies
 
