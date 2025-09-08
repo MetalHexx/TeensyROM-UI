@@ -5,7 +5,8 @@
       "Bash(npx nx show project:*)",
       "Read(//c/dev/src/TeensyROM-UI/Source/WIndows/TeensyRom.Ui/src/TeensyRom.Api/**)",
       "Read(//c/dev/src/TeensyROM-UI/Source/Windows/TeensyRom.Ui/**)",
-      "Read(//c/dev/src/TeensyROM-UI/Source/Windows/**)"
+      "Read(//c/dev/src/TeensyROM-UI/Source/Windows/**)",
+      "Bash(npm run lint)"
     ],
     "deny": [],
     "ask": []
