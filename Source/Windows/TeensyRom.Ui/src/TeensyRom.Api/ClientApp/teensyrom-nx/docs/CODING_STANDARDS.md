@@ -267,6 +267,7 @@ export class ExampleComponent {
 **Best Practices**:
 
 - Avoid `any` type unless absolutely necessary
+- Never use `undefined!` or cast `undefined` as `any` - use `null as any` instead for test mocking
 - Use union types for specific value sets: `type Status = 'active' | 'inactive' | 'pending'`
 - Define interfaces for complex objects
 - Use generic types for reusable components

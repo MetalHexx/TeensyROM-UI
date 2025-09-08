@@ -4,6 +4,14 @@ This document defines testing standards and patterns for the teensyrom-nx Angula
 
 ## Testing Framework Stack
 
+### Testing Hierarchy and Backend Access Policy
+
+- **Unit Tests**: Mock all external dependencies, no HTTP calls
+- **Integration Tests**: Use MSW for HTTP mocking, **no real backend calls allowed**
+- **E2E Tests**: **Only level permitted to use real backend APIs**
+
+This ensures fast, reliable tests and clear separation of concerns.
+
 ### Unit Testing
 
 - **Framework**: [Vitest](https://vitest.dev/) - Fast Vite-native test runner
@@ -14,14 +22,16 @@ This document defines testing standards and patterns for the teensyrom-nx Angula
 ### Integration Testing
 
 - **Framework**: Vitest for service integration tests
-- **HTTP Mocking**: MSW (Mock Service Worker) for all API integration tests
+- **HTTP Mocking**: MSW (Mock Service Worker) - **REQUIRED** for all API integration tests
 - **Environment**: Isolated test environment with mocked backend services
+- **Policy**: **NO direct backend HTTP calls** in integration tests - use MSW only
 
 ### End-to-End Testing
 
 - **Framework**: Cypress (configured in workspace)
-- **Target**: Real browser automation for user journey testing
-- **Backend**: Full API available and running for realistic end-to-end scenarios
+- **Target**: Real browser automation for user journey testing  
+- **Backend**: **ONLY E2E tests may use real backend APIs** - Full API must be running
+- **Scope**: Complete user workflows from UI to database
 
 ## Test File Organization
 
@@ -132,9 +142,10 @@ describe('ExampleService', () => {
 
 ### Purpose and Scope
 
-- **Integration Tests**: Test interaction between multiple components/services using mocked APIs
-- **API Integration**: Test HTTP communication patterns with mocked backend responses
+- **Integration Tests**: Test interaction between multiple components/services using **MSW-mocked APIs only**
+- **API Integration**: Test HTTP communication patterns with mocked backend responses via MSW
 - **Cross-Library Integration**: Test interaction between domain libraries in isolated environment
+- **Strict Policy**: **Real HTTP calls to backend APIs are forbidden** - use Cypress E2E tests instead
 
 ### Integration Test Structure
 
@@ -158,31 +169,14 @@ describe('ExampleService Integration', () => {
 });
 ```
 
-### API Integration Testing
+### API Integration Testing Standards
 
-- **Mock Service Worker**: Use MSW for all HTTP API mocking in integration tests
-- **Response Simulation**: Mock realistic API responses, including success and error scenarios
+- **Mock Service Worker (MSW)**: **MANDATORY** for all HTTP API mocking in integration tests
+- **No Real Backend Calls**: Integration tests must not make actual HTTP requests to backend APIs
+- **Real HttpClient**: Use Angular's HttpClient with MSW interception for realistic testing
+- **Response Simulation**: Mock both success and error scenarios with realistic API responses
 - **Network Patterns**: Test request/response cycles, headers, and data transformation
-
-```typescript
-// MSW setup for API mocking
-import { setupServer } from 'msw/node';
-import { rest } from 'msw';
-
-const server = setupServer(
-  rest.get('/api/example/data', (req, res, ctx) => {
-    return res(
-      ctx.json({
-        /* mock response */
-      })
-    );
-  })
-);
-
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-```
+- **Reference Implementation**: See `storage.service.integration.spec.ts` for established patterns
 
 ### Cross-Store Integration Testing
 

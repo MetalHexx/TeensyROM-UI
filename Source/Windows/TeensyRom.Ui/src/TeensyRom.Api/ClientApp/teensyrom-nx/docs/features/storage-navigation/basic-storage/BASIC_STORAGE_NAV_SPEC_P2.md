@@ -79,6 +79,7 @@ const initialState: StorageState = {
 - Use flat key structure for O(1) device-storage lookups
 - Include metadata for cache management and loading states
 - Provide type-safe key generation with template literal types
+- **Create StorageKeyUtil helper functions** for consistent key creation, parsing, and filtering operations
 
 ### Step 3: Store Configuration
 
