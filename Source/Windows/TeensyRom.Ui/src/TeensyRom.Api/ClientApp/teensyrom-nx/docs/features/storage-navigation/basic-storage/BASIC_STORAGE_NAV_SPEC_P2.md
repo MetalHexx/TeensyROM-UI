@@ -108,24 +108,19 @@ const initialState: StorageState = {
 
 **Core Methods Needed**:
 
-- **loadDirectory**: Load directory contents for specific device-storage-path combination
-- **navigateToDirectory**: Navigate to directory and update current path
+- **navigateToDirectory**: Navigate to directory, update current path, and load directory contents
 - **refreshDirectory**: Refresh/reload directory contents with cache invalidation
-- **initializeDeviceStorage**: Initialize storage entries for newly connected device
-- **cleanupDeviceStorage**: Remove all storage entries when device disconnects
-- **setCurrentPath**: Update current path without loading (for UI state sync)
+- **initializeStorage**: Initialize storage entries for newly connected device
+- **cleanupStorage**: Remove all storage entries when device disconnects
 
 **File Structure**:
 
 ```
 src/lib/methods/
-├── load-directory.ts         # loadDirectory function
-├── navigate-to-directory.ts  # navigateToDirectory function
+├── navigate-to-directory.ts  # navigateToDirectory function (combined navigate + load)
 ├── refresh-directory.ts      # refreshDirectory function
-├── initialize-device-storage.ts # initializeDeviceStorage function
-├── cleanup-device-storage.ts # cleanupDeviceStorage function
-├── set-current-path.ts       # setCurrentPath function
-└── index.ts                  # Method exports
+├── initialize-storage.ts     # initializeStorage function
+└── cleanup-storage.ts        # cleanupStorage function
 ```
 
 ### Step 5: Method Organization and Barrel Exports
@@ -203,15 +198,12 @@ src/lib/methods/
 ```
 libs/domain/storage/state/src/lib/
 ├── storage-store.ts              # Main store (like device-store.ts)
-├── storage-state.models.ts       # State interfaces and types
+├── storage-key.util.ts           # Storage key utility functions
 ├── methods/
-│   ├── load-directory.ts         # loadDirectory function
-│   ├── navigate-to-directory.ts  # navigateToDirectory function
+│   ├── navigate-to-directory.ts  # navigateToDirectory function (combined navigate + load)
 │   ├── refresh-directory.ts      # refreshDirectory function
-│   ├── initialize-device-storage.ts # initializeDeviceStorage function
-│   ├── cleanup-device-storage.ts # cleanupDeviceStorage function
-│   ├── set-current-path.ts       # setCurrentPath function
-│   └── index.ts                  # Method exports
+│   ├── initialize-storage.ts     # initializeStorage function
+│   └── cleanup-storage.ts        # cleanupStorage function
 └── index.ts                      # Public API exports
 ```
 

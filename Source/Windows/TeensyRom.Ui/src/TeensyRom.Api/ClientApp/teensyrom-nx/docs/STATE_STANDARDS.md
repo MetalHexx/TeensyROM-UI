@@ -154,13 +154,21 @@ export * from './delete-item';
 
 ## State Type Definitions
 
-### State Interface
+### State Structure Organization
 
-**Standard**: Define explicit TypeScript interfaces for all state structures
+**Standard**: Define state types, initial state, and store in a single store file
+
+**File Structure**: Everything in `[domain]-store.ts`:
+
+- State type definition
+- Initial state constant
+- Store configuration with methods
+- Helper utilities (if needed)
 
 **Format**:
 
 ```typescript
+// State type definition
 export type ExampleState = {
   // Core data
   items: ItemType[];
@@ -175,42 +183,39 @@ export type ExampleState = {
   // Feature-specific state
   featureSpecificProperty: boolean;
 };
-```
 
-**Reference Implementation**: See [`DeviceState`](../libs/domain/device/state/src/lib/device-store.ts) for a concrete example of state interface definition.
-
-**Requirements**:
-
-- Use descriptive property names
-- Group related properties logically
-- Always include error handling properties
-- Include loading states for async operations
-- Use union types for specific value sets
-
-### Initial State
-
-**Standard**: Define complete initial state with all properties
-
-**Format**:
-
-```typescript
+// Initial state
 const initialState: ExampleState = {
-  // Set appropriate defaults for each property
   items: [],
   isLoading: false,
   hasInitialised: false,
   error: null,
   featureSpecificProperty: false,
 };
+
+// Store definition
+export const ExampleStore = signalStore(
+  { providedIn: 'root' },
+  withDevtools('exampleStoreName'),
+  withState(initialState),
+  withMethods((store, service = inject(ExampleService)) => ({
+    ...methodFunction1(store, service),
+    ...methodFunction2(store, service),
+  }))
+);
 ```
+
+**Reference Implementation**: See [`DeviceStore`](../libs/domain/device/state/src/lib/device-store.ts) for complete implementation.
 
 **Requirements**:
 
-- Provide sensible defaults for all properties
-- Use empty arrays for collections
-- Set loading states appropriately
-- Initialize error as `null`
-- Document any non-obvious initial values
+- **Single File Organization**: State type, initial state, and store in one file
+- **Descriptive Property Names**: Use clear, meaningful property names
+- **Logical Grouping**: Group related properties together in state type
+- **Error Handling**: Always include error handling properties
+- **Loading States**: Include loading states for async operations
+- **Sensible Defaults**: Provide appropriate defaults for all properties
+- **Helper Utilities**: Include any helper utilities (like key generators) in same file if needed
 
 ---
 
@@ -344,6 +349,335 @@ ngOnInit() {
 - Implement proper error propagation for both patterns
 
 **Best Practice**: Use async/await in store functions for simplicity and RxJS patterns when you need reactive capabilities or complex async coordination.
+
+---
+
+## NgRx Signal Store Method Patterns
+
+### Method Signature Standards
+
+**Standard**: Use consistent type signatures for all store methods to avoid TypeScript errors
+
+**Critical Pattern**: Never use `any` types - always use the proper SignalStore intersection type
+
+**Required Type Pattern**:
+
+```typescript
+type SignalStore<T> = {
+  [K in keyof T]: () => T[K];
+};
+
+export function methodName(
+  store: SignalStore<StateType> & WritableStateSource<StateType>,
+  service: ServiceType = inject(ServiceType)
+) {
+  return {
+    methodName: // implementation
+  };
+}
+```
+
+### Method Implementation Patterns
+
+**Reactive Methods (rxMethod)**: Use for async operations with observables
+
+```typescript
+import { patchState, WritableStateSource } from '@ngrx/signals';
+import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { pipe } from 'rxjs';
+import { switchMap, tap, catchError, of } from 'rxjs';
+
+export function loadData(
+  store: SignalStore<ExampleState> & WritableStateSource<ExampleState>,
+  service: ExampleService = inject(ExampleService)
+) {
+  return {
+    loadData: rxMethod<{ id: string }>(
+      pipe(
+        tap(({ id }) => {
+          // Set loading state
+          patchState(store, { isLoading: true, error: null });
+        }),
+        switchMap(({ id }) => {
+          return service.getData(id).pipe(
+            tap((data) => {
+              // Update with success data
+              patchState(store, {
+                data,
+                isLoading: false,
+                error: null,
+                lastLoadTime: Date.now(),
+              });
+            }),
+            catchError((error) => {
+              // Handle errors
+              patchState(store, {
+                isLoading: false,
+                error: error.message || 'Failed to load data',
+              });
+              return of(null);
+            })
+          );
+        })
+      )
+    ),
+  };
+}
+```
+
+**Synchronous Methods**: Use for simple state updates
+
+```typescript
+export function updateItem(store: SignalStore<ExampleState> & WritableStateSource<ExampleState>) {
+  return {
+    updateItem: ({ id, updates }: { id: string; updates: Partial<Item> }) => {
+      patchState(store, (state) => ({
+        items: state.items.map((item) => (item.id === id ? { ...item, ...updates } : item)),
+      }));
+    },
+  };
+}
+```
+
+### Store Configuration Pattern
+
+**Standard**: Remove unused service parameters and only pass services that are actually used
+
+**Correct Store Setup**:
+
+```typescript
+export const ExampleStore = signalStore(
+  { providedIn: 'root' },
+  withDevtools('example'),
+  withState(initialState),
+  withMethods(
+    (store, serviceA: ServiceA = inject(ServiceA), serviceB: ServiceB = inject(ServiceB)) => ({
+      ...methodUsingServiceA(store, serviceA),
+      ...methodUsingServiceB(store, serviceB),
+      ...methodNotUsingServices(store), // No service parameter
+    })
+  )
+);
+```
+
+### Common Anti-Patterns to Avoid
+
+**❌ WRONG - Using `any` types**:
+
+```typescript
+export function badMethod(store: any, service: any) {
+  // This violates coding standards and breaks type safety
+}
+```
+
+**❌ WRONG - Calling other store methods directly**:
+
+```typescript
+export function refreshData(
+  store: SignalStore<State> & WritableStateSource<State> & { loadData: Function }
+) {
+  return {
+    refreshData: () => {
+      store.loadData(); // This breaks the store method pattern
+    },
+  };
+}
+```
+
+**❌ WRONG - Complex type intersections for method calls**:
+
+```typescript
+// Don't try to reference other store methods in type signatures
+store: SignalStore<State> & WritableStateSource<State> & { otherMethod: Function };
+```
+
+**✅ CORRECT - Duplicate logic or use reactive patterns**:
+
+```typescript
+export function refreshData(
+  store: SignalStore<State> & WritableStateSource<State>,
+  service: Service = inject(Service)
+) {
+  return {
+    refreshData: rxMethod<{ id: string }>(
+      pipe(
+        switchMap(({ id }) => {
+          // Directly call service, don't depend on other store methods
+          return service.getData(id).pipe(/* ... */);
+        })
+      )
+    ),
+  };
+}
+```
+
+### Testing Considerations
+
+**Service Injection Pattern**: Use default parameters to enable easy mocking
+
+```typescript
+// In method file
+export function methodName(
+  store: SignalStore<State> & WritableStateSource<State>,
+  service: Service = inject(Service) // Default injection
+) {
+  // Implementation
+}
+
+// In test file
+const mockService = createMockService();
+const method = methodName(mockStore, mockService); // Override for testing
+```
+
+**Reference Implementation**: See [`storage-store.ts`](../libs/domain/storage/state/src/lib/storage-store.ts) and its methods for correct patterns.
+
+---
+
+## Pitfalls
+
+### Common NgRx Signal Store Anti-Patterns
+
+**❌ WRONG - Using `any` types**:
+
+```typescript
+export function badMethod(store: any, service: any) {
+  // This violates coding standards and breaks type safety
+}
+```
+
+**❌ WRONG - Calling other store methods directly**:
+
+```typescript
+export function refreshData(
+  store: SignalStore<State> & WritableStateSource<State> & { loadData: Function }
+) {
+  return {
+    refreshData: () => {
+      store.loadData(); // This breaks the store method pattern
+    },
+  };
+}
+```
+
+**❌ WRONG - Complex type intersections for method calls**:
+
+```typescript
+// Don't try to reference other store methods in type signatures
+store: SignalStore<State> & WritableStateSource<State> & { otherMethod: Function };
+```
+
+### TypeScript Signature Errors
+
+**Problem**: Complex TypeScript errors when store methods try to call other store methods or use incorrect type signatures.
+
+**Error Examples**:
+
+```typescript
+// Signature mismatch errors from complex intersections
+store: SignalStore<State> & WritableStateSource<State> & { loadDirectory: Function };
+```
+
+**Root Cause**: NgRx Signal Store methods should not directly call other store methods. The correct pattern is to duplicate logic or use reactive patterns.
+
+**✅ CORRECT Solution - Duplicate logic or use reactive patterns**:
+
+```typescript
+export function refreshData(
+  store: SignalStore<State> & WritableStateSource<State>,
+  service: Service = inject(Service)
+) {
+  return {
+    refreshData: rxMethod<{ id: string }>(
+      pipe(
+        switchMap(({ id }) => {
+          // Directly call service, don't depend on other store methods
+          return service.getData(id).pipe(
+            tap((data) => {
+              patchState(store, { data, isLoading: false });
+            }),
+            catchError((error) => {
+              patchState(store, { error: error.message, isLoading: false });
+              return of(null);
+            })
+          );
+        })
+      )
+    ),
+  };
+}
+```
+
+### Store Configuration Pitfalls
+
+**❌ WRONG - Passing unused services**:
+
+```typescript
+export const ExampleStore = signalStore(
+  { providedIn: 'root' },
+  withMethods((store, serviceA = inject(ServiceA), serviceB = inject(ServiceB)) => ({
+    ...methodOnlyUsingServiceA(store, serviceA),
+    ...methodNotUsingAnyService(store, serviceB), // Wrong - unused service
+  }))
+);
+```
+
+**✅ CORRECT - Only pass services that are actually used**:
+
+```typescript
+export const ExampleStore = signalStore(
+  { providedIn: 'root' },
+  withMethods((store, serviceA = inject(ServiceA)) => ({
+    ...methodUsingServiceA(store, serviceA),
+    ...methodNotUsingServices(store), // No unused service parameter
+  }))
+);
+```
+
+### Method Implementation Pitfalls
+
+**❌ WRONG - Synchronous method trying to be reactive**:
+
+```typescript
+export function updateData(store: SignalStore<State>, service: Service) {
+  return {
+    updateData: async ({ id, data }) => {
+      // Don't mix async/await with rxMethod patterns
+      const result = await service.update(id, data);
+      patchState(store, { result });
+    },
+  };
+}
+```
+
+**✅ CORRECT - Choose the right pattern for the operation**:
+
+```typescript
+// For simple async operations - use async/await
+export function updateData(store: SignalStore<State>, service: Service) {
+  return {
+    updateData: async ({ id, data }) => {
+      try {
+        const result = await firstValueFrom(service.update(id, data));
+        patchState(store, { result, error: null });
+      } catch (error) {
+        patchState(store, { error: String(error) });
+      }
+    },
+  };
+}
+
+// For reactive streams - use rxMethod
+export function loadDataStream(store: SignalStore<State>, service: Service) {
+  return {
+    loadDataStream: rxMethod<{ id: string }>(
+      pipe(
+        switchMap(({ id }) => service.getDataStream(id)),
+        tap((data) => patchState(store, { data }))
+      )
+    ),
+  };
+}
+```
 
 ---
 

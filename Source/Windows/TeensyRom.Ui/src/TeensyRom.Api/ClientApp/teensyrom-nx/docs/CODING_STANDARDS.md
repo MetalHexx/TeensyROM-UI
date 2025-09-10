@@ -272,6 +272,44 @@ export class ExampleComponent {
 - Define interfaces for complex objects
 - Use generic types for reusable components
 
+### Enums
+
+**Standard**: Use TypeScript `enum` with string values for fixed sets of values
+
+```typescript
+export enum ExampleType {
+  Option1 = 'VALUE_1',
+  Option2 = 'VALUE_2',
+}
+```
+
+**Requirements**:
+
+- Always use string enums with explicit values
+- Use PascalCase for enum names and members
+- Prefer enums over const assertions for consistency
+
+### API Client Mapping
+
+**Standard**: Never import API client types directly - always map to domain enums
+
+**Pattern**: API Client → Domain Services (mapping) → Domain State/Components
+
+```typescript
+// ❌ WRONG - Direct API import
+import { ApiType } from '@teensyrom-nx/data-access/api-client';
+
+// ✅ CORRECT - Domain enum
+import { DomainType } from '@teensyrom-nx/domain/feature/services';
+```
+
+**Requirements**:
+
+- Create domain enums in `domain/[domain]/services/src/lib/*.models.ts`
+- Provide mapping functions in `domain/[domain]/services/src/lib/*.mapper.ts`
+- Use domain enums in state, components, and tests
+- Mock domain enums in tests, not API types
+
 ### Imports
 
 **Standard**: Organize imports in the following order with blank lines between groups

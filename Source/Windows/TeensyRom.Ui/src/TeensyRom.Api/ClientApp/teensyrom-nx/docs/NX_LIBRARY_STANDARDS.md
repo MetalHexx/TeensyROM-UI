@@ -103,9 +103,57 @@ npx nx generate @nrwl/angular:library \
 
 ### Library Configuration
 
-- **Buildable**: Set to `false` for most libraries to optimize build performance
+- **Buildable**: Set to `false` for most libraries to optimize build performance - libraries are consumed as source code
 - **Publishable**: Set to `false` unless library needs to be published to npm
 - **Import Path**: Always use `@teensyrom-nx/` prefix with descriptive path structure
+- **Project Structure**: Domain libraries have minimal `project.json` with only lint target, no build/test targets (handled by consuming applications)
+
+### Project.json Template
+
+```json
+{
+  "name": "[domain]-[type]",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "/libs/domain/[domain]/[type]/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": [],
+  "implicitDependencies": ["[domain]-services"], // For state libraries depending on services
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
+```
+
+### Vite Configuration Template
+
+```typescript
+/// <reference types='vitest' />
+import { defineConfig } from 'vite';
+import angular from '@analogjs/vite-plugin-angular';
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
+
+export default defineConfig(() => ({
+  root: __dirname,
+  cacheDir: '../../../node_modules/.vite/libs/domain/[domain]/[type]',
+  plugins: [angular(), nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
+  test: {
+    watch: false,
+    globals: true,
+    environment: 'jsdom',
+    include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    setupFiles: ['src/test-setup.ts'],
+    reporters: ['default'],
+    coverage: {
+      reportsDirectory: '../../../coverage/libs/domain/[domain]/[type]',
+      provider: 'v8' as const,
+    },
+  },
+}));
+```
 
 ### TSConfig Path Mapping
 
@@ -141,12 +189,23 @@ libs/domain/[domain]/services/src/
 ### Domain State Library Structure
 
 ```
-libs/domain/[domain]/state/src/
-├── lib/
-│   ├── [domain].store.ts           # NgRx Signal Store
-│   ├── [domain].store.spec.ts      # Store unit tests
-│   └── [domain].store.integration.spec.ts  # Store integration tests
-└── index.ts                        # Barrel exports
+libs/domain/[domain]/state/
+├── project.json                    # Nx project configuration
+├── tsconfig.json                   # TypeScript base configuration
+├── tsconfig.lib.json              # Library TypeScript configuration
+├── tsconfig.spec.json             # Test TypeScript configuration
+├── vite.config.mts                # Vite configuration for testing
+└── src/
+    ├── index.ts                   # Barrel exports
+    ├── test-setup.ts              # Test setup configuration
+    └── lib/
+        ├── [domain]-store.ts           # NgRx Signal Store (includes state types, initial state, store)
+        ├── [domain]-store.spec.ts      # Store unit tests
+        ├── [domain]-store.integration.spec.ts  # Store integration tests
+        └── methods/                    # Individual store methods
+            ├── index.ts               # Method exports
+            ├── method-one.ts          # Individual method implementation
+            └── method-two.ts          # Individual method implementation
 ```
 
 ## Barrel Export Standards
