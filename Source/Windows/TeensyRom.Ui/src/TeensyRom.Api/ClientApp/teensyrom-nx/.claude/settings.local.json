@@ -6,7 +6,8 @@
       "Read(//c/dev/src/TeensyROM-UI/Source/WIndows/TeensyRom.Ui/src/TeensyRom.Api/**)",
       "Read(//c/dev/src/TeensyROM-UI/Source/Windows/TeensyRom.Ui/**)",
       "Read(//c/dev/src/TeensyROM-UI/Source/Windows/**)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(npx nx test:*)"
     ],
     "deny": [],
     "ask": []
