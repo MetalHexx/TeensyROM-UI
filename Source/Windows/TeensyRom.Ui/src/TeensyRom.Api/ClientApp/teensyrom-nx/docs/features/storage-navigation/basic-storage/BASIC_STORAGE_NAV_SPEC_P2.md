@@ -128,22 +128,7 @@ src/lib/methods/
 └── index.ts                  # Method exports
 ```
 
-### Step 5: Device Integration Methods
-
-**Purpose**: Handle cross-store coordination with STATE_STANDARD
-
-**TDD Approach**: Write integration tests first that verify cross-store interactions and device availability coordination before implementing integration logic.
-
-**Focus**: Storage availability validation and device lifecycle management
-
-**Key Requirements**:
-
-- Integrate with existing STATE_STANDARD for storage availability
-- Validate storage availability before operations
-- Handle device connection/disconnection events
-- Clean up state for unavailable storage
-
-### Step 6: Method Organization and Barrel Exports
+### Step 5: Method Organization and Barrel Exports
 
 **Purpose**: Follow STATE_STANDARD method organization pattern
 
@@ -157,7 +142,7 @@ src/lib/methods/
 - Follow existing domain library patterns
 - Enable clean imports: `import { StorageStore } from '@teensyrom-nx/domain/storage/state'`
 
-### Step 7: Application Integration
+### Step 6: Application Integration
 
 **Purpose**: Wire up storage state library following integration standards
 
@@ -170,6 +155,8 @@ src/lib/methods/
 1. **Store Registration**: Verify `StorageStore` uses `providedIn: 'root'` for automatic dependency injection
 2. **Import Path Testing**: Test imports in components: `import { StorageStore } from '@teensyrom-nx/domain/storage/state'`
 3. **Build Verification**: Ensure app builds successfully with library integration
+
+**Note**: Cross-store coordination (device-storage integration) will be handled at the component level in Phase 3, as documented in the PlayerViewComponent integration approach.
 
 ## Testing Requirements
 
@@ -189,41 +176,26 @@ src/lib/methods/
 - **Cross-Method Integration**: Test realistic workflows involving multiple methods
 - **Error Handling**: Invalid device IDs, unavailable storage types, network failures
 
-### Integration Tests
-
-**Files to Create**:
-
-- `storage-store.integration.spec.ts` - Cross-store and service integration tests
-
-**Storage-Specific Integration Testing Focus**:
-
-- **Cross-Store Integration**: Methods coordinating with STATE_STANDARD for storage availability
-- **Service Integration**: Each method's interaction with StorageService from Phase 1
-- **Availability Handling**: Methods responding correctly to device/storage availability changes
-- **State Persistence**: Navigation state maintained across view changes
-- **Multi-Device Scenarios**: Independent navigation state per device-storage combination
-
 ## Success Criteria
 
 ### Functional Requirements
 
 - [ ] `StorageStore` manages flat state with `${deviceId}-${storageType}` keys
 - [ ] Individual functions follow STATE_STANDARD one-function-per-file pattern
-- [ ] Cross-store integration with STATE_STANDARD for availability validation
 - [ ] All TypeScript compilation passes without errors
 
 ### Code Quality Requirements
 
 - [ ] Follows established STATE_STANDARD patterns and file organization
-- [ ] Includes comprehensive unit and integration tests written using TDD approach
-- [ ] Proper error handling for storage availability and API failures
+- [ ] Includes comprehensive unit tests written using TDD approach
+- [ ] Proper error handling for API failures and edge cases
 - [ ] Clean separation between state management and business logic
 
 ### Integration Requirements
 
 - [ ] Store can be imported and injected in other libraries
 - [ ] Compatible with existing STATE_STANDARD patterns
-- [ ] Ready for Phase 3 component integration
+- [ ] Ready for Phase 3 component integration where device-storage coordination will occur
 - [ ] Performance optimized for flat state operations
 
 ## File Structure

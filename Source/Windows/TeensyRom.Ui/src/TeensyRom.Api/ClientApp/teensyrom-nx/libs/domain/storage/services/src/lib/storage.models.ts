@@ -39,6 +39,11 @@ export enum FileItemType {
   Hex = 'Hex',
 }
 
+export enum StorageType {
+  Sd = 'SD',
+  Usb = 'USB',
+}
+
 export interface StorageDirectory {
   directories: DirectoryItem[];
   files: FileItem[];

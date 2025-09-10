@@ -4,6 +4,7 @@ import {
   FileItemDto,
   ViewableItemImageDto,
   FileItemType as ApiFileItemType,
+  TeensyStorageType as ApiStorageType,
 } from '@teensyrom-nx/data-access/api-client';
 import {
   StorageDirectory,
@@ -11,6 +12,7 @@ import {
   FileItem,
   ViewableItemImage,
   FileItemType,
+  StorageType,
 } from './storage.models';
 
 export class StorageMapper {
@@ -90,6 +92,34 @@ export class StorageMapper {
       case ApiFileItemType.Unknown:
       default:
         return FileItemType.Unknown;
+    }
+  }
+
+  /**
+   * Convert domain StorageType to API TeensyStorageType
+   */
+  static toApiStorageType(domainType: StorageType): ApiStorageType {
+    switch (domainType) {
+      case StorageType.Sd:
+        return ApiStorageType.Sd;
+      case StorageType.Usb:
+        return ApiStorageType.Usb;
+      default:
+        throw new Error(`Unknown storage type: ${domainType}`);
+    }
+  }
+
+  /**
+   * Convert API TeensyStorageType to domain StorageType
+   */
+  static toDomainStorageType(apiType: ApiStorageType): StorageType {
+    switch (apiType) {
+      case ApiStorageType.Sd:
+        return StorageType.Sd;
+      case ApiStorageType.Usb:
+        return StorageType.Usb;
+      default:
+        throw new Error(`Unknown API storage type: ${apiType}`);
     }
   }
 }

@@ -1,10 +1,6 @@
 import { Injectable } from '@angular/core';
-import {
-  FilesApiService,
-  GetDirectoryResponse,
-  TeensyStorageType,
-} from '@teensyrom-nx/data-access/api-client';
-import { StorageDirectory } from './storage.models';
+import { FilesApiService, GetDirectoryResponse } from '@teensyrom-nx/data-access/api-client';
+import { StorageDirectory, StorageType } from './storage.models';
 import { StorageMapper } from './storage.mapper';
 import { Observable, map, catchError, throwError } from 'rxjs';
 
@@ -16,10 +12,11 @@ export class StorageService {
 
   getDirectory(
     deviceId: string,
-    storageType: TeensyStorageType,
+    storageType: StorageType,
     path?: string
   ): Observable<StorageDirectory> {
-    return this.apiService.getDirectory(deviceId, storageType, path).pipe(
+    const apiStorageType = StorageMapper.toApiStorageType(storageType);
+    return this.apiService.getDirectory(deviceId, apiStorageType, path).pipe(
       map((response: GetDirectoryResponse) => {
         if (!response.storageItem) {
           throw new Error('Invalid response: storageItem is missing');

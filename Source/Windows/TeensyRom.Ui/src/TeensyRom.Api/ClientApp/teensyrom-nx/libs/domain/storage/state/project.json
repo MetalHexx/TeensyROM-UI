@@ -1,0 +1,14 @@
+{
+  "name": "storage-state",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "/libs/domain/storage/state/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": [],
+  "implicitDependencies": ["storage-services"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
