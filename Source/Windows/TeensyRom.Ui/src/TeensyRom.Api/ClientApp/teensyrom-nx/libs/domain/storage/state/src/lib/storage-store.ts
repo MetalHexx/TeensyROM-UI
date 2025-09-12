@@ -20,13 +20,21 @@ export interface StorageDirectoryState {
   lastLoadTime: number | null;
 }
 
+export interface SelectedDirectory {
+  deviceId: string;
+  storageType: StorageType;
+  path: string;
+}
+
 export interface StorageState {
   storageEntries: Record<string, StorageDirectoryState>; // key: "${deviceId}-${storageType}"
+  selectedDirectory: SelectedDirectory | null; // Global selection state
 }
 
 // Initial state
 const initialState: StorageState = {
   storageEntries: {},
+  selectedDirectory: null,
 };
 
 // Store definition

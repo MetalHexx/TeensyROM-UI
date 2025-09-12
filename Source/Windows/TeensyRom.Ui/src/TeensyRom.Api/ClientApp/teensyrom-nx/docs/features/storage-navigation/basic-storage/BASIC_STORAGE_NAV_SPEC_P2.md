@@ -153,6 +153,55 @@ src/lib/methods/
 
 **Note**: Cross-store coordination (device-storage integration) will be handled at the component level in Phase 3, as documented in the PlayerViewComponent integration approach.
 
+### Step 7: Global Selection State (Missed step)
+
+**Purpose**: Implement global directory selection state to ensure only one directory can be selected across all devices and storage types while maintaining local navigation state per device-storage combination
+
+**TDD Approach**: Update unit tests.
+
+**Architecture Requirement**: Based on BASIC_STORAGE_NAV_PLAN.md specification that "only one directory can be selected across all storage devices" despite showing all directories in the tree structure.
+
+**Dual-State Design**:
+
+```typescript
+interface StorageState {
+  storageEntries: Record<string, StorageDirectoryState>; // key: "${deviceId}-${storageType}"
+  selectedDirectory: {
+    deviceId: string;
+    storageType: StorageType;
+    path: string;
+  } | null; // Global selection state for UI highlighting
+}
+
+interface StorageDirectoryState {
+  deviceId: string;
+  storageType: StorageType;
+  currentPath: string; // Local navigation state per device-storage
+  directory: StorageDirectory | null;
+  isLoaded: boolean;
+  isLoading: boolean;
+  error: string | null;
+  lastLoadTime: number | null;
+}
+```
+
+**Business Logic**:
+
+- **Local Navigation**: Each device-storage maintains its own `currentPath` for what directory it's showing
+- **Global Selection**: Only one directory across all devices can be "selected" (highlighted in UI tree)
+- **Navigation Integration**: `navigateToDirectory` method handles both concerns:
+  - Updates local `currentPath` for the specific device-storage combination
+  - Updates global `selectedDirectory` state (clearing any previous selection)
+  - Loads directory contents with smart caching (avoids API calls if already loaded)
+- **No Separate Methods**: Selection is integrated with navigation - no separate `selectDirectory` or `clearSelection` methods needed
+
+**Key Requirements**:
+
+- Dual-state model separates navigation concerns from UI selection concerns
+- Global selection automatically updates when navigating to any directory
+- Local navigation state preserved per device-storage for independent directory browsing
+- Smart caching prevents redundant API calls for already-loaded directories
+
 ## Testing Requirements
 
 ### Unit Tests
@@ -169,6 +218,8 @@ src/lib/methods/
 - **Individual Method Behavior**: Each method tested in isolation with proper mocking
 - **State Consistency**: Verify methods maintain consistent flat state structure
 - **Cross-Method Integration**: Test realistic workflows involving multiple methods
+- **Global Selection Logic**: Test single selection across all device-storage combinations
+- **Selection State Changes**: Verify previous selections are cleared when new selection is made
 - **Error Handling**: Invalid device IDs, unavailable storage types, network failures
 
 ## Success Criteria
@@ -178,6 +229,8 @@ src/lib/methods/
 - [x] `StorageStore` manages flat state with `${deviceId}-${storageType}` keys
 - [x] Individual functions follow STATE_STANDARD one-function-per-file pattern
 - [x] All TypeScript compilation passes without errors
+- [x] Dual-state model with local navigation and global selection implemented
+- [x] navigateToDirectory method integrates selection with navigation and smart caching
 
 ### Code Quality Requirements
 
@@ -200,7 +253,7 @@ libs/domain/storage/state/src/lib/
 ├── storage-store.ts              # Main store (like device-store.ts)
 ├── storage-key.util.ts           # Storage key utility functions
 ├── methods/
-│   ├── navigate-to-directory.ts  # navigateToDirectory function (combined navigate + load)
+│   ├── navigate-to-directory.ts  # navigateToDirectory function (combined navigate + load + selection)
 │   ├── refresh-directory.ts      # refreshDirectory function
 │   ├── initialize-storage.ts     # initializeStorage function
 │   └── cleanup-storage.ts        # cleanupStorage function
