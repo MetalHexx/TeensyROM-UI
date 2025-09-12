@@ -10,7 +10,7 @@
 
 ## Objective
 
-Integrate storage state with existing player components for hierarchical directory browsing UI with storage type selection.
+Integrate storage state with existing player components. Phase 3 focuses first on verifying state functionality by emitting a JSON string representation of storage state into the view for quick testing and verification. Tree navigation UI will be implemented in Step 2. Step 3 is TBD.
 
 ## Prerequisites
 
@@ -20,93 +20,89 @@ Integrate storage state with existing player components for hierarchical directo
 
 ## Implementation Steps
 
-### Step 1: Component-Level Store Integration
+### Step 1: JSON Output for State Verification (Primary)
 
-**Purpose**: Integrate StorageStore with existing component hierarchy following established data flow patterns
+**Purpose**: Verify StorageStore state functionality in the UI by outputting a JSON string of relevant storage data to the view. This enables fast testing and validation of store initialization, updates, and lifecycle handling without building the directory tree UI.
 
-**Architectural Decision**: Based on analysis of existing PlayerViewComponent architecture, use component-level coordination instead of service facades to maintain consistency with current patterns.
+**Approach**:
 
-**Current Component Hierarchy**:
-```
-PlayerViewComponent (injects DeviceStore, filters connectedDevices)
-└── PlayerDeviceContainerComponent (receives device input)
-    └── StorageContainerComponent (handles storage operations)
-        ├── DirectoryTreeComponent
-        ├── DirectoryFilesComponent  
-        └── SearchToolbarComponent
-```
+- Keep component responsibilities minimal: inject StorageStore, initialize/cleanup storage, and expose a read-only JSON string of current storage entries and selected device/storage state.
+- Use Angular signals (or an RxJS-to-signal adapter) to compute a JSON string derived from the store for binding to a <pre> or similar element in the template.
+- Do not implement tree navigation or file lists in this step — those move to Step 2.
 
-**Integration Approach**:
+**Tasks**:
 
-1. **PlayerViewComponent Updates**:
-   - Add `StorageStore` injection alongside existing `DeviceStore`
-   - Initialize storage state for connected devices using `initializeDeviceStorage`
-   - Clean up storage state when devices disconnect using `cleanupDeviceStorage`
+1. PlayerViewComponent
 
-2. **StorageContainerComponent Updates**:
-   - Add `device` input to receive device context from parent
-   - Inject `StorageStore` for storage operations  
-   - Implement component-level coordination logic:
-     - Validate storage availability using device context before operations
-     - Handle `loadDirectory`, `navigateToDirectory`, and `refreshDirectory` calls
-     - Pass storage state and methods to child components
+   - Inject `StorageStore` alongside existing `DeviceStore`.
+   - Initialize storage entries for connected devices using existing initialize method(s).
+   - Clean up storage state when devices disconnect.
+   - Pass devices to PlayerDeviceContainerComponents.
 
-3. **Child Component Integration**:
-   - **DirectoryTreeComponent**: Receive storage navigation state and emit navigation events
-   - **DirectoryFilesComponent**: Display current directory contents from storage state
-   - **SearchToolbarComponent**: Coordinate with storage operations as needed
+2. PlayerDeviceContainerComponent
 
-**Key Implementation Requirements**:
+   - Pass device Storage data into StorageContainerComponents
 
-- Follow existing input/output patterns used throughout player components
-- Maintain clean separation: DeviceStore for device data, StorageStore for navigation state
-- Handle storage availability validation at StorageContainerComponent level
-- Use Angular signals for reactive data flow
-- Preserve existing component responsibilities and boundaries
+3. StorageContainerComponent
+
+   - Add `@Input() device` to receive device context from parent.
+   - Inject `StorageStore`.
+   - Listen for
+   - Validate storage availability before exposing data.
+
+4. Child components
+   - directory-tree.component.ts
+     - Display a list of buttons representing the directories in the currentDirectory
+     - call state to navigate to the directory when clicked.
+     - include a back button to go back up to the parent directory
+   - directory-files.component.ts
+     - Display JSON representation of of
 
 **Deliverables**:
 
-- Updated `PlayerViewComponent` with storage state lifecycle management
-- Enhanced `StorageContainerComponent` with device context and storage coordination
-- Modified child components to work with storage state
-- Component integration tests verifying cross-store coordination
+- PlayerViewComponent updated to initialize/cleanup storage and expose `storageJson`.
+- StorageContainerComponent updated with device input and `deviceStorageJson`.
+- Simple template additions to render JSON (e.g., <pre>{{ storageJson }}</pre> and <pre>{{ deviceStorageJson }}</pre>).
+- Component tests verifying JSON output reflects store state changes (initialization, navigation method calls, refresh, cleanup).
 
 **File Changes**:
 
 ```
 libs/features/player/src/lib/player-view/
-├── player-view.component.ts                    # Add StorageStore injection and lifecycle
+├── player-view.component.ts                    # Add StorageStore injection, lifecycle, storageJson signal
 └── player-device-container/
-    └── storage-container/
-        ├── storage-container.component.ts      # Add device input and storage coordination
-        ├── directory-tree/
-        │   └── directory-tree.component.ts     # Integrate with storage navigation state
-        └── directory-files/
-            └── directory-files.component.ts    # Display storage directory contents
+     └── storage-container/
+          ├── storage-container.component.ts      # Add device input, StorageStore injection, deviceStorageJson
+          ├── directory-tree/
+          │   └── directory-tree.component.ts     # No changes in Step 1
+          └── directory-files/
+                └── directory-files.component.ts    # No changes in Step 1
 ```
 
-### Future Steps
+**Testing Notes**:
 
-_Steps 2-7 will be defined in subsequent planning sessions based on Step 1 implementation results_
+- Unit tests should assert that `storageJson` contains expected keys and values after store initialization and after calling core methods (navigate/refresh).
+- Integration tests may mount PlayerViewComponent to ensure JSON output appears and updates in the DOM.
 
-## Testing Requirements
+### Step 2: Tree Navigation UI (moved)
 
-_To be defined_
+- Implement hierarchical directory tree, files listing, and interactive navigation using the verified StorageStore API.
+- Tasks from previous Step 1 (original plan) that built the tree are now part of this step.
+- Will include hooking up DirectoryTreeComponent, DirectoryFilesComponent, and SearchToolbarComponent to StorageStore methods (navigateToDirectory, refreshDirectory, etc.).
 
-## Success Criteria
+### Step 3: TBD
 
-_To be defined_
+- Details will be defined after Step 1 validation and Step 2 planning results.
 
-## File Structure
+## Success Criteria (for Phase 3 Step 1)
 
-_To be defined_
-
-## Dependencies
-
-_To be defined_
+- JSON representation of storage state renders in PlayerView and StorageContainer views.
+- JSON updates in response to store actions (initialize, navigate, refresh, cleanup).
+- Tests assert correctness of serialized data and basic lifecycle behavior.
+- Ready to proceed to Step 2 tree navigation once verification passes.
 
 ## Notes
 
-- This phase integrates storage state with UI components
-- Implements hierarchical directory tree with device → storage → directory structure
-- Creates foundation for Phase 4 internal storage planning
+- This phased approach reduces UI complexity while enabling rapid verification of state logic.
+- Keep UI bindings read-only for Step 1 to avoid coupling input handling with unverified navigation logic.
+- After Step 1 validation, proceed to implement interactive navigation and richer UI in Step 2.
