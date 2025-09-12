@@ -710,6 +710,103 @@ export function loadDataStream(store: SignalStore<State>, service: Service) {
 - Test error conditions and success paths for each function
 - Verify state updates are immutable and consistent
 
+## Store Testing Requirements
+
+### What NOT to Test
+
+**❌ Avoid Testing Object Mutations**: Do not write tests that simply create state objects and assert properties were set correctly. These tests provide no value and just test JavaScript object assignment.
+
+```typescript
+// ❌ BAD - Just testing object creation
+it('should create state with selected directory', () => {
+  const state = { selectedDirectory: { deviceId: 'test' } };
+  expect(state.selectedDirectory.deviceId).toBe('test'); // Useless test
+});
+```
+
+### What TO Test
+
+**✅ Test Actual Business Logic**: Test the store methods with mocked dependencies to verify real functionality.
+
+**Method Testing Strategy**:
+
+1. **Test Individual Methods**: Test each method function in isolation with proper service mocks
+2. **Mock Service Dependencies**: Use vitest mocks for service dependencies like `StorageService`
+3. **Verify State Transitions**: Test that methods properly update state through `patchState` calls
+4. **Test Error Handling**: Verify error scenarios with mocked service failures
+5. **Test Smart Logic**: Verify caching, conditional API calls, and business rules
+
+**Example - Good Method Testing**:
+
+```typescript
+// ✅ GOOD - Testing actual business logic
+describe('navigateToDirectory method', () => {
+  let mockStore: any;
+  let mockStorageService: any;
+
+  beforeEach(() => {
+    mockStorageService = { getDirectory: vi.fn() };
+    mockStore = createMockStore();
+  });
+
+  it('should update global selection and load directory', () => {
+    mockStorageService.getDirectory.mockReturnValue(of(mockDirectory));
+
+    const method = navigateToDirectory(mockStore, mockStorageService);
+    method.navigateToDirectory({ deviceId: 'test', storageType: 'SD', path: '/games' });
+
+    // Verify service was called with correct params
+    expect(mockStorageService.getDirectory).toHaveBeenCalledWith('test', 'SD', '/games');
+
+    // Verify global selection was updated
+    expect(mockStore.selectedDirectory()).toEqual({
+      deviceId: 'test',
+      storageType: 'SD',
+      path: '/games',
+    });
+  });
+
+  it('should skip API call when directory already loaded (smart caching)', () => {
+    // Setup pre-loaded state
+    mockStore.setStorageEntry('test-SD', {
+      currentPath: '/games',
+      isLoaded: true,
+      directory: mockDirectory,
+    });
+
+    const method = navigateToDirectory(mockStore, mockStorageService);
+    method.navigateToDirectory({ deviceId: 'test', storageType: 'SD', path: '/games' });
+
+    // Verify API was NOT called due to smart caching
+    expect(mockStorageService.getDirectory).not.toHaveBeenCalled();
+  });
+});
+```
+
+**State Interface Testing** (Minimal):
+
+Only include basic interface tests to verify TypeScript typing works correctly, not business logic:
+
+```typescript
+// ✅ ACCEPTABLE - Minimal interface verification
+describe('StorageState Interface', () => {
+  it('should support selectedDirectory field', () => {
+    const state: StorageState = {
+      storageEntries: {},
+      selectedDirectory: { deviceId: 'test', storageType: 'SD', path: '/games' },
+    };
+
+    expect(state.selectedDirectory).toBeDefined();
+  });
+});
+```
+
+**Testing Architecture**:
+
+- **Store File Tests**: Minimal interface/typing verification only
+- **Method File Tests**: Comprehensive business logic testing with mocks
+- **Integration Tests**: Test method interactions and cross-store behavior
+
 ---
 
 ## Related Documentation
