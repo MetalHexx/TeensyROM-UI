@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { signal, Signal, WritableSignal, computed } from '@angular/core';
 import { DevicesApiService } from '@teensyrom-nx/data-access/api-client';
+import { from } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
 
 interface LogDto {
@@ -18,7 +19,7 @@ export class DeviceLogsService {
   readonly logs: Signal<string[]> = computed(() => this._logLines());
 
   connect() {
-    this.deviceService.startLogs().subscribe();
+    from(this.deviceService.startLogs()).subscribe();
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl('http://localhost:5168/logHub')
       .withAutomaticReconnect()
@@ -41,7 +42,7 @@ export class DeviceLogsService {
   }
 
   disconnect() {
-    this.deviceService.stopLogs().subscribe();
+    from(this.deviceService.stopLogs()).subscribe();
     this.hubConnection?.stop();
     this.hubConnection = null;
     this._isConnected.set(false);

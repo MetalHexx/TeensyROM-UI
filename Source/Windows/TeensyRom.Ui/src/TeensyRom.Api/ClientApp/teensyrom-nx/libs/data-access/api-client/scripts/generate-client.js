@@ -9,10 +9,8 @@ const __dirname = dirname(__filename);
 const config = {
   openApiUrl: join(__dirname, '../../../../../../api-spec/TeensyRom.Api.json'),
   outputDir: join(__dirname, '../src/lib'),
-  generator: 'typescript-angular',
+  generator: 'typescript-fetch',
   additionalProps: {
-    ngVersion: '19',
-    providedIn: 'any',
     withSeparateModelsAndApi: true,
   },
 };
@@ -65,21 +63,21 @@ function generateOpenApiClient(openApiUrl, outputDir, generator, additionalProps
 }
 
 function renameApiServiceClasses(outputDir) {
-  console.log('Renaming API service classes from *Service to *ApiService...');
-  const apiDir = join(outputDir, 'api');
-  const files = readdirSync(apiDir);
+  console.log('Renaming API classes from *Api to *ApiService...');
+  const apisDir = join(outputDir, 'apis');
+  const files = readdirSync(apisDir);
 
   for (const file of files) {
-    if (!file.endsWith('.service.ts')) continue;
+    if (!file.endsWith('Api.ts') || file === 'index.ts') continue;
 
-    const fullPath = join(apiDir, file);
+    const fullPath = join(apisDir, file);
     const content = readFileSync(fullPath, 'utf8');
-    const match = content.match(/export class (\w+Service)\b/);
+    const match = content.match(/export class (\w+Api)\b/);
 
     if (!match) continue;
 
     const originalClassName = match[1];
-    const newClassName = originalClassName.replace(/Service$/, 'ApiService');
+    const newClassName = originalClassName.replace(/Api$/, 'ApiService');
     const updatedContent = content.replace(
       new RegExp(`\\b${originalClassName}\\b`, 'g'),
       newClassName
@@ -87,33 +85,34 @@ function renameApiServiceClasses(outputDir) {
 
     writeFileSync(fullPath, updatedContent, 'utf8');
 
-    const newFilename = file.replace('.service.ts', '.api.service.ts');
-    renameSync(fullPath, join(apiDir, newFilename));
+    const newFilename = file.replace('Api.ts', 'ApiService.ts');
+    renameSync(fullPath, join(apisDir, newFilename));
   }
 
   console.log('Renaming complete!');
 }
 
 function patchApiBarrelFile(outputDir) {
-  console.log('Patching api.ts to use renamed *ApiService files and class names...');
-  const apiDir = join(outputDir, 'api');
-  const apiTsPath = join(apiDir, 'api.ts');
+  console.log('Patching apis/index.ts to use renamed *ApiService files and class names...');
+  const apisDir = join(outputDir, 'apis');
+  const indexTsPath = join(apisDir, 'index.ts');
 
-  if (!apiTsPath || !apiTsPath.endsWith('api.ts')) {
-    console.warn('api.ts path not valid or missing.');
+  if (!indexTsPath || !indexTsPath.endsWith('index.ts')) {
+    console.warn('apis/index.ts path not valid or missing.');
     return;
   }
 
-  let content = readFileSync(apiTsPath, 'utf8');
+  let content = readFileSync(indexTsPath, 'utf8');
 
-  // Replace import/export paths
-  content = content.replace(/\.\/(\w+)\.service/g, './$1.api.service');
+  // Replace import/export paths: ./DevicesApi -> ./DevicesApiService
+  content = content.replace(/\.\/(\w+)Api'/g, "./$1ApiService'");
+  content = content.replace(/\.\/(\w+)Api"/g, './$1ApiService"');
 
-  // Replace class references in APIS array
-  content = content.replace(/(\w+)Service/g, '$1ApiService');
+  // Replace class references: DevicesApi -> DevicesApiService
+  content = content.replace(/(\w+)Api(\s|$|,|;)/g, '$1ApiService$2');
 
-  writeFileSync(apiTsPath, content, 'utf8');
-  console.log('api.ts updated successfully!');
+  writeFileSync(indexTsPath, content, 'utf8');
+  console.log('apis/index.ts updated successfully!');
 }
 
 main();

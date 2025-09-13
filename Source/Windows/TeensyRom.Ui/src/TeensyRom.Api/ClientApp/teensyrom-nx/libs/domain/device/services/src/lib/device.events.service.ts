@@ -1,5 +1,6 @@
 import { Injectable, computed, signal, WritableSignal, Signal, inject } from '@angular/core';
 import { DevicesApiService, DeviceState } from '@teensyrom-nx/data-access/api-client';
+import { from } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
 
 export type DeviceEvent = {
@@ -15,7 +16,7 @@ export class DeviceEventsService {
   readonly allEvents: Signal<Map<string, DeviceState>> = computed(() => this._deviceEventMap());
 
   connect() {
-    this.deviceService.startDeviceEvents().subscribe();
+    from(this.deviceService.startDeviceEvents()).subscribe();
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl('http://localhost:5168/deviceEventHub')
       .withAutomaticReconnect()
@@ -40,7 +41,7 @@ export class DeviceEventsService {
   }
 
   disconnect() {
-    this.deviceService.stopDeviceEvents().subscribe();
+    from(this.deviceService.stopDeviceEvents()).subscribe();
     this.hubConnection?.stop();
     this.hubConnection = null;
   }

@@ -9,7 +9,7 @@ import {
 } from '@teensyrom-nx/data-access/api-client';
 import { Device } from './device.models';
 import { DeviceMapper } from './device.mapper';
-import { Observable, map } from 'rxjs';
+import { Observable, map, from } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -18,38 +18,34 @@ export class DeviceService {
   constructor(private readonly apiService: DevicesApiService) {}
 
   findDevices(autoConnectNew: boolean): Observable<Device[]> {
-    return this.apiService
-      .findDevices(autoConnectNew)
-      .pipe(map((response: FindDevicesResponse) => DeviceMapper.toDeviceList(response.devices)));
+    return from(this.apiService.findDevices({ autoConnectNew })).pipe(
+      map((response: FindDevicesResponse) => DeviceMapper.toDeviceList(response.devices))
+    );
   }
 
   getConnectedDevices(): Observable<Device[]> {
-    return this.apiService
-      .findDevices()
-      .pipe(
-        map((response: FindDevicesResponse) =>
-          DeviceMapper.toDeviceList(response.devices.filter((d) => d.isConnected) || [])
-        )
-      );
+    return from(this.apiService.findDevices()).pipe(
+      map((response: FindDevicesResponse) =>
+        DeviceMapper.toDeviceList(response.devices.filter((d) => d.isConnected) || [])
+      )
+    );
   }
 
   connectDevice(deviceId: string): Observable<Device> {
-    return this.apiService
-      .connectDevice(deviceId)
-      .pipe(
-        map((response: ConnectDeviceResponse) => DeviceMapper.toDevice(response.connectedCart))
-      );
+    return from(this.apiService.connectDevice({ deviceId })).pipe(
+      map((response: ConnectDeviceResponse) => DeviceMapper.toDevice(response.connectedCart))
+    );
   }
 
   disconnectDevice(deviceId: string): Observable<DisconnectDeviceResponse> {
-    return this.apiService.disconnectDevice(deviceId);
+    return from(this.apiService.disconnectDevice({ deviceId }));
   }
 
   resetDevice(deviceId: string): Observable<ResetDeviceResponse> {
-    return this.apiService.resetDevice(deviceId);
+    return from(this.apiService.resetDevice({ deviceId }));
   }
 
   pingDevice(deviceId: string): Observable<PingDeviceResponse> {
-    return this.apiService.pingDevice(deviceId);
+    return from(this.apiService.pingDevice({ deviceId }));
   }
 }

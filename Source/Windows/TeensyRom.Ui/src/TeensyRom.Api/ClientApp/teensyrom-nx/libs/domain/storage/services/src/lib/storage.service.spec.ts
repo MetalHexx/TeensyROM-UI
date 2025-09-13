@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
 import {
   FilesApiService,
   GetDirectoryResponse,
@@ -9,7 +8,7 @@ import {
   FileItemType as ApiFileItemType,
 } from '@teensyrom-nx/data-access/api-client';
 import { StorageService } from './storage.service';
-import { FileItemType, StorageDirectory } from './storage.models';
+import { FileItemType, StorageDirectory, StorageType } from './storage.models';
 
 describe('StorageService', () => {
   let service: StorageService;
@@ -33,7 +32,7 @@ describe('StorageService', () => {
     it('should return transformed StorageDirectory when API call succeeds', async () => {
       // Arrange
       const deviceId = 'test-device';
-      const storageType = TeensyStorageType.Sd;
+      const storageType = StorageType.Sd;
       const path = '/games';
 
       const mockResponse: GetDirectoryResponse = {
@@ -70,7 +69,7 @@ describe('StorageService', () => {
         message: 'Success',
       };
 
-      mockFilesApiService.getDirectory.mockReturnValue(of(mockResponse));
+      mockFilesApiService.getDirectory.mockResolvedValue(mockResponse);
 
       // Act
       const result = await new Promise<StorageDirectory>((resolve, reject) => {
@@ -81,7 +80,11 @@ describe('StorageService', () => {
       });
 
       // Assert
-      expect(mockFilesApiService.getDirectory).toHaveBeenCalledWith(deviceId, storageType, path);
+      expect(mockFilesApiService.getDirectory).toHaveBeenCalledWith({
+        deviceId,
+        storageType,
+        path,
+      });
       expect(result).toBeDefined();
       expect(result.path).toBe('/games');
       expect(result.directories).toHaveLength(2);
@@ -94,7 +97,7 @@ describe('StorageService', () => {
     it('should handle API call without path parameter', async () => {
       // Arrange
       const deviceId = 'test-device';
-      const storageType = TeensyStorageType.Usb;
+      const storageType = StorageType.Usb;
 
       const mockResponse: GetDirectoryResponse = {
         storageItem: {
@@ -105,7 +108,7 @@ describe('StorageService', () => {
         message: 'Success',
       };
 
-      mockFilesApiService.getDirectory.mockReturnValue(of(mockResponse));
+      mockFilesApiService.getDirectory.mockResolvedValue(mockResponse);
 
       // Act
       const result = await new Promise<StorageDirectory>((resolve, reject) => {
@@ -116,11 +119,11 @@ describe('StorageService', () => {
       });
 
       // Assert
-      expect(mockFilesApiService.getDirectory).toHaveBeenCalledWith(
+      expect(mockFilesApiService.getDirectory).toHaveBeenCalledWith({
         deviceId,
         storageType,
-        undefined
-      );
+        path: undefined,
+      });
       expect(result).toBeDefined();
       expect(result.path).toBe('/');
     });
@@ -128,13 +131,13 @@ describe('StorageService', () => {
     it('should throw error when response storageItem is missing', async () => {
       // Arrange
       const deviceId = 'test-device';
-      const storageType = TeensyStorageType.Sd;
+      const storageType = StorageType.Sd;
       const mockResponse: GetDirectoryResponse = {
-        storageItem: null as any,
+        storageItem: null as unknown as StorageCacheDto,
         message: 'Error',
       };
 
-      mockFilesApiService.getDirectory.mockReturnValue(of(mockResponse));
+      mockFilesApiService.getDirectory.mockResolvedValue(mockResponse);
 
       // Act & Assert
       await expect(
@@ -150,13 +153,13 @@ describe('StorageService', () => {
     it('should handle API errors gracefully', async () => {
       // Arrange
       const deviceId = 'test-device';
-      const storageType = TeensyStorageType.Sd;
+      const storageType = StorageType.Sd;
       const errorMessage = 'Network error';
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
         // Suppress console.error during test
       });
 
-      mockFilesApiService.getDirectory.mockReturnValue(throwError(() => new Error(errorMessage)));
+      mockFilesApiService.getDirectory.mockRejectedValue(new Error(errorMessage));
 
       // Act & Assert
       await expect(
@@ -180,7 +183,7 @@ describe('StorageService', () => {
     it('should pass correct parameters to API service', async () => {
       // Arrange
       const deviceId = 'device-123';
-      const storageType = TeensyStorageType.Usb;
+      const storageType = StorageType.Usb;
       const path = '/music/classical';
 
       const mockResponse: GetDirectoryResponse = {
@@ -192,7 +195,7 @@ describe('StorageService', () => {
         message: 'Success',
       };
 
-      mockFilesApiService.getDirectory.mockReturnValue(of(mockResponse));
+      mockFilesApiService.getDirectory.mockResolvedValue(mockResponse);
 
       // Act
       await new Promise((resolve, reject) => {
@@ -204,7 +207,11 @@ describe('StorageService', () => {
 
       // Assert
       expect(mockFilesApiService.getDirectory).toHaveBeenCalledTimes(1);
-      expect(mockFilesApiService.getDirectory).toHaveBeenCalledWith(deviceId, storageType, path);
+      expect(mockFilesApiService.getDirectory).toHaveBeenCalledWith({
+        deviceId,
+        storageType,
+        path,
+      });
     });
   });
 });

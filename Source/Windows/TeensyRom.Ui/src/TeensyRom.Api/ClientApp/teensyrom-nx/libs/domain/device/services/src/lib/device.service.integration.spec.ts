@@ -1,18 +1,19 @@
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { DeviceService } from './device.service';
 import { DevicesApiService, Configuration } from '@teensyrom-nx/data-access/api-client';
-import { HttpClient, HttpXhrBackend } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
 describe('DeviceService Integration Tests', () => {
   let deviceService: DeviceService;
 
   beforeAll(() => {
-    const httpHandler = new HttpXhrBackend({ build: () => new XMLHttpRequest() });
-    const httpClient = new HttpClient(httpHandler);
-    const config = new Configuration({ basePath: 'http://localhost:5168' });
+    // Create Configuration for the typescript-fetch client
+    const config = new Configuration({
+      basePath: 'http://localhost:5168',
+      fetchApi: fetch, // Use standard fetch API for MSW interception
+    });
 
-    const devicesService = new DevicesApiService(httpClient, config.basePath || '', config);
+    const devicesService = new DevicesApiService(config);
     deviceService = new DeviceService(devicesService);
   });
 

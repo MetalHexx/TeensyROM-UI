@@ -1,19 +1,17 @@
 import { describe, it, expect, beforeAll, afterEach, afterAll } from 'vitest';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
-import { HttpClient, HttpXhrBackend } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
 import {
   FilesApiService,
   Configuration,
-  TeensyStorageType,
   GetDirectoryResponse,
   StorageCacheDto,
   FileItemType as ApiFileItemType,
 } from '@teensyrom-nx/data-access/api-client';
 import { StorageService } from './storage.service';
-import { FileItemType } from './storage.models';
+import { FileItemType, StorageType } from './storage.models';
 
 describe('StorageService Integration Tests', () => {
   let storageService: StorageService;
@@ -34,12 +32,13 @@ describe('StorageService Integration Tests', () => {
   });
 
   beforeAll(() => {
-    // Create real HttpClient with XMLHttpRequest backend for MSW interception
-    const httpHandler = new HttpXhrBackend({ build: () => new XMLHttpRequest() });
-    const httpClient = new HttpClient(httpHandler);
-    const config = new Configuration({ basePath: 'http://localhost:5168' });
+    // Create Configuration for the typescript-fetch client
+    const config = new Configuration({
+      basePath: 'http://localhost:5168',
+      fetchApi: fetch, // Use standard fetch API for MSW interception
+    });
 
-    const filesApiService = new FilesApiService(httpClient, config.basePath || '', config);
+    const filesApiService = new FilesApiService(config);
     storageService = new StorageService(filesApiService);
   });
 
@@ -47,7 +46,7 @@ describe('StorageService Integration Tests', () => {
     it('should successfully fetch and transform directory data', async () => {
       // Arrange
       const deviceId = 'test-device-123';
-      const storageType = TeensyStorageType.Sd;
+      const storageType = StorageType.Sd;
       const path = '/games';
 
       const mockStorageCache: StorageCacheDto = {
@@ -135,7 +134,7 @@ describe('StorageService Integration Tests', () => {
     it('should handle requests without path parameter', async () => {
       // Arrange
       const deviceId = 'test-device-456';
-      const storageType = TeensyStorageType.Usb;
+      const storageType = StorageType.Usb;
 
       const mockResponse: GetDirectoryResponse = {
         storageItem: {
@@ -171,7 +170,7 @@ describe('StorageService Integration Tests', () => {
     it('should handle API errors gracefully', async () => {
       // Arrange
       const deviceId = 'invalid-device';
-      const storageType = TeensyStorageType.Sd;
+      const storageType = StorageType.Sd;
 
       server.use(
         http.get(
@@ -198,7 +197,7 @@ describe('StorageService Integration Tests', () => {
     it('should handle empty directories and files arrays', async () => {
       // Arrange
       const deviceId = 'empty-device';
-      const storageType = TeensyStorageType.Sd;
+      const storageType = StorageType.Sd;
 
       const mockResponse: GetDirectoryResponse = {
         storageItem: {
@@ -228,10 +227,10 @@ describe('StorageService Integration Tests', () => {
     it('should handle malformed API response', async () => {
       // Arrange
       const deviceId = 'malformed-device';
-      const storageType = TeensyStorageType.Usb;
+      const storageType = StorageType.Usb;
 
       const mockResponse: GetDirectoryResponse = {
-        storageItem: null as any,
+        storageItem: null as null as unknown as StorageCacheDto,
         message: 'Malformed response',
       };
 
@@ -272,13 +271,11 @@ describe('StorageService Integration Tests', () => {
       );
 
       // Act - Test SD storage
-      const sdResult = await firstValueFrom(
-        storageService.getDirectory(deviceId, TeensyStorageType.Sd)
-      );
+      const sdResult = await firstValueFrom(storageService.getDirectory(deviceId, StorageType.Sd));
 
       // Act - Test USB storage
       const usbResult = await firstValueFrom(
-        storageService.getDirectory(deviceId, TeensyStorageType.Usb)
+        storageService.getDirectory(deviceId, StorageType.Usb)
       );
 
       // Assert

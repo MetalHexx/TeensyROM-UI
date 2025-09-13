@@ -10,7 +10,6 @@ import {
   Configuration,
   FilesApiService,
 } from '@teensyrom-nx/data-access/api-client';
-import { HttpClient } from '@angular/common/http';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,19 +19,17 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     {
       provide: DevicesApiService,
-      useFactory: (httpClient: HttpClient) => {
+      useFactory: () => {
         const config = new Configuration({ basePath: 'http://localhost:5168' });
-        return new DevicesApiService(httpClient, config.basePath || '', config);
+        return new DevicesApiService(config);
       },
-      deps: [HttpClient],
     },
     {
       provide: FilesApiService,
-      useFactory: (httpClient: HttpClient) => {
+      useFactory: () => {
         const config = new Configuration({ basePath: 'http://localhost:5168' });
-        return new FilesApiService(httpClient, config.basePath || '', config);
+        return new FilesApiService(config);
       },
-      deps: [HttpClient],
     },
     DeviceService,
     AppBootstrapService,
