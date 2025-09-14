@@ -1,8 +1,8 @@
 # Phase 3: Component/Store Integration Implementation Plan
 
-**Related Documentation**: [Player View Storage Navigation Plan](./BASIC_STORAGE_NAV_PLAN.md)
+**High Level Plan Documentation**: [Player View Storage Navigation Plan](./BASIC_STORAGE_NAV_PLAN.md)
 
-**Standards Documentation**:
+**Related Documentation**:
 
 - **Player Component Hierarchy**: ['PLAYER_COMPONENTS.md'](../../../../libs/features/player/src/PLAYER_COMPONENTS.md)
 - **Coding Standards**: [`CODING_STANDARDS.md`](../../../CODING_STANDARDS.md)

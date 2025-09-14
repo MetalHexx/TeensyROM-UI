@@ -1,6 +1,6 @@
 # Phase N: Title Goes Here
 
-**Related Documentation**: [Link to Plan or Spec](./RELATIVE_LINK_TO_PLAN.md)
+**High Level Plan Documentation**: [Link to Plan or Spec](./RELATIVE_LINK_TO_PLAN.md)
 
 **Standards Documentation**:
 
