@@ -8,6 +8,17 @@ This document establishes coding standards and best practices for the TeensyROM 
 
 ## Components
 
+### Signals‑First Policy
+
+**Standard**: Prefer Angular Signals for component APIs and internal state by default.
+
+- Use `input()`/`requiredInput()` (or `input.required<T>()` in supported versions) instead of legacy `@Input()`.
+- Use `output()` instead of legacy `@Output()` for event APIs.
+- Use `signal`, `computed`, and `effect` for component state/derivations rather than imperative patterns.
+- Only use legacy decorators for interoperability with older libraries or when Signals are not yet supported.
+
+**Rationale**: Signals provide better type safety, reactive ergonomics, and performance. They align with modern Angular patterns and our testing approach.
+
 ### Input Properties
 
 **Standard**: Use Angular's modern `input()` function with explicit typing and default values
@@ -48,7 +59,7 @@ export class ExampleComponent {
 - [`storage-item.component.ts`](../libs/features/devices/src/lib/device-view/storage-item/storage-item.component.ts) - Icon, label, and status inputs
 - All modern component implementations
 
-**Best Practice**: Use `input()` instead of the legacy `@Input()` decorator for better type safety and performance.
+**Best Practice**: Use `input()` (or `input.required()`) instead of the legacy `@Input()` decorator for better type safety and performance. Signals should be used by default for all new inputs.
 
 ### Output Properties
 

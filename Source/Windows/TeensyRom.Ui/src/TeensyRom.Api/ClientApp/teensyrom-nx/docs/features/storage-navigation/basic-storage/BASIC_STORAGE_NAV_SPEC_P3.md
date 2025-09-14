@@ -5,7 +5,7 @@
 **Standards Documentation**:
 
 - **Coding Standards**: [`CODING_STANDARDS.md`](../../../CODING_STANDARDS.md)
-- **Store Testing**: [`STATE_STANDARDS.md`](../../../STATE_STANDARDS.md)
+- **Store Testing**: [`STORE_TESTING.md`](../../../STORE_TESTING.md)
 
 ## 🎯 Objective
 
@@ -21,7 +21,7 @@ Implement the core component/store integration with computed signals and JSON ve
 
 ## 📋 Implementation Tasks
 
-### Task 1: Enhance StorageStore with Computed Signals
+### Task 2: Enhance StorageStore with Computed Signals
 
 **Purpose**: Add computed signals to simplify component data filtering and access (per NgRx patterns).
 
@@ -33,14 +33,14 @@ Implement the core component/store integration with computed signals and JSON ve
 
 ### Task 2: Store Tests For Computed Signals (before component work)
 
-**Purpose**: Validate computed signal behavior independently before wiring components. Follow [`STATE_STANDARDS.md`](../../../STATE_STANDARDS.md).
+**Purpose**: Create tests for our new computed signals. Follow the guidance in [`STORE_TESTING.md`](../../../STORE_TESTING.md).
 
 - [ ] Add unit tests in `storage-store.spec.ts` covering.
   - [ ] `selectedDirectoryState` selection and reactivity
   - [ ] `getDeviceStorageEntries` filtering accuracy across multiple devices/storage types
   - [ ] `getDeviceDirectories` returns directories-only projections
 
-### Task 3: Core Component Store Integration (deviceId-based)
+### Task 3: Core Component Store Integration (deviceId-based, Signals inputs)
 
 **Purpose**: Establish data flow using computed signals and deviceId propagation.
 
@@ -49,27 +49,27 @@ Implement the core component/store integration with computed signals and JSON ve
   - [ ] Inject `DeviceStore` and `StorageStore`
   - [ ] Initialize storage entries for connected devices (on init/changes)
   - [ ] Clean up storage state for disconnected devices
-  - [ ] Pass `device` to `PlayerDeviceContainerComponent` (existing pattern)
+  - [ ] Pass `device` signal to `PlayerDeviceContainerComponent` (existing pattern)
 
 - [ ] PlayerDeviceContainerComponent
 
-  - [ ] Keep existing `device` input
+  - [ ] Keep existing `device` input (signal input)
   - [ ] Extract `deviceId: string` from `device`
-  - [ ] Pass `deviceId` to `StorageContainerComponent`
+  - [ ] Pass `deviceId` signal to `StorageContainerComponent`
 
 - [ ] StorageContainerComponent
-  - [ ] Add `@Input() deviceId: string`
+  - [ ] Add `deviceId = input.required<string>()` (signal input)
   - [ ] Inject `StorageStore`
   - [ ] Use computed signals to filter data for this device
   - [ ] Pass filtered data to child components (directory-tree.component.ts and directory-files.component.ts)
 
-### Task 4: Directory Tree JSON Display
+### Task 4: Directory Tree JSON Display (Signals)
 
 **Purpose**: Display device storage directories above the existing (hardcoded) tree for verification.
 
 - [ ] DirectoryTreeComponent (TS)
 
-  - [ ] Receive filtered device storage data from parent
+  - [ ] Receive filtered device storage data from parent via signal input(s)
   - [ ] Use store computed signals to access directories from all StorageDirectoryState entries
   - [ ] Extract directories only (omit files)
 
@@ -78,13 +78,13 @@ Implement the core component/store integration with computed signals and JSON ve
   - [ ] Show directories for all storage types for the device
   - [ ] Keep existing hardcoded tree intact below the JSON
 
-### Task 5: Directory Files JSON Display
+### Task 5: Directory Files JSON Display (Signals)
 
 **Purpose**: Show selected directory contents (files and directories) via SelectedDirectory state.
 
 - [ ] DirectoryFilesComponent (TS)
 
-  - [ ] Receive `deviceId` from parent
+  - [ ] Receive `deviceId` from parent via `deviceId = input.required<string>()`
   - [ ] Inject `StorageStore` to access `selectedDirectory`
   - [ ] Use `selectedDirectoryState` computed signal
   - [ ] Resolve correct StorageDirectoryState entry from SelectedDirectory
