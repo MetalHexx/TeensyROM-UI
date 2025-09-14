@@ -1,6 +1,6 @@
 # Phase 3: Component/Store Integration Implementation Plan
 
-**High Level Plan Documentation**: [Player View Storage Navigation Plan](./BASIC_STORAGE_NAV_PLAN.md)
+**High Level Plan**: [Player View Storage Navigation Plan](./BASIC_STORAGE_NAV_PLAN.md)
 
 **Related Documentation**:
 
