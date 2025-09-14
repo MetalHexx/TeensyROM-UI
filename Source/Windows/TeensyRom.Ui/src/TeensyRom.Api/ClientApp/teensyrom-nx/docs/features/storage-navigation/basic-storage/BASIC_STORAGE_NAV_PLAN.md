@@ -73,18 +73,19 @@ Implement NgRx Signal Store for multi-device storage navigation state.
 
 ---
 
-## Phase 3: Component Integration
+## Phase 3: Component/Store Integration & JSON Verification
 
 ### Objective
 
-Integrate storage state with existing player components for hierarchical directory browsing UI with storage type selection.
+Integrate StorageStore with existing player components and implement JSON state output verification to validate store functionality before building navigation UI components.
 
 ### Deliverables
 
-- Updated player-view with smart initialization
-- Enhanced player-device-container with storage availability
-- Hierarchical directory tree showing device → storage type → directories
-- Connected directory-tree and directory-files to storage state
+- PlayerViewComponent with StorageStore integration and lifecycle management
+- StorageContainerComponent with device input and store injection
+- JSON output verification via computed signals and template display
+- Manual testing interface with buttons for core store operations
+- Component tests verifying store integration and JSON output accuracy
 
 ### Directory Tree Structure
 
@@ -127,19 +128,95 @@ _Note: Each device renders independently in its own `player-device-container` wi
 
 ### Tasks
 
-1. **Player View**: Initialize storage state for connected devices
-2. **Device Container**: Handle storage availability and pass device context
-3. **Storage Container**: Coordinate directory tree and file list components
-4. **Directory Tree**: Hierarchical tree with device → available storage → directory structure
-5. **Directory Files**: Display current directory contents with storage context
-6. **Storage Selection**: Enable switching between available storage types within tree
-7. **Storage Filtering**: Hide unavailable storage types from tree display
+1. **Component Store Integration**: Connect StorageStore to player components with proper DI
+2. **JSON State Verification**: Add JSON output signals for state validation
+3. **Manual Testing Interface**: Add buttons to test store methods via UI
+4. **Lifecycle Management**: Handle storage initialization and cleanup
+5. **Component Testing**: Verify store integration and JSON output accuracy
 
 **Detailed Specification**: [Phase 3 Specification](./BASIC_STORAGE_NAV_SPEC_P3.md)
 
 ---
 
-## Phase 4: Internal Storage Integration Planning
+## Phase 4: Basic Navigation Tree Implementation
+
+### Objective
+
+Build hierarchical directory tree component showing device → storage type → directories with interactive click navigation functionality.
+
+### Deliverables
+
+- Updated DirectoryTreeComponent with hierarchical tree rendering
+- Tree navigation connected to StorageStore methods
+- Storage availability filtering implemented
+- Visual tree styling with Material Design components
+- Component tests for tree functionality and storage integration
+
+### Tasks
+
+1. **Tree Structure Design**: Define hierarchical tree data model and state management
+2. **Component Implementation**: Build interactive directory tree with Angular patterns
+3. **Storage Integration**: Connect tree to StorageStore and filter by availability
+4. **Visual Design**: Implement Material Design styling with icons and states
+5. **Testing**: Unit and integration tests for tree functionality
+
+**Detailed Specification**: [Phase 4 Specification](./BASIC_STORAGE_NAV_SPEC_P4.md)
+
+---
+
+## Phase 5: Basic File Listing Implementation
+
+### Objective
+
+Implement directory contents display showing files and subdirectories for the currently selected path with proper file type handling and visual presentation.
+
+### Deliverables
+
+- Updated DirectoryFilesComponent with StorageStore integration
+- File type classification and visual treatment
+- Subdirectory navigation functionality
+- File list styling with Material Design components
+- Component tests for file listing functionality
+
+### Tasks
+
+1. **File List Data Integration**: Connect DirectoryFilesComponent to StorageStore
+2. **File Type Classification**: Implement file type handling and visual distinction
+3. **Directory Interaction**: Enable navigation from file list to subdirectories
+4. **Visual Design**: File list styling and metadata display
+5. **Testing**: Unit and integration tests for file listing
+
+**Detailed Specification**: [Phase 5 Specification](./BASIC_STORAGE_NAV_SPEC_P5.md)
+
+---
+
+## Phase 6: Breadcrumb and Back Navigation
+
+### Objective
+
+Add breadcrumb trail and back button navigation for intuitive directory traversal, completing the basic storage navigation user experience.
+
+### Deliverables
+
+- Breadcrumb trail component showing current directory path
+- Back button for parent directory navigation
+- Coordinated navigation between tree, breadcrumb, and back button
+- Navigation state management and user feedback
+- Component tests for breadcrumb and back navigation
+
+### Tasks
+
+1. **Breadcrumb Implementation**: Show current path as clickable breadcrumb navigation
+2. **Back Navigation**: Provide intuitive back button for parent directory navigation
+3. **Navigation Coordination**: Ensure all navigation methods work together seamlessly
+4. **User Experience**: Polish navigation with loading states and error handling
+5. **Testing**: Comprehensive navigation testing across all methods
+
+**Detailed Specification**: [Phase 6 Specification](./BASIC_STORAGE_NAV_SPEC_P6.md)
+
+---
+
+## Phase 7: Internal Storage Integration Planning
 
 ### Objective
 
@@ -168,11 +245,11 @@ Plan and prepare for backend implementation of internal storage support through 
 
 **Note**: This phase focuses on planning and coordination. Implementation will follow after backend infrastructure is complete.
 
-**Detailed Specification**: [Phase 4 Specification](./BASIC_STORAGE_NAV_SPEC_P4.md)
+**Detailed Specification**: [Phase 7 Specification](./BASIC_STORAGE_NAV_SPEC_P7.md)
 
 ---
 
-## Phase 5: Virtual Scrolling Preparation
+## Phase 8: Virtual Scrolling Preparation
 
 ### Objective
 
@@ -192,7 +269,7 @@ Prepare architecture for high-performance rendering of large directory listings.
 4. **Integration Strategy**: Plan Angular CDK Virtual Scrolling integration
 5. **Tree Virtualization**: Research tree virtualization libraries for directory tree
 
-**Detailed Specification**: [Phase 5 Specification](./BASIC_STORAGE_NAV_SPEC_P5.md)
+**Detailed Specification**: [Phase 8 Specification](./BASIC_STORAGE_NAV_SPEC_P8.md)
 
 ---
 

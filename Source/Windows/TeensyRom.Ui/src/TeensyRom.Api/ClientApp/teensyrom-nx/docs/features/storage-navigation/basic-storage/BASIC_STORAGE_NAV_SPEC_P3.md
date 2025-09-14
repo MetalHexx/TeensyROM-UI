@@ -1,16 +1,14 @@
-# Phase 3: Component Integration Specification
+# Phase 3: Component/Store Integration & JSON Verification Specification
 
 **Related Documentation**: [Player View Storage Navigation Plan](./BASIC_STORAGE_NAV_PLAN.md)
 
 **Standards Documentation**:
 
 - **Coding Standards**: [`CODING_STANDARDS.md`](../../../CODING_STANDARDS.md) - Component and TypeScript standards.
-- **Style Guide**: [`STYLE_GUIDE.md`](../../../STYLE_GUIDE.md) - CSS / Style / Theme design specifications and rules.
-- **Testing Standards**: [`TESTING_STANDARDS.md`](../../../TESTING_STANDARDS.md) - Unit, integration, and E2E testing patterns.
 
 ## Objective
 
-Integrate storage state with existing player components. Phase 3 focuses first on verifying state functionality by emitting a JSON string representation of storage state into the view for quick testing and verification. Tree navigation UI will be implemented in Step 2. Step 3 is TBD.
+Integrate StorageStore with existing player components and implement JSON state output verification to validate store functionality before building navigation UI components.
 
 ## Prerequisites
 
@@ -20,89 +18,109 @@ Integrate storage state with existing player components. Phase 3 focuses first o
 
 ## Implementation Steps
 
-### Step 1: JSON Output for State Verification (Primary)
+### Step 1: Component Store Integration
 
-**Purpose**: Verify StorageStore state functionality in the UI by outputting a JSON string of relevant storage data to the view. This enables fast testing and validation of store initialization, updates, and lifecycle handling without building the directory tree UI.
-
-**Approach**:
-
-- Keep component responsibilities minimal: inject StorageStore, initialize/cleanup storage, and expose a read-only JSON string of current storage entries and selected device/storage state.
-- Use Angular signals (or an RxJS-to-signal adapter) to compute a JSON string derived from the store for binding to a <pre> or similar element in the template.
-- Do not implement tree navigation or file lists in this step — those move to Step 2.
+**Purpose**: Connect StorageStore to player components and establish proper dependency injection and lifecycle management.
 
 **Tasks**:
 
-1. PlayerViewComponent
+1. **PlayerViewComponent**
 
-   - Inject `StorageStore` alongside existing `DeviceStore`.
-   - Initialize storage entries for connected devices using existing initialize method(s).
-   - Clean up storage state when devices disconnect.
-   - Pass devices to PlayerDeviceContainerComponents.
+   - Inject `StorageStore` alongside existing `DeviceStore`
+   - Initialize storage entries for connected devices on component init
+   - Clean up storage state when devices disconnect
+   - Pass device context to PlayerDeviceContainerComponents
 
-2. PlayerDeviceContainerComponent
+2. **PlayerDeviceContainerComponent**
 
-   - Pass device Storage data into StorageContainerComponents
+   - Add `device` input to receive device context from parent
+   - Pass device data to StorageContainerComponent
 
-3. StorageContainerComponent
+3. **StorageContainerComponent**
+   - Add `device` input to receive device context from parent
+   - Inject `StorageStore`
+   - Validate storage availability before exposing data
 
-   - Add `@Input() device` to receive device context from parent.
-   - Inject `StorageStore`.
-   - Listen for
-   - Validate storage availability before exposing data.
+### Step 2: JSON State Verification
 
-4. Child components
-   - directory-tree.component.ts
-     - Display a list of buttons representing the directories in the currentDirectory
-     - call state to navigate to the directory when clicked.
-     - include a back button to go back up to the parent directory
-   - directory-files.component.ts
-     - Display JSON representation of of
+**Purpose**: Verify StorageStore state functionality by outputting JSON representation of storage state to the UI for testing and validation.
 
-**Deliverables**:
+**Tasks**:
 
-- PlayerViewComponent updated to initialize/cleanup storage and expose `storageJson`.
-- StorageContainerComponent updated with device input and `deviceStorageJson`.
-- Simple template additions to render JSON (e.g., <pre>{{ storageJson }}</pre> and <pre>{{ deviceStorageJson }}</pre>).
-- Component tests verifying JSON output reflects store state changes (initialization, navigation method calls, refresh, cleanup).
+1. **Add JSON Output Signals**
 
-**File Changes**:
+   - Add `storageJson` computed signal to PlayerViewComponent
+   - Add `deviceStorageJson` computed signal to StorageContainerComponent
+   - Filter storage entries by device ID in device-specific components
+
+2. **Update Templates**
+   - Add `<pre>{{ storageJson() | json }}</pre>` to PlayerView template
+   - Add `<pre>{{ deviceStorageJson() | json }}</pre>` to StorageContainer template
+
+### Step 3: Manual Testing Interface
+
+**Purpose**: Add simple UI controls to test store methods and observe state changes via JSON output.
+
+**Tasks**:
+
+1. **Add Test Buttons**
+
+   - Add buttons to test `navigateToDirectory()` with hardcoded paths
+   - Add buttons to test `refreshDirectory()` calls
+   - Add buttons to test storage initialization/cleanup
+
+2. **Wire Button Actions**
+   - Connect buttons to store methods with proper parameters
+   - Enable manual testing of state changes via JSON output
+
+## Deliverables
+
+- PlayerViewComponent with StorageStore integration and lifecycle management
+- StorageContainerComponent with device input and store injection
+- JSON output verification via computed signals and template display
+- Manual testing interface with buttons for core store operations
+- Component tests verifying store integration and JSON output accuracy
+
+## File Changes
 
 ```
 libs/features/player/src/lib/player-view/
 ├── player-view.component.ts                    # Add StorageStore injection, lifecycle, storageJson signal
+├── player-view.component.html                  # Add JSON output display
 └── player-device-container/
-     └── storage-container/
-          ├── storage-container.component.ts      # Add device input, StorageStore injection, deviceStorageJson
-          ├── directory-tree/
-          │   └── directory-tree.component.ts     # No changes in Step 1
-          └── directory-files/
-                └── directory-files.component.ts    # No changes in Step 1
+    ├── player-device-container.component.ts    # Add device input
+    └── storage-container/
+         ├── storage-container.component.ts      # Add device input, StorageStore injection, deviceStorageJson
+         └── storage-container.component.html    # Add JSON output + test buttons
 ```
 
-**Testing Notes**:
+## Testing Requirements
 
-- Unit tests should assert that `storageJson` contains expected keys and values after store initialization and after calling core methods (navigate/refresh).
-- Integration tests may mount PlayerViewComponent to ensure JSON output appears and updates in the DOM.
+### Unit Tests
 
-### Step 2: Tree Navigation UI (moved)
+- Component integration tests verifying store injection and method calls
+- JSON output accuracy tests ensuring state changes reflect correctly
+- Lifecycle tests for initialization and cleanup behavior
 
-- Implement hierarchical directory tree, files listing, and interactive navigation using the verified StorageStore API.
-- Tasks from previous Step 1 (original plan) that built the tree are now part of this step.
-- Will include hooking up DirectoryTreeComponent, DirectoryFilesComponent, and SearchToolbarComponent to StorageStore methods (navigateToDirectory, refreshDirectory, etc.).
+### Integration Tests
 
-### Step 3: TBD
+- Full component mounting tests with live store integration
+- JSON output rendering and update verification in DOM
+- Manual testing button functionality validation
 
-- Details will be defined after Step 1 validation and Step 2 planning results.
+## Success Criteria
 
-## Success Criteria (for Phase 3 Step 1)
-
-- JSON representation of storage state renders in PlayerView and StorageContainer views.
-- JSON updates in response to store actions (initialize, navigate, refresh, cleanup).
-- Tests assert correctness of serialized data and basic lifecycle behavior.
-- Ready to proceed to Step 2 tree navigation once verification passes.
+- ✅ StorageStore successfully injected and accessible in components
+- ✅ JSON representation of storage state renders in PlayerView and StorageContainer
+- ✅ JSON updates in response to store actions (initialize, navigate, refresh, cleanup)
+- ✅ Manual testing buttons trigger visible state changes in JSON output
+- ✅ Component tests verify store integration and JSON output correctness
+- ✅ All existing tests continue passing
+- ✅ Ready to proceed to Phase 4 (Basic Navigation Tree) after verification
 
 ## Notes
 
-- This phased approach reduces UI complexity while enabling rapid verification of state logic.
-- Keep UI bindings read-only for Step 1 to avoid coupling input handling with unverified navigation logic.
-- After Step 1 validation, proceed to implement interactive navigation and richer UI in Step 2.
+- This phase establishes the foundation for all subsequent UI phases
+- JSON verification approach enables rapid validation of state management
+- Manual testing interface provides immediate feedback during development
+- Prepares components for Phase 4 navigation tree implementation
