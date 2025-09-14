@@ -1,126 +1,147 @@
-# Phase 3: Component/Store Integration & JSON Verification Specification
+# Phase 3: Component/Store Integration Implementation Plan
 
 **Related Documentation**: [Player View Storage Navigation Plan](./BASIC_STORAGE_NAV_PLAN.md)
 
 **Standards Documentation**:
 
-- **Coding Standards**: [`CODING_STANDARDS.md`](../../../CODING_STANDARDS.md) - Component and TypeScript standards.
+- **Coding Standards**: [`CODING_STANDARDS.md`](../../../CODING_STANDARDS.md)
+- **Store Testing**: [`STATE_STANDARDS.md`](../../../STATE_STANDARDS.md)
 
-## Objective
+## 🎯 Objective
 
-Integrate StorageStore with existing player components and implement JSON state output verification to validate store functionality before building navigation UI components.
+Implement the core component/store integration with computed signals and JSON verification displays to establish proper data flow from `PlayerViewComponent` to child components.
 
-## Prerequisites
+## 📚 Required Reading
 
-- Phase 1 completed: Storage domain services available
-- Phase 2 completed: Storage state management implemented
-- Existing player components available for enhancement
+- [ ] `libs/domain/storage/state/src/lib/storage-store.ts`
+- [ ] `libs/features/player/src/lib/player-view/player-view.component.ts`
+- [ ] `libs/features/player/src/lib/player-view/player-device-container/storage-container/storage-container.component.ts`
+- [ ] `libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.ts`
+- [ ] `libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.ts`
 
-## Implementation Steps
+## 📋 Implementation Tasks
 
-### Step 1: Component Store Integration
+### Task 1: Enhance StorageStore with Computed Signals
 
-**Purpose**: Connect StorageStore to player components and establish proper dependency injection and lifecycle management.
+**Purpose**: Add computed signals to simplify component data filtering and access (per NgRx patterns).
 
-**Tasks**:
+- [ ] Import and use `withComputed` from `@ngrx/signals` in `storage-store.ts`
+- [ ] Implement computed signals via factory-function pattern
+- [ ] `selectedDirectoryState`: computed signal for currently selected directory's StorageDirectoryState
+- [ ] `getDeviceStorageEntries(deviceId)`: factory returning filtered entries by device.
+- [ ] `getDeviceDirectories(deviceId)`: factory returning directories for tree display
 
-1. **PlayerViewComponent**
+### Task 2: Store Tests For Computed Signals (before component work)
 
-   - Inject `StorageStore` alongside existing `DeviceStore`
-   - Initialize storage entries for connected devices on component init
-   - Clean up storage state when devices disconnect
-   - Pass device context to PlayerDeviceContainerComponents
+**Purpose**: Validate computed signal behavior independently before wiring components. Follow [`STATE_STANDARDS.md`](../../../STATE_STANDARDS.md).
 
-2. **PlayerDeviceContainerComponent**
+- [ ] Add unit tests in `storage-store.spec.ts` covering.
+  - [ ] `selectedDirectoryState` selection and reactivity
+  - [ ] `getDeviceStorageEntries` filtering accuracy across multiple devices/storage types
+  - [ ] `getDeviceDirectories` returns directories-only projections
 
-   - Add `device` input to receive device context from parent
-   - Pass device data to StorageContainerComponent
+### Task 3: Core Component Store Integration (deviceId-based)
 
-3. **StorageContainerComponent**
-   - Add `device` input to receive device context from parent
-   - Inject `StorageStore`
-   - Validate storage availability before exposing data
+**Purpose**: Establish data flow using computed signals and deviceId propagation.
 
-### Step 2: JSON State Verification
+- [ ] PlayerViewComponent
 
-**Purpose**: Verify StorageStore state functionality by outputting JSON representation of storage state to the UI for testing and validation.
+  - [ ] Inject `DeviceStore` and `StorageStore`
+  - [ ] Initialize storage entries for connected devices (on init/changes)
+  - [ ] Clean up storage state for disconnected devices
+  - [ ] Pass `device` to `PlayerDeviceContainerComponent` (existing pattern)
 
-**Tasks**:
+- [ ] PlayerDeviceContainerComponent
 
-1. **Add JSON Output Signals**
+  - [ ] Keep existing `device` input
+  - [ ] Extract `deviceId: string` from `device`
+  - [ ] Pass `deviceId` to `StorageContainerComponent`
 
-   - Add `storageJson` computed signal to PlayerViewComponent
-   - Add `deviceStorageJson` computed signal to StorageContainerComponent
-   - Filter storage entries by device ID in device-specific components
+- [ ] StorageContainerComponent
+  - [ ] Add `@Input() deviceId: string`
+  - [ ] Inject `StorageStore`
+  - [ ] Use computed signals to filter data for this device
+  - [ ] Pass filtered data to child components (directory-tree.component.ts and directory-files.component.ts)
 
-2. **Update Templates**
-   - Add `<pre>{{ storageJson() | json }}</pre>` to PlayerView template
-   - Add `<pre>{{ deviceStorageJson() | json }}</pre>` to StorageContainer template
+### Task 4: Directory Tree JSON Display
 
-### Step 3: Manual Testing Interface
+**Purpose**: Display device storage directories above the existing (hardcoded) tree for verification.
 
-**Purpose**: Add simple UI controls to test store methods and observe state changes via JSON output.
+- [ ] DirectoryTreeComponent (TS)
 
-**Tasks**:
+  - [ ] Receive filtered device storage data from parent
+  - [ ] Use store computed signals to access directories from all StorageDirectoryState entries
+  - [ ] Extract directories only (omit files)
 
-1. **Add Test Buttons**
+- [ ] DirectoryTreeComponent (HTML)
+  - [ ] Add `<pre>` formatted JSON (directories-only) above the Material tree
+  - [ ] Show directories for all storage types for the device
+  - [ ] Keep existing hardcoded tree intact below the JSON
 
-   - Add buttons to test `navigateToDirectory()` with hardcoded paths
-   - Add buttons to test `refreshDirectory()` calls
-   - Add buttons to test storage initialization/cleanup
+### Task 5: Directory Files JSON Display
 
-2. **Wire Button Actions**
-   - Connect buttons to store methods with proper parameters
-   - Enable manual testing of state changes via JSON output
+**Purpose**: Show selected directory contents (files and directories) via SelectedDirectory state.
 
-## Deliverables
+- [ ] DirectoryFilesComponent (TS)
 
-- PlayerViewComponent with StorageStore integration and lifecycle management
-- StorageContainerComponent with device input and store injection
-- JSON output verification via computed signals and template display
-- Manual testing interface with buttons for core store operations
-- Component tests verifying store integration and JSON output accuracy
+  - [ ] Receive `deviceId` from parent
+  - [ ] Inject `StorageStore` to access `selectedDirectory`
+  - [ ] Use `selectedDirectoryState` computed signal
+  - [ ] Resolve correct StorageDirectoryState entry from SelectedDirectory
+  - [ ] Extract complete files and directories list
 
-## File Changes
+- [ ] DirectoryFilesComponent (HTML)
+  - [ ] Display files and directories as `<pre>` formatted JSON
+  - [ ] Replace Lorem Ipsum placeholder content with actual storage data
+
+## 🗂️ File Changes
 
 ```
+libs/domain/storage/state/src/lib/
+└── storage-store.ts                        # Add withComputed + factory functions
+
 libs/features/player/src/lib/player-view/
-├── player-view.component.ts                    # Add StorageStore injection, lifecycle, storageJson signal
-├── player-view.component.html                  # Add JSON output display
+├── player-view.component.ts                # Inject StorageStore + lifecycle
 └── player-device-container/
-    ├── player-device-container.component.ts    # Add device input
+    ├── player-device-container.component.ts    # Extract/pass deviceId
     └── storage-container/
-         ├── storage-container.component.ts      # Add device input, StorageStore injection, deviceStorageJson
-         └── storage-container.component.html    # Add JSON output + test buttons
+        ├── storage-container.component.ts      # Add deviceId input, inject store
+        ├── directory-tree/
+        │   ├── directory-tree.component.ts     # Receive data, add JSON display
+        │   └── directory-tree.component.html   # Add <pre> above tree
+        └── directory-files/
+            ├── directory-files.component.ts    # Add deviceId input, inject store
+            └── directory-files.component.html  # Replace placeholder with JSON
 ```
 
-## Testing Requirements
+## 🧪 Testing Requirements
 
 ### Unit Tests
 
-- Component integration tests verifying store injection and method calls
-- JSON output accuracy tests ensuring state changes reflect correctly
-- Lifecycle tests for initialization and cleanup behavior
+- [ ] StorageStore computed signals: selection, per-device filters, directory projections
+- [ ] Component integration: computed signal usage and data flow
+- [ ] Device-specific filtering accuracy
+- [ ] JSON output verification in component templates
 
 ### Integration Tests
 
-- Full component mounting tests with live store integration
-- JSON output rendering and update verification in DOM
-- Manual testing button functionality validation
+- [ ] Full data flow from PlayerView → leaf components
+- [ ] StorageStore lifecycle with component hierarchy
+- [ ] Computed signals react to storage state changes
 
-## Success Criteria
+## ✅ Success Criteria
 
-- ✅ StorageStore successfully injected and accessible in components
-- ✅ JSON representation of storage state renders in PlayerView and StorageContainer
-- ✅ JSON updates in response to store actions (initialize, navigate, refresh, cleanup)
-- ✅ Manual testing buttons trigger visible state changes in JSON output
-- ✅ Component tests verify store integration and JSON output correctness
-- ✅ All existing tests continue passing
-- ✅ Ready to proceed to Phase 4 (Basic Navigation Tree) after verification
+- [ ] StorageStore enhanced with computed signals per NgRx patterns
+- [ ] DeviceId-based data flow established end-to-end
+- [ ] Directory JSON display working above existing tree
+- [ ] Selected directory JSON display working in DirectoryFiles
+- [ ] Computed signals provide filtered data efficiently
+- [ ] Existing functionality preserved (hardcoded tree remains)
+- [ ] Ready for Phase 4 navigation tree implementation
 
-## Notes
+## 📝 Notes
 
-- This phase establishes the foundation for all subsequent UI phases
-- JSON verification approach enables rapid validation of state management
-- Manual testing interface provides immediate feedback during development
-- Prepares components for Phase 4 navigation tree implementation
+- Establishes reactive data foundation using computed signals
+- JSON displays provide immediate, verifiable state feedback
+- Components preserved while adding functionality
+- Computed signals enable efficient filtering without manual component logic
