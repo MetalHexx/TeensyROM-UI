@@ -4,6 +4,7 @@
 
 **Standards Documentation**:
 
+- **Player Component Hierarchy**: ['PLAYER_COMPONENTS.md'](../../../../libs/features/player/src/PLAYER_COMPONENTS.md)
 - **Coding Standards**: [`CODING_STANDARDS.md`](../../../CODING_STANDARDS.md)
 - **Store Testing**: [`STORE_TESTING.md`](../../../STORE_TESTING.md)
 

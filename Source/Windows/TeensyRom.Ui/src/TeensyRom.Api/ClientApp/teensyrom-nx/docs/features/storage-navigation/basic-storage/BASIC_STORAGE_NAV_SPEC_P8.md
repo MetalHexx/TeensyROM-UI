@@ -1,6 +1,9 @@
 # Phase 8: Virtual Scrolling Preparation Specification
 
-**Related Documentation**: [Player View Storage Navigation Plan](./BASIC_STORAGE_NAV_PLAN.md)
+**Related Documentation**:
+
+- [Player View Storage Navigation Plan](./BASIC_STORAGE_NAV_PLAN.md)
+- ['PLAYER_COMPONENTS.md'](../../../../libs/features/player/src/PLAYER_COMPONENTS.md)
 
 ## Objective
 
