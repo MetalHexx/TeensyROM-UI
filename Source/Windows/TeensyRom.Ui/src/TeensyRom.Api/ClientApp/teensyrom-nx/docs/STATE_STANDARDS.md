@@ -511,61 +511,6 @@ export function refreshData(
 }
 ```
 
-### Testing Considerations
-
-**Service Injection Pattern**: Use default parameters to enable easy mocking
-
-```typescript
-// In method file
-export function methodName(
-  store: SignalStore<State> & WritableStateSource<State>,
-  service: Service = inject(Service) // Default injection
-) {
-  // Implementation
-}
-
-// In test file
-const mockService = createMockService();
-const method = methodName(mockStore, mockService); // Override for testing
-```
-
-**Reference Implementation**: See [`storage-store.ts`](../libs/domain/storage/state/src/lib/storage-store.ts) and its methods for correct patterns.
-
----
-
-## Pitfalls
-
-### Common NgRx Signal Store Anti-Patterns
-
-**❌ WRONG - Using `any` types**:
-
-```typescript
-export function badMethod(store: any, service: any) {
-  // This violates coding standards and breaks type safety
-}
-```
-
-**❌ WRONG - Calling other store methods directly**:
-
-```typescript
-export function refreshData(
-  store: SignalStore<State> & WritableStateSource<State> & { loadData: Function }
-) {
-  return {
-    refreshData: () => {
-      store.loadData(); // This breaks the store method pattern
-    },
-  };
-}
-```
-
-**❌ WRONG - Complex type intersections for method calls**:
-
-```typescript
-// Don't try to reference other store methods in type signatures
-store: SignalStore<State> & WritableStateSource<State> & { otherMethod: Function };
-```
-
 ### TypeScript Signature Errors
 
 **Problem**: Complex TypeScript errors when store methods try to call other store methods or use incorrect type signatures.
@@ -712,100 +657,7 @@ export function loadDataStream(store: SignalStore<State>, service: Service) {
 
 ## Store Testing Requirements
 
-### What NOT to Test
-
-**❌ Avoid Testing Object Mutations**: Do not write tests that simply create state objects and assert properties were set correctly. These tests provide no value and just test JavaScript object assignment.
-
-```typescript
-// ❌ BAD - Just testing object creation
-it('should create state with selected directory', () => {
-  const state = { selectedDirectory: { deviceId: 'test' } };
-  expect(state.selectedDirectory.deviceId).toBe('test'); // Useless test
-});
-```
-
-### What TO Test
-
-**✅ Test Actual Business Logic**: Test the store methods with mocked dependencies to verify real functionality.
-
-**Method Testing Strategy**:
-
-1. **Test Individual Methods**: Test each method function in isolation with proper service mocks
-2. **Mock Service Dependencies**: Use vitest mocks for service dependencies like `StorageService`
-3. **Verify State Transitions**: Test that methods properly update state through `patchState` calls
-4. **Test Error Handling**: Verify error scenarios with mocked service failures
-5. **Test Smart Logic**: Verify caching, conditional API calls, and business rules
-
-**Example - Good Method Testing**:
-
-```typescript
-// ✅ GOOD - Testing actual business logic
-describe('navigateToDirectory method', () => {
-  let mockStore: any;
-  let mockStorageService: any;
-
-  beforeEach(() => {
-    mockStorageService = { getDirectory: vi.fn() };
-    mockStore = createMockStore();
-  });
-
-  it('should update global selection and load directory', () => {
-    mockStorageService.getDirectory.mockReturnValue(of(mockDirectory));
-
-    const method = navigateToDirectory(mockStore, mockStorageService);
-    method.navigateToDirectory({ deviceId: 'test', storageType: 'SD', path: '/games' });
-
-    // Verify service was called with correct params
-    expect(mockStorageService.getDirectory).toHaveBeenCalledWith('test', 'SD', '/games');
-
-    // Verify global selection was updated
-    expect(mockStore.selectedDirectory()).toEqual({
-      deviceId: 'test',
-      storageType: 'SD',
-      path: '/games',
-    });
-  });
-
-  it('should skip API call when directory already loaded (smart caching)', () => {
-    // Setup pre-loaded state
-    mockStore.setStorageEntry('test-SD', {
-      currentPath: '/games',
-      isLoaded: true,
-      directory: mockDirectory,
-    });
-
-    const method = navigateToDirectory(mockStore, mockStorageService);
-    method.navigateToDirectory({ deviceId: 'test', storageType: 'SD', path: '/games' });
-
-    // Verify API was NOT called due to smart caching
-    expect(mockStorageService.getDirectory).not.toHaveBeenCalled();
-  });
-});
-```
-
-**State Interface Testing** (Minimal):
-
-Only include basic interface tests to verify TypeScript typing works correctly, not business logic:
-
-```typescript
-// ✅ ACCEPTABLE - Minimal interface verification
-describe('StorageState Interface', () => {
-  it('should support selectedDirectory field', () => {
-    const state: StorageState = {
-      storageEntries: {},
-      selectedDirectory: { deviceId: 'test', storageType: 'SD', path: '/games' },
-    };
-
-    expect(state.selectedDirectory).toBeDefined();
-  });
-});
-```
-
-**Testing Architecture**:
-
-- **Store File Tests**: Minimal interface/typing verification only
-- **Method File Tests**: Comprehensive business logic testing with mocks
-- **Integration Tests**: Test method interactions and cross-store behavior
+See STORE_TESTING.md for the complete, up‑to‑date methodology, patterns, and checklists for testing NgRx Signal Stores (setup, mocking, behaviors to cover, and example snippets).
 
 ---
 
@@ -820,3 +672,4 @@ describe('StorageState Interface', () => {
 
 - **DeviceStore**: [`device-store.ts`](../libs/domain/device/state/src/lib/device-store.ts) - Complete store implementation example
 - **Function Examples**: [`methods/`](../libs/domain/device/state/src/lib/methods/) - Individual function implementations
+- **StorageStore**: `libs/domain/storage/state/src/lib/storage-store.ts` - Example of a properly tested store (see its spec at `libs/domain/storage/state/src/lib/storage-store.spec.ts`)

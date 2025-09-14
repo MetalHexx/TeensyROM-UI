@@ -93,6 +93,90 @@ libs/domain/[domain]/
 
 ---
 
+## Domain Services Configuration
+
+### Goal
+
+Provide a clean, testable boundary for domain services by exposing an interface and an InjectionToken, while wiring the concrete class at the application shell. This enables strong typing, easy mocking in unit tests, and swappable implementations if needed.
+
+### Pattern
+
+1. Define an interface and token in the service file (or a colocated `*.tokens.ts`).
+
+```ts
+// domain services (example)
+export interface IExampleService {
+  getData(id: string): Observable<ExampleModel>;
+}
+
+export const EXAMPLE_SERVICE = new InjectionToken<IExampleService>('EXAMPLE_SERVICE');
+
+@Injectable({ providedIn: 'root' })
+export class ExampleService implements IExampleService {
+  constructor(private readonly api: ApiClient) {}
+  getData(id: string) {
+    /* ... */
+  }
+}
+
+export const EXAMPLE_SERVICE_PROVIDER = {
+  provide: EXAMPLE_SERVICE,
+  useExisting: ExampleService,
+};
+```
+
+2. Barrel export the interface, token, and provider.
+
+```ts
+// libs/domain/example/services/src/index.ts
+export * from './lib/example.service';
+export { IExampleService, EXAMPLE_SERVICE, EXAMPLE_SERVICE_PROVIDER } from './lib/example.service';
+```
+
+3. Wire the provider in the application shell.
+
+```ts
+// apps/app/src/app/app.config.ts
+providers: [, /* other providers */ EXAMPLE_SERVICE_PROVIDER];
+```
+
+4. Inject the token at usage sites (e.g., stores) to depend on the interface rather than the concrete class.
+
+```ts
+export const ExampleStore = signalStore(
+  { providedIn: 'root' },
+  withState(initialState),
+  withMethods((store, service: IExampleService = inject(EXAMPLE_SERVICE)) => ({
+    // ... methods using service
+  }))
+);
+```
+
+### Testing
+
+- In unit tests, provide the interface token with a small, strongly typed mock:
+
+```ts
+type GetDataFn = (id: string) => Observable<ExampleModel>;
+let getDataMock: MockedFunction<GetDataFn>;
+
+TestBed.configureTestingModule({
+  providers: [
+    { provide: EXAMPLE_SERVICE, useValue: { getData: (getDataMock = vi.fn<GetDataFn>()) } },
+  ],
+});
+```
+
+### Example in Repository
+
+- Storage domain service follows this pattern:
+  - Interface + token + provider: `libs/domain/storage/services/src/lib/storage.service.ts`
+  - Barrel export: `libs/domain/storage/services/src/index.ts`
+  - App wiring: `apps/teensyrom-ui/src/app/app.config.ts` (adds `STORAGE_SERVICE_PROVIDER`)
+  - Store injection of token: `libs/domain/storage/state/src/lib/storage-store.ts`
+
+---
+
 ## Related Documentation
 
 - **State Standards**: [`STATE_STANDARDS.md`](./STATE_STANDARDS.md) - NgRx Signal Store patterns

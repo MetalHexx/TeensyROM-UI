@@ -3,7 +3,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe } from 'rxjs';
 import { switchMap, tap, catchError, of } from 'rxjs';
 import { StorageType } from '@teensyrom-nx/domain/storage/services';
-import { StorageService } from '@teensyrom-nx/domain/storage/services';
+import { IStorageService } from '@teensyrom-nx/domain/storage/services';
 import { StorageKeyUtil } from '../storage-key.util';
 import { StorageState } from '../storage-store';
 
@@ -13,7 +13,7 @@ type SignalStore<T> = {
 
 export function refreshDirectory(
   store: SignalStore<StorageState> & WritableStateSource<StorageState>,
-  storageService: StorageService
+  storageService: IStorageService
 ) {
   return {
     refreshDirectory: rxMethod<{ deviceId: string; storageType: StorageType }>(

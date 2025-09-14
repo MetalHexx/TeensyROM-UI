@@ -5,6 +5,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { appRoutes } from './app.routes';
 import { AppBootstrapService } from '@teensyrom-nx/app/bootstrap';
 import { DeviceService } from '@teensyrom-nx/domain/device/services';
+import { STORAGE_SERVICE_PROVIDER } from '@teensyrom-nx/domain/storage/services';
 import {
   DevicesApiService,
   Configuration,
@@ -32,6 +33,7 @@ export const appConfig: ApplicationConfig = {
       },
     },
     DeviceService,
+    STORAGE_SERVICE_PROVIDER,
     AppBootstrapService,
   ],
 };

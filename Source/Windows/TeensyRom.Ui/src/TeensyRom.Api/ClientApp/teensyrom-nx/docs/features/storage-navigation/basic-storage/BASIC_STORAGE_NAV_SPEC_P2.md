@@ -204,6 +204,8 @@ interface StorageDirectoryState {
 
 ## Testing Requirements
 
+**Comprehensive Testing Plan**: See [Phase 2 Testing Specification](./BASIC_STORAGE_NAV_SPEC_P2_TESTING.md) for detailed testing strategy, NgRx best practices, and complete test implementation plan.
+
 ### Unit Tests
 
 **Files to Create**:
