@@ -4,21 +4,21 @@
       <mat-card-title>Directory Files</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <p>
-        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis
-        egestas. Nullam non neque ex. Proin fermentum, metus sed tincidunt vehicula, sem purus
-        ultricies nulla, ac tempor leo lorem non libero. Etiam suscipit, ex sit amet sagittis
-        facilisis, neque lectus egestas sem, nec tincidunt justo mauris in magna. Sed mattis, velit
-        id porta vulputate, diam nunc commodo nulla, in luctus risus lorem nec lorem. Nam ac laoreet
-        est, ac eleifend elit. Praesent iaculis purus nec sagittis dapibus. Mauris a accumsan justo,
-        nec luctus libero. Vivamus nec imperdiet nulla. Cras posuere, erat nec fermentum luctus, leo
-        diam sollicitudin orci, vel sagittis purus velit sed tortor. Sed vel risus nunc.
-      </p>
-      <p>
-        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis
-        egestas. Nullam non neque ex. Proin fermentum, metus sed tincidunt vehicula, sem purus
-        ultricies nulla, ac tempor leo lorem
-      </p>
+      @if (directoryContents().isLoading) {
+      <p>Loading directory contents...</p>
+      } @else if (directoryContents().error) {
+      <p class="error">Error: {{ directoryContents().error }}</p>
+      } @else if (directoryContents().hasContent) {
+      <h4>Selected Directory Contents:</h4>
+      <p><strong>Device:</strong> {{ directoryContents().deviceId }}</p>
+      <p><strong>Storage:</strong> {{ directoryContents().storageType }}</p>
+      <p><strong>Path:</strong> {{ directoryContents().currentPath }}</p>
+
+      <h5>Files & Directories JSON:</h5>
+      <pre>{{ directoryContents() | json }}</pre>
+      } @else {
+      <p>No directory selected or directory is empty.</p>
+      }
     </mat-card-content>
   </mat-card>
 </div>

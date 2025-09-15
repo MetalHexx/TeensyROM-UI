@@ -2,7 +2,9 @@
 
 ## Overview
 
-This document establishes standards for state management using NgRx Signal Store. These standards ensure consistency, maintainability, and scalability across all state management implementations.
+This document establishes standards for state management using NgRx Signal Store with async/await patterns. These standards ensure consistency, maintainability, and scalability across all state management implementations.
+
+**Primary Pattern**: Use async/await for store methods to provide deterministic, sequential Promise resolution that avoids concurrency issues common with RxJS observables in complex state scenarios.
 
 ---
 
@@ -10,7 +12,7 @@ This document establishes standards for state management using NgRx Signal Store
 
 ### Store Structure
 
-**Standard**: Use NgRx Signal Store with modular function organization
+**Standard**: Use NgRx Signal Store with modular async function organization
 
 **Format**:
 
@@ -19,15 +21,15 @@ export const ExampleStore = signalStore(
   { providedIn: 'root' },
   withDevtools('storeName'),
   withState(initialState),
-  withMethods((store, ...services) => ({
-    ...methodFunction1(store, service1),
-    ...methodFunction2(store, service2),
-    // Additional functions
+  withMethods((store, service = inject(SERVICE_TOKEN)) => ({
+    ...asyncMethod1(store, service),
+    ...asyncMethod2(store, service),
+    // Additional async functions
   }))
 );
 ```
 
-**Implementation Example**: See [DeviceStore](../libs/domain/device/state/src/lib/device-store.ts) for a complete implementation following this pattern.
+**Implementation Example**: See [StorageStore](../libs/domain/storage/state/src/lib/storage-store.ts) for a complete implementation following this pattern with async/await methods.
 
 **Requirements**:
 
@@ -36,8 +38,9 @@ export const ExampleStore = signalStore(
 - Define explicit TypeScript interfaces for state
 - Inject services with default parameters using `inject()`
 - Group related functions using spread operator
+- Prefer async/await methods over RxJS patterns for state operations
 
-**Reference Implementation**: [`device-store.ts`](../libs/domain/device/state/src/lib/device-store.ts)
+**Reference Implementation**: [`storage-store.ts`](../libs/domain/storage/state/src/lib/storage-store.ts)
 
 ---
 
@@ -69,9 +72,9 @@ state/
 
 **Implementation Examples**: See the following files for concrete implementations:
 
-- [`connect-device.ts`](../libs/domain/device/state/src/lib/methods/connect-device.ts) - Single function example
-- [`find-devices.ts`](../libs/domain/device/state/src/lib/methods/find-devices.ts) - Async operation with state updates
-- [`disconnect-device.ts`](../libs/domain/device/state/src/lib/methods/disconnect-device.ts) - Error handling patterns
+- [`initialize-storage.ts`](../libs/domain/storage/state/src/lib/methods/initialize-storage.ts) - Async/await function example
+- [`navigate-to-directory.ts`](../libs/domain/storage/state/src/lib/methods/navigate-to-directory.ts) - Async operation with state updates
+- [`refresh-directory.ts`](../libs/domain/storage/state/src/lib/methods/refresh-directory.ts) - Error handling patterns
 
 **Key Principles**:
 
@@ -96,31 +99,37 @@ state/
 **Template Pattern**:
 
 ```typescript
-import { inject } from '@angular/core';
 import { patchState, WritableStateSource } from '@ngrx/signals';
-import { ExampleService } from '@teensyrom-nx/domain/example/services';
 import { firstValueFrom } from 'rxjs';
-import { ExampleState } from '../example-store';
 
 type SignalStore<T> = {
   [K in keyof T]: () => T[K];
 };
 
 export function methodName(
-  store: SignalStore<ExampleState> & WritableStateSource<ExampleState>,
-  service: ExampleService = inject(ExampleService)
+  store: SignalStore<StateType> & WritableStateSource<StateType>,
+  service: ServiceType
 ) {
   return {
-    methodName: async (param: ParamType) => {
-      patchState(store, { error: null });
+    methodName: async ({ param }: { param: ParamType }): Promise<void> => {
+      // Clear any previous errors
+      patchState(store, { isLoading: true, error: null });
 
       try {
         const result = await firstValueFrom(service.operation(param));
+
         patchState(store, {
-          /* state updates */
+          data: result,
+          isLoading: false,
+          isLoaded: true,
+          error: null,
+          lastUpdateTime: Date.now(),
         });
       } catch (error) {
-        patchState(store, { error: String(error) });
+        patchState(store, {
+          isLoading: false,
+          error: (error as any)?.message || 'Operation failed',
+        });
       }
     },
   };
@@ -148,7 +157,7 @@ export * from './delete-item';
 - Update index when adding new function files
 - Group related function exports together for readability
 
-**Reference Implementation**: [`methods/index.ts`](../libs/domain/device/state/src/lib/methods/index.ts)
+**Reference Implementation**: [`methods/`](../libs/domain/storage/state/src/lib/methods/) directory structure
 
 ---
 
@@ -169,43 +178,43 @@ export * from './delete-item';
 
 ```typescript
 // State type definition
-export type ExampleState = {
-  // Core data
-  items: ItemType[];
+export interface MainState {
+  // Core data collections
+  entries: Record<string, EntryType>;
+  selectedItems: Record<string, SelectionType>;
 
   // UI state
   isLoading: boolean;
-  hasInitialised: boolean;
+  isLoaded: boolean;
 
   // Error handling
   error: string | null;
-
-  // Feature-specific state
-  featureSpecificProperty: boolean;
-};
+  lastLoadTime: number | null;
+}
 
 // Initial state
-const initialState: ExampleState = {
-  items: [],
+const initialState: MainState = {
+  entries: {},
+  selectedItems: {},
   isLoading: false,
-  hasInitialised: false,
+  isLoaded: false,
   error: null,
-  featureSpecificProperty: false,
+  lastLoadTime: null,
 };
 
 // Store definition
-export const ExampleStore = signalStore(
+export const MainStore = signalStore(
   { providedIn: 'root' },
-  withDevtools('exampleStoreName'),
+  withDevtools('mainStore'),
   withState(initialState),
-  withMethods((store, service = inject(ExampleService)) => ({
-    ...methodFunction1(store, service),
-    ...methodFunction2(store, service),
+  withMethods((store, service = inject(SERVICE_TOKEN)) => ({
+    ...asyncMethod1(store, service),
+    ...asyncMethod2(store, service),
   }))
 );
 ```
 
-**Reference Implementation**: See [`DeviceStore`](../libs/domain/device/state/src/lib/device-store.ts) for complete implementation.
+**Reference Implementation**: See [`StorageStore`](../libs/domain/storage/state/src/lib/storage-store.ts) for complete implementation.
 
 **Requirements**:
 
@@ -219,36 +228,80 @@ export const ExampleStore = signalStore(
 
 ---
 
+## Computed Signals
+
+### Derived State with `withComputed`
+
+**Standard**: Expose derived state from stores using `withComputed` and Angular Signals. Consumers should read values as signals (not plain values) to keep data flow fully reactive and composable.
+
+**Patterns**:
+
+```typescript
+export const ExampleStore = signalStore(
+  { providedIn: 'root' },
+  withState(initialState),
+  withComputed((store) => ({
+    // Non‑parameterized derivation
+    selectedItem: computed(() => {
+      const id = store.selectedId();
+      return id ? store.items().find((i) => i.id === id) ?? null : null;
+    }),
+
+    // Parameterized derivation via factory
+    getItemsByGroup: (groupId: string) =>
+      computed(() => store.items().filter((i) => i.groupId === groupId)),
+  }))
+);
+```
+
+**Guidelines**:
+
+- Return Signals: All derived values should be `computed()` signals exposed from the store API.
+- Prefer Factories: For parameterized selection, expose factories that return `computed()` signals (e.g., `getById(id)`), not plain arrays/objects.
+- Purity: Keep `computed()` functions pure (no side effects or state mutations).
+- Composition: Build complex derivations from simpler computed signals.
+- Performance: Avoid recreating expensive factories in tight loops; cache at call sites if needed.
+
+**Component Usage**:
+
+- Read signals directly in templates and components.
+- Pass parameters via signal inputs; construct factory‑based `computed()` selections in the component or expose factories from the store.
+- Prefer signals over observables in new code; interop only when necessary.
+
+---
+
 ## Error Handling
 
 ### Error State Management
 
-**Standard**: Implement consistent error handling across all functions
+**Standard**: Implement consistent error handling across all async functions
 
 **Pattern**:
 
 ```typescript
-export function exampleMethod(store, service) {
+export function asyncMethod(store, service) {
   return {
-    methodName: async (params) => {
-      // 1. Clear previous errors
-      patchState(store, { error: null });
+    methodName: async ({ param }: { param: ParamType }): Promise<void> => {
+      // 1. Set loading state and clear previous errors
+      patchState(store, { isLoading: true, error: null });
 
       try {
-        // 2. Perform operation
-        const result = await firstValueFrom(service.operation(params));
+        // 2. Perform async operation with firstValueFrom
+        const result = await firstValueFrom(service.operation(param));
 
         // 3. Update state on success
         patchState(store, {
-          // success state updates
+          data: result,
+          isLoading: false,
+          isLoaded: true,
           error: null,
+          lastUpdateTime: Date.now(),
         });
       } catch (error) {
-        // 4. Handle errors consistently
+        // 4. Handle errors with original message preservation
         patchState(store, {
-          error: String(error),
-          // Reset any loading states
           isLoading: false,
+          error: (error as any)?.message || 'Operation failed',
         });
       }
     },
@@ -258,10 +311,11 @@ export function exampleMethod(store, service) {
 
 **Requirements**:
 
-- Always clear errors at the start of operations
-- Use `String(error)` for consistent error formatting
+- Always set loading state and clear errors at operation start
+- Use `(error as any)?.message || 'fallback'` for error message preservation
 - Reset loading states in error handling
-- Maintain existing state when possible during errors
+- Include timestamp tracking for successful operations
+- Use `firstValueFrom()` for converting observables to promises
 
 ---
 
@@ -295,60 +349,63 @@ export function exampleMethod(
 
 ### Async Operations
 
-**Standard**: Choose between async/await and RxJS patterns based on the operation type
+**Standard**: Prefer async/await pattern for NgRx Signal Store methods to ensure deterministic execution and avoid concurrency issues
 
-**Async/Await Pattern**: Use for single-value operations and state updates
+**Primary Pattern - Async/Await**: Use for all store operations unless specifically requiring reactive streams
 
-**When to Use**:
+**When to Use Async/Await**:
 
-- Single HTTP requests (GET, POST, PUT, DELETE)
-- One-time operations that return a single result
+- All HTTP requests (GET, POST, PUT, DELETE)
 - State update operations in stores
-- Simple asynchronous operations
+- Sequential operations requiring deterministic execution
+- Operations that need to avoid race conditions
+- One-time operations that return a single result
 
 **Pattern**:
 
 ```typescript
-const result = await firstValueFrom(service.operation(params));
+export function storeMethod(store, service) {
+  return {
+    methodName: async ({ param }: { param: Type }): Promise<void> => {
+      patchState(store, { isLoading: true, error: null });
+
+      try {
+        const result = await firstValueFrom(service.getData(param));
+
+        patchState(store, {
+          data: result,
+          isLoading: false,
+          isLoaded: true,
+          lastUpdateTime: Date.now(),
+        });
+      } catch (error) {
+        patchState(store, {
+          isLoading: false,
+          error: (error as any)?.message || 'Operation failed',
+        });
+      }
+    },
+  };
+}
 ```
 
-**RxJS/Observable Pattern**: Use for reactive data streams and complex async flows
+**Limited RxJS Usage**: Only use for reactive streams requiring continuous data
 
-**When to Use**:
+**When to Use RxJS**:
 
 - Real-time data streams (WebSocket, SSE)
-- Multiple dependent HTTP requests
-- Operations requiring cancellation
-- Complex async flows with operators (debounce, retry, etc.)
-- Component subscriptions to store state
-
-**Pattern**:
-
-```typescript
-// In services - return observables
-public getDataStream(): Observable<ExampleData[]> {
-  return this.http.get<ExampleData[]>('/api/data').pipe(
-    retry(3),
-    catchError(this.handleError)
-  );
-}
-
-// In components - subscribe to store signals
-ngOnInit() {
-  // Signal store state is automatically reactive
-  this.items = this.exampleStore.items;
-}
-```
+- Service-level observable streams
+- Component subscriptions to store signals
 
 **Requirements**:
 
-- Use `firstValueFrom()` when converting observables to promises in store functions
-- Use `async/await` for store function implementations
-- Return observables from services for reactive data
-- Handle RxJS observables appropriately in each context
-- Implement proper error propagation for both patterns
+- **Primary**: Use `async/await` with `firstValueFrom()` for all store methods
+- **Services**: Return observables for reactive data streams
+- **Components**: Subscribe to store signals directly (they are automatically reactive)
+- **Error Handling**: Preserve original error messages with proper type casting
+- **State Management**: Include loading, loaded, and error states consistently
 
-**Best Practice**: Use async/await in store functions for simplicity and RxJS patterns when you need reactive capabilities or complex async coordination.
+**Best Practice**: Default to async/await for store methods. This provides deterministic Promise resolution and avoids the concurrency issues that can occur with RxJS observables in complex state scenarios.
 
 ---
 
@@ -379,60 +436,55 @@ export function methodName(
 
 ### Method Implementation Patterns
 
-**Reactive Methods (rxMethod)**: Use for async operations with observables
+**Primary Pattern - Async Methods**: Use for all operations requiring external data or services
 
 ```typescript
 import { patchState, WritableStateSource } from '@ngrx/signals';
-import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe } from 'rxjs';
-import { switchMap, tap, catchError, of } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 export function loadData(
-  store: SignalStore<ExampleState> & WritableStateSource<ExampleState>,
-  service: ExampleService = inject(ExampleService)
+  store: SignalStore<StateType> & WritableStateSource<StateType>,
+  service: ServiceType
 ) {
   return {
-    loadData: rxMethod<{ id: string }>(
-      pipe(
-        tap(({ id }) => {
-          // Set loading state
-          patchState(store, { isLoading: true, error: null });
-        }),
-        switchMap(({ id }) => {
-          return service.getData(id).pipe(
-            tap((data) => {
-              // Update with success data
-              patchState(store, {
-                data,
-                isLoading: false,
-                error: null,
-                lastLoadTime: Date.now(),
-              });
-            }),
-            catchError((error) => {
-              // Handle errors
-              patchState(store, {
-                isLoading: false,
-                error: error.message || 'Failed to load data',
-              });
-              return of(null);
-            })
-          );
-        })
-      )
-    ),
+    loadData: async ({ id }: { id: string }): Promise<void> => {
+      // Set loading state and clear errors
+      patchState(store, { isLoading: true, error: null });
+
+      try {
+        const data = await firstValueFrom(service.getData(id));
+
+        // Update with success data
+        patchState(store, {
+          data,
+          isLoading: false,
+          isLoaded: true,
+          error: null,
+          lastLoadTime: Date.now(),
+        });
+      } catch (error) {
+        // Handle errors with message preservation
+        patchState(store, {
+          isLoading: false,
+          error: (error as any)?.message || 'Failed to load data',
+        });
+      }
+    },
   };
 }
 ```
 
-**Synchronous Methods**: Use for simple state updates
+**Synchronous Methods**: Use only for simple state updates that don't require external services
 
 ```typescript
-export function updateItem(store: SignalStore<ExampleState> & WritableStateSource<ExampleState>) {
+export function updateSelection(store: SignalStore<StateType> & WritableStateSource<StateType>) {
   return {
-    updateItem: ({ id, updates }: { id: string; updates: Partial<Item> }) => {
+    updateSelection: ({ id, selection }: { id: string; selection: SelectionType }) => {
       patchState(store, (state) => ({
-        items: state.items.map((item) => (item.id === id ? { ...item, ...updates } : item)),
+        selectedItems: {
+          ...state.selectedItems,
+          [id]: selection,
+        },
       }));
     },
   };
@@ -446,17 +498,15 @@ export function updateItem(store: SignalStore<ExampleState> & WritableStateSourc
 **Correct Store Setup**:
 
 ```typescript
-export const ExampleStore = signalStore(
+export const MainStore = signalStore(
   { providedIn: 'root' },
-  withDevtools('example'),
+  withDevtools('mainStore'),
   withState(initialState),
-  withMethods(
-    (store, serviceA: ServiceA = inject(ServiceA), serviceB: ServiceB = inject(ServiceB)) => ({
-      ...methodUsingServiceA(store, serviceA),
-      ...methodUsingServiceB(store, serviceB),
-      ...methodNotUsingServices(store), // No service parameter
-    })
-  )
+  withMethods((store, service = inject(SERVICE_TOKEN)) => ({
+    ...asyncMethod1(store, service),
+    ...asyncMethod2(store, service),
+    ...syncMethodNotUsingServices(store), // No service parameter needed
+  }))
 );
 ```
 
@@ -467,6 +517,21 @@ export const ExampleStore = signalStore(
 ```typescript
 export function badMethod(store: any, service: any) {
   // This violates coding standards and breaks type safety
+}
+```
+
+**❌ WRONG - Using RxJS rxMethod for simple operations**:
+
+```typescript
+export function loadData(store, service) {
+  return {
+    loadData: rxMethod<{ id: string }>(
+      pipe(
+        switchMap(({ id }) => service.getData(id)),
+        tap((data) => patchState(store, { data }))
+      )
+    ),
+  };
 }
 ```
 
@@ -484,29 +549,29 @@ export function refreshData(
 }
 ```
 
-**❌ WRONG - Complex type intersections for method calls**:
+**✅ CORRECT - Use async/await pattern**:
 
 ```typescript
-// Don't try to reference other store methods in type signatures
-store: SignalStore<State> & WritableStateSource<State> & { otherMethod: Function };
-```
-
-**✅ CORRECT - Duplicate logic or use reactive patterns**:
-
-```typescript
-export function refreshData(
-  store: SignalStore<State> & WritableStateSource<State>,
-  service: Service = inject(Service)
-) {
+export function loadData(store: SignalStore<State> & WritableStateSource<State>, service: Service) {
   return {
-    refreshData: rxMethod<{ id: string }>(
-      pipe(
-        switchMap(({ id }) => {
-          // Directly call service, don't depend on other store methods
-          return service.getData(id).pipe(/* ... */);
-        })
-      )
-    ),
+    loadData: async ({ id }: { id: string }): Promise<void> => {
+      patchState(store, { isLoading: true, error: null });
+
+      try {
+        const data = await firstValueFrom(service.getData(id));
+        patchState(store, {
+          data,
+          isLoading: false,
+          isLoaded: true,
+          lastUpdateTime: Date.now(),
+        });
+      } catch (error) {
+        patchState(store, {
+          isLoading: false,
+          error: (error as any)?.message || 'Failed to load data',
+        });
+      }
+    },
   };
 }
 ```
@@ -522,32 +587,36 @@ export function refreshData(
 store: SignalStore<State> & WritableStateSource<State> & { loadDirectory: Function };
 ```
 
-**Root Cause**: NgRx Signal Store methods should not directly call other store methods. The correct pattern is to duplicate logic or use reactive patterns.
+**Root Cause**: NgRx Signal Store methods should not directly call other store methods. The correct pattern is to use async/await with direct service calls.
 
-**✅ CORRECT Solution - Duplicate logic or use reactive patterns**:
+**✅ CORRECT Solution - Use async/await with direct service calls**:
 
 ```typescript
 export function refreshData(
   store: SignalStore<State> & WritableStateSource<State>,
-  service: Service = inject(Service)
+  service: Service
 ) {
   return {
-    refreshData: rxMethod<{ id: string }>(
-      pipe(
-        switchMap(({ id }) => {
-          // Directly call service, don't depend on other store methods
-          return service.getData(id).pipe(
-            tap((data) => {
-              patchState(store, { data, isLoading: false });
-            }),
-            catchError((error) => {
-              patchState(store, { error: error.message, isLoading: false });
-              return of(null);
-            })
-          );
-        })
-      )
-    ),
+    refreshData: async ({ id }: { id: string }): Promise<void> => {
+      patchState(store, { isLoading: true, error: null });
+
+      try {
+        // Directly call service, don't depend on other store methods
+        const data = await firstValueFrom(service.getData(id));
+
+        patchState(store, {
+          data,
+          isLoading: false,
+          isLoaded: true,
+          lastUpdateTime: Date.now(),
+        });
+      } catch (error) {
+        patchState(store, {
+          isLoading: false,
+          error: (error as any)?.message || 'Failed to refresh data',
+        });
+      }
+    },
   };
 }
 ```
@@ -557,11 +626,11 @@ export function refreshData(
 **❌ WRONG - Passing unused services**:
 
 ```typescript
-export const ExampleStore = signalStore(
+export const MainStore = signalStore(
   { providedIn: 'root' },
   withMethods((store, serviceA = inject(ServiceA), serviceB = inject(ServiceB)) => ({
-    ...methodOnlyUsingServiceA(store, serviceA),
-    ...methodNotUsingAnyService(store, serviceB), // Wrong - unused service
+    ...asyncMethodUsingServiceA(store, serviceA),
+    ...syncMethodNotUsingServices(store, serviceB), // Wrong - unused service
   }))
 );
 ```
@@ -569,24 +638,24 @@ export const ExampleStore = signalStore(
 **✅ CORRECT - Only pass services that are actually used**:
 
 ```typescript
-export const ExampleStore = signalStore(
+export const MainStore = signalStore(
   { providedIn: 'root' },
-  withMethods((store, serviceA = inject(ServiceA)) => ({
-    ...methodUsingServiceA(store, serviceA),
-    ...methodNotUsingServices(store), // No unused service parameter
+  withMethods((store, service = inject(SERVICE_TOKEN)) => ({
+    ...asyncMethodUsingService(store, service),
+    ...syncMethodNotUsingServices(store), // No unused service parameter
   }))
 );
 ```
 
 ### Method Implementation Pitfalls
 
-**❌ WRONG - Synchronous method trying to be reactive**:
+**❌ WRONG - Missing proper error handling and state management**:
 
 ```typescript
 export function updateData(store: SignalStore<State>, service: Service) {
   return {
     updateData: async ({ id, data }) => {
-      // Don't mix async/await with rxMethod patterns
+      // Missing loading state, error handling, and proper typing
       const result = await service.update(id, data);
       patchState(store, { result });
     },
@@ -594,32 +663,34 @@ export function updateData(store: SignalStore<State>, service: Service) {
 }
 ```
 
-**✅ CORRECT - Choose the right pattern for the operation**:
+**✅ CORRECT - Proper async/await implementation with complete state management**:
 
 ```typescript
-// For simple async operations - use async/await
-export function updateData(store: SignalStore<State>, service: Service) {
+export function updateData(
+  store: SignalStore<State> & WritableStateSource<State>,
+  service: Service
+) {
   return {
-    updateData: async ({ id, data }) => {
+    updateData: async ({ id, data }: { id: string; data: DataType }): Promise<void> => {
+      patchState(store, { isLoading: true, error: null });
+
       try {
         const result = await firstValueFrom(service.update(id, data));
-        patchState(store, { result, error: null });
+
+        patchState(store, {
+          result,
+          isLoading: false,
+          isLoaded: true,
+          error: null,
+          lastUpdateTime: Date.now(),
+        });
       } catch (error) {
-        patchState(store, { error: String(error) });
+        patchState(store, {
+          isLoading: false,
+          error: (error as any)?.message || 'Update failed',
+        });
       }
     },
-  };
-}
-
-// For reactive streams - use rxMethod
-export function loadDataStream(store: SignalStore<State>, service: Service) {
-  return {
-    loadDataStream: rxMethod<{ id: string }>(
-      pipe(
-        switchMap(({ id }) => service.getDataStream(id)),
-        tap((data) => patchState(store, { data }))
-      )
-    ),
   };
 }
 ```
@@ -641,10 +712,11 @@ export function loadDataStream(store: SignalStore<State>, service: Service) {
 
 **Guidelines**:
 
-- Each function should handle one specific operation
-- Separate functions that use different services into different files
+- Each function should handle one specific async operation
+- Use async/await pattern for all service-dependent operations
 - Keep individual files focused on single responsibility
 - Use descriptive names that clearly indicate the operation
+- Include proper TypeScript typing with Promise return types
 
 ### Testing Considerations
 
@@ -652,8 +724,10 @@ export function loadDataStream(store: SignalStore<State>, service: Service) {
 
 - One-function-per-file pattern enables easier unit testing
 - Mock services through parameter injection for isolated testing
-- Test error conditions and success paths for each function
+- Test async/await functions with proper Promise handling
+- Test error conditions and success paths for each async function
 - Verify state updates are immutable and consistent
+- Use `await` for all async method calls in tests
 
 ## Store Testing Requirements
 
@@ -670,6 +744,14 @@ See STORE_TESTING.md for the complete, up‑to‑date methodology, patterns, and
 
 ## Reference Implementation
 
-- **DeviceStore**: [`device-store.ts`](../libs/domain/device/state/src/lib/device-store.ts) - Complete store implementation example
-- **Function Examples**: [`methods/`](../libs/domain/device/state/src/lib/methods/) - Individual function implementations
-- **StorageStore**: `libs/domain/storage/state/src/lib/storage-store.ts` - Example of a properly tested store (see its spec at `libs/domain/storage/state/src/lib/storage-store.spec.ts`)
+- **StorageStore**: [`storage-store.ts`](../libs/domain/storage/state/src/lib/storage-store.ts) - Primary example of async/await store implementation
+- **Storage Methods**: [`methods/`](../libs/domain/storage/state/src/lib/methods/) - Individual async function implementations
+- **Storage Tests**: [`storage-store.spec.ts`](../libs/domain/storage/state/src/lib/storage-store.spec.ts) - Complete async/await testing patterns
+
+**Key Features of Reference Implementation**:
+
+- Async/await methods with `firstValueFrom()` for Promise conversion
+- Comprehensive error handling with message preservation
+- Loading state management with proper cleanup
+- Sequential operation support to avoid concurrency issues
+- Complete test coverage with async test patterns

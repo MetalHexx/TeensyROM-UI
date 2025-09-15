@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Device } from '@teensyrom-nx/domain/device/services';
 import { MatCardModule } from '@angular/material/card';
@@ -22,4 +22,6 @@ import { StorageContainerComponent } from './storage-container/storage-container
 })
 export class PlayerDeviceContainerComponent {
   device = input<Device>();
+
+  readonly deviceId = computed(() => this.device()?.deviceId ?? '');
 }

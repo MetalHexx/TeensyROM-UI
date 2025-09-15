@@ -13,16 +13,22 @@ export function cleanupStorage(
   return {
     cleanupStorage: ({ deviceId }: { deviceId: string }) => {
       patchState(store, (state) => {
+        const updatedSelectedDirectories = { ...state.selectedDirectories };
         const updatedEntries = { ...state.storageEntries };
 
-        // Remove all entries for the specified device
+        // Remove all entries for the specified device and device selection
         Object.keys(updatedEntries).forEach((key) => {
           if (StorageKeyUtil.forDevice(deviceId)(key as StorageKey)) {
+            console.log(` Starting async initialization for ${key}`);
             delete updatedEntries[key];
           }
         });
+        delete updatedSelectedDirectories[deviceId];
 
-        return { storageEntries: updatedEntries };
+        return {
+          storageEntries: updatedEntries,
+          selectedDirectories: updatedSelectedDirectories,
+        };
       });
     },
 

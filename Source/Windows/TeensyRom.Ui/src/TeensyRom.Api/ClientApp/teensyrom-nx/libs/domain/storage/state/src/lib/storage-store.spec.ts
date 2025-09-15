@@ -23,13 +23,29 @@ import { StorageKeyUtil } from './storage-key.util';
 type StorageStoreInstance = {
   // state getters
   storageEntries: () => Record<string, StorageDirectoryState>;
-  selectedDirectory: () => SelectedDirectory | null;
-  // methods
-  initializeStorage: (args: { deviceId: string; storageType: StorageType }) => void;
-  navigateToDirectory: (args: { deviceId: string; storageType: StorageType; path: string }) => void;
-  refreshDirectory: (args: { deviceId: string; storageType: StorageType }) => void;
+  selectedDirectories: () => Record<string, SelectedDirectory>;
+  // async methods
+  initializeStorage: (args: { deviceId: string; storageType: StorageType }) => Promise<void>;
+  navigateToDirectory: (args: {
+    deviceId: string;
+    storageType: StorageType;
+    path: string;
+  }) => Promise<void>;
+  refreshDirectory: (args: { deviceId: string; storageType: StorageType }) => Promise<void>;
   cleanupStorage: (args: { deviceId: string }) => void;
   cleanupStorageType: (args: { deviceId: string; storageType: StorageType }) => void;
+  // per-device selection methods
+  getSelectedDirectoryForDevice: (deviceId: string) => SelectedDirectory | null;
+  getSelectedDirectoryState: (deviceId: string) => () => StorageDirectoryState | null;
+  // computed factories
+  getDeviceStorageEntries: (deviceId: string) => () => Record<string, StorageDirectoryState>;
+  getDeviceDirectories: (deviceId: string) => () => Array<{
+    key: string;
+    deviceId: string;
+    storageType: StorageType;
+    currentPath: string;
+    directories: StorageDirectory['directories'];
+  }>;
 };
 
 describe('StorageStore (NgRx Signal Store)', () => {
@@ -42,8 +58,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
   let getDirectoryMock: MockedFunction<GetDirectoryFn>;
   let mockStorageService: IStorageService;
 
-  // Simple async tick helper for rxMethod completions
-  const nextTick = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+  // No longer needed since we use async/await directly
 
   // Test Data Factories
   const createMockStorageDirectory = (path = '/'): StorageDirectory => ({
@@ -91,7 +106,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
 
     it('should initialize with expected initial state', () => {
       expect(store.storageEntries()).toEqual({});
-      expect(store.selectedDirectory()).toBeNull();
+      expect(store.selectedDirectories()).toEqual({});
     });
 
     it('should expose expected methods on the store', () => {
@@ -116,14 +131,15 @@ describe('StorageStore (NgRx Signal Store)', () => {
   });
 
   // -----------------------------------------
-  // Task 3: initializeStorage()
+  // Task 3: initializeStorage() - Enhanced with Root Directory Fetching
   // -----------------------------------------
-  describe('initializeStorage()', () => {
-    it('creates initial storage entry when key does not exist', () => {
+  describe('initializeStorage() - Enhanced', () => {
+    it('creates initial storage entry and fetches root directory on first call', async () => {
       const deviceId = 'device-1';
       const storageType = StorageType.Sd;
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
 
-      store.initializeStorage({ deviceId, storageType });
+      await store.initializeStorage({ deviceId, storageType });
 
       const key = StorageKeyUtil.create(deviceId, storageType);
       const entry = store.storageEntries()[key];
@@ -132,56 +148,107 @@ describe('StorageStore (NgRx Signal Store)', () => {
       expect(entry.deviceId).toBe(deviceId);
       expect(entry.storageType).toBe(storageType);
       expect(entry.currentPath).toBe('/');
-      expect(entry.directory).toBeNull();
-      expect(entry.isLoaded).toBe(false);
+      expect(entry.directory).toBeTruthy();
+      expect(entry.directory?.path).toBe('/');
+      expect(entry.isLoaded).toBe(true);
       expect(entry.isLoading).toBe(false);
       expect(entry.error).toBeNull();
-      expect(entry.lastLoadTime).toBeNull();
+      expect(entry.lastLoadTime).toBeGreaterThan(0);
+
+      // Should have called API for root directory
+      expect(getDirectoryMock).toHaveBeenCalledWith(deviceId, storageType, '/');
     });
 
-    it('does not overwrite existing storage entry on duplicate call', () => {
+    it('sets selectedDirectory to root on initialize', async () => {
+      const deviceId = 'device-1';
+      const storageType = StorageType.Sd;
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+
+      await store.initializeStorage({ deviceId, storageType });
+
+      expect(store.selectedDirectories()[deviceId]).toEqual({
+        deviceId,
+        storageType,
+        path: '/',
+      });
+    });
+
+    it('skips API call when root directory already loaded (cache hit)', async () => {
+      const deviceId = 'device-1';
+      const storageType = StorageType.Sd;
+
+      // First initialization - loads from API
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+
+      // Clear mock call history
+      getDirectoryMock.mockClear();
+
+      // Second initialization - should use cache
+      await store.initializeStorage({ deviceId, storageType });
+
+      expect(getDirectoryMock).not.toHaveBeenCalled();
+
+      // Selection still updates
+      expect(store.selectedDirectories()[deviceId]).toEqual({
+        deviceId,
+        storageType,
+        path: '/',
+      });
+    });
+
+    it('makes API call when root directory has error (recovery)', async () => {
       const deviceId = 'device-1';
       const storageType = StorageType.Sd;
       const key = StorageKeyUtil.create(deviceId, storageType);
 
-      store.initializeStorage({ deviceId, storageType });
-      const original = store.storageEntries()[key];
+      // First initialization fails
+      getDirectoryMock.mockReturnValue(throwError(() => new Error('Network error')));
+      await store.initializeStorage({ deviceId, storageType });
 
-      // Mutate via navigate path to detect unintended overwrite later
-      // (simulate some state change)
-      // No API call here; just call initialize again
-      store.initializeStorage({ deviceId, storageType });
+      expect(store.storageEntries()[key].error).toBe('Network error');
+      expect(store.storageEntries()[key].isLoaded).toBe(false);
 
-      const after = store.storageEntries()[key];
-      expect(after).toEqual(original);
+      // Second initialization should retry API call
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+
+      expect(getDirectoryMock).toHaveBeenCalledTimes(2); // Both calls made
+      expect(store.storageEntries()[key].error).toBeNull();
+      expect(store.storageEntries()[key].isLoaded).toBe(true);
     });
 
-    it('preserves existing entries when initializing a new entry', () => {
-      const deviceIdA = 'device-1';
-      const deviceIdB = 'device-2';
+    it('handles API error by setting error state and clearing loading', async () => {
+      const deviceId = 'device-1';
       const storageType = StorageType.Sd;
+      getDirectoryMock.mockReturnValue(throwError(() => new Error('API Error')));
 
-      store.initializeStorage({ deviceId: deviceIdA, storageType });
-      const keyA = StorageKeyUtil.create(deviceIdA, storageType);
-      const originalA = store.storageEntries()[keyA];
+      await store.initializeStorage({ deviceId, storageType });
 
-      // Initialize a different entry
-      store.initializeStorage({ deviceId: deviceIdB, storageType });
-
-      const afterA = store.storageEntries()[keyA];
-      expect(afterA).toEqual(originalA);
+      const key = StorageKeyUtil.create(deviceId, storageType);
+      const entry = store.storageEntries()[key];
+      expect(entry.isLoading).toBe(false);
+      expect(entry.error).toBe('API Error');
+      expect(entry.directory).toBeNull();
+      expect(entry.isLoaded).toBe(false);
     });
 
-    it('supports multiple device-storage combinations', () => {
-      store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Sd });
-      store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Usb });
-      store.initializeStorage({ deviceId: 'device-2', storageType: StorageType.Sd });
+    it('supports multiple device-storage combinations independently', async () => {
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+
+      await store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Sd });
+      await store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Usb });
+      await store.initializeStorage({ deviceId: 'device-2', storageType: StorageType.Sd });
 
       const entries = store.storageEntries();
       expect(entries[StorageKeyUtil.create('device-1', StorageType.Sd)]).toBeDefined();
       expect(entries[StorageKeyUtil.create('device-1', StorageType.Usb)]).toBeDefined();
       expect(entries[StorageKeyUtil.create('device-2', StorageType.Sd)]).toBeDefined();
       expect(Object.keys(entries).length).toBe(3);
+
+      // All should be loaded
+      expect(Object.values(entries).every((e) => e.isLoaded)).toBe(true);
+      expect(getDirectoryMock).toHaveBeenCalledTimes(3);
     });
   });
 
@@ -192,16 +259,18 @@ describe('StorageStore (NgRx Signal Store)', () => {
     const deviceId = 'device-1';
     const storageType = StorageType.Sd;
 
-    beforeEach(() => {
-      store.initializeStorage({ deviceId, storageType });
+    beforeEach(async () => {
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+      getDirectoryMock.mockClear();
     });
 
-    it('updates selectedDirectory immediately on navigate', () => {
+    it('updates selectedDirectory immediately on navigate', async () => {
       getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
 
-      store.navigateToDirectory({ deviceId, storageType, path: '/games' });
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
 
-      expect(store.selectedDirectory()).toEqual({
+      expect(store.selectedDirectories()[deviceId]).toEqual({
         deviceId,
         storageType,
         path: '/games',
@@ -211,18 +280,17 @@ describe('StorageStore (NgRx Signal Store)', () => {
     it('skips API call when directory is already loaded (cache hit)', async () => {
       // First load to populate cache
       getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
-      store.navigateToDirectory({ deviceId, storageType, path: '/games' });
-      await nextTick();
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
 
       // Clear mock call history
       getDirectoryMock.mockClear();
 
       // Navigate to same path → should use cache
-      store.navigateToDirectory({ deviceId, storageType, path: '/games' });
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
 
       expect(getDirectoryMock).not.toHaveBeenCalled();
       // selection still updates
-      expect(store.selectedDirectory()).toEqual({
+      expect(store.selectedDirectories()[deviceId]).toEqual({
         deviceId,
         storageType,
         path: '/games',
@@ -232,10 +300,9 @@ describe('StorageStore (NgRx Signal Store)', () => {
     it('makes API call for new directory path (cache miss) and updates state on success', async () => {
       getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/music')));
 
-      store.navigateToDirectory({ deviceId, storageType, path: '/music' });
+      await store.navigateToDirectory({ deviceId, storageType, path: '/music' });
 
       const key = StorageKeyUtil.create(deviceId, storageType);
-      await nextTick();
 
       // API called once
       expect(getDirectoryMock).toHaveBeenCalledWith(deviceId, storageType, '/music');
@@ -251,13 +318,12 @@ describe('StorageStore (NgRx Signal Store)', () => {
     it('sets error and clears loading on API error (cache miss)', async () => {
       getDirectoryMock.mockReturnValue(throwError(() => new Error('API Error')));
 
-      store.navigateToDirectory({ deviceId, storageType, path: '/error' });
-      await nextTick();
+      await store.navigateToDirectory({ deviceId, storageType, path: '/error' });
 
       const key = StorageKeyUtil.create(deviceId, storageType);
       const entry = store.storageEntries()[key];
       expect(entry.isLoading).toBe(false);
-      expect(entry.error).toBe('API Error');
+      expect(entry.error).toBe('Failed to navigate to directory');
       expect(entry.directory).toBeNull();
       expect(entry.isLoaded).toBe(false);
     });
@@ -271,11 +337,13 @@ describe('StorageStore (NgRx Signal Store)', () => {
     const storageType = StorageType.Sd;
 
     beforeEach(async () => {
-      // Initialize and load an initial directory at /games
-      store.initializeStorage({ deviceId, storageType });
+      // Initialize with root directory first
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+
+      // Navigate to /games
       getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
-      store.navigateToDirectory({ deviceId, storageType, path: '/games' });
-      await nextTick();
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
       getDirectoryMock.mockClear();
     });
 
@@ -286,9 +354,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       const key = StorageKeyUtil.create(deviceId, storageType);
       const beforeTs = store.storageEntries()[key].lastLoadTime;
 
-      store.refreshDirectory({ deviceId, storageType });
-
-      await nextTick();
+      await store.refreshDirectory({ deviceId, storageType });
 
       // API called with currentPath
       expect(getDirectoryMock).toHaveBeenCalledWith(deviceId, storageType, '/games');
@@ -298,7 +364,8 @@ describe('StorageStore (NgRx Signal Store)', () => {
       expect(entry.isLoaded).toBe(true);
       expect(entry.error).toBeNull();
       expect(entry.directory).toEqual(refreshed);
-      expect(entry.lastLoadTime).toBeGreaterThan(beforeTs ?? 0);
+      // Allow equality if refresh completes within the same millisecond
+      expect(entry.lastLoadTime ?? 0).toBeGreaterThanOrEqual(beforeTs ?? 0);
     });
 
     it('handles API error by clearing loading, setting error, and preserving directory', async () => {
@@ -307,19 +374,90 @@ describe('StorageStore (NgRx Signal Store)', () => {
 
       getDirectoryMock.mockReturnValue(throwError(() => new Error('Refresh failed')));
 
-      store.refreshDirectory({ deviceId, storageType });
-      await nextTick();
+      await store.refreshDirectory({ deviceId, storageType });
 
       const entry = store.storageEntries()[key];
       expect(entry.isLoading).toBe(false);
-      expect(entry.error).toBe('Refresh failed');
-      // Directory is preserved on error
+      expect(entry.error).toBe('Failed to refresh directory');
       expect(entry.directory).toEqual(originalDir);
     });
 
-    it('is a no-op when storage entry does not exist', () => {
-      store.refreshDirectory({ deviceId: 'missing', storageType });
+    it('is a no-op when storage entry does not exist', async () => {
+      await store.refreshDirectory({ deviceId: 'missing', storageType });
       expect(getDirectoryMock).not.toHaveBeenCalled();
+    });
+  });
+
+  // -----------------------------------------
+  // Task 2: Computed Signals
+  // -----------------------------------------
+  describe('computed signals', () => {
+    it('selectedDirectoryState returns null when nothing selected', () => {
+      const deviceId = 'device-1';
+      expect(store.selectedDirectories()[deviceId]).toBeUndefined();
+      expect(store.getSelectedDirectoryState(deviceId)()).toBeNull();
+    });
+
+    it('selectedDirectoryState reflects the selected entry after navigation', async () => {
+      const deviceId = 'device-1';
+      const storageType = StorageType.Sd;
+
+      // Initialize with root first
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+
+      // Navigate to games
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
+
+      const sel = store.getSelectedDirectoryState(deviceId)();
+      expect(sel).toBeTruthy();
+      expect(sel?.deviceId).toBe(deviceId);
+      expect(sel?.storageType).toBe(storageType);
+      expect(sel?.currentPath).toBe('/games');
+      expect(sel?.isLoaded).toBe(true);
+      expect(sel?.directory?.path).toBe('/games');
+    });
+
+    it('getDeviceStorageEntries filters entries by deviceId', async () => {
+      // Initialize multiple entries
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Sd });
+      await store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Usb });
+      await store.initializeStorage({ deviceId: 'device-2', storageType: StorageType.Sd });
+
+      const dev1Entries = store.getDeviceStorageEntries('device-1')();
+      const keys = Object.keys(dev1Entries);
+      expect(keys.every((k) => k.startsWith('device-1-'))).toBe(true);
+      expect(keys.length).toBe(2);
+    });
+
+    it('getDeviceDirectories returns directories-only projections for a device', async () => {
+      const deviceId = 'device-1';
+
+      // Initialize SD
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType: StorageType.Sd });
+
+      // Navigate SD to games
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateToDirectory({ deviceId, storageType: StorageType.Sd, path: '/games' });
+
+      // Initialize USB
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType: StorageType.Usb });
+
+      // Navigate USB to roms
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/roms')));
+      await store.navigateToDirectory({ deviceId, storageType: StorageType.Usb, path: '/roms' });
+
+      const dirs = store.getDeviceDirectories(deviceId)();
+      // Expect entries for both SD and USB with directories arrays
+      expect(dirs.length).toBe(2);
+      expect(dirs.map((d) => d.deviceId)).toEqual(['device-1', 'device-1']);
+      expect(dirs.some((d) => d.storageType === StorageType.Sd)).toBe(true);
+      expect(dirs.some((d) => d.storageType === StorageType.Usb)).toBe(true);
+      expect(dirs.every((d) => Array.isArray(d.directories))).toBe(true);
     });
   });
 
@@ -327,11 +465,12 @@ describe('StorageStore (NgRx Signal Store)', () => {
   // Task 6: cleanupStorage() and cleanupStorageType()
   // -----------------------------------------
   describe('cleanup storage entries', () => {
-    it('removes all entries for a specific device and preserves others', () => {
-      // Arrange - create multiple entries
-      store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Sd });
-      store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Usb });
-      store.initializeStorage({ deviceId: 'device-2', storageType: StorageType.Sd });
+    it('removes all entries for a specific device and preserves others', async () => {
+      // Arrange - create multiple entries (now requires mock setup)
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Sd });
+      await store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Usb });
+      await store.initializeStorage({ deviceId: 'device-2', storageType: StorageType.Sd });
 
       // Act - cleanup device-1
       store.cleanupStorage({ deviceId: 'device-1' });
@@ -343,10 +482,11 @@ describe('StorageStore (NgRx Signal Store)', () => {
       expect(entries[StorageKeyUtil.create('device-2', StorageType.Sd)]).toBeDefined();
     });
 
-    it('removes only the targeted device-storage entry', () => {
+    it('removes only the targeted device-storage entry', async () => {
       // Arrange
-      store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Sd });
-      store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Usb });
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Sd });
+      await store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Usb });
 
       // Act - cleanup only SD for device-1
       store.cleanupStorageType({ deviceId: 'device-1', storageType: StorageType.Sd });
@@ -357,24 +497,30 @@ describe('StorageStore (NgRx Signal Store)', () => {
       expect(entries[StorageKeyUtil.create('device-1', StorageType.Usb)]).toBeDefined();
     });
 
-    it('does not modify selectedDirectory (current implementation) during cleanup', () => {
+    it('removes device selection during cleanup', async () => {
       // Arrange: set up two devices and select one
-      store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Sd });
-      store.initializeStorage({ deviceId: 'device-2', storageType: StorageType.Sd });
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Sd });
+      await store.initializeStorage({ deviceId: 'device-2', storageType: StorageType.Sd });
+
+      // Navigate to a different path
       getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/sel')));
-      store.navigateToDirectory({
+      await store.navigateToDirectory({
         deviceId: 'device-1',
         storageType: StorageType.Sd,
         path: '/sel',
       });
 
-      const beforeSelection = store.selectedDirectory();
+      // Verify device-1 has selection
+      expect(store.selectedDirectories()['device-1']).toBeDefined();
+      expect(store.selectedDirectories()['device-2']).toBeDefined();
 
       // Act: cleanup device-1 (the selected one)
       store.cleanupStorage({ deviceId: 'device-1' });
 
-      // Assert: selection remains unchanged per current code behavior
-      expect(store.selectedDirectory()).toEqual(beforeSelection);
+      // Assert: device-1 selection removed, device-2 preserved
+      expect(store.selectedDirectories()['device-1']).toBeUndefined();
+      expect(store.selectedDirectories()['device-2']).toBeDefined();
     });
   });
 
@@ -383,24 +529,32 @@ describe('StorageStore (NgRx Signal Store)', () => {
   // -----------------------------------------
   describe('multi-device state management', () => {
     it('maintains independent state per device-storage combination', async () => {
-      // Arrange
-      store.initializeStorage({ deviceId: 'dev-1', storageType: StorageType.Sd });
-      store.initializeStorage({ deviceId: 'dev-1', storageType: StorageType.Usb });
-      store.initializeStorage({ deviceId: 'dev-2', storageType: StorageType.Sd });
+      // Arrange - Initialize entries first
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId: 'dev-1', storageType: StorageType.Sd });
+      await store.initializeStorage({ deviceId: 'dev-1', storageType: StorageType.Usb });
+      await store.initializeStorage({ deviceId: 'dev-2', storageType: StorageType.Sd });
 
       getDirectoryMock.mockImplementation((_, __, path?: string) =>
         of(createMockStorageDirectory(path ?? '/'))
       );
 
       // Act
-      store.navigateToDirectory({ deviceId: 'dev-1', storageType: StorageType.Sd, path: '/games' });
-      store.navigateToDirectory({
+      await store.navigateToDirectory({
+        deviceId: 'dev-1',
+        storageType: StorageType.Sd,
+        path: '/games',
+      });
+      await store.navigateToDirectory({
         deviceId: 'dev-1',
         storageType: StorageType.Usb,
         path: '/music',
       });
-      store.navigateToDirectory({ deviceId: 'dev-2', storageType: StorageType.Sd, path: '/apps' });
-      await nextTick();
+      await store.navigateToDirectory({
+        deviceId: 'dev-2',
+        storageType: StorageType.Sd,
+        path: '/apps',
+      });
 
       // Assert
       const sd1 = store.storageEntries()[StorageKeyUtil.create('dev-1', StorageType.Sd)];
@@ -421,25 +575,33 @@ describe('StorageStore (NgRx Signal Store)', () => {
     });
 
     it('caching works independently per device-storage', async () => {
-      // Arrange
-      store.initializeStorage({ deviceId: 'dev-1', storageType: StorageType.Sd });
-      store.initializeStorage({ deviceId: 'dev-1', storageType: StorageType.Usb });
-      store.initializeStorage({ deviceId: 'dev-2', storageType: StorageType.Sd });
+      // Arrange - Initialize entries first
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId: 'dev-1', storageType: StorageType.Sd });
+      await store.initializeStorage({ deviceId: 'dev-1', storageType: StorageType.Usb });
+      await store.initializeStorage({ deviceId: 'dev-2', storageType: StorageType.Sd });
 
       getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
 
       // Prime cache for dev-1 SD
-      store.navigateToDirectory({ deviceId: 'dev-1', storageType: StorageType.Sd, path: '/games' });
-      await nextTick();
+      await store.navigateToDirectory({
+        deviceId: 'dev-1',
+        storageType: StorageType.Sd,
+        path: '/games',
+      });
 
       // Cache hit for dev-1 SD
       getDirectoryMock.mockClear();
-      store.navigateToDirectory({ deviceId: 'dev-1', storageType: StorageType.Sd, path: '/games' });
+      await store.navigateToDirectory({
+        deviceId: 'dev-1',
+        storageType: StorageType.Sd,
+        path: '/games',
+      });
       expect(getDirectoryMock).not.toHaveBeenCalled();
 
       // Cache miss for dev-1 USB (same path string but different storage)
       getDirectoryMock.mockClear();
-      store.navigateToDirectory({
+      await store.navigateToDirectory({
         deviceId: 'dev-1',
         storageType: StorageType.Usb,
         path: '/games',
@@ -448,41 +610,70 @@ describe('StorageStore (NgRx Signal Store)', () => {
 
       // Cache miss for dev-2 SD
       getDirectoryMock.mockClear();
-      store.navigateToDirectory({ deviceId: 'dev-2', storageType: StorageType.Sd, path: '/games' });
+      await store.navigateToDirectory({
+        deviceId: 'dev-2',
+        storageType: StorageType.Sd,
+        path: '/games',
+      });
       expect(getDirectoryMock).toHaveBeenCalledTimes(1);
     });
 
     it('selection switches across devices and persists within same device-storage', async () => {
-      // Arrange
-      store.initializeStorage({ deviceId: 'dev-1', storageType: StorageType.Sd });
-      store.initializeStorage({ deviceId: 'dev-2', storageType: StorageType.Usb });
+      // Arrange - Initialize entries first
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId: 'dev-1', storageType: StorageType.Sd });
+      await store.initializeStorage({ deviceId: 'dev-2', storageType: StorageType.Usb });
       getDirectoryMock.mockImplementation((_, __, path?: string) =>
         of(createMockStorageDirectory(path ?? '/'))
       );
 
       // Act 1: select dev-1 SD
-      store.navigateToDirectory({ deviceId: 'dev-1', storageType: StorageType.Sd, path: '/a' });
+      await store.navigateToDirectory({
+        deviceId: 'dev-1',
+        storageType: StorageType.Sd,
+        path: '/a',
+      });
       // selection updates immediately; no need to await
-      expect(store.selectedDirectory()).toEqual({
+      expect(store.selectedDirectories()['dev-1']).toEqual({
         deviceId: 'dev-1',
         storageType: StorageType.Sd,
         path: '/a',
       });
 
-      // Act 2: switch to dev-2 USB
-      store.navigateToDirectory({ deviceId: 'dev-2', storageType: StorageType.Usb, path: '/b' });
-      expect(store.selectedDirectory()).toEqual({
+      // Act 2: select dev-2 USB (independent of dev-1)
+      await store.navigateToDirectory({
         deviceId: 'dev-2',
         storageType: StorageType.Usb,
         path: '/b',
       });
+      expect(store.selectedDirectories()['dev-2']).toEqual({
+        deviceId: 'dev-2',
+        storageType: StorageType.Usb,
+        path: '/b',
+      });
+      // Verify dev-1 selection is preserved
+      expect(store.selectedDirectories()['dev-1']).toEqual({
+        deviceId: 'dev-1',
+        storageType: StorageType.Sd,
+        path: '/a',
+      });
 
       // Act 3: navigate within same device-storage (dev-2 USB)
-      store.navigateToDirectory({ deviceId: 'dev-2', storageType: StorageType.Usb, path: '/c' });
-      expect(store.selectedDirectory()).toEqual({
+      await store.navigateToDirectory({
         deviceId: 'dev-2',
         storageType: StorageType.Usb,
         path: '/c',
+      });
+      expect(store.selectedDirectories()['dev-2']).toEqual({
+        deviceId: 'dev-2',
+        storageType: StorageType.Usb,
+        path: '/c',
+      });
+      // Verify dev-1 selection still preserved
+      expect(store.selectedDirectories()['dev-1']).toEqual({
+        deviceId: 'dev-1',
+        storageType: StorageType.Sd,
+        path: '/a',
       });
     });
   });
@@ -494,39 +685,44 @@ describe('StorageStore (NgRx Signal Store)', () => {
     it('Device Connection Flow: initialize → navigate → cache-hit (single API call)', async () => {
       const deviceId = 'd1';
       const storageType = StorageType.Sd;
-      store.initializeStorage({ deviceId, storageType });
 
-      // First navigation: API call
+      // Initialize (this now makes 1 API call for root)
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+      expect(getDirectoryMock).toHaveBeenCalledTimes(1); // Root fetch
+
+      // First navigation to different path: API call
       getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/x')));
-      store.navigateToDirectory({ deviceId, storageType, path: '/x' });
-      await nextTick();
-      expect(getDirectoryMock).toHaveBeenCalledTimes(1);
+      await store.navigateToDirectory({ deviceId, storageType, path: '/x' });
+      expect(getDirectoryMock).toHaveBeenCalledTimes(2); // Root + /x
 
       // Second navigation to same path: cache hit, no API call
       getDirectoryMock.mockClear();
-      store.navigateToDirectory({ deviceId, storageType, path: '/x' });
+      await store.navigateToDirectory({ deviceId, storageType, path: '/x' });
       expect(getDirectoryMock).not.toHaveBeenCalled();
     });
 
-    it('Device Reconnection: cleanup device → initialize again → clean state', () => {
+    it('Device Reconnection: cleanup device → initialize again → clean state', async () => {
       // Setup entries for device and another device
-      store.initializeStorage({ deviceId: 'd1', storageType: StorageType.Sd });
-      store.initializeStorage({ deviceId: 'd1', storageType: StorageType.Usb });
-      store.initializeStorage({ deviceId: 'd2', storageType: StorageType.Sd });
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId: 'd1', storageType: StorageType.Sd });
+      await store.initializeStorage({ deviceId: 'd1', storageType: StorageType.Usb });
+      await store.initializeStorage({ deviceId: 'd2', storageType: StorageType.Sd });
 
       // Cleanup device d1
       store.cleanupStorage({ deviceId: 'd1' });
 
       // Re-initialize one storage type for d1
-      store.initializeStorage({ deviceId: 'd1', storageType: StorageType.Sd });
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId: 'd1', storageType: StorageType.Sd });
 
       const entries = store.storageEntries();
-      // d1-USB should remain removed, d1-SD re-created with defaults
+      // d1-USB should remain removed, d1-SD re-created and loaded
       expect(entries[StorageKeyUtil.create('d1', StorageType.Usb)]).toBeUndefined();
       const d1sd = entries[StorageKeyUtil.create('d1', StorageType.Sd)];
       expect(d1sd).toBeDefined();
       expect(d1sd.currentPath).toBe('/');
-      expect(d1sd.isLoaded).toBe(false);
+      expect(d1sd.isLoaded).toBe(true); // Now loaded since initialize fetches root
       // d2-SD preserved
       expect(entries[StorageKeyUtil.create('d2', StorageType.Sd)]).toBeDefined();
     });
@@ -535,19 +731,20 @@ describe('StorageStore (NgRx Signal Store)', () => {
       const deviceId = 'd1';
       const storageType = StorageType.Sd;
       const key = StorageKeyUtil.create(deviceId, storageType);
-      store.initializeStorage({ deviceId, storageType });
 
-      // First call errors
+      // Initialize first
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+
+      // First navigation call errors
       getDirectoryMock.mockReturnValueOnce(throwError(() => new Error('Network down')));
-      store.navigateToDirectory({ deviceId, storageType, path: '/err' });
-      await nextTick();
-      expect(store.storageEntries()[key].error).toBe('Network down');
+      await store.navigateToDirectory({ deviceId, storageType, path: '/err' });
+      expect(store.storageEntries()[key].error).toBe('Failed to navigate to directory');
       expect(store.storageEntries()[key].isLoaded).toBe(false);
 
       // Retry succeeds
       getDirectoryMock.mockReturnValueOnce(of(createMockStorageDirectory('/err')));
-      store.navigateToDirectory({ deviceId, storageType, path: '/err' });
-      await nextTick();
+      await store.navigateToDirectory({ deviceId, storageType, path: '/err' });
       const entry = store.storageEntries()[key];
       expect(entry.error).toBeNull();
       expect(entry.isLoaded).toBe(true);
@@ -558,23 +755,26 @@ describe('StorageStore (NgRx Signal Store)', () => {
       const deviceId = 'd1';
       const storageType = StorageType.Sd;
       const key = StorageKeyUtil.create(deviceId, storageType);
-      store.initializeStorage({ deviceId, storageType });
 
-      // Initial load
+      // Initialize (fetches root)
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+
+      // Navigate to different path
       getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/same')));
-      store.navigateToDirectory({ deviceId, storageType, path: '/same' });
-      await nextTick();
+      await store.navigateToDirectory({ deviceId, storageType, path: '/same' });
       const beforeTs = store.storageEntries()[key].lastLoadTime ?? 0;
 
       // Cache hit on navigate
       getDirectoryMock.mockClear();
-      store.navigateToDirectory({ deviceId, storageType, path: '/same' });
+      await store.navigateToDirectory({ deviceId, storageType, path: '/same' });
       expect(getDirectoryMock).not.toHaveBeenCalled();
 
       // Refresh calls API and updates timestamp
+      // Add small delay to ensure timestamp difference
+      await new Promise((resolve) => setTimeout(resolve, 1));
       getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/same')));
-      store.refreshDirectory({ deviceId, storageType });
-      await nextTick();
+      await store.refreshDirectory({ deviceId, storageType });
       const afterTs = store.storageEntries()[key].lastLoadTime ?? 0;
       expect(afterTs).toBeGreaterThan(beforeTs);
     });
@@ -583,7 +783,10 @@ describe('StorageStore (NgRx Signal Store)', () => {
       const deviceId = 'd1';
       const storageType = StorageType.Sd;
       const key = StorageKeyUtil.create(deviceId, storageType);
-      store.initializeStorage({ deviceId, storageType });
+
+      // Initialize first
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
 
       // Mock returns for both calls (order does not matter in this simple test)
       getDirectoryMock.mockImplementation((_, __, path?: string) =>
@@ -591,11 +794,9 @@ describe('StorageStore (NgRx Signal Store)', () => {
       );
 
       // Start first navigate
-      store.navigateToDirectory({ deviceId, storageType, path: '/c1' });
+      await store.navigateToDirectory({ deviceId, storageType, path: '/c1' });
       // Before it settles, trigger refresh (will use currentPath which may be '/c1' depending on timing)
-      store.refreshDirectory({ deviceId, storageType });
-
-      await nextTick();
+      await store.refreshDirectory({ deviceId, storageType });
 
       const entry = store.storageEntries()[key];
       expect(entry.isLoading).toBe(false);
@@ -609,24 +810,29 @@ describe('StorageStore (NgRx Signal Store)', () => {
   // Task 9: Edge Cases & Error Conditions
   // -----------------------------------------
   describe('edge cases & error handling', () => {
-    it('initializeStorage handles empty deviceId (creates key with empty prefix)', () => {
-      store.initializeStorage({ deviceId: '', storageType: StorageType.Sd });
+    it('initializeStorage handles empty deviceId (creates key with empty prefix)', async () => {
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId: '', storageType: StorageType.Sd });
+
       const key = StorageKeyUtil.create('', StorageType.Sd); // "-SD"
       const entry = store.storageEntries()[key];
       expect(entry).toBeDefined();
       expect(entry.deviceId).toBe('');
       expect(entry.storageType).toBe(StorageType.Sd);
+      expect(entry.isLoaded).toBe(true); // Now loaded since initialize fetches root
     });
 
     it('navigateToDirectory supports empty path (selection updates and API called)', async () => {
       const deviceId = 'dev-empty';
       const storageType = StorageType.Sd;
-      store.initializeStorage({ deviceId, storageType });
+
+      // Initialize first
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
 
       getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('')));
-      store.navigateToDirectory({ deviceId, storageType, path: '' });
-      expect(store.selectedDirectory()).toEqual({ deviceId, storageType, path: '' });
-      await nextTick();
+      await store.navigateToDirectory({ deviceId, storageType, path: '' });
+      expect(store.selectedDirectories()[deviceId]).toEqual({ deviceId, storageType, path: '' });
       expect(getDirectoryMock).toHaveBeenCalledWith(deviceId, storageType, '');
     });
 
@@ -634,34 +840,38 @@ describe('StorageStore (NgRx Signal Store)', () => {
       const deviceId = 'dev-rapid';
       const storageType = StorageType.Sd;
       const key = StorageKeyUtil.create(deviceId, storageType);
-      store.initializeStorage({ deviceId, storageType });
+
+      // Initialize first
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
 
       getDirectoryMock.mockImplementation((_, __, path?: string) =>
         of(createMockStorageDirectory(path ?? '/'))
       );
 
       // Fire two navigations quickly
-      store.navigateToDirectory({ deviceId, storageType, path: '/a' });
-      store.navigateToDirectory({ deviceId, storageType, path: '/b' });
-      await nextTick();
+      await store.navigateToDirectory({ deviceId, storageType, path: '/a' });
+      await store.navigateToDirectory({ deviceId, storageType, path: '/b' });
 
       const entry = store.storageEntries()[key];
       expect(entry.currentPath).toBe('/b');
-      expect(store.selectedDirectory()).toEqual({ deviceId, storageType, path: '/b' });
+      expect(store.selectedDirectories()[deviceId]).toEqual({ deviceId, storageType, path: '/b' });
     });
 
     it('cleanup during navigation removes entries without errors', async () => {
       const deviceId = 'dev-clean';
       const storageType = StorageType.Sd;
       const key = StorageKeyUtil.create(deviceId, storageType);
-      store.initializeStorage({ deviceId, storageType });
+
+      // Initialize first
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
 
       getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/x')));
-      store.navigateToDirectory({ deviceId, storageType, path: '/x' });
+      await store.navigateToDirectory({ deviceId, storageType, path: '/x' });
 
       // Immediately cleanup the device
       store.cleanupStorage({ deviceId });
-      await nextTick();
 
       expect(store.storageEntries()[key]).toBeUndefined();
       // Current implementation does not clear selectedDirectory here

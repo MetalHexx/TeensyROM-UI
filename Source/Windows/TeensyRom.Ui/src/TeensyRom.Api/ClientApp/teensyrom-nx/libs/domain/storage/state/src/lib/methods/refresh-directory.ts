@@ -1,11 +1,9 @@
 import { patchState, WritableStateSource } from '@ngrx/signals';
-import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe } from 'rxjs';
-import { switchMap, tap, catchError, of } from 'rxjs';
 import { StorageType } from '@teensyrom-nx/domain/storage/services';
 import { IStorageService } from '@teensyrom-nx/domain/storage/services';
 import { StorageKeyUtil } from '../storage-key.util';
 import { StorageState } from '../storage-store';
+import { firstValueFrom } from 'rxjs';
 
 type SignalStore<T> = {
   [K in keyof T]: () => T[K];
@@ -16,61 +14,68 @@ export function refreshDirectory(
   storageService: IStorageService
 ) {
   return {
-    refreshDirectory: rxMethod<{ deviceId: string; storageType: StorageType }>(
-      pipe(
-        switchMap(({ deviceId, storageType }) => {
-          const key = StorageKeyUtil.create(deviceId, storageType);
-          const entry = store.storageEntries()[key];
+    refreshDirectory: async ({
+      deviceId,
+      storageType,
+    }: {
+      deviceId: string;
+      storageType: StorageType;
+    }): Promise<void> => {
+      const key = StorageKeyUtil.create(deviceId, storageType);
+      const entry = store.storageEntries()[key];
 
-          if (!entry) {
-            return of(null);
-          }
+      if (!entry) {
+        console.warn(`🔄 Cannot refresh - no entry found for ${key}`);
+        return;
+      }
 
-          // Set loading state
-          patchState(store, (state) => ({
-            storageEntries: {
-              ...state.storageEntries,
-              [key]: {
-                ...state.storageEntries[key],
-                isLoading: true,
-                error: null,
-              },
+      console.log(`🔄 Refreshing directory for ${key} at path: ${entry.currentPath}`);
+
+      // Set loading state
+      patchState(store, (state) => ({
+        storageEntries: {
+          ...state.storageEntries,
+          [key]: {
+            ...state.storageEntries[key],
+            isLoading: true,
+            error: null,
+          },
+        },
+      }));
+
+      try {
+        // Load the directory using the current path
+        const directory = await firstValueFrom(
+          storageService.getDirectory(deviceId, storageType, entry.currentPath)
+        );
+        console.log(`✅ Directory refresh successful for ${key}:`, directory);
+
+        patchState(store, (state) => ({
+          storageEntries: {
+            ...state.storageEntries,
+            [key]: {
+              ...state.storageEntries[key],
+              directory,
+              isLoaded: true,
+              isLoading: false,
+              error: null,
+              lastLoadTime: Date.now(),
             },
-          }));
-
-          // Load the directory using the current path
-          return storageService.getDirectory(deviceId, storageType, entry.currentPath).pipe(
-            tap((directory) => {
-              patchState(store, (state) => ({
-                storageEntries: {
-                  ...state.storageEntries,
-                  [key]: {
-                    ...state.storageEntries[key],
-                    directory,
-                    isLoaded: true,
-                    isLoading: false,
-                    error: null,
-                    lastLoadTime: Date.now(),
-                  },
-                },
-              }));
-            }),
-            catchError((error) => {
-              patchState(store, (state) => ({
-                storageEntries: {
-                  ...state.storageEntries,
-                  [key]: {
-                    ...state.storageEntries[key],
-                    isLoading: false,
-                    error: error.message || 'Failed to refresh directory',
-                  },
-                },
-              }));
-              return of(null);
-            })
-          );
-        })
-      )
-    ),
+          },
+        }));
+      } catch (error) {
+        console.error(`❌ Directory refresh failed for ${key}:`, error);
+        patchState(store, (state) => ({
+          storageEntries: {
+            ...state.storageEntries,
+            [key]: {
+              ...state.storageEntries[key],
+              isLoading: false,
+              error: 'Failed to refresh directory',
+            },
+          },
+        }));
+      }
+    },
   };
 }

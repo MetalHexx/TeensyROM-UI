@@ -26,58 +26,58 @@ Implement the core component/store integration with computed signals and JSON ve
 
 **Purpose**: Add computed signals to simplify component data filtering and access (per NgRx patterns).
 
-- [ ] Import and use `withComputed` from `@ngrx/signals` in `storage-store.ts`
-- [ ] Implement computed signals via factory-function pattern
-- [ ] `selectedDirectoryState`: computed signal for currently selected directory's StorageDirectoryState
-- [ ] `getDeviceStorageEntries(deviceId)`: factory returning filtered entries by device.
-- [ ] `getDeviceDirectories(deviceId)`: factory returning directories for tree display
+- [x] Import and use `withComputed` from `@ngrx/signals` in `storage-store.ts`
+- [x] Implement computed signals via factory-function pattern
+- [x] `selectedDirectoryState`: computed signal for currently selected directory's StorageDirectoryState
+- [x] `getDeviceStorageEntries(deviceId)`: factory returning filtered entries by device.
+- [x] `getDeviceDirectories(deviceId)`: factory returning directories for tree display
 
 ### Task 2: Store Tests For Computed Signals (before component work)
 
 **Purpose**: Create tests for our new computed signals. Follow the guidance in [`STORE_TESTING.md`](../../../STORE_TESTING.md).
 
-- [ ] Add unit tests in `storage-store.spec.ts` covering.
-  - [ ] `selectedDirectoryState` selection and reactivity
-  - [ ] `getDeviceStorageEntries` filtering accuracy across multiple devices/storage types
-  - [ ] `getDeviceDirectories` returns directories-only projections
+- [x] Add unit tests in `storage-store.spec.ts` covering.
+  - [x] `selectedDirectoryState` selection and reactivity
+  - [x] `getDeviceStorageEntries` filtering accuracy across multiple devices/storage types
+  - [x] `getDeviceDirectories` returns directories-only projections
 
 ### Task 3: Core Component Store Integration (deviceId-based, Signals inputs)
 
 **Purpose**: Establish data flow using computed signals and deviceId propagation.
 
-- [ ] PlayerViewComponent
+- [x] PlayerViewComponent
 
-  - [ ] Inject `DeviceStore` and `StorageStore`
-  - [ ] Initialize storage entries for connected devices (on init/changes)
-  - [ ] Clean up storage state for disconnected devices
-  - [ ] Pass `device` signal to `PlayerDeviceContainerComponent` (existing pattern)
+  - [x] Inject `DeviceStore` and `StorageStore`
+  - [x] Initialize storage entries for connected devices (on init/changes)
+  - [x] Clean up storage state for disconnected devices
+  - [x] Pass `device` signal to `PlayerDeviceContainerComponent` (existing pattern)
 
-- [ ] PlayerDeviceContainerComponent
+- [x] PlayerDeviceContainerComponent
 
-  - [ ] Keep existing `device` input (signal input)
-  - [ ] Extract `deviceId: string` from `device`
-  - [ ] Pass `deviceId` signal to `StorageContainerComponent`
+  - [x] Keep existing `device` input (signal input)
+  - [x] Extract `deviceId: string` from `device`
+  - [x] Pass `deviceId` signal to `StorageContainerComponent`
 
-- [ ] StorageContainerComponent
-  - [ ] Add `deviceId = input.required<string>()` (signal input)
-  - [ ] Inject `StorageStore`
-  - [ ] Use computed signals to filter data for this device
-  - [ ] Pass filtered data to child components (directory-tree.component.ts and directory-files.component.ts)
+- [x] StorageContainerComponent
+  - [x] Add `deviceId = input.required<string>()` (signal input)
+  - [x] Inject `StorageStore`
+  - [x] Use computed signals to filter data for this device
+  - [x] Pass filtered data to child components (directory-tree.component.ts and directory-files.component.ts)
 
 ### Task 4: Directory Tree JSON Display (Signals)
 
 **Purpose**: Display device storage directories above the existing (hardcoded) tree for verification.
 
-- [ ] DirectoryTreeComponent (TS)
+- [x] DirectoryTreeComponent (TS)
 
-  - [ ] Receive filtered device storage data from parent via signal input(s)
-  - [ ] Use store computed signals to access directories from all StorageDirectoryState entries
-  - [ ] Extract directories only (omit files)
+  - [x] Receive filtered device storage data from parent via signal input(s)
+  - [x] Use store computed signals to access directories from all StorageDirectoryState entries
+  - [x] Extract directories only (omit files)
 
-- [ ] DirectoryTreeComponent (HTML)
-  - [ ] Add `<pre>` formatted JSON (directories-only) above the Material tree
-  - [ ] Show directories for all storage types for the device
-  - [ ] Keep existing hardcoded tree intact below the JSON
+- [x] DirectoryTreeComponent (HTML)
+  - [x] Add `<pre>` formatted JSON (directories-only) above the Material tree
+  - [x] Show directories for all storage types for the device
+  - [x] Keep existing hardcoded tree intact below the JSON
 
 ### Task 5: Directory Files JSON Display (Signals)
 
@@ -94,6 +94,49 @@ Implement the core component/store integration with computed signals and JSON ve
 - [ ] DirectoryFilesComponent (HTML)
   - [ ] Display files and directories as `<pre>` formatted JSON
   - [ ] Replace Lorem Ipsum placeholder content with actual storage data
+
+### Task 6: Initialize Storage Should Fetch Root Directory
+
+**Purpose**: Change `initializeStorage` to immediately fetch the root directory (`'/'`) from the API so entries are created and hydrated in one step. Leverage the same load/caching/error pattern used in `navigate-to-directory`.
+
+- [x] Update `libs/domain/storage/state/src/lib/methods/initialize-storage.ts`
+
+  - [x] Reuse the API call flow from `libs/domain/storage/state/src/lib/methods/navigate-to-directory.ts` (loading flags, success, error, timestamps)
+  - [x] On initialize, set selection to `{ deviceId, storageType, path: '/' }`
+  - [x] If entry is missing, create it with `currentPath: '/'`, `isLoading: true`, `isLoaded: false`, `error: null`
+  - [x] Call `storageService.getDirectory(deviceId, storageType, '/')`
+  - [x] On success: write `directory`, set `isLoaded: true`, `isLoading: false`, `error: null`, `lastLoadTime: Date.now()`
+  - [x] On failure: set `isLoading: false` and populate a clear `error` string
+  - [x] Cache behavior: if already loaded at `'/'` with no error, skip API call
+
+- [x] Tests: update `libs/domain/storage/state/src/lib/storage-store.spec.ts`
+  - [x] First initialize triggers API call for `'/'` and hydrates state
+  - [x] Subsequent initialize for same `(deviceId, storageType)` does not call API when root is already loaded
+  - [x] Error path: on failure, state reflects `error` and `isLoading: false`; retry initialize calls API again and can recover
+  - [x] Selection behavior: selection set to root on initialize (unless user navigates afterward)
+
+### Task 6.1: Fix Global Selected Directory State (Side Phase - Required)
+
+**Purpose**: **CRITICAL**: Refactor storage store from single global `selectedDirectory` to per-device selection model. This must be completed before proceeding to Task 7 as the current global state design breaks multi-device functionality.
+
+- [ ] **Complete Phase 7**: [Fix Global Selected Directory State - Per-Device Selection](../BASIC_STORAGE_FIX_GLOBAL_STATE.md)
+  - [ ] All tasks in Phase 7 must be completed
+  - [ ] Storage store refactored to per-device selection
+  - [ ] All tests updated and passing
+  - [ ] Components updated to work with per-device state
+  - [ ] Multi-device selection independence verified
+
+**Note**: This is a foundational fix required before any UI implementation can proceed. The current single `selectedDirectory` state cannot support multiple devices properly.
+
+### Task 7: Store API Organization (Follow STATE_STANDARDS)
+
+**Purpose**: Align store structure with one-function-per-file standards for long-term maintainability.
+
+- [ ] Evaluate moving computed selectors and factory methods into dedicated files under a `methods/` (or `selectors/`) folder
+- [ ] Keep non-parameterized computed selectors (e.g., `selectedDirectoryState`) close to the store if they remain minimal, otherwise extract
+- [ ] Extract parameterized factories (e.g., `getDeviceStorageEntries`, `getDeviceDirectories`) into separate files per STATE_STANDARDS
+- [ ] Update barrel exports and store assembly to import and spread these functions consistently
+- [ ] Confirm typings remain stable and devtools naming remains clear
 
 ## 🗂️ File Changes
 
