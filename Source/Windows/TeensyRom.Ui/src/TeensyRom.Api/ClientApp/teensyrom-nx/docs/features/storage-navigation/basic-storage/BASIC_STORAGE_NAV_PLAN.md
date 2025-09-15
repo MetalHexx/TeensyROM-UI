@@ -101,8 +101,6 @@ _Note: Each device renders independently in its own `player-device-container` wi
 ├── 💾 SD Storage
 │   ├── 📁 games/
 │   │   ├── 📁 arcade/
-│   │   │   ├── 🎮 pacman.prg
-│   │   │   └── 🎮 galaga.prg
 │   │   └── 📁 puzzle/
 │   ├── 📁 music/
 │   └── 📁 demos/
