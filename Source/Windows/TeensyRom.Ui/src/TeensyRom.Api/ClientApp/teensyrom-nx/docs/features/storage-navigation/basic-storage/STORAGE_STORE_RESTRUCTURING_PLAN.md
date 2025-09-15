@@ -5,11 +5,6 @@
 **Standards Documentation**:
 
 - **Coding Standards**: [CODING_STANDARDS.md](./CODING_STANDARDS.md)
-- **Testing Standards**: [TESTING_STANDARDS.md](./TESTING_STANDARDS.md)
-- **State Standards**: [STATE_STANDARDS.md](./STATE_STANDARDS.md)
-- **Domain Standards**: [DOMAIN_STANDARDS.md](./DOMAIN_STANDARDS.md)
-- **Style Guide**: [STYLE_GUIDE.md](./STYLE_GUIDE.md)
-- **API Client Generation**: [API_CLIENT_GENERATION.md](./API_CLIENT_GENERATION.md)
 
 ## Phase Links
 
