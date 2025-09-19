@@ -1,131 +1,131 @@
-# Phase 4: Basic Navigation Tree Implementation Specification
+# Phase 4: Basic Navigation Tree Implementation
 
-**Related Documentation**: [Player View Storage Navigation Plan](./BASIC_STORAGE_NAV_PLAN.md)
+**High Level Plan Documentation**: [Player View Storage Navigation Plan](./BASIC_STORAGE_NAV_PLAN.md)
 
 **Standards Documentation**:
 
-- **Player Component Hierarchy**: ['PLAYER_COMPONENTS.md'](../../../../libs/features/player/src/PLAYER_COMPONENTS.md)
-- **Coding Standards**: [`CODING_STANDARDS.md`](../../../CODING_STANDARDS.md) - Component and TypeScript standards.
-- **Style Guide**: [`STYLE_GUIDE.md`](../../../STYLE_GUIDE.md) - CSS / Style / Theme design specifications and rules.
-- **Testing Standards**: [`TESTING_STANDARDS.md`](../../../TESTING_STANDARDS.md) - Unit, integration, and E2E testing patterns.
+- **Coding Standards**: [`CODING_STANDARDS.md`](../../../CODING_STANDARDS.md)
+- **Style Guide**: [`STYLE_GUIDE.md`](../../../STYLE_GUIDE.md)
+- **Testing Standards**: [`TESTING_STANDARDS.md`](../../../TESTING_STANDARDS.md)
+- **State Standards**: [`STATE_STANDARDS.md`](../../../STATE_STANDARDS.md)
+- **Storage Store Reference**: [`STORAGE_STATE_MACHINE.md`](../../../../libs/domain/storage/state/src/lib/STORAGE_STATE_MACHINE.md)
 
 ## Objective
 
-Build hierarchical directory tree component showing device → storage type → directories with interactive click navigation functionality.
+Deliver an interactive, Material-styled directory tree that surfaces every connected device and its available storage types, keeps previously visited directories visible, and issues navigation requests through `StorageStore.navigateToDirectory`. The component must:
 
-## Prerequisites
+- maintain local expansion state and a component-scoped cache keyed by `{deviceId, storageType, path}` so revisited nodes do not require new fetches;
+- render Internal storage first for each device while filtering out unavailable external storage types;
+- trigger navigation and selection updates via single-click interactions that coordinate with the file list;
+- display loading and error feedback that mirrors the underlying store state without blocking cached content.
 
-- Phase 3 completed: Component/Store Integration & JSON Verification
-- StorageStore verified working with manual testing interface
-- Component integration established and tested
+## Current Decisions & Context
 
-## Implementation Steps
+- Aggregation of directory results stays inside `DirectoryTreeComponent` for now; revisit lifting to the store in a later phase if broader persistence is needed.
+- Single-click drives both expansion and navigation actions (no double-click semantics).
+- Existing Phase 3 JSON debug output will be removed once the tree is live; file list integration must remain intact.
+- Testing focus is on verifying cache persistence, navigation payloads, and availability filtering alongside Material styling compliance.
 
-### Step 1: Tree Structure Design
+## Execution Approach
 
-**Purpose**: Define the hierarchical tree structure showing device → storage type → directories
+Plan to implement Tasks 1 through 5 sequentially, validating each in turn (starting with data modeling/cache state before wiring the template). This staged flow gives fast feedback on the new caching behavior and keeps later steps straightforward once upstream pieces are proven.
 
-**Tasks**:
+## Required Reading
 
-1. **Tree Node Data Model**
+- [ ] [Player View Storage Navigation Plan](./BASIC_STORAGE_NAV_PLAN.md)
+- [ ] [StorageStore definition](../../../../libs/domain/storage/state/src/lib/storage-store.ts)
+- [ ] [navigate-to-directory action](../../../../libs/domain/storage/state/src/lib/actions/navigate-to-directory.ts)
+- [ ] [Storage domain models](../../../../libs/domain/storage/services/src/lib/storage.models.ts)
+- [ ] [Player component hierarchy](../../../../libs/features/player/src/PLAYER_COMPONENTS.md)
 
-   - Define TreeNode interface for consistent tree structure
-   - Support device nodes, storage type nodes, and directory nodes
-   - Include node type, path, children, and expanded state
+## Implementation Tasks
 
-2. **Tree State Management**
-   - Add tree expansion state to StorageStore or local component state
-   - Track expanded/collapsed state per node
-   - Manage tree navigation and selection highlighting
+### Task 1: Tree Data Modeling & State
 
-### Step 2: Directory Tree Component Implementation
+**Purpose**: Establish the in-component data structures required to render devices, storage types, and directories with expansion and selection state.
 
-**Purpose**: Implement interactive directory tree component with proper Angular patterns
+- [ ] Define a `DirectoryTreeNode` interface covering device, storage type, and directory nodes with IDs, labels, icons, and children
+- [ ] Maintain an in-component cache of visited directories keyed by `{deviceId, storageType, path}` that merges new results from `directories()` while preserving previous branches
+- [ ] Create local state for expanded node tracking keyed by node ID
+- [ ] Map cached directory data into the tree node view-model without losing previously loaded branches
+- [ ] Ensure selection highlights align with `StorageStore` selected directory state
 
-**Tasks**:
+### Task 2: `DirectoryTreeComponent` Template & Interaction
 
-1. **Component Structure**
+**Purpose**: Render the hierarchical tree using Angular control flow and connect user actions to store navigation.
 
-   - Update DirectoryTreeComponent with tree rendering logic
-   - Use Angular control flow (@if, @for) for tree rendering
-   - Implement recursive tree node rendering
+- [ ] Replace placeholder tree data with computed tree data and remove JSON debug output
+- [ ] Implement recursive node rendering via Angular structural directives (`@for`, `@if`)
+- [ ] Add Material icons/buttons styled per node type and show loading/error states when applicable
+- [ ] Handle single-click events: toggle expansion/selection and trigger `navigateToDirectory` as appropriate
+- [ ] Emit navigation requests with `{ deviceId, storageType, path }` to `StorageStore.navigateToDirectory`
 
-2. **Tree Navigation**
+### Task 3: Storage Availability & Dynamic Updates
 
-   - Connect tree clicks to StorageStore.navigateToDirectory()
-   - Handle storage type switching within device tree
-   - Implement directory expansion/collapse functionality
+**Purpose**: Filter tree content to only available storage, reflect store changes, and clean up removed devices.
 
-3. **Visual Design**
-   - Implement Material Design tree styling
-   - Add icons for devices, storage types, and directories
-   - Show loading states and error states in tree
+- [ ] Source availability information from `StorageStore` selectors or device input to include Internal storage and hide unavailable SD/USB nodes
+- [ ] Update tree when storage availability or directory data changes without full rebuild of expansion state or cache
+- [ ] Remove device nodes when devices disconnect and clear associated cache entries
+- [ ] Ensure refreshing or navigating new paths updates tree nodes and maintains expansion where appropriate
 
-### Step 3: Storage Availability Integration
+### Task 4: Styling & Accessibility
 
-**Purpose**: Show only available storage types and handle storage unavailability gracefully
+**Purpose**: Apply Material design styling consistent with the app and ensure accessibility.
 
-**Tasks**:
+- [ ] Update `directory-tree.component.scss` to style indentation, selection, hover, and loading indicators
+- [ ] Use ARIA attributes/roles on tree elements for screen readers
+- [ ] Display error messages or skeleton states inline when directories fail to load or are loading
 
-1. **Availability Filtering**
+### Task 5: Testing & Cleanup
 
-   - Filter tree to show only available storage types
-   - Hide unavailable storage completely (not disabled/grayed)
-   - Always show Internal storage as available
+**Purpose**: Validate behavior and remove legacy JSON debugging from Phase 3.
 
-2. **Dynamic Updates**
-   - Update tree when storage availability changes
-   - Handle device connection/disconnection in tree
-   - Refresh tree structure when needed
-
-## Deliverables
-
-- Updated DirectoryTreeComponent with hierarchical tree rendering
-- Tree navigation connected to StorageStore methods
-- Storage availability filtering implemented
-- Visual tree styling with Material Design components
-- Component tests for tree functionality and storage integration
+- [ ] Update `directory-tree.component.spec.ts` with unit tests covering tree rendering, selection, navigation, availability filtering, and cache persistence
+- [ ] Add tests for expansion state persistence and navigation call parameters
+- [ ] Remove Phase 3 JSON verification output from `storage-container.component.html` and ensure file list integration remains intact
+- [ ] Document any follow-up tasks or risks
 
 ## File Changes
 
-```
-libs/features/player/src/lib/player-view/player-device-container/storage-container/
-├── directory-tree/
-│   ├── directory-tree.component.ts     # Tree implementation with StorageStore integration
-│   ├── directory-tree.component.html   # Hierarchical tree template
-│   ├── directory-tree.component.scss   # Tree styling
-│   └── directory-tree.component.spec.ts # Tree component tests
-└── storage-container.component.html     # Remove JSON, show tree + file list
-```
+- [`libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.ts`](../../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.ts)
+- [`libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.html`](../../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.html)
+- [`libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.scss`](../../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.scss)
+- [`libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.spec.ts`](../../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.spec.ts)
 
 ## Testing Requirements
 
+- [ ] Tree structure renders per device with correct storage children and directories
+- [ ] Clicking storage or directory nodes updates selection and triggers expected navigation
+- [ ] Expansion state persists across tree updates and re-renders
+- [ ] Availability filtering hides unavailable storage while always showing Internal storage
+- [ ] Loading and error states display as expected during navigation
+- [ ] In-component cache retains previously visited directories across navigation events
+
 ### Unit Tests
 
-- Tree rendering with different device/storage configurations
-- Tree navigation click handling and store method calls
-- Storage availability filtering logic
-- Tree expansion/collapse state management
+- [ ] Component creates correct view-model from store directory data and cached results
+- [ ] Node clicks call `navigateToDirectory` with expected payloads
+- [ ] Expansion state utilities toggle nodes and survive re-computation
+- [ ] Cache merges new directory responses without dropping earlier children
 
 ### Integration Tests
 
-- Full tree interaction with live StorageStore
-- Tree updates in response to storage state changes
-- Storage availability changes reflected in tree structure
+- [ ] Tree reacts to store updates from multiple devices without state bleed-over
+- [ ] Navigating across storage types updates file list while maintaining other expansions
+- [ ] Device removal removes tree nodes, clears cache entries, and leaves other devices untouched
 
 ## Success Criteria
 
-- ✅ Hierarchical tree renders showing device → storage → directories
-- ✅ Tree clicks properly navigate directories via StorageStore
-- ✅ Only available storage types shown in tree (unavailable hidden)
-- ✅ Tree expansion/collapse state managed correctly
-- ✅ Visual styling follows Material Design patterns
-- ✅ Component tests verify tree functionality
-- ✅ Ready to proceed to Phase 5 (Basic File Listing)
+- [ ] Interactive tree matches hierarchy and availability rules from the plan
+- [ ] Navigation actions update store without redundant reloads for cached paths
+- [ ] UI reflects loading/error states and adheres to Material styling guidance
+- [ ] All identified unit/integration tests implemented and passing
+- [ ] Ready to proceed to Phase 5 (Basic File Listing)
 
 ## Notes
 
-- This phase removes JSON verification UI and replaces with functional tree
-- Tree provides the primary navigation interface for directory browsing
-- Foundation for advanced tree features in later phases (search, virtual scrolling)
-- Prepares for Phase 5 file listing integration
+- Tests focus on observable component behavior (DOM structure, selection state, store call assertions) rather than internal caching mechanics so they survive a later store-level caching refactor.
+- Internal storage node must always appear first under each device, regardless of availability flags
+- Expansion state and caching start local to the component; revisit store-level persistence in later phases if needed
+- Consider future enhancements (search, virtual scrolling) when designing node IDs and state structures

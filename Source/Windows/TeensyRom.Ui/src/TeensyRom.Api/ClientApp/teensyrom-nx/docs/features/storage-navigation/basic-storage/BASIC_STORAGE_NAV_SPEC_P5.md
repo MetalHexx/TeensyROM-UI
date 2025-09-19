@@ -15,7 +15,6 @@ Implement directory contents display showing files and subdirectories for the cu
 
 ## Prerequisites
 
-- Phase 4 completed: Basic Navigation Tree Implementation
 - Directory tree navigation working and tested
 - StorageStore properly managing selected directory state
 
