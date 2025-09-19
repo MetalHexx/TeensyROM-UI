@@ -32,8 +32,8 @@ type StorageStoreInstance = {
     path: string;
   }) => Promise<void>;
   refreshDirectory: (args: { deviceId: string; storageType: StorageType }) => Promise<void>;
-  cleanupStorage: (args: { deviceId: string }) => void;
-  cleanupStorageType: (args: { deviceId: string; storageType: StorageType }) => void;
+  removeAllStorage: (args: { deviceId: string }) => void;
+  removeStorage: (args: { deviceId: string; storageType: StorageType }) => void;
   // per-device selection methods
   getSelectedDirectoryForDevice: (deviceId: string) => SelectedDirectory | null;
   getSelectedDirectoryState: (deviceId: string) => () => StorageDirectoryState | null;
@@ -113,8 +113,8 @@ describe('StorageStore (NgRx Signal Store)', () => {
       expect(typeof store.initializeStorage).toBe('function');
       expect(typeof store.navigateToDirectory).toBe('function');
       expect(typeof store.refreshDirectory).toBe('function');
-      expect(typeof store.cleanupStorage).toBe('function');
-      expect(typeof store.cleanupStorageType).toBe('function');
+      expect(typeof store.removeAllStorage).toBe('function');
+      expect(typeof store.removeStorage).toBe('function');
     });
 
     it('should inject mocked StorageService dependency', () => {
@@ -462,7 +462,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
   });
 
   // -----------------------------------------
-  // Task 6: cleanupStorage() and cleanupStorageType()
+  // Task 6: removeAllStorage() and removeStorage()
   // -----------------------------------------
   describe('cleanup storage entries', () => {
     it('removes all entries for a specific device and preserves others', async () => {
@@ -473,7 +473,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       await store.initializeStorage({ deviceId: 'device-2', storageType: StorageType.Sd });
 
       // Act - cleanup device-1
-      store.cleanupStorage({ deviceId: 'device-1' });
+      store.removeAllStorage({ deviceId: 'device-1' });
 
       // Assert - only device-2/SD remains
       const entries = store.storageEntries();
@@ -489,7 +489,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       await store.initializeStorage({ deviceId: 'device-1', storageType: StorageType.Usb });
 
       // Act - cleanup only SD for device-1
-      store.cleanupStorageType({ deviceId: 'device-1', storageType: StorageType.Sd });
+      store.removeStorage({ deviceId: 'device-1', storageType: StorageType.Sd });
 
       // Assert - USB remains, SD removed
       const entries = store.storageEntries();
@@ -516,7 +516,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       expect(store.selectedDirectories()['device-2']).toBeDefined();
 
       // Act: cleanup device-1 (the selected one)
-      store.cleanupStorage({ deviceId: 'device-1' });
+      store.removeAllStorage({ deviceId: 'device-1' });
 
       // Assert: device-1 selection removed, device-2 preserved
       expect(store.selectedDirectories()['device-1']).toBeUndefined();
@@ -710,7 +710,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       await store.initializeStorage({ deviceId: 'd2', storageType: StorageType.Sd });
 
       // Cleanup device d1
-      store.cleanupStorage({ deviceId: 'd1' });
+      store.removeAllStorage({ deviceId: 'd1' });
 
       // Re-initialize one storage type for d1
       getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
@@ -871,7 +871,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       await store.navigateToDirectory({ deviceId, storageType, path: '/x' });
 
       // Immediately cleanup the device
-      store.cleanupStorage({ deviceId });
+      store.removeAllStorage({ deviceId });
 
       expect(store.storageEntries()[key]).toBeUndefined();
       // Current implementation does not clear selectedDirectory here
