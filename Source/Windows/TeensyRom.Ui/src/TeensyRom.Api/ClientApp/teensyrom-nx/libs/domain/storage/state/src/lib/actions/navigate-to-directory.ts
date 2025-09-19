@@ -16,10 +16,8 @@ import {
   setStorageLoaded,
   updateStorage,
   isSelectedDirectory,
-  LogType,
-  logInfo,
-  logError,
 } from '../storage-helpers';
+import { LogType, logInfo, logError } from '@teensyrom-nx/utils';
 
 export function navigateToDirectory(
   store: WritableStore<StorageState>,

@@ -13,11 +13,8 @@ import {
   setLoadingStorage,
   setStorageLoaded,
   updateStorage,
-  LogType,
-  logInfo,
-  logError,
-  logWarn,
 } from '../storage-helpers';
+import { LogType, logInfo, logError, logWarn } from '@teensyrom-nx/utils';
 
 export function refreshDirectory(
   store: WritableStore<StorageState>,

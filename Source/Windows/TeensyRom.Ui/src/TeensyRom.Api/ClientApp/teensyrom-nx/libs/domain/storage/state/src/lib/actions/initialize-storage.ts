@@ -16,10 +16,8 @@ import {
   updateStorage,
   setStorageLoaded,
   setStorageError,
-  LogType,
-  logInfo,
-  logError,
 } from '../storage-helpers';
+import { LogType, logInfo, logError } from '@teensyrom-nx/utils';
 
 export function initializeStorage(
   store: WritableStore<StorageState>,

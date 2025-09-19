@@ -2,6 +2,7 @@ import { patchState, StateSignals, WritableStateSource } from '@ngrx/signals';
 import { StorageState, StorageDirectoryState } from './storage-store';
 import { StorageKey, StorageKeyUtil } from './storage-key.util';
 import { StorageType } from '@teensyrom-nx/domain/storage/services';
+import { logError } from '@teensyrom-nx/utils';
 
 export type WritableStore<T extends object> = StateSignals<T> & WritableStateSource<T>;
 
@@ -112,7 +113,7 @@ export function setStorageError(
   patchState(store, (state) => {
     const currentEntry = state.storageEntries[key];
     if (!currentEntry) {
-      console.error(`? No entry found for ${key} during error update`);
+      logError(`No entry found for ${key} during error update`);
       return state;
     }
 
@@ -195,51 +196,8 @@ export function getAllDeviceStorage(
   return result;
 }
 
-/**
- * Helper to log info messages with appropriate emotes
- */
-export enum LogType {
-  Start = '🚀',
-  Finish = '🏁',
-  Success = '✅',
-  NetworkRequest = '🌐',
-  Navigate = '🧭',
-  Refresh = '🔄',
-  Cleanup = '🧹',
-  Error = '❌',
-  Warning = '⚠️',
-  Unknown = '❓',
-  Select = '🖱️',
-  Info = 'ℹ️',
-  Critical = '🛑',
-  Debug = '🐞',
-  Midi = '🎹',
-}
-
-export function logInfo(operation: LogType, message: string, data?: unknown): void {
-  if (data !== undefined) {
-    console.log(`${operation} ${message}`, data);
-  } else {
-    console.log(`${operation} ${message}`);
-  }
-}
-/**
- * Helper to log error messages with error emote
- */
-export function logError(message: string, error?: unknown): void {
-  if (error !== undefined) {
-    console.error(`${LogType.Error} ${message}`, error);
-  } else {
-    console.error(`${LogType.Error} ${message}`);
-  }
-}
-
-/**
- * Helper to log warning messages with warning emote
- */
-export function logWarn(message: string): void {
-  console.warn(`?? ${message}`);
-}
+// Re-export logging utilities for backward compatibility
+export { LogType, logInfo, logError, logWarn } from '@teensyrom-nx/utils';
 
 /**
  * Helper to update selected directory for a device

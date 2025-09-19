@@ -1,7 +1,8 @@
 import { patchState } from '@ngrx/signals';
 import { StorageState } from '../storage-store';
 import { StorageKeyUtil, type StorageKey } from '../storage-key.util';
-import { LogType, WritableStore, logInfo } from '../storage-helpers';
+import { WritableStore } from '../storage-helpers';
+import { LogType, logInfo } from '@teensyrom-nx/utils';
 
 export function removeAllStorage(store: WritableStore<StorageState>) {
   return {
