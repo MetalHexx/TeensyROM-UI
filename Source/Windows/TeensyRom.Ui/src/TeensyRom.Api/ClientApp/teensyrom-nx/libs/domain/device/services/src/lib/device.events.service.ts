@@ -2,6 +2,7 @@ import { Injectable, computed, signal, WritableSignal, Signal, inject } from '@a
 import { DevicesApiService, DeviceState } from '@teensyrom-nx/data-access/api-client';
 import { from } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
+import { LogType, logInfo, logError } from '@teensyrom-nx/utils';
 
 export type DeviceEvent = {
   deviceId: string;
@@ -33,10 +34,10 @@ export class DeviceEventsService {
     this.hubConnection
       .start()
       .then(() => {
-        console.log('Device Events Connection started');
+        logInfo(LogType.Success, 'Device Events Connection started');
       })
       .catch((err) => {
-        console.error('Error starting Device Events connection:', err);
+        logError('Error starting Device Events connection:', err);
       });
   }
 

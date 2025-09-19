@@ -37,29 +37,7 @@ Set up the foundational Nx library structure for utilities in `/libs/utils` with
 
 ---
 
-## Phase 2: Error Handling Utilities
-
-### Objective
-
-Extract and standardize common error handling patterns into reusable utility functions.
-
-### Key Deliverables
-
-- [ ] Error utility functions implemented
-- [ ] Existing code updated to use utilities
-- [ ] Comprehensive test coverage
-- [ ] Documentation for utilities
-
-### High-Level Tasks
-
-1. **Create Error Utils Module**: Implement `extractErrorMessage` and related functions
-2. **Update Existing Usage**: Replace inline patterns with utility functions
-3. **Comprehensive Codebase Update**: Find and update all instances across the codebase
-4. **Add Unit Tests**: Test all error scenarios and edge cases
-
----
-
-## Phase 3: Logging Utilities
+## Phase 2: Logging Utilities
 
 ### Objective
 
@@ -131,60 +109,6 @@ export function logWarn(message: string): void;
 - **API Layer**: HTTP request/response logging with network operations
 
 ---
-
-## Phase 4: StorageKey Value Type Refactoring
-
-### Objective
-
-Refactor StorageKeyUtil into a more concise StorageKey value type with factory methods and improved ergonomics while maintaining full backward compatibility.
-
-### Key Deliverables
-
-- [ ] StorageKey value type implemented with factory methods
-- [ ] All StorageKeyUtil references updated to StorageKey
-- [ ] Improved API with shorter method names
-- [ ] Comprehensive test coverage maintained
-- [ ] Documentation updated across all references
-
-### Current Usage Analysis
-
-- **60+ occurrences** across 11 files (storage store, tests, player component, docs)
-- **Main methods**: `create()` (28 uses), `forDevice()` (2 uses), `parse()` (8 uses), `forStorageType()` (6 uses)
-- **Files affected**: Storage state, player view, tests, documentation
-
-### Proposed API Changes
-
-```typescript
-// Current API
-StorageKeyUtil.create(deviceId, storageType);
-StorageKeyUtil.parse(key);
-StorageKeyUtil.forDevice(deviceId);
-StorageKeyUtil.forStorageType(storageType);
-
-// New API
-StorageKey.of(deviceId, storageType);
-StorageKey.parse(key);
-StorageKey.forDevice(deviceId);
-StorageKey.forStorageType(storageType);
-```
-
-### High-Level Tasks
-
-1. **Create StorageKey Value Type**: Implement new value type with factory methods
-2. **Update Storage Helpers**: Migrate storage helper functions to use new API
-3. **Update Storage Store**: Replace all StorageKeyUtil calls in storage store
-4. **Update Tests**: Migrate all test files to use new API
-5. **Update Components**: Migrate player component and other consumers
-6. **Update Documentation**: Replace all documentation references
-7. **Remove Legacy Code**: Clean up old StorageKeyUtil exports
-
-### Benefits
-
-- **Shorter API**: `StorageKey.of()` vs `StorageKeyUtil.create()`
-- **Better ergonomics**: More intuitive naming and TypeScript support
-- **Value type pattern**: Consistent with modern TypeScript practices
-- **Extensibility**: Easier to add instance methods if needed
-- **Maintainability**: Single responsibility and cleaner imports
 
 ## 🏗️ Architecture Overview
 

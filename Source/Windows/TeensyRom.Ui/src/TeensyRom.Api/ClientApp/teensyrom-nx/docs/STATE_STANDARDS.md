@@ -580,13 +580,8 @@ export function logInfo(operation: LogType, message: string, data?: unknown): vo
 
 ```typescript
 // actions/load-data.ts
-import {
-  setLoadingStorage,
-  setStorageLoaded,
-  setStorageError,
-  logInfo,
-  LogType,
-} from '../domain-helpers';
+import { setLoadingStorage, setStorageLoaded, setStorageError } from '../domain-helpers';
+import { LogType, logInfo } from '@teensyrom-nx/utils';
 
 export function loadData(store: WritableStore<DomainState>, service: DomainService) {
   return {
@@ -733,7 +728,7 @@ export function storeMethod(store, service) {
 **Quick Reference**:
 
 ```typescript
-import { LogType, logInfo, logError } from './helpers';
+import { LogType, logInfo, logError } from '@teensyrom-nx/utils';
 
 // Operation lifecycle pattern
 logInfo(LogType.Start, `Starting operation for ${key}`);

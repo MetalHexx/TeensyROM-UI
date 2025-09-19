@@ -3,6 +3,7 @@ import { signal, Signal, WritableSignal, computed } from '@angular/core';
 import { DevicesApiService } from '@teensyrom-nx/data-access/api-client';
 import { from } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
+import { LogType, logInfo, logError } from '@teensyrom-nx/utils';
 
 interface LogDto {
   Message: string;
@@ -33,11 +34,11 @@ export class DeviceLogsService {
       .start()
       .then(() => {
         this._isConnected.set(true);
-        console.log('Connection started');
+        logInfo(LogType.Success, 'Device Logs Connection started');
       })
       .catch((err) => {
         this._isConnected.set(false);
-        console.error('Error starting connection:', err);
+        logError('Error starting Device Logs connection:', err);
       });
   }
 

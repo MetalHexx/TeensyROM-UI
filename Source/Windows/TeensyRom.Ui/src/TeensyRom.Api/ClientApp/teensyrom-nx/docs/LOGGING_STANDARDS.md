@@ -1,8 +1,54 @@
 # Logging Standards
 
-## Overview
+## Overv Refresh = '🔄', // Refresh operations
 
-This document establishes standards for logging within NgRx Signal Store implementations and across the application. These standards ensure consistent, meaningful, and visually distinctive logging that provides clear visibility into system operations and state changes.
+Cleanup = '🧹', // Cleanup operations
+Error = '❌', // Error conditions
+Warning = '⚠️'**LogType.Select** (`🖱️`):
+
+- Lookup and search operations
+- Signal read operations in selectors
+- Example: `🖱️ Looking up storage entry for device-1-SD`
+
+**LogType.Error** (`❌`):
+
+- Error conditions and failures
+- Always include error context
+- Example: `❌ API error for device-1-SD:`, error
+
+**LogType.Warning** (`⚠️`):
+
+- Warning conditions that don't break functionality
+- Missing data or unexpected states
+- Example: `⚠️ Cannot refresh - no entry found for device-1-SD`
+
+**LogType.Critical** (`🛑`):
+
+- Critical system events that require immediate attention
+- System failures or security issues
+- Example: `🛑 Critical system failure - unable to connect to device-1`
+
+**LogType.Debug** (`🐞`):
+
+- Detailed debugging information for development
+- Internal state changes and diagnostic data
+- Example: `🐞 Debug: Processing 15 items in storage cache`
+
+**LogType.Midi** (`🎹`):
+
+- MIDI-specific operations and events
+- Musical instrument digital interface communications
+- Example: `🎹 MIDI device connected: TeensyROM-1`itions
+  Unknown = '❓', // Unknown states
+  Select = '🖱️', // Lookup/search operations
+  Info = 'ℹ️', // Informational messages
+  Critical = '🛑', // Critical system events
+  Debug = '🐞', // Debug information
+  Midi = '🎹', // MIDI-specific operationsdocument establishes standards for logging within NgRx Signal Store implementations and across the application**LogType.Select** (`🖱️`):
+
+- Lookup and search operations
+- Signal read operations in selectors
+- Example: `🖱️ Looking up storage entry for device-1-SD`se standards ensure consistent, meaningful, and visually distinctive logging that provides clear visibility into system operations and state changes.
 
 **Primary Goal**: Use emoji-enhanced logging to create clear operational visibility while maintaining consistency across all store implementations.
 
@@ -12,7 +58,7 @@ This document establishes standards for logging within NgRx Signal Store impleme
 
 ### Standard LogType Implementation
 
-**Standard**: Use a centralized `LogType` enum with emoji values for consistent logging across all store operations.
+**Standard**: Use the centralized `LogType` enum from `@teensyrom-nx/utils` with emoji values for consistent logging across all store operations.
 
 **Implementation**:
 
@@ -21,18 +67,18 @@ export enum LogType {
   Start = '🚀', // Beginning of operations
   Finish = '🏁', // Operation completion
   Success = '✅', // Successful API responses
-  NetworkRequest = '📡', // API calls being made
+  NetworkRequest = '🌐', // API calls being made
   Navigate = '🧭', // Navigation operations
   Refresh = '🔄', // Refresh operations
   Cleanup = '🧹', // Cleanup operations
   Error = '❌', // Error conditions
   Warning = '⚠️', // Warning conditions
   Unknown = '❓', // Unknown states
-  Select = '🔍', // Lookup/search operations
+  Select = '�️', // Lookup/search operations
   Info = 'ℹ️', // Informational messages
-  Critical = '🔥', // Critical system events
-  Debug = '🐛', // Debug information
-  Midi = '🎵', // MIDI-specific operations
+  Critical = '�', // Critical system events
+  Debug = '�', // Debug information
+  Midi = '�', // MIDI-specific operations
 }
 ```
 
@@ -45,31 +91,7 @@ export enum LogType {
 
 ### Logging Helper Functions
 
-**Standard**: Implement standardized logging helper functions that use the LogType enum.
-
-**Implementation**:
-
-```typescript
-export function logInfo(operation: LogType, message: string, data?: unknown): void {
-  if (data !== undefined) {
-    console.log(`${operation} ${message}`, data);
-  } else {
-    console.log(`${operation} ${message}`);
-  }
-}
-
-export function logError(message: string, error?: unknown): void {
-  if (error !== undefined) {
-    console.error(`${LogType.Error} ${message}`, error);
-  } else {
-    console.error(`${LogType.Error} ${message}`);
-  }
-}
-
-export function logWarn(message: string): void {
-  console.warn(`${LogType.Warning} ${message}`);
-}
-```
+**Standard**: Use the standardized logging helper functions from `@teensyrom-nx/utils` that provide the LogType enum.
 
 **Requirements**:
 
@@ -129,11 +151,11 @@ export const initializeStorage = async ({ deviceId, storageType }) => {
 - Include operation context (keys, identifiers)
 - Example: `🚀 Starting async initialization for device-1-SD`
 
-**LogType.NetworkRequest** (`📡`):
+**LogType.NetworkRequest** (`🌐`):
 
 - Log immediately before making API calls
 - Include endpoint context and parameters
-- Example: `📡 Making API call for device-1-SD`
+- Example: `🌐 Making API call for device-1-SD`
 
 **LogType.Success** (`✅`):
 
@@ -171,11 +193,11 @@ export const initializeStorage = async ({ deviceId, storageType }) => {
 - Include what is being cleaned up
 - Example: `🧹 Cleaning up all storage entries for device: device-1`
 
-**LogType.Select** (`🔍`):
+**LogType.Select** (`�️`):
 
 - Lookup and search operations
 - Signal read operations in selectors
-- Example: `🔍 Looking up storage entry for device-1-SD`
+- Example: `�️ Looking up storage entry for device-1-SD`
 
 **LogType.Error** (`❌`):
 
@@ -208,7 +230,7 @@ export const initializeStorage = async ({ deviceId, storageType }) => {
 **Integration Pattern**:
 
 ```typescript
-import { LogType, logInfo, logError, logWarn } from './storage-helpers';
+import { LogType, logInfo, logError, logWarn } from '@teensyrom-nx/utils';
 
 export const StorageStore = signalStore(
   { providedIn: 'root' },
@@ -367,3 +389,54 @@ it('should log complete initialization lifecycle', async () => {
 5. Standardize error logging with logError helper
 
 **Best Practice**: Start with logging integration during store development rather than retrofitting, as it provides valuable debugging during implementation.
+
+---
+
+## Centralized Logging Library
+
+### Utils Library Integration
+
+**Standard**: All logging utilities are now centralized in the `@teensyrom-nx/utils` library for consistent usage across the entire application.
+
+**Import Pattern**:
+
+```typescript
+import { LogType, logInfo, logError, logWarn } from '@teensyrom-nx/utils';
+```
+
+**Benefits**:
+
+- **Cross-Domain Consistency**: Same logging patterns across all domains (storage, device, UI)
+- **Centralized Management**: Single source of truth for LogType definitions and helper functions
+- **Reduced Duplication**: No need to duplicate logging code in each domain
+- **Enhanced Maintainability**: Easy to modify logging behavior globally
+- **Tree Shakable**: Optimized for bundler tree shaking
+
+**Migration**: All existing logging code has been updated to use the centralized library:
+
+- Storage domain actions and helpers
+- Device services (events and logs)
+- Application bootstrap
+- UI components
+- Test utilities
+
+**Quick Reference**:
+
+```typescript
+import { LogType, logInfo, logError, logWarn } from '@teensyrom-nx/utils';
+
+// Operation lifecycle pattern
+logInfo(LogType.Start, `Starting operation for ${key}`);
+logInfo(LogType.NetworkRequest, `Making API call for ${key}`);
+logInfo(LogType.Success, `API call successful for ${key}:`, data);
+logInfo(LogType.Finish, `Operation completed for ${key}`);
+
+// Cache hits and informational
+logInfo(LogType.Info, `${key} already loaded, skipping operation`);
+
+// Error handling
+logError(`Operation failed for ${key}:`, error);
+
+// Warnings
+logWarn(`Cannot process - missing data for ${key}`);
+```

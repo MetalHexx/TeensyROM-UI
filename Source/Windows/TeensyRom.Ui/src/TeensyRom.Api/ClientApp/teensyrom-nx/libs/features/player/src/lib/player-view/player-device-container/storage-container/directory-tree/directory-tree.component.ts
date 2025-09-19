@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { StorageStore } from '@teensyrom-nx/domain/storage/state';
+import { LogType, logInfo } from '@teensyrom-nx/utils';
 
 interface TreeNode {
   name: string;
@@ -80,6 +81,6 @@ export class DirectoryTreeComponent {
   ];
 
   onDirectoryClick(node: TreeNode) {
-    console.log(node);
+    logInfo(LogType.Select, `Directory selected: ${node.name}`, node);
   }
 }
