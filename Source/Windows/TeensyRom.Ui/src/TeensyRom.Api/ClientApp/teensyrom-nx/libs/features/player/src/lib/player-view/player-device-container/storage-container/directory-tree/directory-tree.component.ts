@@ -28,15 +28,11 @@ interface TreeNode {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DirectoryTreeComponent {
-  // Signals-based device context
   deviceId = input.required<string>();
 
   private readonly storageStore = inject(StorageStore);
 
-  // Directories-only JSON projection for this device across storage types
-  readonly directories = computed(() =>
-    this.storageStore['getDeviceDirectories'](this.deviceId())()
-  );
+  readonly directories = computed(() => this.storageStore.getDeviceDirectories(this.deviceId())());
 
   childrenAccessor = (node: TreeNode) => node.children ?? [];
   hasChild = (_: number, node: TreeNode) => !!node.children && node.children.length > 0;

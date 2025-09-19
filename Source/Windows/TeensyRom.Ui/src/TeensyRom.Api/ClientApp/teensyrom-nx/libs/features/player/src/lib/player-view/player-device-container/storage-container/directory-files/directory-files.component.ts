@@ -16,7 +16,7 @@ export class DirectoryFilesComponent {
   private readonly storageStore = inject(StorageStore);
 
   readonly selectedDirectoryState = computed(() =>
-    this.storageStore['getSelectedDirectoryState'](this.deviceId())()
+    this.storageStore.getSelectedDirectoryState(this.deviceId())()
   );
 
   readonly directoryContents = computed(() => {

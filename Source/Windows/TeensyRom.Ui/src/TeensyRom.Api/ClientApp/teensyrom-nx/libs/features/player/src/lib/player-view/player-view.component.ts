@@ -28,8 +28,9 @@ export class PlayerViewComponent {
 
   private async initializeDevicesSequentially(devices: Device[]) {
     for (const device of devices) {
+      const deviceEntries = this.storageStore.getDeviceStorageEntries(device.deviceId)();
+
       if (device.sdStorage?.available) {
-        const deviceEntries = this.storageStore.getDeviceStorageEntries(device.deviceId)();
         const sdKey = StorageKeyUtil.create(device.deviceId, StorageType.Sd);
 
         if (!deviceEntries[sdKey]) {
@@ -41,7 +42,6 @@ export class PlayerViewComponent {
       }
 
       if (device.usbStorage?.available) {
-        const deviceEntries = this.storageStore.getDeviceStorageEntries(device.deviceId)();
         const usbKey = StorageKeyUtil.create(device.deviceId, StorageType.Usb);
 
         if (!deviceEntries[usbKey]) {

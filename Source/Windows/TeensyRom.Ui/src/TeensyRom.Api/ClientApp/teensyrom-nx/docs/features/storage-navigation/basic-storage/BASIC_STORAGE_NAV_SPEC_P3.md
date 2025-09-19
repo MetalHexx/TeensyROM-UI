@@ -14,11 +14,11 @@ Implement the core component/store integration with computed signals and JSON ve
 
 ## 📚 Required Reading
 
-- [ ] `libs/domain/storage/state/src/lib/storage-store.ts`
-- [ ] `libs/features/player/src/lib/player-view/player-view.component.ts`
-- [ ] `libs/features/player/src/lib/player-view/player-device-container/storage-container/storage-container.component.ts`
-- [ ] `libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.ts`
-- [ ] `libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.ts`
+- [x] `libs/domain/storage/state/src/lib/storage-store.ts`
+- [x] `libs/features/player/src/lib/player-view/player-view.component.ts`
+- [x] `libs/features/player/src/lib/player-view/player-device-container/storage-container/storage-container.component.ts`
+- [x] `libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.ts`
+- [x] `libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.ts`
 
 ## 📋 Implementation Tasks
 
@@ -83,17 +83,17 @@ Implement the core component/store integration with computed signals and JSON ve
 
 **Purpose**: Show selected directory contents (files and directories) via SelectedDirectory state.
 
-- [ ] DirectoryFilesComponent (TS)
+- [x] DirectoryFilesComponent (TS)
 
-  - [ ] Receive `deviceId` from parent via `deviceId = input.required<string>()`
-  - [ ] Inject `StorageStore` to access `selectedDirectory`
-  - [ ] Use `selectedDirectoryState` computed signal
-  - [ ] Resolve correct StorageDirectoryState entry from SelectedDirectory
-  - [ ] Extract complete files and directories list
+  - [x] Receive `deviceId` from parent via `deviceId = input.required<string>()`
+  - [x] Inject `StorageStore` to access `selectedDirectory`
+  - [x] Use `selectedDirectoryState` computed signal
+  - [x] Resolve correct StorageDirectoryState entry from SelectedDirectory
+  - [x] Extract complete files and directories list
 
-- [ ] DirectoryFilesComponent (HTML)
-  - [ ] Display files and directories as `<pre>` formatted JSON
-  - [ ] Replace Lorem Ipsum placeholder content with actual storage data
+- [x] DirectoryFilesComponent (HTML)
+  - [x] Display files and directories as `<pre>` formatted JSON
+  - [x] Replace Lorem Ipsum placeholder content with actual storage data
 
 ### Task 6: Initialize Storage Should Fetch Root Directory
 
@@ -119,12 +119,12 @@ Implement the core component/store integration with computed signals and JSON ve
 
 **Purpose**: **CRITICAL**: Refactor storage store from single global `selectedDirectory` to per-device selection model. This must be completed before proceeding to Task 7 as the current global state design breaks multi-device functionality.
 
-- [ ] **Complete Phase 7**: [Fix Global Selected Directory State - Per-Device Selection](../BASIC_STORAGE_FIX_GLOBAL_STATE.md)
-  - [ ] All tasks in Phase 7 must be completed
-  - [ ] Storage store refactored to per-device selection
-  - [ ] All tests updated and passing
-  - [ ] Components updated to work with per-device state
-  - [ ] Multi-device selection independence verified
+- [x] **Complete Phase 7**: [Fix Global Selected Directory State - Per-Device Selection](../BASIC_STORAGE_FIX_GLOBAL_STATE.md)
+  - [x] All tasks in Phase 7 must be completed
+  - [x] Storage store refactored to per-device selection
+  - [x] All tests updated and passing
+  - [x] Components updated to work with per-device state
+  - [x] Multi-device selection independence verified
 
 **Note**: This is a foundational fix required before any UI implementation can proceed. The current single `selectedDirectory` state cannot support multiple devices properly.
 
@@ -132,11 +132,11 @@ Implement the core component/store integration with computed signals and JSON ve
 
 **Purpose**: Align store structure with one-function-per-file standards for long-term maintainability.
 
-- [ ] Evaluate moving computed selectors and factory methods into dedicated files under a `methods/` (or `selectors/`) folder
-- [ ] Keep non-parameterized computed selectors (e.g., `selectedDirectoryState`) close to the store if they remain minimal, otherwise extract
-- [ ] Extract parameterized factories (e.g., `getDeviceStorageEntries`, `getDeviceDirectories`) into separate files per STATE_STANDARDS
-- [ ] Update barrel exports and store assembly to import and spread these functions consistently
-- [ ] Confirm typings remain stable and devtools naming remains clear
+- [x] Evaluate moving computed selectors and factory methods into dedicated files under a `methods/` (or `selectors/`) folder
+- [x] Keep non-parameterized computed selectors (e.g., `selectedDirectoryState`) close to the store if they remain minimal, otherwise extract
+- [x] Extract parameterized factories (e.g., `getDeviceStorageEntries`, `getDeviceDirectories`) into separate files per STATE_STANDARDS
+- [x] Update barrel exports and store assembly to import and spread these functions consistently
+- [x] Confirm typings remain stable and devtools naming remains clear
 
 ## 🗂️ File Changes
 
@@ -162,26 +162,20 @@ libs/features/player/src/lib/player-view/
 
 ### Unit Tests
 
-- [ ] StorageStore computed signals: selection, per-device filters, directory projections
-- [ ] Component integration: computed signal usage and data flow
-- [ ] Device-specific filtering accuracy
-- [ ] JSON output verification in component templates
-
-### Integration Tests
-
-- [ ] Full data flow from PlayerView → leaf components
-- [ ] StorageStore lifecycle with component hierarchy
-- [ ] Computed signals react to storage state changes
+- [x] StorageStore computed signals: selection, per-device filters, directory projections
+- [x] Component integration: computed signal usage and data flow
+- [x] Device-specific filtering accuracy
+- [x] JSON output verification in component templates
 
 ## ✅ Success Criteria
 
-- [ ] StorageStore enhanced with computed signals per NgRx patterns
-- [ ] DeviceId-based data flow established end-to-end
-- [ ] Directory JSON display working above existing tree
-- [ ] Selected directory JSON display working in DirectoryFiles
-- [ ] Computed signals provide filtered data efficiently
-- [ ] Existing functionality preserved (hardcoded tree remains)
-- [ ] Ready for Phase 4 navigation tree implementation
+- [x] StorageStore enhanced with computed signals per NgRx patterns
+- [x] DeviceId-based data flow established end-to-end
+- [x] Directory JSON display working above existing tree
+- [x] Selected directory JSON display working in DirectoryFiles
+- [x] Computed signals provide filtered data efficiently
+- [x] Existing functionality preserved (hardcoded tree remains)
+- [x] Ready for Phase 4 navigation tree implementation
 
 ## 📝 Notes
 

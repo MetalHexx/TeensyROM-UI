@@ -17,6 +17,6 @@ export class StorageContainerComponent {
   readonly storageStore = inject(StorageStore);
 
   readonly deviceEntries = computed(() =>
-    this.storageStore['getDeviceStorageEntries'](this.deviceId())()
+    this.storageStore.getDeviceStorageEntries(this.deviceId())()
   );
 }
