@@ -8,7 +8,12 @@
       "Read(//c/dev/src/TeensyROM-UI/Source/Windows/**)",
       "Bash(npm run lint)",
       "Bash(npx nx test:*)",
-      "Bash(nx test:*)"
+      "Bash(nx test:*)",
+      "Bash(npx nx build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(cp:*)"
     ],
     "deny": [],
     "ask": []
