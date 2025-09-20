@@ -20,23 +20,23 @@ mat-tree {
 // Node type styling
 .device-node {
   font-weight: 500;
-  background-color: var(--mat-sys-primary-container);
-  color: var(--mat-sys-on-primary-container);
+  // background-color: var(--mat-sys-primary-container);
+  // color: var(--mat-sys-on-primary-container);
 }
 
 .storage-node {
-  background-color: var(--mat-sys-secondary-container);
-  color: var(--mat-sys-on-secondary-container);
+  // background-color: var(--mat-sys-secondary-container);
+  // color: var(--mat-sys-on-secondary-container);
 }
 
 .directory-node {
-  background-color: var(--mat-sys-surface-variant);
-  color: var(--mat-sys-on-surface-variant);
+  // background-color: var(--mat-sys-surface-variant);
+  // color: var(--mat-sys-on-surface-variant);
 }
 
 .placeholder-node {
   background-color: transparent;
-  color: var(--mat-sys-outline);
+  // color: var(--mat-sys-outline);
 }
 
 .placeholder-text {
@@ -52,8 +52,8 @@ mat-tree {
 }
 
 .error {
-  background-color: var(--mat-sys-error-container);
-  color: var(--mat-sys-on-error-container);
+  // background-color: var(--mat-sys-error-container);
+  // color: var(--mat-sys-on-error-container);
 }
 
 // Icon styling

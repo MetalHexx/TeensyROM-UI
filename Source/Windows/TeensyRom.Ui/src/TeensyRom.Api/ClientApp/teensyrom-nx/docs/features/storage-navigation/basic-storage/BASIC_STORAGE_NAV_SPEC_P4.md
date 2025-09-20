@@ -64,27 +64,21 @@ Plan to implement Tasks 1 through 5 sequentially, validating each in turn (start
 
 **Purpose**: Filter tree content to only available storage, reflect store changes, and clean up removed devices.
 
-- [ ] Source availability information from `StorageStore` selectors or device input to include Internal storage and hide unavailable SD/USB nodes
-- [ ] Update tree when storage availability or directory data changes without full rebuild of expansion state or cache
-- [ ] Remove device nodes when devices disconnect and clear associated cache entries
-- [ ] Ensure refreshing or navigating new paths updates tree nodes and maintains expansion where appropriate
+- [x] Source availability information from `StorageStore` selectors or device input to include Internal storage and hide unavailable SD/USB nodes
+- [x] Update tree when storage availability or directory data changes without full rebuild of expansion state or cache
+- [x] Remove device nodes when devices disconnect and clear associated cache entries
+- [x] Ensure refreshing or navigating new paths updates tree nodes and maintains expansion where appropriate
 
 ### Task 4: Styling & Accessibility
 
 **Purpose**: Apply Material design styling consistent with the app and ensure accessibility.
 
-- [ ] Update `directory-tree.component.scss` to style indentation, selection, hover, and loading indicators
+- [x] Update `directory-tree.component.scss` to style indentation, selection, hover, and loading indicators
 - [ ] Use ARIA attributes/roles on tree elements for screen readers
-- [ ] Display error messages or skeleton states inline when directories fail to load or are loading
-
-### Task 5: Testing & Cleanup
-
-**Purpose**: Validate behavior and remove legacy JSON debugging from Phase 3.
-
-- [ ] Update `directory-tree.component.spec.ts` with unit tests covering tree rendering, selection, navigation, availability filtering, and cache persistence
-- [ ] Add tests for expansion state persistence and navigation call parameters
-- [ ] Remove Phase 3 JSON verification output from `storage-container.component.html` and ensure file list integration remains intact
-- [ ] Document any follow-up tasks or risks
+- [x] Display error messages or skeleton states inline when directories fail to load or are loading
+- [x] Create a new style for square chips that have no border. This way, we'll keep all the animations intact. Create it as a global style.
+- [x] Add a folder icon to the left of the directory name text using the --color-dimmed style in STYLE_GUIDE.md
+- [x] The currently selected folder should be highlighted
 
 ## File Changes
 

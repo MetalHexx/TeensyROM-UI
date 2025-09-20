@@ -9,6 +9,7 @@ interface MockStorageStore {
   getDeviceDirectories: ReturnType<typeof vi.fn>;
   navigateToDirectory: ReturnType<typeof vi.fn>;
   getDeviceStorageEntries: ReturnType<typeof vi.fn>;
+  getSelectedDirectoryState: ReturnType<typeof vi.fn>;
 }
 
 interface MockMatTree {
@@ -47,6 +48,7 @@ describe('DirectoryTreeComponent', () => {
           lastLoadTime: null,
         },
       })),
+      getSelectedDirectoryState: vi.fn().mockReturnValue(() => null),
     };
 
     await TestBed.configureTestingModule({
@@ -522,6 +524,7 @@ describe('DirectoryTreeComponent - Single Storage', () => {
           lastLoadTime: null,
         },
       })),
+      getSelectedDirectoryState: vi.fn().mockReturnValue(() => null),
     };
 
     await TestBed.configureTestingModule({

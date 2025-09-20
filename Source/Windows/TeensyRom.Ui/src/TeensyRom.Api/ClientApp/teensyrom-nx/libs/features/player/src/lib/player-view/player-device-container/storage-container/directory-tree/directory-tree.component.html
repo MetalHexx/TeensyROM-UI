@@ -1,7 +1,7 @@
 <div class="directory-tree">
   <mat-card class="stretch-card">
     <mat-card-header>
-      <mat-card-title>Directory Tree</mat-card-title>
+      <mat-card-title>Directories</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <mat-tree
@@ -20,13 +20,23 @@
         </mat-tree-node>
 
         <!-- Regular leaf nodes -->
-        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-          <button mat-icon-button disabled>
-            <mat-icon>{{ node.icon }}</mat-icon>
-          </button>
-          <mat-chip (click)="onDirectoryClick(node)" [class]="getNodeClasses(node)">
-            {{ node.name }}
-          </mat-chip>
+        <mat-tree-node
+          *matTreeNodeDef="let node"
+          matTreeNodePadding
+          tabindex="0"
+          role="treeitem"
+          [attr.aria-label]="node.name"
+          [attr.aria-pressed]="isNodeSelected(node)"
+          (click)="onDirectoryClick(node)"
+          (keydown)="onNodeKeyDown($event, node)"
+        >
+          <lib-directory-tree-node
+            [icon]="node.icon"
+            [text]="node.name"
+            [cssClass]="getNodeClasses(node)"
+            [isSelected]="isNodeSelected(node)"
+            [nodeType]="node.type"
+          ></lib-directory-tree-node>
           @if (node.isLoading) {
           <mat-icon class="loading-icon">hourglass_empty</mat-icon>
           } @if (node.error) {
@@ -38,6 +48,12 @@
           matTreeNodePadding
           matTreeNodeToggle
           [cdkTreeNodeTypeaheadLabel]="node.name"
+          tabindex="0"
+          role="treeitem"
+          [attr.aria-label]="node.name"
+          [attr.aria-pressed]="isNodeSelected(node)"
+          (click)="onDirectoryClick(node)"
+          (keydown)="onNodeKeyDown($event, node)"
         >
           <button
             mat-icon-button
@@ -49,9 +65,13 @@
               {{ tree.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
             </mat-icon>
           </button>
-          <mat-chip (click)="onDirectoryClick(node)" [class]="getNodeClasses(node)">
-            {{ node.name }}
-          </mat-chip>
+          <lib-directory-tree-node
+            [icon]="node.icon"
+            [text]="node.name"
+            [cssClass]="getNodeClasses(node)"
+            [isSelected]="isNodeSelected(node)"
+            [nodeType]="node.type"
+          ></lib-directory-tree-node>
           @if (node.isLoading) {
           <mat-icon class="loading-icon">hourglass_empty</mat-icon>
           } @if (node.error) {

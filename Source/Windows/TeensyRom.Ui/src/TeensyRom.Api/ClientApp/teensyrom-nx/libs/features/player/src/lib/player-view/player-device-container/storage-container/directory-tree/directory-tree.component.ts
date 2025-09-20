@@ -15,6 +15,7 @@ import { MatTreeModule, MatTree } from '@angular/material/tree';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { DirectoryTreeNodeComponent } from './directory-tree-node/directory-tree-node.component';
 import { StorageStore, StorageDirectoryState } from '@teensyrom-nx/domain/storage/state';
 import { StorageType, StorageDirectory } from '@teensyrom-nx/domain/storage/services';
 import { LogType, logInfo } from '@teensyrom-nx/utils';
@@ -52,6 +53,7 @@ interface DirectoryCacheEntry {
     MatIconModule,
     MatButtonModule,
     MatChipsModule,
+    DirectoryTreeNodeComponent,
   ],
   templateUrl: './directory-tree.component.html',
   styleUrl: './directory-tree.component.scss',
@@ -64,6 +66,9 @@ export class DirectoryTreeComponent implements AfterViewInit {
   private readonly tree = viewChild<MatTree<DirectoryTreeNode>>('tree');
 
   readonly directories = computed(() => this.storageStore.getDeviceDirectories(this.deviceId())());
+  readonly selectedDirectoryState = computed(() =>
+    this.storageStore.getSelectedDirectoryState(this.deviceId())()
+  );
 
   private readonly directoryCache = signal<Map<string, DirectoryCacheEntry>>(new Map());
 
@@ -163,7 +168,7 @@ export class DirectoryTreeComponent implements AfterViewInit {
       id: `device-${deviceId}`,
       name: `Device ${deviceId}`,
       type: DirectoryTreeNodeType.Device,
-      icon: 'smartphone',
+      icon: 'desktop_windows',
       deviceId,
       children: this.buildStorageTypeNodes(deviceId),
     };
@@ -297,6 +302,19 @@ export class DirectoryTreeComponent implements AfterViewInit {
     return classes.join(' ');
   }
 
+  isNodeSelected(node: DirectoryTreeNode): boolean {
+    const selectedState = this.selectedDirectoryState();
+    if (!selectedState || !node.deviceId || !node.storageType || !node.path) {
+      return false;
+    }
+
+    return (
+      selectedState.deviceId === node.deviceId &&
+      selectedState.storageType === node.storageType &&
+      selectedState.currentPath === node.path
+    );
+  }
+
   onDirectoryClick(node: DirectoryTreeNode) {
     logInfo(LogType.Select, `Directory selected: ${node.name}`, node);
 
@@ -313,6 +331,14 @@ export class DirectoryTreeComponent implements AfterViewInit {
         storageType: node.storageType,
         path: node.path,
       });
+    }
+  }
+
+  onNodeKeyDown(event: KeyboardEvent, node: DirectoryTreeNode) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.onDirectoryClick(node);
     }
   }
 
