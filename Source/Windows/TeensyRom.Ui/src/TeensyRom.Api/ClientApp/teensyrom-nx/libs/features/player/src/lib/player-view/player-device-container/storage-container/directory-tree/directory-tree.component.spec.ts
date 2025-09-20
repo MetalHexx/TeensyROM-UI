@@ -8,6 +8,7 @@ import { StorageType } from '@teensyrom-nx/domain/storage/services';
 interface MockStorageStore {
   getDeviceDirectories: ReturnType<typeof vi.fn>;
   navigateToDirectory: ReturnType<typeof vi.fn>;
+  getDeviceStorageEntries: ReturnType<typeof vi.fn>;
 }
 
 interface MockMatTree {
@@ -24,6 +25,28 @@ describe('DirectoryTreeComponent', () => {
     mockStorageStore = {
       getDeviceDirectories: vi.fn().mockReturnValue(() => []), // Return empty array, not object
       navigateToDirectory: vi.fn(),
+      getDeviceStorageEntries: vi.fn().mockReturnValue(() => ({
+        'test-device-123-SD': {
+          deviceId: 'test-device-123',
+          storageType: StorageType.Sd,
+          currentPath: '/',
+          directory: null,
+          isLoaded: false,
+          isLoading: false,
+          error: null,
+          lastLoadTime: null,
+        },
+        'test-device-123-USB': {
+          deviceId: 'test-device-123',
+          storageType: StorageType.Usb,
+          currentPath: '/',
+          directory: null,
+          isLoaded: false,
+          isLoading: false,
+          error: null,
+          lastLoadTime: null,
+        },
+      })),
     };
 
     await TestBed.configureTestingModule({
@@ -443,5 +466,99 @@ describe('DirectoryTreeComponent', () => {
 
     expect(mockTreeComponent.expand).toHaveBeenCalledWith(deviceNode);
     expect(deviceNode.type).toBe(DirectoryTreeNodeType.Device);
+  });
+
+  it('should not auto-expand storage nodes when multiple exist', async () => {
+    const mockTreeComponent = {
+      isExpanded: vi.fn().mockReturnValue(true),
+      expand: vi.fn(),
+    };
+
+    Object.defineProperty(component, 'tree', {
+      value: () => mockTreeComponent,
+      writable: true,
+    });
+
+    component.ngAfterViewInit();
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const tree = component.directoryTree();
+    const deviceNode = tree[0];
+
+    expect(mockTreeComponent.expand).toHaveBeenCalledWith(deviceNode);
+    expect(deviceNode.children).toHaveLength(2); // SD and USB
+
+    // Should not expand storage nodes when there are multiple
+    const storageNodes = deviceNode.children?.filter(
+      (child) => child.type === DirectoryTreeNodeType.StorageType
+    );
+    storageNodes?.forEach((storageNode) => {
+      expect(mockTreeComponent.expand).not.toHaveBeenCalledWith(storageNode);
+    });
+  });
+});
+
+// Separate test suite for single storage scenario
+describe('DirectoryTreeComponent - Single Storage', () => {
+  let component: DirectoryTreeComponent;
+  let fixture: ComponentFixture<DirectoryTreeComponent>;
+  let componentRef: ComponentRef<DirectoryTreeComponent>;
+  let mockStorageStore: MockStorageStore;
+
+  beforeEach(async () => {
+    mockStorageStore = {
+      getDeviceDirectories: vi.fn().mockReturnValue(() => []),
+      navigateToDirectory: vi.fn(),
+      getDeviceStorageEntries: vi.fn().mockReturnValue(() => ({
+        'test-device-123-SD': {
+          deviceId: 'test-device-123',
+          storageType: StorageType.Sd,
+          currentPath: '/',
+          directory: null,
+          isLoaded: false,
+          isLoading: false,
+          error: null,
+          lastLoadTime: null,
+        },
+      })),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [DirectoryTreeComponent],
+      providers: [{ provide: StorageStore, useValue: mockStorageStore }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(DirectoryTreeComponent);
+    component = fixture.componentInstance;
+    componentRef = fixture.componentRef;
+
+    componentRef.setInput('deviceId', 'test-device-123');
+    fixture.detectChanges();
+  });
+
+  it('should auto-expand single storage node when only one exists', async () => {
+    const mockTreeComponent = {
+      isExpanded: vi.fn().mockReturnValue(true),
+      expand: vi.fn(),
+    };
+
+    Object.defineProperty(component, 'tree', {
+      value: () => mockTreeComponent,
+      writable: true,
+    });
+
+    component.ngAfterViewInit();
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const tree = component.directoryTree();
+    const deviceNode = tree[0];
+    const storageNode = deviceNode.children?.[0];
+
+    expect(mockTreeComponent.expand).toHaveBeenCalledWith(deviceNode);
+    expect(mockTreeComponent.expand).toHaveBeenCalledWith(storageNode);
+    expect(mockTreeComponent.expand).toHaveBeenCalledTimes(2);
+    expect(deviceNode.children).toHaveLength(1);
   });
 });

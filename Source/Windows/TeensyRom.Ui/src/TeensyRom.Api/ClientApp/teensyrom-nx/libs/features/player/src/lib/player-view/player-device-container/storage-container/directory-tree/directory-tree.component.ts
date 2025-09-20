@@ -82,11 +82,19 @@ export class DirectoryTreeComponent implements AfterViewInit {
     const treeComponent = this.tree();
     if (treeComponent) {
       setTimeout(() => {
-        const deviceNodes = this.directoryTree().filter(
-          (node) => node.type === DirectoryTreeNodeType.Device
-        );
+        const tree = this.directoryTree();
+        const deviceNodes = tree.filter((node) => node.type === DirectoryTreeNodeType.Device);
+
         deviceNodes.forEach((deviceNode) => {
           treeComponent.expand(deviceNode);
+
+          // If there's only one storage node, auto-expand it too
+          if (deviceNode.children && deviceNode.children.length === 1) {
+            const storageNode = deviceNode.children[0];
+            if (storageNode.type === DirectoryTreeNodeType.StorageType) {
+              treeComponent.expand(storageNode);
+            }
+          }
         });
       });
     }
@@ -165,8 +173,10 @@ export class DirectoryTreeComponent implements AfterViewInit {
 
   private buildStorageTypeNodes(deviceId: string): DirectoryTreeNode[] {
     const storageNodes: DirectoryTreeNode[] = [];
+    const deviceEntries = this.storageStore.getDeviceStorageEntries(deviceId)();
 
-    Object.values(StorageType).forEach((storageType) => {
+    Object.values(deviceEntries).forEach((entry) => {
+      const storageType = entry.storageType;
       const storageNodeId = `${deviceId}-${storageType}`;
       const directoryChildren = this.buildDirectoryNodes(deviceId, storageType, '/');
 

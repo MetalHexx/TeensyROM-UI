@@ -44,21 +44,21 @@ Plan to implement Tasks 1 through 5 sequentially, validating each in turn (start
 
 **Purpose**: Establish the in-component data structures required to render devices, storage types, and directories with expansion and selection state.
 
-- [ ] Define a `DirectoryTreeNode` interface covering device, storage type, and directory nodes with IDs, labels, icons, and children
-- [ ] Maintain an in-component cache of visited directories keyed by `{deviceId, storageType, path}` that merges new results from `directories()` while preserving previous branches
-- [ ] Create local state for expanded node tracking keyed by node ID
-- [ ] Map cached directory data into the tree node view-model without losing previously loaded branches
-- [ ] Ensure selection highlights align with `StorageStore` selected directory state
+- [x] Define a `DirectoryTreeNode` interface covering device, storage type, and directory nodes with IDs, labels, icons, and children
+- [x] Maintain an in-component cache of visited directories keyed by `{deviceId, storageType, path}` that merges new results from `directories()` while preserving previous branches
+- [x] Create local state for expanded node tracking keyed by node ID
+- [x] Map cached directory data into the tree node view-model without losing previously loaded branches
+- [x] Ensure selection highlights align with `StorageStore` selected directory state
 
 ### Task 2: `DirectoryTreeComponent` Template & Interaction
 
 **Purpose**: Render the hierarchical tree using Angular control flow and connect user actions to store navigation.
 
-- [ ] Replace placeholder tree data with computed tree data and remove JSON debug output
-- [ ] Implement recursive node rendering via Angular structural directives (`@for`, `@if`)
-- [ ] Add Material icons/buttons styled per node type and show loading/error states when applicable
-- [ ] Handle single-click events: toggle expansion/selection and trigger `navigateToDirectory` as appropriate
-- [ ] Emit navigation requests with `{ deviceId, storageType, path }` to `StorageStore.navigateToDirectory`
+- [x] Replace placeholder tree data with computed tree data and remove JSON debug output
+- [x] Implement recursive node rendering via Angular structural directives (`@for`, `@if`)
+- [x] Add Material icons/buttons styled per node type and show loading/error states when applicable
+- [x] Handle single-click events: toggle expansion/selection and trigger `navigateToDirectory` as appropriate
+- [x] Emit navigation requests with `{ deviceId, storageType, path }` to `StorageStore.navigateToDirectory`
 
 ### Task 3: Storage Availability & Dynamic Updates
 
