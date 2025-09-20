@@ -30,6 +30,9 @@
           (click)="onDirectoryClick(node)"
           (keydown)="onNodeKeyDown($event, node)"
         >
+          <button mat-icon-button disabled style="visibility: hidden">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
           <lib-directory-tree-node
             [icon]="node.icon"
             [text]="node.name"
