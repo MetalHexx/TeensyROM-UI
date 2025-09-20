@@ -39,13 +39,7 @@ type StorageStoreInstance = {
   getSelectedDirectoryState: (deviceId: string) => () => StorageDirectoryState | null;
   // computed factories
   getDeviceStorageEntries: (deviceId: string) => () => Record<string, StorageDirectoryState>;
-  getDeviceDirectories: (deviceId: string) => () => Array<{
-    key: string;
-    deviceId: string;
-    storageType: StorageType;
-    currentPath: string;
-    directories: StorageDirectory['directories'];
-  }>;
+  getDeviceDirectories: (deviceId: string) => () => StorageDirectoryState[];
 };
 
 describe('StorageStore (NgRx Signal Store)', () => {
@@ -452,12 +446,12 @@ describe('StorageStore (NgRx Signal Store)', () => {
       await store.navigateToDirectory({ deviceId, storageType: StorageType.Usb, path: '/roms' });
 
       const dirs = store.getDeviceDirectories(deviceId)();
-      // Expect entries for both SD and USB with directories arrays
+      // Expect entries for both SD and USB with directory objects
       expect(dirs.length).toBe(2);
       expect(dirs.map((d) => d.deviceId)).toEqual(['device-1', 'device-1']);
       expect(dirs.some((d) => d.storageType === StorageType.Sd)).toBe(true);
       expect(dirs.some((d) => d.storageType === StorageType.Usb)).toBe(true);
-      expect(dirs.every((d) => Array.isArray(d.directories))).toBe(true);
+      expect(dirs.every((d) => d.directory && Array.isArray(d.directory.directories))).toBe(true);
     });
   });
 

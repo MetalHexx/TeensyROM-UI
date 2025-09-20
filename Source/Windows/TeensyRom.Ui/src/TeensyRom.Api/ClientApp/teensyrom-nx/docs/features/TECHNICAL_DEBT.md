@@ -150,6 +150,45 @@ Tests demonstrate correct implementation logic (11/12 and 6/7 tests pass), and a
 
 ---
 
+## UI/UX
+
+### Directory Tree Placeholder Animation Issue
+
+**Priority**: Low  
+**Effort**: 0.5-1 day  
+**Created**: 2025-01-19
+
+**Issue**: The directory tree view uses placeholders for unloaded directories to ensure collapse/expand chevrons are always rendered. However, when a directory loads and contains no subdirectories, it causes a quick expand/collapse animation that creates a jarring user experience.
+
+**Affected Files**:
+
+- `libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.html`
+
+**Current Problems**:
+
+- Placeholder nodes ensure chevrons are visible before directory loading
+- When directory loads with zero subdirectories, node briefly expands then immediately collapses
+- Creates visual flicker and poor user experience
+- Unnecessary DOM manipulation and animation triggers
+
+**Recommended Solution**:
+
+- Modify directory loading logic to check subdirectory count before rendering
+- Only show chevron for directories that actually contain subdirectories
+- Remove placeholder nodes or make them conditional based on actual directory contents
+- Consider lazy loading of chevron visibility based on directory metadata
+
+**Benefits**:
+
+- Smoother user experience without jarring animations
+- Reduced unnecessary DOM updates
+- More intuitive visual feedback (chevron only appears when expandable)
+- Better performance by avoiding placeholder manipulation
+
+**Breaking Changes**: None - purely visual behavior improvement
+
+---
+
 ## Performance
 
 _No current items_

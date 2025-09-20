@@ -1,17 +1,16 @@
-import { signalStore, withProps, withState } from '@ngrx/signals';
+import { signalStore, withState } from '@ngrx/signals';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
-import { STORAGE_SERVICE, StorageType } from '@teensyrom-nx/domain/storage/services';
+import { StorageType } from '@teensyrom-nx/domain/storage/services';
 import { StorageDirectory } from '@teensyrom-nx/domain/storage/services';
 import { withStorageActions } from './actions';
 import { withStorageSelectors } from './selectors';
-import { inject } from '@angular/core';
 
 // State interfaces
 export interface StorageDirectoryState {
   deviceId: string;
   storageType: StorageType;
   currentPath: string;
-  directory: StorageDirectory | null;
+  directory: StorageDirectory | null; // could be null if there was an error in the api call.
   isLoaded: boolean;
   isLoading: boolean;
   error: string | null;

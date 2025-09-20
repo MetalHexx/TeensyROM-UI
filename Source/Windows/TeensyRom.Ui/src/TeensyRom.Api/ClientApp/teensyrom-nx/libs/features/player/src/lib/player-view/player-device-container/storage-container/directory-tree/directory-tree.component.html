@@ -4,13 +4,34 @@
       <mat-card-title>Directory Tree</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <pre class="json-debug">{{ directories() | json }}</pre>
-      <mat-tree #tree [dataSource]="directoryTree" [childrenAccessor]="childrenAccessor">
+      <mat-tree
+        #tree
+        [dataSource]="directoryTree()"
+        [childrenAccessor]="childrenAccessor"
+        [trackBy]="trackByFn"
+        [expansionKey]="expansionKeyFn"
+      >
+        <!-- Placeholder nodes -->
+        <mat-tree-node *matTreeNodeDef="let node; when: isPlaceholder" matTreeNodePadding>
+          <button mat-icon-button disabled>
+            <mat-icon>{{ node.icon }}</mat-icon>
+          </button>
+          <span class="placeholder-text">{{ node.name }}</span>
+        </mat-tree-node>
+
+        <!-- Regular leaf nodes -->
         <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
           <button mat-icon-button disabled>
-            <mat-icon>folder</mat-icon>
+            <mat-icon>{{ node.icon }}</mat-icon>
           </button>
-          <mat-chip (click)="onDirectoryClick(node)">{{ node.name }}</mat-chip>
+          <mat-chip (click)="onDirectoryClick(node)" [class]="getNodeClasses(node)">
+            {{ node.name }}
+          </mat-chip>
+          @if (node.isLoading) {
+          <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+          } @if (node.error) {
+          <mat-icon class="error-icon" color="warn">error</mat-icon>
+          }
         </mat-tree-node>
         <mat-tree-node
           *matTreeNodeDef="let node; when: hasChild"
@@ -18,14 +39,32 @@
           matTreeNodeToggle
           [cdkTreeNodeTypeaheadLabel]="node.name"
         >
-          <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
+          <button
+            mat-icon-button
+            matTreeNodeToggle
+            [attr.aria-label]="'Toggle ' + node.name"
+            (click)="onToggleClick(node)"
+          >
             <mat-icon class="mat-icon-rtl-mirror">
               {{ tree.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
             </mat-icon>
           </button>
-          <mat-chip (click)="onDirectoryClick(node)">{{ node.name }}</mat-chip>
+          <mat-chip (click)="onDirectoryClick(node)" [class]="getNodeClasses(node)">
+            {{ node.name }}
+          </mat-chip>
+          @if (node.isLoading) {
+          <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+          } @if (node.error) {
+          <mat-icon class="error-icon" color="warn">error</mat-icon>
+          }
         </mat-tree-node>
       </mat-tree>
+
+      <!-- Debug JSON hidden for now -->
+      <!-- <details class="debug-section">
+        <summary>Debug: StorageStore Data</summary>
+        <pre class="json-debug">{{ directories() | json }}</pre>
+      </details> -->
     </mat-card-content>
   </mat-card>
 </div>

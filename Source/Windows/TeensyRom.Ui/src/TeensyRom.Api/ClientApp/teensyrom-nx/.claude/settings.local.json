@@ -13,7 +13,8 @@
       "Bash(npx tsc:*)",
       "Bash(mkdir:*)",
       "Bash(mv:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(npx nx typecheck:*)"
     ],
     "deny": [],
     "ask": []

@@ -7,6 +7,10 @@
   "tags": [],
   "implicitDependencies": ["device-state"],
   "targets": {
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"]
+    },
     "lint": {
       "executor": "@nx/eslint:lint"
     }

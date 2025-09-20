@@ -123,6 +123,51 @@ Plan to implement Tasks 1 through 5 sequentially, validating each in turn (start
 - [ ] All identified unit/integration tests implemented and passing
 - [ ] Ready to proceed to Phase 5 (Basic File Listing)
 
+## Known Issues
+
+### BUG-001: Expansion Arrows Don't Appear After Directory Data Loads
+
+**Problem**: When clicking an unloaded directory node, the data is fetched successfully but the expansion arrow never appears, making the directory permanently non-expandable until the parent is collapsed and re-expanded.
+
+**Current Behavior**:
+
+1. Device nodes expand correctly ✅
+2. Storage nodes expand correctly ✅
+3. User clicks unloaded directory → data is fetched but nothing visually happens ❌
+4. Directory now has children data but still shows no expansion arrow ❌
+5. Clicking the directory again does nothing - still no arrow appears ❌
+6. **Workaround**: Close parent node and re-open it → expansion arrow finally appears ✅
+7. **Result**: Directory becomes expandable only after parent collapse/expand cycle
+
+**Expected Behavior**:
+Single click on directory should both navigate AND expand to show loaded subdirectories with proper expansion arrows visible.
+
+**Root Cause**:
+Material Tree's `hasChild` function and expansion arrow rendering doesn't update when node children are dynamically populated after initial render. The tree structure is computed correctly with new children, but Material Tree's internal template directives don't re-evaluate the `hasChild` condition, leaving nodes in a "leaf node" visual state even when they now have children data.
+
+**Potential Solutions to Try**:
+
+1. **Placeholder Children Approach**:
+
+   - Pre-populate all directory nodes with a single placeholder child node
+   - When real data loads, replace placeholder with actual subdirectories
+   - If no directories exist, remove placeholder entirely
+   - This ensures expansion arrows are always present for directories
+
+2. **Store-Level Expansion Tracking**:
+
+   - Move expansion state management to StorageStore
+   - Track expanded nodes globally rather than in component
+   - Rebuild tree with proper expansion state from store
+
+3. **Natural Toggle Simulation**:
+   - Find and programmatically click the actual toggle button DOM element
+   - Let Material Tree handle expansion through its natural mechanisms
+
+**Priority**: High - This significantly impacts user experience and navigation efficiency.
+
+**Status**: Open - Needs investigation and implementation.
+
 ## Notes
 
 - Tests focus on observable component behavior (DOM structure, selection state, store call assertions) rather than internal caching mechanics so they survive a later store-level caching refactor.
