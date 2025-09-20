@@ -152,10 +152,46 @@ Tests demonstrate correct implementation logic (11/12 and 6/7 tests pass), and a
 
 ## UI/UX
 
+### Player View Responsiveness Issues
+
+**Priority**: Medium
+**Effort**: 1-2 days
+**Created**: 2025-01-20
+
+**Issue**: The player view layout has general responsiveness problems at various screen resolutions that need further refinement and testing across different device sizes.
+
+**Affected Files**:
+
+- `libs/features/player/src/lib/player-view/player-device-container/storage-container/storage-container.component.scss`
+- `libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.ts`
+- `libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.ts`
+
+**Current Problems**:
+
+- Layout behavior needs refinement across different screen sizes
+- May need additional breakpoint adjustments for optimal user experience
+- Component sizing and responsive behavior could be improved
+
+**Recommended Solution**:
+
+- Comprehensive testing across different screen sizes and devices
+- Fine-tune responsive breakpoints and component sizing
+- Implement additional responsive improvements as needed
+- Consider user feedback on layout behavior
+
+**Benefits**:
+
+- Better user experience across all screen sizes
+- Optimal layout behavior on various devices
+- Smoother responsive transitions
+- Improved overall usability
+
+**Breaking Changes**: None - purely layout and responsiveness improvements
+
 ### Directory Tree Placeholder Animation Issue
 
-**Priority**: Low  
-**Effort**: 0.5-1 day  
+**Priority**: Low
+**Effort**: 0.5-1 day
 **Created**: 2025-01-19
 
 **Issue**: The directory tree view uses placeholders for unloaded directories to ensure collapse/expand chevrons are always rendered. However, when a directory loads and contains no subdirectories, it causes a quick expand/collapse animation that creates a jarring user experience.

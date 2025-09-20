@@ -16,7 +16,7 @@
   flex: 1;
 
   // Stack left and right containers vertically on smaller screens
-  @media (max-width: 900px) {
+  @media (max-width: 1200px) {
     flex-direction: column;
     height: auto;
     overflow-y: auto;
@@ -32,12 +32,19 @@
     height: 100%;
     min-height: 0;
     min-width: 250px;
+    max-width: 400px;
     overflow: hidden;
 
+    // Intermediate breakpoint - limit growth to prevent squeezing files view
+    @media (max-width: 1400px) {
+      max-width: 350px;
+    }
+
     // Responsive adjustments for stacked layout
-    @media (max-width: 900px) {
+    @media (max-width: 1200px) {
       flex: none;
       min-width: 0;
+      max-width: none;
       height: auto;
       min-height: 300px;
       overflow-x: auto;
@@ -53,11 +60,13 @@
     flex: 1;
     height: 100%;
     min-height: 0;
+    min-width: 350px;
     overflow: hidden;
 
     // Responsive adjustments for stacked layout
-    @media (max-width: 900px) {
+    @media (max-width: 1200px) {
       flex: none;
+      min-width: 0;
       height: auto;
       min-height: 400px;
     }
