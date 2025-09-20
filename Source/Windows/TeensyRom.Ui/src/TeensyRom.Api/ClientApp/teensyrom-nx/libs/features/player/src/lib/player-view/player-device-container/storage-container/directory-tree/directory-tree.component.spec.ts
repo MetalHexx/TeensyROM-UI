@@ -422,4 +422,26 @@ describe('DirectoryTreeComponent', () => {
 
     expect(mockStorageStore.navigateToDirectory).not.toHaveBeenCalled();
   });
+
+  it('should auto-expand device node after view init', async () => {
+    const mockTreeComponent = {
+      isExpanded: vi.fn().mockReturnValue(true),
+      expand: vi.fn(),
+    };
+
+    Object.defineProperty(component, 'tree', {
+      value: () => mockTreeComponent,
+      writable: true,
+    });
+
+    component.ngAfterViewInit();
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const tree = component.directoryTree();
+    const deviceNode = tree[0];
+
+    expect(mockTreeComponent.expand).toHaveBeenCalledWith(deviceNode);
+    expect(deviceNode.type).toBe(DirectoryTreeNodeType.Device);
+  });
 });

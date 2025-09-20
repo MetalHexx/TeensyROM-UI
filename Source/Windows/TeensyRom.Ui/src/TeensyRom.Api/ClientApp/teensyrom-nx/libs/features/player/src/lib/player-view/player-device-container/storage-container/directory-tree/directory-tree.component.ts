@@ -7,6 +7,7 @@ import {
   signal,
   effect,
   viewChild,
+  AfterViewInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -56,7 +57,7 @@ interface DirectoryCacheEntry {
   styleUrl: './directory-tree.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DirectoryTreeComponent {
+export class DirectoryTreeComponent implements AfterViewInit {
   deviceId = input.required<string>();
 
   private readonly storageStore = inject(StorageStore);
@@ -72,6 +73,24 @@ export class DirectoryTreeComponent {
     node.type === DirectoryTreeNodeType.Placeholder;
   trackByFn = (_: number, node: DirectoryTreeNode) => node.id;
   expansionKeyFn = (node: DirectoryTreeNode) => node.id;
+
+  ngAfterViewInit() {
+    this.autoExpandDirectoryNode();
+  }
+
+  private autoExpandDirectoryNode() {
+    const treeComponent = this.tree();
+    if (treeComponent) {
+      setTimeout(() => {
+        const deviceNodes = this.directoryTree().filter(
+          (node) => node.type === DirectoryTreeNodeType.Device
+        );
+        deviceNodes.forEach((deviceNode) => {
+          treeComponent.expand(deviceNode);
+        });
+      });
+    }
+  }
 
   private createCacheKey(deviceId: string, storageType: StorageType, path: string): string {
     return `${deviceId}-${storageType}-${path}`;
