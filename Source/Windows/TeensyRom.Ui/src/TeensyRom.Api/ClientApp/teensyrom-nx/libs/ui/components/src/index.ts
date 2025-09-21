@@ -5,3 +5,4 @@ export * from './lib/status-icon-label/status-icon-label.component';
 export * from './lib/card-layout/card-layout.component';
 export * from './lib/compact-card-layout/compact-card-layout.component';
 export * from './lib/input-field/input-field.component';
+export * from './lib/icon-button/icon-button.component';

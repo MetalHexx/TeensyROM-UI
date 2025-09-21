@@ -326,6 +326,121 @@ The component provides **three flexible approaches** for handling user input:
 
 - [`search-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.html) - File and folder search functionality
 
+### `IconButtonComponent`
+
+**Purpose**: A reusable icon button component that provides consistent Material Design button styling with configurable appearance, state management, and accessibility features.
+
+**Selector**: `lib-icon-button`
+
+**Properties**:
+
+- `icon` (required): `string` - Material Design icon name to display in the button
+- `ariaLabel` (required): `string` - Accessibility label for screen readers (required for proper accessibility)
+- `highlighted` (optional): `boolean` - Whether to apply highlight color styling - defaults to false
+- `size` (optional): `'small' | 'medium' | 'large'` - Size variant that maps to existing style classes - defaults to 'medium'
+- `variant` (optional): `'standard' | 'rounded-primary' | 'rounded-transparent'` - Style variant from [STYLE_GUIDE.md](STYLE_GUIDE.md) - defaults to 'standard'
+- `disabled` (optional): `boolean` - Whether the button is disabled - defaults to false
+
+**Events**:
+
+- `buttonClick`: Emitted when the button is clicked (only when not disabled)
+
+**Usage Examples**:
+
+```html
+<!-- Power button (from device-item component) -->
+<lib-icon-button
+  icon="power_settings_new"
+  ariaLabel="Power"
+  [highlighted]="connectionStatus()"
+  size="medium"
+  (buttonClick)="connectionStatus() ? onDisconnect() : onConnect()"
+>
+</lib-icon-button>
+
+<!-- Settings button with rounded primary style -->
+<lib-icon-button
+  icon="settings"
+  ariaLabel="Open Settings"
+  variant="rounded-primary"
+  (buttonClick)="openSettings()"
+>
+</lib-icon-button>
+
+<!-- Delete button with transparent rounded style -->
+<lib-icon-button
+  icon="delete"
+  ariaLabel="Delete Item"
+  variant="rounded-transparent"
+  [disabled]="!canDelete"
+  (buttonClick)="deleteItem()"
+>
+</lib-icon-button>
+
+<!-- Small action button -->
+<lib-icon-button icon="edit" ariaLabel="Edit" size="small" (buttonClick)="editItem()">
+</lib-icon-button>
+
+<!-- Highlighted status button -->
+<lib-icon-button
+  icon="favorite"
+  ariaLabel="Add to Favorites"
+  [highlighted]="isFavorite"
+  (buttonClick)="toggleFavorite()"
+>
+</lib-icon-button>
+```
+
+**Style Integration**:
+
+The component automatically maps to existing classes from [STYLE_GUIDE.md](STYLE_GUIDE.md):
+
+- **Size Mapping**:
+
+  - `small` → `.icon-button-small`
+  - `medium` → `.icon-button-medium`
+  - `large` → `.icon-button-large`
+
+- **Variant Mapping**:
+
+  - `rounded-primary` → `.icon-button-rounded-primary`
+  - `rounded-transparent` → `.icon-button-rounded-transparent`
+  - `standard` → Default Material Design styling
+
+- **State Classes**:
+  - `highlighted: true` → `.highlight` (icon color)
+  - `highlighted: false` → `.normal` (icon color)
+
+**Accessibility Features**:
+
+- **Required ARIA Label**: Always requires `ariaLabel` for screen reader compatibility
+- **Proper Button Semantics**: Uses semantic `<button>` element with `mat-icon-button`
+- **Disabled State Handling**: Properly handles disabled state with both visual and functional changes
+- **Focus Management**: Maintains proper focus behavior and keyboard navigation
+- **High Contrast Support**: Compatible with high contrast modes through Material Design
+
+**Type Safety**:
+
+```typescript
+import { IconButtonSize, IconButtonVariant } from '@teensyrom-nx/ui/components';
+
+// Component usage with full type safety
+export class MyComponent {
+  buttonSize: IconButtonSize = 'medium';
+  buttonVariant: IconButtonVariant = 'rounded-primary';
+
+  onButtonClick(): void {
+    console.log('Button clicked!');
+  }
+}
+```
+
+**Best Practice**: Use for all icon-based actions throughout the application to maintain consistent styling, behavior, and accessibility patterns. Always provide meaningful `ariaLabel` values.
+
+**Used In**:
+
+- [`device-item.component.html`](../libs/features/devices/src/lib/device-view/device-item/device-item.component.html) - Power button for device connection control
+
 ---
 
 ## Display Components
@@ -488,6 +603,7 @@ All shared components follow these architectural patterns:
 import { CardLayoutComponent } from '@teensyrom-nx/ui/components';
 import { CompactCardLayoutComponent } from '@teensyrom-nx/ui/components';
 import { InputFieldComponent } from '@teensyrom-nx/ui/components';
+import { IconButtonComponent } from '@teensyrom-nx/ui/components';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
 import { StatusIconLabelComponent } from '@teensyrom-nx/ui/components';
 import { MenuItemComponent } from '@teensyrom-nx/ui/components';
@@ -498,6 +614,7 @@ import { MenuItemComponent } from '@teensyrom-nx/ui/components';
     CardLayoutComponent,
     CompactCardLayoutComponent,
     InputFieldComponent,
+    IconButtonComponent,
     IconLabelComponent,
     StatusIconLabelComponent,
     MenuItemComponent,

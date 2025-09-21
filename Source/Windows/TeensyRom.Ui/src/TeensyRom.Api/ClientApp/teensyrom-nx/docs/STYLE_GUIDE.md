@@ -207,9 +207,26 @@ Available color variables for semantic styling:
 
 ### Buttons & Icons
 
+#### `.icon-button-small`
+
+**Purpose**: Standardized small-sized icon buttons for compact layouts
+
+**Usage Example:**
+
+```html
+<button mat-icon-button class="icon-button-small">
+  <mat-icon>edit</mat-icon>
+</button>
+```
+
+**Used In:**
+
+- Compact toolbars and inline actions
+- Secondary actions in dense layouts
+
 #### `.icon-button-medium`
 
-**Purpose**: Standardized medium-sized icon buttons
+**Purpose**: Standardized medium-sized icon buttons (default size)
 
 **Usage Example:**
 
@@ -224,6 +241,24 @@ Available color variables for semantic styling:
 - [`device-logs.component.html`](../libs/features/devices/src/lib/device-view/device-logs/device-logs.component.html) - Log control buttons (clear, start/stop logging, download)
 - [`storage-item.component.html`](../libs/features/devices/src/lib/device-view/storage-item/storage-item.component.html) - Storage action buttons
 - [`device-item.component.html`](../libs/features/devices/src/lib/device-view/device-item/device-item.component.html) - Device power button
+
+#### `.icon-button-large`
+
+**Purpose**: Standardized large-sized icon buttons for prominent actions
+
+**Usage Example:**
+
+```html
+<button mat-icon-button class="icon-button-large">
+  <mat-icon>play_arrow</mat-icon>
+</button>
+```
+
+**Used In:**
+
+- Primary action buttons
+- Media controls
+- Main navigation actions
 
 #### `.icon-button-rounded-primary`
 

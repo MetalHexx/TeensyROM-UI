@@ -147,9 +147,35 @@ mat-card-title {
   box-shadow: var(--mat-sys-level3);
 }
 
+.icon-button-small {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+
 .icon-button-medium {
   width: 32px !important;
   height: 32px !important;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+
+.icon-button-large {
+  width: 48px !important;
+  height: 48px !important;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -171,6 +197,31 @@ mat-card-title {
   background-color: transparent;
 }
 
+.icon-button-small .mat-icon {
+  font-size: 16px;
+  line-height: 1;
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &.highlight {
+    color: var(--color-highlight);
+  }
+  &.normal {
+    color: inherit;
+  }
+  &.dimmed {
+    color: var(--color-dimmed);
+  }
+  &.success {
+    color: var(--color-success);
+  }
+  &.error {
+    color: var(--color-error);
+  }
+}
+
 .icon-button-medium .mat-icon {
   font-size: 20px;
   line-height: 1;
@@ -181,6 +232,34 @@ mat-card-title {
   justify-content: center;
   &.highlight {
     color: var(--color-highlight);
+  }
+  &.normal {
+    color: inherit;
+  }
+  &.dimmed {
+    color: var(--color-dimmed);
+  }
+  &.success {
+    color: var(--color-success);
+  }
+  &.error {
+    color: var(--color-error);
+  }
+}
+
+.icon-button-large .mat-icon {
+  font-size: 28px;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &.highlight {
+    color: var(--color-highlight);
+  }
+  &.normal {
+    color: inherit;
   }
   &.dimmed {
     color: var(--color-dimmed);
