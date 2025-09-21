@@ -1,6 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { IconButtonComponent, IconButtonSize, IconButtonVariant } from './icon-button.component';
+import {
+  IconButtonComponent,
+  IconButtonSize,
+  IconButtonVariant,
+  IconButtonColor,
+} from './icon-button.component';
 import { ComponentRef } from '@angular/core';
 import { vi } from 'vitest';
 
@@ -46,26 +51,25 @@ describe('IconButtonComponent', () => {
     expect(button.getAttribute('aria-label')).toBe('Delete Item');
   });
 
-  it('should apply highlighted icon class when highlighted is true', () => {
-    componentRef.setInput('icon', 'power_settings_new');
-    componentRef.setInput('ariaLabel', 'Power');
-    componentRef.setInput('highlighted', true);
-    fixture.detectChanges();
+  it('should apply color classes correctly', () => {
+    const colors: IconButtonColor[] = ['normal', 'highlight', 'success', 'error', 'dimmed'];
 
-    const icon = fixture.nativeElement.querySelector('mat-icon');
-    expect(icon.classList.contains('highlight')).toBe(true);
-    expect(icon.classList.contains('normal')).toBe(false);
-  });
+    colors.forEach((color) => {
+      componentRef.setInput('icon', 'test');
+      componentRef.setInput('ariaLabel', 'Test');
+      componentRef.setInput('color', color);
+      fixture.detectChanges();
 
-  it('should apply normal icon class when highlighted is false', () => {
-    componentRef.setInput('icon', 'power_settings_new');
-    componentRef.setInput('ariaLabel', 'Power');
-    componentRef.setInput('highlighted', false);
-    fixture.detectChanges();
+      const icon = fixture.nativeElement.querySelector('mat-icon');
+      expect(icon.classList.contains(color)).toBe(true);
 
-    const icon = fixture.nativeElement.querySelector('mat-icon');
-    expect(icon.classList.contains('normal')).toBe(true);
-    expect(icon.classList.contains('highlight')).toBe(false);
+      // Ensure other color classes are not present
+      colors
+        .filter((c) => c !== color)
+        .forEach((otherColor) => {
+          expect(icon.classList.contains(otherColor)).toBe(false);
+        });
+    });
   });
 
   it('should apply size classes correctly', () => {
@@ -163,7 +167,7 @@ describe('IconButtonComponent', () => {
     componentRef.setInput('ariaLabel', 'Power');
     componentRef.setInput('size', 'medium');
     componentRef.setInput('variant', 'rounded-primary');
-    componentRef.setInput('highlighted', true);
+    componentRef.setInput('color', 'highlight');
     fixture.detectChanges();
 
     const button = fixture.nativeElement.querySelector('button');
@@ -179,7 +183,7 @@ describe('IconButtonComponent', () => {
     componentRef.setInput('ariaLabel', 'Test');
     fixture.detectChanges();
 
-    expect(component.highlighted()).toBe(false);
+    expect(component.color()).toBe('normal');
     expect(component.size()).toBe('medium');
     expect(component.variant()).toBe('standard');
     expect(component.disabled()).toBe(false);

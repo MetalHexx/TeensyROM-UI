@@ -4,7 +4,7 @@
     slot="corner"
     icon="power_settings_new"
     ariaLabel="Power"
-    [highlighted]="!!connectionStatus()"
+    [color]="connectionStatus() ? 'highlight' : 'normal'"
     size="medium"
     (buttonClick)="connectionStatus() ? onDisconnect() : onConnect()"
   >

@@ -1,47 +1,45 @@
-<mat-card class="device-logs-card">
-  <mat-card-header>
-    <mat-card-title>Logs</mat-card-title>
-    <div class="logs-actions">
-      @if (!isConnected()) {
-      <button
-        mat-icon-button
-        class="icon-button-medium"
-        aria-label="Start Logs"
-        (click)="startLogs()"
-      >
-        <mat-icon class="success">play_arrow</mat-icon>
-      </button>
-      } @else {
-      <button
-        mat-icon-button
-        class="icon-button-medium"
-        aria-label="Stop Logs"
-        (click)="stopLogs()"
-      >
-        <mat-icon class="error">stop</mat-icon>
-      </button>
-      }
-      <button
-        mat-icon-button
-        class="icon-button-medium"
-        aria-label="Clear Logs"
-        (click)="clearLogs()"
-      >
-        <mat-icon>delete</mat-icon>
-      </button>
-    </div>
-  </mat-card-header>
-  <mat-card-content>
-    <div class="logs-content" #logsContent>
-      @if (logs().length) {
-      <div class="logs-list">
-        @for (line of logs(); track $index) {
-        <div class="log-line">{{ line }}</div>
-        }
-      </div>
-      } @else {
-      <div class="no-logs dimmed">No logs to display.</div>
+<lib-card-layout title="Logs" class="device-logs-card">
+  <!-- Log control buttons in corner slot -->
+  <div slot="corner" class="logs-actions">
+    @if (!isConnected()) {
+    <lib-icon-button
+      icon="play_arrow"
+      ariaLabel="Start Logs"
+      size="medium"
+      color="success"
+      (buttonClick)="startLogs()"
+    >
+    </lib-icon-button>
+    } @else {
+    <lib-icon-button
+      icon="stop"
+      ariaLabel="Stop Logs"
+      size="medium"
+      color="error"
+      (buttonClick)="stopLogs()"
+    >
+    </lib-icon-button>
+    }
+    <lib-icon-button
+      icon="delete"
+      ariaLabel="Clear Logs"
+      size="medium"
+      color="normal"
+      (buttonClick)="clearLogs()"
+    >
+    </lib-icon-button>
+  </div>
+
+  <!-- Main logs content -->
+  <div class="logs-content" #logsContent>
+    @if (logs().length) {
+    <div class="logs-list">
+      @for (line of logs(); track $index) {
+      <div class="log-line">{{ line }}</div>
       }
     </div>
-  </mat-card-content>
-</mat-card>
+    } @else {
+    <div class="no-logs dimmed">No logs to display.</div>
+    }
+  </div>
+</lib-card-layout>

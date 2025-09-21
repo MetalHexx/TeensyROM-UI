@@ -336,7 +336,7 @@ The component provides **three flexible approaches** for handling user input:
 
 - `icon` (required): `string` - Material Design icon name to display in the button
 - `ariaLabel` (required): `string` - Accessibility label for screen readers (required for proper accessibility)
-- `highlighted` (optional): `boolean` - Whether to apply highlight color styling - defaults to false
+- `color` (optional): `'normal' | 'highlight' | 'success' | 'error' | 'dimmed'` - Semantic color variant that maps to [STYLE_GUIDE.md](STYLE_GUIDE.md) color system - defaults to 'normal'
 - `size` (optional): `'small' | 'medium' | 'large'` - Size variant that maps to existing style classes - defaults to 'medium'
 - `variant` (optional): `'standard' | 'rounded-primary' | 'rounded-transparent'` - Style variant from [STYLE_GUIDE.md](STYLE_GUIDE.md) - defaults to 'standard'
 - `disabled` (optional): `boolean` - Whether the button is disabled - defaults to false
@@ -352,10 +352,22 @@ The component provides **three flexible approaches** for handling user input:
 <lib-icon-button
   icon="power_settings_new"
   ariaLabel="Power"
-  [highlighted]="connectionStatus()"
+  [color]="connectionStatus() ? 'highlight' : 'normal'"
   size="medium"
   (buttonClick)="connectionStatus() ? onDisconnect() : onConnect()"
 >
+</lib-icon-button>
+
+<!-- Log control buttons (from device-logs component) -->
+<lib-icon-button
+  icon="play_arrow"
+  ariaLabel="Start Logs"
+  color="success"
+  (buttonClick)="startLogs()"
+>
+</lib-icon-button>
+
+<lib-icon-button icon="stop" ariaLabel="Stop Logs" color="error" (buttonClick)="stopLogs()">
 </lib-icon-button>
 
 <!-- Settings button with rounded primary style -->
@@ -363,29 +375,36 @@ The component provides **three flexible approaches** for handling user input:
   icon="settings"
   ariaLabel="Open Settings"
   variant="rounded-primary"
+  color="highlight"
   (buttonClick)="openSettings()"
 >
 </lib-icon-button>
 
-<!-- Delete button with transparent rounded style -->
+<!-- Delete button with error color -->
 <lib-icon-button
   icon="delete"
   ariaLabel="Delete Item"
-  variant="rounded-transparent"
+  color="error"
   [disabled]="!canDelete"
   (buttonClick)="deleteItem()"
 >
 </lib-icon-button>
 
-<!-- Small action button -->
-<lib-icon-button icon="edit" ariaLabel="Edit" size="small" (buttonClick)="editItem()">
+<!-- Small dimmed action button -->
+<lib-icon-button
+  icon="edit"
+  ariaLabel="Edit"
+  size="small"
+  color="dimmed"
+  (buttonClick)="editItem()"
+>
 </lib-icon-button>
 
-<!-- Highlighted status button -->
+<!-- Dynamic color based on state -->
 <lib-icon-button
   icon="favorite"
   ariaLabel="Add to Favorites"
-  [highlighted]="isFavorite"
+  [color]="isFavorite ? 'success' : 'normal'"
   (buttonClick)="toggleFavorite()"
 >
 </lib-icon-button>
@@ -407,9 +426,12 @@ The component automatically maps to existing classes from [STYLE_GUIDE.md](STYLE
   - `rounded-transparent` → `.icon-button-rounded-transparent`
   - `standard` → Default Material Design styling
 
-- **State Classes**:
-  - `highlighted: true` → `.highlight` (icon color)
-  - `highlighted: false` → `.normal` (icon color)
+- **Color Mapping** (references [STYLE_GUIDE.md](STYLE_GUIDE.md) semantic colors):
+  - `normal` → `.normal` (default inherit color)
+  - `highlight` → `.highlight` (cyan accent color from `--color-highlight`)
+  - `success` → `.success` (green color from `--color-success`)
+  - `error` → `.error` (red color from `--color-error`)
+  - `dimmed` → `.dimmed` (gray color from `--color-dimmed`)
 
 **Accessibility Features**:
 
@@ -422,12 +444,13 @@ The component automatically maps to existing classes from [STYLE_GUIDE.md](STYLE
 **Type Safety**:
 
 ```typescript
-import { IconButtonSize, IconButtonVariant } from '@teensyrom-nx/ui/components';
+import { IconButtonSize, IconButtonVariant, IconButtonColor } from '@teensyrom-nx/ui/components';
 
 // Component usage with full type safety
 export class MyComponent {
   buttonSize: IconButtonSize = 'medium';
   buttonVariant: IconButtonVariant = 'rounded-primary';
+  buttonColor: IconButtonColor = 'success';
 
   onButtonClick(): void {
     console.log('Button clicked!');

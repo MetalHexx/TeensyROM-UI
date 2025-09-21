@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 export type IconButtonSize = 'small' | 'medium' | 'large';
 export type IconButtonVariant = 'standard' | 'rounded-primary' | 'rounded-transparent';
+export type IconButtonColor = 'normal' | 'highlight' | 'success' | 'error' | 'dimmed';
 
 @Component({
   selector: 'lib-icon-button',
@@ -18,7 +19,7 @@ export class IconButtonComponent {
   ariaLabel = input.required<string>();
 
   // Optional inputs
-  highlighted = input<boolean>(false);
+  color = input<IconButtonColor>('normal');
   size = input<IconButtonSize>('medium');
   variant = input<IconButtonVariant>('standard');
   disabled = input<boolean>(false);
@@ -60,15 +61,7 @@ export class IconButtonComponent {
   });
 
   iconClasses = computed(() => {
-    const classes: string[] = [];
-
-    if (this.highlighted()) {
-      classes.push('highlight');
-    } else {
-      classes.push('normal');
-    }
-
-    return classes.join(' ');
+    return this.color();
   });
 
   onButtonClick(): void {

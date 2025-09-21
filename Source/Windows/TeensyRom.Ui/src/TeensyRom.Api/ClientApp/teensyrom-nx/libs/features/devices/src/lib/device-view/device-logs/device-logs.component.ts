@@ -11,13 +11,20 @@ import { DeviceLogsService } from '@teensyrom-nx/domain/device/services';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { IconButtonComponent, CardLayoutComponent } from '@teensyrom-nx/ui/components';
 
 @Component({
   selector: 'lib-device-logs',
   templateUrl: './device-logs.component.html',
   styleUrls: ['./device-logs.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatCardModule, MatIconModule, MatButtonModule],
+  imports: [
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    IconButtonComponent,
+    CardLayoutComponent,
+  ],
 })
 export class DeviceLogsComponent {
   private readonly logsService = inject(DeviceLogsService);
