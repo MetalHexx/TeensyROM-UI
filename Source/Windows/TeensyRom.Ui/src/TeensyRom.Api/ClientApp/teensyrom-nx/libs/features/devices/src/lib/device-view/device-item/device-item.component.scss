@@ -1,14 +1,5 @@
 @use '@angular/material' as mat;
 
-:host {
-  display: block;
-  height: 100%;
-}
-
-mat-card-header {
-  position: relative;
-}
-
 .device-content {
   display: flex;
   flex-direction: row;
@@ -27,9 +18,7 @@ mat-card-header {
   flex: 1;
   width: 100%;
 }
-.device-storage > lib-status-icon-label {
-  width: 100%;
-}
+
 .device-info {
   flex: 1;
   display: flex;
