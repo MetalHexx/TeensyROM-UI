@@ -1,7 +1,3 @@
-<lib-card-layout [title]="creatorName()">
+<lib-card-layout [title]="creatorName()" [metadataSource]="metadataSource()">
   <img src="/placeholder.jpg" alt="Artist Image" />
-
-  @if (metadataSource()) {
-  <p class="metadata-source">{{ metadataSource() }}</p>
-  }
 </lib-card-layout>

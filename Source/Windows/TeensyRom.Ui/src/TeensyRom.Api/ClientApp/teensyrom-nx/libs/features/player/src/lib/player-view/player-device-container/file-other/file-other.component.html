@@ -1,4 +1,8 @@
-<lib-card-layout [title]="filename()" [subtitle]="releaseInfo()">
+<lib-card-layout
+  [title]="filename()"
+  [subtitle]="releaseInfo()"
+  [metadataSource]="metadataSource()"
+>
   <!-- Corner content using slot -->
   @if (meta1() || meta2()) {
   <mat-chip-set slot="corner">
@@ -31,8 +35,4 @@
     Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
     Nullam non neque ex. Proin fermentum, metus sed tincidunt vehicula,
   </p>
-
-  @if (metadataSource()) {
-  <p class="metadata-source">{{ metadataSource() }}</p>
-  }
 </lib-card-layout>
