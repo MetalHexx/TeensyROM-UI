@@ -147,6 +147,24 @@ Available color variables for semantic styling:
 
 - [`search-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.html) - Search input field container
 
+#### `.stretch-card`
+
+**Purpose**: Creates full-height cards with flex layout for components that need to fill available container space with scrollable content
+
+**Usage Example:**
+
+```html
+<mat-card class="stretch-card">
+  <mat-card-header>
+    <mat-card-title>Directory Tree</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <!-- Scrollable content that fills remaining height -->
+    <mat-tree>...</mat-tree>
+  </mat-card-content>
+</mat-card>
+```
+
 **Used In:**
 
 - [`directory-tree.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree.component.html) - Directory tree component
@@ -154,8 +172,6 @@ Available color variables for semantic styling:
 - [`file-other.component.html`](../libs/features/player/src/lib/player-view/player-device-container/file-other/file-other.component.html) - File info component
 
 **Best Practice:** Use `.stretch-card` for cards that need to fill container height with scrollable content. This ensures consistent behavior and proper flex layout handling.
-
-**Used In:**
 
 #### `mat-card-title`
 
