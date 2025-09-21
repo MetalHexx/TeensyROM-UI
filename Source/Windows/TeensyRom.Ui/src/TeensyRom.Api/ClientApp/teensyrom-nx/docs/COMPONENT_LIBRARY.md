@@ -79,6 +79,60 @@ This document catalogs all shared UI components available in the TeensyROM appli
 - Search toolbars for form field containers
 - Any component requiring standardized card layout
 
+### `CompactCardLayoutComponent`
+
+**Purpose**: A lightweight card wrapper component designed specifically for form fields and compact content areas, using the `.compact-card` styling.
+
+**Selector**: `lib-compact-card-layout`
+
+**Properties**: None - Pure content projection component
+
+**Usage Example**:
+
+```html
+<!-- Compact card for form fields -->
+<lib-compact-card-layout>
+  <mat-form-field appearance="outline">
+    <mat-label>Search</mat-label>
+    <input matInput placeholder="Search files and folders..." />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+</lib-compact-card-layout>
+
+<!-- Compact card for button groups -->
+<lib-compact-card-layout>
+  <div class="button-group">
+    <button mat-icon-button><mat-icon>play_arrow</mat-icon></button>
+    <button mat-icon-button><mat-icon>pause</mat-icon></button>
+    <button mat-icon-button><mat-icon>stop</mat-icon></button>
+  </div>
+</lib-compact-card-layout>
+
+<!-- Compact card for simple content -->
+<lib-compact-card-layout>
+  <p>Simple content without header</p>
+</lib-compact-card-layout>
+```
+
+**Content Projection**: Uses `<ng-content></ng-content>` to project any content directly into the card without headers or structure
+
+**Styling**: Automatically applies the global [`.compact-card`](STYLE_GUIDE.md#compact-card) class optimized for Material form fields and compact layouts
+
+**Key Differences from CardLayoutComponent**:
+
+- **No headers/titles**: Compact design without mat-card-header
+- **No corner content**: Simplified structure for forms and controls
+- **Form-optimized spacing**: Uses `.compact-card` instead of `.stretch-card`
+- **Minimal overhead**: Pure content projection without additional features
+
+**Best Practice**: Use for form controls, toolbars, search bars, and other compact UI elements where you need card styling without the overhead of headers or complex layouts.
+
+**Used In**:
+
+- Search toolbars and form containers
+- Control panels and button groups
+- Compact content areas that need card styling
+
 ---
 
 ## Display Components
