@@ -1,62 +1,51 @@
-<mat-card class="device-card" [ngClass]="{ dimmed: !connectionStatus() }">
-  <mat-card-header>
-    <mat-card-title>
-      {{ device()?.name }}
-    </mat-card-title>
+<lib-card-layout [title]="device()?.name" [ngClass]="{ dimmed: !connectionStatus() }">
+  <!-- Power button in corner slot -->
+  <lib-icon-button
+    slot="corner"
+    icon="power_settings_new"
+    ariaLabel="Power"
+    [highlighted]="!!connectionStatus()"
+    size="medium"
+    (buttonClick)="connectionStatus() ? onDisconnect() : onConnect()"
+  >
+  </lib-icon-button>
 
-    <button
-      (click)="connectionStatus() ? onDisconnect() : onConnect()"
-      mat-icon-button
-      class="icon-button-medium power-button"
-      aria-label="Power"
-    >
-      <mat-icon
-        [ngClass]="{
-          highlight: connectionStatus(),
-          normal: !connectionStatus()
-        }"
-      >
-        power_settings_new
-      </mat-icon>
-    </button>
-  </mat-card-header>
-  <mat-card-content>
-    <div class="device-content">
-      <div class="device-info">
-        <lib-icon-label
-          icon="tag"
-          [label]="'Device ID: ' + (device()?.deviceId ?? '')"
-        ></lib-icon-label>
-        <lib-icon-label
-          icon="developer_board"
-          [label]="'Firmware: ' + (device()?.fwVersion ?? '')"
-        ></lib-icon-label>
-        <lib-icon-label icon="usb" [label]="'Port: ' + (device()?.comPort ?? '')"> </lib-icon-label>
-        <lib-icon-label
-          icon="device_hub"
-          [label]="'State: ' + (deviceState()?.toString() ?? '')"
-        ></lib-icon-label>
-        <lib-icon-label
-          icon="verified_user"
-          [label]="'Compatible: ' + (device()?.isCompatible ? 'Yes' : 'No')"
-        ></lib-icon-label>
-      </div>
-      <div class="device-storage">
-        <lib-storage-status
-          icon="usb"
-          label="USB Stick"
-          [status]="usbStatus()"
-          (index)="onIndex(TeensyStorageType.Usb)"
-        ></lib-storage-status>
-        <lib-storage-status
-          icon="sd_card"
-          label="SD Card"
-          [status]="sdStatus()"
-          (index)="onIndex(TeensyStorageType.Sd)"
-        ></lib-storage-status>
-      </div>
+  <!-- Main content -->
+  <div class="device-content">
+    <div class="device-info">
+      <lib-icon-label
+        icon="tag"
+        [label]="'Device ID: ' + (device()?.deviceId ?? '')"
+      ></lib-icon-label>
+      <lib-icon-label
+        icon="developer_board"
+        [label]="'Firmware: ' + (device()?.fwVersion ?? '')"
+      ></lib-icon-label>
+      <lib-icon-label icon="usb" [label]="'Port: ' + (device()?.comPort ?? '')"> </lib-icon-label>
+      <lib-icon-label
+        icon="device_hub"
+        [label]="'State: ' + (deviceState()?.toString() ?? '')"
+      ></lib-icon-label>
+      <lib-icon-label
+        icon="verified_user"
+        [label]="'Compatible: ' + (device()?.isCompatible ? 'Yes' : 'No')"
+      ></lib-icon-label>
     </div>
-  </mat-card-content>
-</mat-card>
+    <div class="device-storage">
+      <lib-storage-status
+        icon="usb"
+        label="USB Stick"
+        [status]="usbStatus()"
+        (index)="onIndex(TeensyStorageType.Usb)"
+      ></lib-storage-status>
+      <lib-storage-status
+        icon="sd_card"
+        label="SD Card"
+        [status]="sdStatus()"
+        (index)="onIndex(TeensyStorageType.Sd)"
+      ></lib-storage-status>
+    </div>
+  </div>
+</lib-card-layout>
 
 <!-- <lib-device-logs></lib-device-logs> -->

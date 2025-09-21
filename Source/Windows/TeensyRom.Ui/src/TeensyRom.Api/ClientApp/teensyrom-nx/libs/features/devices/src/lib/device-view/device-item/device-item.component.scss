@@ -9,18 +9,6 @@ mat-card-header {
   position: relative;
 }
 
-.power-button {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 1;
-}
-
-.device-card {
-  min-width: 500px;
-  max-width: 600px;
-}
-
 .device-content {
   display: flex;
   flex-direction: row;
@@ -50,11 +38,6 @@ mat-card-header {
 }
 
 @media (max-width: 500px) {
-  .device-card {
-    min-width: 285px;
-    max-width: 500px;
-    margin: 1.5rem 1rem;
-  }
   .device-content {
     display: flex;
     flex-direction: column;

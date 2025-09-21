@@ -5,7 +5,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { NgClass } from '@angular/common';
 import { Device, DeviceEventsService } from '@teensyrom-nx/domain/device/services';
 import { TeensyStorageType } from '@teensyrom-nx/data-access/api-client';
-import { IconLabelComponent } from '@teensyrom-nx/ui/components';
+import {
+  IconLabelComponent,
+  IconButtonComponent,
+  CardLayoutComponent,
+} from '@teensyrom-nx/ui/components';
 import { StorageStatusComponent as StorageItemComponent } from '../storage-item/storage-item.component';
 import { DeviceState } from '@teensyrom-nx/data-access/api-client';
 import { DeviceStore } from '@teensyrom-nx/domain/device/state';
@@ -19,6 +23,8 @@ import { DeviceStore } from '@teensyrom-nx/domain/device/state';
     MatButtonModule,
     NgClass,
     IconLabelComponent,
+    IconButtonComponent,
+    CardLayoutComponent,
     StorageItemComponent,
   ],
   templateUrl: './device-item.component.html',
