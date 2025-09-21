@@ -1,0 +1,22 @@
+<mat-form-field appearance="outline">
+  <mat-label>{{ label() }}</mat-label>
+
+  @if (prefixIcon()) {
+  <mat-icon matPrefix>{{ prefixIcon() }}</mat-icon>
+  }
+
+  <input
+    matInput
+    [type]="inputType()"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [value]="value"
+    (input)="onInput($event)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+  />
+
+  @if (suffixIcon()) {
+  <mat-icon matSuffix>{{ suffixIcon() }}</mat-icon>
+  }
+</mat-form-field>

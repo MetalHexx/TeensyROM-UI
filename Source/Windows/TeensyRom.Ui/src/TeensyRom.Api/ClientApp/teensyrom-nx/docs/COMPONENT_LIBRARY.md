@@ -146,6 +146,188 @@ This document catalogs all shared UI components available in the TeensyROM appli
 
 ---
 
+## Form Components
+
+### `InputFieldComponent`
+
+**Purpose**: A reusable input field component that provides consistent Material Design form field styling with configurable icons and accessibility features.
+
+**Selector**: `lib-input-field`
+
+**Properties**:
+
+- `label` (required): `string` - The label text displayed above the input field for accessibility and visual clarity
+- `placeholder` (required): `string` - Placeholder text displayed inside the input field as a watermark
+- `prefixIcon` (optional): `string` - Material Design icon name to display at the beginning of the input field
+- `suffixIcon` (optional): `string` - Material Design icon name to display at the end of the input field
+- `inputType` (optional): `string` - HTML input type (text, search, email, number, password, etc.) - defaults to 'text'
+- `disabled` (optional): `boolean` - Whether the input field is disabled - defaults to false
+
+**Events**:
+
+- `valueChange`: Emitted on every keystroke with the current input value - ideal for real-time search functionality
+- `inputFocus`: Emitted when the input field receives focus
+- `inputBlur`: Emitted when the input field loses focus
+
+**Usage Examples**:
+
+```html
+<!-- Search input with suffix icon -->
+<lib-input-field label="Search" placeholder="Search files and folders..." suffixIcon="search">
+</lib-input-field>
+
+<!-- Email input with prefix icon -->
+<lib-input-field
+  label="Email Address"
+  placeholder="Enter your email"
+  prefixIcon="email"
+  inputType="email"
+>
+</lib-input-field>
+
+<!-- Simple text input without icons -->
+<lib-input-field label="Username" placeholder="Enter your username"> </lib-input-field>
+
+<!-- Password input -->
+<lib-input-field
+  label="Password"
+  placeholder="Enter your password"
+  inputType="password"
+  suffixIcon="visibility"
+>
+</lib-input-field>
+
+<!-- Disabled input -->
+<lib-input-field label="Read Only Field" placeholder="This field is disabled" [disabled]="true">
+</lib-input-field>
+
+<!-- Real-time search with event handling -->
+<lib-input-field
+  label="Search"
+  placeholder="Type to search..."
+  suffixIcon="search"
+  (valueChange)="onSearchChange($event)"
+  (inputFocus)="onSearchFocus()"
+  (inputBlur)="onSearchBlur()"
+>
+</lib-input-field>
+```
+
+**Advanced Usage Patterns**:
+
+```typescript
+// Component class for different integration approaches
+
+export class ExampleComponent {
+  // 1. Event-driven approach (real-time search)
+  onSearchChange(searchTerm: string): void {
+    console.log('Search term:', searchTerm);
+    this.performSearch(searchTerm);
+  }
+
+  // 2. Two-way binding approach
+  searchValue = '';
+
+  ngOnInit() {
+    // Watch for changes using signals or effects
+    effect(() => {
+      console.log('Search value changed:', this.searchValue);
+      this.performSearch(this.searchValue);
+    });
+  }
+
+  // 3. Reactive forms approach
+  searchControl = new FormControl('');
+
+  ngOnInit() {
+    this.searchControl.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe((value) => {
+        this.performSearch(value);
+      });
+  }
+
+  private performSearch(term: string): void {
+    // Your search logic here
+  }
+}
+```
+
+```html
+<!-- Different binding approaches -->
+
+<!-- Event-driven (immediate response) -->
+<lib-input-field
+  label="Live Search"
+  placeholder="Results update on every keystroke"
+  (valueChange)="onSearchChange($event)"
+>
+</lib-input-field>
+
+<!-- Two-way binding -->
+<lib-input-field
+  label="Bound Search"
+  placeholder="Bound to component property"
+  [(ngModel)]="searchValue"
+>
+</lib-input-field>
+
+<!-- Reactive forms -->
+<lib-input-field
+  label="Form Search"
+  placeholder="Integrated with reactive forms"
+  [formControl]="searchControl"
+>
+</lib-input-field>
+```
+
+**Form Integration & Data Binding**:
+
+The component provides **three flexible approaches** for handling user input:
+
+1. **Event-Driven Approach** (Real-time):
+
+   - Use `(valueChange)` event for immediate response to every keystroke
+   - Perfect for live search, real-time validation, or instant feedback
+   - No debouncing built-in - handle in parent component if needed
+
+2. **Two-Way Binding** (ngModel):
+
+   - Use `[(ngModel)]="property"` for automatic synchronization
+   - Ideal for simple form scenarios and data binding
+   - Updates component property on every keystroke
+
+3. **Reactive Forms** (FormControl):
+   - Use `[formControl]="control"` for full reactive forms integration
+   - Implements `ControlValueAccessor` for seamless integration
+   - Supports validation, async validators, and form state management
+   - Can be combined with RxJS operators for debouncing and filtering
+
+**Integration Benefits**:
+
+- Full TypeScript type safety with all approaches
+- Consistent behavior across all binding methods
+- Proper form validation state handling
+- Accessibility features maintained regardless of binding approach
+
+**Accessibility Features**:
+
+- Always includes `mat-label` for screen reader compatibility
+- Proper ARIA attributes automatically applied by Material Design
+- Keyboard navigation support
+- High contrast mode compatibility
+- Focus management for optimal user experience
+
+**Styling**: Automatically applies Material Design outline appearance with full-width behavior for consistent form layouts.
+
+**Best Practice**: Use for all input fields throughout the application to maintain consistent styling, accessibility, and behavior patterns.
+
+**Used In**:
+
+- [`search-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.html) - File and folder search functionality
+
+---
+
 ## Display Components
 
 ### `IconLabelComponent`
@@ -304,6 +486,8 @@ All shared components follow these architectural patterns:
 ```typescript
 // In consuming components
 import { CardLayoutComponent } from '@teensyrom-nx/ui/components';
+import { CompactCardLayoutComponent } from '@teensyrom-nx/ui/components';
+import { InputFieldComponent } from '@teensyrom-nx/ui/components';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
 import { StatusIconLabelComponent } from '@teensyrom-nx/ui/components';
 import { MenuItemComponent } from '@teensyrom-nx/ui/components';
@@ -312,6 +496,8 @@ import { MenuItemComponent } from '@teensyrom-nx/ui/components';
   // ...
   imports: [
     CardLayoutComponent,
+    CompactCardLayoutComponent,
+    InputFieldComponent,
     IconLabelComponent,
     StatusIconLabelComponent,
     MenuItemComponent,
