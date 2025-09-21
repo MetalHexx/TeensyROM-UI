@@ -1,24 +1,19 @@
 <div class="directory-files">
-  <mat-card class="stretch-card">
-    <mat-card-header>
-      <mat-card-title>Directory Files</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      @if (directoryContents().isLoading) {
-      <p>Loading directory contents...</p>
-      } @else if (directoryContents().error) {
-      <p class="error">Error: {{ directoryContents().error }}</p>
-      } @else if (directoryContents().hasContent) {
-      <h4>Selected Directory Contents:</h4>
-      <p><strong>Device:</strong> {{ directoryContents().deviceId }}</p>
-      <p><strong>Storage:</strong> {{ directoryContents().storageType }}</p>
-      <p><strong>Path:</strong> {{ directoryContents().currentPath }}</p>
+  <lib-card-layout title="Directory Files">
+    @if (directoryContents().isLoading) {
+    <p>Loading directory contents...</p>
+    } @else if (directoryContents().error) {
+    <p class="error">Error: {{ directoryContents().error }}</p>
+    } @else if (directoryContents().hasContent) {
+    <h4>Selected Directory Contents:</h4>
+    <p><strong>Device:</strong> {{ directoryContents().deviceId }}</p>
+    <p><strong>Storage:</strong> {{ directoryContents().storageType }}</p>
+    <p><strong>Path:</strong> {{ directoryContents().currentPath }}</p>
 
-      <h5>Files & Directories JSON:</h5>
-      <pre>{{ directoryContents() | json }}</pre>
-      } @else {
-      <p>No directory selected or directory is empty.</p>
-      }
-    </mat-card-content>
-  </mat-card>
+    <h5>Files & Directories JSON:</h5>
+    <pre>{{ directoryContents() | json }}</pre>
+    } @else {
+    <p>No directory selected or directory is empty.</p>
+    }
+  </lib-card-layout>
 </div>

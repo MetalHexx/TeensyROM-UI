@@ -1,11 +1,11 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
+import { CardLayoutComponent } from '@teensyrom-nx/ui/components';
 import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'lib-file-other',
-  imports: [CommonModule, MatCardModule, MatChipsModule],
+  imports: [CommonModule, CardLayoutComponent, MatChipsModule],
   templateUrl: './file-other.component.html',
   styleUrl: './file-other.component.scss',
 })

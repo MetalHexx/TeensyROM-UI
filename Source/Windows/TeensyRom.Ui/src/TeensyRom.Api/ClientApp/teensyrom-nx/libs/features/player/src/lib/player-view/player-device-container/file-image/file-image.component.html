@@ -1,13 +1,7 @@
-<mat-card class="stretch-card">
-  <mat-card-header>
-    <mat-card-title>{{ creatorName() }}</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <img src="/placeholder.jpg" alt="Artist Image" />
-  </mat-card-content>
+<lib-card-layout [title]="creatorName()">
+  <img src="/placeholder.jpg" alt="Artist Image" />
+
   @if (metadataSource()) {
-  <mat-card-footer>
-    <p class="metadata-source">{{ metadataSource() }}</p>
-  </mat-card-footer>
+  <p class="metadata-source">{{ metadataSource() }}</p>
   }
-</mat-card>
+</lib-card-layout>

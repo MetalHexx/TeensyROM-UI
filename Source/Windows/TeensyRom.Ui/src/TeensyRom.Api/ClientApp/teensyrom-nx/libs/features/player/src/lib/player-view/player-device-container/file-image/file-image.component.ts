@@ -1,10 +1,10 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
+import { CardLayoutComponent } from '@teensyrom-nx/ui/components';
 
 @Component({
   selector: 'lib-file-image',
-  imports: [CommonModule, MatCardModule],
+  imports: [CommonModule, CardLayoutComponent],
   templateUrl: './file-image.component.html',
   styleUrl: './file-image.component.scss',
 })

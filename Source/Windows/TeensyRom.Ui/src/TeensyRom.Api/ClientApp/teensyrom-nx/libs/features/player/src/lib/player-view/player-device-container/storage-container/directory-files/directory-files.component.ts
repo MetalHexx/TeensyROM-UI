@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
+import { CardLayoutComponent } from '@teensyrom-nx/ui/components';
 import { StorageStore } from '@teensyrom-nx/domain/storage/state';
 
 @Component({
   selector: 'lib-directory-files',
-  imports: [CommonModule, MatCardModule],
+  imports: [CommonModule, CardLayoutComponent],
   templateUrl: './directory-files.component.html',
   styleUrl: './directory-files.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,6 +1,7 @@
-<mat-card class="stretch-card">
+<lib-card-layout [title]="filename()" [subtitle]="releaseInfo()">
+  <!-- Corner content using slot -->
   @if (meta1() || meta2()) {
-  <mat-chip-set class="corner-chips">
+  <mat-chip-set slot="corner">
     @if (meta1()) {
     <mat-chip>{{ meta1() }}</mat-chip>
     } @if (meta2()) {
@@ -8,37 +9,30 @@
     }
   </mat-chip-set>
   }
-  <mat-card-header>
-    <mat-card-title>{{ filename() }}</mat-card-title>
-    @if (releaseInfo()) {
-    <mat-card-subtitle>{{ releaseInfo() }}</mat-card-subtitle>
-    }
-  </mat-card-header>
-  <mat-card-content>
-    <p>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae quam vel justo tincidunt
-      luctus. Morbi eu pulvinar arcu. Nam imperdiet, eros eget cursus cursus, justo nulla hendrerit
-      orci, in dignissim ex magna at purus. Integer sit amet nisi sed neque blandit interdum.
-      Vestibulum volutpat viverra justo vel scelerisque. In rhoncus leo vel turpis sagittis, ac
-      suscipit justo euismod. Etiam congue, lacus at lacinia porta, ligula nisl luctus nibh, in
-      faucibus lectus sapien ac arcu. Suspendisse potenti. Nullam vestibulum felis ut libero gravida
-      viverra. Sed venenatis libero non nulla efficitur, vel placerat metus lobortis.
-    </p>
-    <p>
-      Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-      Nullam non neque ex. Proin fermentum, metus sed tincidunt vehicula, sem purus ultricies nulla,
-      ac tempor leo lorem non libero. Etiam suscipit, ex sit amet sagittis facilisis, neque lectus
-      egestas sem, nec tincidunt justo mauris in magna. Sed mattis, velit id porta vulputate, diam
-      nunc commodo nulla, in luctus risus lorem nec lorem. Nam ac laoreet est, ac eleifend elit.
-    </p>
-    <p>
-      Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-      Nullam non neque ex. Proin fermentum, metus sed tincidunt vehicula,
-    </p>
-  </mat-card-content>
+
+  <!-- Main content -->
+  <p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae quam vel justo tincidunt
+    luctus. Morbi eu pulvinar arcu. Nam imperdiet, eros eget cursus cursus, justo nulla hendrerit
+    orci, in dignissim ex magna at purus. Integer sit amet nisi sed neque blandit interdum.
+    Vestibulum volutpat viverra justo vel scelerisque. In rhoncus leo vel turpis sagittis, ac
+    suscipit justo euismod. Etiam congue, lacus at lacinia porta, ligula nisl luctus nibh, in
+    faucibus lectus sapien ac arcu. Suspendisse potenti. Nullam vestibulum felis ut libero gravida
+    viverra. Sed venenatis libero non nulla efficitur, vel placerat metus lobortis.
+  </p>
+  <p>
+    Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+    Nullam non neque ex. Proin fermentum, metus sed tincidunt vehicula, sem purus ultricies nulla,
+    ac tempor leo lorem non libero. Etiam suscipit, ex sit amet sagittis facilisis, neque lectus
+    egestas sem, nec tincidunt justo mauris in magna. Sed mattis, velit id porta vulputate, diam
+    nunc commodo nulla, in luctus risus lorem nec lorem. Nam ac laoreet est, ac eleifend elit.
+  </p>
+  <p>
+    Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+    Nullam non neque ex. Proin fermentum, metus sed tincidunt vehicula,
+  </p>
+
   @if (metadataSource()) {
-  <mat-card-footer>
-    <p class="metadata-source">{{ metadataSource() }}</p>
-  </mat-card-footer>
+  <p class="metadata-source">{{ metadataSource() }}</p>
   }
-</mat-card>
+</lib-card-layout>
