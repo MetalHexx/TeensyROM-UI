@@ -11,4 +11,5 @@ import { MatCardModule } from '@angular/material/card';
 export class CardLayoutComponent {
   title = input<string>();
   subtitle = input<string>();
+  metadataSource = input<string>();
 }

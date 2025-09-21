@@ -15,4 +15,10 @@
   <mat-card-content>
     <ng-content></ng-content>
   </mat-card-content>
+
+  @if (metadataSource()) {
+  <mat-card-footer>
+    <p class="metadata-source">{{ metadataSource() }}</p>
+  </mat-card-footer>
+  }
 </mat-card>

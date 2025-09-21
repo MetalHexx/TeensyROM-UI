@@ -18,12 +18,17 @@ This document catalogs all shared UI components available in the TeensyROM appli
 
 - `title` (optional): `string` - The title to display in the card header. If not provided, no header will be rendered.
 - `subtitle` (optional): `string` - The subtitle to display below the title in the card header. Only rendered when both title and subtitle are provided.
+- `metadataSource` (optional): `string` - Source attribution text displayed in the card footer. Uses [`.metadata-source`](STYLE_GUIDE.md#metadata-source) styling for subtle, right-aligned appearance. Only rendered when provided.
 
 **Usage Example**:
 
 ```html
-<!-- Card with title, subtitle, and corner content -->
-<lib-card-layout title="File Information" subtitle="Release v1.2.3">
+<!-- Card with title, subtitle, corner content, and metadata -->
+<lib-card-layout
+  title="File Information"
+  subtitle="Release v1.2.3"
+  metadataSource="Gamebase Database"
+>
   <!-- Corner content using slot -->
   <mat-chip-set slot="corner">
     <mat-chip>C64</mat-chip>
@@ -34,9 +39,9 @@ This document catalogs all shared UI components available in the TeensyROM appli
   <p>File details and description...</p>
 </lib-card-layout>
 
-<!-- Card with title only -->
-<lib-card-layout title="Device Information">
-  <p>Card content goes here</p>
+<!-- Card with title and metadata only -->
+<lib-card-layout title="Artist Image" metadataSource="MusicBrainz">
+  <img src="/placeholder.jpg" alt="Artist Image" />
 </lib-card-layout>
 
 <!-- Card without title -->
@@ -63,6 +68,12 @@ This document catalogs all shared UI components available in the TeensyROM appli
 
 - Main content: Uses `<ng-content></ng-content>` to project any content into the card body
 - Corner content: Uses `<ng-content select="[slot=corner]"></ng-content>` to project content into the upper-right corner
+
+**Footer Features**:
+
+- Metadata attribution: Uses `metadataSource` property to display source attribution in card footer
+- Automatic styling: Applies [`.metadata-source`](STYLE_GUIDE.md#metadata-source) class for consistent right-aligned, subtle appearance
+- Conditional rendering: Footer only appears when `metadataSource` is provided
 
 **Corner Content Features**:
 
