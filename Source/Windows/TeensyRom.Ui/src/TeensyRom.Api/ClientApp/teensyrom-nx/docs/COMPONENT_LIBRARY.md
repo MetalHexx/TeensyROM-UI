@@ -517,21 +517,23 @@ export class MyComponent {
 
 **Style Integration**:
 
-The component automatically maps to design token colors from [STYLE_GUIDE.md](STYLE_GUIDE.md):
+The component automatically maps to design token colors from [STYLE_GUIDE.md](STYLE_GUIDE.md#action-button-color-classes):
 
 - **Color Mapping**:
 
-  - `primary` → `.action-button-primary` (purple brand color from `--color-primary`)
-  - `success` → `.action-button-success` (green color from `--color-success`)
-  - `error` → `.action-button-error` (red color from `--color-error`)
-  - `highlight` → `.action-button-highlight` (cyan color from `--color-highlight`)
-  - `normal` → `.action-button-normal` (default Material styling)
+  - `primary` → Uses Material Design's natural primary color (no custom classes applied)
+  - `success` → [`.action-button-success`](STYLE_GUIDE.md#action-button-color-classes) (green text color from `--color-success`)
+  - `error` → [`.action-button-error`](STYLE_GUIDE.md#action-button-color-classes) (red text color from `--color-error`)
+  - `highlight` → [`.action-button-highlight`](STYLE_GUIDE.md#action-button-color-classes) (cyan text color from `--color-highlight`)
+  - `normal` → Uses Material Design's default styling (no custom classes applied)
 
 - **Variant Mapping**:
-  - `stroked` → `mat-stroked-button` (outlined button)
+  - `stroked` → `mat-stroked-button` (outlined button - default)
   - `flat` → `mat-flat-button` (text button)
   - `raised` → `mat-raised-button` (elevated button)
   - `fab` → `mat-fab` (floating action button)
+
+**Styling Philosophy**: The component preserves Material Design's natural button appearance and only overrides text color for semantic colors (`success`, `error`, `highlight`). This ensures buttons maintain proper borders, spacing, and Material styling while providing semantic color feedback through text color changes.
 
 **Accessibility Features**:
 

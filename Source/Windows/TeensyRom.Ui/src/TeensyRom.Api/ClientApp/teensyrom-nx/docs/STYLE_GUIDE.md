@@ -331,17 +331,32 @@ Available color variables for semantic styling:
 
 **Available Classes:**
 
-- **`.action-button-primary`**: Maps `--color-primary` to Material button styling (purple brand color)
-- **`.action-button-success`**: Maps `--color-success` to Material button styling (green success color)
-- **`.action-button-error`**: Maps `--color-error` to Material button styling (red error color)
-- **`.action-button-highlight`**: Maps `--color-highlight` to Material button styling (cyan accent color)
-- **`.action-button-normal`**: Default Material Design styling
+- **`.action-button-success`**: Maps `--color-success` to Material button text color (green success color)
+
+  - Only changes text color via `--mdc-outlined-button-label-text-color`
+  - Preserves Material Design borders and styling
+  - Includes hover and focus state overrides
+
+- **`.action-button-error`**: Maps `--color-error` to Material button text color (red error color)
+
+  - Only changes text color via `--mdc-outlined-button-label-text-color`
+  - Preserves Material Design borders and styling
+  - Includes hover and focus state overrides
+
+- **`.action-button-highlight`**: Maps `--color-highlight` to Material button text color (cyan accent color)
+  - Only changes text color via `--mdc-outlined-button-label-text-color`
+  - Preserves Material Design borders and styling
+  - Includes hover and focus state overrides
+
+**Note**: `primary` and `normal` colors use Material Design's natural styling without any custom CSS classes applied.
+
+**Styling Philosophy**: These classes preserve Material Design's natural button appearance while providing semantic color feedback through text color changes only. This approach maintains proper button borders, spacing, and Material styling consistency.
 
 **Used In:**
 
 - [`device-toolbar.component.html`](../libs/features/devices/src/lib/device-view/device-toolbar/device-toolbar.component.html) - Device management action buttons with semantic colors
 
-**Best Practice:** These classes are automatically applied by ActionButtonComponent when using the `color` property. Use semantic colors that match the action's intent (error for destructive actions, success for positive actions, primary for main actions, etc.).
+**Best Practice:** These classes are automatically applied by [ActionButtonComponent](COMPONENT_LIBRARY.md#actionbuttoncomponent) when using the `color` property. Use semantic colors that match the action's intent (error for destructive actions, success for positive actions, primary for main actions, etc.). The component only applies custom classes for non-primary/normal colors to maintain Material Design consistency.
 
 ### Dialogs
 
