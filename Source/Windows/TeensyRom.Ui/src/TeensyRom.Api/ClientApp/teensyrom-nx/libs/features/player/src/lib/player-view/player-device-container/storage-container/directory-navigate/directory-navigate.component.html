@@ -1,0 +1,29 @@
+<div class="nav-buttons">
+  <lib-icon-button
+    icon="arrow_back"
+    ariaLabel="Back"
+    [disabled]="true"
+    (buttonClick)="onBackClick()"
+  />
+
+  <lib-icon-button
+    icon="arrow_forward"
+    ariaLabel="Forward"
+    [disabled]="true"
+    (buttonClick)="onForwardClick()"
+  />
+
+  <lib-icon-button
+    icon="arrow_upward"
+    ariaLabel="Up"
+    [disabled]="!canNavigateUp()"
+    (buttonClick)="onUpClick()"
+  />
+
+  <lib-icon-button
+    icon="refresh"
+    ariaLabel="Refresh"
+    [disabled]="isLoading()"
+    (buttonClick)="onRefreshClick()"
+  />
+</div>

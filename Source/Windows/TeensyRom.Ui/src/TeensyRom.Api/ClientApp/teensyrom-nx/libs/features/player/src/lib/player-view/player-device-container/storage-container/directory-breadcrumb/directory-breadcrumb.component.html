@@ -1,0 +1,11 @@
+<mat-chip-set class="breadcrumb-chips">
+  @for (segment of pathSegments(); track segment.path) {
+  <mat-chip
+    class="breadcrumb-chip"
+    (click)="onChipClick(segment.path)"
+    [attr.aria-label]="'Navigate to ' + segment.label"
+  >
+    {{ segment.label }}
+  </mat-chip>
+  }
+</mat-chip-set>
