@@ -6,6 +6,7 @@ import { StorageState } from '../storage-store';
 
 import { initializeStorage } from './initialize-storage';
 import { navigateToDirectory } from './navigate-to-directory';
+import { navigateUpOneDirectory } from './navigate-up-one-directory';
 import { refreshDirectory } from './refresh-directory';
 import { removeStorage } from './remove-storage';
 import { removeAllStorage } from './remove-all-storage';
@@ -17,6 +18,7 @@ export function withStorageActions() {
     return {
       ...initializeStorage(writableStore, storageService),
       ...navigateToDirectory(writableStore, storageService),
+      ...navigateUpOneDirectory(writableStore, storageService),
       ...refreshDirectory(writableStore, storageService),
       ...removeStorage(writableStore),
       ...removeAllStorage(writableStore),

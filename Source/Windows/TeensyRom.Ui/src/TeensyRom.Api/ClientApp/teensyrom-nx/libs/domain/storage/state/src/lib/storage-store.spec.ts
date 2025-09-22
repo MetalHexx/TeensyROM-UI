@@ -324,6 +324,152 @@ describe('StorageStore (NgRx Signal Store)', () => {
   });
 
   // -----------------------------------------
+  // navigateUpOneDirectory() - Parent Path Navigation
+  // -----------------------------------------
+  describe('navigateUpOneDirectory()', () => {
+    const deviceId = 'device-1';
+    const storageType = StorageType.Sd;
+
+    beforeEach(async () => {
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+      getDirectoryMock.mockClear();
+    });
+
+    it('navigates up one directory level and updates state', async () => {
+      // Arrange: Navigate to /games/arcade first
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games/arcade')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games/arcade' });
+
+      // Act: Navigate up one level
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateUpOneDirectory({ deviceId, storageType });
+
+      // Assert: Should be at /games
+      const key = StorageKeyUtil.create(deviceId, storageType);
+      const entry = store.storageEntries()[key];
+      expect(entry.currentPath).toBe('/games');
+      expect(entry.directory?.path).toBe('/games');
+      expect(entry.isLoaded).toBe(true);
+      expect(entry.isLoading).toBe(false);
+      expect(entry.error).toBeNull();
+
+      // Verify API was called with parent path
+      expect(getDirectoryMock).toHaveBeenCalledWith(deviceId, storageType, '/games');
+    });
+
+    it('updates selectedDirectory to parent path', async () => {
+      // Arrange: Navigate to /games/arcade
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games/arcade')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games/arcade' });
+
+      // Act: Navigate up
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateUpOneDirectory({ deviceId, storageType });
+
+      // Assert: Selection updated
+      expect(store.selectedDirectories()[deviceId]).toEqual({
+        deviceId,
+        storageType,
+        path: '/games',
+      });
+    });
+
+    it('is a no-op when already at root directory', async () => {
+      // Already at root from beforeEach setup
+      getDirectoryMock.mockClear();
+
+      await store.navigateUpOneDirectory({ deviceId, storageType });
+
+      // Should not make API call
+      expect(getDirectoryMock).not.toHaveBeenCalled();
+
+      // Should remain at root
+      const key = StorageKeyUtil.create(deviceId, storageType);
+      expect(store.storageEntries()[key].currentPath).toBe('/');
+    });
+
+    it('is a no-op when storage entry does not exist', async () => {
+      await store.navigateUpOneDirectory({
+        deviceId: 'non-existent',
+        storageType,
+      });
+
+      expect(getDirectoryMock).not.toHaveBeenCalled();
+    });
+
+    it('handles API error by setting error state', async () => {
+      // Arrange: Navigate to subdirectory first
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
+
+      // Act: Navigate up with API error
+      getDirectoryMock.mockReturnValue(throwError(() => new Error('Network error')));
+      await store.navigateUpOneDirectory({ deviceId, storageType });
+
+      // Assert: Error state set correctly
+      const key = StorageKeyUtil.create(deviceId, storageType);
+      const entry = store.storageEntries()[key];
+      expect(entry.currentPath).toBe('/'); // Parent path still set
+      expect(entry.isLoading).toBe(false);
+      expect(entry.error).toBe('Failed to navigate up one directory');
+      expect(entry.directory).toBeNull();
+      expect(entry.isLoaded).toBe(false);
+    });
+
+    it('calculates parent paths correctly for various path formats', async () => {
+      const testCases = [
+        { current: '/games/arcade/pacman', expected: '/games/arcade' },
+        { current: '/games/arcade/', expected: '/games' },
+        { current: '/games', expected: '/' },
+        { current: '/single', expected: '/' },
+      ];
+
+      for (const testCase of testCases) {
+        // Setup current path
+        if (testCase.current !== '/') {
+          getDirectoryMock.mockReturnValue(of(createMockStorageDirectory(testCase.current)));
+          await store.navigateToDirectory({ deviceId, storageType, path: testCase.current });
+        }
+
+        // Mock parent directory response
+        getDirectoryMock.mockReturnValue(of(createMockStorageDirectory(testCase.expected)));
+
+        // Navigate up
+        await store.navigateUpOneDirectory({ deviceId, storageType });
+
+        // Verify result (unless at root where no API call is made)
+        if (testCase.current !== '/') {
+          expect(getDirectoryMock).toHaveBeenCalledWith(deviceId, storageType, testCase.expected);
+        }
+
+        getDirectoryMock.mockClear();
+      }
+    });
+
+    it('makes API call to load parent directory when not cached', async () => {
+      // Arrange: Navigate to child directory
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games/arcade')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games/arcade' });
+
+      getDirectoryMock.mockClear();
+
+      // Act: Navigate up (requires API call since parent isn't cached)
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateUpOneDirectory({ deviceId, storageType });
+
+      // Assert: API call made to load parent directory
+      expect(getDirectoryMock).toHaveBeenCalledWith(deviceId, storageType, '/games');
+
+      const key = StorageKeyUtil.create(deviceId, storageType);
+      const entry = store.storageEntries()[key];
+      expect(entry.currentPath).toBe('/games');
+      expect(entry.directory?.path).toBe('/games');
+      expect(entry.isLoaded).toBe(true);
+    });
+  });
+
+  // -----------------------------------------
   // Task 5: refreshDirectory() - Success, Error, No-Op
   // -----------------------------------------
   describe('refreshDirectory()', () => {
