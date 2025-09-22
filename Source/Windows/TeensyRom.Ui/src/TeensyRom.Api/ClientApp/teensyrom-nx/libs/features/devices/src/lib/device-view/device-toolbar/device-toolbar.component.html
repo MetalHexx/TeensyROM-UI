@@ -1,16 +1,17 @@
 <lib-compact-card-layout class="toolbar-card">
   <div class="toolbar-button-container">
-    <button mat-stroked-button color="primary" (click)="onIndexAllStorage()">
-      <lib-icon-label icon="download" [label]="'Index All'"> </lib-icon-label>
-    </button>
-    <button mat-stroked-button color="primary" (click)="onRefreshDevices()">
-      <lib-icon-label icon="refresh" [label]="'Refresh Devices'"> </lib-icon-label>
-    </button>
-    <button mat-stroked-button color="primary" (click)="onResetDevices()">
-      <lib-icon-label icon="reset_tv" [label]="'Reset Devices'"> </lib-icon-label>
-    </button>
-    <button mat-stroked-button color="primary" (click)="onPingDevices()">
-      <lib-icon-label icon="network_ping" [label]="'Ping Devices'"> </lib-icon-label>
-    </button>
+    <lib-action-button icon="download" label="Index All" (buttonClick)="onIndexAllStorage()">
+    </lib-action-button>
+    <lib-action-button icon="refresh" label="Refresh Devices" (buttonClick)="onRefreshDevices()">
+    </lib-action-button>
+    <lib-action-button
+      icon="reset_tv"
+      label="Reset Devices"
+      color="error"
+      (buttonClick)="onResetDevices()"
+    >
+    </lib-action-button>
+    <lib-action-button icon="network_ping" label="Ping Devices" (buttonClick)="onPingDevices()">
+    </lib-action-button>
   </div>
 </lib-compact-card-layout>

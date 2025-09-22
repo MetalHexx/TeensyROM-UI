@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
-import { IconLabelComponent, CompactCardLayoutComponent } from '@teensyrom-nx/ui/components';
+import { CompactCardLayoutComponent, ActionButtonComponent } from '@teensyrom-nx/ui/components';
 import { DeviceStore } from '@teensyrom-nx/domain/device/state';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -14,8 +14,8 @@ import { MatButtonModule } from '@angular/material/button';
     MatCardModule,
     MatExpansionModule,
     MatIconModule,
-    IconLabelComponent,
     CompactCardLayoutComponent,
+    ActionButtonComponent,
     MatButtonModule,
   ],
   templateUrl: './device-toolbar.component.html',
