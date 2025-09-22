@@ -1,0 +1,45 @@
+@switch (variant()) { @case ('stroked') {
+<button
+  mat-stroked-button
+  [color]="materialColor()"
+  [class]="buttonClasses()"
+  [disabled]="disabled()"
+  [attr.aria-label]="effectiveAriaLabel()"
+  (click)="onButtonClick()"
+>
+  <lib-icon-label [icon]="icon()" [label]="label()"></lib-icon-label>
+</button>
+} @case ('flat') {
+<button
+  mat-flat-button
+  [color]="materialColor()"
+  [class]="buttonClasses()"
+  [disabled]="disabled()"
+  [attr.aria-label]="effectiveAriaLabel()"
+  (click)="onButtonClick()"
+>
+  <lib-icon-label [icon]="icon()" [label]="label()"></lib-icon-label>
+</button>
+} @case ('raised') {
+<button
+  mat-raised-button
+  [color]="materialColor()"
+  [class]="buttonClasses()"
+  [disabled]="disabled()"
+  [attr.aria-label]="effectiveAriaLabel()"
+  (click)="onButtonClick()"
+>
+  <lib-icon-label [icon]="icon()" [label]="label()"></lib-icon-label>
+</button>
+} @case ('fab') {
+<button
+  mat-fab
+  [color]="materialColor()"
+  [class]="buttonClasses()"
+  [disabled]="disabled()"
+  [attr.aria-label]="effectiveAriaLabel()"
+  (click)="onButtonClick()"
+>
+  <lib-icon-label [icon]="icon()" [label]="label()"></lib-icon-label>
+</button>
+} }

@@ -315,6 +315,34 @@ Available color variables for semantic styling:
 
 **Best Practice:** Use these semantic icon classes instead of hardcoded colors to ensure proper theme support and consistent visual language.
 
+#### Action Button Color Classes
+
+**Purpose**: Bridge design tokens to Material button styling for ActionButtonComponent
+
+**Usage Example:**
+
+```html
+<lib-action-button icon="save" label="Save" color="success" (buttonClick)="save()">
+</lib-action-button>
+
+<lib-action-button icon="delete" label="Delete" color="error" (buttonClick)="delete()">
+</lib-action-button>
+```
+
+**Available Classes:**
+
+- **`.action-button-primary`**: Maps `--color-primary` to Material button styling (purple brand color)
+- **`.action-button-success`**: Maps `--color-success` to Material button styling (green success color)
+- **`.action-button-error`**: Maps `--color-error` to Material button styling (red error color)
+- **`.action-button-highlight`**: Maps `--color-highlight` to Material button styling (cyan accent color)
+- **`.action-button-normal`**: Default Material Design styling
+
+**Used In:**
+
+- [`device-toolbar.component.html`](../libs/features/devices/src/lib/device-view/device-toolbar/device-toolbar.component.html) - Device management action buttons with semantic colors
+
+**Best Practice:** These classes are automatically applied by ActionButtonComponent when using the `color` property. Use semantic colors that match the action's intent (error for destructive actions, success for positive actions, primary for main actions, etc.).
+
 ### Dialogs
 
 #### `.glassy-dialog`

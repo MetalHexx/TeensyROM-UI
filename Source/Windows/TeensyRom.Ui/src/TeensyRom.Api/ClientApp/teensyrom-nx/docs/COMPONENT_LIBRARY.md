@@ -464,6 +464,104 @@ export class MyComponent {
 
 - [`device-item.component.html`](../libs/features/devices/src/lib/device-view/device-item/device-item.component.html) - Power button for device connection control
 
+### `ActionButtonComponent`
+
+**Purpose**: A reusable action button component that combines Material Design buttons with icon and text in a standardized, accessible pattern. Integrates with design tokens for consistent semantic coloring.
+
+**Selector**: `lib-action-button`
+
+**Properties**:
+
+- `icon` (required): `string` - Material Design icon name to display in the button
+- `label` (required): `string` - Button text content that appears next to the icon
+- `variant` (optional): `'stroked' | 'flat' | 'raised' | 'fab'` - Material button style variant - defaults to 'stroked'
+- `color` (optional): `'primary' | 'success' | 'error' | 'highlight' | 'normal'` - Semantic color variant using [STYLE_GUIDE.md](STYLE_GUIDE.md) design tokens - defaults to 'primary'
+- `disabled` (optional): `boolean` - Whether the button is disabled - defaults to false
+- `ariaLabel` (optional): `string` - Accessibility label for screen readers (defaults to label value)
+
+**Events**:
+
+- `buttonClick`: Emitted when the button is clicked (only when not disabled)
+
+**Usage Examples**:
+
+```html
+<!-- Basic usage -->
+<lib-action-button icon="refresh" label="Refresh Data" (buttonClick)="refresh()">
+</lib-action-button>
+
+<!-- Success action with semantic color -->
+<lib-action-button icon="download" label="Index All" color="success" (buttonClick)="indexAll()">
+</lib-action-button>
+
+<!-- Destructive action -->
+<lib-action-button
+  icon="reset_tv"
+  label="Reset Devices"
+  color="error"
+  variant="raised"
+  (buttonClick)="resetDevices()"
+>
+</lib-action-button>
+
+<!-- Disabled state -->
+<lib-action-button
+  icon="upload"
+  label="Upload Files"
+  [disabled]="!hasFiles"
+  ariaLabel="Upload selected files to server"
+  (buttonClick)="upload()"
+>
+</lib-action-button>
+```
+
+**Style Integration**:
+
+The component automatically maps to design token colors from [STYLE_GUIDE.md](STYLE_GUIDE.md):
+
+- **Color Mapping**:
+
+  - `primary` → `.action-button-primary` (purple brand color from `--color-primary`)
+  - `success` → `.action-button-success` (green color from `--color-success`)
+  - `error` → `.action-button-error` (red color from `--color-error`)
+  - `highlight` → `.action-button-highlight` (cyan color from `--color-highlight`)
+  - `normal` → `.action-button-normal` (default Material styling)
+
+- **Variant Mapping**:
+  - `stroked` → `mat-stroked-button` (outlined button)
+  - `flat` → `mat-flat-button` (text button)
+  - `raised` → `mat-raised-button` (elevated button)
+  - `fab` → `mat-fab` (floating action button)
+
+**Accessibility Features**:
+
+- **Automatic ARIA handling**: Uses label as aria-label unless explicit ariaLabel provided
+- **Proper button semantics**: Uses semantic `<button>` element with Material directives
+- **Disabled state support**: Prevents interaction and provides visual feedback when disabled
+- **Keyboard navigation**: Full keyboard accessibility support
+- **Screen reader compatibility**: Meaningful labels and proper role semantics
+
+**Type Safety**:
+
+```typescript
+import { ActionButtonVariant, ActionButtonColor } from '@teensyrom-nx/ui/components';
+
+export class MyComponent {
+  buttonVariant: ActionButtonVariant = 'raised';
+  buttonColor: ActionButtonColor = 'success';
+
+  onActionButtonClick(): void {
+    console.log('Action button clicked!');
+  }
+}
+```
+
+**Best Practice**: Use for all action-oriented buttons with icons and text throughout the application. Replaces manual `mat-stroked-button` + `lib-icon-label` patterns. Choose semantic colors that match the action's intent (error for destructive actions, success for positive actions, etc.).
+
+**Used In**:
+
+- [`device-toolbar.component.html`](../libs/features/devices/src/lib/device-view/device-toolbar/device-toolbar.component.html) - Device management action buttons
+
 ---
 
 ## Display Components

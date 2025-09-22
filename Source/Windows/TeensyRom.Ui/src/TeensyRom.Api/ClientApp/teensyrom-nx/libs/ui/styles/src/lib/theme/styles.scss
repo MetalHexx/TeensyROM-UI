@@ -308,6 +308,31 @@ mat-card-title {
 }
 
 // ─────────────────────────────────────────────
+//  ACTION BUTTON STYLES
+// ─────────────────────────────────────────────
+
+.action-button-success {
+  // Custom success styling - only change text color, keep Material's border styling
+  --mdc-outlined-button-label-text-color: var(--color-success);
+  --mdc-outlined-button-hover-label-text-color: var(--color-success);
+  --mdc-outlined-button-focus-label-text-color: var(--color-success);
+}
+
+.action-button-error {
+  // Custom error styling - only change text color, keep Material's border styling
+  --mdc-outlined-button-label-text-color: var(--color-error);
+  --mdc-outlined-button-hover-label-text-color: var(--color-error);
+  --mdc-outlined-button-focus-label-text-color: var(--color-error);
+}
+
+.action-button-highlight {
+  // Custom highlight styling - only change text color, keep Material's border styling
+  --mdc-outlined-button-label-text-color: var(--color-highlight);
+  --mdc-outlined-button-hover-label-text-color: var(--color-highlight);
+  --mdc-outlined-button-focus-label-text-color: var(--color-highlight);
+}
+
+// ─────────────────────────────────────────────
 //  CHIPS
 // ─────────────────────────────────────────────
 
