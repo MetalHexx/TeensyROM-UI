@@ -177,13 +177,25 @@ mat-card-title {
   width: 48px !important;
   height: 48px !important;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
   background: transparent;
   box-shadow: none;
   border: none;
+
+  // Override any Material default positioning
+  .mat-button-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
 }
 
 .icon-button-rounded-primary {
@@ -248,13 +260,14 @@ mat-card-title {
 }
 
 .icon-button-large .mat-icon {
-  font-size: 28px;
+  font-size: 24px;
   line-height: 1;
   width: 24px;
   height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  text-align: center;
+  padding-left: 2px;
+  padding-top: 2px;
   &.highlight {
     color: var(--color-highlight);
   }

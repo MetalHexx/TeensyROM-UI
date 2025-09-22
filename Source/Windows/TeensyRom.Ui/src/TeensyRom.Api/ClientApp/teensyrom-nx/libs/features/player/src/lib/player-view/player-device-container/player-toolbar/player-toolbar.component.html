@@ -1,16 +1,27 @@
 <lib-compact-card-layout>
   <div class="player-controls">
-    <button mat-icon-button class="icon-button-rounded-transparent">
-      <mat-icon>skip_previous</mat-icon>
-    </button>
-    <button mat-icon-button class="icon-button-rounded-primary">
-      <mat-icon>play_arrow</mat-icon>
-    </button>
-    <button mat-icon-button class="icon-button-rounded-transparent">
-      <mat-icon>fast_forward</mat-icon>
-    </button>
-    <button mat-icon-button class="icon-button-rounded-transparent">
-      <mat-icon>skip_next</mat-icon>
-    </button>
+    <lib-icon-button
+      icon="skip_previous"
+      ariaLabel="Previous Track"
+      size="large"
+      variant="rounded-transparent"
+    >
+    </lib-icon-button>
+    <lib-icon-button icon="play_arrow" ariaLabel="Play" size="large" variant="rounded-primary">
+    </lib-icon-button>
+    <lib-icon-button
+      icon="fast_forward"
+      ariaLabel="Fast Forward"
+      size="large"
+      variant="rounded-transparent"
+    >
+    </lib-icon-button>
+    <lib-icon-button
+      icon="skip_next"
+      ariaLabel="Next Track"
+      size="large"
+      variant="rounded-transparent"
+    >
+    </lib-icon-button>
   </div>
 </lib-compact-card-layout>

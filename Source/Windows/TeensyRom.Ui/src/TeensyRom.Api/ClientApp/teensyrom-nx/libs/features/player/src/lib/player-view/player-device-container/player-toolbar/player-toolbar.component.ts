@@ -1,12 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CompactCardLayoutComponent } from '@teensyrom-nx/ui/components';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { CompactCardLayoutComponent, IconButtonComponent } from '@teensyrom-nx/ui/components';
 
 @Component({
   selector: 'lib-player-toolbar',
-  imports: [CommonModule, CompactCardLayoutComponent, MatButtonModule, MatIconModule],
+  imports: [CommonModule, CompactCardLayoutComponent, IconButtonComponent],
   templateUrl: './player-toolbar.component.html',
   styleUrl: './player-toolbar.component.scss',
 })
