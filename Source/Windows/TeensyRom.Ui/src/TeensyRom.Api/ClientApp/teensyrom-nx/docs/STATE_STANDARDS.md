@@ -564,8 +564,9 @@ export function navigateToDirectory(
 
 - Import `createAction` from `@teensyrom-nx/utils`
 - Create action message at the start of each store method using descriptive method name
-- Pass action message as the final parameter to all helper functions that perform state mutations
+- Pass action message as the final parameter to ALL helper functions that perform state mutations
 - Use kebab-case naming that matches the method name (e.g., `'navigate-to-directory'`, `'initialize-storage'`)
+- ALL state mutation helpers MUST accept actionMessage parameter for Redux DevTools correlation
 
 **Action Message Utility**: See [`store-helper.ts`](../libs/utils/src/lib/store-helper.ts) for the `createAction()` implementation that generates unique identifiers with random numbers.
 
@@ -584,9 +585,13 @@ export function navigateToDirectory(
 1. **State Mutation Helpers**:
 
 ```typescript
-// Common state updates
-export function setLoadingStorage(store: WritableStore<StorageState>, key: StorageKey): void {
-  patchState(store, (state) => ({
+// Common state updates - ALL helpers MUST accept actionMessage
+export function setLoadingStorage(
+  store: WritableStore<StorageState>,
+  key: StorageKey,
+  actionMessage: string
+): void {
+  updateState(store, actionMessage, (state) => ({
     storageEntries: {
       ...state.storageEntries,
       [key]: {
@@ -601,22 +606,28 @@ export function setLoadingStorage(store: WritableStore<StorageState>, key: Stora
 export function setStorageLoaded(
   store: WritableStore<StorageState>,
   key: StorageKey,
-  additionalUpdates: Partial<StorageDirectoryState> = {}
+  additionalUpdates: Partial<StorageDirectoryState> = {},
+  actionMessage: string
 ): void {
-  updateStorage(store, key, {
-    isLoaded: true,
-    isLoading: false,
-    error: null,
-    lastLoadTime: Date.now(),
-    ...additionalUpdates,
-  });
+  updateStorage(
+    store,
+    key,
+    {
+      isLoaded: true,
+      isLoading: false,
+      error: null,
+      lastLoadTime: Date.now(),
+      ...additionalUpdates,
+    },
+    actionMessage
+  );
 }
 ```
 
-2. **State Query Helpers**:
+2. **State Query Helpers** (read-only, no actionMessage needed):
 
 ```typescript
-// Read operations for complex state logic
+// Read operations for complex state logic - no state mutations, no actionMessage needed
 export function getStorage(
   store: WritableStore<StorageState>,
   key: StorageKey
@@ -650,9 +661,24 @@ export type WritableStore<T extends object> = StateSignals<T> & WritableStateSou
 
 ```typescript
 // Action message creation for Redux DevTools correlation
+// Use kebab-case method name matching the action method
 export function createAction(message: string): string {
   const randomInt = Math.floor(Math.random() * 10000);
   return `${message} [${randomInt}]`;
+}
+
+// Usage in actions - message should match method name in kebab-case
+export function navigateToDirectory(store: WritableStore<StorageState>, service: IStorageService) {
+  return {
+    navigateToDirectory: async ({ deviceId, storageType, path }) => {
+      const actionMessage = createAction('navigate-to-directory'); // kebab-case
+
+      // Pass actionMessage to ALL helper functions
+      setLoadingStorage(store, key, actionMessage);
+      setDeviceSelectedDirectory(store, deviceId, storageType, path, actionMessage);
+      // ... etc
+    },
+  };
 }
 ```
 
@@ -676,12 +702,20 @@ export function logInfo(operation: LogType, message: string, data?: unknown): vo
 }
 ```
 
+**Helper Function Action Message Rules**:
+
+- **State Mutation Helpers**: MUST accept `actionMessage: string` as final parameter
+- **State Query Helpers**: Do NOT need actionMessage (read-only operations)
+- **Action Message Creation**: Use `createAction('method-name')` with kebab-case matching the action method name
+- **Redux DevTools Correlation**: All state mutations from a single action operation show the same message identifier
+
 **Benefits**:
 
 - **Consistency**: Standardized state mutations across all actions
 - **Maintainability**: Single place to update common operations
 - **Readability**: Actions focus on business logic, not implementation details
 - **Testing**: Helper functions can be unit tested independently
+- **Debugging**: Easy correlation of related state mutations in Redux DevTools
 
 **Usage in Actions**:
 
@@ -1267,6 +1301,85 @@ export function updateData(
 - Keep individual files focused on single responsibility
 - Use descriptive names that clearly indicate the operation
 - Include proper TypeScript typing with Promise return types
+
+### Action Composition Rules
+
+**Standard**: Actions should never call other actions directly. Instead, use shared helper functions to reduce logical duplication.
+
+**❌ WRONG - Actions calling other actions**:
+
+```typescript
+export function refreshData(store: WritableStore<State>, service: Service) {
+  return {
+    refreshData: async ({ id }: { id: string }): Promise<void> => {
+      // Don't call other store actions directly
+      await store.loadData({ id }); // WRONG - action calling action
+    },
+  };
+}
+```
+
+**✅ CORRECT - Use shared helper functions**:
+
+```typescript
+// helpers/data-helpers.ts
+export function loadDataWithService(
+  store: WritableStore<State>,
+  service: Service,
+  id: string,
+  actionMessage: string
+): Promise<DataType> {
+  updateState(store, actionMessage, (state) => ({ isLoading: true, error: null }));
+
+  try {
+    const data = await firstValueFrom(service.getData(id));
+    updateState(store, actionMessage, (state) => ({
+      data,
+      isLoading: false,
+      isLoaded: true,
+      lastUpdateTime: Date.now(),
+    }));
+    return data;
+  } catch (error) {
+    updateState(store, actionMessage, (state) => ({
+      isLoading: false,
+      error: (error as any)?.message || 'Failed to load data',
+    }));
+    throw error;
+  }
+}
+
+// actions/load-data.ts
+export function loadData(store: WritableStore<State>, service: Service) {
+  return {
+    loadData: async ({ id }: { id: string }): Promise<void> => {
+      const actionMessage = createAction('load-data');
+      await loadDataWithService(store, service, id, actionMessage);
+    },
+  };
+}
+
+// actions/refresh-data.ts
+export function refreshData(store: WritableStore<State>, service: Service) {
+  return {
+    refreshData: async ({ id }: { id: string }): Promise<void> => {
+      const actionMessage = createAction('refresh-data');
+      // Reuse the same helper function, not the action
+      await loadDataWithService(store, service, id, actionMessage);
+    },
+  };
+}
+```
+
+**Benefits**:
+
+- **Maintainability**: Logic changes only need to be made in helper functions
+- **Testability**: Helper functions can be unit tested independently
+- **Consistency**: Same logic produces identical behavior across actions
+- **Action Message Tracking**: Each action gets proper message correlation
+- **Avoid Coupling**: Actions remain independent and focused
+
+**Reference Implementation**: See [`storage-helpers.ts`](../libs/domain/storage/state/src/lib/storage-helpers.ts) for examples of shared helper functions used across multiple actions.
 
 ### Testing Considerations
 
