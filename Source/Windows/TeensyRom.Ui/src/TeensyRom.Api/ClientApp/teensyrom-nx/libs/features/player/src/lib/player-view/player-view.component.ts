@@ -1,4 +1,4 @@
-import { Component, inject, computed, effect } from '@angular/core';
+import { Component, inject, computed, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { DeviceStore } from '@teensyrom-nx/domain/device/state';
@@ -21,6 +21,9 @@ export class PlayerViewComponent {
     this.deviceStore.devices().filter((device) => device.isConnected)
   );
 
+  // Tracks storage initialization to prevent race conditions
+  private readonly initializingStorage = signal<Set<string>>(new Set());
+
   private syncStorageEffect = effect(() => {
     const devices = this.connectedDevices();
     this.initializeDevicesSequentially(devices);
@@ -29,27 +32,38 @@ export class PlayerViewComponent {
   private async initializeDevicesSequentially(devices: Device[]) {
     for (const device of devices) {
       const deviceEntries = this.storageStore.getDeviceStorageEntries(device.deviceId)();
-
-      if (device.sdStorage?.available) {
-        const sdKey = StorageKeyUtil.create(device.deviceId, StorageType.Sd);
-
-        if (!deviceEntries[sdKey]) {
-          await this.storageStore.initializeStorage({
-            deviceId: device.deviceId,
-            storageType: StorageType.Sd,
-          });
-        }
-      }
-
       if (device.usbStorage?.available) {
-        const usbKey = StorageKeyUtil.create(device.deviceId, StorageType.Usb);
+        await this.initializeStorageType(device.deviceId, StorageType.Usb, deviceEntries);
+      }
+      if (device.sdStorage?.available) {
+        await this.initializeStorageType(device.deviceId, StorageType.Sd, deviceEntries);
+      }
+    }
+  }
 
-        if (!deviceEntries[usbKey]) {
-          await this.storageStore.initializeStorage({
-            deviceId: device.deviceId,
-            storageType: StorageType.Usb,
-          });
-        }
+  private async initializeStorageType(
+    deviceId: string,
+    storageType: StorageType,
+    deviceEntries: Record<string, any>
+  ): Promise<void> {
+    const storageKey = StorageKeyUtil.create(deviceId, storageType);
+
+    if (!deviceEntries[storageKey] && !this.initializingStorage().has(storageKey)) {
+      // Mark as being initialized
+      this.initializingStorage.update((set) => new Set(set).add(storageKey));
+
+      try {
+        await this.storageStore.initializeStorage({
+          deviceId,
+          storageType,
+        });
+      } finally {
+        // Remove from initialization tracking
+        this.initializingStorage.update((set) => {
+          const newSet = new Set(set);
+          newSet.delete(storageKey);
+          return newSet;
+        });
       }
     }
   }
