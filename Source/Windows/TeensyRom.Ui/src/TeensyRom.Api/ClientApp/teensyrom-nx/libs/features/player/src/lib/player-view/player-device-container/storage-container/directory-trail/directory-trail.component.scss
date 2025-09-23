@@ -1,0 +1,13 @@
+.directory-trail-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px;
+  min-height: 48px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+}

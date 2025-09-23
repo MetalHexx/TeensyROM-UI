@@ -1,0 +1,13 @@
+<div class="breadcrumb-container">
+  @for (segment of pathSegments(); track segment.path; let isLast = $last) {
+  <mat-chip
+    class="breadcrumb-chip"
+    (click)="onChipClick(segment.path)"
+    [attr.aria-label]="'Navigate to ' + segment.label"
+  >
+    {{ segment.label }}
+  </mat-chip>
+  @if (!isLast) {
+  <span class="breadcrumb-separator" aria-hidden="true"> > </span>
+  } }
+</div>

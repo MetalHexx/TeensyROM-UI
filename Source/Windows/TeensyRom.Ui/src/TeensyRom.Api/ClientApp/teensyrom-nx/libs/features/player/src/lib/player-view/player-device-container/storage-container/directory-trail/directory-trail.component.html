@@ -1,0 +1,18 @@
+<lib-compact-card-layout>
+  <div class="directory-trail-container">
+    <lib-directory-navigate
+      [canNavigateUp]="canNavigateUp()"
+      [isLoading]="isLoading()"
+      (backClicked)="onBackClick()"
+      (forwardClicked)="onForwardClick()"
+      (upClicked)="onUpClick()"
+      (refreshClicked)="onRefreshClick()"
+    ></lib-directory-navigate>
+
+    <lib-directory-breadcrumb
+      [currentPath]="currentPath()"
+      [storageType]="storageTypeLabel()"
+      (navigationRequested)="onNavigationRequested($event)"
+    ></lib-directory-breadcrumb>
+  </div>
+</lib-compact-card-layout>
