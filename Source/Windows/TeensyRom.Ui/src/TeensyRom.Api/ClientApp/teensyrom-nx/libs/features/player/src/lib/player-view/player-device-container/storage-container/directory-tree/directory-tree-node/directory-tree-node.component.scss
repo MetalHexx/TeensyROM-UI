@@ -16,14 +16,10 @@
     background-color: var(--color-dimmed);
   }
 
-  mat-icon {
-    font-size: 24px;
-    width: 20px;
-    height: 20px;
+  lib-styled-icon {
     padding-right: 5px;
     padding-bottom: 5px;
     flex-shrink: 0;
-    line-height: 1;
   }
 
   .node-text {

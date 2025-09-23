@@ -1,11 +1,11 @@
 import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
+import { StyledIconComponent, StyledIconColor } from '@teensyrom-nx/ui/components';
 import { DirectoryTreeNodeType } from '../directory-tree.component';
 
 @Component({
   selector: 'lib-directory-tree-node',
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, StyledIconComponent],
   templateUrl: './directory-tree-node.component.html',
   styleUrl: './directory-tree-node.component.scss',
 })
@@ -16,16 +16,16 @@ export class DirectoryTreeNodeComponent {
   isSelected = input<boolean>(false);
   nodeType = input<DirectoryTreeNodeType>();
 
-  readonly iconColor = computed(() => {
+  readonly iconColor = computed<StyledIconColor>(() => {
     switch (this.nodeType()) {
       case DirectoryTreeNodeType.Device:
-        return 'var(--color-primary-bright)';
+        return 'primary';
       case DirectoryTreeNodeType.StorageType:
-        return 'var(--color-highlight)';
+        return 'highlight';
       case DirectoryTreeNodeType.Directory:
-        return 'var(--color-directory)';
+        return 'directory';
       default:
-        return 'var(--color-highlight)';
+        return 'highlight';
     }
   });
 }

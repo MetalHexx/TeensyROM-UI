@@ -1,4 +1,4 @@
 <div class="directory-tree-node" [class]="cssClass()" [class.selected]="isSelected()">
-  <mat-icon [style.color]="iconColor()">{{ icon() }}</mat-icon>
+  <lib-styled-icon [icon]="icon()" [color]="iconColor()" size="medium"></lib-styled-icon>
   <span class="node-text">{{ text() }}</span>
 </div>
