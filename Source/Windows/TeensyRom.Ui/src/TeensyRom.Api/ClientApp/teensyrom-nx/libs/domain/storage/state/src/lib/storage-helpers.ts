@@ -1,16 +1,21 @@
-import { patchState, StateSignals, WritableStateSource } from '@ngrx/signals';
+import { StateSignals, WritableStateSource } from '@ngrx/signals';
 import { StorageState, StorageDirectoryState } from './storage-store';
 import { StorageKey, StorageKeyUtil } from './storage-key.util';
 import { StorageType } from '@teensyrom-nx/domain/storage/services';
 import { logError } from '@teensyrom-nx/utils';
+import { updateState } from '@angular-architects/ngrx-toolkit';
 
 export type WritableStore<T extends object> = StateSignals<T> & WritableStateSource<T>;
 
 /**
  * Helper to set loading state for a storage entry
  */
-export function setLoadingStorage(store: WritableStore<StorageState>, key: StorageKey): void {
-  patchState(store, (state) => ({
+export function setLoadingStorage(
+  store: WritableStore<StorageState>,
+  key: StorageKey,
+  actionMessage: string
+): void {
+  updateState(store, actionMessage, (state) => ({
     storageEntries: {
       ...state.storageEntries,
       [key]: {
@@ -28,9 +33,10 @@ export function setLoadingStorage(store: WritableStore<StorageState>, key: Stora
 export function updateStorage(
   store: WritableStore<StorageState>,
   key: StorageKey,
-  updates: Partial<StorageDirectoryState>
+  updates: Partial<StorageDirectoryState>,
+  actionMessage: string
 ): void {
-  patchState(store, (state) => ({
+  updateState(store, actionMessage, (state) => ({
     storageEntries: {
       ...state.storageEntries,
       [key]: {
@@ -47,15 +53,21 @@ export function updateStorage(
 export function setStorageLoaded(
   store: WritableStore<StorageState>,
   key: StorageKey,
-  additionalUpdates: Partial<StorageDirectoryState> = {}
+  additionalUpdates: Partial<StorageDirectoryState> = {},
+  actionMessage: string
 ): void {
-  updateStorage(store, key, {
-    isLoaded: true,
-    isLoading: false,
-    error: null,
-    lastLoadTime: Date.now(),
-    ...additionalUpdates,
-  });
+  updateStorage(
+    store,
+    key,
+    {
+      isLoaded: true,
+      isLoading: false,
+      error: null,
+      lastLoadTime: Date.now(),
+      ...additionalUpdates,
+    },
+    actionMessage
+  );
 }
 
 /**
@@ -108,9 +120,10 @@ export function isSelectedDirectory(
 export function setStorageError(
   store: WritableStore<StorageState>,
   key: StorageKey,
-  errorMessage: string
+  errorMessage: string,
+  actionMessage: string
 ): void {
-  patchState(store, (state) => {
+  updateState(store, actionMessage, (state) => {
     const currentEntry = state.storageEntries[key];
     if (!currentEntry) {
       logError(`No entry found for ${key} during error update`);
@@ -136,9 +149,10 @@ export function setStorageError(
 export function insertStorage(
   store: WritableStore<StorageState>,
   key: StorageKey,
-  entry: StorageDirectoryState
+  entry: StorageDirectoryState,
+  actionMessage: string
 ): void {
-  patchState(store, (state) => ({
+  updateState(store, actionMessage, (state) => ({
     storageEntries: {
       ...state.storageEntries,
       [key]: entry,
@@ -153,7 +167,8 @@ export function createStorage(
   store: WritableStore<StorageState>,
   deviceId: string,
   storageType: StorageType,
-  path = '/'
+  path = '/',
+  actionMessage: string
 ): StorageDirectoryState {
   const newEntry: StorageDirectoryState = {
     deviceId,
@@ -165,15 +180,19 @@ export function createStorage(
     error: null,
     lastLoadTime: null,
   };
-  insertStorage(store, StorageKeyUtil.create(deviceId, storageType), newEntry);
+  insertStorage(store, StorageKeyUtil.create(deviceId, storageType), newEntry, actionMessage);
   return newEntry;
 }
 
 /**
  * Helper to remove storage entry by key
  */
-export function removeStorage(store: WritableStore<StorageState>, key: StorageKey): void {
-  patchState(store, (state) => {
+export function removeStorage(
+  store: WritableStore<StorageState>,
+  key: StorageKey,
+  actionMessage: string
+): void {
+  updateState(store, actionMessage, (state) => {
     const updatedEntries = { ...state.storageEntries };
     delete updatedEntries[key];
     return { storageEntries: updatedEntries };
@@ -206,9 +225,10 @@ export function setDeviceSelectedDirectory(
   store: WritableStore<StorageState>,
   deviceId: string,
   storageType: StorageType,
-  path: string
+  path: string,
+  actionMessage: string
 ): void {
-  patchState(store, (state) => ({
+  updateState(store, actionMessage, (state) => ({
     selectedDirectories: {
       ...state.selectedDirectories,
       [deviceId]: {

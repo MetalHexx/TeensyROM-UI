@@ -199,6 +199,7 @@ export function loadData(store: WritableStore<ExampleState>, service: ExampleSer
 ```typescript
 import { patchState, WritableStateSource } from '@ngrx/signals';
 import { firstValueFrom } from 'rxjs';
+import { createAction } from '@teensyrom-nx/utils';
 
 type SignalStore<T> = {
   [K in keyof T]: () => T[K];
@@ -210,6 +211,9 @@ export function methodName(
 ) {
   return {
     methodName: async ({ param }: { param: ParamType }): Promise<void> => {
+      // Create action message for Redux DevTools correlation
+      const actionMessage = createAction('method-name');
+
       // Clear any previous errors
       patchState(store, { isLoading: true, error: null });
 
@@ -474,6 +478,99 @@ export function asyncMethod(store, service) {
 
 ---
 
+## Action Message Tracking
+
+### Redux DevTools Correlation
+
+**Standard**: Use action message identifiers to correlate related store operations in Redux DevTools for better debugging and operational visibility.
+
+**Purpose**: When a single store method performs multiple state mutations through helper functions, the action message creates a unique identifier that allows you to see which Redux DevTools actions belong to the same logical operation.
+
+**Implementation Pattern**:
+
+```typescript
+import { createAction } from '@teensyrom-nx/utils';
+
+export function storageMethod(store: WritableStore<StateType>, service: ServiceType) {
+  return {
+    methodName: async ({ param }: { param: ParamType }): Promise<void> => {
+      // 1. Create unique action message at start of operation
+      const actionMessage = createAction('method-name');
+
+      // 2. Pass action message to all helper functions
+      setLoadingState(store, key, actionMessage);
+
+      try {
+        const result = await firstValueFrom(service.operation(param));
+
+        // 3. Continue passing action message through operation
+        setSuccessState(store, key, result, actionMessage);
+        updateRelatedData(store, relatedKey, data, actionMessage);
+      } catch (error) {
+        setErrorState(store, key, error.message, actionMessage);
+      }
+    },
+  };
+}
+```
+
+**Real-World Example** from [`navigate-to-directory.ts`](../libs/domain/storage/state/src/lib/actions/navigate-to-directory.ts):
+
+```typescript
+export function navigateToDirectory(
+  store: WritableStore<StorageState>,
+  storageService: IStorageService
+) {
+  return {
+    navigateToDirectory: async ({ deviceId, storageType, path }) => {
+      const actionMessage = createAction('navigate-to-directory');
+      const key = StorageKeyUtil.create(deviceId, storageType);
+
+      // All helper calls use the same action message
+      if (!isSelectedDirectory(store, deviceId, storageType, path)) {
+        setDeviceSelectedDirectory(store, deviceId, storageType, path, actionMessage);
+      }
+
+      setLoadingStorage(store, key, actionMessage);
+
+      try {
+        const directory = await firstValueFrom(
+          storageService.getDirectory(deviceId, storageType, path)
+        );
+        setStorageLoaded(store, key, { currentPath: path, directory }, actionMessage);
+      } catch (error) {
+        updateStorage(
+          store,
+          key,
+          {
+            /* error state */
+          },
+          actionMessage
+        );
+      }
+    },
+  };
+}
+```
+
+**Benefits**:
+
+- **Debugging**: In Redux DevTools, all actions show `[method-name] [1234]` making it easy to see which actions are related
+- **Operation Tracking**: Random number helps distinguish between multiple calls to the same method
+- **State Flow Visibility**: Clear correlation between logical operations and their state mutations
+- **Performance Analysis**: Easy to measure time between start and completion of complex operations
+
+**Requirements**:
+
+- Import `createAction` from `@teensyrom-nx/utils`
+- Create action message at the start of each store method using descriptive method name
+- Pass action message as the final parameter to all helper functions that perform state mutations
+- Use kebab-case naming that matches the method name (e.g., `'navigate-to-directory'`, `'initialize-storage'`)
+
+**Action Message Utility**: See [`store-helper.ts`](../libs/utils/src/lib/store-helper.ts) for the `createAction()` implementation that generates unique identifiers with random numbers.
+
+---
+
 ## Helper Utilities
 
 ### State Mutation Helpers
@@ -549,7 +646,17 @@ export function isDirectoryLoadedAtPath(
 export type WritableStore<T extends object> = StateSignals<T> & WritableStateSource<T>;
 ```
 
-4. **Logging Helpers**:
+4. **Action Message Helpers**:
+
+```typescript
+// Action message creation for Redux DevTools correlation
+export function createAction(message: string): string {
+  const randomInt = Math.floor(Math.random() * 10000);
+  return `${message} [${randomInt}]`;
+}
+```
+
+5. **Logging Helpers**:
 
 ```typescript
 export enum LogType {
@@ -581,22 +688,23 @@ export function logInfo(operation: LogType, message: string, data?: unknown): vo
 ```typescript
 // actions/load-data.ts
 import { setLoadingStorage, setStorageLoaded, setStorageError } from '../domain-helpers';
-import { LogType, logInfo } from '@teensyrom-nx/utils';
+import { LogType, logInfo, createAction } from '@teensyrom-nx/utils';
 
 export function loadData(store: WritableStore<DomainState>, service: DomainService) {
   return {
     loadData: async ({ id }: { id: string }): Promise<void> => {
+      const actionMessage = createAction('load-data');
       const key = createKey(id);
 
       logInfo(LogType.Start, `Loading data for ${key}`);
-      setLoadingStorage(store, key);
+      setLoadingStorage(store, key, actionMessage);
 
       try {
         const data = await firstValueFrom(service.getData(id));
         logInfo(LogType.Success, `Data loaded for ${key}`);
-        setStorageLoaded(store, key, { data });
+        setStorageLoaded(store, key, { data }, actionMessage);
       } catch (error) {
-        setStorageError(store, key, error.message || 'Failed to load data');
+        setStorageError(store, key, error.message || 'Failed to load data', actionMessage);
       }
     },
   };

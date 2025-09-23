@@ -17,7 +17,7 @@ import {
   setStorageLoaded,
   setStorageError,
 } from '../storage-helpers';
-import { LogType, logInfo, logError } from '@teensyrom-nx/utils';
+import { LogType, logInfo, logError, createAction } from '@teensyrom-nx/utils';
 
 export function initializeStorage(
   store: WritableStore<StorageState>,
@@ -31,11 +31,12 @@ export function initializeStorage(
       deviceId: string;
       storageType: StorageType;
     }): Promise<void> => {
+      const actionMessage = createAction('initialize-storage');
       const key = StorageKeyUtil.create(deviceId, storageType);
 
       logInfo(LogType.Start, `Starting async initialization for ${key}`);
 
-      setDeviceSelectedDirectory(store, deviceId, storageType, '/');
+      setDeviceSelectedDirectory(store, deviceId, storageType, '/', actionMessage);
 
       const existingEntry = getStorage(store, key);
 
@@ -45,13 +46,18 @@ export function initializeStorage(
       }
 
       if (!existingEntry) {
-        createStorage(store, deviceId, storageType, '/');
+        createStorage(store, deviceId, storageType, '/', actionMessage);
       } else {
-        updateStorage(store, key, {
-          currentPath: '/',
-          isLoading: true,
-          error: null,
-        });
+        updateStorage(
+          store,
+          key,
+          {
+            currentPath: '/',
+            isLoading: true,
+            error: null,
+          },
+          actionMessage
+        );
       }
 
       try {
@@ -63,10 +69,15 @@ export function initializeStorage(
 
         logInfo(LogType.Success, `API call successful for ${key}:`, directory);
 
-        setStorageLoaded(store, key, {
-          currentPath: '/',
-          directory,
-        });
+        setStorageLoaded(
+          store,
+          key,
+          {
+            currentPath: '/',
+            directory,
+          },
+          actionMessage
+        );
 
         logInfo(LogType.Finish, `Initialization completed for ${key}`);
       } catch (error) {
@@ -75,7 +86,8 @@ export function initializeStorage(
         setStorageError(
           store,
           key,
-          error instanceof Error ? error.message : 'Failed to initialize storage'
+          error instanceof Error ? error.message : 'Failed to initialize storage',
+          actionMessage
         );
       }
     },

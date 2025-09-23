@@ -1,15 +1,16 @@
-import { patchState } from '@ngrx/signals';
 import { StorageState } from '../storage-store';
 import { StorageKeyUtil, type StorageKey } from '../storage-key.util';
 import { WritableStore } from '../storage-helpers';
-import { LogType, logInfo } from '@teensyrom-nx/utils';
+import { LogType, createAction, logInfo } from '@teensyrom-nx/utils';
+import { updateState } from '@angular-architects/ngrx-toolkit';
 
 export function removeAllStorage(store: WritableStore<StorageState>) {
   return {
     removeAllStorage: ({ deviceId }: { deviceId: string }) => {
+      const actionMessage = createAction('remove-all-storage');
       logInfo(LogType.Cleanup, `Cleaning up all storage entries for device: ${deviceId}`);
 
-      patchState(store, (state) => {
+      updateState(store, actionMessage, (state) => {
         const updatedSelectedDirectories = { ...state.selectedDirectories };
         const updatedEntries = { ...state.storageEntries };
 

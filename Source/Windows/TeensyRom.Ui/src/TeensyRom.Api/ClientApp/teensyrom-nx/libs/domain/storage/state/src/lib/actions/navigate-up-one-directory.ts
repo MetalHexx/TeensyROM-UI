@@ -10,7 +10,7 @@ import {
   setStorageLoaded,
   updateStorage,
 } from '../storage-helpers';
-import { LogType, logInfo, logError, logWarn } from '@teensyrom-nx/utils';
+import { LogType, logInfo, logError, logWarn, createAction } from '@teensyrom-nx/utils';
 
 export function navigateUpOneDirectory(
   store: WritableStore<StorageState>,
@@ -24,6 +24,7 @@ export function navigateUpOneDirectory(
       deviceId: string;
       storageType: StorageType;
     }): Promise<void> => {
+      const actionMessage = createAction('navigate-up-one-directory');
       const key = StorageKeyUtil.create(deviceId, storageType);
       const entry = getStorage(store, key);
 
@@ -43,7 +44,7 @@ export function navigateUpOneDirectory(
       logInfo(LogType.Navigate, `Navigating up from ${currentPath} to ${parentPath} for ${key}`);
 
       if (!isSelectedDirectory(store, deviceId, storageType, parentPath)) {
-        setDeviceSelectedDirectory(store, deviceId, storageType, parentPath);
+        setDeviceSelectedDirectory(store, deviceId, storageType, parentPath, actionMessage);
       }
       try {
         const directory = await firstValueFrom(
@@ -52,22 +53,32 @@ export function navigateUpOneDirectory(
 
         logInfo(LogType.Success, `Navigate up successful for ${key}:`, directory);
 
-        setStorageLoaded(store, key, {
-          currentPath: parentPath,
-          directory,
-        });
+        setStorageLoaded(
+          store,
+          key,
+          {
+            currentPath: parentPath,
+            directory,
+          },
+          actionMessage
+        );
 
         logInfo(LogType.Finish, `Navigate up completed for ${key} to path: ${parentPath}`);
       } catch (error) {
         logError(`Navigate up failed for ${key} to path ${parentPath}:`, error);
 
-        updateStorage(store, key, {
-          currentPath: parentPath,
-          directory: null,
-          isLoaded: false,
-          isLoading: false,
-          error: 'Failed to navigate up one directory',
-        });
+        updateStorage(
+          store,
+          key,
+          {
+            currentPath: parentPath,
+            directory: null,
+            isLoaded: false,
+            isLoading: false,
+            error: 'Failed to navigate up one directory',
+          },
+          actionMessage
+        );
       }
     },
   };
