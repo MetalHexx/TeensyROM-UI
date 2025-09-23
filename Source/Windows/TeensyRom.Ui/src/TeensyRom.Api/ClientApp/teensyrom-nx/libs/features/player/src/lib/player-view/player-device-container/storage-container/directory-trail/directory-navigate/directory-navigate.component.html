@@ -2,6 +2,7 @@
   <lib-icon-button
     icon="arrow_back"
     ariaLabel="Back"
+    size="large"
     [disabled]="true"
     (buttonClick)="onBackClick()"
   />
@@ -9,6 +10,7 @@
   <lib-icon-button
     icon="arrow_forward"
     ariaLabel="Forward"
+    size="large"
     [disabled]="true"
     (buttonClick)="onForwardClick()"
   />
@@ -16,6 +18,7 @@
   <lib-icon-button
     icon="arrow_upward"
     ariaLabel="Up"
+    size="large"
     [disabled]="!canNavigateUp()"
     (buttonClick)="onUpClick()"
   />
@@ -23,6 +26,7 @@
   <lib-icon-button
     icon="refresh"
     ariaLabel="Refresh"
+    size="large"
     [disabled]="isLoading()"
     (buttonClick)="onRefreshClick()"
   />
