@@ -568,6 +568,97 @@ export class MyComponent {
 
 ## Display Components
 
+### `StyledIconComponent`
+
+**Purpose**: A reusable styled icon component that displays Material Design icons with consistent sizing and semantic coloring from the design system.
+
+**Selector**: `lib-styled-icon`
+
+**Properties**:
+
+- `icon` (required): `string` - Material Design icon name to display
+- `color` (optional): `'normal' | 'primary' | 'highlight' | 'success' | 'error' | 'dimmed' | 'directory'` - Semantic color variant from design system - defaults to 'normal'
+- `size` (optional): `'small' | 'medium' | 'large'` - Size variant - defaults to 'medium'
+
+**Usage Examples**:
+
+```html
+<!-- Directory icon with directory color (yellow/gold) -->
+<lib-styled-icon icon="folder" color="directory" size="medium"> </lib-styled-icon>
+
+<!-- Device icon with primary color -->
+<lib-styled-icon icon="devices" color="primary" size="large"> </lib-styled-icon>
+
+<!-- Storage type icon with highlight color -->
+<lib-styled-icon icon="sd_card" color="highlight"> </lib-styled-icon>
+
+<!-- Success icon with success color -->
+<lib-styled-icon icon="check_circle" color="success" size="small"> </lib-styled-icon>
+
+<!-- Error icon with error color -->
+<lib-styled-icon icon="error" color="error"> </lib-styled-icon>
+
+<!-- Simple icon without color -->
+<lib-styled-icon icon="info"> </lib-styled-icon>
+```
+
+**Advanced Usage Patterns**:
+
+```html
+<!-- Directory listing with styled icons -->
+@for (item of directoryItems; track item.id) {
+<div class="directory-item">
+  @if (item.isDirectory) {
+  <lib-styled-icon icon="folder" color="directory" size="medium"></lib-styled-icon>
+  } @else {
+  <lib-styled-icon icon="insert_drive_file" color="normal" size="medium"></lib-styled-icon>
+  }
+  <span>{{ item.name }}</span>
+</div>
+}
+
+<!-- Navigation tree with different icon types -->
+<lib-styled-icon [icon]="nodeIcon()" [color]="nodeColor()" [size]="nodeSize()"></lib-styled-icon>
+```
+
+**Style Integration**:
+
+The component automatically maps to design system colors and global style classes from [STYLE_GUIDE.md](STYLE_GUIDE.md#styled-icon-classes):
+
+- **Size Mapping**:
+
+  - `small` → [`.styled-icon-small`](STYLE_GUIDE.md#styled-icon-classes) (16px font, 14px dimensions)
+  - `medium` → [`.styled-icon-medium`](STYLE_GUIDE.md#styled-icon-classes) (24px font, 20px dimensions - matches directory tree icons)
+  - `large` → [`.styled-icon-large`](STYLE_GUIDE.md#styled-icon-classes) (32px font, 28px dimensions)
+
+- **Color Mapping** (references design system CSS variables):
+  - `normal` → Default Material icon color
+  - `primary` → [`.styled-icon-primary`](STYLE_GUIDE.md#styled-icon-classes) (uses `--color-primary-bright`)
+  - `highlight` → [`.styled-icon-highlight`](STYLE_GUIDE.md#styled-icon-classes) (uses `--color-highlight`)
+  - `success` → [`.styled-icon-success`](STYLE_GUIDE.md#styled-icon-classes) (uses `--color-success`)
+  - `error` → [`.styled-icon-error`](STYLE_GUIDE.md#styled-icon-classes) (uses `--color-error`)
+  - `dimmed` → [`.styled-icon-dimmed`](STYLE_GUIDE.md#styled-icon-classes) (uses `--color-dimmed`)
+  - `directory` → [`.styled-icon-directory`](STYLE_GUIDE.md#styled-icon-classes) (uses `--color-directory`)
+
+**Type Safety**:
+
+```typescript
+import { StyledIconSize, StyledIconColor } from '@teensyrom-nx/ui/components';
+
+export class MyComponent {
+  iconSize: StyledIconSize = 'medium';
+  iconColor: StyledIconColor = 'directory';
+}
+```
+
+**Best Practice**: Use for all standalone icon displays throughout the application to maintain consistent sizing and semantic coloring. Ideal for directory listings, file browsers, navigation trees, and any context where icons need standardized appearance.
+
+**Used In**:
+
+- Directory tree components for folder/device/storage icons
+- File listing components for file type icons
+- Navigation components for visual indicators
+
 ### `IconLabelComponent`
 
 **Purpose**: A simple component that displays an icon alongside text in a consistent layout pattern.
@@ -727,6 +818,7 @@ import { CardLayoutComponent } from '@teensyrom-nx/ui/components';
 import { CompactCardLayoutComponent } from '@teensyrom-nx/ui/components';
 import { InputFieldComponent } from '@teensyrom-nx/ui/components';
 import { IconButtonComponent } from '@teensyrom-nx/ui/components';
+import { StyledIconComponent } from '@teensyrom-nx/ui/components';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
 import { StatusIconLabelComponent } from '@teensyrom-nx/ui/components';
 import { MenuItemComponent } from '@teensyrom-nx/ui/components';
@@ -738,6 +830,7 @@ import { MenuItemComponent } from '@teensyrom-nx/ui/components';
     CompactCardLayoutComponent,
     InputFieldComponent,
     IconButtonComponent,
+    StyledIconComponent,
     IconLabelComponent,
     StatusIconLabelComponent,
     MenuItemComponent,

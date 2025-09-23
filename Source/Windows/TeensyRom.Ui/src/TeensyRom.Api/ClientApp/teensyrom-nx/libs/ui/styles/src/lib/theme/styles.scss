@@ -286,6 +286,60 @@ mat-card-title {
   }
 }
 
+.styled-icon-small {
+  font-size: 16px;
+  line-height: 1;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.styled-icon-medium {
+  font-size: 24px;
+  line-height: 1;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.styled-icon-large {
+  font-size: 32px;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.styled-icon-primary {
+  color: var(--color-primary-bright);
+}
+
+.styled-icon-highlight {
+  color: var(--color-highlight);
+}
+
+.styled-icon-success {
+  color: var(--color-success);
+}
+
+.styled-icon-error {
+  color: var(--color-error);
+}
+
+.styled-icon-dimmed {
+  color: var(--color-dimmed);
+}
+
+.styled-icon-directory {
+  color: var(--color-directory);
+}
+
 .glassy-dialog {
   .mat-mdc-dialog-container {
     @extend .glassy;

@@ -7,3 +7,4 @@ export * from './lib/compact-card-layout/compact-card-layout.component';
 export * from './lib/input-field/input-field.component';
 export * from './lib/icon-button/icon-button.component';
 export * from './lib/action-button/action-button.component';
+export * from './lib/styled-icon/styled-icon.component';

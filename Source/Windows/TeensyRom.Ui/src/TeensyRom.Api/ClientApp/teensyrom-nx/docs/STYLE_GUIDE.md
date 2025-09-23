@@ -315,6 +315,78 @@ Available color variables for semantic styling:
 
 **Best Practice:** Use these semantic icon classes instead of hardcoded colors to ensure proper theme support and consistent visual language.
 
+#### Styled Icon Classes
+
+**Purpose**: Size and color styling for the [StyledIconComponent](COMPONENT_LIBRARY.md#stylediconcomponent)
+
+**Size Classes**:
+
+```scss
+.styled-icon-small {
+  font-size: 16px;
+  width: 14px;
+  height: 14px;
+}
+
+.styled-icon-medium {
+  font-size: 24px;
+  width: 20px;
+  height: 20px;
+}
+
+.styled-icon-large {
+  font-size: 32px;
+  width: 28px;
+  height: 28px;
+}
+```
+
+**Color Classes**:
+
+```scss
+.styled-icon-primary {
+  color: var(--color-primary-bright);
+}
+
+.styled-icon-highlight {
+  color: var(--color-highlight);
+}
+
+.styled-icon-success {
+  color: var(--color-success);
+}
+
+.styled-icon-error {
+  color: var(--color-error);
+}
+
+.styled-icon-dimmed {
+  color: var(--color-dimmed);
+}
+
+.styled-icon-directory {
+  color: var(--color-directory);
+}
+```
+
+**Usage Example**:
+
+```html
+<!-- Via StyledIconComponent (preferred) -->
+<lib-styled-icon icon="folder" color="directory" size="medium"> </lib-styled-icon>
+
+<!-- Direct class usage (advanced) -->
+<mat-icon class="styled-icon-medium styled-icon-directory">folder</mat-icon>
+```
+
+**Used In**:
+
+- [StyledIconComponent](COMPONENT_LIBRARY.md#stylediconcomponent) - Automatically applied based on `size` and `color` props
+- Directory tree components for folder/device/storage icons
+- File listing components for file type icons
+
+**Best Practice:** Use [StyledIconComponent](COMPONENT_LIBRARY.md#stylediconcomponent) instead of applying these classes directly. The component provides type safety, proper defaults, and automatic class application based on semantic props.
+
 #### Action Button Color Classes
 
 **Purpose**: Bridge design tokens to Material button styling for ActionButtonComponent
