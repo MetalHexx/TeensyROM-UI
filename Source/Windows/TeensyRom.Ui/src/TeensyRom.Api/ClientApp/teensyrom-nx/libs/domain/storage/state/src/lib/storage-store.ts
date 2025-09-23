@@ -5,7 +5,6 @@ import { StorageDirectory } from '@teensyrom-nx/domain/storage/services';
 import { withStorageActions } from './actions';
 import { withStorageSelectors } from './selectors';
 
-// State interfaces
 export interface StorageDirectoryState {
   deviceId: string;
   storageType: StorageType;
@@ -23,18 +22,33 @@ export interface SelectedDirectory {
   path: string;
 }
 
+export interface NavigationHistoryItem {
+  path: string;
+  storageType: StorageType;
+}
+
+export class NavigationHistory {
+  history: NavigationHistoryItem[] = [];
+  currentIndex = -1;
+  maxHistorySize: number;
+
+  constructor(maxHistorySize = 50) {
+    this.maxHistorySize = maxHistorySize;
+  }
+}
+
 export interface StorageState {
   storageEntries: Record<string, StorageDirectoryState>; // key: "${deviceId}-${storageType}"
   selectedDirectories: Record<string, SelectedDirectory>; // key: deviceId - Per-device selection state
+  navigationHistory: Record<string, NavigationHistory>; // key: deviceId - Navigation history per device
 }
 
-// Initial state
 const initialState: StorageState = {
   storageEntries: {},
   selectedDirectories: {},
+  navigationHistory: {},
 };
 
-// Store definition
 export const StorageStore = signalStore(
   { providedIn: 'root' },
   withDevtools('storage'),

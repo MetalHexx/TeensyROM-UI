@@ -31,9 +31,18 @@ describe('DirectoryTrailComponent', () => {
           storageType: 'SD',
           path: '/games/arcade',
         }),
+        navigationHistory: () => ({
+          'test-device': {
+            history: ['/', '/games', '/games/arcade'],
+            currentIndex: 2,
+            maxHistorySize: 50,
+          },
+        }),
         navigateUpOneDirectory: vi.fn(),
         refreshDirectory: vi.fn(),
         navigateToDirectory: vi.fn(),
+        navigateDirectoryBackward: vi.fn(),
+        navigateDirectoryForward: vi.fn(),
       };
 
       await TestBed.configureTestingModule({
@@ -91,6 +100,14 @@ describe('DirectoryTrailComponent', () => {
       expect(component.isLoading()).toBe(false);
     });
 
+    it('should compute canNavigateBack based on navigation history', () => {
+      expect(component.canNavigateBack()).toBe(true); // currentIndex = 2, can go back
+    });
+
+    it('should compute canNavigateForward based on navigation history', () => {
+      expect(component.canNavigateForward()).toBe(false); // currentIndex = 2, at end of history
+    });
+
     it('should call store navigateUpOneDirectory on up click', () => {
       component.onUpClick();
 
@@ -119,20 +136,76 @@ describe('DirectoryTrailComponent', () => {
       });
     });
 
-    it('should log back click when not implemented', () => {
-      const consoleSpy = vi.spyOn(console, 'log');
-
+    it('should call store navigateDirectoryBackward on back click when can navigate back', () => {
       component.onBackClick();
 
-      expect(consoleSpy).toHaveBeenCalledWith('Back clicked - not implemented');
+      expect(mockStorageStore.navigateDirectoryBackward).toHaveBeenCalledWith({
+        deviceId: 'test-device',
+      });
+    });
+  });
+
+  describe('Forward Navigation', () => {
+    let mockStorageStore: any;
+
+    beforeEach(async () => {
+      // Create mock storage store with forward navigation enabled
+      mockStorageStore = {
+        getSelectedDirectoryState: () => () => ({
+          currentPath: '/games',
+          isLoading: false,
+          deviceId: 'test-device',
+          storageType: 'SD',
+          directory: null,
+          isLoaded: true,
+          error: null,
+          lastLoadTime: Date.now(),
+        }),
+        getSelectedDirectoryForDevice: () => ({
+          deviceId: 'test-device',
+          storageType: 'SD',
+          path: '/games',
+        }),
+        navigationHistory: () => ({
+          'test-device': {
+            history: ['/', '/games', '/games/arcade'],
+            currentIndex: 1, // Can go forward to /games/arcade
+            maxHistorySize: 50,
+          },
+        }),
+        navigateUpOneDirectory: vi.fn(),
+        refreshDirectory: vi.fn(),
+        navigateToDirectory: vi.fn(),
+        navigateDirectoryBackward: vi.fn(),
+        navigateDirectoryForward: vi.fn(),
+      };
+
+      await TestBed.configureTestingModule({
+        imports: [
+          DirectoryTrailComponent,
+          CompactCardLayoutComponent,
+          DirectoryNavigateComponent,
+          DirectoryBreadcrumbComponent,
+        ],
+        providers: [{ provide: StorageStore, useValue: mockStorageStore }],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(DirectoryTrailComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput('deviceId', 'test-device');
+      fixture.detectChanges();
     });
 
-    it('should log forward click when not implemented', () => {
-      const consoleSpy = vi.spyOn(console, 'log');
-
+    it('should call store navigateDirectoryForward on forward click when can navigate forward', () => {
       component.onForwardClick();
 
-      expect(consoleSpy).toHaveBeenCalledWith('Forward clicked - not implemented');
+      expect(mockStorageStore.navigateDirectoryForward).toHaveBeenCalledWith({
+        deviceId: 'test-device',
+      });
+    });
+
+    it('should compute canNavigateForward correctly when in middle of history', () => {
+      expect(component.canNavigateForward()).toBe(true);
     });
   });
 
@@ -143,9 +216,12 @@ describe('DirectoryTrailComponent', () => {
       mockStorageStore = {
         getSelectedDirectoryState: () => () => null,
         getSelectedDirectoryForDevice: () => null,
+        navigationHistory: () => ({}),
         navigateUpOneDirectory: vi.fn(),
         refreshDirectory: vi.fn(),
         navigateToDirectory: vi.fn(),
+        navigateDirectoryBackward: vi.fn(),
+        navigateDirectoryForward: vi.fn(),
       };
 
       await TestBed.configureTestingModule({
@@ -193,6 +269,26 @@ describe('DirectoryTrailComponent', () => {
 
       expect(mockStorageStore.navigateToDirectory).not.toHaveBeenCalled();
     });
+
+    it('should return false for canNavigateBack when no navigation history', () => {
+      expect(component.canNavigateBack()).toBe(false);
+    });
+
+    it('should return false for canNavigateForward when no navigation history', () => {
+      expect(component.canNavigateForward()).toBe(false);
+    });
+
+    it('should not call store navigateDirectoryBackward when cannot navigate back', () => {
+      component.onBackClick();
+
+      expect(mockStorageStore.navigateDirectoryBackward).not.toHaveBeenCalled();
+    });
+
+    it('should not call store navigateDirectoryForward when cannot navigate forward', () => {
+      component.onForwardClick();
+
+      expect(mockStorageStore.navigateDirectoryForward).not.toHaveBeenCalled();
+    });
   });
 
   describe('USB Storage Type', () => {
@@ -215,9 +311,14 @@ describe('DirectoryTrailComponent', () => {
           storageType: 'USB',
           path: '/files',
         }),
+        navigationHistory: () => ({
+          'test-device': { history: ['/files'], currentIndex: 0, maxHistorySize: 50 },
+        }),
         navigateUpOneDirectory: vi.fn(),
         refreshDirectory: vi.fn(),
         navigateToDirectory: vi.fn(),
+        navigateDirectoryBackward: vi.fn(),
+        navigateDirectoryForward: vi.fn(),
       };
 
       await TestBed.configureTestingModule({
@@ -261,9 +362,14 @@ describe('DirectoryTrailComponent', () => {
           storageType: 'SD',
           path: '/',
         }),
+        navigationHistory: () => ({
+          'test-device': { history: ['/'], currentIndex: 0, maxHistorySize: 50 },
+        }),
         navigateUpOneDirectory: vi.fn(),
         refreshDirectory: vi.fn(),
         navigateToDirectory: vi.fn(),
+        navigateDirectoryBackward: vi.fn(),
+        navigateDirectoryForward: vi.fn(),
       };
 
       await TestBed.configureTestingModule({
@@ -307,9 +413,14 @@ describe('DirectoryTrailComponent', () => {
           storageType: 'SD',
           path: '/games',
         }),
+        navigationHistory: () => ({
+          'test-device': { history: ['/games'], currentIndex: 0, maxHistorySize: 50 },
+        }),
         navigateUpOneDirectory: vi.fn(),
         refreshDirectory: vi.fn(),
         navigateToDirectory: vi.fn(),
+        navigateDirectoryBackward: vi.fn(),
+        navigateDirectoryForward: vi.fn(),
       };
 
       await TestBed.configureTestingModule({
@@ -361,9 +472,18 @@ describe('DirectoryTrailComponent', () => {
           storageType: 'SD',
           path: '/games/arcade',
         }),
+        navigationHistory: () => ({
+          'test-device': {
+            history: ['/', '/games', '/games/arcade'],
+            currentIndex: 2,
+            maxHistorySize: 50,
+          },
+        }),
         navigateUpOneDirectory: vi.fn(),
         refreshDirectory: vi.fn(),
         navigateToDirectory: vi.fn(),
+        navigateDirectoryBackward: vi.fn(),
+        navigateDirectoryForward: vi.fn(),
       };
 
       await TestBed.configureTestingModule({
@@ -388,6 +508,8 @@ describe('DirectoryTrailComponent', () => {
       )?.componentInstance;
 
       expect(navigateComponent?.canNavigateUp()).toBe(true);
+      expect(navigateComponent?.canNavigateBack()).toBe(true);
+      expect(navigateComponent?.canNavigateForward()).toBe(false);
       expect(navigateComponent?.isLoading()).toBe(false);
     });
 

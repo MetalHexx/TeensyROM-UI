@@ -54,20 +54,35 @@ export class DirectoryTrailComponent {
     return path !== '/' && path !== '';
   });
 
+  canNavigateBack = computed(() => {
+    const deviceId = this.deviceId();
+    const history = this.storageStore.navigationHistory()[deviceId];
+    return !!(history && history.currentIndex > 0);
+  });
+
+  canNavigateForward = computed(() => {
+    const deviceId = this.deviceId();
+    const history = this.storageStore.navigationHistory()[deviceId];
+    return !!(history && history.currentIndex < history.history.length - 1);
+  });
+
   isLoading = computed(() => {
     const state = this.selectedDirectoryState();
     return state?.isLoading ?? false;
   });
 
-  // Event handlers
   onBackClick(): void {
-    // Back functionality not implemented yet
-    console.log('Back clicked - not implemented');
+    const deviceId = this.deviceId();
+    if (this.canNavigateBack()) {
+      this.storageStore.navigateDirectoryBackward({ deviceId });
+    }
   }
 
   onForwardClick(): void {
-    // Forward functionality not implemented yet
-    console.log('Forward clicked - not implemented');
+    const deviceId = this.deviceId();
+    if (this.canNavigateForward()) {
+      this.storageStore.navigateDirectoryForward({ deviceId });
+    }
   }
 
   onUpClick(): void {

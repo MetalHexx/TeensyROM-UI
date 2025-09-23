@@ -3,7 +3,7 @@
     icon="arrow_back"
     ariaLabel="Back"
     size="large"
-    [disabled]="true"
+    [disabled]="!canNavigateBack()"
     (buttonClick)="onBackClick()"
   />
 
@@ -11,7 +11,7 @@
     icon="arrow_forward"
     ariaLabel="Forward"
     size="large"
-    [disabled]="true"
+    [disabled]="!canNavigateForward()"
     (buttonClick)="onForwardClick()"
   />
 

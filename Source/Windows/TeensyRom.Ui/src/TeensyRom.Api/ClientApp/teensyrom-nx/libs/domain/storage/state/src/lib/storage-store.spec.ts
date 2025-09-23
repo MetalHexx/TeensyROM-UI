@@ -7,7 +7,12 @@ import {
   platformBrowserDynamicTesting,
 } from '@angular/platform-browser-dynamic/testing';
 
-import { StorageStore, StorageDirectoryState, SelectedDirectory } from './storage-store';
+import {
+  StorageStore,
+  StorageDirectoryState,
+  SelectedDirectory,
+  NavigationHistory,
+} from './storage-store';
 import {
   StorageDirectory,
   StorageType,
@@ -24,6 +29,7 @@ type StorageStoreInstance = {
   // state getters
   storageEntries: () => Record<string, StorageDirectoryState>;
   selectedDirectories: () => Record<string, SelectedDirectory>;
+  navigationHistory: () => Record<string, NavigationHistory>;
   // async methods
   initializeStorage: (args: { deviceId: string; storageType: StorageType }) => Promise<void>;
   navigateToDirectory: (args: {
@@ -31,6 +37,8 @@ type StorageStoreInstance = {
     storageType: StorageType;
     path: string;
   }) => Promise<void>;
+  navigateDirectoryBackward: (args: { deviceId: string }) => Promise<void>;
+  navigateDirectoryForward: (args: { deviceId: string }) => Promise<void>;
   refreshDirectory: (args: { deviceId: string; storageType: StorageType }) => Promise<void>;
   removeAllStorage: (args: { deviceId: string }) => void;
   removeStorage: (args: { deviceId: string; storageType: StorageType }) => void;
@@ -101,11 +109,14 @@ describe('StorageStore (NgRx Signal Store)', () => {
     it('should initialize with expected initial state', () => {
       expect(store.storageEntries()).toEqual({});
       expect(store.selectedDirectories()).toEqual({});
+      expect(store.navigationHistory()).toEqual({});
     });
 
     it('should expose expected methods on the store', () => {
       expect(typeof store.initializeStorage).toBe('function');
       expect(typeof store.navigateToDirectory).toBe('function');
+      expect(typeof store.navigateDirectoryBackward).toBe('function');
+      expect(typeof store.navigateDirectoryForward).toBe('function');
       expect(typeof store.refreshDirectory).toBe('function');
       expect(typeof store.removeAllStorage).toBe('function');
       expect(typeof store.removeStorage).toBe('function');
@@ -470,6 +481,223 @@ describe('StorageStore (NgRx Signal Store)', () => {
   });
 
   // -----------------------------------------
+  // navigateDirectoryBackward() - Browser-like Back Navigation
+  // -----------------------------------------
+  describe('navigateDirectoryBackward()', () => {
+    const deviceId = 'device-1';
+    const storageType = StorageType.Sd;
+
+    beforeEach(async () => {
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+      getDirectoryMock.mockClear();
+    });
+
+    it('is a no-op when already at beginning of history (currentIndex <= 0)', async () => {
+      // After initialization, we're at root (index 0) so can't go back
+      await store.navigateDirectoryBackward({ deviceId });
+      expect(getDirectoryMock).not.toHaveBeenCalled();
+    });
+
+    it('navigates backward in history correctly', async () => {
+      // Build history: root -> games -> music
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
+
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/music')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/music' });
+
+      // Now history should be: ['/', '/games', '/music'] with currentIndex = 2
+      const historyBefore = store.navigationHistory()[deviceId];
+      expect(historyBefore.history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/games', storageType: StorageType.Sd },
+        { path: '/music', storageType: StorageType.Sd },
+      ]);
+      expect(historyBefore.currentIndex).toBe(2);
+
+      getDirectoryMock.mockClear();
+
+      // Navigate backward (music -> games)
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateDirectoryBackward({ deviceId });
+
+      // Should have called API to load /games and updated history index
+      expect(getDirectoryMock).toHaveBeenCalledWith(deviceId, storageType, '/games');
+      expect(store.selectedDirectories()[deviceId].path).toBe('/games');
+
+      const historyAfter = store.navigationHistory()[deviceId];
+      expect(historyAfter.history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/games', storageType: StorageType.Sd },
+        { path: '/music', storageType: StorageType.Sd },
+      ]);
+      expect(historyAfter.currentIndex).toBe(1);
+    });
+
+    it('makes API call to load target directory (cache miss)', async () => {
+      // Build history and navigate to ensure navigation history is populated
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
+
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/music')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/music' });
+
+      // Verify current storage state
+      const key = StorageKeyUtil.create(deviceId, storageType);
+      const cachedEntry = store.storageEntries()[key];
+      expect(cachedEntry).toBeDefined();
+      expect(cachedEntry.directory?.path).toBe('/music'); // Currently at /music
+
+      getDirectoryMock.mockClear();
+
+      // Navigate backward to /games - needs API call since only current directory is cached
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateDirectoryBackward({ deviceId });
+
+      expect(getDirectoryMock).toHaveBeenCalledWith(deviceId, storageType, '/games');
+      expect(store.selectedDirectories()[deviceId].path).toBe('/games');
+    });
+
+    it('handles API error gracefully when loading target directory', async () => {
+      // Build history
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
+
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/music')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/music' });
+
+      getDirectoryMock.mockClear();
+
+      // Clear cache to force API call, then mock error
+      const key = StorageKeyUtil.create(deviceId, storageType);
+      store.removeStorage({ deviceId, storageType });
+
+      getDirectoryMock.mockReturnValue(throwError(() => new Error('Network error')));
+      await store.navigateDirectoryBackward({ deviceId });
+
+      // Should set error and update history index still
+      expect(store.storageEntries()[key]?.error).toBe('Failed to load directory from history');
+      expect(store.navigationHistory()[deviceId].currentIndex).toBe(1);
+    });
+
+    it('handles missing current selection gracefully', async () => {
+      await store.navigateDirectoryBackward({ deviceId: 'non-existent' });
+      expect(getDirectoryMock).not.toHaveBeenCalled();
+    });
+  });
+
+  // -----------------------------------------
+  // navigateDirectoryForward() - Browser-like Forward Navigation
+  // -----------------------------------------
+  describe('navigateDirectoryForward()', () => {
+    const deviceId = 'device-1';
+    const storageType = StorageType.Sd;
+
+    beforeEach(async () => {
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+      getDirectoryMock.mockClear();
+    });
+
+    it('is a no-op when already at end of history', async () => {
+      // After initialization, we only have root so can't go forward
+      await store.navigateDirectoryForward({ deviceId });
+      expect(getDirectoryMock).not.toHaveBeenCalled();
+    });
+
+    it('navigates forward in history correctly', async () => {
+      // Build history: root -> games -> music
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
+
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/music')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/music' });
+
+      // Go back once (music -> games)
+      await store.navigateDirectoryBackward({ deviceId });
+
+      // Now history: ['/', '/games', '/music'] with currentIndex = 1 (at /games)
+      const historyBefore = store.navigationHistory()[deviceId];
+      expect(historyBefore.history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/games', storageType: StorageType.Sd },
+        { path: '/music', storageType: StorageType.Sd },
+      ]);
+      expect(historyBefore.currentIndex).toBe(1);
+
+      getDirectoryMock.mockClear();
+
+      // Navigate forward (games -> music)
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/music')));
+      await store.navigateDirectoryForward({ deviceId });
+
+      // Should have called API to load /music and updated history index
+      expect(getDirectoryMock).toHaveBeenCalledWith(deviceId, storageType, '/music');
+      expect(store.selectedDirectories()[deviceId].path).toBe('/music');
+
+      const historyAfter = store.navigationHistory()[deviceId];
+      expect(historyAfter.history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/games', storageType: StorageType.Sd },
+        { path: '/music', storageType: StorageType.Sd },
+      ]);
+      expect(historyAfter.currentIndex).toBe(2);
+    });
+
+    it('makes API call to load target directory (cache miss)', async () => {
+      // Build history and cache
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
+
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/music')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/music' });
+
+      // Go back to create forward opportunity
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateDirectoryBackward({ deviceId });
+
+      getDirectoryMock.mockClear();
+
+      // Navigate forward to /music - needs API call since only current directory is cached
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/music')));
+      await store.navigateDirectoryForward({ deviceId });
+
+      expect(getDirectoryMock).toHaveBeenCalledWith(deviceId, storageType, '/music');
+      expect(store.selectedDirectories()[deviceId].path).toBe('/music');
+    });
+
+    it('handles API error gracefully when loading target directory', async () => {
+      // Build history
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
+
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/music')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/music' });
+
+      // Go back to create forward opportunity
+      await store.navigateDirectoryBackward({ deviceId });
+
+      // Clear cache to force API call, then mock error
+      const key = StorageKeyUtil.create(deviceId, storageType);
+      store.removeStorage({ deviceId, storageType });
+
+      getDirectoryMock.mockClear();
+      getDirectoryMock.mockReturnValue(throwError(() => new Error('Network error')));
+      await store.navigateDirectoryForward({ deviceId });
+
+      // Should set error and update history index still
+      expect(store.storageEntries()[key]?.error).toBe('Failed to load directory from history');
+      expect(store.navigationHistory()[deviceId].currentIndex).toBe(2);
+    });
+
+    it('handles missing current selection gracefully', async () => {
+      await store.navigateDirectoryForward({ deviceId: 'non-existent' });
+      expect(getDirectoryMock).not.toHaveBeenCalled();
+    });
+  });
+
+  // -----------------------------------------
   // Task 5: refreshDirectory() - Success, Error, No-Op
   // -----------------------------------------
   describe('refreshDirectory()', () => {
@@ -815,6 +1043,290 @@ describe('StorageStore (NgRx Signal Store)', () => {
         storageType: StorageType.Sd,
         path: '/a',
       });
+    });
+  });
+
+  // -----------------------------------------
+  // Browser-like Navigation Integration Tests
+  // -----------------------------------------
+  describe('browser-like navigation workflows', () => {
+    it('Complete navigation flow: initialize → navigate → back → forward', async () => {
+      const deviceId = 'nav-test';
+      const storageType = StorageType.Sd;
+
+      // Initialize - creates history with ['/'] at index 0
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+      expect(store.navigationHistory()[deviceId].history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+      ]);
+      expect(store.navigationHistory()[deviceId].currentIndex).toBe(0);
+
+      // Navigate to /games - history becomes ['/', '/games'] at index 1
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
+      expect(store.navigationHistory()[deviceId].history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/games', storageType: StorageType.Sd },
+      ]);
+      expect(store.navigationHistory()[deviceId].currentIndex).toBe(1);
+      expect(store.selectedDirectories()[deviceId].path).toBe('/games');
+
+      // Navigate to /music - history becomes ['/', '/games', '/music'] at index 2
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/music')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/music' });
+      expect(store.navigationHistory()[deviceId].history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/games', storageType: StorageType.Sd },
+        { path: '/music', storageType: StorageType.Sd },
+      ]);
+      expect(store.navigationHistory()[deviceId].currentIndex).toBe(2);
+      expect(store.selectedDirectories()[deviceId].path).toBe('/music');
+
+      getDirectoryMock.mockClear();
+
+      // Navigate back to /games - history stays same, index goes to 1
+      await store.navigateDirectoryBackward({ deviceId });
+      expect(store.navigationHistory()[deviceId].history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/games', storageType: StorageType.Sd },
+        { path: '/music', storageType: StorageType.Sd },
+      ]);
+      expect(store.navigationHistory()[deviceId].currentIndex).toBe(1);
+      expect(store.selectedDirectories()[deviceId].path).toBe('/games');
+
+      // Navigate back to / - history stays same, index goes to 0
+      await store.navigateDirectoryBackward({ deviceId });
+      expect(store.navigationHistory()[deviceId].history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/games', storageType: StorageType.Sd },
+        { path: '/music', storageType: StorageType.Sd },
+      ]);
+      expect(store.navigationHistory()[deviceId].currentIndex).toBe(0);
+      expect(store.selectedDirectories()[deviceId].path).toBe('/');
+
+      // Navigate forward to /games - index goes to 1
+      await store.navigateDirectoryForward({ deviceId });
+      expect(store.navigationHistory()[deviceId].history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/games', storageType: StorageType.Sd },
+        { path: '/music', storageType: StorageType.Sd },
+      ]);
+      expect(store.navigationHistory()[deviceId].currentIndex).toBe(1);
+      expect(store.selectedDirectories()[deviceId].path).toBe('/games');
+
+      // Navigate forward to /music - index goes to 2
+      await store.navigateDirectoryForward({ deviceId });
+      expect(store.navigationHistory()[deviceId].history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/games', storageType: StorageType.Sd },
+        { path: '/music', storageType: StorageType.Sd },
+      ]);
+      expect(store.navigationHistory()[deviceId].currentIndex).toBe(2);
+      expect(store.selectedDirectories()[deviceId].path).toBe('/music');
+    });
+
+    it('Browser-like behavior: new navigation clears forward history', async () => {
+      const deviceId = 'clear-test';
+      const storageType = StorageType.Sd;
+
+      // Build history: / → games → music
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/games' });
+
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/music')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/music' });
+
+      // Go back to /games
+      await store.navigateDirectoryBackward({ deviceId });
+      expect(store.navigationHistory()[deviceId].history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/games', storageType: StorageType.Sd },
+        { path: '/music', storageType: StorageType.Sd },
+      ]);
+      expect(store.navigationHistory()[deviceId].currentIndex).toBe(1);
+
+      // Navigate to new directory /apps - should clear forward history
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/apps')));
+      await store.navigateToDirectory({ deviceId, storageType, path: '/apps' });
+
+      // Forward history should be cleared, /music is gone
+      expect(store.navigationHistory()[deviceId].history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/games', storageType: StorageType.Sd },
+        { path: '/apps', storageType: StorageType.Sd },
+      ]);
+      expect(store.navigationHistory()[deviceId].currentIndex).toBe(2);
+
+      // Can't go forward anymore
+      await store.navigateDirectoryForward({ deviceId });
+      expect(store.navigationHistory()[deviceId].currentIndex).toBe(2); // No change
+    });
+
+    it('History respects maxHistorySize limit', async () => {
+      const deviceId = 'limit-test';
+      const storageType = StorageType.Sd;
+
+      // Initialize with small history size for testing
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType });
+
+      // Manually set small history size to test limit
+      const currentHistory = store.navigationHistory()[deviceId];
+      currentHistory.maxHistorySize = 3;
+
+      // Navigate through several directories to exceed limit
+      const paths = ['/dir1', '/dir2', '/dir3', '/dir4'];
+      for (const path of paths) {
+        getDirectoryMock.mockReturnValue(of(createMockStorageDirectory(path)));
+        await store.navigateToDirectory({ deviceId, storageType, path });
+      }
+
+      // Should only keep last 3 entries due to maxHistorySize
+      const finalHistory = store.navigationHistory()[deviceId];
+      expect(finalHistory.history.length).toBe(3);
+      expect(finalHistory.history).toEqual([
+        { path: '/dir2', storageType: StorageType.Sd },
+        { path: '/dir3', storageType: StorageType.Sd },
+        { path: '/dir4', storageType: StorageType.Sd },
+      ]);
+      expect(finalHistory.currentIndex).toBe(2);
+    });
+
+    it('Multi-device navigation history isolation', async () => {
+      const device1 = 'device-1';
+      const device2 = 'device-2';
+      const storageType = StorageType.Sd;
+
+      // Initialize both devices
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId: device1, storageType });
+      await store.initializeStorage({ deviceId: device2, storageType });
+
+      // Navigate device1 to /games
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/games')));
+      await store.navigateToDirectory({ deviceId: device1, storageType, path: '/games' });
+
+      // Navigate device2 to /music
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/music')));
+      await store.navigateToDirectory({ deviceId: device2, storageType, path: '/music' });
+
+      // Each device should have independent history
+      expect(store.navigationHistory()[device1].history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/games', storageType: StorageType.Sd },
+      ]);
+      expect(store.navigationHistory()[device1].currentIndex).toBe(1);
+      expect(store.selectedDirectories()[device1].path).toBe('/games');
+
+      expect(store.navigationHistory()[device2].history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/music', storageType: StorageType.Sd },
+      ]);
+      expect(store.navigationHistory()[device2].currentIndex).toBe(1);
+      expect(store.selectedDirectories()[device2].path).toBe('/music');
+
+      // Navigate device1 back - shouldn't affect device2
+      await store.navigateDirectoryBackward({ deviceId: device1 });
+      expect(store.navigationHistory()[device1].currentIndex).toBe(0);
+      expect(store.navigationHistory()[device2].currentIndex).toBe(1); // Unchanged
+    });
+
+    it('Cross-storage navigation: navigating between SD and USB preserves storage type in history', async () => {
+      const deviceId = 'cross-storage-test';
+
+      // Start on SD storage
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType: StorageType.Sd });
+
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/sdgames')));
+      await store.navigateToDirectory({ deviceId, storageType: StorageType.Sd, path: '/sdgames' });
+
+      // User switches to USB storage and navigates
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.navigateToDirectory({ deviceId, storageType: StorageType.Usb, path: '/' });
+
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/usbmusic')));
+      await store.navigateToDirectory({
+        deviceId,
+        storageType: StorageType.Usb,
+        path: '/usbmusic',
+      });
+
+      // History should track all navigations with correct storage types
+      const history = store.navigationHistory()[deviceId];
+      expect(history.history).toEqual([
+        { path: '/', storageType: StorageType.Sd },
+        { path: '/sdgames', storageType: StorageType.Sd },
+        { path: '/', storageType: StorageType.Usb },
+        { path: '/usbmusic', storageType: StorageType.Usb },
+      ]);
+      expect(history.currentIndex).toBe(3);
+
+      // Navigate backward - should go to USB:/
+      await store.navigateDirectoryBackward({ deviceId });
+      expect(store.selectedDirectories()[deviceId].storageType).toBe(StorageType.Usb);
+      expect(store.selectedDirectories()[deviceId].path).toBe('/');
+
+      // Navigate backward again - should go to SD:/sdgames
+      await store.navigateDirectoryBackward({ deviceId });
+      expect(store.selectedDirectories()[deviceId].storageType).toBe(StorageType.Sd);
+      expect(store.selectedDirectories()[deviceId].path).toBe('/sdgames');
+    });
+
+    it('Cross-storage navigation: forward works across storage types', async () => {
+      const deviceId = 'forward-cross-test';
+
+      // Build cross-storage history
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType: StorageType.Sd });
+
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/sdfiles')));
+      await store.navigateToDirectory({ deviceId, storageType: StorageType.Sd, path: '/sdfiles' });
+
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.navigateToDirectory({ deviceId, storageType: StorageType.Usb, path: '/' });
+
+      // Go back to SD:/sdfiles
+      await store.navigateDirectoryBackward({ deviceId });
+      expect(store.selectedDirectories()[deviceId].storageType).toBe(StorageType.Sd);
+
+      // Go forward to USB:/
+      await store.navigateDirectoryForward({ deviceId });
+      expect(store.selectedDirectories()[deviceId].storageType).toBe(StorageType.Usb);
+      expect(store.selectedDirectories()[deviceId].path).toBe('/');
+    });
+
+    it('Cross-storage navigation: same path on different storage types creates distinct history entries', async () => {
+      const deviceId = 'same-path-test';
+
+      // Navigate to /data on SD
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/')));
+      await store.initializeStorage({ deviceId, storageType: StorageType.Sd });
+
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/data')));
+      await store.navigateToDirectory({ deviceId, storageType: StorageType.Sd, path: '/data' });
+
+      // Navigate to /data on USB (same path, different storage)
+      getDirectoryMock.mockReturnValue(of(createMockStorageDirectory('/data')));
+      await store.navigateToDirectory({ deviceId, storageType: StorageType.Usb, path: '/data' });
+
+      // History should have both /data entries as distinct items with different storage types
+      const history = store.navigationHistory()[deviceId];
+      expect(history.history).toContainEqual({ path: '/data', storageType: StorageType.Sd });
+      expect(history.history).toContainEqual({ path: '/data', storageType: StorageType.Usb });
+
+      // The entries should be distinct based on storage type
+      const sdDataIndex = history.history.findIndex(
+        (item) => item.path === '/data' && item.storageType === StorageType.Sd
+      );
+      const usbDataIndex = history.history.findIndex(
+        (item) => item.path === '/data' && item.storageType === StorageType.Usb
+      );
+      expect(sdDataIndex).not.toBe(usbDataIndex);
     });
   });
 

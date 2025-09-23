@@ -22,6 +22,8 @@ describe('DirectoryNavigateComponent', () => {
 
     it('should have default input values', () => {
       expect(component.canNavigateUp()).toBe(false);
+      expect(component.canNavigateBack()).toBe(false);
+      expect(component.canNavigateForward()).toBe(false);
       expect(component.isLoading()).toBe(false);
     });
   });
@@ -33,6 +35,22 @@ describe('DirectoryNavigateComponent', () => {
 
       fixture.componentRef.setInput('canNavigateUp', false);
       expect(component.canNavigateUp()).toBe(false);
+    });
+
+    it('should update canNavigateBack input', () => {
+      fixture.componentRef.setInput('canNavigateBack', true);
+      expect(component.canNavigateBack()).toBe(true);
+
+      fixture.componentRef.setInput('canNavigateBack', false);
+      expect(component.canNavigateBack()).toBe(false);
+    });
+
+    it('should update canNavigateForward input', () => {
+      fixture.componentRef.setInput('canNavigateForward', true);
+      expect(component.canNavigateForward()).toBe(true);
+
+      fixture.componentRef.setInput('canNavigateForward', false);
+      expect(component.canNavigateForward()).toBe(false);
     });
 
     it('should update isLoading input', () => {

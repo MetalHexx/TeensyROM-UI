@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 import { StorageType, IStorageService } from '@teensyrom-nx/domain/storage/services';
-import { StorageState } from '../storage-store';
+import { StorageState, NavigationHistory } from '../storage-store';
 import { StorageKeyUtil } from '../storage-key.util';
 import {
   WritableStore,
@@ -14,6 +14,7 @@ import {
 } from '../storage-helpers';
 import { createAction } from '@teensyrom-nx/utils';
 import { LogType, logInfo, logError } from '@teensyrom-nx/utils';
+import { updateState } from '@angular-architects/ngrx-toolkit';
 
 export function navigateToDirectory(
   store: WritableStore<StorageState>,
@@ -67,6 +68,33 @@ export function navigateToDirectory(
           actionMessage
         );
 
+        const currentHistory = store.navigationHistory()[deviceId] || new NavigationHistory();
+        const updatedHistory = new NavigationHistory(currentHistory.maxHistorySize);
+
+        updatedHistory.history = [
+          ...currentHistory.history.slice(0, currentHistory.currentIndex + 1),
+          { path, storageType },
+        ];
+        updatedHistory.currentIndex = updatedHistory.history.length - 1;
+        updatedHistory.maxHistorySize = currentHistory.maxHistorySize;
+
+        if (updatedHistory.history.length > updatedHistory.maxHistorySize) {
+          const excess = updatedHistory.history.length - updatedHistory.maxHistorySize;
+          updatedHistory.history = updatedHistory.history.slice(excess);
+          updatedHistory.currentIndex -= excess;
+        }
+
+        updateState(store, actionMessage, (state) => ({
+          navigationHistory: {
+            ...state.navigationHistory,
+            [deviceId]: updatedHistory,
+          },
+        }));
+
+        logInfo(
+          LogType.Info,
+          `Added directory to navigation history for device: ${deviceId}, path: ${path}`
+        );
         logInfo(LogType.Finish, `Navigation completed for ${key} at path: ${path}`);
       } catch (error) {
         logError(`Directory navigation failed for ${key} at path ${path}:`, error);

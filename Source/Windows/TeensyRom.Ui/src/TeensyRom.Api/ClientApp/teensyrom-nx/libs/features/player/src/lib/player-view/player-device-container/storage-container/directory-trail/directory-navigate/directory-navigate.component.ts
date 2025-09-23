@@ -11,6 +11,8 @@ import { IconButtonComponent } from '@teensyrom-nx/ui/components';
 export class DirectoryNavigateComponent {
   // Inputs
   canNavigateUp = input<boolean>(false);
+  canNavigateBack = input<boolean>(false);
+  canNavigateForward = input<boolean>(false);
   isLoading = input<boolean>(false);
 
   // Outputs

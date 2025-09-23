@@ -2,6 +2,8 @@
   <div class="directory-trail-container">
     <lib-directory-navigate
       [canNavigateUp]="canNavigateUp()"
+      [canNavigateBack]="canNavigateBack()"
+      [canNavigateForward]="canNavigateForward()"
       [isLoading]="isLoading()"
       (backClicked)="onBackClick()"
       (forwardClicked)="onForwardClick()"

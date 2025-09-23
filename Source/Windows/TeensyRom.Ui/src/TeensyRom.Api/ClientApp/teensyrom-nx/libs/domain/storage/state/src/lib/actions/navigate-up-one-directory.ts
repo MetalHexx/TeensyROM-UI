@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 import { StorageType, IStorageService } from '@teensyrom-nx/domain/storage/services';
-import { StorageState } from '../storage-store';
+import { StorageState, NavigationHistory } from '../storage-store';
 import { StorageKeyUtil } from '../storage-key.util';
 import {
   WritableStore,
@@ -11,6 +11,7 @@ import {
   updateStorage,
 } from '../storage-helpers';
 import { LogType, logInfo, logError, logWarn, createAction } from '@teensyrom-nx/utils';
+import { updateState } from '@angular-architects/ngrx-toolkit';
 
 export function navigateUpOneDirectory(
   store: WritableStore<StorageState>,
@@ -63,6 +64,33 @@ export function navigateUpOneDirectory(
           actionMessage
         );
 
+        const currentHistory = store.navigationHistory()[deviceId] || new NavigationHistory();
+        const updatedHistory = new NavigationHistory(currentHistory.maxHistorySize);
+
+        updatedHistory.history = [
+          ...currentHistory.history.slice(0, currentHistory.currentIndex + 1),
+          { path: parentPath, storageType },
+        ];
+        updatedHistory.currentIndex = updatedHistory.history.length - 1;
+        updatedHistory.maxHistorySize = currentHistory.maxHistorySize;
+
+        if (updatedHistory.history.length > updatedHistory.maxHistorySize) {
+          const excess = updatedHistory.history.length - updatedHistory.maxHistorySize;
+          updatedHistory.history = updatedHistory.history.slice(excess);
+          updatedHistory.currentIndex -= excess;
+        }
+
+        updateState(store, actionMessage, (state) => ({
+          navigationHistory: {
+            ...state.navigationHistory,
+            [deviceId]: updatedHistory,
+          },
+        }));
+
+        logInfo(
+          LogType.Info,
+          `Added parent directory to navigation history for device: ${deviceId}, path: ${parentPath}`
+        );
         logInfo(LogType.Finish, `Navigate up completed for ${key} to path: ${parentPath}`);
       } catch (error) {
         logError(`Navigate up failed for ${key} to path ${parentPath}:`, error);
