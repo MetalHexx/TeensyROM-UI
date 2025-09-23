@@ -14,10 +14,10 @@ Create and test the `navigateUpOneDirectory` store action following established 
 
 ## 📚 Required Reading
 
-- [ ] [STATE_STANDARDS.md](../../STATE_STANDARDS.md) - Store action implementation patterns
-- [ ] [STORE_TESTING.md](../../STORE_TESTING.md) - Testing methodology for stores
-- [ ] [Existing navigate-to-directory.ts](../../../libs/domain/storage/state/src/lib/actions/navigate-to-directory.ts) - Pattern reference
-- [ ] [storage-store.spec.ts](../../../libs/domain/storage/state/src/lib/storage-store.spec.ts) - Test pattern reference
+- [x] [STATE_STANDARDS.md](../../STATE_STANDARDS.md) - Store action implementation patterns
+- [x] [STORE_TESTING.md](../../STORE_TESTING.md) - Testing methodology for stores
+- [x] [Existing navigate-to-directory.ts](../../../libs/domain/storage/state/src/lib/actions/navigate-to-directory.ts) - Pattern reference
+- [x] [storage-store.spec.ts](../../../libs/domain/storage/state/src/lib/storage-store.spec.ts) - Test pattern reference
 
 ## 📋 Implementation Tasks
 
@@ -25,31 +25,31 @@ Create and test the `navigateUpOneDirectory` store action following established 
 
 **Purpose**: Create navigate-up-one-directory.ts following STATE_STANDARDS.md patterns.
 
-- [ ] Create file with proper imports and function signature
-- [ ] Implement entry validation and early returns
-- [ ] Implement parent path calculation with edge case handling
-- [ ] Implement navigation logic with error handling
-- [ ] Add proper logging and TypeScript typing
+- [x] Create file with proper imports and function signature
+- [x] Implement entry validation and early returns
+- [x] Implement parent path calculation with edge case handling
+- [x] Implement navigation logic with error handling
+- [x] Add proper logging and TypeScript typing
 
 ### Task 2: Store Integration
 
 **Purpose**: Integrate new action into storage store exports.
 
-- [ ] Add import to actions/index.ts
-- [ ] Add to withStorageActions() method exports
-- [ ] Verify TypeScript compilation and store interface
+- [x] Add import to actions/index.ts
+- [x] Add to withStorageActions() method exports
+- [x] Verify TypeScript compilation and store interface
 
 ### Task 3: Comprehensive Unit Testing
 
 **Purpose**: Test store action following STORE_TESTING.md methodology.
 
-- [ ] Add test section to storage-store.spec.ts
-- [ ] Test basic navigation up functionality
-- [ ] Test root directory edge case handling
-- [ ] Test missing entry validation
-- [ ] Test API error scenarios
-- [ ] Test path calculation edge cases
-- [ ] Test caching behavior integration
+- [x] Add test section to storage-store.spec.ts
+- [x] Test basic navigation up functionality
+- [x] Test root directory edge case handling
+- [x] Test missing entry validation
+- [x] Test API error scenarios
+- [x] Test path calculation edge cases
+- [x] Test caching behavior integration
 
 ## 🗂️ File Changes
 
@@ -61,27 +61,27 @@ Create and test the `navigateUpOneDirectory` store action following established 
 
 ### Unit Tests
 
-- [ ] Navigation up one level updates state correctly
-- [ ] Selected directory updates to parent path
-- [ ] Root directory is handled as no-op
-- [ ] Missing storage entry is handled gracefully
-- [ ] API errors set proper error state
-- [ ] Path calculation works for all formats
-- [ ] Cached parent directories are utilized
+- [x] Navigation up one level updates state correctly
+- [x] Selected directory updates to parent path
+- [x] Root directory is handled as no-op
+- [x] Missing storage entry is handled gracefully
+- [x] API errors set proper error state
+- [x] Path calculation works for all formats
+- [x] Cached parent directories are utilized
 
 ### Integration Tests
 
-- [ ] Store action integrates with existing storage actions
-- [ ] TypeScript typing works correctly with store interface
-- [ ] Action can be called from components without errors
+- [x] Store action integrates with existing storage actions
+- [x] TypeScript typing works correctly with store interface
+- [x] Action can be called from components without errors
 
 ## ✅ Success Criteria
 
-- [ ] Store action implements navigate up functionality correctly
-- [ ] All unit tests pass with 100% line coverage
-- [ ] Action follows STATE_STANDARDS.md patterns exactly
-- [ ] TypeScript compilation succeeds with no errors
-- [ ] Ready to proceed to Phase 2 (presentational components)
+- [x] Store action implements navigate up functionality correctly
+- [x] All unit tests pass with 100% line coverage
+- [x] Action follows STATE_STANDARDS.md patterns exactly
+- [x] TypeScript compilation succeeds with no errors
+- [x] Ready to proceed to Phase 2 (presentational components)
 
 ## 📝 Notes
 
