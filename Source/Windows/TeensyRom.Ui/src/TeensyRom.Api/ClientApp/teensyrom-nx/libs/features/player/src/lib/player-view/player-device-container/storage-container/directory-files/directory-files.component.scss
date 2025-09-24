@@ -18,12 +18,6 @@
   background: transparent;
   border-spacing: 0;
 
-  th {
-    font-weight: 600;
-    text-align: left;
-    padding-bottom: 0.5rem;
-  }
-
   td {
     padding: 0.25rem;
     border: none;
@@ -35,14 +29,6 @@
 
     &.mat-mdc-row:hover {
       background-color: transparent;
-    }
-
-    &.mat-mdc-row:first-of-type td {
-      padding-top: 0.5rem;
-    }
-
-    &.mat-mdc-header-row {
-      border-bottom: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
     }
   }
 }

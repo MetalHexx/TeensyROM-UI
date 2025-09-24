@@ -1,5 +1,5 @@
 <div class="directory-files">
-  <lib-card-layout title="Directory Files">
+  <lib-card-layout>
     @if (directoryContents().isLoading) {
     <p>Loading directory contents...</p>
     } @else if (directoryContents().error) {
@@ -7,7 +7,6 @@
     } @else if (directoryContents().hasContent) {
     <table mat-table [dataSource]="combinedItems()" class="files-table">
       <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Name</th>
         <td mat-cell *matCellDef="let item">
           @if (isDirectory(item)) {
           <lib-directory-item
@@ -29,11 +28,9 @@
       </ng-container>
 
       <ng-container matColumnDef="size">
-        <th mat-header-cell *matHeaderCellDef>Size</th>
         <td mat-cell *matCellDef="let item"></td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
     } @else {
