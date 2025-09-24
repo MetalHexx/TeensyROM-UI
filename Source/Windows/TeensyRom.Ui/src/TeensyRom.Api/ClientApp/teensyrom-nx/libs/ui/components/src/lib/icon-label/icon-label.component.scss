@@ -5,10 +5,13 @@
 }
 
 .icon-label-text {
-  max-width: 20ch;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   display: inline-block;
   vertical-align: middle;
+
+  &.truncate {
+    max-width: 20ch;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 }

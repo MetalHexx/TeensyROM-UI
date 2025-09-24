@@ -1,4 +1,9 @@
 <div class="directory-tree-node" [class]="cssClass()" [class.selected]="isSelected()">
-  <lib-styled-icon [icon]="icon()" [color]="iconColor()" size="medium"></lib-styled-icon>
-  <span class="node-text">{{ text() }}</span>
+  <lib-icon-label
+    [icon]="icon()"
+    [label]="text()"
+    [color]="iconColor()"
+    size="medium"
+    [truncate]="false"
+  ></lib-icon-label>
 </div>

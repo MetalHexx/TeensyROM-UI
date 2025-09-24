@@ -1,11 +1,11 @@
 import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StyledIconComponent, StyledIconColor } from '@teensyrom-nx/ui/components';
+import { IconLabelComponent, StyledIconColor } from '@teensyrom-nx/ui/components';
 import { DirectoryTreeNodeType } from '../directory-tree.component';
 
 @Component({
   selector: 'lib-directory-tree-node',
-  imports: [CommonModule, StyledIconComponent],
+  imports: [CommonModule, IconLabelComponent],
   templateUrl: './directory-tree-node.component.html',
   styleUrl: './directory-tree-node.component.scss',
 })

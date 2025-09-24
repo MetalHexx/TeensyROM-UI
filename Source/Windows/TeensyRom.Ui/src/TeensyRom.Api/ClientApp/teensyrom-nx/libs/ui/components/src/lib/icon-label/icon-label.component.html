@@ -1,4 +1,4 @@
 <span class="icon-label-container">
-  <mat-icon>{{ icon() }}</mat-icon>
-  <span class="icon-label-text" [title]="label()">{{ label() }}</span>
+  <lib-styled-icon [icon]="icon()" [color]="color()" [size]="size()"></lib-styled-icon>
+  <span class="icon-label-text" [class.truncate]="truncate()" [title]="label()">{{ label() }}</span>
 </span>

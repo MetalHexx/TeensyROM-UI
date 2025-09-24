@@ -661,30 +661,111 @@ export class MyComponent {
 
 ### `IconLabelComponent`
 
-**Purpose**: A simple component that displays an icon alongside text in a consistent layout pattern.
+**Purpose**: A versatile component that displays a styled icon alongside text with optional color, size, and text truncation controls. Built on [StyledIconComponent](COMPONENT_LIBRARY.md#stylediconcomponent) for consistent icon styling.
 
 **Selector**: `lib-icon-label`
 
 **Properties**:
 
-- `icon`: `string` - Material Design icon name to display (defaults to empty string)
-- `label`: `string` - Text label to display next to the icon (defaults to empty string)
+- `icon` (optional): `string` - Material Design icon name to display - defaults to empty string
+- `label` (optional): `string` - Text label to display next to the icon - defaults to empty string
+- `color` (optional): `'normal' | 'primary' | 'highlight' | 'success' | 'error' | 'dimmed' | 'directory'` - Icon color from design system - defaults to 'normal'
+- `size` (optional): `'small' | 'medium' | 'large'` - Icon size - defaults to 'medium'
+- `truncate` (optional): `boolean` - Enable text truncation with ellipsis (20ch max width) - defaults to true
 
-**Usage Example**:
+**Usage Examples**:
 
 ```html
+<!-- Basic usage (backward compatible) -->
 <lib-icon-label icon="folder" label="Documents"> </lib-icon-label>
 
-<lib-icon-label icon="device_hub" label="Connected Device"> </lib-icon-label>
+<!-- With custom color and size -->
+<lib-icon-label icon="folder" label="My Folder" color="directory" size="large"> </lib-icon-label>
+
+<!-- Directory tree node pattern -->
+<lib-icon-label icon="folder" label="Games" color="directory" size="medium" [truncate]="false">
+</lib-icon-label>
+
+<!-- File listing in table (no truncation) -->
+<lib-icon-label
+  [icon]="file.isDirectory ? 'folder' : 'insert_drive_file'"
+  [label]="file.name"
+  [color]="file.isDirectory ? 'directory' : 'normal'"
+  size="medium"
+  [truncate]="false"
+>
+</lib-icon-label>
+
+<!-- Device info with truncation -->
+<lib-icon-label icon="tag" [label]="'Device ID: ' + deviceId"> </lib-icon-label>
+```
+
+**Advanced Usage Patterns**:
+
+```typescript
+// Dynamic icon and color based on file type
+export class FileListComponent {
+  getFileIcon(file: FileInfo): string {
+    if (file.isDirectory) return 'folder';
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    switch (ext) {
+      case 'jpg':
+      case 'png':
+        return 'image';
+      case 'mp3':
+        return 'audio_file';
+      default:
+        return 'insert_drive_file';
+    }
+  }
+
+  getFileColor(file: FileInfo): StyledIconColor {
+    return file.isDirectory ? 'directory' : 'normal';
+  }
+}
+```
+
+```html
+<!-- In template -->
+<lib-icon-label
+  [icon]="getFileIcon(file)"
+  [label]="file.name"
+  [color]="getFileColor(file)"
+  size="medium"
+  [truncate]="false"
+>
+</lib-icon-label>
 ```
 
 **Features**:
 
-- Icon and text are horizontally aligned
-- Text includes a `title` attribute for accessibility/tooltips
-- Consistent spacing between icon and label
+- **Styled Icons**: Uses [StyledIconComponent](COMPONENT_LIBRARY.md#stylediconcomponent) internally for consistent icon appearance
+- **Flexible Layout**: Icon and text horizontally aligned with 0.5rem gap
+- **Text Truncation**: Optional ellipsis truncation for long labels (enabled by default)
+- **Accessibility**: Text includes `title` attribute for tooltips on hover
+- **Backward Compatible**: Works with minimal props (just icon/label) using sensible defaults
 
-**Best Practice**: Use for any icon-text combination that needs consistent styling and alignment across the application.
+**Style Integration**:
+
+The component leverages:
+
+- [StyledIconComponent](COMPONENT_LIBRARY.md#stylediconcomponent) for icon styling
+- [`.icon-label-container`](STYLE_GUIDE.md) for flex layout
+- Conditional `.truncate` class for text overflow handling
+
+**Best Practice**: Use for any icon-text combination throughout the application. The enhanced props (color, size, truncate) allow it to work in diverse contexts:
+
+- **Device info displays** - default truncation for long IDs
+- **Directory trees** - colored icons with no truncation
+- **File tables** - dynamic icons based on file type with full text display
+- **Navigation menus** - consistent icon-label pattern
+
+**Used In**:
+
+- [`device-item.component.html`](../libs/features/devices/src/lib/device-view/device-item/device-item.component.html) - Device information labels
+- [`storage-item.component.html`](../libs/features/devices/src/lib/device-view/storage-item/storage-item.component.html) - Storage information labels
+- [`action-button.component.html`](../libs/ui/components/src/lib/action-button/action-button.component.html) - Button labels with icons
+- [`directory-tree-node.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree-node/directory-tree-node.component.html) - Tree node labels with semantic colors
 
 ### `StatusIconLabelComponent`
 

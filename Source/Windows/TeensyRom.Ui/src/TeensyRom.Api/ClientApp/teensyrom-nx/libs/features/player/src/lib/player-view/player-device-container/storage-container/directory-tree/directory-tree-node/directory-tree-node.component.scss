@@ -16,13 +16,7 @@
     background-color: var(--color-dimmed);
   }
 
-  lib-styled-icon {
-    padding-right: 5px;
-    padding-bottom: 5px;
+  lib-icon-label {
     flex-shrink: 0;
-  }
-
-  .node-text {
-    line-height: 1.4;
   }
 }
