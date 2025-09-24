@@ -115,7 +115,7 @@ Available color variables for semantic styling:
 - Consistent 8px padding
 - 10px border radius for modern rounded appearance
 - Smooth 0.2s transition for hover/selection changes
-- Unified `--color-dimmed` background for both hover and selected states
+- Unified `--color-dimmed` background for selected state and a translucent variant for hover
 
 Apply the `.selected` class to the element when it's the currently selected item to activate the selection styling.
 

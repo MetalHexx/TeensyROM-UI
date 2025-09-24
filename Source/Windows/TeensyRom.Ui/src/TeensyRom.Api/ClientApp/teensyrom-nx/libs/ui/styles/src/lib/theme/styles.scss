@@ -93,7 +93,10 @@ body {
   border-radius: 10px;
   transition: background-color 0.2s ease-in-out;
 
-  &:hover,
+  &:hover {
+    background-color: color-mix(in srgb, var(--color-dimmed) 40%, transparent);
+  }
+
   &.selected {
     background-color: var(--color-dimmed);
   }
