@@ -83,6 +83,44 @@ Available color variables for semantic styling:
 
 **Best Practice:** Use `.glassy` for overlay effects and modern UI elements to maintain consistent visual hierarchy.
 
+---
+
+## Mixins
+
+### `@mixin selectable-item`
+
+**Purpose**: Provides consistent hover and selection styling for interactive list items, tree nodes, and selectable UI elements
+
+**Usage Example:**
+
+```scss
+@use 'path/to/styles.scss' as styles;
+
+.my-selectable-item {
+  @include styles.selectable-item;
+  display: flex;
+  align-items: center;
+  // Add component-specific styles
+}
+```
+
+**Used In:**
+
+- [`directory-tree-node.component.scss`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree-node/directory-tree-node.component.scss) - Tree node selection and hover
+- [`directory-item.component.scss`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-item/directory-item.component.scss) - Directory list item selection
+- [`file-item.component.scss`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/file-item/file-item.component.scss) - File list item selection
+
+**Best Practice:** Use this mixin for any interactive list item that needs hover feedback and selection state. The mixin provides:
+
+- Consistent 8px padding
+- 10px border radius for modern rounded appearance
+- Smooth 0.2s transition for hover/selection changes
+- Unified `--color-dimmed` background for both hover and selected states
+
+Apply the `.selected` class to the element when it's the currently selected item to activate the selection styling.
+
+---
+
 ### `.corner-chips`
 
 **Purpose**: Positions chip sets in the upper right corner of relatively positioned containers

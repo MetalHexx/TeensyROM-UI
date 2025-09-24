@@ -1,19 +1,13 @@
+@use '../../../../../../../../../ui/styles/src/lib/theme/styles.scss' as styles;
+
 :host {
   display: block;
   width: 100%;
 }
 
 .directory-item {
+  @include styles.selectable-item;
   display: flex;
   align-items: center;
   width: 100%;
-  cursor: pointer;
-  padding: 8px 8px;
-  border-radius: 10px;
-  transition: background-color 0.2s ease-in-out;
-
-  &:hover,
-  &.selected {
-    background-color: var(--color-dimmed);
-  }
 }
