@@ -5,34 +5,28 @@
     } @else if (directoryContents().error) {
     <p class="error">Error: {{ directoryContents().error }}</p>
     } @else if (directoryContents().hasContent) {
-    <table mat-table [dataSource]="combinedItems()" class="files-table">
-      <ng-container matColumnDef="name">
-        <td mat-cell *matCellDef="let item">
-          @if (isDirectory(item)) {
-          <lib-directory-item
-            [directoryItem]="item"
-            [selected]="isSelected(item)"
-            (itemSelected)="onItemSelected($event)"
-            (itemDoubleClicked)="onDirectoryDoubleClick($event)"
-          >
-          </lib-directory-item>
-          } @else {
-          <lib-file-item
-            [fileItem]="item"
-            [selected]="isSelected(item)"
-            (itemSelected)="onItemSelected($event)"
-          >
-          </lib-file-item>
-          }
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="size">
-        <td mat-cell *matCellDef="let item"></td>
-      </ng-container>
-
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
+    <div class="files-list">
+      @for (item of combinedItems(); track item.path) {
+      <div class="file-list-item">
+        @if (isDirectory(item)) {
+        <lib-directory-item
+          [directoryItem]="item"
+          [selected]="isSelected(item)"
+          (itemSelected)="onItemSelected($event)"
+          (itemDoubleClicked)="onDirectoryDoubleClick($event)"
+        >
+        </lib-directory-item>
+        } @else {
+        <lib-file-item
+          [fileItem]="item"
+          [selected]="isSelected(item)"
+          (itemSelected)="onItemSelected($event)"
+        >
+        </lib-file-item>
+        }
+      </div>
+      }
+    </div>
     } @else {
     <p>No directory selected or directory is empty.</p>
     }

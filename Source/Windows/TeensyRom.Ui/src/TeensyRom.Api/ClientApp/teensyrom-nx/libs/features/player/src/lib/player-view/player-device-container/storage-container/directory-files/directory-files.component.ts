@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
 import { CardLayoutComponent } from '@teensyrom-nx/ui/components';
 import { StorageStore } from '@teensyrom-nx/domain/storage/state';
 import { DirectoryItem, FileItem } from '@teensyrom-nx/domain/storage/services';
@@ -9,13 +8,7 @@ import { FileItemComponent } from './file-item/file-item.component';
 
 @Component({
   selector: 'lib-directory-files',
-  imports: [
-    CommonModule,
-    CardLayoutComponent,
-    MatTableModule,
-    DirectoryItemComponent,
-    FileItemComponent,
-  ],
+  imports: [CommonModule, CardLayoutComponent, DirectoryItemComponent, FileItemComponent],
   templateUrl: './directory-files.component.html',
   styleUrl: './directory-files.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,8 +54,6 @@ export class DirectoryFilesComponent {
     }));
     return [...directories, ...files];
   });
-
-  readonly displayedColumns = ['name', 'size'];
 
   isDirectory(item: DirectoryItem | FileItem): item is DirectoryItem {
     return 'itemType' in item && (item as { itemType: string }).itemType === 'directory';

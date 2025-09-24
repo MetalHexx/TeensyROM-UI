@@ -13,22 +13,12 @@
   width: 100%;
 }
 
-.files-table {
+.files-list {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  background: transparent;
-  border-spacing: 0;
+}
 
-  td {
-    padding: 0.25rem;
-    border: none;
-  }
-
-  tr {
-    border: none;
-    height: auto;
-
-    &.mat-mdc-row:hover {
-      background-color: transparent;
-    }
-  }
+.file-list-item {
+  background-color: transparent;
 }

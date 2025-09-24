@@ -127,9 +127,9 @@ describe('DirectoryFilesComponent', () => {
     expect(component.selectedItem()).toBe(null);
   });
 
-  it('should render correct number of table rows', () => {
-    const rows = fixture.nativeElement.querySelectorAll('tr.mat-mdc-row');
-    expect(rows.length).toBe(2);
+  it('should render correct number of list items', () => {
+    const items = fixture.nativeElement.querySelectorAll('.file-list-item');
+    expect(items.length).toBe(2);
   });
 
   it('should determine if item is selected correctly', () => {
