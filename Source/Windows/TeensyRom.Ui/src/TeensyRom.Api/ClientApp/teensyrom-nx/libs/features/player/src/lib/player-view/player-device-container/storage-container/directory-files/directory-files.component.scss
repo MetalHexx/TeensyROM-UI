@@ -12,3 +12,21 @@
   height: 100%;
   width: 100%;
 }
+
+.files-table {
+  width: 100%;
+  background: transparent;
+
+  th {
+    font-weight: 600;
+    text-align: left;
+  }
+
+  td {
+    padding: 0;
+  }
+
+  tr.mat-mdc-row:hover {
+    background-color: transparent;
+  }
+}

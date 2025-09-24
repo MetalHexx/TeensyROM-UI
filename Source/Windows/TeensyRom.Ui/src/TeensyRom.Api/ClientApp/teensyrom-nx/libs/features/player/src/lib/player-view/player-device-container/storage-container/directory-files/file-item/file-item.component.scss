@@ -1,0 +1,28 @@
+:host {
+  display: block;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--color-hover);
+  }
+
+  &.selected {
+    background-color: var(--color-selected);
+  }
+}
+
+.file-size {
+  color: var(--color-dimmed);
+  font-size: 0.875rem;
+  margin-left: 1rem;
+  white-space: nowrap;
+}

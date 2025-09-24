@@ -1,0 +1,19 @@
+<div
+  class="file-item"
+  [class.selected]="selected()"
+  (click)="onItemClick()"
+  (keydown.enter)="onItemClick()"
+  (keydown.space)="onItemClick()"
+  tabindex="0"
+  role="button"
+>
+  <lib-icon-label
+    [icon]="fileIcon()"
+    color="normal"
+    size="medium"
+    [truncate]="false"
+    [label]="fileItem().name"
+  >
+  </lib-icon-label>
+  <span class="file-size">{{ formattedSize() }}</span>
+</div>

@@ -1,0 +1,19 @@
+<div
+  class="directory-item"
+  [class.selected]="selected()"
+  (click)="onItemClick()"
+  (dblclick)="onItemDoubleClick()"
+  (keydown.enter)="onItemDoubleClick()"
+  (keydown.space)="onItemClick()"
+  tabindex="0"
+  role="button"
+>
+  <lib-icon-label
+    icon="folder"
+    color="directory"
+    size="medium"
+    [truncate]="false"
+    [label]="directoryItem().name"
+  >
+  </lib-icon-label>
+</div>
