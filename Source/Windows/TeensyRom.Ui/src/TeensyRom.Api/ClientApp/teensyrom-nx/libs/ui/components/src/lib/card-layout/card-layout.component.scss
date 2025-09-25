@@ -11,11 +11,6 @@
   z-index: 1;
 }
 
-// Add padding to content when corner content is present
-:host:has(.corner-content:not(:empty)) mat-card-content {
-  padding-top: 10px; // Account for corner button height + spacing
-}
-
 .metadata-source {
   margin: 0;
   font-size: 0.75rem;

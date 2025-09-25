@@ -133,35 +133,6 @@ describe('DirectoryTreeComponent', () => {
     expect(mockStorageStore.navigateToDirectory).not.toHaveBeenCalled();
   });
 
-  it('should generate correct CSS classes for node types', () => {
-    const deviceNode = {
-      id: 'device-test',
-      name: 'Test Device',
-      type: DirectoryTreeNodeType.Device,
-      icon: 'smartphone',
-    };
-
-    const storageNode = {
-      id: 'storage-test',
-      name: 'Test Storage',
-      type: DirectoryTreeNodeType.StorageType,
-      icon: 'sd_storage',
-      isLoading: true,
-    };
-
-    const directoryNode = {
-      id: 'dir-test',
-      name: 'Test Directory',
-      type: DirectoryTreeNodeType.Directory,
-      icon: 'folder',
-      error: 'Failed to load',
-    };
-
-    expect(component.getNodeClasses(deviceNode)).toBe('device-node');
-    expect(component.getNodeClasses(storageNode)).toBe('storage-node loading');
-    expect(component.getNodeClasses(directoryNode)).toBe('directory-node error');
-  });
-
   it('should expand storage node with directories when store has data', () => {
     // Manually populate cache to simulate what happens when StorageStore has data
     component['setCachedDirectory']('test-device-123', StorageType.Sd, '/', {
@@ -299,18 +270,6 @@ describe('DirectoryTreeComponent', () => {
 
     expect(component.isPlaceholder(0, placeholderNode)).toBeTruthy();
     expect(component.isPlaceholder(0, directoryNode)).toBeFalsy();
-  });
-
-  it('should add placeholder class to placeholder nodes', () => {
-    const placeholderNode = {
-      id: 'placeholder-1',
-      name: 'Loading...',
-      type: DirectoryTreeNodeType.Placeholder,
-      icon: 'hourglass_empty',
-    };
-
-    const classes = component.getNodeClasses(placeholderNode);
-    expect(classes).toContain('placeholder-node');
   });
 
   it('should determine children correctly based on cached data', () => {

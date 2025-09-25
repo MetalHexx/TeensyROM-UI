@@ -17,46 +17,12 @@ mat-tree {
   height: 100%;
 }
 
-// Node type styling
-.device-node {
-  font-weight: 500;
-  // background-color: var(--mat-sys-primary-container);
-  // color: var(--mat-sys-on-primary-container);
-}
-
-.storage-node {
-  // background-color: var(--mat-sys-secondary-container);
-  // color: var(--mat-sys-on-secondary-container);
-}
-
-.directory-node {
-  // background-color: var(--mat-sys-surface-variant);
-  // color: var(--mat-sys-on-surface-variant);
-}
-
-.placeholder-node {
-  background-color: transparent;
-  // color: var(--mat-sys-outline);
-}
-
 .placeholder-text {
   font-style: italic;
   opacity: 0.7;
   font-size: 0.9em;
 }
 
-// State styling
-.loading {
-  opacity: 0.7;
-  cursor: wait;
-}
-
-.error {
-  // background-color: var(--mat-sys-error-container);
-  // color: var(--mat-sys-on-error-container);
-}
-
-// Icon styling
 .loading-icon {
   margin-left: 8px;
   font-size: 16px;
@@ -66,13 +32,4 @@ mat-tree {
 .error-icon {
   margin-left: 8px;
   font-size: 16px;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }

@@ -280,30 +280,6 @@ export class DirectoryTreeComponent implements AfterViewInit {
     }
   }
 
-  getNodeClasses(node: DirectoryTreeNode): string {
-    const classes: string[] = [];
-
-    if (node.type === DirectoryTreeNodeType.Device) {
-      classes.push('device-node');
-    } else if (node.type === DirectoryTreeNodeType.StorageType) {
-      classes.push('storage-node');
-    } else if (node.type === DirectoryTreeNodeType.Directory) {
-      classes.push('directory-node');
-    } else if (node.type === DirectoryTreeNodeType.Placeholder) {
-      classes.push('placeholder-node');
-    }
-
-    if (node.isLoading) {
-      classes.push('loading');
-    }
-
-    if (node.error) {
-      classes.push('error');
-    }
-
-    return classes.join(' ');
-  }
-
   isNodeSelected(node: DirectoryTreeNode): boolean {
     const selectedState = this.selectedDirectoryState();
     if (!selectedState || !node.deviceId || !node.storageType || !node.path) {

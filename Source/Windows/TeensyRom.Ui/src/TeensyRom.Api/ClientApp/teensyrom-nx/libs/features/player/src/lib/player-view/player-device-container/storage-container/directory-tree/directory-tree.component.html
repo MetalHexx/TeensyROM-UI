@@ -26,13 +26,9 @@
         (click)="onDirectoryClick(node)"
         (keydown)="onNodeKeyDown($event, node)"
       >
-        <button mat-icon-button disabled style="visibility: hidden">
-          <mat-icon>chevron_right</mat-icon>
-        </button>
         <lib-directory-tree-node
           [icon]="node.icon"
           [text]="node.name"
-          [cssClass]="getNodeClasses(node)"
           [isSelected]="isNodeSelected(node)"
           [nodeType]="node.type"
         ></lib-directory-tree-node>
@@ -67,7 +63,6 @@
         <lib-directory-tree-node
           [icon]="node.icon"
           [text]="node.name"
-          [cssClass]="getNodeClasses(node)"
           [isSelected]="isNodeSelected(node)"
           [nodeType]="node.type"
         ></lib-directory-tree-node>
