@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { FileItemDto } from './FileItemDto';
+import {
+  FileItemDtoFromJSON,
+  FileItemDtoFromJSONTyped,
+  FileItemDtoToJSON,
+  FileItemDtoToJSONTyped,
+} from './FileItemDto';
+
 /**
  *
  * @export
@@ -25,6 +33,12 @@ export interface LaunchFileResponse {
    * @memberof LaunchFileResponse
    */
   message: string;
+  /**
+   *
+   * @type {FileItemDto}
+   * @memberof LaunchFileResponse
+   */
+  launchedFile: FileItemDto;
 }
 
 /**
@@ -32,6 +46,7 @@ export interface LaunchFileResponse {
  */
 export function instanceOfLaunchFileResponse(value: object): value is LaunchFileResponse {
   if (!('message' in value) || value['message'] === undefined) return false;
+  if (!('launchedFile' in value) || value['launchedFile'] === undefined) return false;
   return true;
 }
 
@@ -48,6 +63,7 @@ export function LaunchFileResponseFromJSONTyped(
   }
   return {
     message: json['message'],
+    launchedFile: FileItemDtoFromJSON(json['launchedFile']),
   };
 }
 
@@ -65,5 +81,6 @@ export function LaunchFileResponseToJSONTyped(
 
   return {
     message: value['message'],
+    launchedFile: FileItemDtoToJSON(value['launchedFile']),
   };
 }

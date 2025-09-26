@@ -1,12 +1,12 @@
 ﻿using FluentAssertions;
 using TeensyRom.Api.Endpoints.ClosePort;
-using TeensyRom.Api.Endpoints.Files.LaunchFile;
 using TeensyRom.Api.Endpoints.FindCarts;
 using TeensyRom.Api.Endpoints.ConnectDevice;
 using TeensyRom.Api.Endpoints.ResetDevice;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using static System.Net.Mime.MediaTypeNames;
+using TeensyRom.Api.Endpoints.Player.LaunchFile;
 
 namespace TeensyRom.Api.Tests.Integration
 {
@@ -73,6 +73,9 @@ namespace TeensyRom.Api.Tests.Integration
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithContentNotNull();
 
+                r.Content.Should().NotBeNull();
+                r.Content.LaunchedFile.Should().NotBeNull();
+                r.Content.LaunchedFile.Path.Should().Be(filePath);
                 r.Content.Message.Should().Contain("Success");
             }
         }

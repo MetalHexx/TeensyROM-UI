@@ -311,7 +311,7 @@
     "/devices/{deviceId}/storage/{storageType}/random-launch": {
       "post": {
         "tags": [
-          "Files"
+          "Player"
         ],
         "summary": "Launch Random File",
         "description": "Launches a random file given a device, storage, filter and starting directory location.\n\n- Starting Directory: Starting directory to look for a random file.\n- Scope: `Storage` - Selects a random file anywhere on the specified storage device.\n- Scope: `DirDeep` - Selects a random file from the starting directory or any of its subdirectories.\n- Scope: `DirShallow` - Selects a random file from the starting directory only (subdirectories are not included).\n- Filter: `All` - Any file type will be randomly selected.\n- Filter: `Games` - Only game-related files will be selected (e.g., .prg, .crt, .d64, etc). Includes demos and non-games.\n- Filter: `Music` - Only music or song files will be selected (e.g., .sid, .mus, .mp3, etc).\n- Filter: `Images` - Only image files will be selected (e.g., .koa, .png, etc). Also includes text files (may be improved in a future release)",
@@ -414,7 +414,7 @@
     "/devices/{deviceId}/storage/{storageType}/launch": {
       "post": {
         "tags": [
-          "Files"
+          "Player"
         ],
         "summary": "Launch File",
         "description": "Launches a file given a valid path to a file stored on the TeensyRom.",
@@ -915,12 +915,16 @@
       },
       "LaunchFileResponse": {
         "required": [
-          "message"
+          "message",
+          "launchedFile"
         ],
         "type": "object",
         "properties": {
           "message": {
             "type": "string"
+          },
+          "launchedFile": {
+            "$ref": "#/components/schemas/FileItemDto"
           }
         }
       },
@@ -1058,6 +1062,9 @@
   "tags": [
     {
       "name": "Devices"
+    },
+    {
+      "name": "Player"
     },
     {
       "name": "Files"

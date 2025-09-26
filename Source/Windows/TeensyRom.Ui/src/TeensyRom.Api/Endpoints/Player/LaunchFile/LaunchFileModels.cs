@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 
-namespace TeensyRom.Api.Endpoints.Files.LaunchFile
+namespace TeensyRom.Api.Endpoints.Player.LaunchFile
 {
     /// <summary>
     /// Request model for launching a file from a TeensyROM device's storage.
@@ -58,5 +58,10 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
         /// A message indicating the result of the operation.
         /// </summary>
         [Required] public string Message { get; set; } = "Success!";
+
+        /// <summary>
+        /// The file that was launched.
+        /// </summary>
+        [Required] public FileItemDto LaunchedFile { get; set; } = null!;
     }
 }

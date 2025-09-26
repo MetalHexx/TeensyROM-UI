@@ -6,7 +6,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Settings;
 
-namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
+namespace TeensyRom.Api.Endpoints.Player.LaunchRandom
 {
     /// <summary>
     /// Request model for launching a random file from a TeensyROM device's storage.

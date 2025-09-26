@@ -1,6 +1,7 @@
 .openapi-generator-ignore
 apis/DevicesApi.ts
 apis/FilesApi.ts
+apis/PlayerApi.ts
 apis/index.ts
 index.ts
 models/CartDto.ts

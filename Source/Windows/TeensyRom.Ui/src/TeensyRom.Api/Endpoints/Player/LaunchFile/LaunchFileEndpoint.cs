@@ -5,7 +5,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.ValueObjects;
 
-namespace TeensyRom.Api.Endpoints.Files.LaunchFile
+namespace TeensyRom.Api.Endpoints.Player.LaunchFile
 {
     public class LaunchFileEndpoint(IMediator mediator, IDeviceConnectionManager deviceManager) : RadEndpoint<LaunchFileRequest, LaunchFileResponse>
     {
@@ -18,7 +18,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
                 .WithName("LaunchFile")
                 .WithSummary("Launch File")
                 .WithDescription("Launches a file given a valid path to a file stored on the TeensyRom.")
-                .WithTags("Files");
+                .WithTags("Player");
         }
 
         public override async Task Handle(LaunchFileRequest r, CancellationToken ct)
@@ -70,7 +70,10 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchFile
             var launchCommand = new LaunchFileCommand(TeensyStorageType.SD, launchItem, r.DeviceId);
             var result = await mediator.Send(launchCommand, ct);
 
-            Response = new();
+            Response = new()
+            {
+                LaunchedFile = FileItemDto.FromLaunchable((file as LaunchableItem)!),
+            };
 
             if (!result.IsSuccess)
             {

@@ -7,7 +7,7 @@ using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.ValueObjects;
 
-namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
+namespace TeensyRom.Api.Endpoints.Player.LaunchRandom
 {
     public class LaunchRandomEndpoint(IDeviceConnectionManager deviceManager, IMediator mediator) : RadEndpoint<LaunchRandomRequest, LaunchRandomResponse>
     {
@@ -20,7 +20,7 @@ namespace TeensyRom.Api.Endpoints.Files.LaunchRandom
                 .ProducesProblem(StatusCodes.Status502BadGateway)
                 .WithName("LaunchRandom")
                 .WithSummary("Launch Random File")
-                .WithTags("Files")
+                .WithTags("Player")
                 .WithDescription(
                     "Launches a random file given a device, storage, filter and starting directory location.\n\n" +
                     "- Starting Directory: Starting directory to look for a random file.\n" + 

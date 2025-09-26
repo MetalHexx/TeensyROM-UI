@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using TeensyRom.Api.Endpoints.Files.LaunchRandom;
+using TeensyRom.Api.Endpoints.Player.LaunchRandom;
 using TeensyRom.Api.Endpoints.ResetDevice;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
