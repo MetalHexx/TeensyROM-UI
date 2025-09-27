@@ -73,15 +73,20 @@ This application follows **Clean Architecture** principles with clear separation
 
 **Purpose**: Contains the core business rules, entities, and contracts that define the application's behavior
 
+- **Models**: Shared domain entities and value objects representing core business concepts (located in `models/` folder)
 - **Contracts**: Pure TypeScript interfaces defining service contracts (no implementations)
-- **Models**: Domain entities and value objects representing core business concepts
 - **Business Logic**: Pure domain logic and business rules (framework-agnostic)
 - **No Dependencies**: Zero external dependencies - pure TypeScript only
 
-**Examples**:
+**Shared Model Structure**:
+All domain models are located in the shared `models/` folder for universal access:
+- **Device Models**: `Device`, `DeviceStorage`
+- **Storage Models**: `DirectoryItem`, `FileItem`, `ViewableItemImage`, `FileItemType`, `StorageType`, `StorageDirectory`
+- **Individual Files**: Each interface/enum is in its own file for better maintainability and tree-shaking
+
+**Contract Examples**:
 - `IDeviceService` contract defining device operations
 - `IStorageService` contract defining file system operations  
-- `Device` and `Storage` domain models
 - Domain validation rules and business logic
 
 ### 2. Application Layer (`libs/application`) - Use Cases & State
@@ -179,12 +184,13 @@ libs/
 │       │   │   ├── device-logs.contract.ts     # [file] IDeviceLogsService interface
 │       │   │   └── device-events.contract.ts   # [file] IDeviceEventsService interface
 │       │   └── models/                         # [folder] Domain models and entities
-│       │       └── device.models.ts            # [file] Device, DeviceType, DeviceStatus entities
+│       │       └── device.models.ts            # [file] Device, DeviceStorage entities
 │       └── storage/                            # [folder] Storage domain contracts  
 │           ├── contracts/                      # [folder] Service contracts (interfaces)
 │           │   └── storage.contract.ts         # [file] IStorageService interface
 │           └── models/                         # [folder] Domain models and entities
-│               └── storage.models.ts           # [file] Directory, FileItem, StorageMetadata entities
+│               └── storage.models.ts           # [file] DirectoryItem, FileItem, ViewableItemImage, FileItemType, StorageType, StorageDirectory
+│       └── 🚧 [PLANNED]: Shared models/ folder - Refactor to lift models up for cross-domain reuse
 
 ├── application/                                # 🎯 [APPLICATION LAYER] - Use cases and state management
 │   └── src/lib/                                # [library] Application services and state orchestration
@@ -317,6 +323,8 @@ libs/
 - **Contracts First**: Define service interfaces before implementations
 - **Domain Models**: Rich domain entities with business logic (when applicable)
 - **Framework Agnostic**: Domain logic should work in any TypeScript environment
+- **Model Organization**: Currently domain-specific (`device/models/`, `storage/models/`), planned refactor to shared `models/` folder
+- **Cross-Domain Reuse**: Models designed for reusability across multiple domain contracts
 
 ### Application Layer Patterns
 

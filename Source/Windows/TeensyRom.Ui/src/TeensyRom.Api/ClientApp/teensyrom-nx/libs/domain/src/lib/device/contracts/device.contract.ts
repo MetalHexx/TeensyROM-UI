@@ -5,7 +5,7 @@ import {
   ResetDeviceResponse,
 } from '@teensyrom-nx/data-access/api-client';
 import { Observable } from 'rxjs';
-import { Device } from '../models/device.models';
+import { Device } from '../../models';
 
 export interface IDeviceService {
   findDevices(autoConnectNew: boolean): Observable<Device[]>;

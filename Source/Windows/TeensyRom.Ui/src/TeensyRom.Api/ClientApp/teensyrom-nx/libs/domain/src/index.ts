@@ -1,11 +1,12 @@
+// Shared models
+export * from './lib/models';
+
 // Device domain exports
-export * from './lib/device/models/device.models';
 export * from './lib/device/contracts/device.contract';
 export * from './lib/device/contracts/device-logs.contract';
 export * from './lib/device/contracts/device-events.contract';
 
 // Storage domain exports
-export * from './lib/storage/models/storage.models';
 export * from './lib/storage/contracts/storage.contract';
 
 // Device storage token (uses same interface as main storage service)

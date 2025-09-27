@@ -1,10 +1,5 @@
-import { DeviceState, TeensyStorageType } from '@teensyrom-nx/data-access/api-client';
-
-export interface DeviceStorage {
-  deviceId: string;
-  type: TeensyStorageType;
-  available: boolean;
-}
+import { DeviceState } from '@teensyrom-nx/data-access/api-client';
+import { DeviceStorage } from './device-storage.model';
 
 export interface Device {
   deviceId: string;
