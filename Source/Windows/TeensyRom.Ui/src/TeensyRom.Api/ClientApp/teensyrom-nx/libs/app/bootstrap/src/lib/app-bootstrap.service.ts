@@ -1,13 +1,18 @@
 import { effect, inject, Injectable, runInInjectionContext, Injector } from '@angular/core';
-import { DeviceStore } from '@teensyrom-nx/domain/device/state';
+import { DeviceStore } from '@teensyrom-nx/application';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DeviceEventsService, DeviceLogsService } from '@teensyrom-nx/domain/device/services';
+import {
+  DEVICE_EVENTS_SERVICE,
+  DEVICE_LOGS_SERVICE,
+  IDeviceEventsService,
+  IDeviceLogsService,
+} from '@teensyrom-nx/domain';
 
 @Injectable({ providedIn: 'root' })
 export class AppBootstrapService {
   private readonly deviceStore = inject(DeviceStore);
-  private readonly deviceLogsService = inject(DeviceLogsService);
-  private readonly deviceEventsService = inject(DeviceEventsService);
+  private readonly deviceLogsService: IDeviceLogsService = inject(DEVICE_LOGS_SERVICE);
+  private readonly deviceEventsService: IDeviceEventsService = inject(DEVICE_EVENTS_SERVICE);
   private readonly injector = inject(Injector);
   private readonly snackBar = inject(MatSnackBar);
 

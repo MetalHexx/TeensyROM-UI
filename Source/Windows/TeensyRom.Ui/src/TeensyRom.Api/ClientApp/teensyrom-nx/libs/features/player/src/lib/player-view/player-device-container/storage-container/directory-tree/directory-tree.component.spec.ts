@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ComponentRef } from '@angular/core';
 import { vi, describe, beforeEach, it, expect } from 'vitest';
-import { StorageStore } from '@teensyrom-nx/domain/storage/state';
+import { StorageStore } from '@teensyrom-nx/application';
 import { DirectoryTreeComponent, DirectoryTreeNodeType } from './directory-tree.component';
-import { StorageType } from '@teensyrom-nx/domain/storage/services';
+import { StorageType } from '@teensyrom-nx/domain';
 
 interface MockStorageStore {
   getDeviceDirectories: ReturnType<typeof vi.fn>;

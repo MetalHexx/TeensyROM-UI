@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
-import { StorageStore } from '@teensyrom-nx/domain/storage/state';
+import { StorageStore } from '@teensyrom-nx/application';
 import { CompactCardLayoutComponent } from '@teensyrom-nx/ui/components';
 import { DirectoryTrailComponent } from './directory-trail.component';
 import { DirectoryNavigateComponent } from './directory-navigate/directory-navigate.component';

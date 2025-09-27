@@ -1,11 +1,11 @@
 import { Component, inject, computed, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { DeviceStore } from '@teensyrom-nx/domain/device/state';
+import { DeviceStore } from '@teensyrom-nx/application';
 import { PlayerDeviceContainerComponent } from './player-device-container/player-device-container.component';
-import { StorageKeyUtil, StorageStore } from '@teensyrom-nx/domain/storage/state';
-import { StorageType } from '@teensyrom-nx/domain/storage/services';
-import { Device } from '@teensyrom-nx/domain/device/services';
+import { StorageKeyUtil, StorageStore } from '@teensyrom-nx/application';
+import { StorageType } from '@teensyrom-nx/domain';
+import { Device } from '@teensyrom-nx/domain';
 
 @Component({
   selector: 'lib-player-view',

@@ -1,7 +1,7 @@
 import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
-import { FileItem, FileItemType } from '@teensyrom-nx/domain/storage/services';
+import { FileItem, FileItemType } from '@teensyrom-nx/domain';
 
 @Component({
   selector: 'lib-file-item',

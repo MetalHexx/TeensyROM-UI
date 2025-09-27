@@ -1,6 +1,6 @@
 import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Device } from '@teensyrom-nx/domain/device/services';
+import { Device } from '@teensyrom-nx/domain';
 import { MatCardModule } from '@angular/material/card';
 import { FileOtherComponent } from './file-other/file-other.component';
 import { FileImageComponent } from './file-image/file-image.component';

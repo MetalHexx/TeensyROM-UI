@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DirectoryItemComponent } from './directory-item.component';
-import { DirectoryItem } from '@teensyrom-nx/domain/storage/services';
+import { DirectoryItem } from '@teensyrom-nx/domain';
 
 describe('DirectoryItemComponent', () => {
   let component: DirectoryItemComponent;

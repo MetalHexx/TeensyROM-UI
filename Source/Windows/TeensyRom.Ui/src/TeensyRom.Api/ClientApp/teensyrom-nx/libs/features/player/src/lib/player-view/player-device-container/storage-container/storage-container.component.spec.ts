@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { StorageContainerComponent } from './storage-container.component';
 import { FilesApiService } from '@teensyrom-nx/data-access/api-client';
-import { STORAGE_SERVICE_PROVIDER } from '@teensyrom-nx/domain/storage/services';
+import { STORAGE_SERVICE_PROVIDER } from '@teensyrom-nx/domain';
 
 describe('StorageContainerComponent', () => {
   let component: StorageContainerComponent;

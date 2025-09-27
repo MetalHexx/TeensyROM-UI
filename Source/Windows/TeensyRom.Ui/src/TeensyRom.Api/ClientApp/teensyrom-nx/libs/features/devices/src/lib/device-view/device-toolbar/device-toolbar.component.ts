@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { CompactCardLayoutComponent, ActionButtonComponent } from '@teensyrom-nx/ui/components';
-import { DeviceStore } from '@teensyrom-nx/domain/device/state';
+import { DeviceStore } from '@teensyrom-nx/application';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({

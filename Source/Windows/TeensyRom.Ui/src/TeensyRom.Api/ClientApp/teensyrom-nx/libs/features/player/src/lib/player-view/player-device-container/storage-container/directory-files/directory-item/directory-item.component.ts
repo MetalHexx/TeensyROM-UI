@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
-import { DirectoryItem } from '@teensyrom-nx/domain/storage/services';
+import { DirectoryItem } from '@teensyrom-nx/domain';
 
 @Component({
   selector: 'lib-directory-item',

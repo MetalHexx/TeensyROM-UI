@@ -4,8 +4,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { appRoutes } from './app.routes';
 import { AppBootstrapService } from '@teensyrom-nx/app/bootstrap';
-import { DeviceService } from '@teensyrom-nx/domain/device/services';
-import { STORAGE_SERVICE_PROVIDER } from '@teensyrom-nx/domain/storage/services';
+import {
+  DEVICE_SERVICE_PROVIDER,
+  DEVICE_LOGS_SERVICE_PROVIDER,
+  DEVICE_EVENTS_SERVICE_PROVIDER,
+  DEVICE_STORAGE_SERVICE_PROVIDER,
+  STORAGE_SERVICE_PROVIDER,
+} from '@teensyrom-nx/infrastructure';
 import {
   DevicesApiService,
   Configuration,
@@ -32,7 +37,10 @@ export const appConfig: ApplicationConfig = {
         return new FilesApiService(config);
       },
     },
-    DeviceService,
+    DEVICE_SERVICE_PROVIDER,
+    DEVICE_LOGS_SERVICE_PROVIDER,
+    DEVICE_EVENTS_SERVICE_PROVIDER,
+    DEVICE_STORAGE_SERVICE_PROVIDER,
     STORAGE_SERVICE_PROVIDER,
     AppBootstrapService,
   ],

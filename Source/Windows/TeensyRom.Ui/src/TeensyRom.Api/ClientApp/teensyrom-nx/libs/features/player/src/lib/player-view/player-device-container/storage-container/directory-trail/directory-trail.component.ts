@@ -1,5 +1,5 @@
 import { Component, input, inject, computed } from '@angular/core';
-import { StorageStore } from '@teensyrom-nx/domain/storage/state';
+import { StorageStore } from '@teensyrom-nx/application';
 import { CompactCardLayoutComponent } from '@teensyrom-nx/ui/components';
 import { DirectoryNavigateComponent } from './directory-navigate/directory-navigate.component';
 import { DirectoryBreadcrumbComponent } from './directory-breadcrumb/directory-breadcrumb.component';

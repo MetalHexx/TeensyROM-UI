@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FileItemComponent } from './file-item.component';
-import { FileItem, FileItemType } from '@teensyrom-nx/domain/storage/services';
+import { FileItem, FileItemType } from '@teensyrom-nx/domain';
 
 describe('FileItemComponent', () => {
   let component: FileItemComponent;

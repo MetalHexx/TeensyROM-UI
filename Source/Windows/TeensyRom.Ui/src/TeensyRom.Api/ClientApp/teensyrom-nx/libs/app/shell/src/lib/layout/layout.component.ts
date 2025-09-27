@@ -6,7 +6,7 @@ import { NavigationService } from '@teensyrom-nx/app/navigation';
 import { NavMenuComponent } from '../components/nav-menu/nav-menu.component';
 import { filter, map, mergeMap } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DeviceStore } from '@teensyrom-nx/domain/device/state';
+import { DeviceStore } from '@teensyrom-nx/application';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BusyDialogComponent } from '../components/busy-dialog/busy-dialog.component';
 

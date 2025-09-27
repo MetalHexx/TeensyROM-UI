@@ -8,8 +8,8 @@ import {
   DirectoryItem,
   FileItem,
   FileItemType,
-} from '@teensyrom-nx/domain/storage/services';
-import { StorageStore } from '@teensyrom-nx/domain/storage/state';
+} from '@teensyrom-nx/domain';
+import { StorageStore } from '@teensyrom-nx/application';
 
 describe('DirectoryFilesComponent', () => {
   let component: DirectoryFilesComponent;

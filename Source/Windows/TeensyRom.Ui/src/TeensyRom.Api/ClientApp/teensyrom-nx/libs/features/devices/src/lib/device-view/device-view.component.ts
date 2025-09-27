@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DeviceStore } from '@teensyrom-nx/domain/device/state';
+import { DeviceStore } from '@teensyrom-nx/application';
 import { DeviceItemComponent } from './device-item/device-item.component';
 import { DeviceLogsComponent } from './device-logs/device-logs.component';
 import { DeviceToolbarComponent } from './device-toolbar/device-toolbar.component';

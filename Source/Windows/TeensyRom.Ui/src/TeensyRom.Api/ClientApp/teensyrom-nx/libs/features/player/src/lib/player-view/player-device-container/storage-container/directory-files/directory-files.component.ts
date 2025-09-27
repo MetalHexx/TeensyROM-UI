@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, input, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardLayoutComponent } from '@teensyrom-nx/ui/components';
-import { StorageStore } from '@teensyrom-nx/domain/storage/state';
-import { DirectoryItem, FileItem } from '@teensyrom-nx/domain/storage/services';
+import { StorageStore } from '@teensyrom-nx/application';
+import { DirectoryItem, FileItem } from '@teensyrom-nx/domain';
 import { DirectoryItemComponent } from './directory-item/directory-item.component';
 import { FileItemComponent } from './file-item/file-item.component';
 

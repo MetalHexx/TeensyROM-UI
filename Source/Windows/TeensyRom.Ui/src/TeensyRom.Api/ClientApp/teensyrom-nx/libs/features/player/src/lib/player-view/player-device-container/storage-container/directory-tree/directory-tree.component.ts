@@ -16,8 +16,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { DirectoryTreeNodeComponent } from './directory-tree-node/directory-tree-node.component';
-import { StorageStore, StorageDirectoryState } from '@teensyrom-nx/domain/storage/state';
-import { StorageType, StorageDirectory } from '@teensyrom-nx/domain/storage/services';
+import { StorageStore, StorageDirectoryState } from '@teensyrom-nx/application';
+import { StorageType, StorageDirectory } from '@teensyrom-nx/domain';
 import { LogType, logInfo } from '@teensyrom-nx/utils';
 import { CardLayoutComponent } from '@teensyrom-nx/ui/components';
 

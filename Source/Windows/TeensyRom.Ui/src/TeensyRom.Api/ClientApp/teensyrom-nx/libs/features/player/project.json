@@ -5,7 +5,7 @@
   "prefix": "lib",
   "projectType": "library",
   "tags": [],
-  "implicitDependencies": ["device-state"],
+  "implicitDependencies": ["application", "infrastructure"],
   "targets": {
     "test": {
       "executor": "@nx/vite:test",

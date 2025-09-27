@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { PlayerViewComponent } from './player-view.component';
 import { DevicesApiService } from '@teensyrom-nx/data-access/api-client';
 import { FilesApiService } from '@teensyrom-nx/data-access/api-client';
-import { STORAGE_SERVICE_PROVIDER } from '@teensyrom-nx/domain/storage/services';
+import { STORAGE_SERVICE_PROVIDER } from '@teensyrom-nx/infrastructure';
 
 describe('PlayerViewComponent', () => {
   let component: PlayerViewComponent;

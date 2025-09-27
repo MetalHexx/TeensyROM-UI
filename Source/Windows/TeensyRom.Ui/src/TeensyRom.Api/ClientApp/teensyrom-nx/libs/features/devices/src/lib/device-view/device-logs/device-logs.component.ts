@@ -7,7 +7,7 @@ import {
   EffectRef,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { DeviceLogsService } from '@teensyrom-nx/domain/device/services';
+import { DEVICE_LOGS_SERVICE, IDeviceLogsService } from '@teensyrom-nx/domain';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,7 +27,7 @@ import { IconButtonComponent, CardLayoutComponent } from '@teensyrom-nx/ui/compo
   ],
 })
 export class DeviceLogsComponent {
-  private readonly logsService = inject(DeviceLogsService);
+  private readonly logsService: IDeviceLogsService = inject(DEVICE_LOGS_SERVICE);
   readonly logs = this.logsService.logs;
   readonly isConnected = this.logsService.isConnected;
 

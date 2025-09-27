@@ -1,0 +1,32 @@
+{
+  "name": "infrastructure",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "/libs/infrastructure/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": [],
+  "implicitDependencies": ["device-services", "storage-services", "api-client"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/{projectRoot}"
+      }
+    },
+    "test:integration": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/{projectRoot}",
+        "testFilePattern": "**/*.integration.spec.ts",
+        "env": { "RUN_INTEGRATION": "true" }
+      }
+    }
+  }
+}
