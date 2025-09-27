@@ -10,12 +10,9 @@ import {
   DEVICE_EVENTS_SERVICE_PROVIDER,
   DEVICE_STORAGE_SERVICE_PROVIDER,
   STORAGE_SERVICE_PROVIDER,
+  DEVICES_API_CLIENT_PROVIDER,
+  FILES_API_CLIENT_PROVIDER,
 } from '@teensyrom-nx/infrastructure';
-import {
-  DevicesApiService,
-  Configuration,
-  FilesApiService,
-} from '@teensyrom-nx/data-access/api-client';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,20 +20,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(appRoutes),
     provideHttpClient(),
     provideAnimations(),
-    {
-      provide: DevicesApiService,
-      useFactory: () => {
-        const config = new Configuration({ basePath: 'http://localhost:5168' });
-        return new DevicesApiService(config);
-      },
-    },
-    {
-      provide: FilesApiService,
-      useFactory: () => {
-        const config = new Configuration({ basePath: 'http://localhost:5168' });
-        return new FilesApiService(config);
-      },
-    },
+    // API Client providers (infrastructure layer)
+    DEVICES_API_CLIENT_PROVIDER,
+    FILES_API_CLIENT_PROVIDER,
+    // Domain service providers (infrastructure implementations)
     DEVICE_SERVICE_PROVIDER,
     DEVICE_LOGS_SERVICE_PROVIDER,
     DEVICE_EVENTS_SERVICE_PROVIDER,
