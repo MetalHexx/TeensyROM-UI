@@ -2,15 +2,16 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { signal } from '@angular/core';
 import { DirectoryFilesComponent } from './directory-files.component';
-import { FilesApiService } from '@teensyrom-nx/data-access/api-client';
 import {
   DirectoryItem,
   FileItem,
   FileItemType,
   STORAGE_SERVICE,
+  IStorageService,
+  StorageDirectory,
 } from '@teensyrom-nx/domain';
-import { STORAGE_SERVICE_PROVIDER } from '@teensyrom-nx/infrastructure';
 import { StorageStore } from '@teensyrom-nx/application';
+import { of } from 'rxjs';
 
 describe('DirectoryFilesComponent', () => {
   let component: DirectoryFilesComponent;
@@ -44,8 +45,9 @@ describe('DirectoryFilesComponent', () => {
     images: [],
   };
 
-  const mockFilesApiService = {
-    getDirectory: vi.fn().mockResolvedValue({ storageItem: {} }),
+  const mockStorageService: Partial<IStorageService> = {
+    getDirectories: () => of([]),
+    getDirectory: () => of({} as StorageDirectory),
   };
 
   beforeEach(async () => {
@@ -71,9 +73,8 @@ describe('DirectoryFilesComponent', () => {
     await TestBed.configureTestingModule({
       imports: [DirectoryFilesComponent],
       providers: [
-        { provide: FilesApiService, useValue: mockFilesApiService },
+        { provide: STORAGE_SERVICE, useValue: mockStorageService },
         { provide: StorageStore, useValue: mockStorageStore },
-        STORAGE_SERVICE_PROVIDER,
       ],
     }).compileComponents();
 

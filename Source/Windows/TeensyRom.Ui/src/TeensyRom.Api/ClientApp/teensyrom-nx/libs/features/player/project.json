@@ -5,7 +5,7 @@
   "prefix": "lib",
   "projectType": "library",
   "tags": [],
-  "implicitDependencies": ["application", "infrastructure"],
+  "implicitDependencies": ["application", "domain"],
   "targets": {
     "test": {
       "executor": "@nx/vite:test",

@@ -1,44 +1,56 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { vi } from 'vitest';
 import { PlayerViewComponent } from './player-view.component';
-import { DevicesApiService } from '@teensyrom-nx/data-access/api-client';
-import { FilesApiService } from '@teensyrom-nx/data-access/api-client';
 import {
-  STORAGE_SERVICE_PROVIDER,
-  DEVICE_SERVICE_PROVIDER,
-  DEVICE_LOGS_SERVICE_PROVIDER,
-  DEVICE_EVENTS_SERVICE_PROVIDER,
-  DEVICE_STORAGE_SERVICE_PROVIDER
-} from '@teensyrom-nx/infrastructure';
+  DEVICE_SERVICE,
+  DEVICE_STORAGE_SERVICE,
+  DEVICE_EVENTS_SERVICE,
+  DEVICE_LOGS_SERVICE,
+  STORAGE_SERVICE,
+  IDeviceService,
+  IStorageService,
+  IDeviceEventsService,
+  IDeviceLogsService,
+  Device,
+  StorageDirectory,
+} from '@teensyrom-nx/domain';
+import { of } from 'rxjs';
 
 describe('PlayerViewComponent', () => {
   let component: PlayerViewComponent;
   let fixture: ComponentFixture<PlayerViewComponent>;
 
-  // Mock services
-  const mockDevicesApiService = {
-    findDevices: vi.fn().mockResolvedValue({ devices: [] }),
-    connectDevice: vi.fn().mockResolvedValue({ connectedCart: {} }),
-    disconnectDevice: vi.fn().mockResolvedValue({}),
-    resetDevice: vi.fn().mockResolvedValue({}),
-    pingDevice: vi.fn().mockResolvedValue({}),
+  // Mock domain services
+  const mockDeviceService: Partial<IDeviceService> = {
+    getDevices: () => of([]),
+    getDevice: () => of({} as Device),
+    connectDevice: () => of(void 0),
+    disconnectDevice: () => of(void 0),
   };
 
-  const mockFilesApiService = {
-    getDirectory: vi.fn().mockResolvedValue({ storageItem: {} }),
+  const mockStorageService: Partial<IStorageService> = {
+    getDirectories: () => of([]),
+    getDirectory: () => of({} as StorageDirectory),
+  };
+
+  const mockDeviceEventsService: Partial<IDeviceEventsService> = {
+    onDeviceConnected: () => of(),
+    onDeviceDisconnected: () => of(),
+  };
+
+  const mockDeviceLogsService: Partial<IDeviceLogsService> = {
+    getLogs: () => of([]),
+    onLogReceived: () => of(),
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PlayerViewComponent],
       providers: [
-        { provide: DevicesApiService, useValue: mockDevicesApiService },
-        { provide: FilesApiService, useValue: mockFilesApiService },
-        STORAGE_SERVICE_PROVIDER,
-        DEVICE_SERVICE_PROVIDER,
-        DEVICE_LOGS_SERVICE_PROVIDER,
-        DEVICE_EVENTS_SERVICE_PROVIDER,
-        DEVICE_STORAGE_SERVICE_PROVIDER,
+        { provide: DEVICE_SERVICE, useValue: mockDeviceService },
+        { provide: STORAGE_SERVICE, useValue: mockStorageService },
+        { provide: DEVICE_EVENTS_SERVICE, useValue: mockDeviceEventsService },
+        { provide: DEVICE_LOGS_SERVICE, useValue: mockDeviceLogsService },
+        { provide: DEVICE_STORAGE_SERVICE, useValue: {} },
       ],
     }).compileComponents();
 
