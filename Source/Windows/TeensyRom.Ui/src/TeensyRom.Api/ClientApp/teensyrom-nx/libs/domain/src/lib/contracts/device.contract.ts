@@ -5,7 +5,7 @@ import {
   ResetDeviceResponse,
 } from '@teensyrom-nx/data-access/api-client';
 import { Observable } from 'rxjs';
-import { Device } from '../../models';
+import { Device } from '../models';
 
 export interface IDeviceService {
   findDevices(autoConnectNew: boolean): Observable<Device[]>;
@@ -17,4 +17,3 @@ export interface IDeviceService {
 }
 
 export const DEVICE_SERVICE = new InjectionToken<IDeviceService>('DEVICE_SERVICE');
-

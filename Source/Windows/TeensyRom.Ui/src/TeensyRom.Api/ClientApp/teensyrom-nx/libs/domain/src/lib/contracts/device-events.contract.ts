@@ -9,4 +9,3 @@ export interface IDeviceEventsService {
 }
 
 export const DEVICE_EVENTS_SERVICE = new InjectionToken<IDeviceEventsService>('DEVICE_EVENTS_SERVICE');
-

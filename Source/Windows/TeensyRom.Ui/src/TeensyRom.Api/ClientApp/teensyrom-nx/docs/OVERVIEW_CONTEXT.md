@@ -74,7 +74,7 @@ This application follows **Clean Architecture** principles with clear separation
 **Purpose**: Contains the core business rules, entities, and contracts that define the application's behavior
 
 - **Models**: Shared domain entities and value objects representing core business concepts (located in `models/` folder)
-- **Contracts**: Pure TypeScript interfaces defining service contracts (no implementations)
+- **Contracts**: Pure TypeScript interfaces defining service contracts (located in `contracts/` folder)
 - **Business Logic**: Pure domain logic and business rules (framework-agnostic)
 - **No Dependencies**: Zero external dependencies - pure TypeScript only
 
@@ -83,6 +83,12 @@ All domain models are located in the shared `models/` folder for universal acces
 - **Device Models**: `Device`, `DeviceStorage`
 - **Storage Models**: `DirectoryItem`, `FileItem`, `ViewableItemImage`, `FileItemType`, `StorageType`, `StorageDirectory`
 - **Individual Files**: Each interface/enum is in its own file for better maintainability and tree-shaking
+
+**Shared Contract Structure**:
+All domain contracts are located in the shared `contracts/` folder for universal access: 
+- **Device Contracts**: `IDeviceService`, `IDeviceEventsService`, `IDeviceLogsService` + injection tokens
+- **Storage Contracts**: `IStorageService` + injection tokens
+- **Individual Files**: Each interface/token is in its own file for better maintainability and tree-shaking
 
 **Contract Examples**:
 - `IDeviceService` contract defining device operations
@@ -135,9 +141,13 @@ All domain models are located in the shared `models/` folder for universal acces
 ### ✅ Completed Clean Architecture Refactor
 
 - **Domain Layer**: Pure TypeScript contracts and models extracted from services
+- **Shared Domain Models**: All models moved to shared `models/` folder for universal access
+- **Shared Domain Contracts**: All contracts moved to shared `contracts/` folder for universal access
+- **Individual Files**: Each model/contract split into own file for better maintainability and tree-shaking
 - **Infrastructure Layer**: Concrete service implementations moved from domain
 - **Application Layer**: State management and use case orchestration separated
 - **Dependency Inversion**: Infrastructure services implement domain contracts
+- **Zero Breaking Changes**: All refactors completed with barrel exports maintaining compatibility
 
 ### ✅ Completed Features
 
@@ -177,20 +187,24 @@ apps/                                           # [group] Applications
 
 libs/
 ├── domain/                                     # 🏛️ [DOMAIN LAYER] - Pure business logic (no dependencies)
-│   └── src/lib/                                # [library] Consolidated domain contracts and models
-│       ├── device/                             # [folder] Device domain contracts
-│       │   ├── contracts/                      # [folder] Service contracts (interfaces)
-│       │   │   ├── device.contract.ts          # [file] IDeviceService interface  
-│       │   │   ├── device-logs.contract.ts     # [file] IDeviceLogsService interface
-│       │   │   └── device-events.contract.ts   # [file] IDeviceEventsService interface
-│       │   └── models/                         # [folder] Domain models and entities
-│       │       └── device.models.ts            # [file] Device, DeviceStorage entities
-│       └── storage/                            # [folder] Storage domain contracts  
-│           ├── contracts/                      # [folder] Service contracts (interfaces)
-│           │   └── storage.contract.ts         # [file] IStorageService interface
-│           └── models/                         # [folder] Domain models and entities
-│               └── storage.models.ts           # [file] DirectoryItem, FileItem, ViewableItemImage, FileItemType, StorageType, StorageDirectory
-│       └── 🚧 [PLANNED]: Shared models/ folder - Refactor to lift models up for cross-domain reuse
+│   └── src/lib/                                # [library] Clean domain architecture with shared models and contracts
+│       ├── models/                             # [folder] Shared domain models (universal access)
+│       │   ├── device.model.ts                 # [file] Device interface
+│       │   ├── device-storage.model.ts         # [file] DeviceStorage interface  
+│       │   ├── directory-item.model.ts         # [file] DirectoryItem interface
+│       │   ├── file-item.model.ts              # [file] FileItem interface
+│       │   ├── file-item-type.enum.ts          # [file] FileItemType enum
+│       │   ├── storage-directory.model.ts      # [file] StorageDirectory interface
+│       │   ├── storage-type.enum.ts            # [file] StorageType enum
+│       │   ├── viewable-item-image.model.ts    # [file] ViewableItemImage interface
+│       │   └── index.ts                        # [file] Models barrel export
+│       └── contracts/                          # [folder] Shared domain contracts (universal access)
+│           ├── device.contract.ts              # [file] IDeviceService + DEVICE_SERVICE token
+│           ├── device-events.contract.ts       # [file] IDeviceEventsService + DEVICE_EVENTS_SERVICE token
+│           ├── device-logs.contract.ts         # [file] IDeviceLogsService + DEVICE_LOGS_SERVICE token
+│           ├── storage.contract.ts             # [file] IStorageService + STORAGE_SERVICE token
+│           ├── device-storage.token.ts         # [file] DEVICE_STORAGE_SERVICE token
+│           └── index.ts                        # [file] Contracts barrel export
 
 ├── application/                                # 🎯 [APPLICATION LAYER] - Use cases and state management
 │   └── src/lib/                                # [library] Application services and state orchestration
@@ -323,7 +337,7 @@ libs/
 - **Contracts First**: Define service interfaces before implementations
 - **Domain Models**: Rich domain entities with business logic (when applicable)
 - **Framework Agnostic**: Domain logic should work in any TypeScript environment
-- **Model Organization**: Currently domain-specific (`device/models/`, `storage/models/`), planned refactor to shared `models/` folder
+- **Model Organization**: Shared `models/` and `contracts/` folders for universal access and cross-domain reuse
 - **Cross-Domain Reuse**: Models designed for reusability across multiple domain contracts
 
 ### Application Layer Patterns

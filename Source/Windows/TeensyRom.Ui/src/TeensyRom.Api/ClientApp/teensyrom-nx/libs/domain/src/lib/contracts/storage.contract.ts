@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
-import { StorageDirectory, StorageType } from '../../models';
+import { StorageDirectory, StorageType } from '../models';
 
 /**
  * Storage service contract defining the interface for storage operations.

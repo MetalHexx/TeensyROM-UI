@@ -9,4 +9,3 @@ export interface IDeviceLogsService {
 }
 
 export const DEVICE_LOGS_SERVICE = new InjectionToken<IDeviceLogsService>('DEVICE_LOGS_SERVICE');
-
