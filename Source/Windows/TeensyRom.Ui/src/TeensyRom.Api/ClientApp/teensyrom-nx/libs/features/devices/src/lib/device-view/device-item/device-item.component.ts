@@ -9,7 +9,6 @@ import {
   IDeviceEventsService,
   StorageType,
 } from '@teensyrom-nx/domain';
-import { TeensyStorageType } from '@teensyrom-nx/data-access/api-client';
 import {
   IconLabelComponent,
   IconButtonComponent,
@@ -45,7 +44,7 @@ export class DeviceItemComponent {
   readonly connectionStatus = computed(() => this.device()?.isConnected);
   readonly usbStatus = computed(() => this.device()?.usbStorage?.available);
   readonly sdStatus = computed(() => this.device()?.sdStorage?.available);
-  readonly TeensyStorageType = TeensyStorageType;
+  readonly StorageType = StorageType;
 
   readonly deviceState = computed(() => {
     const id = this.device()?.deviceId;
@@ -63,10 +62,8 @@ export class DeviceItemComponent {
     this.disconnect.emit(this.device()?.deviceId ?? '');
   }
 
-  async onIndex(storageType: TeensyStorageType) {
+  async onIndex(storageType: StorageType) {
     const deviceId = this.device()?.deviceId ?? '';
-    // Convert API type to domain type
-    const domainStorageType = storageType === TeensyStorageType.Sd ? StorageType.Sd : StorageType.Usb;
-    await this.deviceStore.indexStorage(deviceId, domainStorageType);
+    await this.deviceStore.indexStorage(deviceId, storageType);
   }
 }
