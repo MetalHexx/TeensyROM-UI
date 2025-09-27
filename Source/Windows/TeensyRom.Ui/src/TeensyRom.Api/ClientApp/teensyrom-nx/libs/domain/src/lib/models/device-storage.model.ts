@@ -1,7 +1,7 @@
-import { TeensyStorageType } from '@teensyrom-nx/data-access/api-client';
+import { StorageType } from './storage-type.enum';
 
 export interface DeviceStorage {
   deviceId: string;
-  type: TeensyStorageType;
+  type: StorageType;
   available: boolean;
 }

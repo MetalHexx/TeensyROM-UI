@@ -1,5 +1,6 @@
 import { Injectable, computed, signal, WritableSignal, Signal, inject } from '@angular/core';
-import { DevicesApiService, DeviceState } from '@teensyrom-nx/data-access/api-client';
+import { DevicesApiService } from '@teensyrom-nx/data-access/api-client';
+import { DeviceState } from '@teensyrom-nx/domain';
 import { from } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
 import { LogType, logInfo, logError } from '@teensyrom-nx/utils';

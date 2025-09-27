@@ -1,5 +1,7 @@
 import { CartDto, CartStorageDto } from '@teensyrom-nx/data-access/api-client';
-import { Device, DeviceStorage } from '@teensyrom-nx/domain';
+import { Device, DeviceStorage, DeviceState, StorageType } from '@teensyrom-nx/domain';
+import { DeviceState as ApiDeviceState } from '@teensyrom-nx/data-access/api-client';
+import { TeensyStorageType } from '@teensyrom-nx/data-access/api-client';
 
 export class DeviceMapper {
   static toDevice(cartDto: CartDto): Device {
@@ -14,7 +16,7 @@ export class DeviceMapper {
       fwVersion: cartDto.fwVersion,
       isCompatible: cartDto.isCompatible,
       isConnected: cartDto.isConnected,
-      deviceState: cartDto.deviceState,
+      deviceState: this.mapDeviceState(cartDto.deviceState),
       sdStorage: this.toDeviceStorage(cartDto.sdStorage),
       usbStorage: this.toDeviceStorage(cartDto.usbStorage),
     };
@@ -23,9 +25,19 @@ export class DeviceMapper {
   static toDeviceStorage(storageDto: CartStorageDto): DeviceStorage {
     return {
       deviceId: storageDto.deviceId,
-      type: storageDto.type,
+      type: this.mapStorageType(storageDto.type),
       available: storageDto.available,
     };
+  }
+
+  private static mapDeviceState(apiState: ApiDeviceState): DeviceState {
+    // Both enums have the same values, so we can safely cast
+    return apiState as unknown as DeviceState;
+  }
+
+  private static mapStorageType(apiType: TeensyStorageType): StorageType {
+    // Both enums have the same values, so we can safely cast
+    return apiType as unknown as StorageType;
   }
 
   static toDeviceList(cartDtos: CartDto[]): Device[] {

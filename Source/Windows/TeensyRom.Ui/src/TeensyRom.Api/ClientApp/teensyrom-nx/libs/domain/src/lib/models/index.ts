@@ -1,6 +1,7 @@
 // Device models
 export * from './device.model';
 export * from './device-storage.model';
+export * from './device-state.enum';
 
 // Storage models
 export * from './directory-item.model';

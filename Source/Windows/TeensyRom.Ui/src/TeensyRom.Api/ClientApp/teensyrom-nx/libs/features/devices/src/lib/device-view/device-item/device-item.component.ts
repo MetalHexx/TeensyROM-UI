@@ -16,7 +16,7 @@ import {
   CardLayoutComponent,
 } from '@teensyrom-nx/ui/components';
 import { StorageStatusComponent as StorageItemComponent } from '../storage-item/storage-item.component';
-import { DeviceState } from '@teensyrom-nx/data-access/api-client';
+import { DeviceState } from '@teensyrom-nx/domain';
 import { DeviceStore } from '@teensyrom-nx/application';
 
 @Component({

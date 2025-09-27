@@ -3,9 +3,6 @@ import {
   DevicesApiService,
   FindDevicesResponse,
   ConnectDeviceResponse,
-  DisconnectDeviceResponse,
-  ResetDeviceResponse,
-  PingDeviceResponse,
 } from '@teensyrom-nx/data-access/api-client';
 import { Device } from '@teensyrom-nx/domain';
 import { DeviceMapper } from './device.mapper';
@@ -36,16 +33,22 @@ export class DeviceService implements IDeviceService {
     );
   }
 
-  disconnectDevice(deviceId: string): Observable<DisconnectDeviceResponse> {
-    return from(this.apiService.disconnectDevice({ deviceId }));
+  disconnectDevice(deviceId: string): Observable<void> {
+    return from(this.apiService.disconnectDevice({ deviceId })).pipe(
+      map(() => void 0)
+    );
   }
 
-  resetDevice(deviceId: string): Observable<ResetDeviceResponse> {
-    return from(this.apiService.resetDevice({ deviceId }));
+  resetDevice(deviceId: string): Observable<void> {
+    return from(this.apiService.resetDevice({ deviceId })).pipe(
+      map(() => void 0)
+    );
   }
 
-  pingDevice(deviceId: string): Observable<PingDeviceResponse> {
-    return from(this.apiService.pingDevice({ deviceId }));
+  pingDevice(deviceId: string): Observable<void> {
+    return from(this.apiService.pingDevice({ deviceId })).pipe(
+      map(() => void 0)
+    );
   }
 }
 

@@ -1,5 +1,5 @@
 import { InjectionToken, Signal } from '@angular/core';
-import { DeviceState } from '@teensyrom-nx/data-access/api-client';
+import { DeviceState } from '../models/device-state.enum';
 
 export interface IDeviceEventsService {
   readonly allEvents: Signal<Map<string, DeviceState>>;

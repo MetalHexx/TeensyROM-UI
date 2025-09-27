@@ -1,4 +1,4 @@
-import { DeviceState } from '@teensyrom-nx/data-access/api-client';
+import { DeviceState } from './device-state.enum';
 import { DeviceStorage } from './device-storage.model';
 
 export interface Device {
