@@ -3,7 +3,13 @@ import { vi } from 'vitest';
 import { PlayerViewComponent } from './player-view.component';
 import { DevicesApiService } from '@teensyrom-nx/data-access/api-client';
 import { FilesApiService } from '@teensyrom-nx/data-access/api-client';
-import { STORAGE_SERVICE_PROVIDER } from '@teensyrom-nx/infrastructure';
+import {
+  STORAGE_SERVICE_PROVIDER,
+  DEVICE_SERVICE_PROVIDER,
+  DEVICE_LOGS_SERVICE_PROVIDER,
+  DEVICE_EVENTS_SERVICE_PROVIDER,
+  DEVICE_STORAGE_SERVICE_PROVIDER
+} from '@teensyrom-nx/infrastructure';
 
 describe('PlayerViewComponent', () => {
   let component: PlayerViewComponent;
@@ -29,6 +35,10 @@ describe('PlayerViewComponent', () => {
         { provide: DevicesApiService, useValue: mockDevicesApiService },
         { provide: FilesApiService, useValue: mockFilesApiService },
         STORAGE_SERVICE_PROVIDER,
+        DEVICE_SERVICE_PROVIDER,
+        DEVICE_LOGS_SERVICE_PROVIDER,
+        DEVICE_EVENTS_SERVICE_PROVIDER,
+        DEVICE_STORAGE_SERVICE_PROVIDER,
       ],
     }).compileComponents();
 

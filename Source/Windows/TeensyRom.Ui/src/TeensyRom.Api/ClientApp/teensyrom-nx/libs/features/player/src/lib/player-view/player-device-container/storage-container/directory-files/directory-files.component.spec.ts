@@ -4,11 +4,12 @@ import { signal } from '@angular/core';
 import { DirectoryFilesComponent } from './directory-files.component';
 import { FilesApiService } from '@teensyrom-nx/data-access/api-client';
 import {
-  STORAGE_SERVICE_PROVIDER,
   DirectoryItem,
   FileItem,
   FileItemType,
+  STORAGE_SERVICE,
 } from '@teensyrom-nx/domain';
+import { STORAGE_SERVICE_PROVIDER } from '@teensyrom-nx/infrastructure';
 import { StorageStore } from '@teensyrom-nx/application';
 
 describe('DirectoryFilesComponent', () => {

@@ -7,7 +7,6 @@
   "tags": [],
   "implicitDependencies": [
     "features-device",
-    "device-services",
     "application",
     "ui-styles",
     "app-shell"

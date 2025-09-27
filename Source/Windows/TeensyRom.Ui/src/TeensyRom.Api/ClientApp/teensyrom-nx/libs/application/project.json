@@ -6,7 +6,6 @@
   "projectType": "library",
   "tags": [],
   "implicitDependencies": [
-    "device-services",
     "infrastructure"
   ],
   "targets": {

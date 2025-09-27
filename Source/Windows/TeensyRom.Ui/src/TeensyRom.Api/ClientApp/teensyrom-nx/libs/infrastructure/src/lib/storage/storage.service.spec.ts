@@ -82,7 +82,7 @@ describe('StorageService', () => {
       // Assert
       expect(mockFilesApiService.getDirectory).toHaveBeenCalledWith({
         deviceId,
-        storageType,
+        storageType: TeensyStorageType.Sd, // API service expects API type
         path,
       });
       expect(result).toBeDefined();
@@ -121,7 +121,7 @@ describe('StorageService', () => {
       // Assert
       expect(mockFilesApiService.getDirectory).toHaveBeenCalledWith({
         deviceId,
-        storageType,
+        storageType: TeensyStorageType.Usb, // API service expects API type
         path: undefined,
       });
       expect(result).toBeDefined();
@@ -209,7 +209,7 @@ describe('StorageService', () => {
       expect(mockFilesApiService.getDirectory).toHaveBeenCalledTimes(1);
       expect(mockFilesApiService.getDirectory).toHaveBeenCalledWith({
         deviceId,
-        storageType,
+        storageType: TeensyStorageType.Usb, // API service expects API type
         path,
       });
     });
