@@ -5,7 +5,7 @@
   "prefix": "lib",
   "projectType": "library",
   "tags": [],
-  "implicitDependencies": ["application"],
+  "implicitDependencies": [],
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint"

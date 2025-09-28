@@ -5,12 +5,7 @@
   "prefix": "app",
   "sourceRoot": "apps/teensyrom-ui/src",
   "tags": [],
-  "implicitDependencies": [
-    "features-device",
-    "application",
-    "ui-styles",
-    "app-shell"
-  ],
+  "implicitDependencies": [],
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:application",
