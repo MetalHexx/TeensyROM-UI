@@ -1,13 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import {
+  CartDto,
+  CartStorageDto,
   StorageCacheDto,
   DirectoryItemDto,
   FileItemDto,
   ViewableItemImageDto,
   FileItemType as ApiFileItemType,
+  TeensyStorageType as ApiStorageType,
+  DeviceState as ApiDeviceState,
 } from '@teensyrom-nx/data-access/api-client';
-import { DomainMapper } from '../domain.mapper';
-import { FileItemType } from '@teensyrom-nx/domain';
+import { DomainMapper } from './domain.mapper';
+import { FileItemType, StorageType, DeviceState } from '@teensyrom-nx/domain';
 
 describe('DomainMapper (Storage)', () => {
   describe('toStorageDirectory', () => {
@@ -220,6 +224,212 @@ describe('DomainMapper (Storage)', () => {
       expect(() => DomainMapper.toViewableItemImage(dto)).toThrow(
         'ViewableItemImageDto is required for transformation'
       );
+    });
+  });
+
+  describe('Storage Type Mapping', () => {
+    describe('toApiStorageType', () => {
+      it('should map domain StorageType to API TeensyStorageType correctly', () => {
+        expect(DomainMapper.toApiStorageType(StorageType.Sd)).toBe(ApiStorageType.Sd);
+        expect(DomainMapper.toApiStorageType(StorageType.Usb)).toBe(ApiStorageType.Usb);
+      });
+
+      it('should throw error for unknown storage type', () => {
+        const unknownType = 'InvalidType' as unknown as StorageType;
+        expect(() => DomainMapper.toApiStorageType(unknownType)).toThrow(
+          'Unknown storage type: InvalidType'
+        );
+      });
+    });
+
+    describe('toDomainStorageType', () => {
+      it('should map API TeensyStorageType to domain StorageType correctly', () => {
+        expect(DomainMapper.toDomainStorageType(ApiStorageType.Sd)).toBe(StorageType.Sd);
+        expect(DomainMapper.toDomainStorageType(ApiStorageType.Usb)).toBe(StorageType.Usb);
+      });
+
+      it('should throw error for unknown API storage type', () => {
+        const unknownType = 'InvalidApiType' as unknown as ApiStorageType;
+        expect(() => DomainMapper.toDomainStorageType(unknownType)).toThrow(
+          'Unknown API storage type: InvalidApiType'
+        );
+      });
+    });
+  });
+});
+
+describe('DomainMapper (Device)', () => {
+  describe('toDevice', () => {
+    it('should transform CartDto to Device successfully', () => {
+      // Arrange
+      const cartDto: CartDto = {
+        deviceId: 'device-123',
+        comPort: 'COM3',
+        name: 'TeensyROM Cart',
+        fwVersion: '1.0.0',
+        isCompatible: true,
+        isConnected: true,
+        deviceState: ApiDeviceState.Connected,
+        sdStorage: {
+          deviceId: 'device-123',
+          type: ApiStorageType.Sd,
+          available: true,
+        },
+        usbStorage: {
+          deviceId: 'device-123',
+          type: ApiStorageType.Usb,
+          available: false,
+        },
+      };
+
+      // Act
+      const result = DomainMapper.toDevice(cartDto);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result.deviceId).toBe('device-123');
+      expect(result.comPort).toBe('COM3');
+      expect(result.name).toBe('TeensyROM Cart');
+      expect(result.fwVersion).toBe('1.0.0');
+      expect(result.isCompatible).toBe(true);
+      expect(result.isConnected).toBe(true);
+      expect(result.deviceState).toBe(DeviceState.Connected);
+      expect(result.sdStorage).toBeDefined();
+      expect(result.sdStorage.type).toBe(StorageType.Sd);
+      expect(result.sdStorage.available).toBe(true);
+      expect(result.usbStorage).toBeDefined();
+      expect(result.usbStorage.type).toBe(StorageType.Usb);
+      expect(result.usbStorage.available).toBe(false);
+    });
+
+    it('should handle null CartDto', () => {
+      // Arrange
+      const cartDto = null as unknown as CartDto;
+
+      // Act
+      const result = DomainMapper.toDevice(cartDto);
+
+      // Assert
+      expect(result).toEqual({});
+    });
+
+    it('should handle undefined CartDto', () => {
+      // Arrange
+      const cartDto = undefined as unknown as CartDto;
+
+      // Act
+      const result = DomainMapper.toDevice(cartDto);
+
+      // Assert
+      expect(result).toEqual({});
+    });
+  });
+
+  describe('toDeviceStorage', () => {
+    it('should transform CartStorageDto to DeviceStorage successfully', () => {
+      // Arrange
+      const storageDto: CartStorageDto = {
+        deviceId: 'device-456',
+        type: ApiStorageType.Sd,
+        available: true,
+      };
+
+      // Act
+      const result = DomainMapper.toDeviceStorage(storageDto);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result.deviceId).toBe('device-456');
+      expect(result.type).toBe(StorageType.Sd);
+      expect(result.available).toBe(true);
+    });
+
+    it('should handle USB storage type', () => {
+      // Arrange
+      const storageDto: CartStorageDto = {
+        deviceId: 'device-789',
+        type: ApiStorageType.Usb,
+        available: false,
+      };
+
+      // Act
+      const result = DomainMapper.toDeviceStorage(storageDto);
+
+      // Assert
+      expect(result.deviceId).toBe('device-789');
+      expect(result.type).toBe(StorageType.Usb);
+      expect(result.available).toBe(false);
+    });
+  });
+
+  describe('toDeviceList', () => {
+    it('should transform array of CartDto to Device array successfully', () => {
+      // Arrange
+      const cartDtos: CartDto[] = [
+        {
+          deviceId: 'device-1',
+          comPort: 'COM1',
+          name: 'Cart 1',
+          fwVersion: '1.0.0',
+          isCompatible: true,
+          isConnected: false,
+          deviceState: ApiDeviceState.Disconnected,
+          sdStorage: {
+            deviceId: 'device-1',
+            type: ApiStorageType.Sd,
+            available: true,
+          },
+          usbStorage: {
+            deviceId: 'device-1',
+            type: ApiStorageType.Usb,
+            available: true,
+          },
+        },
+        {
+          deviceId: 'device-2',
+          comPort: 'COM2',
+          name: 'Cart 2',
+          fwVersion: '1.1.0',
+          isCompatible: false,
+          isConnected: true,
+          deviceState: ApiDeviceState.Connected,
+          sdStorage: {
+            deviceId: 'device-2',
+            type: ApiStorageType.Sd,
+            available: false,
+          },
+          usbStorage: {
+            deviceId: 'device-2',
+            type: ApiStorageType.Usb,
+            available: true,
+          },
+        },
+      ];
+
+      // Act
+      const result = DomainMapper.toDeviceList(cartDtos);
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result[0].deviceId).toBe('device-1');
+      expect(result[0].name).toBe('Cart 1');
+      expect(result[0].isConnected).toBe(false);
+      expect(result[0].deviceState).toBe(DeviceState.Disconnected);
+      expect(result[1].deviceId).toBe('device-2');
+      expect(result[1].name).toBe('Cart 2');
+      expect(result[1].isCompatible).toBe(false);
+      expect(result[1].deviceState).toBe(DeviceState.Connected);
+    });
+
+    it('should handle empty array', () => {
+      // Arrange
+      const cartDtos: CartDto[] = [];
+
+      // Act
+      const result = DomainMapper.toDeviceList(cartDtos);
+
+      // Assert
+      expect(result).toEqual([]);
     });
   });
 });

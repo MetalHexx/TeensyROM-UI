@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { FilesApiService, GetDirectoryResponse, TeensyStorageType } from '@teensyrom-nx/data-access/api-client';
+import { FilesApiService, GetDirectoryResponse } from '@teensyrom-nx/data-access/api-client';
 import { StorageDirectory, StorageType, IStorageService } from '@teensyrom-nx/domain';
-import { StorageMapper } from './storage.mapper';
+import { DomainMapper } from '../domain.mapper';
 import { Observable, map, catchError, throwError, from } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -13,13 +13,13 @@ export class StorageService implements IStorageService {
     storageType: StorageType,
     path?: string
   ): Observable<StorageDirectory> {
-    const apiStorageType = StorageMapper.toApiStorageType(storageType);
+    const apiStorageType = DomainMapper.toApiStorageType(storageType);
     return from(this.apiService.getDirectory({ deviceId, storageType: apiStorageType, path })).pipe(
       map((response: GetDirectoryResponse) => {
         if (!response.storageItem) {
           throw new Error('Invalid response: storageItem is missing');
         }
-        return StorageMapper.toStorageDirectory(response.storageItem);
+        return DomainMapper.toStorageDirectory(response.storageItem);
       }),
       catchError((error) => {
         console.error('Storage directory fetch failed:', error);
@@ -29,7 +29,7 @@ export class StorageService implements IStorageService {
   }
 
   index(deviceId: string, storageType: StorageType, startingPath?: string): Observable<unknown> {
-    const apiStorageType = StorageMapper.toApiStorageType(storageType);
+    const apiStorageType = DomainMapper.toApiStorageType(storageType);
     return from(this.apiService.index({ deviceId, storageType: apiStorageType, startingPath }));
   }
 

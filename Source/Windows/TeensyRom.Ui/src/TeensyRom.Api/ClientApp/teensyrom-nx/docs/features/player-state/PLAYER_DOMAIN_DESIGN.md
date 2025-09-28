@@ -2,113 +2,79 @@
 
 ## Overview
 
-This document outlines the design for the Player Domain, focusing on domain models, behaviors, and architecture. The Player Domain manages the current file state, directory context, and playback operations for TeensyROM devices while maintaining clean separation from the Storage domain.
+This document outlines the design for the Player Domain, focusing on domain models, behaviors, and Clean Architecture implementation. The Player Domain manages the current file state, directory context, and playback operations for TeensyROM devices while leveraging shared domain models and maintaining clean separation of concerns.
 
 ## Key Design Principles
 
-- **Domain Separation**: Player domain maintains its own models (`PlayerFileItem`) separate from Storage domain (`FileItem`)
+- **Shared Domain Models**: Leverage existing domain models (`FileItem`, `DirectoryItem`) from the shared domain layer
 - **Directory Context Awareness**: Track currently playing file and its co-located directory files for player navigation
 - **Multi-Device Support**: Independent player state per device using flat state structure
 - **Cross-Domain Integration**: Reference Storage domain via `StorageKey` pattern
-- **Rich File Metadata**: Leverage `FileItemDto` from API for complete file information
+- **Clean Architecture**: Proper separation between Domain, Application, and Infrastructure layers
 
 ---
 
-## Domain File Structure
+## Clean Architecture Structure
 
 ```
-libs/domain/player/
-├── PLAYER_DOMAIN.md                    # Domain overview documentation
-├── services/                           # Services library
-│   ├── project.json                   # Nx project configuration
-│   ├── src/
-│   │   ├── index.ts                   # Public API exports
-│   │   ├── lib/
-│   │   │   ├── player.service.ts      # HTTP service with DI pattern
-│   │   │   ├── player.mapper.ts       # API ↔ Domain mapping
-│   │   │   └── player.models.ts       # Domain types and enums
-│   │   └── test-setup.ts              # Test configuration
-│   ├── tsconfig.json                  # TypeScript configuration
-│   ├── tsconfig.lib.json             # Library-specific config
-│   ├── tsconfig.spec.json            # Test-specific config
-│   ├── eslint.config.mjs             # ESLint configuration
-│   └── vite.config.ts                # Vite configuration
-└── state/                             # State library
-    ├── project.json                   # Nx project configuration
-    ├── src/
-    │   ├── index.ts                   # Public API exports
-    │   ├── lib/
-    │   │   ├── player-store.ts        # NgRx Signal Store
-    │   │   ├── player-key.util.ts     # State key utilities
-    │   │   ├── player-helpers.ts      # State mutation helpers
-    │   │   ├── actions/               # File-per-action pattern
-    │   │   │   ├── index.ts           # withPlayerActions() custom feature
-    │   │   │   ├── initialize-player.ts
-    │   │   │   ├── launch-file.ts
-    │   │   │   ├── launch-random-file.ts
-    │   │   │   └── remove-player.ts
-    │   │   └── selectors/             # File-per-selector pattern
-    │   │       ├── index.ts           # withPlayerSelectors() custom feature
-    │   │       ├── get-device-player.ts
-    │   │       ├── get-current-file.ts
-    │   │       ├── get-player-directory-context.ts
-    │   │       └── get-player-status.ts
-    │   └── test-setup.ts              # Test configuration
-    ├── tsconfig.json                  # TypeScript configuration
-    ├── tsconfig.lib.json             # Library-specific config
-    ├── tsconfig.spec.json            # Test-specific config
-    ├── eslint.config.mjs             # ESLint configuration
-    └── vite.config.ts                # Vite configuration
+libs/domain/src/lib/
+├── models/                              # Shared domain models
+│   ├── file-item.model.ts              # FileItem interface (shared)
+│   ├── file-item-type.enum.ts          # FileItemType enum (shared)
+│   ├── viewable-item-image.model.ts    # ViewableItemImage interface (shared)
+│   └── storage-type.enum.ts            # StorageType enum (shared)
+└── contracts/                          # Domain service contracts
+    ├── player.contract.ts              # IPlayerService + injection token
+    └── index.ts                        # Contract exports
+
+libs/application/src/lib/
+├── storage/                            # Existing storage state management
+└── player/                             # Player state management (NEW)
+    ├── player-store.ts                 # NgRx Signal Store
+    ├── player-key.util.ts              # State key utilities
+    ├── player-helpers.ts               # State mutation helpers
+    ├── actions/                        # File-per-action pattern
+    │   ├── index.ts                    # withPlayerActions() custom feature
+    │   ├── initialize-player.ts
+    │   ├── launch-file.ts
+    │   ├── launch-random-file.ts
+    │   └── remove-player.ts
+    └── selectors/                      # File-per-selector pattern
+        ├── index.ts                    # withPlayerSelectors() custom feature
+        ├── get-device-player.ts
+        ├── get-current-file.ts
+        ├── get-player-directory-context.ts
+        └── get-player-status.ts
+
+libs/infrastructure/src/lib/
+└── player/                             # Player service implementations (NEW)
+    ├── player.service.ts               # PlayerService implementing IPlayerService
+    ├── player.mapper.ts                # API ↔ Domain mapping
+    └── providers.ts                    # DI providers for player services
 ```
 
 ---
 
 ## Domain Models
 
-### Core Domain Types (player.models.ts)
+### Shared Domain Models (from libs/domain)
+
+The Player domain leverages existing shared domain models:
 
 ```typescript
-import { StorageKey } from '@teensyrom-nx/domain/storage/state';
+import {
+  FileItem,
+  FileItemType,
+  ViewableItemImage,
+  StorageType
+} from '@teensyrom-nx/domain';
+```
 
-// Domain representation of a file in player context
-export interface PlayerFileItem {
-  name: string;
-  path: string;
-  size: number;
-  isFavorite: boolean;
-  title: string;
-  creator: string;
-  releaseInfo: string;
-  description: string;
-  shareUrl: string;
-  metadataSource: string;
-  meta1: string;
-  meta2: string;
-  metadataSourcePath: string;
-  parentPath: string;
-  playLength: string;
-  subtuneLengths: string[];
-  startSubtuneNum: number;
-  images: PlayerItemImage[];
-  type: PlayerFileType;
-}
+### Player-Specific Domain Types
 
-// Domain representation of file images in player context
-export interface PlayerItemImage {
-  fileName: string;
-  path: string;
-  source: string;
-}
+Additional player-specific enums to be added to `libs/domain/src/lib/models/`:
 
-// Domain file types for player operations
-export enum PlayerFileType {
-  Unknown = 'Unknown',
-  Song = 'Song',
-  Game = 'Game',
-  Image = 'Image',
-  Hex = 'Hex',
-}
-
+```typescript
 // Domain filter types for random launches
 export enum PlayerFilterType {
   All = 'All',
@@ -132,26 +98,29 @@ export enum PlayerStatus {
   Paused = 'Paused',
   Loading = 'Loading',
 }
+```
+
+### Application State Models
+
+```typescript
+import { StorageKey } from '@teensyrom-nx/application/storage';
+import { FileItem, PlayerStatus } from '@teensyrom-nx/domain';
 
 // Currently launched file with context
 export interface LaunchedFile {
   deviceId: string;
   storageKey: StorageKey; // Foreign key to Storage domain
-  file: PlayerFileItem;
+  file: FileItem; // Uses shared domain model
   launchedAt: number; // Timestamp
 }
 
 // Directory context for player navigation
 export interface PlayerDirectoryContext {
   path: string;
-  files: PlayerFileItem[]; // All files in same directory as current file
+  files: FileItem[]; // Uses shared domain model
   currentFileIndex: number; // Index of current file in files array
 }
-```
 
-### State Models (player-store.ts)
-
-```typescript
 // Per-device player state
 export interface DevicePlayerState {
   deviceId: string;
@@ -176,17 +145,22 @@ const initialState: PlayerState = {
 
 ---
 
-## Service Layer Design
+## Domain Contracts
 
-### IPlayerService Interface
+### IPlayerService Interface (libs/domain/src/lib/contracts/player.contract.ts)
 
 ```typescript
+import { Observable } from 'rxjs';
+import { InjectionToken } from '@angular/core';
+import { FileItem, StorageType } from '@teensyrom-nx/domain';
+import { PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
+
 export interface IPlayerService {
   launchFile(
     deviceId: string,
     storageType: StorageType,
     filePath: string
-  ): Observable<PlayerFileItem>;
+  ): Observable<FileItem>;
 
   launchRandom(
     deviceId: string,
@@ -194,64 +168,167 @@ export interface IPlayerService {
     filterType?: PlayerFilterType,
     scope?: PlayerScope,
     startingDirectory?: string
-  ): Observable<PlayerFileItem>;
+  ): Observable<FileItem>;
 
   getDirectoryFiles(
     deviceId: string,
     storageType: StorageType,
     directoryPath: string
-  ): Observable<PlayerFileItem[]>;
+  ): Observable<FileItem[]>;
 }
 
 // Dependency injection setup
 export const PLAYER_SERVICE = new InjectionToken<IPlayerService>('PLAYER_SERVICE');
-export const PLAYER_SERVICE_PROVIDER = {
-  provide: PLAYER_SERVICE,
-  useExisting: PlayerService,
-};
 ```
 
-### PlayerService Behaviors
+---
 
-- **Launch Operations**: Calls PlayerApiService, maps response to PlayerFileItem
-- **Directory Fetching**: Calls FilesApiService to get sibling files when needed
-- **Smart Caching**: Only fetches directory files if not already loaded
-- **Error Handling**: Maps HTTP errors to domain error messages
-- **Type Mapping**: Uses PlayerMapper for API ↔ Domain transformation
-- **Logging**: Comprehensive operation logging for debugging
+## Infrastructure Layer Design
 
-### PlayerMapper Behaviors
+### PlayerService Implementation (libs/infrastructure/src/lib/player/player.service.ts)
+
+```typescript
+@Injectable()
+export class PlayerService implements IPlayerService {
+  constructor(
+    @Inject(PLAYER_API_SERVICE) private readonly playerApiService: PlayerApiService,
+    @Inject(FILES_API_SERVICE) private readonly filesApiService: FilesApiService
+  ) {}
+
+  launchFile(
+    deviceId: string,
+    storageType: StorageType,
+    filePath: string
+  ): Observable<FileItem> {
+    return from(
+      this.playerApiService.launchFile({
+        deviceId,
+        storageType: PlayerMapper.toApiStorageType(storageType),
+        filePath,
+      })
+    ).pipe(
+      map(response => PlayerMapper.toFileItem(response.data)),
+      catchError(error => throwError(() => PlayerMapper.toPlayerError(error)))
+    );
+  }
+
+  launchRandom(
+    deviceId: string,
+    storageType: StorageType,
+    filterType?: PlayerFilterType,
+    scope?: PlayerScope,
+    startingDirectory?: string
+  ): Observable<FileItem> {
+    return from(
+      this.playerApiService.launchRandom({
+        deviceId,
+        storageType: PlayerMapper.toApiStorageType(storageType),
+        filterType: filterType ? PlayerMapper.toApiFilterType(filterType) : undefined,
+        scope: scope ? PlayerMapper.toApiScope(scope) : undefined,
+        startingDirectory,
+      })
+    ).pipe(
+      map(response => PlayerMapper.toFileItem(response.data)),
+      catchError(error => throwError(() => PlayerMapper.toPlayerError(error)))
+    );
+  }
+
+  getDirectoryFiles(
+    deviceId: string,
+    storageType: StorageType,
+    directoryPath: string
+  ): Observable<FileItem[]> {
+    return from(
+      this.filesApiService.getDirectory({
+        deviceId,
+        storageType: PlayerMapper.toApiStorageType(storageType),
+        directoryPath,
+      })
+    ).pipe(
+      map(response => PlayerMapper.toFileItems(response.data)),
+      catchError(error => throwError(() => PlayerMapper.toPlayerError(error)))
+    );
+  }
+}
+```
+
+### PlayerMapper Behaviors (libs/infrastructure/src/lib/player/player.mapper.ts)
 
 ```typescript
 export class PlayerMapper {
-  // Map API FileItemDto to domain PlayerFileItem
-  static toPlayerFileItem(dto: FileItemDto): PlayerFileItem;
+  // Map API FileItemDto to domain FileItem
+  static toFileItem(dto: FileItemDto): FileItem {
+    return {
+      name: dto.name,
+      path: dto.path,
+      size: dto.size,
+      isFavorite: dto.isFavorite,
+      title: dto.title,
+      creator: dto.creator,
+      releaseInfo: dto.releaseInfo,
+      description: dto.description,
+      shareUrl: dto.shareUrl,
+      metadataSource: dto.metadataSource,
+      meta1: dto.meta1,
+      meta2: dto.meta2,
+      metadataSourcePath: dto.metadataSourcePath,
+      parentPath: dto.parentPath,
+      playLength: dto.playLength,
+      subtuneLengths: dto.subtuneLengths,
+      startSubtuneNum: dto.startSubtuneNum,
+      images: dto.images?.map(img => ({
+        fileName: img.fileName,
+        path: img.path,
+        source: img.source,
+      })) || [],
+      type: PlayerMapper.toFileItemType(dto.type),
+    };
+  }
 
   // Map API launch response to LaunchedFile
   static toLaunchedFile(
     deviceId: string,
     storageType: StorageType,
-    playerFileItem: PlayerFileItem
-  ): LaunchedFile;
+    fileItem: FileItem
+  ): LaunchedFile {
+    return {
+      deviceId,
+      storageKey: StorageKeyUtil.create(deviceId, storageType),
+      file: fileItem,
+      launchedAt: Date.now(),
+    };
+  }
 
-  // Map Storage API directory response to PlayerFileItems
-  static toPlayerFileItems(storageDirectory: StorageDirectory): PlayerFileItem[];
+  // Map Storage API directory response to FileItems
+  static toFileItems(storageDirectory: StorageDirectoryDto): FileItem[] {
+    return storageDirectory.files?.map(dto => PlayerMapper.toFileItem(dto)) || [];
+  }
 
   // Map domain enums to API enums
-  static toApiFilterType(filterType: PlayerFilterType): LaunchRandomFilterTypeEnum;
-  static toApiScope(scope: PlayerScope): LaunchRandomScopeEnum;
+  static toApiFilterType(filterType: PlayerFilterType): LaunchRandomFilterTypeEnum {
+    // Implementation mapping logic
+  }
+
+  static toApiScope(scope: PlayerScope): LaunchRandomScopeEnum {
+    // Implementation mapping logic
+  }
 
   // Map API enums to domain enums
-  static toDomainFilterType(filterType: LaunchRandomFilterTypeEnum): PlayerFilterType;
-  static toDomainScope(scope: LaunchRandomScopeEnum): PlayerScope;
+  static toDomainFilterType(filterType: LaunchRandomFilterTypeEnum): PlayerFilterType {
+    // Implementation mapping logic
+  }
+
+  static toDomainScope(scope: LaunchRandomScopeEnum): PlayerScope {
+    // Implementation mapping logic
+  }
 }
 ```
 
 ---
 
-## State Layer Design
+## Application Layer Design
 
-### PlayerStore Structure
+### PlayerStore Structure (libs/application/src/lib/player/player-store.ts)
 
 ```typescript
 export const PlayerStore = signalStore(
@@ -276,7 +353,7 @@ export const PlayerStore = signalStore(
 - **Purpose**: Launch specific file and update current file state
 - **Behavior**:
   - Calls PlayerService.launchFile()
-  - Updates currentFile with launched file
+  - Updates currentFile with launched file using shared FileItem model
   - Checks if directory context already loaded for file's directory
   - Calls PlayerService.getDirectoryFiles() if directory context missing
   - Updates directoryContext with sibling files and current file index
@@ -288,7 +365,7 @@ export const PlayerStore = signalStore(
 - **Purpose**: Launch random file based on filters and scope
 - **Behavior**:
   - Calls PlayerService.launchRandom() with parameters
-  - Updates currentFile with randomly selected file
+  - Updates currentFile with randomly selected file using shared FileItem model
   - Checks if directory context already loaded for file's directory
   - Calls PlayerService.getDirectoryFiles() if directory context missing
   - Updates directoryContext with sibling files and current file index
@@ -346,18 +423,24 @@ getPlayerStatus: (deviceId: string) => computed(() => PlayerStatus);
 - `hasPlayer()`: Check if device has player state
 - `isPlayerLoading()`: Check if player is in loading state
 
-### PlayerKeyUtil
+### PlayerKeyUtil (libs/application/src/lib/player/player-key.util.ts)
 
 ```typescript
 export const PlayerKeyUtil = {
   // Generate player state key from deviceId
-  create(deviceId: string): string,
+  create(deviceId: string): string {
+    return deviceId;
+  },
 
   // Extract deviceId from player key
-  parse(key: string): string,
+  parse(key: string): string {
+    return key;
+  },
 
   // Filter function for device keys
-  forDevice(deviceId: string): (key: string) => boolean,
+  forDevice(deviceId: string): (key: string) => boolean {
+    return (key) => key === deviceId;
+  },
 } as const;
 ```
 
@@ -369,7 +452,7 @@ export const PlayerKeyUtil = {
 
 - **StorageKey Pattern**: Use existing StorageKeyUtil for file references
 - **Foreign Key Relationship**: LaunchedFile.storageKey references Storage domain
-- **Directory Context**: Future feature will coordinate with Storage domain for directory file lists
+- **Shared Models**: Use common FileItem model across domains for consistency
 
 ### Device Domain Coordination
 
@@ -404,19 +487,24 @@ export const PlayerKeyUtil = {
 
 ## Testing Strategy
 
-### Service Layer Testing
+### Domain Layer Testing
 
-- **Mock PlayerApiService**: Use strongly typed mocks via dependency injection
-- **Mapper Testing**: Verify API ↔ Domain transformations
-- **Error Handling**: Test HTTP error scenarios and domain error mapping
+- **Pure Contracts**: Test service interfaces and injection tokens
+- **Model Validation**: Test domain enums and type safety
 
-### State Layer Testing
+### Application Layer Testing
 
 - **Store Methods**: Test all actions with async/await patterns
 - **Selectors**: Test computed signal factories and return values
 - **Multi-Device**: Verify state isolation across devices
 - **Helper Functions**: Test state mutations and query operations
 - **Action Message Correlation**: Verify debugging support
+
+### Infrastructure Layer Testing
+
+- **Mock API Services**: Use strongly typed mocks via dependency injection
+- **Mapper Testing**: Verify API ↔ Domain transformations
+- **Error Handling**: Test HTTP error scenarios and domain error mapping
 
 ### Integration Testing
 
@@ -430,8 +518,8 @@ export const PlayerKeyUtil = {
 
 ### Architecture Goals
 
-- **Domain Separation**: PlayerFileItem distinct from Storage FileItem
-- **Clean Boundaries**: Well-defined interfaces between domains
+- **Shared Domain Models**: Consistent FileItem usage across Storage and Player domains
+- **Clean Boundaries**: Well-defined interfaces between layers
 - **Extensibility**: Easy to add future player features
 - **Testability**: Comprehensive test coverage with mocked dependencies
 
@@ -446,5 +534,5 @@ export const PlayerKeyUtil = {
 
 - **Type Safety**: Full TypeScript coverage with proper typing
 - **Performance**: Efficient state management with minimal overhead
-- **Maintainability**: Clear code organization following established patterns
+- **Maintainability**: Clear code organization following Clean Architecture patterns
 - **Documentation**: Complete domain documentation and examples
