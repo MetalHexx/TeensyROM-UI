@@ -20,15 +20,14 @@ export const appConfig: ApplicationConfig = {
     provideRouter(appRoutes),
     provideHttpClient(),
     provideAnimations(),
-    // API Client providers (infrastructure layer)
-    DEVICES_API_CLIENT_PROVIDER,
-    FILES_API_CLIENT_PROVIDER,
-    // Domain service providers (infrastructure implementations)
+    AppBootstrapService,
+    // Infrastructure providers (composition root)
     DEVICE_SERVICE_PROVIDER,
     DEVICE_LOGS_SERVICE_PROVIDER,
     DEVICE_EVENTS_SERVICE_PROVIDER,
     DEVICE_STORAGE_SERVICE_PROVIDER,
     STORAGE_SERVICE_PROVIDER,
-    AppBootstrapService,
+    DEVICES_API_CLIENT_PROVIDER,
+    FILES_API_CLIENT_PROVIDER,
   ],
 };

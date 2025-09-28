@@ -40,6 +40,17 @@ This application follows **Clean Architecture** principles with clear separation
 - **Infrastructure** depends on Domain (implements contracts)
 - **Presentation** depends on Application and Domain (not Infrastructure directly)
 
+### Dependency Constraint Enforcement
+
+**ESLint Module Boundaries**: Nx ESLint rules automatically enforce Clean Architecture dependency constraints at build/lint time using project tags:
+- **Domain Layer**: `["scope:domain"]` - Cannot depend on any other layers
+- **Application Layer**: `["scope:application"]` - Can only depend on domain and shared utilities  
+- **Infrastructure Layer**: `["scope:infrastructure"]` - Can only depend on domain, shared, and api-client
+- **Features Layer**: `["scope:features", "feature:device|player"]` - Can depend on application, domain, and shared UI (features isolated from each other)
+- **App Layer**: `["scope:app"]` - Can import from infrastructure (composition root), features, application, and shared
+
+**Violation Detection**: ESLint will fail builds if any layer imports from forbidden dependencies, preventing architectural violations from entering the codebase.
+
 ### Architecture Goals
 
 - Enforce strict dependency boundaries using Clean Architecture principles

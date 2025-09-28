@@ -4,7 +4,7 @@
   "sourceRoot": "/libs/features/devices/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": [],
+  "tags": ["scope:features", "type:feature", "feature:device"],
   "implicitDependencies": [],
   "targets": {
     "lint": {

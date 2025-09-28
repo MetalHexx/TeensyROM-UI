@@ -4,7 +4,7 @@
   "sourceRoot": "/libs/features/player/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": [],
+  "tags": ["scope:features", "type:feature", "feature:player"],
   "implicitDependencies": [],
   "targets": {
     "test": {

@@ -16,10 +16,45 @@ export default [
           enforceBuildableLibDependency: true,
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?js$'],
           depConstraints: [
+            // Domain Layer - No dependencies allowed (pure business logic)
             {
-              sourceTag: '*',
-              onlyDependOnLibsWithTags: ['*'],
+              sourceTag: 'scope:domain',
+              onlyDependOnLibsWithTags: []
             },
+            // Application Layer - Can only depend on domain and shared utilities
+            {
+              sourceTag: 'scope:application',
+              onlyDependOnLibsWithTags: ['scope:domain', 'scope:shared']
+            },
+            // Infrastructure Layer - Can depend on domain and shared utilities
+            {
+              sourceTag: 'scope:infrastructure',
+              onlyDependOnLibsWithTags: ['scope:domain', 'scope:shared']
+            },
+            // Features Layer - Can depend on application, domain, and shared UI
+            {
+              sourceTag: 'scope:features',
+              onlyDependOnLibsWithTags: ['scope:application', 'scope:domain', 'scope:shared']
+            },
+            // Shared libraries - Can depend on each other and domain
+            {
+              sourceTag: 'scope:shared',
+              onlyDependOnLibsWithTags: ['scope:shared', 'scope:domain']
+            },
+            // App Layer - Can depend on features, application, shared, infrastructure (for composition root), and app shell
+            {
+              sourceTag: 'scope:app',
+              onlyDependOnLibsWithTags: ['scope:features', 'scope:application', 'scope:shared', 'scope:infrastructure', 'scope:app']
+            },
+            // Prevent features from importing each other (feature isolation)
+            {
+              sourceTag: 'feature:device',
+              notDependOnLibsWithTags: ['feature:player']
+            },
+            {
+              sourceTag: 'feature:player',
+              notDependOnLibsWithTags: ['feature:device']
+            }
           ],
         },
       ],

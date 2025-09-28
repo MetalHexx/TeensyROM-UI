@@ -4,7 +4,7 @@
   "sourceRoot": "/libs/infrastructure/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": [],
+  "tags": ["scope:infrastructure", "type:implementations"],
   "implicitDependencies": [],
   "targets": {
     "lint": {

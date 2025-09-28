@@ -4,7 +4,7 @@
   "sourceRoot": "libs/application/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": [],
+  "tags": ["scope:application", "type:use-cases"],
   "implicitDependencies": [],
   "targets": {
     "lint": {
