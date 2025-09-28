@@ -184,6 +184,80 @@ expect(store.error()).toBeNull();
 - [ ] Edge cases & concurrency
 - [ ] Performance & memory sanity
 
+## Alternative: Facade/Context Service Testing
+
+**Optional Approach**: Instead of testing stores directly, you can test at the facade/context service level for behavioral integration testing.
+
+### When to Use Facade Testing
+
+- Testing orchestration between store and infrastructure services
+- Validating complete workflow behaviors end-to-end
+- Testing signal-based APIs exposed to UI components
+- Integration testing without full infrastructure dependencies
+
+### Facade Testing Setup
+
+```ts
+// Example: Testing PlayerContextService instead of PlayerStore directly
+
+describe('PlayerContextService', () => {
+  let contextService: PlayerContextService;
+  let store: PlayerStore;
+  let mockPlayerService: MockedObject<IPlayerService>;
+
+  beforeEach(() => {
+    mockPlayerService = {
+      launchFile: vi.fn(),
+      launchRandom: vi.fn(),
+    };
+
+    TestBed.configureTestingModule({
+      providers: [
+        PlayerContextService,
+        PlayerStore, // Real store
+        { provide: PLAYER_SERVICE, useValue: mockPlayerService }, // Mock infrastructure
+      ],
+    });
+
+    contextService = TestBed.inject(PlayerContextService);
+    store = TestBed.inject(PlayerStore);
+  });
+
+  it('should coordinate file launch between store and infrastructure', async () => {
+    const file = { id: '1', name: 'test.sid' } as FileItem;
+    const contextFiles = [file, { id: '2', name: 'other.sid' }] as FileItem[];
+
+    mockPlayerService.launchFile.mockReturnValue(of(file));
+
+    // Test facade method (not store method directly)
+    contextService.launchFileWithContext('device1', file, contextFiles);
+    await nextTick();
+
+    // Assert on observable state through facade signals
+    expect(contextService.getCurrentFile('device1')()).toEqual(jasmine.objectContaining({ file }));
+    expect(contextService.getFileContext('device1')()).toEqual(jasmine.objectContaining({ files: contextFiles }));
+
+    // Verify infrastructure calls
+    expect(mockPlayerService.launchFile).toHaveBeenCalledWith('device1', file.storageType, file.path);
+  });
+});
+```
+
+### Benefits of Facade Testing
+
+- **Integration Validation**: Tests store + service coordination without infrastructure dependencies
+- **Behavioral Focus**: Tests complete workflows rather than individual store methods
+- **Signal API Testing**: Validates signal-based APIs that components actually use
+- **Reduced Mocking**: Only mock infrastructure layer, use real store + facade
+
+### When to Combine Approaches
+
+- **Store Unit Tests**: Test store methods in isolation for complex state logic
+- **Facade Integration Tests**: Test orchestration and complete workflows
+- **Component Tests**: Mock facade/context services for component behavior testing
+
+Use both approaches when stores have complex internal logic that benefits from isolated testing, but also need integration validation of orchestration patterns.
+
 ## Example
 
 For a concrete, end-to-end example of a properly tested NgRx Signal Store using the methodology in this document, see:
