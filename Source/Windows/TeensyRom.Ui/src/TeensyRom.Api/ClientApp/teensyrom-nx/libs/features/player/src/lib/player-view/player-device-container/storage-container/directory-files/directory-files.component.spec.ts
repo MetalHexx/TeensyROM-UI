@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { signal } from '@angular/core';
+import { of } from 'rxjs';
 import { DirectoryFilesComponent } from './directory-files.component';
 import {
   DirectoryItem,
@@ -9,14 +10,23 @@ import {
   STORAGE_SERVICE,
   IStorageService,
   StorageDirectory,
+  StorageType,
+  LaunchMode,
+  PlayerStatus,
 } from '@teensyrom-nx/domain';
-import { StorageStore } from '@teensyrom-nx/application';
-import { of } from 'rxjs';
+import {
+  StorageStore,
+  PLAYER_CONTEXT,
+  IPlayerContext,
+  LaunchedFile,
+  PlayerFileContext,
+} from '@teensyrom-nx/application';
 
 describe('DirectoryFilesComponent', () => {
   let component: DirectoryFilesComponent;
   let fixture: ComponentFixture<DirectoryFilesComponent>;
   let mockStorageStore: Partial<StorageStore>;
+  let mockPlayerContext: Partial<IPlayerContext>;
 
   const mockDirectoryItem: DirectoryItem = {
     name: 'Test Folder',
@@ -38,19 +48,23 @@ describe('DirectoryFilesComponent', () => {
     meta1: '',
     meta2: '',
     metadataSourcePath: '',
-    parentPath: '',
+    parentPath: '/test',
     playLength: '',
     subtuneLengths: [],
     startSubtuneNum: 0,
     images: [],
   };
 
-  const mockStorageService: Partial<IStorageService> = {
-    getDirectories: () => of([]),
-    getDirectory: () => of({} as StorageDirectory),
+  const mockStorageService: Partial<IStorageService> = {    getDirectory: () => of({} as StorageDirectory),
   };
 
   beforeEach(async () => {
+    const playerCurrentFileSignal = signal<LaunchedFile | null>(null);
+    const playerContextSignal = signal<PlayerFileContext | null>(null);
+    const loadingSignal = signal(false);
+    const errorSignal = signal<string | null>(null);
+    const statusSignal = signal(PlayerStatus.Stopped);
+
     mockStorageStore = {
       getSelectedDirectoryState: vi.fn().mockReturnValue(
         signal({
@@ -60,7 +74,7 @@ describe('DirectoryFilesComponent', () => {
             path: '/test',
           },
           currentPath: '/test',
-          storageType: 'SD',
+          storageType: StorageType.Sd,
           deviceId: 'device-1',
           isLoading: false,
           isLoaded: true,
@@ -70,11 +84,23 @@ describe('DirectoryFilesComponent', () => {
       navigateToDirectory: vi.fn(),
     };
 
+    mockPlayerContext = {
+      initializePlayer: vi.fn(),
+      removePlayer: vi.fn(),
+      launchFileWithContext: vi.fn().mockResolvedValue(undefined),
+      getCurrentFile: vi.fn().mockReturnValue(playerCurrentFileSignal.asReadonly()),
+      getFileContext: vi.fn().mockReturnValue(playerContextSignal.asReadonly()),
+      isLoading: vi.fn().mockReturnValue(loadingSignal.asReadonly()),
+      getError: vi.fn().mockReturnValue(errorSignal.asReadonly()),
+      getStatus: vi.fn().mockReturnValue(statusSignal.asReadonly()),
+    };
+
     await TestBed.configureTestingModule({
       imports: [DirectoryFilesComponent],
       providers: [
         { provide: STORAGE_SERVICE, useValue: mockStorageService },
         { provide: StorageStore, useValue: mockStorageStore },
+        { provide: PLAYER_CONTEXT, useValue: mockPlayerContext },
       ],
     }).compileComponents();
 
@@ -115,7 +141,7 @@ describe('DirectoryFilesComponent', () => {
 
     expect(mockStorageStore.navigateToDirectory).toHaveBeenCalledWith({
       deviceId: 'device-1',
-      storageType: 'SD',
+      storageType: StorageType.Sd,
       path: directoryItem.path,
     });
   });
@@ -127,6 +153,33 @@ describe('DirectoryFilesComponent', () => {
 
     component.onDirectoryDoubleClick(combined[0] as DirectoryItem);
     expect(component.selectedItem()).toBe(null);
+  });
+
+  it('should call player context on file double-click', () => {
+    const combined = component.combinedItems();
+    const fileItem = combined[1] as FileItem;
+
+    component.onFileDoubleClick(fileItem);
+
+    expect(mockPlayerContext.launchFileWithContext).toHaveBeenCalledWith({
+      deviceId: 'device-1',
+      storageType: StorageType.Sd,
+      file: fileItem,
+      directoryPath: '/test',
+      files: expect.arrayContaining([mockFileItem]),
+      launchMode: LaunchMode.Directory,
+    });
+  });
+
+  it('should trigger player context when file is double-clicked via template', () => {
+    const fileElement: HTMLElement | null = fixture.nativeElement.querySelector(
+      'lib-file-item .file-item'
+    );
+    expect(fileElement).toBeTruthy();
+
+    fileElement?.dispatchEvent(new MouseEvent('dblclick'));
+
+    expect(mockPlayerContext.launchFileWithContext).toHaveBeenCalled();
   });
 
   it('should render correct number of list items', () => {
@@ -142,3 +195,5 @@ describe('DirectoryFilesComponent', () => {
     expect(component.isSelected(combined[1])).toBe(false);
   });
 });
+
+

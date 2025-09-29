@@ -119,6 +119,22 @@ describe('FileItemComponent', () => {
     expect(emittedItem).toEqual(mockFile);
   });
 
+  it('should emit itemDoubleClick on double click', () => {
+    const mockFile = createMockFileItem(FileItemType.Game, 2048);
+    fixture.componentRef.setInput('fileItem', mockFile);
+    fixture.detectChanges();
+
+    let emittedItem: FileItem | undefined;
+    component.itemDoubleClick.subscribe((item) => {
+      emittedItem = item;
+    });
+
+    const fileElement = fixture.nativeElement.querySelector('.file-item');
+    fileElement.dispatchEvent(new MouseEvent('dblclick'));
+
+    expect(emittedItem).toEqual(mockFile);
+  });
+
   it('should apply selected class when selected is true', () => {
     fixture.componentRef.setInput('fileItem', createMockFileItem(FileItemType.Unknown, 0));
     fixture.componentRef.setInput('selected', true);

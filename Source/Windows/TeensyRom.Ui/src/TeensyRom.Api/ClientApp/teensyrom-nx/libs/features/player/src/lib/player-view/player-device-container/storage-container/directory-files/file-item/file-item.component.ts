@@ -7,13 +7,14 @@ import { FileItem, FileItemType } from '@teensyrom-nx/domain';
   selector: 'lib-file-item',
   imports: [CommonModule, IconLabelComponent],
   templateUrl: './file-item.component.html',
-  styleUrl: './file-item.component.scss',
+  styleUrls: ['./file-item.component.scss'],
 })
 export class FileItemComponent {
   fileItem = input.required<FileItem>();
   selected = input<boolean>(false);
 
   itemSelected = output<FileItem>();
+  itemDoubleClick = output<FileItem>();
 
   readonly fileIcon = computed(() => {
     switch (this.fileItem().type) {
@@ -37,6 +38,10 @@ export class FileItemComponent {
 
   onItemClick(): void {
     this.itemSelected.emit(this.fileItem());
+  }
+
+  onItemDoubleClick(): void {
+    this.itemDoubleClick.emit(this.fileItem());
   }
 
   private formatFileSize(bytes: number): string {

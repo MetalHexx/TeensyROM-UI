@@ -1,0 +1,223 @@
+import { StateSignals, WritableStateSource } from '@ngrx/signals';
+import { updateState } from '@angular-architects/ngrx-toolkit';
+import { PlayerState, DevicePlayerState, LaunchedFile, PlayerFileContext } from './player-store';
+import { FileItem, PlayerStatus, LaunchMode, StorageType } from '@teensyrom-nx/domain';
+import { StorageKeyUtil } from '../storage/storage-key.util';
+import { logInfo, logError, LogType } from '@teensyrom-nx/utils';
+
+export type WritableStore<T extends object> = StateSignals<T> & WritableStateSource<T>;
+
+export function createDefaultDeviceState(deviceId: string): DevicePlayerState {
+  return {
+    deviceId,
+    currentFile: null,
+    fileContext: null,
+    status: PlayerStatus.Stopped,
+    launchMode: LaunchMode.Directory,
+    isLoading: false,
+    error: null,
+    lastUpdated: null,
+  };
+}
+
+export function ensurePlayerState(
+  store: WritableStore<PlayerState>,
+  deviceId: string,
+  actionMessage: string
+): DevicePlayerState {
+  const existing = store.players()[deviceId];
+  if (existing) {
+    logInfo(LogType.Info, `PlayerHelper: Using existing player state for device ${deviceId}`);
+    return existing;
+  }
+
+  logInfo(LogType.Start, `PlayerHelper: Creating new player state for device ${deviceId}`);
+
+  const defaultState = createDefaultDeviceState(deviceId);
+  updateState(store, actionMessage, (state) => ({
+    players: {
+      ...state.players,
+      [deviceId]: defaultState,
+    },
+  }));
+
+  logInfo(LogType.Success, `PlayerHelper: New player state created for device ${deviceId}`);
+
+  return defaultState;
+}
+
+function updatePlayerState(
+  store: WritableStore<PlayerState>,
+  deviceId: string,
+  updater: (state: DevicePlayerState) => DevicePlayerState,
+  actionMessage: string
+): void {
+  updateState(store, actionMessage, (state) => {
+    const current = state.players[deviceId];
+    if (!current) {
+      return state;
+    }
+
+    return {
+      players: {
+        ...state.players,
+        [deviceId]: updater(current),
+      },
+    };
+  });
+}
+
+export function setPlayerLoading(
+  store: WritableStore<PlayerState>,
+  deviceId: string,
+  actionMessage: string
+): void {
+  logInfo(LogType.Start, `PlayerHelper: Setting player loading state for device ${deviceId}`);
+
+  ensurePlayerState(store, deviceId, actionMessage);
+  updatePlayerState(
+    store,
+    deviceId,
+    (state) => {
+      logInfo(LogType.Info, `PlayerHelper: Updating player status to loading for device ${deviceId}`);
+
+      return {
+        ...state,
+        isLoading: true,
+        status: PlayerStatus.Loading,
+        error: null,
+      };
+    },
+    actionMessage
+  );
+}
+
+export function setPlayerLaunchSuccess(
+  store: WritableStore<PlayerState>,
+  deviceId: string,
+  launchedFile: LaunchedFile,
+  fileContext: PlayerFileContext,
+  actionMessage: string
+): void {
+  const timestamp = Date.now();
+  
+  logInfo(LogType.Success, `PlayerHelper: Setting player launch success for device ${deviceId} with file ${launchedFile.file.name}`);
+
+  ensurePlayerState(store, deviceId, actionMessage);
+  updatePlayerState(
+    store,
+    deviceId,
+    (state) => {
+      logInfo(LogType.Info, `PlayerHelper: Updating player state to Playing for device ${deviceId}`);
+
+      return {
+        ...state,
+        currentFile: launchedFile,
+        fileContext,
+        isLoading: false,
+        status: PlayerStatus.Playing,
+        error: null,
+        launchMode: launchedFile.launchMode,
+        lastUpdated: timestamp,
+      };
+    },
+    actionMessage
+  );
+}
+
+export function setPlayerError(
+  store: WritableStore<PlayerState>,
+  deviceId: string,
+  errorMessage: string,
+  actionMessage: string
+): void {
+  const timestamp = Date.now();
+  
+  logError(`PlayerHelper: Setting player error state for device ${deviceId}: ${errorMessage}`);
+
+  ensurePlayerState(store, deviceId, actionMessage);
+  updatePlayerState(
+    store,
+    deviceId,
+    (state) => {
+      logInfo(LogType.Info, `PlayerHelper: Updating player state to Stopped due to error for device ${deviceId}`);
+
+      return {
+        ...state,
+        isLoading: false,
+        status: PlayerStatus.Stopped,
+        error: errorMessage,
+        lastUpdated: timestamp,
+      };
+    },
+    actionMessage
+  );
+}
+
+export function removePlayerState(
+  store: WritableStore<PlayerState>,
+  deviceId: string,
+  actionMessage: string
+): void {
+  updateState(store, actionMessage, (state) => {
+    if (!(deviceId in state.players)) {
+      return state;
+    }
+
+    const updated = { ...state.players };
+    delete updated[deviceId];
+
+    logInfo(LogType.Success, `Player state for device ${deviceId} removed.`);
+
+    return {
+      players: updated,
+    };
+  });
+}
+
+export function createLaunchedFile(
+  deviceId: string,
+  storageType: StorageType,
+  file: FileItem,
+  launchMode: LaunchMode
+): LaunchedFile {
+  const timestamp = Date.now();
+  const storageKey = StorageKeyUtil.create(deviceId, storageType);
+  
+  logInfo(LogType.Info, `PlayerHelper: Creating launched file object for ${file.name} on device ${deviceId}`);
+
+  return {
+    storageKey,
+    file,
+    launchMode,
+    launchedAt: timestamp,
+  };
+}
+
+export function createPlayerFileContext(
+  deviceId: string,
+  storageType: StorageType,
+  directoryPath: string,
+  files: FileItem[],
+  currentIndex: number,
+  launchMode: LaunchMode
+): PlayerFileContext {
+  const storageKey = StorageKeyUtil.create(deviceId, storageType);
+  
+  logInfo(LogType.Info, `PlayerHelper: Creating player file context with ${files.length} files for device ${deviceId}`);
+
+  return {
+    storageKey,
+    directoryPath,
+    files,
+    currentIndex,
+    launchMode,
+  };
+}
+
+export function getPlayerState(store: WritableStore<PlayerState>, deviceId: string): DevicePlayerState | null {
+  return store.players()[deviceId] ?? null;
+}
+
+
+

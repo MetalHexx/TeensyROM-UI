@@ -5,5 +5,9 @@ export * from './lib/device/device-store';
 export * from './lib/storage/storage-store';
 export * from './lib/storage/storage-key.util';
 
-// Future: Player state management will go here
-// export * from './lib/player/...';
+// Player state management
+export * from './lib/player/player-store';
+export * from './lib/player/player-key.util';
+export * from './lib/player/player-context.interface';
+export * from './lib/player/player-context.service';
+export * from './lib/player/providers';

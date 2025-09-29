@@ -10,3 +10,8 @@ export * from './lib/device/providers';
 // Storage implementations (moved from domain)
 export * from './lib/storage/storage.service';
 export * from './lib/storage/providers';
+
+// Player implementations
+export * from './lib/player/player.service';
+export * from './lib/player/providers';
+

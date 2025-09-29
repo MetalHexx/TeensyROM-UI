@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { appRoutes } from './app.routes';
 import { AppBootstrapService } from '@teensyrom-nx/app/bootstrap';
+import { PLAYER_CONTEXT_PROVIDER } from '@teensyrom-nx/application';
 import {
   DEVICE_SERVICE_PROVIDER,
   DEVICE_LOGS_SERVICE_PROVIDER,
@@ -12,6 +13,8 @@ import {
   STORAGE_SERVICE_PROVIDER,
   DEVICES_API_CLIENT_PROVIDER,
   FILES_API_CLIENT_PROVIDER,
+  PLAYER_SERVICE_PROVIDER,
+  PLAYER_API_CLIENT_PROVIDER,
 } from '@teensyrom-nx/infrastructure';
 
 export const appConfig: ApplicationConfig = {
@@ -21,6 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideAnimations(),
     AppBootstrapService,
+    PLAYER_CONTEXT_PROVIDER,
     // Infrastructure providers (composition root)
     DEVICE_SERVICE_PROVIDER,
     DEVICE_LOGS_SERVICE_PROVIDER,
@@ -29,5 +33,7 @@ export const appConfig: ApplicationConfig = {
     STORAGE_SERVICE_PROVIDER,
     DEVICES_API_CLIENT_PROVIDER,
     FILES_API_CLIENT_PROVIDER,
+    PLAYER_SERVICE_PROVIDER,
+    PLAYER_API_CLIENT_PROVIDER,
   ],
 };

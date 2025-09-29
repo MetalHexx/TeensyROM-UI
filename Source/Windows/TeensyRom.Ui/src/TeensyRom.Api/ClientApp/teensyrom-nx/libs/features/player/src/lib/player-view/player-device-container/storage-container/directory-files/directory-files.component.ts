@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, input, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardLayoutComponent } from '@teensyrom-nx/ui/components';
-import { StorageStore } from '@teensyrom-nx/application';
-import { DirectoryItem, FileItem } from '@teensyrom-nx/domain';
+import { StorageStore, PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
+import { DirectoryItem, FileItem, LaunchMode } from '@teensyrom-nx/domain';
 import { DirectoryItemComponent } from './directory-item/directory-item.component';
 import { FileItemComponent } from './file-item/file-item.component';
 
@@ -10,13 +10,14 @@ import { FileItemComponent } from './file-item/file-item.component';
   selector: 'lib-directory-files',
   imports: [CommonModule, CardLayoutComponent, DirectoryItemComponent, FileItemComponent],
   templateUrl: './directory-files.component.html',
-  styleUrl: './directory-files.component.scss',
+  styleUrls: ['./directory-files.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DirectoryFilesComponent {
   deviceId = input.required<string>();
 
   private readonly storageStore = inject(StorageStore);
+  private readonly playerContext: IPlayerContext = inject(PLAYER_CONTEXT);
 
   readonly selectedDirectoryState = computed(() =>
     this.storageStore.getSelectedDirectoryState(this.deviceId())()
@@ -79,4 +80,22 @@ export class DirectoryFilesComponent {
       this.selectedItem.set(null);
     }
   }
+
+  onFileDoubleClick(file: FileItem): void {
+    const contents = this.directoryContents();
+    if (!contents.storageType || !contents.deviceId) {
+      return;
+    }
+
+    this.selectedItem.set(file);
+    void this.playerContext.launchFileWithContext({
+      deviceId: contents.deviceId,
+      storageType: contents.storageType,
+      file,
+      directoryPath: contents.currentPath ?? '/',
+      files: contents.files,
+      launchMode: LaunchMode.Directory,
+    });
+  }
 }
+

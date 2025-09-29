@@ -66,12 +66,12 @@ Enable double-click file launching from directory listings with context tracking
 **Phase 1 Domain Types**: Basic enums required for file launching and state management.
 
 #### Implementation Steps
-- [ ] Add `PlayerStatus` enum to `libs/domain/src/lib/models/player-status.enum.ts`
+- [x] Add `PlayerStatus` enum to `libs/domain/src/lib/models/player-status.enum.ts`
   - Values: `Stopped`, `Playing`, `Paused`, `Loading` (from [Player-Specific Domain Types](./PLAYER_DOMAIN_DESIGN.md#player-specific-domain-types))
-- [ ] Add `LaunchMode` enum to `libs/domain/src/lib/models/launch-mode.enum.ts`
+- [x] Add `LaunchMode` enum to `libs/domain/src/lib/models/launch-mode.enum.ts`
   - Values: `Directory`, `Shuffle`, `Search` (from [Player-Specific Domain Types](./PLAYER_DOMAIN_DESIGN.md#player-specific-domain-types))
-- [ ] Export new enums in `libs/domain/src/lib/models/index.ts`
-- [ ] Update domain barrel export in `libs/domain/src/index.ts`
+- [x] Export new enums in `libs/domain/src/lib/models/index.ts`
+- [x] Update domain barrel export in `libs/domain/src/index.ts`
 
 **Note**: Advanced control enums (SpeedCurveType, SeekMode, etc.) are deferred to future phases as per [Phase 1 scope](./PLAYER_DOMAIN_DESIGN.md#phase-1-basic-file-launching-with-context).
 
@@ -82,13 +82,13 @@ Enable double-click file launching from directory listings with context tracking
 **Contract Focus**: Simple infrastructure operations only - file launching and external system integration without application logic.
 
 #### Implementation Steps
-- [ ] Create `IPlayerService` interface in `libs/domain/src/lib/contracts/player.contract.ts`
+- [x] Create `IPlayerService` interface in `libs/domain/src/lib/contracts/player.contract.ts`
   - `launchFile(deviceId, storageType, filePath): Observable<FileItem>` (core Phase 1 operation)
   - `launchRandom()` method signature (Phase 2 scope, but interface planning)
   - Follow [IPlayerService Interface specification](./PLAYER_DOMAIN_DESIGN.md#iplayerservice-interface-libsdomainsrclibcontractsplayercontractts)
-- [ ] Define `PLAYER_SERVICE` injection token
-- [ ] Export contract in `libs/domain/src/lib/contracts/index.ts`
-- [ ] Update contracts barrel export in `libs/domain/src/index.ts`
+- [x] Define `PLAYER_SERVICE` injection token
+- [x] Export contract in `libs/domain/src/lib/contracts/index.ts`
+- [x] Update contracts barrel export in `libs/domain/src/index.ts`
 
 **Important**: Keep interface focused on infrastructure concerns only. All complex behaviors go in IPlayerContext (application layer).
 
@@ -106,20 +106,20 @@ Enable double-click file launching from directory listings with context tracking
 - **No application logic** - pure infrastructure implementation
 
 #### Step 3A: Write Failing Tests
-- [ ] **File Launch API Integration**: Test `launchFile(deviceId, storageType, filePath)` calls correct API endpoint
-- [ ] **Domain Model Mapping**: Test API responses mapped to `FileItem` using `DomainMapper.toFileItem()`
-- [ ] **Error Scenarios**: Test network failures, device errors, invalid paths return proper error messages
-- [ ] **Contract Compliance**: Test service implements `IPlayerService` interface correctly
-- [ ] Verify tests fail (red phase)
+- [x] **File Launch API Integration**: Test `launchFile(deviceId, storageType, filePath)` calls correct API endpoint
+- [x] **Domain Model Mapping**: Test API responses mapped to `FileItem` using `DomainMapper.toFileItem()`
+- [x] **Error Scenarios**: Test network failures, device errors, invalid paths return proper error messages
+- [x] **Contract Compliance**: Test service implements `IPlayerService` interface correctly
+- [x] Verify tests fail (red phase)
 
 #### Step 3B: Implement to Pass Tests
-- [ ] Create `PlayerService` in `libs/infrastructure/src/lib/player/player.service.ts`
-- [ ] Implement `launchFile()` method calling `PlayerApiService.launchFile()`
-- [ ] Integrate with `DomainMapper.toFileItem()` for response transformation
-- [ ] Add proper error handling for HTTP failures and device errors
-- [ ] Create providers in `libs/infrastructure/src/lib/player/providers.ts`
-- [ ] Update infrastructure barrel exports
-- [ ] Verify tests pass (green phase)
+- [x] Create `PlayerService` in `libs/infrastructure/src/lib/player/player.service.ts`
+- [x] Implement `launchFile()` method calling `PlayerApiService.launchFile()`
+- [x] Integrate with `DomainMapper.toFileItem()` for response transformation
+- [x] Add proper error handling for HTTP failures and device errors
+- [x] Create providers in `libs/infrastructure/src/lib/player/providers.ts`
+- [x] Update infrastructure barrel exports
+- [x] Verify tests pass (green phase)
 
 ### Task 4: Application Layer - Setup for TDD
 
@@ -128,18 +128,18 @@ Enable double-click file launching from directory listings with context tracking
 **Architecture Setup**: Establish [PlayerStore Implementation](./PLAYER_DOMAIN_DESIGN.md#playerstore-implementation) structure and [IPlayerContext Interface](./PLAYER_DOMAIN_DESIGN.md#iplayercontext-interface-application-layer) as the orchestration wrapper.
 
 #### Implementation Steps
-- [ ] Create player state interfaces following [Application State Models](./PLAYER_DOMAIN_DESIGN.md#application-state-models) with minimal Phase 1 structure
+- [x] Create player state interfaces following [Application State Models](./PLAYER_DOMAIN_DESIGN.md#application-state-models) with minimal Phase 1 structure
   - `LaunchedFile`, `PlayerFileContext`, `DevicePlayerState`, `PlayerState`
-- [ ] Create empty [PlayerStore Structure](./PLAYER_DOMAIN_DESIGN.md#playerstore-structure-libsapplicationsrclibplayerplayer-storets) with placeholder custom features
-- [ ] Create `IPlayerContext` interface in `libs/application/src/lib/player/player-context.interface.ts`
+- [x] Create empty [PlayerStore Structure](./PLAYER_DOMAIN_DESIGN.md#playerstore-structure-libsapplicationsrclibplayerplayer-storets) with placeholder custom features
+- [x] Create `IPlayerContext` interface in `libs/application/src/lib/player/player-context.interface.ts`
   - Phase 1 methods: `launchFileWithContext()`, `initializePlayer()`, `removePlayer()`
   - Signal getters: `getCurrentFile()`, `getFileContext()`, `isLoading()`, `getError()`
   - Follow [IPlayerContext Interface](./PLAYER_DOMAIN_DESIGN.md#iplayercontext-interface-application-layer) specification
-- [ ] Create `PLAYER_CONTEXT` injection token in the same interface file
-- [ ] Create `PlayerContextService` skeleton implementing `IPlayerContext` with method signatures but no implementation
-- [ ] Create empty action/selector/helper files with function signatures following [Action Behaviors](./PLAYER_DOMAIN_DESIGN.md#action-behaviors) patterns
-- [ ] Establish file structure per [Clean Architecture Structure](./PLAYER_DOMAIN_DESIGN.md#clean-architecture-structure)
-- [ ] Verify TypeScript compiles (implementation can be empty/throw errors)
+- [x] Create `PLAYER_CONTEXT` injection token in the same interface file
+- [x] Create `PlayerContextService` skeleton implementing `IPlayerContext` with method signatures but no implementation
+- [x] Create empty action/selector/helper files with function signatures following [Action Behaviors](./PLAYER_DOMAIN_DESIGN.md#action-behaviors) patterns
+- [x] Establish file structure per [Clean Architecture Structure](./PLAYER_DOMAIN_DESIGN.md#clean-architecture-structure)
+- [x] Verify TypeScript compiles (implementation can be empty/throw errors)
 
 ### Task 5: Application Layer - TDD Implementation
 
@@ -155,28 +155,28 @@ Enable double-click file launching from directory listings with context tracking
 - **Error State Management**: Track loading/error states during launch operations
 
 #### Step 5A: Write Failing Tests
-- [ ] **Launch Orchestration**: Test `launchFileWithContext(deviceId, file, contextFiles)` calls infrastructure and updates state
-- [ ] **State Management**: Test current file and file context stored correctly in device-specific state
-- [ ] **Multi-Device Isolation**: Test device1 state independent from device2 state
-- [ ] **Signal API**: Test `getCurrentFile(deviceId)` and `getFileContext(deviceId)` return correct reactive signals
-- [ ] **Error Handling**: Test infrastructure failures update error state without breaking other devices
-- [ ] **Loading States**: Test loading states set during launch operations
-- [ ] Verify tests fail (red phase) - methods should throw "Not implemented" errors
+- [x] **Launch Orchestration**: Test `launchFileWithContext(deviceId, file, contextFiles)` calls infrastructure and updates state
+- [x] **State Management**: Test current file and file context stored correctly in device-specific state
+- [x] **Multi-Device Isolation**: Test device1 state independent from device2 state
+- [x] **Signal API**: Test `getCurrentFile(deviceId)` and `getFileContext(deviceId)` return correct reactive signals
+- [x] **Error Handling**: Test infrastructure failures update error state without breaking other devices
+- [x] **Loading States**: Test loading states set during launch operations
+- [x] Verify tests fail (red phase) - methods should throw "Not implemented" errors
 
 #### Step 5B: Implement Store, Actions, Selectors, Helpers
-- [ ] **State Structure**: Implement device-keyed player state with current file and context
-- [ ] **Launch Action**: Implement `launch-file-with-context` action that calls infrastructure and stores results
-- [ ] **Initialize/Cleanup**: Implement `initialize-player` and `remove-player` for device lifecycle
-- [ ] **Selectors**: Implement computed signals for current file, context, and state per device
-- [ ] **Helpers**: Implement state mutation helpers with action message correlation
-- [ ] Create actions/selectors indexes following STATE_STANDARDS patterns
+- [x] **State Structure**: Implement device-keyed player state with current file and context
+- [x] **Launch Action**: Implement `launch-file-with-context` action that calls infrastructure and stores results
+- [x] **Initialize/Cleanup**: Implement `initialize-player` and `remove-player` for device lifecycle
+- [x] **Selectors**: Implement computed signals for current file, context, and state per device
+- [x] **Helpers**: Implement state mutation helpers with action message correlation
+- [x] Create actions/selectors indexes following STATE_STANDARDS patterns
 
 #### Step 5C: Implement PlayerContextService
-- [ ] **Launch Coordination**: Implement `launchFileWithContext()` orchestrating store actions with infrastructure calls
+- [x] **Launch Coordination**: Implement `launchFileWithContext()` orchestrating store actions with infrastructure calls
 - [ ] **Signal Exposure**: Implement signal-based methods (`getCurrentFile()`, `getFileContext()`) for UI consumption
 - [ ] **Error Coordination**: Handle infrastructure errors and coordinate with store error states
 - [ ] **Device Management**: Implement device initialization and cleanup coordination
-- [ ] Verify tests pass (green phase) - complete file launch workflow working end-to-end
+- [x] Verify tests pass (green phase) - complete file launch workflow working end-to-end
 - [ ] Run build: `npx nx build teensyrom-ui` to ensure no breaks
 
 ### Task 6: UI Component Integration - TDD Implementation
@@ -188,18 +188,18 @@ Enable double-click file launching from directory listings with context tracking
 - [Cross-Domain Integration](../../../docs/features/player-state/PLAYER_DOMAIN_DESIGN.md#cross-domain-integration) - StorageKey pattern for file references
 
 #### Step 6A: Write Failing Tests
-- [ ] Create failing tests for `FileItemComponent` double-click behavior (follow SMART_COMPONENT_TESTING.md)
-- [ ] Create failing tests for `DirectoryFilesComponent` player integration with mocked `IPlayerContext` interface
-- [ ] Verify tests fail (red phase)
+- [x] Create failing tests for `FileItemComponent` double-click behavior (follow SMART_COMPONENT_TESTING.md)
+- [x] Create failing tests for `DirectoryFilesComponent` player integration with mocked `IPlayerContext` interface
+- [x] Verify tests fail (red phase)
 
 #### Step 6B: Implement to Pass Tests
-- [ ] Add double-click handler and `itemDoubleClick` output to `FileItemComponent`
-- [ ] Update `FileItemComponent` template for double-click event binding
-- [ ] Inject `IPlayerContext` via `PLAYER_CONTEXT` token in `DirectoryFilesComponent`
-- [ ] Handle file double-click events and coordinate with existing `StorageStore`
-- [ ] Call `IPlayerContext.launchFileWithContext()` with directory context following [Storage Domain References](../../../docs/features/player-state/PLAYER_DOMAIN_DESIGN.md#storage-domain-references)
-- [ ] Implement signal-based UI patterns from [UI Component Integration](../../../docs/features/player-state/PLAYER_DOMAIN_DESIGN.md#ui-component-integration)
-- [ ] Verify tests pass (green phase)
+- [x] Add double-click handler and `itemDoubleClick` output to `FileItemComponent`
+- [x] Update `FileItemComponent` template for double-click event binding
+- [x] Inject `IPlayerContext` via `PLAYER_CONTEXT` token in `DirectoryFilesComponent`
+- [x] Handle file double-click events and coordinate with existing `StorageStore`
+- [x] Call `IPlayerContext.launchFileWithContext()` with directory context following [Storage Domain References](../../../docs/features/player-state/PLAYER_DOMAIN_DESIGN.md#storage-domain-references)
+- [x] Implement signal-based UI patterns from [UI Component Integration](../../../docs/features/player-state/PLAYER_DOMAIN_DESIGN.md#ui-component-integration)
+- [x] Verify tests pass (green phase)
 - [ ] Run build: `npx nx build teensyrom-ui` to ensure no breaks
 
 ### Task 7: Application Integration - Dependency Injection Setup
@@ -210,11 +210,11 @@ Enable double-click file launching from directory listings with context tracking
 - [PlayerContextService](../../../docs/features/player-state/PLAYER_DOMAIN_DESIGN.md#playercontextservice-libsapplicationsrclibplayerplayer-contextservicets) - Architecture role as smart wrapper around PlayerStore
 - [Application Layer Design](../../../docs/features/player-state/PLAYER_DOMAIN_DESIGN.md#application-layer-design) - Store and service coordination patterns
 
-- [ ] Create player context providers in `libs/application/src/lib/player/providers.ts` with `PLAYER_CONTEXT_PROVIDER`
-- [ ] Export `IPlayerContext`, `PLAYER_CONTEXT`, and provider from `libs/application/src/index.ts`
-- [ ] Add `PLAYER_CONTEXT_PROVIDER` to `apps/teensyrom-ui/src/app/app.config.ts`
-- [ ] Wire up infrastructure providers for `PLAYER_SERVICE` token
-- [ ] Verify `IPlayerContext` injection works correctly in components
+- [x] Create player context providers in `libs/application/src/lib/player/providers.ts` with `PLAYER_CONTEXT_PROVIDER`
+- [x] Export `IPlayerContext`, `PLAYER_CONTEXT`, and provider from `libs/application/src/index.ts`
+- [x] Add `PLAYER_CONTEXT_PROVIDER` to `apps/teensyrom-ui/src/app/app.config.ts`
+- [x] Wire up infrastructure providers for `PLAYER_SERVICE` token
+- [x] Verify `IPlayerContext` injection works correctly in components
 - [ ] Follow [Integration Patterns](../../../docs/features/player-state/PLAYER_DOMAIN_DESIGN.md#playercontextservice-libsapplicationsrclibplayerplayer-contextservicets) for store, infrastructure, and cross-domain coordination
 
 ### Task 8: Integration Testing & Final Validation
@@ -316,3 +316,11 @@ Enable double-click file launching from directory listings with context tracking
 - **Cross-Domain**: Use StorageKey pattern for referencing storage domain data
 - **Existing Components**: Modify existing UI components rather than creating new ones
 - **Store Testing**: All store behaviors (actions, selectors, helpers) tested through PlayerContextService for refactoring resilience
+
+
+
+
+
+
+
+
