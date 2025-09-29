@@ -1,6 +1,6 @@
 import { signalStore, withState } from '@ngrx/signals';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
-import { FileItem, LaunchMode, PlayerStatus } from '@teensyrom-nx/domain';
+import { FileItem, LaunchMode, PlayerStatus, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
 import { StorageKey } from '../storage/storage-key.util';
 import { withPlayerSelectors } from './selectors';
 import { withPlayerActions } from './actions';
@@ -9,6 +9,7 @@ import { logInfo, LogType } from '@teensyrom-nx/utils';
 export interface LaunchedFile {
   storageKey: StorageKey;
   file: FileItem;
+  parentPath: string;
   launchedAt: number;
   launchMode: LaunchMode;
 }
@@ -21,12 +22,19 @@ export interface PlayerFileContext {
   launchMode: LaunchMode;
 }
 
+export interface ShuffleSettings {
+  scope: PlayerScope;
+  filter: PlayerFilterType;
+  startingDirectory?: string;
+}
+
 export interface DevicePlayerState {
   deviceId: string;
   currentFile: LaunchedFile | null;
   fileContext: PlayerFileContext | null;
   status: PlayerStatus;
   launchMode: LaunchMode;
+  shuffleSettings: ShuffleSettings;
   isLoading: boolean;
   error: string | null;
   lastUpdated: number | null;

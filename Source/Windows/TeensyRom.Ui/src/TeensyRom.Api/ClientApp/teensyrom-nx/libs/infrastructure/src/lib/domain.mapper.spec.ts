@@ -9,9 +9,11 @@ import {
   FileItemType as ApiFileItemType,
   TeensyStorageType as ApiStorageType,
   DeviceState as ApiDeviceState,
+  LaunchRandomFilterTypeEnum,
+  LaunchRandomScopeEnum,
 } from '@teensyrom-nx/data-access/api-client';
 import { DomainMapper } from './domain.mapper';
-import { FileItemType, StorageType, DeviceState } from '@teensyrom-nx/domain';
+import { FileItemType, StorageType, DeviceState, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
 
 describe('DomainMapper (Storage)', () => {
   describe('toStorageDirectory', () => {
@@ -430,6 +432,52 @@ describe('DomainMapper (Device)', () => {
 
       // Assert
       expect(result).toEqual([]);
+    });
+  });
+});
+
+describe('DomainMapper (Player)', () => {
+  describe('toApiPlayerScope', () => {
+    it('should map PlayerScope.Storage to LaunchRandomScopeEnum.Storage', () => {
+      const result = DomainMapper.toApiPlayerScope(PlayerScope.Storage);
+      expect(result).toBe(LaunchRandomScopeEnum.Storage);
+    });
+
+    it('should map PlayerScope.DirectoryDeep to LaunchRandomScopeEnum.DirDeep', () => {
+      const result = DomainMapper.toApiPlayerScope(PlayerScope.DirectoryDeep);
+      expect(result).toBe(LaunchRandomScopeEnum.DirDeep);
+    });
+
+    it('should map PlayerScope.DirectoryShallow to LaunchRandomScopeEnum.DirShallow', () => {
+      const result = DomainMapper.toApiPlayerScope(PlayerScope.DirectoryShallow);
+      expect(result).toBe(LaunchRandomScopeEnum.DirShallow);
+    });
+  });
+
+  describe('toApiPlayerFilter', () => {
+    it('should map PlayerFilterType.All to LaunchRandomFilterTypeEnum.All', () => {
+      const result = DomainMapper.toApiPlayerFilter(PlayerFilterType.All);
+      expect(result).toBe(LaunchRandomFilterTypeEnum.All);
+    });
+
+    it('should map PlayerFilterType.Games to LaunchRandomFilterTypeEnum.Games', () => {
+      const result = DomainMapper.toApiPlayerFilter(PlayerFilterType.Games);
+      expect(result).toBe(LaunchRandomFilterTypeEnum.Games);
+    });
+
+    it('should map PlayerFilterType.Music to LaunchRandomFilterTypeEnum.Music', () => {
+      const result = DomainMapper.toApiPlayerFilter(PlayerFilterType.Music);
+      expect(result).toBe(LaunchRandomFilterTypeEnum.Music);
+    });
+
+    it('should map PlayerFilterType.Images to LaunchRandomFilterTypeEnum.Images', () => {
+      const result = DomainMapper.toApiPlayerFilter(PlayerFilterType.Images);
+      expect(result).toBe(LaunchRandomFilterTypeEnum.Images);
+    });
+
+    it('should map PlayerFilterType.Hex to LaunchRandomFilterTypeEnum.Hex', () => {
+      const result = DomainMapper.toApiPlayerFilter(PlayerFilterType.Hex);
+      expect(result).toBe(LaunchRandomFilterTypeEnum.Hex);
     });
   });
 });

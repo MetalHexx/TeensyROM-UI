@@ -38,4 +38,10 @@
     <Folder Include="Endpoints\Serial\StopLogs\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="ClientApp\teensyrom-nx\dist\**" />
+    <Content Remove="ClientApp\teensyrom-nx\dist\**" />
+    <None Remove="ClientApp\teensyrom-nx\dist\**" />
+  </ItemGroup>
+
 </Project>

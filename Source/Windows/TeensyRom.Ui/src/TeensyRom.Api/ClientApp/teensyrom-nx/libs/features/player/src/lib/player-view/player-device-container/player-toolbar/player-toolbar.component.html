@@ -1,5 +1,9 @@
 <lib-compact-card-layout>
   <div class="player-controls">
+    <!-- Shuffle Controls Section -->
+    
+    
+    <!-- Existing Playback Controls -->
     <lib-icon-button
       icon="skip_previous"
       ariaLabel="Previous Track"
@@ -21,6 +25,26 @@
       ariaLabel="Next Track"
       size="large"
       variant="rounded-transparent"
+    >
+    </lib-icon-button>
+
+    <lib-icon-button
+      icon="casino"
+      ariaLabel="Launch Random File"
+      size="large"
+      variant="rounded-transparent"
+      color="normal"
+      [disabled]="isLoading()"
+      (buttonClick)="launchRandomFile()"
+    >
+    </lib-icon-button>
+    <lib-icon-button
+      icon="shuffle"
+      ariaLabel="Toggle Shuffle Mode"
+      size="large"
+      variant="rounded-transparent"
+      [color]="isShuffleMode() ? 'highlight' : 'normal'"
+      (buttonClick)="toggleShuffleMode()"
     >
     </lib-icon-button>
   </div>

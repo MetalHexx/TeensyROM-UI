@@ -1,15 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FileItem, StorageType } from '../models';
-
-/**
- * Optional configuration for launching random files. These values will be expanded in future phases.
- */
-export interface LaunchRandomOptions {
-  filterType?: "All" | "Games" | "Music" | "Hex" | "Images";
-  scope?: "Storage" | "DirDeep" | "DirShallow";
-  startingDirectory?: string;
-}
+import { FileItem, PlayerFilterType, PlayerScope, StorageType } from '../models';
 
 export interface IPlayerService {
   /**
@@ -18,12 +9,19 @@ export interface IPlayerService {
   launchFile(deviceId: string, storageType: StorageType, filePath: string): Observable<FileItem>;
 
   /**
-   * Launch a random file. Additional options will be implemented in future phases.
+   * Launch a random file with scope and filter configuration.
+   * 
+   * @param deviceId - Target TeensyROM device identifier
+   * @param scope - Random selection scope (Storage, DirectoryDeep, DirectoryShallow)
+   * @param filter - Content filtering (All, Games, Music, Images, Hex)
+   * @param startingDirectory - Optional starting directory for scoped operations
+   * @returns Observable<FileItem> - The randomly selected and launched file
    */
   launchRandom(
-    deviceId: string,
-    storageType: StorageType,
-    options?: LaunchRandomOptions
+    deviceId: string, 
+    scope: PlayerScope, 
+    filter: PlayerFilterType, 
+    startingDirectory?: string
   ): Observable<FileItem>;
 }
 

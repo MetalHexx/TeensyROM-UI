@@ -406,7 +406,6 @@ namespace TeensyRom.Core.Storage
                     if(parentFile is not null)
                     {
                         parentFile.IsFavorite = true;
-                        newFile.ParentPath = parentFile.Path;
                         _storageCache.UpsertFile(parentFile);
                     }
                     var siblings = _storageCache.FindSiblings(newFile);
@@ -436,7 +435,7 @@ namespace TeensyRom.Core.Storage
 
             var newFile = CloneToFileItem(sourceFile);
             newFile.Path = targetFullPath;
-            newFile.ParentPath = sourceFile.Path;
+            // ParentPath is now computed from Path.Directory, no need to assign it
 
             if (favPaths.Any(fav => targetFullPath.Value.StartsWith(fav.Value, StringComparison.OrdinalIgnoreCase)))
             {

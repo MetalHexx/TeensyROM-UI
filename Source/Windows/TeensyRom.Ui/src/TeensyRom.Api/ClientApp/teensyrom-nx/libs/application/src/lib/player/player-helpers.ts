@@ -1,7 +1,7 @@
 import { StateSignals, WritableStateSource } from '@ngrx/signals';
 import { updateState } from '@angular-architects/ngrx-toolkit';
 import { PlayerState, DevicePlayerState, LaunchedFile, PlayerFileContext } from './player-store';
-import { FileItem, PlayerStatus, LaunchMode, StorageType } from '@teensyrom-nx/domain';
+import { FileItem, PlayerStatus, LaunchMode, StorageType, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
 import { StorageKeyUtil } from '../storage/storage-key.util';
 import { logInfo, logError, LogType } from '@teensyrom-nx/utils';
 
@@ -14,6 +14,11 @@ export function createDefaultDeviceState(deviceId: string): DevicePlayerState {
     fileContext: null,
     status: PlayerStatus.Stopped,
     launchMode: LaunchMode.Directory,
+    shuffleSettings: {
+      scope: PlayerScope.Storage,
+      filter: PlayerFilterType.All,
+      startingDirectory: undefined,
+    },
     isLoading: false,
     error: null,
     lastUpdated: null,
@@ -187,6 +192,7 @@ export function createLaunchedFile(
   logInfo(LogType.Info, `PlayerHelper: Creating launched file object for ${file.name} on device ${deviceId}`);
 
   return {
+    parentPath: file.parentPath,
     storageKey,
     file,
     launchMode,

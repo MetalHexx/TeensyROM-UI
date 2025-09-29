@@ -1,11 +1,15 @@
 import { Injectable, inject } from '@angular/core';
-import { LaunchMode } from '@teensyrom-nx/domain';
-import { PlayerStore } from './player-store';
+import { LaunchMode, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
+import { PlayerStore, LaunchedFile } from './player-store';
+import { StorageStore } from '../storage/storage-store';
+import { StorageKeyUtil } from '../storage/storage-key.util';
 import { IPlayerContext, LaunchFileContextRequest } from './player-context.interface';
+
 
 @Injectable({ providedIn: 'root' })
 export class PlayerContextService implements IPlayerContext {
   private readonly store = inject(PlayerStore);
+  private readonly storageStore = inject(StorageStore);
 
   initializePlayer(deviceId: string): void {
     this.store.initializePlayer({ deviceId });
@@ -50,5 +54,84 @@ export class PlayerContextService implements IPlayerContext {
 
   getStatus(deviceId: string) {
     return this.store.getPlayerStatus(deviceId);
+  }
+
+  async launchRandomFile(deviceId: string): Promise<void> {
+    this.store.initializePlayer({ deviceId });   
+    await this.store.launchRandomFile({ deviceId });
+    
+    const currentFile = this.store.getCurrentFile(deviceId)();
+    if (currentFile) {
+      await this.loadDirectoryContextForRandomFile(currentFile);
+    }
+  }
+
+  private async loadDirectoryContextForRandomFile(currentFile: LaunchedFile): Promise<void> {
+    const { storageKey } = currentFile;
+    const { deviceId, storageType } = StorageKeyUtil.parse(storageKey);
+
+    try {
+      await this.storageStore.navigateToDirectory({ 
+        deviceId, 
+        storageType, 
+        path: currentFile.parentPath 
+      });
+
+      const directoryState = this.storageStore.getSelectedDirectoryState(deviceId)();
+      
+      if (directoryState?.directory?.files) {
+        const currentIndex = directoryState.directory.files.findIndex(file => file.path === currentFile.file.path);
+        
+        if (currentIndex >= 0) {
+          this.store.loadFileContext({
+            deviceId,
+            storageType,
+            directoryPath: currentFile.parentPath,
+            files: directoryState.directory.files,
+            currentFileIndex: currentIndex,
+            launchMode: currentFile.launchMode
+          });
+        }
+      }
+    } catch {
+      // Silently ignore directory loading failures
+    }
+  }
+
+  toggleShuffleMode(deviceId: string): void {
+    this.store.initializePlayer({ deviceId });
+    
+    const currentMode = this.store.getLaunchMode(deviceId)();
+    const newMode = currentMode === LaunchMode.Shuffle ? LaunchMode.Directory : LaunchMode.Shuffle;
+    
+    // Update launch mode using the proper action
+    this.store.updateLaunchMode({
+      deviceId,
+      launchMode: newMode,
+    });
+  }
+
+  setShuffleScope(deviceId: string, scope: PlayerScope): void {
+    this.store.initializePlayer({ deviceId });
+    this.store.updateShuffleSettings({
+      deviceId,
+      shuffleSettings: { scope },
+    });
+  }
+
+  setFilterMode(deviceId: string, filter: PlayerFilterType): void {
+    this.store.initializePlayer({ deviceId });
+    this.store.updateShuffleSettings({
+      deviceId,
+      shuffleSettings: { filter },
+    });
+  }
+
+  getShuffleSettings(deviceId: string) {
+    return this.store.getShuffleSettings(deviceId);
+  }
+
+  getLaunchMode(deviceId: string) {
+    return this.store.getLaunchMode(deviceId);
   }
 }

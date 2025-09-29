@@ -7,6 +7,8 @@ import {
   ViewableItemImageDto,
   FileItemType as ApiFileItemType,
   TeensyStorageType as ApiStorageType,
+  LaunchRandomFilterTypeEnum,
+  LaunchRandomScopeEnum,
 } from '@teensyrom-nx/data-access/api-client';
 import { DeviceState as ApiDeviceState } from '@teensyrom-nx/data-access/api-client';
 import {
@@ -19,6 +21,8 @@ import {
   FileItem,
   ViewableItemImage,
   FileItemType,
+  PlayerFilterType,
+  PlayerScope,
 } from '@teensyrom-nx/domain';
 
 /**
@@ -171,6 +175,44 @@ export class DomainMapper {
         return StorageType.Usb;
       default:
         throw new Error(`Unknown API storage type: ${apiType}`);
+    }
+  }
+
+  // ===== PLAYER MAPPING =====
+
+  /**
+   * Convert domain PlayerScope to API LaunchRandomScopeEnum
+   */
+  static toApiPlayerScope(scope: PlayerScope): LaunchRandomScopeEnum {
+    switch (scope) {
+      case PlayerScope.Storage:
+        return LaunchRandomScopeEnum.Storage;
+      case PlayerScope.DirectoryDeep:
+        return LaunchRandomScopeEnum.DirDeep;
+      case PlayerScope.DirectoryShallow:
+        return LaunchRandomScopeEnum.DirShallow;
+      default:
+        return LaunchRandomScopeEnum.Storage;
+    }
+  }
+
+  /**
+   * Convert domain PlayerFilterType to API LaunchRandomFilterTypeEnum
+   */
+  static toApiPlayerFilter(filter: PlayerFilterType): LaunchRandomFilterTypeEnum {
+    switch (filter) {
+      case PlayerFilterType.All:
+        return LaunchRandomFilterTypeEnum.All;
+      case PlayerFilterType.Games:
+        return LaunchRandomFilterTypeEnum.Games;
+      case PlayerFilterType.Music:
+        return LaunchRandomFilterTypeEnum.Music;
+      case PlayerFilterType.Images:
+        return LaunchRandomFilterTypeEnum.Images;
+      case PlayerFilterType.Hex:
+        return LaunchRandomFilterTypeEnum.Hex;
+      default:
+        return LaunchRandomFilterTypeEnum.All;
     }
   }
 }

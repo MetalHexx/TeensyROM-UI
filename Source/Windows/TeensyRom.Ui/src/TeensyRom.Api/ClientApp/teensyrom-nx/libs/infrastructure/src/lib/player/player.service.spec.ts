@@ -9,7 +9,7 @@ import {
   FileItemType as ApiFileItemType,
 } from '@teensyrom-nx/data-access/api-client';
 import { PlayerService } from './player.service';
-import { FileItem, FileItemType, StorageType } from '@teensyrom-nx/domain';
+import { FileItem, FileItemType, PlayerFilterType, PlayerScope, StorageType } from '@teensyrom-nx/domain';
 
 const createFileItemDto = (): FileItemDto => ({
   name: 'Test File',
@@ -117,7 +117,7 @@ describe('PlayerService', () => {
   });
 
   describe('launchRandom', () => {
-    it('should call API with options and map response', async () => {
+    it('should call API with scope and filter parameters and map response', async () => {
       const response: LaunchRandomResponse = {
         launchedFile: createFileItemDto(),
         message: 'Random launched',
@@ -127,11 +127,7 @@ describe('PlayerService', () => {
 
       const result = await new Promise<FileItem>((resolve, reject) => {
         service
-          .launchRandom('device-9', StorageType.Usb, {
-            filterType: 'Music',
-            scope: 'DirShallow',
-            startingDirectory: '/music',
-          })
+          .launchRandom('device-9', PlayerScope.DirectoryShallow, PlayerFilterType.Music, '/music')
           .subscribe({
             next: resolve,
             error: reject,
@@ -140,27 +136,94 @@ describe('PlayerService', () => {
 
       expect(mockPlayerApi.launchRandom).toHaveBeenCalledWith({
         deviceId: 'device-9',
-        storageType: TeensyStorageType.Usb,
-        filterType: 'Music',
-        scope: 'DirShallow',
+        scope: 'DIRECTORY_SHALLOW',
+        filter: 'MUSIC',
         startingDirectory: '/music',
       });
       expect(result.name).toBe('Test File');
+      expect(result.type).toBe(FileItemType.Song);
     });
 
-    it('should propagate API errors for random launch', async () => {
-      const error = new Error('random failed');
+    it('should handle optional startingDirectory parameter', async () => {
+      const response: LaunchRandomResponse = {
+        launchedFile: createFileItemDto(),
+        message: 'Random launched',
+      };
+
+      mockPlayerApi.launchRandom.mockResolvedValue(response);
+
+      await new Promise<FileItem>((resolve, reject) => {
+        service
+          .launchRandom('device-1', PlayerScope.Storage, PlayerFilterType.All)
+          .subscribe({
+            next: resolve,
+            error: reject,
+          });
+      });
+
+      expect(mockPlayerApi.launchRandom).toHaveBeenCalledWith({
+        deviceId: 'device-1',
+        scope: 'STORAGE',
+        filter: 'ALL',
+        startingDirectory: undefined,
+      });
+    });
+
+    it('should map scope and filter enums to API parameters correctly', async () => {
+      const response: LaunchRandomResponse = {
+        launchedFile: createFileItemDto(),
+        message: 'Random launched',
+      };
+
+      mockPlayerApi.launchRandom.mockResolvedValue(response);
+
+      // Test all enum mappings
+      await new Promise<FileItem>((resolve, reject) => {
+        service
+          .launchRandom('device-1', PlayerScope.DirectoryDeep, PlayerFilterType.Games)
+          .subscribe({
+            next: resolve,
+            error: reject,
+          });
+      });
+
+      expect(mockPlayerApi.launchRandom).toHaveBeenCalledWith({
+        deviceId: 'device-1',
+        scope: 'DIRECTORY_DEEP',
+        filter: 'GAMES',
+        startingDirectory: undefined,
+      });
+    });
+
+    it('should throw error when launchedFile is missing from random response', async () => {
+      mockPlayerApi.launchRandom.mockResolvedValue({
+        message: 'Invalid random response',
+        launchedFile: null as unknown as FileItemDto,
+      });
+
+      await expect(
+        new Promise((resolve, reject) => {
+          service.launchRandom('device-1', PlayerScope.Storage, PlayerFilterType.All).subscribe({
+            next: resolve,
+            error: reject,
+          });
+        })
+      ).rejects.toThrow('Invalid response: launchedFile is missing');
+    });
+
+    it('should propagate API errors for random launch with proper logging', async () => {
+      const error = new Error('random selection failed');
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
       mockPlayerApi.launchRandom.mockRejectedValue(error);
 
       await expect(
         new Promise((resolve, reject) => {
-          service.launchRandom('device-1', StorageType.Sd).subscribe({
+          service.launchRandom('device-1', PlayerScope.Storage, PlayerFilterType.All).subscribe({
             next: resolve,
             error: reject,
           });
         })
-      ).rejects.toThrow('random failed');
+      ).rejects.toThrow('random selection failed');
 
       expect(consoleSpy).toHaveBeenCalledWith('PlayerService launchRandom failed:', error);
       consoleSpy.mockRestore();

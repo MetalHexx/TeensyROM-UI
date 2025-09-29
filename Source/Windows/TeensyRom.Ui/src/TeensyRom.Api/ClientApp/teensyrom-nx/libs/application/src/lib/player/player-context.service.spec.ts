@@ -8,9 +8,12 @@ import {
   FileItem,
   LaunchMode,
   PlayerStatus,
+  PlayerFilterType,
+  PlayerScope,
 } from '@teensyrom-nx/domain';
 import { PlayerContextService } from './player-context.service';
 import { PlayerStore } from './player-store';
+import { StorageStore } from '../storage/storage-store';
 import { StorageKeyUtil } from '../storage/storage-key.util';
 
 const createFile = (overrides: Partial<FileItem> = {}): FileItem => ({
@@ -49,6 +52,7 @@ const createFileList = (count: number, baseName = 'file'): FileItem[] => {
 describe('PlayerContextService - Behavioral Testing', () => {
   let service: PlayerContextService;
   let playerServiceMock: IPlayerService;
+  let storageStoreMock: Partial<StorageStore>;
 
   beforeEach(() => {
     playerServiceMock = {
@@ -56,11 +60,17 @@ describe('PlayerContextService - Behavioral Testing', () => {
       launchRandom: vi.fn(),
     };
 
+    storageStoreMock = {
+      navigateToDirectory: vi.fn().mockResolvedValue(undefined),
+      getSelectedDirectoryState: vi.fn().mockReturnValue(() => null),
+    };
+
     TestBed.configureTestingModule({
       providers: [
         PlayerContextService,
         PlayerStore,
         { provide: PLAYER_SERVICE, useValue: playerServiceMock },
+        { provide: StorageStore, useValue: storageStoreMock },
       ],
     });
 
@@ -641,6 +651,182 @@ describe('PlayerContextService - Behavioral Testing', () => {
       expect(currentFile?.file.description).toBe('Enhanced by TeensyROM');
       expect(currentFile?.file.title).toBe('Enhanced Title with Metadata');
       expect(currentFile?.file.creator).toBe('Enhanced Creator Info');
+    });
+  });
+
+  describe('Shuffle Mode Functionality', () => {
+    it('should orchestrate random file launch without directory context', async () => {
+      // Arrange: Set up random file launch
+      const deviceId = 'device-shuffle';
+      const randomFile = createFile({ 
+        name: 'random.sid', 
+        path: '/music/subdir/random.sid',
+        parentPath: '/music/subdir',
+        title: 'Random Song' 
+      });
+      
+      playerServiceMock.launchRandom = vi.fn().mockReturnValue(of(randomFile));
+
+      // Act: Launch random file
+      await service.launchRandomFile(deviceId);
+
+      // Assert: Random file should be launched
+      expect(playerServiceMock.launchRandom).toHaveBeenCalledWith(
+        deviceId,
+        PlayerScope.Storage,
+        PlayerFilterType.All,
+        undefined
+      );
+
+      // Assert: Current file should be set
+      const currentFile = service.getCurrentFile(deviceId)();
+      expect(currentFile?.file.name).toBe('random.sid');
+      expect(currentFile?.launchMode).toBe(LaunchMode.Shuffle);
+    });
+
+    it('should coordinate with storage store to load directory context for random file', async () => {
+      // Arrange: Set up random file with parent directory
+      const deviceId = 'device-shuffle-context';
+      const randomFile = createFile({ 
+        name: 'random.sid', 
+        path: '/music/jazz/random.sid',
+        parentPath: '/music/jazz',
+      });
+      
+      const directoryFiles = [
+        createFile({ name: 'song1.sid', path: '/music/jazz/song1.sid' }),
+        randomFile,
+        createFile({ name: 'song3.sid', path: '/music/jazz/song3.sid' }),
+      ];
+
+      playerServiceMock.launchRandom = vi.fn().mockReturnValue(of(randomFile));
+      
+      // Mock storage store to return directory data
+      storageStoreMock.getSelectedDirectoryState = vi.fn().mockReturnValue(() => ({
+        directory: { files: directoryFiles },
+        currentPath: '/music/jazz',
+        deviceId,
+        storageType: StorageType.Sd,
+        isLoaded: true,
+        isLoading: false,
+        error: null,
+        lastLoadTime: Date.now(),
+      }));
+
+      // Act: Launch random file (should trigger directory loading)
+      await service.launchRandomFile(deviceId);
+
+      // Assert: Storage store should be called to navigate to parent directory
+      expect(storageStoreMock.navigateToDirectory).toHaveBeenCalledWith({
+        deviceId,
+        storageType: StorageType.Sd,
+        path: '/music/jazz',
+      });
+
+      // Assert: Directory state should be retrieved
+      expect(storageStoreMock.getSelectedDirectoryState).toHaveBeenCalledWith(deviceId);
+
+      // Assert: File context should be loaded with directory files
+      const fileContext = service.getFileContext(deviceId)();
+      expect(fileContext?.files).toHaveLength(3);
+      expect(fileContext?.currentIndex).toBe(1); // random.sid is at index 1
+      expect(fileContext?.directoryPath).toBe('/music/jazz');
+      expect(fileContext?.launchMode).toBe(LaunchMode.Shuffle);
+    });
+
+    it('should handle directory loading failure gracefully', async () => {
+      // Arrange: Random file launch succeeds but directory loading fails
+      const deviceId = 'device-shuffle-fail';
+      const randomFile = createFile({ 
+        name: 'random.sid', 
+        path: '/music/random.sid',
+        parentPath: '/music',
+      });
+      
+      playerServiceMock.launchRandom = vi.fn().mockReturnValue(of(randomFile));
+      storageStoreMock.navigateToDirectory = vi.fn().mockRejectedValue(new Error('Directory not found'));
+
+      // Act: Launch random file (directory loading will fail)
+      await service.launchRandomFile(deviceId);
+
+      // Assert: Random file launch should still succeed
+      const currentFile = service.getCurrentFile(deviceId)();
+      expect(currentFile?.file.name).toBe('random.sid');
+      expect(currentFile?.launchMode).toBe(LaunchMode.Shuffle);
+
+      // Assert: Should not have file context due to directory loading failure
+      const fileContext = service.getFileContext(deviceId)();
+      expect(fileContext?.files).toEqual([]); // Empty array from action fallback
+    });
+
+    it('should toggle shuffle mode correctly', () => {
+      // Arrange: Device starts in Directory mode
+      const deviceId = 'device-toggle';
+      service.initializePlayer(deviceId);
+
+      // Assert: Should start in Directory mode
+      expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Directory);
+
+      // Act: Toggle to Shuffle mode
+      service.toggleShuffleMode(deviceId);
+
+      // Assert: Should be in Shuffle mode
+      expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Shuffle);
+
+      // Act: Toggle back to Directory mode
+      service.toggleShuffleMode(deviceId);
+
+      // Assert: Should be back in Directory mode
+      expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Directory);
+    });
+
+    it('should manage shuffle settings per device', () => {
+      // Arrange: Two devices
+      const deviceA = 'device-a';
+      const deviceB = 'device-b';
+
+      service.initializePlayer(deviceA);
+      service.initializePlayer(deviceB);
+
+      // Act: Set different shuffle settings for each device
+      service.setShuffleScope(deviceA, PlayerScope.DirectoryDeep);
+      service.setFilterMode(deviceA, PlayerFilterType.Music);
+
+      service.setShuffleScope(deviceB, PlayerScope.DirectoryShallow);
+      service.setFilterMode(deviceB, PlayerFilterType.Games);
+
+      // Assert: Each device has independent settings
+      const settingsA = service.getShuffleSettings(deviceA)();
+      const settingsB = service.getShuffleSettings(deviceB)();
+
+      expect(settingsA.scope).toBe(PlayerScope.DirectoryDeep);
+      expect(settingsA.filter).toBe(PlayerFilterType.Music);
+
+      expect(settingsB.scope).toBe(PlayerScope.DirectoryShallow);
+      expect(settingsB.filter).toBe(PlayerFilterType.Games);
+    });
+
+    it('should use shuffle settings when launching random files', async () => {
+      // Arrange: Set specific shuffle settings
+      const deviceId = 'device-settings';
+      const randomFile = createFile({ name: 'random.sid' });
+      
+      service.initializePlayer(deviceId);
+      service.setShuffleScope(deviceId, PlayerScope.DirectoryDeep);
+      service.setFilterMode(deviceId, PlayerFilterType.Games);
+
+      playerServiceMock.launchRandom = vi.fn().mockReturnValue(of(randomFile));
+
+      // Act: Launch random file
+      await service.launchRandomFile(deviceId);
+
+      // Assert: Should use configured shuffle settings
+      expect(playerServiceMock.launchRandom).toHaveBeenCalledWith(
+        deviceId,
+        PlayerScope.DirectoryDeep,
+        PlayerFilterType.Games,
+        undefined
+      );
     });
   });
 });

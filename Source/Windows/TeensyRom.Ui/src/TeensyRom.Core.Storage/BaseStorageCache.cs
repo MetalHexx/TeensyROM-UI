@@ -272,7 +272,7 @@ namespace TeensyRom.Core.Storage
 
         protected static void MapParentMetadata(LaunchableItem itemToMap, FileItem parent)
         {
-            itemToMap.ParentPath = parent.Path;
+            // ParentPath is now computed from Path.Directory, no need to assign it
             itemToMap.MetadataSource = parent.MetadataSource;
             itemToMap.MetadataSourcePath = parent.MetadataSourcePath;
             itemToMap.Meta1 = parent.Meta1;

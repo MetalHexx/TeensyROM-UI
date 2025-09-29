@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { from, map, catchError, throwError, Observable } from 'rxjs';
-import { PlayerApiService, LaunchRandomFilterTypeEnum, LaunchRandomScopeEnum } from '@teensyrom-nx/data-access/api-client';
+import { PlayerApiService } from '@teensyrom-nx/data-access/api-client';
 import { DomainMapper } from '../domain.mapper';
 import {
   FileItem,
   IPlayerService,
-  LaunchRandomOptions,
+  PlayerFilterType,
+  PlayerScope,
   StorageType,
 } from '@teensyrom-nx/domain';
 import { logError } from '@teensyrom-nx/utils';
@@ -39,17 +40,24 @@ export class PlayerService implements IPlayerService {
 
   launchRandom(
     deviceId: string,
-    storageType: StorageType,
-    options: LaunchRandomOptions = {}
+    scope: PlayerScope,
+    filter: PlayerFilterType,
+    startingDirectory?: string
   ): Observable<FileItem> {
-    const apiStorageType = DomainMapper.toApiStorageType(storageType);
+    // For Phase 2, we default to SD storage - this should be configurable in future phases
+    const apiStorageType = DomainMapper.toApiStorageType(StorageType.Sd);
+    
+    // Map domain enums to API enums using DomainMapper
+    const apiScope = DomainMapper.toApiPlayerScope(scope);
+    const apiFilter = DomainMapper.toApiPlayerFilter(filter);
+    
     return from(
       this.apiService.launchRandom({
         deviceId,
         storageType: apiStorageType,
-        filterType: options.filterType as LaunchRandomFilterTypeEnum | undefined,
-        scope: options.scope as LaunchRandomScopeEnum | undefined,
-        startingDirectory: options.startingDirectory,
+        scope: apiScope,
+        filterType: apiFilter,
+        startingDirectory,
       })
     ).pipe(
       map((response) => {
@@ -65,7 +73,3 @@ export class PlayerService implements IPlayerService {
     );
   }
 }
-
-
-
-

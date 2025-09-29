@@ -21,7 +21,7 @@ namespace TeensyRom.Core.Entities.Storage
         public virtual string Meta1 { get; set; } = string.Empty;
         public virtual string Meta2 { get; set; } = string.Empty;
         public FilePath MetadataSourcePath { get; set; } = new FilePath(string.Empty);
-        public FilePath ParentPath { get; set; } = new FilePath(string.Empty);
+        public DirectoryPath ParentPath => Path.Directory;
         public PlaylistItem? Custom { get; set; } = null;
         public FilePath Path { get; set; } = new FilePath(string.Empty);
         public string Id => $"{Size}{Path.FileName}";

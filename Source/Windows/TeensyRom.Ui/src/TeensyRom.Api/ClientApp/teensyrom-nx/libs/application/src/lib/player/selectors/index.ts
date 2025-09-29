@@ -7,6 +7,8 @@ import { getPlayerFileContext } from './get-player-file-context';
 import { isPlayerLoading } from './is-player-loading';
 import { getPlayerError } from './get-player-error';
 import { getPlayerStatus } from './get-player-status';
+import { getShuffleSettings } from './get-shuffle-settings';
+import { getLaunchMode } from './get-launch-mode';
 
 export function withPlayerSelectors() {
   return withMethods((store) => {
@@ -18,6 +20,8 @@ export function withPlayerSelectors() {
       ...isPlayerLoading(writableStore),
       ...getPlayerError(writableStore),
       ...getPlayerStatus(writableStore),
+      ...getShuffleSettings(writableStore),
+      ...getLaunchMode(writableStore),
     };
   });
 }
