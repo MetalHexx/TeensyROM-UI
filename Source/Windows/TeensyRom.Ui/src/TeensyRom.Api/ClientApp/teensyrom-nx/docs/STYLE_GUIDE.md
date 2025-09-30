@@ -153,6 +153,55 @@ Apply the `.selected` class to the element when it's the currently selected item
 </div>
 ```
 
+### `@mixin pulsing-highlight`
+
+**Purpose**: Creates a reusable pulsing animation effect with colored borders for highlighting active or important elements
+
+**Usage Example:**
+
+```scss
+@use 'path/to/styles.scss' as styles;
+
+.my-active-item {
+  @include styles.pulsing-highlight(); // Default: cyan highlight, left border
+}
+
+.my-error-item {
+  @include styles.pulsing-highlight(
+    $color: var(--color-error),
+    $opacity: 20%,
+    $border-side: all,
+    $duration: 1.5s
+  );
+}
+
+.my-success-notification {
+  @include styles.pulsing-highlight(
+    $color: var(--color-success),
+    $opacity: 10%,
+    $border-side: top,
+    $border-width: 2px
+  );
+}
+```
+
+**Parameters:**
+
+- `$color`: Border and pulse color (default: `var(--color-highlight)`)
+- `$opacity`: Opacity percentage for pulse effect (default: `15%`)
+- `$duration`: Animation duration (default: `2s`)
+- `$timing`: Animation timing function (default: `ease-in-out`)
+- `$border-width`: Border thickness (default: `3px`)
+- `$border-side`: Border placement - `left`, `right`, `top`, `bottom`, or `all` (default: `left`)
+
+**Used In:**
+
+- [`directory-files.component.scss`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.scss) - Currently playing file highlighting
+
+**Best Practice**: Use for drawing attention to active states, currently playing items, notifications, or temporary highlights. The mixin adapts to any component's existing shape and styling - just apply it and it will pulse within the component's borders and dimensions. Combine with semantic color variables for consistent theming.
+
+**Technical Note**: Uses CSS custom properties internally (`--pulsing-color`, `--pulsing-opacity`) to enable dynamic color/opacity combinations while maintaining a single set of keyframes for performance.
+
 ---
 
 ### `.corner-chips`

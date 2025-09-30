@@ -107,6 +107,45 @@ body {
   }
 }
 
+@mixin pulsing-highlight(
+  $color: var(--color-highlight),
+  $opacity: 15%,
+  $duration: 2s,
+  $timing: ease-in-out,
+  $border-width: 3px,
+  $border-side: left
+) {
+  // Apply the colored border
+  @if $border-side == left {
+    border-left: #{$border-width} solid #{$color};
+  } @else if $border-side == right {
+    border-right: #{$border-width} solid #{$color};
+  } @else if $border-side == top {
+    border-top: #{$border-width} solid #{$color};
+  } @else if $border-side == bottom {
+    border-bottom: #{$border-width} solid #{$color};
+  } @else if $border-side == all {
+    border: #{$border-width} solid #{$color};
+  }
+  
+  // Apply the pulsing animation using a pre-defined keyframe
+  animation: pulsing-highlight #{$duration} #{$timing} infinite;
+  
+  // Override the custom property used in the keyframes
+  --pulsing-color: #{$color};
+  --pulsing-opacity: #{$opacity};
+}
+
+// Pre-defined keyframes that use CSS custom properties
+@keyframes pulsing-highlight {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: color-mix(in srgb, var(--pulsing-color) var(--pulsing-opacity), transparent);
+  }
+}
+
 // ─────────────────────────────────────────────
 //  MATERIAL THEME EXAMPLES
 // ─────────────────────────────────────────────
