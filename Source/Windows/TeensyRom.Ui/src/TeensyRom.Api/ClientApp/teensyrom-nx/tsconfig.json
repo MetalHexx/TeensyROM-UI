@@ -1,0 +1,43 @@
+{
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./libs/application/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/domain/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/utils/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/ui/components/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/features/player/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/infrastructure/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/data-access/api-client/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/app/bootstrap/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/app/navigation/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/app/shell/tsconfig.lib.json"
+    },
+    {
+      "path": "./apps/teensyrom-ui/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/teensyrom-ui-e2e/tsconfig.json"
+    }
+  ]
+}

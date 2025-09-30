@@ -8,6 +8,106 @@ This document establishes standards for state management using NgRx Signal Store
 
 ---
 
+## ⚠️ Critical State Mutation Requirement
+
+### Use updateState with actionMessage for ALL State Mutations
+
+**REQUIRED**: All store actions MUST use `updateState()` from `@angular-architects/ngrx-toolkit` with an `actionMessage` parameter instead of `patchState()` from `@ngrx/signals`.
+
+**Rationale**: The `patchState()` function does not support the `actionMessage` parameter required for Redux DevTools correlation. Without `actionMessage` tracking:
+- State mutations cannot be traced in Redux DevTools
+- Multiple state updates from a single action cannot be correlated
+- Debugging complex state flows becomes extremely difficult
+- State updates may fail silently in some cases
+
+**Correct Pattern**:
+
+```typescript
+import { updateState } from '@angular-architects/ngrx-toolkit';
+import { createAction } from '@teensyrom-nx/utils';
+
+export function someAction(store: WritableStore<DomainState>) {
+  return {
+    someAction: async ({ id }: { id: string }): Promise<void> => {
+      // Create action message for Redux DevTools tracking
+      const actionMessage = createAction('some-action'); // kebab-case
+
+      // Use updateState with actionMessage
+      updateState(store, actionMessage, (state) => ({
+        isLoading: true,
+        error: null,
+      }));
+
+      try {
+        // Perform async operation
+        const data = await firstValueFrom(service.getData(id));
+
+        // All state mutations use same actionMessage for correlation
+        updateState(store, actionMessage, (state) => ({
+          data,
+          isLoading: false,
+          isLoaded: true,
+        }));
+      } catch (error) {
+        updateState(store, actionMessage, (state) => ({
+          isLoading: false,
+          error: error.message,
+        }));
+      }
+    },
+  };
+}
+```
+
+**Incorrect Pattern (DO NOT USE)**:
+
+```typescript
+// ❌ WRONG - Do not use patchState
+import { patchState } from '@ngrx/signals';
+
+export function someAction(store: WritableStore<DomainState>) {
+  return {
+    someAction: async ({ id }: { id: string }): Promise<void> => {
+      // ❌ patchState doesn't accept actionMessage parameter
+      patchState(store, { isLoading: true }); // Cannot be tracked in Redux DevTools
+    },
+  };
+}
+```
+
+**Helper Functions**: All helper functions that mutate state MUST also accept `actionMessage` as their final parameter:
+
+```typescript
+// ✅ CORRECT - Helper accepts actionMessage
+export function setLoading(
+  store: WritableStore<DomainState>,
+  key: string,
+  actionMessage: string // Required parameter
+): void {
+  updateState(store, actionMessage, (state) => ({
+    entries: {
+      ...state.entries,
+      [key]: { ...state.entries[key], isLoading: true },
+    },
+  }));
+}
+
+// Usage in action
+const actionMessage = createAction('load-data');
+setLoading(store, key, actionMessage); // Pass actionMessage to helper
+```
+
+**Benefits of updateState with actionMessage**:
+- ✅ Full Redux DevTools integration with action correlation
+- ✅ All state mutations from a single operation show the same identifier
+- ✅ Easier debugging of complex state flows
+- ✅ Consistent tracking across all store actions
+- ✅ Better visibility into state changes during development
+
+**Historical Context**: This requirement was established after discovering a critical bug (Phase 3, Bug #4) where player actions using `patchState` were not properly tracked in Redux DevTools, making debugging impossible and causing state updates to fail silently. See `docs/features/player-state/PLAYER_DOMAIN_P3.md` Bug #4 for full details.
+
+---
+
 ## Signal Store Architecture
 
 ### Store Structure
@@ -112,7 +212,7 @@ state/
 - **Selectors**: Each function returns an object with computed signals for derived state
 - Functions are pure and focused on single responsibility
 - All external dependencies are injected as parameters
-- State updates use `patchState` for immutable updates
+- **State updates MUST use `updateState` with `actionMessage` parameter for Redux DevTools tracking**
 - Selectors use `computed()` for reactive derived state
 
 ### Selectors vs Actions Distinction
@@ -144,32 +244,37 @@ export function getSelectedItem(store: WritableStore<ExampleState>) {
 **Actions (/actions folder)**:
 
 - **Purpose**: Perform state mutations and async operations
-- **Pattern**: Use `withMethods()` with async functions and `patchState()`
-- **Characteristics**: State-changing, async operations, side effects
+- **Pattern**: Use `withMethods()` with async functions and `updateState()` with `actionMessage`
+- **Characteristics**: State-changing, async operations, side effects, Redux DevTools tracked
 - **Return Type**: Promise-based async functions
 
 **Action Example**:
 
 ```typescript
 // actions/load-data.ts
+import { updateState } from '@angular-architects/ngrx-toolkit';
+import { createAction } from '@teensyrom-nx/utils';
+
 export function loadData(store: WritableStore<ExampleState>, service: ExampleService) {
   return {
     loadData: async ({ id }: { id: string }): Promise<void> => {
-      patchState(store, { isLoading: true, error: null });
+      const actionMessage = createAction('load-data'); // Required for Redux DevTools
+
+      updateState(store, actionMessage, (state) => ({ isLoading: true, error: null }));
 
       try {
         const data = await firstValueFrom(service.getData(id));
-        patchState(store, {
+        updateState(store, actionMessage, (state) => ({
           data,
           isLoading: false,
           isLoaded: true,
           lastUpdateTime: Date.now(),
-        });
+        }));
       } catch (error) {
-        patchState(store, {
+        updateState(store, actionMessage, (state) => ({
           isLoading: false,
           error: (error as any)?.message || 'Failed to load data',
-        });
+        }));
       }
     },
   };
@@ -178,8 +283,8 @@ export function loadData(store: WritableStore<ExampleState>, service: ExampleSer
 
 **Key Differences**:
 
-- **Selectors**: Return `computed()` signals, no `patchState()`, no async operations
-- **Actions**: Use `patchState()` for mutations, async/await patterns, error handling
+- **Selectors**: Return `computed()` signals, no `updateState()`, no async operations, no actionMessage
+- **Actions**: Use `updateState()` with `actionMessage` for mutations, async/await patterns, error handling, Redux DevTools tracking
 
 ### Function File Structure
 
@@ -187,19 +292,21 @@ export function loadData(store: WritableStore<ExampleState>, service: ExampleSer
 
 **Requirements**:
 
-1. Import necessary dependencies at the top
+1. Import necessary dependencies at the top (including `updateState` from `@angular-architects/ngrx-toolkit`)
 2. Define SignalStore type helper (if needed)
 3. Export single function that returns object with one property (a function)
 4. Use descriptive parameter names
 5. Include proper error handling
-6. Clear state updates with `patchState`
+6. **CRITICAL**: Use `updateState` with `actionMessage` for all state mutations (not `patchState`)
+7. Create `actionMessage` at the start of each action using `createAction()`
 
 **Template Pattern**:
 
 ```typescript
-import { patchState, WritableStateSource } from '@ngrx/signals';
+import { updateState } from '@angular-architects/ngrx-toolkit'; // REQUIRED
+import { WritableStateSource } from '@ngrx/signals';
 import { firstValueFrom } from 'rxjs';
-import { createAction } from '@teensyrom-nx/utils';
+import { createAction, LogType, logInfo } from '@teensyrom-nx/utils';
 
 type SignalStore<T> = {
   [K in keyof T]: () => T[K];
@@ -211,27 +318,34 @@ export function methodName(
 ) {
   return {
     methodName: async ({ param }: { param: ParamType }): Promise<void> => {
-      // Create action message for Redux DevTools correlation
-      const actionMessage = createAction('method-name');
+      // REQUIRED: Create action message for Redux DevTools correlation
+      const actionMessage = createAction('method-name'); // kebab-case
 
-      // Clear any previous errors
-      patchState(store, { isLoading: true, error: null });
+      logInfo(LogType.Start, 'Starting operation', { param });
+
+      // Use updateState with actionMessage (NOT patchState)
+      updateState(store, actionMessage, (state) => ({ isLoading: true, error: null }));
 
       try {
         const result = await firstValueFrom(service.operation(param));
 
-        patchState(store, {
+        logInfo(LogType.Success, 'Operation completed successfully');
+
+        // All state mutations use same actionMessage for correlation
+        updateState(store, actionMessage, (state) => ({
           data: result,
           isLoading: false,
           isLoaded: true,
           error: null,
           lastUpdateTime: Date.now(),
-        });
+        }));
       } catch (error) {
-        patchState(store, {
+        logError('Operation failed', error);
+
+        updateState(store, actionMessage, (state) => ({
           isLoading: false,
           error: (error as any)?.message || 'Operation failed',
-        });
+        }));
       }
     },
   };

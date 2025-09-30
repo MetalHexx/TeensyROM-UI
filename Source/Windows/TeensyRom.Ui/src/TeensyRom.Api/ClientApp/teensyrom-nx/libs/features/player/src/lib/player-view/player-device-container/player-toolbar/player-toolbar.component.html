@@ -1,51 +1,73 @@
-<lib-compact-card-layout>
-  <div class="player-controls">
-    <!-- Shuffle Controls Section -->
-    
-    
-    <!-- Existing Playback Controls -->
-    <lib-icon-button
-      icon="skip_previous"
-      ariaLabel="Previous Track"
-      size="large"
-      variant="rounded-transparent"
-    >
-    </lib-icon-button>
-    <lib-icon-button icon="play_arrow" ariaLabel="Play" size="large" variant="rounded-primary">
-    </lib-icon-button>
-    <lib-icon-button
-      icon="fast_forward"
-      ariaLabel="Fast Forward"
-      size="large"
-      variant="rounded-transparent"
-    >
-    </lib-icon-button>
-    <lib-icon-button
-      icon="skip_next"
-      ariaLabel="Next Track"
-      size="large"
-      variant="rounded-transparent"
-    >
-    </lib-icon-button>
+@if (isPlayerLoaded()) {
+  <div @slideDown>
+    <lib-compact-card-layout>
+      <div class="player-controls">
+        <!-- Playback Controls Section -->
+        <lib-icon-button
+          icon="skip_previous"
+          ariaLabel="Previous File"
+          size="large"
+          variant="rounded-transparent"
+          [disabled]="!canNavigatePrevious()"
+          (buttonClick)="previous()"
+        >
+        </lib-icon-button>
 
-    <lib-icon-button
-      icon="casino"
-      ariaLabel="Launch Random File"
-      size="large"
-      variant="rounded-transparent"
-      color="normal"
-      [disabled]="isLoading()"
-      (buttonClick)="launchRandomFile()"
-    >
-    </lib-icon-button>
-    <lib-icon-button
-      icon="shuffle"
-      ariaLabel="Toggle Shuffle Mode"
-      size="large"
-      variant="rounded-transparent"
-      [color]="isShuffleMode() ? 'highlight' : 'normal'"
-      (buttonClick)="toggleShuffleMode()"
-    >
-    </lib-icon-button>
+        <!-- Dynamic Play/Pause or Stop Button -->
+        @if (isCurrentFileMusicType()) {
+          <!-- Music files get play/pause toggle -->
+          <lib-icon-button
+            [icon]="getPlayPauseIcon()"
+            [ariaLabel]="getPlayPauseLabel()"
+            size="large"
+            variant="rounded-primary"
+            color="normal"
+            (buttonClick)="playPause()"
+          >
+          </lib-icon-button>
+        } @else {
+          <!-- Games/Images get stop button -->
+          <lib-icon-button
+            icon="stop"
+            ariaLabel="Stop Playback"
+            size="large"
+            variant="rounded-primary"
+            color="normal"
+            (buttonClick)="stop()"
+          >
+          </lib-icon-button>
+        }
+
+        <lib-icon-button
+          icon="skip_next"
+          ariaLabel="Next File"
+          size="large"
+          variant="rounded-transparent"
+          [disabled]="!canNavigate()"
+          (buttonClick)="next()"
+        >
+        </lib-icon-button>
+
+        <!-- Shuffle Controls Section -->
+        <lib-icon-button
+          icon="casino"
+          ariaLabel="Launch Random File"
+          size="large"
+          variant="rounded-transparent"
+          color="normal"
+          (buttonClick)="launchRandomFile()"
+        >
+        </lib-icon-button>
+        <lib-icon-button
+          icon="shuffle"
+          ariaLabel="Toggle Shuffle Mode"
+          size="large"
+          variant="rounded-transparent"
+          [color]="isShuffleMode() ? 'highlight' : 'normal'"
+          (buttonClick)="toggleShuffleMode()"
+        >
+        </lib-icon-button>
+      </div>
+    </lib-compact-card-layout>
   </div>
-</lib-compact-card-layout>
+}

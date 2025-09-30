@@ -1,4 +1,4 @@
-import { patchState } from '@ngrx/signals';
+import { updateState } from '@angular-architects/ngrx-toolkit';
 import { firstValueFrom } from 'rxjs';
 import { createAction, LogType, logInfo, logError } from '@teensyrom-nx/utils';
 import { WritableStore } from '../player-helpers';
@@ -76,7 +76,7 @@ export function launchRandomFile(
         setPlayerLaunchSuccess(store, deviceId, launchedFileObj, emptyFileContext, actionMessage);
 
         // Ensure launch mode is set to shuffle
-        patchState(store, (state) => ({
+        updateState(store, actionMessage, (state) => ({
           players: {
             ...state.players,
             [deviceId]: {

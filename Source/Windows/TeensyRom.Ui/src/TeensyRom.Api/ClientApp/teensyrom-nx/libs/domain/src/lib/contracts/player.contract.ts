@@ -23,6 +23,14 @@ export interface IPlayerService {
     filter: PlayerFilterType, 
     startingDirectory?: string
   ): Observable<FileItem>;
+
+  /**
+   * Toggle music playback state for the device.
+   *
+   * @param deviceId - Target TeensyROM device identifier
+   * @returns Observable<void> - Completes when toggle operation is done
+   */
+  toggleMusic(deviceId: string): Observable<void>;
 }
 
 export const PLAYER_SERVICE = new InjectionToken<IPlayerService>('PLAYER_SERVICE');

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { LaunchMode, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
+import { LaunchMode, PlayerFilterType, PlayerScope, FileItemType } from '@teensyrom-nx/domain';
 import { PlayerStore, LaunchedFile } from './player-store';
 import { StorageStore } from '../storage/storage-store';
 import { StorageKeyUtil } from '../storage/storage-key.util';
@@ -99,11 +99,9 @@ export class PlayerContextService implements IPlayerContext {
   }
 
   toggleShuffleMode(deviceId: string): void {
-    this.store.initializePlayer({ deviceId });
-    
     const currentMode = this.store.getLaunchMode(deviceId)();
     const newMode = currentMode === LaunchMode.Shuffle ? LaunchMode.Directory : LaunchMode.Shuffle;
-    
+
     // Update launch mode using the proper action
     this.store.updateLaunchMode({
       deviceId,
@@ -112,7 +110,6 @@ export class PlayerContextService implements IPlayerContext {
   }
 
   setShuffleScope(deviceId: string, scope: PlayerScope): void {
-    this.store.initializePlayer({ deviceId });
     this.store.updateShuffleSettings({
       deviceId,
       shuffleSettings: { scope },
@@ -120,7 +117,6 @@ export class PlayerContextService implements IPlayerContext {
   }
 
   setFilterMode(deviceId: string, filter: PlayerFilterType): void {
-    this.store.initializePlayer({ deviceId });
     this.store.updateShuffleSettings({
       deviceId,
       shuffleSettings: { filter },
@@ -133,5 +129,32 @@ export class PlayerContextService implements IPlayerContext {
 
   getLaunchMode(deviceId: string) {
     return this.store.getLaunchMode(deviceId);
+  }
+
+  // Phase 3: New playback control methods
+  async playPause(deviceId: string): Promise<void> {
+    await this.store.playPauseMusic({ deviceId });
+  }
+
+  async stop(deviceId: string): Promise<void> {
+    await this.store.stopPlayback({ deviceId });
+  }
+
+  async next(deviceId: string): Promise<void> {
+    await this.store.navigateNext({ deviceId });
+  }
+
+  async previous(deviceId: string): Promise<void> {
+    await this.store.navigatePrevious({ deviceId });
+  }
+
+  getPlayerStatus(deviceId: string) {
+    return this.store.getPlayerStatus(deviceId);
+  }
+
+  // Helper method to determine if current file is music type
+  private isCurrentFileMusicType(deviceId: string): boolean {
+    const currentFile = this.getCurrentFile(deviceId)();
+    return currentFile?.file?.type === FileItemType.Song;
   }
 }

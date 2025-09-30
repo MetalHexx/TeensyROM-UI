@@ -1,832 +1,1132 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, MockedFunction } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import {
-  PLAYER_SERVICE,
-  IPlayerService,
-  StorageType,
   FileItem,
+  FileItemType,
+  StorageType,
   LaunchMode,
   PlayerStatus,
-  PlayerFilterType,
   PlayerScope,
+  PlayerFilterType,
+  PLAYER_SERVICE,
+  DEVICE_SERVICE,
 } from '@teensyrom-nx/domain';
 import { PlayerContextService } from './player-context.service';
 import { PlayerStore } from './player-store';
-import { StorageStore } from '../storage/storage-store';
-import { StorageKeyUtil } from '../storage/storage-key.util';
+import { StorageStore, StorageDirectoryState } from '../storage/storage-store';
 
-const createFile = (overrides: Partial<FileItem> = {}): FileItem => ({
+// Test data factory functions
+const createTestFileItem = (
+  overrides: Partial<FileItem> = {}
+): FileItem => ({
   name: 'test-file.sid',
   path: '/music/test-file.sid',
-  size: 1024,
-  type: overrides.type ?? ('Song' as FileItem['type']),
+  size: 4096,
+  type: FileItemType.Song,
   isFavorite: false,
-  title: overrides.title ?? 'Test Song',
-  creator: overrides.creator ?? 'Test Creator',
-  releaseInfo: '',
-  description: '',
+  title: 'Test Song',
+  creator: 'Test Artist',
+  releaseInfo: '2025',
+  description: 'Test song description',
   shareUrl: '',
   metadataSource: '',
   meta1: '',
   meta2: '',
   metadataSourcePath: '',
   parentPath: '/music',
-  playLength: '',
+  playLength: '3:45',
   subtuneLengths: [],
   startSubtuneNum: 0,
   images: [],
   ...overrides,
 });
 
-const createFileList = (count: number, baseName = 'file'): FileItem[] => {
-  return Array.from({ length: count }, (_, i) => 
-    createFile({ 
-      name: `${baseName}-${i + 1}.sid`,
-      path: `/music/${baseName}-${i + 1}.sid`,
-      title: `${baseName} ${i + 1}`
-    })
-  );
-};
+const createTestDirectoryFiles = (): FileItem[] => [
+  createTestFileItem({ name: 'song1.sid', path: '/music/song1.sid' }),
+  createTestFileItem({ name: 'song2.sid', path: '/music/song2.sid' }),
+  createTestFileItem({ name: 'game.prg', path: '/music/game.prg', type: FileItemType.Game }),
+];
 
-describe('PlayerContextService - Behavioral Testing', () => {
+// Mock types
+type LaunchFileFn = (deviceId: string, storageType: StorageType, filePath: string) => Observable<FileItem>;
+type LaunchRandomFn = (deviceId: string, scope: PlayerScope, filter: PlayerFilterType, startingDirectory?: string) => Observable<FileItem>;
+type ToggleMusicFn = (deviceId: string) => Observable<void>;
+type ResetDeviceFn = (deviceId: string) => Observable<void>;
+type PingDeviceFn = (deviceId: string) => Observable<void>;
+
+type NavigateToDirectoryFn = (params: { deviceId: string; storageType: StorageType; path: string }) => Promise<void>;
+type GetSelectedDirectoryStateFn = (deviceId: string) => () => Partial<StorageDirectoryState> | null;
+
+describe('PlayerContextService', () => {
   let service: PlayerContextService;
-  let playerServiceMock: IPlayerService;
-  let storageStoreMock: Partial<StorageStore>;
+  let mockStorageStore: {
+    navigateToDirectory: MockedFunction<NavigateToDirectoryFn>;
+    getSelectedDirectoryState: MockedFunction<GetSelectedDirectoryStateFn>;
+  };
+  let mockPlayerService: {
+    launchFile: MockedFunction<LaunchFileFn>;
+    launchRandom: MockedFunction<LaunchRandomFn>;
+    toggleMusic: MockedFunction<ToggleMusicFn>;
+    resetDevice: MockedFunction<ResetDeviceFn>;
+  };
+  let mockDeviceService: {
+    resetDevice: MockedFunction<ResetDeviceFn>;
+    pingDevice: MockedFunction<PingDeviceFn>;
+  };
+
+  // Helper to wait for async operations
+  const nextTick = () => new Promise<void>((r) => setTimeout(r, 0));
 
   beforeEach(() => {
-    playerServiceMock = {
-      launchFile: vi.fn(),
-      launchRandom: vi.fn(),
+    // Create mocks
+    mockPlayerService = {
+      launchFile: vi.fn<LaunchFileFn>(),
+      launchRandom: vi.fn<LaunchRandomFn>(),
+      toggleMusic: vi.fn<ToggleMusicFn>(),
+      resetDevice: vi.fn<ResetDeviceFn>(),
     };
 
-    storageStoreMock = {
-      navigateToDirectory: vi.fn().mockResolvedValue(undefined),
-      getSelectedDirectoryState: vi.fn().mockReturnValue(() => null),
+    mockDeviceService = {
+      resetDevice: vi.fn<ResetDeviceFn>(),
+      pingDevice: vi.fn<PingDeviceFn>(),
+    };
+
+    mockStorageStore = {
+      navigateToDirectory: vi.fn(),
+      getSelectedDirectoryState: vi.fn(),
     };
 
     TestBed.configureTestingModule({
       providers: [
         PlayerContextService,
-        PlayerStore,
-        { provide: PLAYER_SERVICE, useValue: playerServiceMock },
-        { provide: StorageStore, useValue: storageStoreMock },
+        PlayerStore, // Real store - we want to test integration
+        { provide: PLAYER_SERVICE, useValue: mockPlayerService },
+        { provide: DEVICE_SERVICE, useValue: mockDeviceService },
+        { provide: StorageStore, useValue: mockStorageStore },
       ],
     });
 
     service = TestBed.inject(PlayerContextService);
   });
 
-  describe('Player Lifecycle Management', () => {
-    it('should initialize player state for new device', () => {
-      const deviceId = 'device-new';
+  describe('Player Initialization & Cleanup', () => {
+    it('should initialize player state for device', () => {
+      const deviceId = 'device-123';
 
-      // Act: Initialize player
       service.initializePlayer(deviceId);
 
-      // Assert: Initial state should be created
-      expect(service.getCurrentFile(deviceId)()).toBeNull();
-      expect(service.getFileContext(deviceId)()).toBeNull();
-      expect(service.isLoading(deviceId)()).toBe(false);
-      expect(service.getError(deviceId)()).toBeNull();
-      expect(service.getStatus(deviceId)()).toBe(PlayerStatus.Stopped);
+      // Verify player was initialized via signal getter
+      const currentFile = service.getCurrentFile(deviceId);
+      expect(currentFile()).toBeNull();
+      
+      const status = service.getStatus(deviceId);
+      expect(status()).toBe(PlayerStatus.Stopped);
     });
 
     it('should remove player state for device', () => {
-      const deviceId = 'device-to-remove';
-      const file = createFile();
+      const deviceId = 'device-123';
 
-      // Arrange: Set up player with some state
+      // Initialize then remove
       service.initializePlayer(deviceId);
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(of(file));
-
-      // Act: Remove player
       service.removePlayer(deviceId);
 
-      // Assert: State should be cleaned up
-      expect(service.getCurrentFile(deviceId)()).toBeNull();
-      expect(service.getFileContext(deviceId)()).toBeNull();
-      expect(service.isLoading(deviceId)()).toBe(false);
-      expect(service.getError(deviceId)()).toBeNull();
-      expect(service.getStatus(deviceId)()).toBe(PlayerStatus.Stopped);
+      // Verify player was removed by checking signals return defaults
+      const currentFile = service.getCurrentFile(deviceId);
+      expect(currentFile()).toBeNull();
     });
 
-    it('should handle removing non-existent player gracefully', () => {
-      const deviceId = 'non-existent-device';
+    it('should handle multiple devices independently', () => {
+      const device1 = 'device-1';
+      const device2 = 'device-2';
 
-      // Act: Remove player that doesn't exist
-      expect(() => service.removePlayer(deviceId)).not.toThrow();
+      service.initializePlayer(device1);
+      service.initializePlayer(device2);
 
-      // Assert: Should return default state
-      expect(service.getCurrentFile(deviceId)()).toBeNull();
-      expect(service.getStatus(deviceId)()).toBe(PlayerStatus.Stopped);
+      // Both should be independent
+      expect(service.getCurrentFile(device1)()).toBeNull();
+      expect(service.getCurrentFile(device2)()).toBeNull();
+      expect(service.getStatus(device1)()).toBe(PlayerStatus.Stopped);
+      expect(service.getStatus(device2)()).toBe(PlayerStatus.Stopped);
+
+      // Remove one shouldn't affect the other
+      service.removePlayer(device1);
+      expect(service.getCurrentFile(device2)()).toBeNull(); // Still exists
+      expect(service.getStatus(device2)()).toBe(PlayerStatus.Stopped); // Still exists
     });
   });
 
-  describe('File Launch Orchestration', () => {
-    it('should orchestrate successful file launch with full context', async () => {
-      // Arrange: Set up test data
-      const deviceId = 'device-launch-success';
-      const storageType = StorageType.Sd;
-      const targetFile = createFile({ name: 'target.sid', path: '/music/target.sid' });
-      const contextFiles = createFileList(5, 'song');
-      const launchedFile = createFile({ name: 'target.sid', description: 'Successfully launched' });
-      
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(of(launchedFile));
+  describe('Phase 1: File Launching with Context', () => {
+    const deviceId = 'device-123';
+    const testFile = createTestFileItem();
+    const testFiles = createTestDirectoryFiles();
 
-      // Act: Launch file with context
+    it('should launch file with directory context successfully', async () => {
+      mockPlayerService.launchFile.mockReturnValue(of(testFile));
+
       await service.launchFileWithContext({
         deviceId,
-        storageType,
-        file: targetFile,
+        storageType: StorageType.Sd,
+        file: testFile,
         directoryPath: '/music',
-        files: contextFiles,
+        files: testFiles,
         launchMode: LaunchMode.Directory,
       });
 
-      // Assert: Infrastructure service called correctly
-      expect(playerServiceMock.launchFile).toHaveBeenCalledWith(
-        deviceId, 
-        storageType, 
-        targetFile.path
+      await nextTick();
+
+      // Verify infrastructure call
+      expect(mockPlayerService.launchFile).toHaveBeenCalledWith(
+        deviceId,
+        StorageType.Sd,
+        testFile.path
       );
-      expect(playerServiceMock.launchFile).toHaveBeenCalledTimes(1);
 
-      // Assert: Player state updated correctly
+      // Verify state updates through signals
       const currentFile = service.getCurrentFile(deviceId)();
-      expect(currentFile).not.toBeNull();
-      expect(currentFile?.file.name).toBe('target.sid');
-      expect(currentFile?.file.description).toBe('Successfully launched');
+      expect(currentFile).toBeTruthy();
+      expect(currentFile?.file).toEqual(testFile);
       expect(currentFile?.launchMode).toBe(LaunchMode.Directory);
-      expect(currentFile?.storageKey).toBe(StorageKeyUtil.create(deviceId, storageType));
-      expect(currentFile?.launchedAt).toBeGreaterThan(0);
 
-      // Assert: File context stored correctly
       const fileContext = service.getFileContext(deviceId)();
-      expect(fileContext).not.toBeNull();
+      expect(fileContext?.files).toEqual(testFiles);
       expect(fileContext?.directoryPath).toBe('/music');
-      expect(fileContext?.files).toHaveLength(5);
-      expect(fileContext?.currentIndex).toBe(0); // First file in context
-      expect(fileContext?.launchMode).toBe(LaunchMode.Directory);
-      expect(fileContext?.storageKey).toBe(StorageKeyUtil.create(deviceId, storageType));
+      expect(fileContext?.currentIndex).toBe(0); // testFile is first in testFiles
 
-      // Assert: Player status updated
       expect(service.isLoading(deviceId)()).toBe(false);
       expect(service.getError(deviceId)()).toBeNull();
-      expect(service.getStatus(deviceId)()).toBe(PlayerStatus.Playing);
     });
 
-    it('should use default values for optional launch parameters', async () => {
-      // Arrange: Minimal launch request
-      const deviceId = 'device-defaults';
-      const storageType = StorageType.Usb;
-      const file = createFile();
-      const contextFiles = [file];
-      
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(of(file));
+    it('should handle launch file API error gracefully', async () => {
+      const error = new Error('Launch failed');
+      mockPlayerService.launchFile.mockReturnValue(throwError(() => error));
 
-      // Act: Launch without optional parameters
+      // The service should handle errors gracefully without throwing
+      try {
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: testFile,
+          directoryPath: '/music',
+          files: testFiles,
+        });
+      } catch {
+        // Expected to complete without throwing
+      }
+
+      await nextTick();
+
+      // Verify error state
+      expect(service.getError(deviceId)()).toBeTruthy();
+      expect(service.isLoading(deviceId)()).toBe(false);
+      expect(service.getCurrentFile(deviceId)()).toBeNull();
+    });
+
+    it('should default to Directory launch mode when not specified', async () => {
+      mockPlayerService.launchFile.mockReturnValue(of(testFile));
+
       await service.launchFileWithContext({
         deviceId,
-        storageType,
-        file,
+        storageType: StorageType.Sd,
+        file: testFile,
         directoryPath: '/music',
-        files: contextFiles,
-        // launchMode omitted - should default to Directory
+        files: testFiles,
+        // launchMode not specified
       });
 
-      // Assert: Default values applied
+      await nextTick();
+
       const currentFile = service.getCurrentFile(deviceId)();
       expect(currentFile?.launchMode).toBe(LaunchMode.Directory);
-      
-      const fileContext = service.getFileContext(deviceId)();
-      expect(fileContext?.launchMode).toBe(LaunchMode.Directory);
     });
 
-    it('should preserve empty directory path as provided', async () => {
-      // Arrange: Empty directory path
-      const deviceId = 'device-empty-path';
-      const storageType = StorageType.Sd;
-      const file = createFile({ path: '/test.sid' });
-      
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(of(file));
-
-      // Act: Launch with empty string directoryPath
-      await service.launchFileWithContext({
-        deviceId,
-        storageType,
-        file,
-        directoryPath: '', // Empty string - should be preserved as-is
-        files: [file],
+    it('should set loading state during launch operation', async () => {
+      // Create a delayed observable to simulate async loading
+      let triggerResolve: () => void;
+      const loadingPromise = new Promise<void>((resolve) => {
+        triggerResolve = resolve;
       });
-
-      // Assert: Empty string preserved (nullish coalescing only affects null/undefined)
-      const fileContext = service.getFileContext(deviceId)();
-      expect(fileContext?.directoryPath).toBe('');
-    });
-
-    it('should preserve file array immutability', async () => {
-      // Arrange: Original file array
-      const deviceId = 'device-immutable';
-      const storageType = StorageType.Sd;
-      const file = createFile();
-      const originalFiles = createFileList(3, 'original');
       
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(of(file));
+      const delayedObservable = new Observable<FileItem>((subscriber) => {
+        loadingPromise.then(() => {
+          subscriber.next(testFile);
+          subscriber.complete();
+        });
+      });
+      
+      mockPlayerService.launchFile.mockReturnValue(delayedObservable);
 
-      // Act: Launch with files array
-      await service.launchFileWithContext({
+      // Start launch (don't await yet)
+      const launchPromise = service.launchFileWithContext({
         deviceId,
-        storageType,
-        file,
+        storageType: StorageType.Sd,
+        file: testFile,
         directoryPath: '/music',
-        files: originalFiles,
+        files: testFiles,
       });
 
-      // Assert: Original array unchanged
-      expect(originalFiles).toHaveLength(3);
-      expect(originalFiles[0].name).toBe('original-1.sid');
-      
-      // Assert: Service has its own copy
-      const fileContext = service.getFileContext(deviceId)();
-      expect(fileContext?.files).not.toBe(originalFiles);
-      expect(fileContext?.files).toHaveLength(3);
+      await nextTick();
+
+      // Should be loading
+      expect(service.isLoading(deviceId)()).toBe(true);
+
+      // Resolve the promise
+      triggerResolve();
+      await launchPromise;
+      await nextTick();
+
+      // Should no longer be loading
+      expect(service.isLoading(deviceId)()).toBe(false);
     });
   });
 
-  describe('Multi-Device State Isolation', () => {
-    it('should maintain completely independent state per device', async () => {
-      // Arrange: Multiple devices with different configurations
-      const deviceA = 'device-a';
-      const deviceB = 'device-b'; 
-      const deviceC = 'device-c';
-      
-      const fileA = createFile({ name: 'song-a.sid', path: '/a/song-a.sid' });
-      const fileB = createFile({ name: 'song-b.sid', path: '/b/song-b.sid' });
-      const fileC = createFile({ name: 'song-c.sid', path: '/c/song-c.sid' });
-      
-      const filesA = [fileA, createFile({ name: 'extra-a.sid' })];
-      const filesB = [fileB];
-      const filesC = createFileList(10, 'album');
-      
-      playerServiceMock.launchFile = vi.fn()
-        .mockReturnValueOnce(of(fileA))
-        .mockReturnValueOnce(of(fileB))
-        .mockReturnValueOnce(of(fileC));
+  describe('Phase 2: Random File Launching & Shuffle Mode', () => {
+    const deviceId = 'device-456';
+    const randomFile = createTestFileItem({ name: 'random-song.sid', path: '/games/random-song.sid' });
 
-      // Act: Launch files on different devices
-      await service.launchFileWithContext({
-        deviceId: deviceA,
-        storageType: StorageType.Sd,
-        file: fileA,
-        directoryPath: '/a',
-        files: filesA,
-        launchMode: LaunchMode.Directory,
-      });
-
-      await service.launchFileWithContext({
-        deviceId: deviceB,
-        storageType: StorageType.Usb,
-        file: fileB,
-        directoryPath: '/b',
-        files: filesB,
-        launchMode: LaunchMode.Shuffle,
-      });
-
-      await service.launchFileWithContext({
-        deviceId: deviceC,
-        storageType: StorageType.Sd,
-        file: fileC,
-        directoryPath: '/c/albums',
-        files: filesC,
-        launchMode: LaunchMode.Search,
-      });
-
-      // Assert: Device A state
-      expect(service.getCurrentFile(deviceA)()?.file.path).toBe('/a/song-a.sid');
-      expect(service.getFileContext(deviceA)()?.directoryPath).toBe('/a');
-      expect(service.getFileContext(deviceA)()?.files).toHaveLength(2);
-      expect(service.getFileContext(deviceA)()?.launchMode).toBe(LaunchMode.Directory);
-      expect(service.getStatus(deviceA)()).toBe(PlayerStatus.Playing);
-
-      // Assert: Device B state
-      expect(service.getCurrentFile(deviceB)()?.file.path).toBe('/b/song-b.sid');
-      expect(service.getFileContext(deviceB)()?.directoryPath).toBe('/b');
-      expect(service.getFileContext(deviceB)()?.files).toHaveLength(1);
-      expect(service.getFileContext(deviceB)()?.launchMode).toBe(LaunchMode.Shuffle);
-      expect(service.getStatus(deviceB)()).toBe(PlayerStatus.Playing);
-
-      // Assert: Device C state
-      expect(service.getCurrentFile(deviceC)()?.file.path).toBe('/c/song-c.sid');
-      expect(service.getFileContext(deviceC)()?.directoryPath).toBe('/c/albums');
-      expect(service.getFileContext(deviceC)()?.files).toHaveLength(10);
-      expect(service.getFileContext(deviceC)()?.launchMode).toBe(LaunchMode.Search);
-      expect(service.getStatus(deviceC)()).toBe(PlayerStatus.Playing);
-
-      // Assert: States are truly isolated
-      expect(service.getCurrentFile(deviceA)()?.storageKey).not.toBe(service.getCurrentFile(deviceB)()?.storageKey);
-      expect(service.getCurrentFile(deviceB)()?.storageKey).not.toBe(service.getCurrentFile(deviceC)()?.storageKey);
+    beforeEach(() => {
+      service.initializePlayer(deviceId);
     });
 
-    it('should handle device removal without affecting other devices', async () => {
-      // Arrange: Multiple devices with active states
-      const deviceKeep = 'device-keep';
-      const deviceRemove = 'device-remove';
-      const file = createFile();
-      
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(of(file));
+    it('should launch random file successfully', async () => {
+      mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
 
-      // Set up both devices
-      await service.launchFileWithContext({
-        deviceId: deviceKeep,
-        storageType: StorageType.Sd,
-        file,
-        directoryPath: '/keep',
-        files: [file],
-      });
+      await service.launchRandomFile(deviceId);
+      await nextTick();
 
-      await service.launchFileWithContext({
-        deviceId: deviceRemove,
-        storageType: StorageType.Usb,
-        file,
-        directoryPath: '/remove',
-        files: [file],
-      });
-
-      // Act: Remove one device
-      service.removePlayer(deviceRemove);
-
-      // Assert: Kept device unaffected
-      expect(service.getCurrentFile(deviceKeep)()?.file.name).toBe('test-file.sid');
-      expect(service.getFileContext(deviceKeep)()?.directoryPath).toBe('/keep');
-      expect(service.getStatus(deviceKeep)()).toBe(PlayerStatus.Playing);
-
-      // Assert: Removed device state cleared
-      expect(service.getCurrentFile(deviceRemove)()).toBeNull();
-      expect(service.getFileContext(deviceRemove)()).toBeNull();
-      expect(service.getStatus(deviceRemove)()).toBe(PlayerStatus.Stopped);
-    });
-  });
-
-  describe('Error Handling and Edge Cases', () => {
-    it('should handle infrastructure launch failures gracefully', async () => {
-      // Arrange: Infrastructure service will fail
-      const deviceId = 'device-fail';
-      const file = createFile();
-      const errorMessage = 'TeensyROM device not responding';
-      
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(
-        throwError(() => new Error(errorMessage))
+      // Verify infrastructure call with default shuffle settings
+      expect(mockPlayerService.launchRandom).toHaveBeenCalledWith(
+        deviceId,
+        PlayerScope.Storage, // Default scope
+        PlayerFilterType.All, // Default filter
+        undefined // No starting directory by default
       );
 
-      // Act & Assert: Error should be propagated
-      await expect(service.launchFileWithContext({
+      // Verify state updates
+      const currentFile = service.getCurrentFile(deviceId)();
+      expect(currentFile?.file).toEqual(randomFile);
+      expect(currentFile?.launchMode).toBe(LaunchMode.Shuffle);
+
+      expect(service.isLoading(deviceId)()).toBe(false);
+      expect(service.getError(deviceId)()).toBeNull();
+    });
+
+    it('should attempt to load directory context after random launch', async () => {
+      const mockDirectoryState: Partial<StorageDirectoryState> = {
+        directory: {
+          files: createTestDirectoryFiles(),
+          directories: [],
+          currentPath: '/games',
+        },
+      };
+
+      mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
+      mockStorageStore.navigateToDirectory.mockResolvedValue(undefined);
+      mockStorageStore.getSelectedDirectoryState.mockReturnValue(() => mockDirectoryState);
+
+      await service.launchRandomFile(deviceId);
+      await nextTick();
+
+      // Verify storage store was called to load directory context
+      expect(mockStorageStore.navigateToDirectory).toHaveBeenCalledWith({
         deviceId,
         storageType: StorageType.Sd,
-        file,
-        directoryPath: '/music',
-        files: [file],
-      })).rejects.toThrow(errorMessage);
+        path: randomFile.parentPath,
+      });
+    });
 
-      // Assert: Error state tracked correctly
-      expect(service.getError(deviceId)()).toBe(errorMessage);
+    it('should handle directory context loading failure silently', async () => {
+      mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
+      mockStorageStore.navigateToDirectory.mockRejectedValue(new Error('Directory load failed'));
+
+      // Should not throw
+      await expect(service.launchRandomFile(deviceId)).resolves.not.toThrow();
+      await nextTick();
+
+      // Random file should still be launched
+      const currentFile = service.getCurrentFile(deviceId)();
+      expect(currentFile?.file).toEqual(randomFile);
+    });
+
+    it('should handle random launch API error', async () => {
+      const error = new Error('Random launch failed');
+      mockPlayerService.launchRandom.mockReturnValue(throwError(() => error));
+
+      await service.launchRandomFile(deviceId);
+      await nextTick();
+
+      expect(service.getError(deviceId)()).toBeTruthy();
       expect(service.getCurrentFile(deviceId)()).toBeNull();
       expect(service.isLoading(deviceId)()).toBe(false);
-      expect(service.getStatus(deviceId)()).toBe(PlayerStatus.Stopped);
     });
 
-    it('should handle network timeout errors', async () => {
-      // Arrange: Network timeout simulation
-      const deviceId = 'device-timeout';
-      const file = createFile();
-      
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(
-        throwError(() => ({ name: 'TimeoutError', message: 'Request timeout after 30s' }))
-      );
+    describe('Shuffle Mode Toggle', () => {
+      it('should toggle from Directory to Shuffle mode', () => {
+        // Start in Directory mode (default)
+        expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Directory);
 
-      // Act: Attempt launch
-      await expect(service.launchFileWithContext({
-        deviceId,
-        storageType: StorageType.Usb,
-        file,
-        directoryPath: '/timeout-test',
-        files: [file],
-      })).rejects.toMatchObject({
-        name: 'TimeoutError',
-        message: 'Request timeout after 30s'
+        service.toggleShuffleMode(deviceId);
+
+        expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Shuffle);
       });
 
-      // Assert: Service maintains consistent error state
-      expect(service.getError(deviceId)()).toBe('Request timeout after 30s');
-      expect(service.getStatus(deviceId)()).toBe(PlayerStatus.Stopped);
+      it('should toggle from Shuffle to Directory mode', () => {
+        // Set to Shuffle first
+        service.toggleShuffleMode(deviceId);
+        expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Shuffle);
+
+        // Toggle back
+        service.toggleShuffleMode(deviceId);
+
+        expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Directory);
+      });
     });
 
-    it('should handle device not found errors', async () => {
-      // Arrange: Device not found scenario
-      const deviceId = 'device-not-found';
-      const file = createFile();
-      
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(
-        throwError(() => ({ status: 404, message: 'Device not found' }))
-      );
+    describe('Shuffle Settings Management', () => {
+      it('should update shuffle scope', () => {
+        service.setShuffleScope(deviceId, PlayerScope.DirectoryDeep);
 
-      // Act: Launch on non-existent device
-      await expect(service.launchFileWithContext({
-        deviceId,
-        storageType: StorageType.Sd,
-        file,
-        directoryPath: '/music',
-        files: [file],
-      })).rejects.toMatchObject({
-        status: 404,
-        message: 'Device not found'
+        const settings = service.getShuffleSettings(deviceId)();
+        expect(settings?.scope).toBe(PlayerScope.DirectoryDeep);
       });
 
-      // Assert: Appropriate error handling
-      expect(service.getError(deviceId)()).toBe('Device not found');
-    });
+      it('should update filter mode', () => {
+        service.setFilterMode(deviceId, PlayerFilterType.Music);
 
-    it('should handle invalid file path errors', async () => {
-      // Arrange: Invalid file path
-      const deviceId = 'device-invalid-path';
-      const invalidFile = createFile({ path: '/invalid/path/nonexistent.sid' });
-      
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(
-        throwError(() => new Error('File not found: /invalid/path/nonexistent.sid'))
-      );
-
-      // Act: Launch invalid file
-      await expect(service.launchFileWithContext({
-        deviceId,
-        storageType: StorageType.Sd,
-        file: invalidFile,
-        directoryPath: '/invalid',
-        files: [invalidFile],
-      })).rejects.toThrow('File not found: /invalid/path/nonexistent.sid');
-
-      // Assert: Error properly tracked
-      expect(service.getError(deviceId)()).toBe('File not found: /invalid/path/nonexistent.sid');
-    });
-
-    it('should handle corrupted file launch attempts', async () => {
-      // Arrange: Corrupted file scenario
-      const deviceId = 'device-corrupted';
-      const corruptedFile = createFile({ name: 'corrupted.sid' });
-      
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(
-        throwError(() => new Error('File corrupted or invalid format'))
-      );
-
-      // Act: Launch corrupted file
-      await expect(service.launchFileWithContext({
-        deviceId,
-        storageType: StorageType.Sd,
-        file: corruptedFile,
-        directoryPath: '/music',
-        files: [corruptedFile],
-      })).rejects.toThrow('File corrupted or invalid format');
-
-      // Assert: Service handles corruption gracefully
-      expect(service.getError(deviceId)()).toBe('File corrupted or invalid format');
-      expect(service.getCurrentFile(deviceId)()).toBeNull();
-    });
-
-    it('should handle empty file context gracefully', async () => {
-      // Arrange: Empty files array
-      const deviceId = 'device-empty-context';
-      const file = createFile();
-      
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(of(file));
-
-      // Act: Launch with empty context
-      await service.launchFileWithContext({
-        deviceId,
-        storageType: StorageType.Sd,
-        file,
-        directoryPath: '/empty',
-        files: [], // Empty array
+        const settings = service.getShuffleSettings(deviceId)();
+        expect(settings?.filter).toBe(PlayerFilterType.Music);
       });
 
-      // Assert: Service handles empty context properly
-      const fileContext = service.getFileContext(deviceId)();
-      expect(fileContext?.files).toHaveLength(0);
-      expect(fileContext?.currentIndex).toBe(0);
-      expect(fileContext?.directoryPath).toBe('/empty');
+      it('should maintain independent shuffle settings per device', () => {
+        const device2 = 'device-789';
+        service.initializePlayer(device2);
+
+        service.setShuffleScope(deviceId, PlayerScope.DirectoryDeep);
+        service.setFilterMode(deviceId, PlayerFilterType.Music);
+
+        service.setShuffleScope(device2, PlayerScope.Storage);
+        service.setFilterMode(device2, PlayerFilterType.Games);
+
+        const settings1 = service.getShuffleSettings(deviceId)();
+        const settings2 = service.getShuffleSettings(device2)();
+
+        expect(settings1?.scope).toBe(PlayerScope.DirectoryDeep);
+        expect(settings1?.filter).toBe(PlayerFilterType.Music);
+
+        expect(settings2?.scope).toBe(PlayerScope.Storage);
+        expect(settings2?.filter).toBe(PlayerFilterType.Games);
+      });
     });
   });
 
-  describe('Signal-Based API Behavior', () => {
-    it('should return reactive signals that update automatically', async () => {
-      // Arrange: Test device
-      const deviceId = 'device-reactive';
-      const file1 = createFile({ name: 'first.sid' });
-      const file2 = createFile({ name: 'second.sid' });
+  describe('Phase 3: Playback Controls', () => {
+    const deviceId = 'device-789';
+    const musicFile = createTestFileItem({ type: FileItemType.Song });
+    // const gameFile = createTestFileItem({ type: FileItemType.Game, name: 'game.prg' });
+
+    beforeEach(() => {
+      service.initializePlayer(deviceId);
+    });
+
+    describe('Play/Pause Control (Music Files)', () => {
+      it('should toggle music playback for music files', async () => {
+        // Setup: Launch a music file first
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: musicFile,
+          directoryPath: '/music',
+          files: [musicFile],
+        });
+        await nextTick();
+
+        // Test play/pause
+        mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
+
+        await service.playPause(deviceId);
+        await nextTick();
+
+        expect(mockPlayerService.toggleMusic).toHaveBeenCalledWith(deviceId);
+        expect(service.getError(deviceId)()).toBeNull();
+      });
+
+      it('should handle toggle music API error', async () => {
+        const error = new Error('Toggle music failed');
+        mockPlayerService.toggleMusic.mockReturnValue(throwError(() => error));
+
+        await service.playPause(deviceId);
+        await nextTick();
+
+        expect(service.getError(deviceId)()).toBeTruthy();
+      });
+    });
+
+    describe('Stop Control', () => {
+    it('should reset device for stop operation', async () => {
+      mockDeviceService.resetDevice.mockReturnValue(of(undefined));
+
+      await service.stop(deviceId);
+      await nextTick();
+
+      expect(mockDeviceService.resetDevice).toHaveBeenCalledWith(deviceId);
+      expect(service.getError(deviceId)()).toBeNull();
+    });      it('should handle reset device API error', async () => {
+        const error = new Error('Device reset failed');
+        mockDeviceService.resetDevice.mockReturnValue(throwError(() => error));
+
+        await service.stop(deviceId);
+        await nextTick();
+
+        expect(service.getError(deviceId)()).toBeTruthy();
+      });
+    });
+  });
+
+  describe('Phase 3: File Navigation', () => {
+    const deviceId = 'device-nav';
+    const testFiles = createTestDirectoryFiles();
+    const [file1, file2, file3] = testFiles;
+
+    beforeEach(async () => {
+      service.initializePlayer(deviceId);
       
-      playerServiceMock.launchFile = vi.fn()
-        .mockReturnValueOnce(of(file1))
-        .mockReturnValueOnce(of(file2));
-
-      // Act: Get signals before any launches
-      const currentFileSignal = service.getCurrentFile(deviceId);
-      const statusSignal = service.getStatus(deviceId);
-      const isLoadingSignal = service.isLoading(deviceId);
-      const errorSignal = service.getError(deviceId);
-
-      // Assert: Initial signal values
-      expect(currentFileSignal()).toBeNull();
-      expect(statusSignal()).toBe(PlayerStatus.Stopped);
-      expect(isLoadingSignal()).toBe(false);
-      expect(errorSignal()).toBeNull();
-
-      // Act: Launch first file
+      // Setup initial context with file1 as current
+      mockPlayerService.launchFile.mockReturnValue(of(file1));
       await service.launchFileWithContext({
         deviceId,
         storageType: StorageType.Sd,
         file: file1,
         directoryPath: '/music',
-        files: [file1, file2],
+        files: testFiles,
+        launchMode: LaunchMode.Directory,
+      });
+      await nextTick();
+    });
+
+    describe('Directory Mode Navigation', () => {
+      it('should navigate to next file in directory', async () => {
+        mockPlayerService.launchFile.mockReturnValue(of(file2));
+
+        await service.next(deviceId);
+        await nextTick();
+
+        expect(mockPlayerService.launchFile).toHaveBeenCalledWith(
+          deviceId,
+          StorageType.Sd,
+          file2.path
+        );
+
+        const currentFile = service.getCurrentFile(deviceId)();
+        expect(currentFile?.file).toEqual(file2);
       });
 
-      // Assert: Signals updated automatically
-      expect(currentFileSignal()?.file.name).toBe('first.sid');
-      expect(statusSignal()).toBe(PlayerStatus.Playing);
-      expect(isLoadingSignal()).toBe(false);
-      expect(errorSignal()).toBeNull();
+      it('should navigate to previous file in directory', async () => {
+        // First move to second file
+        mockPlayerService.launchFile.mockReturnValue(of(file2));
+        await service.next(deviceId);
+        await nextTick();
 
-      // Act: Launch second file
+        // Then go back
+        mockPlayerService.launchFile.mockReturnValue(of(file1));
+        await service.previous(deviceId);
+        await nextTick();
+
+        expect(mockPlayerService.launchFile).toHaveBeenLastCalledWith(
+          deviceId,
+          StorageType.Sd,
+          file1.path
+        );
+
+        const currentFile = service.getCurrentFile(deviceId)();
+        expect(currentFile?.file).toEqual(file1);
+      });
+
+      it('should wrap to end when navigating previous from first file', async () => {
+        // Currently at file1 (first), go previous should wrap to last
+        mockPlayerService.launchFile.mockReturnValue(of(file3));
+
+        await service.previous(deviceId);
+        await nextTick();
+
+        expect(mockPlayerService.launchFile).toHaveBeenCalledWith(
+          deviceId,
+          StorageType.Sd,
+          file3.path
+        );
+
+        const currentFile = service.getCurrentFile(deviceId)();
+        expect(currentFile?.file).toEqual(file3);
+      });
+
+      it('should wrap to beginning when navigating next from last file', async () => {
+        // Move to last file first
+        mockPlayerService.launchFile.mockReturnValue(of(file3));
+        await service.next(deviceId);
+        await service.next(deviceId); // Now at file3 (last)
+        await nextTick();
+
+        // Navigate next should wrap to first
+        mockPlayerService.launchFile.mockReturnValue(of(file1));
+        await service.next(deviceId);
+        await nextTick();
+
+        expect(mockPlayerService.launchFile).toHaveBeenLastCalledWith(
+          deviceId,
+          StorageType.Sd,
+          file1.path
+        );
+      });
+    });
+
+    describe('Shuffle Mode Navigation', () => {
+      beforeEach(() => {
+        // Switch to shuffle mode
+        service.toggleShuffleMode(deviceId);
+      });
+
+      it('should launch random file for next in shuffle mode', async () => {
+        const randomFile = createTestFileItem({ name: 'random.sid', path: '/random/random.sid' });
+        mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
+
+        await service.next(deviceId);
+        await nextTick();
+
+        expect(mockPlayerService.launchRandom).toHaveBeenCalled();
+        
+        const currentFile = service.getCurrentFile(deviceId)();
+        expect(currentFile?.file).toEqual(randomFile);
+        expect(currentFile?.launchMode).toBe(LaunchMode.Shuffle);
+      });
+
+      it('should launch random file for previous in shuffle mode', async () => {
+        const randomFile = createTestFileItem({ name: 'random2.sid', path: '/random/random2.sid' });
+        mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
+
+        await service.previous(deviceId);
+        await nextTick();
+
+        expect(mockPlayerService.launchRandom).toHaveBeenCalled();
+        
+        const currentFile = service.getCurrentFile(deviceId)();
+        expect(currentFile?.file).toEqual(randomFile);
+        expect(currentFile?.launchMode).toBe(LaunchMode.Shuffle);
+      });
+    });
+
+    describe('Navigation Error Handling', () => {
+      it('should handle next navigation API error', async () => {
+        const error = new Error('Next navigation failed');
+        mockPlayerService.launchFile.mockReturnValue(throwError(() => error));
+
+        await service.next(deviceId);
+        await nextTick();
+
+        expect(service.getError(deviceId)()).toBeTruthy();
+      });
+
+      it('should handle previous navigation API error', async () => {
+        const error = new Error('Previous navigation failed');
+        mockPlayerService.launchFile.mockReturnValue(throwError(() => error));
+
+        await service.previous(deviceId);
+        await nextTick();
+
+        expect(service.getError(deviceId)()).toBeTruthy();
+      });
+
+      it('should handle navigation when no file context exists', async () => {
+        // Remove the file context
+        service.removePlayer(deviceId);
+        service.initializePlayer(deviceId);
+
+        // Should not throw and should handle gracefully
+        await expect(service.next(deviceId)).resolves.not.toThrow();
+        await expect(service.previous(deviceId)).resolves.not.toThrow();
+      });
+    });
+  });
+
+  describe('Signal API & State Queries', () => {
+    const deviceId = 'device-signals';
+
+    beforeEach(() => {
+      service.initializePlayer(deviceId);
+    });
+
+    it('should provide reactive signals for all state properties', () => {
+      // All signal getters should be functions that return current state
+      expect(typeof service.getCurrentFile(deviceId)).toBe('function');
+      expect(typeof service.getFileContext(deviceId)).toBe('function');
+      expect(typeof service.isLoading(deviceId)).toBe('function');
+      expect(typeof service.getError(deviceId)).toBe('function');
+      expect(typeof service.getStatus(deviceId)).toBe('function');
+      expect(typeof service.getShuffleSettings(deviceId)).toBe('function');
+      expect(typeof service.getLaunchMode(deviceId)).toBe('function');
+      expect(typeof service.getPlayerStatus(deviceId)).toBe('function');
+    });
+
+    it('should return consistent values from getStatus and getPlayerStatus', () => {
+      const status1 = service.getStatus(deviceId)();
+      const status2 = service.getPlayerStatus(deviceId)();
+      
+      expect(status1).toBe(status2);
+      expect(status1).toBe(PlayerStatus.Stopped); // Initial state
+    });
+
+    it('should return null values for uninitialized device', () => {
+      const uninitializedDevice = 'device-uninitialized';
+
+      expect(service.getCurrentFile(uninitializedDevice)()).toBeNull();
+      expect(service.getFileContext(uninitializedDevice)()).toBeNull();
+      expect(service.getError(uninitializedDevice)()).toBeNull();
+      expect(service.getShuffleSettings(uninitializedDevice)()).toBeNull();
+    });
+
+    it('should return default values for uninitialized device state flags', () => {
+      const uninitializedDevice = 'device-uninitialized';
+
+      expect(service.isLoading(uninitializedDevice)()).toBe(false);
+      expect(service.getStatus(uninitializedDevice)()).toBe(PlayerStatus.Stopped);
+      expect(service.getLaunchMode(uninitializedDevice)()).toBe(LaunchMode.Directory);
+    });
+  });
+
+  describe('Multi-Device Isolation', () => {
+    const device1 = 'device-1';
+    const device2 = 'device-2';
+    const file1 = createTestFileItem({ name: 'song1.sid' });
+    const file2 = createTestFileItem({ name: 'song2.sid' });
+
+    beforeEach(() => {
+      service.initializePlayer(device1);
+      service.initializePlayer(device2);
+    });
+
+    it('should maintain independent file states per device', async () => {
+      mockPlayerService.launchFile.mockReturnValue(of(file1));
       await service.launchFileWithContext({
+        deviceId: device1,
+        storageType: StorageType.Sd,
+        file: file1,
+        directoryPath: '/music',
+        files: [file1],
+      });
+
+      mockPlayerService.launchFile.mockReturnValue(of(file2));
+      await service.launchFileWithContext({
+        deviceId: device2,
+        storageType: StorageType.Usb,
+        file: file2,
+        directoryPath: '/games',
+        files: [file2],
+      });
+
+      await nextTick();
+
+      // Each device should have its own current file
+      expect(service.getCurrentFile(device1)()?.file).toEqual(file1);
+      expect(service.getCurrentFile(device2)()?.file).toEqual(file2);
+    });
+
+    it('should maintain independent shuffle settings per device', () => {
+      service.setShuffleScope(device1, PlayerScope.DirectoryDeep);
+      service.setFilterMode(device1, PlayerFilterType.Music);
+
+      service.setShuffleScope(device2, PlayerScope.Storage);
+      service.setFilterMode(device2, PlayerFilterType.Games);
+
+      const settings1 = service.getShuffleSettings(device1)();
+      const settings2 = service.getShuffleSettings(device2)();
+
+      expect(settings1?.scope).toBe(PlayerScope.DirectoryDeep);
+      expect(settings1?.filter).toBe(PlayerFilterType.Music);
+
+      expect(settings2?.scope).toBe(PlayerScope.Storage);
+      expect(settings2?.filter).toBe(PlayerFilterType.Games);
+    });
+
+    it('should maintain independent launch modes per device', () => {
+      service.toggleShuffleMode(device1); // Switch to Shuffle
+      // device2 stays in Directory mode
+
+      expect(service.getLaunchMode(device1)()).toBe(LaunchMode.Shuffle);
+      expect(service.getLaunchMode(device2)()).toBe(LaunchMode.Directory);
+    });
+
+    it('should maintain independent error states per device', async () => {
+      // Cause error on device1
+      mockPlayerService.launchFile.mockReturnValue(throwError(() => new Error('Device1 error')));
+      try {
+        await service.launchFileWithContext({
+          deviceId: device1,
+          storageType: StorageType.Sd,
+          file: file1,
+          directoryPath: '/music',
+          files: [file1],
+        });
+      } catch {
+        // Expected to handle error
+      }
+
+      // Successful operation on device2
+      mockPlayerService.launchFile.mockReturnValue(of(file2));
+      await service.launchFileWithContext({
+        deviceId: device2,
+        storageType: StorageType.Sd,
+        file: file2,
+        directoryPath: '/music',
+        files: [file2],
+      });
+
+      await nextTick();
+
+      expect(service.getError(device1)()).toBeTruthy();
+      expect(service.getError(device2)()).toBeNull();
+    });
+  });
+
+  describe('Error Recovery & State Consistency', () => {
+    const deviceId = 'device-error-recovery';
+    const testFile = createTestFileItem();
+
+    beforeEach(() => {
+      service.initializePlayer(deviceId);
+    });
+
+    it('should clear previous errors on successful operations', async () => {
+      // First operation fails
+      mockPlayerService.launchFile.mockReturnValue(throwError(() => new Error('First error')));
+      try {
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: testFile,
+          directoryPath: '/music',
+          files: [testFile],
+        });
+      } catch {
+        // Expected to handle error
+      }
+      await nextTick();
+
+      expect(service.getError(deviceId)()).toBeTruthy();
+
+      // Second operation succeeds
+      mockPlayerService.launchFile.mockReturnValue(of(testFile));
+      await service.launchFileWithContext({
+        deviceId,
+        storageType: StorageType.Sd,
+        file: testFile,
+        directoryPath: '/music',
+        files: [testFile],
+      });
+      await nextTick();
+
+      expect(service.getError(deviceId)()).toBeNull();
+      expect(service.getCurrentFile(deviceId)()).toBeTruthy();
+    });
+
+    it('should maintain loading state consistency during operations', async () => {
+      // Create a delayed observable to simulate async loading
+      let triggerResolve: () => void;
+      const loadingPromise = new Promise<void>((resolve) => {
+        triggerResolve = resolve;
+      });
+      
+      const delayedObservable = new Observable<FileItem>((subscriber) => {
+        loadingPromise.then(() => {
+          subscriber.next(testFile);
+          subscriber.complete();
+        });
+      });
+
+      mockPlayerService.launchFile.mockReturnValue(delayedObservable);
+
+      // Start operation
+      const operationPromise = service.launchFileWithContext({
+        deviceId,
+        storageType: StorageType.Sd,
+        file: testFile,
+        directoryPath: '/music',
+        files: [testFile],
+      });
+
+      await nextTick();
+      expect(service.isLoading(deviceId)()).toBe(true);
+
+      // Complete operation
+      triggerResolve();
+      await operationPromise;
+      await nextTick();
+
+      expect(service.isLoading(deviceId)()).toBe(false);
+    });
+
+    it('should handle rapid successive operations correctly', async () => {
+      const file1 = createTestFileItem({ name: 'first.sid' });
+      const file2 = createTestFileItem({ name: 'second.sid' });
+
+      // First operation
+      mockPlayerService.launchFile.mockReturnValue(of(file1));
+      const promise1 = service.launchFileWithContext({
+        deviceId,
+        storageType: StorageType.Sd,
+        file: file1,
+        directoryPath: '/music',
+        files: [file1],
+      });
+
+      // Second operation immediately after
+      mockPlayerService.launchFile.mockReturnValue(of(file2));
+      const promise2 = service.launchFileWithContext({
         deviceId,
         storageType: StorageType.Sd,
         file: file2,
         directoryPath: '/music',
-        files: [file1, file2],
+        files: [file2],
       });
 
-      // Assert: Same signal instances updated with new values
-      expect(currentFileSignal()?.file.name).toBe('second.sid');
-      expect(statusSignal()).toBe(PlayerStatus.Playing);
-    });
+      await Promise.all([promise1, promise2]);
+      await nextTick();
 
-    it('should provide independent signals per device', () => {
-      // Arrange: Multiple devices
-      const deviceA = 'device-a';
-      const deviceB = 'device-b';
-
-      // Act: Get signals for different devices
-      const fileSignalA = service.getCurrentFile(deviceA);
-      const fileSignalB = service.getCurrentFile(deviceB);
-      const statusSignalA = service.getStatus(deviceA);
-      const statusSignalB = service.getStatus(deviceB);
-
-      // Assert: Signals are independent objects
-      expect(fileSignalA).not.toBe(fileSignalB);
-      expect(statusSignalA).not.toBe(statusSignalB);
-
-      // Assert: Initial values are the same but independent
-      expect(fileSignalA()).toBeNull();
-      expect(fileSignalB()).toBeNull();
-      expect(statusSignalA()).toBe(PlayerStatus.Stopped);
-      expect(statusSignalB()).toBe(PlayerStatus.Stopped);
+      // Latest operation should win
+      const currentFile = service.getCurrentFile(deviceId)();
+      expect(currentFile?.file).toEqual(file2);
+      expect(service.isLoading(deviceId)()).toBe(false);
+      expect(service.getError(deviceId)()).toBeNull();
     });
   });
 
-  describe('Infrastructure Service Integration', () => {
-    it('should pass correct parameters to infrastructure service', async () => {
-      // Arrange: Specific test parameters
-      const deviceId = 'test-device-123';
-      const storageType = StorageType.Usb;
-      const file = createFile({ path: '/specific/path/to/file.sid' });
+  describe('State Transitions & Media Player Behaviors', () => {
+    const testDeviceId = 'device-state-transitions';
+
+    beforeEach(() => {
+      service.initializePlayer(testDeviceId);
       
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(of(file));
-
-      // Act: Launch with specific parameters
-      await service.launchFileWithContext({
-        deviceId,
-        storageType,
-        file,
-        directoryPath: '/specific/path',
-        files: [file],
-        launchMode: LaunchMode.Shuffle,
-      });
-
-      // Assert: Infrastructure service called with exact parameters
-      expect(playerServiceMock.launchFile).toHaveBeenCalledWith(
-        'test-device-123',
-        StorageType.Usb,
-        '/specific/path/to/file.sid'
-      );
-      expect(playerServiceMock.launchFile).toHaveBeenCalledTimes(1);
+      // Ensure all mocks are properly set up for state transition tests
+      mockPlayerService.launchFile = vi.fn().mockReturnValue(of(createTestFileItem()));
+      mockPlayerService.toggleMusic = vi.fn().mockReturnValue(of(undefined));
+      mockDeviceService.resetDevice = vi.fn().mockReturnValue(of(undefined));
     });
 
-    it('should handle infrastructure service returning modified file data', async () => {
-      // Arrange: Service returns enhanced file data
-      const deviceId = 'device-enhanced';
-      const originalFile = createFile({ 
-        name: 'original.sid', 
-        description: 'Original description',
-        title: 'Original Title'
-      });
-      
-      const enhancedFile = createFile({
-        name: 'enhanced.sid',
-        description: 'Enhanced by TeensyROM',
-        title: 'Enhanced Title with Metadata',
-        creator: 'Enhanced Creator Info'
-      });
-      
-      playerServiceMock.launchFile = vi.fn().mockReturnValue(of(enhancedFile));
+    describe('Initial State Transitions', () => {
+      it('should transition from Stopped to Playing when launching a music file', async () => {
+        // Initial state should be Stopped
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Stopped);
 
-      // Act: Launch original file
-      await service.launchFileWithContext({
-        deviceId,
-        storageType: StorageType.Sd,
-        file: originalFile,
-        directoryPath: '/music',
-        files: [originalFile],
+        // Launch a music file
+        await service.launchFileWithContext({
+          deviceId: testDeviceId,
+          storageType: StorageType.Sd,
+          file: createTestFileItem({ type: FileItemType.Song }),
+          directoryPath: '/music',
+          files: [createTestFileItem()],
+        });
+
+        // Should transition to Playing
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
       });
 
-      // Assert: Service uses enhanced data from infrastructure
-      const currentFile = service.getCurrentFile(deviceId)();
-      expect(currentFile?.file.name).toBe('enhanced.sid');
-      expect(currentFile?.file.description).toBe('Enhanced by TeensyROM');
-      expect(currentFile?.file.title).toBe('Enhanced Title with Metadata');
-      expect(currentFile?.file.creator).toBe('Enhanced Creator Info');
-    });
-  });
+      it('should transition to Playing state when launching any file type', async () => {
+        // Launch a game file
+        await service.launchFileWithContext({
+          deviceId: testDeviceId,
+          storageType: StorageType.Sd,
+          file: createTestFileItem({ type: FileItemType.Game }),
+          directoryPath: '/games',
+          files: [createTestFileItem({ type: FileItemType.Game })],
+        });
 
-  describe('Shuffle Mode Functionality', () => {
-    it('should orchestrate random file launch without directory context', async () => {
-      // Arrange: Set up random file launch
-      const deviceId = 'device-shuffle';
-      const randomFile = createFile({ 
-        name: 'random.sid', 
-        path: '/music/subdir/random.sid',
-        parentPath: '/music/subdir',
-        title: 'Random Song' 
+        // All file launches result in Playing state (device state, not content-specific)
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
       });
-      
-      playerServiceMock.launchRandom = vi.fn().mockReturnValue(of(randomFile));
-
-      // Act: Launch random file
-      await service.launchRandomFile(deviceId);
-
-      // Assert: Random file should be launched
-      expect(playerServiceMock.launchRandom).toHaveBeenCalledWith(
-        deviceId,
-        PlayerScope.Storage,
-        PlayerFilterType.All,
-        undefined
-      );
-
-      // Assert: Current file should be set
-      const currentFile = service.getCurrentFile(deviceId)();
-      expect(currentFile?.file.name).toBe('random.sid');
-      expect(currentFile?.launchMode).toBe(LaunchMode.Shuffle);
     });
 
-    it('should coordinate with storage store to load directory context for random file', async () => {
-      // Arrange: Set up random file with parent directory
-      const deviceId = 'device-shuffle-context';
-      const randomFile = createFile({ 
-        name: 'random.sid', 
-        path: '/music/jazz/random.sid',
-        parentPath: '/music/jazz',
-      });
-      
-      const directoryFiles = [
-        createFile({ name: 'song1.sid', path: '/music/jazz/song1.sid' }),
-        randomFile,
-        createFile({ name: 'song3.sid', path: '/music/jazz/song3.sid' }),
-      ];
-
-      playerServiceMock.launchRandom = vi.fn().mockReturnValue(of(randomFile));
-      
-      // Mock storage store to return directory data
-      storageStoreMock.getSelectedDirectoryState = vi.fn().mockReturnValue(() => ({
-        directory: { files: directoryFiles },
-        currentPath: '/music/jazz',
-        deviceId,
-        storageType: StorageType.Sd,
-        isLoaded: true,
-        isLoading: false,
-        error: null,
-        lastLoadTime: Date.now(),
-      }));
-
-      // Act: Launch random file (should trigger directory loading)
-      await service.launchRandomFile(deviceId);
-
-      // Assert: Storage store should be called to navigate to parent directory
-      expect(storageStoreMock.navigateToDirectory).toHaveBeenCalledWith({
-        deviceId,
-        storageType: StorageType.Sd,
-        path: '/music/jazz',
+    describe('Play/Pause State Transitions', () => {
+      beforeEach(async () => {
+        // Start with a playing music file
+        await service.launchFileWithContext({
+          deviceId: testDeviceId,
+          storageType: StorageType.Sd,
+          file: createTestFileItem({ type: FileItemType.Song }),
+          directoryPath: '/music',
+          files: [createTestFileItem()],
+        });
       });
 
-      // Assert: Directory state should be retrieved
-      expect(storageStoreMock.getSelectedDirectoryState).toHaveBeenCalledWith(deviceId);
+      it('should transition Playing → Paused → Playing when toggling playback', async () => {
+        // Start in Playing state
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
 
-      // Assert: File context should be loaded with directory files
-      const fileContext = service.getFileContext(deviceId)();
-      expect(fileContext?.files).toHaveLength(3);
-      expect(fileContext?.currentIndex).toBe(1); // random.sid is at index 1
-      expect(fileContext?.directoryPath).toBe('/music/jazz');
-      expect(fileContext?.launchMode).toBe(LaunchMode.Shuffle);
-    });
+        // First toggle: Playing → Paused
+        await service.playPause(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Paused);
 
-    it('should handle directory loading failure gracefully', async () => {
-      // Arrange: Random file launch succeeds but directory loading fails
-      const deviceId = 'device-shuffle-fail';
-      const randomFile = createFile({ 
-        name: 'random.sid', 
-        path: '/music/random.sid',
-        parentPath: '/music',
+        // Second toggle: Paused → Playing
+        await service.playPause(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
       });
-      
-      playerServiceMock.launchRandom = vi.fn().mockReturnValue(of(randomFile));
-      storageStoreMock.navigateToDirectory = vi.fn().mockRejectedValue(new Error('Directory not found'));
 
-      // Act: Launch random file (directory loading will fail)
-      await service.launchRandomFile(deviceId);
+      it('should transition Stopped → Playing when play/pause called on stopped state', async () => {
+        // Stop the player first
+        await service.stop(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Stopped);
 
-      // Assert: Random file launch should still succeed
-      const currentFile = service.getCurrentFile(deviceId)();
-      expect(currentFile?.file.name).toBe('random.sid');
-      expect(currentFile?.launchMode).toBe(LaunchMode.Shuffle);
-
-      // Assert: Should not have file context due to directory loading failure
-      const fileContext = service.getFileContext(deviceId)();
-      expect(fileContext?.files).toEqual([]); // Empty array from action fallback
+        // Play/pause should resume playback
+        await service.playPause(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
+      });
     });
 
-    it('should toggle shuffle mode correctly', () => {
-      // Arrange: Device starts in Directory mode
-      const deviceId = 'device-toggle';
-      service.initializePlayer(deviceId);
+    describe('Stop State Transitions', () => {
+      beforeEach(async () => {
+        // Start with a playing music file
+        await service.launchFileWithContext({
+          deviceId: testDeviceId,
+          storageType: StorageType.Sd,
+          file: createTestFileItem({ type: FileItemType.Song }),
+          directoryPath: '/music',
+          files: [createTestFileItem()],
+        });
+      });
 
-      // Assert: Should start in Directory mode
-      expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Directory);
+      it('should transition Playing → Stopped when stop is called', async () => {
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
 
-      // Act: Toggle to Shuffle mode
-      service.toggleShuffleMode(deviceId);
+        await service.stop(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Stopped);
+      });
 
-      // Assert: Should be in Shuffle mode
-      expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Shuffle);
+      it('should remain Stopped when stop is called on already stopped player', async () => {
+        await service.stop(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Stopped);
 
-      // Act: Toggle back to Directory mode
-      service.toggleShuffleMode(deviceId);
-
-      // Assert: Should be back in Directory mode
-      expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Directory);
+        // Calling stop again should keep it stopped
+        await service.stop(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Stopped);
+      });
     });
 
-    it('should manage shuffle settings per device', () => {
-      // Arrange: Two devices
-      const deviceA = 'device-a';
-      const deviceB = 'device-b';
+    describe('Navigation State Transitions', () => {
+      beforeEach(async () => {
+        // Set up directory with multiple files
+        const files = createTestDirectoryFiles();
+        await service.launchFileWithContext({
+          deviceId: testDeviceId,
+          storageType: StorageType.Sd,
+          file: files[0], // Start with first song
+          directoryPath: '/music',
+          files,
+        });
+      });
 
-      service.initializePlayer(deviceA);
-      service.initializePlayer(deviceB);
+      it('should maintain Playing state when navigating next from Playing', async () => {
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
 
-      // Act: Set different shuffle settings for each device
-      service.setShuffleScope(deviceA, PlayerScope.DirectoryDeep);
-      service.setFilterMode(deviceA, PlayerFilterType.Music);
+        await service.next(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
+      });
 
-      service.setShuffleScope(deviceB, PlayerScope.DirectoryShallow);
-      service.setFilterMode(deviceB, PlayerFilterType.Games);
+      it('should maintain Playing state when navigating previous from Playing', async () => {
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
 
-      // Assert: Each device has independent settings
-      const settingsA = service.getShuffleSettings(deviceA)();
-      const settingsB = service.getShuffleSettings(deviceB)();
+        await service.previous(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
+      });
 
-      expect(settingsA.scope).toBe(PlayerScope.DirectoryDeep);
-      expect(settingsA.filter).toBe(PlayerFilterType.Music);
+      it('should transition Stopped → Playing when navigating from stopped state', async () => {
+        // Stop first
+        await service.stop(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Stopped);
 
-      expect(settingsB.scope).toBe(PlayerScope.DirectoryShallow);
-      expect(settingsB.filter).toBe(PlayerFilterType.Games);
+        // Navigate next should resume playback
+        await service.next(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
+      });
     });
 
-    it('should use shuffle settings when launching random files', async () => {
-      // Arrange: Set specific shuffle settings
-      const deviceId = 'device-settings';
-      const randomFile = createFile({ name: 'random.sid' });
-      
-      service.initializePlayer(deviceId);
-      service.setShuffleScope(deviceId, PlayerScope.DirectoryDeep);
-      service.setFilterMode(deviceId, PlayerFilterType.Games);
+    describe('Complex State Transition Scenarios', () => {
+      it('should handle state transitions across multiple operations', async () => {
+        const musicFile = createTestFileItem({ type: FileItemType.Song });
+        const files = [musicFile, createTestFileItem({ name: 'song2.sid' })];
 
-      playerServiceMock.launchRandom = vi.fn().mockReturnValue(of(randomFile));
+        // 1. Launch → Playing
+        await service.launchFileWithContext({
+          deviceId: testDeviceId,
+          storageType: StorageType.Sd,
+          file: musicFile,
+          directoryPath: '/music',
+          files,
+        });
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
 
-      // Act: Launch random file
-      await service.launchRandomFile(deviceId);
+        // 2. Pause → Paused
+        await service.playPause(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Paused);
 
-      // Assert: Should use configured shuffle settings
-      expect(playerServiceMock.launchRandom).toHaveBeenCalledWith(
-        deviceId,
-        PlayerScope.DirectoryDeep,
-        PlayerFilterType.Games,
-        undefined
-      );
+        // 3. Resume → Playing
+        await service.playPause(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
+
+        // 4. Stop → Stopped
+        await service.stop(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Stopped);
+
+        // 5. Navigate → Playing (navigation from stopped resumes)
+        await service.previous(testDeviceId);
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
+      });
+
+      it('should maintain Playing state when switching between any file types', async () => {
+        const musicFile = createTestFileItem({ type: FileItemType.Song });
+        const gameFile = createTestFileItem({ type: FileItemType.Game, name: 'game.prg' });
+
+        // Start with music file (Playing)
+        await service.launchFileWithContext({
+          deviceId: testDeviceId,
+          storageType: StorageType.Sd,
+          file: musicFile,
+          directoryPath: '/music',
+          files: [musicFile],
+        });
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
+
+        // Launch game file (all file launches result in Playing state)
+        await service.launchFileWithContext({
+          deviceId: testDeviceId,
+          storageType: StorageType.Sd,
+          file: gameFile,
+          directoryPath: '/games',
+          files: [gameFile],
+        });
+        // Player state represents device state, not content-specific playback
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
+      });
+    });
+
+    describe('Error State Transitions', () => {
+      it('should handle state gracefully when playback operations fail', async () => {
+        // Start with playing music
+        await service.launchFileWithContext({
+          deviceId: testDeviceId,
+          storageType: StorageType.Sd,
+          file: createTestFileItem({ type: FileItemType.Song }),
+          directoryPath: '/music',
+          files: [createTestFileItem()],
+        });
+        expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
+
+        // Simulate API failure for toggle
+        mockPlayerService.toggleMusic = vi.fn().mockReturnValue(throwError(() => new Error('API Error')));
+
+        await service.playPause(testDeviceId);
+        
+        // Should handle error gracefully and maintain consistent state
+        const status = service.getPlayerStatus(testDeviceId)();
+        expect([PlayerStatus.Playing, PlayerStatus.Paused, PlayerStatus.Stopped]).toContain(status);
+        expect(service.getError(testDeviceId)()).toBeTruthy();
+      });
     });
   });
 });

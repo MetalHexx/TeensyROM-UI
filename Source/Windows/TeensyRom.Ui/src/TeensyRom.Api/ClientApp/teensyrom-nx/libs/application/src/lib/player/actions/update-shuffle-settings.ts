@@ -1,4 +1,4 @@
-import { patchState } from '@ngrx/signals';
+import { updateState } from '@angular-architects/ngrx-toolkit';
 import { createAction, LogType, logInfo } from '@teensyrom-nx/utils';
 import { WritableStore, ensurePlayerState } from '../player-helpers';
 import { PlayerState, ShuffleSettings } from '../player-store';
@@ -20,7 +20,7 @@ export function updateShuffleSettings(store: WritableStore<PlayerState>) {
       ensurePlayerState(store, deviceId, actionMessage);
 
       // Update shuffle settings
-      patchState(store, (state) => {
+      updateState(store, actionMessage, (state) => {
         const currentPlayer = state.players[deviceId];
         if (!currentPlayer) {
           return state;

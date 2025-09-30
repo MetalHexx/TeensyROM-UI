@@ -13,7 +13,9 @@ import { logError } from '@teensyrom-nx/utils';
 
 @Injectable({ providedIn: 'root' })
 export class PlayerService implements IPlayerService {
-  constructor(private readonly apiService: PlayerApiService) {}
+  constructor(
+    private readonly apiService: PlayerApiService
+  ) {}
 
   launchFile(deviceId: string, storageType: StorageType, filePath: string): Observable<FileItem> {
     const apiStorageType = DomainMapper.toApiStorageType(storageType);
@@ -69,6 +71,24 @@ export class PlayerService implements IPlayerService {
       catchError((error) => {
         console.error('PlayerService launchRandom failed:', error);
         return throwError(() => (error instanceof Error ? error : new Error('Failed to launch random file')));
+      })
+    );
+  }
+
+  toggleMusic(deviceId: string): Observable<void> {
+    return from(
+      this.apiService.toggleMusic({ deviceId })
+    ).pipe(
+      map((response) => {
+        if (!response?.message) {
+          throw new Error('Invalid response: message is missing');
+        }
+        // API only returns a message, not the current state
+        return undefined; // Return void
+      }),
+      catchError((error) => {
+        logError('PlayerService toggleMusic failed:', error);
+        return throwError(() => (error instanceof Error ? error : new Error('Failed to toggle music')));
       })
     );
   }

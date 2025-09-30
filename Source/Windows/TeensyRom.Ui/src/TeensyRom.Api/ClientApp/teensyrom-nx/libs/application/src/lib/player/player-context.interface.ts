@@ -28,6 +28,13 @@ export interface IPlayerContext {
   setFilterMode(deviceId: string, filter: PlayerFilterType): void;
   getShuffleSettings(deviceId: string): Signal<ShuffleSettings | null>;
   getLaunchMode(deviceId: string): Signal<LaunchMode>;
+
+  // Phase 3: Playback controls
+  playPause(deviceId: string): Promise<void>;
+  stop(deviceId: string): Promise<void>;
+  next(deviceId: string): Promise<void>;
+  previous(deviceId: string): Promise<void>;
+  getPlayerStatus(deviceId: string): Signal<PlayerStatus>;
 }
 
 export const PLAYER_CONTEXT = new InjectionToken<IPlayerContext>('PLAYER_CONTEXT');

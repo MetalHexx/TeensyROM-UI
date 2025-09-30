@@ -84,12 +84,11 @@ export function setPlayerLoading(
     store,
     deviceId,
     (state) => {
-      logInfo(LogType.Info, `PlayerHelper: Updating player status to loading for device ${deviceId}`);
+      logInfo(LogType.Info, `PlayerHelper: Updating isLoading flag for device ${deviceId}`);
 
       return {
         ...state,
         isLoading: true,
-        status: PlayerStatus.Loading,
         error: null,
       };
     },

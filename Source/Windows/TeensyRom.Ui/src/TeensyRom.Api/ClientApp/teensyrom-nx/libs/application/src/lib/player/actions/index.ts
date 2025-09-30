@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { withMethods } from '@ngrx/signals';
-import { PLAYER_SERVICE, IPlayerService } from '@teensyrom-nx/domain';
+import { PLAYER_SERVICE, IPlayerService, DEVICE_SERVICE, IDeviceService } from '@teensyrom-nx/domain';
 import { PlayerState } from '../player-store';
 import { WritableStore } from '../player-helpers';
 import { initializePlayer } from './initialize-player';
@@ -9,10 +9,19 @@ import { launchRandomFile } from './launch-random-file';
 import { loadFileContext } from './load-file-context';
 import { updateShuffleSettings } from './update-shuffle-settings';
 import { updateLaunchMode } from './update-launch-mode';
+import { updatePlayerStatus } from './update-player-status';
+import { playPauseMusic } from './play-pause-music';
+import { stopPlayback } from './stop-playback';
+import { navigateNext } from './navigate-next';
+import { navigatePrevious } from './navigate-previous';
 import { removePlayer } from './remove-player';
 
 export function withPlayerActions() {
-  return withMethods((store, playerService: IPlayerService = inject(PLAYER_SERVICE)) => {
+  return withMethods((
+    store,
+    playerService: IPlayerService = inject(PLAYER_SERVICE),
+    deviceService: IDeviceService = inject(DEVICE_SERVICE)
+  ) => {
     const writableStore = store as WritableStore<PlayerState>;
     return {
       ...initializePlayer(writableStore),
@@ -21,6 +30,11 @@ export function withPlayerActions() {
       ...loadFileContext(writableStore),
       ...updateShuffleSettings(writableStore),
       ...updateLaunchMode(writableStore),
+      ...updatePlayerStatus(writableStore),
+      ...playPauseMusic(writableStore, playerService),
+      ...stopPlayback(writableStore, deviceService),
+      ...navigateNext(writableStore, playerService),
+      ...navigatePrevious(writableStore, playerService),
       ...removePlayer(writableStore),
     };
   });

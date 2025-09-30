@@ -2,8 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import {
   PlayerApiService,
+  DevicesApiService,
   LaunchFileResponse,
   LaunchRandomResponse,
+  ToggleMusicResponse,
+  ResetDeviceResponse,
   TeensyStorageType,
   FileItemDto,
   FileItemType as ApiFileItemType,
@@ -38,16 +41,29 @@ describe('PlayerService', () => {
   let mockPlayerApi: {
     launchFile: ReturnType<typeof vi.fn>;
     launchRandom: ReturnType<typeof vi.fn>;
+    toggleMusic: ReturnType<typeof vi.fn>;
+  };
+  let mockDevicesApi: {
+    resetDevice: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
     mockPlayerApi = {
       launchFile: vi.fn(),
       launchRandom: vi.fn(),
+      toggleMusic: vi.fn(),
+    };
+
+    mockDevicesApi = {
+      resetDevice: vi.fn(),
     };
 
     TestBed.configureTestingModule({
-      providers: [PlayerService, { provide: PlayerApiService, useValue: mockPlayerApi }],
+      providers: [
+        PlayerService, 
+        { provide: PlayerApiService, useValue: mockPlayerApi },
+        { provide: DevicesApiService, useValue: mockDevicesApi },
+      ],
     });
 
     service = TestBed.inject(PlayerService);
@@ -227,6 +243,149 @@ describe('PlayerService', () => {
 
       expect(consoleSpy).toHaveBeenCalledWith('PlayerService launchRandom failed:', error);
       consoleSpy.mockRestore();
+    });
+  });
+
+  describe('Phase 3: Playback Control Methods', () => {
+    describe('toggleMusic', () => {
+      it('should call toggleMusic API and return void', async () => {
+        const deviceId = 'device-123';
+        const response: ToggleMusicResponse = {
+          message: 'Music toggled successfully',
+        };
+
+        mockPlayerApi.toggleMusic.mockResolvedValue(response);
+
+        const result = await new Promise<void>((resolve, reject) => {
+          service.toggleMusic(deviceId).subscribe({
+            next: resolve,
+            error: reject,
+          });
+        });
+
+        expect(mockPlayerApi.toggleMusic).toHaveBeenCalledWith({ deviceId });
+        expect(result).toBeUndefined(); // Should return void
+      });
+
+      it('should throw error when response message is missing', async () => {
+        const deviceId = 'device-123';
+        mockPlayerApi.toggleMusic.mockResolvedValue({
+          message: null as unknown as string,
+        });
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.toggleMusic(deviceId).subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow('Invalid response: message is missing');
+      });
+
+      it('should handle API errors with logging', async () => {
+        const deviceId = 'device-123';
+        const error = new Error('Music toggle failed');
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        
+        mockPlayerApi.toggleMusic.mockRejectedValue(error);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.toggleMusic(deviceId).subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow('Music toggle failed');
+
+        expect(consoleSpy).toHaveBeenCalledWith('PlayerService toggleMusic failed:', error);
+        consoleSpy.mockRestore();
+      });
+
+      it('should provide meaningful error message for unknown errors', async () => {
+        const deviceId = 'device-123';
+        mockPlayerApi.toggleMusic.mockRejectedValue(new Error());
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.toggleMusic(deviceId).subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow('Failed to toggle music');
+      });
+    });
+
+    describe('resetDevice', () => {
+      it('should call resetDevice API and return void', async () => {
+        const deviceId = 'device-456';
+        const response: ResetDeviceResponse = {
+          message: 'Device reset successfully',
+        };
+
+        mockDevicesApi.resetDevice.mockResolvedValue(response);
+
+        const result = await new Promise<void>((resolve, reject) => {
+          service.resetDevice(deviceId).subscribe({
+            next: resolve,
+            error: reject,
+          });
+        });
+
+        expect(mockDevicesApi.resetDevice).toHaveBeenCalledWith({ deviceId });
+        expect(result).toBeUndefined(); // Should return void
+      });
+
+      it('should handle API errors with logging', async () => {
+        const deviceId = 'device-456';
+        const error = new Error('Device reset failed');
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        
+        mockDevicesApi.resetDevice.mockRejectedValue(error);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.resetDevice(deviceId).subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow('Device reset failed');
+
+        expect(consoleSpy).toHaveBeenCalledWith('PlayerService resetDevice failed:', error);
+        consoleSpy.mockRestore();
+      });
+
+      it('should provide meaningful error message for unknown errors', async () => {
+        const deviceId = 'device-456';
+        mockDevicesApi.resetDevice.mockRejectedValue(new Error());
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.resetDevice(deviceId).subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow('Failed to reset device');
+      });
+
+      it('should handle successful response regardless of content', async () => {
+        const deviceId = 'device-456';
+        // Test that any successful response works (API just needs to complete)
+        mockDevicesApi.resetDevice.mockResolvedValue({ message: 'Reset complete' });
+
+        const result = await new Promise<void>((resolve, reject) => {
+          service.resetDevice(deviceId).subscribe({
+            next: resolve,
+            error: reject,
+          });
+        });
+
+        expect(result).toBeUndefined();
+      });
     });
   });
 });
