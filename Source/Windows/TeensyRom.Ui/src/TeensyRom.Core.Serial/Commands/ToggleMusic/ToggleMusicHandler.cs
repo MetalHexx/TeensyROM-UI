@@ -1,12 +1,14 @@
 ﻿using MediatR;
+using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Core.Serial.Commands.ToggleMusic
 {
-    public class ToggleMusicHandler(IToggleMusicSerialRoutine toggleMusic) : IRequestHandler<ToggleMusicCommand, ToggleMusicResult>
+    public class ToggleMusicHandler : IRequestHandler<ToggleMusicCommand, ToggleMusicResult>
     {
         public Task<ToggleMusicResult> Handle(ToggleMusicCommand request, CancellationToken cancellationToken)
         {
-            toggleMusic.Execute();
+            request.Serial.SendIntBytes(TeensyToken.PauseMusic, 2);
+            request.Serial.HandleAck();
             return Task.FromResult(new ToggleMusicResult());
         }
     }

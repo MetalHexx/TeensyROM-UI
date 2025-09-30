@@ -19,7 +19,7 @@ namespace TeensyRom.Core.Serial.Commands.Composite.FastForward
             {
                 if (request.ShouldTogglePlay)
                 {
-                    toggleMusic.Execute();
+                    toggleMusic.Execute(request.Serial);
                 }
                 if (request.ShouldMuteVoices)
                 {

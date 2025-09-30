@@ -1,0 +1,40 @@
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using TeensyRom.Core.Common;
+
+namespace TeensyRom.Api.Endpoints.Player.ToggleMusic
+{
+    /// <summary>
+    /// Request model for toggling music playback on a TeensyROM device.
+    /// </summary>
+    public class ToggleMusicRequest
+    {
+        /// <summary>
+        /// The unique ID of the TeensyROM device.
+        /// </summary>
+        [FromRoute]
+        public string DeviceId { get; set; } = string.Empty;
+    }
+
+    public class ToggleMusicRequestValidator : AbstractValidator<ToggleMusicRequest>
+    {
+        public ToggleMusicRequestValidator()
+        {
+            RuleFor(x => x.DeviceId)
+                .NotEmpty().WithMessage("Device ID is required.")
+                .Must(deviceId => deviceId.IsValidFilenameSafeHash()).WithMessage("Device ID must be a valid filename-safe hash of 8 characters long.");
+        }
+    }
+
+    /// <summary>
+    /// Response model for the result of a toggle music operation.
+    /// </summary>
+    public class ToggleMusicResponse
+    {
+        /// <summary>
+        /// A message indicating the result of the operation.
+        /// </summary>
+        [Required] public string Message { get; set; } = "Success!";
+    }
+}

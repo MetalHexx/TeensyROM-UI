@@ -1,10 +1,12 @@
 ﻿using MediatR;
-using System.Drawing;
-using System.Reactive;
-using TeensyRom.Core.Logging;
-using TeensyRom.Core.Settings;
+using TeensyRom.Core.Abstractions;
+using TeensyRom.Core.Serial.Commands;
 
 namespace TeensyRom.Core.Serial.Commands.ToggleMusic
 {
-    public class ToggleMusicCommand() : IRequest<ToggleMusicResult>;
+    public class ToggleMusicCommand(string? deviceId = null) : ITeensyCommand<ToggleMusicResult>
+    {
+        public string? DeviceId { get; set; } = deviceId;
+        public ISerialStateContext Serial { get; set; } = null!;
+    }
 }

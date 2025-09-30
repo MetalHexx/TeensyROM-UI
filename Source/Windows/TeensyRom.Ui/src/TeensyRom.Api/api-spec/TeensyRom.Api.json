@@ -308,6 +308,68 @@
         }
       }
     },
+    "/devices/{deviceId}/toggle-music": {
+      "post": {
+        "tags": [
+          "Player"
+        ],
+        "summary": "Toggle Music Playback",
+        "description": "Toggles the play/pause state of the currently playing music on the TeensyRom device.",
+        "operationId": "ToggleMusic",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToggleMusicResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/devices/{deviceId}/storage/{storageType}/random-launch": {
       "post": {
         "tags": [
@@ -1037,6 +1099,17 @@
           "SD",
           "USB"
         ]
+      },
+      "ToggleMusicResponse": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
       },
       "ViewableItemImageDto": {
         "required": [

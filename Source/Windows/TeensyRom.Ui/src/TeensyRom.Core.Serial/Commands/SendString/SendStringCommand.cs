@@ -1,13 +1,13 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TeensyRom.Core.Commands.SendString;
-using TeensyRom.Core.Serial;
+using TeensyRom.Core.Abstractions;
+using TeensyRom.Core.Serial.Commands;
 
 namespace TeensyRom.Core.Commands.SendString
 {
-    public record SendStringCommand(string StringToSend) : IRequest<SendStringResult>;
+    public class SendStringCommand(string stringToSend, string? deviceId = null) : ITeensyCommand<SendStringResult>
+    {
+        public string StringToSend { get; } = stringToSend;
+        public string? DeviceId { get; set; } = deviceId;
+        public ISerialStateContext Serial { get; set; } = null!;
+    }
 }

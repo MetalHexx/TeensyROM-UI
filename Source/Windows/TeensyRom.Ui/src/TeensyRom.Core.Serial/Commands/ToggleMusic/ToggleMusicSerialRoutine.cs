@@ -4,12 +4,12 @@ namespace TeensyRom.Core.Serial.Commands.ToggleMusic
 {
     public interface IToggleMusicSerialRoutine
     {
-        void Execute();
+        void Execute(ISerialStateContext serialState);
     }
 
-    public class ToggleMusicSerialRoutine(ISerialStateContext serialState) : IToggleMusicSerialRoutine
+    public class ToggleMusicSerialRoutine : IToggleMusicSerialRoutine
     {
-        public void Execute()
+        public void Execute(ISerialStateContext serialState)
         {
             serialState.SendIntBytes(TeensyToken.PauseMusic, 2);
             serialState.HandleAck();

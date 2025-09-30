@@ -21,7 +21,7 @@ namespace TeensyRom.Core.Serial.Commands.Composite.StartSeek
             {
                 if (request.ShouldTogglePlay)
                 {
-                    toggleMusic.Execute();
+                    toggleMusic.Execute(request.Serial);
                 }
                 if (request.Direction is SeekDirection.Backward)
                 {
