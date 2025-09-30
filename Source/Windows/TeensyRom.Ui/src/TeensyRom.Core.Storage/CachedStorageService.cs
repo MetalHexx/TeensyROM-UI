@@ -261,7 +261,8 @@ namespace TeensyRom.Core.Storage
             {
                 _storageCache.UpsertFile(f);
             }
-            _storageCache.WriteToDisk();            
+            _storageCache.WriteToDisk();
+            _filesAdded.OnNext(files);
         }
 
         public async Task DeleteFile(FileItem file, TeensyStorageType storageType)

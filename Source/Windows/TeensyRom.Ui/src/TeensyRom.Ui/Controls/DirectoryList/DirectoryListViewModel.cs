@@ -225,6 +225,12 @@ namespace TeensyRom.Ui.Controls.DirectoryList
                     ? Path.Combine(baseDirectoryName, relativePath)
                     : relativePath;
 
+                if (targetFilePath.Equals(".")) 
+                {
+                    targetFilePath = string.Empty;
+                }
+                targetFilePath = Path.Combine(targetFilePath, f.File.Name);
+
                 var targetPath = new FilePath(targetFilePath.ToUnixPath()).Combine(_currentDirectory);
 
                 return new FileTransferItem(
