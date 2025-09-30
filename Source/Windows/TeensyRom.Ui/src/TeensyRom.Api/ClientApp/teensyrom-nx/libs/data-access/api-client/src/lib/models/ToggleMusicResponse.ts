@@ -16,30 +16,30 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface IndexResponse
+ * @interface ToggleMusicResponse
  */
-export interface IndexResponse {
+export interface ToggleMusicResponse {
     /**
      * 
      * @type {string}
-     * @memberof IndexResponse
+     * @memberof ToggleMusicResponse
      */
     message: string;
 }
 
 /**
- * Check if a given object implements the IndexResponse interface.
+ * Check if a given object implements the ToggleMusicResponse interface.
  */
-export function instanceOfIndexResponse(value: object): value is IndexResponse {
+export function instanceOfToggleMusicResponse(value: object): value is ToggleMusicResponse {
     if (!('message' in value) || value['message'] === undefined) return false;
     return true;
 }
 
-export function IndexResponseFromJSON(json: any): IndexResponse {
-    return IndexResponseFromJSONTyped(json, false);
+export function ToggleMusicResponseFromJSON(json: any): ToggleMusicResponse {
+    return ToggleMusicResponseFromJSONTyped(json, false);
 }
 
-export function IndexResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): IndexResponse {
+export function ToggleMusicResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): ToggleMusicResponse {
     if (json == null) {
         return json;
     }
@@ -49,11 +49,11 @@ export function IndexResponseFromJSONTyped(json: any, ignoreDiscriminator: boole
     };
 }
 
-export function IndexResponseToJSON(json: any): IndexResponse {
-    return IndexResponseToJSONTyped(json, false);
+export function ToggleMusicResponseToJSON(json: any): ToggleMusicResponse {
+    return ToggleMusicResponseToJSONTyped(json, false);
 }
 
-export function IndexResponseToJSONTyped(value?: IndexResponse | null, ignoreDiscriminator: boolean = false): any {
+export function ToggleMusicResponseToJSONTyped(value?: ToggleMusicResponse | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }

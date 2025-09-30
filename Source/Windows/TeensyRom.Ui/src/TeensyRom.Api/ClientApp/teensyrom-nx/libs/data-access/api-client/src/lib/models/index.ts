@@ -23,4 +23,5 @@ export * from './StartLogsResponse';
 export * from './StopLogsResponse';
 export * from './StorageCacheDto';
 export * from './TeensyStorageType';
+export * from './ToggleMusicResponse';
 export * from './ViewableItemImageDto';

@@ -27,6 +27,7 @@ models/StartLogsResponse.ts
 models/StopLogsResponse.ts
 models/StorageCacheDto.ts
 models/TeensyStorageType.ts
+models/ToggleMusicResponse.ts
 models/ViewableItemImageDto.ts
 models/index.ts
 runtime.ts
