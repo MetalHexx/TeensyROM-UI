@@ -26,20 +26,23 @@
 
   // Style for currently playing file (auto-selected)
   &[data-is-playing="true"] {
-    background-color: var(--primary-50);
-    border-left: 3px solid var(--primary-500);
-    padding-left: 8px;
+    border-left: 3px solid var(--color-highlight);
+    margin-left: -8px; // Extend to the left edge (keep this for the nice effect you mentioned)
+    margin-right: -16px; // Extend further to the right edge to match selected width
+    padding-left: 6px; // Original padding + border width (8px + 3px)
+    padding-right: 16px; // Maintain right padding with more space
+    border-radius: 10px; // Match the selectable-item border radius
     
-    // Add a subtle animation to draw attention
+    // Add a subtle pulsing animation to draw attention
     animation: playing-pulse 2s ease-in-out infinite;
   }
 }
 
 @keyframes playing-pulse {
   0%, 100% {
-    background-color: var(--primary-50);
+    background-color: transparent;
   }
   50% {
-    background-color: var(--primary-100);
+    background-color: color-mix(in srgb, var(--color-highlight) 15%, transparent);
   }
 }
