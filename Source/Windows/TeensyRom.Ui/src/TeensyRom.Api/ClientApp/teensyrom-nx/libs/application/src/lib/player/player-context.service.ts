@@ -132,8 +132,12 @@ export class PlayerContextService implements IPlayerContext {
   }
 
   // Phase 3: New playback control methods
-  async playPause(deviceId: string): Promise<void> {
-    await this.store.playPauseMusic({ deviceId });
+  async play(deviceId: string): Promise<void> {
+    await this.store.play({ deviceId });
+  }
+
+  async pause(deviceId: string): Promise<void> {
+    await this.store.pauseMusic({ deviceId });
   }
 
   async stop(deviceId: string): Promise<void> {

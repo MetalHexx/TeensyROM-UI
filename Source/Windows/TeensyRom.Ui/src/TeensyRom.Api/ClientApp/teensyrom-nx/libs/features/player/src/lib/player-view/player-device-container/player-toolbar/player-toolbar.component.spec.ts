@@ -46,7 +46,8 @@ describe('PlayerToolbarComponent', () => {
       launchRandomFile: vi.fn().mockResolvedValue(undefined),
       
       // Phase 3: Playback control methods (tested in this component)
-      playPause: vi.fn().mockResolvedValue(undefined),
+      play: vi.fn().mockResolvedValue(undefined),
+      pause: vi.fn().mockResolvedValue(undefined),
       stop: vi.fn().mockResolvedValue(undefined),
       next: vi.fn().mockResolvedValue(undefined),
       previous: vi.fn().mockResolvedValue(undefined),
@@ -89,18 +90,40 @@ describe('PlayerToolbarComponent', () => {
     const testDeviceId = 'test-device-id';
 
     describe('playPause() method', () => {
-      it('should call playerContext.playPause with correct deviceId', async () => {
+      it('should call pause when player is currently playing', async () => {
+        mockPlayerContext.getPlayerStatus.mockReturnValue(signal(PlayerStatus.Playing).asReadonly());
+        
         await component.playPause();
         
-        expect(mockPlayerContext.playPause).toHaveBeenCalledWith(testDeviceId);
+        expect(mockPlayerContext.pause).toHaveBeenCalledWith(testDeviceId);
+        expect(mockPlayerContext.play).not.toHaveBeenCalled();
       });
 
-      it('should not call playPause when deviceId is empty', async () => {
+      it('should call play when player is currently stopped', async () => {
+        mockPlayerContext.getPlayerStatus.mockReturnValue(signal(PlayerStatus.Stopped).asReadonly());
+        
+        await component.playPause();
+        
+        expect(mockPlayerContext.play).toHaveBeenCalledWith(testDeviceId);
+        expect(mockPlayerContext.pause).not.toHaveBeenCalled();
+      });
+
+      it('should call play when player is currently paused', async () => {
+        mockPlayerContext.getPlayerStatus.mockReturnValue(signal(PlayerStatus.Paused).asReadonly());
+        
+        await component.playPause();
+        
+        expect(mockPlayerContext.play).toHaveBeenCalledWith(testDeviceId);
+        expect(mockPlayerContext.pause).not.toHaveBeenCalled();
+      });
+
+      it('should not call play or pause when deviceId is empty', async () => {
         fixture.componentRef.setInput('deviceId', '');
         
         await component.playPause();
         
-        expect(mockPlayerContext.playPause).not.toHaveBeenCalled();
+        expect(mockPlayerContext.play).not.toHaveBeenCalled();
+        expect(mockPlayerContext.pause).not.toHaveBeenCalled();
       });
     });
 

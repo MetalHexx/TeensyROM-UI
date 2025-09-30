@@ -1,8 +1,8 @@
 import { Component, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { trigger, state, style, transition, animate } from '@angular/animations';
+import { trigger, style, transition, animate } from '@angular/animations';
 import { CompactCardLayoutComponent, IconButtonComponent } from '@teensyrom-nx/ui/components';
-import { IPlayerContext, PLAYER_CONTEXT } from '@teensyrom-nx/application';
+import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
 import { LaunchMode, PlayerStatus, FileItemType } from '@teensyrom-nx/domain';
 
 @Component({
@@ -75,7 +75,13 @@ export class PlayerToolbarComponent {
   async playPause(): Promise<void> {
     const deviceId = this.deviceId();
     if (deviceId) {
-      await this.playerContext.playPause(deviceId);
+      const status = this.playerContext.getPlayerStatus(deviceId)();
+      
+      if (status === PlayerStatus.Playing) {
+        await this.playerContext.pause(deviceId);
+      } else {
+        await this.playerContext.play(deviceId);
+      }
     }
   }
 

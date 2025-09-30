@@ -428,9 +428,23 @@ describe('PlayerContextService', () => {
       service.initializePlayer(deviceId);
     });
 
-    describe('Play/Pause Control (Music Files)', () => {
-      it('should toggle music playback for music files', async () => {
-        // Setup: Launch a music file first
+    describe('Play Control', () => {
+      it('should start playback when player is stopped', async () => {
+        // Setup: Player should start in stopped state
+        expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Stopped);
+        
+        mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
+
+        await service.play(deviceId);
+        await nextTick();
+
+        expect(mockPlayerService.toggleMusic).toHaveBeenCalledWith(deviceId);
+        expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Playing);
+        expect(service.getError(deviceId)()).toBeNull();
+      });
+
+      it('should start playback when player is paused', async () => {
+        // Setup: Launch a file and pause it
         mockPlayerService.launchFile.mockReturnValue(of(musicFile));
         await service.launchFileWithContext({
           deviceId,
@@ -439,28 +453,131 @@ describe('PlayerContextService', () => {
           directoryPath: '/music',
           files: [musicFile],
         });
-        await nextTick();
-
-        // Test play/pause
+        
+        // Pause it first
         mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
-
-        await service.playPause(deviceId);
+        await service.pause(deviceId);
+        expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Paused);
+        
+        // Now test play
+        await service.play(deviceId);
         await nextTick();
 
-        expect(mockPlayerService.toggleMusic).toHaveBeenCalledWith(deviceId);
+        expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Playing);
         expect(service.getError(deviceId)()).toBeNull();
       });
 
-      it('should handle toggle music API error', async () => {
-        const error = new Error('Toggle music failed');
+      it('should NOOP when player is already playing', async () => {
+        // Setup: Launch a file (which starts playing)
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: musicFile,
+          directoryPath: '/music',
+          files: [musicFile],
+        });
+        expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Playing);
+
+        // Clear previous calls
+        mockPlayerService.toggleMusic.mockClear();
+
+        // Call play when already playing
+        await service.play(deviceId);
+        await nextTick();
+
+        // Should not call the API
+        expect(mockPlayerService.toggleMusic).not.toHaveBeenCalled();
+        expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Playing);
+        expect(service.getError(deviceId)()).toBeNull();
+      });
+
+      it('should handle play API error', async () => {
+        const error = new Error('Play failed');
         mockPlayerService.toggleMusic.mockReturnValue(throwError(() => error));
 
-        await service.playPause(deviceId);
+        await service.play(deviceId);
         await nextTick();
 
         expect(service.getError(deviceId)()).toBeTruthy();
       });
     });
+
+    describe('Pause Control', () => {
+      beforeEach(async () => {
+        // Setup: Launch a music file to have something playing
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: musicFile,
+          directoryPath: '/music',
+          files: [musicFile],
+        });
+        expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Playing);
+      });
+
+      it('should pause playback when player is playing', async () => {
+        mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
+
+        await service.pause(deviceId);
+        await nextTick();
+
+        expect(mockPlayerService.toggleMusic).toHaveBeenCalledWith(deviceId);
+        expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Paused);
+        expect(service.getError(deviceId)()).toBeNull();
+      });
+
+      it('should NOOP when player is already paused', async () => {
+        // First pause the player
+        mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
+        await service.pause(deviceId);
+        expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Paused);
+
+        // Clear previous calls
+        mockPlayerService.toggleMusic.mockClear();
+
+        // Call pause when already paused
+        await service.pause(deviceId);
+        await nextTick();
+
+        // Should not call the API
+        expect(mockPlayerService.toggleMusic).not.toHaveBeenCalled();
+        expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Paused);
+        expect(service.getError(deviceId)()).toBeNull();
+      });
+
+      it('should NOOP when player is stopped', async () => {
+        // Stop the player first
+        mockDeviceService.resetDevice.mockReturnValue(of(undefined));
+        await service.stop(deviceId);
+        expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Stopped);
+
+        // Clear previous calls
+        mockPlayerService.toggleMusic.mockClear();
+
+        // Call pause when stopped
+        await service.pause(deviceId);
+        await nextTick();
+
+        // Should not call the API
+        expect(mockPlayerService.toggleMusic).not.toHaveBeenCalled();
+        expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Stopped);
+        expect(service.getError(deviceId)()).toBeNull();
+      });
+
+      it('should handle pause API error', async () => {
+        const error = new Error('Pause failed');
+        mockPlayerService.toggleMusic.mockReturnValue(throwError(() => error));
+
+        await service.pause(deviceId);
+        await nextTick();
+
+        expect(service.getError(deviceId)()).toBeTruthy();
+      });
+    });
+
+
 
     describe('Stop Control', () => {
     it('should reset device for stop operation', async () => {
@@ -959,22 +1076,22 @@ describe('PlayerContextService', () => {
         // Start in Playing state
         expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
 
-        // First toggle: Playing → Paused
-        await service.playPause(testDeviceId);
+        // First transition: Playing → Paused
+        await service.pause(testDeviceId);
         expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Paused);
 
-        // Second toggle: Paused → Playing
-        await service.playPause(testDeviceId);
+        // Second transition: Paused → Playing
+        await service.play(testDeviceId);
         expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
       });
 
-      it('should transition Stopped → Playing when play/pause called on stopped state', async () => {
+      it('should transition Stopped → Playing when play called on stopped state', async () => {
         // Stop the player first
         await service.stop(testDeviceId);
         expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Stopped);
 
-        // Play/pause should resume playback
-        await service.playPause(testDeviceId);
+        // Play should resume playback
+        await service.play(testDeviceId);
         expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
       });
     });
@@ -1062,11 +1179,11 @@ describe('PlayerContextService', () => {
         expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
 
         // 2. Pause → Paused
-        await service.playPause(testDeviceId);
+        await service.pause(testDeviceId);
         expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Paused);
 
         // 3. Resume → Playing
-        await service.playPause(testDeviceId);
+        await service.play(testDeviceId);
         expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
 
         // 4. Stop → Stopped
@@ -1117,10 +1234,10 @@ describe('PlayerContextService', () => {
         });
         expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
 
-        // Simulate API failure for toggle
+        // Simulate API failure for pause
         mockPlayerService.toggleMusic = vi.fn().mockReturnValue(throwError(() => new Error('API Error')));
 
-        await service.playPause(testDeviceId);
+        await service.pause(testDeviceId);
         
         // Should handle error gracefully and maintain consistent state
         const status = service.getPlayerStatus(testDeviceId)();

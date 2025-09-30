@@ -30,7 +30,8 @@ export interface IPlayerContext {
   getLaunchMode(deviceId: string): Signal<LaunchMode>;
 
   // Phase 3: Playback controls
-  playPause(deviceId: string): Promise<void>;
+  play(deviceId: string): Promise<void>;
+  pause(deviceId: string): Promise<void>;
   stop(deviceId: string): Promise<void>;
   next(deviceId: string): Promise<void>;
   previous(deviceId: string): Promise<void>;

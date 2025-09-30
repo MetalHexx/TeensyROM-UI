@@ -10,7 +10,8 @@ import { loadFileContext } from './load-file-context';
 import { updateShuffleSettings } from './update-shuffle-settings';
 import { updateLaunchMode } from './update-launch-mode';
 import { updatePlayerStatus } from './update-player-status';
-import { playPauseMusic } from './play-pause-music';
+import { play } from './play';
+import { pauseMusic } from './pause-music';
 import { stopPlayback } from './stop-playback';
 import { navigateNext } from './navigate-next';
 import { navigatePrevious } from './navigate-previous';
@@ -31,7 +32,8 @@ export function withPlayerActions() {
       ...updateShuffleSettings(writableStore),
       ...updateLaunchMode(writableStore),
       ...updatePlayerStatus(writableStore),
-      ...playPauseMusic(writableStore, playerService),
+      ...play(writableStore, playerService),
+      ...pauseMusic(writableStore, playerService),
       ...stopPlayback(writableStore, deviceService),
       ...navigateNext(writableStore, playerService),
       ...navigatePrevious(writableStore, playerService),
