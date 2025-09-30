@@ -729,6 +729,90 @@ describe('PlayerContextService', () => {
         expect(currentFile?.file).toEqual(randomFile);
         expect(currentFile?.launchMode).toBe(LaunchMode.Shuffle);
       });
+
+      it('should load directory context when navigating next in shuffle mode', async () => {
+        const randomFile = createTestFileItem({ name: 'random.sid', path: '/music/random.sid' });
+        const directoryFiles = [
+          createTestFileItem({ name: 'song1.sid', path: '/music/song1.sid' }),
+          createTestFileItem({ name: 'random.sid', path: '/music/random.sid' }),
+          createTestFileItem({ name: 'song2.sid', path: '/music/song2.sid' }),
+        ];
+
+        mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
+        mockStorageStore.navigateToDirectory.mockResolvedValue(undefined);
+        mockStorageStore.getSelectedDirectoryState.mockReturnValue(() => ({
+          directory: { files: directoryFiles }
+        }));
+
+        await service.next(deviceId);
+        await nextTick();
+
+        // Should launch random file
+        expect(mockPlayerService.launchRandom).toHaveBeenCalled();
+
+        // Should load directory context
+        expect(mockStorageStore.navigateToDirectory).toHaveBeenCalledWith({
+          deviceId,
+          storageType: StorageType.Sd,
+          path: '/music'
+        });
+
+        // Should have loaded file context with the directory files
+        const fileContext = service.getFileContext(deviceId)();
+        expect(fileContext?.files).toEqual(directoryFiles);
+        expect(fileContext?.currentIndex).toBe(1); // random.sid is at index 1
+      });
+
+      it('should load directory context when navigating previous in shuffle mode', async () => {
+        const randomFile = createTestFileItem({ name: 'track3.sid', path: '/sounds/track3.sid' });
+        const directoryFiles = [
+          createTestFileItem({ name: 'track1.sid', path: '/sounds/track1.sid' }),
+          createTestFileItem({ name: 'track3.sid', path: '/sounds/track3.sid' }),
+        ];
+
+        mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
+        mockStorageStore.navigateToDirectory.mockResolvedValue(undefined);
+        mockStorageStore.getSelectedDirectoryState.mockReturnValue(() => ({
+          directory: { files: directoryFiles }
+        }));
+
+        await service.previous(deviceId);
+        await nextTick();
+
+        // Should launch random file
+        expect(mockPlayerService.launchRandom).toHaveBeenCalled();
+
+        // Should load directory context
+        expect(mockStorageStore.navigateToDirectory).toHaveBeenCalledWith({
+          deviceId,
+          storageType: StorageType.Sd,
+          path: '/sounds'
+        });
+
+        // Should have loaded file context with the directory files
+        const fileContext = service.getFileContext(deviceId)();
+        expect(fileContext?.files).toEqual(directoryFiles);
+        expect(fileContext?.currentIndex).toBe(1); // track3.sid is at index 1
+      });
+
+      it('should handle directory loading failure gracefully in shuffle navigation', async () => {
+        const randomFile = createTestFileItem({ name: 'random.sid', path: '/music/random.sid' });
+
+        mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
+        mockStorageStore.navigateToDirectory.mockRejectedValue(new Error('Directory load failed'));
+
+        await service.next(deviceId);
+        await nextTick();
+
+        // Should still launch random file
+        expect(mockPlayerService.launchRandom).toHaveBeenCalled();
+        
+        const currentFile = service.getCurrentFile(deviceId)();
+        expect(currentFile?.file).toEqual(randomFile);
+
+        // Should not have any error in player state (directory loading failure is silently ignored)
+        expect(service.getError(deviceId)()).toBeNull();
+      });
     });
 
     describe('Navigation Error Handling', () => {

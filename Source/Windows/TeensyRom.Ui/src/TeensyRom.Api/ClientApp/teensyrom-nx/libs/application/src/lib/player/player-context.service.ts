@@ -145,11 +145,33 @@ export class PlayerContextService implements IPlayerContext {
   }
 
   async next(deviceId: string): Promise<void> {
+    const launchMode = this.store.getLaunchMode(deviceId)();
+    
+    // Always call the store action first
     await this.store.navigateNext({ deviceId });
+    
+    // If in shuffle mode, load directory context for the new random file
+    if (launchMode === LaunchMode.Shuffle) {
+      const currentFile = this.store.getCurrentFile(deviceId)();
+      if (currentFile) {
+        await this.loadDirectoryContextForRandomFile(currentFile);
+      }
+    }
   }
 
   async previous(deviceId: string): Promise<void> {
+    const launchMode = this.store.getLaunchMode(deviceId)();
+    
+    // Always call the store action first
     await this.store.navigatePrevious({ deviceId });
+    
+    // If in shuffle mode, load directory context for the new random file
+    if (launchMode === LaunchMode.Shuffle) {
+      const currentFile = this.store.getCurrentFile(deviceId)();
+      if (currentFile) {
+        await this.loadDirectoryContextForRandomFile(currentFile);
+      }
+    }
   }
 
   getPlayerStatus(deviceId: string) {
