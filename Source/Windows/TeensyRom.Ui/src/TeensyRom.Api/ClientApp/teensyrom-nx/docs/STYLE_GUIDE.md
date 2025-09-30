@@ -65,6 +65,32 @@ Available color variables for semantic styling:
 - [`storage-item.component.html`](../libs/features/devices/src/lib/device-view/storage-item/storage-item.component.html) - For disabled storage items
 - [`device-item.component.html`](../libs/features/devices/src/lib/device-view/device-item/device-item.component.html) - For disconnected devices
 
+### `.no-text-selection`
+
+**Purpose**: Prevents text selection on interactive elements to avoid unwanted text highlighting during double-clicks and rapid user interactions
+
+**Usage Example:**
+
+```html
+<!-- For buttons and interactive list items -->
+<div class="file-item no-text-selection" (dblclick)="openFile()">
+  <span>filename.txt</span>
+</div>
+
+<!-- For tree nodes and clickable elements -->
+<div class="directory-tree-node no-text-selection" (click)="selectNode()">
+  <span>Folder Name</span>
+</div>
+```
+
+**Used In:**
+
+- [`file-item.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/file-item/file-item.component.html) - Prevents text selection on file double-click
+- [`directory-item.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-item/directory-item.component.html) - Prevents text selection on directory double-click  
+- [`directory-tree-node.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-tree/directory-tree-node/directory-tree-node.component.html) - Prevents text selection on tree node interactions
+
+**Best Practice**: Apply to any interactive element that users might double-click or rapidly interact with where text selection would be distracting or interfere with the intended user action. Essential for components using the `selectable-item` mixin that need clean double-click behavior.
+
 ### `.glassy`
 
 **Purpose**: Creates a glass-morphism effect with backdrop blur
@@ -118,6 +144,14 @@ Available color variables for semantic styling:
 - Unified `--color-dimmed` background for selected state and a translucent variant for hover
 
 Apply the `.selected` class to the element when it's the currently selected item to activate the selection styling.
+
+**Recommended Pairing:** Combine with `.no-text-selection` utility class for elements that support double-click interactions to prevent unwanted text highlighting:
+
+```html
+<div class="my-item no-text-selection" [class.selected]="isSelected" (dblclick)="onAction()">
+  <!-- content -->
+</div>
+```
 
 ---
 

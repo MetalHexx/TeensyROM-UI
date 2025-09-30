@@ -84,6 +84,10 @@ body {
   opacity: 0.5;
 }
 
+.no-text-selection {
+  user-select: none;
+}
+
 // ─────────────────────────────────────────────
 //  Selectable Item Pattern
 // ─────────────────────────────────────────────
