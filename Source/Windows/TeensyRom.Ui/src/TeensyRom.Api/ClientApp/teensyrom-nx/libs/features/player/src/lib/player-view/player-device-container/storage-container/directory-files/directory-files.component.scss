@@ -21,4 +21,25 @@
 
 .file-list-item {
   background-color: transparent;
+  transition: background-color 0.2s ease;
+  border-radius: 4px;
+
+  // Style for currently playing file (auto-selected)
+  &[data-is-playing="true"] {
+    background-color: var(--primary-50);
+    border-left: 3px solid var(--primary-500);
+    padding-left: 8px;
+    
+    // Add a subtle animation to draw attention
+    animation: playing-pulse 2s ease-in-out infinite;
+  }
+}
+
+@keyframes playing-pulse {
+  0%, 100% {
+    background-color: var(--primary-50);
+  }
+  50% {
+    background-color: var(--primary-100);
+  }
 }

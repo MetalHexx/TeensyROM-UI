@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, inject, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, inject, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardLayoutComponent } from '@teensyrom-nx/ui/components';
 import { StorageStore, PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
@@ -43,6 +43,16 @@ export class DirectoryFilesComponent {
 
   readonly selectedItem = signal<DirectoryItem | FileItem | null>(null);
 
+  // Get current playing file from player context
+  readonly currentPlayingFile = computed(() => 
+    this.playerContext.getCurrentFile(this.deviceId())()
+  );
+
+  // Get file context to know when directory content is available
+  readonly playerFileContext = computed(() => 
+    this.playerContext.getFileContext(this.deviceId())()
+  );
+
   readonly combinedItems = computed(() => {
     const contents = this.directoryContents();
     const directories = contents.directories.map((dir) => ({
@@ -56,6 +66,45 @@ export class DirectoryFilesComponent {
     return [...directories, ...files];
   });
 
+  // Effect to automatically select and scroll to the currently playing file
+  constructor() {
+    effect(() => {
+      const playingFile = this.currentPlayingFile();
+      const fileContext = this.playerFileContext();
+      const combinedItems = this.combinedItems();
+
+      // Only proceed if we have a playing file and directory content is loaded
+      if (!playingFile || combinedItems.length === 0) {
+        return;
+      }
+
+      // In directory mode, the file should already be in the current directory
+      // In shuffle mode, we need to wait for the directory context to be loaded after navigation
+      const currentLaunchMode = this.playerContext.getLaunchMode(this.deviceId())();
+      
+      if (currentLaunchMode === LaunchMode.Shuffle) {
+        // For shuffle mode, wait for file context to be populated with directory files
+        // This happens after loadDirectoryContextForRandomFile is called
+        if (!fileContext || fileContext.files.length === 0) {
+          return; // Directory context not loaded yet
+        }
+      }
+
+      // Find the playing file in the current directory
+      const playingFileItem = combinedItems.find(item => 
+        item.path === playingFile.file.path
+      );
+
+      if (playingFileItem) {
+        // Select the playing file
+        this.selectedItem.set(playingFileItem);
+        
+        // Scroll to the selected file
+        this.scrollToSelectedFile(playingFile.file.path);
+      }
+    });
+  }
+
   isDirectory(item: DirectoryItem | FileItem): item is DirectoryItem {
     return 'itemType' in item && (item as { itemType: string }).itemType === 'directory';
   }
@@ -63,6 +112,11 @@ export class DirectoryFilesComponent {
   isSelected(item: DirectoryItem | FileItem): boolean {
     const selected = this.selectedItem();
     return selected !== null && selected.path === item.path;
+  }
+
+  isCurrentlyPlaying(item: DirectoryItem | FileItem): boolean {
+    const playingFile = this.currentPlayingFile();
+    return playingFile !== null && playingFile.file.path === item.path;
   }
 
   onItemSelected(item: DirectoryItem | FileItem): void {
@@ -96,6 +150,21 @@ export class DirectoryFilesComponent {
       files: contents.files,
       launchMode: LaunchMode.Directory,
     });
+  }
+
+  private scrollToSelectedFile(filePath: string): void {
+    // Use setTimeout to ensure the DOM is updated after the selection change
+    setTimeout(() => {
+      // Find the DOM element for the selected file using the data attribute on the container
+      const targetElement = document.querySelector(`.file-list-item[data-item-path="${CSS.escape(filePath)}"]`);
+      
+      if (targetElement) {
+        targetElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }, 0);
   }
 }
 

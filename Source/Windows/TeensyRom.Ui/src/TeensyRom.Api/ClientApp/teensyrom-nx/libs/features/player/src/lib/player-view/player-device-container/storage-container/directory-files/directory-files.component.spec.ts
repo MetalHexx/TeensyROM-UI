@@ -93,6 +93,7 @@ describe('DirectoryFilesComponent', () => {
       isLoading: vi.fn().mockReturnValue(loadingSignal.asReadonly()),
       getError: vi.fn().mockReturnValue(errorSignal.asReadonly()),
       getStatus: vi.fn().mockReturnValue(statusSignal.asReadonly()),
+      getLaunchMode: vi.fn().mockReturnValue(signal(LaunchMode.Directory).asReadonly()),
     };
 
     await TestBed.configureTestingModule({
@@ -193,6 +194,64 @@ describe('DirectoryFilesComponent', () => {
 
     expect(component.isSelected(combined[0])).toBe(true);
     expect(component.isSelected(combined[1])).toBe(false);
+  });
+
+  it('should identify currently playing file', () => {
+    const combined = component.combinedItems();
+    const fileItem = combined[1] as FileItem;
+    
+    // Initially no file is playing
+    expect(component.isCurrentlyPlaying(fileItem)).toBe(false);
+    
+    // Get the signal and update it
+    (mockPlayerContext.getCurrentFile as vi.MockedFunction<() => unknown>).mockReturnValue(
+      signal({
+        deviceId: 'device-1',
+        storageType: StorageType.Sd,
+        file: fileItem,
+        isShuffleMode: false
+      }).asReadonly()
+    );
+    
+    // Re-create component to pick up the new signal
+    fixture = TestBed.createComponent(DirectoryFilesComponent);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput('deviceId', 'device-1');
+    fixture.detectChanges();
+    
+    expect(component.isCurrentlyPlaying(fileItem)).toBe(true);
+  });
+
+  it('should auto-select currently playing file when directory context is available', () => {
+    const combined = component.combinedItems();
+    const fileItem = combined[1] as FileItem;
+    
+    // Mock both signals with the playing file and context
+    (mockPlayerContext.getCurrentFile as vi.MockedFunction<() => unknown>).mockReturnValue(
+      signal({
+        deviceId: 'device-1',
+        storageType: StorageType.Sd,
+        file: fileItem,
+        isShuffleMode: false
+      }).asReadonly()
+    );
+    
+    (mockPlayerContext.getFileContext as vi.MockedFunction<() => unknown>).mockReturnValue(
+      signal({
+        directoryPath: '/test',
+        files: [mockFileItem],
+        currentIndex: 0
+      }).asReadonly()
+    );
+    
+    // Re-create component to pick up the new signals
+    fixture = TestBed.createComponent(DirectoryFilesComponent);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput('deviceId', 'device-1');
+    fixture.detectChanges();
+    
+    // The file should be auto-selected
+    expect(component.selectedItem()?.path).toBe(fileItem.path);
   });
 });
 
