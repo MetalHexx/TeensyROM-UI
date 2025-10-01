@@ -1,3 +1,31 @@
 :host {
   display: inline-block;
 }
+
+.custom-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  :deep(svg) {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+}
+
+// Size-specific SVG styling for custom icon components
+.icon-button-small .custom-icon :deep(svg) {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-button-medium .custom-icon :deep(svg) {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-button-large .custom-icon :deep(svg) {
+  width: 36px;
+  height: 36px;
+}

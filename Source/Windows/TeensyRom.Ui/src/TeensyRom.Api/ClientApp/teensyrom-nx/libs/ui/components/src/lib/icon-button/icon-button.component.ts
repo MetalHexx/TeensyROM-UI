@@ -14,11 +14,9 @@ export type IconButtonColor = 'normal' | 'highlight' | 'success' | 'error' | 'di
   styleUrl: './icon-button.component.scss',
 })
 export class IconButtonComponent {
-  // Required inputs
-  icon = input.required<string>();
+  // Input properties
+  icon = input<string>(); // Optional for cases using ng-content
   ariaLabel = input.required<string>();
-
-  // Optional inputs
   color = input<IconButtonColor>('normal');
   size = input<IconButtonSize>('medium');
   variant = input<IconButtonVariant>('standard');
@@ -26,6 +24,9 @@ export class IconButtonComponent {
 
   // Events
   buttonClick = output<void>();
+
+  // Computed properties
+  hasIcon = computed(() => !!this.icon());
 
   // Computed classes
   buttonClasses = computed(() => {

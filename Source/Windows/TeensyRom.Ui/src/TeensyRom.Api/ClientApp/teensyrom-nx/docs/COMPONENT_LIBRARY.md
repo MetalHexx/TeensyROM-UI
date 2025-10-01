@@ -328,13 +328,13 @@ The component provides **three flexible approaches** for handling user input:
 
 ### `IconButtonComponent`
 
-**Purpose**: A reusable icon button component that provides consistent Material Design button styling with configurable appearance, state management, and accessibility features.
+**Purpose**: A reusable icon button component that provides consistent Material Design button styling with configurable appearance, state management, and accessibility features. Supports two different ways to display icons: Material Design icons or custom icon components via content projection.
 
 **Selector**: `lib-icon-button`
 
 **Properties**:
 
-- `icon` (required): `string` - Material Design icon name to display in the button
+- `icon` (optional): `string` - Material Design icon name to display in the button. Use this OR ng-content for custom icons.
 - `ariaLabel` (required): `string` - Accessibility label for screen readers (required for proper accessibility)
 - `color` (optional): `'normal' | 'highlight' | 'success' | 'error' | 'dimmed'` - Semantic color variant that maps to [STYLE_GUIDE.md](STYLE_GUIDE.md) color system - defaults to 'normal'
 - `size` (optional): `'small' | 'medium' | 'large'` - Size variant that maps to existing style classes - defaults to 'medium'
@@ -348,7 +348,7 @@ The component provides **three flexible approaches** for handling user input:
 **Usage Examples**:
 
 ```html
-<!-- Power button (from device-item component) -->
+<!-- 1. Material Design Icons (traditional approach) -->
 <lib-icon-button
   icon="power_settings_new"
   ariaLabel="Power"
@@ -356,6 +356,23 @@ The component provides **three flexible approaches** for handling user input:
   size="medium"
   (buttonClick)="connectionStatus() ? onDisconnect() : onConnect()"
 >
+</lib-icon-button>
+
+<!-- 2. Custom Icon Components (recommended for reusable custom icons) -->
+<lib-icon-button
+  ariaLabel="Games Filter"
+  size="large"
+  (buttonClick)="onGamesClick()"
+>
+  <lib-joystick-icon></lib-joystick-icon>
+</lib-icon-button>
+
+<lib-icon-button
+  ariaLabel="Images Filter"
+  size="large"
+  (buttonClick)="onImagesClick()"
+>
+  <lib-image-icon></lib-image-icon>
 </lib-icon-button>
 
 <!-- Log control buttons (from device-logs component) -->
@@ -409,6 +426,13 @@ The component provides **three flexible approaches** for handling user input:
 >
 </lib-icon-button>
 ```
+
+**Icon Display Options**:
+
+The component supports two mutually exclusive ways to display icons:
+
+1. **Material Icons** (`icon` property): Use for standard Material Design icons from Google Fonts
+2. **Custom Icon Components** (`ng-content`): **Recommended** for reusable custom icons - creates dedicated components for better maintainability, type safety, and code organization
 
 **Style Integration**:
 
@@ -563,6 +587,101 @@ export class MyComponent {
 **Used In**:
 
 - [`device-toolbar.component.html`](../libs/features/devices/src/lib/device-view/device-toolbar/device-toolbar.component.html) - Device management action buttons
+
+---
+
+## Icon Components
+
+### `JoystickIconComponent`
+
+**Purpose**: A custom SVG icon component that displays a joystick/controller icon for gaming-related UI elements. Designed for use with the `IconButtonComponent` content projection pattern.
+
+**Selector**: `lib-joystick-icon`
+
+**Properties**: None - Pure presentational component
+
+**Usage Examples**:
+
+```html
+<!-- In icon buttons (recommended pattern) -->
+<lib-icon-button
+  ariaLabel="Games Filter"
+  size="large"
+  (buttonClick)="onGamesClick()"
+>
+  <lib-joystick-icon></lib-joystick-icon>
+</lib-icon-button>
+
+<!-- Standalone usage -->
+<lib-joystick-icon></lib-joystick-icon>
+
+<!-- In other components -->
+<div class="game-section">
+  <lib-joystick-icon></lib-joystick-icon>
+  <span>Games</span>
+</div>
+```
+
+**Features**:
+
+- **Responsive Sizing**: Automatically inherits size from parent button (18px for small, 24px for medium, 36px for large)
+- **Theme Integration**: Uses `fill: currentColor` to inherit text color from parent for consistent theming
+- **High Quality SVG**: Vector-based icon that scales cleanly at any size
+- **Accessibility Ready**: Works seamlessly with `IconButtonComponent` accessibility features
+
+**Used In**:
+
+- [`filter-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/filter-toolbar/filter-toolbar.component.html) - Games filter button
+
+### `ImageIconComponent`
+
+**Purpose**: A custom SVG icon component that displays an image/photo icon for image-related UI elements. Designed for use with the `IconButtonComponent` content projection pattern.
+
+**Selector**: `lib-image-icon`
+
+**Properties**: None - Pure presentational component
+
+**Usage Examples**:
+
+```html
+<!-- In icon buttons (recommended pattern) -->
+<lib-icon-button
+  ariaLabel="Images Filter"
+  size="large"
+  (buttonClick)="onImagesClick()"
+>
+  <lib-image-icon></lib-image-icon>
+</lib-icon-button>
+
+<!-- Standalone usage -->
+<lib-image-icon></lib-image-icon>
+
+<!-- In gallery components -->
+<div class="image-section">
+  <lib-image-icon></lib-image-icon>
+  <span>Photos</span>
+</div>
+```
+
+**Features**:
+
+- **Responsive Sizing**: Automatically inherits size from parent button (18px for small, 24px for medium, 36px for large)
+- **Theme Integration**: Uses `fill: currentColor` to inherit text color from parent for consistent theming
+- **High Quality SVG**: Vector-based icon with detailed image/photo representation
+- **Accessibility Ready**: Works seamlessly with `IconButtonComponent` accessibility features
+
+**Used In**:
+
+- [`filter-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/filter-toolbar/filter-toolbar.component.html) - Images filter button
+
+**Custom Icon Best Practices**:
+
+1. **Component Structure**: Follow the established pattern with minimal SCSS (just `:host` flex properties and `svg` size/color)
+2. **Naming Convention**: Use `lib-[name]-icon` selector pattern for consistency
+3. **Size Inheritance**: Always use `fill: currentColor` and size inheritance from parent components
+4. **Content Projection**: Design icons specifically for use with `IconButtonComponent` ng-content pattern
+5. **Export Path**: Add new icon components to `libs/ui/components/src/index.ts` for easy importing
+6. **Documentation**: Document each icon's purpose and usage patterns in this component library
 
 ---
 

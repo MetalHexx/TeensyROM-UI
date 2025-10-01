@@ -1,10 +1,21 @@
 <div class="storage-container">
-  <div class="left-container">
-    <lib-search-toolbar></lib-search-toolbar>
-    <lib-directory-tree [deviceId]="deviceId()"></lib-directory-tree>
+  <div class="top-row">
+    <div class="directory-trail-container">
+      <lib-directory-trail [deviceId]="deviceId()"></lib-directory-trail>    
+    </div>
+    <div class="filter-toolbar-container">
+      <lib-filter-toolbar></lib-filter-toolbar>
+    </div>
+    <div class="search-toolbar-container">
+      <lib-search-toolbar></lib-search-toolbar>
+    </div>
   </div>
-  <div class="right-container">
-    <lib-directory-trail [deviceId]="deviceId()"></lib-directory-trail>
-    <lib-directory-files [deviceId]="deviceId()"></lib-directory-files>
+  <div class="content-row">
+    <div class="left-container">
+      <lib-directory-tree [deviceId]="deviceId()"></lib-directory-tree>
+    </div>
+    <div class="right-container">
+      <lib-directory-files [deviceId]="deviceId()"></lib-directory-files>
+    </div>
   </div>
 </div>

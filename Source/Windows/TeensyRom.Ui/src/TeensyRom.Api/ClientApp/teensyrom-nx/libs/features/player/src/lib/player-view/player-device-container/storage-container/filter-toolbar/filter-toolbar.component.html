@@ -1,0 +1,33 @@
+<lib-compact-card-layout>
+  <div class="filter-buttons">
+    <lib-icon-button
+      icon="all_inclusive"
+      ariaLabel="Filter: Allow All Files"
+      size="large"
+      (buttonClick)="onAllClick()"
+    />
+
+    <lib-icon-button
+      ariaLabel="Filter: Games Only"
+      size="large"
+      (buttonClick)="onGamesClick()"
+    >
+      <lib-joystick-icon></lib-joystick-icon>
+    </lib-icon-button>
+
+    <lib-icon-button
+      icon="music_note"
+      ariaLabel="Filter: Music Only"
+      size="large"
+      (buttonClick)="onMusicClick()"
+    />
+
+    <lib-icon-button
+      ariaLabel="Filter: Images Only"
+      size="large"
+      (buttonClick)="onImagesClick()"
+    >
+      <lib-image-icon></lib-image-icon>
+    </lib-icon-button>
+  </div>
+</lib-compact-card-layout>

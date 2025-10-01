@@ -8,67 +8,128 @@
 
 .storage-container {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 1rem;
   height: 100%;
   flex: 1;
 
-  // Stack left and right containers vertically on smaller screens
-  @media (max-width: 1200px) {
-    flex-direction: column;
-    height: auto;
-    overflow-y: auto;
-  }
-
-  .left-container {
+  .top-row {
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
+    align-items: center;
     gap: 1rem;
-    flex: 0 1 auto;
-    height: 100%;
-    min-height: 0;
-    min-width: 250px;
-    max-width: 500px;
-    overflow: hidden;
-
-    // Intermediate breakpoint - limit growth to prevent squeezing files view
-    @media (max-width: 1400px) {
-      max-width: 350px;
+    flex-shrink: 0;
+    
+    .directory-trail-container {
+      flex: 1;
+      min-width: 0; // Allow truncation if needed
     }
-
-    // Responsive adjustments for stacked layout
-    @media (max-width: 1200px) {
-      flex: none;
-      min-width: 0;
-      max-width: none;
-      height: auto;
-      min-height: 300px;
-      overflow-x: auto;
+    
+    .filter-toolbar-container {
+      flex: 0 0 auto; // Let content determine width
+      min-width: fit-content; // Ensure content fits
+    }
+    
+    .search-toolbar-container {
+      flex: 0 0 300px; // Fixed width for search toolbar
+      max-width: 300px;
+      
+      // Make search toolbar smaller on medium screens
+      @media (max-width: 1400px) {
+        flex: 0 0 250px;
+        max-width: 250px;
+      }
+      
+      // Further reduce search toolbar size on smaller screens
+      @media (max-width: 1000px) {
+        flex: 0 0 220px;
+        max-width: 220px;
+      }
+      
+      @media (max-width: 768px) {
+        flex: 0 0 200px;
+        max-width: 200px;
+      }
+    }
+    
+    // Stack vertically on smaller screens
+    @media (max-width: 900px) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+      
+      .filter-toolbar-container {
+        flex: none;
+        min-width: auto;
+      }
+      
+      .search-toolbar-container {
+        flex: none;
+        max-width: none;
+      }
     }
   }
 
-  .right-container {
+  .content-row {
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
+    flex-direction: row;
+    align-items: flex-start;
     gap: 1rem;
     flex: 1;
-    height: 100%;
     min-height: 0;
-    min-width: 350px;
-    overflow: hidden;
 
-    // Responsive adjustments for stacked layout
+    // Stack left and right containers vertically on smaller screens
     @media (max-width: 1200px) {
-      flex: none;
-      min-width: 0;
+      flex-direction: column;
       height: auto;
-      min-height: 400px;
+      overflow-y: auto;
+    }
+
+    .left-container {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      flex: 0 1 auto;
+      height: 100%;
+      min-height: 0;
+      min-width: 250px;
+      max-width: 500px;
+      overflow: hidden;
+
+      // Intermediate breakpoint - limit growth to prevent squeezing files view
+      @media (max-width: 1400px) {
+        max-width: 350px;
+      }
+
+      // Responsive adjustments for stacked layout
+      @media (max-width: 1200px) {
+        flex: none;
+        min-width: 0;
+        max-width: none;
+        height: auto;
+        min-height: 300px;
+        overflow-x: auto;
+      }
+    }
+
+    .right-container {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      flex: 1;
+      height: 100%;
+      min-height: 0;
+      min-width: 350px;
+      overflow: hidden;
+
+      // Responsive adjustments for stacked layout
+      @media (max-width: 1200px) {
+        flex: none;
+        min-width: 0;
+        height: auto;
+        min-height: 400px;
+      }
     }
   }
 }
