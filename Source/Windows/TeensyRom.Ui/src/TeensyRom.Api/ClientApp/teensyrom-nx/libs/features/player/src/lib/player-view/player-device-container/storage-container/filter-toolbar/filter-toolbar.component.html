@@ -5,12 +5,14 @@
       ariaLabel="Filter: Allow All Files"
       size="large"
       (buttonClick)="onAllClick()"
+      data-testid="filter-all-button"
     />
 
     <lib-icon-button
       ariaLabel="Filter: Games Only"
       size="large"
       (buttonClick)="onGamesClick()"
+      data-testid="filter-games-button"
     >
       <lib-joystick-icon></lib-joystick-icon>
     </lib-icon-button>
@@ -20,14 +22,28 @@
       ariaLabel="Filter: Music Only"
       size="large"
       (buttonClick)="onMusicClick()"
+      data-testid="filter-music-button"
     />
 
     <lib-icon-button
       ariaLabel="Filter: Images Only"
       size="large"
       (buttonClick)="onImagesClick()"
+      data-testid="filter-images-button"
     >
       <lib-image-icon></lib-image-icon>
     </lib-icon-button>
+
+    <!-- Vertical separator -->
+    <div class="vertical-separator" data-testid="separator"></div>
+
+    <!-- Random launch button -->
+    <lib-icon-button
+      icon="casino"
+      ariaLabel="Launch Random File"
+      size="large"
+      (buttonClick)="launchRandomFile()"
+      data-testid="random-launch-button"
+    />
   </div>
 </lib-compact-card-layout>

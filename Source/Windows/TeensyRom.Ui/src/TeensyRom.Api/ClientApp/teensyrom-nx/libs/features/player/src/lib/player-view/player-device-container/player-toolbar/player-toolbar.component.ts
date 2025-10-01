@@ -42,14 +42,6 @@ export class PlayerToolbarComponent {
   
   deviceId = input.required<string>();
 
-  // Existing methods
-  async launchRandomFile(): Promise<void> {
-    const deviceId = this.deviceId();
-    if (deviceId) {
-      await this.playerContext.launchRandomFile(deviceId);
-    }
-  }
-
   toggleShuffleMode(): void {
     const deviceId = this.deviceId();
     if (deviceId) {
