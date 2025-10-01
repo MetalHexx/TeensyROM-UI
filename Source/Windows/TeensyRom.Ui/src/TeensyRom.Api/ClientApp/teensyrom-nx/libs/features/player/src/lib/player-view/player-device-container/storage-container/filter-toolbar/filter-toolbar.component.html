@@ -38,11 +38,8 @@
     <div class="vertical-separator" data-testid="separator"></div>
 
     <!-- Random launch button -->
-    <lib-icon-button
-      icon="casino"
-      ariaLabel="Launch Random File"
-      size="large"
-      (buttonClick)="launchRandomFile()"
+    <lib-random-roll-button
+      (buttonClick)="onRandomLaunchClick()"
       data-testid="random-launch-button"
     />
   </div>

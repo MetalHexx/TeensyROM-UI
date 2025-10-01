@@ -1,0 +1,92 @@
+// Dice roll animation for random launch button
+:host ::ng-deep mat-icon.dice-roll {
+  animation: diceRoll 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  display: inline-block; // Needed for transform to work properly
+  transform-origin: center; // Ensure rotation happens from center
+}
+
+@keyframes diceRoll {
+  0% {
+    transform: rotate(0deg) scale(1) translateY(0px);
+  }
+  
+  8% {
+    transform: rotate(-90deg) scale(0.95) translateY(-2px);
+  }
+  
+  15% {
+    transform: rotate(-360deg) scale(1.0) translateY(0px);
+  }
+  
+  20% {
+    transform: rotate(-540deg) scale(1.1) translateY(-3px);
+  }
+  
+  28% {
+    transform: rotate(-720deg) scale(0.95) translateY(0px);
+  }
+  
+  35% {
+    transform: rotate(-1080deg) scale(0.9) translateY(-2px);
+  }
+  
+  42% {
+    transform: rotate(-1260deg) scale(1.05) translateY(0px);
+  }
+  
+  50% {
+    transform: rotate(-1440deg) scale(1.05) translateY(-2px);
+  }
+  
+  58% {
+    transform: rotate(-1620deg) scale(0.98) translateY(0px);
+  }
+  
+  65% {
+    transform: rotate(-1980deg) scale(0.98) translateY(-1px);
+  }
+  
+  72% {
+    transform: rotate(-2160deg) scale(1.01) translateY(0px);
+  }
+  
+  75% {
+    transform: rotate(-2340deg) scale(1.02) translateY(-1px);
+  }
+  
+  82% {
+    transform: rotate(-2520deg) scale(0.99) translateY(0px);
+  }
+  
+  86% {
+    transform: rotate(-2640deg) scale(1.002) translateY(-0.5px);
+  }
+  
+  88% {
+    transform: rotate(-2720deg) scale(0.999) translateY(-0.5px);
+  }
+  
+  91% {
+    transform: rotate(-2780deg) scale(1.001) translateY(0px);
+  }
+  
+  94% {
+    transform: rotate(-2830deg) scale(0.998) translateY(1px);
+  }
+  
+  96% {
+    transform: rotate(-2860deg) scale(1.005) translateY(-0.3px);
+  }
+  
+  98% {
+    transform: rotate(-2875deg) scale(0.998) translateY(0.3px);
+  }
+  
+  99.5% {
+    transform: rotate(-2879deg) scale(1.001) translateY(-0.1px);
+  }
+  
+  100% {
+    transform: rotate(-2880deg) scale(1) translateY(0px);
+  }
+}

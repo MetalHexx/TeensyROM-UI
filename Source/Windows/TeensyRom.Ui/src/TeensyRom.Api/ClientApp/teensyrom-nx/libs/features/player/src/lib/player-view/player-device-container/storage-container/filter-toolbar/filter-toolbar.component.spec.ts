@@ -309,6 +309,65 @@ describe('FilterToolbarComponent', () => {
     });
   });
 
+  describe('Dice Roll Animation', () => {
+    it('should initialize animation state correctly', () => {
+      expect(component.isDiceRolling()).toBe(false);
+    });
+
+    it('should have random button template reference', () => {
+      expect(component.randomButton).toBeDefined();
+    });
+
+    it('should trigger dice roll animation when launching random file', async () => {
+      const animateSpy = vi.spyOn(component, 'animateDiceRoll');
+      
+      await component.launchRandomFile();
+      
+      expect(animateSpy).toHaveBeenCalled();
+    });
+
+    it('should set animation state during dice roll', () => {
+      // Create a mock element for the random button
+      const mockElement = {
+        classList: {
+          add: vi.fn(),
+          remove: vi.fn(),
+        },
+      };
+      
+      // Mock the randomButton signal to return our mock element
+      const mockButtonSignal = vi.fn().mockReturnValue({ nativeElement: mockElement });
+      component.randomButton = mockButtonSignal;
+      
+      // Call the method
+      component.animateDiceRoll();
+      
+      expect(component.isDiceRolling()).toBe(true);
+      expect(mockElement.classList.add).toHaveBeenCalledWith('dice-roll');
+    });
+
+    it('should prevent multiple simultaneous animations', () => {
+      // Set animation state to true
+      component.isDiceRolling.set(true);
+      
+      const mockElement = {
+        classList: {
+          add: vi.fn(),
+          remove: vi.fn(),
+        },
+      };
+      
+      const mockButtonSignal = vi.fn().mockReturnValue({ nativeElement: mockElement });
+      component.randomButton = mockButtonSignal;
+      
+      // Try to animate again
+      component.animateDiceRoll();
+      
+      // Should not add animation class
+      expect(mockElement.classList.add).not.toHaveBeenCalled();
+    });
+  });
+
   describe('Error Handling', () => {
     it('should handle missing deviceId gracefully', async () => {
       fixture.componentRef.setInput('deviceId', undefined);
@@ -330,6 +389,16 @@ describe('FilterToolbarComponent', () => {
       expect(mockPlayerContext.launchRandomFile).toHaveBeenCalled();
       expect(consoleSpy).toHaveBeenCalled();
       consoleSpy.mockRestore();
+    });
+
+    it('should handle animation gracefully when button element is not available', () => {
+      // Mock randomButton to return null
+      const mockButtonSignal = vi.fn().mockReturnValue(null);
+      component.randomButton = mockButtonSignal;
+      
+      // Should not throw when element is not available
+      expect(() => component.animateDiceRoll()).not.toThrow();
+      expect(component.isDiceRolling()).toBe(true); // State still gets set
     });
   });
 });

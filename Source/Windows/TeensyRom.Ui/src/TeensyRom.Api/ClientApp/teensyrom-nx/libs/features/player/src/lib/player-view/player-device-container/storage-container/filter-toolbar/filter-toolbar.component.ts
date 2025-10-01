@@ -7,10 +7,11 @@ import {
   ImageIconComponent
 } from '@teensyrom-nx/ui/components';
 import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
+import { RandomRollButtonComponent } from './random-roll-button';
 
 @Component({
   selector: 'lib-filter-toolbar',
-  imports: [CommonModule, CompactCardLayoutComponent, IconButtonComponent, JoystickIconComponent, ImageIconComponent],
+  imports: [CommonModule, CompactCardLayoutComponent, IconButtonComponent, JoystickIconComponent, ImageIconComponent, RandomRollButtonComponent],
   templateUrl: './filter-toolbar.component.html',
   styleUrl: './filter-toolbar.component.scss',
 })
@@ -39,14 +40,19 @@ export class FilterToolbarComponent {
     // TODO: Implement images filter logic
   }
 
-  async launchRandomFile(): Promise<void> {
+  async onRandomLaunchClick(): Promise<void> {
+    console.log('🚀 LaunchRandomFile method called!');
     const deviceId = this.deviceId();
+    console.log('📱 Device ID:', deviceId);
+    
     if (deviceId) {
       try {
         await this.playerContext.launchRandomFile(deviceId);
       } catch (error) {
         console.error('Failed to launch random file:', error);
       }
+    } else {
+      console.log('❌ No device ID provided, skipping launch');
     }
   }
 }
