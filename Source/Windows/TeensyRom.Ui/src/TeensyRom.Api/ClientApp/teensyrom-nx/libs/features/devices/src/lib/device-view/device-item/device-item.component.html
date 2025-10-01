@@ -1,4 +1,43 @@
-<lib-card-layout [title]="device()?.name" [ngClass]="{ dimmed: !connectionStatus() }">
+
+
+
+
+
+
+
+
+
+
+
+<lib-card-layout 
+  [title]="device()?.name" 
+  [enableOverflow]="false" 
+  [ngClass]="{ dimmed: !connectionStatus() }" 
+  animationEntry="from-left">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <!-- Power button in corner slot -->
   <lib-icon-button
     slot="corner"

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatChipsModule } from '@angular/material/chips';
 import { DirectoryBreadcrumbComponent } from './directory-breadcrumb.component';
 
@@ -8,6 +9,7 @@ describe('DirectoryBreadcrumbComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideNoopAnimations()],
       imports: [DirectoryBreadcrumbComponent, MatChipsModule],
     }).compileComponents();
 

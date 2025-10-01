@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { FileItemComponent } from './file-item.component';
 import { FileItem, FileItemType } from '@teensyrom-nx/domain';
 
@@ -30,6 +31,7 @@ describe('FileItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideNoopAnimations()],
       imports: [FileItemComponent],
     }).compileComponents();
 

@@ -1,4 +1,5 @@
 import { vi } from 'vitest';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { StorageContainerComponent } from './storage-container.component';
@@ -34,6 +35,7 @@ describe('StorageContainerComponent', () => {
     await TestBed.configureTestingModule({
       imports: [StorageContainerComponent],
       providers: [
+        provideNoopAnimations(),
         { provide: STORAGE_SERVICE, useValue: mockStorageService },
         { provide: PLAYER_CONTEXT, useValue: mockPlayerContext },
       ],

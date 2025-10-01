@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { RandomRollButtonComponent } from './random-roll-button.component';
 
@@ -26,6 +27,7 @@ describe('RandomRollButtonComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideNoopAnimations()],
       imports: [RandomRollButtonComponent]
     }).compileComponents();
 
@@ -63,18 +65,18 @@ describe('RandomRollButtonComponent', () => {
 
   describe('Phase 4: Error State Visual Feedback', () => {
     it('should default to normal color', () => {
-      expect(component.color()).toBe(TEST_CONSTANTS.COLORS.NORMAL);
+      expect(component.getButtonColor()).toBe(TEST_CONSTANTS.COLORS.NORMAL);
     });
 
     it('should accept error color input', () => {
-      fixture.componentRef.setInput(TEST_CONSTANTS.INPUT_NAMES.COLOR, TEST_CONSTANTS.COLORS.ERROR);
+      fixture.componentRef.setInput('getButtonColor', TEST_CONSTANTS.COLORS.ERROR);
       fixture.detectChanges();
 
-      expect(component.color()).toBe(TEST_CONSTANTS.COLORS.ERROR);
+      expect(component.getButtonColor()).toBe(TEST_CONSTANTS.COLORS.ERROR);
     });
 
     it('should pass color to icon-button component', () => {
-      fixture.componentRef.setInput(TEST_CONSTANTS.INPUT_NAMES.COLOR, TEST_CONSTANTS.COLORS.ERROR);
+      fixture.componentRef.setInput('getButtonColor', TEST_CONSTANTS.COLORS.ERROR);
       fixture.detectChanges();
 
       const iconButton = fixture.debugElement.query(By.css(TEST_CONSTANTS.SELECTORS.ICON_BUTTON));
@@ -82,17 +84,17 @@ describe('RandomRollButtonComponent', () => {
     });
 
     it('should update color when changed', () => {
-      fixture.componentRef.setInput(TEST_CONSTANTS.INPUT_NAMES.COLOR, TEST_CONSTANTS.COLORS.NORMAL);
+      fixture.componentRef.setInput('getButtonColor', TEST_CONSTANTS.COLORS.NORMAL);
       fixture.detectChanges();
-      expect(component.color()).toBe(TEST_CONSTANTS.COLORS.NORMAL);
+      expect(component.getButtonColor()).toBe(TEST_CONSTANTS.COLORS.NORMAL);
 
-      fixture.componentRef.setInput(TEST_CONSTANTS.INPUT_NAMES.COLOR, TEST_CONSTANTS.COLORS.ERROR);
+      fixture.componentRef.setInput('getButtonColor', TEST_CONSTANTS.COLORS.ERROR);
       fixture.detectChanges();
-      expect(component.color()).toBe(TEST_CONSTANTS.COLORS.ERROR);
+      expect(component.getButtonColor()).toBe(TEST_CONSTANTS.COLORS.ERROR);
 
-      fixture.componentRef.setInput(TEST_CONSTANTS.INPUT_NAMES.COLOR, TEST_CONSTANTS.COLORS.HIGHLIGHT);
+      fixture.componentRef.setInput('getButtonColor', TEST_CONSTANTS.COLORS.HIGHLIGHT);
       fixture.detectChanges();
-      expect(component.color()).toBe(TEST_CONSTANTS.COLORS.HIGHLIGHT);
+      expect(component.getButtonColor()).toBe(TEST_CONSTANTS.COLORS.HIGHLIGHT);
     });
   });
 });

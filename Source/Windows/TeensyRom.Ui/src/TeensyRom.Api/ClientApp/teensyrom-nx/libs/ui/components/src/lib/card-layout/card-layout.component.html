@@ -1,4 +1,8 @@
-<mat-card class="stretch-card" style="position: relative">
+<mat-card
+  class="stretch-card"
+  style="position: relative"
+  [@slideIn]="animationParams()"
+  (@slideIn.done)="onAnimationDone()">
   <!-- Corner content projection -->
   <div class="corner-content">
     <ng-content select="[slot=corner]"></ng-content>

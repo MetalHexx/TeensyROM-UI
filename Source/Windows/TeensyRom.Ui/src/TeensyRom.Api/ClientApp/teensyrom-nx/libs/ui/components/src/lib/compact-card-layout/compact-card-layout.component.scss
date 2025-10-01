@@ -1,3 +1,11 @@
 :host {
   display: block;
+
+  // Force overflow hidden when disabled - applies after animation too
+  &.no-overflow {
+    .compact-card,
+    .compact-card * {
+      overflow: hidden !important;
+    }
+  }
 }

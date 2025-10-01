@@ -6,15 +6,15 @@
 
     <p>No devices found</p>
 
-    } @else { @for (device of devices(); track device.deviceId) { @if (!device.isConnected) {
+    } @else { @for (device of devices(); track device.deviceId) {
 
-    <lib-device-item [device]="device" (connect)="onConnect($event)"></lib-device-item>
+    <lib-device-item
+      [device]="device"
+      (connect)="onConnect($event)"
+      (disconnect)="onDisconnect($event)">
+    </lib-device-item>
 
-    } @else {
-
-    <lib-device-item [device]="device" (disconnect)="onDisconnect($event)"></lib-device-item>
-
-    } } }
+    } }
   </div>
   <div class="device-toolbar">
     <lib-device-toolbar></lib-device-toolbar>

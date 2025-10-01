@@ -1,4 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
@@ -96,6 +97,7 @@ describe('FilterToolbarComponent', () => {
     await TestBed.configureTestingModule({
       imports: [FilterToolbarComponent],
       providers: [
+        provideNoopAnimations(),
         { provide: PLAYER_CONTEXT, useValue: mockPlayerContext },
       ],
     }).compileComponents();
@@ -220,7 +222,7 @@ describe('FilterToolbarComponent', () => {
       fixture.detectChanges();
 
       const randomButton = fixture.debugElement.query(By.css('lib-random-roll-button'));
-      expect(randomButton.componentInstance.color()).toBe('error');
+      expect(randomButton.componentInstance.getButtonColor()).toBe('error');
     });
 
     it('should show random roll button as normal when no error exists', () => {
@@ -228,7 +230,7 @@ describe('FilterToolbarComponent', () => {
       fixture.detectChanges();
 
       const randomButton = fixture.debugElement.query(By.css('lib-random-roll-button'));
-      expect(randomButton.componentInstance.color()).toBe('normal');
+      expect(randomButton.componentInstance.getButtonColor()).toBe('normal');
     });
   });
 

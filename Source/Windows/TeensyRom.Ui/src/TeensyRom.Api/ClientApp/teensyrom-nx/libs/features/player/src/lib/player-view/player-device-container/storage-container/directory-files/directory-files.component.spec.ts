@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { vi } from 'vitest';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
@@ -99,6 +100,7 @@ describe('DirectoryFilesComponent', () => {
     await TestBed.configureTestingModule({
       imports: [DirectoryFilesComponent],
       providers: [
+        provideNoopAnimations(),
         { provide: STORAGE_SERVICE, useValue: mockStorageService },
         { provide: StorageStore, useValue: mockStorageStore },
         { provide: PLAYER_CONTEXT, useValue: mockPlayerContext },

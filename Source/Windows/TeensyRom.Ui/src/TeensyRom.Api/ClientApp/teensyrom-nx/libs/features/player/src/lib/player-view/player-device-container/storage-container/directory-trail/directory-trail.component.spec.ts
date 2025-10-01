@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { vi } from 'vitest';
 import { StorageStore } from '@teensyrom-nx/application';
 import { CompactCardLayoutComponent } from '@teensyrom-nx/ui/components';
@@ -52,7 +53,7 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [{ provide: StorageStore, useValue: mockStorageStore }],
+        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);
@@ -187,7 +188,7 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [{ provide: StorageStore, useValue: mockStorageStore }],
+        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);
@@ -231,7 +232,7 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [{ provide: StorageStore, useValue: mockStorageStore }],
+        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);
@@ -328,7 +329,7 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [{ provide: StorageStore, useValue: mockStorageStore }],
+        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);
@@ -379,7 +380,7 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [{ provide: StorageStore, useValue: mockStorageStore }],
+        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);
@@ -430,7 +431,7 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [{ provide: StorageStore, useValue: mockStorageStore }],
+        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);
@@ -493,7 +494,7 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [{ provide: StorageStore, useValue: mockStorageStore }],
+        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);

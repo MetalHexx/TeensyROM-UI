@@ -10,7 +10,7 @@ This document catalogs all shared UI components available in the TeensyROM appli
 
 ### `CardLayoutComponent`
 
-**Purpose**: A reusable card wrapper component that provides consistent card styling with optional header and title support.
+**Purpose**: A reusable card wrapper component that provides consistent card styling with optional header and title support. Features smooth slide-in/slide-out animations from random corners with height-based transitions that push content.
 
 **Selector**: `lib-card-layout`
 
@@ -19,6 +19,9 @@ This document catalogs all shared UI components available in the TeensyROM appli
 - `title` (optional): `string` - The title to display in the card header. If not provided, no header will be rendered.
 - `subtitle` (optional): `string` - The subtitle to display below the title in the card header. Only rendered when both title and subtitle are provided.
 - `metadataSource` (optional): `string` - Source attribution text displayed in the card footer. Uses [`.metadata-source`](STYLE_GUIDE.md#metadata-source) styling for subtle, right-aligned appearance. Only rendered when provided.
+- `enableOverflow` (optional): `boolean` - Controls scrollbar behavior. When `true` (default), allows natural scrollbar display when content overflows. When `false`, forces `overflow: hidden` to prevent scrollbars entirely. Use `false` for cards with fixed content that should never scroll (like device cards).
+- `animationEntry` (optional): `AnimationDirection` - Controls the entry animation direction. Options: `'none'`, `'random'` (default), `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`, `'from-top-left'`, `'from-top-right'`, `'from-bottom-left'`, `'from-bottom-right'`.
+- `animationExit` (optional): `AnimationDirection` - Controls the exit animation direction. Same options as `animationEntry`. Default: `'random'`.
 
 **Usage Example**:
 
@@ -62,6 +65,30 @@ This document catalogs all shared UI components available in the TeensyROM appli
 
   <p>Storage information...</p>
 </lib-card-layout>
+
+<!-- Card with overflow disabled (no scrollbars) -->
+<lib-card-layout title="Device Information" [enableOverflow]="false">
+  <div class="device-details">
+    <p>Firmware: v2.0.1</p>
+    <p>Serial: ABC123</p>
+  </div>
+</lib-card-layout>
+
+<!-- Card with controlled animation directions -->
+<lib-card-layout
+  title="Notification"
+  animationEntry="from-top"
+  animationExit="from-top">
+  <p>This card slides in from the top and exits to the top</p>
+</lib-card-layout>
+
+<!-- Card with mixed animation directions -->
+<lib-card-layout
+  title="Side Panel"
+  animationEntry="from-left"
+  animationExit="from-right">
+  <p>Enters from left, exits to right</p>
+</lib-card-layout>
 ```
 
 **Content Projection**:
@@ -82,21 +109,48 @@ This document catalogs all shared UI components available in the TeensyROM appli
 - Automatically positioned above other card content with `z-index: 1`
 - Use `slot="corner"` attribute to designate content for corner placement
 
+**Animation Features**:
+
+- **Entry Animation**: Configurable slide-in animation with height expansion
+  - Duration: 500ms slide/expand + 800ms fade-in
+  - Direction: Controlled via `animationEntry` property (default: `'random'`)
+  - Behavior: Height animates from 0 to natural height, pushing content below downward
+  - Options: 9 directions including random, cardinal (left/right/top/bottom), and diagonal (corners)
+
+- **Exit Animation**: Configurable slide-out animation with height collapse
+  - Duration: 500ms slide/collapse + 800ms fade-out
+  - Direction: Controlled via `animationExit` property (default: `'random'`)
+  - Behavior: Height animates to 0, pulling content upward as card disappears
+  - Independent control: Exit direction can differ from entry for creative effects
+
+- **Direction Options**: Both `animationEntry` and `animationExit` support:
+  - `'none'`: No animation (instant appearance/disappearance)
+  - `'random'`: Randomly selects from all 8 directions (default behavior)
+  - `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`: Cardinal directions
+  - `'from-top-left'`, `'from-top-right'`, `'from-bottom-left'`, `'from-bottom-right'`: Diagonal corners
+
+- **Overflow Control**: Scrollbars hidden during animation (overflow: hidden), then appear naturally based on `enableOverflow` property
+
 **Styling**: Automatically applies the global [`.stretch-card`](STYLE_GUIDE.md#stretch-card) class for full-height cards with proper flex layout and scrollable content.
 
 **Used In**:
 
 - Directory tree components for consistent card wrapping
 - Search toolbars for form field containers
+- Device cards (with `enableOverflow="false"`)
 - Any component requiring standardized card layout
 
 ### `CompactCardLayoutComponent`
 
-**Purpose**: A lightweight card wrapper component designed specifically for form fields and compact content areas, using the `.compact-card` styling.
+**Purpose**: A lightweight card wrapper component designed specifically for form fields and compact content areas, using the `.compact-card` styling. Features the same smooth slide-in/slide-out animations as CardLayoutComponent.
 
 **Selector**: `lib-compact-card-layout`
 
-**Properties**: None - Pure content projection component
+**Properties**:
+
+- `enableOverflow` (optional): `boolean` - Controls scrollbar behavior. When `true` (default), allows natural scrollbar display when content overflows. When `false`, forces `overflow: hidden` to prevent scrollbars entirely.
+- `animationEntry` (optional): `AnimationDirection` - Controls the entry animation direction. Options: `'none'`, `'random'` (default), `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`, `'from-top-left'`, `'from-top-right'`, `'from-bottom-left'`, `'from-bottom-right'`.
+- `animationExit` (optional): `AnimationDirection` - Controls the exit animation direction. Same options as `animationEntry`. Default: `'random'`.
 
 **Usage Example**:
 
@@ -123,9 +177,41 @@ This document catalogs all shared UI components available in the TeensyROM appli
 <lib-compact-card-layout>
   <p>Simple content without header</p>
 </lib-compact-card-layout>
+
+<!-- Compact card with controlled animations -->
+<lib-compact-card-layout
+  animationEntry="from-bottom"
+  animationExit="from-bottom">
+  <div class="toolbar">
+    <button mat-button>Action 1</button>
+    <button mat-button>Action 2</button>
+  </div>
+</lib-compact-card-layout>
 ```
 
 **Content Projection**: Uses `<ng-content></ng-content>` to project any content directly into the card without headers or structure
+
+**Animation Features**:
+
+- **Entry Animation**: Configurable slide-in animation with height expansion
+  - Duration: 500ms slide/expand + 800ms fade-in
+  - Direction: Controlled via `animationEntry` property (default: `'random'`)
+  - Behavior: Height animates from 0 to natural height, pushing content below downward
+  - Options: 9 directions including random, cardinal (left/right/top/bottom), and diagonal (corners)
+
+- **Exit Animation**: Configurable slide-out animation with height collapse
+  - Duration: 500ms slide/collapse + 800ms fade-out
+  - Direction: Controlled via `animationExit` property (default: `'random'`)
+  - Behavior: Height animates to 0, pulling content upward as card disappears
+  - Independent control: Exit direction can differ from entry for creative effects
+
+- **Direction Options**: Both `animationEntry` and `animationExit` support:
+  - `'none'`: No animation (instant appearance/disappearance)
+  - `'random'`: Randomly selects from all 8 directions (default behavior)
+  - `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`: Cardinal directions
+  - `'from-top-left'`, `'from-top-right'`, `'from-bottom-left'`, `'from-bottom-right'`: Diagonal corners
+
+- **Overflow Control**: Scrollbars hidden during animation, then appear based on `enableOverflow` property
 
 **Styling**: Automatically applies the global [`.compact-card`](STYLE_GUIDE.md#compact-card) class optimized for Material form fields and compact layouts
 
@@ -135,6 +221,7 @@ This document catalogs all shared UI components available in the TeensyROM appli
 - **No corner content**: Simplified structure for forms and controls
 - **Form-optimized spacing**: Uses `.compact-card` instead of `.stretch-card`
 - **Minimal overhead**: Pure content projection without additional features
+- **Same animations**: Shares the same smooth slide-in/slide-out animation system
 
 **Best Practice**: Use for form controls, toolbars, search bars, and other compact UI elements where you need card styling without the overhead of headers or complex layouts.
 
@@ -142,6 +229,7 @@ This document catalogs all shared UI components available in the TeensyROM appli
 
 - Search toolbars and form containers
 - Control panels and button groups
+- Player toolbar (wraps playback controls)
 - Compact content areas that need card styling
 
 ---

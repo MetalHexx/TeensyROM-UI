@@ -2,6 +2,14 @@
   display: block;
   width: 100%;
   height: 100%;
+
+  // Force overflow hidden when disabled - applies after animation too
+  &.no-overflow {
+    .stretch-card,
+    .stretch-card * {
+      overflow: hidden !important;
+    }
+  }
 }
 
 .corner-content {

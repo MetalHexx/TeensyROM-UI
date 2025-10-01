@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ComponentRef } from '@angular/core';
 import { vi, describe, beforeEach, it, expect } from 'vitest';
 import { StorageStore } from '@teensyrom-nx/application';
@@ -53,7 +54,7 @@ describe('DirectoryTreeComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [DirectoryTreeComponent],
-      providers: [{ provide: StorageStore, useValue: mockStorageStore }],
+      providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DirectoryTreeComponent);
@@ -488,7 +489,7 @@ describe('DirectoryTreeComponent - Single Storage', () => {
 
     await TestBed.configureTestingModule({
       imports: [DirectoryTreeComponent],
-      providers: [{ provide: StorageStore, useValue: mockStorageStore }],
+      providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DirectoryTreeComponent);

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { PlayerViewComponent } from './player-view.component';
 import {
   DEVICE_SERVICE,
@@ -46,6 +47,7 @@ describe('PlayerViewComponent', () => {
     await TestBed.configureTestingModule({
       imports: [PlayerViewComponent],
       providers: [
+        provideNoopAnimations(),
         { provide: DEVICE_SERVICE, useValue: mockDeviceService },
         { provide: STORAGE_SERVICE, useValue: mockStorageService },
         { provide: DEVICE_EVENTS_SERVICE, useValue: mockDeviceEventsService },

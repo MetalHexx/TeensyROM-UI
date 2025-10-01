@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { DirectoryItemComponent } from './directory-item.component';
 import { DirectoryItem } from '@teensyrom-nx/domain';
 
@@ -13,6 +14,7 @@ describe('DirectoryItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideNoopAnimations()],
       imports: [DirectoryItemComponent],
     }).compileComponents();
 
