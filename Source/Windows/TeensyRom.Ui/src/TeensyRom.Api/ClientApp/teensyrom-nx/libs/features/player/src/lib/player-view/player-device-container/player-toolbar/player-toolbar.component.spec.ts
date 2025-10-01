@@ -10,6 +10,9 @@ describe('PlayerToolbarComponent', () => {
   let component: PlayerToolbarComponent;
   let fixture: ComponentFixture<PlayerToolbarComponent>;
   let mockPlayerContext: IPlayerContext;
+  let errorSignal: ReturnType<typeof signal<string | null>>;
+  let currentFileSignal: ReturnType<typeof signal>;
+  let playerStatusSignal: ReturnType<typeof signal<PlayerStatus>>;
 
   // Helper to create file mock
   const createFileMock = (type: FileItemType) => ({
@@ -35,31 +38,36 @@ describe('PlayerToolbarComponent', () => {
   });
 
   beforeEach(async () => {
+    // Create writable signals for testing
+    errorSignal = signal<string | null>(null);
+    currentFileSignal = signal(null);
+    playerStatusSignal = signal(PlayerStatus.Stopped);
+
     // Create a proper interface-based mock that implements all IPlayerContext methods
     mockPlayerContext = {
       // Core player lifecycle
       initializePlayer: vi.fn(),
       removePlayer: vi.fn(),
-      
+
       // File launching
       launchFileWithContext: vi.fn().mockResolvedValue(undefined),
       launchRandomFile: vi.fn().mockResolvedValue(undefined),
-      
+
       // Phase 3: Playback control methods (tested in this component)
       play: vi.fn().mockResolvedValue(undefined),
       pause: vi.fn().mockResolvedValue(undefined),
       stop: vi.fn().mockResolvedValue(undefined),
       next: vi.fn().mockResolvedValue(undefined),
       previous: vi.fn().mockResolvedValue(undefined),
-      
+
       // State queries
-      getCurrentFile: vi.fn().mockReturnValue(signal(null).asReadonly()),
+      getCurrentFile: vi.fn().mockReturnValue(currentFileSignal.asReadonly()),
       getFileContext: vi.fn().mockReturnValue(signal(null).asReadonly()),
-      getPlayerStatus: vi.fn().mockReturnValue(signal(PlayerStatus.Stopped).asReadonly()),
-      getStatus: vi.fn().mockReturnValue(signal(PlayerStatus.Stopped).asReadonly()),
+      getPlayerStatus: vi.fn().mockReturnValue(playerStatusSignal.asReadonly()),
+      getStatus: vi.fn().mockReturnValue(playerStatusSignal.asReadonly()),
       isLoading: vi.fn().mockReturnValue(signal(false).asReadonly()),
-      getError: vi.fn().mockReturnValue(signal(null).asReadonly()),
-      
+      getError: vi.fn().mockReturnValue(errorSignal.asReadonly()),
+
       // Shuffle functionality
       toggleShuffleMode: vi.fn(),
       setShuffleScope: vi.fn(),
@@ -91,25 +99,25 @@ describe('PlayerToolbarComponent', () => {
 
     describe('playPause() method', () => {
       it('should call pause when player is currently playing', async () => {
-        mockPlayerContext.getPlayerStatus.mockReturnValue(signal(PlayerStatus.Playing).asReadonly());
-        
+        playerStatusSignal.set(PlayerStatus.Playing);
+
         await component.playPause();
-        
+
         expect(mockPlayerContext.pause).toHaveBeenCalledWith(testDeviceId);
         expect(mockPlayerContext.play).not.toHaveBeenCalled();
       });
 
       it('should call play when player is currently stopped', async () => {
-        mockPlayerContext.getPlayerStatus.mockReturnValue(signal(PlayerStatus.Stopped).asReadonly());
-        
+        playerStatusSignal.set(PlayerStatus.Stopped);
+
         await component.playPause();
-        
+
         expect(mockPlayerContext.play).toHaveBeenCalledWith(testDeviceId);
         expect(mockPlayerContext.pause).not.toHaveBeenCalled();
       });
 
       it('should call play when player is currently paused', async () => {
-        mockPlayerContext.getPlayerStatus.mockReturnValue(signal(PlayerStatus.Paused).asReadonly());
+        playerStatusSignal.set(PlayerStatus.Paused);
         
         await component.playPause();
         
@@ -544,6 +552,64 @@ describe('PlayerToolbarComponent', () => {
       previousButton.click();
 
       expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('Phase 4: Error State Visual Feedback', () => {
+    it('should show error color on next button when error exists', () => {
+      errorSignal.set('Navigation failed');
+      currentFileSignal.set({
+        storageKey: 'test-key',
+        file: createFileMock(FileItemType.Song),
+        parentPath: '/test',
+        launchedAt: Date.now(),
+        launchMode: LaunchMode.Directory
+      });
+      fixture.detectChanges();
+
+      expect(component.getButtonColor()).toBe('error');
+    });
+
+    it('should show error color on previous button when error exists', () => {
+      errorSignal.set('Previous failed');
+      currentFileSignal.set({
+        storageKey: 'test-key',
+        file: createFileMock(FileItemType.Song),
+        parentPath: '/test',
+        launchedAt: Date.now(),
+        launchMode: LaunchMode.Directory
+      });
+      fixture.detectChanges();
+
+      expect(component.getButtonColor()).toBe('error');
+    });
+
+    it('should show error color on play/pause button when error exists', () => {
+      errorSignal.set('Playback error');
+      currentFileSignal.set({
+        storageKey: 'test-key',
+        file: createFileMock(FileItemType.Song),
+        parentPath: '/test',
+        launchedAt: Date.now(),
+        launchMode: LaunchMode.Directory
+      });
+      fixture.detectChanges();
+
+      expect(component.getButtonColor()).toBe('error');
+    });
+
+    it('should show normal color on buttons when no error exists', () => {
+      errorSignal.set(null);
+      currentFileSignal.set({
+        storageKey: 'test-key',
+        file: createFileMock(FileItemType.Song),
+        parentPath: '/test',
+        launchedAt: Date.now(),
+        launchMode: LaunchMode.Directory
+      });
+      fixture.detectChanges();
+
+      expect(component.getButtonColor()).toBe('normal');
     });
   });
 });

@@ -1,7 +1,7 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, style, transition, animate } from '@angular/animations';
-import { CompactCardLayoutComponent, IconButtonComponent } from '@teensyrom-nx/ui/components';
+import { CompactCardLayoutComponent, IconButtonComponent, IconButtonColor } from '@teensyrom-nx/ui/components';
 import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
 import { LaunchMode, PlayerStatus, FileItemType } from '@teensyrom-nx/domain';
 
@@ -152,6 +152,14 @@ export class PlayerToolbarComponent {
 
     const currentFile = this.playerContext.getCurrentFile(deviceId)();
     return currentFile !== null;
+  }
+
+  hasError = computed(() =>
+    this.playerContext.getError(this.deviceId())() !== null
+  );
+
+  getButtonColor(): IconButtonColor {
+    return this.hasError() ? 'error' : 'normal';
   }
 
 }

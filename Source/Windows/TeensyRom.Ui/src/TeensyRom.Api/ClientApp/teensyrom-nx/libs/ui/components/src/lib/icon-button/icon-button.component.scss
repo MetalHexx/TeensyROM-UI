@@ -2,11 +2,32 @@
   display: inline-block;
 }
 
+// Color classes for both mat-icon and custom icons
+.normal {
+  color: var(--mdc-icon-button-icon-color, currentColor);
+}
+
+.highlight {
+  color: var(--color-highlight);
+}
+
+.error {
+  color: var(--color-error);
+}
+
+.success {
+  color: var(--color-success);
+}
+
+.dimmed {
+  color: var(--color-dimmed);
+}
+
 .custom-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  
+
   :deep(svg) {
     width: 24px;
     height: 24px;

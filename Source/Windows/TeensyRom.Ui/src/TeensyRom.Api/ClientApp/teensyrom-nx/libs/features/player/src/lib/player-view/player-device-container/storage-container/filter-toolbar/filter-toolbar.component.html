@@ -4,6 +4,7 @@
       icon="all_inclusive"
       ariaLabel="Filter: Allow All Files"
       size="large"
+      [color]="getButtonColor(PlayerFilterType.All)"
       (buttonClick)="onAllClick()"
       data-testid="filter-all-button"
     />
@@ -11,6 +12,7 @@
     <lib-icon-button
       ariaLabel="Filter: Games Only"
       size="large"
+      [color]="getButtonColor(PlayerFilterType.Games)"
       (buttonClick)="onGamesClick()"
       data-testid="filter-games-button"
     >
@@ -21,6 +23,7 @@
       icon="music_note"
       ariaLabel="Filter: Music Only"
       size="large"
+      [color]="getButtonColor(PlayerFilterType.Music)"
       (buttonClick)="onMusicClick()"
       data-testid="filter-music-button"
     />
@@ -28,6 +31,7 @@
     <lib-icon-button
       ariaLabel="Filter: Images Only"
       size="large"
+      [color]="getButtonColor(PlayerFilterType.Images)"
       (buttonClick)="onImagesClick()"
       data-testid="filter-images-button"
     >
@@ -39,6 +43,7 @@
 
     <!-- Random launch button -->
     <lib-random-roll-button
+      [getButtonColor]="hasError() ? 'error' : 'normal'"
       (buttonClick)="onRandomLaunchClick()"
       data-testid="random-launch-button"
     />

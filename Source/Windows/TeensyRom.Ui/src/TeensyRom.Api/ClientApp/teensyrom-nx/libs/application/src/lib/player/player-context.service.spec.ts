@@ -1330,4 +1330,139 @@ describe('PlayerContextService', () => {
       });
     });
   });
+
+  describe('Phase 4: Filter System Integration', () => {
+    const deviceId = 'device-filter-test';
+    const randomFile = createTestFileItem({ name: 'random.sid', path: '/music/random.sid' });
+
+    beforeEach(() => {
+      service.initializePlayer(deviceId);
+    });
+
+    describe('Filter Pass-Through to API', () => {
+      it('should pass current filter to API when launching random file', async () => {
+        // Set filter to Games
+        service.setFilterMode(deviceId, PlayerFilterType.Games);
+
+        mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
+        await service.launchRandomFile(deviceId);
+
+        // Verify API was called with Games filter
+        expect(mockPlayerService.launchRandom).toHaveBeenCalledWith(
+          deviceId,
+          PlayerScope.Storage,
+          PlayerFilterType.Games,
+          undefined
+        );
+      });
+
+      it('should pass current filter when navigating next in shuffle mode', async () => {
+        // Setup shuffle mode and set filter
+        service.toggleShuffleMode(deviceId);
+        service.setFilterMode(deviceId, PlayerFilterType.Music);
+
+        mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
+        await service.next(deviceId);
+
+        // Verify API was called with Music filter
+        expect(mockPlayerService.launchRandom).toHaveBeenCalledWith(
+          deviceId,
+          PlayerScope.Storage,
+          PlayerFilterType.Music,
+          undefined
+        );
+      });
+
+      it('should pass current filter when navigating previous in shuffle mode', async () => {
+        // Setup shuffle mode and set filter
+        service.toggleShuffleMode(deviceId);
+        service.setFilterMode(deviceId, PlayerFilterType.Images);
+
+        mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
+        await service.previous(deviceId);
+
+        // Verify API was called with Images filter
+        expect(mockPlayerService.launchRandom).toHaveBeenCalledWith(
+          deviceId,
+          PlayerScope.Storage,
+          PlayerFilterType.Images,
+          undefined
+        );
+      });
+
+      it('should update filter and affect subsequent random launches', async () => {
+        mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
+
+        // First launch with All filter (default)
+        await service.launchRandomFile(deviceId);
+        expect(mockPlayerService.launchRandom).toHaveBeenCalledWith(
+          deviceId,
+          PlayerScope.Storage,
+          PlayerFilterType.All,
+          undefined
+        );
+
+        // Change filter to Games
+        service.setFilterMode(deviceId, PlayerFilterType.Games);
+
+        // Next launch should use Games filter
+        await service.launchRandomFile(deviceId);
+        expect(mockPlayerService.launchRandom).toHaveBeenCalledWith(
+          deviceId,
+          PlayerScope.Storage,
+          PlayerFilterType.Games,
+          undefined
+        );
+      });
+    });
+
+    describe('Filter State Persistence', () => {
+      it('should persist filter when switching from Shuffle to Directory mode', () => {
+        // Set filter in Directory mode
+        service.setFilterMode(deviceId, PlayerFilterType.Music);
+
+        // Switch to Shuffle mode
+        service.toggleShuffleMode(deviceId);
+
+        // Filter should persist
+        const settings = service.getShuffleSettings(deviceId)();
+        expect(settings?.filter).toBe(PlayerFilterType.Music);
+      });
+
+      it('should persist filter when switching from Directory to Shuffle and back', () => {
+        // Set filter
+        service.setFilterMode(deviceId, PlayerFilterType.Games);
+        const originalFilter = service.getShuffleSettings(deviceId)()?.filter;
+
+        // Switch to Shuffle mode
+        service.toggleShuffleMode(deviceId);
+        expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Shuffle);
+
+        // Switch back to Directory mode
+        service.toggleShuffleMode(deviceId);
+        expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Directory);
+
+        // Filter should still be the same
+        const finalFilter = service.getShuffleSettings(deviceId)()?.filter;
+        expect(finalFilter).toBe(originalFilter);
+        expect(finalFilter).toBe(PlayerFilterType.Games);
+      });
+
+      it('should maintain independent filter settings per device', () => {
+        const device2 = 'device-filter-2';
+        service.initializePlayer(device2);
+
+        // Set different filters for each device
+        service.setFilterMode(deviceId, PlayerFilterType.Music);
+        service.setFilterMode(device2, PlayerFilterType.Images);
+
+        // Each device should maintain its own filter
+        const settings1 = service.getShuffleSettings(deviceId)();
+        const settings2 = service.getShuffleSettings(device2)();
+
+        expect(settings1?.filter).toBe(PlayerFilterType.Music);
+        expect(settings2?.filter).toBe(PlayerFilterType.Images);
+      });
+    });
+  });
 });

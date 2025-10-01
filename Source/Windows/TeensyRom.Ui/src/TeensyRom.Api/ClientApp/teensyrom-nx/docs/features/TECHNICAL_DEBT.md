@@ -89,6 +89,65 @@ Tests demonstrate correct implementation logic (11/12 and 6/7 tests pass), and a
 
 ## Code Quality
 
+### Replace String Literals with Strongly Typed Button Colors
+
+**Priority**: Medium  
+**Effort**: 1-2 days  
+**Created**: 2025-09-30
+
+**Issue**: Button color properties are currently using string literals instead of strongly typed values, which reduces type safety and can lead to runtime errors from invalid color values.
+
+**Affected Files**:
+- `libs/features/player/src/lib/player-view/player-device-container/storage-container/filter-toolbar/random-roll-button/random-roll-button.component.ts` - Uses `input<IconButtonColor>('normal')`
+- `libs/ui/components/src/lib/icon-button/icon-button.component.ts` - Likely has similar string literal usage
+- Any other components that accept color properties as inputs
+
+**Current Problems**:
+- String literals like `'normal'` can be mistyped without compile-time errors
+- No IntelliSense/autocomplete for available color options
+- Runtime errors possible from invalid color values
+- Inconsistent color naming across components
+- Difficult to refactor color values across the codebase
+
+**Example of Current Issue**:
+```typescript
+getButtonColor = input<IconButtonColor>('normal'); // 'normal' is a magic string
+```
+
+**Recommended Solution**:
+Create strongly typed color constants and enums:
+1. Define `IconButtonColor` enum or const assertion object with all valid colors
+2. Replace string literals with typed constants (e.g., `IconButtonColor.NORMAL`)
+3. Update all components to use typed color values
+4. Create type-safe color utilities and validation
+5. Ensure consistent color naming and theming across components
+
+**Example of Desired Solution**:
+```typescript
+// Define typed colors
+export const IconButtonColors = {
+  NORMAL: 'normal',
+  ERROR: 'error', 
+  HIGHLIGHT: 'highlight',
+  SUCCESS: 'success'
+} as const;
+
+export type IconButtonColor = typeof IconButtonColors[keyof typeof IconButtonColors];
+
+// Usage with type safety
+getButtonColor = input<IconButtonColor>(IconButtonColors.NORMAL);
+```
+
+**Benefits**:
+- Compile-time type safety for color values
+- IntelliSense support and autocomplete
+- Easier refactoring and renaming of colors
+- Consistent color system across components
+- Prevention of runtime errors from typos
+- Better maintainability and documentation
+
+**Breaking Changes**: Minor - existing string values will continue to work, but imports may need updating
+
 ### Remove Remaining `any` Usage
 
 **Priority**: Low  

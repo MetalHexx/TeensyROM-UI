@@ -4,7 +4,7 @@ import { signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FilterToolbarComponent } from './filter-toolbar.component';
 import { PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
-import { LaunchMode, PlayerStatus } from '@teensyrom-nx/domain';
+import { LaunchMode, PlayerStatus, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
 
 type MockedObject<T> = { [K in keyof T]: T[K] extends (...args: unknown[]) => unknown ? ReturnType<typeof vi.fn> : T[K] };
 
@@ -52,39 +52,45 @@ describe('FilterToolbarComponent', () => {
   let component: FilterToolbarComponent;
   let fixture: ComponentFixture<FilterToolbarComponent>;
   let mockPlayerContext: MockedObject<IPlayerContext>;
+  let shuffleSettingsSignal: ReturnType<typeof signal>;
+  let errorSignal: ReturnType<typeof signal>;
 
   beforeEach(async () => {
+    // Create signals for dynamic mocking
+    shuffleSettingsSignal = signal({ scope: PlayerScope.DeviceStorage, filter: PlayerFilterType.All });
+    errorSignal = signal(null);
+
     // Create strongly typed mock for IPlayerContext
     mockPlayerContext = {
       // Core player lifecycle
       initializePlayer: vi.fn(),
       removePlayer: vi.fn(),
-      
+
       // File launching
       launchFileWithContext: vi.fn().mockResolvedValue(undefined),
       launchRandomFile: vi.fn().mockResolvedValue(undefined),
-      
+
       // Playback control methods
       play: vi.fn().mockResolvedValue(undefined),
       pause: vi.fn().mockResolvedValue(undefined),
       stop: vi.fn().mockResolvedValue(undefined),
       next: vi.fn().mockResolvedValue(undefined),
       previous: vi.fn().mockResolvedValue(undefined),
-      
+
       // State queries
       getCurrentFile: vi.fn().mockReturnValue(signal(null).asReadonly()),
       getFileContext: vi.fn().mockReturnValue(signal(null).asReadonly()),
       getPlayerStatus: vi.fn().mockReturnValue(signal(PlayerStatus.Stopped).asReadonly()),
       getStatus: vi.fn().mockReturnValue(signal(PlayerStatus.Stopped).asReadonly()),
       isLoading: vi.fn().mockReturnValue(signal(false).asReadonly()),
-      getError: vi.fn().mockReturnValue(signal(null).asReadonly()),
-      
+      getError: vi.fn().mockReturnValue(errorSignal.asReadonly()),
+
       // Shuffle functionality
       toggleShuffleMode: vi.fn(),
       setShuffleScope: vi.fn(),
       setFilterMode: vi.fn(),
       getLaunchMode: vi.fn().mockReturnValue(signal(LaunchMode.Directory).asReadonly()),
-      getShuffleSettings: vi.fn().mockReturnValue(signal(null).asReadonly()),
+      getShuffleSettings: vi.fn().mockReturnValue(shuffleSettingsSignal.asReadonly()),
     };
 
     await TestBed.configureTestingModule({
@@ -112,68 +118,149 @@ describe('FilterToolbarComponent', () => {
   });
 
   describe('Filter Button Actions', () => {
-    it('should log when All filter button is clicked', () => {
-      const consoleSpy = vi.spyOn(console, 'log');
-      
+    it('should call setFilterMode with All when All filter button is clicked', () => {
       component.onAllClick();
-      
-      expect(consoleSpy).toHaveBeenCalledWith(CONSOLE_MESSAGES.allFilter);
+
+      expect(mockPlayerContext.setFilterMode).toHaveBeenCalledWith(TEST_DEVICE_ID, PlayerFilterType.All);
     });
 
-    it('should log when Games filter button is clicked', () => {
-      const consoleSpy = vi.spyOn(console, 'log');
-      
+    it('should call setFilterMode with Games when Games filter button is clicked', () => {
       component.onGamesClick();
-      
-      expect(consoleSpy).toHaveBeenCalledWith(CONSOLE_MESSAGES.gamesFilter);
+
+      expect(mockPlayerContext.setFilterMode).toHaveBeenCalledWith(TEST_DEVICE_ID, PlayerFilterType.Games);
     });
 
-    it('should log when Music filter button is clicked', () => {
-      const consoleSpy = vi.spyOn(console, 'log');
-      
+    it('should call setFilterMode with Music when Music filter button is clicked', () => {
       component.onMusicClick();
-      
-      expect(consoleSpy).toHaveBeenCalledWith(CONSOLE_MESSAGES.musicFilter);
+
+      expect(mockPlayerContext.setFilterMode).toHaveBeenCalledWith(TEST_DEVICE_ID, PlayerFilterType.Music);
     });
 
-    it('should log when Images filter button is clicked', () => {
-      const consoleSpy = vi.spyOn(console, 'log');
-      
+    it('should call setFilterMode with Images when Images filter button is clicked', () => {
       component.onImagesClick();
-      
-      expect(consoleSpy).toHaveBeenCalledWith(CONSOLE_MESSAGES.imagesFilter);
+
+      expect(mockPlayerContext.setFilterMode).toHaveBeenCalledWith(TEST_DEVICE_ID, PlayerFilterType.Images);
+    });
+  });
+
+  describe('Active Filter Display', () => {
+    it('should show All filter as highlighted when active', () => {
+      shuffleSettingsSignal.set({ scope: PlayerScope.Storage, filter: PlayerFilterType.All });
+      fixture.detectChanges();
+
+      const color = component.getButtonColor(PlayerFilterType.All);
+      expect(color).toBe('highlight');
+    });
+
+    it('should show Games filter as highlighted when active', () => {
+      shuffleSettingsSignal.set({ scope: PlayerScope.Storage, filter: PlayerFilterType.Games });
+      fixture.detectChanges();
+
+      const color = component.getButtonColor(PlayerFilterType.Games);
+      expect(color).toBe('highlight');
+    });
+
+    it('should show Music filter as highlighted when active', () => {
+      shuffleSettingsSignal.set({ scope: PlayerScope.Storage, filter: PlayerFilterType.Music });
+      fixture.detectChanges();
+
+      const color = component.getButtonColor(PlayerFilterType.Music);
+      expect(color).toBe('highlight');
+    });
+
+    it('should show Images filter as highlighted when active', () => {
+      shuffleSettingsSignal.set({ scope: PlayerScope.Storage, filter: PlayerFilterType.Images });
+      fixture.detectChanges();
+
+      const color = component.getButtonColor(PlayerFilterType.Images);
+      expect(color).toBe('highlight');
+    });
+
+    it('should show inactive filters as normal', () => {
+      shuffleSettingsSignal.set({ scope: PlayerScope.Storage, filter: PlayerFilterType.Music });
+      fixture.detectChanges();
+
+      expect(component.getButtonColor(PlayerFilterType.All)).toBe('normal');
+      expect(component.getButtonColor(PlayerFilterType.Games)).toBe('normal');
+      expect(component.getButtonColor(PlayerFilterType.Images)).toBe('normal');
+    });
+  });
+
+  describe('Error State Display', () => {
+    it('should show all filter buttons as error when error exists', () => {
+      errorSignal.set('Random launch failed');
+      fixture.detectChanges();
+
+      expect(component.getButtonColor(PlayerFilterType.All)).toBe('error');
+      expect(component.getButtonColor(PlayerFilterType.Games)).toBe('error');
+      expect(component.getButtonColor(PlayerFilterType.Music)).toBe('error');
+      expect(component.getButtonColor(PlayerFilterType.Images)).toBe('error');
+    });
+
+    it('should show error color over active filter highlight', () => {
+      shuffleSettingsSignal.set({ scope: PlayerScope.Storage, filter: PlayerFilterType.Music });
+      errorSignal.set('Failed to navigate');
+      fixture.detectChanges();
+
+      // Even though Music is active, error should take precedence
+      expect(component.getButtonColor(PlayerFilterType.Music)).toBe('error');
+    });
+
+    it('should return to normal/highlight colors when error clears', () => {
+      shuffleSettingsSignal.set({ scope: PlayerScope.Storage, filter: PlayerFilterType.Games });
+      errorSignal.set(null);
+      fixture.detectChanges();
+
+      expect(component.getButtonColor(PlayerFilterType.Games)).toBe('highlight');
+      expect(component.getButtonColor(PlayerFilterType.All)).toBe('normal');
+    });
+
+    it('should show random roll button as error when error exists', () => {
+      errorSignal.set('Random launch failed');
+      fixture.detectChanges();
+
+      const randomButton = fixture.debugElement.query(By.css('lib-random-roll-button'));
+      expect(randomButton.componentInstance.color()).toBe('error');
+    });
+
+    it('should show random roll button as normal when no error exists', () => {
+      errorSignal.set(null);
+      fixture.detectChanges();
+
+      const randomButton = fixture.debugElement.query(By.css('lib-random-roll-button'));
+      expect(randomButton.componentInstance.color()).toBe('normal');
     });
   });
 
   describe('Random Launch Functionality', () => {
     it('should call playerContext.launchRandomFile with correct deviceId', async () => {
-      await component.launchRandomFile();
-      
+      await component.onRandomLaunchClick();
+
       expect(mockPlayerContext.launchRandomFile).toHaveBeenCalledWith(TEST_DEVICE_ID);
     });
 
     it('should not call launchRandomFile when deviceId is empty', async () => {
       fixture.componentRef.setInput('deviceId', '');
-      
-      await component.launchRandomFile();
-      
+
+      await component.onRandomLaunchClick();
+
       expect(mockPlayerContext.launchRandomFile).not.toHaveBeenCalled();
     });
 
     it('should not call launchRandomFile when deviceId is null', async () => {
       fixture.componentRef.setInput('deviceId', null);
-      
-      await component.launchRandomFile();
-      
+
+      await component.onRandomLaunchClick();
+
       expect(mockPlayerContext.launchRandomFile).not.toHaveBeenCalled();
     });
 
     it('should handle async errors gracefully', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { /* noop */ });
       mockPlayerContext.launchRandomFile.mockRejectedValue(new Error('Test error'));
-      
+
       // Should not throw and should log error
-      await component.launchRandomFile();
+      await component.onRandomLaunchClick();
       expect(consoleSpy).toHaveBeenCalled();
       consoleSpy.mockRestore();
     });
@@ -249,9 +336,7 @@ describe('FilterToolbarComponent', () => {
       testButtonClick(SELECTORS.filterImagesButton, 'onImagesClick');
     });
 
-    it('should trigger launchRandomFile when random launch button is clicked', async () => {
-      testButtonClick(SELECTORS.randomLaunchButton, 'launchRandomFile');
-    });
+    // Note: Random launch button is now in RandomRollButtonComponent
   });
 
   describe('Component Layout', () => {
@@ -309,7 +394,8 @@ describe('FilterToolbarComponent', () => {
     });
   });
 
-  describe('Dice Roll Animation', () => {
+  // Note: Dice roll animation moved to RandomRollButtonComponent
+  describe.skip('Dice Roll Animation', () => {
     it('should initialize animation state correctly', () => {
       expect(component.isDiceRolling()).toBe(false);
     });
@@ -371,31 +457,32 @@ describe('FilterToolbarComponent', () => {
   describe('Error Handling', () => {
     it('should handle missing deviceId gracefully', async () => {
       fixture.componentRef.setInput('deviceId', undefined);
-      
+
       // Should not throw errors
       expect(() => component.onAllClick()).not.toThrow();
       expect(() => component.onGamesClick()).not.toThrow();
       expect(() => component.onMusicClick()).not.toThrow();
       expect(() => component.onImagesClick()).not.toThrow();
-      await expect(component.launchRandomFile()).resolves.toBeUndefined();
+      await expect(component.onRandomLaunchClick()).resolves.toBeUndefined();
     });
 
     it('should handle playerContext service errors gracefully', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { /* noop */ });
       mockPlayerContext.launchRandomFile.mockRejectedValue(new Error('Service unavailable'));
-      
+
       // Should not throw unhandled errors and should log
-      await component.launchRandomFile();
+      await component.onRandomLaunchClick();
       expect(mockPlayerContext.launchRandomFile).toHaveBeenCalled();
       expect(consoleSpy).toHaveBeenCalled();
       consoleSpy.mockRestore();
     });
 
-    it('should handle animation gracefully when button element is not available', () => {
+    // Note: Animation tests moved to RandomRollButtonComponent
+    it.skip('should handle animation gracefully when button element is not available', () => {
       // Mock randomButton to return null
       const mockButtonSignal = vi.fn().mockReturnValue(null);
       component.randomButton = mockButtonSignal;
-      
+
       // Should not throw when element is not available
       expect(() => component.animateDiceRoll()).not.toThrow();
       expect(component.isDiceRolling()).toBe(true); // State still gets set

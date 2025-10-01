@@ -2,6 +2,7 @@
   icon="casino"
   ariaLabel="Launch Random File"
   size="large"
+  [color]="getButtonColor()"
   (buttonClick)="onButtonClick()"
   (click)="animateDiceRoll($event)"
   data-testid="random-roll-button"

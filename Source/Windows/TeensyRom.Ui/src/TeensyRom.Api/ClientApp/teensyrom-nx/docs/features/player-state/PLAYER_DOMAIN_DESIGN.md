@@ -517,7 +517,28 @@ The incremental development approach breaks down the complex player system into 
 
 ---
 
-### Phase 4: Timer System + Auto-Progression
+### Phase 4: Filter System UI Integration + Error State Visual Feedback
+**Goal**: Wire up filter toolbar to existing filter infrastructure and add error state visual indicators
+
+**Scope**:
+- Connect filter button click handlers to `setFilterMode()`
+- Visual feedback for active filter selection (cyan highlight)
+- Visual feedback for error states (red color on all interactive buttons)
+- Error state takes precedence over active state
+- **NO** new backend logic - all filter infrastructure already exists from Phase 2
+
+**Implementation**:
+- Filter toolbar click handlers call `setFilterMode()`
+- Active filter signal derived from `getShuffleSettings()`
+- Error state signal derived from `getError()`
+- Color binding logic in components (error > highlight > normal)
+- Navigation button error state indicators
+
+**Demonstrable Value**: Users see which filter is active and receive clear visual feedback when operations fail
+
+---
+
+### Phase 5: Timer System + Auto-Progression
 **Goal**: Add basic timer functionality with automatic file progression
 
 **Scope**:
@@ -550,7 +571,7 @@ The incremental development approach breaks down the complex player system into 
 
 ---
 
-## Future Extension Points (Post Phase 4)
+## Future Extension Points (Post Phase 5)
 
 Future extension points identify advanced features that build upon the core player system foundation. These extensions represent the full vision of professional DJ capabilities, advanced user experiences, and sophisticated media management features. The modular architecture established in the core phases provides extension points for these advanced features without requiring fundamental redesign.
 

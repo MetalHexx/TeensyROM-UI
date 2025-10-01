@@ -1,12 +1,14 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { 
-  CompactCardLayoutComponent, 
-  IconButtonComponent, 
+import {
+  CompactCardLayoutComponent,
+  IconButtonComponent,
+  IconButtonColor,
   JoystickIconComponent,
   ImageIconComponent
 } from '@teensyrom-nx/ui/components';
 import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
+import { PlayerFilterType } from '@teensyrom-nx/domain';
 import { RandomRollButtonComponent } from './random-roll-button';
 
 @Component({
@@ -17,27 +19,42 @@ import { RandomRollButtonComponent } from './random-roll-button';
 })
 export class FilterToolbarComponent {
   private readonly playerContext = inject(PLAYER_CONTEXT);
-  
+
   deviceId = input.required<string>();
 
+  // Expose PlayerFilterType enum for template access
+  readonly PlayerFilterType = PlayerFilterType;
+
+  // Computed signal for active filter
+  activeFilter = computed(() =>
+    this.playerContext.getShuffleSettings(this.deviceId())()?.filter ?? PlayerFilterType.All
+  );
+
+  // Computed signal for error state
+  hasError = computed(() =>
+    this.playerContext.getError(this.deviceId())() !== null
+  );
+
+  // Helper method to determine button color (error takes precedence over active state)
+  getButtonColor(filterType: PlayerFilterType): IconButtonColor {
+    if (this.hasError()) return 'error';
+    return this.activeFilter() === filterType ? 'highlight' : 'normal';
+  }
+
   onAllClick(): void {
-    console.log('All filter clicked');
-    // TODO: Implement all files filter logic
+    this.playerContext.setFilterMode(this.deviceId(), PlayerFilterType.All);
   }
 
   onGamesClick(): void {
-    console.log('Games filter clicked');
-    // TODO: Implement games filter logic
+    this.playerContext.setFilterMode(this.deviceId(), PlayerFilterType.Games);
   }
 
   onMusicClick(): void {
-    console.log('Music filter clicked');
-    // TODO: Implement music filter logic
+    this.playerContext.setFilterMode(this.deviceId(), PlayerFilterType.Music);
   }
 
   onImagesClick(): void {
-    console.log('Images filter clicked');
-    // TODO: Implement images filter logic
+    this.playerContext.setFilterMode(this.deviceId(), PlayerFilterType.Images);
   }
 
   async onRandomLaunchClick(): Promise<void> {
