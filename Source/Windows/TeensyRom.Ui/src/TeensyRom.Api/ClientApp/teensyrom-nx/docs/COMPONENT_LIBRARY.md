@@ -183,29 +183,36 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 
 ## Animation System
 
-**Purpose**: Automatic animation coordination for nested components. Child animations wait for parent completion without manual signal management.
+**Purpose**: Automatic animation coordination between components via Angular's dependency injection. Components can chain animations when nested, or use explicit triggers for independent control.
 
 **How It Works**:
 
-Animation components use Angular DI to provide/inject completion signals via `PARENT_ANIMATION_COMPLETE` token. Nested components automatically chain.
+Animation components use Angular DI to provide/inject completion signals via `PARENT_ANIMATION_COMPLETE` token. When nested, child components detect parent animations and wait automatically. Parent/child relationship is not required - use `animationTrigger` for any coordination pattern.
 
 **Priority System**:
 
 1. **Explicit trigger** (highest): Use provided `animationTrigger` signal
-2. **Auto-chain** (medium): Wait for parent animation if nested
+2. **Auto-chain** (medium): Wait for parent animation if nested in DI tree
 3. **Immediate** (lowest): Render immediately if no parent/trigger
 
 **Usage**:
 
 ```html
-<!-- Child waits for parent automatically -->
+<!-- Auto-chaining: nested components wait for parent -->
 <lib-sliding-container [animationTrigger]="isReady()">
   <lib-scaling-compact-card animationEntry="from-top">
     <div>Animates after parent</div>
   </lib-scaling-compact-card>
 </lib-sliding-container>
 
-<!-- Multi-level chaining -->
+<!-- Independent control: sibling components with explicit triggers -->
+<div class="layout">
+  <lib-scaling-card [animationTrigger]="showCard1()">Card 1</lib-scaling-card>
+  <lib-scaling-card [animationTrigger]="showCard2()">Card 2</lib-scaling-card>
+  <lib-scaling-card [animationTrigger]="showCard3()">Card 3</lib-scaling-card>
+</div>
+
+<!-- Multi-level auto-chaining -->
 <lib-scaling-card title="Parent" [animationTrigger]="show()">
   <lib-sliding-container animationDirection="slide-down">
     <lib-scaling-compact-card>
@@ -214,12 +221,14 @@ Animation components use Angular DI to provide/inject completion signals via `PA
   </lib-sliding-container>
 </lib-scaling-card>
 
-<!-- Override auto-chain with explicit trigger -->
+<!-- Mixed: some auto-chain, some explicit -->
 <lib-sliding-container [animationTrigger]="isReady()">
-  <lib-scaling-card>Default auto-chain</lib-scaling-card>
-  <lib-scaling-card [animationTrigger]="customTrigger()">Independent control</lib-scaling-card>
+  <lib-scaling-card>Auto-chains with parent</lib-scaling-card>
+  <lib-scaling-card [animationTrigger]="customTrigger()">Independent timing</lib-scaling-card>
 </lib-sliding-container>
 ```
+
+**Flexibility**: Use auto-chaining for parent/child coordination, or explicit `animationTrigger` signals for any timing pattern - sequenced animations, parallel animations, conditional animations, etc.
 
 **Applies To**: All animation components - [ScalingCardComponent](#scalingcardcomponent), [ScalingCompactCardComponent](#scalingcompactcardcomponent), [ScalingContainerComponent](#scalingcontainercomponent), [SlidingContainerComponent](#slidingcontainercomponent)
 
