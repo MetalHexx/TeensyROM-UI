@@ -10,229 +10,151 @@ This document catalogs all shared UI components available in the TeensyROM appli
 
 ### `CardLayoutComponent`
 
-**Purpose**: A reusable card wrapper component that provides consistent card styling with optional header and title support. Features smooth slide-in/slide-out animations from random corners with height-based transitions that push content.
+**Purpose**: Pure layout component for cards with headers, titles, and metadata. No animations - use [ScalingCardComponent](#scalingcardcomponent) for animated cards.
 
 **Selector**: `lib-card-layout`
 
 **Properties**:
+- `title`: Card header title (optional)
+- `subtitle`: Text below title (optional)
+- `metadataSource`: Footer attribution text (optional)
+- `enableOverflow`: Allow scrollbars when content overflows (default: `true`)
 
-- `title` (optional): `string` - The title to display in the card header. If not provided, no header will be rendered.
-- `subtitle` (optional): `string` - The subtitle to display below the title in the card header. Only rendered when both title and subtitle are provided.
-- `metadataSource` (optional): `string` - Source attribution text displayed in the card footer. Uses [`.metadata-source`](STYLE_GUIDE.md#metadata-source) styling for subtle, right-aligned appearance. Only rendered when provided.
-- `enableOverflow` (optional): `boolean` - Controls scrollbar behavior. When `true` (default), allows natural scrollbar display when content overflows. When `false`, forces `overflow: hidden` to prevent scrollbars entirely. Use `false` for cards with fixed content that should never scroll (like device cards).
-- `animationEntry` (optional): `AnimationDirection` - Controls the entry animation direction. Options: `'none'`, `'random'` (default), `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`, `'from-top-left'`, `'from-top-right'`, `'from-bottom-left'`, `'from-bottom-right'`.
-- `animationExit` (optional): `AnimationDirection` - Controls the exit animation direction. Same options as `animationEntry`. Default: `'random'`.
-- `animationTrigger` (optional): `boolean` - Explicit control for when the component should render and animate. When provided, overrides auto-chaining behavior. See [Animation Chaining](#animation-chaining) for details.
-
-**Usage Example**:
+**Usage**:
 
 ```html
-<!-- Card with title, subtitle, corner content, and metadata -->
 <lib-card-layout
   title="File Information"
   subtitle="Release v1.2.3"
-  metadataSource="Gamebase Database"
->
-  <!-- Corner content using slot -->
+  metadataSource="Gamebase Database">
+
   <mat-chip-set slot="corner">
     <mat-chip>C64</mat-chip>
-    <mat-chip>PRG</mat-chip>
   </mat-chip-set>
 
-  <!-- Main content -->
-  <p>File details and description...</p>
-</lib-card-layout>
-
-<!-- Card with title and metadata only -->
-<lib-card-layout title="Artist Image" metadataSource="MusicBrainz">
-  <img src="/placeholder.jpg" alt="Artist Image" />
-</lib-card-layout>
-
-<!-- Card without title -->
-<lib-card-layout>
-  <mat-form-field>
-    <input matInput placeholder="Search" />
-  </mat-form-field>
-</lib-card-layout>
-
-<!-- Card with corner buttons -->
-<lib-card-layout title="Storage Details">
-  <!-- Any content can go in the corner -->
-  <div slot="corner">
-    <button mat-icon-button>
-      <mat-icon>more_vert</mat-icon>
-    </button>
-  </div>
-
-  <p>Storage information...</p>
-</lib-card-layout>
-
-<!-- Card with overflow disabled (no scrollbars) -->
-<lib-card-layout title="Device Information" [enableOverflow]="false">
-  <div class="device-details">
-    <p>Firmware: v2.0.1</p>
-    <p>Serial: ABC123</p>
-  </div>
-</lib-card-layout>
-
-<!-- Card with controlled animation directions -->
-<lib-card-layout
-  title="Notification"
-  animationEntry="from-top"
-  animationExit="from-top">
-  <p>This card slides in from the top and exits to the top</p>
-</lib-card-layout>
-
-<!-- Card with mixed animation directions -->
-<lib-card-layout
-  title="Side Panel"
-  animationEntry="from-left"
-  animationExit="from-right">
-  <p>Enters from left, exits to right</p>
+  <p>File details...</p>
 </lib-card-layout>
 ```
 
-**Content Projection**:
+**Content Slots**:
+- Default: Main card content
+- `[slot=corner]`: Upper-right corner content (buttons, chips, etc.)
 
-- Main content: Uses `<ng-content></ng-content>` to project any content into the card body
-- Corner content: Uses `<ng-content select="[slot=corner]"></ng-content>` to project content into the upper-right corner
-
-**Footer Features**:
-
-- Metadata attribution: Uses `metadataSource` property to display source attribution in card footer
-- Automatic styling: Applies [`.metadata-source`](STYLE_GUIDE.md#metadata-source) class for consistent right-aligned, subtle appearance
-- Conditional rendering: Footer only appears when `metadataSource` is provided
-
-**Corner Content Features**:
-
-- Positioned absolutely in the upper-right corner (16px from top and right edges)
-- Supports any HTML content: chips, buttons, icons, custom components
-- Automatically positioned above other card content with `z-index: 1`
-- Use `slot="corner"` attribute to designate content for corner placement
-
-**Animation Features**:
-
-- **Entry Animation**: Configurable slide-in animation with height expansion
-  - Duration: 500ms slide/expand + 800ms fade-in
-  - Direction: Controlled via `animationEntry` property (default: `'random'`)
-  - Behavior: Height animates from 0 to natural height, pushing content below downward
-  - Options: 9 directions including random, cardinal (left/right/top/bottom), and diagonal (corners)
-
-- **Exit Animation**: Configurable slide-out animation with height collapse
-  - Duration: 500ms slide/collapse + 800ms fade-out
-  - Direction: Controlled via `animationExit` property (default: `'random'`)
-  - Behavior: Height animates to 0, pulling content upward as card disappears
-  - Independent control: Exit direction can differ from entry for creative effects
-
-- **Direction Options**: Both `animationEntry` and `animationExit` support:
-  - `'none'`: No animation (instant appearance/disappearance)
-  - `'random'`: Randomly selects from all 8 directions (default behavior)
-  - `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`: Cardinal directions
-  - `'from-top-left'`, `'from-top-right'`, `'from-bottom-left'`, `'from-bottom-right'`: Diagonal corners
-
-- **Overflow Control**: Scrollbars hidden during animation (overflow: hidden), then appear naturally based on `enableOverflow` property
-
-**Styling**: Automatically applies the global [`.stretch-card`](STYLE_GUIDE.md#stretch-card) class for full-height cards with proper flex layout and scrollable content.
-
-**Used In**:
-
-- Directory tree components for consistent card wrapping
-- Search toolbars for form field containers
-- Device cards (with `enableOverflow="false"`)
-- Any component requiring standardized card layout
+**See Also**: [ScalingCardComponent](#scalingcardcomponent)
 
 ### `CompactCardLayoutComponent`
 
-**Purpose**: A lightweight card wrapper component designed specifically for form fields and compact content areas, using the `.compact-card` styling. Features the same smooth slide-in/slide-out animations as CardLayoutComponent.
+**Purpose**: Lightweight card layout for forms and toolbars. No headers or animations - use [ScalingCompactCardComponent](#scalingcompactcardcomponent) for animated version.
 
 **Selector**: `lib-compact-card-layout`
 
 **Properties**:
+- `enableOverflow`: Allow scrollbars when content overflows (default: `true`)
 
-- `enableOverflow` (optional): `boolean` - Controls scrollbar behavior. When `true` (default), allows natural scrollbar display when content overflows. When `false`, forces `overflow: hidden` to prevent scrollbars entirely.
-- `animationEntry` (optional): `AnimationDirection` - Controls the entry animation direction. Options: `'none'`, `'random'` (default), `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`, `'from-top-left'`, `'from-top-right'`, `'from-bottom-left'`, `'from-bottom-right'`.
-- `animationExit` (optional): `AnimationDirection` - Controls the exit animation direction. Same options as `animationEntry`. Default: `'random'`.
-- `animationTrigger` (optional): `boolean` - Explicit control for when the component should render and animate. When provided, overrides auto-chaining behavior. See [Animation Chaining](#animation-chaining) for details.
-
-**Usage Example**:
+**Usage**:
 
 ```html
-<!-- Compact card for form fields -->
 <lib-compact-card-layout>
   <mat-form-field appearance="outline">
     <mat-label>Search</mat-label>
-    <input matInput placeholder="Search files and folders..." />
-    <mat-icon matSuffix>search</mat-icon>
+    <input matInput />
   </mat-form-field>
-</lib-compact-card-layout>
-
-<!-- Compact card for button groups -->
-<lib-compact-card-layout>
-  <div class="button-group">
-    <button mat-icon-button><mat-icon>play_arrow</mat-icon></button>
-    <button mat-icon-button><mat-icon>pause</mat-icon></button>
-    <button mat-icon-button><mat-icon>stop</mat-icon></button>
-  </div>
-</lib-compact-card-layout>
-
-<!-- Compact card for simple content -->
-<lib-compact-card-layout>
-  <p>Simple content without header</p>
-</lib-compact-card-layout>
-
-<!-- Compact card with controlled animations -->
-<lib-compact-card-layout
-  animationEntry="from-bottom"
-  animationExit="from-bottom">
-  <div class="toolbar">
-    <button mat-button>Action 1</button>
-    <button mat-button>Action 2</button>
-  </div>
 </lib-compact-card-layout>
 ```
 
-**Content Projection**: Uses `<ng-content></ng-content>` to project any content directly into the card without headers or structure
+**See Also**: [ScalingCompactCardComponent](#scalingcompactcardcomponent)
 
-**Animation Features**:
+### `ScalingCardComponent`
 
-- **Entry Animation**: Configurable slide-in animation with height expansion
-  - Duration: 500ms slide/expand + 800ms fade-in
-  - Direction: Controlled via `animationEntry` property (default: `'random'`)
-  - Behavior: Height animates from 0 to natural height, pushing content below downward
-  - Options: 9 directions including random, cardinal (left/right/top/bottom), and diagonal (corners)
+**Purpose**: Animated card with scale+fade+slide effects. Combines [CardLayoutComponent](#cardlayoutcomponent) + [ScalingContainerComponent](#scalingcontainercomponent). Use this for most animated card needs.
 
-- **Exit Animation**: Configurable slide-out animation with height collapse
-  - Duration: 500ms slide/collapse + 800ms fade-out
-  - Direction: Controlled via `animationExit` property (default: `'random'`)
-  - Behavior: Height animates to 0, pulling content upward as card disappears
-  - Independent control: Exit direction can differ from entry for creative effects
+**Selector**: `lib-scaling-card`
 
-- **Direction Options**: Both `animationEntry` and `animationExit` support:
-  - `'none'`: No animation (instant appearance/disappearance)
-  - `'random'`: Randomly selects from all 8 directions (default behavior)
-  - `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`: Cardinal directions
-  - `'from-top-left'`, `'from-top-right'`, `'from-bottom-left'`, `'from-bottom-right'`: Diagonal corners
+**Properties**:
+- `title`: Card header title (optional)
+- `subtitle`: Text below title (optional)
+- `metadataSource`: Footer attribution text (optional)
+- `enableOverflow`: Allow scrollbars (default: `true`)
+- `animationEntry`: Entry direction - `'random'`, `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`, etc. (default: `'random'`)
+- `animationExit`: Exit direction (default: `'random'`)
+- `animationTrigger`: Manual control signal (optional - auto-chains if undefined)
 
-- **Overflow Control**: Scrollbars hidden during animation, then appear based on `enableOverflow` property
+**Usage**:
 
-**Styling**: Automatically applies the global [`.compact-card`](STYLE_GUIDE.md#compact-card) class optimized for Material form fields and compact layouts
+```html
+<!-- Basic animated card -->
+<lib-scaling-card
+  title="Device Info"
+  subtitle="TeensyROM"
+  animationEntry="from-left">
+  <p>Content...</p>
+</lib-scaling-card>
 
-**Key Differences from CardLayoutComponent**:
+<!-- With corner slot -->
+<lib-scaling-card title="Settings">
+  <button mat-icon-button slot="corner">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+  <p>Settings...</p>
+</lib-scaling-card>
 
-- **No headers/titles**: Compact design without mat-card-header
-- **No corner content**: Simplified structure for forms and controls
-- **Form-optimized spacing**: Uses `.compact-card` instead of `.stretch-card`
-- **Minimal overhead**: Pure content projection without additional features
-- **Same animations**: Shares the same smooth slide-in/slide-out animation system
+<!-- Nested with auto-chaining (child waits for parent) -->
+<lib-scaling-card title="Parent">
+  <lib-scaling-card title="Child" animationEntry="from-bottom">
+    <p>Animates after parent</p>
+  </lib-scaling-card>
+</lib-scaling-card>
 
-**Best Practice**: Use for form controls, toolbars, search bars, and other compact UI elements where you need card styling without the overhead of headers or complex layouts.
+<!-- Manual control -->
+<lib-scaling-card [animationTrigger]="showCard()">
+  <p>Shows when signal is true</p>
+</lib-scaling-card>
+```
 
-**Used In**:
+**Animation**: 0.8→1.0 scale + fade + directional slide. Auto-chains when nested (child waits for parent). Override with `animationTrigger` for manual control.
 
-- Search toolbars and form containers
-- Control panels and button groups
-- Player toolbar (wraps playback controls)
-- Compact content areas that need card styling
+**See Also**: [CardLayoutComponent](#cardlayoutcomponent), [ScalingCompactCardComponent](#scalingcompactcardcomponent)
+
+### `ScalingCompactCardComponent`
+
+**Purpose**: Animated compact card for forms, toolbars, and controls. Combines [CompactCardLayoutComponent](#compactcardlayoutcomponent) + [ScalingContainerComponent](#scalingcontainercomponent). No headers - minimal structure.
+
+**Selector**: `lib-scaling-compact-card`
+
+**Properties**:
+- `enableOverflow`: Allow scrollbars (default: `true`)
+- `animationEntry`: Entry direction (default: `'random'`)
+- `animationExit`: Exit direction (default: `'random'`)
+- `animationTrigger`: Manual control signal (optional - auto-chains if undefined)
+
+**Usage**:
+
+```html
+<!-- Animated search form -->
+<lib-scaling-compact-card animationEntry="from-top">
+  <mat-form-field appearance="outline">
+    <mat-label>Search</mat-label>
+    <input matInput />
+  </mat-form-field>
+</lib-scaling-compact-card>
+
+<!-- Animated toolbar -->
+<lib-scaling-compact-card animationEntry="from-bottom">
+  <div class="button-group">
+    <button mat-icon-button><mat-icon>play_arrow</mat-icon></button>
+    <button mat-icon-button><mat-icon>pause</mat-icon></button>
+  </div>
+</lib-scaling-compact-card>
+
+<!-- Manual control -->
+<lib-scaling-compact-card [animationTrigger]="showToolbar()">
+  <div class="toolbar">...</div>
+</lib-scaling-compact-card>
+```
+
+**Animation**: Same as ScalingCardComponent - 0.8→1.0 scale + fade + slide. Auto-chains when nested.
+
+**See Also**: [CompactCardLayoutComponent](#compactcardlayoutcomponent), [ScalingCardComponent](#scalingcardcomponent)
 
 ### `SlidingContainerComponent`
 
@@ -344,6 +266,101 @@ export class MyComponent {
 
 - [`player-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.html) - Player controls with coordinated card animation
 
+### `ScalingContainerComponent`
+
+**Purpose**: A reusable animation wrapper that provides scale+fade+slide effects with directional control. Uses transform-based animations that don't affect document flow, creating a smooth "pop-in" effect. Designed to be the animation engine behind card components.
+
+**Selector**: `lib-scaling-container`
+
+**Properties**:
+
+- `animationEntry` (optional): `AnimationDirection` - Controls the entry animation direction. Options: `'none'`, `'random'` (default), `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`, `'from-top-left'`, `'from-top-right'`, `'from-bottom-left'`, `'from-bottom-right'`.
+- `animationExit` (optional): `AnimationDirection` - Controls the exit animation direction. Same options as `animationEntry`. Default: `'random'`.
+- `animationTrigger` (optional): `boolean` - Explicit control for when the container should render and animate. When provided, overrides auto-chaining behavior. See [Animation Chaining](#animation-chaining) for details.
+
+**Events**:
+
+- `animationComplete`: Emitted when animation finishes - can be used for manual coordination if needed (auto-chaining handles this automatically)
+
+**Animation Characteristics**:
+
+- **Scale Effect**: Starts at 0.8 scale, animates to 1.0 for a "pop" or "zoom-in" effect
+- **Opacity Fade**: Smooth fade from 0 to 1 opacity
+- **Directional Slide**: Translates from specified direction (-40px offset)
+- **Transform Origin**: Makes scale happen from a specific corner/edge based on direction
+- **Dual-Speed Animation**: Transform is faster (2000ms), opacity is slower (3000ms) for smooth reveal
+- **No Document Flow Impact**: Uses transforms which don't affect layout (unlike height-based sliding)
+
+**Usage Examples**:
+
+```html
+<!-- Basic usage with random direction -->
+<lib-scaling-container>
+  <div class="my-content">Scales and fades in from random direction</div>
+</lib-scaling-container>
+
+<!-- Explicit entry direction -->
+<lib-scaling-container animationEntry="from-left">
+  <div class="panel">Scales in from the left</div>
+</lib-scaling-container>
+
+<!-- Controlled by trigger signal -->
+<lib-scaling-container [animationTrigger]="isDataLoaded()">
+  <div class="data-panel">Only appears when data is loaded</div>
+</lib-scaling-container>
+
+<!-- Different entry and exit directions -->
+<lib-scaling-container
+  animationEntry="from-top-left"
+  animationExit="from-bottom-right">
+  <div class="notification">
+    Enters from top-left corner, exits to bottom-right
+  </div>
+</lib-scaling-container>
+
+<!-- No animation -->
+<lib-scaling-container animationEntry="none" animationExit="none">
+  <div>Instant appearance/disappearance</div>
+</lib-scaling-container>
+```
+
+**With Auto-Chaining**:
+
+```html
+<!-- Child waits for parent animation -->
+<lib-sliding-container [animationTrigger]="isPanelReady()">
+  <lib-scaling-container animationEntry="from-top">
+    <div class="nested-content">
+      Automatically waits for sliding-container to complete
+    </div>
+  </lib-scaling-container>
+</lib-sliding-container>
+```
+
+**Content Projection**: Uses `<ng-content></ng-content>` to project any content into the animated container
+
+**Animation Features**:
+
+- **Supports Auto-Chaining**: Automatically waits for parent animation components to complete
+- **Provider/Injector Pattern**: Provides completion signal for child components
+- **3-Tier Priority**: Explicit trigger > auto-chain > immediate render
+- **Visual Polish**: Dual-speed animation creates professional, smooth transitions
+- **Reusable**: Extracted from CardLayoutComponent for use anywhere
+
+**Key Differences from SlidingContainerComponent**:
+
+- **SlidingContainer**: Height/width expansion that pushes/pulls content (affects document flow)
+- **ScalingContainer**: Scale+fade+slide transforms (visual only, no layout impact)
+- Use SlidingContainer when you want content to push other elements
+- Use ScalingContainer for overlay-style or visual "pop" effects
+
+**Best Practice**: Use directly for custom animated panels, or let CardLayoutComponent and CompactCardLayoutComponent handle it internally for Material Design cards.
+
+**Used Internally By**:
+
+- [`CardLayoutComponent`](#cardlayoutcomponent) - Uses ScalingContainer for its animations
+- [`CompactCardLayoutComponent`](#compactcardlayoutcomponent) - Uses ScalingContainer for its animations
+
 ### Animation Chaining
 
 **Purpose**: A self-managing animation system that automatically coordinates animations between parent and child components, eliminating the need for manual signal management and template conditions.
@@ -352,7 +369,7 @@ export class MyComponent {
 
 **How It Works**:
 
-Animation components ([`CardLayoutComponent`](#cardlayoutcomponent), [`CompactCardLayoutComponent`](#compactcardlayoutcomponent), [`SlidingContainerComponent`](#slidingcontainercomponent)) use Angular's Dependency Injection to:
+Animation components ([`SlidingContainerComponent`](#slidingcontainercomponent), [`ScalingContainerComponent`](#scalingcontainercomponent)) use Angular's Dependency Injection to:
 
 1. **Provide** their own completion signal to child components
 2. **Inject** parent completion signals (if available)
@@ -547,9 +564,10 @@ To migrate existing code to use auto-chaining:
 
 **See Also**:
 
-- [CardLayoutComponent](#cardlayoutcomponent) - Supports auto-chaining
-- [CompactCardLayoutComponent](#compactcardlayoutcomponent) - Supports auto-chaining
 - [SlidingContainerComponent](#slidingcontainercomponent) - Supports auto-chaining
+- [ScalingContainerComponent](#scalingcontainercomponent) - Supports auto-chaining
+- [CardLayoutComponent](#cardlayoutcomponent) - Uses ScalingContainer internally (supports auto-chaining)
+- [CompactCardLayoutComponent](#compactcardlayoutcomponent) - Uses ScalingContainer internally (supports auto-chaining)
 - [Animation Chain Implementation Plan](../docs/features/animation/ANIMATION_CHAIN.md) - Detailed technical specification
 
 ---
