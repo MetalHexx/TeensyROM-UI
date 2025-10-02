@@ -232,6 +232,98 @@ This document catalogs all shared UI components available in the TeensyROM appli
 - Player toolbar (wraps playback controls)
 - Compact content areas that need card styling
 
+### `SlidingContainerComponent`
+
+**Purpose**: A reusable sliding animation wrapper component that provides smooth container slide animations with configurable directions, timing, and event-driven coordination. Designed for clean separation of concerns where the container handles sliding animation and parent components control content timing via events.
+
+**Selector**: `lib-sliding-container`
+
+**Properties**:
+
+- `containerHeight` (optional): `string` - Height of the animated container - defaults to 'auto'
+- `containerWidth` (optional): `string` - Width of the animated container - defaults to 'auto'
+- `animationDuration` (optional): `number` - Duration of container animation in milliseconds - defaults to 400
+- `animationDirection` (optional): `ContainerAnimationDirection` - Animation direction - defaults to 'from-top'
+
+**Events**:
+
+- `containerAnimationComplete`: Emitted when container animation finishes - use for coordinating content timing
+
+**Animation Directions**:
+
+- `AnimationDirection` types: `'from-top'`, `'from-bottom'`, `'from-left'`, `'from-right'`, `'from-top-left'`, `'from-top-right'`, `'from-bottom-left'`, `'from-bottom-right'`, `'none'`, `'random'`
+- Container-specific: `'slide-down'`, `'slide-up'`, `'fade'`
+
+**Usage Examples**:
+
+```html
+<!-- Basic usage with event coordination -->
+@if (shouldShow()) {
+  <lib-sliding-container
+    containerHeight="80px"
+    animationDirection="from-top"
+    (containerAnimationComplete)="onAnimationComplete()">
+    @if (showContent()) {
+      <lib-compact-card-layout animationEntry="from-top">
+        <!-- Your content here -->
+      </lib-compact-card-layout>
+    }
+  </lib-sliding-container>
+}
+
+<!-- Fade animation with custom timing -->
+<lib-sliding-container
+  animationDirection="fade"
+  [animationDuration]="600"
+  (containerAnimationComplete)="onFadeComplete()">
+  <!-- Content projection -->
+</lib-sliding-container>
+
+<!-- Slide down with auto height -->
+<lib-sliding-container
+  animationDirection="slide-down"
+  containerHeight="auto">
+  <div class="dynamic-content">
+    <!-- Content that determines height -->
+  </div>
+</lib-sliding-container>
+```
+
+**Event-Driven Coordination Pattern**:
+
+```typescript
+export class MyComponent {
+  showContainer = signal(false);
+  showContent = signal(false);
+
+  onTriggerAnimation(): void {
+    this.showContainer.set(true);
+    this.showContent.set(false); // Reset content
+  }
+
+  onContainerAnimationComplete(): void {
+    // Container finished animating, now show content
+    this.showContent.set(true);
+  }
+}
+```
+
+**Content Projection**: Uses `<ng-content></ng-content>` to project any content into the animated container. Content timing is controlled by parent components via the `containerAnimationComplete` event.
+
+**Animation Features**:
+
+- **Container Animation**: Handles height expansion/collapse with opacity and transform effects
+- **Event-Driven**: Emits completion events for parent components to coordinate content timing
+- **Configurable Timing**: Customizable duration and easing functions
+- **Multiple Directions**: Supports all standard animation directions plus container-specific variants
+- **Clean Architecture**: Focuses solely on container animation, delegates content timing to parents
+
+**Best Practice**: Use for any content that needs coordinated animations where container and content animations should be sequential. The event-driven approach ensures clean separation of concerns and reusable animation logic.
+
+**Used In**:
+
+- [`player-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.html) - Player controls with coordinated card animation
+
 ---
 
 ## Form Components

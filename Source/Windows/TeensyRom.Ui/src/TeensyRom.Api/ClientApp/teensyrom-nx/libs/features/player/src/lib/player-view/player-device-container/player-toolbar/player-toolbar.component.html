@@ -1,7 +1,14 @@
 @if (isPlayerLoaded()) {
-  <div @slideDown>
-    <lib-compact-card-layout>
+  <!-- Sliding Container for First Toolbar Animation -- inner compact card has a secondary animation on completion of this one -->
+  <lib-sliding-container
+    containerHeight="80px"
+    animationDirection="from-top"
+    (containerAnimationComplete)="onContainerAnimationComplete()">
+
+    @if (showPlayer()) {
+      <lib-compact-card-layout animationEntry="from-top">
       <div class="player-controls">
+
         <!-- Playback Controls Section -->
         <lib-icon-button
           icon="skip_previous"
@@ -16,6 +23,7 @@
 
         <!-- Dynamic Play/Pause or Stop Button -->
         @if (isCurrentFileMusicType()) {
+
           <!-- Music files get play/pause toggle -->
           <lib-icon-button
             [icon]="getPlayPauseIcon()"
@@ -27,6 +35,7 @@
           >
           </lib-icon-button>
         } @else {
+          
           <!-- Games/Images get stop button -->
           <lib-icon-button
             icon="stop"
@@ -61,6 +70,7 @@
         >
         </lib-icon-button>
       </div>
-    </lib-compact-card-layout>
-  </div>
+      </lib-compact-card-layout>
+    }
+  </lib-sliding-container>
 }

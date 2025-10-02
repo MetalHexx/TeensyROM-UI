@@ -1,46 +1,25 @@
-import { Component, inject, input, computed } from '@angular/core';
+import { Component, inject, input, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { trigger, style, transition, animate } from '@angular/animations';
-import { CompactCardLayoutComponent, IconButtonComponent, IconButtonColor } from '@teensyrom-nx/ui/components';
+import { CompactCardLayoutComponent, IconButtonComponent, IconButtonColor, SlidingContainerComponent } from '@teensyrom-nx/ui/components';
 import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
 import { LaunchMode, PlayerStatus, FileItemType } from '@teensyrom-nx/domain';
 
 @Component({
   selector: 'lib-player-toolbar',
-  imports: [CommonModule, CompactCardLayoutComponent, IconButtonComponent],
+  imports: [CommonModule, CompactCardLayoutComponent, IconButtonComponent, SlidingContainerComponent],
   templateUrl: './player-toolbar.component.html',
-  styleUrl: './player-toolbar.component.scss',
-  animations: [
-    trigger('slideDown', [
-      transition(':enter', [
-        style({
-          height: '0',
-          opacity: '0',
-          overflow: 'hidden',
-          transform: 'translateY(-20px)'
-        }),
-        animate('600ms cubic-bezier(0.4, 0.0, 0.2, 1)', style({
-          height: '*',
-          opacity: '1',
-          overflow: 'visible',
-          transform: 'translateY(0)'
-        }))
-      ]),
-      transition(':leave', [
-        animate('400ms cubic-bezier(0.4, 0.0, 0.2, 1)', style({
-          height: '0',
-          opacity: '0',
-          overflow: 'hidden',
-          transform: 'translateY(-20px)'
-        }))
-      ])
-    ])
-  ]
+  styleUrl: './player-toolbar.component.scss'
 })
 export class PlayerToolbarComponent {
   private readonly playerContext = inject(PLAYER_CONTEXT);
   
   deviceId = input.required<string>();
+
+  showPlayer = signal(false);
+
+  onContainerAnimationComplete(): void {
+    this.showPlayer.set(true);
+  }
 
   toggleShuffleMode(): void {
     const deviceId = this.deviceId();
