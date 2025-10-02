@@ -3,7 +3,7 @@
   width: 100%;
   height: 100%;
 
-  // Force overflow hidden when disabled - applies after animation too
+  // Force overflow hidden when disabled
   &.no-overflow {
     .stretch-card,
     .stretch-card * {

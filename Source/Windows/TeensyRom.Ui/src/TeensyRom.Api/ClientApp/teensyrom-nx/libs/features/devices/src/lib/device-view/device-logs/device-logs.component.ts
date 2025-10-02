@@ -11,7 +11,7 @@ import { DEVICE_LOGS_SERVICE, IDeviceLogsService } from '@teensyrom-nx/domain';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { IconButtonComponent, CardLayoutComponent } from '@teensyrom-nx/ui/components';
+import { IconButtonComponent, ScalingCardComponent } from '@teensyrom-nx/ui/components';
 
 @Component({
   selector: 'lib-device-logs',
@@ -23,7 +23,7 @@ import { IconButtonComponent, CardLayoutComponent } from '@teensyrom-nx/ui/compo
     MatIconModule,
     MatButtonModule,
     IconButtonComponent,
-    CardLayoutComponent,
+    ScalingCardComponent,
   ],
 })
 export class DeviceLogsComponent {

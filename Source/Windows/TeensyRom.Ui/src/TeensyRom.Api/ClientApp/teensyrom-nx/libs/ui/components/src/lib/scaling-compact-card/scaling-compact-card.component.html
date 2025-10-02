@@ -1,0 +1,9 @@
+@if (shouldRender()) {
+  <lib-scaling-container
+    [animationEntry]="animationEntry()"
+    [animationExit]="animationExit()">
+    <lib-compact-card-layout [enableOverflow]="enableOverflow()">
+      <ng-content></ng-content>
+    </lib-compact-card-layout>
+  </lib-scaling-container>
+}

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { CardLayoutComponent } from './card-layout.component';
 import { ComponentRef, Component } from '@angular/core';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('CardLayoutComponent', () => {
   let component: CardLayoutComponent;
@@ -11,6 +12,7 @@ describe('CardLayoutComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CardLayoutComponent],
+      providers: [provideNoopAnimations()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CardLayoutComponent);

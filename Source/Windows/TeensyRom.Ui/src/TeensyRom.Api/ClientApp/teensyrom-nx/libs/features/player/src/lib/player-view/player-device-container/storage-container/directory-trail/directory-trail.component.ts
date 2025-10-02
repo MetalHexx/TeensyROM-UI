@@ -1,13 +1,13 @@
 import { Component, input, inject, computed } from '@angular/core';
 import { StorageStore } from '@teensyrom-nx/application';
-import { CompactCardLayoutComponent } from '@teensyrom-nx/ui/components';
+import { ScalingCompactCardComponent } from '@teensyrom-nx/ui/components';
 import { DirectoryNavigateComponent } from './directory-navigate/directory-navigate.component';
 import { DirectoryBreadcrumbComponent } from './directory-breadcrumb/directory-breadcrumb.component';
 
 @Component({
   selector: 'lib-directory-trail',
   standalone: true,
-  imports: [CompactCardLayoutComponent, DirectoryNavigateComponent, DirectoryBreadcrumbComponent],
+  imports: [ScalingCompactCardComponent, DirectoryNavigateComponent, DirectoryBreadcrumbComponent],
   templateUrl: './directory-trail.component.html',
   styleUrl: './directory-trail.component.scss',
 })

@@ -1,5 +1,5 @@
 <div class="directory-files">
-  <lib-card-layout>
+  <lib-scaling-card>
     @if (directoryContents().isLoading) {
     <p>Loading directory contents...</p>
     } @else if (directoryContents().error) {
@@ -35,5 +35,5 @@
     } @else {
     <p>No directory selected or directory is empty.</p>
     }
-  </lib-card-layout>
+  </lib-scaling-card>
 </div>

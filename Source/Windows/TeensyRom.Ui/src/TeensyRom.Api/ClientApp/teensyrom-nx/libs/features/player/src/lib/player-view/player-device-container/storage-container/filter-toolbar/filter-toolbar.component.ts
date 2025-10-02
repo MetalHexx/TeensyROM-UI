@@ -1,7 +1,7 @@
 import { Component, inject, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  CompactCardLayoutComponent,
+  ScalingCompactCardComponent,
   IconButtonComponent,
   IconButtonColor,
   JoystickIconComponent,
@@ -13,7 +13,7 @@ import { RandomRollButtonComponent } from './random-roll-button';
 
 @Component({
   selector: 'lib-filter-toolbar',
-  imports: [CommonModule, CompactCardLayoutComponent, IconButtonComponent, JoystickIconComponent, ImageIconComponent, RandomRollButtonComponent],
+  imports: [CommonModule, ScalingCompactCardComponent, IconButtonComponent, JoystickIconComponent, ImageIconComponent, RandomRollButtonComponent],
   templateUrl: './filter-toolbar.component.html',
   styleUrl: './filter-toolbar.component.scss',
 })

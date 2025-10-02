@@ -1,12 +1,12 @@
 import { Component, inject, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CompactCardLayoutComponent, IconButtonComponent, IconButtonColor, SlidingContainerComponent } from '@teensyrom-nx/ui/components';
+import { ScalingCompactCardComponent, IconButtonComponent, IconButtonColor, SlidingContainerComponent } from '@teensyrom-nx/ui/components';
 import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
 import { LaunchMode, PlayerStatus, FileItemType } from '@teensyrom-nx/domain';
 
 @Component({
   selector: 'lib-player-toolbar',
-  imports: [CommonModule, CompactCardLayoutComponent, IconButtonComponent, SlidingContainerComponent],
+  imports: [CommonModule, ScalingCompactCardComponent, IconButtonComponent, SlidingContainerComponent],
   templateUrl: './player-toolbar.component.html',
   styleUrl: './player-toolbar.component.scss'
 })

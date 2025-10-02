@@ -9,10 +9,10 @@
 
 
 
-<lib-card-layout 
-  [title]="device()?.name" 
-  [enableOverflow]="false" 
-  [ngClass]="{ dimmed: !connectionStatus() }" 
+<lib-scaling-card
+  [title]="device()?.name"
+  [enableOverflow]="false"
+  [ngClass]="{ dimmed: !connectionStatus() }"
   animationEntry="from-left">
 
 
@@ -85,6 +85,6 @@
       ></lib-storage-status>
     </div>
   </div>
-</lib-card-layout>
+</lib-scaling-card>
 
 <!-- <lib-device-logs></lib-device-logs> -->

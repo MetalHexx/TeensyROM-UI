@@ -12,7 +12,7 @@ import {
 import {
   IconLabelComponent,
   IconButtonComponent,
-  CardLayoutComponent,
+  ScalingCardComponent,
 } from '@teensyrom-nx/ui/components';
 import { StorageStatusComponent as StorageItemComponent } from '../storage-item/storage-item.component';
 import { DeviceState } from '@teensyrom-nx/domain';
@@ -28,7 +28,7 @@ import { DeviceStore } from '@teensyrom-nx/application';
     NgClass,
     IconLabelComponent,
     IconButtonComponent,
-    CardLayoutComponent,
+    ScalingCardComponent,
     StorageItemComponent,
   ],
   templateUrl: './device-item.component.html',

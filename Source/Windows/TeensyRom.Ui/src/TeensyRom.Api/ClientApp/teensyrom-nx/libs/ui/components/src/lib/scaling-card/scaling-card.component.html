@@ -1,0 +1,14 @@
+@if (shouldRender()) {
+  <lib-scaling-container
+    [animationEntry]="animationEntry()"
+    [animationExit]="animationExit()">
+    <lib-card-layout
+      [title]="title()"
+      [subtitle]="subtitle()"
+      [metadataSource]="metadataSource()"
+      [enableOverflow]="enableOverflow()">
+      <ng-content></ng-content>
+      <ng-content select="[slot=corner]" slot="corner"></ng-content>
+    </lib-card-layout>
+  </lib-scaling-container>
+}
