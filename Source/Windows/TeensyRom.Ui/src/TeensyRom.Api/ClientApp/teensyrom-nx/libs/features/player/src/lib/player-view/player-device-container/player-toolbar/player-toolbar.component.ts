@@ -1,4 +1,4 @@
-import { Component, inject, input, computed, signal } from '@angular/core';
+import { Component, inject, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CompactCardLayoutComponent, IconButtonComponent, IconButtonColor, SlidingContainerComponent } from '@teensyrom-nx/ui/components';
 import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
@@ -12,14 +12,8 @@ import { LaunchMode, PlayerStatus, FileItemType } from '@teensyrom-nx/domain';
 })
 export class PlayerToolbarComponent {
   private readonly playerContext = inject(PLAYER_CONTEXT);
-  
+
   deviceId = input.required<string>();
-
-  showPlayer = signal(false);
-
-  onContainerAnimationComplete(): void {
-    this.showPlayer.set(true);
-  }
 
   toggleShuffleMode(): void {
     const deviceId = this.deviceId();

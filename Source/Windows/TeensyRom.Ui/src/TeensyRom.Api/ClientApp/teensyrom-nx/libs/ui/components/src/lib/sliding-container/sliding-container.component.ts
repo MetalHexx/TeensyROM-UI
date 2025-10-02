@@ -1,9 +1,10 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, style, transition, animate } from '@angular/animations';
 import type { AnimationDirection } from '../shared/animation.types';
+import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
 
-export type ContainerAnimationDirection = 
+export type ContainerAnimationDirection =
   | AnimationDirection
   | 'slide-down'
   | 'slide-up'
@@ -14,6 +15,15 @@ export type ContainerAnimationDirection =
   imports: [CommonModule],
   templateUrl: './sliding-container.component.html',
   styleUrl: './sliding-container.component.scss',
+  providers: [
+    {
+      provide: PARENT_ANIMATION_COMPLETE,
+      useFactory: () => {
+        const self = inject(SlidingContainerComponent);
+        return self.animationCompleteSignal.asReadonly();
+      }
+    }
+  ],
   animations: [
     trigger('containerAnimation', [
       transition(':enter', [
@@ -65,12 +75,37 @@ export class SlidingContainerComponent {
   containerWidth = input<string>('auto'); // Width of the animated container
   animationDuration = input<number>(400); // Duration of container animation
   animationDirection = input<ContainerAnimationDirection>('from-top'); // Animation direction
+  animationTrigger = input<boolean | undefined>(undefined); // Optional trigger for manual control
 
   // Output events
-  containerAnimationComplete = output<void>(); // Emitted when container animation finishes
+  animationComplete = output<void>(); // Emitted when container animation finishes
 
-  // The AnimatedContainer now focuses just on its own animation
-  // Content timing is handled by parent components via events
+  // Internal animation completion signal for child components (public for provider access)
+  animationCompleteSignal = signal(false);
+
+  // Inject parent completion signal (if exists)
+  private parentComplete = inject(PARENT_ANIMATION_COMPLETE, {
+    optional: true,
+    skipSelf: true
+  });
+
+  // Determine when to render the container
+  protected showContainer = computed(() => {
+    const trigger = this.animationTrigger();
+
+    // Priority 1: Explicit trigger (if defined)
+    if (trigger !== undefined) {
+      return trigger;
+    }
+
+    // Priority 2: Parent completion (if available)
+    if (this.parentComplete) {
+      return this.parentComplete();
+    }
+
+    // Priority 3: Render immediately (default)
+    return true;
+  });
 
   // Animation parameter computation
   get animationParams() {
@@ -96,8 +131,10 @@ export class SlidingContainerComponent {
   }
 
   onContainerAnimationDone(): void {
-    // Emit event when container animation completes
-    this.containerAnimationComplete.emit();
+    // Set internal signal for child components
+    this.animationCompleteSignal.set(true);
+    // Emit event for backward compatibility
+    this.animationComplete.emit();
   }
 
   private getAnimationValues(direction: ContainerAnimationDirection, height: string, width: string): {

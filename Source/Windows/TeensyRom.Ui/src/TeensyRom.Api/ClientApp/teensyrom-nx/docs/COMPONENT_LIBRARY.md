@@ -22,6 +22,7 @@ This document catalogs all shared UI components available in the TeensyROM appli
 - `enableOverflow` (optional): `boolean` - Controls scrollbar behavior. When `true` (default), allows natural scrollbar display when content overflows. When `false`, forces `overflow: hidden` to prevent scrollbars entirely. Use `false` for cards with fixed content that should never scroll (like device cards).
 - `animationEntry` (optional): `AnimationDirection` - Controls the entry animation direction. Options: `'none'`, `'random'` (default), `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`, `'from-top-left'`, `'from-top-right'`, `'from-bottom-left'`, `'from-bottom-right'`.
 - `animationExit` (optional): `AnimationDirection` - Controls the exit animation direction. Same options as `animationEntry`. Default: `'random'`.
+- `animationTrigger` (optional): `boolean` - Explicit control for when the component should render and animate. When provided, overrides auto-chaining behavior. See [Animation Chaining](#animation-chaining) for details.
 
 **Usage Example**:
 
@@ -151,6 +152,7 @@ This document catalogs all shared UI components available in the TeensyROM appli
 - `enableOverflow` (optional): `boolean` - Controls scrollbar behavior. When `true` (default), allows natural scrollbar display when content overflows. When `false`, forces `overflow: hidden` to prevent scrollbars entirely.
 - `animationEntry` (optional): `AnimationDirection` - Controls the entry animation direction. Options: `'none'`, `'random'` (default), `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`, `'from-top-left'`, `'from-top-right'`, `'from-bottom-left'`, `'from-bottom-right'`.
 - `animationExit` (optional): `AnimationDirection` - Controls the exit animation direction. Same options as `animationEntry`. Default: `'random'`.
+- `animationTrigger` (optional): `boolean` - Explicit control for when the component should render and animate. When provided, overrides auto-chaining behavior. See [Animation Chaining](#animation-chaining) for details.
 
 **Usage Example**:
 
@@ -244,10 +246,11 @@ This document catalogs all shared UI components available in the TeensyROM appli
 - `containerWidth` (optional): `string` - Width of the animated container - defaults to 'auto'
 - `animationDuration` (optional): `number` - Duration of container animation in milliseconds - defaults to 400
 - `animationDirection` (optional): `ContainerAnimationDirection` - Animation direction - defaults to 'from-top'
+- `animationTrigger` (optional): `boolean` - Explicit control for when the container should render and animate. When provided, overrides auto-chaining behavior. See [Animation Chaining](#animation-chaining) for details.
 
 **Events**:
 
-- `containerAnimationComplete`: Emitted when container animation finishes - use for coordinating content timing
+- `animationComplete`: Emitted when container animation finishes - can be used for manual coordination if needed (auto-chaining handles this automatically)
 
 **Animation Directions**:
 
@@ -257,19 +260,26 @@ This document catalogs all shared UI components available in the TeensyROM appli
 **Usage Examples**:
 
 ```html
-<!-- Basic usage with event coordination -->
-@if (shouldShow()) {
-  <lib-sliding-container
-    containerHeight="80px"
-    animationDirection="from-top"
-    (containerAnimationComplete)="onAnimationComplete()">
-    @if (showContent()) {
-      <lib-compact-card-layout animationEntry="from-top">
-        <!-- Your content here -->
-      </lib-compact-card-layout>
-    }
-  </lib-sliding-container>
-}
+<!-- Basic usage with signal-driven animation -->
+<lib-sliding-container
+  containerHeight="80px"
+  animationDirection="from-top"
+  [animationTrigger]="startAnimation"
+  (animationComplete)="onAnimationComplete()">
+  @if (showContent()) {
+    <lib-compact-card-layout animationEntry="from-top">
+      <!-- Your content here -->
+    </lib-compact-card-layout>
+  }
+</lib-sliding-container>
+
+<!-- Default behavior (immediate animation) -->
+<lib-sliding-container
+  containerHeight="80px"
+  animationDirection="from-top"
+  (animationComplete)="onAnimationComplete()">
+  <!-- Content shows and animates immediately -->
+</lib-sliding-container>
 
 <!-- Fade animation with custom timing -->
 <lib-sliding-container
@@ -289,21 +299,31 @@ This document catalogs all shared UI components available in the TeensyROM appli
 </lib-sliding-container>
 ```
 
-**Event-Driven Coordination Pattern**:
+**Signal-Driven Animation Pattern**:
 
 ```typescript
 export class MyComponent {
-  showContainer = signal(false);
+  // Animation control signals
+  startAnimation = signal(false);
   showContent = signal(false);
 
-  onTriggerAnimation(): void {
-    this.showContainer.set(true);
-    this.showContent.set(false); // Reset content
+  constructor() {
+    // Trigger animation based on some condition
+    effect(() => {
+      if (this.shouldAnimate()) {
+        this.startAnimation.set(true);
+      }
+    });
   }
 
-  onContainerAnimationComplete(): void {
+  onAnimationComplete(): void {
     // Container finished animating, now show content
     this.showContent.set(true);
+  }
+
+  shouldAnimate(): boolean {
+    // Your animation trigger logic
+    return this.dataLoaded();
   }
 }
 ```
@@ -323,6 +343,214 @@ export class MyComponent {
 **Used In**:
 
 - [`player-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.html) - Player controls with coordinated card animation
+
+### Animation Chaining
+
+**Purpose**: A self-managing animation system that automatically coordinates animations between parent and child components, eliminating the need for manual signal management and template conditions.
+
+**Key Concept**: Animation components automatically detect when they're nested inside other animation components and wait for the parent animation to complete before starting their own animation. This ensures proper sequencing without any boilerplate code.
+
+**How It Works**:
+
+Animation components ([`CardLayoutComponent`](#cardlayoutcomponent), [`CompactCardLayoutComponent`](#compactcardlayoutcomponent), [`SlidingContainerComponent`](#slidingcontainercomponent)) use Angular's Dependency Injection to:
+
+1. **Provide** their own completion signal to child components
+2. **Inject** parent completion signals (if available)
+3. **Auto-chain** by waiting for parent animations before rendering
+
+**Priority System**:
+
+Each animation component follows a 3-tier priority system for determining when to render:
+
+1. **Explicit Chaining** (Highest): If `animationTrigger` is provided, use its value
+2. **Auto-Chaining** (Medium): If nested in parent animation component, wait for parent completion
+3. **Immediate Render** (Lowest): Default behavior, render and animate immediately
+
+**Basic Usage (Auto-Chaining)**:
+
+```html
+<!-- Child automatically waits for parent animation -->
+<lib-sliding-container
+  containerHeight="80px"
+  animationDirection="from-top"
+  [animationTrigger]="isDataLoaded()">
+
+  <lib-compact-card-layout animationEntry="from-top">
+    <!-- Content here - no @if needed! -->
+    <div class="my-content">...</div>
+  </lib-compact-card-layout>
+</lib-sliding-container>
+```
+
+**Before Animation Chaining** (Manual Coordination):
+
+```typescript
+// Component - lots of boilerplate
+export class MyComponent {
+  startContainerAnimation = signal(false);
+  showContent = signal(false);
+
+  constructor() {
+    effect(() => {
+      if (this.isDataLoaded()) {
+        this.startContainerAnimation.set(true);
+      } else {
+        this.startContainerAnimation.set(false);
+        this.showContent.set(false);
+      }
+    });
+  }
+
+  onContainerAnimationComplete(): void {
+    this.showContent.set(true);
+  }
+}
+```
+
+```html
+<!-- Template - manual @if condition -->
+<lib-sliding-container
+  [animationTrigger]="startContainerAnimation"
+  (animationComplete)="onContainerAnimationComplete()">
+
+  @if (showContent()) {
+    <lib-compact-card-layout>
+      <div class="my-content">...</div>
+    </lib-compact-card-layout>
+  }
+</lib-sliding-container>
+```
+
+**After Animation Chaining** (Automatic):
+
+```typescript
+// Component - clean and simple
+export class MyComponent {
+  // No animation coordination signals needed!
+  // No effects needed!
+  // No event handlers needed!
+}
+```
+
+```html
+<!-- Template - clean and declarative -->
+<lib-sliding-container [animationTrigger]="isDataLoaded()">
+  <lib-compact-card-layout>
+    <div class="my-content">...</div>
+  </lib-compact-card-layout>
+</lib-sliding-container>
+```
+
+**Advanced Usage - Multi-Level Chaining**:
+
+```html
+<!-- Three levels of automatic animation chaining -->
+<lib-card-layout
+  title="Main Panel"
+  animationEntry="from-left"
+  [animationTrigger]="isPanelVisible()">
+
+  <!-- Level 2: Waits for card-layout -->
+  <lib-sliding-container
+    containerHeight="80px"
+    animationDirection="from-top">
+
+    <!-- Level 3: Waits for sliding-container -->
+    <lib-compact-card-layout animationEntry="from-top">
+      <div class="nested-content">
+        All animations chain automatically!
+      </div>
+    </lib-compact-card-layout>
+  </lib-sliding-container>
+</lib-card-layout>
+```
+
+**Explicit Override**:
+
+You can override auto-chaining for specific components when needed:
+
+```html
+<lib-sliding-container [animationTrigger]="isContainerReady()">
+
+  <!-- This card auto-chains with parent (default) -->
+  <lib-compact-card-layout animationEntry="from-left">
+    <p>Waits for parent</p>
+  </lib-compact-card-layout>
+
+  <!-- This card has explicit control (overrides auto-chain) -->
+  <lib-compact-card-layout
+    animationEntry="from-right"
+    [animationTrigger]="isSpecialContentReady()">
+    <p>Independent trigger</p>
+  </lib-compact-card-layout>
+</lib-sliding-container>
+```
+
+**Real-World Example - Player Toolbar**:
+
+```html
+<!-- Clean template with auto-chaining -->
+<lib-sliding-container
+  containerHeight="80px"
+  animationDirection="from-top"
+  [animationTrigger]="isPlayerLoaded()">
+
+  <lib-compact-card-layout animationEntry="from-top">
+    <div class="player-controls">
+      <lib-icon-button icon="skip_previous" ...></lib-icon-button>
+      <lib-icon-button icon="play_arrow" ...></lib-icon-button>
+      <lib-icon-button icon="skip_next" ...></lib-icon-button>
+      <lib-icon-button icon="shuffle" ...></lib-icon-button>
+    </div>
+  </lib-compact-card-layout>
+</lib-sliding-container>
+```
+
+**Benefits**:
+
+- ✅ **Zero Boilerplate**: No manual animation coordination signals or effects
+- ✅ **Explicit Control**: Use `animationTrigger` when you need manual control
+- ✅ **Composable**: Works at any nesting depth
+- ✅ **Predictable**: Clear priority system for trigger resolution
+- ✅ **Type Safe**: Full TypeScript support with signals
+- ✅ **Backward Compatible**: Existing code continues to work
+
+**Technical Implementation**:
+
+Animation chaining uses Angular's Dependency Injection with the `PARENT_ANIMATION_COMPLETE` token:
+
+```typescript
+import { PARENT_ANIMATION_COMPLETE } from '@teensyrom-nx/ui/components';
+
+// Each animation component:
+// 1. Provides its completion signal for children
+// 2. Injects parent completion signal (if available)
+// 3. Computes when to render based on priority system
+```
+
+**Best Practices**:
+
+1. **Default to Auto-Chaining**: Let components chain automatically unless you have a specific reason to override
+2. **Use Explicit Triggers**: Provide `animationTrigger` only at the top level to control the entire chain
+3. **Keep Templates Clean**: Avoid manual `@if` conditions for animation timing
+4. **Separate Concerns**: Business logic in component, animation timing handled by framework
+
+**Migration Guide**:
+
+To migrate existing code to use auto-chaining:
+
+1. **Remove** manual animation coordination signals (`startAnimation`, `showContent`, etc.)
+2. **Remove** animation coordination effects and event handlers
+3. **Remove** `@if` conditions that were controlling child component rendering
+4. **Keep** the top-level `animationTrigger` that controls when the chain starts
+5. **Simplify** component logic to focus on business logic, not animation timing
+
+**See Also**:
+
+- [CardLayoutComponent](#cardlayoutcomponent) - Supports auto-chaining
+- [CompactCardLayoutComponent](#compactcardlayoutcomponent) - Supports auto-chaining
+- [SlidingContainerComponent](#slidingcontainercomponent) - Supports auto-chaining
+- [Animation Chain Implementation Plan](../docs/features/animation/ANIMATION_CHAIN.md) - Detailed technical specification
 
 ---
 

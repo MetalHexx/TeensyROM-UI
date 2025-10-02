@@ -1,13 +1,11 @@
-@if (isPlayerLoaded()) {
-  <!-- Sliding Container for First Toolbar Animation -- inner compact card has a secondary animation on completion of this one -->
-  <lib-sliding-container
-    containerHeight="80px"
-    animationDirection="from-top"
-    (containerAnimationComplete)="onContainerAnimationComplete()">
+<!-- Sliding Container with Auto-Chaining Animation -->
+<lib-sliding-container
+  containerHeight="80px"
+  animationDirection="from-top"
+  [animationTrigger]="isPlayerLoaded()">
 
-    @if (showPlayer()) {
-      <lib-compact-card-layout animationEntry="from-top">
-      <div class="player-controls">
+  <lib-compact-card-layout animationEntry="from-top">
+    <div class="player-controls">
 
         <!-- Playback Controls Section -->
         <lib-icon-button
@@ -69,8 +67,6 @@
           (buttonClick)="toggleShuffleMode()"
         >
         </lib-icon-button>
-      </div>
-      </lib-compact-card-layout>
-    }
-  </lib-sliding-container>
-}
+    </div>
+  </lib-compact-card-layout>
+</lib-sliding-container>

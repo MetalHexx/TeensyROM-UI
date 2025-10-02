@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { SlidingContainerComponent } from './sliding-container.component';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { signal } from '@angular/core';
 
 describe('SlidingContainerComponent', () => {
   let component: SlidingContainerComponent;
@@ -41,5 +42,79 @@ describe('SlidingContainerComponent', () => {
     expect(component.containerWidth()).toBe('auto');
     expect(component.animationDuration()).toBe(400);
     expect(component.animationDirection()).toBe('from-top');
+    expect(component.animationTrigger()).toBe(null);
+  });
+
+  it('should show container by default when no animation trigger is provided', () => {
+    // Default behavior - should show immediately
+    expect(component.showContainer()).toBe(true);
+    
+    const compiled = fixture.nativeElement;
+    const containerDiv = compiled.querySelector('.sliding-container');
+    expect(containerDiv).toBeTruthy();
+  });
+
+  it('should use external signal when animationTrigger is provided', () => {
+    const externalTrigger = signal(false);
+    
+    // Set the animation trigger BEFORE initial change detection
+    fixture.componentRef.setInput('animationTrigger', externalTrigger);
+    
+    // Create a fresh fixture to test the behavior from scratch
+    const newFixture = TestBed.createComponent(SlidingContainerComponent);
+    newFixture.componentRef.setInput('animationTrigger', externalTrigger);
+    newFixture.detectChanges();
+    
+    const newComponent = newFixture.componentInstance;
+    
+    // Initially false, so container should not show
+    expect(newComponent.showContainer()).toBe(false);
+    
+    let compiled = newFixture.nativeElement;
+    let containerDiv = compiled.querySelector('.sliding-container');
+    expect(containerDiv).toBeFalsy();
+    
+    // Trigger the animation
+    externalTrigger.set(true);
+    newFixture.detectChanges();
+    
+    // Now container should show
+    expect(newComponent.showContainer()).toBe(true);
+    
+    compiled = newFixture.nativeElement;
+    containerDiv = compiled.querySelector('.sliding-container');
+    expect(containerDiv).toBeTruthy();
+  });
+
+  it('should emit animationComplete when animation finishes', () => {
+    let animationCompleted = false;
+    
+    // Subscribe to the animation complete event
+    component.animationComplete.subscribe(() => {
+      animationCompleted = true;
+    });
+    
+    // Trigger the animation completion
+    component.onContainerAnimationDone();
+    
+    expect(animationCompleted).toBe(true);
+  });
+
+  it('should reset when external trigger changes from true to false', () => {
+    const externalTrigger = signal(true);
+    
+    // Create a fresh fixture for this test
+    const newFixture = TestBed.createComponent(SlidingContainerComponent);
+    newFixture.componentRef.setInput('animationTrigger', externalTrigger);
+    newFixture.detectChanges();
+    
+    const newComponent = newFixture.componentInstance;
+    expect(newComponent.showContainer()).toBe(true);
+    
+    // Change trigger to false
+    externalTrigger.set(false);
+    newFixture.detectChanges();
+    
+    expect(newComponent.showContainer()).toBe(false);
   });
 });

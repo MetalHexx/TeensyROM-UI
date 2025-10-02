@@ -1,8 +1,9 @@
-import { Component, signal, input, computed } from '@angular/core';
+import { Component, signal, input, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { trigger, style, transition, animate, group } from '@angular/animations';
 import type { AnimationDirection } from '../shared/animation.types';
+import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
 
 @Component({
   selector: 'lib-compact-card-layout',
@@ -13,6 +14,15 @@ import type { AnimationDirection } from '../shared/animation.types';
     '[class.animation-complete]': 'animationComplete()',
     '[class.no-overflow]': 'enableOverflow() === false',
   },
+  providers: [
+    {
+      provide: PARENT_ANIMATION_COMPLETE,
+      useFactory: () => {
+        const self = inject(CompactCardLayoutComponent);
+        return self.animationCompleteSignal.asReadonly();
+      }
+    }
+  ],
   animations: [
     trigger('slideIn', [
       transition('void => *', [
@@ -56,6 +66,34 @@ export class CompactCardLayoutComponent {
   enableOverflow = input<boolean>(true);
   animationEntry = input<AnimationDirection>('random');
   animationExit = input<AnimationDirection>('random');
+  animationTrigger = input<boolean | undefined>(undefined); // Optional trigger for manual control
+
+  // Internal animation completion signal for child components (public for provider access)
+  animationCompleteSignal = signal(false);
+
+  // Inject parent completion signal (if exists)
+  private parentComplete = inject(PARENT_ANIMATION_COMPLETE, {
+    optional: true,
+    skipSelf: true
+  });
+
+  // Determine when to render the content
+  protected shouldRender = computed(() => {
+    const trigger = this.animationTrigger();
+
+    // Priority 1: Explicit trigger (if defined)
+    if (trigger !== undefined) {
+      return trigger;
+    }
+
+    // Priority 2: Parent completion (if available)
+    if (this.parentComplete) {
+      return this.parentComplete();
+    }
+
+    // Priority 3: Render immediately (default)
+    return true;
+  });
 
   animationParams = computed(() => ({
     value: 'visible',
@@ -66,7 +104,8 @@ export class CompactCardLayoutComponent {
     }
   }));
 
-  animationComplete = signal(false);
+  // Readonly view of completion signal for external consumers
+  animationComplete = this.animationCompleteSignal.asReadonly();
 
   private getTransformForDirection(direction: AnimationDirection, isExit: boolean): string {
     // No animation - return no transform
@@ -124,6 +163,6 @@ export class CompactCardLayoutComponent {
   }
 
   onAnimationDone(): void {
-    this.animationComplete.set(true);
+    this.animationCompleteSignal.set(true);
   }
 }

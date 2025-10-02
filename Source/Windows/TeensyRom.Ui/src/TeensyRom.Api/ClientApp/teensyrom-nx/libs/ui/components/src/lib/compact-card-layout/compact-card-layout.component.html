@@ -1,6 +1,8 @@
-<mat-card
-  class="compact-card"
-  [@slideIn]="animationParams()"
-  (@slideIn.done)="onAnimationDone()">
-  <ng-content></ng-content>
-</mat-card>
+@if (shouldRender()) {
+  <mat-card
+    class="compact-card"
+    [@slideIn]="animationParams()"
+    (@slideIn.done)="onAnimationDone()">
+    <ng-content></ng-content>
+  </mat-card>
+}

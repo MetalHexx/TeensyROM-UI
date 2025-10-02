@@ -12,3 +12,4 @@ export * from './lib/icons/joystick-icon/joystick-icon.component';
 export * from './lib/icons/image-icon/image-icon.component';
 export * from './lib/sliding-container/sliding-container.component';
 export * from './lib/shared/animation.types';
+export * from './lib/shared/animation-tokens';

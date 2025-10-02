@@ -1,8 +1,10 @@
-<div 
-  [@containerAnimation]="animationParams"
-  (@containerAnimation.done)="onContainerAnimationDone()"
-  [style.height]="containerHeight()"
-  [style.width]="containerWidth()"
-  class="sliding-container">
-  <ng-content></ng-content>
-</div>
+@if (showContainer()) {
+  <div 
+    [@containerAnimation]="animationParams"
+    (@containerAnimation.done)="onContainerAnimationDone()"
+    [style.height]="containerHeight()"
+    [style.width]="containerWidth()"
+    class="sliding-container">
+    <ng-content></ng-content>
+  </div>
+}
