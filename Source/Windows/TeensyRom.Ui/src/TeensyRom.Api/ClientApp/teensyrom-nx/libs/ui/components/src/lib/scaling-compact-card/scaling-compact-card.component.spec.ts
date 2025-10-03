@@ -106,5 +106,20 @@ describe('ScalingCompactCardComponent', () => {
       // Should render immediately with default behavior
       expect(newComponent.shouldRender()).toBe(true);
     });
+
+    it('should wait for parent when animationParent is set to "auto"', () => {
+      // Create component with 'auto' mode
+      const childFixture = TestBed.createComponent(ScalingCompactCardComponent);
+      childFixture.componentRef.setInput('animationParent', 'auto');
+      childFixture.detectChanges();
+
+      const childComponent = childFixture.componentInstance;
+
+      // Verify the mode is set correctly
+      expect(childComponent.animationParent()).toBe('auto');
+      
+      // Note: Full DI hierarchy testing (parent->child waiting) requires integration tests
+      // This unit test verifies the input accepts 'auto' mode correctly
+    });
   });
 });

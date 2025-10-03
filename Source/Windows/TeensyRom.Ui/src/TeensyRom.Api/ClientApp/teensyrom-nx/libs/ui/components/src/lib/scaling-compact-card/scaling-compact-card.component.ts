@@ -1,6 +1,6 @@
 import { Component, input, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import type { AnimationDirection, AnimationParent } from '../shared/animation.types';
+import type { AnimationDirection, AnimationParentMode } from '../shared/animation.types';
 import { ScalingContainerComponent } from '../scaling-container/scaling-container.component';
 import { CompactCardLayoutComponent } from '../compact-card-layout/compact-card-layout.component';
 import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
@@ -21,12 +21,16 @@ export class ScalingCompactCardComponent {
   animationTrigger = input<boolean | undefined>(undefined);
   
   /**
-   * Controls animation chaining behavior:
-   * - undefined (default): This component chains to parent animations if available
-   * - null: Breaks the animation chain - ignores parent animations
-   * - AnimationParent: Uses the provided component as the parent instead of DOM parent
+   * Controls whether this component waits for parent animations:
+   * - undefined (default): No waiting - component animates immediately
+   * - 'auto': Opt-in to wait for nearest animation parent in DI tree
+   * - AnimationParent: Wait for specific component (sibling, ancestor, or any component)
+   * - null: No waiting - same as undefined
+   * 
+   * Note: Composed components don't register as animation parents themselves,
+   * but they pass this setting to their internal animation container.
    */
-  animationParent = input<AnimationParent | null | undefined>(undefined);
+  animationParent = input<AnimationParentMode>(undefined);
 
   // Inject parent completion signal (if exists)
   private parentComplete = inject(PARENT_ANIMATION_COMPLETE, {
@@ -43,23 +47,20 @@ export class ScalingCompactCardComponent {
       return trigger;
     }
 
-    // Priority 2: Custom parent override
-    const customParent = this.animationParent();
-    if (customParent === null) {
-      // Explicitly break chain - render immediately
-      return true;
-    }
-    if (customParent) {
-      // Use custom parent's completion signal
-      return customParent.animationCompleteSignal.asReadonly()();
-    }
-
-    // Priority 3: Parent completion (if available)
-    if (this.parentComplete) {
+    // Priority 2: Check animation parent mode
+    const parentMode = this.animationParent();
+    
+    // If 'auto', wait for parent
+    if (parentMode === 'auto' && this.parentComplete) {
       return this.parentComplete();
     }
+    
+    // If custom parent provided, wait for that parent
+    if (parentMode && parentMode !== 'auto' && parentMode !== null) {
+      return parentMode.animationCompleteSignal.asReadonly()();
+    }
 
-    // Priority 4: Default to true (no parent, no explicit trigger)
+    // Priority 3: Default - render immediately (no chaining)
     return true;
   });
 }

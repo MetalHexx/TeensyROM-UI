@@ -189,70 +189,67 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 
 **How It Works**:
 
-Animation components use Angular DI to provide/inject completion signals via `PARENT_ANIMATION_COMPLETE` token. When nested, child components detect parent animations and wait automatically. Parent/child relationship is not required - use `animationTrigger` for any coordination pattern.
+Animation components use Angular DI to provide/inject completion signals via `PARENT_ANIMATION_COMPLETE` token. Components **do not auto-chain by default** - you must explicitly opt-in using `animationParent="auto"` or set a custom animation parent. This prevents unintended chaining when nesting components for layout purposes.
 
 **Priority System**:
 
 1. **Explicit trigger** (highest): Use provided `animationTrigger` signal
-2. **Custom parent override** (high): Use provided `animationParent` to break or redirect chains
-3. **Auto-chain** (medium): Wait for parent animation if nested in DI tree
-4. **Immediate** (lowest): Render immediately if no parent/trigger
+2. **Custom parent override** (high): Use provided `animationParent` to opt-in or redirect chains
+3. **Immediate** (default): Render immediately if no trigger or parent specified
 
-**Breaking Animation Chains**:
+**Controlling Animation Chaining**:
 
-Sometimes you need to prevent a component from automatically chaining to an animation parent higher in the component tree. All animatable components support an `animationParent` input for this purpose:
+All animatable components support an `animationParent` input for controlling when they wait for parent animations:
 
-- `undefined` (default): Normal auto-chaining behavior - component registers as animation parent for children
-- `null`: Breaks the chain - component renders immediately and doesn't wait for DOM parent's animation
-- `AnimationParent`: Redirects to a different component for custom animation choreography
+- `undefined` (default): No waiting - component animates immediately, ignoring any parent animations
+- `null`: Same as undefined - no waiting, immediate animation
+- `'auto'`: Opt-in to wait for the nearest animation parent in the DI tree
+- `AnimationParent`: Wait for a specific component reference (can be sibling, ancestor, or any component)
+
+**Important**: Components **always register as animation parents** regardless of their `animationParent` setting. The `animationParent` input only controls whether a component **waits for** a parent, not whether it **is available as** a parent to its children.
 
 > **Note**: "Animation parent" refers to the animation chaining relationship, not the DOM parent. You can set any component as an animation parent - siblings, ancestors, or components anywhere in your tree. This decouples animation choreography from component hierarchy.
 
 **Usage**:
 
 ```html
-<!-- Auto-chaining: nested components wait for parent -->
+<!-- Explicit auto-chaining: nested components opt-in to wait for parent -->
 <lib-sliding-container [animationTrigger]="isReady()">
-  <lib-scaling-compact-card animationEntry="from-top">
-    <div>Animates after parent</div>
+  <!-- Must explicitly use animationParent="auto" to wait for parent -->
+  <lib-scaling-compact-card animationEntry="from-top" animationParent="auto">
+    <div>Animates after parent (explicit opt-in)</div>
   </lib-scaling-compact-card>
 </lib-sliding-container>
 
-<!-- Independent control: sibling components with explicit triggers -->
+<!-- Independent control: components animate immediately by default -->
 <div class="layout">
-  <lib-scaling-card [animationTrigger]="showCard1()">Card 1</lib-scaling-card>
-  <lib-scaling-card [animationTrigger]="showCard2()">Card 2</lib-scaling-card>
-  <lib-scaling-card [animationTrigger]="showCard3()">Card 3</lib-scaling-card>
+  <lib-scaling-card>Animates immediately</lib-scaling-card>
+  <lib-scaling-card>Animates immediately</lib-scaling-card>
+  <lib-scaling-card [animationTrigger]="showCard3()">Explicit timing</lib-scaling-card>
 </div>
 
-<!-- Multi-level auto-chaining -->
+<!-- Multi-level chaining with explicit opt-in -->
 <lib-scaling-card title="Parent" [animationTrigger]="show()">
-  <lib-sliding-container animationDirection="slide-down">
-    <lib-scaling-compact-card>
+  <!-- Child must opt-in to wait for parent -->
+  <lib-sliding-container animationDirection="slide-down" animationParent="auto">
+    <!-- Grandchild must opt-in to wait for sliding-container -->
+    <lib-scaling-compact-card animationParent="auto">
       <p>Waits for parent, then sliding-container</p>
     </lib-scaling-compact-card>
   </lib-sliding-container>
 </lib-scaling-card>
 
-<!-- Mixed: some auto-chain, some explicit -->
+<!-- Nesting for layout without animation chaining -->
 <lib-sliding-container [animationTrigger]="isReady()">
-  <lib-scaling-card>Auto-chains with parent</lib-scaling-card>
-  <lib-scaling-card [animationTrigger]="customTrigger()">Independent timing</lib-scaling-card>
+  <!-- These don't wait - they're just using the container for layout -->
+  <lib-scaling-card>Animates immediately</lib-scaling-card>
+  <lib-scaling-card>Animates immediately</lib-scaling-card>
+  
+  <!-- This one opts into waiting for parent -->
+  <lib-scaling-card animationParent="auto">Waits for parent animation</lib-scaling-card>
 </lib-sliding-container>
 
-<!-- Breaking the chain: prevent unintended chaining -->
-<lib-sliding-container [animationTrigger]="outerTrigger()">
-  <div class="outer-content">
-    <!-- This won't wait for the outer sliding-container -->
-    <lib-sliding-container 
-      [animationTrigger]="innerTrigger()"
-      [animationParent]="null">
-      <lib-scaling-card>Independent from outer animation</lib-scaling-card>
-    </lib-sliding-container>
-  </div>
-</lib-sliding-container>
-
-<!-- Custom parent: redirect animation chain -->
+<!-- Custom parent: redirect animation chain to any component -->
 <div class="layout">
   <!-- Master timeline controller (animation parent for coordination) -->
   <lib-sliding-container #masterTimeline [animationTrigger]="show()">
@@ -269,7 +266,7 @@ Sometimes you need to prevent a component from automatically chaining to an anim
 </div>
 ```
 
-**Flexibility**: Use auto-chaining for parent/child coordination, explicit `animationTrigger` signals for any timing pattern, or `animationParent` to break chains or create custom choreography - sequenced animations, parallel animations, conditional animations, independent timelines, etc.
+**Flexibility**: By default, components animate immediately. Use `animationParent="auto"` for parent/child coordination, explicit `animationTrigger` signals for any timing pattern, or `animationParent` with a component reference to create custom choreography - sequenced animations, parallel animations, conditional animations, independent timelines, etc.
 
 **Applies To**: All animation components - [ScalingCardComponent](#scalingcardcomponent), [ScalingCompactCardComponent](#scalingcompactcardcomponent), [ScalingContainerComponent](#scalingcontainercomponent), [SlidingContainerComponent](#slidingcontainercomponent)
 
