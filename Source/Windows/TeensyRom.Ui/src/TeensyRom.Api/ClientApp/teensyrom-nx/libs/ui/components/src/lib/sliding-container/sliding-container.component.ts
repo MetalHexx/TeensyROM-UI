@@ -1,7 +1,7 @@
-import { Component, input, output, signal, computed, inject } from '@angular/core';
+import { Component, input, output, signal, computed, inject, Self } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, style, transition, animate } from '@angular/animations';
-import type { AnimationDirection } from '../shared/animation.types';
+import type { AnimationDirection, AnimationParent } from '../shared/animation.types';
 import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
 
 export type ContainerAnimationDirection =
@@ -18,10 +18,20 @@ export type ContainerAnimationDirection =
   providers: [
     {
       provide: PARENT_ANIMATION_COMPLETE,
-      useFactory: () => {
-        const self = inject(SlidingContainerComponent);
+      useFactory: (self: SlidingContainerComponent) => {
+        // If explicitly set to null, break the chain
+        if (self.animationParent() === null) {
+          return null;
+        }
+        // If a custom parent is provided, use it
+        const customParent = self.animationParent();
+        if (customParent) {
+          return customParent.animationCompleteSignal.asReadonly();
+        }
+        // Default: register self as parent
         return self.animationCompleteSignal.asReadonly();
-      }
+      },
+      deps: [[new Self(), SlidingContainerComponent]]
     }
   ],
   animations: [
@@ -76,6 +86,16 @@ export class SlidingContainerComponent {
   animationDuration = input<number>(400); // Duration of container animation
   animationDirection = input<ContainerAnimationDirection>('from-top'); // Animation direction
   animationTrigger = input<boolean | undefined>(undefined); // Optional trigger for manual control
+  
+  /**
+   * Controls animation chaining behavior:
+   * - undefined (default): This component registers as a parent for child animations
+   * - null: Breaks the animation chain - this component won't register as a parent
+   * - AnimationParent: Uses the provided component as the parent instead of self
+   * 
+   * Use null to prevent unintended chaining to parent animations higher in the tree.
+   */
+  animationParent = input<AnimationParent | null | undefined>(undefined);
 
   // Output events
   animationComplete = output<void>(); // Emitted when container animation finishes

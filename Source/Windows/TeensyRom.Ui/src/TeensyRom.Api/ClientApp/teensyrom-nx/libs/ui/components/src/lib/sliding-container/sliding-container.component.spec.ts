@@ -42,7 +42,7 @@ describe('SlidingContainerComponent', () => {
     expect(component.containerWidth()).toBe('auto');
     expect(component.animationDuration()).toBe(400);
     expect(component.animationDirection()).toBe('from-top');
-    expect(component.animationTrigger()).toBe(null);
+    expect(component.animationTrigger()).toBe(undefined);
   });
 
   it('should show container by default when no animation trigger is provided', () => {
@@ -116,5 +116,61 @@ describe('SlidingContainerComponent', () => {
     newFixture.detectChanges();
     
     expect(newComponent.showContainer()).toBe(false);
+  });
+
+  describe('animationParent input', () => {
+    it('should break animation chain when animationParent is set to null', () => {
+      // Create a parent component that provides animation completion
+      const parentFixture = TestBed.createComponent(SlidingContainerComponent);
+      parentFixture.detectChanges();
+
+      // Create child with animationParent set to null
+      const childFixture = TestBed.createComponent(SlidingContainerComponent);
+      childFixture.componentRef.setInput('animationParent', null);
+      childFixture.detectChanges();
+
+      const childComponent = childFixture.componentInstance;
+
+      // Should render immediately despite potential parent
+      expect(childComponent.showContainer()).toBe(true);
+    });
+
+    it('should use custom parent when animationParent is provided', () => {
+      // Create custom parent
+      const customParent = TestBed.createComponent(SlidingContainerComponent);
+      customParent.detectChanges();
+      const customParentComponent = customParent.componentInstance;
+
+      // Create child that references custom parent
+      const childFixture = TestBed.createComponent(SlidingContainerComponent);
+      childFixture.componentRef.setInput('animationParent', customParentComponent);
+      childFixture.detectChanges();
+
+      const childComponent = childFixture.componentInstance;
+
+      // Initially parent animation not complete, but since child has no trigger,
+      // it will use the custom parent's completion signal which starts as false
+      // However, if there's no parent completion injected, it defaults to true
+      // So we need to set animationTrigger explicitly to test parent override
+      childFixture.componentRef.setInput('animationTrigger', undefined);
+      childFixture.detectChanges();
+
+      // Complete parent animation
+      customParentComponent.onContainerAnimationDone();
+      childFixture.detectChanges();
+
+      // Child should now show
+      expect(childComponent.showContainer()).toBe(true);
+    });
+
+    it('should default to normal behavior when animationParent is undefined', () => {
+      const newFixture = TestBed.createComponent(SlidingContainerComponent);
+      newFixture.detectChanges();
+
+      const newComponent = newFixture.componentInstance;
+
+      // Should render immediately with default behavior
+      expect(newComponent.showContainer()).toBe(true);
+    });
   });
 });

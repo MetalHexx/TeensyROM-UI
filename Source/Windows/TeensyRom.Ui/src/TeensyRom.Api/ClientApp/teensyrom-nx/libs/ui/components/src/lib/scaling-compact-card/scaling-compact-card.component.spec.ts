@@ -1,20 +1,21 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { ScalingContainerComponent } from './scaling-container.component';
+import { ScalingCompactCardComponent } from './scaling-compact-card.component';
+import { ScalingContainerComponent } from '../scaling-container/scaling-container.component';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 
-describe('ScalingContainerComponent', () => {
-  let component: ScalingContainerComponent;
-  let fixture: ComponentFixture<ScalingContainerComponent>;
+describe('ScalingCompactCardComponent', () => {
+  let component: ScalingCompactCardComponent;
+  let fixture: ComponentFixture<ScalingCompactCardComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ScalingContainerComponent],
+      imports: [ScalingCompactCardComponent],
       providers: [provideNoopAnimations()],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ScalingContainerComponent);
+    fixture = TestBed.createComponent(ScalingCompactCardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -23,79 +24,32 @@ describe('ScalingContainerComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should project content through ng-content', () => {
-    const compiled = fixture.nativeElement;
-    const containerDiv = compiled.querySelector('.scaling-container');
-
-    expect(containerDiv).toBeTruthy();
-    expect(containerDiv.classList.contains('scaling-container')).toBe(true);
-  });
-
   it('should use default values for optional inputs', () => {
     expect(component.animationEntry()).toBe('random');
     expect(component.animationExit()).toBe('random');
     expect(component.animationTrigger()).toBe(undefined);
+    expect(component.enableOverflow()).toBe(true);
   });
 
   it('should render by default when no animation trigger is provided', () => {
     expect(component.shouldRender()).toBe(true);
-
-    const compiled = fixture.nativeElement;
-    const containerDiv = compiled.querySelector('.scaling-container');
-    expect(containerDiv).toBeTruthy();
   });
 
   it('should use external signal when animationTrigger is provided', () => {
     const externalTrigger = signal(false);
 
-    const newFixture = TestBed.createComponent(ScalingContainerComponent);
+    const newFixture = TestBed.createComponent(ScalingCompactCardComponent);
     newFixture.componentRef.setInput('animationTrigger', externalTrigger);
     newFixture.detectChanges();
 
     const newComponent = newFixture.componentInstance;
 
     expect(newComponent.shouldRender()).toBe(false);
-
-    let compiled = newFixture.nativeElement;
-    let containerDiv = compiled.querySelector('.scaling-container');
-    expect(containerDiv).toBeFalsy();
 
     externalTrigger.set(true);
     newFixture.detectChanges();
 
     expect(newComponent.shouldRender()).toBe(true);
-
-    compiled = newFixture.nativeElement;
-    containerDiv = compiled.querySelector('.scaling-container');
-    expect(containerDiv).toBeTruthy();
-  });
-
-  it('should emit animationComplete when animation finishes', () => {
-    let animationCompleted = false;
-
-    component.animationComplete.subscribe(() => {
-      animationCompleted = true;
-    });
-
-    component.onAnimationDone();
-
-    expect(animationCompleted).toBe(true);
-  });
-
-  it('should reset when external trigger changes from true to false', () => {
-    const externalTrigger = signal(true);
-
-    const newFixture = TestBed.createComponent(ScalingContainerComponent);
-    newFixture.componentRef.setInput('animationTrigger', externalTrigger);
-    newFixture.detectChanges();
-
-    const newComponent = newFixture.componentInstance;
-    expect(newComponent.shouldRender()).toBe(true);
-
-    externalTrigger.set(false);
-    newFixture.detectChanges();
-
-    expect(newComponent.shouldRender()).toBe(false);
   });
 
   it('should support different animation directions', () => {
@@ -107,25 +61,15 @@ describe('ScalingContainerComponent', () => {
     expect(component.animationExit()).toBe('from-right');
   });
 
-  it('should handle none animation direction', () => {
-    fixture.componentRef.setInput('animationEntry', 'none');
-    fixture.detectChanges();
-
-    const params = component.animationParams();
-    expect(params.params.startTransform).toBe('translate(0, 0)');
-    expect(params.params.transformOrigin).toBe('center center');
-  });
-
   describe('animationParent input', () => {
     it('should break animation chain when animationParent is set to null', () => {
-      // Create child with animationParent set to null
-      const childFixture = TestBed.createComponent(ScalingContainerComponent);
+      const childFixture = TestBed.createComponent(ScalingCompactCardComponent);
       childFixture.componentRef.setInput('animationParent', null);
       childFixture.detectChanges();
 
       const childComponent = childFixture.componentInstance;
 
-      // Should render immediately despite potential parent
+      // Should render immediately
       expect(childComponent.shouldRender()).toBe(true);
     });
 
@@ -136,16 +80,14 @@ describe('ScalingContainerComponent', () => {
       const customParentComponent = customParent.componentInstance;
 
       // Create child that references custom parent
-      const childFixture = TestBed.createComponent(ScalingContainerComponent);
+      const childFixture = TestBed.createComponent(ScalingCompactCardComponent);
       childFixture.componentRef.setInput('animationParent', customParentComponent);
       childFixture.detectChanges();
 
       const childComponent = childFixture.componentInstance;
 
-      // Initially parent animation not complete, but since we're not using trigger,
-      // child will default to true. Let's set trigger to undefined explicitly
-      childFixture.componentRef.setInput('animationTrigger', undefined);
-      childFixture.detectChanges();
+      // Initially parent animation not complete
+      expect(childComponent.shouldRender()).toBe(false);
 
       // Complete parent animation
       customParentComponent.onAnimationDone();
@@ -156,7 +98,7 @@ describe('ScalingContainerComponent', () => {
     });
 
     it('should default to normal behavior when animationParent is undefined', () => {
-      const newFixture = TestBed.createComponent(ScalingContainerComponent);
+      const newFixture = TestBed.createComponent(ScalingCompactCardComponent);
       newFixture.detectChanges();
 
       const newComponent = newFixture.componentInstance;

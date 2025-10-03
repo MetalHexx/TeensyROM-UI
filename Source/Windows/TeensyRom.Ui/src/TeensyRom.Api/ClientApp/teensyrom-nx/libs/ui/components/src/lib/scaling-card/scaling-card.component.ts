@@ -1,6 +1,6 @@
 import { Component, input, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import type { AnimationDirection } from '../shared/animation.types';
+import type { AnimationDirection, AnimationParent } from '../shared/animation.types';
 import { ScalingContainerComponent } from '../scaling-container/scaling-container.component';
 import { CardLayoutComponent } from '../card-layout/card-layout.component';
 import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
@@ -22,6 +22,14 @@ export class ScalingCardComponent {
   animationEntry = input<AnimationDirection>('random');
   animationExit = input<AnimationDirection>('random');
   animationTrigger = input<boolean | undefined>(undefined);
+  
+  /**
+   * Controls animation chaining behavior:
+   * - undefined (default): This component chains to parent animations if available
+   * - null: Breaks the animation chain - ignores parent animations
+   * - AnimationParent: Uses the provided component as the parent instead of DOM parent
+   */
+  animationParent = input<AnimationParent | null | undefined>(undefined);
 
   // Inject parent completion signal (if exists)
   private parentComplete = inject(PARENT_ANIMATION_COMPLETE, {
@@ -38,12 +46,23 @@ export class ScalingCardComponent {
       return trigger;
     }
 
-    // Priority 2: Parent completion (if available)
+    // Priority 2: Custom parent override
+    const customParent = this.animationParent();
+    if (customParent === null) {
+      // Explicitly break chain - render immediately
+      return true;
+    }
+    if (customParent) {
+      // Use custom parent's completion signal
+      return customParent.animationCompleteSignal.asReadonly()();
+    }
+
+    // Priority 3: Parent completion (if available)
     if (this.parentComplete) {
       return this.parentComplete();
     }
 
-    // Priority 3: Default to true (no parent, no explicit trigger)
+    // Priority 4: Default to true (no parent, no explicit trigger)
     return true;
   });
 }

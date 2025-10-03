@@ -70,7 +70,7 @@ Animated cards that combine layout + animation. See [Animation System](#animatio
 
 **Properties**:
 - Layout props: `title`, `subtitle`, `metadataSource`, `enableOverflow`
-- Animation props: `animationEntry`, `animationExit`, `animationTrigger`
+- Animation props: `animationEntry`, `animationExit`, `animationTrigger`, `animationParent`
 
 **Usage**:
 
@@ -91,7 +91,7 @@ Animated cards that combine layout + animation. See [Animation System](#animatio
 
 **Properties**:
 - Layout props: `enableOverflow`
-- Animation props: `animationEntry`, `animationExit`, `animationTrigger`
+- Animation props: `animationEntry`, `animationExit`, `animationTrigger`, `animationParent`
 
 **Usage**:
 
@@ -121,6 +121,7 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 - `animationDuration`: Duration in ms (default: `400`)
 - `animationDirection`: Direction - `'from-top'`, `'slide-down'`, `'slide-up'`, `'fade'`, etc. (default: `'from-top'`)
 - `animationTrigger`: Manual control signal (optional)
+- `animationParent`: Override animation chaining (optional - see [Animation System](#animation-system))
 
 **Events**:
 - `animationComplete`: Emitted when animation finishes
@@ -150,6 +151,7 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 - `animationEntry`: Entry direction - `'random'`, `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`, etc. (default: `'random'`)
 - `animationExit`: Exit direction (default: `'random'`)
 - `animationTrigger`: Manual control signal (optional)
+- `animationParent`: Override animation chaining (optional - see [Animation System](#animation-system))
 
 **Events**:
 - `animationComplete`: Emitted when animation finishes
@@ -192,8 +194,19 @@ Animation components use Angular DI to provide/inject completion signals via `PA
 **Priority System**:
 
 1. **Explicit trigger** (highest): Use provided `animationTrigger` signal
-2. **Auto-chain** (medium): Wait for parent animation if nested in DI tree
-3. **Immediate** (lowest): Render immediately if no parent/trigger
+2. **Custom parent override** (high): Use provided `animationParent` to break or redirect chains
+3. **Auto-chain** (medium): Wait for parent animation if nested in DI tree
+4. **Immediate** (lowest): Render immediately if no parent/trigger
+
+**Breaking Animation Chains**:
+
+Sometimes you need to prevent a component from automatically chaining to an animation parent higher in the component tree. All animatable components support an `animationParent` input for this purpose:
+
+- `undefined` (default): Normal auto-chaining behavior - component registers as animation parent for children
+- `null`: Breaks the chain - component renders immediately and doesn't wait for DOM parent's animation
+- `AnimationParent`: Redirects to a different component for custom animation choreography
+
+> **Note**: "Animation parent" refers to the animation chaining relationship, not the DOM parent. You can set any component as an animation parent - siblings, ancestors, or components anywhere in your tree. This decouples animation choreography from component hierarchy.
 
 **Usage**:
 
@@ -226,9 +239,37 @@ Animation components use Angular DI to provide/inject completion signals via `PA
   <lib-scaling-card>Auto-chains with parent</lib-scaling-card>
   <lib-scaling-card [animationTrigger]="customTrigger()">Independent timing</lib-scaling-card>
 </lib-sliding-container>
+
+<!-- Breaking the chain: prevent unintended chaining -->
+<lib-sliding-container [animationTrigger]="outerTrigger()">
+  <div class="outer-content">
+    <!-- This won't wait for the outer sliding-container -->
+    <lib-sliding-container 
+      [animationTrigger]="innerTrigger()"
+      [animationParent]="null">
+      <lib-scaling-card>Independent from outer animation</lib-scaling-card>
+    </lib-sliding-container>
+  </div>
+</lib-sliding-container>
+
+<!-- Custom parent: redirect animation chain -->
+<div class="layout">
+  <!-- Master timeline controller (animation parent for coordination) -->
+  <lib-sliding-container #masterTimeline [animationTrigger]="show()">
+  </lib-sliding-container>
+  
+  <!-- Elsewhere in the tree - siblings sync to same animation parent -->
+  <div class="section-a">
+    <lib-scaling-card [animationParent]="masterTimeline">Card A</lib-scaling-card>
+  </div>
+  
+  <div class="section-b">
+    <lib-scaling-card [animationParent]="masterTimeline">Card B</lib-scaling-card>
+  </div>
+</div>
 ```
 
-**Flexibility**: Use auto-chaining for parent/child coordination, or explicit `animationTrigger` signals for any timing pattern - sequenced animations, parallel animations, conditional animations, etc.
+**Flexibility**: Use auto-chaining for parent/child coordination, explicit `animationTrigger` signals for any timing pattern, or `animationParent` to break chains or create custom choreography - sequenced animations, parallel animations, conditional animations, independent timelines, etc.
 
 **Applies To**: All animation components - [ScalingCardComponent](#scalingcardcomponent), [ScalingCompactCardComponent](#scalingcompactcardcomponent), [ScalingContainerComponent](#scalingcontainercomponent), [SlidingContainerComponent](#slidingcontainercomponent)
 

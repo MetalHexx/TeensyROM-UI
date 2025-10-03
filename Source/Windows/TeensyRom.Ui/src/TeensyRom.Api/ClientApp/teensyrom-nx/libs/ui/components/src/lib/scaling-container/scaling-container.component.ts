@@ -1,7 +1,7 @@
-import { Component, input, output, signal, computed, inject } from '@angular/core';
+import { Component, input, output, signal, computed, inject, Self } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, style, transition, animate, group } from '@angular/animations';
-import type { AnimationDirection } from '../shared/animation.types';
+import type { AnimationDirection, AnimationParent } from '../shared/animation.types';
 import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
 
 @Component({
@@ -16,10 +16,20 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
   providers: [
     {
       provide: PARENT_ANIMATION_COMPLETE,
-      useFactory: () => {
-        const self = inject(ScalingContainerComponent);
+      useFactory: (self: ScalingContainerComponent) => {
+        // If explicitly set to null, break the chain
+        if (self.animationParent() === null) {
+          return null;
+        }
+        // If a custom parent is provided, use it
+        const customParent = self.animationParent();
+        if (customParent) {
+          return customParent.animationCompleteSignal.asReadonly();
+        }
+        // Default: register self as parent
         return self.animationCompleteSignal.asReadonly();
-      }
+      },
+      deps: [[new Self(), ScalingContainerComponent]]
     }
   ],
   animations: [
@@ -66,6 +76,14 @@ export class ScalingContainerComponent {
   animationEntry = input<AnimationDirection>('random');
   animationExit = input<AnimationDirection>('random');
   animationTrigger = input<boolean | undefined>(undefined);
+  
+  /**
+   * Controls animation chaining behavior:
+   * - undefined (default): This component registers as a parent for child animations
+   * - null: Breaks the animation chain - this component won't register as a parent
+   * - AnimationParent: Uses the provided component as the parent instead of self
+   */
+  animationParent = input<AnimationParent | null | undefined>(undefined);
 
   // Output events
   animationComplete = output<void>();
