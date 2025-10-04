@@ -2,7 +2,10 @@
 
 **High Level Plan Documentation**:
 - [Player Domain Design](./PLAYER_DOMAIN_DESIGN.md) - Complete architecture and phase planning
-- [Player Domain Requirements](./PLAYER_DOMAIN.md) - Business requirements and use cases
+- [Player Do- [x] **Error State Display Tests**:
+  - [x] Test all filter buttons show `color="error"` when error exists
+  - [x] Test error state overrides active filter highlight
+  - [x] Test filter buttons return to normal/highlighted when error clears Requirements](./PLAYER_DOMAIN.md) - Business requirements and use cases
 - [Phase 1 Documentation](./PLAYER_DOMAIN_P1.md) - File launching with context implementation
 - [Phase 2 Documentation](./PLAYER_DOMAIN_P2.md) - Random file launching and shuffle mode implementation
 - [Phase 3 Documentation](./PLAYER_DOMAIN_P3.md) - Basic playback controls and file navigation implementation
@@ -81,11 +84,11 @@ Wire up the filter toolbar UI to the existing filter infrastructure and add erro
 **Implementation Focus**: Replace TODO console.log statements with actual `setFilterMode()` calls.
 
 #### Implementation Steps
-- [ ] **Import PlayerFilterType**: Add `PlayerFilterType` to imports from `@teensyrom-nx/domain`
-- [ ] **Wire up All filter**: Replace `onAllClick()` console.log with `setFilterMode(deviceId, PlayerFilterType.All)`
-- [ ] **Wire up Games filter**: Replace `onGamesClick()` console.log with `setFilterMode(deviceId, PlayerFilterType.Games)`
-- [ ] **Wire up Music filter**: Replace `onMusicClick()` console.log with `setFilterMode(deviceId, PlayerFilterType.Music)`
-- [ ] **Wire up Images filter**: Replace `onImagesClick()` console.log with `setFilterMode(deviceId, PlayerFilterType.Images)`
+- [x] **Import PlayerFilterType**: Add `PlayerFilterType` to imports from `@teensyrom-nx/domain`
+- [x] **Wire up All filter**: Replace `onAllClick()` console.log with `setFilterMode(deviceId, PlayerFilterType.All)`
+- [x] **Wire up Games filter**: Replace `onGamesClick()` console.log with `setFilterMode(deviceId, PlayerFilterType.Games)`
+- [x] **Wire up Music filter**: Replace `onMusicClick()` console.log with `setFilterMode(deviceId, PlayerFilterType.Music)`
+- [x] **Wire up Images filter**: Replace `onImagesClick()` console.log with `setFilterMode(deviceId, PlayerFilterType.Images)`
 
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/filter-toolbar/filter-toolbar.component.ts`
 
@@ -117,9 +120,9 @@ onImagesClick(): void {
 **Implementation Focus**: Create reactive signals that derive from PlayerContextService state.
 
 #### Implementation Steps
-- [ ] **Add activeFilter computed signal**: Use `getShuffleSettings(deviceId)` to derive current filter, default to `PlayerFilterType.All`
-- [ ] **Add hasError computed signal**: Use `getError(deviceId)` to check for error state
-- [ ] **Add getButtonColor helper method**: Implement color logic - error takes precedence, then active highlight, then normal
+- [x] **Add activeFilter computed signal**: Use `getShuffleSettings(deviceId)` to derive current filter, default to `PlayerFilterType.All`
+- [x] **Add hasError computed signal**: Use `getError(deviceId)` to check for error state
+- [x] **Add getButtonColor helper method**: Implement color logic - error takes precedence, then active highlight, then normal
 
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/filter-toolbar/filter-toolbar.component.ts`
 
@@ -149,10 +152,10 @@ getButtonColor(filterType: PlayerFilterType): IconButtonColor {
 **Implementation Focus**: Add `[color]` binding to all filter button components.
 
 #### Implementation Steps
-- [ ] **Update All filter button**: Add `[color]="getButtonColor(PlayerFilterType.All)"`
-- [ ] **Update Games filter button**: Add `[color]="getButtonColor(PlayerFilterType.Games)"`
-- [ ] **Update Music filter button**: Add `[color]="getButtonColor(PlayerFilterType.Music)"`
-- [ ] **Update Images filter button**: Add `[color]="getButtonColor(PlayerFilterType.Images)"`
+- [x] **Update All filter button**: Add `[color]="getButtonColor(PlayerFilterType.All)"`
+- [x] **Update Games filter button**: Add `[color]="getButtonColor(PlayerFilterType.Games)"`
+- [x] **Update Music filter button**: Add `[color]="getButtonColor(PlayerFilterType.Music)"`
+- [x] **Update Images filter button**: Add `[color]="getButtonColor(PlayerFilterType.Images)"`
 
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/filter-toolbar/filter-toolbar.component.html`
 
@@ -177,10 +180,10 @@ getButtonColor(filterType: PlayerFilterType): IconButtonColor {
 **Implementation Focus**: Show red error color on navigation buttons when player operations fail.
 
 #### Implementation Steps
-- [ ] **Add hasError computed signal**: Use `getError(deviceId)` to check for error state
-- [ ] **Add getNavigationButtonColor helper**: Return `'error'` if hasError, else `'normal'`
-- [ ] **Update next button template**: Add `[color]="getNavigationButtonColor()"`
-- [ ] **Update previous button template**: Add `[color]="getNavigationButtonColor()"`
+- [x] **Add hasError computed signal**: Use `getError(deviceId)` to check for error state
+- [x] **Add getNavigationButtonColor helper**: Return `'error'` if hasError, else `'normal'`
+- [x] **Update next button template**: Add `[color]="getNavigationButtonColor()"`
+- [x] **Update previous button template**: Add `[color]="getNavigationButtonColor()"`
 
 **Files**:
 - `libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.ts`
@@ -204,24 +207,24 @@ getNavigationButtonColor(): IconButtonColor {
 **Testing Focus**: Smart component testing with mocked PlayerContext, following [Smart Component Testing](../../SMART_COMPONENT_TESTING.md) patterns.
 
 #### Test Cases to Add
-- [ ] **Filter Click Behavior Tests**:
-  - [ ] Test All filter calls `setFilterMode(deviceId, PlayerFilterType.All)`
-  - [ ] Test Games filter calls `setFilterMode(deviceId, PlayerFilterType.Games)`
-  - [ ] Test Music filter calls `setFilterMode(deviceId, PlayerFilterType.Music)`
-  - [ ] Test Images filter calls `setFilterMode(deviceId, PlayerFilterType.Images)`
-- [ ] **Active Filter Display Tests**:
-  - [ ] Test All filter shows `color="highlight"` when active
-  - [ ] Test Games filter shows `color="highlight"` when active
-  - [ ] Test Music filter shows `color="highlight"` when active
-  - [ ] Test Images filter shows `color="highlight"` when active
-  - [ ] Test inactive filters show `color="normal"`
-- [ ] **Error State Display Tests**:
-  - [ ] Test all filter buttons show `color="error"` when error exists
-  - [ ] Test error state overrides active filter highlight
-  - [ ] Test filter buttons return to normal/highlight when error clears
-- [ ] **Signal Integration Tests**:
-  - [ ] Test activeFilter signal updates when shuffleSettings change
-  - [ ] Test hasError signal updates when error state changes
+- [x] **Filter Click Behavior Tests**:
+  - [x] Test All filter calls `setFilterMode(deviceId, PlayerFilterType.All)`
+  - [x] Test Games filter calls `setFilterMode(deviceId, PlayerFilterType.Games)`
+  - [x] Test Music filter calls `setFilterMode(deviceId, PlayerFilterType.Music)`
+  - [x] Test Images filter calls `setFilterMode(deviceId, PlayerFilterType.Images)`
+- [x] **Active Filter Display Tests**:
+  - [x] Test All filter shows `color="highlight"` when active
+  - [x] Test Games filter shows `color="highlight"` when active
+  - [x] Test Music filter shows `color="highlight"` when active
+  - [x] Test Images filter shows `color="highlight"` when active
+  - [x] Test inactive filters show `color="normal"`
+- [x] **Error State Display Tests**:
+  - [x] Test all filter buttons show `color="error"` when error exists
+  - [x] Test error state overrides active filter highlight
+  - [x] Test filter buttons return to normal/highlight when error clears
+- [x] **Signal Integration Tests**:
+  - [x] Test activeFilter signal updates when shuffleSettings change
+  - [x] Test hasError signal updates when error state changes
 
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/filter-toolbar/filter-toolbar.component.spec.ts`
 
@@ -243,11 +246,11 @@ mockPlayerContext.getError.mockReturnValue(signal('Random launch failed').asRead
 **Testing Focus**: Verify navigation buttons show error color when player errors occur.
 
 #### Test Cases to Add
-- [ ] **Navigation Button Error State Tests**:
-  - [ ] Test next button shows `color="error"` when error exists
-  - [ ] Test previous button shows `color="error"` when error exists
-  - [ ] Test navigation buttons show `color="normal"` when no error
-  - [ ] Test error state clears when error is null
+- [x] **Navigation Button Error State Tests**:
+  - [x] Test next button shows `color="error"` when error exists
+  - [x] Test previous button shows `color="error"` when error exists
+  - [x] Test navigation buttons show `color="normal"` when no error
+  - [x] Test error state clears when error is null
 
 **File**: `libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.spec.ts`
 
@@ -258,15 +261,15 @@ mockPlayerContext.getError.mockReturnValue(signal('Random launch failed').asRead
 **Testing Focus**: Integration testing at PlayerContextService level with mocked PlayerService infrastructure.
 
 #### Test Cases to Add
-- [ ] **Filter Pass-Through Tests**:
-  - [ ] Test `launchRandomFile()` passes current filter to `PlayerService.launchRandom()`
-  - [ ] Test `next()` in shuffle mode passes current filter to `PlayerService.launchRandom()`
-  - [ ] Test `previous()` in shuffle mode passes current filter to `PlayerService.launchRandom()`
-  - [ ] Test changing filter affects subsequent random launches
-- [ ] **Filter State Persistence Tests**:
-  - [ ] Test filter persists when switching from Shuffle to Directory mode
-  - [ ] Test filter persists when switching from Directory back to Shuffle mode
-  - [ ] Test filter is device-specific (multiple devices have independent filters)
+- [x] **Filter Pass-Through Tests**:
+  - [x] Test `launchRandomFile()` passes current filter to `PlayerService.launchRandom()`
+  - [x] Test `next()` in shuffle mode passes current filter to `PlayerService.launchRandom()`
+  - [x] Test `previous()` in shuffle mode passes current filter to `PlayerService.launchRandom()`
+  - [x] Test changing filter affects subsequent random launches
+- [x] **Filter State Persistence Tests**:
+  - [x] Test filter persists when switching from Shuffle to Directory mode
+  - [x] Test filter persists when switching from Directory back to Shuffle mode
+  - [x] Test filter is device-specific (multiple devices have independent filters)
 
 **File**: `libs/application/src/lib/player/player-context.service.spec.ts`
 
@@ -298,9 +301,9 @@ it('should pass current filter to API when launching random file', async () => {
 **Purpose**: Update design documentation to include Phase 4 in the incremental development roadmap.
 
 #### Implementation Steps
-- [ ] **Update PLAYER_DOMAIN_DESIGN.md**: Insert Phase 4 section between Phase 3 and Phase 5 (formerly Phase 4)
-- [ ] **Renumber subsequent phases**: Phase 5 becomes "Timer System + Auto-Progression" (formerly Phase 4)
-- [ ] **Update cross-references**: Ensure all phase references are updated throughout documentation
+- [x] **Update PLAYER_DOMAIN_DESIGN.md**: Insert Phase 4 section between Phase 3 and Phase 5 (formerly Phase 4)
+- [x] **Renumber subsequent phases**: Phase 5 becomes "Timer System + Auto-Progression" (formerly Phase 4)
+- [x] **Update cross-references**: Ensure all phase references are updated throughout documentation
 
 **File**: `docs/features/player-state/PLAYER_DOMAIN_DESIGN.md`
 
@@ -408,19 +411,19 @@ it('should pass current filter to API when launching random file', async () => {
 ## ✅ Success Criteria
 
 - [x] **Backend verification**: Filter infrastructure already complete from Phase 2
-- [ ] All filter buttons call `setFilterMode()` with correct `PlayerFilterType` values
-- [ ] Active filter button displays with `color="highlight"` (cyan: #00f7ff)
-- [ ] Inactive filter buttons display with `color="normal"` (default theme color)
-- [ ] All filter buttons display with `color="error"` (red: #cc666c light, #ff6f6f dark) when player error exists
-- [ ] Next and previous navigation buttons display with `color="error"` when player error exists
-- [ ] Error state visual feedback takes precedence over active filter highlight
-- [ ] Filter setting passes through to `PlayerService.launchRandom()` API calls in shuffle mode
-- [ ] Filter persists across launch mode switches (Shuffle ↔ Directory)
-- [ ] Each device maintains independent filter settings
-- [ ] All component tests passing for filter-toolbar and player-toolbar
-- [ ] All integration tests passing for filter API pass-through
-- [ ] PLAYER_DOMAIN_DESIGN.md updated with Phase 4 section
-- [ ] Ready to proceed to Phase 5 (Timer System + Auto-Progression)
+- [x] All filter buttons call `setFilterMode()` with correct `PlayerFilterType` values
+- [x] Active filter button displays with `color="highlight"` (cyan: #00f7ff)
+- [x] Inactive filter buttons display with `color="normal"` (default theme color)
+- [x] All filter buttons display with `color="error"` (red: #cc666c light, #ff6f6f dark) when player error exists
+- [x] Next and previous navigation buttons display with `color="error"` when player error exists
+- [x] Error state visual feedback takes precedence over active filter highlight
+- [x] Filter setting passes through to `PlayerService.launchRandom()` API calls in shuffle mode
+- [x] Filter persists across launch mode switches (Shuffle ↔ Directory)
+- [x] Each device maintains independent filter settings
+- [x] All component tests passing for filter-toolbar and player-toolbar
+- [x] All integration tests passing for filter API pass-through
+- [x] PLAYER_DOMAIN_DESIGN.md updated with Phase 4 section
+- [x] Ready to proceed to Phase 5 (Timer System + Auto-Progression)
 
 ## 📝 Notes
 
