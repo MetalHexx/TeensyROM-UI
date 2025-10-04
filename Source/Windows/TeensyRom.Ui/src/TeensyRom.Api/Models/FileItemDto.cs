@@ -30,6 +30,11 @@ namespace TeensyRom.Api.Models
         [Required] public bool IsFavorite { get; set; }
 
         /// <summary>
+        /// Indicates whether the file is compatible with TeensyROM hardware.
+        /// </summary>
+        [Required] public bool IsCompatible { get; set; } = true;
+
+        /// <summary>
         /// The title of the file, if available.
         /// </summary>
         [Required] public string Title { get; set; } = string.Empty;
@@ -115,6 +120,7 @@ namespace TeensyRom.Api.Models
                 Path = item.Path.Value,
                 Size = item.Size,
                 IsFavorite = item.IsFavorite,
+                IsCompatible = item.IsCompatible,
                 Title = item.Title,
                 Creator = item.Creator,
                 ReleaseInfo = item.ReleaseInfo,

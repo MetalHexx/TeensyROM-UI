@@ -60,6 +60,12 @@ export interface FileItemDto {
     isFavorite: boolean;
     /**
      * 
+     * @type {boolean}
+     * @memberof FileItemDto
+     */
+    isCompatible: boolean;
+    /**
+     * 
      * @type {string}
      * @memberof FileItemDto
      */
@@ -160,6 +166,7 @@ export function instanceOfFileItemDto(value: object): value is FileItemDto {
     if (!('path' in value) || value['path'] === undefined) return false;
     if (!('size' in value) || value['size'] === undefined) return false;
     if (!('isFavorite' in value) || value['isFavorite'] === undefined) return false;
+    if (!('isCompatible' in value) || value['isCompatible'] === undefined) return false;
     if (!('title' in value) || value['title'] === undefined) return false;
     if (!('creator' in value) || value['creator'] === undefined) return false;
     if (!('releaseInfo' in value) || value['releaseInfo'] === undefined) return false;
@@ -192,6 +199,7 @@ export function FileItemDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'path': json['path'],
         'size': json['size'],
         'isFavorite': json['isFavorite'],
+        'isCompatible': json['isCompatible'],
         'title': json['title'],
         'creator': json['creator'],
         'releaseInfo': json['releaseInfo'],
@@ -225,6 +233,7 @@ export function FileItemDtoToJSONTyped(value?: FileItemDto | null, ignoreDiscrim
         'path': value['path'],
         'size': value['size'],
         'isFavorite': value['isFavorite'],
+        'isCompatible': value['isCompatible'],
         'title': value['title'],
         'creator': value['creator'],
         'releaseInfo': value['releaseInfo'],

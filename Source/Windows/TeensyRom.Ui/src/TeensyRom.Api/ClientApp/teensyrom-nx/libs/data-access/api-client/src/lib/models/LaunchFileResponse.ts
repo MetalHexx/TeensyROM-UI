@@ -39,6 +39,12 @@ export interface LaunchFileResponse {
      * @memberof LaunchFileResponse
      */
     launchedFile: FileItemDto;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof LaunchFileResponse
+     */
+    isCompatible: boolean;
 }
 
 /**
@@ -47,6 +53,7 @@ export interface LaunchFileResponse {
 export function instanceOfLaunchFileResponse(value: object): value is LaunchFileResponse {
     if (!('message' in value) || value['message'] === undefined) return false;
     if (!('launchedFile' in value) || value['launchedFile'] === undefined) return false;
+    if (!('isCompatible' in value) || value['isCompatible'] === undefined) return false;
     return true;
 }
 
@@ -62,6 +69,7 @@ export function LaunchFileResponseFromJSONTyped(json: any, ignoreDiscriminator: 
         
         'message': json['message'],
         'launchedFile': FileItemDtoFromJSON(json['launchedFile']),
+        'isCompatible': json['isCompatible'],
     };
 }
 
@@ -78,6 +86,7 @@ export function LaunchFileResponseToJSONTyped(value?: LaunchFileResponse | null,
         
         'message': value['message'],
         'launchedFile': FileItemDtoToJSON(value['launchedFile']),
+        'isCompatible': value['isCompatible'],
     };
 }
 

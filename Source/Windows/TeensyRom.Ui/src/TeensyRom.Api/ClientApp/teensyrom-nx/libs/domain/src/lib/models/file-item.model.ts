@@ -6,6 +6,7 @@ export interface FileItem {
   path: string;
   size: number;
   isFavorite: boolean;
+  isCompatible: boolean;
   title: string;
   creator: string;
   releaseInfo: string;

@@ -85,16 +85,26 @@ namespace TeensyRom.Api.Endpoints.Player.LaunchRandom
 
             var result = await mediator.Send(new LaunchFileCommand(r.StorageType, file, r.DeviceId));
 
-            if (!result.IsSuccess) 
+            // Check if this was a successful launch or compatibility issue vs actual system error
+            if (result.IsSuccess || result.IsCompatible == false)
             {
-                SendExternalError($"There was an error launching {file.Path}");
-                return;
+                // Either successful launch or compatibility issue - return success with appropriate message and IsCompatible flag
+                var fileDto = FileItemDto.FromLaunchable(file);
+                fileDto.IsCompatible = result.IsCompatible; // Set compatibility based on launch result
+
+                Response = new()
+                {
+                    LaunchedFile = fileDto,
+                    IsCompatible = result.IsCompatible,
+                    Message = result.IsCompatible ? "Success!" : "File launched but is not compatible with TeensyROM hardware."
+                };
+                Send();
             }
-            Response = new() 
+            else
             {
-                LaunchedFile = FileItemDto.FromLaunchable(file),
-            };
-            Send();
+                // Actual system error (Network, NoResponse, Disconnected, etc.)
+                SendExternalError($"There was an error launching {file.Path}. {result.Error}");
+            }
         }
     }
 }

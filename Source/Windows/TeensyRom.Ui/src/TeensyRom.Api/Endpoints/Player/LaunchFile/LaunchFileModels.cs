@@ -63,5 +63,10 @@ namespace TeensyRom.Api.Endpoints.Player.LaunchFile
         /// The file that was launched.
         /// </summary>
         [Required] public FileItemDto LaunchedFile { get; set; } = null!;
+
+        /// <summary>
+        /// Indicates whether the file is compatible with the TeensyROM hardware.
+        /// </summary>
+        [Required] public bool IsCompatible { get; set; } = true;
     }
 }

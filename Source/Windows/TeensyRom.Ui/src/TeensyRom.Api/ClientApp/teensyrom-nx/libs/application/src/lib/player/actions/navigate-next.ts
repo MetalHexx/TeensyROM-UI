@@ -29,13 +29,43 @@ export function navigateNext(store: WritableStore<PlayerState>, playerService: I
           // In shuffle mode, next launches a random file - duplicate launchRandom logic
           logInfo(LogType.Info, `Shuffle mode: launching random file for ${deviceId}`);
 
-          const randomFile = await firstValueFrom(
+          const launchedFile = await firstValueFrom(
             playerService.launchRandom(deviceId, shuffleSettings.scope, shuffleSettings.filter, shuffleSettings.startingDirectory)
           );
 
-          // Get storage type from current player state since randomFile doesn't include it
+          // Get storage type from current player state since launchedFile doesn't include it
           const existingStorageKey = playerState.currentFile?.storageKey;
           const storageKey = existingStorageKey || StorageKeyUtil.create(deviceId, StorageType.Sd); // Default to SD if no existing key
+
+          // Check if file is compatible with hardware
+          const isCompatible = launchedFile.isCompatible;
+          
+          // If incompatible, set error state
+          if (!isCompatible) {
+            const errorMessage = 'File is not compatible with TeensyROM hardware';
+            logError(`Navigate next: Random file ${launchedFile.name} is incompatible with device ${deviceId}: ${errorMessage}`);
+            
+            updateState(store, actionMessage, (state) => ({
+              players: {
+                ...state.players,
+                [deviceId]: {
+                  ...state.players[deviceId],
+                  currentFile: {
+                    storageKey,
+                    file: launchedFile,
+                    parentPath: launchedFile.path.substring(0, launchedFile.path.lastIndexOf('/')) || '/',
+                    launchedAt: Date.now(),
+                    launchMode: LaunchMode.Shuffle,
+                    isCompatible,
+                  },
+                  status: PlayerStatus.Stopped,
+                  error: errorMessage,
+                  lastUpdated: Date.now(),
+                },
+              },
+            }));
+            return;
+          }
 
           updateState(store, actionMessage, (state) => ({
             players: {
@@ -44,10 +74,11 @@ export function navigateNext(store: WritableStore<PlayerState>, playerService: I
                 ...state.players[deviceId],
                 currentFile: {
                   storageKey,
-                  file: randomFile,
-                  parentPath: randomFile.path.substring(0, randomFile.path.lastIndexOf('/')) || '/',
+                  file: launchedFile,
+                  parentPath: launchedFile.path.substring(0, launchedFile.path.lastIndexOf('/')) || '/',
                   launchedAt: Date.now(),
                   launchMode: LaunchMode.Shuffle,
+                  isCompatible,
                 },
                 status: PlayerStatus.Playing, // Navigation continues playback
                 error: null,
@@ -71,6 +102,40 @@ export function navigateNext(store: WritableStore<PlayerState>, playerService: I
             playerService.launchFile(deviceId, storageType, nextFile.path)
           );
 
+          // Check if file is compatible with hardware
+          const isCompatible = launchedFile.isCompatible;
+          
+          // If incompatible, set error state
+          if (!isCompatible) {
+            const errorMessage = 'File is not compatible with TeensyROM hardware';
+            logError(`Navigate next: File ${launchedFile.name} is incompatible with device ${deviceId}: ${errorMessage}`);
+            
+            updateState(store, actionMessage, (state) => ({
+              players: {
+                ...state.players,
+                [deviceId]: {
+                  ...state.players[deviceId],
+                  currentFile: {
+                    storageKey,
+                    file: launchedFile,
+                    parentPath: directoryPath,
+                    launchedAt: Date.now(),
+                    launchMode: LaunchMode.Directory,
+                    isCompatible,
+                  },
+                  fileContext: {
+                    ...fileContext,
+                    currentIndex: nextIndex,
+                  },
+                  status: PlayerStatus.Stopped,
+                  error: errorMessage,
+                  lastUpdated: Date.now(),
+                },
+              },
+            }));
+            return;
+          }
+
           // Update state with launched file and updated context
           updateState(store, actionMessage, (state) => ({
             players: {
@@ -83,6 +148,7 @@ export function navigateNext(store: WritableStore<PlayerState>, playerService: I
                   parentPath: directoryPath,
                   launchedAt: Date.now(),
                   launchMode: LaunchMode.Directory,
+                  isCompatible,
                 },
                 fileContext: {
                   ...fileContext,
@@ -102,7 +168,7 @@ export function navigateNext(store: WritableStore<PlayerState>, playerService: I
         logInfo(LogType.Finish, `Navigate next completed for ${deviceId}`);
 
       } catch (error) {
-        const errorMessage = (error as any)?.message || 'Failed to navigate to next file';
+        const errorMessage = (error as Error)?.message || 'Failed to navigate to next file';
         logError(`Navigate next failed for ${deviceId}:`, error);
 
         updateState(store, actionMessage, (state) => ({

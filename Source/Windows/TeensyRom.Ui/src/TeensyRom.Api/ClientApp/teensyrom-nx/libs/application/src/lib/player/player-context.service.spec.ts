@@ -27,6 +27,7 @@ const createTestFileItem = (
   size: 4096,
   type: FileItemType.Song,
   isFavorite: false,
+  isCompatible: true,
   title: 'Test Song',
   creator: 'Test Artist',
   releaseInfo: '2025',
@@ -2759,6 +2760,224 @@ describe('PlayerContextService', () => {
         timerState = service.getTimerState(deviceId)();
         expect(timerState?.currentTime).toBe(0);
         expect(timerState?.isRunning).toBe(false);
+      });
+    });
+
+    describe('Incompatible File Handling', () => {
+      it('should handle isCompatible=false from backend on launchFile', async () => {
+        const incompatibleFile = createTestFileItem({
+          name: 'incompatible.sid',
+          path: '/music/incompatible.sid',
+          type: FileItemType.Song,
+          isCompatible: false, // Backend returns false
+        });
+
+        // Mock backend returning incompatible file
+        mockPlayerService.launchFile.mockReturnValue(of(incompatibleFile));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: incompatibleFile,
+          files: [incompatibleFile],
+        });
+
+        await nextTick();
+
+        // Should set currentFile with isCompatible=false
+        const currentFile = service.getCurrentFile(deviceId)();
+        expect(currentFile).not.toBeNull();
+        expect(currentFile?.file.isCompatible).toBe(false);
+        expect(currentFile?.isCompatible).toBe(false);
+
+        // Should set error state
+        const error = service.getError(deviceId)();
+        expect(error).toContain('not compatible');
+
+        // Should NOT create timer
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).toBeNull();
+      });
+
+      it('should handle isCompatible=false from backend on launchRandom', async () => {
+        const incompatibleFile = createTestFileItem({
+          name: 'bad.sid',
+          path: '/music/bad.sid',
+          type: FileItemType.Song,
+          isCompatible: false,
+        });
+
+        mockPlayerService.launchRandom.mockReturnValue(of(incompatibleFile));
+        mockStorageStore.navigateToDirectory.mockResolvedValue();
+        mockStorageStore.getSelectedDirectoryState.mockReturnValue(() => ({
+          path: '/music',
+          directory: {
+            path: '/music',
+            name: 'music',
+            files: [incompatibleFile],
+            directories: [],
+          },
+          isLoading: false,
+          error: null,
+          lastUpdated: Date.now(),
+        }));
+
+        await service.launchRandomFile(deviceId);
+        await nextTick();
+
+        // Should load directory context even when incompatible
+        expect(mockStorageStore.navigateToDirectory).toHaveBeenCalled();
+
+        // Should set currentFile with isCompatible=false
+        const currentFile = service.getCurrentFile(deviceId)();
+        expect(currentFile?.isCompatible).toBe(false);
+
+        // Should set error state
+        const error = service.getError(deviceId)();
+        expect(error).toContain('not compatible');
+
+        // Should NOT create timer
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).toBeNull();
+      });
+
+      it('should handle isCompatible=false on next() in directory mode', async () => {
+        const compatibleFile = createTestFileItem({
+          name: 'good.sid',
+          path: '/music/good.sid',
+          type: FileItemType.Song,
+          isCompatible: true,
+        });
+        const incompatibleFile = createTestFileItem({
+          name: 'bad.sid',
+          path: '/music/bad.sid',
+          type: FileItemType.Song,
+          isCompatible: false,
+        });
+
+        // First file is compatible, second is not
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(of(compatibleFile))
+          .mockReturnValueOnce(of(incompatibleFile));
+
+        // Launch first file
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: compatibleFile,
+          files: [compatibleFile, incompatibleFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // First file should have timer
+        expect(service.getTimerState(deviceId)()).not.toBeNull();
+
+        // Navigate to next (incompatible) file
+        await service.next(deviceId);
+        await nextTick();
+
+        // Should set currentFile to incompatible file
+        const currentFile = service.getCurrentFile(deviceId)();
+        expect(currentFile?.file.name).toBe('bad.sid');
+        expect(currentFile?.isCompatible).toBe(false);
+
+        // Should have error
+        expect(service.getError(deviceId)()).toContain('not compatible');
+
+        // Timer should be cleaned up
+        expect(service.getTimerState(deviceId)()).toBeNull();
+      });
+
+      it('should handle isCompatible=false on previous() in directory mode', async () => {
+        const compatibleFile = createTestFileItem({
+          name: 'good.sid',
+          path: '/music/good.sid',
+          type: FileItemType.Song,
+          isCompatible: true,
+        });
+        const incompatibleFile = createTestFileItem({
+          name: 'bad.sid',
+          path: '/music/bad.sid',
+          type: FileItemType.Song,
+          isCompatible: false,
+        });
+
+        // First file is incompatible, second is compatible
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(of(compatibleFile))
+          .mockReturnValueOnce(of(incompatibleFile));
+
+        // Launch compatible file (index 1)
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: compatibleFile,
+          files: [incompatibleFile, compatibleFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // Navigate to previous (incompatible) file
+        await service.previous(deviceId);
+        await nextTick();
+
+        // Should set currentFile to incompatible file
+        const currentFile = service.getCurrentFile(deviceId)();
+        expect(currentFile?.file.name).toBe('bad.sid');
+        expect(currentFile?.isCompatible).toBe(false);
+
+        // Should have error
+        expect(service.getError(deviceId)()).toContain('not compatible');
+
+        // Timer should be cleaned up
+        expect(service.getTimerState(deviceId)()).toBeNull();
+      });
+
+      it('should allow recovery from incompatible file by navigating to next', async () => {
+        const incompatibleFile = createTestFileItem({
+          name: 'bad.sid',
+          path: '/music/bad.sid',
+          type: FileItemType.Song,
+          isCompatible: false,
+        });
+        const compatibleFile = createTestFileItem({
+          name: 'good.sid',
+          path: '/music/good.sid',
+          type: FileItemType.Song,
+          isCompatible: true,
+        });
+
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(of(incompatibleFile))
+          .mockReturnValueOnce(of(compatibleFile));
+
+        // Launch incompatible file
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: incompatibleFile,
+          files: [incompatibleFile, compatibleFile],
+        });
+
+        await nextTick();
+
+        // Should be in error state
+        expect(service.getError(deviceId)()).toBeTruthy();
+
+        // Navigate to next (compatible) file
+        await service.next(deviceId);
+        await nextTick();
+        await waitForTime(200);
+
+        // Should recover
+        expect(service.getError(deviceId)()).toBeNull();
+        expect(service.getCurrentFile(deviceId)()?.file.name).toBe('good.sid');
+
+        // Timer should be created
+        expect(service.getTimerState(deviceId)()).not.toBeNull();
       });
     });
   });

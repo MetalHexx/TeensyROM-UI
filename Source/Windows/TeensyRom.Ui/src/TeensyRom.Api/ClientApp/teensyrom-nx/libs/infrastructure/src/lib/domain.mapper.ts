@@ -102,6 +102,7 @@ export class DomainMapper {
       path: fileItemDto.path ?? '',
       size: fileItemDto.size ?? 0,
       isFavorite: fileItemDto.isFavorite ?? false,
+      isCompatible: fileItemDto.isCompatible ?? true,
       title: fileItemDto.title ?? '',
       creator: fileItemDto.creator ?? '',
       releaseInfo: fileItemDto.releaseInfo ?? '',

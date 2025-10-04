@@ -824,6 +824,7 @@
           "path",
           "size",
           "isFavorite",
+          "isCompatible",
           "title",
           "creator",
           "releaseInfo",
@@ -853,6 +854,9 @@
             "format": "int64"
           },
           "isFavorite": {
+            "type": "boolean"
+          },
+          "isCompatible": {
             "type": "boolean"
           },
           "title": {
@@ -978,7 +982,8 @@
       "LaunchFileResponse": {
         "required": [
           "message",
-          "launchedFile"
+          "launchedFile",
+          "isCompatible"
         ],
         "type": "object",
         "properties": {
@@ -987,13 +992,17 @@
           },
           "launchedFile": {
             "$ref": "#/components/schemas/FileItemDto"
+          },
+          "isCompatible": {
+            "type": "boolean"
           }
         }
       },
       "LaunchRandomResponse": {
         "required": [
           "launchedFile",
-          "message"
+          "message",
+          "isCompatible"
         ],
         "type": "object",
         "properties": {
@@ -1002,6 +1011,9 @@
           },
           "message": {
             "type": "string"
+          },
+          "isCompatible": {
+            "type": "boolean"
           }
         }
       },

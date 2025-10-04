@@ -43,17 +43,19 @@ export function launchFileWithContext(
       try {
         logInfo(LogType.NetworkRequest, `PlayerAction: Requesting file launch from player service`);
 
-        const launched = await firstValueFrom(
+        const launchedFile = await firstValueFrom(
           playerService.launchFile(deviceId, storageType, file.path)
         );
 
-        const resolvedFile = launched ?? file;
+        const resolvedFile = launchedFile ?? file;
         const contextFiles = [...files];
         const currentIndex = contextFiles.findIndex((candidate) => candidate.path === file.path);
         const safeIndex = currentIndex >= 0 ? currentIndex : 0;
         const resolvedDirectoryPath = directoryPath ?? '';
 
-        const launchedFile = createLaunchedFile(deviceId, storageType, resolvedFile, launchMode);
+        // Check if file is compatible with hardware
+        const isCompatible = resolvedFile.isCompatible;
+        const launchedFileObj = createLaunchedFile(deviceId, storageType, resolvedFile, launchMode, isCompatible);
         const fileContext = createPlayerFileContext(
           deviceId,
           storageType,
@@ -63,7 +65,15 @@ export function launchFileWithContext(
           launchMode
         );
 
-        setPlayerLaunchSuccess(store, deviceId, launchedFile, fileContext, actionMessage);
+        // If file is incompatible, treat as failure but with file context preserved
+        if (!isCompatible) {
+          const errorMessage = 'File is not compatible with TeensyROM hardware';
+          logError(`PlayerAction: File ${resolvedFile.name} is incompatible with device ${deviceId}: ${errorMessage}`);
+          setPlayerLaunchFailure(store, deviceId, launchedFileObj, fileContext, errorMessage, actionMessage);
+          return;
+        }
+
+        setPlayerLaunchSuccess(store, deviceId, launchedFileObj, fileContext, actionMessage);
 
         logInfo(LogType.Success, `PlayerAction: File ${resolvedFile.name} launched successfully for device ${deviceId}`);
       } catch (error) {
@@ -71,9 +81,8 @@ export function launchFileWithContext(
         
         logError(`PlayerAction: Failed to launch file ${file.name} for device ${deviceId}: ${errorMessage}`);
 
-        // Create file context even on failure so UI can show which file failed
-        // and directory context is available for shuffle mode
-        const launchedFile = createLaunchedFile(deviceId, storageType, file, launchMode);
+        // Network/HTTP error - create file context from request so UI can show which file failed
+        const launchedFile = createLaunchedFile(deviceId, storageType, file, launchMode, false);
         const safeIndex = Math.max(0, files.findIndex((f) => f.name === file.name));
         const fileContext = createPlayerFileContext(
           deviceId,

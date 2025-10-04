@@ -7,6 +7,7 @@ import { IPlayerService, StorageType } from '@teensyrom-nx/domain';
 import {
   setPlayerLoading,
   setPlayerLaunchSuccess,
+  setPlayerLaunchFailure,
   setPlayerError,
   ensurePlayerState,
   createLaunchedFile,
@@ -54,12 +55,16 @@ export function launchRandomFile(
         // TODO: Random launch should return storage context or derive from scope settings
         const storageType = StorageType.Sd; // Default to SD storage for random launches
 
+        // Check if file is compatible with hardware
+        const isCompatible = launchedFile.isCompatible;
+        
         // Create launched file object with shuffle mode
         const launchedFileObj = createLaunchedFile(
           deviceId,
           storageType,
           launchedFile,
-          LaunchMode.Shuffle
+          LaunchMode.Shuffle,
+          isCompatible
         );
 
         // Create empty file context for shuffle mode (directory coordination happens at PlayerContext level)
@@ -71,6 +76,26 @@ export function launchRandomFile(
           -1,
           LaunchMode.Shuffle
         );
+
+        // If file is incompatible, treat as failure but with file context preserved
+        if (!isCompatible) {
+          const errorMessage = 'File is not compatible with TeensyROM hardware';
+          logError(`PlayerAction: Random file ${launchedFile.name} is incompatible with device ${deviceId}: ${errorMessage}`);
+          setPlayerLaunchFailure(store, deviceId, launchedFileObj, emptyFileContext, errorMessage, actionMessage);
+          
+          // Still ensure launch mode is set to shuffle
+          updateState(store, actionMessage, (state) => ({
+            players: {
+              ...state.players,
+              [deviceId]: {
+                ...state.players[deviceId],
+                launchMode: LaunchMode.Shuffle,
+              },
+            },
+          }));
+          
+          return;
+        }
 
         // Update state with success
         setPlayerLaunchSuccess(store, deviceId, launchedFileObj, emptyFileContext, actionMessage);
@@ -89,7 +114,7 @@ export function launchRandomFile(
         logInfo(LogType.Finish, `PlayerAction: Random file launch completed for device ${deviceId}`);
 
       } catch (error) {
-        const errorMessage = (error as any)?.message || 'Failed to launch random file';
+        const errorMessage = (error as Error)?.message || 'Failed to launch random file';
         logError(`PlayerAction: Random file launch failed for device ${deviceId}:`, error);
         setPlayerError(store, deviceId, errorMessage, actionMessage);
       }

@@ -218,12 +218,13 @@ export function createLaunchedFile(
   deviceId: string,
   storageType: StorageType,
   file: FileItem,
-  launchMode: LaunchMode
+  launchMode: LaunchMode,
+  isCompatible = true
 ): LaunchedFile {
   const timestamp = Date.now();
   const storageKey = StorageKeyUtil.create(deviceId, storageType);
   
-  logInfo(LogType.Info, `PlayerHelper: Creating launched file object for ${file.name} on device ${deviceId}`);
+  logInfo(LogType.Info, `PlayerHelper: Creating launched file object for ${file.name} on device ${deviceId} (compatible: ${isCompatible})`);
 
   return {
     parentPath: file.parentPath,
@@ -231,6 +232,7 @@ export function createLaunchedFile(
     file,
     launchMode,
     launchedAt: timestamp,
+    isCompatible,
   };
 }
 

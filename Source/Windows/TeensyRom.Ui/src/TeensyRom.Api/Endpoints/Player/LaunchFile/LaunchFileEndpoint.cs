@@ -1,4 +1,5 @@
 using MediatR;
+using TeensyRom.Api.Models;
 using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Commands.File.LaunchFile;
 using TeensyRom.Core.Common;
@@ -66,21 +67,30 @@ namespace TeensyRom.Api.Endpoints.Player.LaunchFile
                 SendValidationError($"The file {r.FilePath} is not launchable.");
                 return;
             }
-;
+
             var launchCommand = new LaunchFileCommand(TeensyStorageType.SD, launchItem, r.DeviceId);
             var result = await mediator.Send(launchCommand, ct);
 
-            Response = new()
+            // Check if this was a successful launch or compatibility issue vs actual system error
+            if (result.IsSuccess || result.IsCompatible == false)
             {
-                LaunchedFile = FileItemDto.FromLaunchable((file as LaunchableItem)!),
-            };
+                // Either successful launch or compatibility issue - return success with appropriate message and IsCompatible flag
+                var fileDto = FileItemDto.FromLaunchable(launchItem);
+                fileDto.IsCompatible = result.IsCompatible; // Set compatibility based on launch result
 
-            if (!result.IsSuccess)
-            {
-                SendExternalError(result.Error);
-                return;
+                Response = new()
+                {
+                    LaunchedFile = fileDto,
+                    IsCompatible = result.IsCompatible,
+                    Message = result.IsCompatible ? "Success!" : "File launched but is not compatible with TeensyROM hardware."
+                };
+                Send();
             }
-            Send();
+            else
+            {
+                // Actual system error (Network, NoResponse, Disconnected, etc.)
+                SendExternalError(result.Error);
+            }
         }
     }
 }

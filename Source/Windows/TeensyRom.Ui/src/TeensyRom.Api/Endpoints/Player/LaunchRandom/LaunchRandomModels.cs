@@ -77,5 +77,10 @@ namespace TeensyRom.Api.Endpoints.Player.LaunchRandom
         /// A message indicating the result of the operation.
         /// </summary>
         [Required] public string Message { get; set; } = "Success!";
+
+        /// <summary>
+        /// Indicates whether the file is compatible with the TeensyROM hardware.
+        /// </summary>
+        [Required] public bool IsCompatible { get; set; } = true;
     }
 }

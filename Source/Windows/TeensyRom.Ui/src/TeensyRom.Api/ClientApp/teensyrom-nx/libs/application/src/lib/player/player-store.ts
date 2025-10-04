@@ -13,6 +13,7 @@ export interface LaunchedFile {
   parentPath: string;
   launchedAt: number;
   launchMode: LaunchMode;
+  isCompatible: boolean;
 }
 
 export interface PlayerFileContext {

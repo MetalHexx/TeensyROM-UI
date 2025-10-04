@@ -26,6 +26,7 @@ namespace TeensyRom.Core.Entities.Storage
         public FilePath Path { get; set; } = new FilePath(string.Empty);
         public string Id => $"{Size}{Path.FileName}";
         public TeensyFileType FileType => Path.Extension.GetFileType();
+        public bool IsCompatible { get; set; } = true;
 
 
 

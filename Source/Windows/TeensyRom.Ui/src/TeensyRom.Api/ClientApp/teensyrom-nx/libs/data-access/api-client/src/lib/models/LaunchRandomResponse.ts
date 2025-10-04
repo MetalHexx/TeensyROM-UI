@@ -39,6 +39,12 @@ export interface LaunchRandomResponse {
      * @memberof LaunchRandomResponse
      */
     message: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof LaunchRandomResponse
+     */
+    isCompatible: boolean;
 }
 
 /**
@@ -47,6 +53,7 @@ export interface LaunchRandomResponse {
 export function instanceOfLaunchRandomResponse(value: object): value is LaunchRandomResponse {
     if (!('launchedFile' in value) || value['launchedFile'] === undefined) return false;
     if (!('message' in value) || value['message'] === undefined) return false;
+    if (!('isCompatible' in value) || value['isCompatible'] === undefined) return false;
     return true;
 }
 
@@ -62,6 +69,7 @@ export function LaunchRandomResponseFromJSONTyped(json: any, ignoreDiscriminator
         
         'launchedFile': FileItemDtoFromJSON(json['launchedFile']),
         'message': json['message'],
+        'isCompatible': json['isCompatible'],
     };
 }
 
@@ -78,6 +86,7 @@ export function LaunchRandomResponseToJSONTyped(value?: LaunchRandomResponse | n
         
         'launchedFile': FileItemDtoToJSON(value['launchedFile']),
         'message': value['message'],
+        'isCompatible': value['isCompatible'],
     };
 }
 
