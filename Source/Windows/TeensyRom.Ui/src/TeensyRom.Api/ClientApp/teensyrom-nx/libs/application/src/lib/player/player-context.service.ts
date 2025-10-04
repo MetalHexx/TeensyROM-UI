@@ -46,9 +46,12 @@ export class PlayerContextService implements IPlayerContext {
       launchMode,
     });
 
-    // Phase 5: Setup timer for music files only after successful launch
-    // Note: launchFileWithContext throws on error, so this won't execute if launch fails
-    this.setupTimerForFile(request.deviceId, request.file);
+    // Phase 5: Only setup timer for music files if launch was successful
+    // Note: We don't return early on error - the store action already set currentFile 
+    // and fileContext so the UI can show which file failed
+    if (!this.hasErrorAndCleanup(request.deviceId)) {
+      this.setupTimerForFile(request.deviceId, request.file);
+    }
   }
 
   getCurrentFile(deviceId: string) {
@@ -76,17 +79,15 @@ export class PlayerContextService implements IPlayerContext {
     
     await this.store.launchRandomFile({ deviceId });
     
-    // Check if launch was successful - cleanup timer if error occurred
-    if (this.hasErrorAndCleanup(deviceId)) {
-      return;
-    }
-    
     const currentFile = this.store.getCurrentFile(deviceId)();
     if (currentFile) {
       await this.loadDirectoryContextForRandomFile(currentFile);
       
-      // Phase 5: Setup timer for music files only after successful launch
-      this.setupTimerForFile(deviceId, currentFile.file);
+      // Phase 5: Only setup timer for music files if launch was successful
+      // Note: We still load directory context even on error so UI can show failed file
+      if (!this.hasErrorAndCleanup(deviceId)) {
+        this.setupTimerForFile(deviceId, currentFile.file);
+      }
     }
   }
 
@@ -187,11 +188,6 @@ export class PlayerContextService implements IPlayerContext {
     // Always call the store action first
     await this.store.navigateNext({ deviceId });
     
-    // Check if navigation was successful - cleanup timer if error occurred
-    if (this.hasErrorAndCleanup(deviceId)) {
-      return;
-    }
-    
     // If in shuffle mode, load directory context for the new random file
     if (launchMode === LaunchMode.Shuffle) {
       const currentFile = this.store.getCurrentFile(deviceId)();
@@ -200,9 +196,10 @@ export class PlayerContextService implements IPlayerContext {
       }
     }
     
-    // Phase 5: Setup timer for the new file only after successful navigation
+    // Phase 5: Only setup timer for the new file if navigation was successful
+    // Note: We still load directory context even on error so UI can show failed file
     const currentFile = this.store.getCurrentFile(deviceId)();
-    if (currentFile) {
+    if (currentFile && !this.hasErrorAndCleanup(deviceId)) {
       this.setupTimerForFile(deviceId, currentFile.file);
     }
   }
@@ -213,11 +210,6 @@ export class PlayerContextService implements IPlayerContext {
     // Always call the store action first
     await this.store.navigatePrevious({ deviceId });
     
-    // Check if navigation was successful - cleanup timer if error occurred
-    if (this.hasErrorAndCleanup(deviceId)) {
-      return;
-    }
-    
     // If in shuffle mode, load directory context for the new random file
     if (launchMode === LaunchMode.Shuffle) {
       const currentFile = this.store.getCurrentFile(deviceId)();
@@ -226,9 +218,10 @@ export class PlayerContextService implements IPlayerContext {
       }
     }
     
-    // Phase 5: Setup timer for the new file only after successful navigation
+    // Phase 5: Only setup timer for the new file if navigation was successful
+    // Note: We still load directory context even on error so UI can show failed file
     const currentFile = this.store.getCurrentFile(deviceId)();
-    if (currentFile) {
+    if (currentFile && !this.hasErrorAndCleanup(deviceId)) {
       this.setupTimerForFile(deviceId, currentFile.file);
     }
   }

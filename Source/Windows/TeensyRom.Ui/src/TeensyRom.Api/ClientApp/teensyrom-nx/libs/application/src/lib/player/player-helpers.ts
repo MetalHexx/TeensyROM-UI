@@ -159,6 +159,40 @@ export function setPlayerError(
   );
 }
 
+export function setPlayerLaunchFailure(
+  store: WritableStore<PlayerState>,
+  deviceId: string,
+  launchedFile: LaunchedFile,
+  fileContext: PlayerFileContext,
+  errorMessage: string,
+  actionMessage: string
+): void {
+  const timestamp = Date.now();
+  
+  logError(`PlayerHelper: Setting player launch failure for device ${deviceId} with file ${launchedFile.file.name}: ${errorMessage}`);
+
+  ensurePlayerState(store, deviceId, actionMessage);
+  updatePlayerState(
+    store,
+    deviceId,
+    (state) => {
+      logInfo(LogType.Info, `PlayerHelper: Updating player state with failed file context for device ${deviceId}`);
+
+      return {
+        ...state,
+        currentFile: launchedFile,
+        fileContext,
+        isLoading: false,
+        status: PlayerStatus.Stopped,
+        error: errorMessage,
+        launchMode: launchedFile.launchMode,
+        lastUpdated: timestamp,
+      };
+    },
+    actionMessage
+  );
+}
+
 export function removePlayerState(
   store: WritableStore<PlayerState>,
   deviceId: string,

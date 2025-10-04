@@ -255,6 +255,87 @@ describe('DirectoryFilesComponent', () => {
     // The file should be auto-selected
     expect(component.selectedItem()?.path).toBe(fileItem.path);
   });
+
+  describe('Highlight Behavior', () => {
+    it('should return false from hasCurrentFileError when no error exists', () => {
+      // Initially no error
+      expect(component.hasCurrentFileError()).toBe(false);
+    });
+
+    it('should return true from hasCurrentFileError when error exists', () => {
+      const errorSignal = signal<string | null>('Launch failed: Incompatible file format');
+      (mockPlayerContext.getError as vi.MockedFunction<() => unknown>).mockReturnValue(
+        errorSignal.asReadonly()
+      );
+
+      // Re-create component to pick up the new signal
+      fixture = TestBed.createComponent(DirectoryFilesComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput('deviceId', 'device-1');
+      fixture.detectChanges();
+
+      expect(component.hasCurrentFileError()).toBe(true);
+    });
+
+    it('should render data-is-playing attribute for currently playing file', () => {
+      const combined = component.combinedItems();
+      const fileItem = combined[1] as FileItem;
+
+      // Set file as currently playing
+      (mockPlayerContext.getCurrentFile as vi.MockedFunction<() => unknown>).mockReturnValue(
+        signal({
+          deviceId: 'device-1',
+          storageType: StorageType.Sd,
+          file: fileItem,
+          isShuffleMode: false
+        }).asReadonly()
+      );
+
+      // Re-create component to pick up the new signal
+      fixture = TestBed.createComponent(DirectoryFilesComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput('deviceId', 'device-1');
+      fixture.detectChanges();
+
+      // Find the element with the file path
+      const fileElement: HTMLElement | null = fixture.nativeElement.querySelector(
+        `.file-list-item[data-item-path="${fileItem.path}"]`
+      );
+      expect(fileElement).toBeTruthy();
+      expect(fileElement?.getAttribute('data-is-playing')).toBe('true');
+    });
+
+    it('should render data-has-error attribute when error exists', () => {
+      const combined = component.combinedItems();
+      const fileItem = combined[1] as FileItem;
+
+      // Set file as currently playing with error
+      const errorSignal = signal<string | null>('Launch failed: Incompatible file format');
+      (mockPlayerContext.getCurrentFile as vi.MockedFunction<() => unknown>).mockReturnValue(
+        signal({
+          deviceId: 'device-1',
+          storageType: StorageType.Sd,
+          file: fileItem,
+          isShuffleMode: false
+        }).asReadonly()
+      );
+      (mockPlayerContext.getError as vi.MockedFunction<() => unknown>).mockReturnValue(
+        errorSignal.asReadonly()
+      );
+
+      // Re-create component to pick up the new signals
+      fixture = TestBed.createComponent(DirectoryFilesComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput('deviceId', 'device-1');
+      fixture.detectChanges();
+
+      // Find the element with the file path
+      const fileElement: HTMLElement | null = fixture.nativeElement.querySelector(
+        `.file-list-item[data-item-path="${fileItem.path}"]`
+      );
+      expect(fileElement).toBeTruthy();
+      expect(fileElement?.getAttribute('data-is-playing')).toBe('true');
+      expect(fileElement?.getAttribute('data-has-error')).toBe('true');
+    });
+  });
 });
-
-

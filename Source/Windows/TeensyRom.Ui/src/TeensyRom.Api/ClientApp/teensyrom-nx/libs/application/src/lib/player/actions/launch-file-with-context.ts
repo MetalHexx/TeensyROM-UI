@@ -7,7 +7,7 @@ import {
   ensurePlayerState,
   setPlayerLoading,
   setPlayerLaunchSuccess,
-  setPlayerError,
+  setPlayerLaunchFailure,
   createLaunchedFile,
   createPlayerFileContext,
 } from '../player-helpers';
@@ -71,8 +71,21 @@ export function launchFileWithContext(
         
         logError(`PlayerAction: Failed to launch file ${file.name} for device ${deviceId}: ${errorMessage}`);
 
-        setPlayerError(store, deviceId, errorMessage, actionMessage);
-        throw error;
+        // Create file context even on failure so UI can show which file failed
+        // and directory context is available for shuffle mode
+        const launchedFile = createLaunchedFile(deviceId, storageType, file, launchMode);
+        const safeIndex = Math.max(0, files.findIndex((f) => f.name === file.name));
+        const fileContext = createPlayerFileContext(
+          deviceId,
+          storageType,
+          directoryPath,
+          files,
+          safeIndex,
+          launchMode
+        );
+
+        setPlayerLaunchFailure(store, deviceId, launchedFile, fileContext, errorMessage, actionMessage);
+        // Do not throw - error state is set in store for service layer to check
       }
     },
   };

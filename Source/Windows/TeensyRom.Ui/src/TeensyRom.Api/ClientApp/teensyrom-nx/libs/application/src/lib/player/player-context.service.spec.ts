@@ -204,24 +204,25 @@ describe('PlayerContextService', () => {
       mockPlayerService.launchFile.mockReturnValue(throwError(() => error));
 
       // The service should handle errors gracefully without throwing
-      try {
-        await service.launchFileWithContext({
-          deviceId,
-          storageType: StorageType.Sd,
-          file: testFile,
-          directoryPath: '/music',
-          files: testFiles,
-        });
-      } catch {
-        // Expected to complete without throwing
-      }
+      await service.launchFileWithContext({
+        deviceId,
+        storageType: StorageType.Sd,
+        file: testFile,
+        directoryPath: '/music',
+        files: testFiles,
+      });
 
       await nextTick();
 
       // Verify error state
       expect(service.getError(deviceId)()).toBeTruthy();
       expect(service.isLoading(deviceId)()).toBe(false);
-      expect(service.getCurrentFile(deviceId)()).toBeNull();
+      
+      // Task 10: currentFile should be set even on error so UI can show which file failed
+      const currentFile = service.getCurrentFile(deviceId)();
+      expect(currentFile).not.toBeNull();
+      expect(currentFile?.file.name).toBe('test-file.sid');
+      expect(currentFile?.file.path).toBe('/music/test-file.sid');
     });
 
     it('should default to Directory launch mode when not specified', async () => {
@@ -2138,15 +2139,15 @@ describe('PlayerContextService', () => {
           throwError(() => new Error('Launch failed'))
         );
 
-        // Attempt to launch file (will fail)
-        await expect(
-          service.launchFileWithContext({
-            deviceId,
-            storageType: StorageType.Usb,
-            file: musicFile,
-            files: [musicFile],
-          })
-        ).rejects.toThrow('Launch failed');
+        // Attempt to launch file (will set error state, not throw)
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
 
         // Timer state should be null (no timer created)
         const timerState = service.getTimerState(deviceId)();
@@ -2283,6 +2284,218 @@ describe('PlayerContextService', () => {
         // Player should be in error state
         const error = service.getError(deviceId)();
         expect(error).toBeTruthy();
+      });
+
+      // Task 10: Failed Launch Error Handling & Recovery Tests
+      it('should set currentFile when launch fails', async () => {
+        const musicFile = createTestFileItem({
+          name: 'incompatible.sid',
+          path: '/music/incompatible.sid',
+          type: FileItemType.Song,
+          playLength: '3:00',
+        });
+        const directoryFiles = [musicFile];
+
+        // Mock service to throw error
+        mockPlayerService.launchFile.mockReturnValue(
+          throwError(() => new Error('Incompatible SID file'))
+        );
+
+        // Attempt to launch file (will set error state, not throw)
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: musicFile,
+          directoryPath: '/music',
+          files: directoryFiles,
+        });
+
+        await nextTick();
+
+        // currentFile should be set even though launch failed
+        const currentFile = service.getCurrentFile(deviceId)();
+        expect(currentFile).not.toBeNull();
+        expect(currentFile?.file.name).toBe('incompatible.sid');
+        expect(currentFile?.file.path).toBe('/music/incompatible.sid');
+
+        // Player should be in error state
+        const error = service.getError(deviceId)();
+        expect(error).toContain('Incompatible SID file');
+      });
+
+      it('should set fileContext with directory on failed launch', async () => {
+        const musicFile = createTestFileItem({
+          name: 'bad.sid',
+          path: '/music/bad.sid',
+          type: FileItemType.Song,
+        });
+        const directoryFiles = [
+          createTestFileItem({ name: 'good.sid', path: '/music/good.sid' }),
+          musicFile,
+          createTestFileItem({ name: 'another.sid', path: '/music/another.sid' }),
+        ];
+
+        // Mock service to throw error
+        mockPlayerService.launchFile.mockReturnValue(
+          throwError(() => new Error('Failed to launch'))
+        );
+
+        // Attempt to launch file (will set error state, not throw)
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          directoryPath: '/music',
+          files: directoryFiles,
+        });
+
+        await nextTick();
+
+        // fileContext should be set with full directory
+        const fileContext = service.getFileContext(deviceId)();
+        expect(fileContext).not.toBeNull();
+        expect(fileContext?.files).toHaveLength(3);
+        expect(fileContext?.currentIndex).toBe(1);
+        expect(fileContext?.directoryPath).toBe('/music');
+      });
+
+      it('should cleanup timer when launch fails', async () => {
+        const musicFile1 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+        });
+        const musicFile2 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '2:00',
+        });
+
+        // First launch succeeds
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(of(musicFile1))
+          .mockReturnValueOnce(
+            throwError(() => new Error('Second launch failed'))
+          );
+
+        // First successful launch
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: musicFile1,
+          files: [musicFile1],
+        });
+
+        // Wait for timer to be created
+        const firstTimerState = await waitForTimerState(deviceId);
+        expect(firstTimerState).not.toBeNull();
+
+        // Second launch fails (will set error state, not throw)
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: musicFile2,
+          files: [musicFile2],
+        });
+
+        // Timer should be cleaned up (set to null)
+        await nextTick();
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).toBeNull();
+      });
+
+      it('should allow recovery from failed launch', async () => {
+        const badFile = createTestFileItem({
+          name: 'bad.sid',
+          type: FileItemType.Song,
+          playLength: '3:00',
+        });
+        const goodFile = createTestFileItem({
+          name: 'good.sid',
+          type: FileItemType.Song,
+          playLength: '2:30',
+        });
+
+        // First launch fails
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(throwError(() => new Error('Bad file')))
+          .mockReturnValueOnce(of(goodFile));
+
+        // First launch fails (will set error state, not throw)
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: badFile,
+          files: [badFile],
+        });
+
+        await nextTick();
+
+        // Should be in error state
+        expect(service.getError(deviceId)()).toBeTruthy();
+
+        // Second launch succeeds
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: goodFile,
+          files: [goodFile],
+        });
+
+        // Should recover to success state
+        const currentFile = service.getCurrentFile(deviceId)();
+        expect(currentFile?.file.name).toBe('good.sid');
+        expect(service.getError(deviceId)()).toBeNull();
+
+        // Timer should be created for good file
+        const timerState = await waitForTimerState(deviceId);
+        expect(timerState).not.toBeNull();
+        expect(timerState?.totalTime).toBe(150000); // 2:30 = 150 seconds = 150000 milliseconds
+      });
+
+      it('should preserve directory context for shuffle after failed launch', async () => {
+        const badFile = createTestFileItem({
+          name: 'incompatible.sid',
+          path: '/music/incompatible.sid',
+          type: FileItemType.Song,
+        });
+        const goodFile = createTestFileItem({
+          name: 'good.sid',
+          path: '/music/good.sid',
+          type: FileItemType.Song,
+        });
+        const directoryFiles = [badFile, goodFile];
+
+        // Mock first launch to fail
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(throwError(() => new Error('Incompatible format')))
+          .mockReturnValueOnce(of(goodFile));
+
+        // First launch fails (will set error state, not throw)
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: badFile,
+          directoryPath: '/music',
+          files: directoryFiles,
+          launchMode: LaunchMode.Shuffle,
+        });
+
+        await nextTick();
+
+        // Directory context should still be set for shuffle mode
+        const failedFileContext = service.getFileContext(deviceId)();
+        expect(failedFileContext).not.toBeNull();
+        expect(failedFileContext?.files).toHaveLength(2);
+        expect(failedFileContext?.directoryPath).toBe('/music');
+
+        // Now user can shuffle to next file
+        mockPlayerService.launchRandom.mockReturnValue(of(goodFile));
+        await service.launchRandomFile(deviceId);
+        await nextTick();
+
+        // Should successfully launch next file
+        const currentFile = service.getCurrentFile(deviceId)();
+        expect(currentFile?.file.name).toBe('good.sid');
+        expect(service.getError(deviceId)()).toBeNull();
       });
     });
 

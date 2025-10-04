@@ -119,6 +119,10 @@ export class DirectoryFilesComponent {
     return playingFile !== null && playingFile.file.path === item.path;
   }
 
+  hasCurrentFileError = computed(() => 
+    this.playerContext.getError(this.deviceId())() !== null
+  );
+
   onItemSelected(item: DirectoryItem | FileItem): void {
     this.selectedItem.set(item);
   }

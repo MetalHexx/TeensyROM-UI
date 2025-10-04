@@ -396,6 +396,143 @@ Implement timer functionality with automatic file progression for music playback
 
 ---
 
+### Task 10: Failed Launch Error Handling & Recovery
+
+**Purpose**: Handle incompatible SID files gracefully by still navigating to the failed file and cleaning up timer state.
+
+**Background**: Some SID files are incompatible with TeensyROM hardware and will fail to launch. When this happens, we need to:
+- Still show the file as "current" in the UI so users know which file failed
+- Load the directory context (especially important for shuffle mode)
+- Clean up any existing timer since the file didn't actually play
+- Set error state for visual feedback
+
+**Changes Required**:
+
+- [x] Update `libs/application/src/lib/player/actions/launch-file-with-context.ts`
+  - **Current behavior**: On error, calls `setPlayerError()` which does NOT set currentFile/fileContext (lines 69-76)
+  - **New behavior**: In catch block, still create `launchedFile` and `fileContext` from the requested file
+  - Call new helper `setPlayerLaunchFailure()` instead of `setPlayerError()`
+  - This sets currentFile + fileContext + error state
+  - Caller (player-context.service) will check error state and handle cleanup
+  - Log failed launch with LogType.Error
+  - **Key decision**: Action does NOT throw - sets error state in store instead
+
+- [x] Update `libs/application/src/lib/player/player-helpers.ts`
+  - Create new `setPlayerLaunchFailure()` helper function
+  - Similar to `setPlayerLaunchSuccess()` but sets error state
+  - Parameters: `(store, deviceId, launchedFile, fileContext, errorMessage, actionMessage)`
+  - State updates:
+    - `currentFile: launchedFile` (the file that failed)
+    - `fileContext: fileContext` (directory context)
+    - `error: errorMessage` (what went wrong)
+    - `status: PlayerStatus.Stopped` (not playing)
+    - `isLoading: false`
+    - `launchMode: launchedFile.launchMode` (preserve mode)
+    - `lastUpdated: Date.now()`
+  - Use `updatePlayerState` with `actionMessage` per STATE_STANDARDS.md
+  - Comprehensive logging with LogType.Error
+
+- [x] Update `libs/application/src/lib/player/player-context.service.ts`
+  - **launchFileWithContext()** (lines 33-52):
+    - After `await this.store.launchFileWithContext(...)` call
+    - Check error state with `hasErrorAndCleanup(deviceId)` 
+    - If error exists: timer is cleaned up, skip timer setup
+    - If no error: continue with `setupTimerForFile()` as normal
+    - **KEY FIX**: Do NOT return early - store action already set currentFile and fileContext
+    - This allows UI to display which file failed with proper directory context
+  - **launchRandomFile()** (lines 74-91):
+    - After `await this.store.launchRandomFile(...)` call
+    - Always get currentFile and load directory context (even if error exists)
+    - Check error state with `hasErrorAndCleanup(deviceId)` AFTER loading directory
+    - If error exists: timer is cleaned up, skip timer setup
+    - If no error: continue with `setupTimerForFile()` as normal
+  - **next()** and **previous()**:
+    - After navigation action, always load directory context for shuffle mode
+    - Check error state AFTER loading directory context
+    - Only setup timer if no error exists
+    - This ensures failed file is displayed with proper highlighting
+
+**Key Design**: Failed launches set currentFile + fileContext + error, allowing UI to display which file failed. Timer cleanup prevents orphaned timers. Directory context loading still happens for better UX. Actions handle errors internally without throwing.
+
+**Testing Requirements**:
+- [x] Test failed launch sets currentFile with error state
+- [x] Test timer cleanup occurs on failed launch
+- [x] Test directory context set even when launch fails (shuffle mode)
+- [x] Test multiple failed launches don't accumulate timers
+- [x] Test recovery from failed launch (launching different file after failure)
+- [x] Test preserve directory context for shuffle after failed launch
+
+**Status**: ✅ COMPLETE - All 6 new tests passing, all 272 tests passing
+
+---
+
+### Task 11: Failed Launch Visual Feedback in Directory Listing
+
+**Purpose**: Change currently-playing file highlight color from `--color-highlight` to `--color-error` when file launch failed.
+
+**Background**: Currently, the playing file shows with a pulsing blue/green highlight using `--color-highlight`. When a SID file fails to launch, we want to show a red pulsing highlight using `--color-error` to visually indicate the failure.
+
+**Current Implementation**:
+- `directory-files.component.scss` line 30-37: Uses `pulsing-highlight` mixin with `--color-highlight`
+- `directory-files.component.ts` line 117-120: `isCurrentlyPlaying()` checks if file matches currentFile
+- `directory-files.component.html` line 13: Sets `data-is-playing` attribute for styling
+
+**Changes Required**:
+
+- [x] Update `libs/features/player/.../directory-files/directory-files.component.ts`
+  - Add computed signal: `hasCurrentFileError = computed(() => this.playerContext.getError(this.deviceId())() !== null)`
+  - This checks if player has error state for the device
+  - Export for template usage
+
+- [x] Update `libs/features/player/.../directory-files/directory-files.component.html`
+  - Locate the `file-list-item` div (line 10-14)
+  - Add new attribute: `[attr.data-has-error]="hasCurrentFileError()"`
+  - Keep existing `[attr.data-is-playing]="isCurrentlyPlaying(item)"`
+  - Both attributes work together to determine styling
+
+- [x] Update `libs/features/player/.../directory-files/directory-files.component.scss`
+  - Locate existing rule: `&[data-is-playing="true"]` (line 30)
+  - Add new specific rule BEFORE the existing one (higher specificity):
+    ```scss
+    // Failed launch: Red pulsing highlight
+    &[data-is-playing="true"][data-has-error="true"] {
+      @include styles.pulsing-highlight(
+        $color: var(--color-error),
+        $opacity: 15%,
+        $border-side: left
+      );
+      margin-left: -8px;
+      margin-right: -16px;
+      padding-left: 7px;
+      padding-right: 16px;
+      border-radius: 10px;
+    }
+    ```
+  - Keep existing `&[data-is-playing="true"]` rule for successful launches
+
+**Visual Result**:
+- **Successful launch**: Blue/green pulsing highlight (`--color-highlight`)
+- **Failed launch**: Red pulsing highlight (`--color-error`)
+- Same visual pattern (pulsing border), different color communicates state
+
+**Key Design**: Pure CSS-based visual feedback. No additional state or logic needed beyond existing error tracking. Works automatically when error state is set.
+
+**Testing**:
+- [x] Test `hasCurrentFileError()` returns false when no error
+- [x] Test `hasCurrentFileError()` returns true when error exists
+- [x] Test `data-is-playing` attribute rendered correctly for playing file
+- [x] Test `data-has-error` attribute rendered correctly when error exists
+
+**Status**: ✅ COMPLETE - All 4 new tests passing (16 total in directory-files.component.spec.ts), all 272 application tests passing
+
+**Testing Requirements**:
+- [ ] Test successful file launch shows normal highlight color
+- [ ] Test failed file launch shows error highlight color
+- [ ] Test error highlight persists until new file launched
+- [ ] Test clearing error (successful launch) restores normal highlight
+
+---
+
 ## 🗂️ File Changes
 
 ### New Files (14 total)
@@ -418,23 +555,32 @@ Implement timer functionality with automatic file progression for music playback
 - [ ] [libs/features/player/.../player-toolbar/progress-bar/progress-bar.component.html](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/progress-bar/progress-bar.component.html) - TODO (Task 9)
 - [ ] [libs/features/player/.../player-toolbar/progress-bar/progress-bar.component.scss](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/progress-bar/progress-bar.component.scss) - TODO (Task 9)
 
-### Modified Files (10 total)
+### Modified Files (13 total)
 
 **Store:**
 - ✅ [libs/application/src/lib/player/player-store.ts](../../../libs/application/src/lib/player/player-store.ts) - COMPLETE (timerState added)
-- ✅ [libs/application/src/lib/player/player-helpers.ts](../../../libs/application/src/lib/player/player-helpers.ts) - COMPLETE (timerState: null)
+- ✅ [libs/application/src/lib/player/player-helpers.ts](../../../libs/application/src/lib/player/player-helpers.ts) - COMPLETE (Task 10 - setPlayerLaunchFailure added)
 - ✅ [libs/application/src/lib/player/actions/index.ts](../../../libs/application/src/lib/player/actions/index.ts) - COMPLETE (updateTimerState export)
 - ✅ [libs/application/src/lib/player/selectors/index.ts](../../../libs/application/src/lib/player/selectors/index.ts) - COMPLETE (getTimerState export)
 
+**Actions:**
+- ✅ [libs/application/src/lib/player/actions/launch-file-with-context.ts](../../../libs/application/src/lib/player/actions/launch-file-with-context.ts) - COMPLETE (Task 10 - failed launch recovery)
+
 **PlayerContext:**
 - ✅ [libs/application/src/lib/player/player-context.interface.ts](../../../libs/application/src/lib/player/player-context.interface.ts) - COMPLETE (getTimerState method)
-- ✅ [libs/application/src/lib/player/player-context.service.ts](../../../libs/application/src/lib/player/player-context.service.ts) - COMPLETE (timer orchestration)
-- [ ] [libs/application/src/lib/player/player-context.service.spec.ts](../../../libs/application/src/lib/player/player-context.service.spec.ts) - IN PROGRESS (Task 8 - comprehensive timer tests)
+- ✅ [libs/application/src/lib/player/player-context.service.ts](../../../libs/application/src/lib/player/player-context.service.ts) - COMPLETE (Task 10 - failed launch timer cleanup)
+- ✅ [libs/application/src/lib/player/player-context.service.spec.ts](../../../libs/application/src/lib/player/player-context.service.spec.ts) - COMPLETE (Task 10 - 9 failed launch tests added)
 
-**UI:**
+**UI - Player Toolbar:**
 - [ ] [libs/features/player/.../player-toolbar/player-toolbar.component.ts](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.ts) - TODO (Task 9 - integrate progress bar)
 - [ ] [libs/features/player/.../player-toolbar/player-toolbar.component.html](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.html) - TODO (Task 9 - add progress bar element)
 - [ ] [libs/features/player/.../player-toolbar/player-toolbar.component.scss](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.scss) - TODO (Task 9 - progress bar positioning)
+
+**UI - Directory Files:**
+- ✅ [libs/features/player/.../directory-files/directory-files.component.ts](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.ts) - COMPLETE (Task 11 - hasCurrentFileError computed signal)
+- ✅ [libs/features/player/.../directory-files/directory-files.component.html](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.html) - COMPLETE (Task 11 - data-has-error attribute)
+- ✅ [libs/features/player/.../directory-files/directory-files.component.scss](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.scss) - COMPLETE (Task 11 - error highlight styling)
+- ✅ [libs/features/player/.../directory-files/directory-files.component.spec.ts](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.spec.ts) - COMPLETE (Task 11 - 4 highlight behavior tests added)
 
 ---
 
