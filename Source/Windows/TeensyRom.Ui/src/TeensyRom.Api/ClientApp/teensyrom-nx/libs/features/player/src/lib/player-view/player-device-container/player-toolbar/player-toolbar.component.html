@@ -5,6 +5,13 @@
   [animationTrigger]="isPlayerLoaded()">
 
   <lib-scaling-compact-card animationEntry="from-top" animationParent="auto">
+    <!-- Progress Bar (flush to top inside card) -->
+    <lib-progress-bar 
+      [currentValue]="currentTime()" 
+      [totalValue]="totalTime()" 
+      [show]="showProgressBar()">
+    </lib-progress-bar>
+    
     <div class="player-controls">
 
         <!-- Playback Controls Section -->

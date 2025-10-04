@@ -9,6 +9,7 @@ import { getPlayerError } from './get-player-error';
 import { getPlayerStatus } from './get-player-status';
 import { getShuffleSettings } from './get-shuffle-settings';
 import { getLaunchMode } from './get-launch-mode';
+import { getTimerState } from './get-timer-state';
 
 export function withPlayerSelectors() {
   return withMethods((store) => {
@@ -22,6 +23,7 @@ export function withPlayerSelectors() {
       ...getPlayerStatus(writableStore),
       ...getShuffleSettings(writableStore),
       ...getLaunchMode(writableStore),
+      ...getTimerState(writableStore),
     };
   });
 }

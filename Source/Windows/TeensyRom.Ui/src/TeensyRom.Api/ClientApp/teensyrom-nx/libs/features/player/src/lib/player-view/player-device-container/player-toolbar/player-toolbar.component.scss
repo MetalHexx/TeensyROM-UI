@@ -1,6 +1,7 @@
 :host {
   width: 100%;
   display: block;
+  position: relative; // Positioning context for absolute progress bar
 }
 
 mat-card {

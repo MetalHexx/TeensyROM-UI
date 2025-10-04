@@ -1,29 +1,26 @@
 # Phase N: Title Goes Here
 
-**High Level Plan Documentation**: [Link to Plan or Spec](./RELATIVE_LINK_TO_PLAN.md)
-
-**Standards Documentation**:
-
-- **Coding Standards**: [](./CODING_STANDARDS.md)
-- (Make sure the docs below have the correct relative path to the planning doc.)
-- If the phase has a store modification, creation or testing -- [](./STORE_TESTING.md) [](./STATE_STANDARDS.md)
-- If the phase is a brand new feature or domain -- [](DOMAIN_STANDARDS.md) [](./TESTING_STANDARDS.md)
-- If the phase has components and / or styling requirements -- [](./STYLE_GUIDE.md)
-- If the phase requires a re-generation of the api-client -- [](./API_CLIENT_GENERATION.md)
-
 ## 🎯 Objective
 
 Concise description of the phase goal in 1–2 sentences. What outcome does this phase deliver?
 
 ## 📚 Required Reading
+- If the phase has a store modification, creation or testing -- [](./STORE_TESTING.md) [](./STATE_STANDARDS.md)
+- If the phase has components and / or styling requirements -- [](./STYLE_GUIDE.md)
+- If the phase requires a re-generation of the api-client -- [](./API_CLIENT_GENERATION.md)
+- Link any other documents we've discussed.
 
-- [ ]
+- [ ] [Link to PRD](./RELATIVE_LINK_TO_PLAN.md) - Description
+- [ ] [Link to Tech Design / Spec](./RELATIVE_LINK_TO_PLAN.md) - Description
 - [ ]
 - [ ]
 - [ ]
 - [ ] (Add or remove as appropriate)
 
 ## 📋 Implementation Tasks
+- Make sure you cross link relevant documentation from the higher level planning docs you think will assist with phase/task context in each task below.
+- Tasks should be detailed, however, code references should be as minimal as possible.  
+  - Prefer class names, method names, property names, etc.  No big code blocks.
 
 ### Task 1: High‑Level Task Name
 

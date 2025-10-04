@@ -1,5 +1,12 @@
 export enum LogType {
   Start = '🚀',
+  Play = '▶️',
+  Paused = '⏸️',
+  Stop = '⏹️',
+  FastForward = '⏩',
+  Rewind = '⏪',
+  Next = '⏭️',
+  Previous = '⏮️',
   Finish = '🏁',
   Success = '✅',
   NetworkRequest = '🌐',

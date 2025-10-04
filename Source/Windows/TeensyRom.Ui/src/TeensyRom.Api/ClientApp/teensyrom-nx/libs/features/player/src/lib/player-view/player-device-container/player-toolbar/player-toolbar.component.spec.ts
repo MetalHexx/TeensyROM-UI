@@ -1,10 +1,13 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { DebugElement } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { signal } from '@angular/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { PlayerToolbarComponent } from './player-toolbar.component';
 import { PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
 import { LaunchMode, PlayerStatus, FileItemType } from '@teensyrom-nx/domain';
+import { IconButtonComponent } from '@teensyrom-nx/ui/components';
 
 describe('PlayerToolbarComponent', () => {
   let component: PlayerToolbarComponent;
@@ -74,6 +77,9 @@ describe('PlayerToolbarComponent', () => {
       setFilterMode: vi.fn(),
       getLaunchMode: vi.fn().mockReturnValue(signal(LaunchMode.Directory).asReadonly()),
       getShuffleSettings: vi.fn().mockReturnValue(signal(null).asReadonly()),
+
+      // Phase 5: Timer state (for progress bar)
+      getTimerState: vi.fn().mockReturnValue(signal(null).asReadonly()),
     } satisfies IPlayerContext;
 
     await TestBed.configureTestingModule({
@@ -89,6 +95,44 @@ describe('PlayerToolbarComponent', () => {
     fixture.componentRef.setInput('deviceId', 'test-device-id');
     fixture.detectChanges();
   });
+
+  /**
+   * Helper to find icon button components by their ariaLabel property.
+   * Uses Angular's DebugElement API to query through component boundaries.
+   */
+  function findIconButtonByLabel(labelPattern: string | RegExp): DebugElement | null {
+    const iconButtons = fixture.debugElement.queryAll(By.directive(IconButtonComponent));
+    
+    // Debug: log how many buttons we found
+    if (iconButtons.length === 0) {
+      console.log('No IconButtonComponent instances found in DOM');
+      console.log('Full HTML:', fixture.nativeElement.innerHTML);
+    }
+    
+    for (const buttonDebug of iconButtons) {
+      const buttonComponent = buttonDebug.componentInstance as IconButtonComponent;
+      const ariaLabel = buttonComponent.ariaLabel();
+      
+      if (typeof labelPattern === 'string') {
+        if (ariaLabel === labelPattern) {
+          return buttonDebug;
+        }
+      } else {
+        if (labelPattern.test(ariaLabel)) {
+          return buttonDebug;
+        }
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * Helper to get the native button element from an icon button component.
+   */
+  function getNativeButton(iconButtonDebug: DebugElement): HTMLButtonElement | null {
+    return iconButtonDebug.nativeElement.querySelector('button');
+  }
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -399,8 +443,9 @@ describe('PlayerToolbarComponent', () => {
     it('should show play/pause button for music files', () => {
       fixture.detectChanges();
       
-      const playPauseButton = fixture.debugElement.nativeElement.querySelector('[aria-label*="Play"], [aria-label*="Pause"]');
+      const playPauseButton = findIconButtonByLabel(/Play|Pause/);
       expect(playPauseButton).toBeTruthy();
+      expect(playPauseButton?.componentInstance.icon()).toMatch(/play_arrow|pause/);
     });
 
     it('should show stop button for non-music files', () => {
@@ -417,8 +462,9 @@ describe('PlayerToolbarComponent', () => {
       
       fixture.detectChanges();
       
-      const stopButton = fixture.debugElement.nativeElement.querySelector('[aria-label="Stop Playback"]');
+      const stopButton = findIconButtonByLabel('Stop Playback');
       expect(stopButton).toBeTruthy();
+      expect(stopButton?.componentInstance.icon()).toBe('stop');
     });
 
     it('should disable navigation buttons when canNavigate returns false', () => {
@@ -427,11 +473,13 @@ describe('PlayerToolbarComponent', () => {
       
       fixture.detectChanges();
       
-      const nextButton = fixture.debugElement.nativeElement.querySelector('[aria-label="Next File"]');
-      const previousButton = fixture.debugElement.nativeElement.querySelector('[aria-label="Previous File"]');
+      const nextButton = findIconButtonByLabel('Next File');
+      const previousButton = findIconButtonByLabel('Previous File');
       
-      expect(nextButton.disabled).toBe(true);
-      expect(previousButton.disabled).toBe(true);
+      expect(nextButton).toBeTruthy();
+      expect(previousButton).toBeTruthy();
+      expect(nextButton?.componentInstance.disabled()).toBe(true);
+      expect(previousButton?.componentInstance.disabled()).toBe(true);
     });
 
     it('should enable navigation buttons when canNavigate returns true', () => {
@@ -448,11 +496,13 @@ describe('PlayerToolbarComponent', () => {
       
       fixture.detectChanges();
       
-      const nextButton = fixture.debugElement.nativeElement.querySelector('[aria-label="Next File"]');
-      const previousButton = fixture.debugElement.nativeElement.querySelector('[aria-label="Previous File"]');
+      const nextButton = findIconButtonByLabel('Next File');
+      const previousButton = findIconButtonByLabel('Previous File');
       
-      expect(nextButton.disabled).toBe(false);
-      expect(previousButton.disabled).toBe(false);
+      expect(nextButton).toBeTruthy();
+      expect(previousButton).toBeTruthy();
+      expect(nextButton?.componentInstance.disabled()).toBe(false);
+      expect(previousButton?.componentInstance.disabled()).toBe(false);
     });
 
     // Note: Buttons are not currently disabled during loading state
@@ -478,8 +528,13 @@ describe('PlayerToolbarComponent', () => {
       
       fixture.detectChanges();
       
-      const playPauseButton = fixture.debugElement.nativeElement.querySelector('[aria-label*="Play"], [aria-label*="Pause"]');
-      playPauseButton.click();
+      const playPauseButton = findIconButtonByLabel(/Play|Pause/);
+      expect(playPauseButton).toBeTruthy();
+      
+      if (playPauseButton) {
+        const nativeButton = getNativeButton(playPauseButton);
+        nativeButton?.click();
+      }
       
       expect(spy).toHaveBeenCalled();
     });
@@ -513,8 +568,13 @@ describe('PlayerToolbarComponent', () => {
 
       fixture.detectChanges();
 
-      const nextButton = fixture.debugElement.nativeElement.querySelector('[aria-label="Next File"]');
-      nextButton.click();
+      const nextButton = findIconButtonByLabel('Next File');
+      expect(nextButton).toBeTruthy();
+      
+      if (nextButton) {
+        const nativeButton = getNativeButton(nextButton);
+        nativeButton?.click();
+      }
 
       expect(spy).toHaveBeenCalled();
     });
@@ -548,8 +608,13 @@ describe('PlayerToolbarComponent', () => {
 
       fixture.detectChanges();
 
-      const previousButton = fixture.debugElement.nativeElement.querySelector('[aria-label="Previous File"]');
-      previousButton.click();
+      const previousButton = findIconButtonByLabel('Previous File');
+      expect(previousButton).toBeTruthy();
+      
+      if (previousButton) {
+        const nativeButton = getNativeButton(previousButton);
+        nativeButton?.click();
+      }
 
       expect(spy).toHaveBeenCalled();
     });

@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ScalingCompactCardComponent, IconButtonComponent, IconButtonColor, SlidingContainerComponent } from '@teensyrom-nx/ui/components';
 import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
 import { LaunchMode, PlayerStatus, FileItemType } from '@teensyrom-nx/domain';
+import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 
 @Component({
   selector: 'lib-player-toolbar',
-  imports: [CommonModule, ScalingCompactCardComponent, IconButtonComponent, SlidingContainerComponent],
+  imports: [CommonModule, ScalingCompactCardComponent, IconButtonComponent, SlidingContainerComponent, ProgressBarComponent],
   templateUrl: './player-toolbar.component.html',
   styleUrl: './player-toolbar.component.scss'
 })
@@ -134,5 +135,18 @@ export class PlayerToolbarComponent {
   getButtonColor(): IconButtonColor {
     return this.hasError() ? 'error' : 'normal';
   }
+
+  // Phase 5: Timer state for progress bar
+  timerState = computed(() => 
+    this.playerContext.getTimerState(this.deviceId())()
+  );
+
+  showProgressBar = computed(() => {
+    const state = this.timerState();
+    return state !== null && state.showProgress;
+  });
+
+  currentTime = computed(() => this.timerState()?.currentTime ?? 0);
+  totalTime = computed(() => this.timerState()?.totalTime ?? 0);
 
 }

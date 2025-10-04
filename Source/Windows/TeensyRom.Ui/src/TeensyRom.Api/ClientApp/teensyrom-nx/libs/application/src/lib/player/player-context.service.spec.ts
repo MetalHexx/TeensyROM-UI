@@ -11,6 +11,8 @@ import {
   PlayerFilterType,
   PLAYER_SERVICE,
   DEVICE_SERVICE,
+  IPlayerService,
+  IDeviceService,
 } from '@teensyrom-nx/domain';
 import { PlayerContextService } from './player-context.service';
 import { PlayerStore } from './player-store';
@@ -48,13 +50,6 @@ const createTestDirectoryFiles = (): FileItem[] => [
   createTestFileItem({ name: 'game.prg', path: '/music/game.prg', type: FileItemType.Game }),
 ];
 
-// Mock types
-type LaunchFileFn = (deviceId: string, storageType: StorageType, filePath: string) => Observable<FileItem>;
-type LaunchRandomFn = (deviceId: string, scope: PlayerScope, filter: PlayerFilterType, startingDirectory?: string) => Observable<FileItem>;
-type ToggleMusicFn = (deviceId: string) => Observable<void>;
-type ResetDeviceFn = (deviceId: string) => Observable<void>;
-type PingDeviceFn = (deviceId: string) => Observable<void>;
-
 type NavigateToDirectoryFn = (params: { deviceId: string; storageType: StorageType; path: string }) => Promise<void>;
 type GetSelectedDirectoryStateFn = (deviceId: string) => () => Partial<StorageDirectoryState> | null;
 
@@ -64,32 +59,39 @@ describe('PlayerContextService', () => {
     navigateToDirectory: MockedFunction<NavigateToDirectoryFn>;
     getSelectedDirectoryState: MockedFunction<GetSelectedDirectoryStateFn>;
   };
-  let mockPlayerService: {
-    launchFile: MockedFunction<LaunchFileFn>;
-    launchRandom: MockedFunction<LaunchRandomFn>;
-    toggleMusic: MockedFunction<ToggleMusicFn>;
-    resetDevice: MockedFunction<ResetDeviceFn>;
-  };
-  let mockDeviceService: {
-    resetDevice: MockedFunction<ResetDeviceFn>;
-    pingDevice: MockedFunction<PingDeviceFn>;
-  };
+  let mockPlayerService: IPlayerService;
+  let mockDeviceService: IDeviceService;
 
   // Helper to wait for async operations
   const nextTick = () => new Promise<void>((r) => setTimeout(r, 0));
+  
+  // Helper to wait for timer state to be available
+  const waitForTimerState = async (deviceId: string, maxAttempts = 50): Promise<TimerState | null> => {
+    for (let i = 0; i < maxAttempts; i++) {
+      await nextTick();
+      const state = service.getTimerState(deviceId)();
+      if (state !== null) {
+        return state;
+      }
+    }
+    return null;
+  };
 
   beforeEach(() => {
-    // Create mocks
+    // Create mocks implementing the actual service contracts
     mockPlayerService = {
-      launchFile: vi.fn<LaunchFileFn>(),
-      launchRandom: vi.fn<LaunchRandomFn>(),
-      toggleMusic: vi.fn<ToggleMusicFn>(),
-      resetDevice: vi.fn<ResetDeviceFn>(),
+      launchFile: vi.fn(),
+      launchRandom: vi.fn(),
+      toggleMusic: vi.fn(),
     };
 
     mockDeviceService = {
-      resetDevice: vi.fn<ResetDeviceFn>(),
-      pingDevice: vi.fn<PingDeviceFn>(),
+      findDevices: vi.fn(),
+      getConnectedDevices: vi.fn(),
+      connectDevice: vi.fn(),
+      disconnectDevice: vi.fn(),
+      resetDevice: vi.fn(),
+      pingDevice: vi.fn(),
     };
 
     mockStorageStore = {
@@ -1462,6 +1464,1088 @@ describe('PlayerContextService', () => {
 
         expect(settings1?.filter).toBe(PlayerFilterType.Music);
         expect(settings2?.filter).toBe(PlayerFilterType.Images);
+      });
+    });
+  });
+
+  describe('Phase 5: Timer System Integration', () => {
+    const deviceId = 'device-timer-test';
+    const waitForTime = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+    beforeEach(() => {
+      service.initializePlayer(deviceId);
+    });
+
+    describe('Timer Creation & Lifecycle', () => {
+      it('should create timer when music file launches with valid playLength', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:45',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200); // Wait for timer setup and store update
+
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).not.toBeNull();
+        expect(timerState?.totalTime).toBe(225000);
+      });
+
+      it('should NOT create timer when non-music file launches', async () => {
+        const imageFile = createTestFileItem({
+          type: FileItemType.Photo,
+          playLength: undefined,
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(imageFile));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: imageFile,
+          files: [imageFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).toBeNull();
+      });
+
+      it('should create default 3-minute timer when music file has invalid playLength', async () => {
+        const warnSpy = vi.spyOn(console, 'warn');
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: 'invalid',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // Should create timer with default 3-minute duration
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).not.toBeNull();
+        expect(timerState?.totalTime).toBe(180000); // 3 minutes default
+        
+        // Should log warning about invalid playLength
+        expect(warnSpy).toHaveBeenCalledWith(
+          expect.stringContaining('invalid playLength format')
+        );
+        
+        warnSpy.mockRestore();
+      });
+
+      it('should create default 3-minute timer when music file has empty playLength', async () => {
+        const warnSpy = vi.spyOn(console, 'warn');
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // Should create timer with default 3-minute duration
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).not.toBeNull();
+        expect(timerState?.totalTime).toBe(180000); // 3 minutes default
+        
+        // Should log warning about empty playLength
+        expect(warnSpy).toHaveBeenCalledWith(
+          expect.stringContaining('empty playLength')
+        );
+        
+        warnSpy.mockRestore();
+      });
+
+      it('should increment timer currentTime over time', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:45',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        const initialState = service.getTimerState(deviceId)();
+        expect(initialState?.currentTime).toBeGreaterThanOrEqual(0);
+        expect(initialState?.currentTime).toBeLessThanOrEqual(300); // Allow up to 300ms
+
+        // Wait for timer to increment (1 second)
+        await waitForTime(1000);
+
+        const updatedState = service.getTimerState(deviceId)();
+        expect(updatedState?.currentTime).toBeGreaterThan(initialState?.currentTime || 0);
+        expect(updatedState?.currentTime).toBeLessThanOrEqual(1500);
+      });
+
+      it('should parse H:MM:SS playLength format correctly', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '1:23:45', // 1 hour, 23 minutes, 45 seconds
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).not.toBeNull();
+        expect(timerState?.totalTime).toBe(5025000); // 1h 23m 45s in ms
+      });
+    });
+
+    describe('Playback Control Integration', () => {
+      it('should pause timer when pause() called on music file', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:45',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+        mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // Pause playback
+        await service.pause(deviceId);
+        await nextTick();
+        await waitForTime(100); // Give timer time to process pause
+
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState?.isRunning).toBe(false);
+      });
+
+      it('should resume timer when play() called after pause', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:45',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+        mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // Pause then resume
+        await service.pause(deviceId);
+        await nextTick();
+        await service.play(deviceId);
+        await nextTick();
+
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState?.isRunning).toBe(true);
+      });
+
+      it('should stop timer and reset to 0 when stop() called', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:45',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+        mockDeviceService.resetDevice.mockReturnValue(of(undefined));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // Wait a bit for timer to increment
+        await waitForTime(500);
+
+        // Stop playback
+        await service.stop(deviceId);
+        await nextTick();
+        await waitForTime(200);
+
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState?.currentTime).toBe(0);
+        expect(timerState?.isRunning).toBe(false);
+      });
+
+      it('should NOT increment timer currentTime when paused', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:45',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+        mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // Pause playback
+        await service.pause(deviceId);
+        await nextTick();
+
+        const pausedState = service.getTimerState(deviceId)();
+        const pausedTime = pausedState?.currentTime ?? 0;
+
+        // Wait a bit
+        await waitForTime(1000);
+
+        const laterState = service.getTimerState(deviceId)();
+        expect(laterState?.currentTime).toBe(pausedTime);
+      });
+
+      it('should NOT affect timer when pause/play/stop called on non-music file', async () => {
+        const imageFile = createTestFileItem({
+          type: FileItemType.Photo,
+          playLength: undefined,
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(imageFile));
+        mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
+        mockDeviceService.resetDevice.mockReturnValue(of(undefined));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: imageFile,
+          files: [imageFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // Try all playback controls
+        await service.pause(deviceId);
+        await service.play(deviceId);
+        await service.stop(deviceId);
+        await nextTick();
+
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).toBeNull();
+      });
+    });
+
+    describe('Navigation Timer Tests', () => {
+      it('should create new timer when navigating to next music file', async () => {
+        const musicFile1 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+          path: 'music1.sid',
+        });
+        const musicFile2 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '4:30',
+          path: 'music2.sid',
+        });
+
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(of(musicFile1))
+          .mockReturnValueOnce(of(musicFile2));
+        // Note: next() internally uses launchFile, no need to mock next itself
+
+        // Launch first file
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile1,
+          files: [musicFile1, musicFile2],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        const firstTimer = service.getTimerState(deviceId)();
+        expect(firstTimer?.totalTime).toBe(180000); // 3:00
+
+        // Navigate to next
+        await service.next(deviceId);
+        await nextTick();
+        await waitForTime(200);
+
+        const secondTimer = service.getTimerState(deviceId)();
+        expect(secondTimer?.totalTime).toBe(270000); // 4:30
+        // Timer resets but may have already incremented slightly
+        expect(secondTimer?.currentTime).toBeLessThan(300);
+      });
+
+      it('should clear timer when navigating from music to non-music file', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+        });
+        const imageFile = createTestFileItem({
+          type: FileItemType.Photo,
+          playLength: undefined,
+        });
+
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(of(musicFile))
+          .mockReturnValueOnce(of(imageFile));
+
+        // Launch music file
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile, imageFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        expect(service.getTimerState(deviceId)()).not.toBeNull();
+
+        // Navigate to image - timer should be destroyed when switching to non-music file
+        await service.next(deviceId);
+        await nextTick();
+        await waitForTime(200);
+
+        // Timer state should be null (destroyed when navigating to non-music file)
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).toBeNull();
+      });
+
+      it('should create timer when navigating from non-music to music file', async () => {
+        const imageFile = createTestFileItem({
+          type: FileItemType.Photo,
+          playLength: undefined,
+        });
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+        });
+
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(of(imageFile))
+          .mockReturnValueOnce(of(musicFile));
+        // Note: next() internally uses launchFile, no need to mock next itself
+
+        // Launch image file
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: imageFile,
+          files: [imageFile, musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        expect(service.getTimerState(deviceId)()).toBeNull();
+
+        // Navigate to music
+        await service.next(deviceId);
+        await nextTick();
+        await waitForTime(200);
+
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).not.toBeNull();
+        expect(timerState?.totalTime).toBe(180000);
+      });
+    });
+
+    describe('Auto-Progression Tests', () => {
+      it('should auto-progress to next file when timer completes in Directory mode', async () => {
+        const musicFile1 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '0:01', // 1 second for fast test
+          path: 'music1.sid',
+          name: 'music1.sid',
+        });
+        const musicFile2 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '0:01',
+          path: 'music2.sid',
+          name: 'music2.sid',
+        });
+
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(of(musicFile1))  // Initial launch
+          .mockReturnValueOnce(of(musicFile2)); // Auto-progression
+
+        mockStorageStore.getSelectedDirectoryState.mockReturnValue(() => ({
+          files: [musicFile1, musicFile2],
+          currentPath: '/music',
+        }));
+
+        // Launch first file
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile1,
+          files: [musicFile1, musicFile2],
+          launchMode: LaunchMode.Directory,
+        });
+
+        await nextTick();
+
+        // Verify first file is playing
+        expect(service.getCurrentFile(deviceId)()?.file.name).toBe('music1.sid');
+
+        // Wait for timer to complete (1 second + buffer)
+        await waitForTime(1200);
+
+        // Verify auto-progression called next()
+        expect(mockPlayerService.launchFile).toHaveBeenCalledTimes(2);
+        expect(service.getCurrentFile(deviceId)()?.file.name).toBe('music2.sid');
+      });
+
+      it('should auto-progress to random file when timer completes in Shuffle mode', async () => {
+        const musicFile1 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '0:01',
+          path: 'music1.sid',
+          name: 'music1.sid',
+        });
+        const randomMusicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '0:01',
+          path: 'random.sid',
+          name: 'random.sid',
+        });
+
+        mockPlayerService.launchFile.mockReturnValueOnce(of(musicFile1));
+        mockPlayerService.launchRandom.mockReturnValueOnce(of(randomMusicFile));
+
+        // Launch first file in shuffle mode
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile1,
+          files: [musicFile1],
+          launchMode: LaunchMode.Shuffle,
+        });
+
+        await nextTick();
+
+        // Verify first file is playing
+        expect(service.getCurrentFile(deviceId)()?.file.name).toBe('music1.sid');
+
+        // Wait for timer to complete
+        await waitForTime(1200);
+
+        // Verify auto-progression called launchRandom
+        expect(mockPlayerService.launchRandom).toHaveBeenCalledTimes(1);
+        expect(service.getCurrentFile(deviceId)()?.file.name).toBe('random.sid');
+      });
+
+      it('should create new timer after auto-progression', async () => {
+        const musicFile1 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '0:01',
+          path: 'music1.sid',
+        });
+        const musicFile2 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '0:02', // Different duration
+          path: 'music2.sid',
+        });
+
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(of(musicFile1))
+          .mockReturnValueOnce(of(musicFile2));
+
+        mockStorageStore.getSelectedDirectoryState.mockReturnValue(() => ({
+          files: [musicFile1, musicFile2],
+          currentPath: '/music',
+        }));
+
+        // Launch first file
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile1,
+          files: [musicFile1, musicFile2],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        const firstTimer = service.getTimerState(deviceId)();
+        expect(firstTimer?.totalTime).toBe(1000); // 1 second
+
+        // Wait for completion and auto-progression
+        await waitForTime(1200);
+
+        const secondTimer = service.getTimerState(deviceId)();
+        expect(secondTimer?.totalTime).toBe(2000); // 2 seconds
+        expect(secondTimer?.currentTime).toBeLessThan(500); // Reset and started fresh
+      });
+
+      it('should handle multiple auto-progression cycles', async () => {
+        const musicFile1 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '0:01',
+          path: 'music1.sid',
+          name: 'music1.sid',
+        });
+        const musicFile2 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '0:01',
+          path: 'music2.sid',
+          name: 'music2.sid',
+        });
+        const musicFile3 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '0:01',
+          path: 'music3.sid',
+          name: 'music3.sid',
+        });
+
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(of(musicFile1))
+          .mockReturnValueOnce(of(musicFile2))
+          .mockReturnValueOnce(of(musicFile3));
+
+        mockStorageStore.getSelectedDirectoryState.mockReturnValue(() => ({
+          files: [musicFile1, musicFile2, musicFile3],
+          currentPath: '/music',
+        }));
+
+        // Launch first file
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile1,
+          files: [musicFile1, musicFile2, musicFile3],
+        });
+
+        await nextTick();
+        expect(service.getCurrentFile(deviceId)()?.file.name).toBe('music1.sid');
+
+        // Wait for first completion
+        await waitForTime(1200);
+        expect(service.getCurrentFile(deviceId)()?.file.name).toBe('music2.sid');
+
+        // Wait for second completion
+        await waitForTime(1200);
+        expect(service.getCurrentFile(deviceId)()?.file.name).toBe('music3.sid');
+
+        // Verify 3 launches occurred
+        expect(mockPlayerService.launchFile).toHaveBeenCalledTimes(3);
+      });
+
+      it('should not auto-progress when paused', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '0:01',
+          path: 'music1.sid',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+        mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // Pause immediately
+        await service.pause(deviceId);
+        await nextTick();
+
+        // Wait past what would be completion time
+        await waitForTime(1500);
+
+        // Should only have launched once (no auto-progression while paused)
+        expect(mockPlayerService.launchFile).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('Timer Error Handling Tests', () => {
+      it('should NOT create timer when launchFileWithContext fails', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+        });
+
+        // Mock service to throw error
+        mockPlayerService.launchFile.mockReturnValue(
+          throwError(() => new Error('Launch failed'))
+        );
+
+        // Attempt to launch file (will fail)
+        await expect(
+          service.launchFileWithContext({
+            deviceId,
+            storageType: StorageType.Usb,
+            file: musicFile,
+            files: [musicFile],
+          })
+        ).rejects.toThrow('Launch failed');
+
+        // Timer state should be null (no timer created)
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).toBeNull();
+      });
+
+      it('should NOT create timer when launchRandomFile fails', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+        });
+
+        mockStorageStore.getSelectedDirectoryState.mockReturnValue(() => ({
+          path: '/music',
+          directory: {
+            path: '/music',
+            name: 'music',
+            files: [musicFile],
+            directories: [],
+          },
+          isLoading: false,
+          error: null,
+          lastUpdated: Date.now(),
+        }));
+
+        // Mock service to throw error
+        mockPlayerService.launchRandom.mockReturnValue(
+          throwError(() => new Error('Random launch failed'))
+        );
+
+        // Attempt to launch random file (will fail but won't throw - handles internally)
+        await service.launchRandomFile(deviceId);
+        
+        await nextTick();
+
+        // Timer state should be null (no timer created)
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).toBeNull();
+        
+        // Player should be in error state
+        const error = service.getError(deviceId)();
+        expect(error).toBeTruthy();
+      });
+
+      it('should NOT create timer when next() fails', async () => {
+        const musicFile1 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+          path: 'music1.sid',
+        });
+        const musicFile2 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '2:00',
+          path: 'music2.sid',
+        });
+
+        // First launch succeeds
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(of(musicFile1))
+          .mockReturnValueOnce(
+            throwError(() => new Error('Next launch failed'))
+          );
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile1,
+          files: [musicFile1, musicFile2],
+        });
+
+        // Wait for timer to be created (observable emissions are async)
+        const firstTimerState = await waitForTimerState(deviceId);
+        expect(firstTimerState).not.toBeNull();
+        const firstTimerTotalTime = firstTimerState?.totalTime;
+
+        // Attempt next (will fail but won't throw - handles internally)
+        await service.next(deviceId);
+        
+        await nextTick();
+
+        // Timer state should still be from first file (not updated for failed file)
+        const timerState = service.getTimerState(deviceId)();
+        if (timerState) {
+          expect(timerState.totalTime).toBe(firstTimerTotalTime);
+        }
+        
+        // Player should be in error state
+        const error = service.getError(deviceId)();
+        expect(error).toBeTruthy();
+      });
+
+      it('should NOT create timer when previous() fails', async () => {
+        const musicFile1 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+          path: 'music1.sid',
+        });
+        const musicFile2 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '2:00',
+          path: 'music2.sid',
+        });
+
+        // First launch succeeds
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(of(musicFile1))
+          .mockReturnValueOnce(
+            throwError(() => new Error('Previous launch failed'))
+          );
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile1,
+          files: [musicFile2, musicFile1],
+        });
+
+        // Wait for timer to be created (observable emissions are async)
+        const firstTimerState = await waitForTimerState(deviceId);
+        expect(firstTimerState).not.toBeNull();
+        const firstTimerTotalTime = firstTimerState?.totalTime;
+
+        // Attempt previous (will fail but won't throw - handles internally)
+        await service.previous(deviceId);
+        
+        await nextTick();
+
+        // Timer state should still be from first file (not updated for failed file)
+        const timerState = service.getTimerState(deviceId)();
+        if (timerState) {
+          expect(timerState.totalTime).toBe(firstTimerTotalTime);
+        }
+        
+        // Player should be in error state
+        const error = service.getError(deviceId)();
+        expect(error).toBeTruthy();
+      });
+    });
+
+    describe('Multi-Device Timer Tests', () => {
+      it('should maintain independent timer state per device', async () => {
+        const deviceId2 = 'device-2';
+        const musicFile1 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+        });
+        const musicFile2 = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '5:00',
+        });
+
+        mockPlayerService.launchFile
+          .mockReturnValueOnce(of(musicFile1))
+          .mockReturnValueOnce(of(musicFile2));
+
+        // Launch file on device 1
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile1,
+          files: [musicFile1],
+        });
+
+        // Launch different file on device 2
+        await service.launchFileWithContext({
+          deviceId: deviceId2,
+          storageType: StorageType.Usb,
+          file: musicFile2,
+          files: [musicFile2],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        const timer1 = service.getTimerState(deviceId)();
+        const timer2 = service.getTimerState(deviceId2)();
+
+        expect(timer1?.totalTime).toBe(180000); // 3:00
+        expect(timer2?.totalTime).toBe(300000); // 5:00
+      });
+
+      it('should cleanup timer on device removal without affecting other devices', async () => {
+        const deviceId2 = 'device-2';
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+
+        // Launch on both devices
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await service.launchFileWithContext({
+          deviceId: deviceId2,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        expect(service.getTimerState(deviceId)()).not.toBeNull();
+        expect(service.getTimerState(deviceId2)()).not.toBeNull();
+
+        // Remove device 1
+        service.removePlayer(deviceId);
+        await nextTick();
+
+        expect(service.getTimerState(deviceId)()).toBeNull();
+        expect(service.getTimerState(deviceId2)()).not.toBeNull();
+      });
+
+      it('should support independent pause/resume per device', async () => {
+        const deviceId2 = 'device-2';
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+        mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
+
+        // Launch on both devices
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await service.launchFileWithContext({
+          deviceId: deviceId2,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // Pause only device 1
+        await service.pause(deviceId);
+        await nextTick();
+        await waitForTime(100); // Give timer time to process pause
+
+        const timer1 = service.getTimerState(deviceId)();
+        const timer2 = service.getTimerState(deviceId2)();
+
+        expect(timer1?.isRunning).toBe(false);
+        expect(timer2?.isRunning).toBe(true);
+      });
+    });
+
+    describe('Edge Cases & Error Handling', () => {
+      it('should handle rapid play/pause/stop cycles gracefully', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+        mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
+        mockDeviceService.resetDevice.mockReturnValue(of(undefined));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // Rapid cycling
+        await service.pause(deviceId);
+        await service.play(deviceId);
+        await service.pause(deviceId);
+        await service.play(deviceId);
+        await service.stop(deviceId);
+        await nextTick();
+        await waitForTime(200);
+
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState?.currentTime).toBe(0);
+        expect(timerState?.isRunning).toBe(false);
+      });
+
+      it('should return null timer state for non-existent device', async () => {
+        const nonExistentDevice = 'non-existent-device';
+        const timerState = service.getTimerState(nonExistentDevice)();
+        expect(timerState).toBeNull();
+      });
+
+      it('should return null timer state before any file launched', async () => {
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).toBeNull();
+      });
+
+      it('should handle playback control operations on non-music files without errors', async () => {
+        const imageFile = createTestFileItem({
+          type: FileItemType.Photo,
+          playLength: undefined,
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(imageFile));
+        mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
+        mockDeviceService.resetDevice.mockReturnValue(of(undefined));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: imageFile,
+          files: [imageFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // These should not throw errors
+        await expect(service.pause(deviceId)).resolves.not.toThrow();
+        await expect(service.play(deviceId)).resolves.not.toThrow();
+        await expect(service.stop(deviceId)).resolves.not.toThrow();
+      });
+    });
+
+    describe('Store Integration', () => {
+      it('should update store timerState reactively when timer changes', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // Timer state accessed via service is actually from the store
+        const timerState = service.getTimerState(deviceId)();
+        expect(timerState).not.toBeNull();
+        expect(timerState?.totalTime).toBe(180000);
+      });
+
+      it('should maintain store state consistency across timer lifecycle', async () => {
+        const musicFile = createTestFileItem({
+          type: FileItemType.Song,
+          playLength: '3:00',
+        });
+
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+        mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
+        mockDeviceService.resetDevice.mockReturnValue(of(undefined));
+
+        // Launch
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Usb,
+          file: musicFile,
+          files: [musicFile],
+        });
+
+        await nextTick();
+        await waitForTime(200);
+
+        // Timer state is from store - should be running
+        let timerState = service.getTimerState(deviceId)();
+        expect(timerState?.isRunning).toBe(true);
+
+        // Pause
+        await service.pause(deviceId);
+        await nextTick();
+        await waitForTime(100); // Give timer time to process pause
+
+        timerState = service.getTimerState(deviceId)();
+        expect(timerState?.isRunning).toBe(false);
+
+        // Stop
+        await service.stop(deviceId);
+        await nextTick();
+        await waitForTime(200);
+
+        timerState = service.getTimerState(deviceId)();
+        expect(timerState?.currentTime).toBe(0);
+        expect(timerState?.isRunning).toBe(false);
       });
     });
   });

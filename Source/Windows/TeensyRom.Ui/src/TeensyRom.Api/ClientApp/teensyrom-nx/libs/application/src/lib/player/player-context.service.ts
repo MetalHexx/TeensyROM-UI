@@ -1,21 +1,32 @@
 import { Injectable, inject } from '@angular/core';
-import { LaunchMode, PlayerFilterType, PlayerScope, FileItemType } from '@teensyrom-nx/domain';
+import { LaunchMode, PlayerFilterType, PlayerScope, FileItemType, FileItem } from '@teensyrom-nx/domain';
 import { PlayerStore, LaunchedFile } from './player-store';
 import { StorageStore } from '../storage/storage-store';
 import { StorageKeyUtil } from '../storage/storage-key.util';
 import { IPlayerContext, LaunchFileContextRequest } from './player-context.interface';
+import { PlayerTimerManager } from './player-timer-manager';
+import { parsePlayLength } from './timer-utils';
+import { logInfo, logWarn, LogType } from '@teensyrom-nx/utils';
+import { Subscription } from 'rxjs';
 
 
 @Injectable({ providedIn: 'root' })
 export class PlayerContextService implements IPlayerContext {
   private readonly store = inject(PlayerStore);
   private readonly storageStore = inject(StorageStore);
+  private readonly timerManager = inject(PlayerTimerManager);
+  
+  // Track timer subscriptions per device for cleanup
+  private readonly timerSubscriptions = new Map<string, Subscription[]>();
 
   initializePlayer(deviceId: string): void {
     this.store.initializePlayer({ deviceId });
   }
 
   removePlayer(deviceId: string): void {
+    // Phase 5: Cleanup timer subscriptions before removing player
+    this.cleanupTimerSubscriptions(deviceId);
+    
     this.store.removePlayer({ deviceId });
   }
 
@@ -34,6 +45,10 @@ export class PlayerContextService implements IPlayerContext {
       files,
       launchMode,
     });
+
+    // Phase 5: Setup timer for music files only after successful launch
+    // Note: launchFileWithContext throws on error, so this won't execute if launch fails
+    this.setupTimerForFile(request.deviceId, request.file);
   }
 
   getCurrentFile(deviceId: string) {
@@ -58,11 +73,20 @@ export class PlayerContextService implements IPlayerContext {
 
   async launchRandomFile(deviceId: string): Promise<void> {
     this.store.initializePlayer({ deviceId });   
+    
     await this.store.launchRandomFile({ deviceId });
+    
+    // Check if launch was successful - cleanup timer if error occurred
+    if (this.hasErrorAndCleanup(deviceId)) {
+      return;
+    }
     
     const currentFile = this.store.getCurrentFile(deviceId)();
     if (currentFile) {
       await this.loadDirectoryContextForRandomFile(currentFile);
+      
+      // Phase 5: Setup timer for music files only after successful launch
+      this.setupTimerForFile(deviceId, currentFile.file);
     }
   }
 
@@ -134,14 +158,27 @@ export class PlayerContextService implements IPlayerContext {
   // Phase 3: New playback control methods
   async play(deviceId: string): Promise<void> {
     await this.store.play({ deviceId });
+    
+    // Phase 5: Resume timer for music files
+    if (this.isCurrentFileMusicType(deviceId)) {
+      this.timerManager.resumeTimer(deviceId);
+    }
   }
 
   async pause(deviceId: string): Promise<void> {
     await this.store.pauseMusic({ deviceId });
+    
+    // Phase 5: Pause timer for music files
+    if (this.isCurrentFileMusicType(deviceId)) {
+      this.timerManager.pauseTimer(deviceId);
+    }
   }
 
   async stop(deviceId: string): Promise<void> {
     await this.store.stopPlayback({ deviceId });
+    
+    // Phase 5: Stop timer
+    this.timerManager.stopTimer(deviceId);
   }
 
   async next(deviceId: string): Promise<void> {
@@ -150,12 +187,23 @@ export class PlayerContextService implements IPlayerContext {
     // Always call the store action first
     await this.store.navigateNext({ deviceId });
     
+    // Check if navigation was successful - cleanup timer if error occurred
+    if (this.hasErrorAndCleanup(deviceId)) {
+      return;
+    }
+    
     // If in shuffle mode, load directory context for the new random file
     if (launchMode === LaunchMode.Shuffle) {
       const currentFile = this.store.getCurrentFile(deviceId)();
       if (currentFile) {
         await this.loadDirectoryContextForRandomFile(currentFile);
       }
+    }
+    
+    // Phase 5: Setup timer for the new file only after successful navigation
+    const currentFile = this.store.getCurrentFile(deviceId)();
+    if (currentFile) {
+      this.setupTimerForFile(deviceId, currentFile.file);
     }
   }
 
@@ -165,12 +213,23 @@ export class PlayerContextService implements IPlayerContext {
     // Always call the store action first
     await this.store.navigatePrevious({ deviceId });
     
+    // Check if navigation was successful - cleanup timer if error occurred
+    if (this.hasErrorAndCleanup(deviceId)) {
+      return;
+    }
+    
     // If in shuffle mode, load directory context for the new random file
     if (launchMode === LaunchMode.Shuffle) {
       const currentFile = this.store.getCurrentFile(deviceId)();
       if (currentFile) {
         await this.loadDirectoryContextForRandomFile(currentFile);
       }
+    }
+    
+    // Phase 5: Setup timer for the new file only after successful navigation
+    const currentFile = this.store.getCurrentFile(deviceId)();
+    if (currentFile) {
+      this.setupTimerForFile(deviceId, currentFile.file);
     }
   }
 
@@ -182,5 +241,93 @@ export class PlayerContextService implements IPlayerContext {
   private isCurrentFileMusicType(deviceId: string): boolean {
     const currentFile = this.getCurrentFile(deviceId)();
     return currentFile?.file?.type === FileItemType.Song;
+  }
+
+  /**
+   * Check if operation resulted in error state and cleanup timer if so.
+   * Returns true if error exists (indicating operation should abort).
+   */
+  private hasErrorAndCleanup(deviceId: string): boolean {
+    const error = this.store.getPlayerError(deviceId)();
+    if (error) {
+      // Operation failed - cleanup any existing timer
+      this.cleanupTimerSubscriptions(deviceId);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Phase 5: Setup timer for music file
+   * Creates timer, subscribes to updates and completion events
+   */
+  private setupTimerForFile(deviceId: string, file: FileItem): void {
+    // Only setup timer for music files
+    if (file.type !== FileItemType.Song) {
+      logInfo(LogType.Info, `Skipping timer setup for non-music file: ${file.name}`);
+      // Cleanup any existing timer when switching to non-music file
+      this.cleanupTimerSubscriptions(deviceId);
+      this.timerManager.destroyTimer(deviceId);
+      return;
+    }
+
+    // Parse play length
+    let totalTime = parsePlayLength(file.playLength ?? '');
+    
+    // If parsing failed or returned 0, use default 3-minute timer and log warning
+    if (totalTime === 0) {
+      const DEFAULT_TIMER_MS = 180000; // 3 minutes
+      totalTime = DEFAULT_TIMER_MS;
+      
+      if (!file.playLength || file.playLength.trim() === '') {
+        logWarn(`Music file ${file.name} has empty playLength. Using default 3-minute timer. Backend should provide playLength.`);
+      } else {
+        logWarn(`Music file ${file.name} has invalid playLength format: "${file.playLength}". Using default 3-minute timer. Backend should provide valid playLength.`);
+      }
+    }
+
+    logInfo(LogType.Start, `Setting up timer for ${file.name} (${totalTime}ms) on device ${deviceId}`);
+
+    // Cleanup existing timer subscriptions
+    this.cleanupTimerSubscriptions(deviceId);
+
+    // Create timer
+    this.timerManager.createTimer(deviceId, totalTime);
+
+    // Subscribe to timer updates
+    const updateSub = this.timerManager.onTimerUpdate$(deviceId).subscribe((timerState) => {
+      this.store.updateTimerState({ deviceId, timerState });
+    });
+
+    // Subscribe to timer completion for auto-progression
+    const completeSub = this.timerManager.onTimerComplete$(deviceId).subscribe(() => {
+      logInfo(LogType.Success, `Timer completed for device ${deviceId}, auto-progressing to next file`);
+      void this.next(deviceId);
+    });
+
+    // Store subscriptions for cleanup
+    this.timerSubscriptions.set(deviceId, [updateSub, completeSub]);
+
+    logInfo(LogType.Success, `Timer setup complete for device ${deviceId}`);
+  }
+
+  /**
+   * Phase 5: Cleanup timer subscriptions and destroy timer
+   */
+  private cleanupTimerSubscriptions(deviceId: string): void {
+    const subs = this.timerSubscriptions.get(deviceId);
+    if (subs) {
+      subs.forEach(sub => sub.unsubscribe());
+      this.timerSubscriptions.delete(deviceId);
+    }
+    this.timerManager.destroyTimer(deviceId);
+    this.store.updateTimerState({ deviceId, timerState: null });
+  }
+
+  /**
+   * Phase 5: Get timer state for a device
+   */
+  getTimerState(deviceId: string) {
+    return this.store.getTimerState(deviceId);
   }
 }

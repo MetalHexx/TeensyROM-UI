@@ -544,7 +544,7 @@ The incremental development approach breaks down the complex player system into 
 **Scope**:
 - Timer state for progress tracking
 - Song progress display (metadata duration)
-- **Hardcoded timer duration** for Games/Images (e.g., 30 seconds)
+- timer duration only for songs right now.
 - Automatic next file when timer expires
 - **NO** custom timer durations or file history yet
 
