@@ -101,6 +101,8 @@ namespace TeensyRom.Core.Games
 
             game.Images.AddRange(images);
 
+            game.MetadataSource = game.Images.Select(i => i.Source).FirstOrDefault() ?? string.Empty;
+
             return game;
         }
     }

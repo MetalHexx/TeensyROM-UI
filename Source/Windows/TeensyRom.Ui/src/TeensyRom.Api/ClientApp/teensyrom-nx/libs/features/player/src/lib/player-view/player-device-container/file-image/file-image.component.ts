@@ -1,7 +1,7 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CycleImageComponent, ScalingCardComponent } from '@teensyrom-nx/ui/components';
-import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
+import type { LaunchedFile } from '@teensyrom-nx/application';
 
 @Component({
   selector: 'lib-file-image',
@@ -10,17 +10,14 @@ import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
   styleUrl: './file-image.component.scss',
 })
 export class FileImageComponent {
-  private readonly playerContext = inject(PLAYER_CONTEXT);
-
   // Inputs
-  deviceId = input.required<string>();
-  creatorName = input<string>();
-  metadataSource = input<string>('Metadata Source');
+  currentFile = input<LaunchedFile | null>();
 
-  // Computed signals derived from player context
-  currentFile = computed(() => this.playerContext.getCurrentFile(this.deviceId())());
+  // Computed signals derived from input
+  creatorName = computed(() => this.currentFile()?.file.creator ?? '');
+  metadataSource = computed(() => this.currentFile()?.file.metadataSource ?? '');
   imageUrls = computed(() =>
-    this.currentFile()?.file.images.map(img => img.url).filter((url: string) => url && url.length > 0) ?? []
+    this.currentFile()?.file.images.map((img) => img.url).filter((url: string) => url && url.length > 0) ?? []
   );
   hasImages = computed(() => this.imageUrls().length > 0);
 }

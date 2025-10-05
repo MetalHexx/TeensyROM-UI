@@ -1,7 +1,7 @@
 @if (device()?.isConnected) {
 <div class="device-container">
   <div class="device-header">
-    <lib-file-image [deviceId]="deviceId()" [creatorName]="`Creator Name`"></lib-file-image>
+    <lib-file-image [currentFile]="currentFile()"></lib-file-image>
     <lib-file-other [deviceId]="deviceId()"></lib-file-other>
   </div>
   @if (isPlayerLoaded()) {

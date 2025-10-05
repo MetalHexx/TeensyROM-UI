@@ -28,10 +28,11 @@ export class PlayerDeviceContainerComponent {
 
   readonly deviceId = computed(() => this.device()?.deviceId ?? '');
 
-  readonly isPlayerLoaded = computed(() => {
+  readonly currentFile = computed(() => {
     const deviceId = this.deviceId();
-    if (!deviceId) return false;
-    const currentFile = this.playerContext.getCurrentFile(deviceId)();
-    return currentFile !== null;
+    if (!deviceId) return null;
+    return this.playerContext.getCurrentFile(deviceId)();
   });
+
+  readonly isPlayerLoaded = computed(() => this.currentFile() !== null);
 }

@@ -2,7 +2,7 @@
 {
     public class GameItem : LaunchableItem, IViewableItem
     {
-        public override string Creator => GetExtensionShortDescription();
+        public override string Creator => "";
         public override string Description => GetExtensionLongDescription();
         public override string Title => $"{Name[..Name.LastIndexOf('.')]}";
         public override string Meta1 => Name[(Name.LastIndexOf('.') + 1)..];
