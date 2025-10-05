@@ -111,9 +111,12 @@ namespace TeensyRom.Core.Music.Sid
 
             if(File.Exists(hsvcImageName))
             {
+                var fileName = Path.GetFileName(hsvcImageName);
                 song.Images.Add(new ViewableItemImage
                 {
+                    FileName = fileName,
                     Path = hsvcImageName,
+                    BaseAssetPath = "/" + MusicConstants.Musician_Image_Local_Path.Replace('\\', '/') + "/" + fileName,
                     Source = MusicConstants.DeepSid
                 });
             }

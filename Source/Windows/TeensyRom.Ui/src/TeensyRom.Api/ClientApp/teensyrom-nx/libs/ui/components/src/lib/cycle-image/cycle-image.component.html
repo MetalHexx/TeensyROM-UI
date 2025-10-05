@@ -1,0 +1,34 @@
+<div class="image-container">
+  <!-- Blurred background - previous -->
+  @if (showPrevious() && previousImage()) {
+    <img
+      [src]="previousImage()"
+      alt=""
+      class="background-image previous" />
+  }
+
+  <!-- Blurred background - current -->
+  @if (currentImage()) {
+    <img
+      [src]="currentImage()"
+      alt=""
+      class="background-image current" />
+  }
+
+  <!-- Previous image - fades out -->
+  @if (showPrevious() && previousImage()) {
+    <img
+      [src]="previousImage()"
+      alt="Previous image"
+      class="carousel-image previous" />
+  }
+
+  <!-- Current image - always visible -->
+  @if (currentImage()) {
+    <img
+      [src]="currentImage()"
+      alt="Current image"
+      class="carousel-image current"
+      [@fadeIn]="animationKey()" />
+  }
+</div>

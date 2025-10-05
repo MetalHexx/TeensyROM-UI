@@ -1,8 +1,8 @@
 @if (device()?.isConnected) {
 <div class="device-container">
   <div class="device-header">
-    <lib-file-image [creatorName]="`Creator Name`"></lib-file-image>
-    <lib-file-other></lib-file-other>
+    <lib-file-image [deviceId]="deviceId()" [creatorName]="`Creator Name`"></lib-file-image>
+    <lib-file-other [deviceId]="deviceId()"></lib-file-other>
   </div>
   @if (isPlayerLoaded()) {
     <div class="player-toolbar">

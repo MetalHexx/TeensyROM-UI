@@ -36,6 +36,12 @@ export interface ViewableItemImageDto {
      * @type {string}
      * @memberof ViewableItemImageDto
      */
+    baseAssetPath: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ViewableItemImageDto
+     */
     source: string;
 }
 
@@ -45,6 +51,7 @@ export interface ViewableItemImageDto {
 export function instanceOfViewableItemImageDto(value: object): value is ViewableItemImageDto {
     if (!('fileName' in value) || value['fileName'] === undefined) return false;
     if (!('path' in value) || value['path'] === undefined) return false;
+    if (!('baseAssetPath' in value) || value['baseAssetPath'] === undefined) return false;
     if (!('source' in value) || value['source'] === undefined) return false;
     return true;
 }
@@ -61,6 +68,7 @@ export function ViewableItemImageDtoFromJSONTyped(json: any, ignoreDiscriminator
         
         'fileName': json['fileName'],
         'path': json['path'],
+        'baseAssetPath': json['baseAssetPath'],
         'source': json['source'],
     };
 }
@@ -78,6 +86,7 @@ export function ViewableItemImageDtoToJSONTyped(value?: ViewableItemImageDto | n
         
         'fileName': value['fileName'],
         'path': value['path'],
+        'baseAssetPath': value['baseAssetPath'],
         'source': value['source'],
     };
 }

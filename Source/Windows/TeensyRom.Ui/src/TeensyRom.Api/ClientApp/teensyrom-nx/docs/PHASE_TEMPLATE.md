@@ -17,6 +17,9 @@ Concise description of the phase goal in 1–2 sentences. What outcome does this
 - [ ]
 - [ ] (Add or remove as appropriate)
 
+## File Tree
+Show a file tree of the file structure file new and update files so we understand the file structure that will be generated.
+
 ## 📋 Implementation Tasks
 - Make sure you cross link relevant documentation from the higher level planning docs you think will assist with phase/task context in each task below.
 - Tasks should be detailed, however, code references should be as minimal as possible.  

@@ -12,3 +12,8 @@ mat-card {
   width: 100%;
   position: relative;
 }
+
+.no-metadata {
+  color: var(--color-dimmed);
+  font-style: italic;
+}

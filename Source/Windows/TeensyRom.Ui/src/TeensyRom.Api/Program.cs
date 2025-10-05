@@ -1,7 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.FileProviders;
 using Scalar.AspNetCore;
+using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using TeensyRom.Api.Endpoints.GetDeviceEvents;
@@ -58,6 +60,18 @@ builder.Services.AddSignalR().AddJsonProtocol(options =>
 });
 
 var app = builder.Build();
+
+// Configure static file serving for assets
+// Use the same path resolution as AssetHelper to ensure we serve from where assets are actually unpacked
+var assetsPath = Path.Combine(Assembly.GetExecutingAssembly().GetPath(), "Assets");
+if (Directory.Exists(assetsPath))
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(assetsPath),
+        RequestPath = "/Assets"
+    });
+}
 
 app.UseUiCors();
 app.UseRateLimiter();

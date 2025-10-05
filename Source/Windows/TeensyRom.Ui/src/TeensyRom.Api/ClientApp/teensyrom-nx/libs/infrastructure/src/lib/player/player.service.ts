@@ -13,9 +13,14 @@ import { logError } from '@teensyrom-nx/utils';
 
 @Injectable({ providedIn: 'root' })
 export class PlayerService implements IPlayerService {
+  private readonly baseApiUrl: string;
+
   constructor(
     private readonly apiService: PlayerApiService
-  ) {}
+  ) {
+    // Extract base URL from API service configuration with fallback
+    this.baseApiUrl = (this.apiService as any).configuration?.basePath || 'http://localhost:5168';
+  }
 
   launchFile(deviceId: string, storageType: StorageType, filePath: string): Observable<FileItem> {
     const apiStorageType = DomainMapper.toApiStorageType(storageType);
@@ -31,7 +36,7 @@ export class PlayerService implements IPlayerService {
           logError('Invalid response: launchedFile is missing');
           throw new Error('Invalid response: launchedFile is missing');
         }
-        return DomainMapper.toFileItem(response.launchedFile);
+        return DomainMapper.toFileItem(response.launchedFile, this.baseApiUrl);
       }),
       catchError((error) => {
         logError('PlayerService launchFile failed:', error);
@@ -66,7 +71,7 @@ export class PlayerService implements IPlayerService {
         if (!response?.launchedFile) {
           throw new Error('Invalid response: launchedFile is missing');
         }
-        return DomainMapper.toFileItem(response.launchedFile);
+        return DomainMapper.toFileItem(response.launchedFile, this.baseApiUrl);
       }),
       catchError((error) => {
         console.error('PlayerService launchRandom failed:', error);

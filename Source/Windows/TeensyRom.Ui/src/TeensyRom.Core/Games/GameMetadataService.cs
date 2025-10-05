@@ -25,6 +25,20 @@ namespace TeensyRom.Core.Games
                 if(fileMetadata is not null && fileMetadata.Any())
                 {
                     log.Internal($"Loaded {fileMetadata.Count} game metadata items from file.");
+                    
+                    // Populate BaseAssetPath for cached metadata that might be missing this property
+                    foreach (var item in fileMetadata)
+                    {
+                        if (string.IsNullOrEmpty(item.BaseAssetPath))
+                        {
+                            var isLoadingScreen = item.Path.Contains(GameConstants.Loading_Screen_Sub_Path);
+                            var basePath = isLoadingScreen
+                                ? "/" + GameConstants.Game_Image_Local_Path.Replace('\\', '/') + "/" + GameConstants.Loading_Screen_Sub_Path + "/" 
+                                : "/" + GameConstants.Game_Image_Local_Path.Replace('\\', '/') + "/" + GameConstants.Screenshots_Sub_Path + "/";
+                            item.BaseAssetPath = basePath + item.FileName;
+                        }
+                    }
+                    
                     return fileMetadata;
                 }
             }
@@ -33,15 +47,24 @@ namespace TeensyRom.Core.Games
 
             log.Internal($"Found {loadingScreens.Length} loading screens and {screenshots.Length} screenshots.");
 
-            var allScreenMetadata = loadingScreens
-                .Concat(screenshots)
-                .ToList()
-                .Select(f => new ViewableItemImage
-                {
-                    FileName = Path.GetFileName(f),
-                    Path = f,
-                    Source = GameConstants.OneLoad64
-                })
+            var loadingScreenImages = loadingScreens.Select(f => new ViewableItemImage
+            {
+                FileName = Path.GetFileName(f),
+                Path = f,
+                BaseAssetPath = "/" + GameConstants.Game_Image_Local_Path.Replace('\\', '/') + "/" + GameConstants.Loading_Screen_Sub_Path + "/" + Path.GetFileName(f),
+                Source = GameConstants.OneLoad64
+            });
+
+            var screenshotImages = screenshots.Select(f => new ViewableItemImage
+            {
+                FileName = Path.GetFileName(f),
+                Path = f,
+                BaseAssetPath = "/" + GameConstants.Game_Image_Local_Path.Replace('\\', '/') + "/" + GameConstants.Screenshots_Sub_Path + "/" + Path.GetFileName(f),
+                Source = GameConstants.OneLoad64
+            });
+
+            var allScreenMetadata = loadingScreenImages
+                .Concat(screenshotImages)
                 .OrderBy(f => f.FileName)
                 .ToList();
 

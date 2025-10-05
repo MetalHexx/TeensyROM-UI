@@ -559,6 +559,32 @@ The incremental development approach breaks down the complex player system into 
 
 ---
 
+### Phase 6: Asset Image URLs & Animated Image Carousel
+**Goal**: Display file artwork/screenshots with animated carousel cycling through available images
+
+**Scope**:
+- Regenerate API client to pick up `baseAssetPath` property on `ViewableItemImageDto`
+- Add `url` property to `ViewableItemImage` domain model
+- Update `DomainMapper` to construct full URLs from `baseAssetPath` + base API URL
+- Extract base API URL from existing API service configurations (PlayerApiService, FilesApiService)
+- Modify `PlayerService` and `StorageService` to pass base API URL to mapper
+- Create reusable `CycleImageComponent` with timer-based image cycling and scaling animations
+- Integrate carousel into `FileImageComponent` using player context signals
+- **NO** custom Asset service - base URL extracted from existing infrastructure services
+
+**Additions**:
+- `ViewableItemImage.url` property (full URL to image asset)
+- `DomainMapper.toViewableItemImage(dto, baseApiUrl)` - accepts base URL parameter
+- `DomainMapper.toFileItem(dto, baseApiUrl)` - passes URL to image mapper
+- `DomainMapper.toStorageDirectory(dto, baseApiUrl)` - passes URL to file mapper
+- Base URL extraction from PlayerApiService and FilesApiService configurations
+- `CycleImageComponent` - reusable carousel with ScalingContainer animations
+- `FileImageComponent` integration with player context signals
+
+**Demonstrable Value**: Users see file artwork/screenshots with smooth animated transitions
+
+---
+
 ### Design Evolution Notes
 
 **Important**: The `PLAYER_DOMAIN_DESIGN.md` document should continue being referenced and updated as new concepts emerge during implementation. Each phase may reveal design adjustments or additional patterns that need to be addressed.

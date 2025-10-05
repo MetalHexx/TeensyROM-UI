@@ -1,7 +1,8 @@
-import { Component, input } from '@angular/core';
+import { Component, input, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScalingCardComponent } from '@teensyrom-nx/ui/components';
 import { MatChipsModule } from '@angular/material/chips';
+import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
 
 @Component({
   selector: 'lib-file-other',
@@ -10,9 +11,23 @@ import { MatChipsModule } from '@angular/material/chips';
   styleUrl: './file-other.component.scss',
 })
 export class FileOtherComponent {
-  filename = input<string>('File Name');
-  releaseInfo = input<string>('Release Info');
-  meta1 = input<string>('Meta 1');
-  meta2 = input<string>('Meta 2');
-  metadataSource = input<string>('Metadata Source');
+  private readonly playerContext = inject(PLAYER_CONTEXT);
+
+  // Required input for device identification
+  deviceId = input.required<string>();
+
+  // Computed signals derived from current file
+  private readonly currentFile = computed(() => this.playerContext.getCurrentFile(this.deviceId())());
+
+  readonly filename = computed(() => this.currentFile()?.file.name ?? 'No file selected');
+  readonly title = computed(() => this.currentFile()?.file.title ?? '');
+  readonly releaseInfo = computed(() => this.currentFile()?.file.releaseInfo ?? '');
+  readonly description = computed(() => this.currentFile()?.file.description ?? '');
+  readonly meta1 = computed(() => this.currentFile()?.file.meta1 ?? '');
+  readonly meta2 = computed(() => this.currentFile()?.file.meta2 ?? '');
+  readonly metadataSource = computed(() => this.currentFile()?.file.metadataSource ?? '');
+  readonly hasContent = computed(() => {
+    const file = this.currentFile();
+    return !!(file?.file.title || file?.file.description);
+  });
 }

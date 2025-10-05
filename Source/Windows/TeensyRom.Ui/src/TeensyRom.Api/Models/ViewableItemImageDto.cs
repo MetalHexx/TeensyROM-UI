@@ -19,6 +19,11 @@ namespace TeensyRom.Api.Models
         [Required] public string Path { get; set; } = string.Empty;
 
         /// <summary>
+        /// The base asset path relative to the Assets directory (e.g., "/Assets/Game/Images/Screenshots/").
+        /// </summary>
+        [Required] public string BaseAssetPath { get; set; } = string.Empty;
+
+        /// <summary>
         /// The source or origin of the image.
         /// </summary>
         [Required] public string Source { get; set; } = string.Empty;
@@ -32,6 +37,7 @@ namespace TeensyRom.Api.Models
             {
                 FileName = image.FileName,
                 Path = image.Path,
+                BaseAssetPath = image.BaseAssetPath,
                 Source = image.Source
             };
         }

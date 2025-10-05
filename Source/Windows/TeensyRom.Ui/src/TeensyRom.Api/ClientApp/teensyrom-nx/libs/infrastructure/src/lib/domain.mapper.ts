@@ -69,14 +69,14 @@ export class DomainMapper {
 
   // ===== STORAGE MAPPING =====
 
-  static toStorageDirectory(storageCacheDto: StorageCacheDto): StorageDirectory {
+  static toStorageDirectory(storageCacheDto: StorageCacheDto, baseApiUrl: string): StorageDirectory {
     if (!storageCacheDto) {
       throw new Error('StorageCacheDto is required for transformation');
     }
 
     return {
       directories: storageCacheDto.directories?.map(DomainMapper.toDirectoryItem) ?? [],
-      files: storageCacheDto.files?.map(DomainMapper.toFileItem) ?? [],
+      files: storageCacheDto.files?.map(file => DomainMapper.toFileItem(file, baseApiUrl)) ?? [],
       path: storageCacheDto.path ?? '',
     };
   }
@@ -92,7 +92,7 @@ export class DomainMapper {
     };
   }
 
-  static toFileItem(fileItemDto: FileItemDto): FileItem {
+  static toFileItem(fileItemDto: FileItemDto, baseApiUrl: string): FileItem {
     if (!fileItemDto) {
       throw new Error('FileItemDto is required for transformation');
     }
@@ -116,20 +116,24 @@ export class DomainMapper {
       playLength: fileItemDto.playLength ?? '',
       subtuneLengths: fileItemDto.subtuneLengths ?? [],
       startSubtuneNum: fileItemDto.startSubtuneNum ?? 0,
-      images: fileItemDto.images?.map(DomainMapper.toViewableItemImage) ?? [],
+      images: fileItemDto.images?.map(img => DomainMapper.toViewableItemImage(img, baseApiUrl)) ?? [],
       type: DomainMapper.toFileItemType(fileItemDto.type),
     };
   }
 
-  static toViewableItemImage(viewableItemImageDto: ViewableItemImageDto): ViewableItemImage {
+  static toViewableItemImage(viewableItemImageDto: ViewableItemImageDto, baseApiUrl: string): ViewableItemImage {
     if (!viewableItemImageDto) {
       throw new Error('ViewableItemImageDto is required for transformation');
     }
+
+    const baseAssetPath = viewableItemImageDto.baseAssetPath ?? '';
+    const url = baseAssetPath ? `${baseApiUrl}${baseAssetPath}` : '';
 
     return {
       fileName: viewableItemImageDto.fileName ?? '',
       path: viewableItemImageDto.path ?? '',
       source: viewableItemImageDto.source ?? '',
+      url,
     };
   }
 

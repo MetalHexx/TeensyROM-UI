@@ -4,6 +4,7 @@ export * from './lib/icon-label/icon-label.component';
 export * from './lib/status-icon-label/status-icon-label.component';
 export * from './lib/card-layout/card-layout.component';
 export * from './lib/compact-card-layout/compact-card-layout.component';
+export * from './lib/cycle-image/cycle-image.component';
 export * from './lib/scaling-card/scaling-card.component';
 export * from './lib/scaling-compact-card/scaling-compact-card.component';
 export * from './lib/input-field/input-field.component';

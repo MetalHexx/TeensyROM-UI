@@ -86,6 +86,10 @@ export class ScalingContainerComponent {
   // Internal animation completion signal for child components (public for provider access)
   animationCompleteSignal = signal(false);
 
+  // Memoize random direction selection per instance
+  private selectedEntryDirection: Exclude<AnimationDirection, 'random' | 'none'> | null = null;
+  private selectedExitDirection: Exclude<AnimationDirection, 'random' | 'none'> | null = null;
+
   // Inject parent completion signal (if exists)
   private parentComplete = inject(PARENT_ANIMATION_COMPLETE, {
     optional: true,
@@ -151,25 +155,37 @@ export class ScalingContainerComponent {
       return 'translate(0, 0)';
     }
 
-    // For diagonal corners, we invert the direction on exit for variety
-    // For cardinal directions (left/right/top/bottom), we keep the same direction
-    const multiplier = isExit ? -1 : 1;
+    // Direction naming: "from-X" means element comes FROM direction X
+    // Entry: element starts at direction position, moves to center (0,0)
+    // Exit: element starts at center (0,0), moves OUT to direction position
+    // So entry and exit use the SAME offset, just applied at different times
 
     const directionMap: Record<Exclude<AnimationDirection, 'random' | 'none'>, string> = {
-      'from-left': `translate(-40px, 0)`,
-      'from-right': `translate(40px, 0)`,
-      'from-top': `translate(0, -40px)`,
-      'from-bottom': `translate(0, 40px)`,
-      'from-top-left': `translate(${-40 * multiplier}px, ${-40 * multiplier}px)`,
-      'from-top-right': `translate(${40 * multiplier}px, ${-40 * multiplier}px)`,
-      'from-bottom-left': `translate(${-40 * multiplier}px, ${40 * multiplier}px)`,
-      'from-bottom-right': `translate(${40 * multiplier}px, ${40 * multiplier}px)`,
+      'from-left': `translate(-40px, 0)`,      // Coming from left = starts at left (-X)
+      'from-right': `translate(40px, 0)`,      // Coming from right = starts at right (+X)
+      'from-top': `translate(0, -40px)`,       // Coming from top = starts at top (-Y)
+      'from-bottom': `translate(0, 40px)`,     // Coming from bottom = starts at bottom (+Y)
+      'from-top-left': `translate(-40px, -40px)`,
+      'from-top-right': `translate(40px, -40px)`,
+      'from-bottom-left': `translate(-40px, 40px)`,
+      'from-bottom-right': `translate(40px, 40px)`,  // Starts at bottom-right (+X, +Y)
     };
 
+    // Handle random direction - memoize selection per instance
     if (direction === 'random') {
       const directions = Object.keys(directionMap) as Array<Exclude<AnimationDirection, 'random' | 'none'>>;
-      const randomDir = directions[Math.floor(Math.random() * directions.length)];
-      return directionMap[randomDir];
+
+      if (isExit) {
+        if (!this.selectedExitDirection) {
+          this.selectedExitDirection = directions[Math.floor(Math.random() * directions.length)];
+        }
+        return directionMap[this.selectedExitDirection];
+      } else {
+        if (!this.selectedEntryDirection) {
+          this.selectedEntryDirection = directions[Math.floor(Math.random() * directions.length)];
+        }
+        return directionMap[this.selectedEntryDirection];
+      }
     }
 
     return directionMap[direction];
@@ -188,6 +204,11 @@ export class ScalingContainerComponent {
     };
 
     if (direction === 'random') {
+      // Use the same random direction as entry transform
+      if (this.selectedEntryDirection) {
+        return originMap[this.selectedEntryDirection];
+      }
+
       const directions = Object.keys(originMap) as Array<Exclude<AnimationDirection, 'random' | 'none'>>;
       const randomDir = directions[Math.floor(Math.random() * directions.length)];
       return originMap[randomDir];

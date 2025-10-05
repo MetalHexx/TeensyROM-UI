@@ -16,6 +16,8 @@ import { DomainMapper } from './domain.mapper';
 import { FileItemType, StorageType, DeviceState, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
 
 describe('DomainMapper (Storage)', () => {
+  const baseApiUrl = 'http://localhost:5168';
+
   describe('toStorageDirectory', () => {
     it('should transform StorageCacheDto to StorageDirectory successfully', () => {
       // Arrange
@@ -30,6 +32,7 @@ describe('DomainMapper (Storage)', () => {
             path: '/test.prg',
             size: 1024,
             isFavorite: true,
+            isCompatible: true,
             title: 'Test Game',
             creator: 'Test Creator',
             releaseInfo: '2023',
@@ -47,6 +50,7 @@ describe('DomainMapper (Storage)', () => {
               {
                 fileName: 'image.png',
                 path: '/images/image.png',
+                baseAssetPath: '/Assets/Games/Screenshots/image.png',
                 source: 'local',
               },
             ],
@@ -57,7 +61,7 @@ describe('DomainMapper (Storage)', () => {
       };
 
       // Act
-      const result = DomainMapper.toStorageDirectory(storageCacheDto);
+      const result = DomainMapper.toStorageDirectory(storageCacheDto, baseApiUrl);
 
       // Assert
       expect(result).toBeDefined();
@@ -79,7 +83,7 @@ describe('DomainMapper (Storage)', () => {
       };
 
       // Act
-      const result = DomainMapper.toStorageDirectory(storageCacheDto);
+      const result = DomainMapper.toStorageDirectory(storageCacheDto, baseApiUrl);
 
       // Assert
       expect(result.directories).toEqual([]);
@@ -92,7 +96,7 @@ describe('DomainMapper (Storage)', () => {
       const storageCacheDto = null as unknown as StorageCacheDto;
 
       // Act & Assert
-      expect(() => DomainMapper.toStorageDirectory(storageCacheDto)).toThrow(
+      expect(() => DomainMapper.toStorageDirectory(storageCacheDto, baseApiUrl)).toThrow(
         'StorageCacheDto is required for transformation'
       );
     });
@@ -151,6 +155,8 @@ describe('DomainMapper (Storage)', () => {
   });
 
   describe('toFileItem', () => {
+    const baseApiUrl = 'http://localhost:5168';
+
     it('should transform FileItemDto with all properties', () => {
       // Arrange
       const dto: FileItemDto = {
@@ -177,7 +183,7 @@ describe('DomainMapper (Storage)', () => {
       };
 
       // Act
-      const result = DomainMapper.toFileItem(dto);
+      const result = DomainMapper.toFileItem(dto, baseApiUrl);
 
       // Assert
       expect(result.name).toBe('test.sid');
@@ -217,7 +223,7 @@ describe('DomainMapper (Storage)', () => {
       };
 
       // Act
-      const compatibleResult = DomainMapper.toFileItem(compatibleDto);
+      const compatibleResult = DomainMapper.toFileItem(compatibleDto, baseApiUrl);
 
       // Assert
       expect(compatibleResult.isCompatible).toBe(true);
@@ -230,7 +236,7 @@ describe('DomainMapper (Storage)', () => {
       };
 
       // Act
-      const incompatibleResult = DomainMapper.toFileItem(incompatibleDto);
+      const incompatibleResult = DomainMapper.toFileItem(incompatibleDto, baseApiUrl);
 
       // Assert
       expect(incompatibleResult.isCompatible).toBe(false);
@@ -262,10 +268,57 @@ describe('DomainMapper (Storage)', () => {
       };
 
       // Act
-      const result = DomainMapper.toFileItem(dto);
+      const result = DomainMapper.toFileItem(dto, baseApiUrl);
 
       // Assert
       expect(result.isCompatible).toBe(true);
+    });
+
+    it('should pass baseApiUrl to toViewableItemImage for all images', () => {
+      // Arrange
+      const dto: FileItemDto = {
+        name: 'test.prg',
+        path: '/games/test.prg',
+        size: 1024,
+        isFavorite: false,
+        isCompatible: true,
+        title: '',
+        creator: '',
+        releaseInfo: '',
+        description: '',
+        shareUrl: '',
+        metadataSource: '',
+        meta1: '',
+        meta2: '',
+        metadataSourcePath: '',
+        parentPath: '/games',
+        playLength: '',
+        subtuneLengths: [],
+        startSubtuneNum: 0,
+        images: [
+          {
+            fileName: 'screenshot1.png',
+            path: '/images/screenshot1.png',
+            baseAssetPath: '/Assets/Games/Screenshots/screenshot1.png',
+            source: 'local',
+          },
+          {
+            fileName: 'screenshot2.png',
+            path: '/images/screenshot2.png',
+            baseAssetPath: '/Assets/Games/Screenshots/screenshot2.png',
+            source: 'local',
+          },
+        ],
+        type: ApiFileItemType.Game,
+      };
+
+      // Act
+      const result = DomainMapper.toFileItem(dto, baseApiUrl);
+
+      // Assert
+      expect(result.images).toHaveLength(2);
+      expect(result.images[0].url).toBe('http://localhost:5168/Assets/Games/Screenshots/screenshot1.png');
+      expect(result.images[1].url).toBe('http://localhost:5168/Assets/Games/Screenshots/screenshot2.png');
     });
 
     it('should throw error when FileItemDto is null', () => {
@@ -273,28 +326,80 @@ describe('DomainMapper (Storage)', () => {
       const dto = null as unknown as FileItemDto;
 
       // Act & Assert
-      expect(() => DomainMapper.toFileItem(dto)).toThrow(
+      expect(() => DomainMapper.toFileItem(dto, baseApiUrl)).toThrow(
         'FileItemDto is required for transformation'
       );
     });
   });
 
   describe('toViewableItemImage', () => {
-    it('should transform ViewableItemImageDto successfully', () => {
+    const baseApiUrl = 'http://localhost:5168';
+
+    it('should transform ViewableItemImageDto successfully with URL construction', () => {
       // Arrange
       const dto: ViewableItemImageDto = {
         fileName: 'screenshot.png',
         path: '/images/screenshot.png',
+        baseAssetPath: '/Assets/Games/Screenshots/screenshot.png',
         source: 'embedded',
       };
 
       // Act
-      const result = DomainMapper.toViewableItemImage(dto);
+      const result = DomainMapper.toViewableItemImage(dto, baseApiUrl);
 
       // Assert
       expect(result.fileName).toBe('screenshot.png');
       expect(result.path).toBe('/images/screenshot.png');
       expect(result.source).toBe('embedded');
+      expect(result.url).toBe('http://localhost:5168/Assets/Games/Screenshots/screenshot.png');
+    });
+
+    it('should construct URL correctly from baseApiUrl + baseAssetPath', () => {
+      // Arrange
+      const dto: ViewableItemImageDto = {
+        fileName: 'test.png',
+        path: '/test.png',
+        baseAssetPath: '/Assets/Music/Covers/test.png',
+        source: 'local',
+      };
+
+      // Act
+      const result = DomainMapper.toViewableItemImage(dto, baseApiUrl);
+
+      // Assert
+      expect(result.url).toBe('http://localhost:5168/Assets/Music/Covers/test.png');
+    });
+
+    it('should return empty string for url when baseAssetPath is empty', () => {
+      // Arrange
+      const dto: ViewableItemImageDto = {
+        fileName: 'test.png',
+        path: '/test.png',
+        baseAssetPath: '',
+        source: 'local',
+      };
+
+      // Act
+      const result = DomainMapper.toViewableItemImage(dto, baseApiUrl);
+
+      // Assert
+      expect(result.url).toBe('');
+    });
+
+    it('should return empty string for url when baseAssetPath is undefined', () => {
+      // Arrange
+      const dto: ViewableItemImageDto = {
+        fileName: 'test.png',
+        path: '/test.png',
+        baseAssetPath: undefined as any,
+        source: 'local',
+      };
+
+      // Act
+      const result = DomainMapper.toViewableItemImage(dto, baseApiUrl);
+
+      // Assert
+      expect(result.url).toBe('');
     });
 
     it('should throw error when ViewableItemImageDto is null', () => {
@@ -302,7 +407,7 @@ describe('DomainMapper (Storage)', () => {
       const dto = null as unknown as ViewableItemImageDto;
 
       // Act & Assert
-      expect(() => DomainMapper.toViewableItemImage(dto)).toThrow(
+      expect(() => DomainMapper.toViewableItemImage(dto, baseApiUrl)).toThrow(
         'ViewableItemImageDto is required for transformation'
       );
     });

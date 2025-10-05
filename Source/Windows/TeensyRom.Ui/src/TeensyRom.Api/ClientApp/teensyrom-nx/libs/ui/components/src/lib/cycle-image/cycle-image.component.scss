@@ -1,0 +1,96 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.background-image {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(20px);
+  opacity: 0.8;
+}
+
+.background-image.current {
+  z-index: 1;
+  animation: fadeInBlur 2s ease-in-out;
+}
+
+.background-image.previous {
+  z-index: 0;
+  animation: fadeOut 1s ease-out forwards;
+}
+
+.carousel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  clip-path: inset(0 round 16px);
+  position: relative;
+  z-index: 1;
+}
+
+.carousel-image.current {
+  z-index: 2;
+  animation: fadeInFromBlur 1.5s ease-in-out;
+}
+
+.carousel-image.previous {
+  position: absolute;
+  z-index: 2;
+  animation: fadeOut 1s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInFromBlur {
+  0% {
+    opacity: 0;
+    filter: blur(20px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+@keyframes fadeInBlur {
+  0% {
+    opacity: 0;
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0.8;
+    filter: blur(20px);
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

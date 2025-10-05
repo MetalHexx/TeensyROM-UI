@@ -6,7 +6,12 @@ import { Observable, map, catchError, throwError, from } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService implements IStorageService {
-  constructor(private readonly apiService: FilesApiService) {}
+  private readonly baseApiUrl: string;
+
+  constructor(private readonly apiService: FilesApiService) {
+    // Extract base URL from API service configuration with fallback
+    this.baseApiUrl = (this.apiService as any).configuration?.basePath || 'http://localhost:5168';
+  }
 
   getDirectory(
     deviceId: string,
@@ -19,7 +24,7 @@ export class StorageService implements IStorageService {
         if (!response.storageItem) {
           throw new Error('Invalid response: storageItem is missing');
         }
-        return DomainMapper.toStorageDirectory(response.storageItem);
+        return DomainMapper.toStorageDirectory(response.storageItem, this.baseApiUrl);
       }),
       catchError((error) => {
         console.error('Storage directory fetch failed:', error);

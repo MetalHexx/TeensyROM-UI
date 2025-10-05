@@ -1,5 +1,5 @@
 <lib-scaling-card
-  [title]="filename()"
+  [title]="title() || filename()"
   [subtitle]="releaseInfo()"
   [metadataSource]="metadataSource()"
 >
@@ -15,24 +15,11 @@
   }
 
   <!-- Main content -->
-  <p>
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae quam vel justo tincidunt
-    luctus. Morbi eu pulvinar arcu. Nam imperdiet, eros eget cursus cursus, justo nulla hendrerit
-    orci, in dignissim ex magna at purus. Integer sit amet nisi sed neque blandit interdum.
-    Vestibulum volutpat viverra justo vel scelerisque. In rhoncus leo vel turpis sagittis, ac
-    suscipit justo euismod. Etiam congue, lacus at lacinia porta, ligula nisl luctus nibh, in
-    faucibus lectus sapien ac arcu. Suspendisse potenti. Nullam vestibulum felis ut libero gravida
-    viverra. Sed venenatis libero non nulla efficitur, vel placerat metus lobortis.
-  </p>
-  <p>
-    Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-    Nullam non neque ex. Proin fermentum, metus sed tincidunt vehicula, sem purus ultricies nulla,
-    ac tempor leo lorem non libero. Etiam suscipit, ex sit amet sagittis facilisis, neque lectus
-    egestas sem, nec tincidunt justo mauris in magna. Sed mattis, velit id porta vulputate, diam
-    nunc commodo nulla, in luctus risus lorem nec lorem. Nam ac laoreet est, ac eleifend elit.
-  </p>
-  <p>
-    Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-    Nullam non neque ex. Proin fermentum, metus sed tincidunt vehicula,
-  </p>
+  @if (hasContent()) {
+    @if (description()) {
+      <p>{{ description() }}</p>
+    }
+  } @else {
+    <p class="no-metadata">No metadata available for this file.</p>
+  }
 </lib-scaling-card>

@@ -1127,6 +1127,7 @@
         "required": [
           "fileName",
           "path",
+          "baseAssetPath",
           "source"
         ],
         "type": "object",
@@ -1135,6 +1136,9 @@
             "type": "string"
           },
           "path": {
+            "type": "string"
+          },
+          "baseAssetPath": {
             "type": "string"
           },
           "source": {
