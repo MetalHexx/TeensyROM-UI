@@ -22,8 +22,9 @@ import { trigger, transition, style, animate } from '@angular/animations';
 export class CycleImageComponent {
   // Inputs
   images = input.required<string[]>();
-  intervalMs = input<number>(3000);
+  intervalMs = input<number>(8000);
   placeholderUrl = input<string>('/placeholder.jpg');
+  size = input<'thumbnail' | 'small' | 'medium' | 'large'>('large');
 
   // Signals for state management
   currentIndex = signal(0);
@@ -43,6 +44,12 @@ export class CycleImageComponent {
     return idx !== null ? this.effectiveImages()[idx] || null : null;
   });
   hasMultipleImages = computed(() => this.effectiveImages().length > 1);
+
+  // Simple mode disables blur/background effects for small sizes
+  isSimpleMode = computed(() => {
+    const sz = this.size();
+    return sz === 'thumbnail' || sz === 'small';
+  });
 
   // Dependency injection
   private readonly destroyRef = inject(DestroyRef);

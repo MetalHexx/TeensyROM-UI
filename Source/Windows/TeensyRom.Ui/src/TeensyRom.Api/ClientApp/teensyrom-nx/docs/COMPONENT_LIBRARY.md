@@ -800,6 +800,216 @@ export class MyComponent {
 
 - [`filter-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/filter-toolbar/filter-toolbar.component.html) - Images filter button
 
+### `ThumbnailImageComponent`
+
+**Purpose**: A compact image thumbnail component for displaying cover art, album artwork, or file previews. Designed for use in media players, file listings, and anywhere a small preview image is needed.
+
+**Selector**: `lib-thumbnail-image`
+
+**Properties**:
+
+- `imageUrl` (optional): `string | null` - URL of the image to display. Component renders nothing when null.
+- `size` (optional): `'small' | 'medium' | 'large'` - Size variant - defaults to 'medium'
+
+**Usage Examples**:
+
+```html
+<!-- Basic usage with medium size (default) -->
+<lib-thumbnail-image [imageUrl]="file.coverArtUrl"></lib-thumbnail-image>
+
+<!-- Small thumbnail for compact lists -->
+<lib-thumbnail-image [imageUrl]="album.thumbnailUrl" size="small"></lib-thumbnail-image>
+
+<!-- Large thumbnail for detailed views -->
+<lib-thumbnail-image [imageUrl]="track.artworkUrl" size="large"></lib-thumbnail-image>
+
+<!-- Conditional rendering (only shows when URL exists) -->
+<lib-thumbnail-image [imageUrl]="file.images[0]?.url ?? null" size="medium"></lib-thumbnail-image>
+```
+
+**Advanced Usage Patterns**:
+
+```typescript
+// Component with computed thumbnail URL
+export class FileInfoComponent {
+  fileItem = input<FileItem | null>();
+
+  // Get the first available image
+  thumbnailUrl = computed(() => {
+    const item = this.fileItem();
+    if (!item?.images || item.images.length === 0) {
+      return null;
+    }
+    return item.images[0].url;
+  });
+}
+```
+
+```html
+<!-- In template -->
+<lib-thumbnail-image [imageUrl]="thumbnailUrl()" size="medium"></lib-thumbnail-image>
+```
+
+**Features**:
+
+- **Conditional Rendering**: Only renders when imageUrl is provided (not null)
+- **Responsive Sizing**: Three size variants for different UI contexts
+- **Object Fit**: Uses `object-fit: cover` for proper image scaling without distortion
+- **Rounded Corners**: 4px border radius for modern card-style appearance
+- **Fallback Background**: Subtle background color when image is loading
+
+**Style Details**:
+
+- **Size Mapping**:
+  - `small` → 32px × 32px (compact lists, inline previews)
+  - `medium` → 48px × 48px (standard player controls, file listings)
+  - `large` → 64px × 64px (detailed views, featured content)
+
+- **Visual Properties**:
+  - `object-fit: cover` - Maintains aspect ratio, crops to fit
+  - `border-radius: 4px` - Subtle rounded corners
+  - `background-color: rgba(255, 255, 255, 0.05)` - Loading state indicator
+
+**Best Practice**: Use for any thumbnail image display throughout the application. The component handles null URLs gracefully, making it safe to use with optional image data. Perfect for media player controls, file browsers, and anywhere visual preview enhances UX.
+
+**Used In**:
+
+- [`file-info.component.html`](../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/file-info/file-info.component.html) - Media player file information display
+
+### `CycleImageComponent`
+
+**Purpose**: An advanced image carousel component that automatically cycles through multiple images with smooth fade transitions and optional blurred background effects. Supports multiple size variants from small thumbnails to large detail views.
+
+**Selector**: `lib-cycle-image`
+
+**Properties**:
+
+- `images` (required): `string[]` - Array of image URLs to cycle through
+- `intervalMs` (optional): `number` - Milliseconds between image transitions - defaults to 8000 (8 seconds)
+- `placeholderUrl` (optional): `string` - Fallback image when no images provided - defaults to '/placeholder.jpg'
+- `size` (optional): `'thumbnail' | 'small' | 'medium' | 'large'` - Size variant - defaults to 'large'
+
+**Usage Examples**:
+
+```html
+<!-- Large detail view with blurred background (default) -->
+<lib-cycle-image [images]="albumArtUrls"></lib-cycle-image>
+
+<!-- Small thumbnail for player toolbar (simple mode - no blur) -->
+<lib-cycle-image
+  [images]="fileItem.images.map(img => img.url)"
+  size="thumbnail">
+</lib-cycle-image>
+
+<!-- Medium size with custom interval -->
+<lib-cycle-image
+  [images]="galleryImages"
+  size="medium"
+  [intervalMs]="5000">
+</lib-cycle-image>
+
+<!-- With placeholder for empty state -->
+<lib-cycle-image
+  [images]="screenshots"
+  placeholderUrl="/assets/no-image.png"
+  size="large">
+</lib-cycle-image>
+```
+
+**Advanced Usage Patterns**:
+
+```typescript
+// Component with computed image URLs from FileItem
+export class FileInfoComponent {
+  fileItem = input<FileItem | null>();
+
+  // Extract all image URLs for cycling
+  imageUrls = computed(() => {
+    const item = this.fileItem();
+    if (!item?.images || item.images.length === 0) {
+      return [];
+    }
+    return item.images.map(img => img.url);
+  });
+}
+```
+
+```html
+<!-- In template - conditional rendering with cycling -->
+@if (imageUrls().length > 0) {
+  <lib-cycle-image [images]="imageUrls()" size="thumbnail"></lib-cycle-image>
+}
+```
+
+**Features**:
+
+- **Automatic Cycling**: Smoothly transitions between images at specified interval
+- **Fade Animations**: 1-second fade transitions with opacity and blur effects
+- **Blurred Background**: Large/medium sizes show artistic blurred background (complex mode)
+- **Simple Mode**: Thumbnail/small sizes disable blur effects for clean thumbnails
+- **Single Image Support**: Works perfectly with single image (no cycling)
+- **Empty State Handling**: Shows placeholder when images array is empty
+- **Responsive Sizing**: Four size variants for different UI contexts
+
+**Size Variants**:
+
+- **`thumbnail`** (48px × 48px):
+  - Simple mode (no blur effects)
+  - `object-fit: cover` for clean thumbnails
+  - 4px border radius
+  - Perfect for: Player toolbars, compact lists, inline previews
+
+- **`small`** (80px × 80px):
+  - Simple mode (no blur effects)
+  - `object-fit: cover`
+  - 6px border radius
+  - Perfect for: Card thumbnails, small galleries
+
+- **`medium`** (160px × 160px):
+  - Complex mode with blurred background
+  - `object-fit: contain` with clip-path
+  - 8px border radius
+  - Perfect for: Album art displays, featured content
+
+- **`large`** (full width/height):
+  - Complex mode with blurred background
+  - `object-fit: contain` with clip-path
+  - 16px border radius
+  - Perfect for: Full detail views, main content displays
+
+**Animation Details**:
+
+- **Fade Duration**: 1 second for smooth transitions
+- **Blur Animation**: 1.5 seconds fade-in-from-blur effect (complex mode only)
+- **Background Blur**: 20px gaussian blur at 80% opacity
+- **Layer Management**: Z-index controlled layering for smooth overlays
+
+**Complex vs Simple Mode**:
+
+- **Complex Mode** (medium/large):
+  - Dual-layer blurred backgrounds for depth
+  - Fade-in-from-blur animation
+  - Artistic presentation with `object-fit: contain`
+  - 16px clip-path rounded corners
+
+- **Simple Mode** (thumbnail/small):
+  - Single image layer only
+  - Standard fade animation
+  - Clean presentation with `object-fit: cover`
+  - No blur effects for performance
+
+**Best Practice**:
+- Use `size="thumbnail"` in player toolbars and compact UI
+- Use `size="medium"` or `size="large"` for detail views and galleries
+- Provide multiple images for automatic cycling effect
+- Works seamlessly with single image (no cycling needed)
+- The component automatically selects simple vs complex mode based on size
+
+**Used In**:
+
+- [`file-info.component.html`](../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/file-info/file-info.component.html) - Player toolbar cycling thumbnails
+- File detail views with multiple screenshots/artwork
+
 **Custom Icon Best Practices**:
 
 1. **Component Structure**: Follow the established pattern with minimal SCSS (just `:host` flex properties and `svg` size/color)

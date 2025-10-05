@@ -13,6 +13,7 @@ export * from './lib/action-button/action-button.component';
 export * from './lib/styled-icon/styled-icon.component';
 export * from './lib/icons/joystick-icon/joystick-icon.component';
 export * from './lib/icons/image-icon/image-icon.component';
+export * from './lib/thumbnail-image/thumbnail-image.component';
 export * from './lib/sliding-container/sliding-container.component';
 export * from './lib/scaling-container/scaling-container.component';
 export * from './lib/shared/animation.types';

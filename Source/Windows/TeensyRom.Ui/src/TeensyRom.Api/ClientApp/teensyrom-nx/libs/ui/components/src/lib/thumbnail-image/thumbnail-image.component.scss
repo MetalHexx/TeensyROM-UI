@@ -1,0 +1,25 @@
+:host {
+  display: block;
+}
+
+.thumbnail {
+  display: block;
+  object-fit: cover;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.thumbnail-small {
+  width: 32px;
+  height: 32px;
+}
+
+.thumbnail-medium {
+  width: 48px;
+  height: 48px;
+}
+
+.thumbnail-large {
+  width: 64px;
+  height: 64px;
+}

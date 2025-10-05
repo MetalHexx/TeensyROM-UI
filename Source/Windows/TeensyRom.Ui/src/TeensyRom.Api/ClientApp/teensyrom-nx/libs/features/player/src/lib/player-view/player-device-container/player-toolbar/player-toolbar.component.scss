@@ -9,9 +9,94 @@ mat-card {
   margin: 0;
 }
 
+// Base styles for all layouts
 .player-controls {
   display: flex;
-  justify-content: flex-start;
   align-items: center;
   gap: 16px;
+}
+
+.playback-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.time-display-section {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+// Desktop Layout (>900px): Absolute centered file-info
+.desktop-layout {
+  display: none;
+  position: relative;
+
+  @media (min-width: 901px) {
+    display: flex;
+  }
+
+  .playback-controls {
+    justify-content: flex-start;
+  }
+
+  .file-info-section {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+
+    > * {
+      pointer-events: auto;
+    }
+  }
+}
+
+// Tablet Layout (641px-900px): Flexbox with file-info using remaining space
+.tablet-layout {
+  display: none;
+
+  @media (min-width: 641px) and (max-width: 900px) {
+    display: flex;
+  }
+
+  .playback-controls {
+    justify-content: flex-start;
+  }
+
+  .file-info-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+  }
+}
+
+// Mobile Layout (≤640px): Stacked vertical
+.mobile-layout {
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  min-height: auto;
+
+  @media (max-width: 640px) {
+    display: flex;
+  }
+
+  .playback-controls {
+    justify-content: center;
+  }
+
+  .time-display-section {
+    justify-content: center;
+  }
+
+  .file-info-section {
+    text-align: center;
+    width: 100%;
+  }
 }

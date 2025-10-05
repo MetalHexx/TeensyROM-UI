@@ -1,18 +1,27 @@
-<div class="image-container">
-  <!-- Blurred background - previous -->
-  @if (showPrevious() && previousImage()) {
-    <img
-      [src]="previousImage()"
-      alt=""
-      class="background-image previous" />
-  }
+<div class="image-container"
+     [class.size-thumbnail]="size() === 'thumbnail'"
+     [class.size-small]="size() === 'small'"
+     [class.size-medium]="size() === 'medium'"
+     [class.size-large]="size() === 'large'"
+     [class.simple-mode]="isSimpleMode()">
 
-  <!-- Blurred background - current -->
-  @if (currentImage()) {
-    <img
-      [src]="currentImage()"
-      alt=""
-      class="background-image current" />
+  <!-- Blurred background - only in complex mode (medium/large) -->
+  @if (!isSimpleMode()) {
+    <!-- Blurred background - previous -->
+    @if (showPrevious() && previousImage()) {
+      <img
+        [src]="previousImage()"
+        alt=""
+        class="background-image previous" />
+    }
+
+    <!-- Blurred background - current -->
+    @if (currentImage()) {
+      <img
+        [src]="currentImage()"
+        alt=""
+        class="background-image current" />
+    }
   }
 
   <!-- Previous image - fades out -->

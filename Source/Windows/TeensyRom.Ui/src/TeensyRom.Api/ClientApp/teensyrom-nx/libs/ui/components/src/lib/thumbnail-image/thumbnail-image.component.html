@@ -1,0 +1,10 @@
+@if (imageUrl()) {
+  <img
+    [src]="imageUrl()!"
+    [alt]="'File thumbnail'"
+    class="thumbnail"
+    [class.thumbnail-small]="size() === 'small'"
+    [class.thumbnail-medium]="size() === 'medium'"
+    [class.thumbnail-large]="size() === 'large'"
+  />
+}

@@ -6,74 +6,223 @@
 
   <lib-scaling-compact-card animationEntry="from-top" animationParent="auto">
     <!-- Progress Bar (flush to top inside card) -->
-    <lib-progress-bar 
-      [currentValue]="currentTime()" 
-      [totalValue]="totalTime()" 
+    <lib-progress-bar
+      [currentValue]="currentTime()"
+      [totalValue]="totalTime()"
       [show]="showProgressBar()">
     </lib-progress-bar>
-    
-    <div class="player-controls">
 
-        <!-- Playback Controls Section -->
-        <lib-icon-button
-          icon="skip_previous"
-          ariaLabel="Previous File"
-          size="large"
-          variant="rounded-transparent"
-          color="normal"
-          [disabled]="!canNavigatePrevious()"
-          (buttonClick)="previous()"
-        >
-        </lib-icon-button>
-
-        <!-- Dynamic Play/Pause or Stop Button -->
-        @if (isCurrentFileMusicType()) {
-
-          <!-- Music files get play/pause toggle -->
+    <!-- Desktop Layout: Absolute centered file-info (>900px) -->
+    <div class="player-controls desktop-layout">
+        <div class="playback-controls">
           <lib-icon-button
-            [icon]="getPlayPauseIcon()"
-            [ariaLabel]="getPlayPauseLabel()"
+            icon="skip_previous"
+            ariaLabel="Previous File"
             size="large"
-            variant="rounded-primary"
-            [color]="getPlayButtonColor()"
-            (buttonClick)="playPause()"
+            variant="rounded-transparent"
+            color="normal"
+            [disabled]="!canNavigatePrevious()"
+            (buttonClick)="previous()"
           >
           </lib-icon-button>
-        } @else {
-          
-          <!-- Games/Images get stop button -->
+
+          @if (isCurrentFileMusicType()) {
+            <lib-icon-button
+              [icon]="getPlayPauseIcon()"
+              [ariaLabel]="getPlayPauseLabel()"
+              size="large"
+              variant="rounded-primary"
+              [color]="getPlayButtonColor()"
+              (buttonClick)="playPause()"
+            >
+            </lib-icon-button>
+          } @else {
+            <lib-icon-button
+              icon="stop"
+              ariaLabel="Stop Playback"
+              size="large"
+              variant="rounded-primary"
+              [color]="getPlayButtonColor()"
+              (buttonClick)="stop()"
+            >
+            </lib-icon-button>
+          }
+
           <lib-icon-button
-            icon="stop"
-            ariaLabel="Stop Playback"
+            icon="skip_next"
+            ariaLabel="Next File"
             size="large"
-            variant="rounded-primary"
-            [color]="getPlayButtonColor()"
-            (buttonClick)="stop()"
+            variant="rounded-transparent"
+            color="normal"
+            [disabled]="!canNavigate()"
+            (buttonClick)="next()"
           >
           </lib-icon-button>
-        }
 
-        <lib-icon-button
-          icon="skip_next"
-          ariaLabel="Next File"
-          size="large"
-          variant="rounded-transparent"
-          color="normal"
-          [disabled]="!canNavigate()"
-          (buttonClick)="next()"
-        >
-        </lib-icon-button>
+          <lib-icon-button
+            icon="shuffle"
+            ariaLabel="Toggle Shuffle Mode"
+            size="large"
+            variant="rounded-transparent"
+            [color]="isShuffleMode() ? 'highlight' : 'normal'"
+            (buttonClick)="toggleShuffleMode()"
+          >
+          </lib-icon-button>
+        </div>
 
-        <!-- Shuffle Controls Section -->
-        <lib-icon-button
-          icon="shuffle"
-          ariaLabel="Toggle Shuffle Mode"
-          size="large"
-          variant="rounded-transparent"
-          [color]="isShuffleMode() ? 'highlight' : 'normal'"
-          (buttonClick)="toggleShuffleMode()"
-        >
-        </lib-icon-button>
+        <div class="time-display-section">
+          <lib-file-time
+            [currentTime]="currentTime()"
+            [totalTime]="totalTime()"
+            [show]="showProgressBar()"
+          ></lib-file-time>
+        </div>
+
+        <div class="file-info-section">
+          <lib-file-info [fileItem]="currentFile()?.file ?? null"></lib-file-info>
+        </div>
+    </div>
+
+    <!-- Tablet Layout: Flexbox with file-info in remaining space (641px-900px) -->
+    <div class="player-controls tablet-layout">
+        <div class="playback-controls">
+          <lib-icon-button
+            icon="skip_previous"
+            ariaLabel="Previous File"
+            size="large"
+            variant="rounded-transparent"
+            color="normal"
+            [disabled]="!canNavigatePrevious()"
+            (buttonClick)="previous()"
+          >
+          </lib-icon-button>
+
+          @if (isCurrentFileMusicType()) {
+            <lib-icon-button
+              [icon]="getPlayPauseIcon()"
+              [ariaLabel]="getPlayPauseLabel()"
+              size="large"
+              variant="rounded-primary"
+              [color]="getPlayButtonColor()"
+              (buttonClick)="playPause()"
+            >
+            </lib-icon-button>
+          } @else {
+            <lib-icon-button
+              icon="stop"
+              ariaLabel="Stop Playback"
+              size="large"
+              variant="rounded-primary"
+              [color]="getPlayButtonColor()"
+              (buttonClick)="stop()"
+            >
+            </lib-icon-button>
+          }
+
+          <lib-icon-button
+            icon="skip_next"
+            ariaLabel="Next File"
+            size="large"
+            variant="rounded-transparent"
+            color="normal"
+            [disabled]="!canNavigate()"
+            (buttonClick)="next()"
+          >
+          </lib-icon-button>
+
+          <lib-icon-button
+            icon="shuffle"
+            ariaLabel="Toggle Shuffle Mode"
+            size="large"
+            variant="rounded-transparent"
+            [color]="isShuffleMode() ? 'highlight' : 'normal'"
+            (buttonClick)="toggleShuffleMode()"
+          >
+          </lib-icon-button>
+        </div>
+
+        <div class="time-display-section">
+          <lib-file-time
+            [currentTime]="currentTime()"
+            [totalTime]="totalTime()"
+            [show]="showProgressBar()"
+          ></lib-file-time>
+        </div>
+
+        <div class="file-info-section">
+          <lib-file-info [fileItem]="currentFile()?.file ?? null"></lib-file-info>
+        </div>
+    </div>
+
+    <!-- Mobile Layout: Stacked vertical (≤640px) -->
+    <div class="player-controls mobile-layout">
+        <div class="playback-controls">
+          <lib-icon-button
+            icon="skip_previous"
+            ariaLabel="Previous File"
+            size="large"
+            variant="rounded-transparent"
+            color="normal"
+            [disabled]="!canNavigatePrevious()"
+            (buttonClick)="previous()"
+          >
+          </lib-icon-button>
+
+          @if (isCurrentFileMusicType()) {
+            <lib-icon-button
+              [icon]="getPlayPauseIcon()"
+              [ariaLabel]="getPlayPauseLabel()"
+              size="large"
+              variant="rounded-primary"
+              [color]="getPlayButtonColor()"
+              (buttonClick)="playPause()"
+            >
+            </lib-icon-button>
+          } @else {
+            <lib-icon-button
+              icon="stop"
+              ariaLabel="Stop Playback"
+              size="large"
+              variant="rounded-primary"
+              [color]="getPlayButtonColor()"
+              (buttonClick)="stop()"
+            >
+            </lib-icon-button>
+          }
+
+          <lib-icon-button
+            icon="skip_next"
+            ariaLabel="Next File"
+            size="large"
+            variant="rounded-transparent"
+            color="normal"
+            [disabled]="!canNavigate()"
+            (buttonClick)="next()"
+          >
+          </lib-icon-button>
+
+          <lib-icon-button
+            icon="shuffle"
+            ariaLabel="Toggle Shuffle Mode"
+            size="large"
+            variant="rounded-transparent"
+            [color]="isShuffleMode() ? 'highlight' : 'normal'"
+            (buttonClick)="toggleShuffleMode()"
+          >
+          </lib-icon-button>
+        </div>
+
+        <div class="time-display-section">
+          <lib-file-time
+            [currentTime]="currentTime()"
+            [totalTime]="totalTime()"
+            [show]="showProgressBar()"
+          ></lib-file-time>
+        </div>
+
+        <div class="file-info-section">
+          <lib-file-info [fileItem]="currentFile()?.file ?? null"></lib-file-info>
+        </div>
     </div>
   </lib-scaling-compact-card>
 </lib-sliding-container>

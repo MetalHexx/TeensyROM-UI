@@ -1,7 +1,5 @@
 :host {
   display: block;
-  width: 100%;
-  height: 100%;
 }
 
 .image-container {
@@ -13,6 +11,38 @@
   justify-content: center;
   overflow: hidden;
   border-radius: 16px;
+
+  // Size variants
+  &.size-thumbnail {
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+  }
+
+  &.size-small {
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+  }
+
+  &.size-medium {
+    width: 160px;
+    height: 160px;
+    border-radius: 8px;
+  }
+
+  &.size-large {
+    // Uses full width/height from host
+    border-radius: 16px;
+  }
+
+  // Simple mode (thumbnail/small) - no blur effects
+  &.simple-mode {
+    .carousel-image {
+      object-fit: cover; // Cover for small sizes
+      clip-path: none;
+    }
+  }
 }
 
 .background-image {

@@ -4,10 +4,12 @@ import { ScalingCompactCardComponent, IconButtonComponent, IconButtonColor, Slid
 import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
 import { LaunchMode, PlayerStatus, FileItemType } from '@teensyrom-nx/domain';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
+import { FileInfoComponent } from './file-info/file-info.component';
+import { FileTimeComponent } from './file-time/file-time.component';
 
 @Component({
   selector: 'lib-player-toolbar',
-  imports: [CommonModule, ScalingCompactCardComponent, IconButtonComponent, SlidingContainerComponent, ProgressBarComponent],
+  imports: [CommonModule, ScalingCompactCardComponent, IconButtonComponent, SlidingContainerComponent, ProgressBarComponent, FileInfoComponent, FileTimeComponent],
   templateUrl: './player-toolbar.component.html',
   styleUrl: './player-toolbar.component.scss'
 })
@@ -142,7 +144,7 @@ export class PlayerToolbarComponent {
   }
 
   // Phase 5: Timer state for progress bar
-  timerState = computed(() => 
+  timerState = computed(() =>
     this.playerContext.getTimerState(this.deviceId())()
   );
 
@@ -153,5 +155,12 @@ export class PlayerToolbarComponent {
 
   currentTime = computed(() => this.timerState()?.currentTime ?? 0);
   totalTime = computed(() => this.timerState()?.totalTime ?? 0);
+
+  // Current file for file-info component
+  currentFile = computed(() => {
+    const deviceId = this.deviceId();
+    if (!deviceId) return null;
+    return this.playerContext.getCurrentFile(deviceId)();
+  });
 
 }
