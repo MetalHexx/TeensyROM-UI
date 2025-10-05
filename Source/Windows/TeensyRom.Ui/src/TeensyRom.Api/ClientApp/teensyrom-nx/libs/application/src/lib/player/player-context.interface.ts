@@ -40,6 +40,9 @@ export interface IPlayerContext {
 
   // Phase 5: Timer system
   getTimerState(deviceId: string): Signal<TimerState | null>;
+  
+  // File compatibility
+  isCurrentFileCompatible(deviceId: string): Signal<boolean>;
 }
 
 export const PLAYER_CONTEXT = new InjectionToken<IPlayerContext>('PLAYER_CONTEXT');

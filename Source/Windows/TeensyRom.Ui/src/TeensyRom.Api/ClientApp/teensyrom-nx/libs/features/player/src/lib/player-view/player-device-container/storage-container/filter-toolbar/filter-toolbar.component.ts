@@ -30,14 +30,8 @@ export class FilterToolbarComponent {
     this.playerContext.getShuffleSettings(this.deviceId())()?.filter ?? PlayerFilterType.All
   );
 
-  // Computed signal for error state
-  hasError = computed(() =>
-    this.playerContext.getError(this.deviceId())() !== null
-  );
-
-  // Helper method to determine button color (error takes precedence over active state)
+  // Helper method to determine button color based on active state only
   getButtonColor(filterType: PlayerFilterType): IconButtonColor {
-    if (this.hasError()) return 'error';
     return this.activeFilter() === filterType ? 'highlight' : 'normal';
   }
 

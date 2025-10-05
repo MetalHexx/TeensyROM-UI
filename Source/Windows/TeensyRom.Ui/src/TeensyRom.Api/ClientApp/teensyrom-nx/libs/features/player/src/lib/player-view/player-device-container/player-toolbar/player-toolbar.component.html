@@ -20,7 +20,7 @@
           ariaLabel="Previous File"
           size="large"
           variant="rounded-transparent"
-          [color]="getButtonColor()"
+          color="normal"
           [disabled]="!canNavigatePrevious()"
           (buttonClick)="previous()"
         >
@@ -35,7 +35,7 @@
             [ariaLabel]="getPlayPauseLabel()"
             size="large"
             variant="rounded-primary"
-            [color]="getButtonColor()"
+            [color]="getPlayButtonColor()"
             (buttonClick)="playPause()"
           >
           </lib-icon-button>
@@ -47,7 +47,7 @@
             ariaLabel="Stop Playback"
             size="large"
             variant="rounded-primary"
-            [color]="getButtonColor()"
+            [color]="getPlayButtonColor()"
             (buttonClick)="stop()"
           >
           </lib-icon-button>
@@ -58,7 +58,7 @@
           ariaLabel="Next File"
           size="large"
           variant="rounded-transparent"
-          [color]="getButtonColor()"
+          color="normal"
           [disabled]="!canNavigate()"
           (buttonClick)="next()"
         >

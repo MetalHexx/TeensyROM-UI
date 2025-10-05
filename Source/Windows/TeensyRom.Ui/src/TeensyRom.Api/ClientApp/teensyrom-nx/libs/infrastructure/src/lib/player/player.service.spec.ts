@@ -19,6 +19,7 @@ const createFileItemDto = (): FileItemDto => ({
   path: '/test/file.sid',
   size: 4096,
   isFavorite: false,
+  isCompatible: true,
   title: 'Test File',
   creator: 'Test Creator',
   releaseInfo: '2025',
@@ -386,6 +387,85 @@ describe('PlayerService', () => {
 
         expect(result).toBeUndefined();
       });
+    });
+  });
+
+  describe('isCompatible Field Mapping', () => {
+    it('should map isCompatible field from launchFile response', async () => {
+      const deviceId = 'device-123';
+      const incompatibleFile: FileItemDto = {
+        ...createFileItemDto(),
+        name: 'incompatible.sid',
+        isCompatible: false,
+      };
+
+      const response: LaunchFileResponse = {
+        message: 'Launched',
+        launchedFile: incompatibleFile,
+      };
+
+      mockPlayerApi.launchFile.mockResolvedValue(response);
+
+      const result = await new Promise<FileItem>((resolve, reject) => {
+        service.launchFile(deviceId, StorageType.Sd, '/test/incompatible.sid').subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      expect(result.isCompatible).toBe(false);
+      expect(result.name).toBe('incompatible.sid');
+    });
+
+    it('should map isCompatible=true for compatible files', async () => {
+      const deviceId = 'device-123';
+      const compatibleFile: FileItemDto = {
+        ...createFileItemDto(),
+        name: 'compatible.sid',
+        isCompatible: true,
+      };
+
+      const response: LaunchFileResponse = {
+        message: 'Launched',
+        launchedFile: compatibleFile,
+      };
+
+      mockPlayerApi.launchFile.mockResolvedValue(response);
+
+      const result = await new Promise<FileItem>((resolve, reject) => {
+        service.launchFile(deviceId, StorageType.Sd, '/test/compatible.sid').subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      expect(result.isCompatible).toBe(true);
+      expect(result.name).toBe('compatible.sid');
+    });
+
+    it('should map isCompatible field from launchRandom response', async () => {
+      const incompatibleFile: FileItemDto = {
+        ...createFileItemDto(),
+        name: 'random-incompatible.sid',
+        isCompatible: false,
+      };
+
+      const response: LaunchRandomResponse = {
+        launchedFile: incompatibleFile,
+        message: 'Random launched',
+      };
+
+      mockPlayerApi.launchRandom.mockResolvedValue(response);
+
+      const result = await new Promise<FileItem>((resolve, reject) => {
+        service.launchRandom('device-1', PlayerScope.Storage, PlayerFilterType.All).subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      expect(result.isCompatible).toBe(false);
+      expect(result.name).toBe('random-incompatible.sid');
     });
   });
 });

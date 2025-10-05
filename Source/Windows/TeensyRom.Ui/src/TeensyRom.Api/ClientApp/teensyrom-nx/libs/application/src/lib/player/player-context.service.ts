@@ -158,6 +158,12 @@ export class PlayerContextService implements IPlayerContext {
 
   // Phase 3: New playback control methods
   async play(deviceId: string): Promise<void> {
+    // Phase 5: Do not allow play if current file is incompatible
+    if (!this.store.isCurrentFileCompatible(deviceId)()) {
+      logWarn(`Cannot play incompatible file on device ${deviceId}`);
+      return;
+    }
+
     await this.store.play({ deviceId });
     
     // Phase 5: Resume timer for music files
@@ -167,6 +173,12 @@ export class PlayerContextService implements IPlayerContext {
   }
 
   async pause(deviceId: string): Promise<void> {
+    // Phase 5: Do not allow pause if current file is incompatible
+    if (!this.store.isCurrentFileCompatible(deviceId)()) {
+      logWarn(`Cannot pause incompatible file on device ${deviceId}`);
+      return;
+    }
+
     await this.store.pauseMusic({ deviceId });
     
     // Phase 5: Pause timer for music files
@@ -228,6 +240,10 @@ export class PlayerContextService implements IPlayerContext {
 
   getPlayerStatus(deviceId: string) {
     return this.store.getPlayerStatus(deviceId);
+  }
+
+  isCurrentFileCompatible(deviceId: string) {
+    return this.store.isCurrentFileCompatible(deviceId);
   }
 
   // Helper method to determine if current file is music type

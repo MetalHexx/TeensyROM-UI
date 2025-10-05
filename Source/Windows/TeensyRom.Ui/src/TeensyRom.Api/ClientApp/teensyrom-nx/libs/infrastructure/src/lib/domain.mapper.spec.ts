@@ -158,6 +158,7 @@ describe('DomainMapper (Storage)', () => {
         path: '/music/test.sid',
         size: 2048,
         isFavorite: false,
+        isCompatible: true,
         title: 'Test Song',
         creator: 'Test Musician',
         releaseInfo: '1985',
@@ -183,10 +184,88 @@ describe('DomainMapper (Storage)', () => {
       expect(result.path).toBe('/music/test.sid');
       expect(result.size).toBe(2048);
       expect(result.isFavorite).toBe(false);
+      expect(result.isCompatible).toBe(true);
       expect(result.title).toBe('Test Song');
       expect(result.creator).toBe('Test Musician');
       expect(result.type).toBe(FileItemType.Song);
       expect(result.subtuneLengths).toEqual(['2:45', '1:30']);
+    });
+
+    it('should map isCompatible field correctly', () => {
+      // Arrange - Compatible file
+      const compatibleDto: FileItemDto = {
+        name: 'compatible.sid',
+        path: '/music/compatible.sid',
+        size: 1024,
+        isFavorite: false,
+        isCompatible: true,
+        title: '',
+        creator: '',
+        releaseInfo: '',
+        description: '',
+        shareUrl: '',
+        metadataSource: '',
+        meta1: '',
+        meta2: '',
+        metadataSourcePath: '',
+        parentPath: '/music',
+        playLength: '',
+        subtuneLengths: [],
+        startSubtuneNum: 0,
+        images: [],
+        type: ApiFileItemType.Song,
+      };
+
+      // Act
+      const compatibleResult = DomainMapper.toFileItem(compatibleDto);
+
+      // Assert
+      expect(compatibleResult.isCompatible).toBe(true);
+
+      // Arrange - Incompatible file
+      const incompatibleDto: FileItemDto = {
+        ...compatibleDto,
+        name: 'incompatible.sid',
+        isCompatible: false,
+      };
+
+      // Act
+      const incompatibleResult = DomainMapper.toFileItem(incompatibleDto);
+
+      // Assert
+      expect(incompatibleResult.isCompatible).toBe(false);
+    });
+
+    it('should default isCompatible to true when undefined', () => {
+      // Arrange
+      const dto: FileItemDto = {
+        name: 'test.sid',
+        path: '/music/test.sid',
+        size: 1024,
+        isFavorite: false,
+        isCompatible: undefined,
+        title: '',
+        creator: '',
+        releaseInfo: '',
+        description: '',
+        shareUrl: '',
+        metadataSource: '',
+        meta1: '',
+        meta2: '',
+        metadataSourcePath: '',
+        parentPath: '/music',
+        playLength: '',
+        subtuneLengths: [],
+        startSubtuneNum: 0,
+        images: [],
+        type: ApiFileItemType.Song,
+      };
+
+      // Act
+      const result = DomainMapper.toFileItem(dto);
+
+      // Assert
+      expect(result.isCompatible).toBe(true);
     });
 
     it('should throw error when FileItemDto is null', () => {

@@ -2,7 +2,7 @@ import { StateSignals, WritableStateSource } from '@ngrx/signals';
 import { updateState } from '@angular-architects/ngrx-toolkit';
 import { PlayerState, DevicePlayerState, LaunchedFile, PlayerFileContext } from './player-store';
 import { FileItem, PlayerStatus, LaunchMode, StorageType, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
-import { StorageKeyUtil } from '../storage/storage-key.util';
+import { StorageKeyUtil, StorageKey } from '../storage/storage-key.util';
 import { logInfo, logError, LogType } from '@teensyrom-nx/utils';
 
 export type WritableStore<T extends object> = StateSignals<T> & WritableStateSource<T>;
@@ -259,6 +259,162 @@ export function createPlayerFileContext(
 
 export function getPlayerState(store: WritableStore<PlayerState>, deviceId: string): DevicePlayerState | null {
   return store.players()[deviceId] ?? null;
+}
+
+/**
+ * Helper for navigation actions - handles compatible file launches in shuffle mode
+ */
+export function setShuffleNavigationSuccess(
+  store: WritableStore<PlayerState>,
+  deviceId: string,
+  launchedFile: FileItem,
+  existingStorageKey: StorageKey | undefined,
+  actionMessage: string
+): void {
+  const timestamp = Date.now();
+  const storageKey = existingStorageKey || StorageKeyUtil.create(deviceId, StorageType.Sd);
+  const parentPath = launchedFile.path.substring(0, launchedFile.path.lastIndexOf('/')) || '/';
+
+  logInfo(LogType.Success, `PlayerHelper: Shuffle navigation success for device ${deviceId} with file ${launchedFile.name}`);
+
+  updateState(store, actionMessage, (state) => ({
+    players: {
+      ...state.players,
+      [deviceId]: {
+        ...state.players[deviceId],
+        currentFile: {
+          storageKey,
+          file: launchedFile,
+          parentPath,
+          launchedAt: timestamp,
+          launchMode: LaunchMode.Shuffle,
+          isCompatible: launchedFile.isCompatible,
+        },
+        status: PlayerStatus.Playing,
+        error: null,
+        lastUpdated: timestamp,
+      },
+    },
+  }));
+}
+
+/**
+ * Helper for navigation actions - handles incompatible file launches in shuffle mode
+ */
+export function setShuffleNavigationFailure(
+  store: WritableStore<PlayerState>,
+  deviceId: string,
+  launchedFile: FileItem,
+  existingStorageKey: StorageKey | undefined,
+  errorMessage: string,
+  actionMessage: string
+): void {
+  const timestamp = Date.now();
+  const storageKey = existingStorageKey || StorageKeyUtil.create(deviceId, StorageType.Sd);
+  const parentPath = launchedFile.path.substring(0, launchedFile.path.lastIndexOf('/')) || '/';
+
+  logError(`PlayerHelper: Shuffle navigation failure for device ${deviceId} with file ${launchedFile.name}: ${errorMessage}`);
+
+  updateState(store, actionMessage, (state) => ({
+    players: {
+      ...state.players,
+      [deviceId]: {
+        ...state.players[deviceId],
+        currentFile: {
+          storageKey,
+          file: launchedFile,
+          parentPath,
+          launchedAt: timestamp,
+          launchMode: LaunchMode.Shuffle,
+          isCompatible: launchedFile.isCompatible,
+        },
+        status: PlayerStatus.Stopped,
+        error: errorMessage,
+        lastUpdated: timestamp,
+      },
+    },
+  }));
+}
+
+/**
+ * Helper for navigation actions - handles compatible file launches in directory mode
+ */
+export function setDirectoryNavigationSuccess(
+  store: WritableStore<PlayerState>,
+  deviceId: string,
+  launchedFile: FileItem,
+  fileContext: PlayerFileContext,
+  newIndex: number,
+  actionMessage: string
+): void {
+  const timestamp = Date.now();
+
+  logInfo(LogType.Success, `PlayerHelper: Directory navigation success for device ${deviceId} with file ${launchedFile.name}`);
+
+  updateState(store, actionMessage, (state) => ({
+    players: {
+      ...state.players,
+      [deviceId]: {
+        ...state.players[deviceId],
+        currentFile: {
+          storageKey: fileContext.storageKey,
+          file: launchedFile,
+          parentPath: fileContext.directoryPath,
+          launchedAt: timestamp,
+          launchMode: LaunchMode.Directory,
+          isCompatible: launchedFile.isCompatible,
+        },
+        fileContext: {
+          ...fileContext,
+          currentIndex: newIndex,
+        },
+        status: PlayerStatus.Playing,
+        error: null,
+        lastUpdated: timestamp,
+      },
+    },
+  }));
+}
+
+/**
+ * Helper for navigation actions - handles incompatible file launches in directory mode
+ */
+export function setDirectoryNavigationFailure(
+  store: WritableStore<PlayerState>,
+  deviceId: string,
+  launchedFile: FileItem,
+  fileContext: PlayerFileContext,
+  newIndex: number,
+  errorMessage: string,
+  actionMessage: string
+): void {
+  const timestamp = Date.now();
+
+  logError(`PlayerHelper: Directory navigation failure for device ${deviceId} with file ${launchedFile.name}: ${errorMessage}`);
+
+  updateState(store, actionMessage, (state) => ({
+    players: {
+      ...state.players,
+      [deviceId]: {
+        ...state.players[deviceId],
+        currentFile: {
+          storageKey: fileContext.storageKey,
+          file: launchedFile,
+          parentPath: fileContext.directoryPath,
+          launchedAt: timestamp,
+          launchMode: LaunchMode.Directory,
+          isCompatible: launchedFile.isCompatible,
+        },
+        fileContext: {
+          ...fileContext,
+          currentIndex: newIndex,
+        },
+        status: PlayerStatus.Stopped,
+        error: errorMessage,
+        lastUpdated: timestamp,
+      },
+    },
+  }));
 }
 
 

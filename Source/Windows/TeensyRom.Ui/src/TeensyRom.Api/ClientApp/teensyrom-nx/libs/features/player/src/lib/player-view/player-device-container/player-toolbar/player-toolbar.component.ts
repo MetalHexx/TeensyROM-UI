@@ -132,8 +132,13 @@ export class PlayerToolbarComponent {
     this.playerContext.getError(this.deviceId())() !== null
   );
 
-  getButtonColor(): IconButtonColor {
-    return this.hasError() ? 'error' : 'normal';
+  isFileCompatible = computed(() => 
+    this.playerContext.isCurrentFileCompatible(this.deviceId())()
+  );
+
+  getPlayButtonColor(): IconButtonColor {
+    // Only show error (red) on play button when file is incompatible
+    return !this.isFileCompatible() ? 'error' : 'normal';
   }
 
   // Phase 5: Timer state for progress bar

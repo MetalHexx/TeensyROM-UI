@@ -434,11 +434,23 @@ describe('PlayerContextService', () => {
 
     describe('Play Control', () => {
       it('should start playback when player is stopped', async () => {
-        // Setup: Player should start in stopped state
+        // Setup: Launch a music file first so we have a compatible file loaded
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: musicFile,
+          directoryPath: '/music',
+          files: [musicFile],
+        });
+        
+        // Stop the player
+        mockDeviceService.resetDevice.mockReturnValue(of(undefined));
+        await service.stop(deviceId);
         expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Stopped);
         
+        // Now test play
         mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
-
         await service.play(deviceId);
         await nextTick();
 
@@ -497,12 +509,32 @@ describe('PlayerContextService', () => {
       });
 
       it('should handle play API error', async () => {
+        // Setup: Launch a music file first so we have a compatible file loaded
+        mockPlayerService.launchFile.mockReturnValue(of(musicFile));
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: musicFile,
+          directoryPath: '/music',
+          files: [musicFile],
+        });
+        
+        // Stop the player so we can test play() when not playing
+        mockDeviceService.resetDevice.mockReturnValue(of(undefined));
+        await service.stop(deviceId);
+        expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Stopped);
+        
+        // Clear any previous state and setup mock for error
+        await nextTick();
+        
+        // Now test play with API error
         const error = new Error('Play failed');
         mockPlayerService.toggleMusic.mockReturnValue(throwError(() => error));
 
         await service.play(deviceId);
         await nextTick();
 
+        // Should have set error in store
         expect(service.getError(deviceId)()).toBeTruthy();
       });
     });
@@ -581,6 +613,94 @@ describe('PlayerContextService', () => {
       });
     });
 
+    describe('Incompatible File Playback Prevention', () => {
+      it('should prevent play() when current file is incompatible', async () => {
+        // Launch an incompatible file
+        const incompatibleFile = createTestFileItem({ 
+          name: 'incompatible.sid', 
+          path: '/music/incompatible.sid',
+          isCompatible: false 
+        });
+        
+        mockPlayerService.launchFile.mockReturnValue(throwError(() => new Error('Incompatible file')));
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: incompatibleFile,
+          directoryPath: '/music',
+          files: [incompatibleFile],
+        });
+        await nextTick();
+
+        // Clear the mock to verify it's not called
+        mockPlayerService.toggleMusic.mockClear();
+
+        // Attempt to play - should be prevented
+        await service.play(deviceId);
+        await nextTick();
+
+        // Should NOT call the API
+        expect(mockPlayerService.toggleMusic).not.toHaveBeenCalled();
+      });
+
+      it('should prevent pause() when current file is incompatible', async () => {
+        // Launch an incompatible file
+        const incompatibleFile = createTestFileItem({ 
+          name: 'incompatible.sid', 
+          path: '/music/incompatible.sid',
+          isCompatible: false 
+        });
+        
+        mockPlayerService.launchFile.mockReturnValue(throwError(() => new Error('Incompatible file')));
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: incompatibleFile,
+          directoryPath: '/music',
+          files: [incompatibleFile],
+        });
+        await nextTick();
+
+        // Clear the mock to verify it's not called
+        mockPlayerService.toggleMusic.mockClear();
+
+        // Attempt to pause - should be prevented
+        await service.pause(deviceId);
+        await nextTick();
+
+        // Should NOT call the API
+        expect(mockPlayerService.toggleMusic).not.toHaveBeenCalled();
+      });
+
+      it('should allow stop() even when current file is incompatible', async () => {
+        // Launch an incompatible file
+        const incompatibleFile = createTestFileItem({ 
+          name: 'incompatible.sid', 
+          path: '/music/incompatible.sid',
+          isCompatible: false 
+        });
+        
+        mockPlayerService.launchFile.mockReturnValue(throwError(() => new Error('Incompatible file')));
+        await service.launchFileWithContext({
+          deviceId,
+          storageType: StorageType.Sd,
+          file: incompatibleFile,
+          directoryPath: '/music',
+          files: [incompatibleFile],
+        });
+        await nextTick();
+
+        // Clear any previous errors and setup stop mock
+        mockDeviceService.resetDevice.mockReturnValue(of(undefined));
+
+        // Attempt to stop - should be allowed
+        await service.stop(deviceId);
+        await nextTick();
+
+        // Should call the API
+        expect(mockDeviceService.resetDevice).toHaveBeenCalledWith(deviceId);
+      });
+    });
 
 
     describe('Stop Control', () => {

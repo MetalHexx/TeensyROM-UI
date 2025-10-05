@@ -10,6 +10,7 @@ import { getPlayerStatus } from './get-player-status';
 import { getShuffleSettings } from './get-shuffle-settings';
 import { getLaunchMode } from './get-launch-mode';
 import { getTimerState } from './get-timer-state';
+import { isCurrentFileCompatible } from './is-current-file-compatible';
 
 export function withPlayerSelectors() {
   return withMethods((store) => {
@@ -24,6 +25,7 @@ export function withPlayerSelectors() {
       ...getShuffleSettings(writableStore),
       ...getLaunchMode(writableStore),
       ...getTimerState(writableStore),
+      ...isCurrentFileCompatible(writableStore),
     };
   });
 }
