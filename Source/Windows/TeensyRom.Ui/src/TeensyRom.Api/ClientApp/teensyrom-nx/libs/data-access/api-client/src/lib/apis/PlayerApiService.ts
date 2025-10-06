@@ -17,6 +17,7 @@ import * as runtime from '../runtime';
 import type {
   LaunchFileResponse,
   LaunchRandomResponse,
+  NullableOfTeensyFilterType,
   ProblemDetails,
   TeensyStorageType,
   ToggleMusicResponse,
@@ -26,6 +27,8 @@ import {
     LaunchFileResponseToJSON,
     LaunchRandomResponseFromJSON,
     LaunchRandomResponseToJSON,
+    NullableOfTeensyFilterTypeFromJSON,
+    NullableOfTeensyFilterTypeToJSON,
     ProblemDetailsFromJSON,
     ProblemDetailsToJSON,
     TeensyStorageTypeFromJSON,
@@ -43,7 +46,7 @@ export interface LaunchFileRequest {
 export interface LaunchRandomRequest {
     deviceId: string;
     storageType: TeensyStorageType;
-    filterType?: LaunchRandomFilterTypeEnum;
+    filterType?: NullableOfTeensyFilterType;
     scope?: LaunchRandomScopeEnum;
     startingDirectory?: string;
 }
@@ -201,17 +204,6 @@ export class PlayerApiService extends runtime.BaseAPI {
 
 }
 
-/**
- * @export
- */
-export const LaunchRandomFilterTypeEnum = {
-    All: 'All',
-    Games: 'Games',
-    Music: 'Music',
-    Hex: 'Hex',
-    Images: 'Images'
-} as const;
-export type LaunchRandomFilterTypeEnum = typeof LaunchRandomFilterTypeEnum[keyof typeof LaunchRandomFilterTypeEnum];
 /**
  * @export
  */

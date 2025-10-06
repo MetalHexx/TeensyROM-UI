@@ -20,9 +20,11 @@ models/IndexAllResponse.ts
 models/IndexResponse.ts
 models/LaunchFileResponse.ts
 models/LaunchRandomResponse.ts
+models/NullableOfTeensyFilterType.ts
 models/PingDeviceResponse.ts
 models/ProblemDetails.ts
 models/ResetDeviceResponse.ts
+models/SearchResponse.ts
 models/StartLogsResponse.ts
 models/StopLogsResponse.ts
 models/StorageCacheDto.ts

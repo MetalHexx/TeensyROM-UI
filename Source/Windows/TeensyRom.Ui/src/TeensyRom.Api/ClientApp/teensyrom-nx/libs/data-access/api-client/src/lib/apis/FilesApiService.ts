@@ -18,7 +18,9 @@ import type {
   GetDirectoryResponse,
   IndexAllResponse,
   IndexResponse,
+  NullableOfTeensyFilterType,
   ProblemDetails,
+  SearchResponse,
   TeensyStorageType,
 } from '../models/index';
 import {
@@ -28,8 +30,12 @@ import {
     IndexAllResponseToJSON,
     IndexResponseFromJSON,
     IndexResponseToJSON,
+    NullableOfTeensyFilterTypeFromJSON,
+    NullableOfTeensyFilterTypeToJSON,
     ProblemDetailsFromJSON,
     ProblemDetailsToJSON,
+    SearchResponseFromJSON,
+    SearchResponseToJSON,
     TeensyStorageTypeFromJSON,
     TeensyStorageTypeToJSON,
 } from '../models/index';
@@ -44,6 +50,13 @@ export interface IndexRequest {
     deviceId: string;
     storageType: TeensyStorageType;
     startingPath?: string;
+}
+
+export interface SearchRequest {
+    deviceId: string;
+    storageType: TeensyStorageType;
+    searchText: string;
+    filterType?: NullableOfTeensyFilterType;
 }
 
 /**
@@ -168,6 +181,63 @@ export class FilesApiService extends runtime.BaseAPI {
      */
     async indexAll(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<IndexAllResponse> {
         const response = await this.indexAllRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Searches for files in the specified storage device based on search text and filter criteria.  - Searches through file names, titles, creators, and descriptions. - Returns metadata for all matching files. - Supports file type filtering (All, Games, Music, Images, Hex). - Excludes favorites and playlist directories from search results. - Uses weighted search algorithm to rank results by relevance.
+     * Search Files
+     */
+    async searchRaw(requestParameters: SearchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SearchResponse>> {
+        if (requestParameters['deviceId'] == null) {
+            throw new runtime.RequiredError(
+                'deviceId',
+                'Required parameter "deviceId" was null or undefined when calling search().'
+            );
+        }
+
+        if (requestParameters['storageType'] == null) {
+            throw new runtime.RequiredError(
+                'storageType',
+                'Required parameter "storageType" was null or undefined when calling search().'
+            );
+        }
+
+        if (requestParameters['searchText'] == null) {
+            throw new runtime.RequiredError(
+                'searchText',
+                'Required parameter "searchText" was null or undefined when calling search().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['searchText'] != null) {
+            queryParameters['SearchText'] = requestParameters['searchText'];
+        }
+
+        if (requestParameters['filterType'] != null) {
+            queryParameters['FilterType'] = requestParameters['filterType'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/devices/{deviceId}/storage/{storageType}/search`.replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters['deviceId']))).replace(`{${"storageType"}}`, encodeURIComponent(String(requestParameters['storageType']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => SearchResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Searches for files in the specified storage device based on search text and filter criteria.  - Searches through file names, titles, creators, and descriptions. - Returns metadata for all matching files. - Supports file type filtering (All, Games, Music, Images, Hex). - Excludes favorites and playlist directories from search results. - Uses weighted search algorithm to rank results by relevance.
+     * Search Files
+     */
+    async search(requestParameters: SearchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SearchResponse> {
+        const response = await this.searchRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
