@@ -1,0 +1,17 @@
+<div #container class="marquee-container">
+  <div
+    #content
+    class="marquee-content"
+    [class.scrolling]="shouldScroll()"
+    [ngClass]="shouldScroll() ? [directionClass(), pauseClass(), effectClass()] : [effectClass()]"
+    [style.--scroll-duration.s]="scrollDuration()"
+  >
+    @if (effectClass() === 'none-effect') {
+      {{ text() }}
+    } @else {
+      @for (char of characters(); track $index) {
+        <span class="char" [style.--char-index]="$index">{{ char }}</span>
+      }
+    }
+  </div>
+</div>

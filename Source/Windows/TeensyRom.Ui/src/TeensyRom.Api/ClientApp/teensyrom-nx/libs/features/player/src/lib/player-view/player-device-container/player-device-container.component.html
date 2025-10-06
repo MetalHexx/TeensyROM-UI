@@ -4,6 +4,13 @@
     <lib-file-image [currentFile]="currentFile()"></lib-file-image>
     <lib-file-other [deviceId]="deviceId()"></lib-file-other>
   </div>
+  <!-- @if (isPlayerLoaded() && fileDescription()) {
+    <div class="marquee-container">
+      <lib-scaling-compact-card animationEntry="from-top">
+        <lib-scrolling-marquee [text]="fileDescription()" effect="random"></lib-scrolling-marquee>
+      </lib-scaling-compact-card>
+    </div>
+  } -->
   @if (isPlayerLoaded()) {
     <div class="player-toolbar">
       <lib-player-toolbar [deviceId]="deviceId()"></lib-player-toolbar>

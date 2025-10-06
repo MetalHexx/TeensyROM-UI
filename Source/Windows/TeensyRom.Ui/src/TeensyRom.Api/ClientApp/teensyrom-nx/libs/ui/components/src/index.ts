@@ -16,5 +16,6 @@ export * from './lib/icons/image-icon/image-icon.component';
 export * from './lib/thumbnail-image/thumbnail-image.component';
 export * from './lib/sliding-container/sliding-container.component';
 export * from './lib/scaling-container/scaling-container.component';
+export * from './lib/scrolling-marquee/scrolling-marquee.component';
 export * from './lib/shared/animation.types';
 export * from './lib/shared/animation-tokens';

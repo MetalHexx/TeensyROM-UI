@@ -1,0 +1,183 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.marquee-container {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+}
+
+.marquee-content {
+  display: inline-block;
+  white-space: nowrap;
+  padding: 8px 16px;
+  letter-spacing: 0.1em; // Add extra space between characters for better readability
+  word-spacing: 0.3em; // Add extra space between words
+  will-change: transform; // Optimize for GPU acceleration
+
+  // Default state - no animation
+  &:not(.scrolling) {
+    // Static text, no animation
+  }
+
+  // Scrolling state
+  &.scrolling {
+    // Scroll left animation
+    &.scroll-left {
+      animation: scroll-left var(--scroll-duration, 10s) linear infinite;
+    }
+
+    // Scroll right animation
+    &.scroll-right {
+      animation: scroll-right var(--scroll-duration, 10s) linear infinite;
+    }
+
+    // Pause on hover if enabled
+    &.pause-on-hover:hover {
+      animation-play-state: paused;
+    }
+  }
+}
+
+// Scrolling keyframe animations - starts from the right edge of container
+// Using calc with 100vw ensures text starts from far right regardless of text length
+@keyframes scroll-left {
+  0% {
+    transform: translateX(100vw);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes scroll-right {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+// Effect animations for individual characters
+.char {
+  display: inline-block;
+
+  // Preserve whitespace characters for proper word spacing
+  white-space: pre;
+}
+
+// Wave effect - Sine wave vertical motion
+.wave-effect .char {
+  animation: wave 1.5s ease-in-out infinite;
+  animation-delay: calc(var(--char-index) * 0.05s);
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+// Rainbow effect - Color spectrum cycling
+.rainbow-effect .char {
+  animation: rainbow 3s linear infinite;
+  animation-delay: calc(var(--char-index) * 0.1s);
+}
+
+@keyframes rainbow {
+  0% { color: #ff0000; }
+  16.6% { color: #ff8800; }
+  33.3% { color: #ffff00; }
+  50% { color: #00ff00; }
+  66.6% { color: #0088ff; }
+  83.3% { color: #8800ff; }
+  100% { color: #ff0000; }
+}
+
+// Glitch effect - Random displacement
+.glitch-effect .char {
+  animation: glitch 0.3s infinite;
+  animation-delay: calc(var(--char-index) * 0.02s);
+}
+
+@keyframes glitch {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-2px, 1px);
+  }
+  50% {
+    transform: translate(2px, -1px);
+  }
+  75% {
+    transform: translate(-1px, -2px);
+  }
+}
+
+// Bounce effect - Elastic squash/stretch
+.bounce-effect .char {
+  animation: bounce 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  animation-delay: calc(var(--char-index) * 0.03s);
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1, 1);
+  }
+  25% {
+    transform: scale(0.9, 1.1);
+  }
+  50% {
+    transform: scale(1.1, 0.9);
+  }
+  75% {
+    transform: scale(0.95, 1.05);
+  }
+}
+
+// Copper effect - Copper bar sweep
+.copper-effect .char {
+  animation: copper 2s linear infinite;
+  animation-delay: calc(var(--char-index) * 0.05s);
+}
+
+@keyframes copper {
+  0%, 100% {
+    color: #ff6600;
+    text-shadow: 0 0 8px #ff6600;
+  }
+  25% {
+    color: #ffaa00;
+    text-shadow: 0 0 12px #ffaa00;
+  }
+  50% {
+    color: #ffdd00;
+    text-shadow: 0 0 16px #ffdd00;
+  }
+  75% {
+    color: #ffaa00;
+    text-shadow: 0 0 12px #ffaa00;
+  }
+}
+
+// Spiral effect - 3D rotation twist
+.spiral-effect .char {
+  animation: spiral 2s ease-in-out infinite;
+  animation-delay: calc(var(--char-index) * 0.04s);
+}
+
+@keyframes spiral {
+  0%, 100% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(180deg);
+  }
+}

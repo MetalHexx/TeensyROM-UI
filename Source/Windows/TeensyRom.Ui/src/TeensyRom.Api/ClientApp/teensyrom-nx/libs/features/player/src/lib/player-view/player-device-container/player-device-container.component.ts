@@ -6,7 +6,8 @@ import { FileOtherComponent } from './file-other/file-other.component';
 import { FileImageComponent } from './file-image/file-image.component';
 import { PlayerToolbarComponent } from './player-toolbar/player-toolbar.component';
 import { StorageContainerComponent } from './storage-container/storage-container.component';
-import { PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
+import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
+import { ScrollingMarqueeComponent, ScalingCompactCardComponent } from '@teensyrom-nx/ui/components';
 
 @Component({
   selector: 'lib-player-device-container',
@@ -17,6 +18,8 @@ import { PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
     FileOtherComponent,
     PlayerToolbarComponent,
     StorageContainerComponent,
+    ScrollingMarqueeComponent,
+    ScalingCompactCardComponent,
   ],
   templateUrl: './player-device-container.component.html',
   styleUrl: './player-device-container.component.scss',
@@ -35,4 +38,9 @@ export class PlayerDeviceContainerComponent {
   });
 
   readonly isPlayerLoaded = computed(() => this.currentFile() !== null);
+
+  readonly fileDescription = computed(() => {
+    const currentFile = this.currentFile();
+    return currentFile?.file?.description ?? '';
+  });
 }

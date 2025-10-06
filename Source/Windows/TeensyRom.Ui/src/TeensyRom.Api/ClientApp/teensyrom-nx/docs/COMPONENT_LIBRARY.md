@@ -1023,6 +1023,125 @@ export class FileInfoComponent {
 
 ## Display Components
 
+### `ScrollingMarqueeComponent`
+
+**Purpose**: A reusable scrolling marquee component that displays smooth horizontal scrolling text when content overflows its container. Uses CSS-based animation for hardware-accelerated performance.
+
+**Selector**: `lib-scrolling-marquee`
+
+**Properties**:
+
+- `text` (optional): `string` - Text content to display in the marquee - defaults to empty string
+- `speed` (optional): `number` - Scroll speed in pixels per second - defaults to 50
+- `direction` (optional): `'left' | 'right'` - Scroll direction - defaults to 'left'
+- `pauseOnHover` (optional): `boolean` - Pause animation when mouse hovers over the marquee - defaults to true
+- `effect` (optional): `MarqueeEffect` - Visual effect to apply to the text - defaults to 'none'
+  - `'none'` - Basic scroll only
+  - `'wave'` - Sine wave vertical motion
+  - `'rainbow'` - Color spectrum cycling
+  - `'glitch'` - Random displacement (CRT interference)
+  - `'bounce'` - Elastic squash/stretch
+  - `'copper'` - Copper bar sweep (Amiga style)
+  - `'spiral'` - 3D rotation twist
+  - `'random'` - Randomly selects one of the effects above (excludes 'none')
+
+**Usage Examples**:
+
+```html
+<!-- Basic usage with default settings -->
+<lib-scrolling-marquee [text]="fileDescription()"></lib-scrolling-marquee>
+
+<!-- With retro demo effect -->
+<lib-scrolling-marquee
+  [text]="fileDescription()"
+  effect="wave">
+</lib-scrolling-marquee>
+
+<!-- Random effect (selects different effect each time) -->
+<lib-scrolling-marquee
+  [text]="fileDescription()"
+  effect="random">
+</lib-scrolling-marquee>
+
+<!-- Custom speed and direction with rainbow effect -->
+<lib-scrolling-marquee
+  [text]="longText"
+  [speed]="100"
+  direction="right"
+  effect="rainbow">
+</lib-scrolling-marquee>
+
+<!-- Disable pause on hover with glitch effect -->
+<lib-scrolling-marquee
+  [text]="notification"
+  [pauseOnHover]="false"
+  effect="glitch">
+</lib-scrolling-marquee>
+```
+
+**Advanced Usage Patterns**:
+
+```typescript
+// Component with computed text from player state
+export class PlayerDeviceContainerComponent {
+  private readonly playerContext = inject(PLAYER_CONTEXT);
+
+  deviceId = input.required<string>();
+
+  fileDescription = computed(() => {
+    const currentFile = this.playerContext.getCurrentFile(this.deviceId())();
+    return currentFile?.file?.description ?? '';
+  });
+}
+```
+
+```html
+<!-- In template - reactive text from signals -->
+<lib-scrolling-marquee [text]="fileDescription()"></lib-scrolling-marquee>
+```
+
+**Features**:
+
+- **Automatic Overflow Detection**: Only scrolls when text width exceeds container width
+- **CSS Animation**: Hardware-accelerated GPU transforms for smooth 60fps animation
+- **Dynamic Duration**: Automatically calculates animation duration based on content width and speed
+- **Pause on Hover**: Optional mouse hover pause for better readability
+- **Bidirectional**: Supports both left-to-right and right-to-left scrolling
+- **Responsive**: Automatically re-checks overflow when text content changes
+- **Retro Demo Effects**: Six classic demoscene-inspired visual effects
+  - **Wave**: Characters undulate in a smooth sine wave pattern
+  - **Rainbow**: Full color spectrum cycling through the text
+  - **Glitch**: CRT-style interference with random character displacement
+  - **Bounce**: Elastic squash and stretch animation
+  - **Copper**: Amiga-style copper bar sweep with glow effects
+  - **Spiral**: 3D rotation twist effect
+  - **Random**: Automatically selects a different effect
+
+**Animation Details**:
+
+- Uses CSS `@keyframes` with `transform: translateX()` for GPU acceleration
+- Animation duration dynamically calculated: `width / speed = duration`
+- Smooth transitions with `linear` timing function for scrolling
+- Automatic browser optimization when tab is inactive
+- Effects use character-level animations with staggered delays via CSS custom properties
+- Scrolling and effects work simultaneously - effects animate individual characters while the container scrolls
+
+**Performance Considerations**:
+
+- Effects split text into individual character spans for animation
+- GPU-accelerated transforms used for all animations
+- Suitable for text up to ~100 characters with effects
+- For longer text with effects, consider increasing animation speed
+- Effects automatically disable when `effect="none"` to optimize performance
+
+**Best Practice**: Use for displaying long text content that doesn't fit in constrained spaces like file descriptions, notifications, or status messages. The component handles empty text gracefully and only animates when necessary, making it efficient for reactive content. Use `effect="random"` for dynamic visual interest, or choose a specific effect that matches your app's aesthetic.
+
+**Used In**:
+
+- Player UI for file descriptions
+- Notification banners
+- Status bars with dynamic content
+
 ### `StyledIconComponent`
 
 **Purpose**: A reusable styled icon component that displays Material Design icons with consistent sizing and semantic coloring from the design system.
@@ -1354,6 +1473,7 @@ import { CardLayoutComponent } from '@teensyrom-nx/ui/components';
 import { CompactCardLayoutComponent } from '@teensyrom-nx/ui/components';
 import { InputFieldComponent } from '@teensyrom-nx/ui/components';
 import { IconButtonComponent } from '@teensyrom-nx/ui/components';
+import { ScrollingMarqueeComponent } from '@teensyrom-nx/ui/components';
 import { StyledIconComponent } from '@teensyrom-nx/ui/components';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
 import { StatusIconLabelComponent } from '@teensyrom-nx/ui/components';
@@ -1366,6 +1486,7 @@ import { MenuItemComponent } from '@teensyrom-nx/ui/components';
     CompactCardLayoutComponent,
     InputFieldComponent,
     IconButtonComponent,
+    ScrollingMarqueeComponent,
     StyledIconComponent,
     IconLabelComponent,
     StatusIconLabelComponent,
