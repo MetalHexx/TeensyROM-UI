@@ -1,19 +1,9 @@
-<div
-  class="directory-item no-text-selection"
-  [class.selected]="selected()"
-  (click)="onItemClick()"
-  (dblclick)="onItemDoubleClick()"
-  (keydown.enter)="onItemDoubleClick()"
-  (keydown.space)="onItemClick()"
-  tabindex="0"
-  role="button"
+<lib-storage-item
+  icon="folder"
+  iconColor="directory"
+  [label]="directoryItem().name"
+  [selected]="selected()"
+  (selectedChange)="onItemClick()"
+  (activated)="onItemDoubleClick()"
 >
-  <lib-icon-label
-    icon="folder"
-    color="directory"
-    size="medium"
-    [truncate]="false"
-    [label]="directoryItem().name"
-  >
-  </lib-icon-label>
-</div>
+</lib-storage-item>

@@ -128,7 +128,46 @@ Implement granular error state system for buttons:
 
 ## Feature Ideas
 
-_No current items - add feature ideas here as they arise_
+### Directory Trail Refresh Button Re-indexing
+
+**Priority**: Medium  
+**Effort**: 1 day  
+**Created**: 2025-10-05
+
+**Issue**: The refresh button in the directory trail component currently only reloads the cached directory contents from the store. It doesn't trigger a full re-index from the device, which means users cannot force a refresh when the file system has changed on the device.
+
+**Affected Components**:
+- `DirectoryTrailComponent` (smart container)
+- `DirectoryNavigateComponent` (navigation buttons)
+- Storage store actions
+
+**Current Behavior**:
+- Refresh button calls store action to reload current directory from cache
+- No actual communication with device/API
+- Users cannot see new files added to device without manual navigation
+
+**Desired Behavior**:
+- Refresh button triggers `indexStorage` action (see `index-storage.ts`)
+- Performs actual API call to re-index current directory from device
+- Updates store with fresh directory contents
+- Provides visual feedback during indexing operation (loading spinner)
+- Handles indexing errors gracefully with user feedback
+
+**Implementation Notes**:
+- Use existing `indexStorage` method from `libs/application/src/lib/device/methods/index-storage.ts`
+- Requires `deviceId`, `storageType`, and current `path` as parameters
+- Sets `isIndexing` state during operation for loading UI
+- May need to add loading state to directory trail component
+- Consider adding optional `deep` parameter for recursive indexing vs single directory
+
+**Benefits**:
+- Users can manually refresh directory contents when device changes
+- Better synchronization with actual device file system state
+- More intuitive "refresh" behavior matching user expectations
+- Enables troubleshooting scenarios where cache is stale
+- Aligns with common file explorer patterns (F5 refresh)
+
+**Breaking Changes**: None - enhancement to existing functionality
 
 ---
 

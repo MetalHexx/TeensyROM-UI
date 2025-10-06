@@ -39,8 +39,8 @@ describe('DirectoryItemComponent', () => {
       emittedItem = item;
     });
 
-    const directoryElement = fixture.nativeElement.querySelector('.directory-item');
-    directoryElement.click();
+    const storageItemElement = fixture.nativeElement.querySelector('lib-storage-item');
+    storageItemElement.click();
 
     expect(emittedItem).toEqual(mockDirectoryItem);
   });
@@ -51,8 +51,8 @@ describe('DirectoryItemComponent', () => {
       emittedItem = item;
     });
 
-    const directoryElement = fixture.nativeElement.querySelector('.directory-item');
-    directoryElement.dispatchEvent(new MouseEvent('dblclick'));
+    const storageItemElement = fixture.nativeElement.querySelector('lib-storage-item');
+    storageItemElement.dispatchEvent(new MouseEvent('dblclick'));
 
     expect(emittedItem).toEqual(mockDirectoryItem);
   });
@@ -61,15 +61,15 @@ describe('DirectoryItemComponent', () => {
     fixture.componentRef.setInput('selected', true);
     fixture.detectChanges();
 
-    const directoryElement = fixture.nativeElement.querySelector('.directory-item');
-    expect(directoryElement.classList.contains('selected')).toBe(true);
+    const storageItemElement = fixture.nativeElement.querySelector('lib-storage-item');
+    expect(storageItemElement.classList.contains('selected')).toBe(true);
   });
 
   it('should not apply selected class when selected is false', () => {
     fixture.componentRef.setInput('selected', false);
     fixture.detectChanges();
 
-    const directoryElement = fixture.nativeElement.querySelector('.directory-item');
-    expect(directoryElement.classList.contains('selected')).toBe(false);
+    const storageItemElement = fixture.nativeElement.querySelector('lib-storage-item');
+    expect(storageItemElement.classList.contains('selected')).toBe(false);
   });
 });

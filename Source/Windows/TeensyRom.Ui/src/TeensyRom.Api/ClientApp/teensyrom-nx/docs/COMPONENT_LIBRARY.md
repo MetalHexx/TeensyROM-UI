@@ -452,6 +452,292 @@ The component provides **three flexible approaches** for handling user input:
 
 - [`search-toolbar.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.html) - File and folder search functionality
 
+---
+
+## List Components
+
+### `StorageItemComponent`
+
+**Purpose**: A reusable list item component for displaying storage entries (files, folders, etc.) with icon, label, selection state, and optional action buttons. Provides full keyboard navigation and accessibility support.
+
+**Selector**: `lib-storage-item`
+
+**Properties**:
+
+- `icon` (required): `string` - Material Design icon name to display
+- `iconColor` (optional): `StyledIconColor` - Icon color variant (`'normal'`, `'directory'`, `'primary'`, etc.) - defaults to `'normal'`
+- `label` (required): `string` - Primary text label displayed next to the icon
+- `selected` (optional): `boolean` - Whether the item is currently selected - defaults to `false`
+- `active` (optional): `boolean` - Whether the item is currently active/focused/highlighted - defaults to `false`
+- `disabled` (optional): `boolean` - Whether the item is disabled - defaults to `false`
+
+**Events**:
+
+- `activated`: Emitted on double-click or Enter key press (primary action)
+- `selectedChange`: Emitted on single click or Space key press (selection toggle)
+
+**Usage Examples**:
+
+```html
+<!-- Basic file item -->
+<lib-storage-item icon="insert_drive_file" label="readme.txt">
+</lib-storage-item>
+
+<!-- Folder with directory color -->
+<lib-storage-item
+  icon="folder"
+  iconColor="directory"
+  label="Documents"
+  (activated)="openFolder()"
+  (selectedChange)="toggleSelection()"
+>
+</lib-storage-item>
+
+<!-- Selected item with actions -->
+<lib-storage-item
+  icon="music_note"
+  iconColor="primary"
+  label="Song.sid"
+  [selected]="isSelected()"
+  (activated)="playSong()"
+  (selectedChange)="toggleSelection()"
+>
+  <lib-storage-item-actions label="1.5 KB">
+    <lib-icon-button icon="play_arrow" ariaLabel="Play" (buttonClick)="play()"></lib-icon-button>
+    <lib-icon-button icon="download" ariaLabel="Download" (buttonClick)="download()"></lib-icon-button>
+  </lib-storage-item-actions>
+</lib-storage-item>
+
+<!-- Disabled item -->
+<lib-storage-item
+  icon="lock"
+  label="Protected.dat"
+  [disabled]="true"
+>
+</lib-storage-item>
+
+<!-- Active/focused item in list -->
+<lib-storage-item
+  icon="image"
+  label="screenshot.png"
+  [active]="currentIndex() === 0"
+  [selected]="selectedIds().includes('img1')"
+>
+</lib-storage-item>
+```
+
+**Advanced Usage with Selection Management**:
+
+```typescript
+export class FileListComponent {
+  selectedIds = signal<string[]>([]);
+  activeIndex = signal<number>(0);
+
+  isSelected(id: string): boolean {
+    return this.selectedIds().includes(id);
+  }
+
+  toggleSelection(id: string): void {
+    const current = this.selectedIds();
+    if (current.includes(id)) {
+      this.selectedIds.set(current.filter(x => x !== id));
+    } else {
+      this.selectedIds.set([...current, id]);
+    }
+  }
+
+  openItem(item: FileItem): void {
+    // Handle double-click/Enter activation
+    console.log('Opening:', item.name);
+  }
+}
+```
+
+```html
+@for (item of files(); track item.id) {
+  <lib-storage-item
+    [icon]="item.icon"
+    [iconColor]="item.type === 'folder' ? 'directory' : 'normal'"
+    [label]="item.name"
+    [selected]="isSelected(item.id)"
+    [active]="$index === activeIndex()"
+    (selectedChange)="toggleSelection(item.id)"
+    (activated)="openItem(item)"
+  >
+    @if (item.size) {
+      <lib-storage-item-actions [label]="item.size">
+        <lib-icon-button 
+          icon="more_vert" 
+          ariaLabel="More options"
+          (buttonClick)="showOptions(item)"
+        ></lib-icon-button>
+      </lib-storage-item-actions>
+    }
+  </lib-storage-item>
+}
+```
+
+**Keyboard Navigation**:
+
+- **Enter**: Triggers `activated` event (primary action like opening file/folder)
+- **Space**: Triggers `selectedChange` event (selection toggle)
+- **Tab**: Moves focus between items (automatic via `tabindex`)
+- **Disabled State**: Sets `tabindex="-1"` to exclude from tab order
+
+**Accessibility Features**:
+
+- **ARIA Role**: Automatically sets `role="button"` for proper semantics
+- **ARIA Selected**: Exposes `aria-selected` state for screen readers
+- **ARIA Disabled**: Exposes `aria-disabled` when item is disabled
+- **Keyboard Support**: Full keyboard navigation with Enter/Space handling
+- **Focus Management**: Proper `tabindex` handling for focus control
+- **Visual States**: Clear visual feedback for selected, active, and disabled states
+
+**Visual States**:
+
+- **Normal**: Default appearance with hover effect
+- **Selected**: Visual highlight indicating item is selected (`.selected` class)
+- **Active**: Additional highlight for current focused/active item (`.active` class)
+- **Disabled**: Dimmed appearance with no interaction (`.disabled` class)
+
+**Styling Integration**:
+
+Uses the `@include styles.selectable-item` mixin from the style guide, which provides:
+- Consistent hover/focus/active states
+- Selection highlighting
+- Smooth transitions
+- Proper spacing and layout
+
+**Content Projection**:
+
+The component uses `ng-content` to project `lib-storage-item-actions` into the right side of the item for action buttons and metadata.
+
+**Best Practice**: Use for all list-based storage items (files, folders, carts, etc.) to maintain consistent interaction patterns and accessibility throughout the application.
+
+**See Also**: [StorageItemActionsComponent](#storageitemactionscomponent), [IconLabelComponent](#iconlabelcomponent)
+
+---
+
+### `StorageItemActionsComponent`
+
+**Purpose**: A directive component for projecting action buttons and metadata into the right side of a storage item. Follows the Angular Material card actions pattern (`mat-card-actions`).
+
+**Selector**: `lib-storage-item-actions`
+
+**Properties**:
+
+- `label` (optional): `string` - Optional text label to display before action buttons (e.g., file size, item count)
+
+**Usage Examples**:
+
+```html
+<!-- File size with action buttons -->
+<lib-storage-item icon="music_note" label="Song.sid">
+  <lib-storage-item-actions label="1.5 KB">
+    <lib-icon-button icon="play_arrow" ariaLabel="Play" (buttonClick)="play()"></lib-icon-button>
+    <lib-icon-button icon="download" ariaLabel="Download" (buttonClick)="download()"></lib-icon-button>
+  </lib-storage-item-actions>
+</lib-storage-item>
+
+<!-- Item count in folder -->
+<lib-storage-item icon="folder" iconColor="directory" label="Games">
+  <lib-storage-item-actions label="42 items">
+    <lib-icon-button icon="open_in_new" ariaLabel="Open" (buttonClick)="open()"></lib-icon-button>
+  </lib-storage-item-actions>
+</lib-storage-item>
+
+<!-- Just actions without label -->
+<lib-storage-item icon="image" label="screenshot.png">
+  <lib-storage-item-actions>
+    <lib-icon-button icon="visibility" ariaLabel="View" (buttonClick)="view()"></lib-icon-button>
+    <lib-icon-button icon="delete" ariaLabel="Delete" color="error" (buttonClick)="delete()"></lib-icon-button>
+  </lib-storage-item-actions>
+</lib-storage-item>
+
+<!-- Multiple metadata points -->
+<lib-storage-item icon="insert_drive_file" label="document.pdf">
+  <lib-storage-item-actions label="2.3 MB • Modified 2h ago">
+    <lib-icon-button icon="edit" ariaLabel="Edit" (buttonClick)="edit()"></lib-icon-button>
+    <lib-icon-button icon="share" ariaLabel="Share" (buttonClick)="share()"></lib-icon-button>
+  </lib-storage-item-actions>
+</lib-storage-item>
+```
+
+**Advanced Usage Patterns**:
+
+```typescript
+export class FileListItemComponent {
+  file = input.required<FileItem>();
+
+  // Computed metadata label
+  metadataLabel = computed(() => {
+    const file = this.file();
+    const size = this.formatSize(file.size);
+    const date = this.formatDate(file.modified);
+    return `${size} • ${date}`;
+  });
+
+  formatSize(bytes: number): string {
+    // Format bytes to KB/MB/GB
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  formatDate(date: Date): string {
+    // Format relative date
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    if (hours < 24) return `${hours}h ago`;
+    return date.toLocaleDateString();
+  }
+}
+```
+
+```html
+<lib-storage-item [icon]="file().icon" [label]="file().name">
+  <lib-storage-item-actions [label]="metadataLabel()">
+    <lib-icon-button 
+      icon="play_arrow" 
+      ariaLabel="Play"
+      [disabled]="!file().canPlay"
+      (buttonClick)="playFile()"
+    ></lib-icon-button>
+    <lib-icon-button 
+      icon="more_vert" 
+      ariaLabel="More options"
+      (buttonClick)="showMenu($event)"
+    ></lib-icon-button>
+  </lib-storage-item-actions>
+</lib-storage-item>
+```
+
+**Layout Behavior**:
+
+- Actions are positioned at the right end of the storage item with `margin-left: auto`
+- Items are displayed in a horizontal row with `0.5rem` gap
+- Actions container does not wrap (uses `flex-shrink: 0`)
+- Label text is styled with dimmed color and smaller font size
+
+**Styling**:
+
+- **Label**: Uses `--color-dimmed` with `0.875rem` font size and `nowrap`
+- **Container**: Flexbox layout with center alignment and consistent spacing
+- **Integration**: Seamlessly integrates with parent storage item layout
+
+**Best Practice**: 
+- Use for all action buttons and metadata in storage items
+- Keep the number of actions minimal (2-3 buttons max) for clean UI
+- Use `label` for contextual metadata (size, date, count, etc.)
+- Combine with `IconButtonComponent` for consistent button styling
+
+**Required Parent**: Must be used as a child of `lib-storage-item` component
+
+**See Also**: [StorageItemComponent](#storageitemcomponent), [IconButtonComponent](#iconbuttoncomponent)
+
+---
+
 ### `IconButtonComponent`
 
 **Purpose**: A reusable icon button component that provides consistent Material Design button styling with configurable appearance, state management, and accessibility features. Supports two different ways to display icons: Material Design icons or custom icon components via content projection.

@@ -1,0 +1,12 @@
+<div class="storage-item no-text-selection">
+  <lib-icon-label
+    [icon]="icon()"
+    [color]="iconColor()"
+    size="medium"
+    [truncate]="false"
+    [label]="label()"
+  >
+  </lib-icon-label>
+
+  <ng-content select="lib-storage-item-actions"></ng-content>
+</div>

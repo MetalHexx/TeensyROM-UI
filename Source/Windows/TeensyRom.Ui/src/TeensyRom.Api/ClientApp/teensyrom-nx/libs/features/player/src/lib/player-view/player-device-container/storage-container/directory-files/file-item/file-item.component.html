@@ -1,20 +1,11 @@
-<div
-  class="file-item no-text-selection"
-  [class.selected]="selected()"
-  (click)="onItemClick()"
-  (dblclick)="onItemDoubleClick()"
-  (keydown.enter)="onItemClick()"
-  (keydown.space)="onItemClick()"
-  tabindex="0"
-  role="button"
+<lib-storage-item
+  [icon]="fileIcon()"
+  iconColor="normal"
+  [label]="fileItem().name"
+  [selected]="selected()"
+  (selectedChange)="onItemClick()"
+  (activated)="onItemDoubleClick()"
 >
-  <lib-icon-label
-    [icon]="fileIcon()"
-    color="normal"
-    size="medium"
-    [truncate]="false"
-    [label]="fileItem().name"
-  >
-  </lib-icon-label>
-  <span class="file-size">{{ formattedSize() }}</span>
-</div>
+  <lib-storage-item-actions [label]="formattedSize()">
+  </lib-storage-item-actions>
+</lib-storage-item>

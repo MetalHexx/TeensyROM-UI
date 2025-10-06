@@ -1,11 +1,11 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IconLabelComponent } from '@teensyrom-nx/ui/components';
+import { StorageItemComponent } from '@teensyrom-nx/ui/components';
 import { DirectoryItem } from '@teensyrom-nx/domain';
 
 @Component({
   selector: 'lib-directory-item',
-  imports: [CommonModule, IconLabelComponent],
+  imports: [CommonModule, StorageItemComponent],
   templateUrl: './directory-item.component.html',
   styleUrl: './directory-item.component.scss',
 })

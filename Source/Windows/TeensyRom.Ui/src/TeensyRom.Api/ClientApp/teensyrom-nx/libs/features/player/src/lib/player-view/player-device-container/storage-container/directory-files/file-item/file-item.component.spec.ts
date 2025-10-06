@@ -115,8 +115,8 @@ describe('FileItemComponent', () => {
       emittedItem = item;
     });
 
-    const fileElement = fixture.nativeElement.querySelector('.file-item');
-    fileElement.click();
+    const storageItemElement = fixture.nativeElement.querySelector('lib-storage-item');
+    storageItemElement.click();
 
     expect(emittedItem).toEqual(mockFile);
   });
@@ -131,8 +131,8 @@ describe('FileItemComponent', () => {
       emittedItem = item;
     });
 
-    const fileElement = fixture.nativeElement.querySelector('.file-item');
-    fileElement.dispatchEvent(new MouseEvent('dblclick'));
+    const storageItemElement = fixture.nativeElement.querySelector('lib-storage-item');
+    storageItemElement.dispatchEvent(new MouseEvent('dblclick'));
 
     expect(emittedItem).toEqual(mockFile);
   });
@@ -142,8 +142,8 @@ describe('FileItemComponent', () => {
     fixture.componentRef.setInput('selected', true);
     fixture.detectChanges();
 
-    const fileElement = fixture.nativeElement.querySelector('.file-item');
-    expect(fileElement.classList.contains('selected')).toBe(true);
+    const storageItemElement = fixture.nativeElement.querySelector('lib-storage-item');
+    expect(storageItemElement.classList.contains('selected')).toBe(true);
   });
 
   it('should not apply selected class when selected is false', () => {
@@ -151,8 +151,8 @@ describe('FileItemComponent', () => {
     fixture.componentRef.setInput('selected', false);
     fixture.detectChanges();
 
-    const fileElement = fixture.nativeElement.querySelector('.file-item');
-    expect(fileElement.classList.contains('selected')).toBe(false);
+    const storageItemElement = fixture.nativeElement.querySelector('lib-storage-item');
+    expect(storageItemElement.classList.contains('selected')).toBe(false);
   });
 
   it('should render file name', () => {

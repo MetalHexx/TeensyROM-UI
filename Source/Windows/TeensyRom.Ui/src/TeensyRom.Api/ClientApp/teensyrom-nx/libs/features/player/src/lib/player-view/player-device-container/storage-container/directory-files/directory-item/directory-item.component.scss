@@ -1,13 +1,4 @@
-@use '../../../../../../../../../ui/styles/src/lib/theme/styles.scss' as styles;
-
 :host {
   display: block;
-  width: 100%;
-}
-
-.directory-item {
-  @include styles.selectable-item;
-  display: flex;
-  align-items: center;
   width: 100%;
 }

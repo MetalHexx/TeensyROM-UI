@@ -1,21 +1,4 @@
-@use '../../../../../../../../../ui/styles/src/lib/theme/styles.scss' as styles;
-
 :host {
   display: block;
   width: 100%;
-}
-
-.file-item {
-  @include styles.selectable-item;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.file-size {
-  color: var(--color-dimmed);
-  font-size: 0.875rem;
-  margin-left: 1rem;
-  white-space: nowrap;
 }
