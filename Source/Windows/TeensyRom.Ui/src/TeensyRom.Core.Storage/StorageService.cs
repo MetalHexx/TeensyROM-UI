@@ -222,6 +222,23 @@ namespace TeensyRom.Core.Storage
             return cache.GetRandomFile(scope, scopePath, excludePaths, fileTypes);
         }
 
+        public IEnumerable<LaunchableItem> Search(string searchText, TeensyFilterType filterType = TeensyFilterType.All)
+        {
+            var fileTypes = GetFileTypes(filterType);
+            var excludePaths = GetExcludePaths();
+            
+            // Use default search weights and stop words from TeensySettings.InitializeDefaults()
+            var searchWeights = new SearchWeights();
+            var stopSearchWords = new List<string> 
+            { 
+                "a", "an", "and", "are", "as", "at", "be", "but", "by", "for", 
+                "if", "in", "is", "it", "no", "not", "of", "on", "or", "that", 
+                "the", "to", "was", "with" 
+            };
+            
+            return cache.Search(searchText, excludePaths, stopSearchWords, searchWeights, fileTypes);
+        }
+
         private List<DirectoryPath> GetExcludePaths()
         {
             var excludePaths = StorageHelper.FavoritePaths;

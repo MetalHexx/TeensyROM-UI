@@ -14,5 +14,6 @@ namespace TeensyRom.Core.Abstractions
         public Task<FileItem?> GetFile(FilePath filePath);
         Task<IStorageCacheItem?> GetDirectory(DirectoryPath directoryPath);
         LaunchableItem? GetRandomFile(StorageScope scope, DirectoryPath scopePath, TeensyFilterType filterType);
+        IEnumerable<LaunchableItem> Search(string searchText, TeensyFilterType filterType = TeensyFilterType.All);
     }
 }

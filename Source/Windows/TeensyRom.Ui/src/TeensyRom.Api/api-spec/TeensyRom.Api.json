@@ -399,14 +399,7 @@
             "name": "FilterType",
             "in": "query",
             "schema": {
-              "enum": [
-                "All",
-                "Games",
-                "Music",
-                "Hex",
-                "Images",
-                null
-              ]
+              "$ref": "#/components/schemas/NullableOfTeensyFilterType"
             }
           },
           {
@@ -530,6 +523,81 @@
           },
           "502": {
             "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/storage/{storageType}/search": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Search Files",
+        "description": "Searches for files in the specified storage device based on search text and filter criteria.\n\n- Searches through file names, titles, creators, and descriptions.\n- Returns metadata for all matching files.\n- Supports file type filtering (All, Games, Music, Images, Hex).\n- Excludes favorites and playlist directories from search results.\n- Uses weighted search algorithm to rank results by relevance.",
+        "operationId": "Search",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "storageType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TeensyStorageType"
+            }
+          },
+          {
+            "name": "SearchText",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "FilterType",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/NullableOfTeensyFilterType"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1017,6 +1085,16 @@
           }
         }
       },
+      "NullableOfTeensyFilterType": {
+        "enum": [
+          "All",
+          "Games",
+          "Music",
+          "Hex",
+          "Images",
+          null
+        ]
+      },
       "PingDeviceResponse": {
         "required": [
           "message"
@@ -1060,6 +1138,33 @@
         ],
         "type": "object",
         "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "SearchResponse": {
+        "required": [
+          "files",
+          "searchText",
+          "totalCount",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileItemDto"
+            }
+          },
+          "searchText": {
+            "type": "string"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
           "message": {
             "type": "string"
           }
