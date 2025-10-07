@@ -14,8 +14,18 @@ export class FileImageComponent {
   currentFile = input<LaunchedFile | null>();
 
   // Computed signals derived from input
-  creatorName = computed(() => this.currentFile()?.file.creator ?? '');
-  metadataSource = computed(() => this.currentFile()?.file.metadataSource ?? '');
+  creatorName = computed(() => {
+    const creator = this.currentFile()?.file.creator;
+    return creator && creator.trim().length > 0 ? creator : 'Welcome to TeensyROM!';
+  });
+  metadataSource = computed(() => {
+    const images = this.currentFile()?.file.images;
+    if (images && images.length > 0) {
+      const source = images[0].source;
+      return source && source.trim().length > 0 ? source : 'hExx';
+    }
+    return 'hExx';
+  });
   imageUrls = computed(() =>
     this.currentFile()?.file.images.map((img) => img.url).filter((url: string) => url && url.length > 0) ?? []
   );

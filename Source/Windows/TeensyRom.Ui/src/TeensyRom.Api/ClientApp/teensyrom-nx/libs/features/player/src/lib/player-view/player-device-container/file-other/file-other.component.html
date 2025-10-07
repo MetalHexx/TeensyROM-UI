@@ -15,11 +15,20 @@
   }
 
   <!-- Main content -->
-  @if (hasContent()) {
-    @if (description()) {
-      <p>{{ description() }}</p>
+  @if (hasFile()) {
+    @if (hasContent()) {
+      @if (description()) {
+        <p>{{ description() }}</p>
+      }
+    } @else {
+      <p class="no-metadata">Try launching a file from the device.</p>
     }
   } @else {
-    <p class="no-metadata">Try launching a file from the device.</p>
+    <lib-empty-state-message
+      icon="description"
+      title="No File Selected"
+      message="Launch a file from the file browser below."
+      size="medium">
+    </lib-empty-state-message>
   }
 </lib-scaling-card>
