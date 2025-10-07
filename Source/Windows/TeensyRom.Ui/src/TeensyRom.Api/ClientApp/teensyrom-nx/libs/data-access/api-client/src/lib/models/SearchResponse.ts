@@ -47,6 +47,30 @@ export interface SearchResponse {
     totalCount: number;
     /**
      * 
+     * @type {number}
+     * @memberof SearchResponse
+     */
+    count: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof SearchResponse
+     */
+    skip: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof SearchResponse
+     */
+    take: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof SearchResponse
+     */
+    hasMore: boolean;
+    /**
+     * 
      * @type {string}
      * @memberof SearchResponse
      */
@@ -60,6 +84,10 @@ export function instanceOfSearchResponse(value: object): value is SearchResponse
     if (!('files' in value) || value['files'] === undefined) return false;
     if (!('searchText' in value) || value['searchText'] === undefined) return false;
     if (!('totalCount' in value) || value['totalCount'] === undefined) return false;
+    if (!('count' in value) || value['count'] === undefined) return false;
+    if (!('skip' in value) || value['skip'] === undefined) return false;
+    if (!('take' in value) || value['take'] === undefined) return false;
+    if (!('hasMore' in value) || value['hasMore'] === undefined) return false;
     if (!('message' in value) || value['message'] === undefined) return false;
     return true;
 }
@@ -77,6 +105,10 @@ export function SearchResponseFromJSONTyped(json: any, ignoreDiscriminator: bool
         'files': ((json['files'] as Array<any>).map(FileItemDtoFromJSON)),
         'searchText': json['searchText'],
         'totalCount': json['totalCount'],
+        'count': json['count'],
+        'skip': json['skip'],
+        'take': json['take'],
+        'hasMore': json['hasMore'],
         'message': json['message'],
     };
 }
@@ -95,6 +127,10 @@ export function SearchResponseToJSONTyped(value?: SearchResponse | null, ignoreD
         'files': ((value['files'] as Array<any>).map(FileItemDtoToJSON)),
         'searchText': value['searchText'],
         'totalCount': value['totalCount'],
+        'count': value['count'],
+        'skip': value['skip'],
+        'take': value['take'],
+        'hasMore': value['hasMore'],
         'message': value['message'],
     };
 }

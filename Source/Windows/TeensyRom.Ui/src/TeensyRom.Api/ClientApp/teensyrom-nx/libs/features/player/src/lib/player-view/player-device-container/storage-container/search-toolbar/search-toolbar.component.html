@@ -1,9 +1,24 @@
 <lib-scaling-compact-card>
-  <lib-input-field
-    label="Search"
-    placeholder="Search files and folders..."
-    suffixIcon="search"
-    class="search-field"
-  >
-  </lib-input-field>
+  <div class="search-toolbar-content">
+    <lib-input-field
+      label="Search"
+      placeholder="Ex: +iron +maiden +&quot;Aces High&quot;"
+      prefixIcon="search"
+      class="search-field"
+      #searchInput
+      (valueChange)="onSearchInputChange($event)"
+      (keydown.enter)="executeSearch()"
+    >
+    </lib-input-field>
+    @if (showClearButton()) {
+      <lib-icon-button
+        icon="close"
+        ariaLabel="Clear search results"
+        color="normal"
+        size="medium"
+        (buttonClick)="clearSearch()"
+      >
+      </lib-icon-button>
+    }
+  </div>
 </lib-scaling-compact-card>

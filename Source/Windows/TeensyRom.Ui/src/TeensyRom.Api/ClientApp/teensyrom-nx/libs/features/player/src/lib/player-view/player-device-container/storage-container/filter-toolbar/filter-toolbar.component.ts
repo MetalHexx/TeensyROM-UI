@@ -1,4 +1,4 @@
-import { Component, inject, input, computed } from '@angular/core';
+import { Component, inject, input, computed, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ScalingCompactCardComponent,
@@ -7,7 +7,7 @@ import {
   JoystickIconComponent,
   ImageIconComponent
 } from '@teensyrom-nx/ui/components';
-import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
+import { PLAYER_CONTEXT, StorageStore } from '@teensyrom-nx/application';
 import { PlayerFilterType } from '@teensyrom-nx/domain';
 import { RandomRollButtonComponent } from './random-roll-button';
 
@@ -19,6 +19,7 @@ import { RandomRollButtonComponent } from './random-roll-button';
 })
 export class FilterToolbarComponent {
   private readonly playerContext = inject(PLAYER_CONTEXT);
+  private readonly storageStore = inject(StorageStore);
 
   deviceId = input.required<string>();
 
@@ -29,6 +30,47 @@ export class FilterToolbarComponent {
   activeFilter = computed(() =>
     this.playerContext.getShuffleSettings(this.deviceId())()?.filter ?? PlayerFilterType.All
   );
+
+  // Computed signal for search state
+  private readonly searchState = computed(() => {
+    const selectedDir = this.storageStore.getSelectedDirectoryState(this.deviceId())();
+    if (!selectedDir) {
+      return null;
+    }
+    return this.storageStore.getSearchState(this.deviceId(), selectedDir.storageType)();
+  });
+
+  // Computed signal to check if search is active
+  private readonly hasActiveSearch = computed(() => 
+    this.searchState()?.hasSearched ?? false
+  );
+
+  constructor() {
+    // Effect: Re-search when filter changes during active search
+    effect(() => {
+      const currentFilter = this.activeFilter();
+      const searchActive = this.hasActiveSearch();
+      
+      // Use untracked to get search state without creating dependency
+      untracked(() => {
+        if (searchActive) {
+          const state = this.searchState();
+          const selectedDir = this.storageStore.getSelectedDirectoryState(this.deviceId())();
+          
+          // Only re-search if we have valid state and search text
+          if (state && state.searchText && selectedDir) {
+            
+            void this.storageStore.searchFiles({
+              deviceId: this.deviceId(),
+              storageType: selectedDir.storageType,
+              searchText: state.searchText,
+              filterType: currentFilter,
+            });
+          }
+        }
+      });
+    });
+  }
 
   // Helper method to determine button color based on active state only
   getButtonColor(filterType: PlayerFilterType): IconButtonColor {

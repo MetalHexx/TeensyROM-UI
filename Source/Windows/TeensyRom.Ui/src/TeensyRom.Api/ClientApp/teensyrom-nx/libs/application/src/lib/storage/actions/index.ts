@@ -12,6 +12,8 @@ import { navigateUpOneDirectory } from './navigate-up-one-directory';
 import { refreshDirectory } from './refresh-directory';
 import { removeStorage } from './remove-storage';
 import { removeAllStorage } from './remove-all-storage';
+import { searchFiles } from './search-files';
+import { clearSearch } from './clear-search';
 import { WritableStore } from '../storage-helpers';
 
 export function withStorageActions() {
@@ -26,6 +28,8 @@ export function withStorageActions() {
       ...refreshDirectory(writableStore, storageService),
       ...removeStorage(writableStore),
       ...removeAllStorage(writableStore),
+      ...searchFiles(writableStore, storageService),
+      ...clearSearch(writableStore),
     };
   });
 }

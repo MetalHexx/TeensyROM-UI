@@ -31,6 +31,16 @@ namespace TeensyRom.Api.Endpoints.Files.Search
         /// The filter type to apply when searching files (e.g., All, Games, Music).
         /// </summary>
         [FromQuery] public TeensyFilterType? FilterType { get; set; } = TeensyFilterType.All;
+
+        /// <summary>
+        /// The number of results to skip for pagination (default: 0).
+        /// </summary>
+        [FromQuery] public int Skip { get; set; } = 0;
+
+        /// <summary>
+        /// The maximum number of results to return (default: 50, max: 200).
+        /// </summary>
+        [FromQuery] public int Take { get; set; } = 50;
     }
 
     public class SearchRequestValidator : AbstractValidator<SearchRequest>
@@ -43,7 +53,7 @@ namespace TeensyRom.Api.Endpoints.Files.Search
 
             RuleFor(x => x.SearchText)
                 .NotEmpty().WithMessage("Search text is required.")
-                .MinimumLength(2).WithMessage("Search text must be at least 2 characters long.")
+                .MinimumLength(1).WithMessage("Search text must be at least 2 characters long.")
                 .MaximumLength(100).WithMessage("Search text must be no more than 100 characters long.");
 
             RuleFor(x => x.StorageType)
@@ -51,6 +61,13 @@ namespace TeensyRom.Api.Endpoints.Files.Search
 
             RuleFor(x => x.FilterType)
                 .IsInEnum().WithMessage("Filter type must be a valid enum value.");
+
+            RuleFor(x => x.Skip)
+                .GreaterThanOrEqualTo(0).WithMessage("Skip must be greater than or equal to 0.");
+
+            RuleFor(x => x.Take)
+                .GreaterThan(0).WithMessage("Take must be greater than 0.")
+                .LessThanOrEqualTo(1000).WithMessage("Take must be no more than 200.");
         }
     }
 
@@ -70,9 +87,29 @@ namespace TeensyRom.Api.Endpoints.Files.Search
         [Required] public string SearchText { get; set; } = string.Empty;
 
         /// <summary>
-        /// The total number of files found.
+        /// The total number of files found (before pagination).
         /// </summary>
         [Required] public int TotalCount { get; set; } = 0;
+
+        /// <summary>
+        /// The number of results returned in this page.
+        /// </summary>
+        [Required] public int Count { get; set; } = 0;
+
+        /// <summary>
+        /// The number of results that were skipped for pagination.
+        /// </summary>
+        [Required] public int Skip { get; set; } = 0;
+
+        /// <summary>
+        /// The maximum number of results that were requested.
+        /// </summary>
+        [Required] public int Take { get; set; } = 0;
+
+        /// <summary>
+        /// Indicates whether there are more results available.
+        /// </summary>
+        [Required] public bool HasMore { get; set; } = false;
 
         /// <summary>
         /// A message indicating the result of the operation.

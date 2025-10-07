@@ -7,8 +7,8 @@ import {
   ViewableItemImageDto,
   FileItemType as ApiFileItemType,
   TeensyStorageType as ApiStorageType,
-  LaunchRandomFilterTypeEnum,
   LaunchRandomScopeEnum,
+  NullableOfTeensyFilterType,
 } from '@teensyrom-nx/data-access/api-client';
 import { DeviceState as ApiDeviceState } from '@teensyrom-nx/data-access/api-client';
 import {
@@ -202,22 +202,31 @@ export class DomainMapper {
   }
 
   /**
-   * Convert domain PlayerFilterType to API LaunchRandomFilterTypeEnum
+   * Convert domain PlayerFilterType to API NullableOfTeensyFilterType
+   * Used for both player random launch and search operations
    */
-  static toApiPlayerFilter(filter: PlayerFilterType): LaunchRandomFilterTypeEnum {
+  static toApiPlayerFilter(filter: PlayerFilterType): NullableOfTeensyFilterType {
     switch (filter) {
       case PlayerFilterType.All:
-        return LaunchRandomFilterTypeEnum.All;
+        return NullableOfTeensyFilterType.All;
       case PlayerFilterType.Games:
-        return LaunchRandomFilterTypeEnum.Games;
+        return NullableOfTeensyFilterType.Games;
       case PlayerFilterType.Music:
-        return LaunchRandomFilterTypeEnum.Music;
+        return NullableOfTeensyFilterType.Music;
       case PlayerFilterType.Images:
-        return LaunchRandomFilterTypeEnum.Images;
+        return NullableOfTeensyFilterType.Images;
       case PlayerFilterType.Hex:
-        return LaunchRandomFilterTypeEnum.Hex;
+        return NullableOfTeensyFilterType.Hex;
       default:
-        return LaunchRandomFilterTypeEnum.All;
+        return NullableOfTeensyFilterType.All;
     }
+  }
+
+  /**
+   * Convert domain PlayerFilterType to API NullableOfTeensyFilterType for search operations
+   * Alias for toApiPlayerFilter to maintain semantic clarity in search context
+   */
+  static toApiSearchFilter(filter: PlayerFilterType): NullableOfTeensyFilterType {
+    return DomainMapper.toApiPlayerFilter(filter);
   }
 }

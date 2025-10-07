@@ -50,6 +50,78 @@ namespace TeensyRom.Api.Tests.Integration
             r.Content.TotalCount.Should().BeGreaterThanOrEqualTo(0);
             r.Content.Files.Should().NotBeNull();
             r.Content.Message.Should().NotBeNullOrEmpty();
+            r.Content.Skip.Should().Be(0);
+            r.Content.Take.Should().Be(50); // Default take value
+            r.Content.Count.Should().Be(r.Content.Files.Count);
+        }
+
+        [Fact]
+        public async Task When_PaginationParametersProvided_ReturnsCorrectPage()
+        {
+            // Arrange
+            var deviceId = await GetCachedConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
+            await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
+            
+            var searchText = "game"; // Broader search to get more results
+
+            // Act - TrClient automatically handles enum serialization
+            var r = await f.Client.GetAsync<SearchEndpoint, SearchRequest, SearchResponse>(new SearchRequest
+            {
+                DeviceId = deviceId,
+                SearchText = searchText,
+                StorageType = TeensyStorageType.SD,
+                FilterType = TeensyFilterType.All,
+                Skip = 5,
+                Take = 10
+            });
+
+            //Assert
+            r.Should().BeSuccessful<SearchResponse>()
+                    .WithStatusCode(HttpStatusCode.OK)
+                    .WithContentNotNull();
+
+            r.Content.SearchText.Should().Be(searchText);
+            r.Content.Skip.Should().Be(5);
+            r.Content.Take.Should().Be(10);
+            r.Content.Count.Should().BeLessThanOrEqualTo(10);
+            r.Content.Files.Count.Should().Be(r.Content.Count);
+            
+            // HasMore should be true if there are more results available
+            if (r.Content.TotalCount > 15) // Skip(5) + Take(10) = 15
+            {
+                r.Content.HasMore.Should().BeTrue();
+            }
+        }
+
+        [Fact]
+        public async Task When_TakeExceedsAvailableResults_ReturnsAllAvailableResults()
+        {
+            // Arrange
+            var deviceId = await GetCachedConnectedDevice();
+            f.DeleteCache(deviceId!, TeensyStorageType.SD);
+            await f.Preindex(deviceId, TeensyStorageType.SD, Games_Path);
+            
+            var searchText = "veryrarefilename"; // Should return few or no results
+
+            // Act - TrClient automatically handles enum serialization
+            var r = await f.Client.GetAsync<SearchEndpoint, SearchRequest, SearchResponse>(new SearchRequest
+            {
+                DeviceId = deviceId,
+                SearchText = searchText,
+                StorageType = TeensyStorageType.SD,
+                FilterType = TeensyFilterType.All,
+                Skip = 0,
+                Take = 100
+            });
+
+            //Assert
+            r.Should().BeSuccessful<SearchResponse>()
+                    .WithStatusCode(HttpStatusCode.OK)
+                    .WithContentNotNull();
+
+            r.Content.Count.Should().BeLessThanOrEqualTo(r.Content.TotalCount);
+            r.Content.HasMore.Should().BeFalse();
         }
 
         [Fact]
@@ -83,7 +155,64 @@ namespace TeensyRom.Api.Tests.Integration
             }
 
             r.Content.SearchText.Should().Be(searchText);
-            r.Content.TotalCount.Should().Be(r.Content.Files.Count);
+            r.Content.TotalCount.Should().Be(r.Content.Count); // Should match since we're not skipping
+        }
+
+        [Fact]
+        public async Task When_SkipIsNegative_ReturnsBadRequest()
+        {
+            var validDeviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
+
+            // Act
+            var r = await f.Client.GetAsync<SearchEndpoint, SearchRequest, ValidationProblemDetails>(new SearchRequest            
+            {
+                DeviceId = validDeviceId,
+                SearchText = "test",
+                StorageType = TeensyStorageType.SD,
+                Skip = -1
+            });
+
+            // Assert
+            r.Should().BeValidationProblem()
+                .WithKeyAndValue("Skip", "Skip must be greater than or equal to 0.");
+        }
+
+        [Fact]
+        public async Task When_TakeIsZero_ReturnsBadRequest()
+        {
+            var validDeviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
+
+            // Act
+            var r = await f.Client.GetAsync<SearchEndpoint, SearchRequest, ValidationProblemDetails>(new SearchRequest            
+            {
+                DeviceId = validDeviceId,
+                SearchText = "test",
+                StorageType = TeensyStorageType.SD,
+                Take = 0
+            });
+
+            // Assert
+            r.Should().BeValidationProblem()
+                .WithKeyAndValue("Take", "Take must be greater than 0.");
+        }
+
+        [Fact]
+        public async Task When_TakeExceedsMaximum_ReturnsBadRequest()
+        {
+            var validDeviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
+
+            // Act
+            var r = await f.Client.GetAsync<SearchEndpoint, SearchRequest, ValidationProblemDetails>(new SearchRequest            
+            {
+                DeviceId = validDeviceId,
+                SearchText = "test",
+                StorageType = TeensyStorageType.SD,
+                Take = 1001
+            });
+
+            // Assert
+            r.Should().BeValidationProblem()
+                .WithKeyAndValue("Take", "Take must be no more than 200.");
         }
 
         [Fact]
@@ -121,7 +250,7 @@ namespace TeensyRom.Api.Tests.Integration
             }
 
             r.Content.SearchText.Should().Be(searchText);
-            r.Content.TotalCount.Should().Be(r.Content.Files.Count);
+            r.Content.TotalCount.Should().Be(r.Content.Count);
         }
 
         [Fact]
@@ -163,7 +292,7 @@ namespace TeensyRom.Api.Tests.Integration
             }
 
             r.Content.SearchText.Should().Be(searchText);
-            r.Content.TotalCount.Should().Be(r.Content.Files.Count);
+            r.Content.TotalCount.Should().Be(r.Content.Count);
         }
 
         [Fact]
@@ -191,7 +320,9 @@ namespace TeensyRom.Api.Tests.Integration
 
             r.Content.Files.Should().BeEmpty();
             r.Content.TotalCount.Should().Be(0);
+            r.Content.Count.Should().Be(0);
             r.Content.SearchText.Should().Be(searchText);
+            r.Content.HasMore.Should().BeFalse();
             r.Content.Message.Should().Contain("No files found");
         }
 
@@ -220,7 +351,9 @@ namespace TeensyRom.Api.Tests.Integration
 
             r.Content.Files.Should().BeEmpty();
             r.Content.TotalCount.Should().Be(0);
+            r.Content.Count.Should().Be(0);
             r.Content.SearchText.Should().Be(searchText);
+            r.Content.HasMore.Should().BeFalse();
             r.Content.Message.Should().Contain("No files found");
         }
 
@@ -255,23 +388,6 @@ namespace TeensyRom.Api.Tests.Integration
 
             r.Should().BeValidationProblem()
                 .WithKeyAndValue("SearchText", "Search text is required.");
-        }
-
-        [Fact]
-        public async Task When_SearchTextTooShort_ReturnsBadRequest()
-        {
-            var validDeviceId = Guid.NewGuid().ToString().GenerateFilenameSafeHash();
-
-            // TrClient automatically handles enum serialization
-            var r = await f.Client.GetAsync<SearchEndpoint, SearchRequest, ValidationProblemDetails>(new SearchRequest            
-            {
-                DeviceId = validDeviceId,
-                SearchText = "a",
-                StorageType = TeensyStorageType.SD
-            });
-
-            r.Should().BeValidationProblem()
-                .WithKeyAndValue("SearchText", "Search text must be at least 2 characters long.");
         }
 
         [Fact]
@@ -331,25 +447,25 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithKeyAndValue("FilterType", "Filter type must be a valid enum value.");
         }
 
-        //[Fact]
-        //public async Task When_StorageNotAvailable_ReturnsNotFound()
-        //{
-        //    // Arrange
-        //    var deviceId = await GetCachedConnectedDevice();
+        [Fact]
+        public async Task When_StorageNotAvailable_ReturnsNotFound()
+        {
+            // Arrange
+            var deviceId = await GetCachedConnectedDevice();
 
-        //    // Act - TrClient automatically handles enum serialization
-        //    var r = await f.Client.GetAsync<SearchEndpoint, SearchRequest, ProblemDetails>(new SearchRequest
-        //    {
-        //        DeviceId = deviceId,
-        //        SearchText = "test",
-        //        StorageType = TeensyStorageType.USB
-        //    });
+            // Act - TrClient automatically handles enum serialization
+            var r = await f.Client.GetAsync<SearchEndpoint, SearchRequest, ProblemDetails>(new SearchRequest
+            {
+                DeviceId = deviceId,
+                SearchText = "test",
+                StorageType = TeensyStorageType.USB
+            });
 
-        //    // Assert
-        //    r.Should().BeProblem()
-        //        .WithStatusCode(HttpStatusCode.NotFound)
-        //        .WithMessage($"The storage {TeensyStorageType.USB} is not available.");
-        //}
+            // Assert
+            r.Should().BeProblem()
+                .WithStatusCode(HttpStatusCode.NotFound)
+                .WithMessage($"The storage {TeensyStorageType.USB} is not available.");
+        }
 
         [Fact]
         public async Task When_DeviceNotConnected_ReturnsNotFound()

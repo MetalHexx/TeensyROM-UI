@@ -1,0 +1,10 @@
+<div class="empty-state-message" [class.size-small]="size() === 'small'" [class.size-medium]="size() === 'medium'" [class.size-large]="size() === 'large'">
+  <mat-icon class="empty-state-icon">{{ icon() }}</mat-icon>
+  <h2 class="empty-state-title">{{ title() }}</h2>
+  @if (message()) {
+    <p class="empty-state-message-text">{{ message() }}</p>
+  }
+  @if (secondaryMessage()) {
+    <p class="empty-state-secondary-text" [innerHTML]="secondaryMessage()"></p>
+  }
+</div>

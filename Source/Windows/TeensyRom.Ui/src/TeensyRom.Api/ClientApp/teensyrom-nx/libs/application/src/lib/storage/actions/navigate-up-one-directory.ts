@@ -9,6 +9,7 @@ import {
   setDeviceSelectedDirectory,
   setStorageLoaded,
   updateStorage,
+  clearSearchState,
 } from '../storage-helpers';
 import { LogType, logInfo, logError, logWarn, createAction } from '@teensyrom-nx/utils';
 import { updateState } from '@angular-architects/ngrx-toolkit';
@@ -43,6 +44,9 @@ export function navigateUpOneDirectory(
       }
 
       logInfo(LogType.Navigate, `Navigating up from ${currentPath} to ${parentPath} for ${key}`);
+
+      // Clear any active search when navigating
+      clearSearchState(store, key, actionMessage);
 
       if (!isSelectedDirectory(store, deviceId, storageType, parentPath)) {
         setDeviceSelectedDirectory(store, deviceId, storageType, parentPath, actionMessage);

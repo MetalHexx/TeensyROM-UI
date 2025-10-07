@@ -1,8 +1,15 @@
 :host {
   width: 100%;
-  display: block;
+  display: flex;
 }
 
-.search-field {
-  width: 100%;
+.search-toolbar-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .search-field {
+    flex: 1;
+    min-width: 200px;
+  }
 }

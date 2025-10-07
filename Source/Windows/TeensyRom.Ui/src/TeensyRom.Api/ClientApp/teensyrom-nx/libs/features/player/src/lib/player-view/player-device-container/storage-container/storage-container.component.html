@@ -7,7 +7,7 @@
       <lib-filter-toolbar [deviceId]="deviceId()"></lib-filter-toolbar>
     </div>
     <div class="search-toolbar-container">
-      <lib-search-toolbar></lib-search-toolbar>
+      <lib-search-toolbar [deviceId]="deviceId()"></lib-search-toolbar>
     </div>
   </div>
   <div class="content-row">
@@ -15,7 +15,11 @@
       <lib-directory-tree [deviceId]="deviceId()"></lib-directory-tree>
     </div>
     <div class="right-container">
-      <lib-directory-files [deviceId]="deviceId()"></lib-directory-files>
+      @if (hasActiveSearch()) {
+        <lib-search-results [deviceId]="deviceId()"></lib-search-results>
+      } @else {
+        <lib-directory-files [deviceId]="deviceId()"></lib-directory-files>
+      }
     </div>
   </div>
 </div>

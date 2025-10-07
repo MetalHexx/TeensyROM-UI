@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { FilesApiService, GetDirectoryResponse } from '@teensyrom-nx/data-access/api-client';
-import { StorageDirectory, StorageType, IStorageService } from '@teensyrom-nx/domain';
+import { FilesApiService, GetDirectoryResponse, SearchResponse } from '@teensyrom-nx/data-access/api-client';
+import { StorageDirectory, StorageType, IStorageService, FileItem, PlayerFilterType } from '@teensyrom-nx/domain';
 import { DomainMapper } from '../domain.mapper';
 import { Observable, map, catchError, throwError, from } from 'rxjs';
 
@@ -40,5 +40,36 @@ export class StorageService implements IStorageService {
 
   indexAll(): Observable<unknown> {
     return from(this.apiService.indexAll({}));
+  }
+
+  search(
+    deviceId: string,
+    storageType: StorageType,
+    searchText: string,
+    filterType?: PlayerFilterType,
+    skip = 0,
+    take = 1000
+  ): Observable<FileItem[]> {
+    const apiStorageType = DomainMapper.toApiStorageType(storageType);
+    const apiFilterType = filterType ? DomainMapper.toApiSearchFilter(filterType) : undefined;
+    
+    return from(
+      this.apiService.search({ 
+        deviceId, 
+        storageType: apiStorageType, 
+        searchText,
+        skip,
+        take,
+        filterType: apiFilterType 
+      })
+    ).pipe(
+      map((response: SearchResponse) => {
+        return response.files?.map(file => DomainMapper.toFileItem(file, this.baseApiUrl)) ?? [];
+      }),
+      catchError((error) => {
+        console.error('Storage search failed:', error);
+        return throwError(() => error);
+      })
+    );
   }
 }

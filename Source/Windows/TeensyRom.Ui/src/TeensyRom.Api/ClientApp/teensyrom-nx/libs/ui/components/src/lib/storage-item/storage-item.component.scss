@@ -1,12 +1,12 @@
 @use '../../../../styles/src/lib/theme/styles.scss' as styles;
 
 :host {
+  @include styles.selectable-item;
   display: block;
   width: 100%;
 }
 
 .storage-item {
-  @include styles.selectable-item;
   display: flex;
   align-items: center;
   justify-content: space-between;

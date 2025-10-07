@@ -11,6 +11,7 @@ import {
   setStorageLoaded,
   updateStorage,
   isSelectedDirectory,
+  clearSearchState,
 } from '../storage-helpers';
 import { createAction } from '@teensyrom-nx/utils';
 import { LogType, logInfo, logError } from '@teensyrom-nx/utils';
@@ -35,6 +36,9 @@ export function navigateToDirectory(
       const key = StorageKeyUtil.create(deviceId, storageType);
 
       logInfo(LogType.Navigate, `Navigating to ${key} at path: ${path}`);
+
+      // Clear any active search when navigating
+      clearSearchState(store, key, actionMessage);
 
       if (!isSelectedDirectory(store, deviceId, storageType, path)) {
         setDeviceSelectedDirectory(store, deviceId, storageType, path, actionMessage);

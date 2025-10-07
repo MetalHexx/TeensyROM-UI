@@ -10,6 +10,7 @@ import {
   setLoadingStorage,
   setStorageLoaded,
   setStorageError,
+  clearSearchState,
 } from '../storage-helpers';
 import { createAction } from '@teensyrom-nx/utils';
 import { LogType, logInfo, logError } from '@teensyrom-nx/utils';
@@ -63,6 +64,9 @@ export function navigateDirectoryForward(
         `Updated history index to ${newIndex} for device: ${deviceId}, target path: ${targetPath}, storageType: ${storageType}`
       );
       const key = StorageKeyUtil.create(deviceId, storageType);
+
+      // Clear any active search when navigating
+      clearSearchState(store, key, actionMessage);
 
       setDeviceSelectedDirectory(store, deviceId, storageType, targetPath, actionMessage);
 

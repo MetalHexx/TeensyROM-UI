@@ -51,13 +51,13 @@ export function navigatePrevious(store: WritableStore<PlayerState>, playerServic
 
           setShuffleNavigationSuccess(store, deviceId, launchedFile, existingStorageKey, actionMessage);
 
-        } else if (launchMode === LaunchMode.Directory && fileContext) {
-          // In directory mode, go to previous file with wraparound
+        } else if ((launchMode === LaunchMode.Directory || launchMode === LaunchMode.Search) && fileContext) {
+          const modeLabel = launchMode === LaunchMode.Search ? 'Search' : 'Directory';
           const { files, currentIndex, storageKey } = fileContext;
           const previousIndex = currentIndex === 0 ? files.length - 1 : currentIndex - 1; // Wraparound
           const previousFile = files[previousIndex];
           
-          logInfo(LogType.Info, `Directory mode: going to previous file (${previousIndex + 1}/${files.length}) for ${deviceId}`, { previousFile: previousFile.name });
+          logInfo(LogType.Info, `${modeLabel} mode: going to previous file (${previousIndex + 1}/${files.length}) for ${deviceId}`, { previousFile: previousFile.name });
 
           const { storageType } = StorageKeyUtil.parse(storageKey);
           

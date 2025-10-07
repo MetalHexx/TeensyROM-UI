@@ -272,6 +272,167 @@ All animatable components support an `animationParent` input for controlling whe
 
 ---
 
+## Feedback Components
+
+### `EmptyStateMessageComponent`
+
+**Purpose**: A reusable component for displaying centered empty state messages with an icon, title, and optional descriptive text. Commonly used for "no data" scenarios like empty lists, no search results, or missing connections. Provides consistent UX for empty states throughout the application.
+
+**Selector**: `lib-empty-state-message`
+
+**Properties**:
+
+- `icon` (required): `string` - Material Design icon name to display (e.g., 'devices', 'search_off', 'folder_open')
+- `title` (required): `string` - Primary title text displayed prominently below the icon
+- `message` (optional): `string` - Optional message text displayed below the title for additional context
+- `secondaryMessage` (optional): `string` - Optional secondary message text, typically dimmed and smaller (supports HTML like `<strong>`)
+- `size` (optional): `'small' | 'medium' | 'large'` - Size variant controlling icon size and text sizing - defaults to 'medium'
+
+**Usage Examples**:
+
+```html
+<!-- Basic usage with required fields only -->
+<lib-empty-state-message 
+  icon="devices" 
+  title="No Connected Devices">
+</lib-empty-state-message>
+
+<!-- With all optional fields -->
+<lib-empty-state-message 
+  icon="search_off" 
+  title="No Results Found"
+  message="Try adjusting your search terms or filter settings."
+  secondaryMessage="Visit the <strong>Device View</strong> to manage your devices.">
+</lib-empty-state-message>
+
+<!-- Small size for compact areas -->
+<lib-empty-state-message 
+  icon="folder_open" 
+  title="Empty Folder"
+  message="This folder contains no files."
+  size="small">
+</lib-empty-state-message>
+
+<!-- Large size for prominent empty states -->
+<lib-empty-state-message 
+  icon="cloud_off" 
+  title="No Connection"
+  message="Unable to connect to the device."
+  secondaryMessage="Check your USB connection and try again."
+  size="large">
+</lib-empty-state-message>
+```
+
+**Advanced Usage Patterns**:
+
+```typescript
+export class FileListComponent {
+  files = signal<File[]>([]);
+  isLoading = signal(false);
+  
+  emptyStateConfig = computed(() => {
+    if (this.isLoading()) {
+      return null; // Show loading spinner instead
+    }
+    
+    const fileCount = this.files().length;
+    
+    if (fileCount === 0) {
+      return {
+        icon: 'folder_open',
+        title: 'No Files Found',
+        message: 'This directory is empty.',
+        secondaryMessage: 'Upload files to get started.'
+      };
+    }
+    
+    return null; // Files exist, show file list
+  });
+}
+```
+
+```html
+@if (emptyStateConfig()) {
+  <lib-empty-state-message 
+    [icon]="emptyStateConfig()!.icon"
+    [title]="emptyStateConfig()!.title"
+    [message]="emptyStateConfig()!.message"
+    [secondaryMessage]="emptyStateConfig()!.secondaryMessage">
+  </lib-empty-state-message>
+} @else if (isLoading()) {
+  <mat-spinner></mat-spinner>
+} @else {
+  <!-- File list content -->
+}
+```
+
+**Size Variants**:
+
+- **Small** (`size="small"`):
+  - Icon: 2rem (32px)
+  - Title: 1rem
+  - Padding: 1rem
+  - Gap: 0.5rem
+  - Use case: Compact areas, sidebar panels, small containers
+
+- **Medium** (`size="medium"`) - Default:
+  - Icon: 4rem (64px)
+  - Title: 1.5rem
+  - Padding: 2rem
+  - Gap: 1rem
+  - Use case: Standard empty states, main content areas
+
+- **Large** (`size="large"`):
+  - Icon: 6rem (96px)
+  - Title: 2rem
+  - Padding: 3rem
+  - Gap: 1.5rem
+  - Use case: Full-page empty states, prominent messaging
+
+**Styling Integration**:
+
+- **Icon Color**: Uses `--color-dimmed` for subtle, non-intrusive appearance
+- **Title Color**: Uses `--mat-sys-on-surface` for proper contrast in all themes
+- **Message Color**: Uses `--mat-sys-on-surface` for readable secondary content
+- **Secondary Message**: Uses `--color-dimmed` with support for `<strong>` tags that use `--mat-sys-on-surface`
+- **Layout**: Flexbox centered layout that fills parent container (100% height/width)
+- **Responsive**: Text and spacing scale appropriately with size variants
+
+**Accessibility Features**:
+
+- Semantic HTML structure with proper heading hierarchy (`<h2>` for title)
+- High contrast color scheme compatible with accessibility standards
+- Icon uses Material Design icons with proper ARIA support
+- Text content is screen reader friendly
+- No interactive elements to maintain focus management simplicity
+
+**Best Practice**: 
+
+- Use for all empty state scenarios to maintain consistent UX patterns
+- Choose size based on container: small for panels, medium for content areas, large for full pages
+- Provide meaningful, actionable messages that guide users on what to do next
+- Use `secondaryMessage` for additional context or navigation hints with `<strong>` for emphasis
+- Always include both icon and title (required) for clear communication
+
+**Common Use Cases**:
+
+- No connected devices
+- Empty search results
+- Empty file/folder listings
+- No data in tables/lists
+- Missing configurations
+- Disconnected states
+- No items in cart/playlist
+- Uninitialized views
+
+**Used In**:
+
+- [`player-view.component.html`](../libs/features/player/src/lib/player-view/player-view.component.html) - No connected devices state
+
+**See Also**: Loading spinners for async operations, error dialogs for failures
+
+---
+
 ## Form Components
 
 ### `InputFieldComponent`
@@ -299,7 +460,7 @@ All animatable components support an `animationParent` input for controlling whe
 
 ```html
 <!-- Search input with suffix icon -->
-<lib-input-field label="Search" placeholder="Search files and folders..." suffixIcon="search">
+<lib-input-field label="Search" suffixIcon="search">
 </lib-input-field>
 
 <!-- Email input with prefix icon -->

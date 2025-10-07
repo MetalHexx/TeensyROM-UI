@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
-import { StorageDirectory, StorageType } from '../models';
+import { StorageDirectory, StorageType, FileItem, PlayerFilterType } from '../models';
 
 /**
  * Storage service contract defining the interface for storage operations.
@@ -38,6 +38,39 @@ export interface IStorageService {
    * @returns Observable of index all operation result
    */
   indexAll(): Observable<unknown>;
+
+  /**
+   * Searches for files across the entire storage hierarchy based on search text and filter criteria.
+   * 
+   * This method performs a comprehensive search across all files in the storage device,
+   * searching through file names, titles, creators, and descriptions. Results are returned
+   * as a flat list of files only (no directories).
+   * 
+   * @param deviceId - The unique identifier of the device
+   * @param storageType - The type of storage (USB, SD, etc.)
+   * @param searchText - Text to search for in file names, titles, creators, and descriptions
+   * @param filterType - Optional filter to restrict search by file type (All, Games, Music, Images, Hex)
+   * @param skip - Optional number of results to skip for pagination (defaults to 0)
+   * @param take - Optional number of results to return for pagination (defaults to 1000)
+   * @returns Observable of FileItem array containing all matching files from the entire storage hierarchy
+   * 
+   * @remarks
+   * - Returns files only, no directories in the search results
+   * - Files come from the entire storage hierarchy, not just a single directory
+   * - Search is performed across multiple metadata fields for comprehensive results
+   * - FilterType parameter allows restricting results to specific file types
+   * - Results are ranked by relevance using a weighted search algorithm
+   * - Excludes favorites and playlist directories from search results
+   * - Supports pagination via skip/take parameters for handling large result sets
+   */
+  search(
+    deviceId: string,
+    storageType: StorageType,
+    searchText: string,
+    filterType?: PlayerFilterType,
+    skip?: number,
+    take?: number
+  ): Observable<FileItem[]>;
 }
 
 /**
