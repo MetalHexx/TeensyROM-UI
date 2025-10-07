@@ -1,7 +1,7 @@
 :host {
   display: block;
-  width: 370px;
-  height: 440px; // Adjusted to accommodate square images (292x292) + header/footer
+  width: 327px;
+  height: 390px; // Adjusted to accommodate square images + header/footer (327 + 63)
   flex-shrink: 0;
 
   // Take full width at smallest breakpoint
@@ -12,8 +12,8 @@
 }
 
 mat-card {
-  width: 370px;
-  height: 440px; // Match host height
+  width: 327px;
+  height: 390px; // Match host height
   overflow: hidden;
 
   // Match host width at smallest breakpoint
