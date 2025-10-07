@@ -1,12 +1,13 @@
 @if (fileItem()) {
   <div class="file-info">
-    @if (imageUrls().length > 0) {
-      <lib-cycle-image [images]="imageUrls()" size="thumbnail"></lib-cycle-image>
-    }
+    <lib-cycle-image [images]="imageUrls()" [intervalMs]="4000" size="thumbnail"></lib-cycle-image>
     <div class="file-text">
       <div class="file-title">{{ fileItem()?.title }}</div>
-      <div class="file-creator">{{ fileItem()?.creator }}</div>
-      <div class="file-metadata">{{ fileItem()?.releaseInfo || fileItem()?.metadataSource }}</div>
+      @if (fileItem()?.creator) {
+        <div class="file-creator">{{ fileItem()?.creator }}</div>        
+      } @else if (fileTypeName()) {
+        <div class="file-creator">{{ fileTypeName() }}</div>
+      }
     </div>
   </div>
 }
