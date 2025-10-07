@@ -16,6 +16,13 @@ body {
 
 html {
   color-scheme: light;
+  --color-primary: #890089;
+  --color-primary-bright: #b333b3;
+  --color-success: #86c691;
+  --color-error: #cc666c;
+  --color-highlight: #00f7ff;
+  --color-dimmed: #656363;
+  --color-directory: #f5d76e;
 
   @include mat.theme(
     (
@@ -24,14 +31,6 @@ html {
       density: 0,
     )
   );
-
-  --color-primary: #890089;
-  --color-primary-bright: #b333b3;
-  --color-success: #86c691;
-  --color-error: #cc666c;
-  --color-highlight: #00f7ff;
-  --color-dimmed: #656363;
-  --color-directory: #f5d76e;
 
   & {
     --mat-sys-surface-container-low: #cdcdcd;
@@ -44,6 +43,13 @@ html {
 
 html.dark-mode {
   color-scheme: dark;
+  --color-primary: #890089;
+  --color-primary-bright: #b333b3;
+  --color-success: #6fdc8c;
+  --color-error: #ff6f6f;
+  --color-highlight: #00f7ff;
+  --color-dimmed: #656363;
+  --color-directory: #f5e29e;
 
   @include mat.theme(
     (
@@ -52,15 +58,6 @@ html.dark-mode {
       density: 0,
     )
   );
-  /* Theme tokens and custom properties for dark mode. Place before nested
-     rules to preserve Sass behavior and silence mixed-declaration warnings. */
-  --color-primary: #890089;
-  --color-primary-bright: #b333b3;
-  --color-success: #6fdc8c;
-  --color-error: #ff6f6f;
-  --color-highlight: #00f7ff;
-  --color-dimmed: #656363;
-  --color-directory: #f5e29e;
 
   & {
     --mat-sys-surface-container-low: #231e22;
@@ -167,6 +164,18 @@ body {
 // ─────────────────────────────────────────────
 //  MATERIAL COMPONENT SPECIFIC STYLES
 // ─────────────────────────────────────────────
+
+// Style all Material input placeholders with dimmed color
+// Only show placeholder when input is focused
+.mdc-text-field__input:not(:focus)::placeholder {
+  opacity: 0 !important;
+}
+
+.mdc-text-field__input:focus::placeholder {
+  color: var(--color-dimmed) !important;
+  opacity: 1 !important;
+  font-style: italic !important;
+}
 
 mat-card-title {
   padding-bottom: 0;
