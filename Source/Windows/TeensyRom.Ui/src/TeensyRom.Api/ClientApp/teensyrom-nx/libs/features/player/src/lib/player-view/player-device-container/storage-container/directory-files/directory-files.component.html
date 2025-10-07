@@ -1,5 +1,5 @@
 <div class="directory-files">
-  <lib-scaling-card title="Current Directory">
+  <lib-scaling-card title="Current Directory" [animationTrigger]="animationTrigger()">
     @if (directoryContents().isLoading) {
     <p>Loading directory contents...</p>
     } @else if (directoryContents().error) {

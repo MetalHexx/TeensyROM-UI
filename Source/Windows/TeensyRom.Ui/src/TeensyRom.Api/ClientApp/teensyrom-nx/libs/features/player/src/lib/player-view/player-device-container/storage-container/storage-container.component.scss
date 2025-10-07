@@ -122,6 +122,17 @@
       min-height: 0;
       min-width: 350px;
       overflow: hidden;
+      position: relative; // Enable absolute positioning for children
+
+      // Make both search-results and directory-files fill the container
+      lib-search-results,
+      lib-directory-files {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
 
       // Responsive adjustments for stacked layout
       @media (max-width: 1200px) {

@@ -15,6 +15,7 @@ import { FileItemComponent } from './file-item/file-item.component';
 })
 export class DirectoryFilesComponent {
   deviceId = input.required<string>();
+  animationTrigger = input<boolean>(true);
 
   private readonly storageStore = inject(StorageStore);
   private readonly playerContext: IPlayerContext = inject(PLAYER_CONTEXT);

@@ -111,7 +111,7 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 
 ### `SlidingContainerComponent`
 
-**Purpose**: Container slide animation with height/width expansion. Affects document flow - content pushes/pulls surrounding elements.
+**Purpose**: Container slide animation with height/width expansion. Affects document flow - content pushes/pulls surrounding elements. Supports smooth entry and exit animations.
 
 **Selector**: `lib-sliding-container`
 
@@ -120,50 +120,102 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 - `containerWidth`: Width (default: `'auto'`)
 - `animationDuration`: Duration in ms (default: `400`)
 - `animationDirection`: Direction - `'from-top'`, `'slide-down'`, `'slide-up'`, `'fade'`, etc. (default: `'from-top'`)
-- `animationTrigger`: Manual control signal (optional)
+- `animationTrigger`: Manual control signal (optional) - **Enables exit animations**
 - `animationParent`: Override animation chaining (optional - see [Animation System](#animation-system))
+- `showContainer`: Computed signal controlling visibility (internal)
 
 **Events**:
 - `animationComplete`: Emitted when animation finishes
 
+**Animation Behavior**:
+- **Entry**: Height/width expansion from 0 to target size with opacity fade-in and directional slide. Uses cubic-bezier easing for smooth motion.
+- **Exit**: Uses `animationTrigger` to play reverse animation before removing from DOM. Component stays visible during exit animation.
+- **Transitions**: `void => visible` (initial), `hidden => visible` (show), `visible => hidden` (hide with animation)
+
 **Usage**:
 
 ```html
+<!-- Basic entry animation -->
 <lib-sliding-container
   containerHeight="80px"
-  animationDirection="from-top"
-  [animationTrigger]="isReady()">
+  animationDirection="from-top">
   <lib-scaling-compact-card>
     <div class="toolbar">...</div>
   </lib-scaling-compact-card>
 </lib-sliding-container>
+
+<!-- With exit animations using animationTrigger -->
+<lib-sliding-container
+  containerHeight="80px"
+  animationDirection="slide-down"
+  [animationTrigger]="isVisible()">
+  <div>Slides in and out smoothly</div>
+</lib-sliding-container>
+
+<!-- Nested with auto-chaining -->
+<lib-sliding-container [animationTrigger]="isReady()">
+  <lib-scaling-compact-card>
+    <div>Waits for parent slide animation</div>
+  </lib-scaling-compact-card>
+</lib-sliding-container>
 ```
+
+**Exit Animation Pattern**: When using `animationTrigger`, the component will:
+1. Play exit animation when trigger becomes `false`
+2. Remove from DOM after animation completes
+3. Re-appear with entry animation when trigger becomes `true`
+
+**Z-Index Management**: The component automatically manages z-index layering for proper click handling when multiple animated components overlap:
+- **Visible state** (`animationTrigger=true`): `z-index: 1000` - Component is on top and fully interactive
+- **Hidden state** (`animationTrigger=false`): `z-index: 1` - Component is below and won't block clicks during exit animation
+
+**Comparison**:
+- **SlidingContainer**: Height/width expansion, affects layout flow, pushes surrounding content, **supports exit animations**
+- **ScalingContainer**: Transform-based, no layout impact, visual "pop" effect
 
 **See Also**: [ScalingContainerComponent](#scalingcontainercomponent), [Animation System](#animation-system)
 
 ### `ScalingContainerComponent`
 
-**Purpose**: Scale+fade+slide animation wrapper. Transform-based - doesn't affect document flow. Creates "pop-in" effect.
+**Purpose**: Scale+fade+slide animation wrapper. Transform-based - doesn't affect document flow. Creates "pop-in" effect with smooth entry and exit animations.
 
 **Selector**: `lib-scaling-container`
 
 **Properties**:
 - `animationEntry`: Entry direction - `'random'`, `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`, etc. (default: `'random'`)
 - `animationExit`: Exit direction (default: `'random'`)
-- `animationTrigger`: Manual control signal (optional)
+- `animationTrigger`: Manual control signal (optional) - **Enables exit animations**
 - `animationParent`: Override animation chaining (optional - see [Animation System](#animation-system))
 
 **Events**:
 - `animationComplete`: Emitted when animation finishes
 
-**Animation**: 0.8→1.0 scale, opacity fade, -40px directional slide. Transform (2000ms) + opacity (3000ms) for smooth reveal.
+**Animation Behavior**:
+- **Entry**: 0.8→1.0 scale, opacity 0→1 fade, -40px directional slide. Transform (2000ms) + opacity (3000ms) for smooth reveal.
+- **Exit**: Uses `animationTrigger` to play reverse animation before removing from DOM. Component stays visible during exit animation.
+- **Transitions**: `void => visible` (initial), `hidden => visible` (show), `visible => hidden` (hide with animation)
 
 **Usage**:
 
 ```html
+<!-- Basic entry animation -->
 <lib-scaling-container animationEntry="from-left">
   <div class="panel">Scales in from left</div>
 </lib-scaling-container>
+
+<!-- With exit animations using animationTrigger -->
+<lib-scaling-container 
+  animationEntry="from-left" 
+  animationExit="from-right"
+  [animationTrigger]="isVisible()">
+  <div>Animates in and out smoothly</div>
+</lib-scaling-container>
+
+<!-- Toggle between components with exit animations -->
+<div style="position: relative">
+  <lib-component-a [animationTrigger]="showA()"></lib-component-a>
+  <lib-component-b [animationTrigger]="!showA()"></lib-component-b>
+</div>
 
 <!-- Nested with auto-chaining -->
 <lib-sliding-container [animationTrigger]="isReady()">
@@ -173,8 +225,17 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 </lib-sliding-container>
 ```
 
+**Exit Animation Pattern**: When using `animationTrigger`, always render both components and let the trigger control visibility. Position them absolutely if overlapping. The component will:
+1. Play exit animation when trigger becomes `false`
+2. Remove from DOM after animation completes
+3. Re-appear with entry animation when trigger becomes `true`
+
+**Z-Index Management**: The component automatically manages z-index layering for proper click handling when multiple animated components overlap:
+- **Visible state** (`animationTrigger=true`): `z-index: 1000` - Component is on top and fully interactive
+- **Hidden state** (`animationTrigger=false`): `z-index: 1` - Component is below and won't block clicks during exit animation
+
 **Comparison**:
-- **ScalingContainer**: Transform-based, no layout impact, visual "pop" effect
+- **ScalingContainer**: Transform-based, no layout impact, visual "pop" effect, **supports exit animations**
 - **SlidingContainer**: Height/width expansion, pushes surrounding content
 
 **Used By**: [ScalingCardComponent](#scalingcardcomponent), [ScalingCompactCardComponent](#scalingcompactcardcomponent)

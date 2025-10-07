@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, inject, Self } from '@angular/core';
+import { Component, input, output, signal, computed, inject, Self, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, style, transition, animate, group } from '@angular/animations';
 import type { AnimationDirection, AnimationParentMode } from '../shared/animation.types';
@@ -11,7 +11,9 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
   styleUrl: './scaling-container.component.scss',
   host: {
     '[@scaleIn]': 'animationState()',
-    '(@scaleIn.done)': 'onAnimationDone()'
+    '(@scaleIn.done)': 'onAnimationDone()',
+    '[class.visible]': 'animationState().value === "visible"',
+    '[class.hidden]': 'animationState().value === "hidden"'
   },
   providers: [
     {
@@ -25,7 +27,7 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
   ],
   animations: [
     trigger('scaleIn', [
-      transition('void => *', [
+      transition('void => visible', [
         style({
           opacity: 0,
           overflow: 'hidden',
@@ -44,7 +46,26 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
           }))
         ])
       ], { params: { startTransform: 'translate(-40px, -40px)', transformOrigin: 'top left' } }),
-      transition('* => void', [
+      transition('hidden => visible', [
+        style({
+          opacity: 0,
+          overflow: 'hidden',
+          transform: '{{ startTransform }} scale(0.8)',
+          transformOrigin: '{{ transformOrigin }}'
+        }),
+        group([
+          animate('2000ms cubic-bezier(0.35, 0, 0.25, 1)', style({
+            overflow: 'hidden',
+            transform: 'translate(0, 0) scale(1)',
+            transformOrigin: '{{ transformOrigin }}'
+          })),
+          animate('3000ms cubic-bezier(0.35, 0, 0.25, 1)', style({
+            opacity: 1,
+            overflow: 'hidden'
+          }))
+        ])
+      ], { params: { startTransform: 'translate(-40px, -40px)', transformOrigin: 'top left' } }),
+      transition('visible => hidden', [
         style({
           overflow: 'hidden',
           transformOrigin: '{{ transformOrigin }}'
@@ -86,6 +107,12 @@ export class ScalingContainerComponent {
   // Internal animation completion signal for child components (public for provider access)
   animationCompleteSignal = signal(false);
 
+  // Track whether component should be in DOM (stays true during exit animation)
+  private shouldBeInDom = signal(true);
+
+  // Expose for template
+  protected shouldRenderInDom = this.shouldBeInDom.asReadonly();
+
   // Memoize random direction selection per instance
   private selectedEntryDirection: Exclude<AnimationDirection, 'random' | 'none'> | null = null;
   private selectedExitDirection: Exclude<AnimationDirection, 'random' | 'none'> | null = null;
@@ -126,12 +153,8 @@ export class ScalingContainerComponent {
   protected animationState = computed(() => {
     const shouldAnimate = this.shouldRender();
 
-    if (!shouldAnimate) {
-      return 'void';
-    }
-
     return {
-      value: 'visible',
+      value: shouldAnimate ? 'visible' : 'hidden',
       params: {
         startTransform: this.getTransformForDirection(this.animationEntry(), false),
         exitTransform: this.getTransformForDirection(this.animationExit(), true),
@@ -224,5 +247,24 @@ export class ScalingContainerComponent {
   onAnimationDone(): void {
     this.animationCompleteSignal.set(true);
     this.animationComplete.emit();
+
+    // Remove from DOM after exit animation completes
+    const currentState = this.animationState();
+    if (currentState && typeof currentState === 'object' && currentState.value === 'hidden') {
+      this.shouldBeInDom.set(false);
+    }
+  }
+
+  // Effect to manage DOM presence based on shouldRender changes
+  constructor() {
+    effect(() => {
+      const shouldShow = this.shouldRender();
+      
+      // If we should show, ensure we're in the DOM before animation starts
+      if (shouldShow) {
+        this.shouldBeInDom.set(true);
+      }
+      // If we shouldn't show, the DOM removal happens in onAnimationDone after exit animation
+    });
   }
 }

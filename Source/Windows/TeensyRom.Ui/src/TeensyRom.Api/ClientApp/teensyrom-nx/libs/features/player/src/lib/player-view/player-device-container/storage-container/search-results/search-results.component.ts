@@ -14,6 +14,7 @@ import { ScalingCardComponent, EmptyStateMessageComponent } from '@teensyrom-nx/
 })
 export class SearchResultsComponent {
   deviceId = input.required<string>();
+  animationTrigger = input<boolean>(true);
 
   private readonly storageStore = inject(StorageStore);
   private readonly playerContext: IPlayerContext = inject(PLAYER_CONTEXT);

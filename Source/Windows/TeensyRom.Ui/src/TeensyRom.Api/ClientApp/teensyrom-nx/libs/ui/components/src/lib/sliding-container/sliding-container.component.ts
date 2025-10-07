@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, inject, Self } from '@angular/core';
+import { Component, input, output, signal, computed, inject, Self, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, style, transition, animate } from '@angular/animations';
 import type { AnimationDirection, AnimationParentMode } from '../shared/animation.types';
@@ -15,6 +15,10 @@ export type ContainerAnimationDirection =
   imports: [CommonModule],
   templateUrl: './sliding-container.component.html',
   styleUrl: './sliding-container.component.scss',
+  host: {
+    '[class.visible]': 'animationParams.value === "visible"',
+    '[class.hidden]': 'animationParams.value === "hidden"'
+  },
   providers: [
     {
       provide: PARENT_ANIMATION_COMPLETE,
@@ -27,7 +31,7 @@ export type ContainerAnimationDirection =
   ],
   animations: [
     trigger('containerAnimation', [
-      transition(':enter', [
+      transition('void => visible', [
         style({
           opacity: 0,
           height: '{{ startHeight }}',
@@ -52,7 +56,32 @@ export type ContainerAnimationDirection =
         duration: '400',
         easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
       }}),
-      transition(':leave', [
+      transition('hidden => visible', [
+        style({
+          opacity: 0,
+          height: '{{ startHeight }}',
+          width: '{{ startWidth }}',
+          overflow: 'hidden',
+          transform: '{{ startTransform }}'
+        }),
+        animate('{{ duration }}ms {{ easing }}', style({
+          opacity: 1,
+          height: '{{ endHeight }}',
+          width: '{{ endWidth }}',
+          overflow: 'visible',
+          transform: '{{ endTransform }}'
+        }))
+      ], { params: { 
+        startHeight: '0', 
+        endHeight: 'auto',
+        startWidth: 'auto',
+        endWidth: 'auto',
+        startTransform: 'translateY(-20px)', 
+        endTransform: 'translateY(0)',
+        duration: '400',
+        easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
+      }}),
+      transition('visible => hidden', [
         animate('{{ duration }}ms {{ easing }}', style({
           opacity: 0,
           height: '{{ startHeight }}',
@@ -96,6 +125,12 @@ export class SlidingContainerComponent {
   // Internal animation completion signal for child components (public for provider access)
   animationCompleteSignal = signal(false);
 
+  // Track whether component should be in DOM (stays true during exit animation)
+  private shouldBeInDom = signal(true);
+
+  // Expose for template
+  protected shouldRenderInDom = this.shouldBeInDom.asReadonly();
+
   // Inject parent completion signal (if exists)
   private parentComplete = inject(PARENT_ANIMATION_COMPLETE, {
     optional: true,
@@ -130,6 +165,7 @@ export class SlidingContainerComponent {
 
   // Animation parameter computation
   get animationParams() {
+    const shouldShow = this.showContainer();
     const direction = this.animationDirection();
     const duration = this.animationDuration();
     const height = this.containerHeight();
@@ -137,7 +173,7 @@ export class SlidingContainerComponent {
     const { startHeight, endHeight, startWidth, endWidth, startTransform, endTransform } = this.getAnimationValues(direction, height, width);
 
     return {
-      value: 'visible',
+      value: shouldShow ? 'visible' : 'hidden',
       params: {
         startHeight,
         endHeight,
@@ -156,6 +192,25 @@ export class SlidingContainerComponent {
     this.animationCompleteSignal.set(true);
     // Emit event for backward compatibility
     this.animationComplete.emit();
+
+    // Remove from DOM after exit animation completes
+    const currentState = this.animationParams;
+    if (currentState && currentState.value === 'hidden') {
+      this.shouldBeInDom.set(false);
+    }
+  }
+
+  // Effect to manage DOM presence based on showContainer changes
+  constructor() {
+    effect(() => {
+      const shouldShow = this.showContainer();
+      
+      // If we should show, ensure we're in the DOM before animation starts
+      if (shouldShow) {
+        this.shouldBeInDom.set(true);
+      }
+      // If we shouldn't show, the DOM removal happens in onContainerAnimationDone after exit animation
+    });
   }
 
   private getAnimationValues(direction: ContainerAnimationDirection, height: string, width: string): {
