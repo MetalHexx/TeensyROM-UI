@@ -18,8 +18,6 @@ import { ScrollingMarqueeComponent, ScalingCompactCardComponent } from '@teensyr
     FileOtherComponent,
     PlayerToolbarComponent,
     StorageContainerComponent,
-    ScrollingMarqueeComponent,
-    ScalingCompactCardComponent,
   ],
   templateUrl: './player-device-container.component.html',
   styleUrl: './player-device-container.component.scss',
