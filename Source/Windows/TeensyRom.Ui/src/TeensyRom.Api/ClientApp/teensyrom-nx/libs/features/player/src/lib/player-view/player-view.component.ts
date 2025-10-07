@@ -1,15 +1,15 @@
 import { Component, inject, computed, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
 import { DeviceStore } from '@teensyrom-nx/application';
 import { PlayerDeviceContainerComponent } from './player-device-container/player-device-container.component';
-import { StorageKeyUtil, StorageStore } from '@teensyrom-nx/application';
+import { StorageKeyUtil, StorageStore, StorageDirectoryState } from '@teensyrom-nx/application';
 import { StorageType } from '@teensyrom-nx/domain';
 import { Device } from '@teensyrom-nx/domain';
+import { EmptyStateMessageComponent } from '@teensyrom-nx/ui/components';
 
 @Component({
   selector: 'lib-player-view',
-  imports: [CommonModule, MatIconModule, PlayerDeviceContainerComponent],
+  imports: [CommonModule, PlayerDeviceContainerComponent, EmptyStateMessageComponent],
   templateUrl: './player-view.component.html',
   styleUrl: './player-view.component.scss',
 })
@@ -44,7 +44,7 @@ export class PlayerViewComponent {
   private async initializeStorageType(
     deviceId: string,
     storageType: StorageType,
-    deviceEntries: Record<string, any>
+    deviceEntries: Record<string, StorageDirectoryState>
   ): Promise<void> {
     const storageKey = StorageKeyUtil.create(deviceId, storageType);
 

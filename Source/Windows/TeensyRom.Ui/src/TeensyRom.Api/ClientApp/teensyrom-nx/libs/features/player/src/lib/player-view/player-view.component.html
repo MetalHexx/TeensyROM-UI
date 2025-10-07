@@ -1,11 +1,11 @@
 @if (connectedDevices().length === 0) {
 
-<div class="no-devices-message">
-  <mat-icon class="large-icon">devices</mat-icon>
-  <h2>No Connected Devices</h2>
-  <p>Connect a TeensyROM device to get started.</p>
-  <p class="dimmed">Visit the <strong>Device View</strong> to manage your connected devices.</p>
-</div>
+<lib-empty-state-message 
+  icon="devices" 
+  title="No Connected Devices"
+  message="Connect a TeensyROM device to get started."
+  secondaryMessage="Visit the <strong>Device View</strong> to manage your connected devices.">
+</lib-empty-state-message>
 
 } @else {
 

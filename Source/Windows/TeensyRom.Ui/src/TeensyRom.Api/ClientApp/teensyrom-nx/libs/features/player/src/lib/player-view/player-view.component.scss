@@ -11,41 +11,6 @@
   }
 }
 
-.no-devices-message {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  text-align: center;
-  gap: 1rem;
-  padding: 2rem;
-
-  .large-icon {
-    font-size: 4rem;
-    width: 4rem;
-    height: 4rem;
-    color: var(--color-dimmed);
-    margin-bottom: 1rem;
-  }
-
-  h2 {
-    margin: 0;
-    color: var(--mat-sys-on-surface);
-    font-weight: 400;
-  }
-
-  p {
-    margin: 0.5rem 0;
-    color: var(--mat-sys-on-surface);
-    font-size: 1.1rem;
-
-    &.dimmed {
-      font-size: 1rem;
-    }
-  }
-}
-
 .device-list {
   display: grid;
   width: 100%;
