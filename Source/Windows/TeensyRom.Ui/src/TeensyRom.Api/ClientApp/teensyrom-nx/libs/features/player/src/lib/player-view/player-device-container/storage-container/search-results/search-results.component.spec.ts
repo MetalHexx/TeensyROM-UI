@@ -4,7 +4,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { SearchResultsComponent } from './search-results.component';
 import { PLAYER_CONTEXT, SearchState, LaunchedFile, StorageKeyUtil, IPlayerContext, StorageStore, StorageDirectoryState, ShuffleSettings } from '@teensyrom-nx/application';
-import { FileItem, FileItemType, LaunchMode, StorageType, PlayerFilterType } from '@teensyrom-nx/domain';
+import { FileItem, FileItemType, LaunchMode, StorageType, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
 
 describe('SearchResultsComponent', () => {
   let component: SearchResultsComponent;
@@ -75,7 +75,7 @@ describe('SearchResultsComponent', () => {
     launchModeSignal = signal<LaunchMode>(LaunchMode.Directory);
     errorSignal = signal<string | null>(null);
     selectedDirectorySignal = signal<StorageDirectoryState | null>(null);
-    shuffleSettingsSignal = signal<ShuffleSettings | null>({ filter: PlayerFilterType.All, scope: 'directory' } as ShuffleSettings);
+    shuffleSettingsSignal = signal<ShuffleSettings | null>({ filter: PlayerFilterType.All, scope: PlayerScope.DirectoryShallow });
 
     // Create mock StorageStore
     mockStorageStore = {
