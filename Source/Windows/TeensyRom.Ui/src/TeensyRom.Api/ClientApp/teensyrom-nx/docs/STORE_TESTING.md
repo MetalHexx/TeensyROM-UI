@@ -1,265 +1,147 @@
-# Store Testing Methodology
+# Application Layer Behavioral Testing
 
-This document describes the standard methodology for testing NgRx Signal Stores in this repository. It focuses on testing stores via their public API, using Angular TestBed with Vitest, and mocking external dependencies at the DI boundary.
+This document describes the standard methodology for testing application layer services, stores, and workflows in this repository. It promotes behavioral testing through facades and context services rather than direct store testing.
 
 ## Overview
 
-- Test stores through their public methods and state signal getters.
-- Use Angular TestBed to instantiate the store as it runs in the app.
-- Mock external services (HTTP/data) with strongly typed mocks.
-- Prefer fast, reliable unit tests; reserve integration tests for cross‑library scenarios.
+- Test application layer behaviors through facade/context services, not stores directly.
+- Allow real integration between services, stores, and utilities within the application layer.
+- Mock only at the infrastructure boundary using strongly typed interface contracts.
+- Focus on observable outcomes and complete workflows, not implementation details.
+- Avoid testing store actions, selectors, or internal methods in isolation.
 
-## Test Types
+## Philosophy: Behavioral Testing vs Unit Testing
 
-- Unit (Store-Level):
+**Behavioral Testing** validates that the application layer delivers correct outcomes for user workflows and use cases. Tests should answer "does this feature work correctly?" rather than "does this store method update state correctly?"
 
-  - Exercise store methods and assert state via signal getters.
-  - Mock dependencies at the injection boundary.
-  - Cover normal, error, and edge case paths.
+**Why Test Facades Instead of Stores**:
 
-- Method-Level (Optional):
+- Facades represent the actual API that components consume - test what's really used.
+- Store actions and selectors are implementation details that may change during refactoring.
+- Behavioral tests survive refactoring better because they validate outcomes, not mechanics.
+- Integration between stores, services, and utilities catches coordination bugs that unit tests miss.
+- Mirrors real application usage patterns more accurately.
 
-  - Only when isolating single function behavior adds value.
-  - Prefer store-level tests to validate composition and state interaction.
-
-- Integration:
-  - Multiple services/stores interacting; use MSW for HTTP.
-  - No real backend calls (see TESTING_STANDARDS.md).
+**Integration Scope**: Within the application layer, use real implementations. Only mock at the infrastructure boundary where external systems (HTTP, SignalR, file system) are accessed.
 
 ## Environment & Setup
 
-- Runner: Vitest via `@nx/vite:test`.
-- Environment: `jsdom`.
-- Per-library setup: `src/test-setup.ts` ensures Angular TestBed + Zones are initialized (e.g., `@analogjs/vitest-angular/setup-zone`).
-- Devtools: `withDevtools()` is fine; Node logs about missing Redux DevTools are harmless.
+- **Test Runner**: Vitest via `@nx/vite:test`
+- **Environment**: jsdom for Angular TestBed support
+- **Setup File**: `src/test-setup.ts` initializes Angular TestBed and Zones
+- **TestBed Configuration**: Provide facade under test, real stores, mocked infrastructure services
 
 ## Mocking Strategy
 
-1. Define an interface for each external service the store depends on (e.g., `IExampleService`).
-2. Provide an InjectionToken for the interface (e.g., `EXAMPLE_SERVICE`).
-3. In the app shell, map the token to the concrete class with `useExisting`.
-4. In tests, provide the token with a small, strongly typed mock.
+**Mock at Infrastructure Boundary Only**:
 
-Example:
+Infrastructure services are defined as interface contracts in the domain layer. Mock these contracts using strongly typed mocks with Vitest's `vi.fn()`. Never mock stores, utilities, or other application layer components.
 
-```ts
-// interface + token (production code)
-export interface IExampleService {
-  getData(id: string): Observable<Data>;
-}
-export const EXAMPLE_SERVICE = new InjectionToken<IExampleService>('EXAMPLE_SERVICE');
+**Test Boundary Pattern**:
 
-// app providers (production code)
-export const EXAMPLE_SERVICE_PROVIDER = { provide: EXAMPLE_SERVICE, useExisting: ExampleService };
+- **Real**: Facade/context service under test
+- **Real**: Application layer stores used by the facade
+- **Real**: Shared utilities and helper functions
+- **Mocked**: Infrastructure services implementing domain contracts (IDeviceService, IPlayerService, IStorageService)
 
-// test setup (spec code)
-type GetDataFn = (id: string) => Observable<Data>;
-let getDataMock: MockedFunction<GetDataFn>;
-TestBed.configureTestingModule({
-  providers: [
-    { provide: EXAMPLE_SERVICE, useValue: { getData: (getDataMock = vi.fn<GetDataFn>()) } },
-  ],
-});
-```
+**Mock Setup**:
 
-## Store Instantiation Pattern
+Define typed mock functions matching interface signatures. Provide mocks via injection tokens in TestBed. Control mock return values to simulate various infrastructure responses.
 
-```ts
-let store: StoreUnderTest;
+## Facade Testing Pattern
 
-beforeEach(() => {
-  // configure TestBed with mocked tokens
-  store = TestBed.inject(StoreUnderTestToken) as unknown as StoreUnderTest;
-});
-```
+**Service Under Test**: Inject the facade/context service as the primary subject. The facade coordinates stores and infrastructure to deliver behaviors.
 
-## Assertion Patterns
+**Async Handling**: Use helper function to flush microtask queue after invoking asynchronous facade methods. This ensures all reactive updates complete before assertions.
 
-- Read state via getters: `store.someSlice()` and `store.someSelector()`.
-- For async `rxMethod` flows, allow the microtask queue to flush:
-
-```ts
-const nextTick = () => new Promise<void>((r) => setTimeout(r, 0));
-// ... invoke store method
-await nextTick();
-```
-
-- Verify service calls and parameters on typed mocks.
+**State Assertions**: Read state through facade signal getters. Never access store internals directly. Assert on observable outcomes visible to consuming components.
 
 ## Behaviors to Test
 
-Use this checklist to design comprehensive store tests.
+Design tests around observable user workflows and feature behaviors. Focus on end-to-end outcomes rather than individual state mutations.
 
-1. Initialization
+### 1. Feature Initialization & Lifecycle
 
-   - Creates default entry/key when missing.
-   - Idempotent for duplicate calls.
-   - Supports multiple contexts (e.g., multi-device/tenant/environment).
+- Feature initializes correctly for new contexts (devices, sessions, tenants)
+- Re-initialization is idempotent and doesn't corrupt existing state
+- Cleanup properly removes context-scoped state without affecting other contexts
+- Multi-context isolation: independent state and behaviors per context key
 
-2. Actions / Transitions
+### 2. Primary User Workflows
 
-   - Updates any user-facing selection/highlighting state immediately (if applicable).
-   - Sets loading flags and clears previous errors appropriately.
+- Complete workflows from user action to final observable outcome
+- Infrastructure calls made with correct parameters
+- Success paths update state correctly and clear previous errors
+- Loading states appear and clear appropriately during async operations
 
-3. Smart Caching
+### 3. Error Handling & Recovery
 
-   - Cache hit: recognises already-loaded state and skips service calls.
-   - Cache miss: calls service and updates state.
-   - Cache invalidation: refresh or error transitions update timestamps and flags correctly.
+- Infrastructure failures set observable error states without throwing
+- Error states display meaningful information to consuming components
+- Subsequent successful operations clear previous errors
+- Failed operations leave system in consistent, recoverable state
 
-4. Loading & Error Handling
+### 4. State Transitions & Coordination
 
-   - Sets `isLoading` at start; clears on finish/error.
-   - Sets clear error messages on failure; preserves relevant data when appropriate.
+- Observable state changes match expected transitions for user actions
+- Multiple coordinated updates complete atomically from component perspective
+- State consistency maintained across rapid successive operations
+- Workflow steps execute in correct order with proper state at each stage
 
-5. Refresh / Invalidation
+### 5. Edge Cases & Boundary Conditions
 
-   - Uses current context (e.g., active key/parameters) when reloading.
-   - Updates data and refresh timestamps.
-   - No-ops safely when context is missing.
+- Empty or missing data handled gracefully
+- Invalid inputs handled without corrupting state
+- Concurrent operations resolve to consistent final state
+- Operations on uninitialized or removed contexts fail safely
 
-6. Cleanup
+## Do / Don't
 
-   - Removes context-scoped entries (e.g., by entity and/or subtype).
-   - Leaves unrelated entries intact.
-   - Selection behavior: assert current implementation (clear/preserve) as designed.
+### Do
 
-7. Multi-Context Isolation
+- Test facades/context services that components actually consume
+- Use real stores and utilities within the application layer
+- Mock only infrastructure services at domain contract boundaries
+- Use strongly typed mocks implementing full interface contracts
+- Assert on observable outcomes through facade signal getters
+- Verify infrastructure calls with expected parameters
+- Test complete workflows from user action to final state
+- Focus on behaviors answering "does this feature work?"
 
-   - Independent state per context key (e.g., tenant+resourceType).
-   - Independent caching per context key.
-   - Selection switching and persistence rules validated.
+### Don't
 
-8. Complex Workflows
+- Test store methods, actions, or selectors directly
+- Mock application layer components (stores, utilities, helpers)
+- Assert on internal store state or implementation details
+- Test individual store methods in isolation
+- Use `any` types in mocks - always strongly type mock functions
+- Make real HTTP calls or access real external systems
+- Test what state transitions occurred - test what outcomes are observable
 
-   - Initialize context → Perform action → Cache hit (second attempt avoids service call).
-   - Disconnect/Reconnect: Cleanup context → Re-initialize → Verify clean defaults.
-   - Failure → Retry success: First attempt fails, subsequent attempt clears error and loads data.
-   - Cache hit → Refresh: Subsequent refresh calls service and updates timestamp/data.
-   - Concurrent operations: Overlapping actions resolve to a consistent final state.
+## Test Organization
 
-9. Edge Cases & Concurrency
+Structure tests by user-facing feature behaviors:
 
-   - Empty / malformed inputs where applicable.
-   - Rapid successive actions; ensure “latest wins” semantics.
-   - Cleanup during in-flight operations does not throw and leaves consistent state.
-
-10. Performance & Memory (lightweight)
-
-- Sanity checks for large numbers of entries.
-- Verify cleanup prevents bloat; no dangling async flows.
-
-## Do / Don’t
-
-- Do test through the store’s public API.
-- Do mock at the service boundary using interface tokens.
-- Do keep mocks minimal but strongly typed (no `any`).
-- Don’t assert internal implementation details; assert observable state and effects.
-- Don’t call other store methods from within a method implementation (one-function-per-file pattern).
-- Don’t perform real HTTP in unit tests.
-
-## Example Async Test Snippet
-
-```ts
-getDataMock.mockReturnValue(of(mockData));
-store.loadData({ id: '123' });
-await nextTick();
-expect(store.data()).toEqual(mockData);
-expect(store.isLoading()).toBe(false);
-expect(store.error()).toBeNull();
-```
+- **Initialization & Lifecycle**: Context setup, multi-context isolation, cleanup
+- **Primary Workflows**: Complete user journeys from action to outcome (e.g., "launch file with context", "navigate to next file")
+- **Playback Controls**: State transitions observable through user controls (play, pause, stop)
+- **Navigation**: Sequential and shuffle mode behaviors, directory context loading
+- **Error Handling**: Infrastructure failure scenarios and recovery
+- **State Transitions**: Complex multi-step workflows and state consistency
 
 ## Quick Checklist
 
-- [ ] Test setup via Angular TestBed
-- [ ] Typed service mocks provided via tokens
-- [ ] Initialization behavior
-- [ ] Navigation/Actions + selection updates
-- [ ] Caching hit/miss/invalidation
-- [ ] Loading + error handling
-- [ ] Refresh semantics
-- [ ] Cleanup semantics
-- [ ] Multi-context isolation
-- [ ] Complex workflows
-- [ ] Edge cases & concurrency
-- [ ] Performance & memory sanity
+- [ ] TestBed setup with facade under test, real stores, mocked infrastructure services
+- [ ] Strongly typed infrastructure mocks via injection tokens
+- [ ] Initialization and multi-context isolation behaviors
+- [ ] Primary user workflow scenarios tested end-to-end
+- [ ] Error handling and recovery paths validated
+- [ ] State transitions tested through observable outcomes
+- [ ] Edge cases and concurrent operation handling
+- [ ] All assertions via facade signals, never accessing store internals
 
-## Alternative: Facade/Context Service Testing
+## Reference Example
 
-**Optional Approach**: Instead of testing stores directly, you can test at the facade/context service level for behavioral integration testing.
+For a comprehensive example of behavioral application layer testing following this methodology:
 
-### When to Use Facade Testing
-
-- Testing orchestration between store and infrastructure services
-- Validating complete workflow behaviors end-to-end
-- Testing signal-based APIs exposed to UI components
-- Integration testing without full infrastructure dependencies
-
-### Facade Testing Setup
-
-```ts
-// Example: Testing PlayerContextService instead of PlayerStore directly
-
-describe('PlayerContextService', () => {
-  let contextService: PlayerContextService;
-  let store: PlayerStore;
-  let mockPlayerService: MockedObject<IPlayerService>;
-
-  beforeEach(() => {
-    mockPlayerService = {
-      launchFile: vi.fn(),
-      launchRandom: vi.fn(),
-    };
-
-    TestBed.configureTestingModule({
-      providers: [
-        PlayerContextService,
-        PlayerStore, // Real store
-        { provide: PLAYER_SERVICE, useValue: mockPlayerService }, // Mock infrastructure
-      ],
-    });
-
-    contextService = TestBed.inject(PlayerContextService);
-    store = TestBed.inject(PlayerStore);
-  });
-
-  it('should coordinate file launch between store and infrastructure', async () => {
-    const file = { id: '1', name: 'test.sid' } as FileItem;
-    const contextFiles = [file, { id: '2', name: 'other.sid' }] as FileItem[];
-
-    mockPlayerService.launchFile.mockReturnValue(of(file));
-
-    // Test facade method (not store method directly)
-    contextService.launchFileWithContext('device1', file, contextFiles);
-    await nextTick();
-
-    // Assert on observable state through facade signals
-    expect(contextService.getCurrentFile('device1')()).toEqual(jasmine.objectContaining({ file }));
-    expect(contextService.getFileContext('device1')()).toEqual(jasmine.objectContaining({ files: contextFiles }));
-
-    // Verify infrastructure calls
-    expect(mockPlayerService.launchFile).toHaveBeenCalledWith('device1', file.storageType, file.path);
-  });
-});
-```
-
-### Benefits of Facade Testing
-
-- **Integration Validation**: Tests store + service coordination without infrastructure dependencies
-- **Behavioral Focus**: Tests complete workflows rather than individual store methods
-- **Signal API Testing**: Validates signal-based APIs that components actually use
-- **Reduced Mocking**: Only mock infrastructure layer, use real store + facade
-
-### When to Combine Approaches
-
-- **Store Unit Tests**: Test store methods in isolation for complex state logic
-- **Facade Integration Tests**: Test orchestration and complete workflows
-- **Component Tests**: Mock facade/context services for component behavior testing
-
-Use both approaches when stores have complex internal logic that benefits from isolated testing, but also need integration validation of orchestration patterns.
-
-## Example
-
-For a concrete, end-to-end example of a properly tested NgRx Signal Store using the methodology in this document, see:
-
-- [`storage-store.spec.ts`](../libs/domain/storage/state/src/lib/storage-store.spec.ts)
+- [`player-context.service.spec.ts`](../libs/application/src/lib/player/player-context.service.spec.ts) - Full facade testing with real store integration
