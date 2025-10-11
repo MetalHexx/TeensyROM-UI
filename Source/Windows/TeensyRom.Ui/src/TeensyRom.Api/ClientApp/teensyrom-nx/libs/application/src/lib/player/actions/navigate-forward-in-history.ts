@@ -98,7 +98,7 @@ export function navigateForwardInHistory(
                 file: launchedFile,
                 parentPath: historyEntry.parentPath,
                 launchedAt: timestamp,
-                launchMode: historyEntry.launchMode,
+                launchMode: player.launchMode,
                 isCompatible: launchedFile.isCompatible,
               },
               status: PlayerStatus.Playing,
