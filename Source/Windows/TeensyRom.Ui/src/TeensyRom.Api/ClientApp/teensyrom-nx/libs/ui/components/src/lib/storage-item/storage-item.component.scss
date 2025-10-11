@@ -4,13 +4,13 @@
   @include styles.selectable-item;
   display: block;
   width: 100%;
+  box-sizing: border-box; // Ensure padding is included in width calculation
 }
 
 .storage-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
   gap: 1rem;
 }
 

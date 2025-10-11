@@ -24,25 +24,16 @@
 .file-list-item {
   background-color: transparent;
   transition: background-color 0.2s ease;
-  border-radius: 4px;
 
   // Style for currently playing file with error (failed launch)
   &[data-is-playing="true"][data-has-error="true"] {
     @include styles.pulsing-highlight($color: var(--color-error), $opacity: 15%, $border-side: left);
-    margin-left: -8px; // Extend to the left edge (keep this for the nice effect you mentioned)
-    margin-right: -16px; // Extend further to the right edge to match selected width
-    padding-left: 7px; // Original padding + border width (8px + 3px)
-    padding-right: 16px; // Maintain right padding with more space
-    border-radius: 10px; // Match the selectable-item border radius
+    border-radius: 10px;
   }
 
   // Style for currently playing file (auto-selected)
   &[data-is-playing="true"] {
     @include styles.pulsing-highlight($color: var(--color-highlight), $opacity: 15%, $border-side: left);
-    margin-left: -8px; // Extend to the left edge (keep this for the nice effect you mentioned)
-    margin-right: -16px; // Extend further to the right edge to match selected width
-    padding-left: 7px; // Original padding + border width (8px + 3px)
-    padding-right: 16px; // Maintain right padding with more space
-    border-radius: 10px; // Match the selectable-item border radius
+    border-radius: 10px;
   }
 }
