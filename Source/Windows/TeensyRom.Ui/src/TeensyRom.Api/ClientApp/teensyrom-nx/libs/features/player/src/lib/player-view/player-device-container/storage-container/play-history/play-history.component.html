@@ -12,8 +12,8 @@
     @if (historyEntries().length > 0) {
       <div class="history-list">
         @for (entry of historyEntries(); track entry.timestamp; let i = $index) {
-          <div 
-            class="history-list-item"
+          <div
+            class="history-list-item list-item-highlight"
             [attr.data-index]="i"
             [attr.data-is-playing]="isCurrentlyPlaying(entry)"
             [attr.data-has-error]="hasPlayerError() && isCurrentlyPlaying(entry)">

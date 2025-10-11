@@ -91,6 +91,39 @@ Available color variables for semantic styling:
 
 **Best Practice**: Apply to any interactive element that users might double-click or rapidly interact with where text selection would be distracting or interfere with the intended user action. Essential for components using the `selectable-item` mixin that need clean double-click behavior.
 
+### `.list-item-highlight`
+
+**Purpose**: Provides pulsing highlight effect for active items in lists with automatic error state handling.
+
+**Usage Example:**
+
+```html
+<div class="file-list-item list-item-highlight"
+     [attr.data-is-playing]="isActive(item)"
+     [attr.data-has-error]="hasError() && isActive(item)">
+  <!-- item content -->
+</div>
+```
+
+**Data Attribute Contract:**
+- `data-is-playing="true"` - Triggers cyan pulsing highlight border for active item
+- `data-is-playing="true"` + `data-has-error="true"` - Triggers red error pulsing highlight border for active item with error
+
+**Visual Effect:**
+- Cyan pulsing border (left side) for active items
+- Red pulsing border (left side) for active items with errors
+- 10px border radius for modern rounded appearance
+- 15% opacity pulsing animation
+
+**Used In:**
+- [`directory-files.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.html) - Active file in directory
+- [`search-results.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.html) - Active search result
+- [`play-history.component.html`](../libs/features/player/src/lib/player-view/player-device-container/storage-container/play-history/play-history.component.html) - Active history entry
+
+**Best Practice**: Use this utility class for any list that displays items with an active state and potential error states. Apply it alongside component-specific classes (e.g., `class="file-list-item list-item-highlight"`). The data attributes provide semantic meaning and enable consistent visual feedback across all lists in the application.
+
+**Implementation Note**: This class works in conjunction with the `pulsing-highlight` mixin and requires theme color variables (`--color-highlight`, `--color-error`) to be defined.
+
 ### Glassy Effect Variations
 
 **Purpose**: Creates glassmorphism effects with varying opacity levels for layered UI elements. All variations are theme-aware and automatically adjust between light and dark modes.

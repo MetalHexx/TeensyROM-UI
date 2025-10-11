@@ -28,20 +28,3 @@
   flex-direction: column;
   width: 100%;
 }
-
-.file-list-item {
-  background-color: transparent;
-  transition: background-color 0.2s ease;
-
-  // Style for currently playing file with error (failed launch)
-  &[data-is-playing="true"][data-has-error="true"] {
-    @include styles.pulsing-highlight($color: var(--color-error), $opacity: 15%, $border-side: left);
-    border-radius: 10px;
-  }
-
-  // Style for currently playing file (auto-selected)
-  &[data-is-playing="true"] {
-    @include styles.pulsing-highlight($color: var(--color-highlight), $opacity: 15%, $border-side: left);
-    border-radius: 10px;
-  }
-}

@@ -7,8 +7,8 @@
     } @else if (directoryContents().hasContent) {
     <div class="files-list">
       @for (item of combinedItems(); track item.path) {
-      <div 
-        class="file-list-item" 
+      <div
+        class="file-list-item list-item-highlight"
         [attr.data-item-path]="item.path"
         [attr.data-is-playing]="isCurrentlyPlaying(item)"
         [attr.data-has-error]="hasCurrentFileError()"

@@ -26,8 +26,8 @@
     @if (searchResults().length > 0) {
       <div class="search-results-list">
         @for (file of searchResults(); track file.path) {
-          <div 
-            class="file-list-item"
+          <div
+            class="file-list-item list-item-highlight"
             [attr.data-item-path]="file.path"
             [attr.data-is-playing]="isCurrentlyPlaying(file)"
             [attr.data-has-error]="hasPlayerError() && isCurrentlyPlaying(file)">
