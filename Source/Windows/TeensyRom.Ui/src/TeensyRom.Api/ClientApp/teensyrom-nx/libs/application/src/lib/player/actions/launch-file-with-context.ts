@@ -61,8 +61,7 @@ export function launchFileWithContext(
           storageType,
           resolvedDirectoryPath,
           contextFiles,
-          safeIndex,
-          launchMode
+          safeIndex
         );
 
         // If file is incompatible, treat as failure but with file context preserved
@@ -89,8 +88,7 @@ export function launchFileWithContext(
           storageType,
           directoryPath,
           files,
-          safeIndex,
-          launchMode
+          safeIndex
         );
 
         setPlayerLaunchFailure(store, deviceId, launchedFile, fileContext, launchMode, errorMessage, actionMessage);

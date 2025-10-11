@@ -243,11 +243,10 @@ export function createPlayerFileContext(
   storageType: StorageType,
   directoryPath: string,
   files: FileItem[],
-  currentIndex: number,
-  launchMode: LaunchMode
+  currentIndex: number
 ): PlayerFileContext {
   const storageKey = StorageKeyUtil.create(deviceId, storageType);
-  
+
   logInfo(LogType.Info, `PlayerHelper: Creating player file context with ${files.length} files for device ${deviceId}`);
 
   return {
@@ -255,7 +254,6 @@ export function createPlayerFileContext(
     directoryPath,
     files,
     currentIndex,
-    launchMode,
   };
 }
 

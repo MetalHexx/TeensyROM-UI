@@ -3167,7 +3167,6 @@ describe('PlayerContextService', () => {
         expect(history).not.toBeNull();
         expect(history?.entries).toHaveLength(1);
         expect(history?.entries[0].file.name).toBe(file1.name);
-        expect(history?.entries[0].launchMode).toBe(LaunchMode.Directory);
         expect(history?.currentPosition).toBe(-1);
       });
 
@@ -3181,7 +3180,6 @@ describe('PlayerContextService', () => {
         const history = service.getPlayHistory(deviceId)();
         expect(history?.entries).toHaveLength(1);
         expect(history?.entries[0].file.name).toBe('random.sid');
-        expect(history?.entries[0].launchMode).toBe(LaunchMode.Shuffle);
       });
 
       it('should NOT record history on failed file launch', async () => {
@@ -3267,7 +3265,6 @@ describe('PlayerContextService', () => {
 
         const history = service.getPlayHistory(deviceId)();
         expect(history?.entries).toHaveLength(2);
-        expect(history?.entries[1].launchMode).toBe(LaunchMode.Shuffle);
       });
     });
 
@@ -3387,7 +3384,6 @@ describe('PlayerContextService', () => {
         expect(entry?.file.name).toBe(file1.name);
         expect(entry?.file.path).toBe(file1.path);
         expect(entry?.parentPath).toBe('/music');
-        expect(entry?.launchMode).toBe(LaunchMode.Directory);
         expect(entry?.isCompatible).toBe(true);
         expect(entry?.timestamp).toBeGreaterThan(0);
       });

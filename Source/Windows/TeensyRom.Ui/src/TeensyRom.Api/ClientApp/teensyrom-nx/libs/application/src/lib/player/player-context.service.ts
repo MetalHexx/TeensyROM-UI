@@ -405,7 +405,6 @@ export class PlayerContextService implements IPlayerContext {
       file: currentFile.file,
       storageKey: currentFile.storageKey,
       parentPath: currentFile.parentPath,
-      launchMode: this.store.getLaunchMode(deviceId)(),
       timestamp: currentFile.launchedAt,
       isCompatible: currentFile.isCompatible,
     };

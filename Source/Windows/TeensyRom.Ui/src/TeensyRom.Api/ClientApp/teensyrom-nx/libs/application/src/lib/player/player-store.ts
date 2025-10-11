@@ -20,7 +20,6 @@ export interface PlayerFileContext {
   directoryPath: string;
   files: FileItem[];
   currentIndex: number;
-  launchMode: LaunchMode;
 }
 
 export interface ShuffleSettings {
@@ -33,7 +32,6 @@ export interface HistoryEntry {
   file: FileItem;
   storageKey: StorageKey;
   parentPath: string;
-  launchMode: LaunchMode;
   timestamp: number;
   isCompatible: boolean;
 }

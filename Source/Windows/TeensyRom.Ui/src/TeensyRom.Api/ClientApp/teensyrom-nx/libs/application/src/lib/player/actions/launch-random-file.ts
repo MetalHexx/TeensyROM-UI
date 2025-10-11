@@ -72,8 +72,7 @@ export function launchRandomFile(
           storageType,
           launchedFile.parentPath || '/',
           [], // Empty files array - context coordination happens at PlayerContext level
-          -1,
-          LaunchMode.Shuffle
+          -1
         );
 
         // If file is incompatible, treat as failure but with file context preserved

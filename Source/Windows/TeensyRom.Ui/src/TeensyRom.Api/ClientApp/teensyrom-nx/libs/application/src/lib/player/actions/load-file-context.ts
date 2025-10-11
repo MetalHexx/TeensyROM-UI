@@ -35,8 +35,7 @@ export function loadFileContext(store: WritableStore<PlayerState>) {
         storageType,
         directoryPath,
         files,
-        currentFileIndex,
-        launchMode
+        currentFileIndex
       );
 
       // Update file context in state
