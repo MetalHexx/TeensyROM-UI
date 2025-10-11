@@ -31,12 +31,13 @@
             [attr.data-item-path]="file.path"
             [attr.data-is-playing]="isCurrentlyPlaying(file)"
             [attr.data-has-error]="hasPlayerError() && isCurrentlyPlaying(file)">
-            <lib-file-item 
+            <lib-search-item
               [fileItem]="file"
               [selected]="isSelected(file)"
+              [isPlaying]="isCurrentlyPlaying(file)"
               (itemSelected)="onFileSelected(file)"
               (itemDoubleClick)="onFileDoubleClick(file)">
-            </lib-file-item>
+            </lib-search-item>
           </div>
         }
       </div>

@@ -1,0 +1,12 @@
+<lib-storage-item
+  [icon]="fileIcon()"
+  iconColor="normal"
+  [label]="fileItem().name"
+  [selected]="selected()"
+  [isPlaying]="isPlaying()"
+  (selectedChange)="onItemClick()"
+  (activated)="onItemDoubleClick()"
+>
+  <lib-storage-item-actions [label]="formattedSize()">
+  </lib-storage-item-actions>
+</lib-storage-item>
