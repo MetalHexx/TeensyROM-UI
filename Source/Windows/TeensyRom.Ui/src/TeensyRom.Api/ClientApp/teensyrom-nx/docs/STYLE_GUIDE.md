@@ -91,13 +91,53 @@ Available color variables for semantic styling:
 
 **Best Practice**: Apply to any interactive element that users might double-click or rapidly interact with where text selection would be distracting or interfere with the intended user action. Essential for components using the `selectable-item` mixin that need clean double-click behavior.
 
-### `.glassy`
+### Glassy Effect Variations
 
-**Purpose**: Creates a glass-morphism effect with backdrop blur
+**Purpose**: Creates glassmorphism effects with varying opacity levels for layered UI elements. All variations are theme-aware and automatically adjust between light and dark modes.
+
+#### `.glassy-subtle`
+
+**Opacity**: 5% (ultra-light overlay)
+**Blur**: 10px backdrop blur
+**Theme Support**: White in light mode, black in dark mode
 
 **Usage Example:**
 
 ```html
+<div class="glassy-subtle">Minimal overlay content</div>
+```
+
+**Best Practice**: Use for barely-visible background separation or subtle depth effects where minimal visual weight is desired. Ideal for secondary backgrounds that shouldn't draw attention.
+
+#### `.glassy-light`
+
+**Opacity**: 7.5% (light overlay)
+**Blur**: 10px backdrop blur
+**Theme Support**: White in light mode, black in dark mode
+
+**Usage Example:**
+
+```html
+<div class="glassy-light">Light overlay content</div>
+```
+
+**Best Practice**: Use for subtle glassmorphism on secondary UI elements that need slight visual separation without being prominent.
+
+#### `.glassy-default` / `.glassy` (Default)
+
+**Opacity**: 10% (standard overlay)
+**Blur**: 10px backdrop blur
+**Theme Support**: White in light mode (hardcoded for backward compatibility)
+
+**Recommended**: Use `.glassy-default` for new code. The `.glassy` class is maintained for backward compatibility with existing components.
+
+**Usage Example:**
+
+```html
+<!-- Preferred for new code -->
+<div class="glassy-default">Overlay content</div>
+
+<!-- Legacy - still works but prefer .glassy-default -->
 <div class="glassy">Overlay content</div>
 <mat-dialog class="glassy-dialog">...</mat-dialog>
 ```
@@ -107,7 +147,62 @@ Available color variables for semantic styling:
 - [`layout.component.html`](../libs/app/shell/src/lib/layout/layout.component.html) - Navigation sidenav
 - [`layout.component.ts`](../libs/app/shell/src/lib/layout/layout.component.ts) - Modal dialogs (via `panelClass: 'glassy-dialog'`)
 
-**Best Practice:** Use `.glassy` for overlay effects and modern UI elements to maintain consistent visual hierarchy.
+**Best Practice**: Default glassmorphism effect for standard overlays, navigation elements, and modal dialogs. Use `.glassy-default` for new implementations to align with the naming convention of other variations.
+
+**Migration Note**: `.glassy` is the legacy name maintained for backward compatibility. Both classes are functionally identical (they share the same CSS rules). New code should use `.glassy-default` to follow the established naming pattern. The legacy `.glassy` class will be deprecated in a future release.
+
+#### `.glassy-medium`
+
+**Opacity**: 15% (pronounced overlay)
+**Blur**: 10px backdrop blur
+**Theme Support**: White in light mode, black in dark mode
+
+**Usage Example:**
+
+```html
+<div class="glassy-medium">Medium overlay content</div>
+```
+
+**Best Practice**: Use for more prominent glassmorphism effects where the overlay needs to be clearly visible. Good for important overlays and highlighted UI sections.
+
+#### `.glassy-strong`
+
+**Opacity**: 20% (bold overlay)
+**Blur**: 10px backdrop blur
+**Theme Support**: White in light mode, black in dark mode
+
+**Usage Example:**
+
+```html
+<div class="glassy-strong">Strong overlay content</div>
+```
+
+**Best Practice**: Use for high-emphasis glassmorphism where the overlay needs maximum visibility while maintaining the blur effect. Ideal for critical UI elements or prominent feature sections.
+
+---
+
+**Implementation Details:**
+
+- All new variations (subtle, light, medium, strong) use CSS custom property `--glassy-color` for theme awareness
+- Light mode: `--glassy-color: 255, 255, 255` (white)
+- Dark mode: `--glassy-color: 0, 0, 0` (black)
+- Original `.glassy` class remains unchanged for backward compatibility
+- All variations use the same 10px backdrop blur for consistent visual effect
+
+**Selection Guide:**
+
+- **Subtle (5%)**: Barely visible, minimal visual weight
+- **Light (7.5%)**: Subtle effect, low emphasis
+- **Default (10%)**: Standard glassmorphism, balanced visibility (use `.glassy-default` for new code)
+- **Medium (15%)**: Pronounced effect, higher emphasis
+- **Strong (20%)**: Bold effect, maximum visibility
+
+**Migration Path:**
+
+1. **Phase 1** (Current): Both `.glassy` and `.glassy-default` work identically
+2. **Phase 2**: Gradually migrate existing components to use `.glassy-default`
+3. **Phase 3**: Deprecate `.glassy` with console warnings (future release)
+4. **Phase 4**: Remove `.glassy` in breaking change release (future major version)
 
 ---
 
