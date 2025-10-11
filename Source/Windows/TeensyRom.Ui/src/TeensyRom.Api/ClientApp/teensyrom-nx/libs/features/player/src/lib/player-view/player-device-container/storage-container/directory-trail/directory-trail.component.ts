@@ -1,5 +1,5 @@
 import { Component, input, inject, computed } from '@angular/core';
-import { StorageStore } from '@teensyrom-nx/application';
+import { StorageStore, PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
 import { ScalingCompactCardComponent } from '@teensyrom-nx/ui/components';
 import { DirectoryNavigateComponent } from './directory-navigate/directory-navigate.component';
 import { DirectoryBreadcrumbComponent } from './directory-breadcrumb/directory-breadcrumb.component';
@@ -17,6 +17,7 @@ export class DirectoryTrailComponent {
 
   // Store injection
   private readonly storageStore = inject(StorageStore);
+  private readonly playerContext: IPlayerContext = inject(PLAYER_CONTEXT);
 
   // Computed state selectors
   selectedDirectoryState = computed(() => {
@@ -71,6 +72,11 @@ export class DirectoryTrailComponent {
     return state?.isLoading ?? false;
   });
 
+  historyViewVisible = computed(() => {
+    const deviceId = this.deviceId();
+    return this.playerContext.isHistoryViewVisible(deviceId)();
+  });
+
   onBackClick(): void {
     const deviceId = this.deviceId();
     if (this.canNavigateBack()) {
@@ -114,5 +120,10 @@ export class DirectoryTrailComponent {
       storageType: selected.storageType,
       path: path,
     });
+  }
+
+  onHistoryToggleClick(): void {
+    const deviceId = this.deviceId();
+    this.playerContext.toggleHistoryView(deviceId);
   }
 }

@@ -19,6 +19,8 @@ export function createDefaultDeviceState(deviceId: string): DevicePlayerState {
       filter: PlayerFilterType.All,
       startingDirectory: undefined,
     },
+    playHistory: null,
+    historyViewVisible: false,
     timerState: null,
     isLoading: false,
     error: null,

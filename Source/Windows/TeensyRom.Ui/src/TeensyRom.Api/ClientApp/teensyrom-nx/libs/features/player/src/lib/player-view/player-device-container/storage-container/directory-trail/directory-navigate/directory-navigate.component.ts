@@ -14,12 +14,14 @@ export class DirectoryNavigateComponent {
   canNavigateBack = input<boolean>(false);
   canNavigateForward = input<boolean>(false);
   isLoading = input<boolean>(false);
+  historyViewVisible = input<boolean>(false);
 
   // Outputs
   backClicked = output<void>();
   forwardClicked = output<void>();
   upClicked = output<void>();
   refreshClicked = output<void>();
+  historyToggleClicked = output<void>();
 
   // Event handlers
   onBackClick(): void {
@@ -36,5 +38,9 @@ export class DirectoryNavigateComponent {
 
   onRefreshClick(): void {
     this.refreshClicked.emit();
+  }
+
+  onHistoryToggleClick(): void {
+    this.historyToggleClicked.emit();
   }
 }

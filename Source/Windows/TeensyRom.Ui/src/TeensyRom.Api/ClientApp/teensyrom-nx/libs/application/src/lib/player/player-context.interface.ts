@@ -1,6 +1,6 @@
 import { InjectionToken, Signal } from '@angular/core';
 import { FileItem, LaunchMode, PlayerStatus, StorageType, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
-import { LaunchedFile, PlayerFileContext, ShuffleSettings } from './player-store';
+import { LaunchedFile, PlayerFileContext, ShuffleSettings, PlayHistory } from './player-store';
 import { TimerState } from './timer-state.interface';
 
 export interface LaunchFileContextRequest {
@@ -40,9 +40,19 @@ export interface IPlayerContext {
 
   // Phase 5: Timer system
   getTimerState(deviceId: string): Signal<TimerState | null>;
-  
+
   // File compatibility
   isCurrentFileCompatible(deviceId: string): Signal<boolean>;
+
+  // Play history
+  getPlayHistory(deviceId: string): Signal<PlayHistory | null>;
+  getCurrentHistoryPosition(deviceId: string): Signal<number>;
+  canNavigateBackwardInHistory(deviceId: string): Signal<boolean>;
+  canNavigateForwardInHistory(deviceId: string): Signal<boolean>;
+  clearHistory(deviceId: string): void;
+  toggleHistoryView(deviceId: string): void;
+  isHistoryViewVisible(deviceId: string): Signal<boolean>;
+  navigateToHistoryPosition(deviceId: string, position: number): Promise<void>;
 }
 
 export const PLAYER_CONTEXT = new InjectionToken<IPlayerContext>('PLAYER_CONTEXT');

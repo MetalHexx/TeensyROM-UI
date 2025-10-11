@@ -5,10 +5,12 @@
       [canNavigateBack]="canNavigateBack()"
       [canNavigateForward]="canNavigateForward()"
       [isLoading]="isLoading()"
+      [historyViewVisible]="historyViewVisible()"
       (backClicked)="onBackClick()"
       (forwardClicked)="onForwardClick()"
       (upClicked)="onUpClick()"
       (refreshClicked)="onRefreshClick()"
+      (historyToggleClicked)="onHistoryToggleClick()"
     ></lib-directory-navigate>
 
     <lib-directory-breadcrumb

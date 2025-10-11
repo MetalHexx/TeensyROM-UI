@@ -1,0 +1,47 @@
+@use '../../../../../../../../ui/styles/src/lib/theme/styles.scss' as styles;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.play-history {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.history-list-item {
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+  border-radius: 4px;
+
+  // Style for currently playing file with error (failed launch)
+  &[data-is-playing="true"][data-has-error="true"] {
+    @include styles.pulsing-highlight($color: var(--color-error), $opacity: 15%, $border-side: left);
+    margin-left: -8px;
+    margin-right: -16px;
+    padding-left: 7px;
+    padding-right: 16px;
+    border-radius: 10px;
+  }
+
+  // Style for currently playing file (auto-selected)
+  &[data-is-playing="true"] {
+    @include styles.pulsing-highlight($color: var(--color-highlight), $opacity: 15%, $border-side: left);
+    margin-left: -8px;
+    margin-right: -16px;
+    padding-left: 7px;
+    padding-right: 16px;
+    border-radius: 10px;
+  }
+}

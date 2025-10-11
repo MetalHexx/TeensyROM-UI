@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { vi } from 'vitest';
-import { StorageStore } from '@teensyrom-nx/application';
+import { signal, Signal, WritableSignal } from '@angular/core';
+import { StorageStore, PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
 import { CompactCardLayoutComponent } from '@teensyrom-nx/ui/components';
 import { DirectoryTrailComponent } from './directory-trail.component';
 import { DirectoryNavigateComponent } from './directory-navigate/directory-navigate.component';
@@ -11,8 +12,14 @@ describe('DirectoryTrailComponent', () => {
   let component: DirectoryTrailComponent;
   let fixture: ComponentFixture<DirectoryTrailComponent>;
 
+  // Create a basic mock player context for all tests
+  const createMockPlayerContext = (): Partial<IPlayerContext> => ({
+    isHistoryViewVisible: () => signal(false).asReadonly(),
+    toggleHistoryView: vi.fn(),
+  });
+
   describe('Basic Functionality', () => {
-    let mockStorageStore: any;
+    let mockStorageStore: Partial<StorageStore>;
 
     beforeEach(async () => {
       // Create mock storage store with all methods needed
@@ -53,7 +60,11 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
+        providers: [
+          provideNoopAnimations(),
+          { provide: StorageStore, useValue: mockStorageStore },
+          { provide: PLAYER_CONTEXT, useValue: createMockPlayerContext() },
+        ],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);
@@ -188,7 +199,11 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
+        providers: [
+          provideNoopAnimations(),
+          { provide: StorageStore, useValue: mockStorageStore },
+          { provide: PLAYER_CONTEXT, useValue: createMockPlayerContext() },
+        ],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);
@@ -232,7 +247,11 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
+        providers: [
+          provideNoopAnimations(),
+          { provide: StorageStore, useValue: mockStorageStore },
+          { provide: PLAYER_CONTEXT, useValue: createMockPlayerContext() },
+        ],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);
@@ -329,7 +348,11 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
+        providers: [
+          provideNoopAnimations(),
+          { provide: StorageStore, useValue: mockStorageStore },
+          { provide: PLAYER_CONTEXT, useValue: createMockPlayerContext() },
+        ],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);
@@ -380,7 +403,11 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
+        providers: [
+          provideNoopAnimations(),
+          { provide: StorageStore, useValue: mockStorageStore },
+          { provide: PLAYER_CONTEXT, useValue: createMockPlayerContext() },
+        ],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);
@@ -431,7 +458,11 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
+        providers: [
+          provideNoopAnimations(),
+          { provide: StorageStore, useValue: mockStorageStore },
+          { provide: PLAYER_CONTEXT, useValue: createMockPlayerContext() },
+        ],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);
@@ -494,7 +525,11 @@ describe('DirectoryTrailComponent', () => {
           DirectoryNavigateComponent,
           DirectoryBreadcrumbComponent,
         ],
-        providers: [provideNoopAnimations(), { provide: StorageStore, useValue: mockStorageStore }],
+        providers: [
+          provideNoopAnimations(),
+          { provide: StorageStore, useValue: mockStorageStore },
+          { provide: PLAYER_CONTEXT, useValue: createMockPlayerContext() },
+        ],
       }).compileComponents();
 
       fixture = TestBed.createComponent(DirectoryTrailComponent);
@@ -521,6 +556,98 @@ describe('DirectoryTrailComponent', () => {
 
       expect(breadcrumbComponent?.currentPath()).toBe('/games/arcade');
       expect(breadcrumbComponent?.storageType()).toBe('SD Card');
+    });
+  });
+
+  describe('History Toggle Button', () => {
+    let mockStorageStore: Partial<StorageStore>;
+    let mockPlayerContext: Partial<IPlayerContext>;
+    let historyVisibleSignal: WritableSignal<boolean>;
+
+    beforeEach(async () => {
+      historyVisibleSignal = signal(false);
+
+      mockStorageStore = {
+        getSelectedDirectoryState: () => () => ({
+          currentPath: '/games',
+          isLoading: false,
+          deviceId: 'test-device',
+          storageType: 'SD',
+          directory: null,
+          isLoaded: true,
+          error: null,
+          lastLoadTime: Date.now(),
+        }),
+        getSelectedDirectoryForDevice: () => ({
+          deviceId: 'test-device',
+          storageType: 'SD',
+          path: '/games',
+        }),
+        navigationHistory: () => ({
+          'test-device': {
+            history: ['/'],
+            currentIndex: 0,
+            maxHistorySize: 50,
+          },
+        }),
+        navigateUpOneDirectory: vi.fn(),
+        refreshDirectory: vi.fn(),
+        navigateToDirectory: vi.fn(),
+        navigateDirectoryBackward: vi.fn(),
+        navigateDirectoryForward: vi.fn(),
+      };
+
+      mockPlayerContext = {
+        isHistoryViewVisible: () => historyVisibleSignal.asReadonly(),
+        toggleHistoryView: vi.fn(),
+      } as Partial<IPlayerContext>;
+
+      await TestBed.configureTestingModule({
+        imports: [
+          DirectoryTrailComponent,
+          CompactCardLayoutComponent,
+          DirectoryNavigateComponent,
+          DirectoryBreadcrumbComponent,
+        ],
+        providers: [
+          provideNoopAnimations(),
+          { provide: StorageStore, useValue: mockStorageStore },
+          { provide: PLAYER_CONTEXT, useValue: mockPlayerContext },
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(DirectoryTrailComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput('deviceId', 'test-device');
+      fixture.detectChanges();
+    });
+
+    it('should display history toggle button', () => {
+      const navigateComponent = fixture.debugElement.query(
+        (el) => el.componentInstance instanceof DirectoryNavigateComponent
+      )?.componentInstance;
+
+      expect(navigateComponent).toBeTruthy();
+    });
+
+    it('should show history button as not highlighted when history view is hidden', () => {
+      historyVisibleSignal.set(false);
+      fixture.detectChanges();
+
+      expect(component.historyViewVisible()).toBe(false);
+    });
+
+    it('should show history button as highlighted when history view is visible', () => {
+      historyVisibleSignal.set(true);
+      fixture.detectChanges();
+
+      expect(component.historyViewVisible()).toBe(true);
+    });
+
+    it('should call toggleHistoryView when history button is clicked', () => {
+      component.onHistoryToggleClick();
+
+      expect(mockPlayerContext.toggleHistoryView).toHaveBeenCalledWith('test-device');
     });
   });
 });

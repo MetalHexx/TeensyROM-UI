@@ -11,6 +11,11 @@ import { getShuffleSettings } from './get-shuffle-settings';
 import { getLaunchMode } from './get-launch-mode';
 import { getTimerState } from './get-timer-state';
 import { isCurrentFileCompatible } from './is-current-file-compatible';
+import { getPlayHistory } from './get-play-history';
+import { getCurrentHistoryPosition } from './get-current-history-position';
+import { canNavigateBackwardInHistory } from './can-navigate-backward-in-history';
+import { canNavigateForwardInHistory } from './can-navigate-forward-in-history';
+import { isHistoryViewVisible } from './is-history-view-visible';
 
 export function withPlayerSelectors() {
   return withMethods((store) => {
@@ -26,6 +31,11 @@ export function withPlayerSelectors() {
       ...getLaunchMode(writableStore),
       ...getTimerState(writableStore),
       ...isCurrentFileCompatible(writableStore),
+      ...getPlayHistory(writableStore),
+      ...getCurrentHistoryPosition(writableStore),
+      ...canNavigateBackwardInHistory(writableStore),
+      ...canNavigateForwardInHistory(writableStore),
+      ...isHistoryViewVisible(writableStore),
     };
   });
 }

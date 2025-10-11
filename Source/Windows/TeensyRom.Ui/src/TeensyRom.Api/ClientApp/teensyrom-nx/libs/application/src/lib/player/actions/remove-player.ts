@@ -12,6 +12,8 @@ export function removePlayer(store: WritableStore<PlayerState>) {
       logInfo(LogType.Cleanup, `PlayerAction: Removing player state for device ${deviceId}`);
 
       const actionMessage = createAction('remove-player');
+      // removePlayerState deletes the entire device entry from players record,
+      // automatically removing all state including playHistory
       removePlayerState(store, deviceId, actionMessage);
     },
   };

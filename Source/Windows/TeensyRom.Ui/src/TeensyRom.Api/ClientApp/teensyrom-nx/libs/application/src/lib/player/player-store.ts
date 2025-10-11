@@ -30,6 +30,20 @@ export interface ShuffleSettings {
   startingDirectory?: string;
 }
 
+export interface HistoryEntry {
+  file: FileItem;
+  storageKey: StorageKey;
+  parentPath: string;
+  launchMode: LaunchMode;
+  timestamp: number;
+  isCompatible: boolean;
+}
+
+export interface PlayHistory {
+  entries: HistoryEntry[];
+  currentPosition: number; // -1 = at end, 0+ = explicit position
+}
+
 export interface DevicePlayerState {
   deviceId: string;
   currentFile: LaunchedFile | null;
@@ -37,6 +51,8 @@ export interface DevicePlayerState {
   status: PlayerStatus;
   launchMode: LaunchMode;
   shuffleSettings: ShuffleSettings;
+  playHistory: PlayHistory | null;
+  historyViewVisible: boolean;
   timerState: TimerState | null;
   isLoading: boolean;
   error: string | null;

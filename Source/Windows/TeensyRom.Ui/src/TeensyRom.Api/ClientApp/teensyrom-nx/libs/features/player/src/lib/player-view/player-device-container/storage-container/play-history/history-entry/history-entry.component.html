@@ -1,0 +1,11 @@
+<lib-storage-item
+  [icon]="fileIcon()"
+  iconColor="normal"
+  [label]="entry().file.name"
+  [selected]="selected()"
+  (selectedChange)="onEntryClick()"
+  (activated)="onEntryDoubleClick()"
+>
+  <lib-storage-item-actions [label]="formattedTimestamp()">
+  </lib-storage-item-actions>
+</lib-storage-item>

@@ -1,0 +1,32 @@
+<div class="play-history">
+  <lib-scaling-card title="Play History" [animationTrigger]="animationTrigger()">
+    @if (historyEntries().length === 0) {
+      <lib-empty-state-message 
+        icon="history" 
+        title="No Play History"
+        message="Files you play will appear here."
+        size="small">
+      </lib-empty-state-message>
+    }
+
+    @if (historyEntries().length > 0) {
+      <div class="history-list">
+        @for (entry of historyEntries(); track entry.timestamp; let i = $index) {
+          <div 
+            class="history-list-item"
+            [attr.data-index]="i"
+            [attr.data-is-playing]="isCurrentlyPlaying(entry)"
+            [attr.data-has-error]="hasPlayerError() && isCurrentlyPlaying(entry)">
+            <lib-history-entry 
+              [entry]="entry"
+              [selected]="isSelected(entry)"
+              [isCurrentlyPlaying]="isCurrentlyPlaying(entry)"
+              (entrySelected)="onEntrySelected(entry)"
+              (entryDoubleClick)="onEntryDoubleClick(entry, i)">
+            </lib-history-entry>
+          </div>
+        }
+      </div>
+    }
+  </lib-scaling-card>
+</div>

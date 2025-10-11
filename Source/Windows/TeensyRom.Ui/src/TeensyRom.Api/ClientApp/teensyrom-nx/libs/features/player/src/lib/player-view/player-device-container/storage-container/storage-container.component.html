@@ -19,9 +19,13 @@
         [deviceId]="deviceId()"
         [animationTrigger]="hasActiveSearch()">
       </lib-search-results>
+      <lib-play-history
+        [deviceId]="deviceId()"
+        [animationTrigger]="shouldShowHistory()">
+      </lib-play-history>
       <lib-directory-files 
         [deviceId]="deviceId()"
-        [animationTrigger]="!hasActiveSearch()">
+        [animationTrigger]="!hasActiveSearch() && !shouldShowHistory()">
       </lib-directory-files>
     </div>
   </div>

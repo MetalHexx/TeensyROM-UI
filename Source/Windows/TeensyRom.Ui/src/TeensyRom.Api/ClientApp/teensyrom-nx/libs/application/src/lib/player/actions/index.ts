@@ -17,6 +17,12 @@ import { stopPlayback } from './stop-playback';
 import { navigateNext } from './navigate-next';
 import { navigatePrevious } from './navigate-previous';
 import { removePlayer } from './remove-player';
+import { recordHistory } from './record-history';
+import { clearHistory } from './clear-history';
+import { navigateBackwardInHistory } from './navigate-backward-in-history';
+import { navigateForwardInHistory } from './navigate-forward-in-history';
+import { updateHistoryViewVisibility } from './update-history-view-visibility';
+import { navigateToHistoryPosition } from './navigate-to-history-position';
 
 export function withPlayerActions() {
   return withMethods((
@@ -40,6 +46,13 @@ export function withPlayerActions() {
       ...navigateNext(writableStore, playerService),
       ...navigatePrevious(writableStore, playerService),
       ...removePlayer(writableStore),
+      ...recordHistory(writableStore),
+      ...clearHistory(writableStore),
+      ...navigateBackwardInHistory(writableStore, playerService),
+      ...navigateForwardInHistory(writableStore, playerService),
+      updateHistoryViewVisibility: (params: { deviceId: string; visible: boolean }) =>
+        updateHistoryViewVisibility(writableStore, params),
+      ...navigateToHistoryPosition(writableStore, playerService),
     };
   });
 }

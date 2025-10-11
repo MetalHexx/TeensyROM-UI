@@ -30,4 +30,12 @@
     [disabled]="isLoading()"
     (buttonClick)="onRefreshClick()"
   />
+
+  <lib-icon-button
+    icon="history"
+    ariaLabel="Toggle History"
+    size="large"
+    [color]="historyViewVisible() ? 'highlight' : 'normal'"
+    (buttonClick)="onHistoryToggleClick()"
+  />
 </div>

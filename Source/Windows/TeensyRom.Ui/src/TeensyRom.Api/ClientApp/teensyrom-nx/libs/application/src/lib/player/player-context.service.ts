@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Signal } from '@angular/core';
 import { LaunchMode, PlayerFilterType, PlayerScope, FileItemType, FileItem } from '@teensyrom-nx/domain';
-import { PlayerStore, LaunchedFile } from './player-store';
+import { PlayerStore, LaunchedFile, HistoryEntry } from './player-store';
 import { StorageStore } from '../storage/storage-store';
 import { StorageKeyUtil } from '../storage/storage-key.util';
 import { IPlayerContext, LaunchFileContextRequest } from './player-context.interface';
@@ -37,6 +37,9 @@ export class PlayerContextService implements IPlayerContext {
 
     this.store.initializePlayer({ deviceId: request.deviceId });
 
+    // Phase 3: Hide history view when launching new files (directory clicks, search clicks)
+    this.store.updateHistoryViewVisibility({ deviceId: request.deviceId, visible: false });
+
     await this.store.launchFileWithContext({
       deviceId: request.deviceId,
       storageType: request.storageType,
@@ -47,9 +50,10 @@ export class PlayerContextService implements IPlayerContext {
     });
 
     // Phase 5: Only setup timer for music files if launch was successful
-    // Note: We don't return early on error - the store action already set currentFile 
+    // Note: We don't return early on error - the store action already set currentFile
     // and fileContext so the UI can show which file failed
     if (!this.hasErrorAndCleanup(request.deviceId)) {
+      this.recordHistoryIfSuccessful(request.deviceId);
       this.setupTimerForFile(request.deviceId, request.file);
     }
   }
@@ -75,17 +79,18 @@ export class PlayerContextService implements IPlayerContext {
   }
 
   async launchRandomFile(deviceId: string): Promise<void> {
-    this.store.initializePlayer({ deviceId });   
-    
+    this.store.initializePlayer({ deviceId });
+
     await this.store.launchRandomFile({ deviceId });
-    
+
     const currentFile = this.store.getCurrentFile(deviceId)();
     if (currentFile) {
       await this.loadDirectoryContextForRandomFile(currentFile);
-      
+
       // Phase 5: Only setup timer for music files if launch was successful
       // Note: We still load directory context even on error so UI can show failed file
       if (!this.hasErrorAndCleanup(deviceId)) {
+        this.recordHistoryIfSuccessful(deviceId);
         this.setupTimerForFile(deviceId, currentFile.file);
       }
     }
@@ -196,10 +201,33 @@ export class PlayerContextService implements IPlayerContext {
 
   async next(deviceId: string): Promise<void> {
     const launchMode = this.store.getLaunchMode(deviceId)();
-    
+
+    // Phase 2: If in shuffle mode AND forward history is available, use history navigation
+    if (launchMode === LaunchMode.Shuffle && this.store.canNavigateForwardInHistory(deviceId)()) {
+      logInfo(LogType.Info, `Next: Using forward history navigation for shuffle mode on device ${deviceId}`);
+      
+      // Navigate forward through history
+      await this.store.navigateForwardInHistory({ deviceId });
+
+      // Load directory context for the history file
+      const currentFile = this.store.getCurrentFile(deviceId)();
+      if (currentFile) {
+        await this.loadDirectoryContextForRandomFile(currentFile);
+      }
+
+      // Setup timer if navigation was successful (no error)
+      if (currentFile && !this.hasErrorAndCleanup(deviceId)) {
+        this.setupTimerForFile(deviceId, currentFile.file);
+        // Important: DO NOT record history when navigating through existing history
+      }
+
+      return; // Early exit - don't fall through to default behavior
+    }
+
+    // Default behavior: Launch new random file (shuffle) or next in directory
     // Always call the store action first
     await this.store.navigateNext({ deviceId });
-    
+
     // If in shuffle mode, load directory context for the new random file
     if (launchMode === LaunchMode.Shuffle) {
       const currentFile = this.store.getCurrentFile(deviceId)();
@@ -207,21 +235,43 @@ export class PlayerContextService implements IPlayerContext {
         await this.loadDirectoryContextForRandomFile(currentFile);
       }
     }
-    
+
     // Phase 5: Only setup timer for the new file if navigation was successful
     // Note: We still load directory context even on error so UI can show failed file
     const currentFile = this.store.getCurrentFile(deviceId)();
     if (currentFile && !this.hasErrorAndCleanup(deviceId)) {
+      this.recordHistoryIfSuccessful(deviceId);
       this.setupTimerForFile(deviceId, currentFile.file);
     }
   }
 
   async previous(deviceId: string): Promise<void> {
     const launchMode = this.store.getLaunchMode(deviceId)();
-    
-    // Always call the store action first
+
+    // Phase 2: If in shuffle mode AND history navigation is available, use history navigation
+    if (launchMode === LaunchMode.Shuffle && this.store.canNavigateBackwardInHistory(deviceId)()) {
+      logInfo(LogType.Info, `Previous: Using history navigation for shuffle mode on device ${deviceId}`);
+      
+      // Navigate backward through history
+      await this.store.navigateBackwardInHistory({ deviceId });
+
+      // Load directory context for the history file
+      const currentFile = this.store.getCurrentFile(deviceId)();
+      if (currentFile) {
+        await this.loadDirectoryContextForRandomFile(currentFile);
+      }
+
+      // Setup timer if successful - DO NOT record history (navigating existing entries)
+      if (currentFile && !this.hasErrorAndCleanup(deviceId)) {
+        this.setupTimerForFile(deviceId, currentFile.file);
+      }
+      
+      return; // Exit early - don't continue to default behavior
+    }
+
+    // Default behavior: call store action (directory/search mode OR shuffle with no history)
     await this.store.navigatePrevious({ deviceId });
-    
+
     // If in shuffle mode, load directory context for the new random file
     if (launchMode === LaunchMode.Shuffle) {
       const currentFile = this.store.getCurrentFile(deviceId)();
@@ -229,11 +279,12 @@ export class PlayerContextService implements IPlayerContext {
         await this.loadDirectoryContextForRandomFile(currentFile);
       }
     }
-    
+
     // Phase 5: Only setup timer for the new file if navigation was successful
     // Note: We still load directory context even on error so UI can show failed file
     const currentFile = this.store.getCurrentFile(deviceId)();
     if (currentFile && !this.hasErrorAndCleanup(deviceId)) {
+      this.recordHistoryIfSuccessful(deviceId); // Record history for new file launches
       this.setupTimerForFile(deviceId, currentFile.file);
     }
   }
@@ -339,4 +390,102 @@ export class PlayerContextService implements IPlayerContext {
   getTimerState(deviceId: string) {
     return this.store.getTimerState(deviceId);
   }
+
+  /**
+   * Phase 1: Record history if file launch was successful
+   */
+  private recordHistoryIfSuccessful(deviceId: string): void {
+    const currentFile = this.store.getCurrentFile(deviceId)();
+
+    if (!currentFile || !currentFile.isCompatible) {
+      return;
+    }
+
+    const entry: HistoryEntry = {
+      file: currentFile.file,
+      storageKey: currentFile.storageKey,
+      parentPath: currentFile.parentPath,
+      launchMode: currentFile.launchMode,
+      timestamp: currentFile.launchedAt,
+      isCompatible: currentFile.isCompatible,
+    };
+
+    this.store.recordHistory({ deviceId, entry });
+  }
+
+  /**
+   * Phase 1: Get play history for a device
+   */
+  getPlayHistory(deviceId: string) {
+    return this.store.getPlayHistory(deviceId);
+  }
+
+  /**
+   * Phase 1: Get current history position for a device
+   */
+  getCurrentHistoryPosition(deviceId: string) {
+    return this.store.getCurrentHistoryPosition(deviceId);
+  }
+
+  /**
+   * Phase 1: Check if can navigate backward in history
+   */
+  canNavigateBackwardInHistory(deviceId: string) {
+    return this.store.canNavigateBackwardInHistory(deviceId);
+  }
+
+  /**
+   * Phase 1: Check if can navigate forward in history
+   */
+  canNavigateForwardInHistory(deviceId: string) {
+    return this.store.canNavigateForwardInHistory(deviceId);
+  }
+
+  /**
+   * Phase 1: Clear play history for a device
+   */
+  clearHistory(deviceId: string): void {
+    this.store.clearHistory({ deviceId });
+  }
+
+  /**
+   * Phase 3: Toggle history view visibility for a device
+   */
+  toggleHistoryView(deviceId: string): void {
+    const currentVisibility = this.store.isHistoryViewVisible(deviceId)();
+    this.store.updateHistoryViewVisibility({ deviceId, visible: !currentVisibility });
+  }
+
+  /**
+   * Phase 3: Check if history view is visible for a device
+   */
+  isHistoryViewVisible(deviceId: string): Signal<boolean> {
+    return this.store.isHistoryViewVisible(deviceId);
+  }
+
+  /**
+   * Phase 3: Navigate to a specific position in history
+   * Loads directory context and sets up timer after navigation
+   */
+  async navigateToHistoryPosition(deviceId: string, position: number): Promise<void> {
+    // Navigate to the history position (launches file and updates position)
+    await this.store.navigateToHistoryPosition({ deviceId, position });
+
+    // Check for errors
+    if (this.hasErrorAndCleanup(deviceId)) {
+      return;
+    }
+
+    // Load directory context for the file
+    const currentFile = this.store.getCurrentFile(deviceId)();
+    if (currentFile) {
+      await this.loadDirectoryContextForRandomFile(currentFile);
+    }
+
+    // Setup timer if file is compatible
+    if (currentFile?.isCompatible) {
+      this.setupTimerForFile(deviceId, currentFile.file);
+    }
+  }
 }
+

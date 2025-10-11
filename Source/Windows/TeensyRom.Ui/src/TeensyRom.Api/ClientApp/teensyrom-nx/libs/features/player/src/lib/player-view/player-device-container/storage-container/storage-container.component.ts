@@ -4,9 +4,10 @@ import { DirectoryTreeComponent } from './directory-tree/directory-tree.componen
 import { DirectoryFilesComponent } from './directory-files/directory-files.component';
 import { SearchToolbarComponent } from './search-toolbar/search-toolbar.component';
 import { FilterToolbarComponent } from './filter-toolbar/filter-toolbar.component';
-import { StorageStore } from '@teensyrom-nx/application';
+import { StorageStore, PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
 import { DirectoryTrailComponent } from './directory-trail/directory-trail.component';
 import { SearchResultsComponent } from './search-results/search-results.component';
+import { PlayHistoryComponent } from './play-history/play-history.component';
 
 @Component({
   selector: 'lib-storage-container',
@@ -18,6 +19,7 @@ import { SearchResultsComponent } from './search-results/search-results.componen
     FilterToolbarComponent,
     DirectoryTrailComponent,
     SearchResultsComponent,
+    PlayHistoryComponent,
   ],
   templateUrl: './storage-container.component.html',
   styleUrl: './storage-container.component.scss',
@@ -26,6 +28,7 @@ export class StorageContainerComponent {
   deviceId = input.required<string>();
 
   readonly storageStore = inject(StorageStore);
+  private readonly playerContext: IPlayerContext = inject(PLAYER_CONTEXT);
 
   readonly deviceEntries = computed(() =>
     this.storageStore.getDeviceStorageEntries(this.deviceId())()
@@ -39,4 +42,17 @@ export class StorageContainerComponent {
     const searchState = this.storageStore.getSearchState(this.deviceId(), selectedDir.storageType)();
     return searchState?.hasSearched ?? false;
   });
+
+  readonly historyViewVisible = computed(() => 
+    this.playerContext.isHistoryViewVisible(this.deviceId())()
+  );
+
+  readonly hasPlayHistory = computed(() => {
+    const history = this.playerContext.getPlayHistory(this.deviceId())();
+    return (history?.entries.length ?? 0) > 0;
+  });
+
+  readonly shouldShowHistory = computed(() => 
+    this.historyViewVisible() && !this.hasActiveSearch() && this.hasPlayHistory()
+  );
 }
