@@ -1,315 +1,172 @@
 # Testing Standards
 
-This document defines testing standards and patterns for the teensyrom-nx Angular application.
+This document defines the testing philosophy and standards for the teensyrom-nx Angular application, aligned with our Clean Architecture implementation.
 
-## Testing Framework Stack
+## Testing Philosophy
 
-### Testing Hierarchy and Backend Access Policy
+This application uses **Clean Architecture** with strict layer separation. Testing strategy varies by architectural layer, with **behavioral testing** for application and features layers (allowing real components to integrate), and **unit testing** for infrastructure and UI layers.
 
-- **Unit Tests**: Mock all external dependencies, no HTTP calls
-- **Integration Tests**: Use MSW for HTTP mocking, **no real backend calls allowed**
-- **E2E Tests**: **Only level permitted to use real backend APIs**
+### Testing Strategy by Layer
 
-This ensures fast, reliable tests and clear separation of concerns.
+| Layer | Location | Testing Approach | Mock Boundary |
+|-------|----------|------------------|---------------|
+| **Domain** | `libs/domain` | Don't test contracts/models.  Test domain logic. | N/A - Interfaces used as mocks |
+| **Infrastructure** | `libs/infrastructure` | Unit test in isolation | Mock generated API clients |
+| **Application** | `libs/application` | **Behavioral** - integrate stores/services | Mock infrastructure only |
+| **Features** | `libs/features` | Unit test - Mock the application layer. |
+| **UI Components** | `libs/ui` | Unit test |
+| **Utilities** | `libs/utils` | Unit test |
 
-### Unit Testing
+**Key Principle**: Mock only at infrastructure boundaries. Application and features layers integrate real stores, services, and application logic together.
 
-- **Framework**: [Vitest](https://vitest.dev/) - Fast Vite-native test runner
+**What NOT to Test**:
+- ❌ Domain models or interfaces (use as mocks)
+- ❌ Contract definitions (they define test mocks)
+- ❌ Backend APIs (E2E only)
+
+## Testing Framework
+
+- **Framework**: [Vitest](https://vitest.dev/) with Angular TestBed
 - **Mocking**: Vitest built-in mocking capabilities
-- **Assertions**: Expect API (Jest-compatible)
-- **Coverage**: Built-in coverage reporting with c8
+- **E2E**: Cypress (only layer that may use real backend APIs)
 
-### Integration Testing
+## Testing by Clean Architecture Layer
 
-- **Framework**: Vitest for service integration tests
-- **HTTP Mocking**: MSW (Mock Service Worker) - **REQUIRED** for all API integration tests
-- **Environment**: Isolated test environment with mocked backend services
-- **Policy**: **NO direct backend HTTP calls** in integration tests - use MSW only
+### Domain Layer (`libs/domain`)
 
-### End-to-End Testing
+**Test Domain Logic only** - Pure contracts and models are not tested directly. They are used as mocks in other layers.  Unit test domain logic if applicable.
 
-- **Framework**: Cypress (configured in workspace)
-- **Target**: Real browser automation for user journey testing  
-- **Backend**: **ONLY E2E tests may use real backend APIs** - Full API must be running
-- **Scope**: Complete user workflows from UI to database
+### Infrastructure Layer (`libs/infrastructure`)
 
-## Test File Organization
-
-### File Naming Conventions
-
-- **Unit Tests**: `[filename].spec.ts`
-- **Integration Tests**: `[filename].integration.spec.ts`
-- **E2E Tests**: `[feature].e2e.spec.ts` (in cypress directory)
-
-### Test File Location
-
-**Co-located**: Test files placed in same directory as source files
-
-```
-libs/domain/storage/services/src/lib/
-├── storage.service.ts
-├── storage.service.spec.ts              # Unit tests
-├── storage.service.integration.spec.ts  # Integration tests
-├── storage.mapper.ts
-└── storage.mapper.spec.ts               # Unit tests
-```
-
-## Unit Testing Standards
-
-### Test Structure
-
-- **Pattern**: Arrange-Act-Assert (AAA)
-- **Grouping**: Use `describe` blocks for logical test organization
-- **Naming**: Descriptive test names that explain behavior
+**Unit test with mocked API clients** - Test service implementations and data mapping in isolation.
 
 ```typescript
-describe('ExampleService', () => {
-  describe('getData', () => {
-    it('should return transformed domain model when API call succeeds', () => {
-      // Arrange
-      const mockResponse = {
-        /* API DTO */
-      };
-      const expectedDomain = {
-        /* Domain model */
-      };
-
-      // Act
-      const result = service.getData(request);
-
-      // Assert
-      expect(result).toEqual(expectedDomain);
-    });
-  });
+// libs/infrastructure/device/device.service.spec.ts
+TestBed.configureTestingModule({
+  providers: [
+    DeviceService,                                        // Infrastructure implementation
+    { provide: DevicesApiService, useValue: mockApiClient }, // Mock generated client
+  ],
 });
 ```
 
-### Mocking Patterns
+**Test Focus**:
+- Service contract implementation correctness
+- DTO → Domain model mapping (via mappers)
+- Error handling and edge cases
+- RxJS observable patterns
 
-- **Dependency Injection**: Mock services through TestBed configuration
-- **HTTP Calls**: Use Vitest mocks for API service dependencies
-- **External Dependencies**: Mock at service boundaries
+**File Organization**:
+```
+libs/infrastructure/device/
+├── device.service.ts
+├── device.service.spec.ts       # Unit test
+├── device.mapper.ts
+└── device.mapper.spec.ts        # Unit test
+```
+
+### Application Layer (`libs/application`)
+
+**Behavioral testing** - Integrate real stores, context services, and application logic. Mock infrastructure only.
 
 ```typescript
-describe('ExampleService', () => {
-  let service: ExampleService;
-  let mockApiService: Mock<ExampleApiService>;
-
-  beforeEach(() => {
-    mockApiService = {
-      getData: vi.fn(),
-    } as any;
-
-    TestBed.configureTestingModule({
-      providers: [ExampleService, { provide: ExampleApiService, useValue: mockApiService }],
-    });
-
-    service = TestBed.inject(ExampleService);
-  });
+// libs/application/player/player-context.service.spec.ts
+TestBed.configureTestingModule({
+  providers: [
+    PlayerContextService,                                      // Real context service
+    PlayerStore,                                               // Real store
+    { provide: PLAYER_SERVICE, useValue: mockPlayerService },  // Mock infrastructure
+  ],
 });
 ```
 
-### Test Coverage Requirements
+**Test Focus**:
+- Complete workflow behaviors and state coordination
+- Store state updates and computed signals
+- Multi-component integration (stores + services working together) 
+- Error handling and recovery workflows
+- Complex business logic paths
+- Do not test individual store actions nor selectors.
 
-- **Minimum Coverage**: 80% line coverage for services and utilities
-- **Critical Paths**: 100% coverage for error handling and business logic
-- **Exclusions**: Barrel exports, simple interfaces, test utilities
+**Example**: [`player-context.service.spec.ts`](../libs/application/src/lib/player/player-context.service.spec.ts)
 
-### What to Test in Unit Tests
+**Detailed Methodology**: See [STORE_TESTING.md](./STORE_TESTING.md)
 
-- **Services**:
+**File Organization**:
+```
+libs/application/player/
+├── player-context.service.ts
+├── player-context.service.spec.ts       # Behavioral test
+└── player.store.ts
+```
 
-  - Public method functionality
-  - Error handling scenarios
-  - Data transformation accuracy
-  - Input validation
-  - Observable streams behavior
+### Features Layer (`libs/features`)
 
-- **Mappers**:
-
-  - DTO to domain model transformation
-  - Edge cases and null/undefined handling
-  - Type coercion and validation
-  - Error scenarios with malformed data
-
-- **Stores** (NgRx Signal Stores):
-  - State initialization
-  - Method behavior and state updates
-  - Computed signal derivations
-  - Error state management
-
-## Integration Testing Standards
-
-### Purpose and Scope
-
-- **Integration Tests**: Test interaction between multiple components/services using **MSW-mocked APIs only**
-- **API Integration**: Test HTTP communication patterns with mocked backend responses via MSW
-- **Cross-Library Integration**: Test interaction between domain libraries in isolated environment
-- **Strict Policy**: **Real HTTP calls to backend APIs are forbidden** - use Cypress E2E tests instead
-
-### Integration Test Structure
+**Behavioral testing** - Integrate with real application state. Mock infrastructure only.
 
 ```typescript
-describe('ExampleService Integration', () => {
-  let service: ExampleService;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [ExampleService, ExampleApiService],
-    });
-
-    service = TestBed.inject(ExampleService);
-  });
-
-  describe('with mocked API', () => {
-    // All integration tests use MSW for API mocking
-    // Tests HTTP communication patterns and data flow
-  });
+// libs/features/devices/device-view.component.spec.ts  
+TestBed.configureTestingModule({
+  providers: [
+    DeviceStore,                                               // Real store
+    StorageStore,                                              // Real store
+    { provide: DEVICE_SERVICE, useValue: mockDeviceService },  // Mock infrastructure
+  ],
 });
 ```
 
-### API Integration Testing Standards
+**Test Focus**:
+- Feature component workflows with realistic state
+- User interactions trigger correct application behaviors
+- Component rendering based on application state
+- Input/output event handling
+- Navigation and routing behaviors
 
-- **Mock Service Worker (MSW)**: **MANDATORY** for all HTTP API mocking in integration tests
-- **No Real Backend Calls**: Integration tests must not make actual HTTP requests to backend APIs
-- **Real HttpClient**: Use Angular's HttpClient with MSW interception for realistic testing
-- **Response Simulation**: Mock both success and error scenarios with realistic API responses
-- **Network Patterns**: Test request/response cycles, headers, and data transformation
-- **Reference Implementation**: See `storage.service.integration.spec.ts` for established patterns
+**Detailed Methodology**: See [SMART_COMPONENT_TESTING.md](./SMART_COMPONENT_TESTING.md)
 
-### Cross-Store Integration Testing
-
-- **Store Dependencies**: Test interaction between related domain stores
-- **State Synchronization**: Verify state updates across dependent stores
-- **Error Propagation**: Test error handling across store boundaries
-
-## Testing Utilities and Helpers
-
-### Test Data Factories
-
-- **Purpose**: Consistent test data generation
-- **Location**: `libs/testing/` or `src/test-utils/`
-- **Pattern**: Factory functions for creating mock data
-
-```typescript
-// test-data.factories.ts
-export const createMockDomainModel = (overrides?: Partial<DomainModel>): DomainModel => ({
-  id: 'test-id',
-  name: 'Test Name',
-  isActive: true,
-  ...overrides,
-});
-
-export const createMockApiResponse = (overrides?: Partial<ApiResponse>): ApiResponse => ({
-  data: [],
-  status: 'success',
-  message: 'Operation completed',
-  ...overrides,
-});
+**File Organization**:
+```
+libs/features/devices/
+├── device-view.component.ts
+└── device-view.component.spec.ts        # Unit test
 ```
 
-### Custom Test Matchers
+### UI Components Layer (`libs/ui`)
 
-- **Purpose**: Domain-specific assertions
-- **Pattern**: Extend expect with custom matchers
-- **Examples**: `toBeValidModel()`, `toHaveProperty()`, `toMatchPattern()`
+**Unit test presentational logic** - Test pure presentation with minimal mocking.
 
-### Test Setup Utilities
+**Test Focus**:
+- Input property handling
+- Output event emissions
+- Rendering based on inputs
+- User interaction handlers (clicks, keyboard, etc.)
+- Accessibility features
 
-- **Purpose**: Common test configuration and setup
-- **TestBed Configuration**: Reusable TestBed setups for different scenarios
-- **Mock Providers**: Standard mock configurations for common dependencies
-
-## E2E Testing Standards
-
-### Test Organization
-
-- **Feature-Based**: Organize tests by user-facing features
-- **User Journeys**: Test complete user workflows
-- **Page Objects**: Use page object pattern for element interactions
-
-### E2E Test Structure
-
-```typescript
-describe('Feature Navigation E2E', () => {
-  before(() => {
-    // Ensure backend API is running and accessible
-    cy.request('GET', 'http://localhost:5168/api/health').should('have.property', 'status', 200);
-  });
-
-  beforeEach(() => {
-    // Setup test environment with real backend
-    cy.visit('/feature-page');
-  });
-
-  describe('User Workflow', () => {
-    it('should complete user journey with real API', () => {
-      // Given the application is loaded with real backend data
-      cy.get('[data-cy=feature-list]').should('be.visible');
-
-      // When user interacts with feature
-      cy.get('[data-cy=feature-button]').click();
-
-      // Then expected results should be visible (populated by real API)
-      cy.get('[data-cy=results-container]').should('be.visible');
-      cy.get('[data-cy=result-item]').should('have.length.greaterThan', 0);
-    });
-  });
-});
+**File Organization**:
+```
+libs/ui/components/action-button/
+├── action-button.component.ts
+└── action-button.component.spec.ts      # Unit test
 ```
 
-### E2E Environment Requirements
+### Utilities Layer (`libs/utils`)
 
-- **Backend API**: Full application API must be running on expected port
-- **Test Data**: Known test data setup for consistent E2E scenarios
-- **External Dependencies**: Any required external services or databases
+**Unit test ** - Test in complete isolation.
 
-### Data Test Attributes
+**Test Focus**:
+- Pure function logic and transformations
+- Edge cases and boundary conditions
+- Error handling
 
-- **Pattern**: Use `data-cy` attributes for E2E test selectors
-- **Naming**: Descriptive, kebab-case names
-- **Stability**: Separate from CSS classes to avoid test breakage
+**Examples**: 
+- [`storage-key.util.spec.ts`](../libs/application/src/lib/storage/storage-key.util.spec.ts)
+- [`log-helper.spec.ts`](../libs/utils/src/lib/log-helper.spec.ts)
 
-## Performance Testing
-
-### Unit Test Performance
-
-- **Timeout Limits**: Set appropriate test timeouts (default 5s)
-- **Mock Performance**: Ensure mocks don't introduce performance issues
-- **Large Data Sets**: Test with realistic data volumes
-
-### Integration Test Performance
-
-- **API Response Times**: Monitor and assert on reasonable response times
-- **Memory Usage**: Watch for memory leaks in long-running tests
-- **Async Operations**: Proper handling of async operations and timing
-
-## Error Testing Standards
-
-### Error Scenarios to Test
-
-- **Network Failures**: HTTP errors, timeouts, connection issues
-- **Invalid Data**: Malformed API responses, missing fields
-- **Business Logic Errors**: Domain validation failures
-- **State Errors**: Invalid state transitions, concurrent modifications
-
-### Error Testing Patterns
-
-```typescript
-describe('error handling', () => {
-  it('should handle API errors gracefully', async () => {
-    // Arrange
-    mockApiService.getData.mockRejectedValue(new Error('Network error'));
-
-    // Act & Assert
-    await expect(service.getData(request)).rejects.toThrow('Network error');
-  });
-
-  it('should provide user-friendly error messages', () => {
-    // Test error message transformation
-  });
-});
+**File Organization**:
+```
+libs/utils/
+├── log-helper.ts
+└── log-helper.spec.ts                   # Unit test
 ```
 
 ## Test Commands and Configuration
@@ -317,81 +174,32 @@ describe('error handling', () => {
 ### Running Tests
 
 ```bash
-# Run all unit tests
-npx nx test
-
-# Run tests for specific library
-npx nx test domain-example-services
-
-# Run tests in watch mode
-npx nx test --watch
-
-# Run integration tests (filtered by name pattern)
-npx nx test --testNamePattern="integration"
-
-# Run E2E tests
-npx nx e2e teensyrom-ui-e2e
-
-# Generate coverage report
-npx nx test --coverage
+npx nx test                    # Run all tests
+npx nx test application        # Run application layer tests
+npx nx test player             # Run player feature tests
+npx nx test --watch            # Watch mode
+npx nx test --coverage         # With coverage
+npx nx lint application        # Lint application layer
+npx nx e2e teensyrom-ui-e2e    # E2E tests
 ```
 
-### Test Configuration
+### Configuration
 
-- **Vitest Config**: Configured in `vite.config.ts` or `vitest.config.ts`
-- **Test Environment**: jsdom for DOM testing, node for pure logic tests
-- **Setup Files**: Global test setup and teardown utilities
-
-### CI/CD Integration
-
-- **Pre-commit**: Run affected tests before commits
+- **Vitest Config**: `vite.config.ts` or `vitest.config.ts`
+- **Test Environment**: jsdom (DOM testing) or node (pure logic)
+- **Coverage Target**: 80% line coverage for application/utility code
 
 ## Testing Best Practices
 
-### Development Approach
-
-**Test-Driven Development (TDD)**: Write tests first, then implement code to make tests pass. This approach:
-
-- **Ensures Testability**: Code is designed to be testable from the start
-- **Provides Clear Requirements**: Tests serve as living documentation of expected behavior
-- **Enables Confident Refactoring**: Existing tests catch regressions during code changes
-- **Improves Code Quality**: Forces consideration of edge cases and error scenarios upfront
-
-**TDD Cycle**:
-
-1. **Red**: Write a failing test that describes desired behavior
-2. **Green**: Write minimal code to make the test pass
-3. **Refactor**: Improve code structure while keeping tests green
-
-### General Principles
-
-1. **Test Behavior, Not Implementation**: Focus on what the code does, not how
-2. **Arrange-Act-Assert**: Clear test structure with distinct phases
-3. **Single Responsibility**: Each test should verify one specific behavior
-4. **Descriptive Names**: Test names should explain the expected behavior
-5. **Independent Tests**: Tests should not depend on each other's execution order
-
-### Mock Guidelines
-
-1. **Mock at Boundaries**: Mock external dependencies and services
-2. **Avoid Over-Mocking**: Don't mock everything; test real interactions when valuable
-3. **Realistic Mocks**: Mocks should behave like real implementations
-4. **Mock Consistency**: Use consistent mock patterns across the codebase
-
-### Data Testing
-
-1. **Edge Cases**: Test boundary conditions and edge cases
-2. **Invalid Input**: Test with null, undefined, and invalid data
-3. **Realistic Data**: Use representative data volumes and structures
-4. **Data Factories**: Use factory patterns for consistent test data generation
-
-### Async Testing
-
-1. **Proper Async Handling**: Use async/await or proper promise handling
-2. **Timeout Management**: Set appropriate timeouts for async operations
-3. **Race Conditions**: Test for timing-related issues
-4. **Error Propagation**: Ensure async errors are properly caught and tested
+1. **Prefer Testing Behavior over Implementation** - Focus on observable outcomes
+3. **Use Strongly Typed Mocks** - Leverage interfaces and injection tokens
+4. **Test Edge Cases** - Null/undefined, empty data, errors
+5. **Async Handling** - Use `async/await` and `nextTick()` helper for microtask queue
+6. **Descriptive Names** - Test names explain expected behavior
+7. **Independent Tests** - No execution order dependencies
 
 ## Related Documentation
 
-- **Coding Standards**: [`CODING_STANDARDS.md`](./CODING_STANDARDS.md) - Component and TypeScript standards.
+- **Application Layer Testing**: [`STORE_TESTING.md`](./STORE_TESTING.md) - Behavioral testing for stores and context services
+- **Features Layer Testing**: [`SMART_COMPONENT_TESTING.md`](./SMART_COMPONENT_TESTING.md) - Testing feature components with mocked dependencies
+- **Coding Standards**: [`CODING_STANDARDS.md`](./CODING_STANDARDS.md) - Component and TypeScript standards

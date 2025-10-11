@@ -1,191 +1,87 @@
 # Smart Component Testing Methodology
 
-This document describes the standard methodology for testing Angular smart components that depend on NgRx Signal Stores or Context Services. It focuses on testing components through their public API while mocking store/service dependencies at the injection boundary.
+This document describes the standard methodology for testing Angular smart components (feature components in `libs/features`) that depend on application layer services and state.
 
 ## Overview
 
-**Smart Components** are components that:
-- Inject and depend on stores or context services
+**Smart Components** are feature layer components that:
+- Inject and depend on application stores or context services
 - Coordinate between multiple data sources
 - Handle complex user interactions and workflows
-- Manage local UI state in conjunction with global state
+- Manage local UI state in conjunction with global application state
 
 **Testing Strategy**:
 - Test components through their public interface (inputs, outputs, DOM)
-- Mock store/service dependencies using strongly typed mocks
-- Focus on component behavior, not store implementation details
+- **Mock application layer dependencies using interfaces** (e.g., `IDeviceService`, `IStorageService`)
+- Focus on component behavior, not implementation details
 - Use Angular TestBed for realistic component instantiation
-
-## Test Types
-
-### Component-Level Testing (Primary)
-
-**Purpose**: Test component behavior with mocked dependencies
-- Exercise component inputs, outputs, and user interactions
-- Mock stores/services at the injection boundary
-- Assert component state, DOM changes, and event emissions
-- Cover normal, error, and edge case scenarios
-
-### Integration Testing (Secondary)
-
-**Purpose**: Test component + real store/service integration
-- Use real stores with mocked infrastructure services
-- Validate complete data flow through component + store layers
-- Reserve for complex workflows requiring end-to-end validation
 
 ## Mocking Strategy
 
-### Store/Service Mocking Pattern
+### Interface-Based Mocking
 
-```typescript
-// Example: ProductListComponent depends on ProductContextService
+**Always mock using interfaces** - Feature components should depend on service contracts, not concrete implementations. This allows clean mocking at the test boundary.
 
-// 1. Define service interface (production code)
-export interface IProductContextService {
-  loadProducts(categoryId: string): void;
-  getCurrentProducts(): Signal<Product[]>;
-  isLoading(): Signal<boolean>;
-  getError(): Signal<string | null>;
-}
+**Setup Pattern**:
+1. Create strongly-typed mocks implementing interfaces (e.g., `IDeviceService`, `IPlayerService`)
+2. Use Vitest's `vi.fn()` for method mocks
+3. Provide mocks via injection tokens in TestBed
+4. For signal-based services, return writable signals from mock methods
 
-export const PRODUCT_CONTEXT_SERVICE = new InjectionToken<IProductContextService>('PRODUCT_CONTEXT_SERVICE');
-
-// 2. Test setup with typed mocks
-describe('ProductListComponent', () => {
-  let component: ProductListComponent;
-  let fixture: ComponentFixture<ProductListComponent>;
-  let mockContextService: MockedObject<IProductContextService>;
-
-  beforeEach(async () => {
-    // Create strongly typed mock
-    mockContextService = {
-      loadProducts: vi.fn(),
-      getCurrentProducts: vi.fn(() => signal([])),
-      isLoading: vi.fn(() => signal(false)),
-      getError: vi.fn(() => signal(null)),
-    };
-
-    await TestBed.configureTestingModule({
-      imports: [ProductListComponent],
-      providers: [
-        { provide: PRODUCT_CONTEXT_SERVICE, useValue: mockContextService },
-      ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(ProductListComponent);
-    component = fixture.componentInstance;
-  });
-});
-```
-
-### Signal Mock Utilities
-
-```typescript
-// Helper for creating signal mocks
-function createSignalMock<T>(initialValue: T): WritableSignal<T> {
-  return signal(initialValue);
-}
-
-// Setup signal mocks in beforeEach
-const productsSignal = createSignalMock<Product[]>([]);
-const loadingSignal = createSignalMock(false);
-const errorSignal = createSignalMock<string | null>(null);
-
-mockContextService = {
-  loadProducts: vi.fn(),
-  getCurrentProducts: vi.fn(() => productsSignal.asReadonly()),
-  isLoading: vi.fn(() => loadingSignal.asReadonly()),
-  getError: vi.fn(() => errorSignal.asReadonly()),
-};
-```
+**Signal Mocking**:
+- Create writable signals in test setup for mutable state
+- Return readonly versions from mock service methods
+- Update signals during tests to trigger component reactions
+- Allows testing component behavior in response to state changes
 
 ## Component Testing Patterns
 
 ### Input/Output Testing
 
-```typescript
-it('should emit product selection when product clicked', () => {
-  const selectedProduct = { id: '1', name: 'Test Product' };
-  const productSelectedSpy = vi.fn();
-  component.productSelected.subscribe(productSelectedSpy);
-
-  // Simulate user interaction
-  component.onProductClick(selectedProduct);
-
-  expect(productSelectedSpy).toHaveBeenCalledWith(selectedProduct);
-});
-
-it('should load products when category input changes', () => {
-  const categoryId = 'electronics';
-
-  component.categoryId.set(categoryId);
-  fixture.detectChanges();
-
-  expect(mockContextService.loadProducts).toHaveBeenCalledWith(categoryId);
-});
-```
+**Test component inputs and outputs** - Verify that:
+- Component correctly responds to input property changes
+- Input changes trigger appropriate service method calls
+- User interactions emit expected output events with correct data
+- Event handlers are properly wired to user actions
 
 ### State-Dependent Rendering
 
-```typescript
-it('should display loading spinner when loading', () => {
-  // Update mock signal
-  loadingSignal.set(true);
-  fixture.detectChanges();
-
-  const loadingElement = fixture.debugElement.query(By.css('[data-testid="loading-spinner"]'));
-  expect(loadingElement).toBeTruthy();
-});
-
-it('should display products when loaded', () => {
-  const mockProducts = [
-    { id: '1', name: 'Product 1' },
-    { id: '2', name: 'Product 2' },
-  ];
-
-  // Update mock signal
-  productsSignal.set(mockProducts);
-  fixture.detectChanges();
-
-  const productElements = fixture.debugElement.queryAll(By.css('[data-testid="product-item"]'));
-  expect(productElements).toHaveLength(2);
-});
-
-it('should display error message when error occurs', () => {
-  const errorMessage = 'Failed to load products';
-
-  // Update mock signal
-  errorSignal.set(errorMessage);
-  fixture.detectChanges();
-
-  const errorElement = fixture.debugElement.query(By.css('[data-testid="error-message"]'));
-  expect(errorElement.nativeElement.textContent).toContain(errorMessage);
-});
-```
+**Test UI rendering based on state** - Verify that:
+- Loading states display appropriate loading indicators
+- Error states show error messages to the user
+- Success states render data correctly in the DOM
+- Empty states display placeholder or empty state UI
+- DOM updates correctly when mock signal values change
 
 ### User Interaction Testing
 
-```typescript
-it('should trigger product load when refresh button clicked', () => {
-  component.categoryId.set('electronics');
+**Test user interaction handling** - Verify that:
+- Button clicks trigger expected service method calls
+- Form submissions call appropriate service methods
+- Keyboard interactions work as expected
+- Double-clicks, context menus, and other interactions behave correctly
+- Service methods are called with correct parameters from user input
 
-  const refreshButton = fixture.debugElement.query(By.css('[data-testid="refresh-button"]'));
-  refreshButton.nativeElement.click();
+## Testing Philosophy
 
-  expect(mockContextService.loadProducts).toHaveBeenCalledWith('electronics');
-});
+### Component Layer vs Application Layer
 
-it('should select product when double-clicked', () => {
-  const product = { id: '1', name: 'Test Product' };
-  const productSelectedSpy = vi.fn();
-  component.productSelected.subscribe(productSelectedSpy);
+**Component Tests (Feature Layer)**: Mock application layer dependencies using interfaces
 
-  const productElement = fixture.debugElement.query(By.css('[data-testid="product-item"]'));
-  productElement.triggerEventHandler('dblclick', { product });
+- Focus on component-specific UI logic and user interactions
+- Mock stores and context services using contract interfaces
+- Test inputs, outputs, rendering, and event handling
+- Keep tests fast and isolated from application state
+- Verify correct service method calls with expected parameters
 
-  expect(productSelectedSpy).toHaveBeenCalledWith(product);
-});
-```
+**Application Layer Tests**: Use real integrated components (see [STORE_TESTING.md](./STORE_TESTING.md))
+
+- Test stores, context services, and application logic working together
+- Mock only infrastructure layer (API services) using interfaces
+- Validate complete workflows and state coordination
+- See [`player-context.service.spec.ts`](../libs/application/src/lib/player/player-context.service.spec.ts) for examples
+
+**Key Principle**: Always mock using interfaces - never mock concrete classes. This enforces proper dependency inversion and makes tests resilient to implementation changes.
 
 ## Behaviors to Test
 
@@ -239,121 +135,64 @@ Use this checklist to design comprehensive smart component tests:
 - [ ] Network failures and recovery
 - [ ] Rapid user interactions don't cause issues
 
-## Integration Testing Approach
-
-For complex components requiring end-to-end validation:
-
-```typescript
-describe('ProductListComponent Integration', () => {
-  let component: ProductListComponent;
-  let contextService: ProductContextService;
-  let mockInfrastructureService: MockedObject<IProductService>;
-
-  beforeEach(async () => {
-    mockInfrastructureService = {
-      getProducts: vi.fn(),
-      getProduct: vi.fn(),
-    };
-
-    await TestBed.configureTestingModule({
-      imports: [ProductListComponent],
-      providers: [
-        ProductContextService,
-        ProductStore,
-        { provide: PRODUCT_SERVICE, useValue: mockInfrastructureService },
-      ],
-    }).compileComponents();
-
-    contextService = TestBed.inject(ProductContextService);
-    fixture = TestBed.createComponent(ProductListComponent);
-    component = fixture.componentInstance;
-  });
-
-  it('should complete full product loading workflow', async () => {
-    const mockProducts = [{ id: '1', name: 'Test Product' }];
-    mockInfrastructureService.getProducts.mockReturnValue(of(mockProducts));
-
-    component.categoryId.set('electronics');
-    fixture.detectChanges();
-
-    // Wait for async operations
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    expect(component.getCurrentProducts()()).toEqual(mockProducts);
-    expect(component.isLoading()()).toBe(false);
-  });
-});
-```
-
 ## Do / Don't
 
 ### Do
+- **Use interfaces for all mocks** (e.g., `IPlayerContext`)
 - Test through component's public interface (inputs, outputs, DOM)
-- Use strongly typed mocks for service dependencies
-- Test user interactions and their effects
-- Assert on DOM changes and component state
+- Use strongly typed mocks that implement contracts
+- Test user interactions and their effects on the component
+- Assert on DOM changes and component-specific state
 - Use TestBed for realistic component instantiation
-- Test error scenarios and edge cases
+- Test error scenarios and edge cases in UI behavior
+- Use injection tokens when providing mocked services
 
 ### Don't
-- Test store/service implementation details in component tests
-- Use real HTTP calls in component unit tests
+- Mock concrete classes - always use interfaces when available.
+- Test application layer logic in component tests (test that in application layer - see [STORE_TESTING.md](./STORE_TESTING.md))
+- Use real stores or context services in component unit tests
+- Make real HTTP calls in component tests
 - Test internal component methods directly
 - Mock Angular framework features unnecessarily
 - Ignore accessibility in component tests
-- Test component and store together in unit tests (use integration tests)
+- Create mocks without implementing the full interface contract
 
 ## Quick Checklist
 
-- [ ] TestBed setup with mocked service dependencies
-- [ ] Strongly typed service mocks
+- [ ] TestBed setup with interface-based mocked service dependencies
+- [ ] Strongly typed service mocks implementing contracts
+- [ ] Injection tokens used for service providers
 - [ ] Component initialization behavior
 - [ ] Input handling and validation
 - [ ] Output event emissions
 - [ ] State-dependent rendering
 - [ ] User interaction handling
-- [ ] Service integration points
+- [ ] Service integration points (verify method calls)
 - [ ] Complex workflow scenarios
 - [ ] Edge cases and error handling
-- [ ] Integration tests for critical workflows
 
-## Example Test Structure
+## Test Structure
 
-```typescript
-describe('ExampleSmartComponent', () => {
-  let component: ExampleSmartComponent;
-  let fixture: ComponentFixture<ExampleSmartComponent>;
-  let mockContextService: MockedObject<IExampleContextService>;
+### Recommended Organization
 
-  beforeEach(async () => {
-    // Setup mocks and TestBed
-  });
+Structure tests by feature area, grouping related behaviors together:
 
-  describe('Initialization', () => {
-    // Initialization tests
-  });
+**Initialization** - Component setup, dependency injection, default state
 
-  describe('Input Handling', () => {
-    // Input processing tests
-  });
+**Input Handling** - Response to input property changes, validation, edge cases
 
-  describe('User Interactions', () => {
-    // User interaction tests
-  });
+**User Interactions** - Click handlers, form submissions, keyboard events
 
-  describe('State-Dependent Rendering', () => {
-    // UI state tests
-  });
+**State-Dependent Rendering** - DOM updates based on service state (loading, error, success, empty)
 
-  describe('Service Integration', () => {
-    // Service coordination tests
-  });
+**Service Integration** - Verification of service method calls with correct parameters
 
-  describe('Error Handling', () => {
-    // Error scenario tests
-  });
-});
-```
+**Error Handling** - Error state display, recovery behaviors, edge cases
 
-This methodology ensures comprehensive testing of smart components while maintaining clear separation between component behavior and service implementation details.
+This structure ensures comprehensive coverage while keeping tests organized and maintainable.
+
+## Related Documentation
+
+- **Application Layer Testing**: See [STORE_TESTING.md](./STORE_TESTING.md) for testing stores, context services, and integrated application workflows
+- **Testing Standards**: See [TESTING_STANDARDS.md](./TESTING_STANDARDS.md) for overall testing philosophy and layer-specific guidance
+- **Utility Testing**: See examples like [`storage-key.util.spec.ts`](../libs/application/src/lib/storage/storage-key.util.spec.ts) and [`log-helper.spec.ts`](../libs/utils/src/lib/log-helper.spec.ts)
