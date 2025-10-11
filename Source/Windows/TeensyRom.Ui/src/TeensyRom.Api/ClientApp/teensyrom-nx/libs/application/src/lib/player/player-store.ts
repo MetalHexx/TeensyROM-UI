@@ -12,7 +12,6 @@ export interface LaunchedFile {
   file: FileItem;
   parentPath: string;
   launchedAt: number;
-  launchMode: LaunchMode;
   isCompatible: boolean;
 }
 

@@ -55,7 +55,7 @@ export function launchFileWithContext(
 
         // Check if file is compatible with hardware
         const isCompatible = resolvedFile.isCompatible;
-        const launchedFileObj = createLaunchedFile(deviceId, storageType, resolvedFile, launchMode, isCompatible);
+        const launchedFileObj = createLaunchedFile(deviceId, storageType, resolvedFile, isCompatible);
         const fileContext = createPlayerFileContext(
           deviceId,
           storageType,
@@ -69,11 +69,11 @@ export function launchFileWithContext(
         if (!isCompatible) {
           const errorMessage = 'File is not compatible with TeensyROM hardware';
           logError(`PlayerAction: File ${resolvedFile.name} is incompatible with device ${deviceId}: ${errorMessage}`);
-          setPlayerLaunchFailure(store, deviceId, launchedFileObj, fileContext, errorMessage, actionMessage);
+          setPlayerLaunchFailure(store, deviceId, launchedFileObj, fileContext, launchMode, errorMessage, actionMessage);
           return;
         }
 
-        setPlayerLaunchSuccess(store, deviceId, launchedFileObj, fileContext, actionMessage);
+        setPlayerLaunchSuccess(store, deviceId, launchedFileObj, fileContext, launchMode, actionMessage);
 
         logInfo(LogType.Success, `PlayerAction: File ${resolvedFile.name} launched successfully for device ${deviceId}`);
       } catch (error) {
@@ -82,7 +82,7 @@ export function launchFileWithContext(
         logError(`PlayerAction: Failed to launch file ${file.name} for device ${deviceId}: ${errorMessage}`);
 
         // Network/HTTP error - create file context from request so UI can show which file failed
-        const launchedFile = createLaunchedFile(deviceId, storageType, file, launchMode, false);
+        const launchedFile = createLaunchedFile(deviceId, storageType, file, false);
         const safeIndex = Math.max(0, files.findIndex((f) => f.name === file.name));
         const fileContext = createPlayerFileContext(
           deviceId,
@@ -93,7 +93,7 @@ export function launchFileWithContext(
           launchMode
         );
 
-        setPlayerLaunchFailure(store, deviceId, launchedFile, fileContext, errorMessage, actionMessage);
+        setPlayerLaunchFailure(store, deviceId, launchedFile, fileContext, launchMode, errorMessage, actionMessage);
         // Do not throw - error state is set in store for service layer to check
       }
     },

@@ -63,7 +63,6 @@ export function launchRandomFile(
           deviceId,
           storageType,
           launchedFile,
-          LaunchMode.Shuffle,
           isCompatible
         );
 
@@ -81,35 +80,12 @@ export function launchRandomFile(
         if (!isCompatible) {
           const errorMessage = 'File is not compatible with TeensyROM hardware';
           logError(`PlayerAction: Random file ${launchedFile.name} is incompatible with device ${deviceId}: ${errorMessage}`);
-          setPlayerLaunchFailure(store, deviceId, launchedFileObj, emptyFileContext, errorMessage, actionMessage);
-          
-          // Still ensure launch mode is set to shuffle
-          updateState(store, actionMessage, (state) => ({
-            players: {
-              ...state.players,
-              [deviceId]: {
-                ...state.players[deviceId],
-                launchMode: LaunchMode.Shuffle,
-              },
-            },
-          }));
-          
+          setPlayerLaunchFailure(store, deviceId, launchedFileObj, emptyFileContext, LaunchMode.Shuffle, errorMessage, actionMessage);
           return;
         }
 
         // Update state with success
-        setPlayerLaunchSuccess(store, deviceId, launchedFileObj, emptyFileContext, actionMessage);
-
-        // Ensure launch mode is set to shuffle
-        updateState(store, actionMessage, (state) => ({
-          players: {
-            ...state.players,
-            [deviceId]: {
-              ...state.players[deviceId],
-              launchMode: LaunchMode.Shuffle,
-            },
-          },
-        }));
+        setPlayerLaunchSuccess(store, deviceId, launchedFileObj, emptyFileContext, LaunchMode.Shuffle, actionMessage);
 
         logInfo(LogType.Finish, `PlayerAction: Random file launch completed for device ${deviceId}`);
 

@@ -104,10 +104,11 @@ export function setPlayerLaunchSuccess(
   deviceId: string,
   launchedFile: LaunchedFile,
   fileContext: PlayerFileContext,
+  launchMode: LaunchMode,
   actionMessage: string
 ): void {
   const timestamp = Date.now();
-  
+
   logInfo(LogType.Success, `PlayerHelper: Setting player launch success for device ${deviceId} with file ${launchedFile.file.name}`);
 
   ensurePlayerState(store, deviceId, actionMessage);
@@ -124,7 +125,7 @@ export function setPlayerLaunchSuccess(
         isLoading: false,
         status: PlayerStatus.Playing,
         error: null,
-        launchMode: launchedFile.launchMode,
+        launchMode: launchMode,
         lastUpdated: timestamp,
       };
     },
@@ -166,11 +167,12 @@ export function setPlayerLaunchFailure(
   deviceId: string,
   launchedFile: LaunchedFile,
   fileContext: PlayerFileContext,
+  launchMode: LaunchMode,
   errorMessage: string,
   actionMessage: string
 ): void {
   const timestamp = Date.now();
-  
+
   logError(`PlayerHelper: Setting player launch failure for device ${deviceId} with file ${launchedFile.file.name}: ${errorMessage}`);
 
   ensurePlayerState(store, deviceId, actionMessage);
@@ -187,7 +189,7 @@ export function setPlayerLaunchFailure(
         isLoading: false,
         status: PlayerStatus.Stopped,
         error: errorMessage,
-        launchMode: launchedFile.launchMode,
+        launchMode: launchMode,
         lastUpdated: timestamp,
       };
     },
@@ -220,19 +222,17 @@ export function createLaunchedFile(
   deviceId: string,
   storageType: StorageType,
   file: FileItem,
-  launchMode: LaunchMode,
   isCompatible = true
 ): LaunchedFile {
   const timestamp = Date.now();
   const storageKey = StorageKeyUtil.create(deviceId, storageType);
-  
+
   logInfo(LogType.Info, `PlayerHelper: Creating launched file object for ${file.name} on device ${deviceId} (compatible: ${isCompatible})`);
 
   return {
     parentPath: file.parentPath,
     storageKey,
     file,
-    launchMode,
     launchedAt: timestamp,
     isCompatible,
   };
@@ -289,7 +289,6 @@ export function setShuffleNavigationSuccess(
           file: launchedFile,
           parentPath,
           launchedAt: timestamp,
-          launchMode: LaunchMode.Shuffle,
           isCompatible: launchedFile.isCompatible,
         },
         status: PlayerStatus.Playing,
@@ -327,7 +326,6 @@ export function setShuffleNavigationFailure(
           file: launchedFile,
           parentPath,
           launchedAt: timestamp,
-          launchMode: LaunchMode.Shuffle,
           isCompatible: launchedFile.isCompatible,
         },
         status: PlayerStatus.Stopped,
@@ -363,7 +361,6 @@ export function setDirectoryNavigationSuccess(
           file: launchedFile,
           parentPath: fileContext.directoryPath,
           launchedAt: timestamp,
-          launchMode: LaunchMode.Directory,
           isCompatible: launchedFile.isCompatible,
         },
         fileContext: {
@@ -404,7 +401,6 @@ export function setDirectoryNavigationFailure(
           file: launchedFile,
           parentPath: fileContext.directoryPath,
           launchedAt: timestamp,
-          launchMode: LaunchMode.Directory,
           isCompatible: launchedFile.isCompatible,
         },
         fileContext: {

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, MockedFunction } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { Observable, of, throwError } from 'rxjs';
 import {
@@ -11,12 +11,17 @@ import {
   PlayerFilterType,
   PLAYER_SERVICE,
   DEVICE_SERVICE,
-  IPlayerService,
-  IDeviceService,
 } from '@teensyrom-nx/domain';
 import { PlayerContextService } from './player-context.service';
 import { PlayerStore } from './player-store';
 import { StorageStore, StorageDirectoryState } from '../storage/storage-store';
+
+// Define TimerState interface locally since it's not exported
+interface TimerState {
+  remainingMs: number;
+  totalMs: number;
+  isActive: boolean;
+}
 
 // Test data factory functions
 const createTestFileItem = (
@@ -51,17 +56,25 @@ const createTestDirectoryFiles = (): FileItem[] => [
   createTestFileItem({ name: 'game.prg', path: '/music/game.prg', type: FileItemType.Game }),
 ];
 
-type NavigateToDirectoryFn = (params: { deviceId: string; storageType: StorageType; path: string }) => Promise<void>;
-type GetSelectedDirectoryStateFn = (deviceId: string) => () => Partial<StorageDirectoryState> | null;
-
 describe('PlayerContextService', () => {
   let service: PlayerContextService;
   let mockStorageStore: {
-    navigateToDirectory: MockedFunction<NavigateToDirectoryFn>;
-    getSelectedDirectoryState: MockedFunction<GetSelectedDirectoryStateFn>;
+    navigateToDirectory: ReturnType<typeof vi.fn>;
+    getSelectedDirectoryState: ReturnType<typeof vi.fn>;
   };
-  let mockPlayerService: IPlayerService;
-  let mockDeviceService: IDeviceService;
+  let mockPlayerService: {
+    launchFile: ReturnType<typeof vi.fn>;
+    launchRandom: ReturnType<typeof vi.fn>;
+    toggleMusic: ReturnType<typeof vi.fn>;
+  };
+  let mockDeviceService: {
+    findDevices: ReturnType<typeof vi.fn>;
+    getConnectedDevices: ReturnType<typeof vi.fn>;
+    connectDevice: ReturnType<typeof vi.fn>;
+    disconnectDevice: ReturnType<typeof vi.fn>;
+    resetDevice: ReturnType<typeof vi.fn>;
+    pingDevice: ReturnType<typeof vi.fn>;
+  };
 
   // Helper to wait for async operations
   const nextTick = () => new Promise<void>((r) => setTimeout(r, 0));
@@ -189,7 +202,7 @@ describe('PlayerContextService', () => {
       const currentFile = service.getCurrentFile(deviceId)();
       expect(currentFile).toBeTruthy();
       expect(currentFile?.file).toEqual(testFile);
-      expect(currentFile?.launchMode).toBe(LaunchMode.Directory);
+      expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Directory);
 
       const fileContext = service.getFileContext(deviceId)();
       expect(fileContext?.files).toEqual(testFiles);
@@ -240,8 +253,7 @@ describe('PlayerContextService', () => {
 
       await nextTick();
 
-      const currentFile = service.getCurrentFile(deviceId)();
-      expect(currentFile?.launchMode).toBe(LaunchMode.Directory);
+      expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Directory);
     });
 
     it('should set loading state during launch operation', async () => {
@@ -309,7 +321,7 @@ describe('PlayerContextService', () => {
       // Verify state updates
       const currentFile = service.getCurrentFile(deviceId)();
       expect(currentFile?.file).toEqual(randomFile);
-      expect(currentFile?.launchMode).toBe(LaunchMode.Shuffle);
+      expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Shuffle);
 
       expect(service.isLoading(deviceId)()).toBe(false);
       expect(service.getError(deviceId)()).toBeNull();
@@ -840,7 +852,7 @@ describe('PlayerContextService', () => {
         
         const currentFile = service.getCurrentFile(deviceId)();
         expect(currentFile?.file).toEqual(randomFile);
-        expect(currentFile?.launchMode).toBe(LaunchMode.Shuffle);
+        expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Shuffle);
       });
 
       it('should launch random file for previous in shuffle mode', async () => {
@@ -854,7 +866,7 @@ describe('PlayerContextService', () => {
         
         const currentFile = service.getCurrentFile(deviceId)();
         expect(currentFile?.file).toEqual(randomFile);
-        expect(currentFile?.launchMode).toBe(LaunchMode.Shuffle);
+        expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Shuffle);
       });
 
       it('should load directory context when navigating next in shuffle mode', async () => {

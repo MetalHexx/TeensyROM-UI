@@ -344,7 +344,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       // Should NOT use history navigation
       const currentFile = service.getCurrentFile(deviceId)();
       expect(currentFile?.file.path).toBe(file1.path);
-      expect(currentFile?.launchMode).toBe(LaunchMode.Directory);
+      expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Directory);
     });
 
     it('should load directory context after history navigation', async () => {
@@ -638,7 +638,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       // Should NOT be using forward history navigation
       const currentFile = service.getCurrentFile(deviceId)();
       expect(currentFile?.file.path).toBe(file3.path);
-      expect(currentFile?.launchMode).toBe(LaunchMode.Directory);
+      expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Directory);
 
       // History position should NOT have changed from directory navigation
       // (Directory mode doesn't affect history position)

@@ -119,7 +119,7 @@ export class PlayerContextService implements IPlayerContext {
             directoryPath: currentFile.parentPath,
             files: directoryState.directory.files,
             currentFileIndex: currentIndex,
-            launchMode: currentFile.launchMode
+            launchMode: this.store.getLaunchMode(deviceId)()
           });
         }
       }
@@ -405,7 +405,7 @@ export class PlayerContextService implements IPlayerContext {
       file: currentFile.file,
       storageKey: currentFile.storageKey,
       parentPath: currentFile.parentPath,
-      launchMode: currentFile.launchMode,
+      launchMode: this.store.getLaunchMode(deviceId)(),
       timestamp: currentFile.launchedAt,
       isCompatible: currentFile.isCompatible,
     };
