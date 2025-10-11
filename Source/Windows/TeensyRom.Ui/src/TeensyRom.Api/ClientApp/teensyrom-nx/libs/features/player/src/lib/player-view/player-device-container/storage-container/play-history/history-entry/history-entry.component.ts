@@ -1,7 +1,7 @@
 import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StorageItemComponent, StorageItemActionsComponent } from '@teensyrom-nx/ui/components';
-import { getFileIcon, formatFileSize } from '@teensyrom-nx/utils';
+import { getFileIcon, formatFileSize } from '@teensyrom-nx/domain';
 import { HistoryEntry } from '@teensyrom-nx/application';
 
 @Component({

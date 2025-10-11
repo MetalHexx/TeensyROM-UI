@@ -126,46 +126,33 @@ Available color variables for semantic styling:
 
 ### Glassy Effect Variations
 
-**Purpose**: Creates glassmorphism effects with varying opacity levels for layered UI elements. All variations are theme-aware and automatically adjust between light and dark modes.
+**Purpose**: Utility classes that apply glassmorphism effects with varying opacity levels. All classes use the [glassy effect mixins](#glassy-effect-mixins) internally.
 
 #### `.glassy-subtle`
 
-**Opacity**: 5% (ultra-light overlay)
-**Blur**: 10px backdrop blur
-**Theme Support**: White in light mode, black in dark mode
-
 **Usage Example:**
-
 ```html
 <div class="glassy-subtle">Minimal overlay content</div>
 ```
 
-**Best Practice**: Use for barely-visible background separation or subtle depth effects where minimal visual weight is desired. Ideal for secondary backgrounds that shouldn't draw attention.
+**Implementation**: Uses [`@mixin glassy-subtle-effect`](#mixin-glassy-subtle-effect) (5% opacity)
+
+**Best Practice**: Use for barely-visible background separation or subtle depth effects where minimal visual weight is desired.
 
 #### `.glassy-light`
 
-**Opacity**: 7.5% (light overlay)
-**Blur**: 10px backdrop blur
-**Theme Support**: White in light mode, black in dark mode
-
 **Usage Example:**
-
 ```html
 <div class="glassy-light">Light overlay content</div>
 ```
 
+**Implementation**: Uses [`@mixin glassy-light-effect`](#mixin-glassy-light-effect) (7.5% opacity)
+
 **Best Practice**: Use for subtle glassmorphism on secondary UI elements that need slight visual separation without being prominent.
 
-#### `.glassy-default` / `.glassy` (Default)
-
-**Opacity**: 10% (standard overlay)
-**Blur**: 10px backdrop blur
-**Theme Support**: White in light mode (hardcoded for backward compatibility)
-
-**Recommended**: Use `.glassy-default` for new code. The `.glassy` class is maintained for backward compatibility with existing components.
+#### `.glassy-default` / `.glassy`
 
 **Usage Example:**
-
 ```html
 <!-- Preferred for new code -->
 <div class="glassy-default">Overlay content</div>
@@ -175,60 +162,41 @@ Available color variables for semantic styling:
 <mat-dialog class="glassy-dialog">...</mat-dialog>
 ```
 
-**Used In:**
+**Implementation**: Uses [`@mixin glassy-default-effect`](#mixin-glassy-default-effect) (10% opacity)
 
+**Used In:**
 - [`layout.component.html`](../libs/app/shell/src/lib/layout/layout.component.html) - Navigation sidenav
 - [`layout.component.ts`](../libs/app/shell/src/lib/layout/layout.component.ts) - Modal dialogs (via `panelClass: 'glassy-dialog'`)
 
-**Best Practice**: Default glassmorphism effect for standard overlays, navigation elements, and modal dialogs. Use `.glassy-default` for new implementations to align with the naming convention of other variations.
+**Best Practice**: Default glassmorphism effect for standard overlays, navigation elements, and modal dialogs. Use `.glassy-default` for new code.
 
-**Migration Note**: `.glassy` is the legacy name maintained for backward compatibility. Both classes are functionally identical (they share the same CSS rules). New code should use `.glassy-default` to follow the established naming pattern. The legacy `.glassy` class will be deprecated in a future release.
+**Migration Note**: `.glassy` is the legacy name maintained for backward compatibility. Both classes are functionally identical. New code should use `.glassy-default` to follow the established naming pattern.
 
 #### `.glassy-medium`
 
-**Opacity**: 15% (pronounced overlay)
-**Blur**: 10px backdrop blur
-**Theme Support**: White in light mode, black in dark mode
-
 **Usage Example:**
-
 ```html
 <div class="glassy-medium">Medium overlay content</div>
 ```
 
-**Best Practice**: Use for more prominent glassmorphism effects where the overlay needs to be clearly visible. Good for important overlays and highlighted UI sections.
+**Implementation**: Uses [`@mixin glassy-medium-effect`](#mixin-glassy-medium-effect) (15% opacity)
+
+**Best Practice**: Use for more prominent glassmorphism effects where the overlay needs to be clearly visible.
 
 #### `.glassy-strong`
 
-**Opacity**: 20% (bold overlay)
-**Blur**: 10px backdrop blur
-**Theme Support**: White in light mode, black in dark mode
-
 **Usage Example:**
-
 ```html
 <div class="glassy-strong">Strong overlay content</div>
 ```
 
-**Best Practice**: Use for high-emphasis glassmorphism where the overlay needs maximum visibility while maintaining the blur effect. Ideal for critical UI elements or prominent feature sections.
+**Implementation**: Uses [`@mixin glassy-strong-effect`](#mixin-glassy-strong-effect) (20% opacity)
+
+**Best Practice**: Use for high-emphasis glassmorphism where the overlay needs maximum visibility while maintaining the blur effect.
 
 ---
 
-**Implementation Details:**
-
-- All new variations (subtle, light, medium, strong) use CSS custom property `--glassy-color` for theme awareness
-- Light mode: `--glassy-color: 255, 255, 255` (white)
-- Dark mode: `--glassy-color: 0, 0, 0` (black)
-- Original `.glassy` class remains unchanged for backward compatibility
-- All variations use the same 10px backdrop blur for consistent visual effect
-
-**Selection Guide:**
-
-- **Subtle (5%)**: Barely visible, minimal visual weight
-- **Light (7.5%)**: Subtle effect, low emphasis
-- **Default (10%)**: Standard glassmorphism, balanced visibility (use `.glassy-default` for new code)
-- **Medium (15%)**: Pronounced effect, higher emphasis
-- **Strong (20%)**: Bold effect, maximum visibility
+**For detailed opacity levels, theme support, and implementation details, see [Glassy Effect Mixins](#glassy-effect-mixins).**
 
 **Migration Path:**
 
@@ -240,6 +208,96 @@ Available color variables for semantic styling:
 ---
 
 ## Mixins
+
+### Glassy Effect Mixins
+
+**Purpose**: Reusable SCSS mixins that create glassmorphism effects with varying opacity levels. These mixins provide a single source of truth for all glassy styling in the application.
+
+#### `@mixin glassy-default-effect`
+
+**Opacity**: 10% white overlay
+**Blur**: 10px backdrop blur
+**Theme Support**: Hardcoded white (legacy compatibility)
+
+**Usage:**
+```scss
+.my-overlay {
+  @include glassy-default-effect;
+}
+```
+
+#### `@mixin glassy-subtle-effect`
+
+**Opacity**: 5% white overlay (ultra-light)
+**Blur**: 10px backdrop blur
+**Theme Support**: White tint in both light and dark modes
+
+**Usage:**
+```scss
+.my-subtle-overlay {
+  @include glassy-subtle-effect;
+}
+```
+
+#### `@mixin glassy-light-effect`
+
+**Opacity**: 7.5% white overlay (light)
+**Blur**: 10px backdrop blur
+**Theme Support**: White tint in both light and dark modes
+
+**Usage:**
+```scss
+.my-light-overlay {
+  @include glassy-light-effect;
+}
+```
+
+#### `@mixin glassy-medium-effect`
+
+**Opacity**: 15% white overlay (pronounced)
+**Blur**: 10px backdrop blur
+**Theme Support**: White tint in both light and dark modes
+
+**Usage:**
+```scss
+.my-medium-overlay {
+  @include glassy-medium-effect;
+}
+```
+
+#### `@mixin glassy-strong-effect`
+
+**Opacity**: 20% white overlay (bold)
+**Blur**: 10px backdrop blur
+**Theme Support**: White tint in both light and dark modes
+
+**Usage:**
+```scss
+.my-strong-overlay {
+  @include glassy-strong-effect;
+}
+```
+
+**Implementation Details:**
+
+- All glassy mixins use CSS custom property `--glassy-color` for consistent glassmorphism effect (except `glassy-default-effect` which is hardcoded for legacy compatibility)
+- Both light and dark modes: `--glassy-color: 255, 255, 255` (white)
+- Using white tint in both themes creates proper glassmorphism effect that lets the blurred background show through
+- All variations use the same 10px backdrop blur for consistent visual effect
+
+**Selection Guide:**
+
+- **Subtle (5%)**: Barely visible, minimal visual weight
+- **Light (7.5%)**: Subtle effect, low emphasis
+- **Default (10%)**: Standard glassmorphism, balanced visibility
+- **Medium (15%)**: Pronounced effect, higher emphasis
+- **Strong (20%)**: Bold effect, maximum visibility
+
+**Used In:**
+- [Glassy utility classes](#glassy-effect-variations) - All glassy utility classes use these mixins
+- [`selectable-item` mixin](#mixin-selectable-item) - Uses `glassy-subtle-effect` for hover and `glassy-strong-effect` for selected states
+
+---
 
 ### `@mixin selectable-item`
 

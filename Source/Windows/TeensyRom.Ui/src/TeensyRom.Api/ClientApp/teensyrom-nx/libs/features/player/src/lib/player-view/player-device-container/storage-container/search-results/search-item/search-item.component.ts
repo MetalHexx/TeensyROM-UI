@@ -1,8 +1,7 @@
 import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StorageItemComponent, StorageItemActionsComponent } from '@teensyrom-nx/ui/components';
-import { FileItem } from '@teensyrom-nx/domain';
-import { getFileIcon, formatFileSize } from '@teensyrom-nx/utils';
+import { FileItem, getFileIcon, formatFileSize } from '@teensyrom-nx/domain';
 
 @Component({
   selector: 'lib-search-item',

@@ -51,7 +51,7 @@ html.dark-mode {
   --color-highlight: #00f7ff;
   --color-dimmed: #656363;
   --color-directory: #f5e29e;
-  --glassy-color: 0, 0, 0;
+  --glassy-color: 255, 255, 255;
 
   @include mat.theme(
     (
@@ -88,6 +88,40 @@ body {
 }
 
 // ─────────────────────────────────────────────
+//  Glassy Effect Mixins
+// ─────────────────────────────────────────────
+
+@mixin glassy-default-effect {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+@mixin glassy-subtle-effect {
+  background-color: rgba(var(--glassy-color), 0.05) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+@mixin glassy-light-effect {
+  background-color: rgba(var(--glassy-color), 0.075) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+@mixin glassy-medium-effect {
+  background-color: rgba(var(--glassy-color), 0.15) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+@mixin glassy-strong-effect {
+  background-color: rgba(var(--glassy-color), 0.2) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+// ─────────────────────────────────────────────
 //  Selectable Item Pattern
 // ─────────────────────────────────────────────
 
@@ -95,14 +129,14 @@ body {
   cursor: pointer;
   padding: 8px 8px;
   border-radius: 10px;
-  transition: background-color 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out, backdrop-filter 0.2s ease-in-out;
 
   &:hover {
-    background-color: color-mix(in srgb, var(--color-dimmed) 40%, transparent);
+    @include glassy-subtle-effect;
   }
 
   &.selected {
-    background-color: var(--color-dimmed);
+    @include glassy-strong-effect;
   }
 }
 
@@ -181,33 +215,23 @@ body {
 // Legacy class maintained for backward compatibility - use .glassy-default for new code
 .glassy,
 .glassy-default {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  @include glassy-default-effect;
 }
 
 .glassy-subtle {
-  background-color: rgba(var(--glassy-color), 0.05) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  @include glassy-subtle-effect;
 }
 
 .glassy-light {
-  background-color: rgba(var(--glassy-color), 0.075) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  @include glassy-light-effect;
 }
 
 .glassy-medium {
-  background-color: rgba(var(--glassy-color), 0.15) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  @include glassy-medium-effect;
 }
 
 .glassy-strong {
-  background-color: rgba(var(--glassy-color), 0.2) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  @include glassy-strong-effect;
 }
 
 // ─────────────────────────────────────────────
