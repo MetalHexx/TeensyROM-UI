@@ -6,7 +6,7 @@ import { signal } from '@angular/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { PlayerToolbarComponent } from './player-toolbar.component';
 import { PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
-import { LaunchMode, PlayerStatus, FileItemType } from '@teensyrom-nx/domain';
+import { LaunchMode, PlayerStatus, FileItemType, StorageType } from '@teensyrom-nx/domain';
 import { IconButtonComponent } from '@teensyrom-nx/ui/components';
 
 describe('PlayerToolbarComponent', () => {
@@ -16,6 +16,9 @@ describe('PlayerToolbarComponent', () => {
   let errorSignal: ReturnType<typeof signal<string | null>>;
   let currentFileSignal: ReturnType<typeof signal>;
   let playerStatusSignal: ReturnType<typeof signal<PlayerStatus>>;
+  let fileContextSignal: ReturnType<typeof signal>;
+  let launchModeSignal: ReturnType<typeof signal<LaunchMode>>;
+  let fileCompatibleSignal: ReturnType<typeof signal<boolean>>;
 
   // Helper to create file mock
   const createFileMock = (type: FileItemType) => ({
@@ -45,6 +48,9 @@ describe('PlayerToolbarComponent', () => {
     errorSignal = signal<string | null>(null);
     currentFileSignal = signal(null);
     playerStatusSignal = signal(PlayerStatus.Stopped);
+    fileContextSignal = signal(null);
+    launchModeSignal = signal(LaunchMode.Directory);
+    fileCompatibleSignal = signal(true);
 
     // Create a proper interface-based mock that implements all IPlayerContext methods
     mockPlayerContext = {
@@ -65,7 +71,7 @@ describe('PlayerToolbarComponent', () => {
 
       // State queries
       getCurrentFile: vi.fn().mockReturnValue(currentFileSignal.asReadonly()),
-      getFileContext: vi.fn().mockReturnValue(signal(null).asReadonly()),
+      getFileContext: vi.fn().mockReturnValue(fileContextSignal.asReadonly()),
       getPlayerStatus: vi.fn().mockReturnValue(playerStatusSignal.asReadonly()),
       getStatus: vi.fn().mockReturnValue(playerStatusSignal.asReadonly()),
       isLoading: vi.fn().mockReturnValue(signal(false).asReadonly()),
@@ -75,11 +81,24 @@ describe('PlayerToolbarComponent', () => {
       toggleShuffleMode: vi.fn(),
       setShuffleScope: vi.fn(),
       setFilterMode: vi.fn(),
-      getLaunchMode: vi.fn().mockReturnValue(signal(LaunchMode.Directory).asReadonly()),
+      getLaunchMode: vi.fn().mockReturnValue(launchModeSignal.asReadonly()),
       getShuffleSettings: vi.fn().mockReturnValue(signal(null).asReadonly()),
 
       // Phase 5: Timer state (for progress bar)
       getTimerState: vi.fn().mockReturnValue(signal(null).asReadonly()),
+
+      // File compatibility
+      isCurrentFileCompatible: vi.fn().mockReturnValue(fileCompatibleSignal.asReadonly()),
+
+      // Play history
+      getPlayHistory: vi.fn().mockReturnValue(signal(null).asReadonly()),
+      getCurrentHistoryPosition: vi.fn().mockReturnValue(signal(0).asReadonly()),
+      canNavigateBackwardInHistory: vi.fn().mockReturnValue(signal(false).asReadonly()),
+      canNavigateForwardInHistory: vi.fn().mockReturnValue(signal(false).asReadonly()),
+      clearHistory: vi.fn(),
+      toggleHistoryView: vi.fn(),
+      isHistoryViewVisible: vi.fn().mockReturnValue(signal(false).asReadonly()),
+      navigateToHistoryPosition: vi.fn().mockResolvedValue(undefined),
     } satisfies IPlayerContext;
 
     await TestBed.configureTestingModule({
@@ -231,19 +250,19 @@ describe('PlayerToolbarComponent', () => {
   describe('UI Helper Methods', () => {
     describe('getPlayPauseIcon()', () => {
       it('should return "play_arrow" when status is Stopped', () => {
-        mockPlayerContext.getPlayerStatus.mockReturnValue(signal(PlayerStatus.Stopped).asReadonly());
+        playerStatusSignal.set(PlayerStatus.Stopped);
         
         expect(component.getPlayPauseIcon()).toBe('play_arrow');
       });
 
       it('should return "play_arrow" when status is Paused', () => {
-        mockPlayerContext.getPlayerStatus.mockReturnValue(signal(PlayerStatus.Paused).asReadonly());
+        playerStatusSignal.set(PlayerStatus.Paused);
         
         expect(component.getPlayPauseIcon()).toBe('play_arrow');
       });
 
       it('should return "pause" when status is Playing', () => {
-        mockPlayerContext.getPlayerStatus.mockReturnValue(signal(PlayerStatus.Playing).asReadonly());
+        playerStatusSignal.set(PlayerStatus.Playing);
         
         expect(component.getPlayPauseIcon()).toBe('pause');
       });
@@ -257,19 +276,19 @@ describe('PlayerToolbarComponent', () => {
 
     describe('getPlayPauseLabel()', () => {
       it('should return "Play" when status is Stopped', () => {
-        mockPlayerContext.getPlayerStatus.mockReturnValue(signal(PlayerStatus.Stopped).asReadonly());
+        playerStatusSignal.set(PlayerStatus.Stopped);
         
         expect(component.getPlayPauseLabel()).toBe('Play');
       });
 
       it('should return "Play" when status is Paused', () => {
-        mockPlayerContext.getPlayerStatus.mockReturnValue(signal(PlayerStatus.Paused).asReadonly());
+        playerStatusSignal.set(PlayerStatus.Paused);
         
         expect(component.getPlayPauseLabel()).toBe('Play');
       });
 
       it('should return "Pause" when status is Playing', () => {
-        mockPlayerContext.getPlayerStatus.mockReturnValue(signal(PlayerStatus.Playing).asReadonly());
+        playerStatusSignal.set(PlayerStatus.Playing);
         
         expect(component.getPlayPauseLabel()).toBe('Pause');
       });
@@ -284,51 +303,42 @@ describe('PlayerToolbarComponent', () => {
     describe('isCurrentFileMusicType()', () => {
       it('should return true when current file is a Song', () => {
         const musicFile = createFileMock(FileItemType.Song);
-        mockPlayerContext.getCurrentFile.mockReturnValue(
-          signal({ 
-            storageKey: 'test-key',
-            file: musicFile,
-            parentPath: '/test',
-            launchedAt: Date.now(),
-            launchMode: LaunchMode.Directory
-          }).asReadonly()
-        );
+        currentFileSignal.set({ 
+          deviceId: 'test-device-id',
+          storageType: 0,
+          file: musicFile,
+          isShuffleMode: false
+        });
         
         expect(component.isCurrentFileMusicType()).toBe(true);
       });
 
       it('should return false when current file is a Game', () => {
         const gameFile = createFileMock(FileItemType.Game);
-        mockPlayerContext.getCurrentFile.mockReturnValue(
-          signal({ 
-            storageKey: 'test-key',
-            file: gameFile,
-            parentPath: '/test',
-            launchedAt: Date.now(),
-            launchMode: LaunchMode.Directory
-          }).asReadonly()
-        );
+        currentFileSignal.set({ 
+          deviceId: 'test-device-id',
+          storageType: 0,
+          file: gameFile,
+          isShuffleMode: false
+        });
         
         expect(component.isCurrentFileMusicType()).toBe(false);
       });
 
       it('should return false when current file is an Image', () => {
         const imageFile = createFileMock(FileItemType.Image);
-        mockPlayerContext.getCurrentFile.mockReturnValue(
-          signal({ 
-            storageKey: 'test-key',
-            file: imageFile,
-            parentPath: '/test',
-            launchedAt: Date.now(),
-            launchMode: LaunchMode.Directory
-          }).asReadonly()
-        );
+        currentFileSignal.set({ 
+          deviceId: 'test-device-id',
+          storageType: 0,
+          file: imageFile,
+          isShuffleMode: false
+        });
         
         expect(component.isCurrentFileMusicType()).toBe(false);
       });
 
       it('should return false when no current file', () => {
-        mockPlayerContext.getCurrentFile.mockReturnValue(signal(null).asReadonly());
+        currentFileSignal.set(null);
         
         expect(component.isCurrentFileMusicType()).toBe(false);
       });
@@ -343,44 +353,36 @@ describe('PlayerToolbarComponent', () => {
     describe('canNavigate()', () => {
       it('should return true when file context has multiple files', () => {
         const files = [createFileMock(FileItemType.Song), createFileMock(FileItemType.Song)];
-        mockPlayerContext.getFileContext.mockReturnValue(
-          signal({
-            storageKey: 'test-key',
-            directoryPath: '/test',
-            files,
-            currentIndex: 0,
-            launchMode: LaunchMode.Directory
-          }).asReadonly()
-        );
+        fileContextSignal.set({
+          directoryPath: '/test',
+          files,
+          currentIndex: 0
+        });
         
         expect(component.canNavigate()).toBe(true);
       });
 
       it('should return false when file context has only one file', () => {
         const files = [createFileMock(FileItemType.Song)];
-        mockPlayerContext.getFileContext.mockReturnValue(
-          signal({
-            storageKey: 'test-key',
-            directoryPath: '/test',
-            files,
-            currentIndex: 0,
-            launchMode: LaunchMode.Directory
-          }).asReadonly()
-        );
+        fileContextSignal.set({
+          directoryPath: '/test',
+          files,
+          currentIndex: 0
+        });
         
         expect(component.canNavigate()).toBe(false);
       });
 
       it('should return true when in shuffle mode regardless of file context', () => {
-        mockPlayerContext.getLaunchMode.mockReturnValue(signal(LaunchMode.Shuffle).asReadonly());
-        mockPlayerContext.getFileContext.mockReturnValue(signal(null).asReadonly());
+        launchModeSignal.set(LaunchMode.Shuffle);
+        fileContextSignal.set(null);
         
         expect(component.canNavigate()).toBe(true);
       });
 
       it('should return false when no file context and not in shuffle mode', () => {
-        mockPlayerContext.getLaunchMode.mockReturnValue(signal(LaunchMode.Directory).asReadonly());
-        mockPlayerContext.getFileContext.mockReturnValue(signal(null).asReadonly());
+        launchModeSignal.set(LaunchMode.Directory);
+        fileContextSignal.set(null);
         
         expect(component.canNavigate()).toBe(false);
       });
@@ -395,15 +397,11 @@ describe('PlayerToolbarComponent', () => {
     describe('canNavigatePrevious()', () => {
       it('should use same logic as canNavigate()', () => {
         const files = [createFileMock(FileItemType.Song), createFileMock(FileItemType.Song)];
-        mockPlayerContext.getFileContext.mockReturnValue(
-          signal({
-            storageKey: 'test-key',
-            directoryPath: '/test',
-            files,
-            currentIndex: 0,
-            launchMode: LaunchMode.Directory
-          }).asReadonly()
-        );
+        fileContextSignal.set({
+          directoryPath: '/test',
+          files,
+          currentIndex: 0
+        });
         
         expect(component.canNavigatePrevious()).toBe(component.canNavigate());
         expect(component.canNavigatePrevious()).toBe(true);
@@ -412,7 +410,7 @@ describe('PlayerToolbarComponent', () => {
 
     describe('getPlayerStatus()', () => {
       it('should return current player status from context', () => {
-        mockPlayerContext.getPlayerStatus.mockReturnValue(signal(PlayerStatus.Playing).asReadonly());
+        playerStatusSignal.set(PlayerStatus.Playing);
         
         expect(component.getPlayerStatus()).toBe(PlayerStatus.Playing);
       });
@@ -429,15 +427,12 @@ describe('PlayerToolbarComponent', () => {
     beforeEach(() => {
       // Set up a mock file context for button state tests
       const musicFile = createFileMock(FileItemType.Song);
-      mockPlayerContext.getCurrentFile.mockReturnValue(
-        signal({ 
-          storageKey: 'test-key',
-          file: musicFile,
-          parentPath: '/test',
-          launchedAt: Date.now(),
-          launchMode: LaunchMode.Directory
-        }).asReadonly()
-      );
+      currentFileSignal.set({ 
+        deviceId: 'test-device-id',
+        storageType: 0,
+        file: musicFile,
+        isShuffleMode: false
+      });
     });
 
     it('should show play/pause button for music files', () => {
@@ -450,15 +445,12 @@ describe('PlayerToolbarComponent', () => {
 
     it('should show stop button for non-music files', () => {
       const gameFile = createFileMock(FileItemType.Game);
-      mockPlayerContext.getCurrentFile.mockReturnValue(
-        signal({ 
-          storageKey: 'test-key',
-          file: gameFile,
-          parentPath: '/test',
-          launchedAt: Date.now(),
-          launchMode: LaunchMode.Directory
-        }).asReadonly()
-      );
+      currentFileSignal.set({ 
+        deviceId: 'test-device-id',
+        storageType: 0,
+        file: gameFile,
+        isShuffleMode: false
+      });
       
       fixture.detectChanges();
       
@@ -468,8 +460,8 @@ describe('PlayerToolbarComponent', () => {
     });
 
     it('should disable navigation buttons when canNavigate returns false', () => {
-      mockPlayerContext.getFileContext.mockReturnValue(signal(null).asReadonly());
-      mockPlayerContext.getLaunchMode.mockReturnValue(signal(LaunchMode.Directory).asReadonly());
+      fileContextSignal.set(null);
+      launchModeSignal.set(LaunchMode.Directory);
       
       fixture.detectChanges();
       
@@ -484,15 +476,13 @@ describe('PlayerToolbarComponent', () => {
 
     it('should enable navigation buttons when canNavigate returns true', () => {
       const files = [createFileMock(FileItemType.Song), createFileMock(FileItemType.Song)];
-      mockPlayerContext.getFileContext.mockReturnValue(
-        signal({
-          storageKey: 'test-key',
-          directoryPath: '/test',
-          files,
-          currentIndex: 0,
-          launchMode: LaunchMode.Directory
-        }).asReadonly()
-      );
+      fileContextSignal.set({
+        storageKey: 'test-key',
+        directoryPath: '/test',
+        files,
+        currentIndex: 0,
+        launchMode: LaunchMode.Directory
+      });
       
       fixture.detectChanges();
       
@@ -516,15 +506,12 @@ describe('PlayerToolbarComponent', () => {
       
       // Set up music file to show play/pause button
       const musicFile = createFileMock(FileItemType.Song);
-      mockPlayerContext.getCurrentFile.mockReturnValue(
-        signal({ 
-          storageKey: 'test-key',
-          file: musicFile,
-          parentPath: '/test',
-          launchedAt: Date.now(),
-          launchMode: LaunchMode.Directory
-        }).asReadonly()
-      );
+      currentFileSignal.set({ 
+        deviceId: 1,
+        storageType: StorageType.Sd,
+        file: musicFile,
+        isShuffleMode: false
+      });
       
       fixture.detectChanges();
       
@@ -544,27 +531,22 @@ describe('PlayerToolbarComponent', () => {
 
       // Need to have a file loaded for toolbar to be visible
       const musicFile = createFileMock(FileItemType.Song);
-      mockPlayerContext.getCurrentFile.mockReturnValue(
-        signal({
-          storageKey: 'test-key',
-          file: musicFile,
-          parentPath: '/test',
-          launchedAt: Date.now(),
-          launchMode: LaunchMode.Directory
-        }).asReadonly()
-      );
+      currentFileSignal.set({
+        deviceId: 1,
+        storageType: StorageType.Sd,
+        file: musicFile,
+        isShuffleMode: false
+      });
 
       // Enable navigation
       const files = [createFileMock(FileItemType.Song), createFileMock(FileItemType.Song)];
-      mockPlayerContext.getFileContext.mockReturnValue(
-        signal({
-          storageKey: 'test-key',
-          directoryPath: '/test',
-          files,
-          currentIndex: 0,
-          launchMode: LaunchMode.Directory
-        }).asReadonly()
-      );
+      fileContextSignal.set({
+        storageKey: 'test-key',
+        directoryPath: '/test',
+        files,
+        currentIndex: 0,
+        launchMode: LaunchMode.Directory
+      });
 
       fixture.detectChanges();
 
@@ -584,27 +566,28 @@ describe('PlayerToolbarComponent', () => {
 
       // Need to have a file loaded for toolbar to be visible
       const musicFile = createFileMock(FileItemType.Song);
-      mockPlayerContext.getCurrentFile.mockReturnValue(
-        signal({
-          storageKey: 'test-key',
-          file: musicFile,
-          parentPath: '/test',
-          launchedAt: Date.now(),
-          launchMode: LaunchMode.Directory
-        }).asReadonly()
-      );
+      currentFileSignal.set({
+        deviceId: 1,
+        storageType: StorageType.Sd,
+        file: musicFile,
+        isShuffleMode: false
+      });
+      currentFileSignal.set({
+        deviceId: 1,
+        storageType: StorageType.Sd,
+        file: musicFile,
+        isShuffleMode: false
+      });
 
       // Enable navigation
       const files = [createFileMock(FileItemType.Song), createFileMock(FileItemType.Song)];
-      mockPlayerContext.getFileContext.mockReturnValue(
-        signal({
-          storageKey: 'test-key',
-          directoryPath: '/test',
-          files,
-          currentIndex: 0,
-          launchMode: LaunchMode.Directory
-        }).asReadonly()
-      );
+      fileContextSignal.set({
+        storageKey: 'test-key',
+        directoryPath: '/test',
+        files,
+        currentIndex: 0,
+        launchMode: LaunchMode.Directory
+      });
 
       fixture.detectChanges();
 
@@ -621,60 +604,53 @@ describe('PlayerToolbarComponent', () => {
   });
 
   describe('Phase 4: Error State Visual Feedback', () => {
-    it('should show error color on next button when error exists', () => {
-      errorSignal.set('Navigation failed');
+    it('should show error color on play button when file is incompatible', () => {
+      // Set file as incompatible
+      fileCompatibleSignal.set(false);
+      
       currentFileSignal.set({
-        storageKey: 'test-key',
+        deviceId: 1,
+        storageType: StorageType.Sd,
         file: createFileMock(FileItemType.Song),
-        parentPath: '/test',
-        launchedAt: Date.now(),
-        launchMode: LaunchMode.Directory
+        isShuffleMode: false
       });
       fixture.detectChanges();
 
-      expect(component.getButtonColor()).toBe('error');
+      expect(component.getPlayButtonColor()).toBe('error');
     });
 
-    it('should show error color on previous button when error exists', () => {
-      errorSignal.set('Previous failed');
+    it('should show normal color on play button when file is compatible', () => {
+      // File is compatible (already set up in beforeEach)
       currentFileSignal.set({
-        storageKey: 'test-key',
+        deviceId: 1,
+        storageType: StorageType.Sd,
         file: createFileMock(FileItemType.Song),
-        parentPath: '/test',
-        launchedAt: Date.now(),
-        launchMode: LaunchMode.Directory
+        isShuffleMode: false
       });
       fixture.detectChanges();
 
-      expect(component.getButtonColor()).toBe('error');
+      expect(component.getPlayButtonColor()).toBe('normal');
     });
 
-    it('should show error color on play/pause button when error exists', () => {
-      errorSignal.set('Playback error');
-      currentFileSignal.set({
-        storageKey: 'test-key',
-        file: createFileMock(FileItemType.Song),
-        parentPath: '/test',
-        launchedAt: Date.now(),
-        launchMode: LaunchMode.Directory
-      });
+    it('should show normal color when no file is loaded', () => {
+      currentFileSignal.set(null);
       fixture.detectChanges();
 
-      expect(component.getButtonColor()).toBe('error');
+      expect(component.getPlayButtonColor()).toBe('normal');
     });
 
-    it('should show normal color on buttons when no error exists', () => {
+    it('should detect errors with hasError computed property', () => {
+      errorSignal.set('Test error');
+      fixture.detectChanges();
+
+      expect(component.hasError()).toBe(true);
+    });
+
+    it('should show no error when error is null', () => {
       errorSignal.set(null);
-      currentFileSignal.set({
-        storageKey: 'test-key',
-        file: createFileMock(FileItemType.Song),
-        parentPath: '/test',
-        launchedAt: Date.now(),
-        launchMode: LaunchMode.Directory
-      });
       fixture.detectChanges();
 
-      expect(component.getButtonColor()).toBe('normal');
+      expect(component.hasError()).toBe(false);
     });
   });
 });

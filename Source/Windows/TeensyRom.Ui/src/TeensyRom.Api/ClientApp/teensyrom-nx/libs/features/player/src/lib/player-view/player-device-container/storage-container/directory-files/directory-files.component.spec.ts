@@ -26,7 +26,7 @@ import {
 describe('DirectoryFilesComponent', () => {
   let component: DirectoryFilesComponent;
   let fixture: ComponentFixture<DirectoryFilesComponent>;
-  let mockStorageStore: Partial<StorageStore>;
+  let mockStorageStore: Partial<typeof StorageStore>;
   let mockPlayerContext: Partial<IPlayerContext>;
 
   const mockDirectoryItem: DirectoryItem = {
@@ -54,6 +54,7 @@ describe('DirectoryFilesComponent', () => {
     subtuneLengths: [],
     startSubtuneNum: 0,
     images: [],
+    isCompatible: true,
   };
 
   const mockStorageService: Partial<IStorageService> = {    getDirectory: () => of({} as StorageDirectory),
@@ -176,11 +177,16 @@ describe('DirectoryFilesComponent', () => {
 
   it('should trigger player context when file is double-clicked via template', () => {
     const fileElement: HTMLElement | null = fixture.nativeElement.querySelector(
-      'lib-file-item .file-item'
+      'lib-file-item'
     );
     expect(fileElement).toBeTruthy();
 
-    fileElement?.dispatchEvent(new MouseEvent('dblclick'));
+    // Trigger the double-click on the lib-storage-item which emits the activated event
+    const storageItemElement = fileElement?.querySelector('lib-storage-item');
+    expect(storageItemElement).toBeTruthy();
+    
+    storageItemElement?.dispatchEvent(new MouseEvent('dblclick'));
+    fixture.detectChanges();
 
     expect(mockPlayerContext.launchFileWithContext).toHaveBeenCalled();
   });
@@ -206,7 +212,7 @@ describe('DirectoryFilesComponent', () => {
     expect(component.isCurrentlyPlaying(fileItem)).toBe(false);
     
     // Get the signal and update it
-    (mockPlayerContext.getCurrentFile as vi.MockedFunction<() => unknown>).mockReturnValue(
+    (mockPlayerContext.getCurrentFile as ReturnType<typeof vi.fn>).mockReturnValue(
       signal({
         deviceId: 'device-1',
         storageType: StorageType.Sd,
@@ -229,7 +235,7 @@ describe('DirectoryFilesComponent', () => {
     const fileItem = combined[1] as FileItem;
     
     // Mock both signals with the playing file and context
-    (mockPlayerContext.getCurrentFile as vi.MockedFunction<() => unknown>).mockReturnValue(
+    (mockPlayerContext.getCurrentFile as ReturnType<typeof vi.fn>).mockReturnValue(
       signal({
         deviceId: 'device-1',
         storageType: StorageType.Sd,
@@ -238,7 +244,7 @@ describe('DirectoryFilesComponent', () => {
       }).asReadonly()
     );
     
-    (mockPlayerContext.getFileContext as vi.MockedFunction<() => unknown>).mockReturnValue(
+    (mockPlayerContext.getFileContext as ReturnType<typeof vi.fn>).mockReturnValue(
       signal({
         directoryPath: '/test',
         files: [mockFileItem],
@@ -264,7 +270,7 @@ describe('DirectoryFilesComponent', () => {
 
     it('should return true from hasCurrentFileError when error exists', () => {
       const errorSignal = signal<string | null>('Launch failed: Incompatible file format');
-      (mockPlayerContext.getError as vi.MockedFunction<() => unknown>).mockReturnValue(
+      (mockPlayerContext.getError as ReturnType<typeof vi.fn>).mockReturnValue(
         errorSignal.asReadonly()
       );
 
@@ -282,7 +288,7 @@ describe('DirectoryFilesComponent', () => {
       const fileItem = combined[1] as FileItem;
 
       // Set file as currently playing
-      (mockPlayerContext.getCurrentFile as vi.MockedFunction<() => unknown>).mockReturnValue(
+      (mockPlayerContext.getCurrentFile as ReturnType<typeof vi.fn>).mockReturnValue(
         signal({
           deviceId: 'device-1',
           storageType: StorageType.Sd,
@@ -311,7 +317,7 @@ describe('DirectoryFilesComponent', () => {
 
       // Set file as currently playing with error
       const errorSignal = signal<string | null>('Launch failed: Incompatible file format');
-      (mockPlayerContext.getCurrentFile as vi.MockedFunction<() => unknown>).mockReturnValue(
+      (mockPlayerContext.getCurrentFile as ReturnType<typeof vi.fn>).mockReturnValue(
         signal({
           deviceId: 'device-1',
           storageType: StorageType.Sd,
@@ -319,7 +325,7 @@ describe('DirectoryFilesComponent', () => {
           isShuffleMode: false
         }).asReadonly()
       );
-      (mockPlayerContext.getError as vi.MockedFunction<() => unknown>).mockReturnValue(
+      (mockPlayerContext.getError as ReturnType<typeof vi.fn>).mockReturnValue(
         errorSignal.asReadonly()
       );
 

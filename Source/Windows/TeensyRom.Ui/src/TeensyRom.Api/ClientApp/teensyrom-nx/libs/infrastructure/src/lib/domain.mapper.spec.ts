@@ -9,7 +9,7 @@ import {
   FileItemType as ApiFileItemType,
   TeensyStorageType as ApiStorageType,
   DeviceState as ApiDeviceState,
-  LaunchRandomFilterTypeEnum,
+  NullableOfTeensyFilterType,
   LaunchRandomScopeEnum,
 } from '@teensyrom-nx/data-access/api-client';
 import { DomainMapper } from './domain.mapper';
@@ -639,29 +639,29 @@ describe('DomainMapper (Player)', () => {
   });
 
   describe('toApiPlayerFilter', () => {
-    it('should map PlayerFilterType.All to LaunchRandomFilterTypeEnum.All', () => {
+    it('should map PlayerFilterType.All to NullableOfTeensyFilterType.All', () => {
       const result = DomainMapper.toApiPlayerFilter(PlayerFilterType.All);
-      expect(result).toBe(LaunchRandomFilterTypeEnum.All);
+      expect(result).toBe(NullableOfTeensyFilterType.All);
     });
 
-    it('should map PlayerFilterType.Games to LaunchRandomFilterTypeEnum.Games', () => {
+    it('should map PlayerFilterType.Games to NullableOfTeensyFilterType.Games', () => {
       const result = DomainMapper.toApiPlayerFilter(PlayerFilterType.Games);
-      expect(result).toBe(LaunchRandomFilterTypeEnum.Games);
+      expect(result).toBe(NullableOfTeensyFilterType.Games);
     });
 
-    it('should map PlayerFilterType.Music to LaunchRandomFilterTypeEnum.Music', () => {
+    it('should map PlayerFilterType.Music to NullableOfTeensyFilterType.Music', () => {
       const result = DomainMapper.toApiPlayerFilter(PlayerFilterType.Music);
-      expect(result).toBe(LaunchRandomFilterTypeEnum.Music);
+      expect(result).toBe(NullableOfTeensyFilterType.Music);
     });
 
-    it('should map PlayerFilterType.Images to LaunchRandomFilterTypeEnum.Images', () => {
+    it('should map PlayerFilterType.Images to NullableOfTeensyFilterType.Images', () => {
       const result = DomainMapper.toApiPlayerFilter(PlayerFilterType.Images);
-      expect(result).toBe(LaunchRandomFilterTypeEnum.Images);
+      expect(result).toBe(NullableOfTeensyFilterType.Images);
     });
 
-    it('should map PlayerFilterType.Hex to LaunchRandomFilterTypeEnum.Hex', () => {
+    it('should map PlayerFilterType.Hex to NullableOfTeensyFilterType.Hex', () => {
       const result = DomainMapper.toApiPlayerFilter(PlayerFilterType.Hex);
-      expect(result).toBe(LaunchRandomFilterTypeEnum.Hex);
+      expect(result).toBe(NullableOfTeensyFilterType.Hex);
     });
   });
 });

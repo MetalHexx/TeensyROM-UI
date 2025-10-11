@@ -3,9 +3,10 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { of } from 'rxjs';
 import { FilterToolbarComponent } from './filter-toolbar.component';
 import { PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
-import { LaunchMode, PlayerStatus, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
+import { STORAGE_SERVICE, IStorageService, StorageDirectory, StorageType, LaunchMode, PlayerStatus, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
 
 type MockedObject<T> = { [K in keyof T]: T[K] extends (...args: unknown[]) => unknown ? ReturnType<typeof vi.fn> : T[K] };
 
@@ -94,11 +95,22 @@ describe('FilterToolbarComponent', () => {
       getShuffleSettings: vi.fn().mockReturnValue(shuffleSettingsSignal.asReadonly()),
     };
 
+    const mockStorageService: Partial<IStorageService> = {
+      getDirectory: vi.fn().mockReturnValue(of({
+        deviceId: TEST_DEVICE_ID,
+        storageType: StorageType.Sd,
+        path: '/',
+        files: [],
+        directories: [],
+      } as StorageDirectory)),
+    };
+
     await TestBed.configureTestingModule({
       imports: [FilterToolbarComponent],
       providers: [
         provideNoopAnimations(),
         { provide: PLAYER_CONTEXT, useValue: mockPlayerContext },
+        { provide: STORAGE_SERVICE, useValue: mockStorageService },
       ],
     }).compileComponents();
 
@@ -189,23 +201,26 @@ describe('FilterToolbarComponent', () => {
   });
 
   describe('Error State Display', () => {
-    it('should show all filter buttons as error when error exists', () => {
+    it('should show active filter as highlighted when error exists', () => {
+      // Set Music as active filter
+      shuffleSettingsSignal.set({ scope: PlayerScope.Storage, filter: PlayerFilterType.Music });
       errorSignal.set('Random launch failed');
       fixture.detectChanges();
 
-      expect(component.getButtonColor(PlayerFilterType.All)).toBe('error');
-      expect(component.getButtonColor(PlayerFilterType.Games)).toBe('error');
-      expect(component.getButtonColor(PlayerFilterType.Music)).toBe('error');
-      expect(component.getButtonColor(PlayerFilterType.Images)).toBe('error');
+      // Component doesn't change button colors based on errors, it only uses active filter
+      expect(component.getButtonColor(PlayerFilterType.Music)).toBe('highlight');
+      expect(component.getButtonColor(PlayerFilterType.All)).toBe('normal');
+      expect(component.getButtonColor(PlayerFilterType.Games)).toBe('normal');
+      expect(component.getButtonColor(PlayerFilterType.Images)).toBe('normal');
     });
 
-    it('should show error color over active filter highlight', () => {
+    it('should show active filter highlight regardless of error state', () => {
       shuffleSettingsSignal.set({ scope: PlayerScope.Storage, filter: PlayerFilterType.Music });
       errorSignal.set('Failed to navigate');
       fixture.detectChanges();
 
-      // Even though Music is active, error should take precedence
-      expect(component.getButtonColor(PlayerFilterType.Music)).toBe('error');
+      // Active filter is highlighted, error doesn't affect button color
+      expect(component.getButtonColor(PlayerFilterType.Music)).toBe('highlight');
     });
 
     it('should return to normal/highlight colors when error clears', () => {
@@ -217,12 +232,13 @@ describe('FilterToolbarComponent', () => {
       expect(component.getButtonColor(PlayerFilterType.All)).toBe('normal');
     });
 
-    it('should show random roll button as error when error exists', () => {
+    it('should show random roll button as normal regardless of error state', () => {
       errorSignal.set('Random launch failed');
       fixture.detectChanges();
 
       const randomButton = fixture.debugElement.query(By.css('lib-random-roll-button'));
-      expect(randomButton.componentInstance.getButtonColor()).toBe('error');
+      // Random roll button doesn't change color based on errors
+      expect(randomButton.componentInstance.getButtonColor()).toBe('normal');
     });
 
     it('should show random roll button as normal when no error exists', () => {

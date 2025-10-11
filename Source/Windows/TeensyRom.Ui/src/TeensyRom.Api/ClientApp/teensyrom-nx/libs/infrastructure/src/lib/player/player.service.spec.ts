@@ -6,7 +6,6 @@ import {
   LaunchFileResponse,
   LaunchRandomResponse,
   ToggleMusicResponse,
-  ResetDeviceResponse,
   TeensyStorageType,
   FileItemDto,
   FileItemType as ApiFileItemType,
@@ -79,6 +78,7 @@ describe('PlayerService', () => {
       const response: LaunchFileResponse = {
         message: 'Launched',
         launchedFile: createFileItemDto(),
+        isCompatible: true,
       };
 
       mockPlayerApi.launchFile.mockResolvedValue(response);
@@ -138,6 +138,7 @@ describe('PlayerService', () => {
       const response: LaunchRandomResponse = {
         launchedFile: createFileItemDto(),
         message: 'Random launched',
+        isCompatible: true,
       };
 
       mockPlayerApi.launchRandom.mockResolvedValue(response);
@@ -153,8 +154,9 @@ describe('PlayerService', () => {
 
       expect(mockPlayerApi.launchRandom).toHaveBeenCalledWith({
         deviceId: 'device-9',
-        scope: 'DIRECTORY_SHALLOW',
-        filter: 'MUSIC',
+        storageType: TeensyStorageType.Sd,
+        scope: 'DirShallow',
+        filterType: 'Music',
         startingDirectory: '/music',
       });
       expect(result.name).toBe('Test File');
@@ -165,6 +167,7 @@ describe('PlayerService', () => {
       const response: LaunchRandomResponse = {
         launchedFile: createFileItemDto(),
         message: 'Random launched',
+        isCompatible: true,
       };
 
       mockPlayerApi.launchRandom.mockResolvedValue(response);
@@ -180,8 +183,9 @@ describe('PlayerService', () => {
 
       expect(mockPlayerApi.launchRandom).toHaveBeenCalledWith({
         deviceId: 'device-1',
-        scope: 'STORAGE',
-        filter: 'ALL',
+        storageType: TeensyStorageType.Sd,
+        scope: 'Storage',
+        filterType: 'All',
         startingDirectory: undefined,
       });
     });
@@ -190,6 +194,7 @@ describe('PlayerService', () => {
       const response: LaunchRandomResponse = {
         launchedFile: createFileItemDto(),
         message: 'Random launched',
+        isCompatible: true,
       };
 
       mockPlayerApi.launchRandom.mockResolvedValue(response);
@@ -206,8 +211,9 @@ describe('PlayerService', () => {
 
       expect(mockPlayerApi.launchRandom).toHaveBeenCalledWith({
         deviceId: 'device-1',
-        scope: 'DIRECTORY_DEEP',
-        filter: 'GAMES',
+        storageType: TeensyStorageType.Sd,
+        scope: 'DirDeep',
+        filterType: 'Games',
         startingDirectory: undefined,
       });
     });
@@ -300,13 +306,14 @@ describe('PlayerService', () => {
           })
         ).rejects.toThrow('Music toggle failed');
 
-        expect(consoleSpy).toHaveBeenCalledWith('PlayerService toggleMusic failed:', error);
+        expect(consoleSpy).toHaveBeenCalledWith('❌ PlayerService toggleMusic failed:', error);
         consoleSpy.mockRestore();
       });
 
-      it('should provide meaningful error message for unknown errors', async () => {
+      it('should re-throw errors from API', async () => {
         const deviceId = 'device-123';
-        mockPlayerApi.toggleMusic.mockRejectedValue(new Error());
+        const error = new Error();
+        mockPlayerApi.toggleMusic.mockRejectedValue(error);
 
         await expect(
           new Promise((resolve, reject) => {
@@ -315,77 +322,7 @@ describe('PlayerService', () => {
               error: reject,
             });
           })
-        ).rejects.toThrow('Failed to toggle music');
-      });
-    });
-
-    describe('resetDevice', () => {
-      it('should call resetDevice API and return void', async () => {
-        const deviceId = 'device-456';
-        const response: ResetDeviceResponse = {
-          message: 'Device reset successfully',
-        };
-
-        mockDevicesApi.resetDevice.mockResolvedValue(response);
-
-        const result = await new Promise<void>((resolve, reject) => {
-          service.resetDevice(deviceId).subscribe({
-            next: resolve,
-            error: reject,
-          });
-        });
-
-        expect(mockDevicesApi.resetDevice).toHaveBeenCalledWith({ deviceId });
-        expect(result).toBeUndefined(); // Should return void
-      });
-
-      it('should handle API errors with logging', async () => {
-        const deviceId = 'device-456';
-        const error = new Error('Device reset failed');
-        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-        
-        mockDevicesApi.resetDevice.mockRejectedValue(error);
-
-        await expect(
-          new Promise((resolve, reject) => {
-            service.resetDevice(deviceId).subscribe({
-              next: resolve,
-              error: reject,
-            });
-          })
-        ).rejects.toThrow('Device reset failed');
-
-        expect(consoleSpy).toHaveBeenCalledWith('PlayerService resetDevice failed:', error);
-        consoleSpy.mockRestore();
-      });
-
-      it('should provide meaningful error message for unknown errors', async () => {
-        const deviceId = 'device-456';
-        mockDevicesApi.resetDevice.mockRejectedValue(new Error());
-
-        await expect(
-          new Promise((resolve, reject) => {
-            service.resetDevice(deviceId).subscribe({
-              next: resolve,
-              error: reject,
-            });
-          })
-        ).rejects.toThrow('Failed to reset device');
-      });
-
-      it('should handle successful response regardless of content', async () => {
-        const deviceId = 'device-456';
-        // Test that any successful response works (API just needs to complete)
-        mockDevicesApi.resetDevice.mockResolvedValue({ message: 'Reset complete' });
-
-        const result = await new Promise<void>((resolve, reject) => {
-          service.resetDevice(deviceId).subscribe({
-            next: resolve,
-            error: reject,
-          });
-        });
-
-        expect(result).toBeUndefined();
+        ).rejects.toThrow(error);
       });
     });
   });
@@ -402,6 +339,7 @@ describe('PlayerService', () => {
       const response: LaunchFileResponse = {
         message: 'Launched',
         launchedFile: incompatibleFile,
+        isCompatible: false,
       };
 
       mockPlayerApi.launchFile.mockResolvedValue(response);
@@ -428,6 +366,7 @@ describe('PlayerService', () => {
       const response: LaunchFileResponse = {
         message: 'Launched',
         launchedFile: compatibleFile,
+        isCompatible: true,
       };
 
       mockPlayerApi.launchFile.mockResolvedValue(response);
@@ -453,6 +392,7 @@ describe('PlayerService', () => {
       const response: LaunchRandomResponse = {
         launchedFile: incompatibleFile,
         message: 'Random launched',
+        isCompatible: false,
       };
 
       mockPlayerApi.launchRandom.mockResolvedValue(response);

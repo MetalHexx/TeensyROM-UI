@@ -20,9 +20,9 @@ describe('LogType enum', () => {
     expect(LogType.Midi).toBe('🎹');
   });
 
-  it('should have exactly 15 log types', () => {
+  it('should have exactly 22 log types', () => {
     const logTypeValues = Object.values(LogType);
-    expect(logTypeValues).toHaveLength(15);
+    expect(logTypeValues).toHaveLength(22);
   });
 });
 
