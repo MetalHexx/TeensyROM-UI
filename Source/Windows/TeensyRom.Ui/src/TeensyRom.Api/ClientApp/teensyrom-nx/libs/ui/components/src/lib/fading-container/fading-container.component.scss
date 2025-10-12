@@ -6,10 +6,12 @@
   // When visible, put on top with high z-index
   &.visible {
     z-index: 1000;
+    pointer-events: auto;
   }
 
-  // When hidden/animating out, put below with low z-index
+  // When hidden/animating out, put below with low z-index and hide from interaction
   &.hidden {
     z-index: 1;
+    pointer-events: none;
   }
 }

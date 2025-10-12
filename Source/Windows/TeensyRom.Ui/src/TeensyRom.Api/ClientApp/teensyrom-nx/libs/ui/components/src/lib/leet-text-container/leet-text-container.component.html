@@ -1,0 +1,12 @@
+<div class="leet-text">
+  @if (showFrontSpinner()) {
+    <span class="spinner">{{ spinnerChar() }}</span>
+  }
+  {{ displayText() }}
+  @if (showBackSpinner()) {
+    <span class="spinner">{{ spinnerChar() }}</span>
+  }
+</div>
+<div style="display: none;">
+  <ng-content></ng-content>
+</div>

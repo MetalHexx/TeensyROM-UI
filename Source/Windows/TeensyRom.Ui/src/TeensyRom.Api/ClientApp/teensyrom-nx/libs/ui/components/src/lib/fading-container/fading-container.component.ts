@@ -36,7 +36,7 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
           opacity: 1,
           filter: 'blur(0px)'
         }))
-      ], { params: { duration: 800 } }),
+      ], { params: { duration: 200 } }),
       transition('hidden => visible', [
         style({
           opacity: 0,
@@ -46,7 +46,7 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
           opacity: 1,
           filter: 'blur(0px)'
         }))
-      ], { params: { duration: 800 } }),
+      ], { params: { duration: 200 } }),
       transition('visible => hidden', [
         style({
           opacity: 1,
@@ -56,7 +56,7 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
           opacity: 0,
           filter: 'blur(10px)'
         }))
-      ], { params: { duration: 800 } })
+      ], { params: { duration: 200 } })
     ])
   ]
 })
@@ -65,9 +65,9 @@ export class FadingContainerComponent {
   animationTrigger = input<boolean | undefined>(undefined);
 
   /**
-   * Animation duration in milliseconds (default: 800ms)
+   * Animation duration in milliseconds (default: 200ms)
    */
-  animationDuration = input<number>(800);
+  animationDuration = input<number>(200);
 
   /**
    * Controls whether this component waits for parent animations:
@@ -151,7 +151,7 @@ export class FadingContainerComponent {
   constructor() {
     effect(() => {
       const shouldShow = this.shouldRender();
-      
+
       // If we should show, ensure we're in the DOM before animation starts
       if (shouldShow) {
         this.shouldBeInDom.set(true);
