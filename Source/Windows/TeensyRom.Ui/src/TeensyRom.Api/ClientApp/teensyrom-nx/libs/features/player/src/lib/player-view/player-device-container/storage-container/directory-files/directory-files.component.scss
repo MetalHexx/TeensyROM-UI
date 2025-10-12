@@ -18,18 +18,7 @@
     display: block;
     height: 100%;
     width: 100%;
-    
-    // // Target the mat-card-content inside to make it a positioning context
-    // ::ng-deep mat-card-content {
-    //   position: relative;
-    //   height: 400px; // Set a reasonable default height for the content area
-    //   overflow: hidden;
-    // }
   }
-}
-
-.special-padding {
-  padding-right: 16px;
 }
 
 .viewport-wrapper {
@@ -46,4 +35,11 @@
   flex: 1;
   min-height: 0;
   width: 100%;
+}
+
+// Fix for active highlight extending beyond normal selected style on the right
+// The list-item-highlight class applies border-radius that extends beyond
+// the normal selected state due to this component's special padding requirements
+.file-list-item {
+  margin-right: 16px;
 }
