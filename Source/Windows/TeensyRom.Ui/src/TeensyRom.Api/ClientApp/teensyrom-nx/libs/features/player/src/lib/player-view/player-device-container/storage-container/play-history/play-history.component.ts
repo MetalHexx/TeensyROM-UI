@@ -42,31 +42,29 @@ export class PlayHistoryComponent {
     this.playerContext.getError(this.deviceId())() !== null
   );
 
-  // Local signal for selected entry
+  // Local signal for selected entry (user clicks only)
   readonly selectedEntry = signal<HistoryEntry | null>(null);
 
-  // Effect to automatically select and scroll to currently playing file
+  // Effect to automatically scroll to currently playing file
   constructor() {
     effect(() => {
+      const playingFile = this.currentPlayingFile();
       const entries = this.historyEntries();
-      const currentPosition = this.currentHistoryPosition();
 
-      // Only proceed if we have history entries and a valid position
-      if (entries.length === 0 || currentPosition < 0) {
+      // Only scroll if we have a playing file
+      if (!playingFile || entries.length === 0) {
         return;
       }
 
-      // Calculate the display index (reversed) from the actual position
-      const displayIndex = entries.length - 1 - currentPosition;
-      
-      // Get the entry at the current position
-      const playingEntry = entries[displayIndex];
+      // Find the matching entry by path and timestamp
+      const matchingEntry = entries.find(
+        entry => entry.file.path === playingFile.file.path && 
+                 entry.timestamp === playingFile.launchedAt
+      );
 
-      if (playingEntry) {
-        // Select the playing entry
-        this.selectedEntry.set(playingEntry);
-
-        // Scroll to the selected entry using a unique identifier
+      if (matchingEntry) {
+        // Scroll to the currently playing entry
+        const displayIndex = entries.indexOf(matchingEntry);
         this.scrollToSelectedEntry(displayIndex);
       }
     });

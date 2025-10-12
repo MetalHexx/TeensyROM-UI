@@ -97,7 +97,7 @@ export function navigateForwardInHistory(
                 storageKey: historyEntry.storageKey,
                 file: launchedFile,
                 parentPath: historyEntry.parentPath,
-                launchedAt: timestamp,
+                launchedAt: historyEntry.timestamp, // Use original history entry timestamp
                 launchMode: player.launchMode,
                 isCompatible: launchedFile.isCompatible,
               },

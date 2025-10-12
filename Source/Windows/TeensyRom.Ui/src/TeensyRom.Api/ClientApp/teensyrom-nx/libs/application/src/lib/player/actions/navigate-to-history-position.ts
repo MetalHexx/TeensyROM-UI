@@ -66,7 +66,7 @@ export function navigateToHistoryPosition(store: WritableStore<PlayerState>, pla
                   storageKey: entry.storageKey,
                   file: launchedFile,
                   parentPath: entry.parentPath,
-                  launchedAt: Date.now(),
+                  launchedAt: entry.timestamp, // Use original timestamp for history matching
                   launchMode: currentPlayer.launchMode,
                   isCompatible: launchedFile.isCompatible,
                 },

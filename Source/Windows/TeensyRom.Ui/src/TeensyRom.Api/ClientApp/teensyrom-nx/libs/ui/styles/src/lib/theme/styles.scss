@@ -138,6 +138,11 @@ body {
   &.selected {
     @include glassy-strong-effect;
   }
+
+  &.active {
+    @include glassy-subtle-effect;
+    @include pulsing-highlight($border-side: left);
+  }
 }
 
 @mixin pulsing-highlight(

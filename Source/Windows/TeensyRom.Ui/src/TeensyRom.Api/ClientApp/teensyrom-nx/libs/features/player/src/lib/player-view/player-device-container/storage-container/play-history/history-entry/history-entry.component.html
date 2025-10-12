@@ -3,6 +3,7 @@
   iconColor="normal"
   [label]="entry().file.name"
   [selected]="selected()"
+  [active]="isCurrentlyPlaying()"
   (selectedChange)="onEntryClick()"
   (activated)="onEntryDoubleClick()"
 >
