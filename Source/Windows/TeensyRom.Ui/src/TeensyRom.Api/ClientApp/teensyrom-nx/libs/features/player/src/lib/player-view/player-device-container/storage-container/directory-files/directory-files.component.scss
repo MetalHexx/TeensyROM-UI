@@ -19,21 +19,25 @@
     height: 100%;
     width: 100%;
     
-    // Target the mat-card-content inside to make it a positioning context
-    ::ng-deep mat-card-content {
-      position: relative;
-      height: 400px; // Set a reasonable default height for the content area
-      overflow: hidden;
-    }
+    // // Target the mat-card-content inside to make it a positioning context
+    // ::ng-deep mat-card-content {
+    //   position: relative;
+    //   height: 400px; // Set a reasonable default height for the content area
+    //   overflow: hidden;
+    // }
   }
+}
+
+.special-padding {
+  padding-right: 16px;
 }
 
 .viewport-wrapper {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 60px;
+  left: 16px;
   right: 0;
-  bottom: 0;
+  bottom: 16px;
   display: flex;
   flex-direction: column;
 }

@@ -21,7 +21,7 @@
         >
           @for (item of directoriesAndFiles(); track item.path) {
           <div
-            class="file-list-item list-item-highlight"
+            class="file-list-item list-item-highlight special-padding"
             [attr.data-item-path]="item.path"
             [attr.data-is-playing]="isCurrentlyPlaying(item)"
             [attr.data-has-error]="hasCurrentFileError()"
