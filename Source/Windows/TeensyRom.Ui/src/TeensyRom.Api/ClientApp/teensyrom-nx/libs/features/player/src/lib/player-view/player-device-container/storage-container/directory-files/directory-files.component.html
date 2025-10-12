@@ -1,38 +1,38 @@
 <div class="directory-files">
-  <lib-scaling-card title="Current Directory" [animationTrigger]="animationTrigger()">
+  <lib-scaling-card title="Current Directory" [animationTrigger]="animationTrigger()" [animationEntry]="'from-left'" [animationExit]="'from-right'">
     @if (directoryContents().isLoading) {
     <p>Loading directory contents...</p>
     } @else if (directoryContents().error) {
     <p class="error">Error: {{ directoryContents().error }}</p>
-    } @else if (directoryContents().hasContent) {
-    <div class="files-list">
-      @for (item of combinedItems(); track item.path) {
-      <div
-        class="file-list-item list-item-highlight"
-        [attr.data-item-path]="item.path"
-        [attr.data-is-playing]="isCurrentlyPlaying(item)"
-        [attr.data-has-error]="hasCurrentFileError()"
-      >
-        @if (isDirectory(item)) {
-        <lib-directory-item
-          [directoryItem]="item"
-          [selected]="isSelected(item)"
-          (itemSelected)="onItemSelected($event)"
-          (itemDoubleClicked)="onDirectoryDoubleClick($event)"
+    } @else if (directoriesAndFiles().length > 0) {
+      <div class="files-list">
+        @for (item of directoriesAndFiles(); track item.path) {
+        <div
+          class="file-list-item list-item-highlight"
+          [attr.data-item-path]="item.path"
+          [attr.data-is-playing]="isCurrentlyPlaying(item)"
+          [attr.data-has-error]="hasCurrentFileError()"
         >
-        </lib-directory-item>
-        } @else {
-        <lib-file-item
-          [fileItem]="item"
-          [selected]="isSelected(item)"
-          (itemSelected)="onItemSelected($event)"
-          (itemDoubleClick)="onFileDoubleClick($event)"
-        >
-        </lib-file-item>
+          @if (isDirectory(item)) {
+          <lib-directory-item
+            [directoryItem]="item"
+            [selected]="isSelected(item)"
+            (itemSelected)="onItemSelected($event)"
+            (itemDoubleClicked)="onDirectoryDoubleClick($event)"
+          >
+          </lib-directory-item>
+          } @else {
+          <lib-file-item
+            [fileItem]="item"
+            [selected]="isSelected(item)"
+            (itemSelected)="onItemSelected($event)"
+            (itemDoubleClick)="onFileDoubleClick($event)"
+          >
+          </lib-file-item>
+          }
+        </div>
         }
       </div>
-      }
-    </div>
     } @else {
     <p>No directory selected or directory is empty.</p>
     }

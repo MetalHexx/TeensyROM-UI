@@ -1,5 +1,5 @@
 <div class="play-history">
-  <lib-scaling-card title="Play History" [animationTrigger]="animationTrigger()">
+  <lib-scaling-card title="Play History" [animationTrigger]="animationTrigger()" [animationEntry]="'from-left'" [animationExit]="'from-right'">
     @if (historyEntries().length === 0) {
       <lib-empty-state-message 
         icon="history" 

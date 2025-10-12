@@ -1,5 +1,5 @@
 <div class="search-results">
-  <lib-scaling-card title="Search Results" [animationTrigger]="animationTrigger()">
+  <lib-scaling-card title="Search Results" [animationTrigger]="animationTrigger()" [animationEntry]="'from-left'" [animationExit]="'from-right'">
     @if (searchError()) {
       <div class="error-state">{{ searchError() }}</div>
     }

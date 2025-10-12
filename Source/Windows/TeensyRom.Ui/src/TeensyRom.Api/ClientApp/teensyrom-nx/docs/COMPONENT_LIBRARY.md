@@ -240,7 +240,80 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 
 **Used By**: [ScalingCardComponent](#scalingcardcomponent), [ScalingCompactCardComponent](#scalingcompactcardcomponent)
 
-**See Also**: [SlidingContainerComponent](#slidingcontainercomponent), [Animation System](#animation-system)
+**See Also**: [SlidingContainerComponent](#slidingcontainercomponent), [FadingContainerComponent](#fadingcontainercomponent), [Animation System](#animation-system)
+
+### `FadingContainerComponent`
+
+**Purpose**: Simple fade + blur animation wrapper. No transforms or directional movement - just smooth opacity fade with blur effect for entry and exit animations. Perfect for subtle transitions and lightweight animations.
+
+**Selector**: `lib-fading-container`
+
+**Properties**:
+- `animationTrigger`: Manual control signal (optional) - **Enables exit animations**
+- `animationParent`: Override animation chaining (optional - see [Animation System](#animation-system))
+
+**Events**:
+- `animationComplete`: Emitted when animation finishes
+
+**Animation Behavior**:
+- **Entry**: 0→1 opacity fade with 10px→0px blur effect. Single smooth 800ms transition with cubic-bezier easing.
+- **Exit**: Uses `animationTrigger` to play reverse animation before removing from DOM. Component stays visible during exit animation.
+- **Transitions**: `void => visible` (initial), `hidden => visible` (show), `visible => hidden` (hide with animation)
+- **No Transforms**: Unlike scaling/sliding containers, this component uses pure opacity and blur - no scale, translate, or layout changes
+
+**Usage**:
+
+```html
+<!-- Basic entry animation -->
+<lib-fading-container>
+  <div class="content">Fades in smoothly</div>
+</lib-fading-container>
+
+<!-- With exit animations using animationTrigger -->
+<lib-fading-container [animationTrigger]="isVisible()">
+  <div>Fades in and out with blur effect</div>
+</lib-fading-container>
+
+<!-- Toggle between components with exit animations -->
+<div style="position: relative">
+  <lib-fading-container [animationTrigger]="showA()">
+    <div>Component A</div>
+  </lib-fading-container>
+  <lib-fading-container [animationTrigger]="!showA()">
+    <div>Component B</div>
+  </lib-fading-container>
+</div>
+
+<!-- Nested with auto-chaining -->
+<lib-sliding-container [animationTrigger]="isReady()">
+  <lib-fading-container animationParent="auto">
+    <div>Waits for parent animation</div>
+  </lib-fading-container>
+</lib-sliding-container>
+```
+
+**Exit Animation Pattern**: When using `animationTrigger`, always render both components and let the trigger control visibility. Position them absolutely if overlapping. The component will:
+1. Play exit animation when trigger becomes `false`
+2. Remove from DOM after animation completes
+3. Re-appear with entry animation when trigger becomes `true`
+
+**Z-Index Management**: The component automatically manages z-index layering for proper click handling when multiple animated components overlap:
+- **Visible state** (`animationTrigger=true`): `z-index: 1000` - Component is on top and fully interactive
+- **Hidden state** (`animationTrigger=false`): `z-index: 1` - Component is below and won't block clicks during exit animation
+
+**Comparison**:
+- **FadingContainer**: Pure opacity + blur, no transforms, no layout impact, subtle lightweight animation
+- **ScalingContainer**: Transform-based with scale + directional slide, visual "pop" effect
+- **SlidingContainer**: Height/width expansion, pushes surrounding content
+
+**Use Cases**:
+- Subtle content transitions where directional movement would be distracting
+- Modal overlays and tooltips that need gentle appearance/disappearance
+- Content areas where you want smooth transitions without "popping" or sliding
+- Lightweight animations for frequently toggled elements
+- Cross-fading between different content states
+
+**See Also**: [ScalingContainerComponent](#scalingcontainercomponent), [SlidingContainerComponent](#slidingcontainercomponent), [Animation System](#animation-system)
 
 ---
 
@@ -329,7 +402,7 @@ All animatable components support an `animationParent` input for controlling whe
 
 **Flexibility**: By default, components animate immediately. Use `animationParent="auto"` for parent/child coordination, explicit `animationTrigger` signals for any timing pattern, or `animationParent` with a component reference to create custom choreography - sequenced animations, parallel animations, conditional animations, independent timelines, etc.
 
-**Applies To**: All animation components - [ScalingCardComponent](#scalingcardcomponent), [ScalingCompactCardComponent](#scalingcompactcardcomponent), [ScalingContainerComponent](#scalingcontainercomponent), [SlidingContainerComponent](#slidingcontainercomponent)
+**Applies To**: All animation components - [ScalingCardComponent](#scalingcardcomponent), [ScalingCompactCardComponent](#scalingcompactcardcomponent), [ScalingContainerComponent](#scalingcontainercomponent), [SlidingContainerComponent](#slidingcontainercomponent), [FadingContainerComponent](#fadingcontainercomponent)
 
 ---
 
@@ -680,7 +753,7 @@ The component provides **three flexible approaches** for handling user input:
 
 ### `StorageItemComponent`
 
-**Purpose**: A reusable list item component for displaying storage entries (files, folders, etc.) with icon, label, selection state, and optional action buttons. Provides full keyboard navigation and accessibility support.
+**Purpose**: A reusable list item component for displaying storage entries (files, folders, etc.) with icon, label, selection state, optional action buttons, and built-in fade+blur animations. Provides full keyboard navigation and accessibility support.
 
 **Selector**: `lib-storage-item`
 
@@ -692,6 +765,8 @@ The component provides **three flexible approaches** for handling user input:
 - `selected` (optional): `boolean` - Whether the item is currently selected - defaults to `false`
 - `active` (optional): `boolean` - Whether the item is currently active/focused/highlighted - defaults to `false`
 - `disabled` (optional): `boolean` - Whether the item is disabled - defaults to `false`
+- `animationTrigger` (optional): `boolean | undefined` - Manual animation control signal - defaults to `undefined`
+- `animationParent` (optional): `AnimationParentMode` - Animation parent mode for chaining - defaults to `undefined`
 
 **Events**:
 
@@ -701,11 +776,11 @@ The component provides **three flexible approaches** for handling user input:
 **Usage Examples**:
 
 ```html
-<!-- Basic file item -->
+<!-- Basic file item with default from-top entry animation -->
 <lib-storage-item icon="insert_drive_file" label="readme.txt">
 </lib-storage-item>
 
-<!-- Folder with directory color -->
+<!-- Folder with directory color and custom animation direction -->
 <lib-storage-item
   icon="folder"
   iconColor="directory"
@@ -715,12 +790,13 @@ The component provides **three flexible approaches** for handling user input:
 >
 </lib-storage-item>
 
-<!-- Selected item with actions -->
+<!-- Selected item with actions and controlled animation -->
 <lib-storage-item
   icon="music_note"
   iconColor="primary"
   label="Song.sid"
   [selected]="isSelected()"
+  [animationTrigger]="showItem()"
   (activated)="playSong()"
   (selectedChange)="toggleSelection()"
 >
@@ -834,9 +910,16 @@ Uses the `@include styles.selectable-item` mixin from the style guide, which pro
 
 The component uses `ng-content` to project `lib-storage-item-actions` into the right side of the item for action buttons and metadata.
 
-**Best Practice**: Use for all list-based storage items (files, folders, carts, etc.) to maintain consistent interaction patterns and accessibility throughout the application.
+**Animation Features**:
 
-**See Also**: [StorageItemActionsComponent](#storageitemactionscomponent), [IconLabelComponent](#iconlabelcomponent)
+- **Built-in Animations**: Uses [FadingContainerComponent](#fadingcontainercomponent) for fade+blur effects
+- **Default Behavior**: Items smoothly fade in with subtle blur reduction on entry
+- **Controlled Animation**: Use `animationTrigger` for explicit show/hide control with exit animations
+- **Animation Chaining**: Supports `animationParent` for coordinated animations with other components
+
+**Best Practice**: Use for all list-based storage items (files, folders, carts, etc.) to maintain consistent interaction patterns and accessibility throughout the application. The fade+blur animation provides smooth visual feedback without directional movement, making it ideal for list items that may appear/disappear dynamically.
+
+**See Also**: [StorageItemActionsComponent](#storageitemactionscomponent), [IconLabelComponent](#iconlabelcomponent), [FadingContainerComponent](#fadingcontainercomponent), [Animation System](#animation-system)
 
 ---
 
@@ -1986,6 +2069,7 @@ import { StyledIconComponent } from '@teensyrom-nx/ui/components';
 import { IconLabelComponent } from '@teensyrom-nx/ui/components';
 import { StatusIconLabelComponent } from '@teensyrom-nx/ui/components';
 import { MenuItemComponent } from '@teensyrom-nx/ui/components';
+import { FadingContainerComponent } from '@teensyrom-nx/ui/components';
 
 @Component({
   // ...
@@ -1999,6 +2083,7 @@ import { MenuItemComponent } from '@teensyrom-nx/ui/components';
     IconLabelComponent,
     StatusIconLabelComponent,
     MenuItemComponent,
+    FadingContainerComponent,
     // other imports...
   ],
 })

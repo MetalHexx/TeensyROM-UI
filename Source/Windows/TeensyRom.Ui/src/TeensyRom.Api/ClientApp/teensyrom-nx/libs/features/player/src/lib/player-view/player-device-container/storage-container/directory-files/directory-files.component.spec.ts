@@ -119,26 +119,26 @@ describe('DirectoryFilesComponent', () => {
   });
 
   it('should combine directories and files into single data source', () => {
-    const combined = component.combinedItems();
+    const combined = component.directoriesAndFiles();
     expect(combined).toHaveLength(2);
     expect(combined[0]).toHaveProperty('itemType', 'directory');
     expect(combined[1]).toHaveProperty('itemType', 'file');
   });
 
   it('should correctly identify directories with type guard', () => {
-    const combined = component.combinedItems();
+    const combined = component.directoriesAndFiles();
     expect(component.isDirectory(combined[0])).toBe(true);
     expect(component.isDirectory(combined[1])).toBe(false);
   });
 
   it('should update selection when item clicked', () => {
-    const combined = component.combinedItems();
+    const combined = component.directoriesAndFiles();
     component.onItemSelected(combined[0]);
     expect(component.selectedItem()).toEqual(combined[0]);
   });
 
   it('should call navigateToDirectory on directory double-click', () => {
-    const combined = component.combinedItems();
+    const combined = component.directoriesAndFiles();
     const directoryItem = combined[0] as DirectoryItem;
 
     component.onDirectoryDoubleClick(directoryItem);
@@ -151,7 +151,7 @@ describe('DirectoryFilesComponent', () => {
   });
 
   it('should clear selection when directory changes', () => {
-    const combined = component.combinedItems();
+    const combined = component.directoriesAndFiles();
     component.onItemSelected(combined[0]);
     expect(component.selectedItem()).toBeTruthy();
 
@@ -160,7 +160,7 @@ describe('DirectoryFilesComponent', () => {
   });
 
   it('should call player context on file double-click', () => {
-    const combined = component.combinedItems();
+    const combined = component.directoriesAndFiles();
     const fileItem = combined[1] as FileItem;
 
     component.onFileDoubleClick(fileItem);
@@ -197,7 +197,7 @@ describe('DirectoryFilesComponent', () => {
   });
 
   it('should determine if item is selected correctly', () => {
-    const combined = component.combinedItems();
+    const combined = component.directoriesAndFiles();
     component.onItemSelected(combined[0]);
 
     expect(component.isSelected(combined[0])).toBe(true);
@@ -205,7 +205,7 @@ describe('DirectoryFilesComponent', () => {
   });
 
   it('should identify currently playing file', () => {
-    const combined = component.combinedItems();
+    const combined = component.directoriesAndFiles();
     const fileItem = combined[1] as FileItem;
     
     // Initially no file is playing
@@ -231,7 +231,7 @@ describe('DirectoryFilesComponent', () => {
   });
 
   it('should auto-select currently playing file when directory context is available', () => {
-    const combined = component.combinedItems();
+    const combined = component.directoriesAndFiles();
     const fileItem = combined[1] as FileItem;
     
     // Mock both signals with the playing file and context
@@ -284,7 +284,7 @@ describe('DirectoryFilesComponent', () => {
     });
 
     it('should render data-is-playing attribute for currently playing file', () => {
-      const combined = component.combinedItems();
+      const combined = component.directoriesAndFiles();
       const fileItem = combined[1] as FileItem;
 
       // Set file as currently playing
@@ -312,7 +312,7 @@ describe('DirectoryFilesComponent', () => {
     });
 
     it('should render data-has-error attribute when error exists', () => {
-      const combined = component.combinedItems();
+      const combined = component.directoriesAndFiles();
       const fileItem = combined[1] as FileItem;
 
       // Set file as currently playing with error

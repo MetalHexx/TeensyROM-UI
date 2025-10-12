@@ -54,7 +54,7 @@ export class DirectoryFilesComponent {
     this.playerContext.getFileContext(this.deviceId())()
   );
 
-  readonly combinedItems = computed(() => {
+  readonly directoriesAndFiles = computed(() => {
     const contents = this.directoryContents();
     const directories = contents.directories.map((dir) => ({
       ...dir,
@@ -67,22 +67,22 @@ export class DirectoryFilesComponent {
     return [...directories, ...files];
   });
 
-  // Effect to automatically select and scroll to the currently playing file
   constructor() {
+    // Effect to automatically select and scroll to the currently playing file
     effect(() => {
       const playingFile = this.currentPlayingFile();
       const fileContext = this.playerFileContext();
-      const combinedItems = this.combinedItems();
+      const directoriesAndFiles = this.directoriesAndFiles();
 
       // Only proceed if we have a playing file and directory content is loaded
-      if (!playingFile || combinedItems.length === 0) {
+      if (!playingFile || directoriesAndFiles.length === 0) {
         return;
       }
 
       // In directory mode, the file should already be in the current directory
       // In shuffle mode, we need to wait for the directory context to be loaded after navigation
       const currentLaunchMode = this.playerContext.getLaunchMode(this.deviceId())();
-      
+
       if (currentLaunchMode === LaunchMode.Shuffle) {
         // For shuffle mode, wait for file context to be populated with directory files
         // This happens after loadDirectoryContextForRandomFile is called
@@ -92,14 +92,14 @@ export class DirectoryFilesComponent {
       }
 
       // Find the playing file in the current directory
-      const playingFileItem = combinedItems.find(item => 
+      const playingFileItem = directoriesAndFiles.find(item =>
         item.path === playingFile.file.path
       );
 
       if (playingFileItem) {
         // Select the playing file
         this.selectedItem.set(playingFileItem);
-        
+
         // Scroll to the selected file
         this.scrollToSelectedFile(playingFile.file.path);
       }
@@ -162,11 +162,11 @@ export class DirectoryFilesComponent {
     setTimeout(() => {
       // Find the DOM element for the selected file using the data attribute on the container
       const targetElement = document.querySelector(`.file-list-item[data-item-path="${CSS.escape(filePath)}"]`);
-      
+
       if (targetElement) {
-        targetElement.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
+        targetElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
         });
       }
     }, 0);
