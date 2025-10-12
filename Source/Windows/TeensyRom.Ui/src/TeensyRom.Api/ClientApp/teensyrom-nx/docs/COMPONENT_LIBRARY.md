@@ -315,6 +315,148 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 
 **See Also**: [ScalingContainerComponent](#scalingcontainercomponent), [SlidingContainerComponent](#slidingcontainercomponent), [Animation System](#animation-system)
 
+### `LeetTextContainerComponent`
+
+**Purpose**: Animated text container with "leet speak" character cycling animation and optional spinner effects. Features a continuous wave animation that cycles through text characters, transforming them into leet-speak variants. Perfect for retro/demoscene-inspired loading indicators and status messages with a cyberpunk aesthetic.
+
+**Selector**: `lib-leet-text-container`
+
+**Properties**:
+- `animationTrigger`: Manual control signal (optional) - **Enables exit animations**
+- `animationDuration`: `number` - Duration of the leet cycling animation in milliseconds (default: `1000`)
+- `animationParent`: Override animation chaining (optional - see [Animation System](#animation-system))
+- `showFrontSpinner`: `boolean` - Show animated spinner before the text (default: `false`)
+- `showBackSpinner`: `boolean` - Show animated spinner after the text (default: `false`)
+
+**Events**:
+- `animationComplete`: Emitted when animations complete
+
+**Animation Behavior**:
+- **Continuous Cycling**: One character at a time transforms to leet-speak, creating a wave effect
+- **Bidirectional Wave**: Animation moves forward through the text, then reverses and moves backward
+- **Smart Character Selection**: Only cycles through characters that have leet mappings, skipping punctuation and spaces
+- **Spinner Animation**: Classic `/` `-` `\` `|` text spinner rotates independently at 100ms intervals
+- **Gradient Flow**: Continuous gradient animation flows through the text using theme colors
+- **Theme Integration**: Uses `--color-highlight` and `--color-primary-bright` for gradient effects
+
+**Usage**:
+
+```html
+<!-- Basic usage with ng-content (no spinners) -->
+<lib-leet-text-container>Loading...</lib-leet-text-container>
+
+<!-- With front spinner -->
+<lib-leet-text-container [showFrontSpinner]="true">
+  Loading...
+</lib-leet-text-container>
+
+<!-- With both spinners -->
+<lib-leet-text-container
+  [showFrontSpinner]="true"
+  [showBackSpinner]="true">
+  Processing...
+</lib-leet-text-container>
+
+<!-- With animation trigger control -->
+<lib-leet-text-container
+  [showFrontSpinner]="true"
+  [animationTrigger]="isVisible()">
+  Status: {{ statusMessage() }}
+</lib-leet-text-container>
+
+<!-- Custom animation speed (controls cycling speed) -->
+<lib-leet-text-container
+  [showFrontSpinner]="true"
+  [animationDuration]="500">
+  Fast Animation
+</lib-leet-text-container>
+```
+
+**Advanced Usage Patterns**:
+
+```typescript
+export class LoadingComponent {
+  isLoading = signal(true);
+
+  onAnimationComplete(): void {
+    console.log('Leet animation finished');
+    // Trigger next action
+  }
+}
+```
+
+```html
+<!-- Loading indicator in corner slot -->
+<lib-scaling-card title="Data">
+  <div slot="corner">
+    <lib-leet-text-container [showFrontSpinner]="true">
+      Loading...
+    </lib-leet-text-container>
+  </div>
+  <!-- Card content -->
+</lib-scaling-card>
+```
+
+**Character Mapping**:
+
+The component uses the following leet-speak substitutions:
+- `a` → `@`, `4`
+- `e` → `3`
+- `i` → `1`, `!`
+- `o` → `0`
+- `s` → `5`, `$`
+- `t` → `7`, `+`
+- `l` → `1`, `|`
+- `g` → `9`, `6`
+- `b` → `8`
+
+**Animation Details**:
+
+- **Cycling Speed**: 200ms per character (configurable via `animationDuration`)
+- **Wave Direction**: Moves forward through text, then reverses and moves backward continuously
+- **Character Selection**: Automatically skips non-translatable characters (punctuation, spaces) for smooth flow
+- **Gradient Flow**: 2-second continuous loop with theme-integrated color gradient
+- **Spinner Speed**: 100ms rotation cycle through `/` `-` `\` `|` characters
+- **Font**: Monospace ('Courier New') for authentic retro terminal aesthetic
+
+**Style Features**:
+
+- **Theme Integration**: Uses `--color-highlight` (cyan) and `--color-primary-bright` (magenta) from design system
+- **Gradient Animation**: Linear gradient flows horizontally through text using `background-clip: text`
+- **Text Transparency**: `-webkit-text-fill-color: transparent` reveals gradient through text
+- **Glow Effect**: Drop shadow using highlight color when animating
+- **Responsive Colors**: Automatically adapts to light/dark theme changes
+
+**Animation System Integration**:
+
+The component fully integrates with the animation system:
+- Registers as animation parent via DI provider
+- Supports `animationParent` for waiting on parent animations
+- Emits `animationComplete` when animations finish
+- Uses `animationCompleteSignal` for child component coordination
+
+**Content Projection**:
+
+Text is provided via `ng-content` between the component tags. The component automatically extracts the text content and applies the leet-speak animation to it while hiding the original content.
+
+**Use Cases**:
+- Loading indicators with retro terminal aesthetic
+- Status messages with cyberpunk styling
+- Corner indicators in cards showing processing state
+- CLI-style notifications and system messages
+- Gaming UI elements with demoscene inspiration
+
+**Performance Considerations**:
+- Wave animation cycles at 200ms intervals (one character at a time)
+- Gradient animation is CSS-based and GPU-accelerated
+- Character substitution uses efficient string splitting
+- Optimized to only animate characters with leet mappings
+- Suitable for text up to ~50 characters for smooth animation
+
+**Best Practice**: Use for short text strings (status messages, loading indicators, labels) where the retro animated aesthetic enhances the user experience. Enable spinners for loading states to provide clear visual feedback. The component automatically handles the continuous cycling animation, creating a mesmerizing effect that works perfectly in card corners, toolbars, or inline status displays. Ideal for CLI-style applications, retro gaming interfaces, or cyberpunk-themed UIs.
+
+**See Also**: [FadingContainerComponent](#fadingcontainercomponent), [ScrollingMarqueeComponent](#scrollingmarqueecomponent), [Animation System](#animation-system)
+
 ---
 
 ## Animation System

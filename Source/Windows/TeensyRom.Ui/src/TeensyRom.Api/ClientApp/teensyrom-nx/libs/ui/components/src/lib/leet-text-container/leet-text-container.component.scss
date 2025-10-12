@@ -1,0 +1,46 @@
+@use '../../../../styles/src/lib/theme/styles.scss' as styles;
+
+:host {
+  display: inline-block;
+
+  // Hide the ng-content (original text)
+  ::ng-content {
+    display: none !important;
+  }
+}
+
+.leet-text {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  color: var(--color-highlight); // Fallback to theme highlight color
+  background: linear-gradient(
+    90deg,
+    var(--color-highlight) 0%,
+    var(--color-primary-bright) 50%,
+    var(--color-highlight) 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-flow 2s linear infinite;
+
+  .spinner {
+    display: inline-block;
+    margin-right: 0.25rem;
+  }
+}
+
+:host.animating .leet-text {
+  // Additional styling during animation
+  filter: drop-shadow(0 0 8px var(--color-highlight));
+}
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
