@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, inject, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ScalingCardComponent, LeetTextContainerComponent } from '@teensyrom-nx/ui/components';
+import { ScalingCardComponent, LoadingTextComponent } from '@teensyrom-nx/ui/components';
 import { StorageStore, PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
 import { DirectoryItem, FileItem, LaunchMode } from '@teensyrom-nx/domain';
 import { DirectoryItemComponent } from './directory-item/directory-item.component';
@@ -8,7 +8,7 @@ import { FileItemComponent } from './file-item/file-item.component';
 
 @Component({
   selector: 'lib-directory-files',
-  imports: [CommonModule, ScalingCardComponent, LeetTextContainerComponent, DirectoryItemComponent, FileItemComponent],
+  imports: [CommonModule, ScalingCardComponent, LoadingTextComponent, DirectoryItemComponent, FileItemComponent],
   templateUrl: './directory-files.component.html',
   styleUrls: ['./directory-files.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

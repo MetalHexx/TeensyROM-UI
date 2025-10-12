@@ -18,6 +18,7 @@ export * from './lib/sliding-container/sliding-container.component';
 export * from './lib/scaling-container/scaling-container.component';
 export * from './lib/fading-container/fading-container.component';
 export * from './lib/leet-text-container/leet-text-container.component';
+export * from './lib/loading-text/loading-text.component';
 export * from './lib/scrolling-marquee/scrolling-marquee.component';
 export * from './lib/storage-item/storage-item.component';
 export * from './lib/storage-item/storage-item-actions.component';

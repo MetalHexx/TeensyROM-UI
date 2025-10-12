@@ -315,6 +315,65 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 
 **See Also**: [ScalingContainerComponent](#scalingcontainercomponent), [SlidingContainerComponent](#slidingcontainercomponent), [Animation System](#animation-system)
 
+### `LoadingTextComponent`
+
+**Purpose**: Elegant loading text indicator with fade animation and leet-speak cycling effect. Wraps [LeetTextContainerComponent](#leettextcontainercomponent) with smooth fade-in/fade-out transitions. Perfect for corner slots, loading indicators, and status messages. Displays "Loading..." by default, but supports custom text via ng-content.
+
+**Selector**: `lib-loading-text`
+
+**Properties**:
+- `visible`: `boolean` - Controls visibility with fade animation (default: `false`)
+- `showSpinner`: `boolean` - Show animated spinner before text (default: `true`)
+- `animationDuration`: `number` - Duration of leet cycling in ms (default: `1000`)
+
+**Content**: Optional custom text via ng-content (default: "Loading...")
+
+**Usage**:
+
+```html
+<!-- Default "Loading..." text in corner slot -->
+<lib-scaling-card title="Data">
+  <lib-loading-text slot="corner" [visible]="isLoading()"></lib-loading-text>
+  <p>Content...</p>
+</lib-scaling-card>
+
+<!-- Custom text -->
+<lib-loading-text [visible]="isProcessing()">
+  Processing...
+</lib-loading-text>
+
+<!-- Without spinner -->
+<lib-loading-text [visible]="isSaving()" [showSpinner]="false">
+  Saving...
+</lib-loading-text>
+
+<!-- Custom animation speed -->
+<lib-loading-text 
+  [visible]="isLoading()" 
+  [animationDuration]="500"
+>
+  Fast Loading...
+</lib-loading-text>
+```
+
+**Animation Behavior**:
+- **Fade In**: 200ms cubic-bezier transition when `visible` becomes `true`
+- **Fade Out**: 200ms cubic-bezier transition when `visible` becomes `false`
+- **Leet Cycling**: Continuous character transformation while visible
+- **Spinner**: Classic `/` `-` `\` `|` rotation at 100ms intervals (when enabled)
+
+**Use Cases**:
+- Loading indicators in card corner slots
+- Status messages in toolbars and headers
+- Retro-styled loading states
+- Processing/saving feedback with personality
+
+**Comparison**:
+- **LoadingTextComponent**: Pre-packaged loading indicator with fade animations and leet-speak
+- **LeetTextContainerComponent**: Raw leet-speak animation without fade transitions
+
+**See Also**: [LeetTextContainerComponent](#leettextcontainercomponent), [FadingContainerComponent](#fadingcontainercomponent)
+
 ### `LeetTextContainerComponent`
 
 **Purpose**: Animated text container with "leet speak" character cycling animation and optional spinner effects. Features a continuous wave animation that cycles through text characters, transforming them into leet-speak variants. Perfect for retro/demoscene-inspired loading indicators and status messages with a cyberpunk aesthetic.

@@ -1,16 +1,7 @@
 <div class="directory-files">
   <lib-scaling-card title="Current Directory" [animationTrigger]="animationTrigger()" [animationEntry]="'from-left'" [animationExit]="'from-right'">
 
-      <div
-        slot="corner"
-        class="loading-indicator"
-        [class.visible]="directoryContents().isLoading"
-      >
-        <lib-leet-text-container [showFrontSpinner]="true">Loading...</lib-leet-text-container>
-      </div>
-
-      
-
+    <lib-loading-text slot="corner" [visible]="!!directoryContents().isLoading"></lib-loading-text>
 
     @if (directoryContents().error) {
     <p class="error">Error: {{ directoryContents().error }}</p>
