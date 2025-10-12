@@ -13,10 +13,33 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
+  
+  lib-scaling-card {
+    display: block;
+    height: 100%;
+    width: 100%;
+    
+    // Target the mat-card-content inside to make it a positioning context
+    ::ng-deep mat-card-content {
+      position: relative;
+      height: 400px; // Set a reasonable default height for the content area
+      overflow: hidden;
+    }
+  }
 }
 
-.files-list {
+.viewport-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
+}
+
+.files-viewport {
+  flex: 1;
+  min-height: 0;
   width: 100%;
 }
