@@ -753,7 +753,7 @@ The component provides **three flexible approaches** for handling user input:
 
 ### `StorageItemComponent`
 
-**Purpose**: A reusable list item component for displaying storage entries (files, folders, etc.) with icon, label, selection state, optional action buttons, and built-in fade+blur animations. Provides full keyboard navigation and accessibility support.
+**Purpose**: A reusable list item component for displaying storage entries (files, folders, etc.) with icon, label, selection state, and optional action buttons. Provides full keyboard navigation and accessibility support.
 
 **Selector**: `lib-storage-item`
 
@@ -765,8 +765,6 @@ The component provides **three flexible approaches** for handling user input:
 - `selected` (optional): `boolean` - Whether the item is currently selected - defaults to `false`
 - `active` (optional): `boolean` - Whether the item is currently active/focused/highlighted - defaults to `false`
 - `disabled` (optional): `boolean` - Whether the item is disabled - defaults to `false`
-- `animationTrigger` (optional): `boolean | undefined` - Manual animation control signal - defaults to `undefined`
-- `animationParent` (optional): `AnimationParentMode` - Animation parent mode for chaining - defaults to `undefined`
 
 **Events**:
 
@@ -776,11 +774,11 @@ The component provides **three flexible approaches** for handling user input:
 **Usage Examples**:
 
 ```html
-<!-- Basic file item with default from-top entry animation -->
+<!-- Basic file item -->
 <lib-storage-item icon="insert_drive_file" label="readme.txt">
 </lib-storage-item>
 
-<!-- Folder with directory color and custom animation direction -->
+<!-- Folder with directory color -->
 <lib-storage-item
   icon="folder"
   iconColor="directory"
@@ -790,13 +788,12 @@ The component provides **three flexible approaches** for handling user input:
 >
 </lib-storage-item>
 
-<!-- Selected item with actions and controlled animation -->
+<!-- Selected item with actions -->
 <lib-storage-item
   icon="music_note"
   iconColor="primary"
   label="Song.sid"
   [selected]="isSelected()"
-  [animationTrigger]="showItem()"
   (activated)="playSong()"
   (selectedChange)="toggleSelection()"
 >
@@ -910,16 +907,9 @@ Uses the `@include styles.selectable-item` mixin from the style guide, which pro
 
 The component uses `ng-content` to project `lib-storage-item-actions` into the right side of the item for action buttons and metadata.
 
-**Animation Features**:
+**Best Practice**: Use for all list-based storage items (files, folders, carts, etc.) to maintain consistent interaction patterns and accessibility throughout the application. For animating groups of storage items, wrap the container in a [FadingContainerComponent](#fadingcontainercomponent) or other animation container rather than animating individual items.
 
-- **Built-in Animations**: Uses [FadingContainerComponent](#fadingcontainercomponent) for fade+blur effects
-- **Default Behavior**: Items smoothly fade in with subtle blur reduction on entry
-- **Controlled Animation**: Use `animationTrigger` for explicit show/hide control with exit animations
-- **Animation Chaining**: Supports `animationParent` for coordinated animations with other components
-
-**Best Practice**: Use for all list-based storage items (files, folders, carts, etc.) to maintain consistent interaction patterns and accessibility throughout the application. The fade+blur animation provides smooth visual feedback without directional movement, making it ideal for list items that may appear/disappear dynamically.
-
-**See Also**: [StorageItemActionsComponent](#storageitemactionscomponent), [IconLabelComponent](#iconlabelcomponent), [FadingContainerComponent](#fadingcontainercomponent), [Animation System](#animation-system)
+**See Also**: [StorageItemActionsComponent](#storageitemactionscomponent), [IconLabelComponent](#iconlabelcomponent)
 
 ---
 
