@@ -52,6 +52,13 @@ mat-card {
       pointer-events: auto;
     }
   }
+
+  .toolbar-actions-section {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
 }
 
 // Tablet Layout (641px-900px): Flexbox with file-info using remaining space
@@ -72,6 +79,13 @@ mat-card {
     justify-content: center;
     align-items: center;
     min-width: 0;
+  }
+
+  .toolbar-actions-section {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
   }
 }
 
@@ -98,5 +112,11 @@ mat-card {
   .file-info-section {
     text-align: center;
     width: 100%;
+  }
+
+  .toolbar-actions-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }

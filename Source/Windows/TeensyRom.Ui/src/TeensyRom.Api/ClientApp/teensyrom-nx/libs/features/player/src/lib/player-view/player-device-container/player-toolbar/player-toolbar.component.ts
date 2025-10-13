@@ -6,10 +6,11 @@ import { LaunchMode, PlayerStatus, FileItemType } from '@teensyrom-nx/domain';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 import { FileInfoComponent } from './file-info/file-info.component';
 import { FileTimeComponent } from './file-time/file-time.component';
+import { PlayerToolbarActionsComponent } from './player-toolbar-actions/player-toolbar-actions.component';
 
 @Component({
   selector: 'lib-player-toolbar',
-  imports: [CommonModule, ScalingCompactCardComponent, IconButtonComponent, SlidingContainerComponent, ProgressBarComponent, FileInfoComponent, FileTimeComponent],
+  imports: [CommonModule, ScalingCompactCardComponent, IconButtonComponent, SlidingContainerComponent, ProgressBarComponent, FileInfoComponent, FileTimeComponent, PlayerToolbarActionsComponent],
   templateUrl: './player-toolbar.component.html',
   styleUrl: './player-toolbar.component.scss'
 })
@@ -17,20 +18,6 @@ export class PlayerToolbarComponent {
   private readonly playerContext = inject(PLAYER_CONTEXT);
 
   deviceId = input.required<string>();
-
-  toggleShuffleMode(): void {
-    const deviceId = this.deviceId();
-    if (deviceId) {
-      this.playerContext.toggleShuffleMode(deviceId);
-    }
-  }
-
-  isShuffleMode(): boolean {
-    const deviceId = this.deviceId();
-    if (!deviceId) return false;
-    
-    return this.playerContext.getLaunchMode(deviceId)() === LaunchMode.Shuffle;
-  }
 
   isLoading(): boolean {
     const deviceId = this.deviceId();

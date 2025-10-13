@@ -58,16 +58,6 @@
             (buttonClick)="next()"
           >
           </lib-icon-button>
-
-          <lib-icon-button
-            icon="shuffle"
-            ariaLabel="Toggle Shuffle Mode"
-            size="large"
-            variant="rounded-transparent"
-            [color]="isShuffleMode() ? 'highlight' : 'normal'"
-            (buttonClick)="toggleShuffleMode()"
-          >
-          </lib-icon-button>
         </div>
 
         <div class="time-display-section">
@@ -80,6 +70,10 @@
 
         <div class="file-info-section">
           <lib-file-info [fileItem]="currentFile()?.file ?? null"></lib-file-info>
+        </div>
+
+        <div class="toolbar-actions-section">
+          <lib-player-toolbar-actions [deviceId]="deviceId()"></lib-player-toolbar-actions>
         </div>
     </div>
 
@@ -129,16 +123,6 @@
             (buttonClick)="next()"
           >
           </lib-icon-button>
-
-          <lib-icon-button
-            icon="shuffle"
-            ariaLabel="Toggle Shuffle Mode"
-            size="large"
-            variant="rounded-transparent"
-            [color]="isShuffleMode() ? 'highlight' : 'normal'"
-            (buttonClick)="toggleShuffleMode()"
-          >
-          </lib-icon-button>
         </div>
 
         <div class="time-display-section">
@@ -151,6 +135,10 @@
 
         <div class="file-info-section">
           <lib-file-info [fileItem]="currentFile()?.file ?? null"></lib-file-info>
+        </div>
+
+        <div class="toolbar-actions-section">
+          <lib-player-toolbar-actions [deviceId]="deviceId()"></lib-player-toolbar-actions>
         </div>
     </div>
 
@@ -200,16 +188,6 @@
             (buttonClick)="next()"
           >
           </lib-icon-button>
-
-          <lib-icon-button
-            icon="shuffle"
-            ariaLabel="Toggle Shuffle Mode"
-            size="large"
-            variant="rounded-transparent"
-            [color]="isShuffleMode() ? 'highlight' : 'normal'"
-            (buttonClick)="toggleShuffleMode()"
-          >
-          </lib-icon-button>
         </div>
 
         <div class="time-display-section">
@@ -222,6 +200,10 @@
 
         <div class="file-info-section">
           <lib-file-info [fileItem]="currentFile()?.file ?? null"></lib-file-info>
+        </div>
+
+        <div class="toolbar-actions-section">
+          <lib-player-toolbar-actions [deviceId]="deviceId()"></lib-player-toolbar-actions>
         </div>
     </div>
   </lib-scaling-compact-card>

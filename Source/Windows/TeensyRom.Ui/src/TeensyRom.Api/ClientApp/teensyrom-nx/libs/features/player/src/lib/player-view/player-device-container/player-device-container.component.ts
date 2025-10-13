@@ -7,7 +7,6 @@ import { FileImageComponent } from './file-image/file-image.component';
 import { PlayerToolbarComponent } from './player-toolbar/player-toolbar.component';
 import { StorageContainerComponent } from './storage-container/storage-container.component';
 import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
-import { ScrollingMarqueeComponent, ScalingCompactCardComponent } from '@teensyrom-nx/ui/components';
 
 @Component({
   selector: 'lib-player-device-container',

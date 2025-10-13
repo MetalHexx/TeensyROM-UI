@@ -1,0 +1,11 @@
+<div class="toolbar-actions">
+  <lib-icon-button
+    icon="shuffle"
+    ariaLabel="Toggle Shuffle Mode"
+    size="large"
+    variant="rounded-transparent"
+    [color]="isShuffleMode() ? 'highlight' : 'normal'"
+    (buttonClick)="toggleShuffleMode()"
+  >
+  </lib-icon-button>
+</div>
