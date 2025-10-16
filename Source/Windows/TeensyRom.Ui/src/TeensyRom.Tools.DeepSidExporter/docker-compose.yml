@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  deepsid-mysql:
+    image: mysql:8.0
+    container_name: deepsid-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: deepsid_root_pass
+      MYSQL_DATABASE: deepsid
+      MYSQL_USER: deepsid_user
+      MYSQL_PASSWORD: deepsid_pass
+    ports:
+      - "3307:3306"  # Use 3307 to avoid conflicts with existing MySQL
+    volumes:
+      - deepsid-data:/var/lib/mysql  # Persistent storage
+      - ./sql:/docker-entrypoint-initdb.d:ro  # Auto-load SQL files on first start
+    command: --max-allowed-packet=256M --innodb-buffer-pool-size=512M
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pdeepsid_root_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - deepsid-network
+
+  adminer:
+    image: adminer:latest
+    container_name: deepsid-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"  # Web UI at http://localhost:8080
+    environment:
+      ADMINER_DEFAULT_SERVER: deepsid-mysql
+      ADMINER_DESIGN: dracula  # Dark theme
+    depends_on:
+      - deepsid-mysql
+    networks:
+      - deepsid-network
+
+volumes:
+  deepsid-data:
+    name: deepsid-data
+
+networks:
+  deepsid-network:
+    name: deepsid-network
