@@ -2,6 +2,7 @@
 /* eslint-disable */
 export * from './CartDto';
 export * from './CartStorageDto';
+export * from './CompetitionDto';
 export * from './ConnectDeviceResponse';
 export * from './DeviceStartResponse';
 export * from './DeviceState';
@@ -10,6 +11,8 @@ export * from './DirectoryItemDto';
 export * from './DisconnectDeviceResponse';
 export * from './FileItemDto';
 export * from './FileItemType';
+export * from './FileLinkDto';
+export * from './FileTagDto';
 export * from './FindDevicesResponse';
 export * from './GetDirectoryResponse';
 export * from './IndexAllResponse';
@@ -27,3 +30,4 @@ export * from './StorageCacheDto';
 export * from './TeensyStorageType';
 export * from './ToggleMusicResponse';
 export * from './ViewableItemImageDto';
+export * from './YouTubeVideoDto';

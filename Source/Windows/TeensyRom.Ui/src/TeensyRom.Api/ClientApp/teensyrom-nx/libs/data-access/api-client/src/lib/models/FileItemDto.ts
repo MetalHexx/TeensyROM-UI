@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { CompetitionDto } from './CompetitionDto';
+import {
+    CompetitionDtoFromJSON,
+    CompetitionDtoFromJSONTyped,
+    CompetitionDtoToJSON,
+    CompetitionDtoToJSONTyped,
+} from './CompetitionDto';
 import type { ViewableItemImageDto } from './ViewableItemImageDto';
 import {
     ViewableItemImageDtoFromJSON,
@@ -20,6 +27,27 @@ import {
     ViewableItemImageDtoToJSON,
     ViewableItemImageDtoToJSONTyped,
 } from './ViewableItemImageDto';
+import type { FileTagDto } from './FileTagDto';
+import {
+    FileTagDtoFromJSON,
+    FileTagDtoFromJSONTyped,
+    FileTagDtoToJSON,
+    FileTagDtoToJSONTyped,
+} from './FileTagDto';
+import type { YouTubeVideoDto } from './YouTubeVideoDto';
+import {
+    YouTubeVideoDtoFromJSON,
+    YouTubeVideoDtoFromJSONTyped,
+    YouTubeVideoDtoToJSON,
+    YouTubeVideoDtoToJSONTyped,
+} from './YouTubeVideoDto';
+import type { FileLinkDto } from './FileLinkDto';
+import {
+    FileLinkDtoFromJSON,
+    FileLinkDtoFromJSONTyped,
+    FileLinkDtoToJSON,
+    FileLinkDtoToJSONTyped,
+} from './FileLinkDto';
 import type { FileItemType } from './FileItemType';
 import {
     FileItemTypeFromJSON,
@@ -114,6 +142,42 @@ export interface FileItemDto {
     meta2: string;
     /**
      * 
+     * @type {Array<FileLinkDto>}
+     * @memberof FileItemDto
+     */
+    links: Array<FileLinkDto>;
+    /**
+     * 
+     * @type {Array<FileTagDto>}
+     * @memberof FileItemDto
+     */
+    tags: Array<FileTagDto>;
+    /**
+     * 
+     * @type {Array<YouTubeVideoDto>}
+     * @memberof FileItemDto
+     */
+    youTubeVideos: Array<YouTubeVideoDto>;
+    /**
+     * 
+     * @type {Array<CompetitionDto>}
+     * @memberof FileItemDto
+     */
+    competitions: Array<CompetitionDto>;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileItemDto
+     */
+    avgRating?: number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileItemDto
+     */
+    ratingCount: number;
+    /**
+     * 
      * @type {string}
      * @memberof FileItemDto
      */
@@ -175,6 +239,11 @@ export function instanceOfFileItemDto(value: object): value is FileItemDto {
     if (!('metadataSource' in value) || value['metadataSource'] === undefined) return false;
     if (!('meta1' in value) || value['meta1'] === undefined) return false;
     if (!('meta2' in value) || value['meta2'] === undefined) return false;
+    if (!('links' in value) || value['links'] === undefined) return false;
+    if (!('tags' in value) || value['tags'] === undefined) return false;
+    if (!('youTubeVideos' in value) || value['youTubeVideos'] === undefined) return false;
+    if (!('competitions' in value) || value['competitions'] === undefined) return false;
+    if (!('ratingCount' in value) || value['ratingCount'] === undefined) return false;
     if (!('metadataSourcePath' in value) || value['metadataSourcePath'] === undefined) return false;
     if (!('parentPath' in value) || value['parentPath'] === undefined) return false;
     if (!('playLength' in value) || value['playLength'] === undefined) return false;
@@ -208,6 +277,12 @@ export function FileItemDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'metadataSource': json['metadataSource'],
         'meta1': json['meta1'],
         'meta2': json['meta2'],
+        'links': ((json['links'] as Array<any>).map(FileLinkDtoFromJSON)),
+        'tags': ((json['tags'] as Array<any>).map(FileTagDtoFromJSON)),
+        'youTubeVideos': ((json['youTubeVideos'] as Array<any>).map(YouTubeVideoDtoFromJSON)),
+        'competitions': ((json['competitions'] as Array<any>).map(CompetitionDtoFromJSON)),
+        'avgRating': json['avgRating'] == null ? undefined : json['avgRating'],
+        'ratingCount': json['ratingCount'],
         'metadataSourcePath': json['metadataSourcePath'],
         'parentPath': json['parentPath'],
         'playLength': json['playLength'],
@@ -242,6 +317,12 @@ export function FileItemDtoToJSONTyped(value?: FileItemDto | null, ignoreDiscrim
         'metadataSource': value['metadataSource'],
         'meta1': value['meta1'],
         'meta2': value['meta2'],
+        'links': ((value['links'] as Array<any>).map(FileLinkDtoToJSON)),
+        'tags': ((value['tags'] as Array<any>).map(FileTagDtoToJSON)),
+        'youTubeVideos': ((value['youTubeVideos'] as Array<any>).map(YouTubeVideoDtoToJSON)),
+        'competitions': ((value['competitions'] as Array<any>).map(CompetitionDtoToJSON)),
+        'avgRating': value['avgRating'],
+        'ratingCount': value['ratingCount'],
         'metadataSourcePath': value['metadataSourcePath'],
         'parentPath': value['parentPath'],
         'playLength': value['playLength'],

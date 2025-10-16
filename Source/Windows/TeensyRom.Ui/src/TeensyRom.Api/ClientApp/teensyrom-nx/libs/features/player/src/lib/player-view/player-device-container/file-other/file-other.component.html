@@ -17,9 +17,85 @@
   <!-- Main content -->
   @if (hasFile()) {
     @if (hasContent()) {
+      <!-- Description Section with conditional HSVC STIL title for songs -->
       @if (description()) {
-        <p>{{ description() }}</p>
+        <div class="description-section">
+          @if (isSong()) {
+            <h4 class="section-title">HVSC STIL</h4>
+          }
+          <p class="description">{{ description() }}</p>
+        </div>
       }
+
+      <!-- NEW: Rating Display -->
+      @if (avgRating()) {
+        <div class="rating-section">
+          <mat-icon>star</mat-icon>
+          <span>{{ avgRating() | number:'1.1-1' }}/5.0</span>
+          <span class="rating-count">({{ ratingCount() }} ratings)</span>
+        </div>
+      }
+
+      <!-- Dynamic multi-column layout - each section gets its own column -->
+      <div class="metadata-grid">
+        <!-- Links Section -->
+        @if (links().length > 0) {
+          <div class="links-section">
+            <h4>Links</h4>
+            <div class="links-container">
+              @for (link of links(); track $index) {
+                <a [href]="link.url" target="_blank" class="external-link">
+                  <mat-icon>link</mat-icon>
+                  {{ link.name }}
+                </a>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- YouTube Videos Section -->
+        @if (youTubeVideos().length > 0) {
+          <div class="youtube-section">
+            <h4>Related Videos</h4>
+            <div class="videos-container">
+              @for (video of youTubeVideos(); track $index) {
+                <a [href]="video.url" target="_blank" class="youtube-link">
+                  <mat-icon>play_circle</mat-icon>
+                  <span class="video-text">{{ video.channel }}@if (video.subtune > 0) {<span class="subtune-info"> (Subtune {{ video.subtune }})</span>}</span>
+                </a>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Competitions Section -->
+        @if (competitions().length > 0) {
+          <div class="competitions-section">
+            <h4>Competition Results</h4>
+            @for (comp of competitions(); track $index) {
+              <div class="competition-item">
+                <strong>{{ comp.name }}</strong>
+                @if (comp.place) {
+                  <span class="position">- Place {{ comp.place }}</span>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Tags Section -->
+        @if (tags().length > 0) {
+          <div class="tags-section">
+            <h4>Tags</h4>
+            <mat-chip-set>
+              @for (tag of tags(); track $index) {
+                <mat-chip [class]="'tag-' + tag.type">{{ tag.name }}</mat-chip>
+              }
+            </mat-chip-set>
+          </div>
+        }
+      </div>
+
     } @else {
       <p class="no-metadata">Try launching a file from the device.</p>
     }

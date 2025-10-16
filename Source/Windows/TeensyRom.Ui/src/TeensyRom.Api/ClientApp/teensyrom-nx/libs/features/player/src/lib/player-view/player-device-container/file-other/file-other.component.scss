@@ -15,3 +15,152 @@ lib-scaling-card {
   color: var(--color-dimmed);
   font-style: italic;
 }
+
+.description-section {
+  margin-bottom: 1rem;
+  
+  .section-title {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  
+  .description {
+    margin: 0;
+  }
+}
+
+.description {
+  margin: 0 0 1rem 0;
+}
+
+// Responsive two-column grid layout
+// Each section becomes its own column and stacks as space runs out
+.metadata-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+  
+  // Each direct child (section) becomes a column
+  > * {
+    min-width: 0; // Allows proper text wrapping
+  }
+}
+
+// Remove metadata-column class since sections are now direct children
+// Each section is now its own flexible grid item
+
+// Enhanced metadata styling for DeepSID integration
+
+.rating-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  
+  mat-icon {
+    color: gold;
+  }
+  
+  .rating-count {
+    color: var(--mat-sys-outline);
+    font-size: 0.875rem;
+  }
+}
+
+.tags-section,
+.links-section,
+.youtube-section,
+.competitions-section {
+  margin: 0; // Remove margin since spacing is handled by grid gap
+  display: flex;
+  flex-direction: column; // Keep title on top, content below
+  gap: 0.75rem;
+  
+  h4 {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    flex-shrink: 0; // Prevent title from shrinking
+  }
+}
+
+.tags-section {
+  mat-chip-set {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  mat-chip {
+    &.tag-genre { --mdc-chip-container-color: var(--mat-sys-primary-container); }
+    &.tag-style { --mdc-chip-container-color: var(--mat-sys-secondary-container); }
+    &.tag-theme { --mdc-chip-container-color: var(--mat-sys-tertiary-container); }
+  }
+}
+
+// Horizontal wrapping containers for links and videos
+.links-container,
+.videos-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.external-link,
+.youtube-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--mat-sys-primary);
+  text-decoration: none;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s ease;
+  white-space: nowrap; // Prevent awkward wrapping within links
+  
+  &:hover {
+    background-color: var(--mat-sys-primary-container);
+    text-decoration: underline;
+  }
+  
+  mat-icon {
+    font-size: 1.125rem;
+    flex-shrink: 0; // Prevent icon from shrinking
+  }
+}
+
+.youtube-link {
+  mat-icon {
+    color: #ff0000; // YouTube red
+  }
+  
+  .video-text {
+    display: inline; // Keep text inline without extra spacing
+  }
+}
+
+.competition-item {
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  background-color: var(--mat-sys-surface-container-low);
+  border-radius: 0.5rem;
+  border-left: 3px solid var(--mat-sys-tertiary);
+  
+  .year {
+    color: var(--mat-sys-on-surface-variant);
+    margin-left: 0.5rem;
+  }
+  
+  .position {
+    color: var(--mat-sys-primary);
+    font-weight: 500;
+  }
+}

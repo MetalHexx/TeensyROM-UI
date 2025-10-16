@@ -5,7 +5,6 @@ using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Device;
 using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Games;
-using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Storage;
 using TeensyRom.Core.Commands.MuteSidVoices;
 using TeensyRom.Core.Commands.SetMusicSpeed;
@@ -15,6 +14,9 @@ using TeensyRom.Core.Serial;
 using Microsoft.AspNetCore.SignalR;
 using TeensyRom.Api.Endpoints.Serial.GetLogs;
 using TeensyRom.Api.Endpoints.GetDeviceEvents;
+using TeensyRom.Core.Music;
+using TeensyRom.Core.Music.Hvsc;
+using TeensyRom.Core.Music.DeepSid;
 
 namespace TeensyRom.Api.Startup
 {
@@ -41,6 +43,8 @@ namespace TeensyRom.Api.Startup
             services.AddSingleton<ISerialFactory, SerialFactory>();
             services.AddSingleton<IStorageFactory, StorageFactory>();
             services.AddSingleton<IGameMetadataService, GameMetadataService>();
+            services.AddSingleton<IHvscDatabase, HvscDatabase>();
+            services.AddSingleton<IDeepSidDatabase, DeepSidDatabase>();
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
             services.AddSingleton<IMuteSidVoicesSerialRoutine, MuteSidVoicesSerialRoutine>();
             services.AddSingleton<IToggleMusicSerialRoutine, ToggleMusicSerialRoutine>();

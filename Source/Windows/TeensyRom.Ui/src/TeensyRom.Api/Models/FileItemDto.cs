@@ -75,6 +75,36 @@ namespace TeensyRom.Api.Models
         [Required] public string Meta2 { get; set; } = string.Empty;
 
         /// <summary>
+        /// Links associated with the file or creator from DeepSID.
+        /// </summary>
+        [Required] public List<FileLinkDto> Links { get; set; } = [];
+
+        /// <summary>
+        /// Tags associated with the file from DeepSID.
+        /// </summary>
+        [Required] public List<FileTagDto> Tags { get; set; } = [];
+
+        /// <summary>
+        /// YouTube videos associated with this file from DeepSID.
+        /// </summary>
+        [Required] public List<YouTubeVideoDto> YouTubeVideos { get; set; } = [];
+
+        /// <summary>
+        /// Competition entries associated with this file from DeepSID.
+        /// </summary>
+        [Required] public List<CompetitionDto> Competitions { get; set; } = [];
+
+        /// <summary>
+        /// Average rating from DeepSID community.
+        /// </summary>
+        public decimal? AvgRating { get; set; }
+
+        /// <summary>
+        /// Number of ratings from DeepSID community.
+        /// </summary>
+        [Required] public int RatingCount { get; set; }
+
+        /// <summary>
         /// The path to the metadata source file, if available.
         /// </summary>
         [Required] public string MetadataSourcePath { get; set; } = string.Empty;
@@ -131,6 +161,30 @@ namespace TeensyRom.Api.Models
                 Meta2 = item.Meta2,
                 MetadataSourcePath = item.MetadataSourcePath.Value,
                 ParentPath = item.ParentPath.Value,
+                Links = item.Links.Select(link => new FileLinkDto 
+                { 
+                    Name = link.Name, 
+                    Url = link.Url 
+                }).ToList(),
+                Tags = item.Tags.Select(tag => new FileTagDto 
+                { 
+                    Name = tag.Name, 
+                    Type = tag.Type 
+                }).ToList(),
+                YouTubeVideos = item.YouTubeVideos.Select(video => new YouTubeVideoDto
+                {
+                    VideoId = video.VideoId,
+                    Url = video.Url,
+                    Channel = video.Channel,
+                    Subtune = video.Subtune
+                }).ToList(),
+                Competitions = item.Competitions.Select(comp => new CompetitionDto
+                {
+                    Name = comp.Name,
+                    Place = comp.Place
+                }).ToList(),
+                AvgRating = item.AvgRating,
+                RatingCount = item.RatingCount,
             };
 
             switch (item)

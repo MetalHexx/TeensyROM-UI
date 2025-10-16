@@ -9,7 +9,6 @@ using TeensyRom.Ui.Features.Settings;
 using TeensyRom.Ui.Main;
 using System.Windows.Threading;
 using MediatR;
-using TeensyRom.Core.Music.Sid;
 using TeensyRom.Ui.Services;
 using TeensyRom.Core.Serial.State;
 using TeensyRom.Core.Games;
@@ -33,6 +32,9 @@ using TeensyRom.Core.Serial.Commands.ToggleMusic;
 using TeensyRom.Core.Serial.Commands.Behaviors;
 using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Device;
+using TeensyRom.Core.Music;
+using TeensyRom.Core.Music.Hvsc;
+using TeensyRom.Core.Music.DeepSid;
 
 namespace TeensyRom.Ui
 {
@@ -60,6 +62,8 @@ namespace TeensyRom.Ui
             services.AddSingleton<ICartTagger, CartTagger>();
             services.AddSingleton<IDeviceConnectionManager, DeviceConnectionManager>();
             services.AddSingleton<IGameMetadataService, GameMetadataService>();
+            services.AddSingleton<IHvscDatabase, HvscDatabase>(sp => new HvscDatabase());
+            services.AddSingleton<IDeepSidDatabase, DeepSidDatabase>(sp => new DeepSidDatabase());
             services.AddSingleton<ISidMetadataService, SidMetadataService>();
             services.AddSingleton<IMidiService, MidiService>();
             services.AddSingleton<ICachedStorageService, CachedStorageService>();

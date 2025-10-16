@@ -15,8 +15,8 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Commands;
 using TeensyRom.Core.Abstractions;
 using FluentAssertions;
-using TeensyRom.Core.Music.Sid;
 using TeensyRom.Core.Games;
+using TeensyRom.Core.Music;
 
 namespace TeensyRom.Tests.Unit
 {

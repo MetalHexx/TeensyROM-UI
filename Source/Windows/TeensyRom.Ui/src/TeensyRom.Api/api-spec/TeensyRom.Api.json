@@ -838,6 +838,22 @@
           }
         }
       },
+      "CompetitionDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "place": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
       "ConnectDeviceResponse": {
         "required": [
           "connectedCart",
@@ -919,6 +935,11 @@
           "metadataSource",
           "meta1",
           "meta2",
+          "links",
+          "tags",
+          "youTubeVideos",
+          "competitions",
+          "ratingCount",
           "metadataSourcePath",
           "parentPath",
           "playLength",
@@ -969,6 +990,39 @@
           "meta2": {
             "type": "string"
           },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileLinkDto"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileTagDto"
+            }
+          },
+          "youTubeVideos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/YouTubeVideoDto"
+            }
+          },
+          "competitions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompetitionDto"
+            }
+          },
+          "avgRating": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "ratingCount": {
+            "type": "integer",
+            "format": "int32"
+          },
           "metadataSourcePath": {
             "type": "string"
           },
@@ -1009,6 +1063,36 @@
           "Image",
           "Hex"
         ]
+      },
+      "FileLinkDto": {
+        "required": [
+          "name",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "FileTagDto": {
+        "required": [
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
       },
       "FindDevicesResponse": {
         "required": [
@@ -1285,6 +1369,30 @@
           },
           "source": {
             "type": "string"
+          }
+        }
+      },
+      "YouTubeVideoDto": {
+        "required": [
+          "videoId",
+          "url",
+          "channel",
+          "subtune"
+        ],
+        "type": "object",
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "subtune": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       }

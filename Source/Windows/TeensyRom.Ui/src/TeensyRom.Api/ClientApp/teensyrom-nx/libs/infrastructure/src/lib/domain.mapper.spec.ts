@@ -54,6 +54,34 @@ describe('DomainMapper (Storage)', () => {
                 source: 'local',
               },
             ],
+            links: [
+              {
+                name: 'CSDB Profile',
+                url: 'https://csdb.dk/scener/?id=1234',
+              },
+            ],
+            tags: [
+              {
+                name: 'Techno',
+                type: 'genre',
+              },
+            ],
+            youTubeVideos: [
+              {
+                videoId: 'abc123',
+                url: 'https://youtube.com/watch?v=abc123',
+                channel: 'Test Channel',
+                subtune: 1,
+              },
+            ],
+            competitions: [
+              {
+                name: 'Test Compo',
+                place: 1,
+              },
+            ],
+            avgRating: 4.5,
+            ratingCount: 10,
             type: ApiFileItemType.Game,
           },
         ],
@@ -72,6 +100,18 @@ describe('DomainMapper (Storage)', () => {
       expect(result.files).toHaveLength(1);
       expect(result.files[0].name).toBe('test.prg');
       expect(result.files[0].type).toBe(FileItemType.Game);
+      expect(result.files[0].links).toHaveLength(1);
+      expect(result.files[0].links[0].name).toBe('CSDB Profile');
+      expect(result.files[0].tags).toHaveLength(1);
+      expect(result.files[0].tags[0].name).toBe('Techno');
+      expect(result.files[0].youTubeVideos).toHaveLength(1);
+      expect(result.files[0].youTubeVideos[0].channel).toBe('Test Channel');
+      expect(result.files[0].youTubeVideos[0].subtune).toBe(1);
+      expect(result.files[0].competitions).toHaveLength(1);
+      expect(result.files[0].competitions[0].name).toBe('Test Compo');
+      expect(result.files[0].competitions[0].place).toBe(1);
+      expect(result.files[0].avgRating).toBe(4.5);
+      expect(result.files[0].ratingCount).toBe(10);
     });
 
     it('should handle null/undefined directories and files arrays', () => {
@@ -179,6 +219,12 @@ describe('DomainMapper (Storage)', () => {
         subtuneLengths: ['2:45', '1:30'],
         startSubtuneNum: 0,
         images: [],
+        links: [],
+        tags: [],
+        youTubeVideos: [],
+        competitions: [],
+        avgRating: undefined,
+        ratingCount: 0,
         type: ApiFileItemType.Song,
       };
 
@@ -219,6 +265,12 @@ describe('DomainMapper (Storage)', () => {
         subtuneLengths: [],
         startSubtuneNum: 0,
         images: [],
+        links: [],
+        tags: [],
+        youTubeVideos: [],
+        competitions: [],
+        avgRating: undefined,
+        ratingCount: 0,
         type: ApiFileItemType.Song,
       };
 
@@ -244,12 +296,11 @@ describe('DomainMapper (Storage)', () => {
 
     it('should default isCompatible to true when undefined', () => {
       // Arrange
-      const dto: FileItemDto = {
+      const dto = {
         name: 'test.sid',
         path: '/music/test.sid',
         size: 1024,
         isFavorite: false,
-        isCompatible: undefined,
         title: '',
         creator: '',
         releaseInfo: '',
@@ -264,8 +315,14 @@ describe('DomainMapper (Storage)', () => {
         subtuneLengths: [],
         startSubtuneNum: 0,
         images: [],
+        links: [],
+        tags: [],
+        youTubeVideos: [],
+        competitions: [],
+        avgRating: undefined,
+        ratingCount: 0,
         type: ApiFileItemType.Song,
-      };
+      } as FileItemDto;
 
       // Act
       const result = DomainMapper.toFileItem(dto, baseApiUrl);
@@ -295,6 +352,12 @@ describe('DomainMapper (Storage)', () => {
         playLength: '',
         subtuneLengths: [],
         startSubtuneNum: 0,
+        links: [],
+        tags: [],
+        youTubeVideos: [],
+        competitions: [],
+        avgRating: undefined,
+        ratingCount: 0,
         images: [
           {
             fileName: 'screenshot1.png',
@@ -391,7 +454,7 @@ describe('DomainMapper (Storage)', () => {
       const dto: ViewableItemImageDto = {
         fileName: 'test.png',
         path: '/test.png',
-        baseAssetPath: undefined as any,
+        baseAssetPath: undefined,
         source: 'local',
       };
 
@@ -559,7 +622,7 @@ describe('DomainMapper (Device)', () => {
           fwVersion: '1.0.0',
           isCompatible: true,
           isConnected: false,
-          deviceState: ApiDeviceState.Disconnected,
+          deviceState: ApiDeviceState.Connectable,
           sdStorage: {
             deviceId: 'device-1',
             type: ApiStorageType.Sd,
@@ -600,7 +663,7 @@ describe('DomainMapper (Device)', () => {
       expect(result[0].deviceId).toBe('device-1');
       expect(result[0].name).toBe('Cart 1');
       expect(result[0].isConnected).toBe(false);
-      expect(result[0].deviceState).toBe(DeviceState.Disconnected);
+      expect(result[0].deviceState).toBe(DeviceState.Connectable);
       expect(result[1].deviceId).toBe('device-2');
       expect(result[1].name).toBe('Cart 2');
       expect(result[1].isCompatible).toBe(false);

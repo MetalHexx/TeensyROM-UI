@@ -9,6 +9,10 @@ import {
   TeensyStorageType as ApiStorageType,
   LaunchRandomScopeEnum,
   NullableOfTeensyFilterType,
+  YouTubeVideoDto,
+  CompetitionDto,
+  FileLinkDto,
+  FileTagDto,
 } from '@teensyrom-nx/data-access/api-client';
 import { DeviceState as ApiDeviceState } from '@teensyrom-nx/data-access/api-client';
 import {
@@ -23,6 +27,10 @@ import {
   FileItemType,
   PlayerFilterType,
   PlayerScope,
+  FileLink,
+  FileTag,
+  YouTubeVideo,
+  Competition,
 } from '@teensyrom-nx/domain';
 
 /**
@@ -118,6 +126,12 @@ export class DomainMapper {
       startSubtuneNum: fileItemDto.startSubtuneNum ?? 0,
       images: fileItemDto.images?.map(img => DomainMapper.toViewableItemImage(img, baseApiUrl)) ?? [],
       type: DomainMapper.toFileItemType(fileItemDto.type),
+      links: fileItemDto.links?.map(DomainMapper.toFileLink) ?? [],
+      tags: fileItemDto.tags?.map(DomainMapper.toFileTag) ?? [],
+      youTubeVideos: fileItemDto.youTubeVideos?.map(DomainMapper.toYouTubeVideo) ?? [],
+      competitions: fileItemDto.competitions?.map(DomainMapper.toCompetition) ?? [],
+      avgRating: fileItemDto.avgRating ?? undefined,
+      ratingCount: fileItemDto.ratingCount ?? 0,
     };
   }
 
@@ -228,5 +242,49 @@ export class DomainMapper {
    */
   static toApiSearchFilter(filter: PlayerFilterType): NullableOfTeensyFilterType {
     return DomainMapper.toApiPlayerFilter(filter);
+  }
+
+  // ===== NEW MAPPING METHODS =====
+
+  /**
+   * Convert API FileLink DTO to domain FileLink
+   */
+  static toFileLink(dto: FileLinkDto): FileLink {
+    return {
+      name: dto.name ?? '',
+      url: dto.url ?? ''
+    };
+  }
+
+  /**
+   * Convert API FileTag DTO to domain FileTag
+   */
+  static toFileTag(dto: FileTagDto): FileTag {
+    return {
+      name: dto.name ?? '',
+      type: dto.type ?? ''
+    };
+  }
+
+  /**
+   * Convert API YouTubeVideo DTO to domain YouTubeVideo
+   */
+  static toYouTubeVideo(dto: YouTubeVideoDto): YouTubeVideo {
+    return {
+      videoId: dto.videoId ?? '',
+      url: dto.url ?? '',
+      channel: dto.channel ?? '',
+      subtune: dto.subtune ?? 0
+    };
+  }
+
+  /**
+   * Convert API Competition DTO to domain Competition
+   */
+  static toCompetition(dto: CompetitionDto): Competition {
+    return {
+      name: dto.name ?? '',
+      place: dto.place ?? undefined
+    };
   }
 }

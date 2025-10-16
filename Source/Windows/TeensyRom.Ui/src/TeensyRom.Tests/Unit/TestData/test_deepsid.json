@@ -1,0 +1,225 @@
+[
+  {
+    "id": 1,
+    "file_path": "/DEMOS/0-9/10_Orbyte.sid",
+    "title": "10 Orbyte",
+    "author": "Michael Becker (Premium)",
+    "copyright": "2014 Tristar & Red Sector Inc.",
+    "composer": {
+      "id": 1001,
+      "path": "/MUSICIANS/B/Becker_Michael",
+      "name": "Michael Becker",
+      "shortname": "Becker",
+      "handles": ["Premium"],
+      "shorthandle": "Premium",
+      "active_year": "2014",
+      "born": null,
+      "died": null,
+      "country": "Germany",
+      "csdb": {
+        "id": 12345,
+        "type": "scener",
+        "url": "https://csdb.dk/scener/?id=12345"
+      },
+      "image_source": null,
+      "notable": null,
+      "employment": null,
+      "affiliation": null,
+      "brand": null,
+      "branddark": null,
+      "links": []
+    },
+    "player_type": "Compute!'s Sidplayer",
+    "subtune_lengths": "1:17",
+    "file_type": "PSID",
+    "version": 2,
+    "playertype": "",
+    "playercompat": "",
+    "clockspeed": "PAL",
+    "sidmodel": "6581",
+    "dataoffset": 124,
+    "datasize": 4096,
+    "loadaddr": 4096,
+    "initaddr": 4096,
+    "playaddr": 0,
+    "subtunes": 1,
+    "startsubtune": 1,
+    "hash": "abc123",
+    "stil": null,
+    "is_new": 0,
+    "last_updated": 1234567890,
+    "csdbtype": "release",
+    "csdbid": 67890,
+    "csdb_url": "https://csdb.dk/release/?id=67890",
+    "application": "",
+    "gb64": "",
+    "tags": [
+      {
+        "name": "demo",
+        "type": "category"
+      },
+      {
+        "name": "modern",
+        "type": "era"
+      }
+    ],
+    "youtube_videos": [],
+    "competitions": [],
+    "avg_rating": 4.5,
+    "rating_count": 10
+  },
+  {
+    "id": 2,
+    "file_path": "/MUSICIANS/H/Hubbard_Rob/Commando.sid",
+    "title": "Commando",
+    "author": "Rob Hubbard",
+    "copyright": "1985 Elite Systems",
+    "composer": {
+      "id": 1,
+      "path": "/MUSICIANS/H/Hubbard_Rob",
+      "name": "Rob Hubbard",
+      "shortname": "Hubbard",
+      "handles": ["Hubbard", "Rob Hubbard"],
+      "shorthandle": "Hubbard",
+      "active_year": "1985-1989",
+      "born": "1955",
+      "died": null,
+      "country": "United Kingdom",
+      "csdb": {
+        "id": 298,
+        "type": "scener",
+        "url": "https://csdb.dk/scener/?id=298"
+      },
+      "image_source": "wikipedia",
+      "notable": "Legendary C64 composer",
+      "employment": "Elite Systems, Activision",
+      "affiliation": null,
+      "brand": "#FF5733",
+      "branddark": "#C70039",
+      "links": [
+        {
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Rob_Hubbard"
+        }
+      ]
+    },
+    "player_type": "Compute!'s Sidplayer",
+    "subtune_lengths": "2:46 1:10 1:28",
+    "file_type": "PSID",
+    "version": 2,
+    "playertype": "",
+    "playercompat": "",
+    "clockspeed": "PAL",
+    "sidmodel": "6581",
+    "dataoffset": 124,
+    "datasize": 8192,
+    "loadaddr": 4096,
+    "initaddr": 4096,
+    "playaddr": 0,
+    "subtunes": 3,
+    "startsubtune": 1,
+    "hash": "def456",
+    "stil": "This is the famous Commando theme from the game.",
+    "is_new": 0,
+    "last_updated": 1234567890,
+    "csdbtype": "release",
+    "csdbid": 12345,
+    "csdb_url": "https://csdb.dk/release/?id=12345",
+    "application": "Commando",
+    "gb64": "http://www.gb64.com/game.php?id=1234",
+    "tags": [
+      {
+        "name": "game",
+        "type": "category"
+      },
+      {
+        "name": "classic",
+        "type": "era"
+      },
+      {
+        "name": "action",
+        "type": "genre"
+      }
+    ],
+    "youtube_videos": [
+      {
+        "video_id": "abc123xyz",
+        "url": "https://youtube.com/watch?v=abc123xyz",
+        "channel": "C64 Music",
+        "subtune": 1
+      }
+    ],
+    "competitions": [],
+    "avg_rating": 4.9,
+    "rating_count": 250
+  },
+  {
+    "id": 3,
+    "file_path": "/DEMOS/0-9/1st_Sound.sid",
+    "title": "1st Sound",
+    "author": "Zagon",
+    "copyright": "1987 Phenomena",
+    "composer": {
+      "id": 2001,
+      "path": "/MUSICIANS/Z/Zagon",
+      "name": "Zagon",
+      "shortname": "Zagon",
+      "handles": ["Zagon"],
+      "shorthandle": "Zagon",
+      "active_year": "1987",
+      "born": null,
+      "died": null,
+      "country": null,
+      "csdb": {
+        "id": 5678,
+        "type": "scener",
+        "url": "https://csdb.dk/scener/?id=5678"
+      },
+      "image_source": null,
+      "notable": null,
+      "employment": null,
+      "affiliation": "Phenomena",
+      "brand": null,
+      "branddark": null,
+      "links": []
+    },
+    "player_type": "Compute!'s Sidplayer",
+    "subtune_lengths": "4:48",
+    "file_type": "PSID",
+    "version": 2,
+    "playertype": "",
+    "playercompat": "",
+    "clockspeed": "PAL",
+    "sidmodel": "6581",
+    "dataoffset": 124,
+    "datasize": 4096,
+    "loadaddr": 4096,
+    "initaddr": 4096,
+    "playaddr": 0,
+    "subtunes": 1,
+    "startsubtune": 1,
+    "hash": "ghi789",
+    "stil": "Heart by the Pet Shop Boys.",
+    "is_new": 0,
+    "last_updated": 1234567890,
+    "csdbtype": "release",
+    "csdbid": 33333,
+    "csdb_url": "https://csdb.dk/release/?id=33333",
+    "application": "",
+    "gb64": "",
+    "tags": [
+      {
+        "name": "demo",
+        "type": "category"
+      },
+      {
+        "name": "cover",
+        "type": "style"
+      }
+    ],
+    "youtube_videos": [],
+    "competitions": [],
+    "avg_rating": 4.2,
+    "rating_count": 15
+  }
+]

@@ -6,6 +6,7 @@ apis/index.ts
 index.ts
 models/CartDto.ts
 models/CartStorageDto.ts
+models/CompetitionDto.ts
 models/ConnectDeviceResponse.ts
 models/DeviceStartResponse.ts
 models/DeviceState.ts
@@ -14,6 +15,8 @@ models/DirectoryItemDto.ts
 models/DisconnectDeviceResponse.ts
 models/FileItemDto.ts
 models/FileItemType.ts
+models/FileLinkDto.ts
+models/FileTagDto.ts
 models/FindDevicesResponse.ts
 models/GetDirectoryResponse.ts
 models/IndexAllResponse.ts
@@ -31,5 +34,6 @@ models/StorageCacheDto.ts
 models/TeensyStorageType.ts
 models/ToggleMusicResponse.ts
 models/ViewableItemImageDto.ts
+models/YouTubeVideoDto.ts
 models/index.ts
 runtime.ts

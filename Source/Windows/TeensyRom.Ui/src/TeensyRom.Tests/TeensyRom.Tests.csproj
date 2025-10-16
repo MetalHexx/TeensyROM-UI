@@ -28,4 +28,10 @@
     <ProjectReference Include="..\TeensyRom.Ui\TeensyRom.Ui.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Unit\TestData\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

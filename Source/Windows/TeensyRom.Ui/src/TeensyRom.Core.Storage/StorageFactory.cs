@@ -3,7 +3,7 @@ using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Games;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Music.Sid;
+using TeensyRom.Core.Music;
 
 namespace TeensyRom.Core.Storage
 {

@@ -13,6 +13,7 @@ namespace TeensyRom.Core.Music
         public const string Hvsc = "HVSC";
         public const string SidList_Local_Path = @"Assets\Music\SidList\";
         public const string DeepSid = "DeepSID";
+        public const string DeepSid_Db_Local_Path = @"Assets\Music\DeepSidDB\";
         public const string Musician_Image_Local_Path = @"Assets\Music\Images\Composers\";
         public const string Hvsc_Musician_Base_Remote_Path = @"/MUSICIANS/";
         public const double Linear_Speed_Min = -68;

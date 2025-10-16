@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Music\Sid\SIDlist_79_UTF8.csv" />
+    <None Remove="Music\Hvsc\SIDlist_79_UTF8.csv" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +28,12 @@
     </None>
     <None Update="Assets\Game\Images\OneLoad64.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\Music\DeepSidDB\deepsid_db.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\Music\Deepsid_db\deepsid_db.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Assets\Music\Images\Composers\Composers.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -54,6 +60,7 @@
 
   <ItemGroup>
     <Folder Include="Assets\Game\Images\" />
+    <Folder Include="Assets\Music\Deepsid_db\" />
     <Folder Include="Assets\Music\Images\Composers\" />
     <Folder Include="Assets\Music\SidList\" />
   </ItemGroup>

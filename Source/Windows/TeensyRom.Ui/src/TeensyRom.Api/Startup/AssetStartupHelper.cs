@@ -15,6 +15,7 @@ namespace TeensyRom.Api.Startup
             AssetHelper.UnpackAssets(GameConstants.Game_Image_Local_Path, "OneLoad64.zip");
             AssetHelper.UnpackAssets(MusicConstants.Musician_Image_Local_Path, "Composers.zip");
             AssetHelper.UnpackAssets(AssetConstants.VicePath, "vice-bins.zip");
+            AssetHelper.UnpackAssets(MusicConstants.DeepSid_Db_Local_Path, "deepsid_db.zip");
         }
     }
 }

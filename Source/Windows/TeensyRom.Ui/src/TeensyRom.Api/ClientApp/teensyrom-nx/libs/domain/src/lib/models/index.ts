@@ -6,6 +6,10 @@ export * from './device-state.enum';
 // Storage models
 export * from './directory-item.model';
 export * from './file-item.model';
+export * from './file-link.model';
+export * from './file-tag.model';
+export * from './youtube-video.model';
+export * from './competition.model';
 export * from './viewable-item-image.model';
 export * from './file-item-type.enum';
 export * from './storage-type.enum';

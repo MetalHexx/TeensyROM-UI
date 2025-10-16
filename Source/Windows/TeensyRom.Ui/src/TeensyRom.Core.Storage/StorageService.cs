@@ -6,7 +6,7 @@ using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
 using TeensyRom.Core.Games;
 using TeensyRom.Core.Logging;
-using TeensyRom.Core.Music.Sid;
+using TeensyRom.Core.Music;
 using TeensyRom.Core.Settings;
 using TeensyRom.Core.ValueObjects;
 
