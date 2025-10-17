@@ -30,56 +30,64 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
       transition('void => visible', [
         style({
           opacity: 0,
-          overflow: 'hidden',
           transform: '{{ startTransform }} scale(0.8)',
           transformOrigin: '{{ transformOrigin }}'
         }),
         group([
-          animate('2000ms cubic-bezier(0.35, 0, 0.25, 1)', style({
-            overflow: 'hidden',
+          animate('{{ transformDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
             transform: 'translate(0, 0) scale(1)',
             transformOrigin: '{{ transformOrigin }}'
           })),
-          animate('3000ms cubic-bezier(0.35, 0, 0.25, 1)', style({
-            opacity: 1,
-            overflow: 'hidden'
+          animate('{{ opacityDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
+            opacity: 1
           }))
         ])
-      ], { params: { startTransform: 'translate(-40px, -40px)', transformOrigin: 'top left' } }),
+      ], { params: { 
+        startTransform: 'translate(-40px, -40px)', 
+        transformOrigin: 'top left',
+        transformDuration: '2000',
+        opacityDuration: '3000'
+      } }),
       transition('hidden => visible', [
         style({
           opacity: 0,
-          overflow: 'hidden',
           transform: '{{ startTransform }} scale(0.8)',
           transformOrigin: '{{ transformOrigin }}'
         }),
         group([
-          animate('2000ms cubic-bezier(0.35, 0, 0.25, 1)', style({
-            overflow: 'hidden',
+          animate('{{ transformDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
             transform: 'translate(0, 0) scale(1)',
             transformOrigin: '{{ transformOrigin }}'
           })),
-          animate('3000ms cubic-bezier(0.35, 0, 0.25, 1)', style({
-            opacity: 1,
-            overflow: 'hidden'
+          animate('{{ opacityDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
+            opacity: 1
           }))
         ])
-      ], { params: { startTransform: 'translate(-40px, -40px)', transformOrigin: 'top left' } }),
+      ], { params: { 
+        startTransform: 'translate(-40px, -40px)', 
+        transformOrigin: 'top left',
+        transformDuration: '2000',
+        opacityDuration: '3000'
+      } }),
       transition('visible => hidden', [
         style({
-          overflow: 'hidden',
           transformOrigin: '{{ transformOrigin }}'
         }),
         group([
-          animate('2000ms cubic-bezier(0.35, 0, 0.25, 1)', style({
+          animate('{{ transformDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
             transform: '{{ exitTransform }} scale(0.8)',
             transformOrigin: '{{ transformOrigin }}'
           })),
-          animate('3000ms cubic-bezier(0.35, 0, 0.25, 1)', style({
+          animate('{{ opacityDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
             opacity: 0
           }))
         ])
-      ], { params: { exitTransform: 'translate(40px, 40px)', transformOrigin: 'top left' } })
+      ], { params: { 
+        exitTransform: 'translate(40px, 40px)', 
+        transformOrigin: 'top left',
+        transformDuration: '2000',
+        opacityDuration: '3000'
+      } })
     ])
   ]
 })
@@ -88,6 +96,12 @@ export class ScalingContainerComponent {
   animationEntry = input<AnimationDirection>('random');
   animationExit = input<AnimationDirection>('random');
   animationTrigger = input<boolean | undefined>(undefined);
+  
+  /**
+   * Animation duration in milliseconds for transform animation (default: 2000ms)
+   * Opacity animation runs 1.5x this duration for smooth fade
+   */
+  animationDuration = input<number>(2000);
   
   /**
    * Controls whether this component waits for parent animations:
@@ -152,25 +166,20 @@ export class ScalingContainerComponent {
   // Determine animation state based on trigger logic
   protected animationState = computed(() => {
     const shouldAnimate = this.shouldRender();
+    const transformDuration = this.animationDuration();
+    const opacityDuration = Math.round(transformDuration * 1.5); // Opacity animation is 1.5x transform duration
 
     return {
       value: shouldAnimate ? 'visible' : 'hidden',
       params: {
         startTransform: this.getTransformForDirection(this.animationEntry(), false),
         exitTransform: this.getTransformForDirection(this.animationExit(), true),
-        transformOrigin: this.getTransformOrigin(this.animationEntry())
+        transformOrigin: this.getTransformOrigin(this.animationEntry()),
+        transformDuration: transformDuration.toString(),
+        opacityDuration: opacityDuration.toString()
       }
     };
   });
-
-  animationParams = computed(() => ({
-    value: 'visible',
-    params: {
-      startTransform: this.getTransformForDirection(this.animationEntry(), false),
-      exitTransform: this.getTransformForDirection(this.animationExit(), true),
-      transformOrigin: this.getTransformOrigin(this.animationEntry())
-    }
-  }));
 
   private getTransformForDirection(direction: AnimationDirection, isExit: boolean): string {
     // No animation - return no transform

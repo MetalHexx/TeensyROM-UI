@@ -1,0 +1,36 @@
+@use '../../../../styles/src/lib/theme/styles.scss' as styles;
+
+:host {
+  @include styles.selectable-item;
+  display: inline-flex;
+
+  &.selected,
+  &.active {
+    background: none;
+  }
+}
+
+button {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  color: var(--mat-sys-primary);
+  cursor: pointer;
+  font-family: inherit;
+
+  &:visited {
+    color: var(--mat-sys-primary);
+  }
+
+  &:hover:not(:disabled),
+  &:active:not(:disabled),
+  &:focus:not(:disabled) {
+    color: var(--mat-sys-primary);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

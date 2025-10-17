@@ -1,12 +1,12 @@
 import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IconLabelComponent } from '../icon-label/icon-label.component';
+import { LinkComponent } from '../link/link.component';
 import { StyledIconColor } from '../styled-icon/styled-icon.component';
 
 @Component({
   selector: 'lib-external-link',
   standalone: true,
-  imports: [CommonModule, IconLabelComponent],
+  imports: [CommonModule, LinkComponent],
   templateUrl: './external-link.component.html',
   styleUrl: './external-link.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -16,4 +16,5 @@ export class CardLayoutComponent {
   subtitle = input<string>();
   metadataSource = input<string>();
   enableOverflow = input<boolean>(true);
+  cardClass = input<string>(''); // Optional CSS class(es) to apply to the mat-card
 }

@@ -1,19 +1,22 @@
 import { Component, input, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ScalingCardComponent, EmptyStateMessageComponent, ExternalLinkComponent } from '@teensyrom-nx/ui/components';
+import { MatDialog } from '@angular/material/dialog';
+import { ScalingCardComponent, EmptyStateMessageComponent, ExternalLinkComponent, ActionLinkComponent } from '@teensyrom-nx/ui/components';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
-import { FileItemType } from '@teensyrom-nx/domain';
+import { FileItemType, YouTubeVideo } from '@teensyrom-nx/domain';
+import { YouTubeDialogComponent } from './youtube-dialog/youtube-dialog.component';
 
 @Component({
   selector: 'lib-file-other',
-  imports: [CommonModule, ScalingCardComponent, MatChipsModule, MatIconModule, EmptyStateMessageComponent, ExternalLinkComponent],
+  imports: [CommonModule, ScalingCardComponent, MatChipsModule, MatIconModule, EmptyStateMessageComponent, ExternalLinkComponent, ActionLinkComponent],
   templateUrl: './file-other.component.html',
   styleUrl: './file-other.component.scss',
 })
 export class FileOtherComponent {
   private readonly playerContext = inject(PLAYER_CONTEXT);
+  private readonly dialog = inject(MatDialog);
 
   // Required input for device identification
   deviceId = input.required<string>();
@@ -46,4 +49,14 @@ export class FileOtherComponent {
               file?.file.youTubeVideos?.length || file?.file.competitions?.length);
   });
   readonly hasFile = computed(() => !!this.currentFile());
+
+  openYouTubeDialog(video: YouTubeVideo): void {
+    this.dialog.open(YouTubeDialogComponent, {
+      data: { video },
+      width: '800px',
+      maxWidth: '90vw',
+      panelClass: 'youtube-dialog',
+      backdropClass: 'youtube-dialog-backdrop',
+    });
+  }
 }

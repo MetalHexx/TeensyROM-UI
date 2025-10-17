@@ -13,4 +13,5 @@ import { MatCardModule } from '@angular/material/card';
 })
 export class CompactCardLayoutComponent {
   enableOverflow = input<boolean>(true);
+  cardClass = input<string>(''); // Optional CSS class(es) to apply to the mat-card
 }

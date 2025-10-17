@@ -1,0 +1,30 @@
+<lib-scaling-card
+  cardClass="glassy-card"
+  [title]="data.video.channel"
+  [enableOverflow]="true"
+  [animationDuration]="1200"
+  animationEntry="from-top"
+  animationExit="from-bottom">
+  
+  <!-- Close button in corner -->
+  <div slot="corner">
+    <lib-icon-button
+      icon="close"
+      ariaLabel="Close dialog"
+      variant="rounded-transparent"
+      (buttonClick)="onClose()">
+    </lib-icon-button>
+  </div>
+
+  <!-- YouTube iframe -->
+  <div class="video-container">
+    <iframe
+      [src]="youtubeEmbedUrl"
+      title="YouTube video player"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+      loading="lazy">
+    </iframe>
+  </div>
+</lib-scaling-card>

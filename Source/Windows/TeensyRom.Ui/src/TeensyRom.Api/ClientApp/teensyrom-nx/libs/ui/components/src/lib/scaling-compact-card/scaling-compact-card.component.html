@@ -1,8 +1,9 @@
 <lib-scaling-container
   [animationEntry]="animationEntry()"
   [animationExit]="animationExit()"
+  [animationDuration]="animationDuration()"
   [animationTrigger]="shouldRender()">
-  <lib-compact-card-layout [enableOverflow]="enableOverflow()">
+  <lib-compact-card-layout [cardClass]="cardClass()" [enableOverflow]="enableOverflow()">
     <ng-content></ng-content>
   </lib-compact-card-layout>
 </lib-scaling-container>

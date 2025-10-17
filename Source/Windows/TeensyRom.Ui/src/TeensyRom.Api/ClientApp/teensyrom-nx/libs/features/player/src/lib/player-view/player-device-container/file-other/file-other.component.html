@@ -59,11 +59,11 @@
             <h4>Related Videos</h4>
             <div class="videos-container">
               @for (video of youTubeVideos(); track $index) {
-                <lib-external-link 
-                  [href]="video.url"
+                <lib-action-link 
                   [label]="video.channel"
-                  icon="play_circle">
-                </lib-external-link>
+                  icon="play_circle"
+                  (linkClick)="openYouTubeDialog(video)">
+                </lib-action-link>
               }
             </div>
           </div>

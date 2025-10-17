@@ -69,8 +69,8 @@ Animated cards that combine layout + animation. See [Animation System](#animatio
 **Selector**: `lib-scaling-card`
 
 **Properties**:
-- Layout props: `title`, `subtitle`, `metadataSource`, `enableOverflow`
-- Animation props: `animationEntry`, `animationExit`, `animationTrigger`, `animationParent`
+- Layout props: `title`, `subtitle`, `metadataSource`, `enableOverflow`, `cardClass`
+- Animation props: `animationEntry`, `animationExit`, `animationTrigger`, `animationParent`, `animationDuration`
 
 **Usage**:
 
@@ -78,6 +78,15 @@ Animated cards that combine layout + animation. See [Animation System](#animatio
 <lib-scaling-card title="Device" animationEntry="from-left">
   <button mat-icon-button slot="corner"><mat-icon>more_vert</mat-icon></button>
   <p>Content...</p>
+</lib-scaling-card>
+
+<!-- With custom animation speed and glassy effect -->
+<lib-scaling-card 
+  cardClass="glassy-card" 
+  title="YouTube Video" 
+  [animationDuration]="1200"
+  animationEntry="from-top">
+  <iframe src="..."></iframe>
 </lib-scaling-card>
 ```
 
@@ -90,14 +99,21 @@ Animated cards that combine layout + animation. See [Animation System](#animatio
 **Selector**: `lib-scaling-compact-card`
 
 **Properties**:
-- Layout props: `enableOverflow`
-- Animation props: `animationEntry`, `animationExit`, `animationTrigger`, `animationParent`
+- Layout props: `enableOverflow`, `cardClass`
+- Animation props: `animationEntry`, `animationExit`, `animationTrigger`, `animationParent`, `animationDuration`
 
 **Usage**:
 
 ```html
 <lib-scaling-compact-card animationEntry="from-top">
   <mat-form-field><input matInput /></mat-form-field>
+</lib-scaling-compact-card>
+
+<!-- With custom animation speed -->
+<lib-scaling-compact-card 
+  [animationDuration]="800"
+  animationEntry="from-left">
+  <form>...</form>
 </lib-scaling-compact-card>
 ```
 
@@ -186,21 +202,30 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 - `animationExit`: Exit direction (default: `'random'`)
 - `animationTrigger`: Manual control signal (optional) - **Enables exit animations**
 - `animationParent`: Override animation chaining (optional - see [Animation System](#animation-system))
+- `animationDuration`: Transform animation duration in milliseconds (default: `2000`) - Opacity duration is automatically calculated as 1.5x this value for smoother fade effect
 
 **Events**:
 - `animationComplete`: Emitted when animation finishes
 
 **Animation Behavior**:
-- **Entry**: 0.8→1.0 scale, opacity 0→1 fade, -40px directional slide. Transform (2000ms) + opacity (3000ms) for smooth reveal.
+- **Entry**: 0.8→1.0 scale, opacity 0→1 fade, -40px directional slide. Transform uses `animationDuration` (default 2000ms), opacity uses 1.5x that value (default 3000ms) for smooth reveal.
 - **Exit**: Uses `animationTrigger` to play reverse animation before removing from DOM. Component stays visible during exit animation.
 - **Transitions**: `void => visible` (initial), `hidden => visible` (show), `visible => hidden` (hide with animation)
+- **No Overflow Clipping**: Content is fully visible throughout animation - corner slots (like close buttons) are never clipped
 
 **Usage**:
 
 ```html
-<!-- Basic entry animation -->
+<!-- Basic entry animation with default duration (2000ms) -->
 <lib-scaling-container animationEntry="from-left">
   <div class="panel">Scales in from left</div>
+</lib-scaling-container>
+
+<!-- Custom faster animation (1200ms transform, 1800ms opacity) -->
+<lib-scaling-container 
+  animationEntry="from-top"
+  [animationDuration]="1200">
+  <div>Snappy animation</div>
 </lib-scaling-container>
 
 <!-- With exit animations using animationTrigger -->
@@ -223,6 +248,34 @@ Reusable animation wrappers. Can be used directly or composed into other compone
     <div>Waits for parent</div>
   </lib-scaling-container>
 </lib-sliding-container>
+```
+
+**Browser Limitation Note**: 
+
+When using CSS `backdrop-filter` (e.g., for glassy effects) on animated content, the blur may not render smoothly during transform animations. This is a browser limitation where GPU-accelerated transforms don't play well with backdrop-filter.
+
+**Workaround**: For dialogs or overlays with glassy effects:
+1. Apply `backdrop-filter` to the static dialog container (non-animated parent)
+2. Use ScalingContainer for the inner animated card
+3. This creates a layered effect where the blur is always visible
+
+Example:
+```typescript
+// Dialog config
+this.dialog.open(MyDialogComponent, {
+  panelClass: 'my-glassy-dialog',  // Has backdrop-filter on .mat-mdc-dialog-container
+  backdropClass: 'my-dialog-backdrop'
+});
+```
+
+```html
+<!-- Dialog template -->
+<lib-scaling-card 
+  cardClass="glassy-card"
+  [animationDuration]="1200"
+  animationEntry="from-top">
+  <div>Content with smooth blur effect</div>
+</lib-scaling-card>
 ```
 
 **Exit Animation Pattern**: When using `animationTrigger`, always render both components and let the trigger control visibility. Position them absolutely if overlapping. The component will:
@@ -251,22 +304,38 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 **Properties**:
 - `animationTrigger`: Manual control signal (optional) - **Enables exit animations**
 - `animationParent`: Override animation chaining (optional - see [Animation System](#animation-system))
+- `animationDuration`: Animation duration in milliseconds (default: `200`)
 
 **Events**:
 - `animationComplete`: Emitted when animation finishes
 
 **Animation Behavior**:
-- **Entry**: 0→1 opacity fade with 10px→0px blur effect. Single smooth 800ms transition with cubic-bezier easing.
+- **Entry**: 0→1 opacity fade with 10px→0px blur effect. Single smooth transition (default 200ms) with cubic-bezier easing.
 - **Exit**: Uses `animationTrigger` to play reverse animation before removing from DOM. Component stays visible during exit animation.
 - **Transitions**: `void => visible` (initial), `hidden => visible` (show), `visible => hidden` (hide with animation)
 - **No Transforms**: Unlike scaling/sliding containers, this component uses pure opacity and blur - no scale, translate, or layout changes
 
+**Backdrop-Filter Advantage**:
+
+Because FadingContainer uses **no CSS transforms**, it's the best choice for content with `backdrop-filter` (glassy effects). Browsers render backdrop-filter smoothly during opacity-only animations, avoiding the "blur pop-in" issue that occurs with transform-based animations.
+
+**Use FadingContainer when**:
+- Content has `.glassy-card` or other backdrop-filter styling
+- You want the smoothest possible blur effect throughout animation
+- Transform-based "pop" effect is not needed
+- Lightweight, subtle transitions are preferred
+
 **Usage**:
 
 ```html
-<!-- Basic entry animation -->
+<!-- Basic entry animation with default duration (200ms) -->
 <lib-fading-container>
   <div class="content">Fades in smoothly</div>
+</lib-fading-container>
+
+<!-- Longer animation for dramatic effect (1200ms) -->
+<lib-fading-container [animationDuration]="1200">
+  <div class="glassy-card">Slower fade with blur</div>
 </lib-fading-container>
 
 <!-- With exit animations using animationTrigger -->
@@ -290,6 +359,13 @@ Reusable animation wrappers. Can be used directly or composed into other compone
     <div>Waits for parent animation</div>
   </lib-fading-container>
 </lib-sliding-container>
+
+<!-- Perfect for glassy dialog overlays (smooth backdrop-filter) -->
+<lib-fading-container [animationDuration]="800">
+  <lib-card-layout cardClass="glassy-card">
+    <div>Blur renders perfectly - no transforms!</div>
+  </lib-card-layout>
+</lib-fading-container>
 ```
 
 **Exit Animation Pattern**: When using `animationTrigger`, always render both components and let the trigger control visibility. Position them absolutely if overlapping. The component will:
@@ -952,6 +1028,144 @@ The component provides **three flexible approaches** for handling user input:
 
 ## Link Components
 
+### `LinkComponent`
+
+**Purpose**: A pure presentation component for displaying links with icon + label rendering. Serves as a reusable base for link-based components. Composes `IconLabelComponent` for consistent icon and text display.
+
+**Selector**: `lib-link`
+
+**Properties**:
+
+- `label` (required): `string` - Link text displayed to the user
+- `icon` (optional): `string` - Material Design icon name to display next to label - defaults to 'link'
+- `iconColor` (optional): `StyledIconColor` - Icon color variant (`'primary'`, `'error'`, `'normal'`, etc.) - defaults to 'primary'
+
+**Usage Examples**:
+
+```html
+<!-- Basic link component (used internally by other link types) -->
+<lib-link label="Learn More" icon="help"></lib-link>
+
+<!-- With error color -->
+<lib-link label="Delete" icon="delete" iconColor="error"></lib-link>
+
+<!-- With custom icon -->
+<lib-link label="External" icon="open_in_new" iconColor="highlight"></lib-link>
+```
+
+**Design Purpose**: `LinkComponent` is a presentational-only component designed to be composed into higher-level link components (`ExternalLinkComponent`, `ActionLinkComponent`) rather than used directly. It provides reusable icon + label rendering logic, reducing duplication.
+
+**Best Practice**: Use `ExternalLinkComponent` for navigation links and `ActionLinkComponent` for button-style action triggers. `LinkComponent` is primarily for internal composition.
+
+**Composition Pattern**: This component exemplifies the composition pattern used throughout the TeensyROM UI library:
+- Base presentation component handles display logic
+- Wrapper components add specific behaviors (navigation, event emission, etc.)
+- Reduces code duplication while maintaining single responsibility principle
+
+**See Also**: [ActionLinkComponent](#actionlinkcomponent), [ExternalLinkComponent](#externallinkcomponent)
+
+### `ActionLinkComponent`
+
+**Purpose**: A button-based link component for triggering actions or opening modals. Semantically uses `<button>` instead of `<a>` for non-navigational interactions. Provides event emission for action handling and keyboard accessibility (Enter/Space keys). Composes `LinkComponent` for consistent icon and label styling.
+
+**Selector**: `lib-action-link`
+
+**Properties**:
+
+- `label` (required): `string` - Button text displayed to the user
+- `icon` (optional): `string` - Material Design icon name to display next to label - defaults to 'link'
+- `iconColor` (optional): `StyledIconColor` - Icon color variant (`'primary'`, `'error'`, `'normal'`, etc.) - defaults to 'primary'
+- `disabled` (optional): `boolean` - Whether the button is disabled - defaults to false
+
+**Events**:
+
+- `linkClick`: Emitted when the button is clicked (only when not disabled)
+
+**Usage Examples**:
+
+```html
+<!-- Basic action link -->
+<lib-action-link label="Open Video" (linkClick)="openVideo()"></lib-action-link>
+
+<!-- YouTube video link in file metadata -->
+<lib-action-link
+  label="Watch Tutorial"
+  icon="play_circle"
+  iconColor="primary"
+  (linkClick)="openYouTubeDialog(video)">
+</lib-action-link>
+
+<!-- Disabled state -->
+<lib-action-link
+  label="Delete"
+  icon="delete"
+  iconColor="error"
+  [disabled]="!canDelete"
+  (linkClick)="deleteItem()">
+</lib-action-link>
+
+<!-- With custom icon color -->
+<lib-action-link
+  label="Archive"
+  icon="archive"
+  iconColor="highlight"
+  (linkClick)="archiveItem()">
+</lib-action-link>
+```
+
+**Advanced Usage Patterns**:
+
+```typescript
+// In component - opening modal on action-link click
+export class FileOtherComponent {
+  private readonly dialog = inject(MatDialog);
+
+  openYouTubeDialog(video: YouTubeVideo): void {
+    this.dialog.open(YouTubeDialogComponent, {
+      data: { video },
+      width: '800px',
+      maxWidth: '90vw'
+    });
+  }
+}
+```
+
+```html
+<!-- In template -->
+@for (video of youtubeVideos(); track video.videoId) {
+  <lib-action-link
+    [label]="video.channel"
+    icon="play_circle"
+    (linkClick)="openYouTubeDialog(video)">
+  </lib-action-link>
+}
+```
+
+**Semantic Difference from ExternalLinkComponent**:
+
+- **ActionLinkComponent**: Uses `<button>` - for actions, events, modal triggers
+- **ExternalLinkComponent**: Uses `<a>` - for navigation to URLs
+
+**Keyboard Accessibility**:
+
+- **Enter Key**: Activates button (standard `<button>` behavior)
+- **Space Key**: Activates button (standard `<button>` behavior)
+- **Disabled State**: Cannot be focused when disabled (set via `tabindex="-1"`)
+
+**Styling Integration**:
+
+- Uses `.selectable-item` mixin from style guide for consistent hover/active states
+- Inherits `iconColor` styling from composed `LinkComponent`
+- Semantic `<button>` styling for proper focus/active states
+
+**Best Practice**: Use whenever you need a link-style UI that triggers an action or opens a modal/dialog. Always prefer semantic `<button>` over `<a>` for non-navigational interactions to maintain proper HTML semantics and accessibility.
+
+**Used In**:
+
+- [`file-other.component.html`](../libs/features/player/src/lib/player-view/player-device-container/file-other/file-other.component.html) - YouTube video triggers that open dialog
+
+**See Also**: [LinkComponent](#linkcomponent), [ExternalLinkComponent](#externallinkcomponent)
+
 ### `ExternalLinkComponent`
 
 **Purpose**: A reusable external link component that displays links with consistent styling, security attributes, and icon+label rendering. Automatically applies security attributes (`rel="noopener noreferrer"`) to external links opening in new tabs. Provides full keyboard and screen reader accessibility.
@@ -1087,6 +1301,115 @@ The component composes two child elements:
 **Used In**:
 
 - [`file-other.component.html`](../libs/features/player/src/lib/player-view/player-device-container/file-other/file-other.component.html) - DeepSID and YouTube external links
+
+---
+
+## Modal Components
+
+### `YouTubeDialogComponent`
+
+**Purpose**: A Material Dialog component for displaying embedded YouTube videos within the TeensyROM player. Uses `ScalingCardComponent` with smooth animations (from-top entry, from-bottom exit) to provide an elegant modal experience for watching YouTube content linked to file metadata. Properly sanitizes YouTube embed URLs and handles responsive sizing.
+
+**Selector**: `lib-youtube-dialog`
+
+**Properties** (Provided via MatDialog data):
+
+- `data.video` (required): `YouTubeVideo` - Video object containing:
+  - `videoId` (required): `string` - YouTube video ID (e.g., 'dQw4w9WgXcQ')
+  - `url` (optional): `string` - Full YouTube URL
+  - `channel` (required): `string` - Channel name displayed as dialog title
+  - `subtune` (optional): `number` - Associated subtune index
+
+**Dialog Configuration**:
+
+When opening the dialog via `MatDialog.open()`, provide these configuration options:
+
+```typescript
+{
+  data: { video: YouTubeVideo },
+  width: '800px',           // Default width
+  maxWidth: '90vw',         // Max width on small screens
+  panelClass: 'youtube-dialog'
+}
+```
+
+**Usage Example**:
+
+```typescript
+// In component
+export class FileOtherComponent {
+  private readonly dialog = inject(MatDialog);
+
+  openYouTubeDialog(video: YouTubeVideo): void {
+    this.dialog.open(YouTubeDialogComponent, {
+      data: { video },
+      width: '800px',
+      maxWidth: '90vw',
+      panelClass: 'youtube-dialog'
+    });
+  }
+}
+```
+
+```html
+<!-- In template - triggered via ActionLinkComponent -->
+@for (video of youtubeVideos(); track video.videoId) {
+  <lib-action-link
+    [label]="video.channel"
+    icon="play_circle"
+    (linkClick)="openYouTubeDialog(video)">
+  </lib-action-link>
+}
+```
+
+**Component Template Structure**:
+
+The component uses a `ScalingCardComponent` with:
+- **Title**: Video channel name (from `data.video.channel`)
+- **Content**: Responsive iframe container with 16:9 aspect ratio
+- **Actions**: Close button via `lib-icon-button` in corner slot
+- **Animations**: Entry from top (`animationEntry="from-top"`), exit from bottom (`animationExit="from-bottom"`)
+
+**Responsive Sizing**:
+
+- **Desktop** (800px): Full YouTube embed with smooth animations
+- **Tablet/Mobile** (90vw max): Scales to viewport width with proper padding
+- **Aspect Ratio**: Maintains 16:9 ratio using CSS padding-bottom technique
+
+**Security**:
+
+- **URL Sanitization**: Uses `DomSanitizer.bypassSecurityTrustResourceUrl()` to safely render YouTube embed URLs
+- **iframe Attributes**:
+  - `allow="autoplay"` - Permits video autoplay in iframe
+  - `referrerpolicy="strict-origin-when-cross-origin"` - Controls referrer information
+  - `allowfullscreen=""` - Enables full-screen mode
+
+**Animation Details**:
+
+- **Entry Animation**: Scales in from top with 400ms duration, creating smooth appearance
+- **Exit Animation**: Slides down with 300ms duration for smooth dismissal
+- **Animation Framework**: Uses `ScalingCardComponent` with built-in animation system (see [Animation System](#animation-system))
+- **Testing**: Uses `provideNoopAnimations()` to disable animations in test environment
+
+**Accessibility Features**:
+
+- **Semantic HTML**: Proper iframe with accessibility attributes
+- **Keyboard Navigation**: Close button is keyboard accessible (Enter/Space)
+- **ARIA Labels**: Icon buttons include proper aria-labels
+- **Screen Reader Support**: Dialog properly announces via Angular Material
+
+**Best Practice**:
+
+- Open via `ActionLinkComponent` click handlers - maintains semantic button/link distinction
+- Always provide both `videoId` and `channel` in video data object
+- Use consistent `width` and `maxWidth` settings across the application for uniform modal sizing
+- Leverage Material Dialog's modal backdrop for focus management - only the dialog receives keyboard focus
+
+**Used In**:
+
+- [`file-other.component.html`](../libs/features/player/src/lib/player-view/player-device-container/file-other/file-other.component.html) - Opens when clicking YouTube video links in file metadata
+
+**See Also**: [ActionLinkComponent](#actionlinkcomponent), [ScalingCardComponent](#scalingcardcomponent), [IconButtonComponent](#iconbuttoncomponent)
 
 ---
 

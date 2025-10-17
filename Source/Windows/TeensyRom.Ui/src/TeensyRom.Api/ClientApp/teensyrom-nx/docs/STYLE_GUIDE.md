@@ -194,6 +194,32 @@ Available color variables for semantic styling:
 
 **Best Practice**: Use for high-emphasis glassmorphism where the overlay needs maximum visibility while maintaining the blur effect.
 
+#### `.glassy-card`
+
+**Usage Example:**
+```html
+<mat-card class="glassy-card">Card with glassy effect</mat-card>
+
+<!-- Or via cardClass input on card components -->
+<lib-scaling-card cardClass="glassy-card" title="Glassy Card">
+  Content
+</lib-scaling-card>
+```
+
+**Implementation**: Uses [`@mixin glassy-medium-effect`](#mixin-glassy-medium-effect) (15% opacity) with Material Design styling
+
+**Visual Effects:**
+- Medium glassy background (15% white overlay)
+- 10px backdrop blur
+- Large rounded corners (`var(--mat-sys-corner-large)`)
+- Material elevation shadow (`var(--mat-sys-level4)`)
+- Overflow hidden for clean edges
+
+**Used In:**
+- [`youtube-dialog.component.html`](../libs/features/player/src/lib/player-view/player-device-container/file-other/youtube-dialog/youtube-dialog.component.html) - YouTube video dialog card
+
+**Best Practice**: Use for cards that need a prominent glassmorphism effect, such as modal dialog content, overlay cards, or featured content cards. Provides a polished, modern appearance with proper Material Design integration. Apply via the `cardClass` input on card components to avoid wrapper elements.
+
 ---
 
 **For detailed opacity levels, theme support, and implementation details, see [Glassy Effect Mixins](#glassy-effect-mixins).**
@@ -764,6 +790,82 @@ Available color variables for semantic styling:
 **Used In:**
 
 - [`layout.component.ts`](../libs/app/shell/src/lib/layout/layout.component.ts) - Modal dialogs via `panelClass: 'glassy-dialog'` configuration
+
+#### `.youtube-dialog`
+
+**Purpose**: Specialized dialog styling for YouTube video modals with transparent container and backdrop blur for smooth glassy effect
+
+**Implementation Details:**
+
+```scss
+.youtube-dialog {
+  .mat-mdc-dialog-container {
+    padding: 0 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+```
+
+**Features:**
+- **Transparent Container**: Removes default Material dialog background to show only inner card
+- **Backdrop Blur**: Applies 10px blur to static dialog container for consistent glassy effect
+- **No Overflow Clipping**: Allows corner slot content (close button) to be fully visible
+- **Zero Padding**: Inner card controls all spacing
+- **Custom Backdrop Animation**: 1200ms fade-in via `.youtube-dialog-backdrop` class
+
+**Usage Example:**
+
+```typescript
+// In component
+this.dialog.open(YouTubeDialogComponent, {
+  data: { video },
+  width: '800px',
+  maxWidth: '90vw',
+  panelClass: 'youtube-dialog',
+  backdropClass: 'youtube-dialog-backdrop'
+});
+```
+
+```html
+<!-- In dialog template -->
+<lib-scaling-card 
+  cardClass="glassy-card"
+  [animationDuration]="1200"
+  animationEntry="from-top">
+  <iframe src="youtube-embed-url"></iframe>
+</lib-scaling-card>
+```
+
+**Why Backdrop Blur on Container?**
+
+The dialog container is static (not animated), so applying `backdrop-filter: blur(10px)` to it ensures the blur effect is visible immediately without being affected by the card's transform animation. This creates a layered effect:
+1. **Dialog container blur** - Static, visible from dialog open
+2. **Card glassy effect** - Animates in with scale/fade
+3. **Combined effect** - Smooth, consistent blur throughout animation
+
+**Used In:**
+
+- [`file-other.component.ts`](../libs/features/player/src/lib/player-view/player-device-container/file-other/file-other.component.ts) - YouTube video dialog
+- [`youtube-dialog.component.html`](../libs/features/player/src/lib/player-view/player-device-container/file-other/youtube-dialog/youtube-dialog.component.html) - YouTube video card with iframe
+
+#### `.youtube-dialog-backdrop`
+
+**Purpose**: Custom backdrop fade animation for YouTube dialog
+
+**Implementation:**
+
+```scss
+.cdk-overlay-backdrop.cdk-overlay-backdrop-showing.youtube-dialog-backdrop {
+  transition: opacity 1200ms cubic-bezier(0.35, 0, 0.25, 1) !important;
+}
+```
+
+**Usage**: Automatically applied via `backdropClass: 'youtube-dialog-backdrop'` in dialog configuration. Synchronizes backdrop fade (1200ms) with card animation duration for cohesive visual effect.
 
 ### Overlays
 

@@ -800,10 +800,50 @@ describe('FileOtherComponent', () => {
       const heading = videosSection.query(By.css('h4'));
       expect(heading.nativeElement.textContent).toBe('Related Videos');
       
-      const videos = videosSection.queryAll(By.css('lib-external-link'));
+      const videos = videosSection.queryAll(By.css('lib-action-link'));
       expect(videos.length).toBe(2);
       expect(videos[0].nativeElement.textContent.trim()).toContain('C64 Music Channel');
       expect(videos[1].nativeElement.textContent.trim()).toContain('Retro Gaming');
+    });
+
+    it('should open YouTube dialog when video link is clicked', () => {
+      const video = { videoId: 'abc123', url: 'https://youtube.com/watch?v=abc123', channel: 'Test Channel', subtune: 0 };
+      
+      currentFileSignal.set({
+        deviceId: 1,
+        storageType: StorageType.Sd,
+        file: {
+          name: 'test.sid',
+          path: '/music/test.sid',
+          type: FileItemType.Song,
+          size: 1024,
+          isFavorite: false,
+          isCompatible: true,
+          title: 'Test Song',
+          creator: '',
+          releaseInfo: '',
+          description: 'Test',
+          shareUrl: '',
+          metadataSource: 'DeepSID',
+          meta1: '',
+          meta2: '',
+          metadataSourcePath: '',
+          parentPath: '/music',
+          playLength: '',
+          subtuneLengths: [],
+          startSubtuneNum: 0,
+          images: [],
+          links: [],
+          tags: [],
+          youTubeVideos: [video],
+          competitions: [],
+        },
+        isShuffleMode: false,
+      });
+      fixture.detectChanges();
+
+      const videoLink = fixture.debugElement.query(By.css('lib-action-link'));
+      expect(videoLink).toBeTruthy();
     });
 
     it('should display subtune information for videos with subtune > 0', () => {
@@ -842,8 +882,7 @@ describe('FileOtherComponent', () => {
       });
       fixture.detectChanges();
 
-      const videoLink = fixture.debugElement.query(By.css('lib-external-link'));
-      // The component uses channel label directly; subtune info was in old template
+      const videoLink = fixture.debugElement.query(By.css('lib-action-link'));
       expect(videoLink).toBeTruthy();
       expect(videoLink.nativeElement.textContent.trim()).toContain('SID Channel');
     });
@@ -884,8 +923,7 @@ describe('FileOtherComponent', () => {
       });
       fixture.detectChanges();
 
-      const videoLink = fixture.debugElement.query(By.css('lib-external-link'));
-      // External link component displays channel label with icon text
+      const videoLink = fixture.debugElement.query(By.css('lib-action-link'));
       expect(videoLink).toBeTruthy();
       expect(videoLink.nativeElement.textContent).toContain('SID Channel');
     });

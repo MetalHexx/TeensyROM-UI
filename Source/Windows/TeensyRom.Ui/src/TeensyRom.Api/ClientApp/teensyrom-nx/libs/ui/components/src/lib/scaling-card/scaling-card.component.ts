@@ -17,11 +17,18 @@ export class ScalingCardComponent {
   subtitle = input<string>();
   metadataSource = input<string>();
   enableOverflow = input<boolean>(true);
+  cardClass = input<string>(''); // Optional CSS class(es) to apply to the card
 
   // Animation inputs
   animationEntry = input<AnimationDirection>('random');
   animationExit = input<AnimationDirection>('random');
   animationTrigger = input<boolean | undefined>(undefined);
+  
+  /**
+   * Animation duration in milliseconds for transform animation (default: 2000ms)
+   * Opacity animation runs 1.5x this duration for smooth fade
+   */
+  animationDuration = input<number>(2000);
   
   /**
    * Controls whether this component waits for parent animations:
