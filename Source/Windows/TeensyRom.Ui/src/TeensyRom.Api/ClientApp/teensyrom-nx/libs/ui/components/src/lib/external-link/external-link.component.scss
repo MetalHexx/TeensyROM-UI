@@ -1,0 +1,26 @@
+@use '../../../../styles/src/lib/theme/styles.scss' as styles;
+
+:host {
+  @include styles.selectable-item;
+  display: inline-flex;
+
+  &.selected,
+  &.active {
+    background: none;
+  }
+}
+
+a {
+  color: var(--mat-sys-primary);
+  text-decoration: none;
+
+  &:visited {
+    color: var(--mat-sys-primary);
+  }
+
+  &:hover,
+  &:active,
+  &:focus {
+    color: var(--mat-sys-primary);
+  }
+}

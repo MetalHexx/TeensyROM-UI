@@ -950,6 +950,146 @@ The component provides **three flexible approaches** for handling user input:
 
 ---
 
+## Link Components
+
+### `ExternalLinkComponent`
+
+**Purpose**: A reusable external link component that displays links with consistent styling, security attributes, and icon+label rendering. Automatically applies security attributes (`rel="noopener noreferrer"`) to external links opening in new tabs. Provides full keyboard and screen reader accessibility.
+
+**Selector**: `lib-external-link`
+
+**Properties**:
+
+- `href` (required): `string` - URL to navigate to (can be absolute or relative)
+- `label` (required): `string` - Link text displayed to the user
+- `icon` (optional): `string` - Material Design icon name to display next to label - defaults to 'link'
+- `iconColor` (optional): `StyledIconColor` - Icon color variant (`'primary'`, `'error'`, `'normal'`, etc.) - defaults to 'primary'
+- `target` (optional): `'_blank' | '_self'` - Link target behavior (new window vs current) - defaults to '_blank'
+- `ariaLabel` (optional): `string` - Custom accessibility label for screen readers. Auto-generated if not provided with "(opens in new window)" suffix for external _blank links
+
+**Computed Signals** (Internal):
+
+- `isExternal()`: Detects if URL starts with http:// or https://
+- `relAttribute()`: Returns 'noopener noreferrer' for external _blank links, undefined otherwise
+- `effectiveTarget()`: Returns the target value
+- `ariaLabelText()`: Returns descriptive aria-label for accessibility
+
+**Usage Examples**:
+
+```html
+<!-- Basic external link with defaults -->
+<lib-external-link
+  href="https://example.com"
+  label="Visit Example">
+</lib-external-link>
+
+<!-- Internal link (same tab) -->
+<lib-external-link
+  href="/documentation"
+  label="Read Docs"
+  target="_self"
+  icon="description">
+</lib-external-link>
+
+<!-- YouTube link with custom icon and error color -->
+<lib-external-link
+  href="https://youtube.com/watch?v=xyz"
+  label="Watch Tutorial"
+  icon="play_circle"
+  iconColor="error">
+</lib-external-link>
+
+<!-- CSDb link with custom aria-label -->
+<lib-external-link
+  href="https://csdb.dk/entry.php?id=123"
+  label="CSDb Entry"
+  ariaLabel="View this entry on CSDb database">
+</lib-external-link>
+
+<!-- In a file metadata context -->
+<div class="metadata-links">
+  <lib-external-link
+    [href]="file.deepSidUrl"
+    label="DeepSID"
+    icon="music_note">
+  </lib-external-link>
+</div>
+```
+
+**Advanced Usage Patterns**:
+
+```typescript
+// In a component displaying file metadata
+export class FileMetadataComponent {
+  file = input.required<FileItem>();
+  
+  deepSidLinks = computed(() => {
+    return this.file().deepSidLinks.map(link => ({
+      url: link.url,
+      name: link.name
+    }));
+  });
+}
+```
+
+```html
+<!-- Rendering multiple links -->
+@for (link of deepSidLinks(); track link.url) {
+  <lib-external-link
+    [href]="link.url"
+    [label]="link.name">
+  </lib-external-link>
+}
+```
+
+**Security Features**:
+
+- **Automatic Security Attributes**: For external links (`https://` or `http://`) with `target="_blank"`, automatically applies `rel="noopener noreferrer"` to prevent:
+  - Opener tab access via `window.opener`
+  - Referrer information leakage
+  - Backwards navigation attacks
+- **Internal Links**: Internal links (relative URLs) do not receive security attributes
+- **Same-Tab Links**: External links with `target="_self"` do not receive security attributes
+
+**Accessibility Features**:
+
+- **Native Anchor Element**: Uses semantic `<a>` tag for proper link semantics
+- **Keyboard Accessible**: Full keyboard navigation support (Tab key focus, Enter key activation)
+- **Screen Reader Support**:
+  - Auto-generated aria-label with "(opens in new window)" suffix for external _blank links
+  - Custom ariaLabel input for overriding auto-generated labels
+  - Title attribute for browser tooltips
+- **Semantic HTML**: Proper role and ARIA attributes via native anchor element
+- **Visual State Support**: Color styling works for all link states (`:visited`, `:hover`, `:active`, `:focus`)
+
+**Styling Integration**:
+
+- **Link Text Color**: Uses `--mat-sys-primary` (magenta in dark mode, adjusts per theme)
+- **Hover/Focus States**: Color maintained across all states for consistency
+- **Icon Color**: Inherits from `iconColor` input, maps to semantic color system
+- **Selectable Item Pattern**: Uses `.selectable-item` mixin for consistent interaction feedback
+
+**Template Composition**:
+
+The component composes two child elements:
+- `<a>` - Semantic anchor element with href, target, rel, aria-label, and title bindings
+- `<lib-icon-label>` - Displays icon and label side-by-side
+
+**Best Practice**:
+
+- Use for all external links (documentation, resources, videos, etc.) to maintain consistent security and styling
+- Use `target="_blank"` for external URLs to prevent navigation away from the app
+- Use `target="_self"` for internal navigation links
+- Provide custom `ariaLabel` for clarity when auto-generated label isn't sufficiently descriptive
+- Choose appropriate `iconColor` to communicate link intent (error for destructive, success for positive actions, etc.)
+- Combine with `iconColor="error"` for YouTube/video links to indicate destructive/external content
+
+**Used In**:
+
+- [`file-other.component.html`](../libs/features/player/src/lib/player-view/player-device-container/file-other/file-other.component.html) - DeepSID and YouTube external links
+
+---
+
 ## List Components
 
 ### `StorageItemComponent`
