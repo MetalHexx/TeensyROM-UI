@@ -1,6 +1,6 @@
 import { Component, input, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ScalingCardComponent, EmptyStateMessageComponent } from '@teensyrom-nx/ui/components';
+import { ScalingCardComponent, EmptyStateMessageComponent, ExternalLinkComponent } from '@teensyrom-nx/ui/components';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
@@ -8,7 +8,7 @@ import { FileItemType } from '@teensyrom-nx/domain';
 
 @Component({
   selector: 'lib-file-other',
-  imports: [CommonModule, ScalingCardComponent, MatChipsModule, MatIconModule, EmptyStateMessageComponent],
+  imports: [CommonModule, ScalingCardComponent, MatChipsModule, MatIconModule, EmptyStateMessageComponent, ExternalLinkComponent],
   templateUrl: './file-other.component.html',
   styleUrl: './file-other.component.scss',
 })

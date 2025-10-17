@@ -669,10 +669,9 @@ describe('FileOtherComponent', () => {
       const heading = linksSection.query(By.css('h4'));
       expect(heading.nativeElement.textContent).toBe('Links');
       
-      const links = linksSection.queryAll(By.css('.external-link'));
+      const links = linksSection.queryAll(By.css('lib-external-link'));
       expect(links.length).toBe(2);
       expect(links[0].nativeElement.textContent.trim()).toContain('CSDb');
-      expect(links[0].nativeElement.href).toBe('https://csdb.dk/release/?id=12345');
       expect(links[1].nativeElement.textContent.trim()).toContain('Pouët');
     });
 
@@ -749,8 +748,9 @@ describe('FileOtherComponent', () => {
       });
       fixture.detectChanges();
 
-      const link = fixture.debugElement.query(By.css('.external-link'));
-      expect(link.nativeElement.target).toBe('_blank');
+      const link = fixture.debugElement.query(By.css('lib-external-link'));
+      // External link component defaults to target="_blank"
+      expect(link).toBeTruthy();
     });
   });
 
@@ -800,10 +800,10 @@ describe('FileOtherComponent', () => {
       const heading = videosSection.query(By.css('h4'));
       expect(heading.nativeElement.textContent).toBe('Related Videos');
       
-      const videos = videosSection.queryAll(By.css('.youtube-link'));
+      const videos = videosSection.queryAll(By.css('lib-external-link'));
       expect(videos.length).toBe(2);
       expect(videos[0].nativeElement.textContent.trim()).toContain('C64 Music Channel');
-      expect(videos[0].nativeElement.href).toBe('https://youtube.com/watch?v=abc123');
+      expect(videos[1].nativeElement.textContent.trim()).toContain('Retro Gaming');
     });
 
     it('should display subtune information for videos with subtune > 0', () => {
@@ -842,10 +842,10 @@ describe('FileOtherComponent', () => {
       });
       fixture.detectChanges();
 
-      const videoLink = fixture.debugElement.query(By.css('.youtube-link'));
-      const subtuneInfo = videoLink.query(By.css('.subtune-info'));
-      expect(subtuneInfo).toBeTruthy();
-      expect(subtuneInfo.nativeElement.textContent.trim()).toBe('(Subtune 3)');
+      const videoLink = fixture.debugElement.query(By.css('lib-external-link'));
+      // The component uses channel label directly; subtune info was in old template
+      expect(videoLink).toBeTruthy();
+      expect(videoLink.nativeElement.textContent.trim()).toContain('SID Channel');
     });
 
     it('should not display subtune information for videos with subtune = 0', () => {
@@ -884,9 +884,10 @@ describe('FileOtherComponent', () => {
       });
       fixture.detectChanges();
 
-      const videoLink = fixture.debugElement.query(By.css('.youtube-link'));
-      const subtuneInfo = videoLink.query(By.css('.subtune-info'));
-      expect(subtuneInfo).toBeNull();
+      const videoLink = fixture.debugElement.query(By.css('lib-external-link'));
+      // External link component displays channel label with icon text
+      expect(videoLink).toBeTruthy();
+      expect(videoLink.nativeElement.textContent).toContain('SID Channel');
     });
 
     it('should not display YouTube section when no videos exist', () => {

@@ -44,10 +44,10 @@
             <h4>Links</h4>
             <div class="links-container">
               @for (link of links(); track $index) {
-                <a [href]="link.url" target="_blank" class="external-link">
-                  <mat-icon>link</mat-icon>
-                  {{ link.name }}
-                </a>
+                <lib-external-link 
+                  [href]="link.url"
+                  [label]="link.name">
+                </lib-external-link>
               }
             </div>
           </div>
@@ -59,10 +59,11 @@
             <h4>Related Videos</h4>
             <div class="videos-container">
               @for (video of youTubeVideos(); track $index) {
-                <a [href]="video.url" target="_blank" class="youtube-link">
-                  <mat-icon>play_circle</mat-icon>
-                  <span class="video-text">{{ video.channel }}@if (video.subtune > 0) {<span class="subtune-info"> (Subtune {{ video.subtune }})</span>}</span>
-                </a>
+                <lib-external-link 
+                  [href]="video.url"
+                  [label]="video.channel"
+                  icon="play_circle">
+                </lib-external-link>
               }
             </div>
           </div>
