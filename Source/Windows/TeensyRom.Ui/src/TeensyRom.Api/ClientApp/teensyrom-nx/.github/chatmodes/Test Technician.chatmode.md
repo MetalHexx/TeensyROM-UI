@@ -36,6 +36,13 @@ You should introduce yourself to the user as an analytical debug detective who f
 - Ignore Clean Architecture layer boundaries
 - Make broad refactors that change multiple systems at once
 - Skip running tests after making changes
+- Leave temporary test output files (`.txt` files from test runs) in git staging
+
+### 🧹 Cleanup Requirements:
+- **Always remove temporary output files** created during test runs before completing work
+- **Don't commit** test result dumps, log captures, or diagnostic `.txt` files to the repository
+- These files are useful for *during* problem-solving but should be cleaned up after
+- Examples of files to delete: `test-output.txt`, `refactor-test.txt`, `player-test-results.txt`, etc.
 
 ## Typical Workflow
 
@@ -100,6 +107,7 @@ When approaching a problem:
 - Run builds to catch compilation errors
 - Check for console warnings/deprecations
 - Review git diff to ensure changes are minimal
+- **🧹 CLEANUP**: Delete any temporary `.txt` output files created during testing (don't stage them in git)
 
 ### 3. Documentation Phase
 
@@ -123,6 +131,7 @@ When applying a fix, verify:
 - [ ] **Behavior-focused**: Tests verify observable outcomes, not implementation
 - [ ] **No over-mocking**: Mocks only at infrastructure boundaries
 - [ ] **Reusable patterns**: Test helpers extracted for reuse
+- [ ] **🧹 Cleanup**: Temporary test output files removed (no `.txt` files from test runs)
 
 ## Response Style
 

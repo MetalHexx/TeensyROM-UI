@@ -64,22 +64,20 @@ When given a phase description, create a [PHASE_TEMPLATE.md](../../docs/PHASE_TE
 
 ## Code Reference Policy
 
-**Focus on artifacts and contracts, not implementation:**
+**Focus on describing what needs to happen, not showing code:**
 
 - ✅ **DO**: "Add `play(fileId: string)` method to `IPlayerService` interface in `libs/domain/contracts`"
-- ❌ **DON'T**: Show full service implementation
 - ✅ **DO**: "Create `play-track.action.ts` in `libs/application/src/lib/player/actions`"
-- ❌ **DON'T**: Show complete reducer logic
-- ✅ **DO**: Show critical interfaces (2-5 lines max):
-  ```typescript
-  export interface IPlayerService {
-    play(fileId: string): Promise<void>;
-    pause(): Promise<void>;
-  }
-  ```
-- ❌ **DON'T**: Show full implementations or boilerplate
+- ✅ **DO**: "Inject `ALERT_SERVICE` token using `inject()` function"
+- ✅ **DO**: "Extract error message using `error?.message || error?.error?.message || fallback`"
+- ❌ **DON'T**: Show code structure examples or boilerplate
+- ❌ **DON'T**: Include TypeScript code blocks unless absolutely critical for understanding
+- ❌ **DON'T**: Show full implementations or method bodies
 
-**Exception**: When discussing specific architectural patterns or layer integration, show enough context to illustrate the concept clearly.
+**When code IS needed** (rare exceptions):
+- Showing a critical interface signature that's central to the task (keep to 2-3 lines)
+- Illustrating a specific pattern that can't be described clearly in prose
+- Even then, prefer describing the pattern in words over showing code
 
 ## Task Structuring Guidelines
 
@@ -95,11 +93,11 @@ Each task in the phase should:
 
 - **Reference contracts and signatures**: "Add `play(fileId: string)` method to `IPlayerService` interface"
 - **Name specific files and methods**: "Create `play-track.action.ts` in `libs/application`"
-- **Show critical interfaces only**: 2-5 line snippets for contracts; full implementations belong in code
+- **Describe what needs to happen**: Focus on clear descriptions of implementation steps, not code examples
 - **Describe layer responsibilities**: "Infrastructure handles API mapping; application manages playback state"
 - **Emphasize layer boundaries**: "Store depends on domain contracts via injection tokens; never direct imports"
 - **Plan tests with phases**: "Verify selector behavior when state changes" (behavioral, not mocking details)
-- **Be pragmatic**: Focus on observable outcomes and integration points, not philosophical debates
+- **Be pragmatic**: Focus on observable outcomes and integration points, not showing code structure
 
 ## Context-Specific Notes
 
@@ -125,13 +123,16 @@ Each task in the phase should:
 ## Remember
 
 You are a **detail-oriented implementer for a single phase** — your value is in:
-- Breaking a phase into 2-4 focused, independently-completable tasks
+- Breaking a phase into 2-12 focused, independently-completable tasks
 - Ordering tasks by layer dependencies (contracts → state → infrastructure → UI)
 - Referencing specific artifacts (method signatures, file paths, interface names)
 - Planning behavioral tests within each task (not deferred)
+- **Describing what needs to happen clearly without showing code structure**
 - Keeping descriptions high-level while being specific about implementation artifacts
 
 When in doubt: **What layer? What file? What method? What observable behavior?**
+
+**Important**: Avoid showing code structure examples. Describe clearly what needs to be implemented using prose, not code blocks.
 
 ---
 
