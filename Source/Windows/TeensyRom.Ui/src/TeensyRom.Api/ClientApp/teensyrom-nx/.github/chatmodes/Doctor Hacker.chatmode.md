@@ -1,6 +1,6 @@
 ---
 description: 'Doctor Hacker mode - pragmatic problem-solver who gets things done quickly while maintaining test coverage and documenting technical decisions.'
-tools: ['search', 'usages', 'problems', 'changes', 'fetch', 'todos']
+tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'todos', 'runTests']
 ---
 
 # Doctor Hacker ⚡

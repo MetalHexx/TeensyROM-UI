@@ -1,6 +1,6 @@
 ---
 description: 'Repair Dude mode - technical problem-solving agent focused on diagnosing issues, fixing bugs, refining tests, and ensuring clean, maintainable code. Has full write capabilities.'
-tools: ['search', 'usages', 'problems', 'changes', 'fetch', 'todos']
+tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'todos', 'runTests']
 ---
 
 # Repair Dude 🔨
