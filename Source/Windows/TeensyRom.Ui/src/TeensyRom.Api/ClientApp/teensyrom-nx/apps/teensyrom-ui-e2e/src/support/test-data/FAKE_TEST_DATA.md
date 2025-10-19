@@ -20,16 +20,23 @@ test-data/
 ├── faker-config.ts              # Seeded Faker instance (seed: 12345)
 ├── faker-config.spec.ts         # Faker determinism tests
 ├── FAKE_TEST_DATA.md            # This documentation
-└── generators/
-    ├── device.generators.ts     # CartDto & CartStorageDto generators
-    └── device.generators.spec.ts # Generator validation tests
+├── generators/
+│   ├── device.generators.ts     # CartDto & CartStorageDto generators
+│   └── device.generators.spec.ts # Generator validation tests
+└── fixtures/
+    ├── README.md                # Fixture system documentation
+    ├── fixture.types.ts         # MockDeviceFixture interface
+    ├── devices.fixture.ts       # Pre-built device scenarios
+    ├── devices.fixture.spec.ts  # Fixture validation tests
+    └── index.ts                 # Barrel exports
 ```
 
 **Data Flow:**
 1. Import seeded `faker` from `faker-config.ts`
-2. Use generator functions from `generators/`
-3. Override specific properties for test scenarios
-4. Use generated data in Cypress interceptors
+2. Use generator functions from `generators/` to create individual DTOs
+3. Use fixture constants from `fixtures/` for common scenarios
+4. Override specific properties for test-specific scenarios
+5. Use generated data or fixtures in Cypress interceptors
 
 ---
 
@@ -401,6 +408,65 @@ it('should handle multiple devices', () => {
 
 ---
 
+## 🎯 Device Mock Fixtures (Phase 2)
+
+**What are fixtures?** Pre-built device scenarios using generators - ready-to-use constants for common testing scenarios.
+
+**Why use fixtures?** Instead of generating devices in every test, use validated, deterministic fixture constants for common scenarios like "single connected device" or "no devices found".
+
+### Available Fixtures
+
+| Fixture | Scenario | Quick Description |
+|---------|----------|-------------------|
+| `singleDevice` | 1 connected device | Most common "happy path" |
+| `multipleDevices` | 3 connected devices | Multi-device scenarios |
+| `noDevices` | Empty array | Empty state testing |
+| `disconnectedDevice` | Lost connection | Reconnection workflows |
+| `unavailableStorageDevice` | Storage unavailable | Storage error handling |
+| `mixedStateDevices` | Varied device states | Complex state testing |
+
+### Quick Example
+
+```typescript
+import { singleDevice, noDevices } from '../support/test-data/fixtures';
+
+it('should handle device connection', () => {
+  // Start with no devices
+  cy.intercept('GET', '/api/devices', {
+    statusCode: 200,
+    body: noDevices
+  });
+  
+  cy.visit('/devices');
+  cy.contains('No devices found').should('be.visible');
+  
+  // Simulate device connection
+  cy.intercept('GET', '/api/devices', {
+    statusCode: 200,
+    body: singleDevice
+  });
+  
+  cy.get('[data-testid="refresh"]').click();
+  cy.contains('TeensyROM').should('be.visible');
+});
+```
+
+### When to Use Fixtures vs Generators
+
+**Use Fixtures:**
+- ✅ Common scenarios (connected device, empty state, disconnected)
+- ✅ Multiple tests need the same device setup
+- ✅ Want deterministic, validated test data
+
+**Use Generators:**
+- ✅ Test-specific edge cases
+- ✅ Need custom property combinations
+- ✅ Temporary debugging scenarios
+
+**📖 For detailed fixture documentation**, see [fixtures/README.md](./fixtures/README.md)
+
+---
+
 ## 🧪 Testing the Generators
 
 Generator functions are fully tested in `generators/device.generators.spec.ts`. Tests validate:
@@ -475,17 +541,19 @@ const device = generateDevice({ deviceState: 'Busy' });
 
 Planned additions to the test data system:
 
-- **Storage Fixture Generators**: `generateFileItem`, `generateDirectoryItem`
+- **Storage Generators**: `generateFileItem`, `generateDirectoryItem` for file system mocking
 - **Response Generators**: `generateFindDevicesResponse`, `generateConnectDeviceResponse`
 - **Custom Faker Helpers**: Domain-specific generators like `faker.teensyrom.deviceName()`
-- **Fixture Factories**: Pre-built collections like `threeConnectedDevices()`, `mixedDevices()`
+- **Additional Fixtures**: More specialized device scenarios as testing needs emerge
 
 ---
 
 ## 📚 Related Documentation
 
 - [E2E Testing Plan](../../../docs/features/e2e-testing/E2E_PLAN.md) - Overall E2E strategy
-- [Phase 1 Plan](../../../docs/features/e2e-testing/E2E_PLAN_P1.md) - This phase's implementation details
+- [Phase 1 Plan](../../../docs/features/e2e-testing/E2E_PLAN_P1.md) - Generator implementation details
+- [Phase 2 Plan](../../../docs/features/e2e-testing/E2E_PLAN_P2.md) - Fixture implementation details
+- [Fixture Documentation](./fixtures/README.md) - Comprehensive fixture usage guide
 - [Faker.js Documentation](https://fakerjs.dev/) - Faker API reference
 - [API Client Types](../../../libs/data-access/api-client/src/lib/models/) - Generated DTO interfaces
 
