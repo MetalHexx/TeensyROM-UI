@@ -257,8 +257,21 @@ let mockService: {
 6. **Descriptive Names** - Test names explain expected behavior
 7. **Independent Tests** - No execution order dependencies
 
+## End-to-End Testing
+
+**E2E tests validate complete user workflows** using Cypress with fixture-driven, interceptor-based API mocking.
+
+**Key Benefits**:
+- Deterministic tests (no flakiness from real API)
+- Fast execution (no network latency)
+- Isolated scenarios (test specific device states)
+- No backend required during development
+
+**Detailed Documentation**: See [`../apps/teensyrom-ui-e2e/E2E_TESTS.md`](../apps/teensyrom-ui-e2e/E2E_TESTS.md) for complete E2E testing architecture, patterns, and guidelines.
+
 ## Related Documentation
 
 - **Application Layer Testing**: [`STORE_TESTING.md`](./STORE_TESTING.md) - Behavioral testing for stores and context services
 - **Features Layer Testing**: [`SMART_COMPONENT_TESTING.md`](./SMART_COMPONENT_TESTING.md) - Testing feature components with mocked dependencies
+- **End-to-End Testing**: [`../apps/teensyrom-ui-e2e/E2E_TESTS.md`](../apps/teensyrom-ui-e2e/E2E_TESTS.md) - E2E test architecture and patterns
 - **Coding Standards**: [`CODING_STANDARDS.md`](./CODING_STANDARDS.md) - Component and TypeScript standards
