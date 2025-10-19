@@ -1,0 +1,101 @@
+.alert-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+
+  // Top-left position
+  .position-top-left {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: auto;
+
+    lib-alert-display {
+      pointer-events: auto;
+    }
+  }
+
+  // Top-center position
+  .position-top-center {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: auto;
+
+    lib-alert-display {
+      pointer-events: auto;
+    }
+  }
+
+  // Top-right position
+  .position-top-right {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: auto;
+
+    lib-alert-display {
+      pointer-events: auto;
+    }
+  }
+
+  // Bottom-left position
+  .position-bottom-left {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+    pointer-events: auto;
+
+    lib-alert-display {
+      pointer-events: auto;
+    }
+  }
+
+  // Bottom-center position
+  .position-bottom-center {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+    pointer-events: auto;
+
+    lib-alert-display {
+      pointer-events: auto;
+    }
+  }
+
+  // Bottom-right position
+  .position-bottom-right {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+    pointer-events: auto;
+
+    lib-alert-display {
+      pointer-events: auto;
+    }
+  }
+}

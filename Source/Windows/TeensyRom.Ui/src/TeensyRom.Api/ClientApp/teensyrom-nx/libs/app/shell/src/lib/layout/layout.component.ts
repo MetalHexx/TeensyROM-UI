@@ -4,6 +4,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { HeaderComponent } from '../components/header/header.component';
 import { NavigationService } from '@teensyrom-nx/app/navigation';
 import { NavMenuComponent } from '../components/nav-menu/nav-menu.component';
+import { AlertContainerComponent } from '@teensyrom-nx/app/alerts';
 import { filter, map, mergeMap } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DeviceStore } from '@teensyrom-nx/application';
@@ -13,7 +14,7 @@ import { BusyDialogComponent } from '../components/busy-dialog/busy-dialog.compo
 @Component({
   selector: 'lib-layout',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, NavMenuComponent, MatSidenavModule],
+  imports: [RouterOutlet, HeaderComponent, NavMenuComponent, MatSidenavModule, AlertContainerComponent],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })

@@ -2,6 +2,8 @@ import { describe, it, expect, beforeAll, afterEach, afterAll } from 'vitest';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 import { firstValueFrom } from 'rxjs';
+import { TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 
 import {
   FilesApiService,
@@ -11,10 +13,11 @@ import {
   FileItemType as ApiFileItemType,
 } from '@teensyrom-nx/data-access/api-client';
 import { StorageService } from './storage.service';
-import { FileItemType, StorageType } from '@teensyrom-nx/domain';
+import { FileItemType, StorageType, ALERT_SERVICE, IAlertService } from '@teensyrom-nx/domain';
 
 describe('StorageService Integration Tests', () => {
   let storageService: StorageService;
+  let mockAlertService: Partial<IAlertService>;
 
   // MSW server setup
   const server = setupServer();
@@ -32,6 +35,11 @@ describe('StorageService Integration Tests', () => {
   });
 
   beforeAll(() => {
+    // Create mock alert service
+    mockAlertService = {
+      error: vi.fn(),
+    };
+
     // Create Configuration for the typescript-fetch client
     const config = new Configuration({
       basePath: 'http://localhost:5168',
@@ -39,7 +47,16 @@ describe('StorageService Integration Tests', () => {
     });
 
     const filesApiService = new FilesApiService(config);
-    storageService = new StorageService(filesApiService);
+    
+    // Configure TestBed to provide the alert service
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: ALERT_SERVICE, useValue: mockAlertService },
+      ],
+    });
+
+    // Create StorageService with TestBed's DI
+    storageService = new StorageService(filesApiService, mockAlertService);
   });
 
   describe('getDirectory', () => {

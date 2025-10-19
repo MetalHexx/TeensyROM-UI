@@ -189,10 +189,69 @@ npx nx e2e teensyrom-ui-e2e    # E2E tests
 - **Test Environment**: jsdom (DOM testing) or node (pure logic)
 - **Coverage Target**: 80% line coverage for application/utility code
 
+## Mock Contract Standards
+
+**All mocks MUST use domain contracts/interfaces** - Never use ad-hoc object literals or inline types.
+
+### ✅ Correct: Contract-Typed Mocks
+
+```typescript
+// Import contract from domain
+import { IAlertService, ALERT_SERVICE } from '@teensyrom-nx/domain';
+
+// Use Partial<T> for incomplete implementations
+let mockAlertService: Partial<IAlertService>;
+
+beforeEach(() => {
+  mockAlertService = {
+    error: vi.fn(),
+    success: vi.fn(),
+    alerts$: of([]),
+  };
+  
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: ALERT_SERVICE, useValue: mockAlertService }
+    ]
+  });
+});
+```
+
+### ❌ Incorrect: Ad-Hoc Object Literals
+
+```typescript
+// DON'T: Ad-hoc object without contract type
+let mockAlertService: { error: ReturnType<typeof vi.fn> };
+
+// DON'T: Inline type definition
+let mockService: {
+  getDirectory: ReturnType<typeof vi.fn>;
+  search: ReturnType<typeof vi.fn>;
+};
+```
+
+### Why Contract-Based Mocking Matters
+
+1. **Type Safety**: TypeScript enforces contract compliance at compile time
+2. **Refactor Safety**: Contract changes surface as type errors in tests
+3. **API Discovery**: IDE autocomplete shows full contract interface
+4. **Maintainability**: Single source of truth for service interfaces
+5. **Documentation**: Mock types document what the test depends on
+
+### Pattern Summary
+
+- ✅ **Always** import domain contract interface (`IAlertService`, `IDeviceService`, etc.)
+- ✅ **Always** type mock variables as `Partial<IContract>` 
+- ✅ **Always** provide mocks via injection tokens (`ALERT_SERVICE`, `DEVICE_SERVICE`)
+- ❌ **Never** use inline object types for mocks
+- ❌ **Never** skip typing mock variables
+- ❌ **Never** create test-specific interfaces that duplicate domain contracts
+
 ## Testing Best Practices
 
 1. **Prefer Testing Behavior over Implementation** - Focus on observable outcomes
-3. **Use Strongly Typed Mocks** - Leverage interfaces and injection tokens
+2. **Use Contract-Typed Mocks** - All mocks typed as `Partial<IContract>` from domain layer
+3. **Mock at Infrastructure Boundaries** - Don't mock stores, domain models, or application logic
 4. **Test Edge Cases** - Null/undefined, empty data, errors
 5. **Async Handling** - Use `async/await` and `nextTick()` helper for microtask queue
 6. **Descriptive Names** - Test names explain expected behavior

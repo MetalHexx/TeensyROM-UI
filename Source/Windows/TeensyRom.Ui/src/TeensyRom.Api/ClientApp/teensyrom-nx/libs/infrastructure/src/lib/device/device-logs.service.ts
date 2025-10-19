@@ -1,14 +1,14 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { signal, Signal, WritableSignal, computed } from '@angular/core';
 import { DevicesApiService } from '@teensyrom-nx/data-access/api-client';
-import { from } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
 import { LogType, logInfo, logError } from '@teensyrom-nx/utils';
-import { IDeviceLogsService } from '@teensyrom-nx/domain';
+import { IDeviceLogsService, ALERT_SERVICE, IAlertService } from '@teensyrom-nx/domain';
 
 @Injectable()
 export class DeviceLogsService implements IDeviceLogsService {
-  private readonly deviceService: DevicesApiService = inject(DevicesApiService);
+  private readonly deviceService: DevicesApiService;
+  private readonly alertService: IAlertService;
   private hubConnection: signalR.HubConnection | null = null;
   private readonly _logLines: WritableSignal<string[]> = signal([]);
   private readonly _isConnected = signal(false);
@@ -16,8 +16,22 @@ export class DeviceLogsService implements IDeviceLogsService {
   readonly isConnected = this._isConnected.asReadonly();
   readonly logs: Signal<string[]> = computed(() => this._logLines());
 
+  constructor(
+    deviceService: DevicesApiService,
+    @Inject(ALERT_SERVICE) alertService: IAlertService
+  ) {
+    this.deviceService = deviceService;
+    this.alertService = alertService;
+  }
+
   connect() {
-    from(this.deviceService.startLogs()).subscribe();
+    // Start logs API call - fire and forget with error handling
+    this.deviceService.startLogs().catch((error) => {
+      const message = error instanceof Error ? error.message : 'Failed to start device logs';
+      logError('DeviceLogsService.connect startLogs error:', error);
+      this.alertService.error(message);
+    });
+
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl('http://localhost:5168/logHub')
       .withAutomaticReconnect()
@@ -35,12 +49,21 @@ export class DeviceLogsService implements IDeviceLogsService {
       })
       .catch((err) => {
         this._isConnected.set(false);
+        const message =
+          err?.message || 'Failed to start device logs connection';
         logError('Error starting Device Logs connection:', err);
+        this.alertService.error(message);
       });
   }
 
   disconnect() {
-    from(this.deviceService.stopLogs()).subscribe();
+    // Stop logs API call - fire and forget with error handling
+    this.deviceService.stopLogs().catch((error) => {
+      const message = error instanceof Error ? error.message : 'Failed to stop device logs';
+      logError('DeviceLogsService.disconnect stopLogs error:', error);
+      this.alertService.error(message);
+    });
+
     this.hubConnection?.stop();
     this.hubConnection = null;
     this._isConnected.set(false);

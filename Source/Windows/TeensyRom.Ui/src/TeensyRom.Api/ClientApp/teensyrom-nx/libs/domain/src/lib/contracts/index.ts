@@ -9,3 +9,6 @@ export * from './device-storage.token';
 
 // Player contracts
 export * from './player.contract';
+
+// Alert contracts
+export * from './alert.contract';

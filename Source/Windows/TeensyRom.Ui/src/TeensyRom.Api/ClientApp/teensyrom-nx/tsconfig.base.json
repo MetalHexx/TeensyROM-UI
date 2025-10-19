@@ -10,24 +10,57 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": [
+      "es2020",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@teensyrom-nx/app/bootstrap": ["libs/app/bootstrap/src/index.ts"],
-      "@teensyrom-nx/app/navigation": ["libs/app/navigation/src/index.ts"],
-      "@teensyrom-nx/app/shell": ["libs/app/shell/src/index.ts"],
-      "@teensyrom-nx/application": ["libs/application/src/index.ts"],
-      "@teensyrom-nx/data-access/api-client": ["libs/data-access/api-client/src/index.ts"],
-      "@teensyrom-nx/domain": ["libs/domain/src/index.ts"],
-      "@teensyrom-nx/features/device": ["libs/features/devices/src/index.ts"],
-      "@teensyrom-nx/features/player": ["libs/features/player/src/index.ts"],
-      "@teensyrom-nx/infrastructure": ["libs/infrastructure/src/index.ts"],
-      "@teensyrom-nx/ui/components": ["libs/ui/components/src/index.ts"],
-      "@teensyrom-nx/ui/styles": ["libs/ui/styles/src/index.ts"],
-      "@teensyrom-nx/utils": ["libs/utils/src/index.ts"]
+      "@teensyrom-nx/app/bootstrap": [
+        "libs/app/bootstrap/src/index.ts"
+      ],
+      "@teensyrom-nx/app/navigation": [
+        "libs/app/navigation/src/index.ts"
+      ],
+      "@teensyrom-nx/app/shell": [
+        "libs/app/shell/src/index.ts"
+      ],
+      "@teensyrom-nx/application": [
+        "libs/application/src/index.ts"
+      ],
+      "@teensyrom-nx/data-access/api-client": [
+        "libs/data-access/api-client/src/index.ts"
+      ],
+      "@teensyrom-nx/domain": [
+        "libs/domain/src/index.ts"
+      ],
+      "@teensyrom-nx/features/device": [
+        "libs/features/devices/src/index.ts"
+      ],
+      "@teensyrom-nx/features/player": [
+        "libs/features/player/src/index.ts"
+      ],
+      "@teensyrom-nx/infrastructure": [
+        "libs/infrastructure/src/index.ts"
+      ],
+      "@teensyrom-nx/ui/components": [
+        "libs/ui/components/src/index.ts"
+      ],
+      "@teensyrom-nx/ui/styles": [
+        "libs/ui/styles/src/index.ts"
+      ],
+      "@teensyrom-nx/utils": [
+        "libs/utils/src/index.ts"
+      ],
+      "@teensyrom-nx/app/alerts": [
+        "libs/app/src/index.ts"
+      ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

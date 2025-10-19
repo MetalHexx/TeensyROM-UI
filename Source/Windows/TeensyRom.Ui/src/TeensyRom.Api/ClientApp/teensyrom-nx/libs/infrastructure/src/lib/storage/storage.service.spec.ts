@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import {
   FilesApiService,
@@ -11,23 +11,37 @@ import {
   NullableOfTeensyFilterType,
 } from '@teensyrom-nx/data-access/api-client';
 import { StorageService } from './storage.service';
-import { FileItemType, StorageDirectory, StorageType, PlayerFilterType, FileItem } from '@teensyrom-nx/domain';
+import { FileItemType, StorageDirectory, StorageType, PlayerFilterType, FileItem, ALERT_SERVICE, IAlertService } from '@teensyrom-nx/domain';
 
 describe('StorageService', () => {
   let service: StorageService;
   let mockFilesApiService: {
     getDirectory: ReturnType<typeof vi.fn>;
     search: ReturnType<typeof vi.fn>;
+    index: ReturnType<typeof vi.fn>;
+    indexAll: ReturnType<typeof vi.fn>;
   };
+  let mockAlertService: Partial<IAlertService>;
 
   beforeEach(() => {
     mockFilesApiService = {
       getDirectory: vi.fn(),
       search: vi.fn(),
+      index: vi.fn(),
+      indexAll: vi.fn(),
     };
 
+    mockAlertService = {
+      error: vi.fn(),
+    };
+
+    TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [StorageService, { provide: FilesApiService, useValue: mockFilesApiService }],
+      providers: [
+        StorageService,
+        { provide: FilesApiService, useValue: mockFilesApiService },
+        { provide: ALERT_SERVICE, useValue: mockAlertService },
+      ],
     });
 
     service = TestBed.inject(StorageService);
@@ -68,6 +82,11 @@ describe('StorageService', () => {
               startSubtuneNum: 0,
               images: [],
               type: ApiFileItemType.Game,
+              links: [],
+              tags: [],
+              youTubeVideos: [],
+              competitions: [],
+              ratingCount: 0,
             },
           ],
           path: '/games',
@@ -171,14 +190,14 @@ describe('StorageService', () => {
       await expect(
         new Promise((resolve, reject) => {
           service.getDirectory(deviceId, storageType).subscribe({
-            next: resolve,
             error: reject,
           });
         })
       ).rejects.toThrow(errorMessage);
 
+      // Verify error was logged with correct format (logError utility adds ❌ prefix)
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Storage directory fetch failed:',
+        '❌ StorageService.getDirectory error:',
         expect.any(Error)
       );
 
@@ -243,6 +262,11 @@ describe('StorageService', () => {
       startSubtuneNum: 0,
       images: [],
       type: ApiFileItemType.Game,
+      links: [],
+      tags: [],
+      youTubeVideos: [],
+      competitions: [],
+      ratingCount: 0,
       ...overrides,
     });
 
@@ -514,13 +538,16 @@ describe('StorageService', () => {
       await expect(
         new Promise((resolve, reject) => {
           service.search(deviceId, storageType, searchText).subscribe({
-            next: resolve,
             error: reject,
           });
         })
       ).rejects.toThrow(errorMessage);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Storage search failed:', expect.any(Error));
+      // Verify error was logged with correct format (logError utility adds ❌ prefix)
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '❌ StorageService.search error:',
+        expect.any(Error)
+      );
 
       // Cleanup
       consoleErrorSpy.mockRestore();
@@ -542,13 +569,16 @@ describe('StorageService', () => {
       await expect(
         new Promise((resolve, reject) => {
           service.search(deviceId, storageType, searchText).subscribe({
-            next: resolve,
             error: reject,
           });
         })
       ).rejects.toEqual(httpError);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Storage search failed:', httpError);
+      // Verify error was logged with correct format (logError utility adds ❌ prefix)
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '❌ StorageService.search error:',
+        httpError
+      );
 
       // Cleanup
       consoleErrorSpy.mockRestore();
@@ -760,6 +790,257 @@ describe('StorageService', () => {
           storageType: TeensyStorageType.Usb 
         })
       );
+    });
+  });
+
+  describe('Alert Integration - Error Handling', () => {
+    let mockAlertService: { error: ReturnType<typeof vi.fn> };
+    let logSpy: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      mockAlertService = {
+        error: vi.fn(),
+      };
+      
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          StorageService,
+          { provide: FilesApiService, useValue: mockFilesApiService },
+          { provide: ALERT_SERVICE, useValue: mockAlertService },
+        ],
+      });
+      
+      service = TestBed.inject(StorageService);
+      logSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    });
+
+    afterEach(() => {
+      logSpy.mockRestore();
+    });
+
+    describe('getDirectory error handling with alerts', () => {
+      it('should display error alert when API fails with error message', async () => {
+        const error = new Error('Directory not found');
+        mockFilesApiService.getDirectory.mockRejectedValue(error);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.getDirectory('device-1', StorageType.Sd, '/path').subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('Directory not found');
+      });
+
+      it('should extract message from error.error.message for getDirectory', async () => {
+        // Test that non-Error objects with nested structure use fallback message
+        const error = { error: { message: 'Storage device offline' } };
+        mockFilesApiService.getDirectory.mockRejectedValue(error);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.getDirectory('device-1', StorageType.Sd).subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        // Non-Error objects use fallback message
+        expect(mockAlertService.error).toHaveBeenCalledWith('Failed to retrieve directory');
+      });
+
+      it('should use fallback message when no error message available for getDirectory', async () => {
+        const error = {};
+        mockFilesApiService.getDirectory.mockRejectedValue(error);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.getDirectory('device-1', StorageType.Sd).subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('Failed to retrieve directory');
+      });
+
+      it('should rethrow error after displaying alert for getDirectory', async () => {
+        const error = new Error('Storage error');
+        mockFilesApiService.getDirectory.mockRejectedValue(error);
+
+        let caughtError: Error | null = null;
+        await new Promise<void>((resolve) => {
+          service.getDirectory('device-1', StorageType.Sd).subscribe({
+            error: (err: Error) => {
+              caughtError = err;
+              resolve();
+            },
+          });
+        });
+
+        expect(caughtError).toBeDefined();
+        expect(caughtError).toBe(error);
+      });
+    });
+
+    describe('search error handling with alerts', () => {
+      it('should display error alert when search fails', async () => {
+        const error = new Error('Search timeout');
+        mockFilesApiService.search.mockRejectedValue(error);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service
+              .search('device-1', StorageType.Sd, 'test', PlayerFilterType.Music)
+              .subscribe({
+                next: resolve,
+                error: reject,
+              });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('Search timeout');
+      });
+
+      it('should use search fallback message when error is empty', async () => {
+        const error = { error: {} };
+        mockFilesApiService.search.mockRejectedValue(error);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.search('device-1', StorageType.Sd, 'term').subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('Search operation failed');
+      });
+
+      it('should rethrow error after displaying alert for search', async () => {
+        const error = new Error('Query error');
+        mockFilesApiService.search.mockRejectedValue(error);
+
+        let caughtError: Error | null = null;
+        await new Promise<void>((resolve) => {
+          service.search('device-1', StorageType.Sd, 'query').subscribe({
+            error: (err: Error) => {
+              caughtError = err;
+              resolve();
+            },
+          });
+        });
+
+        expect(caughtError).toBeDefined();
+        expect(caughtError).toBe(error);
+      });
+    });
+
+    describe('index error handling with alerts', () => {
+      it('should display error alert when index fails', async () => {
+        const error = new Error('Index operation failed');
+        mockFilesApiService.index.mockRejectedValue(error);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.index('device-1', StorageType.Sd).subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('Index operation failed');
+      });
+
+      it('should use index fallback message when error is empty', async () => {
+        const error = {};
+        mockFilesApiService.index.mockRejectedValue(error);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.index('device-1', StorageType.Sd).subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('Failed to index storage');
+      });
+    });
+
+    describe('indexAll error handling with alerts', () => {
+      it('should display error alert when indexAll fails', async () => {
+        const error = new Error('Global index failed');
+        mockFilesApiService.indexAll.mockRejectedValue(error);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.indexAll().subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('Global index failed');
+      });
+
+      it('should use indexAll fallback message when error is empty', async () => {
+        const error = { error: { message: null } };
+        mockFilesApiService.indexAll.mockRejectedValue(error);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.indexAll().subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('Failed to index all storage');
+      });
+    });
+
+    describe('Alert service called exactly once', () => {
+      it('should call alert service once per getDirectory error', async () => {
+        mockFilesApiService.getDirectory.mockRejectedValue(new Error('Test'));
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.getDirectory('device-1', StorageType.Sd).subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledTimes(1);
+      });
+
+      it('should call alert service once per search error', async () => {
+        mockFilesApiService.search.mockRejectedValue(new Error('Test'));
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.search('device-1', StorageType.Sd, 'test').subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledTimes(1);
+      });
     });
   });
 });

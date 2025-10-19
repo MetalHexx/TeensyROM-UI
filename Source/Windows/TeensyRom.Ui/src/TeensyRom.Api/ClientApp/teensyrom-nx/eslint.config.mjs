@@ -19,42 +19,49 @@ export default [
             // Domain Layer - No dependencies allowed (pure business logic)
             {
               sourceTag: 'scope:domain',
-              onlyDependOnLibsWithTags: []
+              onlyDependOnLibsWithTags: [],
             },
             // Application Layer - Can only depend on domain and shared utilities
             {
               sourceTag: 'scope:application',
-              onlyDependOnLibsWithTags: ['scope:domain', 'scope:shared']
+              onlyDependOnLibsWithTags: ['scope:domain', 'scope:shared'],
             },
             // Infrastructure Layer - Can depend on domain, shared utilities, and api-client
             {
               sourceTag: 'scope:infrastructure',
-              onlyDependOnLibsWithTags: ['scope:domain', 'scope:shared', 'scope:data-access']
+              onlyDependOnLibsWithTags: ['scope:domain', 'scope:shared', 'scope:data-access'],
             },
             // Features Layer - Can depend on application, domain, and shared UI
             {
               sourceTag: 'scope:features',
-              onlyDependOnLibsWithTags: ['scope:application', 'scope:domain', 'scope:shared']
+              onlyDependOnLibsWithTags: ['scope:application', 'scope:domain', 'scope:shared'],
             },
             // Shared libraries - Can depend on each other and domain
             {
               sourceTag: 'scope:shared',
-              onlyDependOnLibsWithTags: ['scope:shared', 'scope:domain']
+              onlyDependOnLibsWithTags: ['scope:shared', 'scope:domain'],
             },
-            // App Layer - Can depend on features, application, shared, infrastructure (for composition root), and app shell
+            // App Layer - Composition root: can depend on everything
             {
               sourceTag: 'scope:app',
-              onlyDependOnLibsWithTags: ['scope:features', 'scope:application', 'scope:shared', 'scope:infrastructure', 'scope:app']
+              onlyDependOnLibsWithTags: [
+                'scope:domain',
+                'scope:features',
+                'scope:application',
+                'scope:infrastructure',
+                'scope:shared',
+                'scope:app',
+              ],
             },
             // Prevent features from importing each other (feature isolation)
             {
               sourceTag: 'feature:device',
-              notDependOnLibsWithTags: ['feature:player']
+              notDependOnLibsWithTags: ['feature:player'],
             },
             {
               sourceTag: 'feature:player',
-              notDependOnLibsWithTags: ['feature:device']
-            }
+              notDependOnLibsWithTags: ['feature:device'],
+            },
           ],
         },
       ],

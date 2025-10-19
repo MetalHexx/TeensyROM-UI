@@ -1,4 +1,4 @@
-import { PLAYER_SERVICE } from '@teensyrom-nx/domain';
+import { PLAYER_SERVICE, ALERT_SERVICE } from '@teensyrom-nx/domain';
 import { PlayerService } from './player.service';
 import { PlayerApiService, Configuration } from '@teensyrom-nx/data-access/api-client';
 
@@ -13,5 +13,5 @@ export const PLAYER_API_CLIENT_PROVIDER = {
 export const PLAYER_SERVICE_PROVIDER = {
   provide: PLAYER_SERVICE,
   useClass: PlayerService,
-  deps: [PlayerApiService],
+  deps: [PlayerApiService, ALERT_SERVICE],
 };

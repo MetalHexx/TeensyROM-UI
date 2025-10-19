@@ -1,0 +1,30 @@
+{
+  "name": "app-alerts",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/app/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": [
+    "scope:app",
+    "type:shell"
+  ],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "passWithNoTests": true,
+        "watch": false
+      },
+      "configurations": {
+        "ci": {
+          "watch": false
+        }
+      }
+    }
+  }
+}
+

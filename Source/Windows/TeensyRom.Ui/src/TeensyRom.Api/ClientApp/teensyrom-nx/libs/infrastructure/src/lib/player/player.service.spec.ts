@@ -11,7 +11,7 @@ import {
   FileItemType as ApiFileItemType,
 } from '@teensyrom-nx/data-access/api-client';
 import { PlayerService } from './player.service';
-import { FileItem, FileItemType, PlayerFilterType, PlayerScope, StorageType } from '@teensyrom-nx/domain';
+import { FileItem, FileItemType, PlayerFilterType, PlayerScope, StorageType, ALERT_SERVICE, IAlertService } from '@teensyrom-nx/domain';
 
 const createFileItemDto = (): FileItemDto => ({
   name: 'Test File',
@@ -34,6 +34,11 @@ const createFileItemDto = (): FileItemDto => ({
   startSubtuneNum: 0,
   images: [],
   type: ApiFileItemType.Song,
+  links: [],
+  tags: [],
+  youTubeVideos: [],
+  competitions: [],
+  ratingCount: 0,
 });
 
 describe('PlayerService', () => {
@@ -46,6 +51,7 @@ describe('PlayerService', () => {
   let mockDevicesApi: {
     resetDevice: ReturnType<typeof vi.fn>;
   };
+  let mockAlertService: Partial<IAlertService>;
 
   beforeEach(() => {
     mockPlayerApi = {
@@ -58,11 +64,18 @@ describe('PlayerService', () => {
       resetDevice: vi.fn(),
     };
 
+    mockAlertService = {
+      error: vi.fn(),
+      warning: vi.fn(),
+    };
+
+    TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        PlayerService, 
+        PlayerService,
         { provide: PlayerApiService, useValue: mockPlayerApi },
         { provide: DevicesApiService, useValue: mockDevicesApi },
+        { provide: ALERT_SERVICE, useValue: mockAlertService },
       ],
     });
 
@@ -130,6 +143,59 @@ describe('PlayerService', () => {
       ).rejects.toThrow('network issue');
 
       consoleSpy.mockRestore();
+    });
+
+    it('should show warning alert when file is not compatible', async () => {
+      const incompatibleFile = createFileItemDto();
+      incompatibleFile.isCompatible = false;
+      incompatibleFile.name = 'IncompatibleGame.prg';
+
+      const response: LaunchFileResponse = {
+        message: 'File is not compatible with this device',
+        launchedFile: incompatibleFile,
+        isCompatible: false,
+      };
+
+      mockPlayerApi.launchFile.mockResolvedValue(response);
+      mockAlertService.warning = vi.fn();
+
+      const result = await new Promise<FileItem>((resolve, reject) => {
+        service.launchFile('device-123', StorageType.Sd, '/test/file.prg').subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Verify file was still returned
+      expect(result.name).toBe('IncompatibleGame.prg');
+      expect(result.isCompatible).toBe(false);
+
+      // Verify warning alert was shown with message from response
+      expect(mockAlertService.warning).toHaveBeenCalledWith('File is not compatible with this device');
+    });
+
+    it('should not show warning when file is compatible', async () => {
+      const compatibleFile = createFileItemDto();
+      compatibleFile.isCompatible = true;
+
+      const response: LaunchFileResponse = {
+        message: 'Launched',
+        launchedFile: compatibleFile,
+        isCompatible: true,
+      };
+
+      mockPlayerApi.launchFile.mockResolvedValue(response);
+      mockAlertService.warning = vi.fn();
+
+      await new Promise<FileItem>((resolve, reject) => {
+        service.launchFile('device-123', StorageType.Sd, '/test/file.prg').subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Verify warning was NOT called
+      expect(mockAlertService.warning).not.toHaveBeenCalled();
     });
   });
 
@@ -248,8 +314,63 @@ describe('PlayerService', () => {
         })
       ).rejects.toThrow('random selection failed');
 
-      expect(consoleSpy).toHaveBeenCalledWith('PlayerService launchRandom failed:', error);
+      expect(consoleSpy).toHaveBeenCalledWith('❌ PlayerService.launchRandom failed:', error);
       consoleSpy.mockRestore();
+    });
+
+    it('should show warning alert when randomly launched file is not compatible', async () => {
+      const incompatibleFile = createFileItemDto();
+      incompatibleFile.isCompatible = false;
+      incompatibleFile.name = 'IncompatibleRandom.prg';
+
+      const response: LaunchRandomResponse = {
+        launchedFile: incompatibleFile,
+        message: 'Warning: Random file may not work on this device',
+        isCompatible: false,
+      };
+
+      mockPlayerApi.launchRandom.mockResolvedValue(response);
+      mockAlertService.warning = vi.fn();
+
+      const result = await new Promise<FileItem>((resolve, reject) => {
+        service.launchRandom('device-1', PlayerScope.Storage, PlayerFilterType.All).subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Verify file was still returned
+      expect(result.name).toBe('IncompatibleRandom.prg');
+      expect(result.isCompatible).toBe(false);
+
+      // Verify warning alert was shown with message from response
+      expect(mockAlertService.warning).toHaveBeenCalledWith(
+        'Warning: Random file may not work on this device'
+      );
+    });
+
+    it('should not show warning when randomly launched file is compatible', async () => {
+      const compatibleFile = createFileItemDto();
+      compatibleFile.isCompatible = true;
+
+      const response: LaunchRandomResponse = {
+        launchedFile: compatibleFile,
+        message: 'Random launched',
+        isCompatible: true,
+      };
+
+      mockPlayerApi.launchRandom.mockResolvedValue(response);
+      mockAlertService.warning = vi.fn();
+
+      await new Promise<FileItem>((resolve, reject) => {
+        service.launchRandom('device-1', PlayerScope.Storage, PlayerFilterType.All).subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Verify warning was NOT called
+      expect(mockAlertService.warning).not.toHaveBeenCalled();
     });
   });
 
@@ -306,7 +427,7 @@ describe('PlayerService', () => {
           })
         ).rejects.toThrow('Music toggle failed');
 
-        expect(consoleSpy).toHaveBeenCalledWith('❌ PlayerService toggleMusic failed:', error);
+        expect(consoleSpy).toHaveBeenCalledWith('❌ PlayerService.toggleMusic failed:', error);
         consoleSpy.mockRestore();
       });
 
@@ -406,6 +527,195 @@ describe('PlayerService', () => {
 
       expect(result.isCompatible).toBe(false);
       expect(result.name).toBe('random-incompatible.sid');
+    });
+  });
+
+  describe('Alert Integration - Error Handling', () => {
+    let mockAlertService: { error: ReturnType<typeof vi.fn> };
+
+    beforeEach(() => {
+      mockAlertService = {
+        error: vi.fn(),
+      };
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          PlayerService,
+          { provide: PlayerApiService, useValue: mockPlayerApi },
+          { provide: DevicesApiService, useValue: mockDevicesApi },
+          { provide: ALERT_SERVICE, useValue: mockAlertService },
+        ],
+      });
+
+      service = TestBed.inject(PlayerService);
+    });
+
+    describe('launchFile error handling with alerts', () => {
+      it('should display error alert when launchFile fails', async () => {
+        const error = new Error('File launch failed');
+        mockPlayerApi.launchFile.mockRejectedValue(error);
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.launchFile('device-1', StorageType.Sd, '/path').subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('File launch failed');
+        consoleSpy.mockRestore();
+      });
+
+      it('should extract message from error.error.message for launchFile', async () => {
+        const error = { error: { message: 'Device not ready' } };
+        mockPlayerApi.launchFile.mockRejectedValue(error);
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.launchFile('device-1', StorageType.Sd, '/path').subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        // Non-Error objects use fallback message
+        expect(mockAlertService.error).toHaveBeenCalledWith('Failed to launch file');
+        consoleSpy.mockRestore();
+      });
+
+      it('should use fallback message when no error message for launchFile', async () => {
+        const error = {};
+        mockPlayerApi.launchFile.mockRejectedValue(error);
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.launchFile('device-1', StorageType.Sd, '/path').subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('Failed to launch file');
+        consoleSpy.mockRestore();
+      });
+
+      it('should call alert service exactly once for launchFile', async () => {
+        mockPlayerApi.launchFile.mockRejectedValue(new Error('Test'));
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.launchFile('device-1', StorageType.Sd, '/path').subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledTimes(1);
+        consoleSpy.mockRestore();
+      });
+    });
+
+    describe('launchRandom error handling with alerts', () => {
+      it('should display error alert when launchRandom fails', async () => {
+        const error = new Error('Random selection failed');
+        mockPlayerApi.launchRandom.mockRejectedValue(error);
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.launchRandom('device-1', PlayerScope.Storage, PlayerFilterType.All).subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('Random selection failed');
+        consoleSpy.mockRestore();
+      });
+
+      it('should use fallback message for launchRandom', async () => {
+        const error = { error: {} };
+        mockPlayerApi.launchRandom.mockRejectedValue(error);
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.launchRandom('device-1', PlayerScope.Storage, PlayerFilterType.All).subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('Failed to launch random file');
+        consoleSpy.mockRestore();
+      });
+    });
+
+    describe('toggleMusic error handling with alerts', () => {
+      it('should display error alert when toggleMusic fails', async () => {
+        const error = new Error('Toggle failed');
+        mockPlayerApi.toggleMusic.mockRejectedValue(error);
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.toggleMusic('device-1').subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('Toggle failed');
+        consoleSpy.mockRestore();
+      });
+
+      it('should use fallback message for toggleMusic', async () => {
+        const error = {};
+        mockPlayerApi.toggleMusic.mockRejectedValue(error);
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.toggleMusic('device-1').subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledWith('Failed to toggle music');
+        consoleSpy.mockRestore();
+      });
+
+      it('should call alert service exactly once for toggleMusic', async () => {
+        mockPlayerApi.toggleMusic.mockRejectedValue(new Error('Test'));
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        await expect(
+          new Promise((resolve, reject) => {
+            service.toggleMusic('device-1').subscribe({
+              next: resolve,
+              error: reject,
+            });
+          })
+        ).rejects.toThrow();
+
+        expect(mockAlertService.error).toHaveBeenCalledTimes(1);
+        consoleSpy.mockRestore();
+      });
     });
   });
 });

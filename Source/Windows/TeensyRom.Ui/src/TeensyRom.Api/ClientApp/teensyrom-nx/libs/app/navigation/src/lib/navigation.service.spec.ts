@@ -7,10 +7,10 @@ import type { NavItem } from './navigation-item.model';
 
 describe('NavService', () => {
   let service: NavigationService;
-  let router: Router;
+  let router: Partial<Router>;
 
   beforeEach(() => {
-    router = { navigate: vi.fn() } as any;
+    router = { navigate: vi.fn() };
     TestBed.configureTestingModule({
       providers: [NavigationService, { provide: Router, useValue: router }],
     });

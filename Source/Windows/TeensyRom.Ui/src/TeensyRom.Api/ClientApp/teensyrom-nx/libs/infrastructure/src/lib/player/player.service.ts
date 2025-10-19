@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { from, map, catchError, throwError, Observable } from 'rxjs';
 import { PlayerApiService } from '@teensyrom-nx/data-access/api-client';
 import { DomainMapper } from '../domain.mapper';
@@ -8,18 +8,23 @@ import {
   PlayerFilterType,
   PlayerScope,
   StorageType,
+  ALERT_SERVICE,
+  IAlertService,
 } from '@teensyrom-nx/domain';
 import { logError } from '@teensyrom-nx/utils';
 
 @Injectable({ providedIn: 'root' })
 export class PlayerService implements IPlayerService {
   private readonly baseApiUrl: string;
+  private readonly alertService: IAlertService;
 
   constructor(
-    private readonly apiService: PlayerApiService
+    private readonly apiService: PlayerApiService,
+    @Inject(ALERT_SERVICE) alertService: IAlertService
   ) {
     // Extract base URL from API service configuration with fallback
     this.baseApiUrl = (this.apiService as any).configuration?.basePath || 'http://localhost:5168';
+    this.alertService = alertService;
   }
 
   launchFile(deviceId: string, storageType: StorageType, filePath: string): Observable<FileItem> {
@@ -36,12 +41,16 @@ export class PlayerService implements IPlayerService {
           logError('Invalid response: launchedFile is missing');
           throw new Error('Invalid response: launchedFile is missing');
         }
-        return DomainMapper.toFileItem(response.launchedFile, this.baseApiUrl);
+        const fileItem = DomainMapper.toFileItem(response.launchedFile, this.baseApiUrl);
+        
+        // Check compatibility and show warning if file is not compatible
+        if (!fileItem.isCompatible && response.message) {
+          this.alertService.warning(response.message);
+        }
+        
+        return fileItem;
       }),
-      catchError((error) => {
-        logError('PlayerService launchFile failed:', error);
-        return throwError(() => (error instanceof Error ? error : new Error('Failed to launch file')));
-      })
+      catchError((error) => this.handleError(error, 'launchFile', 'Failed to launch file'))
     );
   }
 
@@ -71,12 +80,16 @@ export class PlayerService implements IPlayerService {
         if (!response?.launchedFile) {
           throw new Error('Invalid response: launchedFile is missing');
         }
-        return DomainMapper.toFileItem(response.launchedFile, this.baseApiUrl);
+        const fileItem = DomainMapper.toFileItem(response.launchedFile, this.baseApiUrl);
+        
+        // Check compatibility and show warning if file is not compatible
+        if (!fileItem.isCompatible && response.message) {
+          this.alertService.warning(response.message);
+        }
+        
+        return fileItem;
       }),
-      catchError((error) => {
-        console.error('PlayerService launchRandom failed:', error);
-        return throwError(() => (error instanceof Error ? error : new Error('Failed to launch random file')));
-      })
+      catchError((error) => this.handleError(error, 'launchRandom', 'Failed to launch random file'))
     );
   }
 
@@ -91,10 +104,14 @@ export class PlayerService implements IPlayerService {
         // API only returns a message, not the current state
         return undefined; // Return void
       }),
-      catchError((error) => {
-        logError('PlayerService toggleMusic failed:', error);
-        return throwError(() => (error instanceof Error ? error : new Error('Failed to toggle music')));
-      })
+      catchError((error) => this.handleError(error, 'toggleMusic', 'Failed to toggle music'))
     );
+  }
+
+  private handleError(error: unknown, methodName: string, fallbackMessage: string): Observable<never> {
+    const message = error instanceof Error ? error.message : fallbackMessage;
+    logError(`PlayerService.${methodName} failed:`, error);
+    this.alertService.error(message);
+    return throwError(() => (error instanceof Error ? error : new Error(fallbackMessage)));
   }
 }

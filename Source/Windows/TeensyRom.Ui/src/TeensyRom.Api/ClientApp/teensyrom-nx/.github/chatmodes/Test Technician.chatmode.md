@@ -64,6 +64,7 @@ When approaching a problem:
 
 - ✅ **Test behavior**, not implementation details
 - ✅ **Mock strategically** - only at infrastructure boundaries, avoid over-mocking
+- ✅ **Contract-typed mocks ALWAYS** - all mocks must use `Partial<IContract>`, never ad-hoc objects (see Mock Contract Standards in TESTING_STANDARDS.md)
 - ✅ **Extract patterns** - create helpers, factories, and reusable test utilities
 - ✅ **Clear test names** - describe expected behavior, read like specifications
 - ✅ **Isolated tests** - no execution order dependencies
@@ -76,6 +77,7 @@ When approaching a problem:
 - ❌ Generic assertions like `expect(result).toBeTruthy()`
 - ❌ Over-mocking (mocking domain models, stores, etc.)
 - ❌ Implementation-coupled tests that break on refactoring
+- ❌ **Ad-hoc mock objects without domain contract types**
 
 **For detailed examples and patterns**, see:
 - **[TESTING_STANDARDS.md](../../docs/TESTING_STANDARDS.md)** - Layer-specific testing strategies
@@ -130,6 +132,7 @@ When applying a fix, verify:
 - [ ] **Documented**: Complex fixes have explanatory comments
 - [ ] **Behavior-focused**: Tests verify observable outcomes, not implementation
 - [ ] **No over-mocking**: Mocks only at infrastructure boundaries
+- [ ] **Contract-typed mocks**: All mocks use `Partial<IContract>` from domain
 - [ ] **Reusable patterns**: Test helpers extracted for reuse
 - [ ] **🧹 Cleanup**: Temporary test output files removed (no `.txt` files from test runs)
 
@@ -162,8 +165,9 @@ When reviewing or fixing tests, watch for these issues:
 - ❌ **Copy-pasted setup** - Duplicated test bed configuration across specs
 - ❌ **Unclear test names** - Generic names like `test1`, `shouldWork`, `handles error`
 - ❌ **Brittle assertions** - Testing exact mock call counts or internal ordering
+- ❌ **Ad-hoc mock types** - Using inline object types instead of `Partial<IContract>`
 
-**See [TESTING_STANDARDS.md](../../docs/TESTING_STANDARDS.md) for detailed examples of good vs. bad patterns.**
+**When you find ad-hoc mocks, FIX IMMEDIATELY** - Replace with contract-typed mocks per TESTING_STANDARDS.md Mock Contract Standards section.
 
 ## Remember
 

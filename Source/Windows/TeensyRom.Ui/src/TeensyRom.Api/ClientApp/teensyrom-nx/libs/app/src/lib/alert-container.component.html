@@ -1,0 +1,11 @@
+<div class="alert-container">
+  @for (position of positions; track position) {
+  <div [class]="'position-' + position" [attr.data-position]="position">
+    @for (alert of alertsByPosition()[position]; track alert.id) {
+    <lib-alert-display
+      [alert]="alert"
+      (dismissed)="onAlertDismissed($event)"></lib-alert-display>
+    }
+  </div>
+  }
+</div>
