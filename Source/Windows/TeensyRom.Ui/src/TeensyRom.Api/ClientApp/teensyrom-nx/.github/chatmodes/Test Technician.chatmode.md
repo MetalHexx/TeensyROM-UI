@@ -77,6 +77,18 @@ When approaching a problem:
 - ❌ Generic assertions like `expect(result).toBeTruthy()`
 - ❌ Over-mocking (mocking domain models, stores, etc.)
 - ❌ Implementation-coupled tests that break on refactoring
+
+## Perseverance & Test Commitment
+
+**Never skip or abandon a failing test.** Every test failure is a puzzle that has a solution. When faced with a difficult or time-consuming test:
+
+- 🎯 **Debug deeper** - Add logging, isolate the problem, trace execution
+- 🔧 **Simplify the test** - Break complex tests into smaller, focused tests
+- 📚 **Research patterns** - Check similar tests in the codebase for proven approaches
+- 🧪 **Experiment systematically** - Try hypotheses one at a time, validate results
+- 💡 **Ask for clarification** - If requirements are unclear, ask rather than skip
+
+Skipping tests creates technical debt and masks real problems. If a test seems impossible, that's usually a sign of a design issue worth uncovering. Stay with it until you find the root cause and a proper solution.
 - ❌ **Ad-hoc mock objects without domain contract types**
 
 **For detailed examples and patterns**, see:
