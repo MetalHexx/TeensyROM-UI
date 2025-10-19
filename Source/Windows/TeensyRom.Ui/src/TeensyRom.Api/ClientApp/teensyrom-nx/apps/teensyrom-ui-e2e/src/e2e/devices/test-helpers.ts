@@ -1,11 +1,17 @@
 /// <reference types="cypress" />
 
 /**
- * Device Discovery E2E Test Helpers & Selectors
+ * Device Discovery & Connection E2E Test Helpers & Selectors
  *
- * Centralized test utilities and data-testid selectors for device discovery tests.
+ * Centralized test utilities and data-testid selectors for device lifecycle tests.
  * This file contains reusable helper functions and a single source of truth for
- * all element selectors used across device discovery tests.
+ * all element selectors used across device discovery and connection workflow tests.
+ *
+ * **Sections**:
+ * - Constants: Routes, aliases, CSS classes, DOM attributes
+ * - Selectors: Centralized element selectors for device cards, storage, etc.
+ * - Device Discovery Helpers: Navigate, wait for discovery, verify device lists
+ * - Device Connection Helpers (Phase 1): Connect/disconnect, wait, verify state
  */
 
 // ============================================================================
@@ -263,4 +269,112 @@ export function verifyErrorMessage(): void {
  */
 export function clickRefreshDevices(): void {
   cy.contains('Refresh Devices').click();
+}
+
+// ============================================================================
+// CONNECTION WORKFLOW HELPERS (Phase 1)
+// ============================================================================
+
+/**
+ * Click the power button on a device card to initiate connect/disconnect
+ * 
+ * The power button acts as a toggle:
+ * - If device is disconnected, clicking connects it
+ * - If device is connected, clicking disconnects it
+ * 
+ * @param deviceIndex - 0-based index of the device card
+ * 
+ * @example
+ * ```typescript
+ * clickPowerButton(0); // Click power button on first device
+ * ```
+ */
+export function clickPowerButton(deviceIndex: number): void {
+  getDeviceCard(deviceIndex).find(DEVICE_CARD_SELECTORS.powerButton).click();
+}
+
+/**
+ * Wait for the connection API call to complete
+ * 
+ * Uses the @connectDevice alias from the interceptor.
+ * Default timeout uses CONSTANTS.DEFAULT_TIMEOUT (5000ms).
+ * 
+ * @param timeout - Optional timeout in milliseconds (default: 5000)
+ * 
+ * @example
+ * ```typescript
+ * clickPowerButton(0);
+ * waitForConnection();
+ * verifyConnected(0);
+ * ```
+ */
+export function waitForConnection(timeout = CONSTANTS.DEFAULT_TIMEOUT): void {
+  cy.wait(`@${API_ROUTE_ALIASES.CONNECT_DEVICE}`, { timeout });
+}
+
+/**
+ * Wait for the disconnection API call to complete
+ * 
+ * Uses the @disconnectDevice alias from the interceptor.
+ * Default timeout uses CONSTANTS.DEFAULT_TIMEOUT (5000ms).
+ * 
+ * @param timeout - Optional timeout in milliseconds (default: 5000)
+ * 
+ * @example
+ * ```typescript
+ * clickPowerButton(0);
+ * waitForDisconnection();
+ * verifyDisconnected(0);
+ * ```
+ */
+export function waitForDisconnection(timeout = CONSTANTS.DEFAULT_TIMEOUT): void {
+  cy.wait(`@${API_ROUTE_ALIASES.DISCONNECT_DEVICE}`, { timeout });
+}
+
+/**
+ * Verify a device is in connected state
+ * 
+ * Checks:
+ * - Device card does NOT have 'dimmed' class (visual indicator of disconnected)
+ * - Power button's mat-icon has 'highlight' class (visual indicator of connected)
+ * 
+ * @param deviceIndex - 0-based index of the device card
+ * 
+ * @example
+ * ```typescript
+ * verifyConnected(0); // Verify first device is connected
+ * ```
+ */
+export function verifyConnected(deviceIndex: number): void {
+  getDeviceCard(deviceIndex).should('not.have.class', CSS_CLASSES.DIMMED);
+  
+  // Verify power button icon has 'highlight' class
+  getDeviceCard(deviceIndex)
+    .find(DEVICE_CARD_SELECTORS.powerButton)
+    .find('mat-icon')
+    .should('have.class', 'highlight');
+}
+
+/**
+ * Verify a device is in disconnected state
+ * 
+ * Checks:
+ * - Device card HAS 'dimmed' class (visual indicator of disconnected)
+ * - Power button's mat-icon has 'normal' class (visual indicator of disconnected)
+ * 
+ * @param deviceIndex - 0-based index of the device card
+ * 
+ * @example
+ * ```typescript
+ * verifyDisconnected(0); // Verify first device is disconnected
+ * ```
+ */
+export function verifyDisconnected(deviceIndex: number): void {
+  getDeviceCard(deviceIndex).should('have.class', CSS_CLASSES.DIMMED);
+  
+  // Verify power button icon has 'normal' class
+  getDeviceCard(deviceIndex)
+    .find(DEVICE_CARD_SELECTORS.powerButton)
+    .find('mat-icon')
+    .should('have.class', 'normal');
 }

@@ -40,21 +40,21 @@ describe('Device Interceptors', () => {
     it('should register intercept with default fixture', () => {
       interceptFindDevices();
 
-      expect(mockIntercept).toHaveBeenCalledWith('GET', '/api/devices*', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('GET', 'http://localhost:5168/devices*', expect.any(Function));
       expect(mockAs).toHaveBeenCalledWith('findDevices');
     });
 
     it('should use custom fixture when provided', () => {
       interceptFindDevices({ fixture: multipleDevices });
 
-      expect(mockIntercept).toHaveBeenCalledWith('GET', '/api/devices*', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('GET', 'http://localhost:5168/devices*', expect.any(Function));
       expect(mockAs).toHaveBeenCalledWith('findDevices');
     });
 
     it('should support error mode', () => {
       interceptFindDevices({ errorMode: true });
 
-      expect(mockIntercept).toHaveBeenCalledWith('GET', '/api/devices*', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('GET', 'http://localhost:5168/devices*', expect.any(Function));
       expect(mockAs).toHaveBeenCalledWith('findDevices');
     });
 
@@ -67,7 +67,7 @@ describe('Device Interceptors', () => {
     it('should handle empty devices fixture', () => {
       interceptFindDevices({ fixture: noDevices });
 
-      expect(mockIntercept).toHaveBeenCalledWith('GET', '/api/devices*', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('GET', 'http://localhost:5168/devices*', expect.any(Function));
     });
   });
 
@@ -75,7 +75,7 @@ describe('Device Interceptors', () => {
     it('should register intercept with default device', () => {
       interceptConnectDevice();
 
-      expect(mockIntercept).toHaveBeenCalledWith('POST', '/api/devices/*/connect', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('POST', 'http://localhost:5168/devices/*/connect', expect.any(Function));
       expect(mockAs).toHaveBeenCalledWith('connectDevice');
     });
 
@@ -83,14 +83,14 @@ describe('Device Interceptors', () => {
       const customDevice = multipleDevices.devices[1];
       interceptConnectDevice({ device: customDevice });
 
-      expect(mockIntercept).toHaveBeenCalledWith('POST', '/api/devices/*/connect', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('POST', 'http://localhost:5168/devices/*/connect', expect.any(Function));
       expect(mockAs).toHaveBeenCalledWith('connectDevice');
     });
 
     it('should support error mode', () => {
       interceptConnectDevice({ errorMode: true });
 
-      expect(mockIntercept).toHaveBeenCalledWith('POST', '/api/devices/*/connect', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('POST', 'http://localhost:5168/devices/*/connect', expect.any(Function));
     });
 
     it('should register connectDevice alias', () => {
@@ -103,7 +103,7 @@ describe('Device Interceptors', () => {
       interceptConnectDevice();
 
       // Verify wildcard pattern is used
-      expect(mockIntercept).toHaveBeenCalledWith('POST', '/api/devices/*/connect', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('POST', 'http://localhost:5168/devices/*/connect', expect.any(Function));
     });
   });
 
@@ -111,14 +111,14 @@ describe('Device Interceptors', () => {
     it('should register intercept', () => {
       interceptDisconnectDevice();
 
-      expect(mockIntercept).toHaveBeenCalledWith('DELETE', '/api/devices/*', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('DELETE', 'http://localhost:5168/devices/*', expect.any(Function));
       expect(mockAs).toHaveBeenCalledWith('disconnectDevice');
     });
 
     it('should support error mode', () => {
       interceptDisconnectDevice({ errorMode: true });
 
-      expect(mockIntercept).toHaveBeenCalledWith('DELETE', '/api/devices/*', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('DELETE', 'http://localhost:5168/devices/*', expect.any(Function));
     });
 
     it('should register disconnectDevice alias', () => {
@@ -130,7 +130,7 @@ describe('Device Interceptors', () => {
     it('should match dynamic deviceId with wildcard', () => {
       interceptDisconnectDevice();
 
-      expect(mockIntercept).toHaveBeenCalledWith('DELETE', '/api/devices/*', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('DELETE', 'http://localhost:5168/devices/*', expect.any(Function));
     });
   });
 
@@ -138,26 +138,26 @@ describe('Device Interceptors', () => {
     it('should register intercept with default alive state', () => {
       interceptPingDevice();
 
-      expect(mockIntercept).toHaveBeenCalledWith('GET', '/api/devices/*/ping', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('GET', 'http://localhost:5168/devices/*/ping', expect.any(Function));
       expect(mockAs).toHaveBeenCalledWith('pingDevice');
     });
 
     it('should support isAlive true state', () => {
       interceptPingDevice({ isAlive: true });
 
-      expect(mockIntercept).toHaveBeenCalledWith('GET', '/api/devices/*/ping', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('GET', 'http://localhost:5168/devices/*/ping', expect.any(Function));
     });
 
     it('should support isAlive false state', () => {
       interceptPingDevice({ isAlive: false });
 
-      expect(mockIntercept).toHaveBeenCalledWith('GET', '/api/devices/*/ping', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('GET', 'http://localhost:5168/devices/*/ping', expect.any(Function));
     });
 
     it('should support error mode', () => {
       interceptPingDevice({ errorMode: true });
 
-      expect(mockIntercept).toHaveBeenCalledWith('GET', '/api/devices/*/ping', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('GET', 'http://localhost:5168/devices/*/ping', expect.any(Function));
     });
 
     it('should register pingDevice alias', () => {
@@ -169,7 +169,7 @@ describe('Device Interceptors', () => {
     it('should match dynamic deviceId with wildcard', () => {
       interceptPingDevice();
 
-      expect(mockIntercept).toHaveBeenCalledWith('GET', '/api/devices/*/ping', expect.any(Function));
+      expect(mockIntercept).toHaveBeenCalledWith('GET', 'http://localhost:5168/devices/*/ping', expect.any(Function));
     });
   });
 

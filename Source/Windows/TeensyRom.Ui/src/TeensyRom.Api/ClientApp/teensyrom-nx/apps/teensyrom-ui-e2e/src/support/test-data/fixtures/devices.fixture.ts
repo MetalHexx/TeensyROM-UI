@@ -232,3 +232,92 @@ export const mixedStateDevices: MockDeviceFixture = (() => {
     ],
   };
 })();
+
+/**
+ * Three disconnected devices.
+ *
+ * **Scenario**: Three TeensyROM devices all disconnected with ConnectionLost state.
+ * Provides clean slate for sequential connection tests.
+ *
+ * **Use Cases**:
+ * - Sequential connection workflow tests (connect one by one)
+ * - Connection state isolation tests
+ * - Testing initial disconnected state for multiple devices
+ * - Multi-device connection recovery scenarios
+ *
+ * **Device Properties** (all devices):
+ * - Connected: ❌
+ * - Device State: ConnectionLost
+ * - Compatible: ✅
+ * - SD Storage: Available ✅
+ * - USB Storage: Available ✅
+ * - Unique IDs, ports, and names
+ *
+ * @example Using in interceptor
+ * ```typescript
+ * cy.intercept('GET', '/api/devices', {
+ *   statusCode: 200,
+ *   body: threeDisconnectedDevices
+ * });
+ * ```
+ */
+export const threeDisconnectedDevices: MockDeviceFixture = (() => {
+  faker.seed(12345);
+  return {
+    devices: [
+      generateDevice({
+        isConnected: false,
+        deviceState: DeviceState.ConnectionLost,
+      }),
+      generateDevice({
+        isConnected: false,
+        deviceState: DeviceState.ConnectionLost,
+      }),
+      generateDevice({
+        isConnected: false,
+        deviceState: DeviceState.ConnectionLost,
+      }),
+    ],
+  };
+})();
+
+/**
+ * Three devices with mixed connection states.
+ *
+ * **Scenario**: Three devices demonstrating different connection states simultaneously.
+ * Device 1 connected, Device 2 disconnected, Device 3 connected.
+ * Tests realistic multi-device scenarios with varied connection states.
+ *
+ * **Use Cases**:
+ * - Mixed device state display tests
+ * - Device state isolation validation
+ * - Testing UI with varied connection states
+ * - Partial connection/disconnection scenarios
+ *
+ * **Device Properties**:
+ * - Device 1: Connected (isConnected: true, state: Connected)
+ * - Device 2: Disconnected (isConnected: false, state: ConnectionLost)
+ * - Device 3: Connected (isConnected: true, state: Connected)
+ * - All have compatible hardware and available storage
+ *
+ * @example Using in interceptor
+ * ```typescript
+ * cy.intercept('GET', '/api/devices', {
+ *   statusCode: 200,
+ *   body: mixedConnectionDevices
+ * });
+ * ```
+ */
+export const mixedConnectionDevices: MockDeviceFixture = (() => {
+  faker.seed(12345);
+  return {
+    devices: [
+      generateDevice(), // Device 1: Connected (default)
+      generateDevice({
+        isConnected: false,
+        deviceState: DeviceState.ConnectionLost,
+      }), // Device 2: Disconnected
+      generateDevice(), // Device 3: Connected (default)
+    ],
+  };
+})();

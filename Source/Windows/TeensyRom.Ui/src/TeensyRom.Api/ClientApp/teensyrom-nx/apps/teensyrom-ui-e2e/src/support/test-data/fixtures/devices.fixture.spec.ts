@@ -16,6 +16,8 @@ import {
   disconnectedDevice,
   unavailableStorageDevice,
   mixedStateDevices,
+  threeDisconnectedDevices,
+  mixedConnectionDevices,
 } from './devices.fixture';
 
 describe('MockDeviceFixture Type', () => {
@@ -442,6 +444,191 @@ describe('mixedStateDevices Fixture', () => {
       expect(states).toContain(DeviceState.Connected);
       expect(states).toContain(DeviceState.Busy);
       expect(states).toContain(DeviceState.ConnectionLost);
+    });
+  });
+});
+
+/**
+ * threeDisconnectedDevices Fixture Tests
+ *
+ * Validates the three-disconnected-devices fixture used for sequential
+ * connection tests and connection state isolation tests.
+ */
+describe('threeDisconnectedDevices Fixture', () => {
+  describe('Structure', () => {
+    it('should contain exactly 3 devices', () => {
+      expect(threeDisconnectedDevices.devices).toHaveLength(3);
+    });
+
+    it('should match MockDeviceFixture type', () => {
+      const fixture: MockDeviceFixture = threeDisconnectedDevices;
+      expect(fixture.devices).toBeDefined();
+      expect(Array.isArray(fixture.devices)).toBe(true);
+    });
+  });
+
+  describe('Device Connection States', () => {
+    it('should have all devices disconnected', () => {
+      threeDisconnectedDevices.devices.forEach((device) => {
+        expect(device.isConnected).toBe(false);
+      });
+    });
+
+    it('should have all devices in ConnectionLost state', () => {
+      threeDisconnectedDevices.devices.forEach((device) => {
+        expect(device.deviceState).toBe(DeviceState.ConnectionLost);
+      });
+    });
+  });
+
+  describe('Device Uniqueness', () => {
+    it('should have all unique device IDs', () => {
+      const deviceIds = threeDisconnectedDevices.devices.map((d) => d.deviceId);
+      const uniqueIds = new Set(deviceIds);
+      expect(uniqueIds.size).toBe(3);
+    });
+
+    it('should have all unique COM ports', () => {
+      const comPorts = threeDisconnectedDevices.devices.map((d) => d.comPort);
+      const uniquePorts = new Set(comPorts);
+      expect(uniquePorts.size).toBe(3);
+    });
+
+    it('should have all unique device names', () => {
+      const names = threeDisconnectedDevices.devices.map((d) => d.name);
+      const uniqueNames = new Set(names);
+      expect(uniqueNames.size).toBe(3);
+    });
+  });
+
+  describe('Device Capabilities', () => {
+    it('should have all devices compatible', () => {
+      threeDisconnectedDevices.devices.forEach((device) => {
+        expect(device.isCompatible).toBe(true);
+      });
+    });
+
+    it('should have all devices with available storage', () => {
+      threeDisconnectedDevices.devices.forEach((device) => {
+        expect(device.sdStorage?.available).toBe(true);
+        expect(device.usbStorage?.available).toBe(true);
+      });
+    });
+  });
+
+  describe('Determinism', () => {
+    it('should produce consistent results across multiple calls', () => {
+      const fixture1 = threeDisconnectedDevices;
+      const fixture2 = threeDisconnectedDevices;
+
+      fixture1.devices.forEach((device1, index) => {
+        const device2 = fixture2.devices[index];
+        expect(device1.deviceId).toBe(device2.deviceId);
+        expect(device1.comPort).toBe(device2.comPort);
+        expect(device1.name).toBe(device2.name);
+      });
+    });
+  });
+});
+
+/**
+ * mixedConnectionDevices Fixture Tests
+ *
+ * Validates the mixed-connection-devices fixture used for displaying
+ * and managing devices in various connection states simultaneously.
+ */
+describe('mixedConnectionDevices Fixture', () => {
+  describe('Structure', () => {
+    it('should contain exactly 3 devices', () => {
+      expect(mixedConnectionDevices.devices).toHaveLength(3);
+    });
+
+    it('should match MockDeviceFixture type', () => {
+      const fixture: MockDeviceFixture = mixedConnectionDevices;
+      expect(fixture.devices).toBeDefined();
+      expect(Array.isArray(fixture.devices)).toBe(true);
+    });
+  });
+
+  describe('Device Connection States', () => {
+    it('should have device 1 connected', () => {
+      const device = mixedConnectionDevices.devices[0];
+      expect(device.isConnected).toBe(true);
+      expect(device.deviceState).toBe(DeviceState.Connected);
+    });
+
+    it('should have device 2 disconnected', () => {
+      const device = mixedConnectionDevices.devices[1];
+      expect(device.isConnected).toBe(false);
+      expect(device.deviceState).toBe(DeviceState.ConnectionLost);
+    });
+
+    it('should have device 3 connected', () => {
+      const device = mixedConnectionDevices.devices[2];
+      expect(device.isConnected).toBe(true);
+      expect(device.deviceState).toBe(DeviceState.Connected);
+    });
+
+    it('should have mixed connection states overall', () => {
+      const connectedCount = mixedConnectionDevices.devices.filter(
+        (d) => d.isConnected
+      ).length;
+      const disconnectedCount = mixedConnectionDevices.devices.filter(
+        (d) => !d.isConnected
+      ).length;
+
+      expect(connectedCount).toBe(2);
+      expect(disconnectedCount).toBe(1);
+    });
+  });
+
+  describe('Device Uniqueness', () => {
+    it('should have all unique device IDs', () => {
+      const deviceIds = mixedConnectionDevices.devices.map((d) => d.deviceId);
+      const uniqueIds = new Set(deviceIds);
+      expect(uniqueIds.size).toBe(3);
+    });
+
+    it('should have all unique COM ports', () => {
+      const comPorts = mixedConnectionDevices.devices.map((d) => d.comPort);
+      const uniquePorts = new Set(comPorts);
+      expect(uniquePorts.size).toBe(3);
+    });
+
+    it('should have all unique device names', () => {
+      const names = mixedConnectionDevices.devices.map((d) => d.name);
+      const uniqueNames = new Set(names);
+      expect(uniqueNames.size).toBe(3);
+    });
+  });
+
+  describe('Device Capabilities', () => {
+    it('should have all devices compatible', () => {
+      mixedConnectionDevices.devices.forEach((device) => {
+        expect(device.isCompatible).toBe(true);
+      });
+    });
+
+    it('should have all devices with available storage', () => {
+      mixedConnectionDevices.devices.forEach((device) => {
+        expect(device.sdStorage?.available).toBe(true);
+        expect(device.usbStorage?.available).toBe(true);
+      });
+    });
+  });
+
+  describe('Determinism', () => {
+    it('should produce consistent results across multiple calls', () => {
+      const fixture1 = mixedConnectionDevices;
+      const fixture2 = mixedConnectionDevices;
+
+      fixture1.devices.forEach((device1, index) => {
+        const device2 = fixture2.devices[index];
+        expect(device1.deviceId).toBe(device2.deviceId);
+        expect(device1.comPort).toBe(device2.comPort);
+        expect(device1.name).toBe(device2.name);
+        expect(device1.isConnected).toBe(device2.isConnected);
+      });
     });
   });
 });
