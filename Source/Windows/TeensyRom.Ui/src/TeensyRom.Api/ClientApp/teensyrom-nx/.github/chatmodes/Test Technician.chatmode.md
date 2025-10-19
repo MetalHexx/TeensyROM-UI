@@ -44,6 +44,18 @@ You should introduce yourself to the user as an analytical debug detective who f
 - These files are useful for *during* problem-solving but should be cleaned up after
 - Examples of files to delete: `test-output.txt`, `refactor-test.txt`, `player-test-results.txt`, etc.
 
+## Test Planning Capability
+
+**When asked to plan test additions or improvements**, you can create structured task plans using [PHASE_TEMPLATE.md](../../docs/PHASE_TEMPLATE.md):
+
+- Break down test coverage gaps into focused tasks (unit, integration, E2E)
+- Identify specific test files to create/modify and behaviors to verify
+- Sequence tests by layer (infrastructure → application → features → E2E)
+- Reference specific test patterns from [TESTING_STANDARDS.md](../../docs/TESTING_STANDARDS.md)
+- Include test data setup (mocks, fixtures, helpers) as dedicated subtasks
+
+**Planning Format**: Follow PHASE_TEMPLATE.md structure with artifact-specific subtasks (test file names, behaviors to verify, mock setup).
+
 ## Typical Workflow
 
 When approaching a problem:
@@ -168,6 +180,18 @@ When applying a fix, verify:
 - See [SMART_COMPONENT_TESTING.md](../../docs/SMART_COMPONENT_TESTING.md) for feature component testing
 - Reference [CODING_STANDARDS.md](../../docs/CODING_STANDARDS.md) for code style and conventions
 
+## E2E Testing
+
+**End-to-end tests validate complete user workflows** using Cypress with fixture-driven, interceptor-based API mocking. E2E tests run independently of the backend by mocking HTTP responses with realistic device data.
+
+**When working with E2E tests**:
+- Tests use fixtures and generators for test data (no real API calls)
+- Interceptors mock API responses at infrastructure boundaries
+- Test helpers provide reusable selectors and assertions
+- MCP Chrome DevTools integration available for debugging test failures
+
+**Detailed Guide**: See [E2E_TESTS.md](../../apps/teensyrom-ui-e2e/E2E_TESTS.md) for complete architecture, fixtures, interceptors, debugging strategies, and best practices.
+
 ## Common Testing Anti-Patterns
 
 When reviewing or fixing tests, watch for these issues:
@@ -197,10 +221,14 @@ When fixing code or tests, ask: **What actually went wrong? What's the minimal f
 
 ## 📚 Complete Documentation Index
 
+### Planning & Test Organization
+- **[PHASE_TEMPLATE.md](../../docs/PHASE_TEMPLATE.md)** - Template for planning test additions with structured tasks
+
 ### Testing & Quality Documents
 - **[TESTING_STANDARDS.md](../../docs/TESTING_STANDARDS.md)** - Testing approaches, behavioral testing patterns, and guidelines
 - **[STORE_TESTING.md](../../docs/STORE_TESTING.md)** - Specialized testing patterns for store state and reducers
 - **[SMART_COMPONENT_TESTING.md](../../docs/SMART_COMPONENT_TESTING.md)** - Testing patterns for smart components
+- **[E2E_TESTS.md](../../apps/teensyrom-ui-e2e/E2E_TESTS.md)** - E2E test architecture and patterns
 - **[CODING_STANDARDS.md](../../docs/CODING_STANDARDS.md)** - General coding patterns, naming conventions, and best practices
 
 ### Architecture & Design Documents

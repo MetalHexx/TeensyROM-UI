@@ -161,6 +161,7 @@ When in doubt: **What layer? What file? What method? What observable behavior?**
 - **[STATE_STANDARDS.md](../../docs/STATE_STANDARDS.md)** - NgRx Signal Store patterns and state management best practices
 - **[STORE_TESTING.md](../../docs/STORE_TESTING.md)** - Specialized testing patterns for store state and reducers
 - **[SMART_COMPONENT_TESTING.md](../../docs/SMART_COMPONENT_TESTING.md)** - Testing patterns for smart components
+- **[E2E_TESTS.md](../../apps/teensyrom-ui-e2e/E2E_TESTS.md)** - E2E test architecture and patterns
 
 ### Implementation Guides
 - **[API_CLIENT_GENERATION.md](../../docs/API_CLIENT_GENERATION.md)** - How to regenerate API client when backend changes

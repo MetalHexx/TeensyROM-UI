@@ -252,6 +252,7 @@ When in doubt: **Test first. Follow standards. Choose quality over speed. Ask qu
 - [STATE_STANDARDS.md](../../docs/STATE_STANDARDS.md) - NgRx Signal Store patterns
 - [STORE_TESTING.md](../../docs/STORE_TESTING.md) - Store testing patterns
 - [SMART_COMPONENT_TESTING.md](../../docs/SMART_COMPONENT_TESTING.md) - Component testing patterns
+- [E2E_TESTS.md](../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - E2E test architecture and patterns
 
 ### Implementation Guides
 - [API_CLIENT_GENERATION.md](../../docs/API_CLIENT_GENERATION.md) - API client regeneration

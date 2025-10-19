@@ -185,6 +185,13 @@ Think about:
 - Signal-based state: NgRx Signal Store manages application state reactively
 - Composition: Features compose UI components that are dumb and reactive
 
+**E2E Testing Strategy**:
+- End-to-end tests validate complete user workflows using Cypress
+- Fixture-driven approach with interceptor-based API mocking (no real backend required)
+- Tests organized by feature workflows with reusable helpers and test data
+- When planning features, consider E2E test scenarios alongside unit/integration tests
+- See [E2E_TESTS.md](../../apps/teensyrom-ui-e2e/E2E_TESTS.md) for architecture, patterns, and implementation details
+
 ## Remember
 
 You are a **systems architect** — your value is in understanding how features fit into the system and designing clean layer separation. You think about:
@@ -212,6 +219,7 @@ When in doubt, think about layer responsibilities and clean separation of concer
 - **[STATE_STANDARDS.md](../../docs/STATE_STANDARDS.md)** - NgRx Signal Store patterns and state management best practices
 - **[STORE_TESTING.md](../../docs/STORE_TESTING.md)** - Specialized testing patterns for store state and reducers
 - **[SMART_COMPONENT_TESTING.md](../../docs/SMART_COMPONENT_TESTING.md)** - Testing patterns for smart components
+- **[E2E_TESTS.md](../../apps/teensyrom-ui-e2e/E2E_TESTS.md)** - E2E test architecture and patterns
 
 ### Implementation Guides
 - **[API_CLIENT_GENERATION.md](../../docs/API_CLIENT_GENERATION.md)** - How to regenerate API client when backend changes

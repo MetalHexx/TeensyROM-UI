@@ -254,6 +254,7 @@ When in doubt: **Test first. Try proper. Consult about hacks. Document everythin
 - [STATE_STANDARDS.md](../../docs/STATE_STANDARDS.md) - NgRx Signal Store patterns
 - [STORE_TESTING.md](../../docs/STORE_TESTING.md) - Store testing patterns
 - [SMART_COMPONENT_TESTING.md](../../docs/SMART_COMPONENT_TESTING.md) - Component testing patterns
+- [E2E_TESTS.md](../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - E2E test architecture and patterns
 
 ### Implementation Guides
 - [API_CLIENT_GENERATION.md](../../docs/API_CLIENT_GENERATION.md) - API client regeneration

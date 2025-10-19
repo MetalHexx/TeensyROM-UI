@@ -176,6 +176,7 @@ When fixing code or tests, ask: **What actually went wrong? What's the minimal f
 - **[TESTING_STANDARDS.md](../../docs/TESTING_STANDARDS.md)** - Testing approaches, behavioral testing patterns, and guidelines
 - **[STORE_TESTING.md](../../docs/STORE_TESTING.md)** - Specialized testing patterns for store state and reducers
 - **[SMART_COMPONENT_TESTING.md](../../docs/SMART_COMPONENT_TESTING.md)** - Testing patterns for smart components
+- **[E2E_TESTS.md](../../apps/teensyrom-ui-e2e/E2E_TESTS.md)** - E2E test architecture and patterns
 - **[CODING_STANDARDS.md](../../docs/CODING_STANDARDS.md)** - General coding patterns, naming conventions, and best practices
 
 ### Architecture & Design Documents
