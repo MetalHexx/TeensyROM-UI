@@ -1,0 +1,1420 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "TeensyRom.Api | v1",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5168/"
+    }
+  ],
+  "paths": {
+    "/devices/{deviceId}/reset": {
+      "put": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Reset Device",
+        "description": "Resets a TeensyROM device.\n\n- Works the same as clicking the cartridge reset button.",
+        "operationId": "ResetDevice",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetDeviceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/ping": {
+      "get": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Ping Device",
+        "description": "Pings a TeensyROM device to check if it is responsive.\n\n- Works the same as clicking the cartridge reset button.",
+        "operationId": "PingDevice",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PingDeviceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logs": {
+      "post": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Start Logging Hub",
+        "description": "Starts the logging service and returns a success message.",
+        "operationId": "StartLogs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartLogsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Stop Logging Channel",
+        "description": "Stops the logging service and returns a success message.",
+        "operationId": "StopLogs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StopLogsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices": {
+      "get": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Find Devices",
+        "description": "Returns all available and connected TeensyROM devices.\n\n- This will momentarily disconnect all devices.\n- All available COM ports will be scanned for TeensyROM devices.\n- All previously connected devices will reconnect.",
+        "operationId": "FindDevices",
+        "parameters": [
+          {
+            "name": "AutoConnectNew",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindDevicesResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}": {
+      "delete": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Disconnect Device",
+        "description": "Disconnnects from a TeensyROM device.\n\n- Once you disconnect from a device, most endpoints won't work until you reconnect.",
+        "operationId": "DisconnectDevice",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisconnectDeviceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/events": {
+      "get": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Start Device Event Stream",
+        "description": "Starts the device event stream.",
+        "operationId": "StartDeviceEvents",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceStartResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Stop Device Event Stream",
+        "description": "Stops the device event stream.",
+        "operationId": "StopDeviceEvents",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceStopResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/connect": {
+      "post": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Connect Device",
+        "description": "Connects to a TeensyROM device.\n\n- You must be connected to a TeensyROM device in order to call most other endpoints.",
+        "operationId": "ConnectDevice",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectDeviceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/toggle-music": {
+      "post": {
+        "tags": [
+          "Player"
+        ],
+        "summary": "Toggle Music Playback",
+        "description": "Toggles the play/pause state of the currently playing music on the TeensyRom device.",
+        "operationId": "ToggleMusic",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToggleMusicResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/storage/{storageType}/random-launch": {
+      "post": {
+        "tags": [
+          "Player"
+        ],
+        "summary": "Launch Random File",
+        "description": "Launches a random file given a device, storage, filter and starting directory location.\n\n- Starting Directory: Starting directory to look for a random file.\n- Scope: `Storage` - Selects a random file anywhere on the specified storage device.\n- Scope: `DirDeep` - Selects a random file from the starting directory or any of its subdirectories.\n- Scope: `DirShallow` - Selects a random file from the starting directory only (subdirectories are not included).\n- Filter: `All` - Any file type will be randomly selected.\n- Filter: `Games` - Only game-related files will be selected (e.g., .prg, .crt, .d64, etc). Includes demos and non-games.\n- Filter: `Music` - Only music or song files will be selected (e.g., .sid, .mus, .mp3, etc).\n- Filter: `Images` - Only image files will be selected (e.g., .koa, .png, etc). Also includes text files (may be improved in a future release)",
+        "operationId": "LaunchRandom",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "storageType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TeensyStorageType"
+            }
+          },
+          {
+            "name": "FilterType",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/NullableOfTeensyFilterType"
+            }
+          },
+          {
+            "name": "Scope",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/NullableOfStorageScope"
+            }
+          },
+          {
+            "name": "StartingDirectory",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LaunchRandomResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/storage/{storageType}/launch": {
+      "post": {
+        "tags": [
+          "Player"
+        ],
+        "summary": "Launch File",
+        "description": "Launches a file given a valid path to a file stored on the TeensyRom.",
+        "operationId": "LaunchFile",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "storageType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TeensyStorageType"
+            }
+          },
+          {
+            "name": "FilePath",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LaunchFileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/storage/{storageType}/search": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Search Files",
+        "description": "Searches for files in the specified storage device based on search text and filter criteria.\n\n- Searches through file names, titles, creators, and descriptions.\n- Returns metadata for all matching files.\n- Supports file type filtering (All, Games, Music, Images, Hex).\n- Supports pagination with Skip and Take parameters.\n- Excludes favorites and playlist directories from search results.\n- Uses weighted search algorithm to rank results by relevance.\n- Default page size is 50, maximum is 200.",
+        "operationId": "Search",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "storageType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TeensyStorageType"
+            }
+          },
+          {
+            "name": "SearchText",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "FilterType",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/NullableOfTeensyFilterType"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/storage/{storageType}/index": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Index",
+        "description": "Indexes the directory structure of a given TeensyROM device and storage type.\n\n- Providing a path will index starting at that directory and all subdirectories below it.\n- Providing no path will index the whole storage device.\n- Don't touch your commodore while indexing is in progress.",
+        "operationId": "Index",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "storageType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TeensyStorageType"
+            }
+          },
+          {
+            "name": "StartingPath",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files/index/all": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Index All",
+        "description": "Indexes all storage for all connected TeensyROM devices.\n\n- This will recursively index all storage devices.\n- Multiple devices will be indexed in parallel, one device type at a time.\n- This could take a few minutes if you have a lot of data.\n- Don't touch your commodores while indexing is in progress.",
+        "operationId": "IndexAll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexAllResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/storage/{storageType}/directories": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Get Directory",
+        "description": "Gets a directory for given storage device.\n\n- Returns metadata for all files in the directory.\n- This is not recursive and will only include the files for the requested directory.\n- Make another request to get subdirectory content.",
+        "operationId": "GetDirectory",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "storageType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TeensyStorageType"
+            }
+          },
+          {
+            "name": "Path",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetDirectoryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CartDto": {
+        "required": [
+          "deviceId",
+          "isConnected",
+          "deviceState",
+          "comPort",
+          "name",
+          "fwVersion",
+          "isCompatible",
+          "sdStorage",
+          "usbStorage"
+        ],
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "isConnected": {
+            "type": "boolean"
+          },
+          "deviceState": {
+            "$ref": "#/components/schemas/DeviceState"
+          },
+          "comPort": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "fwVersion": {
+            "type": "string"
+          },
+          "isCompatible": {
+            "type": "boolean"
+          },
+          "sdStorage": {
+            "$ref": "#/components/schemas/CartStorageDto"
+          },
+          "usbStorage": {
+            "$ref": "#/components/schemas/CartStorageDto"
+          }
+        }
+      },
+      "CartStorageDto": {
+        "required": [
+          "deviceId",
+          "type",
+          "available"
+        ],
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TeensyStorageType"
+          },
+          "available": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CompetitionDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "place": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "ConnectDeviceResponse": {
+        "required": [
+          "connectedCart",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "connectedCart": {
+            "$ref": "#/components/schemas/CartDto"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "DeviceStartResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "DeviceState": {
+        "enum": [
+          "Connected",
+          "Connectable",
+          "ConnectionLost",
+          "Busy",
+          "Unknown"
+        ]
+      },
+      "DeviceStopResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "DirectoryItemDto": {
+        "required": [
+          "name",
+          "path"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      },
+      "DisconnectDeviceResponse": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "FileItemDto": {
+        "required": [
+          "name",
+          "path",
+          "size",
+          "isFavorite",
+          "isCompatible",
+          "title",
+          "creator",
+          "releaseInfo",
+          "description",
+          "shareUrl",
+          "metadataSource",
+          "meta1",
+          "meta2",
+          "links",
+          "tags",
+          "youTubeVideos",
+          "competitions",
+          "ratingCount",
+          "metadataSourcePath",
+          "parentPath",
+          "playLength",
+          "subtuneLengths",
+          "startSubtuneNum",
+          "images",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "isFavorite": {
+            "type": "boolean"
+          },
+          "isCompatible": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string"
+          },
+          "creator": {
+            "type": "string"
+          },
+          "releaseInfo": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "shareUrl": {
+            "type": "string"
+          },
+          "metadataSource": {
+            "type": "string"
+          },
+          "meta1": {
+            "type": "string"
+          },
+          "meta2": {
+            "type": "string"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileLinkDto"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileTagDto"
+            }
+          },
+          "youTubeVideos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/YouTubeVideoDto"
+            }
+          },
+          "competitions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompetitionDto"
+            }
+          },
+          "avgRating": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "ratingCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "metadataSourcePath": {
+            "type": "string"
+          },
+          "parentPath": {
+            "type": "string"
+          },
+          "playLength": {
+            "pattern": "^-?(\\d+\\.)?\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,7})?$",
+            "type": "string"
+          },
+          "subtuneLengths": {
+            "type": "array",
+            "items": {
+              "pattern": "^-?(\\d+\\.)?\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,7})?$",
+              "type": "string"
+            }
+          },
+          "startSubtuneNum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ViewableItemImageDto"
+            }
+          },
+          "type": {
+            "$ref": "#/components/schemas/FileItemType"
+          }
+        }
+      },
+      "FileItemType": {
+        "enum": [
+          "Unknown",
+          "Song",
+          "Game",
+          "Image",
+          "Hex"
+        ]
+      },
+      "FileLinkDto": {
+        "required": [
+          "name",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "FileTagDto": {
+        "required": [
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "FindDevicesResponse": {
+        "required": [
+          "devices",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "devices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CartDto"
+            }
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "GetDirectoryResponse": {
+        "required": [
+          "storageItem",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "storageItem": {
+            "$ref": "#/components/schemas/StorageCacheDto"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "IndexAllResponse": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "IndexResponse": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "LaunchFileResponse": {
+        "required": [
+          "message",
+          "launchedFile",
+          "isCompatible"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "launchedFile": {
+            "$ref": "#/components/schemas/FileItemDto"
+          },
+          "isCompatible": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LaunchRandomResponse": {
+        "required": [
+          "launchedFile",
+          "message",
+          "isCompatible"
+        ],
+        "type": "object",
+        "properties": {
+          "launchedFile": {
+            "$ref": "#/components/schemas/FileItemDto"
+          },
+          "message": {
+            "type": "string"
+          },
+          "isCompatible": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NullableOfStorageScope": {
+        "enum": [
+          "Storage",
+          "DirDeep",
+          "DirShallow",
+          null
+        ]
+      },
+      "NullableOfTeensyFilterType": {
+        "enum": [
+          "All",
+          "Games",
+          "Music",
+          "Hex",
+          "Images",
+          null
+        ]
+      },
+      "PingDeviceResponse": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ResetDeviceResponse": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "SearchResponse": {
+        "required": [
+          "files",
+          "searchText",
+          "totalCount",
+          "count",
+          "skip",
+          "take",
+          "hasMore",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileItemDto"
+            }
+          },
+          "searchText": {
+            "type": "string"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skip": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "take": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasMore": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "StartLogsResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "StopLogsResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "StorageCacheDto": {
+        "required": [
+          "directories",
+          "files",
+          "path"
+        ],
+        "type": "object",
+        "properties": {
+          "directories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DirectoryItemDto"
+            }
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileItemDto"
+            }
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      },
+      "TeensyStorageType": {
+        "enum": [
+          "SD",
+          "USB"
+        ]
+      },
+      "ToggleMusicResponse": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ViewableItemImageDto": {
+        "required": [
+          "fileName",
+          "path",
+          "baseAssetPath",
+          "source"
+        ],
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "baseAssetPath": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      },
+      "YouTubeVideoDto": {
+        "required": [
+          "videoId",
+          "url",
+          "channel",
+          "subtune"
+        ],
+        "type": "object",
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "subtune": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Devices"
+    },
+    {
+      "name": "Player"
+    },
+    {
+      "name": "Files"
+    }
+  ]
+}

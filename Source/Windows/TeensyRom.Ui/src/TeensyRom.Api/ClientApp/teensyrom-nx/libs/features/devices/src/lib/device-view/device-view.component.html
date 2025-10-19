@@ -1,15 +1,14 @@
-<div class="device-view">
-  @if (isLoading()) { } @else {
-
-  <div class="device-list">
+<div class="device-view" data-testid="device-view">
+  <div class="device-list" data-testid="device-list">
     @if (devices().length === 0) {
 
-    <p>No devices found</p>
+    <p data-testid="empty-state-message">No devices found</p>
 
     } @else { @for (device of devices(); track device.deviceId) {
 
     <lib-device-item
       [device]="device"
+      [attr.data-testid]="'device-item-' + device.deviceId"
       (connect)="onConnect($event)"
       (disconnect)="onDisconnect($event)">
     </lib-device-item>
@@ -22,5 +21,4 @@
   <div class="device-logs">
     <lib-device-logs></lib-device-logs>
   </div>
-  }
 </div>

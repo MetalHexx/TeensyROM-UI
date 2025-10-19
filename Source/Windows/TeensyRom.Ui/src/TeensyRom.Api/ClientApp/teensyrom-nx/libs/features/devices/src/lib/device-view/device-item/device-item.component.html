@@ -12,6 +12,7 @@
 <lib-scaling-card
   [title]="device()?.name"
   [enableOverflow]="false"
+  data-testid="device-card"
   [ngClass]="{ dimmed: !connectionStatus() }"
   animationEntry="from-left">
 
@@ -43,6 +44,7 @@
     slot="corner"
     icon="power_settings_new"
     ariaLabel="Power"
+    data-testid="device-power-button"
     [color]="connectionStatus() ? 'highlight' : 'normal'"
     size="medium"
     (buttonClick)="connectionStatus() ? onDisconnect() : onConnect()"
@@ -51,35 +53,45 @@
 
   <!-- Main content -->
   <div class="device-content">
-    <div class="device-info">
+    <div class="device-info" data-testid="device-info">
       <lib-icon-label
         icon="tag"
+        data-testid="device-id-label"
         [label]="'Device ID: ' + (device()?.deviceId ?? '')"
       ></lib-icon-label>
       <lib-icon-label
         icon="developer_board"
+        data-testid="device-firmware-label"
         [label]="'Firmware: ' + (device()?.fwVersion ?? '')"
       ></lib-icon-label>
-      <lib-icon-label icon="usb" [label]="'Port: ' + (device()?.comPort ?? '')"> </lib-icon-label>
+      <lib-icon-label
+        icon="usb"
+        data-testid="device-port-label"
+        [label]="'Port: ' + (device()?.comPort ?? '')">
+      </lib-icon-label>
       <lib-icon-label
         icon="device_hub"
+        data-testid="device-state-label"
         [label]="'State: ' + (deviceState()?.toString() ?? '')"
       ></lib-icon-label>
       <lib-icon-label
         icon="verified_user"
+        data-testid="device-compatible-label"
         [label]="'Compatible: ' + (device()?.isCompatible ? 'Yes' : 'No')"
       ></lib-icon-label>
     </div>
-    <div class="device-storage">
+    <div class="device-storage" data-testid="device-storage">
       <lib-storage-status
         icon="usb"
         label="USB Stick"
+        data-testid="usb-storage-status"
         [status]="usbStatus()"
         (index)="onIndex(StorageType.Usb)"
       ></lib-storage-status>
       <lib-storage-status
         icon="sd_card"
         label="SD Card"
+        data-testid="sd-storage-status"
         [status]="sdStatus()"
         (index)="onIndex(StorageType.Sd)"
       ></lib-storage-status>
