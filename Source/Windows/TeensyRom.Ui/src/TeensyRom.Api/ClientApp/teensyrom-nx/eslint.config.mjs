@@ -53,6 +53,11 @@ export default [
                 'scope:app',
               ],
             },
+            // E2E Tests - Can depend on data-access for API DTOs
+            {
+              sourceTag: 'scope:e2e',
+              onlyDependOnLibsWithTags: ['scope:data-access'],
+            },
             // Prevent features from importing each other (feature isolation)
             {
               sourceTag: 'feature:device',
