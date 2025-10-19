@@ -20,5 +20,11 @@
     "**/*.cy.ts",
     "**/*.cy.js",
     "**/*.d.ts"
-  ]
+  ],
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  }
 }
