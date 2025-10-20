@@ -24,6 +24,7 @@ export {
   DEVICE_CARD_SELECTORS,
   DEVICE_VIEW_SELECTORS,
   BUTTON_SELECTORS,
+  ICON_CLASSES,
   UI_SELECTORS,
   getAlertMessageSelector,
   getAlertIconSelector,
@@ -324,8 +325,7 @@ export function verifyConnected(deviceIndex: number): void {
   
   // Verify power button icon has 'highlight' class
   getDeviceCard(deviceIndex)
-    .find(DEVICE_CARD_SELECTORS.powerButton)
-    .find('mat-icon')
+    .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
     .should('have.class', 'highlight');
 }
 
@@ -348,7 +348,6 @@ export function verifyDisconnected(deviceIndex: number): void {
   
   // Verify power button icon has 'normal' class
   getDeviceCard(deviceIndex)
-    .find(DEVICE_CARD_SELECTORS.powerButton)
-    .find('mat-icon')
+    .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
     .should('have.class', 'normal');
 }

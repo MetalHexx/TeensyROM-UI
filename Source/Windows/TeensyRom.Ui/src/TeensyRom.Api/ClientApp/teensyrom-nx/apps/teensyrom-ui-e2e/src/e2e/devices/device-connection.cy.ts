@@ -47,6 +47,7 @@ import {
   waitForDisconnection,
   verifyConnected,
   verifyDisconnected,
+  DEVICE_ENDPOINTS,
 } from './test-helpers';
 import {
   interceptFindDevices,
@@ -95,8 +96,7 @@ describe('Device Connection - Single Device', () => {
 
       // Assert: Power button icon has "highlight" class
       getDeviceCard(0)
-        .find(DEVICE_CARD_SELECTORS.powerButton)
-        .find('mat-icon')
+        .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
         .should('have.class', 'highlight');
     });
 
@@ -113,10 +113,10 @@ describe('Device Connection - Single Device', () => {
     });
 
     it('should call connection API with correct device ID', () => {
-      // Setup: Capture connection request
+      // Setup: Capture connection request using constants
       cy.intercept(
-        'POST',
-        'http://localhost:5168/devices/*/connect',
+        DEVICE_ENDPOINTS.CONNECT_DEVICE.method,
+        DEVICE_ENDPOINTS.CONNECT_DEVICE.pattern,
         (req) => {
           // Verify request contains device ID from fixture
           expect(req.url).to.include(disconnectedDevice.devices[0].deviceId);
@@ -174,8 +174,7 @@ describe('Device Connection - Single Device', () => {
 
       // Assert: Power button icon has "normal" class
       getDeviceCard(0)
-        .find(DEVICE_CARD_SELECTORS.powerButton)
-        .find('mat-icon')
+        .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
         .should('have.class', 'normal');
     });
 
@@ -192,10 +191,10 @@ describe('Device Connection - Single Device', () => {
     });
 
     it('should call disconnection API with correct device ID', () => {
-      // Setup: Capture disconnection request
+      // Setup: Capture disconnection request using constants
       cy.intercept(
-        'DELETE',
-        'http://localhost:5168/devices/*',
+        DEVICE_ENDPOINTS.DISCONNECT_DEVICE.method,
+        DEVICE_ENDPOINTS.DISCONNECT_DEVICE.pattern,
         (req) => {
           // Verify request contains device ID from fixture
           expect(req.url).to.include(singleDevice.devices[0].deviceId);

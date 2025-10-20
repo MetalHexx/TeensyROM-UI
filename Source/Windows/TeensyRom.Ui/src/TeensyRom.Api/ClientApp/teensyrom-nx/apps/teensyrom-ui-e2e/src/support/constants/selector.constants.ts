@@ -5,6 +5,12 @@
  * Single source of truth for DOM selection - update here, affects all tests.
  */
 
+// CSS classes for styling states
+export const ICON_CLASSES = {
+  highlighted: 'highlight',
+  normal: 'normal',
+} as const;
+
 // Alert/notification display
 export const ALERT_SELECTORS = {
   container: '.alert-display',
@@ -35,6 +41,7 @@ export const DEVICE_VIEW_SELECTORS = {
 export const DEVICE_CARD_SELECTORS = {
   card: '[data-testid="device-card"]',
   powerButton: '[data-testid="device-power-button"]',
+  powerButtonIcon: '[data-testid="device-power-button"] mat-icon',
   deviceInfo: '[data-testid="device-info"]',
   deviceStorage: '[data-testid="device-storage"]',
   idLabel: '[data-testid="device-id-label"]',
@@ -83,4 +90,5 @@ export const UI_SELECTORS = {
   deviceView: DEVICE_VIEW_SELECTORS,
   deviceCard: DEVICE_CARD_SELECTORS,
   buttons: BUTTON_SELECTORS,
+  icons: ICON_CLASSES,
 } as const;
