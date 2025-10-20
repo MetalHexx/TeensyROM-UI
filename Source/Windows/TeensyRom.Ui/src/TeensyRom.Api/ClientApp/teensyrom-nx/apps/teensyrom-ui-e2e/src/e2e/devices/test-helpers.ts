@@ -77,11 +77,12 @@ export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
 /**
  * Wait for device discovery API call to complete
  * Uses extended timeout since app bootstrap triggers the call
+ * 
+ * Note: This only waits for the API call to complete, not for devices to be rendered.
+ * Some scenarios (empty state, error handling) may have 0 devices, which is valid.
  */
 export function waitForDeviceDiscovery(timeout = 10000): void {
   cy.wait(`@${INTERCEPT_ALIASES.FIND_DEVICES}`, { timeout });
-  // Also wait for at least one device card to appear in the DOM
-  cy.get(DEVICE_CARD_SELECTORS.card, { timeout: 5000 }).should('have.length.at.least', 1);
 }
 
 /**
@@ -148,9 +149,13 @@ export function verifyEmptyState(): void {
 
 /**
  * Verify loading state is displayed via bootstrap busy dialog
+ * 
+ * Note: This waits for the loading indicator to appear before asserting.
+ * The busy dialog may appear briefly during navigation, so we need to ensure
+ * it's actually rendered before checking visibility.
  */
-export function verifyLoadingState(): void {
-  cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('be.visible');
+export function verifyLoadingState(timeout = 4000): void {
+  cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator, { timeout }).should('be.visible');
 }
 
 /**

@@ -11,6 +11,9 @@ import {
   getDeviceCard,
   DEVICE_VIEW_SELECTORS,
   DEVICE_CARD_SELECTORS,
+  DEVICE_ENDPOINTS,
+  API_ROUTE_ALIASES,
+  CSS_CLASSES,
 } from './test-helpers';
 import {
   interceptFindDevices,
@@ -59,7 +62,7 @@ describe('Device Discovery E2E Tests', () => {
 
     it.skip('should show connected status', () => {
       // TODO: Requires SignalR event mocking (Phase 5)
-      getDeviceCard(0).should('not.have.class', 'dimmed');
+      getDeviceCard(0).should('not.have.class', CSS_CLASSES.DIMMED);
       cy.get(DEVICE_CARD_SELECTORS.stateLabel).should('contain.text', 'Connected');
     });
 
@@ -110,7 +113,7 @@ describe('Device Discovery E2E Tests', () => {
 
     it('should show connected status for all devices', () => {
       cy.get(DEVICE_CARD_SELECTORS.card).each((card) => {
-        cy.wrap(card).should('not.have.class', 'dimmed');
+        cy.wrap(card).should('not.have.class', CSS_CLASSES.DIMMED);
       });
     });
 
@@ -177,7 +180,7 @@ describe('Device Discovery E2E Tests', () => {
 
     it('should apply disconnected styling', () => {
       // Disconnected device should have dimmed class
-      getDeviceCard(0).should('have.class', 'dimmed');
+      getDeviceCard(0).should('have.class', CSS_CLASSES.DIMMED);
     });
 
     it('should preserve device information', () => {
@@ -214,7 +217,7 @@ describe('Device Discovery E2E Tests', () => {
     });
 
     it('should not apply disconnected styling', () => {
-      getDeviceCard(0).should('not.have.class', 'dimmed');
+      getDeviceCard(0).should('not.have.class', CSS_CLASSES.DIMMED);
     });
 
     it('should display storage status indicators', () => {
@@ -249,7 +252,7 @@ describe('Device Discovery E2E Tests', () => {
         deviceIndex: 0,
         state: 'Connected',
       });
-      getDeviceCard(0).should('not.have.class', 'dimmed');
+      getDeviceCard(0).should('not.have.class', CSS_CLASSES.DIMMED);
     });
 
     it.skip('should show second device as busy', () => {
@@ -266,14 +269,14 @@ describe('Device Discovery E2E Tests', () => {
         deviceIndex: 2,
         state: 'ConnectionLost',
       });
-      getDeviceCard(2).should('have.class', 'dimmed');
+      getDeviceCard(2).should('have.class', CSS_CLASSES.DIMMED);
     });
 
     it('should visually distinguish states', () => {
       // First device not dimmed
-      getDeviceCard(0).should('not.have.class', 'dimmed');
+      getDeviceCard(0).should('not.have.class', CSS_CLASSES.DIMMED);
       // Third device dimmed
-      getDeviceCard(2).should('have.class', 'dimmed');
+      getDeviceCard(2).should('have.class', CSS_CLASSES.DIMMED);
     });
 
     it('should render all devices in order', () => {
@@ -291,7 +294,7 @@ describe('Device Discovery E2E Tests', () => {
   describe('Loading States', () => {
     it('should show loading indicator during API call', () => {
       // Set up interceptor with delay to capture loading state
-      cy.intercept('GET', 'http://localhost:5168/devices*', (req) => {
+      cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.method, DEVICE_ENDPOINTS.FIND_DEVICES.pattern, (req) => {
         req.reply({
           delay: 500,
           statusCode: 200,
@@ -300,7 +303,7 @@ describe('Device Discovery E2E Tests', () => {
             message: 'Found 1 device(s)',
           },
         });
-      }).as('findDevices');
+      }).as(API_ROUTE_ALIASES.FIND_DEVICES);
 
       navigateToDeviceView();
 
@@ -318,7 +321,7 @@ describe('Device Discovery E2E Tests', () => {
     });
 
     it('should not show devices while loading', () => {
-      cy.intercept('GET', 'http://localhost:5168/devices*', (req) => {
+      cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.method, DEVICE_ENDPOINTS.FIND_DEVICES.pattern, (req) => {
         req.reply({
           delay: 800,
           statusCode: 200,
@@ -327,7 +330,7 @@ describe('Device Discovery E2E Tests', () => {
             message: 'Found 1 device(s)',
           },
         });
-      }).as('findDevices');
+      }).as(API_ROUTE_ALIASES.FIND_DEVICES);
 
       navigateToDeviceView();
 
@@ -337,7 +340,7 @@ describe('Device Discovery E2E Tests', () => {
 
     it('should transition from loading to content', () => {
       // Use inline interceptor with delay to capture loading state
-      cy.intercept('GET', 'http://localhost:5168/devices*', (req) => {
+      cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.method, DEVICE_ENDPOINTS.FIND_DEVICES.pattern, (req) => {
         req.reply({
           delay: 500,
           statusCode: 200,
@@ -346,7 +349,7 @@ describe('Device Discovery E2E Tests', () => {
             message: 'Found 1 device(s)',
           },
         });
-      }).as('findDevices');
+      }).as(API_ROUTE_ALIASES.FIND_DEVICES);
 
       navigateToDeviceView();
 
