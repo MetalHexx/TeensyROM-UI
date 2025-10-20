@@ -42,6 +42,9 @@ import {
   waitForDisconnection,
   verifyConnected,
   verifyDisconnected,
+  DEVICE_CARD_SELECTORS,
+  API_ROUTE_ALIASES,
+  ICON_CLASSES,
 } from './test-helpers';
 import {
   interceptFindDevices,
@@ -122,19 +125,16 @@ describe('Device Connection - Multi-Device', () => {
 
       // Verify power button states
       getDeviceCard(0)
-        .find('[data-testid="device-power-button"]')
-        .find('mat-icon')
-        .should('have.class', 'highlight');
+        .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
+        .should('have.class', ICON_CLASSES.highlighted);
 
       getDeviceCard(1)
-        .find('[data-testid="device-power-button"]')
-        .find('mat-icon')
-        .should('have.class', 'normal');
+        .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
+        .should('have.class', ICON_CLASSES.normal);
 
       getDeviceCard(2)
-        .find('[data-testid="device-power-button"]')
-        .find('mat-icon')
-        .should('have.class', 'normal');
+        .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
+        .should('have.class', ICON_CLASSES.normal);
 
       // Verify dimmed styling
       getDeviceCard(0).should('not.have.class', CSS_CLASSES.DIMMED);
@@ -319,17 +319,17 @@ describe('Device Connection - Multi-Device', () => {
 
       // Connect device 1 and wait for API call
       clickPowerButton(0);
-      cy.wait('@connectDevice');
+      cy.wait(`@${API_ROUTE_ALIASES.CONNECT_DEVICE}`);
       verifyConnected(0);
 
       // Connect device 2 and wait for API call
       clickPowerButton(1);
-      cy.wait('@connectDevice');
+      cy.wait(`@${API_ROUTE_ALIASES.CONNECT_DEVICE}`);
       verifyConnected(1);
 
       // Connect device 3 and wait for API call
       clickPowerButton(2);
-      cy.wait('@connectDevice');
+      cy.wait(`@${API_ROUTE_ALIASES.CONNECT_DEVICE}`);
       verifyConnected(2);
 
       // If we got here without timeout, all 3 API calls were made successfully
@@ -362,23 +362,20 @@ describe('Device Connection - Multi-Device', () => {
       // Device 1: connected (not dimmed, highlighted power button)
       getDeviceCard(0).should('not.have.class', CSS_CLASSES.DIMMED);
       getDeviceCard(0)
-        .find('[data-testid="device-power-button"]')
-        .find('mat-icon')
-        .should('have.class', 'highlight');
+        .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
+        .should('have.class', ICON_CLASSES.highlighted);
 
       // Device 2: disconnected (dimmed, normal power button)
       getDeviceCard(1).should('have.class', CSS_CLASSES.DIMMED);
       getDeviceCard(1)
-        .find('[data-testid="device-power-button"]')
-        .find('mat-icon')
-        .should('have.class', 'normal');
+        .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
+        .should('have.class', ICON_CLASSES.normal);
 
       // Device 3: connected (not dimmed, highlighted power button)
       getDeviceCard(2).should('not.have.class', CSS_CLASSES.DIMMED);
       getDeviceCard(2)
-        .find('[data-testid="device-power-button"]')
-        .find('mat-icon')
-        .should('have.class', 'highlight');
+        .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
+        .should('have.class', ICON_CLASSES.highlighted);
     });
 
     it('should allow operations on any device regardless of other states', () => {
@@ -609,17 +606,17 @@ describe('Device Connection - Multi-Device', () => {
       // Connect device 1
       clickPowerButton(0);
       waitForConnection();
-      cy.get('[data-testid="device-card"]').should('have.length', 3);
+      cy.get(DEVICE_CARD_SELECTORS.card).should('have.length', 3);
 
       // Connect device 2
       clickPowerButton(1);
       waitForConnection();
-      cy.get('[data-testid="device-card"]').should('have.length', 3);
+      cy.get(DEVICE_CARD_SELECTORS.card).should('have.length', 3);
 
       // Connect device 3
       clickPowerButton(2);
       waitForConnection();
-      cy.get('[data-testid="device-card"]').should('have.length', 3);
+      cy.get(DEVICE_CARD_SELECTORS.card).should('have.length', 3);
 
       // Verify final count
       verifyDeviceCount(3);
