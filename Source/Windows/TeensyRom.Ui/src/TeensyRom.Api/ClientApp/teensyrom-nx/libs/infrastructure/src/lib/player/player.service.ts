@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-import { from, map, catchError, throwError, Observable } from 'rxjs';
+import { from, map, catchError, throwError, Observable, mergeMap } from 'rxjs';
 import { PlayerApiService } from '@teensyrom-nx/data-access/api-client';
 import { DomainMapper } from '../domain.mapper';
 import {
@@ -12,6 +12,7 @@ import {
   IAlertService,
 } from '@teensyrom-nx/domain';
 import { logError } from '@teensyrom-nx/utils';
+import { extractErrorMessage } from '../error/api-error.utils';
 
 @Injectable({ providedIn: 'root' })
 export class PlayerService implements IPlayerService {
@@ -109,9 +110,12 @@ export class PlayerService implements IPlayerService {
   }
 
   private handleError(error: unknown, methodName: string, fallbackMessage: string): Observable<never> {
-    const message = error instanceof Error ? error.message : fallbackMessage;
-    logError(`PlayerService.${methodName} failed:`, error);
-    this.alertService.error(message);
-    return throwError(() => (error instanceof Error ? error : new Error(fallbackMessage)));
+    return from(extractErrorMessage(error, fallbackMessage)).pipe(
+      mergeMap((message) => {
+        logError(`PlayerService.${methodName} failed:`, error);
+        this.alertService.error(message);
+        return throwError(() => (error instanceof Error ? error : new Error(fallbackMessage)));
+      })
+    );
   }
 }

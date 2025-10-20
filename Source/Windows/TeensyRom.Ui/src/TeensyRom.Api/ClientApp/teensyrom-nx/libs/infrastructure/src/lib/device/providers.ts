@@ -3,6 +3,7 @@ import {
   DEVICE_LOGS_SERVICE,
   DEVICE_EVENTS_SERVICE,
   DEVICE_STORAGE_SERVICE,
+  ALERT_SERVICE,
 } from '@teensyrom-nx/domain';
 import { DeviceService } from './device.service';
 import { DeviceLogsService } from './device-logs.service';
@@ -25,7 +26,7 @@ export const DEVICES_API_CLIENT_PROVIDER = {
 export const DEVICE_SERVICE_PROVIDER = {
   provide: DEVICE_SERVICE,
   useClass: DeviceService,
-  deps: [DevicesApiService],
+  deps: [DevicesApiService, ALERT_SERVICE],
 };
 
 export const DEVICE_LOGS_SERVICE_PROVIDER = {

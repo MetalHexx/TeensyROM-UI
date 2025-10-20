@@ -1,9 +1,10 @@
-import { effect, inject, Injectable, runInInjectionContext, Injector } from '@angular/core';
+import { effect, inject, Injectable, runInInjectionContext, Injector, untracked } from '@angular/core';
 import { DeviceStore } from '@teensyrom-nx/application';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import {
+  ALERT_SERVICE,
   DEVICE_EVENTS_SERVICE,
   DEVICE_LOGS_SERVICE,
+  IAlertService,
   IDeviceEventsService,
   IDeviceLogsService,
 } from '@teensyrom-nx/domain';
@@ -14,22 +15,19 @@ export class AppBootstrapService {
   private readonly deviceLogsService: IDeviceLogsService = inject(DEVICE_LOGS_SERVICE);
   private readonly deviceEventsService: IDeviceEventsService = inject(DEVICE_EVENTS_SERVICE);
   private readonly injector = inject(Injector);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly alertService: IAlertService = inject(ALERT_SERVICE);
 
   async init(): Promise<void> {
     return new Promise((resolve) => {
       runInInjectionContext(this.injector, () => {
         const effectRef = effect(() => {
           if (this.deviceStore.hasInitialised()) {
-            if (this.deviceStore.error() === null) {
+            // Use untracked to prevent the effect from re-running when we resolve
+            untracked(() => {
               resolve();
-            } else {
-              this.snackBar.open('Could not find any TeensyROM devices.', 'Close', {
-                duration: 5000,
-              });
-              resolve();
-            }
-            Promise.resolve().then(() => effectRef.destroy());
+            });
+            // Destroy the effect immediately to prevent re-runs
+            effectRef.destroy();
           }
         });
       });
