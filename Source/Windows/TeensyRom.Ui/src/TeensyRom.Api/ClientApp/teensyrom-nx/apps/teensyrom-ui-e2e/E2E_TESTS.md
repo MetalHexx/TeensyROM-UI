@@ -26,16 +26,18 @@ E2E Tests (Cypress Specs)
 
 #### 1. Test Data Layer (`src/support/test-data/`)
 
-**Fixtures** (`fixtures/devices.fixture.ts`):
+**Fixtures** (`src/support/test-data/fixtures/devices.fixture.ts`):
 - Pre-built, realistic device data for common scenarios
 - Examples: `singleDevice`, `multipleDevices`, `noDevices`, `disconnectedDevice`
 - Type-safe with `MockDeviceFixture` interface
 - Reusable across multiple tests
+- See [E2E_FIXTURES.md](./src/support/test-data/fixtures/E2E_FIXTURES.md) for detailed fixture reference
 
-**Generators** (`generators/device.generators.ts`):
+**Generators** (`src/support/test-data/generators/device.generators.ts`):
 - Factory functions using `@faker-js/faker` for dynamic test data
 - Create custom scenarios: `generateDevice()`, `generateDeviceWithState()`
 - Useful for edge cases and property-based testing
+- See [E2E_TEST_GENERATORS.md](./src/support/test-data/generators/E2E_TEST_GENERATORS.md) for generator reference
 
 **Example Usage**:
 ```typescript
@@ -51,11 +53,12 @@ const customDevice = generateDevice({ firmwareVersion: 'v2.0.0' });
 
 #### 2. API Mocking Layer (`src/support/interceptors/`)
 
-**Interceptors** (`interceptors/device.interceptors.ts`):
+**Interceptors** (`src/support/interceptors/device.interceptors.ts`):
 - Wrapper functions around `cy.intercept()` for consistent API mocking
 - Handle request/response structure automatically
 - Support error modes for failure testing
 - Register Cypress aliases for test assertions
+- See [E2E_INTERCEPTORS.md](./src/support/interceptors/E2E_INTERCEPTORS.md) for detailed interceptor reference
 
 **Available Interceptors**:
 - `interceptFindDevices()` - Device discovery (`GET /devices`)
@@ -83,12 +86,15 @@ it('should handle API errors', () => {
 
 #### 3. E2E Tests (`src/e2e/devices/`)
 
-**Test Helpers** (`test-helpers.ts`):
+**Test Helpers** (`src/e2e/devices/test-helpers.ts`):
 - Centralized selectors (single source of truth)
 - Reusable navigation and assertion functions
 - Type-safe constants for routes, timeouts, CSS classes
 
-**Test Specs** (`device-discovery.cy.ts`, etc.):
+**Constants** (`src/support/constants/`):
+- See [E2E_CONSTANTS.md](./src/support/constants/E2E_CONSTANTS.md) for centralized constants reference
+
+**Test Specs** (`src/e2e/devices/device-discovery.cy.ts`, etc.):
 - Organized by feature/workflow
 - Use descriptive test names
 - Leverage helpers for consistency
@@ -186,7 +192,7 @@ For deep debugging of interceptor timing issues, network traffic, and applicatio
 - DOM state verification at specific test breakpoints
 - JavaScript execution in page context to inspect signals/stores
 
-**Setup Guide**: See `docs/features/e2e-testing/E2E_PLAN_P4_MCP_SETUP.md`
+**Setup Guide**: See `src/support/constants/E2E_CONSTANTS.md`
 
 **Quick Setup**:
 1. Install MCP server: `npm install -g @modelcontextprotocol/server-chrome-devtools`
@@ -353,15 +359,15 @@ import {
 ### Phase Documentation
 Detailed implementation guides for each testing phase:
 
-- **Phase 2**: Fixtures & Generators - `src/support/test-data/fixtures/README.md`
-- **Phase 3**: API Interceptors - `src/support/interceptors/E2E_INTERCEPTORS.md`
-- **Phase 4**: Device Discovery Tests - `src/e2e/devices/E2E_DEVICE_DISCOVERY.md`
-- **Phase 4 Results**: Timing Issues Resolution - `docs/features/e2e-testing/E2E_PLAN_P4_RESULTS.md`
+- **Phase 2**: Fixtures & Generators - [E2E_FIXTURES.md](./src/support/test-data/fixtures/E2E_FIXTURES.md)
+- **Phase 3**: API Interceptors - [E2E_INTERCEPTORS.md](./src/support/interceptors/E2E_INTERCEPTORS.md)
+- **Phase 4**: Device Discovery Tests - [E2E_DEVICE_DISCOVERY.md](./src/e2e/devices/E2E_DEVICE_DISCOVERY.md)
+- **Constants & Selectors**: [E2E_CONSTANTS.md](./src/support/constants/E2E_CONSTANTS.md)
 
 ### Related Guides
-- **Overall E2E Plan**: `docs/features/e2e-testing/E2E_PLAN.md`
-- **Testing Standards**: `docs/TESTING_STANDARDS.md`
-- **API Client Generation**: `docs/API_CLIENT_GENERATION.md`
+- **Test Data Generators**: [E2E_TEST_GENERATORS.md](./src/support/test-data/generators/E2E_TEST_GENERATORS.md)
+- **API Client Generation**: `../../docs/API_CLIENT_GENERATION.md`
+- **Testing Standards**: `../../docs/TESTING_STANDARDS.md`
 
 ---
 
@@ -369,10 +375,12 @@ Detailed implementation guides for each testing phase:
 
 **Run Tests**: `pnpm nx e2e teensyrom-ui-e2e`  
 **Debug Tests**: `pnpm nx e2e teensyrom-ui-e2e:open-cypress`  
-**API Spec**: `TeensyRom.Api/api-spec/TeensyRom.Api.json`  
+**API Spec**: `../../TeensyRom.Api/api-spec/TenesyRom.Api.json`  
 **Fixtures**: `src/support/test-data/fixtures/`  
+**Generators**: `src/support/test-data/generators/`  
 **Interceptors**: `src/support/interceptors/`  
+**Constants**: `src/support/constants/`  
 **Test Helpers**: `src/e2e/devices/test-helpers.ts`  
-**MCP Setup**: `docs/features/e2e-testing/E2E_PLAN_P4_MCP_SETUP.md`
+**Test Specs**: `src/e2e/devices/`  
 
 **Current Status**: ✅ 33/33 active tests passing | 6 tests pending (Phase 5)
