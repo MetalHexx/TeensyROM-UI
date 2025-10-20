@@ -264,6 +264,60 @@ pnpm run generate:api-client
 
 ## 🎯 Best Practices
 
+### Constants & Selectors Requirement
+
+All E2E tests **MUST** use centralized constants from the constants layer - hardcoding values is strictly prohibited.
+
+**API Endpoints** - Use `DEVICE_ENDPOINTS` from `api.constants.ts`:
+```typescript
+// ❌ Hardcoded - not allowed
+cy.intercept('GET', 'http://localhost:5168/devices*', ...)
+
+// ✅ Correct - uses centralized constant
+cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.method, DEVICE_ENDPOINTS.FIND_DEVICES.pattern, ...)
+```
+
+**UI Selectors** - Use selector groups from `selector.constants.ts`:
+```typescript
+// ❌ Hardcoded - not allowed
+cy.get('.alert-display').should('be.visible')
+cy.get('[data-testid="device-card"]').should('have.length', 5)
+
+// ✅ Correct - uses centralized selector constants
+cy.get(ALERT_SELECTORS.container).should('be.visible')
+cy.get(DEVICE_CARD_SELECTORS.card).should('have.length', 5)
+```
+
+**Error Responses** - Use `createProblemDetailsResponse()` helper:
+```typescript
+// ❌ Verbose & repetitive - not allowed
+req.reply({
+  statusCode: 404,
+  headers: { 'content-type': 'application/problem+json' },
+  body: { type: '...', title: msg, status: 404 }
+})
+
+// ✅ Correct - uses generic helper
+req.reply(createProblemDetailsResponse(404, errorMessage))
+```
+
+**Benefits**:
+- ✅ Single source of truth - change once, affects all tests
+- ✅ Maintainability - selectors/endpoints update automatically
+- ✅ Type safety - constants are typed, catch breakage early
+- ✅ Consistency - all tests follow same pattern
+- ✅ Reduced duplication - no copy-paste errors
+
+**Re-export Pattern** - Import from test-helpers for convenience:
+```typescript
+import {
+  DEVICE_ENDPOINTS,
+  ALERT_SELECTORS,
+  DEVICE_CARD_SELECTORS,
+  createProblemDetailsResponse,
+} from './test-helpers';
+```
+
 ### Test Independence
 - Each test sets up its own interceptors and state
 - Use `beforeEach` for common setup
