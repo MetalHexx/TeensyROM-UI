@@ -14,26 +14,27 @@
  * - Device Connection Helpers (Phase 1): Connect/disconnect, wait, verify state
  */
 
-// ============================================================================
-// CENTRALIZED CONSTANTS (Single Source of Truth)
-// ============================================================================
+// Re-export centralized API constants for use in tests
+export { INTERCEPT_ALIASES as API_ROUTE_ALIASES, DEVICE_ENDPOINTS, API_CONFIG, createProblemDetailsResponse } from '../../support/constants/api.constants';
 
-// API Routes & Endpoints
-export const API_ROUTES = {
-  BASE: '/api',
-  DEVICES: '/api/devices',
-  DEVICE_CONNECT: (deviceId: string) => `/api/devices/${deviceId}/connect`,
-  DEVICE_DISCONNECT: (deviceId: string) => `/api/devices/${deviceId}`,
-  DEVICE_PING: (deviceId: string) => `/api/devices/${deviceId}/ping`,
-} as const;
+// Re-export centralized UI selectors for use in tests
+export {
+  ALERT_SELECTORS,
+  BUSY_DIALOG_SELECTORS,
+  DEVICE_CARD_SELECTORS,
+  DEVICE_VIEW_SELECTORS,
+  BUTTON_SELECTORS,
+  UI_SELECTORS,
+  getAlertMessageSelector,
+  getAlertIconSelector,
+  getDeviceCardByIndexSelector,
+  getByTestId,
+  getByClass,
+} from '../../support/constants/selector.constants';
 
-// API Route Aliases (for cy.wait)
-export const API_ROUTE_ALIASES = {
-  FIND_DEVICES: 'findDevices',
-  CONNECT_DEVICE: 'connectDevice',
-  DISCONNECT_DEVICE: 'disconnectDevice',
-  PING_DEVICE: 'pingDevice',
-} as const;
+// Import for local use in helper functions
+import { DEVICE_CARD_SELECTORS, DEVICE_VIEW_SELECTORS } from '../../support/constants/selector.constants';
+import { INTERCEPT_ALIASES } from '../../support/constants/api.constants';
 
 // CSS Classes
 export const CSS_CLASSES = {
@@ -53,35 +54,6 @@ export const DOM_ATTRIBUTES = {
 export const CONSTANTS = {
   ERROR_TEXT: 'error',
   DEFAULT_TIMEOUT: 5000,
-} as const;
-
-// ============================================================================
-// CENTRALIZED SELECTORS (Single Source of Truth)
-// ============================================================================
-// These selectors are defined once and reused throughout tests to ensure
-// consistency and make updates easy (change here, fix everywhere).
-
-export const DEVICE_VIEW_SELECTORS = {
-  container: '[data-testid="device-view"]',
-  deviceList: '[data-testid="device-list"]',
-  emptyStateMessage: '[data-testid="empty-state-message"]',
-  loadingIndicator: '.busy-dialog-content',  // Bootstrap busy dialog (app initialization)
-} as const;
-
-export const DEVICE_CARD_SELECTORS = {
-  card: '[data-testid="device-card"]',
-  powerButton: '[data-testid="device-power-button"]',
-  deviceInfo: '[data-testid="device-info"]',
-  deviceStorage: '[data-testid="device-storage"]',
-  // Device info labels
-  idLabel: '[data-testid="device-id-label"]',
-  firmwareLabel: '[data-testid="device-firmware-label"]',
-  portLabel: '[data-testid="device-port-label"]',
-  stateLabel: '[data-testid="device-state-label"]',
-  compatibleLabel: '[data-testid="device-compatible-label"]',
-  // Storage status
-  usbStorageStatus: '[data-testid="usb-storage-status"]',
-  sdStorageStatus: '[data-testid="sd-storage-status"]',
 } as const;
 
 // ============================================================================
@@ -106,7 +78,9 @@ export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
  * Uses extended timeout since app bootstrap triggers the call
  */
 export function waitForDeviceDiscovery(timeout = 10000): void {
-  cy.wait(`@${API_ROUTE_ALIASES.FIND_DEVICES}`, { timeout });
+  cy.wait(`@${INTERCEPT_ALIASES.FIND_DEVICES}`, { timeout });
+  // Also wait for at least one device card to appear in the DOM
+  cy.get(DEVICE_CARD_SELECTORS.card, { timeout: 5000 }).should('have.length.at.least', 1);
 }
 
 /**
@@ -309,7 +283,7 @@ export function clickPowerButton(deviceIndex: number): void {
  * ```
  */
 export function waitForConnection(timeout = CONSTANTS.DEFAULT_TIMEOUT): void {
-  cy.wait(`@${API_ROUTE_ALIASES.CONNECT_DEVICE}`, { timeout });
+  cy.wait(`@${INTERCEPT_ALIASES.CONNECT_DEVICE}`, { timeout });
 }
 
 /**
@@ -328,7 +302,7 @@ export function waitForConnection(timeout = CONSTANTS.DEFAULT_TIMEOUT): void {
  * ```
  */
 export function waitForDisconnection(timeout = CONSTANTS.DEFAULT_TIMEOUT): void {
-  cy.wait(`@${API_ROUTE_ALIASES.DISCONNECT_DEVICE}`, { timeout });
+  cy.wait(`@${INTERCEPT_ALIASES.DISCONNECT_DEVICE}`, { timeout });
 }
 
 /**

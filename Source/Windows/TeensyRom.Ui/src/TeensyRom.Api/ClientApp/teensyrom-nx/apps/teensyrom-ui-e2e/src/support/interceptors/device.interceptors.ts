@@ -10,6 +10,10 @@ import type {
 } from '@teensyrom-nx/data-access/api-client';
 import { singleDevice } from '../test-data/fixtures';
 import type { MockDeviceFixture } from '../test-data/fixtures/fixture.types';
+import {
+  DEVICE_ENDPOINTS,
+  INTERCEPT_ALIASES,
+} from '../constants';
 
 /**
  * Options for interceptFindDevices interceptor
@@ -69,23 +73,27 @@ function createErrorResponse(): ProblemDetails {
 export function interceptFindDevices(options: InterceptFindDevicesOptions = {}): void {
   const fixture = options.fixture ?? singleDevice;
 
-  cy.intercept('GET', 'http://localhost:5168/devices*', (req) => {
-    if (options.errorMode) {
-      req.reply({
-        statusCode: 500,
-        body: createErrorResponse(),
-      });
-    } else {
-      const response: FindDevicesResponse = {
-        devices: [...fixture.devices],
-        message: `Found ${fixture.devices.length} device(s)`,
-      };
-      req.reply({
-        statusCode: 200,
-        body: response,
-      });
+  cy.intercept(
+    DEVICE_ENDPOINTS.FIND_DEVICES.method,
+    DEVICE_ENDPOINTS.FIND_DEVICES.pattern,
+    (req) => {
+      if (options.errorMode) {
+        req.reply({
+          statusCode: 500,
+          body: createErrorResponse(),
+        });
+      } else {
+        const response: FindDevicesResponse = {
+          devices: [...fixture.devices],
+          message: `Found ${fixture.devices.length} device(s)`,
+        };
+        req.reply({
+          statusCode: 200,
+          body: response,
+        });
+      }
     }
-  }).as('findDevices');
+  ).as(INTERCEPT_ALIASES.FIND_DEVICES);
 }
 
 /**
@@ -95,23 +103,27 @@ export function interceptFindDevices(options: InterceptFindDevicesOptions = {}):
 export function interceptConnectDevice(options: InterceptConnectDeviceOptions = {}): void {
   const device = options.device ?? singleDevice.devices[0];
 
-  cy.intercept('POST', 'http://localhost:5168/devices/*/connect', (req) => {
-    if (options.errorMode) {
-      req.reply({
-        statusCode: 500,
-        body: createErrorResponse(),
-      });
-    } else {
-      const response: ConnectDeviceResponse = {
-        connectedCart: device,
-        message: `Connected to device ${device.deviceId}`,
-      };
-      req.reply({
-        statusCode: 200,
-        body: response,
-      });
+  cy.intercept(
+    DEVICE_ENDPOINTS.CONNECT_DEVICE.method,
+    DEVICE_ENDPOINTS.CONNECT_DEVICE.pattern,
+    (req) => {
+      if (options.errorMode) {
+        req.reply({
+          statusCode: 500,
+          body: createErrorResponse(),
+        });
+      } else {
+        const response: ConnectDeviceResponse = {
+          connectedCart: device,
+          message: `Connected to device ${device.deviceId}`,
+        };
+        req.reply({
+          statusCode: 200,
+          body: response,
+        });
+      }
     }
-  }).as('connectDevice');
+  ).as(INTERCEPT_ALIASES.CONNECT_DEVICE);
 }
 
 /**
@@ -119,22 +131,26 @@ export function interceptConnectDevice(options: InterceptConnectDeviceOptions = 
  * Route matches any deviceId via wildcard: DELETE http://localhost:5168/devices/<wildcard>
  */
 export function interceptDisconnectDevice(options: InterceptDisconnectDeviceOptions = {}): void {
-  cy.intercept('DELETE', 'http://localhost:5168/devices/*', (req) => {
-    if (options.errorMode) {
-      req.reply({
-        statusCode: 500,
-        body: createErrorResponse(),
-      });
-    } else {
-      const response: DisconnectDeviceResponse = {
-        message: 'Device disconnected successfully',
-      };
-      req.reply({
-        statusCode: 200,
-        body: response,
-      });
+  cy.intercept(
+    DEVICE_ENDPOINTS.DISCONNECT_DEVICE.method,
+    DEVICE_ENDPOINTS.DISCONNECT_DEVICE.pattern,
+    (req) => {
+      if (options.errorMode) {
+        req.reply({
+          statusCode: 500,
+          body: createErrorResponse(),
+        });
+      } else {
+        const response: DisconnectDeviceResponse = {
+          message: 'Device disconnected successfully',
+        };
+        req.reply({
+          statusCode: 200,
+          body: response,
+        });
+      }
     }
-  }).as('disconnectDevice');
+  ).as(INTERCEPT_ALIASES.DISCONNECT_DEVICE);
 }
 
 /**
@@ -144,20 +160,24 @@ export function interceptDisconnectDevice(options: InterceptDisconnectDeviceOpti
 export function interceptPingDevice(options: InterceptPingDeviceOptions = {}): void {
   const isAlive = options.isAlive ?? true;
 
-  cy.intercept('GET', 'http://localhost:5168/devices/*/ping', (req) => {
-    if (options.errorMode) {
-      req.reply({
-        statusCode: 500,
-        body: createErrorResponse(),
-      });
-    } else {
-      const response: PingDeviceResponse = {
-        message: isAlive ? 'Device is responding' : 'Device is not responding',
-      };
-      req.reply({
-        statusCode: 200,
-        body: response,
-      });
+  cy.intercept(
+    DEVICE_ENDPOINTS.PING_DEVICE.method,
+    DEVICE_ENDPOINTS.PING_DEVICE.pattern,
+    (req) => {
+      if (options.errorMode) {
+        req.reply({
+          statusCode: 500,
+          body: createErrorResponse(),
+        });
+      } else {
+        const response: PingDeviceResponse = {
+          message: isAlive ? 'Device is responding' : 'Device is not responding',
+        };
+        req.reply({
+          statusCode: 200,
+          body: response,
+        });
+      }
     }
-  }).as('pingDevice');
+  ).as(INTERCEPT_ALIASES.PING_DEVICE);
 }
