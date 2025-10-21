@@ -34,9 +34,9 @@ import {
   API_ROUTE_ALIASES,
   DEVICE_ENDPOINTS,
   ALERT_SELECTORS,
-  APP_ROUTES,
   createProblemDetailsResponse,
 } from './test-helpers';
+import { APP_ROUTES } from '../../support/constants/app-routes.constants';
 import { interceptFindDevices } from '../../support/interceptors/device.interceptors';
 import { singleDevice } from '../../support/test-data/fixtures/devices.fixture';
 

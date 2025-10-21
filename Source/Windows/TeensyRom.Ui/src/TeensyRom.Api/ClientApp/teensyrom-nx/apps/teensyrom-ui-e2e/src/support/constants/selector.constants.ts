@@ -62,6 +62,39 @@ export const BUTTON_SELECTORS = {
   acceptButton: 'button[aria-label="Accept"]',
 } as const;
 
+// CSS classes
+export const CSS_CLASSES = {
+  DIMMED: 'dimmed',
+  UNAVAILABLE: 'unavailable',
+  ERROR_MESSAGE: 'error-message',
+} as const;
+
+// DOM attributes
+export const DOM_ATTRIBUTES = {
+  ROLE_ALERT: 'alert',
+  BODY_TAG: 'body',
+  DATA_TESTID: 'data-testid',
+} as const;
+
+// String constants
+export const CONSTANTS = {
+  ERROR_TEXT: 'error',
+  DEFAULT_TIMEOUT: 5000,
+} as const;
+
+// Consolidated export for bulk imports
+export const UI_SELECTORS = {
+  alert: ALERT_SELECTORS,
+  busyDialog: BUSY_DIALOG_SELECTORS,
+  deviceView: DEVICE_VIEW_SELECTORS,
+  deviceCard: DEVICE_CARD_SELECTORS,
+  buttons: BUTTON_SELECTORS,
+  icons: ICON_CLASSES,
+  css: CSS_CLASSES,
+  dom: DOM_ATTRIBUTES,
+  constants: CONSTANTS,
+} as const;
+
 // Helper functions for common patterns
 export function getAlertMessageSelector(): string {
   return ALERT_SELECTORS.messageInContainer;
@@ -82,13 +115,3 @@ export function getByTestId(testId: string): string {
 export function getByClass(className: string): string {
   return `.${className}`;
 }
-
-// Consolidated export for bulk imports
-export const UI_SELECTORS = {
-  alert: ALERT_SELECTORS,
-  busyDialog: BUSY_DIALOG_SELECTORS,
-  deviceView: DEVICE_VIEW_SELECTORS,
-  deviceCard: DEVICE_CARD_SELECTORS,
-  buttons: BUTTON_SELECTORS,
-  icons: ICON_CLASSES,
-} as const;
