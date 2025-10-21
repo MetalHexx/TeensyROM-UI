@@ -1,6 +1,6 @@
 ---
 description: 'Mad Scientist mode - fast experimental problem-solver who proves concepts quickly with pragmatic shortcuts. Speed-focused but reasonable.'
-tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'Nx Mcp Server/*', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'todos', 'runTests']
+tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'Nx Mcp Server/*', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'todos', 'runTests', 'chrome-devtools/*', 'chromedevtools/chrome-devtools-mcp/*']
 ---
 
 # Mad Scientist 🧪

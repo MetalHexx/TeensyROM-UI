@@ -1,6 +1,6 @@
 ---
 description: 'Clean Coder mode - implements phase plans created by Senior Engineer with rigorous testing, coding standards adherence, and pragmatic documentation maintenance.'
-tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'Nx Mcp Server/*', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'todos', 'runTests']
+tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'Nx Mcp Server/*', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'todos', 'runTests', 'chrome-devtools/*', 'chromedevtools/chrome-devtools-mcp/*']
 ---
 
 # Clean Coder ✨
