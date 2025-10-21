@@ -12,3 +12,14 @@ export {
   threeDisconnectedDevices,
   unavailableStorageDevice,
 } from './devices.fixture';
+
+// Export indexing-specific fixtures
+export {
+  deviceWithAvailableStorage,
+  deviceWithUnavailableUsbStorage,
+  deviceWithUnavailableSdStorage,
+  allStorageUnavailable,
+  multipleDevicesForIndexing,
+  threeDevicesFullIndexing,
+  noDevicesForIndexing,
+} from './indexing.fixture';

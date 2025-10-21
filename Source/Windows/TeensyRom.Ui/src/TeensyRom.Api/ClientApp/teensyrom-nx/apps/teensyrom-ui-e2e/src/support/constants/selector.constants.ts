@@ -66,6 +66,23 @@ export const DEVICE_TOOLBAR_SELECTORS = {
   pingContainer: '[data-testid="toolbar-button-ping-devices"]',
 } as const;
 
+// Storage index buttons (indexing feature)
+export const STORAGE_INDEX_BUTTON_SELECTORS = {
+  usb: getByTestId('storage-index-button-usb'),
+  sd: getByTestId('storage-index-button-sd'),
+  byType: (storageType: 'usb' | 'sd') =>
+    storageType === 'usb'
+      ? getByTestId('storage-index-button-usb')
+      : getByTestId('storage-index-button-sd'),
+} as const;
+
+// Busy dialog with generic selectors (reusable for multiple operations)
+export const BUSY_DIALOG_GENERIC_SELECTORS = {
+  container: getByTestId('busy-dialog-container'),
+  message: getByTestId('busy-dialog-message'),
+  backdrop: '.cdk-overlay-backdrop',
+} as const;
+
 // Common button patterns
 export const BUTTON_SELECTORS = {
   byText: (text: string) => `button:contains("${text}")`,
@@ -99,9 +116,11 @@ export const CONSTANTS = {
 export const UI_SELECTORS = {
   alert: ALERT_SELECTORS,
   busyDialog: BUSY_DIALOG_SELECTORS,
+  busyDialogGeneric: BUSY_DIALOG_GENERIC_SELECTORS,
   deviceView: DEVICE_VIEW_SELECTORS,
   deviceCard: DEVICE_CARD_SELECTORS,
   deviceToolbar: DEVICE_TOOLBAR_SELECTORS,
+  storageIndexButton: STORAGE_INDEX_BUTTON_SELECTORS,
   buttons: BUTTON_SELECTORS,
   icons: ICON_CLASSES,
   css: CSS_CLASSES,
@@ -129,3 +148,10 @@ export function getByTestId(testId: string): string {
 export function getByClass(className: string): string {
   return `.${className}`;
 }
+
+// Dialog messages (UI text content)
+export const DIALOG_MESSAGES = {
+  INDEXING: 'Indexing Storage',
+  INDEXING_USB: 'Indexing USB Storage',
+  INDEXING_SD: 'Indexing SD Storage',
+} as const;

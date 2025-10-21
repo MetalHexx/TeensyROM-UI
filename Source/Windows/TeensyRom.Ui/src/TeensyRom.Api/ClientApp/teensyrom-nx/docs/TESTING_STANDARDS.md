@@ -257,6 +257,20 @@ let mockService: {
 6. **Descriptive Names** - Test names explain expected behavior
 7. **Independent Tests** - No execution order dependencies
 
+## Test Description Standards
+
+**Test descriptions MUST NOT include task/test IDs** - Never prepend numbers, labels, or references like "Test 6.1:", "Task 7.2:", etc.
+
+```typescript
+// ❌ WRONG
+it('Test 6.1: Should display index button for available USB storage', () => {
+
+// ✅ CORRECT
+it('Should display index button for available USB storage', () => {
+```
+
+**Why**: Test runners display descriptions in output and reports. IDs clutter output, duplicate task tracking, and create brittle descriptions that break when renumbering. The test's position in the file and its describe blocks provide sufficient context.
+
 ## End-to-End Testing
 
 **E2E tests validate complete user workflows** using Cypress with fixture-driven, interceptor-based API mocking.

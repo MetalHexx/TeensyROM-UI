@@ -10,6 +10,17 @@ export const API_CONFIG = {
   CONTENT_TYPE_PROBLEM_JSON: 'application/problem+json',
 } as const;
 
+// ============================================================================
+// Timeout Constants
+// ============================================================================
+
+export const TIMEOUTS = {
+  API_RESPONSE: 10000,
+  BUTTON_STATE_CHANGE: 500,
+  DIALOG_APPEARANCE: 1000,
+  INDEXING_COMPLETION: 15000, // Allow for slow indexing operations
+} as const;
+
 // Device endpoints
 export const DEVICE_ENDPOINTS = {
   FIND_DEVICES: {
@@ -48,6 +59,27 @@ export const FILE_ENDPOINTS = {
   },
 } as const;
 
+// Indexing endpoints
+export const INDEXING_ENDPOINTS = {
+  INDEX_STORAGE: {
+    method: 'POST',
+    path: (deviceId: string, storageType: 'USB' | 'SD') =>
+      `/devices/${deviceId}/storage/${storageType}/index`,
+    full: (deviceId: string, storageType: 'USB' | 'SD') =>
+      `${API_CONFIG.BASE_URL}/devices/${deviceId}/storage/${storageType}/index`,
+    pattern: (storageType: 'USB' | 'SD') =>
+      `${API_CONFIG.BASE_URL}/devices/*/storage/${storageType}/index`,
+  },
+  INDEX_ALL_STORAGE: {
+    method: 'POST',
+    path: '/files/index/all',
+    full: `${API_CONFIG.BASE_URL}/files/index/all`,
+    pattern: `${API_CONFIG.BASE_URL}/files/index/all`,
+  },
+} as const;
+
+// Note: INDEXING_ENDPOINTS moved to indexing.constants.ts to avoid duplication
+
 // HTTP status codes
 export const HTTP_STATUS = {
   OK: 200,
@@ -74,6 +106,13 @@ export const ERROR_MESSAGES = {
   INTERNAL_SERVER_ERROR: 'Internal Server Error',
   NETWORK_ERROR: 'Network error',
   TIMEOUT: 'Request timeout',
+  // Indexing-specific errors
+  STORAGE_NOT_AVAILABLE: 'Storage device is not available for indexing',
+  INDEX_FAILED: 'Failed to index storage. Please try again.',
+  INVALID_DEVICE: 'Device not found or invalid',
+  API_ERROR: 'An error occurred while indexing storage',
+  INDEXING_TIMEOUT: 'Indexing operation timed out',
+  CONCURRENT_INDEXING: 'Another indexing operation is already in progress',
 } as const;
 
 // Helpers

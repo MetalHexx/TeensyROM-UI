@@ -17,6 +17,7 @@
         <lib-icon-button
           (click)="onIndex()"
           [disabled]="!status()"
+          [attr.data-testid]="'storage-index-button-' + (icon() === 'usb' ? 'usb' : 'sd')"
           icon="download"
           ariaLabel="Index Storage"
         >
