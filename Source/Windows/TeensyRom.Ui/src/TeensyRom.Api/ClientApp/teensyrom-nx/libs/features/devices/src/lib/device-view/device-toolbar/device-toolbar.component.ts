@@ -23,6 +23,7 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class DeviceToolbarComponent {
   private readonly deviceStore = inject(DeviceStore);
+  protected readonly hasConnectedDevices = this.deviceStore.hasConnectedDevices;
 
   onIndexAllStorage() {
     this.deviceStore.indexStorageAllStorage();

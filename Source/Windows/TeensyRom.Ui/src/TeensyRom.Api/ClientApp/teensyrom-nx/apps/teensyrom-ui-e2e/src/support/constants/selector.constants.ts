@@ -53,6 +53,19 @@ export const DEVICE_CARD_SELECTORS = {
   sdStorageStatus: '[data-testid="sd-storage-status"]',
 } as const;
 
+// Device toolbar and button controls
+export const DEVICE_TOOLBAR_SELECTORS = {
+  container: '[data-testid="device-toolbar"]',
+  indexAllButton: '[data-testid="toolbar-button-index-all"] button',
+  refreshButton: '[data-testid="toolbar-button-refresh-devices"] button',
+  resetButton: '[data-testid="toolbar-button-reset-devices"] button',
+  pingButton: '[data-testid="toolbar-button-ping-devices"] button',
+  indexAllContainer: '[data-testid="toolbar-button-index-all"]',
+  refreshContainer: '[data-testid="toolbar-button-refresh-devices"]',
+  resetContainer: '[data-testid="toolbar-button-reset-devices"]',
+  pingContainer: '[data-testid="toolbar-button-ping-devices"]',
+} as const;
+
 // Common button patterns
 export const BUTTON_SELECTORS = {
   byText: (text: string) => `button:contains("${text}")`,
@@ -88,6 +101,7 @@ export const UI_SELECTORS = {
   busyDialog: BUSY_DIALOG_SELECTORS,
   deviceView: DEVICE_VIEW_SELECTORS,
   deviceCard: DEVICE_CARD_SELECTORS,
+  deviceToolbar: DEVICE_TOOLBAR_SELECTORS,
   buttons: BUTTON_SELECTORS,
   icons: ICON_CLASSES,
   css: CSS_CLASSES,

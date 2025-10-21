@@ -14,6 +14,7 @@ import {
 } from '@teensyrom-nx/domain';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('DevicesComponent', () => {
   let component: DeviceViewComponent;
@@ -53,6 +54,7 @@ describe('DevicesComponent', () => {
     await TestBed.configureTestingModule({
       imports: [DeviceViewComponent],
       providers: [
+        provideNoopAnimations(),
         { provide: DEVICE_SERVICE, useValue: mockDeviceService },
         { provide: DEVICE_STORAGE_SERVICE, useValue: mockStorageService },
         { provide: DEVICE_EVENTS_SERVICE, useValue: mockEventsService },

@@ -76,6 +76,7 @@ _These guardrails are for how to create the doc, but should not actually be incl
 > - Reference specialized testing docs only when relevant:
 >   - [Store Testing](./STORE_TESTING.md) for store state testing
 >   - [Smart Component Testing](./SMART_COMPONENT_TESTING.md) for component testing
+>   - [E2E Cypress Testing](../apps/teensyrom-ui-e2e/E2E_TESTS.md)
 
 > **IMPORTANT - Progress Tracking:**
 > - **Mark checkboxes ✅ as you complete each subtask**

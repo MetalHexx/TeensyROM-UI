@@ -236,7 +236,7 @@ Each planning document should include:
 > - [ ] History recording action adds entries correctly
 > - [ ] Forward history clearing when navigating after going backward
 
-### Integration Tests
+### E2E Tests
 
 - [ ] Multi-component flow or interaction A
 - [ ] Multi-component flow or interaction B
@@ -457,10 +457,6 @@ Then the file is added to play history with a timestamp and Shuffle launch mode
 
 **Phase 2:**
 - Question from Phase 2
-
-**Phase 3:**
-- Question from Phase 3
-- Question from Phase 3
 
 **Phase N:**
 - Question from Phase N

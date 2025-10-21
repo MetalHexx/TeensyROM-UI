@@ -1,16 +1,35 @@
-<lib-scaling-compact-card class="toolbar-card" animationEntry="from-left">
+<lib-scaling-compact-card class="toolbar-card" animationEntry="from-left" data-testid="device-toolbar">
   <div class="toolbar-button-container">
-    <lib-action-button icon="download" label="Index All" (buttonClick)="onIndexAllStorage()">
-    </lib-action-button>
-    <lib-action-button icon="refresh" label="Refresh Devices" (buttonClick)="onRefreshDevices()">
+    <lib-action-button
+      data-testid="toolbar-button-refresh-devices"
+      icon="refresh"
+      label="Refresh Devices"
+      (buttonClick)="onRefreshDevices()"
+    >
     </lib-action-button>
     <lib-action-button
+      data-testid="toolbar-button-reset-devices"
       icon="reset_tv"
       label="Reset Devices"
+      [disabled]="!hasConnectedDevices()"
       (buttonClick)="onResetDevices()"
     >
     </lib-action-button>
-    <lib-action-button icon="network_ping" label="Ping Devices" (buttonClick)="onPingDevices()">
+    <lib-action-button
+      data-testid="toolbar-button-ping-devices"
+      icon="network_ping"
+      label="Ping Devices"
+      [disabled]="!hasConnectedDevices()"
+      (buttonClick)="onPingDevices()"
+    >
+    </lib-action-button>
+    <lib-action-button
+      data-testid="toolbar-button-index-all"
+      icon="download"
+      label="Index All"
+      [disabled]="!hasConnectedDevices()"
+      (buttonClick)="onIndexAllStorage()"
+    >
     </lib-action-button>
   </div>
 </lib-scaling-compact-card>

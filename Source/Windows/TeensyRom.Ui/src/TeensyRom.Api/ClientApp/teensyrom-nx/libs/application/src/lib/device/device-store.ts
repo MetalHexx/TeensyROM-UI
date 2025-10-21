@@ -1,5 +1,5 @@
-import { inject } from '@angular/core';
-import { signalStore, withMethods, withState } from '@ngrx/signals';
+import { inject, computed } from '@angular/core';
+import { signalStore, withMethods, withState, withComputed } from '@ngrx/signals';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import {
   Device,
@@ -34,6 +34,11 @@ export const DeviceStore = signalStore(
   { providedIn: 'root' },
   withDevtools('devices'),
   withState(initialState),
+  withComputed((store) => ({
+    hasConnectedDevices: computed(() =>
+      store.devices().some((device) => device.isConnected)
+    ),
+  })),
   withMethods(
     (
       store,
