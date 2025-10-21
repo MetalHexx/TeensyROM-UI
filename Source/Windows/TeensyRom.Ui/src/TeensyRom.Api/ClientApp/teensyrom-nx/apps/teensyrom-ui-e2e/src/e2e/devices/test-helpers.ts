@@ -33,9 +33,13 @@ export {
   getByClass,
 } from '../../support/constants/selector.constants';
 
+// Re-export app routes for navigation in tests
+export { APP_ROUTES, ROUTE_NAMES, getRoute } from '../../support/constants/app-routes.constants';
+
 // Import for local use in helper functions
 import { DEVICE_CARD_SELECTORS, DEVICE_VIEW_SELECTORS } from '../../support/constants/selector.constants';
 import { INTERCEPT_ALIASES } from '../../support/constants/api.constants';
+import { APP_ROUTES } from '../../support/constants/app-routes.constants';
 
 // CSS Classes
 export const CSS_CLASSES = {
@@ -65,7 +69,7 @@ export const CONSTANTS = {
  * Navigate to the device view page
  */
 export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
-  return cy.visit('/devices', {
+  return cy.visit(APP_ROUTES.devices, {
     onBeforeLoad: (win) => {
       // Clear storage to ensure fresh app state
       win.localStorage.clear();

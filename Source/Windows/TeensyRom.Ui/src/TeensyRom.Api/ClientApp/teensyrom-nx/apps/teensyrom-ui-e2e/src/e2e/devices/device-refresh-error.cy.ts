@@ -34,6 +34,7 @@ import {
   API_ROUTE_ALIASES,
   DEVICE_ENDPOINTS,
   ALERT_SELECTORS,
+  APP_ROUTES,
   createProblemDetailsResponse,
 } from './test-helpers';
 import { interceptFindDevices } from '../../support/interceptors/device.interceptors';
@@ -87,7 +88,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
     it('should clear device list when refresh returns 404', () => {
       // This test is self-contained - doesn't rely on beforeEach state
       // Setup: Start with a fresh page with one device
-      cy.visit('/devices');
+      cy.visit(APP_ROUTES.devices);
       
       // Wait for initial device to load from beforeEach
       cy.get(DEVICE_CARD_SELECTORS.card, { timeout: 10000 }).should('have.length', 1);
