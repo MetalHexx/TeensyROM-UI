@@ -28,14 +28,14 @@ namespace TeensyRom.Core.Storage
             {
                 _cacheFilePath = Path.Combine(
                     Assembly.GetExecutingAssembly().GetPath(),
-                    StorageHelper.Sd_Cache_File_Relative_Path,
+                    StorageHelper.Cache_File_Relative_Path,
                     $"{StorageHelper.Sd_Cache_File_Name}{cartStorage.DeviceId}{StorageHelper.Cache_File_Extension}");
             }
             else
             {
                 _cacheFilePath = Path.Combine(
                     Assembly.GetExecutingAssembly().GetPath(),
-                    StorageHelper.Usb_Cache_File_Relative_Path,
+                    StorageHelper.Cache_File_Relative_Path,
                     $"{StorageHelper.Usb_Cache_File_Name}{cartStorage.DeviceId}{StorageHelper.Cache_File_Extension}");
             }
             _bannedDirectories = settings.BannedDirectories;

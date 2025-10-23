@@ -125,6 +125,30 @@ namespace TeensyRom.Api.Tests.Integration.Common
             return path;
         }
 
+        public void DeleteAllCache() 
+        {
+            var cacheDirectory = Path.Combine(
+                Assembly.GetExecutingAssembly().GetPath(),
+                StorageHelper.Cache_File_Relative_Path);
+
+            if (Directory.Exists(cacheDirectory))
+            {
+                var cacheFiles = Directory.GetFiles(cacheDirectory, "*" + StorageHelper.Cache_File_Extension);
+                
+                foreach (var file in cacheFiles)
+                {
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch
+                    {
+                        // All files won't always exist, so we can ignore.
+                    }
+                }
+            }
+        }
+
         public bool CacheExists(string deviceId, TeensyStorageType storageType)
         {
             var path = GetCachePath(deviceId, storageType);
@@ -139,14 +163,14 @@ namespace TeensyRom.Api.Tests.Integration.Common
             {
                 path = Path.Combine(
                     Assembly.GetExecutingAssembly().GetPath(),
-                    StorageHelper.Sd_Cache_File_Relative_Path,
+                    StorageHelper.Cache_File_Relative_Path,
                     $"{StorageHelper.Sd_Cache_File_Name}{deviceId}{StorageHelper.Cache_File_Extension}");
             }
             else
             {
                 path = Path.Combine(
                     Assembly.GetExecutingAssembly().GetPath(),
-                    StorageHelper.Usb_Cache_File_Relative_Path,
+                    StorageHelper.Cache_File_Relative_Path,
                     $"{StorageHelper.Usb_Cache_File_Name}{deviceId}{StorageHelper.Cache_File_Extension}");
             }
             return path;

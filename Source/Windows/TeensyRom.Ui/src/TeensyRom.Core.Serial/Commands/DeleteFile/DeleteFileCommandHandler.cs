@@ -6,7 +6,7 @@ using TeensyRom.Core.Serial;
 
 namespace TeensyRom.Core.Commands.DeleteFile
 {
-    public class DeleteFileCommandHandler(ISerialStateContext serialState, IAlertService alert) : IRequestHandler<DeleteFileCommand, DeleteFileResult>
+    public class DeleteFileCommandHandler(IAlertService alert) : IRequestHandler<DeleteFileCommand, DeleteFileResult>
     {
         public async Task<DeleteFileResult> Handle(DeleteFileCommand r, CancellationToken cancellationToken)
         {
@@ -40,7 +40,7 @@ namespace TeensyRom.Core.Commands.DeleteFile
                 if (ex.Message.Contains("busy", StringComparison.OrdinalIgnoreCase)) 
                 {
                     alert.Publish("Delete Error: TR is busy.  Restarting TR.");
-                    var resetRoutine = new ResetSerialRoutine(serialState, alert);
+                    var resetRoutine = new ResetSerialRoutine(r.Serial, alert);
                     var resetResult = await resetRoutine.Execute();
 
                     if (resetResult is true) 
@@ -60,11 +60,11 @@ namespace TeensyRom.Core.Commands.DeleteFile
 
         private void Delete(DeleteFileCommand r) 
         {
-            serialState.SendIntBytes(TeensyToken.DeleteFile, 2);
-            serialState.HandleAck();
-            serialState.SendIntBytes(r.StorageType.GetStorageToken(), 1);
-            serialState.Write($"{r.Path}\0");
-            serialState.HandleAck();
+            r.Serial.SendIntBytes(TeensyToken.DeleteFile, 2);
+            r.Serial.HandleAck();
+            r.Serial.SendIntBytes(r.StorageType.GetStorageToken(), 1);
+            r.Serial.Write($"{r.Path}\0");
+            r.Serial.HandleAck();
         }
     }
 }

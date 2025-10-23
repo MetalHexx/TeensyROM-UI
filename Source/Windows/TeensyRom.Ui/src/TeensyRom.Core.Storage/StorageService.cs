@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using TeensyRom.Core.Abstractions;
 using TeensyRom.Core.Commands;
+using TeensyRom.Core.Commands.DeleteFile;
 using TeensyRom.Core.Commands.GetFile;
 using TeensyRom.Core.Common;
 using TeensyRom.Core.Entities.Storage;
@@ -238,6 +239,102 @@ namespace TeensyRom.Core.Storage
             
             var allResults = cache.Search(searchText, excludePaths, stopSearchWords, searchWeights, fileTypes);
             return allResults.Skip(skip).Take(take);
+        }
+
+        public async Task<LaunchableItem?> SaveFavorite(LaunchableItem launchItem, TeensyStorageType storageType, CancellationToken ct)
+        {
+            var favPath = StorageHelper.GetFavoritePath(launchItem.FileType);
+            var newFavPath = favPath.Combine(new FilePath(launchItem.Name));
+
+            var favCommand = new FavoriteFileCommand
+            (
+                storageType: storageType,
+                sourcePath: launchItem.Path,
+                targetPath: newFavPath,
+                deviceId: settings.CartStorage.DeviceId
+            );
+
+            var result = await mediator.Send(favCommand, ct);
+
+            if (!result.IsSuccess)
+            {
+                log.InternalError($"There was an error tagging {launchItem.Name} as favorite.", settings.CartStorage.DeviceId);
+                return null;
+            }
+
+            launchItem.IsFavorite = true;
+            cache.UpsertFile(launchItem);
+
+            var savedFav = launchItem.Clone();
+            savedFav.Path = newFavPath;
+            cache.UpsertFile(savedFav);
+
+            var parent = cache.FindParentFile(launchItem);
+
+            if (parent is not null)
+            {
+                parent.IsFavorite = true;
+                cache.UpsertFile(parent);
+            }
+
+            var siblings = cache.FindSiblings(savedFav);
+
+            foreach (var s in siblings)
+            {
+                s.IsFavorite = true;
+                cache.UpsertFile(s);
+            }
+            cache.WriteToDisk();
+
+            return savedFav as LaunchableItem;
+        }
+
+        public async Task<bool> RemoveFavorite(LaunchableItem file, TeensyStorageType storageType, CancellationToken ct)
+        {
+            file.IsFavorite = false;
+            cache.UpsertFile(file);
+
+            var fav = cache
+                .GetFavoriteFiles()
+                .FirstOrDefault(f => f.Id == file.Id);
+
+            if (fav is null)
+            {
+                log.InternalWarning($"The file {file.Name} is not a favorite.", settings.CartStorage.DeviceId);
+                cache.WriteToDisk();
+                return true;
+            }
+
+            var deleteCommand = new DeleteFileCommand(storageType, fav.Path, settings.CartStorage.DeviceId);
+            var result = await mediator.Send(deleteCommand, ct);
+
+            if (!result.IsSuccess)
+            {
+                log.InternalError($"There was an error removing {file.Name} from favorites.", settings.CartStorage.DeviceId);
+                cache.WriteToDisk();
+                return false;
+            }
+
+            cache.DeleteFile(fav.Path);
+
+            var parent = cache.FindParentFile(file);
+
+            if (parent is not null)
+            {
+                parent.IsFavorite = false;
+                cache.UpsertFile(parent);
+            }
+
+            var siblings = cache.FindSiblings(file);
+
+            foreach (var s in siblings)
+            {
+                s.IsFavorite = false;
+                cache.UpsertFile(s);
+            }
+
+            cache.WriteToDisk();
+            return true;
         }
 
         private List<DirectoryPath> GetExcludePaths()
