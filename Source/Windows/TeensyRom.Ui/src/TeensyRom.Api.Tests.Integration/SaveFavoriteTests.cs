@@ -36,7 +36,7 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithContentNotNull();
 
             r.Content.Should().NotBeNull();
-            r.Content.Message.Should().NotBeNullOrEmpty().And.Contain("Success");
+            r.Content.Message.Should().NotBeNullOrEmpty().And.Contain("Favorite tagged and saved successfully to").And.Contain(expectedFavoritePath);
             r.Content.FavoritePath.Should().Be(expectedFavoritePath);
             
             r.Content.FavoriteFile.Should().NotBeNull();

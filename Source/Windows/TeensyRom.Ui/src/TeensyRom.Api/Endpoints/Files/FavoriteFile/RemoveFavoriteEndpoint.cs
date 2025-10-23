@@ -74,9 +74,11 @@ namespace TeensyRom.Api.Endpoints.Files.FavoriteFile
                 return;
             }
 
+            var favPath = StorageHelper.GetFavoritePath(launchItem.FileType);
+
             Response = new()
             {
-                Message = "Success!"
+                Message = $"Favorite untagged and removed successfully from {favPath.Value}"
             };
             Send();
         }

@@ -12,9 +12,9 @@ namespace TeensyRom.Api.Tests.Integration
         private const string _nonExistentPath = "/something/that/doesnt/exist.sid";
 
         [Theory]
-        [InlineData("/music/MUSICIANS/E/Eclipse/True.sid", "/music/MUSICIANS/E/Eclipse")]
-        [InlineData("/images/Dio2.kla", "/images")]
-        public async Task When_RemovingExistingFavorite_ReturnsSuccessWithMessage(string fileToFavoritePath, string preindexPath)
+        [InlineData("/music/MUSICIANS/E/Eclipse/True.sid", "/favorites/music/")]
+        [InlineData("/images/Dio2.kla", "/favorites/images/")]
+        public async Task When_RemovingExistingFavorite_ReturnsSuccessWithMessage(string fileToFavoritePath, string expectedFavoritePath)
         {
             // Arrange              
             var deviceId = await f.GetConnectedDevice();
@@ -43,7 +43,7 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithContentNotNull();
 
             r.Content.Should().NotBeNull();
-            r.Content.Message.Should().NotBeNullOrEmpty().And.Contain("Success");
+            r.Content.Message.Should().NotBeNullOrEmpty().And.Contain("Favorite untagged and removed successfully from ").And.Contain(expectedFavoritePath);
         }
 
         [Fact]
@@ -177,6 +177,9 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithStatusCode(HttpStatusCode.BadRequest);
         }
 
-        public void Dispose() => f.Reset();
+        public void Dispose() 
+        {
+            f.Reset();            
+        }
     }
 }
