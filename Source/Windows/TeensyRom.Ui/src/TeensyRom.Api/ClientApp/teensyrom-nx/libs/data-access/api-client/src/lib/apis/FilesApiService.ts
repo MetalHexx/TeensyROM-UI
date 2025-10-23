@@ -20,6 +20,8 @@ import type {
   IndexResponse,
   NullableOfTeensyFilterType,
   ProblemDetails,
+  RemoveFavoriteResponse,
+  SaveFavoriteResponse,
   SearchResponse,
   TeensyStorageType,
 } from '../models/index';
@@ -34,6 +36,10 @@ import {
     NullableOfTeensyFilterTypeToJSON,
     ProblemDetailsFromJSON,
     ProblemDetailsToJSON,
+    RemoveFavoriteResponseFromJSON,
+    RemoveFavoriteResponseToJSON,
+    SaveFavoriteResponseFromJSON,
+    SaveFavoriteResponseToJSON,
     SearchResponseFromJSON,
     SearchResponseToJSON,
     TeensyStorageTypeFromJSON,
@@ -50,6 +56,18 @@ export interface IndexRequest {
     deviceId: string;
     storageType: TeensyStorageType;
     startingPath?: string;
+}
+
+export interface RemoveFavoriteRequest {
+    deviceId: string;
+    storageType: TeensyStorageType;
+    filePath: string;
+}
+
+export interface SaveFavoriteRequest {
+    deviceId: string;
+    storageType: TeensyStorageType;
+    filePath: string;
 }
 
 export interface SearchRequest {
@@ -183,6 +201,112 @@ export class FilesApiService extends runtime.BaseAPI {
      */
     async indexAll(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<IndexAllResponse> {
         const response = await this.indexAllRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Removes a file from favorites, deleting the favorite copy and updating the original file\'s favorite status.
+     * Remove Favorite
+     */
+    async removeFavoriteRaw(requestParameters: RemoveFavoriteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RemoveFavoriteResponse>> {
+        if (requestParameters['deviceId'] == null) {
+            throw new runtime.RequiredError(
+                'deviceId',
+                'Required parameter "deviceId" was null or undefined when calling removeFavorite().'
+            );
+        }
+
+        if (requestParameters['storageType'] == null) {
+            throw new runtime.RequiredError(
+                'storageType',
+                'Required parameter "storageType" was null or undefined when calling removeFavorite().'
+            );
+        }
+
+        if (requestParameters['filePath'] == null) {
+            throw new runtime.RequiredError(
+                'filePath',
+                'Required parameter "filePath" was null or undefined when calling removeFavorite().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['filePath'] != null) {
+            queryParameters['FilePath'] = requestParameters['filePath'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/devices/{deviceId}/storage/{storageType}/favorite`.replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters['deviceId']))).replace(`{${"storageType"}}`, encodeURIComponent(String(requestParameters['storageType']))),
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => RemoveFavoriteResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Removes a file from favorites, deleting the favorite copy and updating the original file\'s favorite status.
+     * Remove Favorite
+     */
+    async removeFavorite(requestParameters: RemoveFavoriteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RemoveFavoriteResponse> {
+        const response = await this.removeFavoriteRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Saves a file as a favorite, creating a copy in the appropriate favorites directory.
+     * Save Favorite
+     */
+    async saveFavoriteRaw(requestParameters: SaveFavoriteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SaveFavoriteResponse>> {
+        if (requestParameters['deviceId'] == null) {
+            throw new runtime.RequiredError(
+                'deviceId',
+                'Required parameter "deviceId" was null or undefined when calling saveFavorite().'
+            );
+        }
+
+        if (requestParameters['storageType'] == null) {
+            throw new runtime.RequiredError(
+                'storageType',
+                'Required parameter "storageType" was null or undefined when calling saveFavorite().'
+            );
+        }
+
+        if (requestParameters['filePath'] == null) {
+            throw new runtime.RequiredError(
+                'filePath',
+                'Required parameter "filePath" was null or undefined when calling saveFavorite().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['filePath'] != null) {
+            queryParameters['FilePath'] = requestParameters['filePath'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/devices/{deviceId}/storage/{storageType}/favorite`.replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters['deviceId']))).replace(`{${"storageType"}}`, encodeURIComponent(String(requestParameters['storageType']))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => SaveFavoriteResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Saves a file as a favorite, creating a copy in the appropriate favorites directory.
+     * Save Favorite
+     */
+    async saveFavorite(requestParameters: SaveFavoriteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SaveFavoriteResponse> {
+        const response = await this.saveFavoriteRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

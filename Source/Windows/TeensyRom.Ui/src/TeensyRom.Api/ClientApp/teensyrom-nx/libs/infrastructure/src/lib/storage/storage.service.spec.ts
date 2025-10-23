@@ -4,6 +4,8 @@ import {
   FilesApiService,
   GetDirectoryResponse,
   SearchResponse,
+  SaveFavoriteResponse,
+  RemoveFavoriteResponse,
   TeensyStorageType,
   StorageCacheDto,
   FileItemDto,
@@ -20,6 +22,8 @@ describe('StorageService', () => {
     search: ReturnType<typeof vi.fn>;
     index: ReturnType<typeof vi.fn>;
     indexAll: ReturnType<typeof vi.fn>;
+    saveFavorite: ReturnType<typeof vi.fn>;
+    removeFavorite: ReturnType<typeof vi.fn>;
   };
   let mockAlertService: Partial<IAlertService>;
 
@@ -29,10 +33,13 @@ describe('StorageService', () => {
       search: vi.fn(),
       index: vi.fn(),
       indexAll: vi.fn(),
+      saveFavorite: vi.fn(),
+      removeFavorite: vi.fn(),
     };
 
     mockAlertService = {
       error: vi.fn(),
+      success: vi.fn(),
     };
 
     TestBed.resetTestingModule();
@@ -240,35 +247,36 @@ describe('StorageService', () => {
     });
   });
 
+  const createMockFileItemDto = (overrides?: Partial<FileItemDto>): FileItemDto => ({
+    name: 'test.prg',
+    path: '/games/test.prg',
+    size: 1024,
+    isFavorite: false,
+    isCompatible: true,
+    title: 'Test Game',
+    creator: 'Test Dev',
+    releaseInfo: '2023',
+    description: 'A test game',
+    shareUrl: '',
+    metadataSource: '',
+    meta1: '',
+    meta2: '',
+    metadataSourcePath: '',
+    parentPath: '/games',
+    playLength: '',
+    subtuneLengths: [],
+    startSubtuneNum: 0,
+    images: [],
+    type: ApiFileItemType.Game,
+    links: [],
+    tags: [],
+    youTubeVideos: [],
+    competitions: [],
+    ratingCount: 0,
+    ...overrides,
+  });
+
   describe('search', () => {
-    const createMockFileItemDto = (overrides?: Partial<FileItemDto>): FileItemDto => ({
-      name: 'test.prg',
-      path: '/games/test.prg',
-      size: 1024,
-      isFavorite: false,
-      isCompatible: true,
-      title: 'Test Game',
-      creator: 'Test Dev',
-      releaseInfo: '2023',
-      description: 'A test game',
-      shareUrl: '',
-      metadataSource: '',
-      meta1: '',
-      meta2: '',
-      metadataSourcePath: '',
-      parentPath: '/games',
-      playLength: '',
-      subtuneLengths: [],
-      startSubtuneNum: 0,
-      images: [],
-      type: ApiFileItemType.Game,
-      links: [],
-      tags: [],
-      youTubeVideos: [],
-      competitions: [],
-      ratingCount: 0,
-      ...overrides,
-    });
 
     const createMockSearchResponse = (files: FileItemDto[]): SearchResponse => ({
       files,
@@ -789,6 +797,358 @@ describe('StorageService', () => {
           take: 1000,
           storageType: TeensyStorageType.Usb 
         })
+      );
+    });
+  });
+
+  describe('saveFavorite', () => {
+    it('should return FileItem with isFavorite=true when save succeeds', async () => {
+      // Arrange
+      const deviceId = 'test-device';
+      const storageType = StorageType.Sd;
+      const filePath = '/games/test.prg';
+      const mockResponse: SaveFavoriteResponse = {
+        favoriteFile: createMockFileItemDto({ isFavorite: true }),
+        message: 'File saved to favorites',
+        favoritePath: filePath,
+      };
+
+      mockFilesApiService.saveFavorite.mockResolvedValue(mockResponse);
+
+      // Act
+      const result = await new Promise<FileItem>((resolve, reject) => {
+        service.saveFavorite(deviceId, storageType, filePath).subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Assert
+      expect(mockFilesApiService.saveFavorite).toHaveBeenCalledWith({
+        deviceId,
+        storageType: TeensyStorageType.Sd,
+        filePath,
+      });
+      expect(result).toBeDefined();
+      expect(result.isFavorite).toBe(true);
+      expect(result.name).toBe('test.prg');
+    });
+
+    it('should display success alert with message from API response', async () => {
+      // Arrange
+      const successMessage = 'File successfully added to favorites';
+      const mockResponse: SaveFavoriteResponse = {
+        favoriteFile: createMockFileItemDto({ isFavorite: true }),
+        message: successMessage,
+        favoritePath: '/test.prg',
+      };
+      mockFilesApiService.saveFavorite.mockResolvedValue(mockResponse);
+
+      // Act
+      await new Promise<FileItem>((resolve, reject) => {
+        service.saveFavorite('device-1', StorageType.Sd, '/test.prg').subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Assert
+      expect(mockAlertService.success).toHaveBeenCalledWith(successMessage);
+    });
+
+    it('should call API with correct parameters', async () => {
+      // Arrange
+      const deviceId = 'device-123';
+      const storageType = StorageType.Usb;
+      const filePath = '/music/song.sid';
+      const mockResponse: SaveFavoriteResponse = {
+        favoriteFile: createMockFileItemDto({ isFavorite: true }),
+        message: 'Success',
+        favoritePath: filePath,
+      };
+
+      mockFilesApiService.saveFavorite.mockResolvedValue(mockResponse);
+
+      // Act
+      await new Promise((resolve, reject) => {
+        service.saveFavorite(deviceId, storageType, filePath).subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Assert
+      expect(mockFilesApiService.saveFavorite).toHaveBeenCalledTimes(1);
+      expect(mockFilesApiService.saveFavorite).toHaveBeenCalledWith({
+        deviceId,
+        storageType: TeensyStorageType.Usb,
+        filePath,
+      });
+    });
+
+    it('should handle API errors and display error alert', async () => {
+      // Arrange
+      const errorMessage = 'Device not found';
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      mockFilesApiService.saveFavorite.mockRejectedValue(new Error(errorMessage));
+
+      // Act & Assert
+      await expect(
+        new Promise((resolve, reject) => {
+          service.saveFavorite('device-1', StorageType.Sd, '/test.prg').subscribe({
+            next: resolve,
+            error: reject,
+          });
+        })
+      ).rejects.toThrow(errorMessage);
+
+      // Verify error alert displayed
+      expect(mockAlertService.error).toHaveBeenCalledWith(errorMessage);
+
+      // Verify error logged
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '❌ StorageService.saveFavorite error:',
+        expect.any(Error)
+      );
+
+      // Cleanup
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should use fallback message when API error has no message', async () => {
+      // Arrange
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      mockFilesApiService.saveFavorite.mockRejectedValue({});
+
+      // Act & Assert
+      await expect(
+        new Promise((resolve, reject) => {
+          service.saveFavorite('device-1', StorageType.Sd, '/test.prg').subscribe({
+            error: reject,
+          });
+        })
+      ).rejects.toThrow();
+
+      expect(mockAlertService.error).toHaveBeenCalledWith('Failed to save favorite');
+
+      // Cleanup
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should correctly convert StorageType.Sd to API type', async () => {
+      // Arrange
+      const mockResponse: SaveFavoriteResponse = {
+        favoriteFile: createMockFileItemDto({ isFavorite: true }),
+        message: 'Success',
+        favoritePath: '/test.prg',
+      };
+      mockFilesApiService.saveFavorite.mockResolvedValue(mockResponse);
+
+      // Act
+      await new Promise((resolve, reject) => {
+        service.saveFavorite('device', StorageType.Sd, '/test.prg').subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Assert
+      expect(mockFilesApiService.saveFavorite).toHaveBeenCalledWith(
+        expect.objectContaining({ storageType: TeensyStorageType.Sd })
+      );
+    });
+
+    it('should correctly convert StorageType.Usb to API type', async () => {
+      // Arrange
+      const mockResponse: SaveFavoriteResponse = {
+        favoriteFile: createMockFileItemDto({ isFavorite: true }),
+        message: 'Success',
+        favoritePath: '/test.prg',
+      };
+      mockFilesApiService.saveFavorite.mockResolvedValue(mockResponse);
+
+      // Act
+      await new Promise((resolve, reject) => {
+        service.saveFavorite('device', StorageType.Usb, '/test.prg').subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Assert
+      expect(mockFilesApiService.saveFavorite).toHaveBeenCalledWith(
+        expect.objectContaining({ storageType: TeensyStorageType.Usb })
+      );
+    });
+  });
+
+  describe('removeFavorite', () => {
+    it('should return void when remove succeeds', async () => {
+      // Arrange
+      const deviceId = 'test-device';
+      const storageType = StorageType.Sd;
+      const filePath = '/games/test.prg';
+      const mockResponse: RemoveFavoriteResponse = {
+        message: 'File removed from favorites',
+      };
+
+      mockFilesApiService.removeFavorite.mockResolvedValue(mockResponse);
+
+      // Act
+      const result = await new Promise<void>((resolve, reject) => {
+        service.removeFavorite(deviceId, storageType, filePath).subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Assert
+      expect(mockFilesApiService.removeFavorite).toHaveBeenCalledWith({
+        deviceId,
+        storageType: TeensyStorageType.Sd,
+        filePath,
+      });
+      expect(result).toBeUndefined();
+    });
+
+    it('should display success alert with message from API response', async () => {
+      // Arrange
+      const successMessage = 'File removed from favorites';
+      const mockResponse: RemoveFavoriteResponse = {
+        message: successMessage,
+      };
+      mockFilesApiService.removeFavorite.mockResolvedValue(mockResponse);
+
+      // Act
+      await new Promise<void>((resolve, reject) => {
+        service.removeFavorite('device-1', StorageType.Sd, '/test.prg').subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Assert
+      expect(mockAlertService.success).toHaveBeenCalledWith(successMessage);
+    });
+
+    it('should call API with correct parameters', async () => {
+      // Arrange
+      const deviceId = 'device-456';
+      const storageType = StorageType.Usb;
+      const filePath = '/favorites/games/test.prg';
+      const mockResponse: RemoveFavoriteResponse = {
+        message: 'Success',
+      };
+
+      mockFilesApiService.removeFavorite.mockResolvedValue(mockResponse);
+
+      // Act
+      await new Promise((resolve, reject) => {
+        service.removeFavorite(deviceId, storageType, filePath).subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Assert
+      expect(mockFilesApiService.removeFavorite).toHaveBeenCalledTimes(1);
+      expect(mockFilesApiService.removeFavorite).toHaveBeenCalledWith({
+        deviceId,
+        storageType: TeensyStorageType.Usb,
+        filePath,
+      });
+    });
+
+    it('should handle API errors and display error alert', async () => {
+      // Arrange
+      const errorMessage = 'File not found';
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      mockFilesApiService.removeFavorite.mockRejectedValue(new Error(errorMessage));
+
+      // Act & Assert
+      await expect(
+        new Promise((resolve, reject) => {
+          service.removeFavorite('device-1', StorageType.Sd, '/test.prg').subscribe({
+            next: resolve,
+            error: reject,
+          });
+        })
+      ).rejects.toThrow(errorMessage);
+
+      // Verify error alert displayed
+      expect(mockAlertService.error).toHaveBeenCalledWith(errorMessage);
+
+      // Verify error logged
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '❌ StorageService.removeFavorite error:',
+        expect.any(Error)
+      );
+
+      // Cleanup
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should use fallback message when API error has no message', async () => {
+      // Arrange
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      mockFilesApiService.removeFavorite.mockRejectedValue({});
+
+      // Act & Assert
+      await expect(
+        new Promise((resolve, reject) => {
+          service.removeFavorite('device-1', StorageType.Sd, '/test.prg').subscribe({
+            error: reject,
+          });
+        })
+      ).rejects.toThrow();
+
+      expect(mockAlertService.error).toHaveBeenCalledWith('Failed to remove favorite');
+
+      // Cleanup
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should correctly convert StorageType.Sd to API type', async () => {
+      // Arrange
+      const mockResponse: RemoveFavoriteResponse = {
+        message: 'Success',
+      };
+      mockFilesApiService.removeFavorite.mockResolvedValue(mockResponse);
+
+      // Act
+      await new Promise((resolve, reject) => {
+        service.removeFavorite('device', StorageType.Sd, '/test.prg').subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Assert
+      expect(mockFilesApiService.removeFavorite).toHaveBeenCalledWith(
+        expect.objectContaining({ storageType: TeensyStorageType.Sd })
+      );
+    });
+
+    it('should correctly convert StorageType.Usb to API type', async () => {
+      // Arrange
+      const mockResponse: RemoveFavoriteResponse = {
+        message: 'Success',
+      };
+      mockFilesApiService.removeFavorite.mockResolvedValue(mockResponse);
+
+      // Act
+      await new Promise((resolve, reject) => {
+        service.removeFavorite('device', StorageType.Usb, '/test.prg').subscribe({
+          next: resolve,
+          error: reject,
+        });
+      });
+
+      // Assert
+      expect(mockFilesApiService.removeFavorite).toHaveBeenCalledWith(
+        expect.objectContaining({ storageType: TeensyStorageType.Usb })
       );
     });
   });

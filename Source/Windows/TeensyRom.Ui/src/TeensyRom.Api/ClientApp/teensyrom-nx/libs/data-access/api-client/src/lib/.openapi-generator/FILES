@@ -26,7 +26,9 @@ models/LaunchRandomResponse.ts
 models/NullableOfTeensyFilterType.ts
 models/PingDeviceResponse.ts
 models/ProblemDetails.ts
+models/RemoveFavoriteResponse.ts
 models/ResetDeviceResponse.ts
+models/SaveFavoriteResponse.ts
 models/SearchResponse.ts
 models/StartLogsResponse.ts
 models/StopLogsResponse.ts

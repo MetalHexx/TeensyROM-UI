@@ -1,9 +1,10 @@
 import { Injectable, Inject } from '@angular/core';
-import { FilesApiService, GetDirectoryResponse, SearchResponse } from '@teensyrom-nx/data-access/api-client';
+import { FilesApiService, GetDirectoryResponse, SearchResponse, SaveFavoriteResponse, RemoveFavoriteResponse } from '@teensyrom-nx/data-access/api-client';
 import { StorageDirectory, StorageType, IStorageService, FileItem, PlayerFilterType, ALERT_SERVICE, IAlertService } from '@teensyrom-nx/domain';
 import { DomainMapper } from '../domain.mapper';
-import { Observable, map, catchError, from, throwError } from 'rxjs';
+import { Observable, map, catchError, from, throwError, mergeMap } from 'rxjs';
 import { logError } from '@teensyrom-nx/utils';
+import { extractErrorMessage } from '../error/api-error.utils';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService implements IStorageService {
@@ -62,15 +63,15 @@ export class StorageService implements IStorageService {
   ): Observable<FileItem[]> {
     const apiStorageType = DomainMapper.toApiStorageType(storageType);
     const apiFilterType = filterType ? DomainMapper.toApiSearchFilter(filterType) : undefined;
-    
+
     return from(
-      this.apiService.search({ 
-        deviceId, 
-        storageType: apiStorageType, 
+      this.apiService.search({
+        deviceId,
+        storageType: apiStorageType,
         searchText,
         skip,
         take,
-        filterType: apiFilterType 
+        filterType: apiFilterType
       })
     ).pipe(
       map((response: SearchResponse) => {
@@ -80,10 +81,50 @@ export class StorageService implements IStorageService {
     );
   }
 
+  saveFavorite(
+    deviceId: string,
+    storageType: StorageType,
+    filePath: string
+  ): Observable<FileItem> {
+    const apiStorageType = DomainMapper.toApiStorageType(storageType);
+    return from(this.apiService.saveFavorite({ deviceId, storageType: apiStorageType, filePath })).pipe(
+      map((response: SaveFavoriteResponse) => {
+        // Display success message from API response
+        if (response.message) {
+          this.alertService.success(response.message);
+        }
+        // Map API response to domain model
+        return DomainMapper.toFileItem(response.favoriteFile, this.baseApiUrl);
+      }),
+      catchError((error) => this.handleError(error, 'saveFavorite', 'Failed to save favorite'))
+    );
+  }
+
+  removeFavorite(
+    deviceId: string,
+    storageType: StorageType,
+    filePath: string
+  ): Observable<void> {
+    const apiStorageType = DomainMapper.toApiStorageType(storageType);
+    return from(this.apiService.removeFavorite({ deviceId, storageType: apiStorageType, filePath })).pipe(
+      map((response: RemoveFavoriteResponse) => {
+        // Display success message from API response
+        if (response.message) {
+          this.alertService.success(response.message);
+        }
+        return void 0;
+      }),
+      catchError((error) => this.handleError(error, 'removeFavorite', 'Failed to remove favorite'))
+    );
+  }
+
   private handleError(error: unknown, methodName: string, fallbackMessage: string): Observable<never> {
-    const message = error instanceof Error ? error.message : fallbackMessage;
-    logError(`StorageService.${methodName} error:`, error);
-    this.alertService.error(message);
-    return throwError(() => error);
+    return from(extractErrorMessage(error, fallbackMessage)).pipe(
+      mergeMap((message) => {
+        logError(`StorageService.${methodName} error:`, error);
+        this.alertService.error(message);
+        return throwError(() => error);
+      })
+    );
   }
 }
