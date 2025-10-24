@@ -14,6 +14,8 @@ import { removeStorage } from './remove-storage';
 import { removeAllStorage } from './remove-all-storage';
 import { searchFiles } from './search-files';
 import { clearSearch } from './clear-search';
+import { saveFavorite } from './save-favorite';
+import { removeFavorite } from './remove-favorite';
 import { WritableStore } from '../storage-helpers';
 
 export function withStorageActions() {
@@ -30,6 +32,8 @@ export function withStorageActions() {
       ...removeAllStorage(writableStore),
       ...searchFiles(writableStore, storageService),
       ...clearSearch(writableStore),
+      ...saveFavorite(writableStore, storageService),
+      ...removeFavorite(writableStore, storageService),
     };
   });
 }

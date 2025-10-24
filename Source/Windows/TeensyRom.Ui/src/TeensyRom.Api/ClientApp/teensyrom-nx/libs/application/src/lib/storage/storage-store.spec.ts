@@ -18,6 +18,9 @@ import {
   StorageType,
   IStorageService,
   STORAGE_SERVICE,
+  FileItem,
+  FileItemType,
+  PlayerFilterType,
 } from '@teensyrom-nx/domain';
 import { StorageKeyUtil } from './storage-key.util';
 
@@ -31,6 +34,7 @@ type StorageStoreInstance = {
   selectedDirectories: () => Record<string, SelectedDirectory>;
   navigationHistory: () => Record<string, NavigationHistory>;
   searchState: () => Record<string, import('./storage-store').SearchState>;
+  favoriteOperationsState: () => import('./storage-store').FavoriteOperationsState;
   // async methods
   initializeStorage: (args: { deviceId: string; storageType: StorageType }) => Promise<void>;
   navigateToDirectory: (args: {
@@ -51,6 +55,16 @@ type StorageStoreInstance = {
     filterType?: import('@teensyrom-nx/domain').PlayerFilterType;
   }) => Promise<void>;
   clearSearch: (args: { deviceId: string; storageType: StorageType }) => void;
+  saveFavorite: (args: {
+    deviceId: string;
+    storageType: StorageType;
+    filePath: string;
+  }) => Promise<void>;
+  removeFavorite: (args: {
+    deviceId: string;
+    storageType: StorageType;
+    filePath: string;
+  }) => Promise<void>;
   // per-device selection methods
   getSelectedDirectoryForDevice: (deviceId: string) => SelectedDirectory | null;
   getSelectedDirectoryState: (deviceId: string) => () => StorageDirectoryState | null;
@@ -82,6 +96,35 @@ describe('StorageStore (NgRx Signal Store)', () => {
     files: [],
   });
 
+  const createMockFileItem = (overrides: Partial<FileItem> = {}): FileItem => ({
+    name: 'test.sid',
+    path: '/test.sid',
+    size: 1024,
+    isFavorite: false,
+    isCompatible: true,
+    title: 'Test Title',
+    creator: 'Test Creator',
+    releaseInfo: '',
+    description: '',
+    shareUrl: '',
+    metadataSource: '',
+    meta1: '',
+    meta2: '',
+    metadataSourcePath: '',
+    parentPath: '/',
+    playLength: '0:00',
+    subtuneLengths: [],
+    startSubtuneNum: 0,
+    images: [],
+    type: FileItemType.Song,
+    links: [],
+    tags: [],
+    youTubeVideos: [],
+    competitions: [],
+    ratingCount: 0,
+    ...overrides,
+  });
+
   // (Factories for state/selection can be added when needed)
 
   const createTestStore = () => {
@@ -90,6 +133,9 @@ describe('StorageStore (NgRx Signal Store)', () => {
       getDirectory: getDirectoryMock,
       index: vi.fn().mockResolvedValue({}),
       indexAll: vi.fn().mockResolvedValue({}),
+      search: vi.fn(),
+      saveFavorite: vi.fn(),
+      removeFavorite: vi.fn(),
     };
 
     TestBed.configureTestingModule({
@@ -126,6 +172,10 @@ describe('StorageStore (NgRx Signal Store)', () => {
       expect(store.selectedDirectories()).toEqual({});
       expect(store.navigationHistory()).toEqual({});
       expect(store.searchState()).toEqual({});
+      expect(store.favoriteOperationsState()).toEqual({
+        isProcessing: false,
+        error: null,
+      });
     });
 
     it('should expose expected methods on the store', () => {
@@ -1570,9 +1620,9 @@ describe('StorageStore (NgRx Signal Store)', () => {
       const storageType = StorageType.Sd;
       const searchText = 'test';
       const mockResults = [
-        { id: '1', name: 'test1.sid', path: '/test1.sid' },
-        { id: '2', name: 'test2.sid', path: '/test2.sid' },
-      ] as import('@teensyrom-nx/domain').FileItem[];
+        createMockFileItem({ name: 'test1.sid', path: '/test1.sid' }),
+        createMockFileItem({ name: 'test2.sid', path: '/test2.sid' }),
+      ];
 
       searchMock.mockReturnValue(of(mockResults));
 
@@ -1596,10 +1646,8 @@ describe('StorageStore (NgRx Signal Store)', () => {
       const deviceId = 'device-1';
       const storageType = StorageType.Sd;
       const searchText = 'game';
-      const filterType = 'games' as import('@teensyrom-nx/domain').PlayerFilterType;
-      const mockResults = [
-        { id: '1', name: 'game1.sid', path: '/game1.sid' },
-      ] as import('@teensyrom-nx/domain').FileItem[];
+      const filterType = 'games' as PlayerFilterType;
+      const mockResults = [createMockFileItem({ name: 'game1.sid', path: '/game1.sid' })];
 
       searchMock.mockReturnValue(of(mockResults));
 
@@ -1655,9 +1703,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       const key = StorageKeyUtil.create(deviceId, storageType);
 
       // First search
-      searchMock.mockReturnValue(
-        of([{ id: '1', name: 'first.sid', path: '/first.sid' }] as import('@teensyrom-nx/domain').FileItem[])
-      );
+      searchMock.mockReturnValue(of([createMockFileItem({ name: 'first.sid', path: '/first.sid' })]));
       await store.searchFiles({ deviceId, storageType, searchText: 'first' });
 
       let searchState = store.searchState()[key];
@@ -1667,9 +1713,9 @@ describe('StorageStore (NgRx Signal Store)', () => {
       // Second search with different text
       searchMock.mockReturnValue(
         of([
-          { id: '2', name: 'second.sid', path: '/second.sid' },
-          { id: '3', name: 'second2.sid', path: '/second2.sid' },
-        ] as import('@teensyrom-nx/domain').FileItem[])
+          createMockFileItem({ name: 'second.sid', path: '/second.sid' }),
+          createMockFileItem({ name: 'second2.sid', path: '/second2.sid' }),
+        ])
       );
       await store.searchFiles({ deviceId, storageType, searchText: 'second' });
 
@@ -1683,9 +1729,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       const device2 = 'device-2';
       const storageType = StorageType.Sd;
 
-      searchMock.mockReturnValue(
-        of([{ id: '1', name: 'test.sid', path: '/test.sid' }] as import('@teensyrom-nx/domain').FileItem[])
-      );
+      searchMock.mockReturnValue(of([createMockFileItem({ name: 'test.sid', path: '/test.sid' })]));
 
       await store.searchFiles({ deviceId: device1, storageType, searchText: 'search1' });
       await store.searchFiles({ deviceId: device2, storageType, searchText: 'search2' });
@@ -1719,9 +1763,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       const key = StorageKeyUtil.create(deviceId, storageType);
 
       // Setup search state
-      searchMock.mockReturnValue(
-        of([{ id: '1', name: 'test.sid', path: '/test.sid' }] as import('@teensyrom-nx/domain').FileItem[])
-      );
+      searchMock.mockReturnValue(of([createMockFileItem({ name: 'test.sid', path: '/test.sid' })]));
       await store.searchFiles({ deviceId, storageType, searchText: 'test' });
 
       expect(store.searchState()[key]).toBeDefined();
@@ -1737,9 +1779,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       const device2 = 'device-2';
       const storageType = StorageType.Sd;
 
-      searchMock.mockReturnValue(
-        of([{ id: '1', name: 'test.sid', path: '/test.sid' }] as import('@teensyrom-nx/domain').FileItem[])
-      );
+      searchMock.mockReturnValue(of([createMockFileItem({ name: 'test.sid', path: '/test.sid' })]));
 
       await store.searchFiles({ deviceId: device1, storageType, searchText: 'search1' });
       await store.searchFiles({ deviceId: device2, storageType, searchText: 'search2' });
@@ -1783,9 +1823,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       const deviceId = 'device-1';
       const storageType = StorageType.Sd;
       const searchText = 'test';
-      const mockResults = [
-        { id: '1', name: 'test.sid', path: '/test.sid' },
-      ] as import('@teensyrom-nx/domain').FileItem[];
+      const mockResults = [createMockFileItem({ name: 'test.sid', path: '/test.sid' })];
 
       searchMock.mockReturnValue(of(mockResults));
       await store.searchFiles({ deviceId, storageType, searchText });
@@ -1808,9 +1846,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       expect(searchStateSignal()).toBeNull();
 
       // Execute search
-      searchMock.mockReturnValue(
-        of([{ id: '1', name: 'test.sid', path: '/test.sid' }] as import('@teensyrom-nx/domain').FileItem[])
-      );
+      searchMock.mockReturnValue(of([createMockFileItem({ name: 'test.sid', path: '/test.sid' })]));
       await store.searchFiles({ deviceId, storageType, searchText: 'test' });
 
       // Should now have state
@@ -1850,9 +1886,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       await store.initializeStorage({ deviceId, storageType });
 
       // Execute search
-      searchMock.mockReturnValue(
-        of([{ id: '1', name: 'test.sid', path: '/test.sid' }] as import('@teensyrom-nx/domain').FileItem[])
-      );
+      searchMock.mockReturnValue(of([createMockFileItem({ name: 'test.sid', path: '/test.sid' })]));
       await store.searchFiles({ deviceId, storageType, searchText: 'test' });
       expect(store.searchState()[key]).toBeDefined();
 
@@ -1876,9 +1910,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       await store.navigateToDirectory({ deviceId, storageType, path: '/dir' });
 
       // Execute search
-      searchMock.mockReturnValue(
-        of([{ id: '1', name: 'test.sid', path: '/test.sid' }] as import('@teensyrom-nx/domain').FileItem[])
-      );
+      searchMock.mockReturnValue(of([createMockFileItem({ name: 'test.sid', path: '/test.sid' })]));
       await store.searchFiles({ deviceId, storageType, searchText: 'test' });
       expect(store.searchState()[key]).toBeDefined();
 
@@ -1903,9 +1935,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       await store.navigateDirectoryBackward({ deviceId });
 
       // Execute search
-      searchMock.mockReturnValue(
-        of([{ id: '1', name: 'test.sid', path: '/test.sid' }] as import('@teensyrom-nx/domain').FileItem[])
-      );
+      searchMock.mockReturnValue(of([createMockFileItem({ name: 'test.sid', path: '/test.sid' })]));
       await store.searchFiles({ deviceId, storageType, searchText: 'test' });
       expect(store.searchState()[key]).toBeDefined();
 
@@ -1928,9 +1958,7 @@ describe('StorageStore (NgRx Signal Store)', () => {
       await store.navigateToDirectory({ deviceId, storageType, path: '/dir' });
 
       // Execute search
-      searchMock.mockReturnValue(
-        of([{ id: '1', name: 'test.sid', path: '/test.sid' }] as import('@teensyrom-nx/domain').FileItem[])
-      );
+      searchMock.mockReturnValue(of([createMockFileItem({ name: 'test.sid', path: '/test.sid' })]));
       await store.searchFiles({ deviceId, storageType, searchText: 'test' });
       expect(store.searchState()[key]).toBeDefined();
 
@@ -1942,4 +1970,9 @@ describe('StorageStore (NgRx Signal Store)', () => {
       expect(store.searchState()[key]).toBeUndefined();
     });
   });
+
+  // -----------------------------------------
+  // NOTE: Favorite operation tests moved to storage-store.favorites.spec.ts
+  // to keep this file manageable in size
+  // -----------------------------------------
 });

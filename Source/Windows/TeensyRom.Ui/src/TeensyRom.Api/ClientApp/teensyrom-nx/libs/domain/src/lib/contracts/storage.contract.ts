@@ -71,6 +71,32 @@ export interface IStorageService {
     skip?: number,
     take?: number
   ): Observable<FileItem[]>;
+
+  /**
+   * Saves a file to favorites.
+   * @param deviceId - The unique identifier of the device
+   * @param storageType - The type of storage (USB, SD, etc.)
+   * @param filePath - The path to the file to add to favorites
+   * @returns Observable of FileItem with updated isFavorite flag
+   */
+  saveFavorite(
+    deviceId: string,
+    storageType: StorageType,
+    filePath: string
+  ): Observable<FileItem>;
+
+  /**
+   * Removes a file from favorites.
+   * @param deviceId - The unique identifier of the device
+   * @param storageType - The type of storage (USB, SD, etc.)
+   * @param filePath - The path to the file to remove from favorites
+   * @returns Observable that completes when the operation succeeds
+   */
+  removeFavorite(
+    deviceId: string,
+    storageType: StorageType,
+    filePath: string
+  ): Observable<void>;
 }
 
 /**

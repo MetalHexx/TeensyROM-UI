@@ -46,11 +46,17 @@ export class NavigationHistory {
   }
 }
 
+export interface FavoriteOperationsState {
+  isProcessing: boolean;
+  error: string | null;
+}
+
 export interface StorageState {
   storageEntries: Record<string, StorageDirectoryState>; // key: "${deviceId}-${storageType}"
   selectedDirectories: Record<string, SelectedDirectory>; // key: deviceId - Per-device selection state
   navigationHistory: Record<string, NavigationHistory>; // key: deviceId - Navigation history per device
   searchState: Record<string, SearchState>; // key: "${deviceId}-${storageType}" - Per-device/storage search state
+  favoriteOperationsState: FavoriteOperationsState;
 }
 
 const initialState: StorageState = {
@@ -58,6 +64,10 @@ const initialState: StorageState = {
   selectedDirectories: {},
   navigationHistory: {},
   searchState: {},
+  favoriteOperationsState: {
+    isProcessing: false,
+    error: null,
+  },
 };
 
 export const StorageStore = signalStore(
