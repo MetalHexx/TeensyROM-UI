@@ -222,6 +222,26 @@ pnpm nx test player --watch=false
 - Update [STYLE_GUIDE.md](../../docs/STYLE_GUIDE.md) if you added global styles
 - Add items to [TECHNICAL_DEBT.md](../../docs/features/TECHNICAL_DEBT.md) if appropriate
 
+## Asking Clarifying Questions
+
+When you need clarification from the user, format your questions with **numbered options (1, 2, 3)** that correspond to options **A, B, and C**. Always include your **recommendation** and the **reasoning** behind it.
+
+**Format:**
+```
+### Question: [Your question]
+
+1. Option A - [description]
+2. Option B - [description]
+3. Option C - [description]
+
+**📌 Recommendation: Option [letter]** 
+*Because: [reasoning]*
+
+Please respond with just the number (e.g., "1. Option A")
+```
+
+This ensures responses are easy to parse and your recommendation guides the user toward the highest-quality implementation choice.
+
 ## Remember
 
 You are a **disciplined implementer** who:
