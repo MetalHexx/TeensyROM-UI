@@ -1,6 +1,6 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { FilesApiService, GetDirectoryResponse, SearchResponse, SaveFavoriteResponse, RemoveFavoriteResponse } from '@teensyrom-nx/data-access/api-client';
-import { StorageDirectory, StorageType, IStorageService, FileItem, PlayerFilterType, ALERT_SERVICE, IAlertService } from '@teensyrom-nx/domain';
+import { StorageDirectory, StorageType, IStorageService, FileItem, PlayerFilterType, ALERT_SERVICE } from '@teensyrom-nx/domain';
 import { DomainMapper } from '../domain.mapper';
 import { Observable, map, catchError, from, throwError, mergeMap } from 'rxjs';
 import { logError } from '@teensyrom-nx/utils';
@@ -9,18 +9,15 @@ import { extractErrorMessage } from '../error/api-error.utils';
 @Injectable({ providedIn: 'root' })
 export class StorageService implements IStorageService {
   private readonly baseApiUrl: string;
-  private readonly alertService: IAlertService;
+  private readonly apiService = inject(FilesApiService);
+  private readonly alertService = inject(ALERT_SERVICE);
 
-  constructor(
-    private readonly apiService: FilesApiService,
-    @Inject(ALERT_SERVICE) alertService: IAlertService
-  ) {
+  constructor() {
     // Extract base URL from API service configuration with fallback
     // Configuration is protected, so we access it via unknown cast
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const config = (this.apiService as any).configuration;
     this.baseApiUrl = config?.basePath || 'http://localhost:5168';
-    this.alertService = alertService;
   }
 
   getDirectory(
@@ -89,7 +86,9 @@ export class StorageService implements IStorageService {
     const apiStorageType = DomainMapper.toApiStorageType(storageType);
     return from(this.apiService.saveFavorite({ deviceId, storageType: apiStorageType, filePath })).pipe(
       map((response: SaveFavoriteResponse) => {
-        // Display success message from API response
+        if (!response || !response.favoriteFile) {
+          throw new Error('Invalid response: favoriteFile is missing from saveFavorite response');
+        }
         if (response.message) {
           this.alertService.success(response.message);
         }
@@ -108,6 +107,9 @@ export class StorageService implements IStorageService {
     const apiStorageType = DomainMapper.toApiStorageType(storageType);
     return from(this.apiService.removeFavorite({ deviceId, storageType: apiStorageType, filePath })).pipe(
       map((response: RemoveFavoriteResponse) => {
+        if (!response) {
+          throw new Error('Invalid response: removeFavorite returned empty response');
+        }
         // Display success message from API response
         if (response.message) {
           this.alertService.success(response.message);

@@ -78,7 +78,7 @@ namespace TeensyRom.Api.Endpoints.Files.FavoriteFile
 
             Response = new()
             {
-                Message = $"Favorite untagged and removed successfully from {favPath.Value}"
+                Message = $"Favorite untagged and removed from {favPath.Value}"
             };
             Send();
         }

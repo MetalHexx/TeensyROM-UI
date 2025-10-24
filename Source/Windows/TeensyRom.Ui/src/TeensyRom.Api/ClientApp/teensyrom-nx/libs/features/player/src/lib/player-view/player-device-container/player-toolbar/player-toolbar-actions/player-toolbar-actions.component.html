@@ -8,4 +8,18 @@
     (buttonClick)="toggleShuffleMode()"
   >
   </lib-icon-button>
+  <lib-icon-button
+    [ariaLabel]="isFavorite() ? 'Remove from Favorites' : 'Add to Favorites'"
+    size="large"
+    variant="rounded-transparent"
+    [color]="'normal'"
+    [disabled]="!currentFile() || isFavoriteOperationInProgress()"
+    (buttonClick)="toggleFavorite()"
+  >
+    @if (isFavorite()) {
+      <mat-icon>favorite</mat-icon>
+    } @else {
+      <mat-icon>favorite_border</mat-icon>
+    }
+  </lib-icon-button>
 </div>

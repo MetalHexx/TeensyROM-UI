@@ -43,7 +43,7 @@ namespace TeensyRom.Api.Tests.Integration
                 .WithContentNotNull();
 
             r.Content.Should().NotBeNull();
-            r.Content.Message.Should().NotBeNullOrEmpty().And.Contain("Favorite untagged and removed successfully from ").And.Contain(expectedFavoritePath);
+            r.Content.Message.Should().NotBeNullOrEmpty().And.Contain("Favorite untagged and removed from ").And.Contain(expectedFavoritePath);
         }
 
         [Fact]

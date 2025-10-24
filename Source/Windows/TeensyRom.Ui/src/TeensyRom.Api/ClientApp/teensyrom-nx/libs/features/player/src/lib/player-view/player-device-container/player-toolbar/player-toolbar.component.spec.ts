@@ -5,7 +5,7 @@ import { By } from '@angular/platform-browser';
 import { signal } from '@angular/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { PlayerToolbarComponent } from './player-toolbar.component';
-import { PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
+import { PLAYER_CONTEXT, IPlayerContext, StorageStore } from '@teensyrom-nx/application';
 import { LaunchMode, PlayerStatus, FileItemType, StorageType } from '@teensyrom-nx/domain';
 import { IconButtonComponent } from '@teensyrom-nx/ui/components';
 
@@ -13,6 +13,11 @@ describe('PlayerToolbarComponent', () => {
   let component: PlayerToolbarComponent;
   let fixture: ComponentFixture<PlayerToolbarComponent>;
   let mockPlayerContext: IPlayerContext;
+  let mockStorageStore: {
+    saveFavorite: ReturnType<typeof vi.fn>;
+    removeFavorite: ReturnType<typeof vi.fn>;
+    favoriteOperationsState: ReturnType<typeof vi.fn>;
+  };
   let errorSignal: ReturnType<typeof signal<string | null>>;
   let currentFileSignal: ReturnType<typeof signal>;
   let playerStatusSignal: ReturnType<typeof signal<PlayerStatus>>;
@@ -51,6 +56,12 @@ describe('PlayerToolbarComponent', () => {
     fileContextSignal = signal(null);
     launchModeSignal = signal(LaunchMode.Directory);
     fileCompatibleSignal = signal(true);
+
+    mockStorageStore = {
+      saveFavorite: vi.fn().mockResolvedValue(undefined),
+      removeFavorite: vi.fn().mockResolvedValue(undefined),
+      favoriteOperationsState: vi.fn(() => ({ isProcessing: false, error: null })),
+    };
 
     // Create a proper interface-based mock that implements all IPlayerContext methods
     mockPlayerContext = {
@@ -106,6 +117,7 @@ describe('PlayerToolbarComponent', () => {
       providers: [
         provideNoopAnimations(),
         { provide: PLAYER_CONTEXT, useValue: mockPlayerContext },
+        { provide: StorageStore, useValue: mockStorageStore },
       ],
     }).compileComponents();
 

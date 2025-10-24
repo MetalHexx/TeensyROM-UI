@@ -58,6 +58,10 @@ export class PlayerContextService implements IPlayerContext {
     }
   }
 
+  updateCurrentFileFavoriteStatus(deviceId: string, filePath: string, isFavorite: boolean): void {
+    this.store.updateCurrentFileFavoriteStatus({ deviceId, filePath, isFavorite });
+  }
+
   getCurrentFile(deviceId: string) {
     return this.store.getCurrentFile(deviceId);
   }

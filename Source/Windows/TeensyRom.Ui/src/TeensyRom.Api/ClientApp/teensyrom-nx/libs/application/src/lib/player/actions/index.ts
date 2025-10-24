@@ -14,6 +14,7 @@ import { updateTimerState } from './update-timer-state';
 import { play } from './play';
 import { pauseMusic } from './pause-music';
 import { stopPlayback } from './stop-playback';
+import { updateFavoriteStatus } from './update-favorite-status';
 import { navigateNext } from './navigate-next';
 import { navigatePrevious } from './navigate-previous';
 import { removePlayer } from './remove-player';
@@ -43,6 +44,7 @@ export function withPlayerActions() {
       ...play(writableStore, playerService),
       ...pauseMusic(writableStore, playerService),
       ...stopPlayback(writableStore, deviceService),
+      ...updateFavoriteStatus(writableStore),
       ...navigateNext(writableStore, playerService),
       ...navigatePrevious(writableStore, playerService),
       ...removePlayer(writableStore),

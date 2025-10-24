@@ -16,6 +16,7 @@ export interface IPlayerContext {
   initializePlayer(deviceId: string): void;
   removePlayer(deviceId: string): void;
   launchFileWithContext(request: LaunchFileContextRequest): Promise<void>;
+  updateCurrentFileFavoriteStatus(deviceId: string, filePath: string, isFavorite: boolean): void;
   getCurrentFile(deviceId: string): Signal<LaunchedFile | null>;
   getFileContext(deviceId: string): Signal<PlayerFileContext | null>;
   isLoading(deviceId: string): Signal<boolean>;

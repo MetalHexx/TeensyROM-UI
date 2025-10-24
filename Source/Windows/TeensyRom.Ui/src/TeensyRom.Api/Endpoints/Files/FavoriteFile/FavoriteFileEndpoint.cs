@@ -81,7 +81,7 @@ namespace TeensyRom.Api.Endpoints.Files.FavoriteFile
 
             Response = new()
             {
-                Message = $"Favorite tagged and saved successfully to {favPath.Value}",
+                Message = $"Favorite tagged and saved to {favPath.Value}",
                 FavoriteFile = favoriteFileDto,
                 FavoritePath = favPath.Value
             };
