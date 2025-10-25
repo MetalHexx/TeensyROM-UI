@@ -11,8 +11,6 @@ import {
   IStorageService,
   IDeviceEventsService,
   IDeviceLogsService,
-  Device,
-  StorageDirectory,
 } from '@teensyrom-nx/domain';
 import { of } from 'rxjs';
 
@@ -20,28 +18,15 @@ describe('PlayerViewComponent', () => {
   let component: PlayerViewComponent;
   let fixture: ComponentFixture<PlayerViewComponent>;
 
-  // Mock domain services
   const mockDeviceService: Partial<IDeviceService> = {
-    getDevices: () => of([]),
-    getDevice: () => of({} as Device),
-    connectDevice: () => of(void 0),
-    disconnectDevice: () => of(void 0),
+    getConnectedDevices: () => of([]),
   };
 
-  const mockStorageService: Partial<IStorageService> = {
-    getDirectories: () => of([]),
-    getDirectory: () => of({} as StorageDirectory),
-  };
+  const mockStorageService: Partial<IStorageService> = {};
 
-  const mockDeviceEventsService: Partial<IDeviceEventsService> = {
-    onDeviceConnected: () => of(),
-    onDeviceDisconnected: () => of(),
-  };
+  const mockDeviceEventsService: Partial<IDeviceEventsService> = {};
 
-  const mockDeviceLogsService: Partial<IDeviceLogsService> = {
-    getLogs: () => of([]),
-    onLogReceived: () => of(),
-  };
+  const mockDeviceLogsService: Partial<IDeviceLogsService> = {};
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -63,5 +48,14 @@ describe('PlayerViewComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should have stores injected', () => {
+    expect(component.deviceStore).toBeTruthy();
+  });
+
+  it('should compute connected devices', () => {
+    expect(component.connectedDevices).toBeTruthy();
+    expect(component.connectedDevices()).toEqual([]);
   });
 });

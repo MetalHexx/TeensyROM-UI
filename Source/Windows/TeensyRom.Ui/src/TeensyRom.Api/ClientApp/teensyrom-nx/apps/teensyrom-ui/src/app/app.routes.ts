@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { LayoutComponent } from '@teensyrom-nx/app/shell';
+import { playerRouteResolver } from '@teensyrom-nx/app/navigation';
 
 export const appRoutes: Route[] = [
   {
@@ -20,6 +21,7 @@ export const appRoutes: Route[] = [
       {
         path: 'player',
         data: { title: 'Player' },
+        resolve: { initialized: playerRouteResolver },
         loadComponent: () =>
           import('@teensyrom-nx/features/player').then((m) => m.PlayerViewComponent),
       },
