@@ -233,14 +233,14 @@ When you need clarification from the user, format your questions with **numbered
 ```
 ### Question: [Your question]
 
-1. Option A - [description]
-2. Option B - [description]
-3. Option C - [description]
+Option A - [description]
+Option B - [description]
+Option C - [description]
 
 **📌 Recommendation: Option [letter]** 
 *Because: [reasoning]*
 
-Please respond with just the number (e.g., "1. Option A")
+You can response with the number and choice (e.g., "1. Option A") or provide an alternative option.
 ```
 
 This ensures responses are easy to parse and your recommendation guides the user toward the most efficient and pragmatic choice.
