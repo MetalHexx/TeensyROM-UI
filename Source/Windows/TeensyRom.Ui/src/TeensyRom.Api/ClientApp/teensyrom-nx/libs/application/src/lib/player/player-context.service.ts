@@ -1,6 +1,16 @@
 import { Injectable, inject, Signal } from '@angular/core';
 import { Location } from '@angular/common';
-import { LaunchMode, PlayerFilterType, PlayerScope, FileItemType, FileItem, StorageTypeUtil } from '@teensyrom-nx/domain';
+import {
+  LaunchMode,
+  PlayerFilterType,
+  PlayerScope,
+  FileItemType,
+  FileItem,
+  StorageType,
+  StorageTypeUtil,
+  ALERT_SERVICE,
+  IAlertService,
+} from '@teensyrom-nx/domain';
 import { PlayerStore, LaunchedFile, HistoryEntry } from './player-store';
 import { StorageStore } from '../storage/storage-store';
 import { StorageKeyUtil } from '../storage/storage-key.util';
@@ -17,9 +27,12 @@ export class PlayerContextService implements IPlayerContext {
   private readonly storageStore = inject(StorageStore);
   private readonly timerManager = inject(PlayerTimerManager);
   private readonly location = inject(Location);
+  private readonly alertService = inject(ALERT_SERVICE);
 
   // Track timer subscriptions per device for cleanup
   private readonly timerSubscriptions = new Map<string, Subscription[]>();
+  private popstateListener: ((event: PopStateEvent) => void) | null = null;
+  private isHandlingPopState = false;
 
   initializePlayer(deviceId: string): void {
     this.store.initializePlayer({ deviceId });
@@ -30,6 +43,38 @@ export class PlayerContextService implements IPlayerContext {
     this.cleanupTimerSubscriptions(deviceId);
     
     this.store.removePlayer({ deviceId });
+  }
+
+  startListeningToPopState(): void {
+    if (typeof window === 'undefined') {
+      logWarn('Popstate listener not registered: window is undefined');
+      return;
+    }
+
+    if (this.popstateListener) {
+      return;
+    }
+
+    this.popstateListener = () => {
+      void this.handlePopState();
+    };
+
+    window.addEventListener('popstate', this.popstateListener);
+    logInfo(LogType.Info, 'PlayerContextService registered browser popstate listener');
+  }
+
+  stopListeningToPopState(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (!this.popstateListener) {
+      return;
+    }
+
+    window.removeEventListener('popstate', this.popstateListener);
+    this.popstateListener = null;
+    logInfo(LogType.Info, 'PlayerContextService removed browser popstate listener');
   }
 
   async launchFileWithContext(request: LaunchFileContextRequest): Promise<void> {
@@ -409,6 +454,10 @@ export class PlayerContextService implements IPlayerContext {
    * Forward slashes in path parameters are preserved for cleaner, more readable URLs
    */
   private updateUrlForLaunchedFile(deviceId: string): void {
+    if (this.isHandlingPopState) {
+      return; // Skip URL updates while replaying browser history
+    }
+
     const currentFile = this.store.getCurrentFile(deviceId)();
     if (!currentFile) return;
 
@@ -523,5 +572,97 @@ export class PlayerContextService implements IPlayerContext {
       this.updateUrlForLaunchedFile(deviceId);
     }
   }
-}
 
+  /**
+   * Handle browser back/forward navigation and relaunch files based on URL query parameters
+   */
+  private async handlePopState(): Promise<void> {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const deviceId = params.get('device');
+    const storageParam = params.get('storage');
+    const directoryPath = params.get('path');
+    const fileName = params.get('file');
+
+    if (!deviceId || !storageParam || !directoryPath) {
+      logInfo(LogType.Info, 'Popstate event ignored without deep linking parameters');
+      return;
+    }
+
+    const normalizedStorage = storageParam.toUpperCase();
+    let storageType: StorageType | null = null;
+
+    if (normalizedStorage === StorageType.Sd) {
+      storageType = StorageType.Sd;
+    } else if (normalizedStorage === StorageType.Usb) {
+      storageType = StorageType.Usb;
+    }
+
+    if (!storageType) {
+      logWarn(`Popstate event ignored due to invalid storage type: ${storageParam}`);
+      return;
+    }
+
+    logInfo(LogType.Start, 'Handling browser popstate navigation', {
+      deviceId,
+      storageType,
+      directoryPath,
+      fileName: fileName ?? 'none',
+    });
+
+    try {
+      await this.storageStore.navigateToDirectory({
+        deviceId,
+        storageType,
+        path: directoryPath,
+      });
+    } catch (error) {
+      logWarn(`Failed to navigate to directory "${directoryPath}" during browser navigation`);
+      this.alertService.warning(`Directory "${directoryPath}" could not be loaded or has no files`);
+      return;
+    }
+
+    const directoryState = this.storageStore.getSelectedDirectoryState(deviceId)();
+    const directoryFiles = directoryState?.directory?.files ?? [];
+
+    if (!fileName) {
+      logInfo(LogType.Info, 'Popstate navigation completed without file parameter');
+      return;
+    }
+
+    if (!directoryFiles.length) {
+      logWarn(`Directory "${directoryPath}" has no files during browser navigation`);
+      this.alertService.warning(`Directory "${directoryPath}" could not be loaded or has no files`);
+      return;
+    }
+
+    const targetFile = directoryFiles.find(file => file.name === fileName);
+
+    if (!targetFile) {
+      logWarn(`File "${fileName}" not found during browser navigation`);
+      this.alertService.warning(`File "${fileName}" not found in directory "${directoryPath}"`);
+      return;
+    }
+
+    this.isHandlingPopState = true;
+    try {
+      await this.launchFileWithContext({
+        deviceId,
+        storageType,
+        file: targetFile,
+        directoryPath,
+        files: directoryFiles,
+        launchMode: LaunchMode.Directory,
+      });
+      logInfo(LogType.Success, 'Browser history navigation relaunched file', {
+        deviceId,
+        file: targetFile.name,
+      });
+    } finally {
+      this.isHandlingPopState = false;
+    }
+  }
+}

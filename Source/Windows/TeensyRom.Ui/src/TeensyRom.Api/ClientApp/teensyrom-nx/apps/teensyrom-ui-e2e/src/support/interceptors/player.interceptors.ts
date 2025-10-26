@@ -32,13 +32,21 @@ function getQueryParam(request: CyHttpMessages.IncomingHttpRequest, key: string)
   return query[key];
 }
 
+function decodeValue(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 function resolvePath(queryParam: unknown, fallback = TEST_PATHS.ROOT): string {
   if (typeof queryParam === 'string' && queryParam.length > 0) {
-    return queryParam;
+    return decodeValue(queryParam);
   }
 
   if (Array.isArray(queryParam) && queryParam[0]) {
-    return queryParam[0];
+    return decodeValue(queryParam[0]);
   }
 
   return fallback;

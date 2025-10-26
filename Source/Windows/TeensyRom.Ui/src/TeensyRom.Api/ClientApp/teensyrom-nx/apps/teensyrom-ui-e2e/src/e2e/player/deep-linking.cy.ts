@@ -20,6 +20,7 @@ import {
   waitForRandomLaunch,
   waitForDirectoryFilesToBeVisible,
   waitForFileInfoToAppear,
+  waitForFileLaunch,
   verifyFileInDirectory,
   expectNoFileLaunched,
   expectFileIsLaunched,
@@ -29,6 +30,7 @@ import {
   clickNextButton,
   clickRandomButton,
   goBack,
+  goForward,
   verifyAlertVisible,
   verifyAlertMessage,
   verifyAlertSeverity,
@@ -267,6 +269,64 @@ describe('Deep Linking', () => {
         storage: TeensyStorageType.Sd,
         path: TEST_PATHS.GAMES,
         file: TEST_FILES.GAMES.PAC_MAN.fileName,
+      });
+    });
+  });
+
+  describe('Browser History Navigation', () => {
+    it('relaunches files when navigating back and forward', () => {
+      cy.viewport(VIEWPORT.STANDARD.width, VIEWPORT.STANDARD.height);
+
+      const gamesDirectory = filesystem.getDirectory(TEST_PATHS.GAMES);
+      const donkeyKongFile = gamesDirectory.storageItem.files?.find(
+        (f) => f.name === TEST_FILES.GAMES.DONKEY_KONG.fileName
+      );
+
+      interceptLaunchFile({ filesystem });
+      interceptLaunchRandom({ selectedFile: donkeyKongFile });
+
+      navigateToPlayerWithParams({
+        device: testDeviceId,
+        storage: TeensyStorageType.Sd,
+        path: TEST_PATHS.GAMES,
+        file: TEST_FILES.GAMES.PAC_MAN.fileName,
+      });
+
+      waitForFileToLoad();
+      waitForFileLaunch();
+      expectFileIsLaunched(TEST_FILES.GAMES.PAC_MAN.title);
+
+      clickRandomButton();
+      waitForRandomLaunch();
+      waitForFileInfoToAppear();
+      expectFileIsLaunched(TEST_FILES.GAMES.DONKEY_KONG.title);
+      expectUrlContainsParams({
+        device: testDeviceId,
+        storage: TeensyStorageType.Sd,
+        path: TEST_PATHS.GAMES,
+        file: TEST_FILES.GAMES.DONKEY_KONG.fileName,
+      });
+
+      goBack();
+      waitForFileLaunch();
+      waitForFileInfoToAppear();
+      expectFileIsLaunched(TEST_FILES.GAMES.PAC_MAN.title);
+      expectUrlContainsParams({
+        device: testDeviceId,
+        storage: TeensyStorageType.Sd,
+        path: TEST_PATHS.GAMES,
+        file: TEST_FILES.GAMES.PAC_MAN.fileName,
+      });
+
+      goForward();
+      waitForFileLaunch();
+      waitForFileInfoToAppear();
+      expectFileIsLaunched(TEST_FILES.GAMES.DONKEY_KONG.title);
+      expectUrlContainsParams({
+        device: testDeviceId,
+        storage: TeensyStorageType.Sd,
+        path: TEST_PATHS.GAMES,
+        file: TEST_FILES.GAMES.DONKEY_KONG.fileName,
       });
     });
   });

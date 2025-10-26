@@ -55,6 +55,8 @@ async function initPlayer(
 ): Promise<void> {
   await waitForDeviceStoreInitialization(deviceStore);
   await initializeAllDeviceStorage(storageStore, deviceStore);
+  playerContextService.startListeningToPopState();
+  logInfo(LogType.Info, 'PlayerContextService popstate listener started');
   await initDeeplinking(storageStore, playerContextService, alertService, route);
 }
 
