@@ -33,9 +33,18 @@ import {
   DEVICE_CARD_SELECTORS,
   API_ROUTE_ALIASES,
   DEVICE_ENDPOINTS,
-  ALERT_SELECTORS,
   createProblemDetailsResponse,
 } from './test-helpers';
+import {
+  ALERT_SEVERITY,
+  dismissAlert,
+  verifyAlertDismissed,
+  verifyAlertMessage,
+  verifyAlertMessageDoesNotContain,
+  verifyAlertSeverity,
+  verifyAlertVisible,
+  waitForAlertAutoDismiss,
+} from '../../support/helpers/alert.helpers';
 import { APP_ROUTES } from '../../support/constants/app-routes.constants';
 import { interceptFindDevices } from '../../support/interceptors/device.interceptors';
 import { singleDevice } from '../../support/test-data/fixtures/devices.fixture';
@@ -77,12 +86,9 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       cy.wait(`@${API_ROUTE_ALIASES.FIND_DEVICES}`);
 
       // And: An alert popup appears with the error message from title field
-      cy.get(ALERT_SELECTORS.container)
-        .should('be.visible')
-        .within(() => {
-          cy.get(ALERT_SELECTORS.message).should('contain.text', errorMessage);
-          cy.get(ALERT_SELECTORS.icon).should('contain.text', 'error');
-        });
+      verifyAlertVisible();
+      verifyAlertMessage(errorMessage);
+      verifyAlertSeverity(ALERT_SEVERITY.ERROR);
     });
 
     it('should clear device list when refresh returns 404', () => {
@@ -176,9 +182,8 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       cy.wait(`@${API_ROUTE_ALIASES.FIND_DEVICES}`);
 
       // Then: Alert shows the title message (user-friendly) not the detail (technical)
-      cy.get(ALERT_SELECTORS.messageInContainer)
-        .should('contain.text', errorMessage)
-        .and('not.contain.text', 'Technical details');
+      verifyAlertMessage(errorMessage);
+      verifyAlertMessageDoesNotContain('Technical details');
     });
 
     it('should handle 404 with missing ProblemDetails.title by falling back to detail', () => {
@@ -198,7 +203,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       cy.wait(`@${API_ROUTE_ALIASES.FIND_DEVICES}`);
 
       // Then: Alert falls back to detail message
-      cy.get(ALERT_SELECTORS.messageInContainer).should('contain.text', detailMessage);
+      verifyAlertMessage(detailMessage);
     });
 
     it('should allow dismissing the error alert', () => {
@@ -216,13 +221,13 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       cy.wait(`@${API_ROUTE_ALIASES.FIND_DEVICES}`);
 
       // Verify alert visible
-      cy.get(ALERT_SELECTORS.container).should('be.visible');
+      verifyAlertVisible();
 
       // Dismiss alert
-      cy.get(ALERT_SELECTORS.dismissButton).click();
+      dismissAlert();
 
       // Verify alert dismissed
-      cy.get(ALERT_SELECTORS.container).should('not.exist');
+      verifyAlertDismissed();
 
       // Device list should still show empty state
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage).should('be.visible');
@@ -243,14 +248,11 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       cy.wait(`@${API_ROUTE_ALIASES.FIND_DEVICES}`);
 
       // Verify alert visible
-      cy.get(ALERT_SELECTORS.container).should('be.visible');
+      verifyAlertVisible();
 
       // Wait for auto-dismiss (default is 3000ms)
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(3500);
-
-      // Verify alert auto-dismissed
-      cy.get(ALERT_SELECTORS.container).should('not.exist');
+      waitForAlertAutoDismiss();
+      verifyAlertDismissed();
     });
 
     it('should allow recovery after 404 error when devices become available again', () => {
@@ -304,12 +306,9 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       cy.wait(`@${API_ROUTE_ALIASES.FIND_DEVICES}`);
 
       // Verify error alert shows
-      cy.get(ALERT_SELECTORS.container)
-        .should('be.visible')
-        .within(() => {
-          cy.get(ALERT_SELECTORS.message).should('contain.text', errorTitle);
-          cy.get(ALERT_SELECTORS.icon).should('contain.text', 'error');
-        });
+      verifyAlertVisible();
+      verifyAlertMessage(errorTitle);
+      verifyAlertSeverity(ALERT_SEVERITY.ERROR);
     });
 
     it('should handle network errors gracefully', () => {
@@ -326,7 +325,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       cy.wait(`@${API_ROUTE_ALIASES.FIND_DEVICES}`);
 
       // Verify error alert shows (may use fallback message)
-      cy.get(ALERT_SELECTORS.container).should('be.visible');
+      verifyAlertVisible();
     });
   });
 
@@ -353,11 +352,8 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
 
       // And: Alert shows error message
-      cy.get(ALERT_SELECTORS.container)
-        .should('be.visible')
-        .within(() => {
-          cy.get(ALERT_SELECTORS.message).should('contain.text', errorMessage);
-        });
+      verifyAlertVisible();
+      verifyAlertMessage(errorMessage);
 
       // And: Empty state message is shown
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage)
@@ -390,12 +386,9 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
 
       // And: Error alert is displayed
-      cy.get(ALERT_SELECTORS.container)
-        .should('be.visible')
-        .within(() => {
-          cy.get(ALERT_SELECTORS.message).should('contain.text', errorTitle);
-          cy.get(ALERT_SELECTORS.icon).should('contain.text', 'error');
-        });
+      verifyAlertVisible();
+      verifyAlertMessage(errorTitle);
+      verifyAlertSeverity(ALERT_SEVERITY.ERROR);
     });
 
     it('should hide busy dialog when bootstrap fails with network error', () => {
@@ -444,7 +437,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       });
 
       // Verify error state is visible
-      cy.get(ALERT_SELECTORS.container).should('be.visible');
+      verifyAlertVisible();
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage).should('be.visible');
       
       // Verify busy dialog is no longer showing

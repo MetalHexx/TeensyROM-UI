@@ -3,7 +3,6 @@
 export { INTERCEPT_ALIASES as API_ROUTE_ALIASES, DEVICE_ENDPOINTS, API_CONFIG, createProblemDetailsResponse } from '../../support/constants/api.constants';
 
 export {
-  ALERT_SELECTORS,
   BUSY_DIALOG_SELECTORS,
   DEVICE_CARD_SELECTORS,
   DEVICE_TOOLBAR_SELECTORS,
