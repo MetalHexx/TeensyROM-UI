@@ -29,6 +29,13 @@ import {
   clickNextButton,
   clickRandomButton,
   goBack,
+  verifyAlertVisible,
+  verifyAlertMessage,
+  verifyAlertSeverity,
+  dismissAlert,
+  waitForAlertAutoDismiss,
+  verifyAlertDismissed,
+  ALERT_SEVERITY,
 } from './test-helpers';
 
 describe('Deep Linking', () => {
@@ -261,6 +268,79 @@ describe('Deep Linking', () => {
         path: TEST_PATHS.GAMES,
         file: TEST_FILES.GAMES.PAC_MAN.fileName,
       });
+    });
+  });
+
+  describe('Deep Linking Error Handling', () => {
+    it('displays warning alert when file parameter does not match any file in directory', () => {
+      const missingFile = 'MissingFile.sid';
+
+      // Navigate with invalid file parameter
+      navigateToPlayerWithParams({
+        device: testDeviceId,
+        storage: TeensyStorageType.Sd,
+        path: TEST_PATHS.GAMES,
+        file: missingFile,
+      });
+
+      // Verify warning alert is displayed to the user
+      verifyAlertVisible();
+      verifyAlertMessage(`File "${missingFile}" not found in directory "${TEST_PATHS.GAMES}"`);
+      verifyAlertSeverity(ALERT_SEVERITY.WARNING);
+
+      // No file should be launched when file parameter is invalid
+      expectNoFileLaunched();
+    });
+
+    it('displays warning alert when directory path is invalid', () => {
+      const invalidPath = '/invalid/path';
+      const requestedFile = 'GhostsAndGoblins.crt';
+
+      // Force directory load to fail
+      interceptGetDirectory({ errorMode: true });
+
+      navigateToPlayerWithParams({
+        device: testDeviceId,
+        storage: TeensyStorageType.Sd,
+        path: invalidPath,
+        file: requestedFile,
+      });
+
+      verifyAlertVisible();
+      verifyAlertMessage(`Directory "${invalidPath}" could not be loaded or has no files`);
+      verifyAlertSeverity(ALERT_SEVERITY.WARNING);
+    });
+
+    it('allows dismissing deep linking error alerts', () => {
+      const missingFile = 'MissingFile.sid';
+
+      navigateToPlayerWithParams({
+        device: testDeviceId,
+        storage: TeensyStorageType.Sd,
+        path: TEST_PATHS.GAMES,
+        file: missingFile,
+      });
+
+      verifyAlertVisible();
+
+      dismissAlert();
+      verifyAlertDismissed();
+    });
+
+    it('auto-dismisses deep linking error alerts after timeout', () => {
+      const missingFile = 'MissingFile.sid';
+
+      navigateToPlayerWithParams({
+        device: testDeviceId,
+        storage: TeensyStorageType.Sd,
+        path: TEST_PATHS.GAMES,
+        file: missingFile,
+      });
+
+      verifyAlertVisible();
+
+      waitForAlertAutoDismiss(6000);
+      verifyAlertDismissed();
     });
   });
 });

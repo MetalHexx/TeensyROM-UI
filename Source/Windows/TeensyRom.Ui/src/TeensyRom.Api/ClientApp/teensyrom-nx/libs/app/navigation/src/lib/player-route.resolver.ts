@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { ResolveFn, ActivatedRouteSnapshot } from '@angular/router';
 import { StorageStore, PlayerContextService, DeviceStore } from '@teensyrom-nx/application';
-import { StorageType, LaunchMode } from '@teensyrom-nx/domain';
+import { StorageType, LaunchMode, AlertPosition, ALERT_SERVICE, IAlertService } from '@teensyrom-nx/domain';
 import { logInfo, logError, logWarn, LogType } from '@teensyrom-nx/utils';
 
 /**
@@ -29,9 +29,10 @@ export const playerRouteResolver: ResolveFn<void> = async (
   const storageStore = inject(StorageStore);
   const deviceStore = inject(DeviceStore);
   const playerContextService = inject(PlayerContextService);
+  const alertService = inject(ALERT_SERVICE);
 
   // Kick off initialization in background (fire-and-forget)
-  initPlayer(storageStore, deviceStore, playerContextService, route);
+  initPlayer(storageStore, deviceStore, playerContextService, alertService, route);
 
   logInfo(LogType.Info, 'Player route resolver: initialization started (non-blocking)');
 
@@ -49,11 +50,12 @@ async function initPlayer(
   storageStore: InstanceType<typeof StorageStore>,
   deviceStore: InstanceType<typeof DeviceStore>,
   playerContextService: PlayerContextService,
+  alertService: IAlertService,
   route: ActivatedRouteSnapshot
 ): Promise<void> {
   await waitForDeviceStoreInitialization(deviceStore);
   await initializeAllDeviceStorage(storageStore, deviceStore);
-  await initDeeplinking(storageStore, playerContextService, route);
+  await initDeeplinking(storageStore, playerContextService, alertService, route);
 }
 
 /**
@@ -132,6 +134,7 @@ async function initializeAllDeviceStorage(
 async function initDeeplinking(
   storageStore: InstanceType<typeof StorageStore>,
   playerContextService: PlayerContextService,
+  alertService: IAlertService,
   route: ActivatedRouteSnapshot
 ): Promise<void> {
   try {
@@ -193,9 +196,15 @@ async function initDeeplinking(
           logInfo(LogType.Success, `File launched: ${file}`);
         } else {
           logWarn(`File not found in directory: ${file}`);
+          alertService.warning(
+            `File "${file}" not found in directory "${path}"`
+          );
         }
       } else {
         logWarn(`Directory not loaded or has no files: ${path}`);
+        alertService.warning(
+          `Directory "${path}" could not be loaded or has no files`
+        );
       }
     }
 

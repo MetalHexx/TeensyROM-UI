@@ -8,6 +8,7 @@ import {
 } from '../../support/constants/selector.constants';
 
 export * from '../../support/helpers/alert.helpers';
+export { INTERCEPT_ALIASES as API_ROUTE_ALIASES } from '../../support/constants/api.constants';
 
 /**
  * Navigate to the player with optional query parameters

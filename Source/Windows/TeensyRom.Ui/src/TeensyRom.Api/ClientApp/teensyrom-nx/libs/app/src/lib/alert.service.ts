@@ -2,8 +2,8 @@ import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { IAlertService, AlertMessage, AlertSeverity, AlertPosition } from '@teensyrom-nx/domain';
 
-const DEFAULT_AUTO_DISMISS_MS = 3000;
-const DEFAULT_POSITION = AlertPosition.BottomRight;
+const DEFAULT_AUTO_DISMISS_MS = 5000;
+const DEFAULT_POSITION = AlertPosition.BottomCenter;
 
 @Injectable()
 export class AlertService implements IAlertService {
