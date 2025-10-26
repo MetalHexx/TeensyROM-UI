@@ -13,7 +13,7 @@
     </lib-progress-bar>
 
     <!-- Desktop Layout: Absolute centered file-info (>900px) -->
-    <div class="player-controls desktop-layout">
+    <div class="player-controls desktop-layout" data-testid="player-toolbar">
         <div class="playback-controls">
           <lib-icon-button
             icon="skip_previous"
@@ -78,7 +78,7 @@
     </div>
 
     <!-- Tablet Layout: Flexbox with file-info in remaining space (641px-900px) -->
-    <div class="player-controls tablet-layout">
+    <div class="player-controls tablet-layout" data-testid="player-toolbar">
         <div class="playback-controls">
           <lib-icon-button
             icon="skip_previous"
@@ -143,7 +143,7 @@
     </div>
 
     <!-- Mobile Layout: Stacked vertical (≤640px) -->
-    <div class="player-controls mobile-layout">
+    <div class="player-controls mobile-layout" data-testid="player-toolbar">
         <div class="playback-controls">
           <lib-icon-button
             icon="skip_previous"

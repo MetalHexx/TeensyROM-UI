@@ -36,14 +36,12 @@ export type ContainerAnimationDirection =
           opacity: 0,
           height: '{{ startHeight }}',
           width: '{{ startWidth }}',
-          overflow: 'hidden',
           transform: '{{ startTransform }}'
         }),
         animate('{{ duration }}ms {{ easing }}', style({
           opacity: 1,
           height: '{{ endHeight }}',
           width: '{{ endWidth }}',
-          overflow: 'visible',
           transform: '{{ endTransform }}'
         }))
       ], { params: { 
@@ -61,14 +59,12 @@ export type ContainerAnimationDirection =
           opacity: 0,
           height: '{{ startHeight }}',
           width: '{{ startWidth }}',
-          overflow: 'hidden',
           transform: '{{ startTransform }}'
         }),
         animate('{{ duration }}ms {{ easing }}', style({
           opacity: 1,
           height: '{{ endHeight }}',
           width: '{{ endWidth }}',
-          overflow: 'visible',
           transform: '{{ endTransform }}'
         }))
       ], { params: { 
@@ -86,7 +82,6 @@ export type ContainerAnimationDirection =
           opacity: 0,
           height: '{{ startHeight }}',
           width: '{{ startWidth }}',
-          overflow: 'hidden',
           transform: '{{ startTransform }}'
         }))
       ], { params: { 

@@ -49,6 +49,34 @@ export const DEVICE_ENDPOINTS = {
   },
 } as const;
 
+// Storage endpoints
+export const STORAGE_ENDPOINTS = {
+  GET_DIRECTORY: {
+    method: 'GET',
+    path: (deviceId: string, storageType: string) =>
+      `/devices/${deviceId}/storage/${storageType}/directories`,
+    full: (deviceId: string, storageType: string) =>
+      `${API_CONFIG.BASE_URL}/devices/${deviceId}/storage/${storageType}/directories`,
+    pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/directories*`,
+  },
+  SAVE_FAVORITE: {
+    method: 'POST',
+    path: (deviceId: string, storageType: string) =>
+      `/devices/${deviceId}/storage/${storageType}/favorite`,
+    full: (deviceId: string, storageType: string) =>
+      `${API_CONFIG.BASE_URL}/devices/${deviceId}/storage/${storageType}/favorite`,
+    pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/favorite*`,
+  },
+  REMOVE_FAVORITE: {
+    method: 'DELETE',
+    path: (deviceId: string, storageType: string) =>
+      `/devices/${deviceId}/storage/${storageType}/favorite`,
+    full: (deviceId: string, storageType: string) =>
+      `${API_CONFIG.BASE_URL}/devices/${deviceId}/storage/${storageType}/favorite`,
+    pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/favorite*`,
+  },
+} as const;
+
 // File endpoints
 export const FILE_ENDPOINTS = {
   GET_DIRECTORY: {
@@ -56,6 +84,26 @@ export const FILE_ENDPOINTS = {
     path: '/files/directory',
     full: `${API_CONFIG.BASE_URL}/files/directory`,
     pattern: `${API_CONFIG.BASE_URL}/files/directory*`,
+  },
+} as const;
+
+// Player endpoints
+export const PLAYER_ENDPOINTS = {
+  LAUNCH_FILE: {
+    method: 'POST',
+    path: (deviceId: string, storageType: string) =>
+      `/devices/${deviceId}/storage/${storageType}/launch`,
+    full: (deviceId: string, storageType: string) =>
+      `${API_CONFIG.BASE_URL}/devices/${deviceId}/storage/${storageType}/launch`,
+    pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/launch*`,
+  },
+  LAUNCH_RANDOM: {
+    method: 'POST',
+    path: (deviceId: string, storageType: string) =>
+      `/devices/${deviceId}/storage/${storageType}/random-launch`,
+    full: (deviceId: string, storageType: string) =>
+      `${API_CONFIG.BASE_URL}/devices/${deviceId}/storage/${storageType}/random-launch`,
+    pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/random-launch*`,
   },
 } as const;
 
@@ -95,6 +143,11 @@ export const INTERCEPT_ALIASES = {
   CONNECT_DEVICE: 'connectDevice',
   DISCONNECT_DEVICE: 'disconnectDevice',
   PING_DEVICE: 'pingDevice',
+  GET_DIRECTORY: 'getDirectory',
+  SAVE_FAVORITE: 'saveFavorite',
+  REMOVE_FAVORITE: 'removeFavorite',
+  LAUNCH_FILE: 'launchFile',
+  LAUNCH_RANDOM: 'launchRandom',
 } as const;
 
 // Error messages

@@ -2,11 +2,13 @@
   // When visible, put on top with high z-index
   &.visible {
     z-index: 1000;
+    overflow: visible;
   }
 
   // When hidden/animating out, put below with low z-index
   &.hidden {
     z-index: 1;
+    overflow: hidden;
   }
 }
 

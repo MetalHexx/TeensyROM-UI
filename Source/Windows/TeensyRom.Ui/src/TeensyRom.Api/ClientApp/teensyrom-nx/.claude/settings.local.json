@@ -21,7 +21,8 @@
       "Bash(npm run:*)",
       "Bash(npx vitest run:*)",
       "Bash(rm:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npx nx e2e:*)"
     ],
     "deny": [],
     "ask": []

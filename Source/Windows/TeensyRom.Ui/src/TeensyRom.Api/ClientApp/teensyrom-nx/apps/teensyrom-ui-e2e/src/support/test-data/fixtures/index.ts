@@ -23,3 +23,11 @@ export {
   threeDevicesFullIndexing,
   noDevicesForIndexing,
 } from './indexing.fixture';
+
+// Export storage favorites fixtures
+export {
+  alreadyFavoritedDirectory,
+  emptyFilesystem,
+  favoriteReadyDirectory,
+  mixedFavoritesDirectory,
+} from './storage-favorites.fixture';

@@ -66,6 +66,24 @@ export const DEVICE_TOOLBAR_SELECTORS = {
   pingContainer: '[data-testid="toolbar-button-ping-devices"]',
 } as const;
 
+// Player toolbar and controls (Deep Linking E2E tests)
+export const PLAYER_TOOLBAR_SELECTORS = {
+  toolbar: '[data-testid="player-toolbar"]',
+  previousButton: 'button[aria-label="Previous File"]',
+  playPauseButton: 'button[aria-label*="Pause"], button[aria-label*="Play"]',
+  stopButton: 'button[aria-label="Stop Playback"]',
+  nextButton: 'button[aria-label="Next File"]',
+  randomButton: '[data-testid="random-launch-button"]',
+  currentFileInfo: '[data-testid="current-file-info"]',
+} as const;
+
+// Directory files listing
+export const DIRECTORY_FILES_SELECTORS = {
+  directoryFilesContainer: 'lib-directory-files',
+  fileListItem: (filePath: string) => `[data-item-path="${filePath}"]`,
+  fileListItemsByPrefix: (pathPrefix: string) => `[data-item-path^="${pathPrefix}"]`,
+} as const;
+
 // Storage index buttons (indexing feature)
 export const STORAGE_INDEX_BUTTON_SELECTORS = {
   usb: getByTestId('storage-index-button-usb'),
@@ -120,6 +138,8 @@ export const UI_SELECTORS = {
   deviceView: DEVICE_VIEW_SELECTORS,
   deviceCard: DEVICE_CARD_SELECTORS,
   deviceToolbar: DEVICE_TOOLBAR_SELECTORS,
+  playerToolbar: PLAYER_TOOLBAR_SELECTORS,
+  directoryFiles: DIRECTORY_FILES_SELECTORS,
   storageIndexButton: STORAGE_INDEX_BUTTON_SELECTORS,
   buttons: BUTTON_SELECTORS,
   icons: ICON_CLASSES,

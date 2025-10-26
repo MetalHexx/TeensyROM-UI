@@ -13,6 +13,7 @@ export * from './competition.model';
 export * from './viewable-item-image.model';
 export * from './file-item-type.enum';
 export * from './storage-type.enum';
+export * from './storage-type.util';
 export * from './storage-directory.model';
 
 // Player models

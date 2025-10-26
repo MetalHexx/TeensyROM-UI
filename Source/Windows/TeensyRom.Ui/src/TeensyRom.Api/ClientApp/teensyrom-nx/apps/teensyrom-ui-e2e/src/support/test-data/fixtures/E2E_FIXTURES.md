@@ -605,6 +605,48 @@ describe('Device Connection Flow', () => {
 
 ## 🎯 Summary
 
+## 🎮 Storage Favorites Fixtures
+
+Task 3 introduces deterministic filesystem fixtures that build on the MockFilesystem core and Task 2 generators. These fixtures power Cypress favorite workflow tests and can be imported alongside device fixtures.
+
+### Summary Table
+
+| Fixture | Scenario | Favorites | Usage |
+|---------|----------|-----------|-------|
+| `emptyFilesystem` | Fresh filesystem | None | Baseline navigation, first favorite creation |
+| `favoriteReadyDirectory` | Identical to `emptyFilesystem`, semantic alias | None | Tests that jump directly into favoriting flow |
+| `alreadyFavoritedDirectory` | Pac-Man favorited | Game | Verifying favorite removal, UI badge display |
+| `mixedFavoritesDirectory` | Favorites across media types | Game, Song, Image | Synchronization checks, toolbar indicators |
+
+### Usage Guidelines
+
+- Fixtures return shared `MockFilesystem` instances. Call `reset()` before each test to rehydrate the seeded state.
+- Fixtures with pre-applied favorites override `reset()` to keep their scenario intact.
+- Use `createMockFilesystem(seed)` from generators when a unique one-off state is required.
+
+**Example:**
+
+```typescript
+import {
+  alreadyFavoritedDirectory,
+  mixedFavoritesDirectory,
+} from '../support/test-data/fixtures';
+
+beforeEach(() => {
+  alreadyFavoritedDirectory.reset();
+  mixedFavoritesDirectory.reset();
+});
+
+cy.intercept('GET', STORAGE_ENDPOINTS.directory, {
+  statusCode: 200,
+  body: mixedFavoritesDirectory.getDirectory('/games'),
+});
+```
+
+---
+
+## 🎯 Summary
+
 **Fixtures provide:**
 - ✅ Pre-built device scenarios ready for E2E tests
 - ✅ Deterministic, validated test data

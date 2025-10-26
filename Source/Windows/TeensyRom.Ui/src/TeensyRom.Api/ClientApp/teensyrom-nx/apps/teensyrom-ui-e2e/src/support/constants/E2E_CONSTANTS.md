@@ -95,6 +95,8 @@ cy.intercept(
 
 **Organized by component** to make finding the right selector obvious. Mix of `data-testid` attributes (preferred) and CSS class selectors (when needed).
 
+⚠️ **Important**: `data-testid` attributes should **only be added at component usage sites**, not as props in reusable component definitions. Update constants when component selectors change.
+
 **Usage**:
 ```typescript
 cy.get(DEVICE_CARD_SELECTORS.card).first().within(() => {
