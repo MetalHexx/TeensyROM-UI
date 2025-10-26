@@ -9,7 +9,8 @@ namespace TeensyRom.Core.Serial.Commands.FwVersionCheck
         {
             try
             {
-                r.Serial.Write([(byte)TeensyToken.VersionCheck.Value], 0, 1);
+                //r.Serial.Write([(byte)TeensyToken.VersionCheck.Value], 0, 1);
+                r.Serial.SendIntBytes(TeensyToken.Ping, 2);
                 var verionResponse = r.Serial.ReadAndLogSerialAsString(200);
                 var isTeensyRom = verionResponse.IsTeensyRom();
                 var (isCompatible, version) = GetVersion(verionResponse);
