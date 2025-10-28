@@ -45,6 +45,9 @@ describe('Deep Linking', () => {
   let testDeviceId: string;
 
   beforeEach(() => {
+    
+    cy.viewport(VIEWPORT.STANDARD.width, VIEWPORT.STANDARD.height);
+
     // Create deterministic mock filesystem with default seed
     filesystem = createMockFilesystem(MOCK_SEEDS.DEFAULT);
 
@@ -55,12 +58,11 @@ describe('Deep Linking', () => {
     interceptFindDevices({ fixture: singleDevice });
     interceptConnectDevice();
     interceptGetDirectory({ filesystem });
+    interceptLaunchFile({ filesystem });
   });
 
   describe('Route Resolution & Navigation', () => {
     it('navigates to directory without launching file', () => {
-      // Set viewport to ensure proper layout (same as smoke test)
-      cy.viewport(VIEWPORT.STANDARD.width, VIEWPORT.STANDARD.height);
 
       // Navigate to directory without file parameter
       navigateToPlayerWithParams({
@@ -97,8 +99,6 @@ describe('Deep Linking', () => {
     });
 
     it('auto-launches file when file parameter provided', () => {
-      // Set viewport to ensure proper layout
-      cy.viewport(VIEWPORT.STANDARD.width, VIEWPORT.STANDARD.height);
 
       // Setup file launch interceptor for this test
       interceptLaunchFile({ filesystem });
@@ -127,8 +127,6 @@ describe('Deep Linking', () => {
     });
 
     it('displays default view when no parameters provided', () => {
-      // Set viewport to ensure proper layout
-      cy.viewport(VIEWPORT.STANDARD.width, VIEWPORT.STANDARD.height);
 
       // Navigate to player with no parameters
       navigateToPlayerView();
@@ -146,8 +144,6 @@ describe('Deep Linking', () => {
 
   describe('URL Updates on User Actions', () => {
     it('updates URL when file clicked from directory', () => {
-      // Set viewport to ensure proper layout
-      cy.viewport(VIEWPORT.STANDARD.width, VIEWPORT.STANDARD.height);
 
       // Setup file launch interceptor for this test
       interceptLaunchFile({ filesystem });
@@ -222,8 +218,6 @@ describe('Deep Linking', () => {
     });
 
     it('updates URL when random file button clicked', () => {
-      // Set viewport to ensure proper layout
-      cy.viewport(VIEWPORT.STANDARD.width, VIEWPORT.STANDARD.height);
 
       // Get Donkey Kong file from filesystem for deterministic test
       const gamesDirectory = filesystem.getDirectory(TEST_PATHS.GAMES);
@@ -275,8 +269,7 @@ describe('Deep Linking', () => {
 
   describe('Browser History Navigation', () => {
     it('relaunches files when navigating back and forward', () => {
-      cy.viewport(VIEWPORT.STANDARD.width, VIEWPORT.STANDARD.height);
-
+      
       const gamesDirectory = filesystem.getDirectory(TEST_PATHS.GAMES);
       const donkeyKongFile = gamesDirectory.storageItem.files?.find(
         (f) => f.name === TEST_FILES.GAMES.DONKEY_KONG.fileName
