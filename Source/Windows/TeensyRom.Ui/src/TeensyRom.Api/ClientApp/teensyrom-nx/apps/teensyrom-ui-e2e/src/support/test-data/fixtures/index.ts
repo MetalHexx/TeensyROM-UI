@@ -24,10 +24,9 @@ export {
   noDevicesForIndexing,
 } from './indexing.fixture';
 
-// Export storage favorites fixtures
+// Export favorites fixtures
 export {
-  alreadyFavoritedDirectory,
-  emptyFilesystem,
-  favoriteReadyDirectory,
-  mixedFavoritesDirectory,
-} from './storage-favorites.fixture';
+  favoriteTestFiles,
+  favoriteTestDevice,
+  pacManNavigationParams,
+} from './favorites.fixture';

@@ -1,17 +1,18 @@
 /// <reference types="cypress" />
 
 import { APP_ROUTES } from '../../support/constants/app-routes.constants';
-import { ALERT_SELECTORS } from '../../support/constants/selector.constants';
+import { ALERT_SELECTORS, PLAYER_TOOLBAR_SELECTORS } from '../../support/constants/selector.constants';
 import { INTERCEPT_ALIASES } from '../../support/constants/api.constants';
 
+// Export favorite selectors for backward compatibility
+export const favoriteButtonSelector = PLAYER_TOOLBAR_SELECTORS.favoriteButton;
+
 const SELECTORS = {
-  favoriteButton: 'button[aria-label*="Favorites"]',
-  favoriteIcon: 'button[aria-label*="Favorites"] mat-icon',
+  favoriteButton: PLAYER_TOOLBAR_SELECTORS.favoriteButton,
+  favoriteIcon: PLAYER_TOOLBAR_SELECTORS.favoriteIcon,
   directoryTreeNode: 'mat-tree-node',
   fileListItem: '.file-list-item',
 };
-
-export const favoriteButtonSelector = SELECTORS.favoriteButton;
 
 function escapeForRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -22,14 +23,6 @@ function directoryNodeContains(text: string): Cypress.Chainable<JQuery<HTMLEleme
   return cy.get(SELECTORS.directoryTreeNode).filter((_idx, el) => pattern.test(el.textContent ?? ''));
 }
 
-export function navigateToPlayerView(): Cypress.Chainable<Cypress.AUTWindow> {
-  return cy.visit(APP_ROUTES.player, {
-    onBeforeLoad: (win) => {
-      win.localStorage.clear();
-      win.sessionStorage.clear();
-    },
-  });
-}
 
 export function loadFileInPlayer(filePath: string): Cypress.Chainable<Cypress.AUTWindow>;
 export function loadFileInPlayer(params: { deviceId?: string; storageType?: 'SD' | 'USB'; path?: string; filePath?: string }): Cypress.Chainable<Cypress.AUTWindow>;
@@ -92,6 +85,9 @@ export function expectFavoriteButtonDisabled(expectDisabled: boolean): void {
   const assertion: 'be.disabled' | 'not.be.disabled' = expectDisabled ? 'be.disabled' : 'not.be.disabled';
   cy.get(SELECTORS.favoriteButton).should(assertion);
 }
+
+// Import alert helpers for modern alert verification
+export * from '../../support/helpers/alert.helpers';
 
 export function verifyAlert(message: string): void {
   cy.get(ALERT_SELECTORS.container)

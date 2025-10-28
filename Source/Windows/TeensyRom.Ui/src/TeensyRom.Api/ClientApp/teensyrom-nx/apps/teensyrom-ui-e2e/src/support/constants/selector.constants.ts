@@ -74,6 +74,8 @@ export const PLAYER_TOOLBAR_SELECTORS = {
   stopButton: 'button[aria-label="Stop Playback"]',
   nextButton: 'button[aria-label="Next File"]',
   randomButton: '[data-testid="random-launch-button"]',
+  favoriteButton: '[data-testid="favorite-button"]',
+  favoriteIcon: '[data-testid="favorite-button"] mat-icon',
   currentFileInfo: '[data-testid="current-file-info"]',
 } as const;
 

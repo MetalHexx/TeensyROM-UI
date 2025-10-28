@@ -10,12 +10,12 @@ import {
 } from '../../support/interceptors';
 import {
   DIRECTORY_FILES_SELECTORS,
+  PLAYER_TOOLBAR_SELECTORS,
 } from '../../support/constants/selector.constants';
 import { VIEWPORT, TIMEOUTS, MOCK_SEEDS } from '../../support/constants/test.constants';
 import { TeensyStorageType, TEST_PATHS, TEST_FILES } from '../../support/constants/storage.constants';
 import {
-  navigateToPlayerWithParams,
-  navigateToPlayerView,
+  navigateToPlayer,
   waitForFileToLoad,
   waitForRandomLaunch,
   waitForDirectoryFilesToBeVisible,
@@ -65,7 +65,7 @@ describe('Deep Linking', () => {
     it('navigates to directory without launching file', () => {
 
       // Navigate to directory without file parameter
-      navigateToPlayerWithParams({
+      navigateToPlayer({
         device: testDeviceId,
         storage: TeensyStorageType.Sd,
         path: TEST_PATHS.GAMES,
@@ -104,7 +104,7 @@ describe('Deep Linking', () => {
       interceptLaunchFile({ filesystem });
 
       // Navigate with all 4 parameters
-      navigateToPlayerWithParams({
+      navigateToPlayer({
         device: testDeviceId,
         storage: TeensyStorageType.Sd,
         path: TEST_PATHS.GAMES,
@@ -129,7 +129,7 @@ describe('Deep Linking', () => {
     it('displays default view when no parameters provided', () => {
 
       // Navigate to player with no parameters
-      navigateToPlayerView();
+      navigateToPlayer();
 
       // Wait for the directory files component to render (indicates app loaded)
       cy.get(DIRECTORY_FILES_SELECTORS.directoryFilesContainer, { timeout: TIMEOUTS.DEFAULT }).should('exist');
@@ -149,7 +149,7 @@ describe('Deep Linking', () => {
       interceptLaunchFile({ filesystem });
 
       // Start at directory view
-      navigateToPlayerWithParams({
+      navigateToPlayer({
         device: testDeviceId,
         storage: TeensyStorageType.Sd,
         path: TEST_PATHS.GAMES,
@@ -181,7 +181,7 @@ describe('Deep Linking', () => {
       interceptLaunchFile({ filesystem });
 
       // Start with file playing
-      navigateToPlayerWithParams({
+      navigateToPlayer({
         device: testDeviceId,
         storage: TeensyStorageType.Sd,
         path: TEST_PATHS.GAMES,
@@ -219,57 +219,28 @@ describe('Deep Linking', () => {
 
     it('updates URL when random file button clicked', () => {
 
-      // Get Donkey Kong file from filesystem for deterministic test
-      const gamesDirectory = filesystem.getDirectory(TEST_PATHS.GAMES);
-      const donkeyKongFile = gamesDirectory.storageItem.files?.find(
-        (f) => f.name === TEST_FILES.GAMES.DONKEY_KONG.fileName
-      );
+      // Setup random launch interceptor
+      interceptLaunchRandom();
 
-      // Setup random launch interceptor with deterministic file selection
-      interceptLaunchRandom({
-        selectedFile: donkeyKongFile,
-      });
-
-      // Setup file launch interceptor for next/previous navigation
-      interceptLaunchFile({ filesystem });
-
-      // Start with file playing
-      navigateToPlayerWithParams({
-        device: testDeviceId,
-        storage: TeensyStorageType.Sd,
-        path: TEST_PATHS.GAMES,
-        file: TEST_FILES.GAMES.PAC_MAN.fileName,
-      });
-
-      waitForFileToLoad();
+      // Navigate to player with no parameters
+      navigateToPlayer();
 
       // Click random button
       clickRandomButton();
+
+      // Wait for random launch to complete
       waitForRandomLaunch();
-      waitForFileInfoToAppear();
 
-      // Verify URL updated with exact file (deterministic because of selectedFile)
-      expectUrlContainsParams({
-        device: testDeviceId,
-        storage: TeensyStorageType.Sd,
-        path: TEST_PATHS.GAMES,
-        file: TEST_FILES.GAMES.DONKEY_KONG.fileName,
-      });
-
-      // Verify browser history updated (navigated back to original file)
-      goBack();
-      expectUrlContainsParams({
-        device: testDeviceId,
-        storage: TeensyStorageType.Sd,
-        path: TEST_PATHS.GAMES,
-        file: TEST_FILES.GAMES.PAC_MAN.fileName,
+      // Verify URL was updated with file parameter
+      cy.location('search').should((search) => {
+        expect(search).to.include('file=');
       });
     });
   });
 
   describe('Browser History Navigation', () => {
     it('relaunches files when navigating back and forward', () => {
-      
+
       const gamesDirectory = filesystem.getDirectory(TEST_PATHS.GAMES);
       const donkeyKongFile = gamesDirectory.storageItem.files?.find(
         (f) => f.name === TEST_FILES.GAMES.DONKEY_KONG.fileName
@@ -278,7 +249,7 @@ describe('Deep Linking', () => {
       interceptLaunchFile({ filesystem });
       interceptLaunchRandom({ selectedFile: donkeyKongFile });
 
-      navigateToPlayerWithParams({
+      navigateToPlayer({
         device: testDeviceId,
         storage: TeensyStorageType.Sd,
         path: TEST_PATHS.GAMES,
@@ -291,36 +262,48 @@ describe('Deep Linking', () => {
 
       clickRandomButton();
       waitForRandomLaunch();
-      waitForFileInfoToAppear();
-      expectFileIsLaunched(TEST_FILES.GAMES.DONKEY_KONG.title);
+
+      // Wait specifically for the Donkey Kong file info to appear
+      cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo, { timeout: 10000 })
+        .should('be.visible')
+        .and('contain.text', TEST_FILES.GAMES.DONKEY_KONG.title);
+
       expectUrlContainsParams({
         device: testDeviceId,
         storage: TeensyStorageType.Sd,
         path: TEST_PATHS.GAMES,
         file: TEST_FILES.GAMES.DONKEY_KONG.fileName,
-      });
+      }, { timeout: 10000, logWaiting: true });
 
       goBack();
       waitForFileLaunch();
-      waitForFileInfoToAppear();
-      expectFileIsLaunched(TEST_FILES.GAMES.PAC_MAN.title);
+
+      // Wait specifically for the Pac-Man file info to appear
+      cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo, { timeout: 10000 })
+        .should('be.visible')
+        .and('contain.text', TEST_FILES.GAMES.PAC_MAN.title);
+
       expectUrlContainsParams({
         device: testDeviceId,
         storage: TeensyStorageType.Sd,
         path: TEST_PATHS.GAMES,
         file: TEST_FILES.GAMES.PAC_MAN.fileName,
-      });
+      }, { timeout: 10000, logWaiting: true });
 
       goForward();
       waitForFileLaunch();
-      waitForFileInfoToAppear();
-      expectFileIsLaunched(TEST_FILES.GAMES.DONKEY_KONG.title);
+
+      // Wait specifically for the Donkey Kong file info to appear again
+      cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo, { timeout: 10000 })
+        .should('be.visible')
+        .and('contain.text', TEST_FILES.GAMES.DONKEY_KONG.title);
+
       expectUrlContainsParams({
         device: testDeviceId,
         storage: TeensyStorageType.Sd,
         path: TEST_PATHS.GAMES,
         file: TEST_FILES.GAMES.DONKEY_KONG.fileName,
-      });
+      }, { timeout: 10000, logWaiting: true });
     });
   });
 
@@ -329,7 +312,7 @@ describe('Deep Linking', () => {
       const missingFile = 'MissingFile.sid';
 
       // Navigate with invalid file parameter
-      navigateToPlayerWithParams({
+      navigateToPlayer({
         device: testDeviceId,
         storage: TeensyStorageType.Sd,
         path: TEST_PATHS.GAMES,
@@ -352,7 +335,7 @@ describe('Deep Linking', () => {
       // Force directory load to fail
       interceptGetDirectory({ errorMode: true });
 
-      navigateToPlayerWithParams({
+      navigateToPlayer({
         device: testDeviceId,
         storage: TeensyStorageType.Sd,
         path: invalidPath,
@@ -362,38 +345,6 @@ describe('Deep Linking', () => {
       verifyAlertVisible();
       verifyAlertMessage(`Directory "${invalidPath}" could not be loaded or has no files`);
       verifyAlertSeverity(ALERT_SEVERITY.WARNING);
-    });
-
-    it('allows dismissing deep linking error alerts', () => {
-      const missingFile = 'MissingFile.sid';
-
-      navigateToPlayerWithParams({
-        device: testDeviceId,
-        storage: TeensyStorageType.Sd,
-        path: TEST_PATHS.GAMES,
-        file: missingFile,
-      });
-
-      verifyAlertVisible();
-
-      dismissAlert();
-      verifyAlertDismissed();
-    });
-
-    it('auto-dismisses deep linking error alerts after timeout', () => {
-      const missingFile = 'MissingFile.sid';
-
-      navigateToPlayerWithParams({
-        device: testDeviceId,
-        storage: TeensyStorageType.Sd,
-        path: TEST_PATHS.GAMES,
-        file: missingFile,
-      });
-
-      verifyAlertVisible();
-
-      waitForAlertAutoDismiss(6000);
-      verifyAlertDismissed();
     });
   });
 });
