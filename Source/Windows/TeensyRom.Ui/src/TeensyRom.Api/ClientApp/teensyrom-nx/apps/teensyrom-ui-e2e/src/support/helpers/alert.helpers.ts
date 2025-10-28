@@ -118,7 +118,7 @@ export function dismissAlert(): void {
  * @example
  * waitForAlertAutoDismiss();
  */
-export function waitForAlertAutoDismiss(timeoutMs = 3500): void {
+export function waitForAlertAutoDismiss(timeoutMs = 5500): void {
   cy.get(ALERT_SELECTORS.container).should('exist');
   cy.get(ALERT_SELECTORS.container, { timeout: timeoutMs }).should('not.exist');
 }

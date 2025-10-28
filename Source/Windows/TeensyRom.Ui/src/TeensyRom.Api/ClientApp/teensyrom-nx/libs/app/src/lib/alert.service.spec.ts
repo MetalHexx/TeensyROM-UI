@@ -35,8 +35,8 @@ describe('AlertService', () => {
       expect(capturedAlerts[0]).toMatchObject({
         message: 'Test message',
         severity: AlertSeverity.Success,
-        position: AlertPosition.BottomRight,
-        autoDismissMs: 3000,
+        position: AlertPosition.BottomCenter,
+        autoDismissMs: 5000,
       });
 
       subscription.unsubscribe();
@@ -193,7 +193,7 @@ describe('AlertService', () => {
         expect(capturedAlerts.length).toBe(1);
       });
 
-      vi.advanceTimersByTime(3000);
+      vi.advanceTimersByTime(5000);
 
       await vi.waitFor(() => {
         expect(capturedAlerts.length).toBe(0);
@@ -248,7 +248,7 @@ describe('AlertService', () => {
         expect(capturedAlerts.length).toBe(0);
       });
 
-      vi.advanceTimersByTime(3000);
+      vi.advanceTimersByTime(5000);
 
       expect(capturedAlerts.length).toBe(0);
 
