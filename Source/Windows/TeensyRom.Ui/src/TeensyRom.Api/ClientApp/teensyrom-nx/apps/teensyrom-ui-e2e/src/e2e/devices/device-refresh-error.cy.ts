@@ -49,6 +49,7 @@ import {
   interceptFindDevices,
   FIND_DEVICES_ENDPOINT,
   FIND_DEVICES_ALIAS,
+  waitForFindDevices,
   interceptFindDevicesNotFound,
   interceptFindDevicesInternalServerError,
   interceptFindDevicesWithNetworkError
@@ -82,7 +83,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       clickRefreshDevices();
 
       // Then: The API returns 404 with ProblemDetails
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // And: An alert popup appears with the error message from title field
       verifyAlertVisible();
@@ -104,7 +105,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
 
       // When: We click the refresh devices button
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Then: The device cards should be gone
       cy.get(DEVICE_CARD_SELECTORS.card).should('not.exist');
@@ -125,7 +126,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
 
       // When: Refresh is clicked
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Then: We now see a "No Devices Found" label
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage)
@@ -142,7 +143,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
 
       // When: Refresh is clicked
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Then: The busy dialog disappears
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
@@ -160,7 +161,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
 
       // When: Refresh is clicked
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Then: Alert shows the title message (user-friendly) not the detail (technical)
       verifyAlertMessage(errorMessage);
@@ -181,7 +182,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
 
       // When: Refresh is clicked
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Then: Alert falls back to detail message
       verifyAlertMessage(detailMessage);
@@ -193,7 +194,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
 
       // Trigger error
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Verify alert visible
       verifyAlertVisible();
@@ -214,7 +215,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
 
       // Trigger error
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Verify alert visible
       verifyAlertVisible();
@@ -235,7 +236,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       ).as(FIND_DEVICES_ALIAS);
 
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Verify no devices state
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage).should('be.visible');
@@ -266,7 +267,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       interceptFindDevicesInternalServerError(errorTitle);
 
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Verify error alert shows
       verifyAlertVisible();
@@ -279,7 +280,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       interceptFindDevicesWithNetworkError();
 
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Verify error alert shows (may use fallback message)
       verifyAlertVisible();
@@ -297,7 +298,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       navigateToDeviceView();
 
       // Wait for the API call to complete
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Then: Busy dialog should be hidden
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
@@ -325,7 +326,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
 
       // Navigate to device view (triggers bootstrap)
       navigateToDeviceView();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Then: Busy dialog should be hidden
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
@@ -348,7 +349,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
 
       // Navigate to device view
       navigateToDeviceView();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Then: Busy dialog should be hidden
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
@@ -373,7 +374,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       navigateToDeviceView();
 
       // Wait for API call to complete
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Verify bootstrap completes quickly (within 2 seconds total)
       cy.then(() => {
@@ -400,7 +401,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       ).as(FIND_DEVICES_ALIAS);
 
       navigateToDeviceView();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Verify error state
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');

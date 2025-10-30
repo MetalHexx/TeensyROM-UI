@@ -68,7 +68,7 @@ import {
 import {
   interceptFindDevices,
   interceptFindDevicesWithDelay,
-  FIND_DEVICES_ALIAS,
+  waitForFindDevices,
 } from '../../support/interceptors/findDevices.interceptors';
 import {
   interceptConnectDevice,
@@ -621,7 +621,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       // Click refresh - should fail
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // When refresh fails, the device list is cleared (intended behavior)
       verifyDeviceCount(0);
@@ -643,7 +643,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       // Perform refresh with error mode
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // When refresh fails, the device list is cleared (intended behavior)
       verifyDeviceCount(0);
@@ -660,7 +660,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       // Perform refresh
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // When refresh fails, the device list is cleared (intended behavior)
       // Error message display validation in Phase 4 (alerts)
@@ -676,7 +676,7 @@ describe('Device Connection - Refresh & Recovery', () => {
       // First refresh fails (error mode) - device list is cleared
       interceptFindDevices({ errorMode: true });
       clickRefreshDevices();
-      cy.wait(`@${FIND_DEVICES_ALIAS}`);
+      waitForFindDevices();
 
       // Verify device list is empty after failed refresh
       verifyDeviceCount(0);

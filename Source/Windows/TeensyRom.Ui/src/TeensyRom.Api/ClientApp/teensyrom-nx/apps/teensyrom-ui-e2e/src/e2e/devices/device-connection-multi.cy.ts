@@ -54,6 +54,7 @@ import {
 import {
   interceptConnectDevice,
   CONNECT_DEVICE_ALIAS,
+  waitForConnectDevice,
 } from '../../support/interceptors/connectDevice.interceptors';
 import {
   multipleDevices,
@@ -323,17 +324,17 @@ describe('Device Connection - Multi-Device', () => {
 
       // Connect device 1 and wait for API call
       clickPowerButton(0);
-      cy.wait(`@${CONNECT_DEVICE_ALIAS}`);
+      waitForConnectDevice();
       verifyConnected(0);
 
       // Connect device 2 and wait for API call
       clickPowerButton(1);
-      cy.wait(`@${CONNECT_DEVICE_ALIAS}`);
+      waitForConnectDevice();
       verifyConnected(1);
 
       // Connect device 3 and wait for API call
       clickPowerButton(2);
-      cy.wait(`@${CONNECT_DEVICE_ALIAS}`);
+      waitForConnectDevice();
       verifyConnected(2);
 
       // If we got here without timeout, all 3 API calls were made successfully

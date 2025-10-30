@@ -4,8 +4,8 @@ import { singleDevice } from '../../support/test-data/fixtures';
 import { interceptConnectDevice } from '../../support/interceptors/connectDevice.interceptors';
 import { interceptFindDevices } from '../../support/interceptors/findDevices.interceptors';
 import { interceptGetDirectory } from '../../support/interceptors/getDirectory.interceptors';
-import { interceptSaveFavorite } from '../../support/interceptors/saveFavorite.interceptors';
-import { interceptRemoveFavorite } from '../../support/interceptors/removeFavorite.interceptors';
+import { interceptSaveFavorite, waitForSaveFavorite } from '../../support/interceptors/saveFavorite.interceptors';
+import { interceptRemoveFavorite, waitForRemoveFavorite } from '../../support/interceptors/removeFavorite.interceptors';
 import { interceptLaunchFile } from '../../support/interceptors/launchFile.interceptors';
 import { VIEWPORT, MOCK_SEEDS } from '../../support/constants/test.constants';
 import { TeensyStorageType, TEST_FILES, TEST_PATHS } from '../../support/constants/storage.constants';
@@ -178,7 +178,7 @@ describe('Favorites Functionality', () => {
       // WHEN: User clicks favorite button and API call fails
       cy.log('About to click favorite button expecting error');
       clickFavoriteButton();
-      cy.wait('@saveFavorite');
+      waitForSaveFavorite();
 
       // THEN: Error alert appears with failure message
       verifyErrorAlertDisplayed('Bad Request');
@@ -213,7 +213,7 @@ describe('Favorites Functionality', () => {
       // WHEN: User clicks favorite button and API call fails
       cy.log('About to click favorite button expecting remove error');
       clickFavoriteButton();
-      cy.wait('@removeFavorite');
+      waitForRemoveFavorite();
 
       // THEN: Error alert appears with failure message
       verifyErrorAlertDisplayed('Bad Request');
