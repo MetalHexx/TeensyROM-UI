@@ -1,49 +1,41 @@
 ---
-description: Validate code changes with git diff, linting, type checking, and tests
+description: Run code audit tool to detect and fix errors in changed files
 ---
 
-# Code Validation Workflow
+Run the code audit tool to check for ESLint and TypeScript errors in modified files, then iteratively fix them until all issues are resolved.
 
-## 1. Establish Test Baseline
-Running initial test baseline to establish current state...
+## Process
 
-```bash
-echo "🔍 Establishing test baseline..."
-npx nx test teensyrom-ui --runInBand --coverage=false
-```
+1. Run the audit tool to detect issues in changed files:
+   ```bash
+   pnpm run audit:code
+   ```
 
-## 2. Show Git Changes
-Displaying what files have changed...
+2. Read the generated `code-audit.md` report to see what errors/warnings were found.
 
-```bash
-echo "📝 Showing git diff..."
-git diff --name-only HEAD~1
-git diff
-```
+3. For each file with issues:
+   - Analyze the errors and warnings reported
+   - Fix the issues by editing the files
+   - Focus on one file at a time to ensure quality fixes
 
-## 3. Run Linting
-Checking for linting errors...
+4. After fixing issues, re-run the audit tool to verify the fixes worked:
+   ```bash
+   pnpm run audit:code
+   ```
 
-```bash
-echo "✨ Running linting..."
-npx nx lint teensyrom-ui
-```
+5. Repeat steps 2-4 until the audit report shows **"All files passed audit!"**
 
-## 4. TypeScript Type Checking
-Validating TypeScript compilation...
+6. If you encounter any issues you cannot fix automatically (complex logic changes, architectural decisions, or ambiguous requirements), report back to the user with:
+   - The specific file and line number
+   - The error/warning message
+   - Why you need guidance (e.g., "This requires a design decision about..." or "This change might affect business logic...")
+   - Suggested approaches if applicable
 
-```bash
-echo "🔷 Running TypeScript type check..."
-npx nx typecheck teensyrom-ui
-```
+## Important Notes
 
-## 5. Test Affected Projects
-Re-running tests on changed code...
-
-```bash
-echo "🧪 Running tests on affected projects..."
-npx nx test --affected
-```
-
-## Summary
-All validations complete! Fix any errors shown above before committing your changes.
+- The tool checks **only changed files** (staged, unstaged, and untracked)
+- It reports both ESLint errors/warnings AND TypeScript compilation errors
+- Continue the cycle until zero issues remain
+- Do not skip warnings - treat them as errors that need fixing
+- After all issues are resolved, confirm success by showing the final clean report
+- Delete the @code-audit.md once completed.

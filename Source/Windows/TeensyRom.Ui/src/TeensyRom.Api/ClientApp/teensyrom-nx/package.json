@@ -9,7 +9,8 @@
     "vite": "vite",
     "format": "prettier --write \"**/*.{ts,js,json,md,html,scss}\"",
     "lint": "nx lint",
-    "precommit:lintstaged": "pnpm dlx lint-staged"
+    "precommit:lintstaged": "pnpm dlx lint-staged",
+    "audit:code": "node --no-warnings --loader ts-node/esm tools/audit-code.ts"
   },
   "lint-staged": {
     "*.{ts,js}": [
