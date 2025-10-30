@@ -1,18 +1,17 @@
 /// <reference types="cypress" />
 
 import { APP_ROUTES } from '../../support/constants/app-routes.constants';
-import { INTERCEPT_ALIASES } from '../../support/constants/api.constants';
-import { TeensyStorageType, TEST_FILES, TEST_PATHS } from '../../support/constants/storage.constants';
+import { TeensyStorageType, TEST_PATHS } from '../../support/constants/storage.constants';
 import {
   PLAYER_TOOLBAR_SELECTORS,
   DIRECTORY_FILES_SELECTORS
 } from '../../support/constants/selector.constants';
-import { interceptSaveFavorite, interceptRemoveFavorite } from '../../support/interceptors/storage.interceptors';
+import { interceptSaveFavorite } from '../../support/interceptors/saveFavorite.interceptors';
+import { interceptRemoveFavorite } from '../../support/interceptors/removeFavorite.interceptors';
 import { verifyAlertVisible, verifyAlertMessage, verifyAlertIcon, verifyAlertSeverity } from '../../support/helpers/alert.helpers';
 import type MockFilesystem from '../../support/test-data/mock-filesystem/mock-filesystem';
 
 export * from '../../support/helpers/alert.helpers';
-export { INTERCEPT_ALIASES as API_ROUTE_ALIASES } from '../../support/constants/api.constants';
 
 /**
  * Navigate to the player with optional query parameters
@@ -163,7 +162,7 @@ export function verifyFileInDirectory(filePath: string, shouldBeVisible = true):
  * Wait for directory to load (GET_DIRECTORY API call completes)
  */
 export function waitForDirectoryLoad(): void {
-  cy.wait(`@${INTERCEPT_ALIASES.GET_DIRECTORY}`);
+  cy.wait('@getDirectory');
 }
 
 /**
@@ -180,21 +179,21 @@ export function waitForDirectoryFilesToBeVisible(pathPrefix = '/'): void {
  * Wait for file metadata to load after launch (GET_DIRECTORY API call completes)
  */
 export function waitForFileToLoad(): void {
-  cy.wait(`@${INTERCEPT_ALIASES.GET_DIRECTORY}`);
+  cy.wait('@getDirectory');
 }
 
 /**
  * Wait for file launch API call to complete (LAUNCH_FILE interceptor)
  */
 export function waitForFileLaunch(timeout = 10000): void {
-  cy.wait(`@${INTERCEPT_ALIASES.LAUNCH_FILE}`, { timeout });
+  cy.wait('@launchFile', { timeout });
 }
 
 /**
  * Wait for random file launch API call to complete (LAUNCH_RANDOM interceptor)
  */
 export function waitForRandomLaunch(): void {
-  cy.wait(`@${INTERCEPT_ALIASES.LAUNCH_RANDOM}`);
+  cy.wait('@launchRandom');
 }
 
 /**
@@ -227,28 +226,28 @@ export function goForward(): void {
  * Wait for device discovery to complete (FIND_DEVICES API call)
  */
 export function waitForDeviceDiscovery(): void {
-  cy.wait(`@${INTERCEPT_ALIASES.FIND_DEVICES}`);
+  cy.wait('@findDevices');
 }
 
 /**
  * Wait for device connection to complete (CONNECT_DEVICE API call)
  */
 export function waitForDeviceConnection(): void {
-  cy.wait(`@${INTERCEPT_ALIASES.CONNECT_DEVICE}`);
+  cy.wait('@connectDevice');
 }
 
 /**
  * Wait for save favorite API call to complete (SAVE_FAVORITE API call)
  */
 export function waitForSaveFavorite(timeout = 10000): void {
-  cy.wait(`@${INTERCEPT_ALIASES.SAVE_FAVORITE}`, { timeout });
+  cy.wait('@saveFavorite', { timeout });
 }
 
 /**
  * Wait for remove favorite API call to complete (REMOVE_FAVORITE API call)
  */
 export function waitForRemoveFavorite(timeout = 10000): void {
-  cy.wait(`@${INTERCEPT_ALIASES.REMOVE_FAVORITE}`, { timeout });
+  cy.wait('@removeFavorite', { timeout });
 }
 
 /**

@@ -1,17 +1,12 @@
 import type MockFilesystem from '../../support/test-data/mock-filesystem/mock-filesystem';
 import { createMockFilesystem } from '../../support/test-data/generators/storage.generators';
 import { singleDevice } from '../../support/test-data/fixtures';
-import {
-  interceptConnectDevice,
-  interceptFindDevices,
-  interceptGetDirectory,
-  interceptLaunchFile,
-  interceptLaunchRandom,
-} from '../../support/interceptors';
-import {
-  DIRECTORY_FILES_SELECTORS,
-  PLAYER_TOOLBAR_SELECTORS,
-} from '../../support/constants/selector.constants';
+import { interceptConnectDevice } from '../../support/interceptors/connectDevice.interceptors';
+import { interceptFindDevices } from '../../support/interceptors/findDevices.interceptors';
+import { interceptGetDirectory } from '../../support/interceptors/getDirectory.interceptors';
+import { interceptLaunchFile } from '../../support/interceptors/launchFile.interceptors';
+import { interceptLaunchRandom } from '../../support/interceptors/launchRandom.interceptors';
+import { DIRECTORY_FILES_SELECTORS, PLAYER_TOOLBAR_SELECTORS } from '../../support/constants/selector.constants';
 import { VIEWPORT, TIMEOUTS, MOCK_SEEDS } from '../../support/constants/test.constants';
 import { TeensyStorageType, TEST_PATHS, TEST_FILES } from '../../support/constants/storage.constants';
 import {
@@ -34,9 +29,6 @@ import {
   verifyAlertVisible,
   verifyAlertMessage,
   verifyAlertSeverity,
-  dismissAlert,
-  waitForAlertAutoDismiss,
-  verifyAlertDismissed,
   ALERT_SEVERITY,
 } from './test-helpers';
 
@@ -102,6 +94,7 @@ describe('Deep Linking', () => {
 
       // Setup file launch interceptor for this test
       interceptLaunchFile({ filesystem });
+      interceptGetDirectory({ filesystem });
 
       // Navigate with all 4 parameters
       navigateToPlayer({
@@ -173,12 +166,13 @@ describe('Deep Linking', () => {
         storage: TeensyStorageType.Sd,
         path: TEST_PATHS.GAMES,
         file: TEST_FILES.GAMES.PAC_MAN.fileName,
-      }, TIMEOUTS.DEFAULT);
+      }, { timeout: TIMEOUTS.DEFAULT });
     });
 
     it('updates URL when next file button clicked', () => {
       // Setup file launch interceptor for this test
       interceptLaunchFile({ filesystem });
+      interceptGetDirectory({ filesystem });
 
       // Start with file playing
       navigateToPlayer({
@@ -248,6 +242,7 @@ describe('Deep Linking', () => {
 
       interceptLaunchFile({ filesystem });
       interceptLaunchRandom({ selectedFile: donkeyKongFile });
+      interceptGetDirectory({ filesystem });
 
       navigateToPlayer({
         device: testDeviceId,

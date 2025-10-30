@@ -11,13 +11,12 @@ import {
   getDeviceCard,
   DEVICE_VIEW_SELECTORS,
   DEVICE_CARD_SELECTORS,
-  DEVICE_ENDPOINTS,
-  API_ROUTE_ALIASES,
   CSS_CLASSES,
 } from './test-helpers';
 import {
   interceptFindDevices,
-} from '../../support/interceptors/device.interceptors';
+  interceptFindDevicesWithDelay,
+} from '../../support/interceptors/findDevices.interceptors';
 import {
   singleDevice,
   multipleDevices,
@@ -25,7 +24,7 @@ import {
   disconnectedDevice,
   unavailableStorageDevice,
   mixedStateDevices,
-} from '../../support/test-data/fixtures/devices.fixture';
+} from '../../support/test-data/fixtures';
 
 describe('Device Discovery E2E Tests', () => {
   // =========================================================================
@@ -294,16 +293,7 @@ describe('Device Discovery E2E Tests', () => {
   describe('Loading States', () => {
     it('should show loading indicator during API call', () => {
       // Set up interceptor with delay to capture loading state
-      cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.method, DEVICE_ENDPOINTS.FIND_DEVICES.pattern, (req) => {
-        req.reply({
-          delay: 500,
-          statusCode: 200,
-          body: {
-            devices: singleDevice.devices,
-            message: 'Found 1 device(s)',
-          },
-        });
-      }).as(API_ROUTE_ALIASES.FIND_DEVICES);
+      interceptFindDevicesWithDelay(500, singleDevice);
 
       navigateToDeviceView();
 
@@ -321,16 +311,7 @@ describe('Device Discovery E2E Tests', () => {
     });
 
     it('should not show devices while loading', () => {
-      cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.method, DEVICE_ENDPOINTS.FIND_DEVICES.pattern, (req) => {
-        req.reply({
-          delay: 800,
-          statusCode: 200,
-          body: {
-            devices: singleDevice.devices,
-            message: 'Found 1 device(s)',
-          },
-        });
-      }).as(API_ROUTE_ALIASES.FIND_DEVICES);
+      interceptFindDevicesWithDelay(800, singleDevice);
 
       navigateToDeviceView();
 
@@ -340,16 +321,7 @@ describe('Device Discovery E2E Tests', () => {
 
     it('should transition from loading to content', () => {
       // Use inline interceptor with delay to capture loading state
-      cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.method, DEVICE_ENDPOINTS.FIND_DEVICES.pattern, (req) => {
-        req.reply({
-          delay: 500,
-          statusCode: 200,
-          body: {
-            devices: singleDevice.devices,
-            message: 'Found 1 device(s)',
-          },
-        });
-      }).as(API_ROUTE_ALIASES.FIND_DEVICES);
+      interceptFindDevicesWithDelay(500, singleDevice);
 
       navigateToDeviceView();
 

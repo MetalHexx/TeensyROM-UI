@@ -1,6 +1,9 @@
 /// <reference types="cypress" />
 
-export { INTERCEPT_ALIASES as API_ROUTE_ALIASES, DEVICE_ENDPOINTS, API_CONFIG, createProblemDetailsResponse } from '../../support/constants/api.constants';
+export { API_CONFIG, createProblemDetailsResponse } from '../../support/constants/api.constants';
+
+// Note: DEVICE_ENDPOINTS has been removed - please use individual interceptor imports
+// Example: import { interceptFindDevices, FIND_DEVICES_ALIAS } from '../../support/interceptors/findDevices.interceptors';
 
 export {
   BUSY_DIALOG_SELECTORS,
@@ -22,7 +25,9 @@ export {
 
 import { DEVICE_CARD_SELECTORS, DEVICE_VIEW_SELECTORS } from '../../support/constants/selector.constants';
 import { CONSTANTS, DOM_ATTRIBUTES, CSS_CLASSES } from '../../support/constants/selector.constants';
-import { INTERCEPT_ALIASES } from '../../support/constants/api.constants';
+import { FIND_DEVICES_ALIAS } from '../../support/interceptors/findDevices.interceptors';
+import { CONNECT_DEVICE_ALIAS } from '../../support/interceptors/connectDevice.interceptors';
+import { DISCONNECT_DEVICE_ALIAS } from '../../support/interceptors/disconnectDevice.interceptors';
 import { APP_ROUTES } from '../../support/constants/app-routes.constants';
 
 // Helper functions
@@ -37,11 +42,15 @@ export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
 }
 
 export function waitForDeviceDiscovery(timeout = 10000): void {
-  cy.wait(`@${INTERCEPT_ALIASES.FIND_DEVICES}`, { timeout });
+  cy.wait(`@${FIND_DEVICES_ALIAS}`, { timeout });
 }
 
 export function getDeviceCard(index: number): Cypress.Chainable<JQuery<HTMLElement>> {
   return cy.get(DEVICE_CARD_SELECTORS.card).eq(index);
+}
+
+export function expectDeviceCardVisible(index: number): void {
+  getDeviceCard(index).should('be.visible');
 }
 
 /**
@@ -189,11 +198,11 @@ export function clickPowerButton(deviceIndex: number): void {
 }
 
 export function waitForConnection(timeout = CONSTANTS.DEFAULT_TIMEOUT): void {
-  cy.wait(`@${INTERCEPT_ALIASES.CONNECT_DEVICE}`, { timeout });
+  cy.wait(`@${CONNECT_DEVICE_ALIAS}`, { timeout });
 }
 
 export function waitForDisconnection(timeout = CONSTANTS.DEFAULT_TIMEOUT): void {
-  cy.wait(`@${INTERCEPT_ALIASES.DISCONNECT_DEVICE}`, { timeout });
+  cy.wait(`@${DISCONNECT_DEVICE_ALIAS}`, { timeout });
 }
 
 export function verifyConnected(deviceIndex: number): void {

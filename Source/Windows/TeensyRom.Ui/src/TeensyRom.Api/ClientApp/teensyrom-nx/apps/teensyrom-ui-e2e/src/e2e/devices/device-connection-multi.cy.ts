@@ -43,14 +43,18 @@ import {
   verifyConnected,
   verifyDisconnected,
   DEVICE_CARD_SELECTORS,
-  API_ROUTE_ALIASES,
   ICON_CLASSES,
 } from './test-helpers';
 import {
   interceptFindDevices,
-  interceptConnectDevice,
+} from '../../support/interceptors/findDevices.interceptors';
+import {
   interceptDisconnectDevice,
-} from '../../support/interceptors/device.interceptors';
+} from '../../support/interceptors/disconnectDevice.interceptors';
+import {
+  interceptConnectDevice,
+  CONNECT_DEVICE_ALIAS,
+} from '../../support/interceptors/connectDevice.interceptors';
 import {
   multipleDevices,
   threeDisconnectedDevices,
@@ -319,17 +323,17 @@ describe('Device Connection - Multi-Device', () => {
 
       // Connect device 1 and wait for API call
       clickPowerButton(0);
-      cy.wait(`@${API_ROUTE_ALIASES.CONNECT_DEVICE}`);
+      cy.wait(`@${CONNECT_DEVICE_ALIAS}`);
       verifyConnected(0);
 
       // Connect device 2 and wait for API call
       clickPowerButton(1);
-      cy.wait(`@${API_ROUTE_ALIASES.CONNECT_DEVICE}`);
+      cy.wait(`@${CONNECT_DEVICE_ALIAS}`);
       verifyConnected(1);
 
       // Connect device 3 and wait for API call
       clickPowerButton(2);
-      cy.wait(`@${API_ROUTE_ALIASES.CONNECT_DEVICE}`);
+      cy.wait(`@${CONNECT_DEVICE_ALIAS}`);
       verifyConnected(2);
 
       // If we got here without timeout, all 3 API calls were made successfully

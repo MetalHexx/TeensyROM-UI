@@ -5,7 +5,7 @@ import {
   type FileItemType as FileItemTypeUnion,
 } from '@teensyrom-nx/data-access/api-client';
 import MockFilesystem from '../mock-filesystem/mock-filesystem';
-import type { MockDirectory, MockFile } from '../mock-filesystem/filesystem.types';
+import type { MockFile } from '../mock-filesystem/filesystem.types';
 
 const FAVORITE_DIRECTORIES: Array<{ path: string }> = [
   { path: '/favorites/games' },

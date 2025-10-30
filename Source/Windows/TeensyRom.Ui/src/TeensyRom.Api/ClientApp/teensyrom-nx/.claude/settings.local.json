@@ -29,7 +29,11 @@
       "Bash(npx vitest run:*)",
       "Bash(rm:*)",
       "Bash(find:*)",
-      "Bash(npx nx e2e:*)"
+      "Bash(npx nx e2e:*)",
+      "Bash(npx nx run:*)",
+      "Bash(npx eslint:*)",
+      "Bash(node:*)",
+      "Bash(npx cypress run:*)"
     ],
     "deny": [],
     "ask": []

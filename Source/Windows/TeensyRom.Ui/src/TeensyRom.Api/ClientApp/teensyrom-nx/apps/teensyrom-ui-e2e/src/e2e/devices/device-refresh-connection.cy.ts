@@ -63,22 +63,30 @@ import {
   getDeviceCard,
   DEVICE_CARD_SELECTORS,
   CSS_CLASSES,
-  DEVICE_ENDPOINTS,
   ICON_CLASSES,
-  API_ROUTE_ALIASES,
 } from './test-helpers';
 import {
   interceptFindDevices,
+  interceptFindDevicesWithDelay,
+  FIND_DEVICES_ALIAS,
+} from '../../support/interceptors/findDevices.interceptors';
+import {
   interceptConnectDevice,
+  CONNECT_DEVICE_ENDPOINT,
+  CONNECT_DEVICE_ALIAS,
+} from '../../support/interceptors/connectDevice.interceptors';
+import {
   interceptDisconnectDevice,
-} from '../../support/interceptors/device.interceptors';
+  DISCONNECT_DEVICE_ENDPOINT,
+  DISCONNECT_DEVICE_ALIAS,
+} from '../../support/interceptors/disconnectDevice.interceptors';
 import {
   singleDevice,
   disconnectedDevice,
   multipleDevices,
   threeDisconnectedDevices,
   mixedConnectionDevices,
-} from '../../support/test-data/fixtures/devices.fixture';
+} from '../../support/test-data/fixtures';
 
 describe('Device Connection - Refresh & Recovery', () => {
   // =========================================================================
@@ -157,10 +165,10 @@ describe('Device Connection - Refresh & Recovery', () => {
     it('should not trigger reconnection API for already-connected devices', () => {
       // Setup: Spy on connect API to verify it's not called
       let connectApiCallCount = 0;
-      cy.intercept(DEVICE_ENDPOINTS.CONNECT_DEVICE.method, DEVICE_ENDPOINTS.CONNECT_DEVICE.pattern, (req) => {
+      cy.intercept(CONNECT_DEVICE_ENDPOINT.method, CONNECT_DEVICE_ENDPOINT.pattern, (req) => {
         connectApiCallCount++;
         req.reply({ statusCode: 200, body: { message: 'Connected' } });
-      }).as(API_ROUTE_ALIASES.CONNECT_DEVICE);
+      }).as(CONNECT_DEVICE_ALIAS);
 
       // Re-register find devices interceptor for refresh
       interceptFindDevices({ fixture: singleDevice });
@@ -234,10 +242,10 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       // Setup: Spy on connect API to verify no auto-reconnect
       let connectApiCallCount = 0;
-      cy.intercept(DEVICE_ENDPOINTS.CONNECT_DEVICE.method, DEVICE_ENDPOINTS.CONNECT_DEVICE.pattern, (req) => {
+      cy.intercept(CONNECT_DEVICE_ENDPOINT.method, CONNECT_DEVICE_ENDPOINT.pattern, (req) => {
         connectApiCallCount++;
         req.reply({ statusCode: 200, body: { message: 'Connected' } });
-      }).as(API_ROUTE_ALIASES.CONNECT_DEVICE);
+      }).as(CONNECT_DEVICE_ALIAS);
 
       // Re-register interceptor for refresh
       interceptFindDevices({ fixture: disconnectedDevice });
@@ -514,7 +522,7 @@ describe('Device Connection - Refresh & Recovery', () => {
       waitForDeviceDiscovery();
 
       // Setup: Interceptor with delay to simulate slow connection
-      cy.intercept(DEVICE_ENDPOINTS.CONNECT_DEVICE.method, DEVICE_ENDPOINTS.CONNECT_DEVICE.pattern, (req) => {
+      cy.intercept(CONNECT_DEVICE_ENDPOINT.method, CONNECT_DEVICE_ENDPOINT.pattern, (req) => {
         req.reply({
           delay: 1000,
           statusCode: 200,
@@ -523,7 +531,7 @@ describe('Device Connection - Refresh & Recovery', () => {
             message: 'Connected',
           },
         });
-      }).as(API_ROUTE_ALIASES.CONNECT_DEVICE);
+      }).as(CONNECT_DEVICE_ALIAS);
 
       // Click power button to start connection
       clickPowerButton(0);
@@ -549,13 +557,13 @@ describe('Device Connection - Refresh & Recovery', () => {
       verifyConnected(0);
 
       // Setup: Interceptor with delay to simulate slow disconnection
-      cy.intercept(DEVICE_ENDPOINTS.DISCONNECT_DEVICE.method, DEVICE_ENDPOINTS.DISCONNECT_DEVICE.pattern, (req) => {
+      cy.intercept(DISCONNECT_DEVICE_ENDPOINT.method, DISCONNECT_DEVICE_ENDPOINT.pattern, (req) => {
         req.reply({
           delay: 1000,
           statusCode: 200,
           body: { message: 'Disconnected' },
         });
-      }).as(API_ROUTE_ALIASES.DISCONNECT_DEVICE);
+      }).as(DISCONNECT_DEVICE_ALIAS);
 
       // Click power button to start disconnection
       clickPowerButton(0);
@@ -578,16 +586,7 @@ describe('Device Connection - Refresh & Recovery', () => {
       waitForDeviceDiscovery();
 
       // Setup: Refresh interceptor with delay
-      cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.method, DEVICE_ENDPOINTS.FIND_DEVICES.pattern, (req) => {
-        req.reply({
-          delay: 1000,
-          statusCode: 200,
-          body: {
-            devices: [...disconnectedDevice.devices],
-            message: 'Found 1 device(s)',
-          },
-        });
-      }).as(API_ROUTE_ALIASES.FIND_DEVICES);
+      interceptFindDevicesWithDelay(1000, disconnectedDevice);
 
       // Start refresh
       clickRefreshDevices();
@@ -622,7 +621,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       // Click refresh - should fail
       clickRefreshDevices();
-      cy.wait(`@${API_ROUTE_ALIASES.FIND_DEVICES}`);
+      cy.wait(`@${FIND_DEVICES_ALIAS}`);
 
       // When refresh fails, the device list is cleared (intended behavior)
       verifyDeviceCount(0);
@@ -644,7 +643,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       // Perform refresh with error mode
       clickRefreshDevices();
-      cy.wait(`@${API_ROUTE_ALIASES.FIND_DEVICES}`);
+      cy.wait(`@${FIND_DEVICES_ALIAS}`);
 
       // When refresh fails, the device list is cleared (intended behavior)
       verifyDeviceCount(0);
@@ -661,7 +660,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       // Perform refresh
       clickRefreshDevices();
-      cy.wait(`@${API_ROUTE_ALIASES.FIND_DEVICES}`);
+      cy.wait(`@${FIND_DEVICES_ALIAS}`);
 
       // When refresh fails, the device list is cleared (intended behavior)
       // Error message display validation in Phase 4 (alerts)
@@ -677,7 +676,7 @@ describe('Device Connection - Refresh & Recovery', () => {
       // First refresh fails (error mode) - device list is cleared
       interceptFindDevices({ errorMode: true });
       clickRefreshDevices();
-      cy.wait(`@${API_ROUTE_ALIASES.FIND_DEVICES}`);
+      cy.wait(`@${FIND_DEVICES_ALIAS}`);
 
       // Verify device list is empty after failed refresh
       verifyDeviceCount(0);

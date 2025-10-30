@@ -141,7 +141,7 @@ export class MockFilesystem {
     originalFile.isFavorite = false;
     const favoritesDirectory = this.directories.get(favoritesPath);
     if (favoritesDirectory) {
-      favoritesDirectory.files = favoritesDirectory.files.filter((file) => file.name !== originalFile!.name);
+      favoritesDirectory.files = favoritesDirectory.files.filter((file) => file.name !== originalFile.name);
     }
 
     return {

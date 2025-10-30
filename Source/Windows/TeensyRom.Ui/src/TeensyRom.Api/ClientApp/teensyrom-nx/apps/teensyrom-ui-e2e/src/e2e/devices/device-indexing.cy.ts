@@ -15,7 +15,7 @@
  * @see E2E_TESTS.md for architecture and patterns
  */
 
-import { interceptFindDevices } from '../../support/interceptors/device.interceptors';
+import { interceptFindDevices } from '../../support/interceptors/findDevices.interceptors';
 import {
   deviceWithAvailableStorage,
   deviceWithUnavailableUsbStorage,
@@ -32,7 +32,9 @@ import {
   clickIndexAllButton,
   waitForIndexingComplete,
 } from '../../support/helpers/indexing.helpers';
-import { INDEXING_INTERCEPT_ALIASES } from '../../support/interceptors/storage-indexing.interceptors';
+import {
+  INDEXING_INTERCEPT_ALIASES,
+} from '../../support/interceptors/indexStorage.interceptors';
 import { TeensyStorageType } from '@teensyrom-nx/data-access/api-client';
 import {
   STORAGE_INDEX_BUTTON_SELECTORS,

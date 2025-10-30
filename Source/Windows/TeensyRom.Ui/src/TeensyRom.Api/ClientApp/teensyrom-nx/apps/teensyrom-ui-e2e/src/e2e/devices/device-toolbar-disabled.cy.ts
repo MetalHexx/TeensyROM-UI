@@ -24,16 +24,20 @@ import {
 } from './test-helpers';
 import {
   interceptFindDevices,
+} from '../../support/interceptors/findDevices.interceptors';
+import {
   interceptConnectDevice,
+} from '../../support/interceptors/connectDevice.interceptors';
+import {
   interceptDisconnectDevice,
-} from '../../support/interceptors/device.interceptors';
+} from '../../support/interceptors/disconnectDevice.interceptors';
 import {
   singleDevice,
   noDevices,
   threeDisconnectedDevices,
   mixedConnectionDevices,
   disconnectedDevice,
-} from '../../support/test-data/fixtures/devices.fixture';
+} from '../../support/test-data/fixtures';
 
 describe('Device Toolbar Button Disabled State', () => {
   // =========================================================================

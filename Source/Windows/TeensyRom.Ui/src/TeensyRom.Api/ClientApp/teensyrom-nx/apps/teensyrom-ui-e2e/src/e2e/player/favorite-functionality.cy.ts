@@ -1,16 +1,13 @@
 import type MockFilesystem from '../../support/test-data/mock-filesystem/mock-filesystem';
 import { createMockFilesystem } from '../../support/test-data/generators/storage.generators';
 import { singleDevice } from '../../support/test-data/fixtures';
-import {
-  interceptConnectDevice,
-  interceptFindDevices,
-  interceptGetDirectory,
-  interceptLaunchFile,
-  interceptSaveFavorite,
-  interceptRemoveFavorite,
-} from '../../support/interceptors';
+import { interceptConnectDevice } from '../../support/interceptors/connectDevice.interceptors';
+import { interceptFindDevices } from '../../support/interceptors/findDevices.interceptors';
+import { interceptGetDirectory } from '../../support/interceptors/getDirectory.interceptors';
+import { interceptSaveFavorite } from '../../support/interceptors/saveFavorite.interceptors';
+import { interceptRemoveFavorite } from '../../support/interceptors/removeFavorite.interceptors';
+import { interceptLaunchFile } from '../../support/interceptors/launchFile.interceptors';
 import { VIEWPORT, MOCK_SEEDS } from '../../support/constants/test.constants';
-import { INTERCEPT_ALIASES } from '../../support/constants/api.constants';
 import { TeensyStorageType, TEST_FILES, TEST_PATHS } from '../../support/constants/storage.constants';
 import {
   navigateToPlayer,
@@ -181,10 +178,10 @@ describe('Favorites Functionality', () => {
       // WHEN: User clicks favorite button and API call fails
       cy.log('About to click favorite button expecting error');
       clickFavoriteButton();
-      cy.wait(`@${INTERCEPT_ALIASES.SAVE_FAVORITE}`);
+      cy.wait('@saveFavorite');
 
       // THEN: Error alert appears with failure message
-      verifyErrorAlertDisplayed('Failed to save favorite. Please try again.');
+      verifyErrorAlertDisplayed('Bad Request');
 
       // AND: Favorite state remains unchanged (still shows empty heart)
       verifyFavoriteStateUnchangedAfterError('favorite_border');
@@ -216,10 +213,10 @@ describe('Favorites Functionality', () => {
       // WHEN: User clicks favorite button and API call fails
       cy.log('About to click favorite button expecting remove error');
       clickFavoriteButton();
-      cy.wait(`@${INTERCEPT_ALIASES.REMOVE_FAVORITE}`);
+      cy.wait('@removeFavorite');
 
       // THEN: Error alert appears with failure message
-      verifyErrorAlertDisplayed('Failed to remove favorite. Please try again.');
+      verifyErrorAlertDisplayed('Bad Request');
 
       // AND: Favorite state remains unchanged (still shows filled heart)
       verifyFavoriteStateUnchangedAfterError('favorite');

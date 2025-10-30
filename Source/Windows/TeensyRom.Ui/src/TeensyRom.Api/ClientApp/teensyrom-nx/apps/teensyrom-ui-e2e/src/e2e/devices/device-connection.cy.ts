@@ -47,17 +47,22 @@ import {
   waitForDisconnection,
   verifyConnected,
   verifyDisconnected,
-  DEVICE_ENDPOINTS,
 } from './test-helpers';
 import {
   interceptFindDevices,
-  interceptConnectDevice,
+} from '../../support/interceptors/findDevices.interceptors';
+import {
   interceptDisconnectDevice,
-} from '../../support/interceptors/device.interceptors';
+  DISCONNECT_DEVICE_ENDPOINT,
+} from '../../support/interceptors/disconnectDevice.interceptors';
+import {
+  interceptConnectDevice,
+  CONNECT_DEVICE_ENDPOINT,
+} from '../../support/interceptors/connectDevice.interceptors';
 import {
   singleDevice,
   disconnectedDevice,
-} from '../../support/test-data/fixtures/devices.fixture';
+} from '../../support/test-data/fixtures';
 
 describe('Device Connection - Single Device', () => {
   // =========================================================================
@@ -115,8 +120,8 @@ describe('Device Connection - Single Device', () => {
     it('should call connection API with correct device ID', () => {
       // Setup: Capture connection request using constants
       cy.intercept(
-        DEVICE_ENDPOINTS.CONNECT_DEVICE.method,
-        DEVICE_ENDPOINTS.CONNECT_DEVICE.pattern,
+        CONNECT_DEVICE_ENDPOINT.method,
+        CONNECT_DEVICE_ENDPOINT.pattern,
         (req) => {
           // Verify request contains device ID from fixture
           expect(req.url).to.include(disconnectedDevice.devices[0].deviceId);
@@ -193,8 +198,8 @@ describe('Device Connection - Single Device', () => {
     it('should call disconnection API with correct device ID', () => {
       // Setup: Capture disconnection request using constants
       cy.intercept(
-        DEVICE_ENDPOINTS.DISCONNECT_DEVICE.method,
-        DEVICE_ENDPOINTS.DISCONNECT_DEVICE.pattern,
+        DISCONNECT_DEVICE_ENDPOINT.method,
+        DISCONNECT_DEVICE_ENDPOINT.pattern,
         (req) => {
           // Verify request contains device ID from fixture
           expect(req.url).to.include(singleDevice.devices[0].deviceId);
