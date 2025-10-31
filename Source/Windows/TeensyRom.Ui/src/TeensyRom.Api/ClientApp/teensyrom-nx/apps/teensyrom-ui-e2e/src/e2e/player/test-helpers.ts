@@ -85,9 +85,7 @@ export function clickFileInDirectory(filePath: string): void {
  * @param filePath Full path to the file (e.g., "/games/Pac-Man (J1).crt")
  */
 export function doubleClickFileInDirectory(filePath: string): void {
-  // Scroll into view first to handle virtual scrolling
   cy.get(DIRECTORY_FILES_SELECTORS.fileListItem(filePath)).scrollIntoView();
-  // Then double-click in a separate chain
   cy.get(DIRECTORY_FILES_SELECTORS.fileListItem(filePath)).dblclick();
 }
 
@@ -149,9 +147,7 @@ export function expectPlayerToolbarVisible(): void {
  */
 export function verifyFileInDirectory(filePath: string, shouldBeVisible = true): void {
   if (shouldBeVisible) {
-    // Scroll into view to handle virtual scrolling clipping
     cy.get(DIRECTORY_FILES_SELECTORS.fileListItem(filePath)).scrollIntoView();
-    // Then verify visibility in a separate chain
     cy.get(DIRECTORY_FILES_SELECTORS.fileListItem(filePath)).should('be.visible');
   } else {
     cy.get(DIRECTORY_FILES_SELECTORS.fileListItem(filePath)).should('not.exist');
@@ -289,21 +285,16 @@ export function clickFavoriteButton(): void {
  * Click favorite button and wait for save operation to complete
  */
 export function clickFavoriteButtonAndWait(): void {
-  cy.log('clickFavoriteButtonAndWait: Starting');
   clickFavoriteButton();
-  cy.log('clickFavoriteButtonAndWait: Button clicked, waiting for API');
   waitForSaveFavorite();
-  cy.log('clickFavoriteButtonAndWait: API call completed');
 }
 
 /**
  * Click favorite button and wait for remove operation to complete
  */
 export function clickFavoriteButtonAndWaitForRemove(): void {
-  cy.log('About to click favorite button to unfavorite from player toolbar');
   clickFavoriteButton();
   waitForRemoveFavorite();
-  cy.log('Favorite button clicked and remove API call completed');
 }
 
 // ============================================================================
@@ -328,7 +319,6 @@ export function verifyFavoriteIconIsEmpty(): void {
  * Verify the favorite icon shows filled state (favorite)
  */
 export function verifyFavoriteIconIsFilled(): void {
-  cy.log('Verifying initial state: PAC_MAN should be favorited');
   cy.get(`${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteIcon}`).should('contain.text', 'favorite');
 }
 
@@ -373,7 +363,6 @@ export function launchFileFromFavorites(params: {
   storage?: TeensyStorageType;
   fileName: string;
 }): void {
-
   navigateToDirectory({
     device: params.device,
     storage: TeensyStorageType.Sd,
@@ -384,12 +373,10 @@ export function launchFileFromFavorites(params: {
   waitForFileLaunch();
   waitForDirectoryFilesToBeVisible(TEST_PATHS.FAVORITES_GAMES);
 
-  // Click on the specific file to launch it
   const favoritesFilePath = `${TEST_PATHS.FAVORITES_GAMES}/${params.fileName}`;
   cy.get(DIRECTORY_FILES_SELECTORS.fileListItem(favoritesFilePath))
     .should('be.visible')
     .click();
-
 }
 
 /**
@@ -407,7 +394,6 @@ export function verifyFileNotInDirectory(filePath: string): void {
  * Set up error scenario for save favorite operations
  */
 export function setupSaveFavoriteErrorScenario(filesystem?: MockFilesystem): void {
-  cy.log('Setting up save favorite error scenario');
   interceptSaveFavorite({
     filesystem,
     errorMode: true,
@@ -419,7 +405,6 @@ export function setupSaveFavoriteErrorScenario(filesystem?: MockFilesystem): voi
  * Set up error scenario for remove favorite operations
  */
 export function setupRemoveFavoriteErrorScenario(filesystem?: MockFilesystem): void {
-  cy.log('Setting up remove favorite error scenario');
   interceptRemoveFavorite({
     filesystem,
     errorMode: true,
@@ -431,7 +416,6 @@ export function setupRemoveFavoriteErrorScenario(filesystem?: MockFilesystem): v
  * Verify error alert is displayed with expected message
  */
 export function verifyErrorAlertDisplayed(expectedMessage: string): void {
-  cy.log('Verifying error alert is displayed');
   verifyAlertVisible();
   verifyAlertMessage(expectedMessage);
   verifyAlertIcon('error');
@@ -442,7 +426,6 @@ export function verifyErrorAlertDisplayed(expectedMessage: string): void {
  * Verify favorite icon state remains unchanged after error
  */
 export function verifyFavoriteStateUnchangedAfterError(expectedIcon: string): void {
-  cy.log(`Verifying favorite icon state remains "${expectedIcon}" after error`);
   cy.get(`${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteIcon}`)
     .should('contain.text', expectedIcon);
 }
@@ -451,7 +434,6 @@ export function verifyFavoriteStateUnchangedAfterError(expectedIcon: string): vo
  * Verify favorite button is enabled after error scenario
  */
 export function verifyFavoriteButtonEnabledAfterError(): void {
-  cy.log('Verifying favorite button is enabled after error');
   cy.get(`${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteButton}`)
     .should('not.be.disabled');
 }

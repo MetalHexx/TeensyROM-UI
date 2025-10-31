@@ -94,17 +94,14 @@ describe('Device Discovery E2E Tests', () => {
     });
 
     it('should show unique device information for each device', () => {
-      // Verify first device
       getDeviceCard(0)
         .find(DEVICE_CARD_SELECTORS.idLabel)
         .should('exist');
 
-      // Verify second device
       getDeviceCard(1)
         .find(DEVICE_CARD_SELECTORS.idLabel)
         .should('exist');
 
-      // Verify third device
       getDeviceCard(2)
         .find(DEVICE_CARD_SELECTORS.idLabel)
         .should('exist');
@@ -117,7 +114,6 @@ describe('Device Discovery E2E Tests', () => {
     });
 
     it('should maintain device order from fixture', () => {
-      // Verify all devices are in document order
       cy.get(DEVICE_CARD_SELECTORS.card)
         .should('have.length', 3)
         .then((cards) => {
@@ -149,7 +145,7 @@ describe('Device Discovery E2E Tests', () => {
       cy.get(DEVICE_VIEW_SELECTORS.deviceList).should('be.visible');
     });
 
-    it('should show loading state is not visible', () => {
+    it('should not show loading indicator', () => {
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
     });
   });
@@ -178,7 +174,6 @@ describe('Device Discovery E2E Tests', () => {
     });
 
     it('should apply disconnected styling', () => {
-      // Disconnected device should have dimmed class
       getDeviceCard(0).should('have.class', CSS_CLASSES.DIMMED);
     });
 
@@ -272,9 +267,7 @@ describe('Device Discovery E2E Tests', () => {
     });
 
     it('should visually distinguish states', () => {
-      // First device not dimmed
       getDeviceCard(0).should('not.have.class', CSS_CLASSES.DIMMED);
-      // Third device dimmed
       getDeviceCard(2).should('have.class', CSS_CLASSES.DIMMED);
     });
 
@@ -292,12 +285,10 @@ describe('Device Discovery E2E Tests', () => {
   // =========================================================================
   describe('Loading States', () => {
     it('should show loading indicator during API call', () => {
-      // Set up interceptor with delay to capture loading state
       interceptFindDevicesWithDelay(500, singleDevice);
 
       navigateToDeviceView();
 
-      // Loading indicator should be visible while waiting
       verifyLoadingState();
     });
 
@@ -306,7 +297,6 @@ describe('Device Discovery E2E Tests', () => {
       navigateToDeviceView();
       waitForDeviceDiscovery();
 
-      // Loading indicator should not be visible after API response
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
     });
 
@@ -315,23 +305,18 @@ describe('Device Discovery E2E Tests', () => {
 
       navigateToDeviceView();
 
-      // While loading, device list should not be fully rendered
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('be.visible');
     });
 
     it('should transition from loading to content', () => {
-      // Use inline interceptor with delay to capture loading state
       interceptFindDevicesWithDelay(500, singleDevice);
 
       navigateToDeviceView();
 
-      // Initially should show loading
       verifyLoadingState();
 
-      // After waiting for API
       waitForDeviceDiscovery();
 
-      // Should show content instead
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
       verifyDeviceCount(1);
     });
@@ -346,9 +331,7 @@ describe('Device Discovery E2E Tests', () => {
       navigateToDeviceView();
       waitForDeviceDiscovery();
 
-      // After error, device list should exist but be empty or show error
       cy.get(DEVICE_VIEW_SELECTORS.deviceList).should('be.visible');
-      // No device cards should be displayed
       cy.get(DEVICE_CARD_SELECTORS.card).should('not.exist');
     });
 
@@ -357,7 +340,6 @@ describe('Device Discovery E2E Tests', () => {
       navigateToDeviceView();
       waitForDeviceDiscovery();
 
-      // Loading indicator should not persist after error
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
     });
 
@@ -366,7 +348,6 @@ describe('Device Discovery E2E Tests', () => {
       navigateToDeviceView();
       waitForDeviceDiscovery();
 
-      // Device view should still exist (not crashed)
       cy.get(DEVICE_VIEW_SELECTORS.container).should('be.visible');
     });
 
@@ -375,7 +356,6 @@ describe('Device Discovery E2E Tests', () => {
       navigateToDeviceView();
       waitForDeviceDiscovery();
 
-      // After error, no devices should be shown
       cy.get(DEVICE_CARD_SELECTORS.card).should('not.exist');
     });
   });

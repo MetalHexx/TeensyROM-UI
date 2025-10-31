@@ -3,23 +3,19 @@
 /**
  * Device Refresh Error Handling E2E Tests
  *
- * Tests device refresh error scenarios with proper error message extraction
- * from API ProblemDetails responses and alert display.
+ * Tests device refresh error scenarios with proper error message extraction from API
+ * ProblemDetails responses and alert display.
  *
- * **Key Workflows**:
- * - Refresh fails with 404 error when devices become unavailable
- * - Error message from ProblemDetails.title is displayed in alert
- * - Device cards disappear when no devices found
- * - "No Devices Found" message is shown
- * - Busy dialog is dismissed after error
+ * Key workflows tested:
+ * - 404 errors when devices become unavailable
+ * - ProblemDetails.title extraction for user-friendly error messages
+ * - UI state transitions during error conditions
+ * - Bootstrap error handling and recovery scenarios
  *
- * **Fixtures Used**:
- * - singleDevice: Single connected device for initial state
- * - Custom 404 ProblemDetails response for error scenario
- *
- * **Interceptors Used**:
- * - interceptFindDevices(): Mock device discovery
- * - Custom 404 interceptor with ProblemDetails
+ * Fixtures and interceptors:
+ * - singleDevice fixture for initial connected state
+ * - Custom error interceptors for various HTTP status codes
+ * - ProblemDetails response mocking
  */
 
 import {
@@ -61,96 +57,68 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
     const errorMessage = 'No TeensyRom devices found.';
 
     beforeEach(() => {
-      // Initial state: One connected device is available
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
       waitForDeviceDiscovery();
 
-      // Verify initial connected state
       expectDeviceConnected(0);
       verifyDeviceCount(1);
     });
 
     it('should display ProblemDetails error message in alert when refresh returns 404', () => {
-      // Given: A device was previously connected
       expectDeviceCardVisible(0);
       expectDeviceConnected(0);
 
-      // Setup 404 interceptor with ProblemDetails response
       interceptFindDevicesNotFound(errorMessage);
-
-      // When: We click the refresh devices button
       clickRefreshDevices();
-
-      // Then: The API returns 404 with ProblemDetails
       waitForFindDevices();
 
-      // And: An alert popup appears with the error message from title field
       verifyAlertVisible();
       verifyAlertMessage(errorMessage);
       verifyAlertSeverity(ALERT_SEVERITY.ERROR);
     });
 
     it('should clear device list when refresh returns 404', () => {
-      // This test is self-contained - doesn't rely on beforeEach state
-      // Setup: Start with a fresh page with one device
       cy.visit(APP_ROUTES.devices);
-      
-      // Wait for initial device to load from beforeEach
+
       cy.get(DEVICE_CARD_SELECTORS.card, { timeout: 10000 }).should('have.length', 1);
       getDeviceCard(0).should('be.visible');
 
-      // Setup 404 interceptor for refresh
       interceptFindDevicesNotFound(errorMessage);
-
-      // When: We click the refresh devices button
       clickRefreshDevices();
       waitForFindDevices();
 
-      // Then: The device cards should be gone
       cy.get(DEVICE_CARD_SELECTORS.card).should('not.exist');
 
-      // And: Device count should be 0
       cy.get(DEVICE_VIEW_SELECTORS.deviceList).within(() => {
         cy.get(DEVICE_CARD_SELECTORS.card).should('have.length', 0);
       });
     });
 
     it('should show empty state message when refresh returns 404', () => {
-      // Given: A device was previously connected
       getDeviceCard(0).should('be.visible');
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage).should('not.exist');
 
-      // Setup 404 interceptor
       interceptFindDevicesNotFound(errorMessage);
-
-      // When: Refresh is clicked
       clickRefreshDevices();
       waitForFindDevices();
 
-      // Then: We now see a "No Devices Found" label
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage)
         .should('be.visible')
         .and('contain.text', 'No devices found');
     });
 
     it('should hide busy dialog when refresh returns 404', () => {
-      // Given: A device was previously connected
       getDeviceCard(0).should('be.visible');
 
-      // Setup 404 interceptor
       interceptFindDevicesNotFound(errorMessage);
-
-      // When: Refresh is clicked
       clickRefreshDevices();
       waitForFindDevices();
 
-      // Then: The busy dialog disappears
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
     });
 
     it('should extract error message from ProblemDetails.title over generic error', () => {
-      // Setup 404 interceptor
       cy.intercept(
         FIND_DEVICES_ENDPOINT.method,
         FIND_DEVICES_ENDPOINT.pattern,
@@ -159,11 +127,9 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
         }
       ).as(FIND_DEVICES_ALIAS);
 
-      // When: Refresh is clicked
       clickRefreshDevices();
       waitForFindDevices();
 
-      // Then: Alert shows the title message (user-friendly) not the detail (technical)
       verifyAlertMessage(errorMessage);
       verifyAlertMessageDoesNotContain('Technical details');
     });
@@ -171,7 +137,6 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
     it('should handle 404 with missing ProblemDetails.title by falling back to detail', () => {
       const detailMessage = 'No devices could be detected on the system';
 
-      // Setup 404 with only detail field
       cy.intercept(
         FIND_DEVICES_ENDPOINT.method,
         FIND_DEVICES_ENDPOINT.pattern,
@@ -180,53 +145,35 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
         }
       ).as(FIND_DEVICES_ALIAS);
 
-      // When: Refresh is clicked
       clickRefreshDevices();
       waitForFindDevices();
 
-      // Then: Alert falls back to detail message
       verifyAlertMessage(detailMessage);
     });
 
     it('should allow dismissing the error alert', () => {
-      // Setup 404 interceptor
       interceptFindDevicesNotFound(errorMessage);
-
-      // Trigger error
       clickRefreshDevices();
       waitForFindDevices();
 
-      // Verify alert visible
       verifyAlertVisible();
-
-      // Dismiss alert
       dismissAlert();
-
-      // Verify alert dismissed
       verifyAlertDismissed();
 
-      // Device list should still show empty state
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage).should('be.visible');
     });
 
     it('should auto-dismiss error alert after timeout', () => {
-      // Setup 404 interceptor
       interceptFindDevicesNotFound(errorMessage);
-
-      // Trigger error
       clickRefreshDevices();
       waitForFindDevices();
 
-      // Verify alert visible
       verifyAlertVisible();
-
-      // Wait for auto-dismiss (default is 3000ms)
       waitForAlertAutoDismiss();
       verifyAlertDismissed();
     });
 
     it('should allow recovery after 404 error when devices become available again', () => {
-      // Trigger 404 error
       cy.intercept(
         FIND_DEVICES_ENDPOINT.method,
         FIND_DEVICES_ENDPOINT.pattern,
@@ -238,17 +185,12 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       clickRefreshDevices();
       waitForFindDevices();
 
-      // Verify no devices state
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage).should('be.visible');
 
-      // Now devices become available again
       interceptFindDevices({ fixture: singleDevice });
-
-      // Refresh again
       clickRefreshDevices();
       waitForDeviceDiscovery();
 
-      // Verify recovery: device is back
       expectDeviceConnected(0);
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage).should('not.exist');
     });
@@ -265,24 +207,19 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       const errorTitle = 'Internal Server Error';
 
       interceptFindDevicesInternalServerError(errorTitle);
-
       clickRefreshDevices();
       waitForFindDevices();
 
-      // Verify error alert shows
       verifyAlertVisible();
       verifyAlertMessage(errorTitle);
       verifyAlertSeverity(ALERT_SEVERITY.ERROR);
     });
 
     it('should handle network errors gracefully', () => {
-      // Simulate network failure
       interceptFindDevicesWithNetworkError();
-
       clickRefreshDevices();
       waitForFindDevices();
 
-      // Verify error alert shows (may use fallback message)
       verifyAlertVisible();
     });
   });
@@ -291,28 +228,19 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
     const errorMessage = 'No TeensyRom devices found.';
 
     it('should hide busy dialog when bootstrap fails with 404', () => {
-      // Setup 404 interceptor before navigation (simulates bootstrap failure)
       interceptFindDevicesNotFound(errorMessage);
-
-      // Navigate to device view (triggers bootstrap findDevices)
       navigateToDeviceView();
-
-      // Wait for the API call to complete
       waitForFindDevices();
 
-      // Then: Busy dialog should be hidden
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
 
-      // And: Alert shows error message
       verifyAlertVisible();
       verifyAlertMessage(errorMessage);
 
-      // And: Empty state message is shown
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage)
         .should('be.visible')
         .and('contain.text', 'No devices found');
 
-      // And: No device cards are present
       cy.get(DEVICE_VIEW_SELECTORS.deviceList).within(() => {
         cy.get(DEVICE_CARD_SELECTORS.card).should('not.exist');
       });
@@ -321,24 +249,18 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
     it('should hide busy dialog when bootstrap fails with 500', () => {
       const errorTitle = 'Internal Server Error';
 
-      // Setup 500 error interceptor before navigation
       interceptFindDevicesInternalServerError(errorTitle);
-
-      // Navigate to device view (triggers bootstrap)
       navigateToDeviceView();
       waitForFindDevices();
 
-      // Then: Busy dialog should be hidden
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
 
-      // And: Error alert is displayed
       verifyAlertVisible();
       verifyAlertMessage(errorTitle);
       verifyAlertSeverity(ALERT_SEVERITY.ERROR);
     });
 
     it('should hide busy dialog when bootstrap fails with network error', () => {
-      // Simulate network failure during bootstrap
       cy.intercept(
         FIND_DEVICES_ENDPOINT.method,
         FIND_DEVICES_ENDPOINT.pattern,
@@ -347,20 +269,14 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
         }
       ).as(FIND_DEVICES_ALIAS);
 
-      // Navigate to device view
       navigateToDeviceView();
       waitForFindDevices();
 
-      // Then: Busy dialog should be hidden
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
-
-      // And: Some form of error indication is shown
-      // (may be alert or empty state depending on error handling)
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage).should('be.visible');
     });
 
     it('should complete bootstrap and show error state within reasonable time when API fails', () => {
-      // Setup 404 error
       cy.intercept(
         FIND_DEVICES_ENDPOINT.method,
         FIND_DEVICES_ENDPOINT.pattern,
@@ -369,29 +285,21 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
         }
       ).as(FIND_DEVICES_ALIAS);
 
-      // Navigate
       const startTime = Date.now();
       navigateToDeviceView();
-
-      // Wait for API call to complete
       waitForFindDevices();
 
-      // Verify bootstrap completes quickly (within 2 seconds total)
       cy.then(() => {
         const elapsed = Date.now() - startTime;
         expect(elapsed).to.be.lessThan(2000);
       });
 
-      // Verify error state is visible
       verifyAlertVisible();
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage).should('be.visible');
-      
-      // Verify busy dialog is no longer showing
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
     });
 
     it('should allow recovery from bootstrap error', () => {
-      // First navigation fails with 404
       cy.intercept(
         FIND_DEVICES_ENDPOINT.method,
         FIND_DEVICES_ENDPOINT.pattern,
@@ -403,18 +311,13 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
       navigateToDeviceView();
       waitForFindDevices();
 
-      // Verify error state
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage).should('be.visible');
 
-      // Now devices become available
       interceptFindDevices({ fixture: singleDevice });
-
-      // Refresh to recover
       clickRefreshDevices();
       waitForDeviceDiscovery();
 
-      // Verify recovery: device is found
       expectDeviceConnected(0);
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage).should('not.exist');
     });

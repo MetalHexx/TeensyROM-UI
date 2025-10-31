@@ -146,7 +146,6 @@ describe('Device Toolbar Button Disabled State', () => {
   // =========================================================================
   describe('Mixed Device Connection States', () => {
     beforeEach(() => {
-      // Device 1: Connected, Device 2: Disconnected, Device 3: Connected
       interceptFindDevices({ fixture: mixedConnectionDevices });
       navigateToDeviceView();
       waitForDeviceDiscovery();
@@ -177,13 +176,8 @@ describe('Device Toolbar Button Disabled State', () => {
     });
 
     it('should visually distinguish connected from disconnected devices', () => {
-      // First device should be connected (not dimmed)
       cy.get(DEVICE_CARD_SELECTORS.card).eq(0).should('not.have.class', 'dimmed');
-      
-      // Second device should be disconnected (dimmed)
       cy.get(DEVICE_CARD_SELECTORS.card).eq(1).should('have.class', 'dimmed');
-      
-      // Third device should be connected (not dimmed)
       cy.get(DEVICE_CARD_SELECTORS.card).eq(2).should('not.have.class', 'dimmed');
     });
   });
@@ -230,12 +224,10 @@ describe('Device Toolbar Button Disabled State', () => {
      */
     describe('Single Device Connect/Disconnect Workflow', () => {
       beforeEach(() => {
-        // Start with one disconnected device
         interceptFindDevices({ fixture: disconnectedDevice });
-        // Set up interceptors for connect/disconnect actions
         interceptConnectDevice({ device: singleDevice.devices[0] });
         interceptDisconnectDevice();
-        
+
         navigateToDeviceView();
         waitForDeviceDiscovery();
       });
@@ -250,18 +242,12 @@ describe('Device Toolbar Button Disabled State', () => {
       });
 
       it('should enable action buttons after connecting a device via power button', () => {
-        // Initial state: disconnected and buttons disabled
         cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
           .should('be.disabled');
 
-        // Click power button to connect device (first device at index 0)
         clickPowerButton(0);
-        
-        // Wait for connection API call
         waitForConnection();
 
-        // After connection succeeds, the device store should update
-        // and buttons should become enabled
         cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
           .should('not.be.disabled');
         cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
@@ -271,19 +257,15 @@ describe('Device Toolbar Button Disabled State', () => {
       });
 
       it('should disable action buttons after disconnecting a connected device', () => {
-        // Start by connecting the device
         clickPowerButton(0);
         waitForConnection();
 
-        // Verify buttons are now enabled after connection
         cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
           .should('not.be.disabled');
 
-        // Now disconnect by clicking power button again
         clickPowerButton(0);
         waitForDisconnection();
 
-        // After disconnection, buttons should be disabled again
         cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
           .should('be.disabled');
         cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
@@ -293,40 +275,29 @@ describe('Device Toolbar Button Disabled State', () => {
       });
 
       it('should keep Refresh Devices button enabled throughout connect/disconnect workflow', () => {
-        // Refresh should be enabled initially (disconnected state)
         cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton)
           .should('not.be.disabled');
 
-        // Connect device
         clickPowerButton(0);
         waitForConnection();
 
-        // Refresh should still be enabled (connected state)
         cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton)
           .should('not.be.disabled');
 
-        // Disconnect device
         clickPowerButton(0);
         waitForDisconnection();
 
-        // Refresh should still be enabled (disconnected state)
         cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton)
           .should('not.be.disabled');
       });
     });
 
-    /**
-     * Test Scenario: Multiple devices with mixed connection states.
-     * Connect one device to enable buttons, then disconnect it to disable buttons again.
-     */
     describe('Multiple Devices with Mixed States', () => {
       beforeEach(() => {
-        // Start with three disconnected devices
         interceptFindDevices({ fixture: threeDisconnectedDevices });
-        // Set up interceptors for connect/disconnect
         interceptConnectDevice({ device: threeDisconnectedDevices.devices[0] });
         interceptDisconnectDevice();
-        
+
         navigateToDeviceView();
         waitForDeviceDiscovery();
       });
@@ -341,11 +312,9 @@ describe('Device Toolbar Button Disabled State', () => {
       });
 
       it('should enable action buttons after connecting first of three devices', () => {
-        // Connect the first device
         clickPowerButton(0);
         waitForConnection();
 
-        // Now buttons should be enabled (at least one device is connected)
         cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
           .should('not.be.disabled');
         cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
@@ -355,19 +324,15 @@ describe('Device Toolbar Button Disabled State', () => {
       });
 
       it('should disable action buttons after disconnecting the only connected device', () => {
-        // First, connect the device
         clickPowerButton(0);
         waitForConnection();
 
-        // Verify buttons are enabled
         cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
           .should('not.be.disabled');
 
-        // Disconnect the device (it was the only connected one)
         clickPowerButton(0);
         waitForDisconnection();
 
-        // Since all devices are now disconnected, buttons should be disabled again
         cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
           .should('be.disabled');
         cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
