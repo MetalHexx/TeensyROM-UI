@@ -35,7 +35,8 @@
       "Bash(node:*)",
       "Bash(npx cypress run:*)",
       "Bash(npx --package ts-node ts-node:*)",
-      "Bash(pnpm list:*)"
+      "Bash(pnpm list:*)",
+      "Bash(npx cypress:*)"
     ],
     "deny": [],
     "ask": []
