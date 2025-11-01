@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"🔍 Hook triggered - checking for TypeScript files...\" && ./.claude/scripts/detect-type-issues.sh test-hook.ts 2>/dev/null | head -15",
+            "description": "Run type detection on TypeScript files after edits"
+          }
+        ]
+      }
+    ]
+  }
+}
