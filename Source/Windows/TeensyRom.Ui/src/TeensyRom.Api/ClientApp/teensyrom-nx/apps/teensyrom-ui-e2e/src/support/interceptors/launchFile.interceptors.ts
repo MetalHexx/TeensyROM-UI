@@ -1,37 +1,26 @@
 /// <reference types="cypress" />
 
-import type {
-  LaunchFileResponse,
-  FileItemDto,
-} from '@teensyrom-nx/data-access/api-client';
-import type { CyHttpMessages } from 'cypress/types/net-stubbing';
+import type { LaunchFileResponse, FileItemDto } from '@teensyrom-nx/data-access/api-client';
+import type { CyHttpMessages, Method } from 'cypress/types/net-stubbing';
 import type MockFilesystem from '../test-data/mock-filesystem/mock-filesystem';
 import { generateFileItem } from '../test-data/generators/storage.generators';
 import { TEST_FILES, TEST_PATHS } from '../constants/storage.constants';
+import {
+  interceptError,
+  interceptSequence,
+  type EndpointDefinition,
+} from './primitives/interceptor-primitives';
 
 /**
  * launchFile endpoint interceptor for file launch operations
- * This file consolidates all launchFile-related testing functionality
+ * Migrated to primitive-based architecture for simplified maintenance
+ * Uses custom cy.intercept() logic for file path extraction from requests
  */
-
-// ============================================================================
-// Section 1: Endpoint Definition
-// ============================================================================
-
-/**
- * launchFile endpoint configuration
- */
-export const LAUNCH_FILE_ENDPOINT = {
-  method: 'POST',
-  path: (deviceId: string, storageType: string) => `/devices/${deviceId}/storage/${storageType}/launch`,
-  full: (deviceId: string, storageType: string) => `http://localhost:5168/devices/${deviceId}/storage/${storageType}/launch`,
+export const LAUNCH_FILE_ENDPOINT: EndpointDefinition = {
+  method: 'POST' as Method,
   pattern: 'http://localhost:5168/devices/*/storage/*/launch*',
-  alias: 'launchFile'
+  alias: 'launchFile',
 } as const;
-
-// ============================================================================
-// Section 2: Interface Definitions
-// ============================================================================
 
 /**
  * Options for interceptLaunchFile interceptor
@@ -53,14 +42,11 @@ export interface InterceptLaunchFileOptions {
   overrideFile?: FileItemDto;
 }
 
-// ============================================================================
-// Section 3: Interceptor Function
-// ============================================================================
-
 /**
  * Intercepts POST /devices/{deviceId}/storage/{storageType}/launch - File launch endpoint
- * Route matches any deviceId and storageType via wildcard: POST http://localhost:5168/devices/<wildcard>/storage/<wildcard>/launch
+ * Matches any deviceId and storageType via wildcard pattern
  * Supports filesystem file lookups and custom launch scenarios
+ * Uses primitive functions for simplified implementation
  *
  * @param options Configuration options for the interceptor
  */
@@ -72,96 +58,63 @@ export function interceptLaunchFile(options: InterceptLaunchFileOptions = {}): v
     statusCode,
     errorMessage,
     filePath: fallbackFilePath,
-    overrideFile
+    overrideFile,
   } = options;
 
-  cy.intercept(
-    LAUNCH_FILE_ENDPOINT.method,
-    LAUNCH_FILE_ENDPOINT.pattern,
-    (req) => {
-      // Apply response delay if specified
-      if (responseDelayMs && responseDelayMs > 0) {
-        // Note: Cypress doesn't support req.delay() like req.reply({ delay }),
-        // so we handle this by using setTimeout in the reply
-      }
+  if (errorMode) {
+    interceptError(
+      LAUNCH_FILE_ENDPOINT,
+      statusCode || 500,
+      errorMessage || 'Failed to launch file',
+      responseDelayMs
+    );
+    return;
+  }
 
-      if (errorMode) {
-        const responseStatusCode = statusCode || 500;
-        const responseErrorMessage = errorMessage || 'Failed to launch file';
+  // Note: Custom cy.intercept() logic needed for file path extraction from requests
+  // Primitives don't provide request access for extracting FilePath parameter
+  cy.intercept(LAUNCH_FILE_ENDPOINT.method as Method, LAUNCH_FILE_ENDPOINT.pattern, (req) => {
+    const filePath = resolvePath(getQueryParam(req, 'FilePath'), fallbackFilePath);
+    let launchedFile;
 
-        req.reply({
-          statusCode: responseStatusCode,
-          headers: {
-            'content-type': 'application/problem+json',
-          },
-          body: {
-            type: `https://tools.ietf.org/html/rfc9110#section-${getRfcSection(responseStatusCode)}`,
-            title: getErrorTitle(responseStatusCode),
-            status: responseStatusCode,
-            detail: responseErrorMessage,
-          },
-        });
-        return;
-      }
+    if (overrideFile) {
+      launchedFile = overrideFile;
+    } else if (filesystem) {
+      const dirPath =
+        filePath.substring(0, filePath.lastIndexOf(TEST_PATHS.SEPARATOR)) || TEST_PATHS.ROOT;
+      const fileName = filePath.substring(filePath.lastIndexOf(TEST_PATHS.SEPARATOR) + 1);
+      const directoryResponse = filesystem.getDirectory(dirPath);
 
-      // Extract file path from query parameters
-      const filePath = resolvePath(getQueryParam(req, 'FilePath'), fallbackFilePath);
-      let launchedFile;
-
-      // Use provided override file first (for deterministic testing)
-      if (overrideFile) {
-        launchedFile = overrideFile;
-      } else if (filesystem) {
-        // Look up file from the filesystem by getting the directory and searching for the file
-        const dirPath = filePath.substring(0, filePath.lastIndexOf(TEST_PATHS.SEPARATOR)) || TEST_PATHS.ROOT;
-        const fileName = filePath.substring(filePath.lastIndexOf(TEST_PATHS.SEPARATOR) + 1);
-        const directoryResponse = filesystem.getDirectory(dirPath);
-
-        const file = directoryResponse.storageItem.files?.find((f) => f.name === fileName);
-        if (file) {
-          launchedFile = file;
-        } else {
-          // Fallback if file not found in filesystem
-          launchedFile = generateFileItem({
-            path: filePath,
-            name: fileName || TEST_FILES.DEFAULT_UNKNOWN_FILE,
-          });
-        }
+      const file = directoryResponse.storageItem.files?.find((f) => f.name === fileName);
+      if (file) {
+        launchedFile = file;
       } else {
-        // Generate a default file item if no filesystem provided
         launchedFile = generateFileItem({
           path: filePath,
-          name: filePath.split(TEST_PATHS.SEPARATOR).pop() || TEST_FILES.DEFAULT_UNKNOWN_FILE,
+          name: fileName || TEST_FILES.DEFAULT_UNKNOWN_FILE,
         });
       }
-
-      const response: LaunchFileResponse = {
-        message: `Successfully launched ${launchedFile.name}`,
-        launchedFile,
-        isCompatible: launchedFile.isCompatible ?? true,
-      };
-
-      if (responseDelayMs && responseDelayMs > 0) {
-        req.reply({
-          statusCode: 200,
-          headers: { 'content-type': 'application/json' },
-          body: response,
-          delay: responseDelayMs,
-        });
-      } else {
-        req.reply({
-          statusCode: 200,
-          headers: { 'content-type': 'application/json' },
-          body: response,
-        });
-      }
+    } else {
+      launchedFile = generateFileItem({
+        path: filePath,
+        name: filePath.split(TEST_PATHS.SEPARATOR).pop() || TEST_FILES.DEFAULT_UNKNOWN_FILE,
+      });
     }
-  ).as(LAUNCH_FILE_ENDPOINT.alias);
-}
 
-// ============================================================================
-// Section 4: Wait Function
-// ============================================================================
+    const response: LaunchFileResponse = {
+      message: `Successfully launched ${launchedFile.name}`,
+      launchedFile,
+      isCompatible: launchedFile.isCompatible ?? true,
+    };
+
+    req.reply({
+      statusCode: 200,
+      headers: { 'content-type': 'application/json' },
+      body: response,
+      delay: responseDelayMs || 0,
+    });
+  }).as(LAUNCH_FILE_ENDPOINT.alias);
+}
 
 /**
  * Waits for launchFile endpoint call to complete
@@ -171,18 +124,16 @@ export function waitForLaunchFile(): void {
   cy.wait(`@${LAUNCH_FILE_ENDPOINT.alias}`);
 }
 
-// ============================================================================
-// Section 5: Helper Functions
-// ============================================================================
-
 /**
- * Sets up launchFile interceptor with filesystem for file launch tests
- * Useful for testing realistic file launch scenarios
+ * Sets up launchFile interceptor with filesystem for realistic file launch tests
  *
  * @param filesystem Mock filesystem instance
  * @param options Additional interceptor options
  */
-export function setupLaunchFile(filesystem: MockFilesystem, options: Omit<InterceptLaunchFileOptions, 'filesystem'> = {}): void {
+export function setupLaunchFile(
+  filesystem: MockFilesystem,
+  options: Omit<InterceptLaunchFileOptions, 'filesystem'> = {}
+): void {
   interceptLaunchFile({
     ...options,
     filesystem,
@@ -190,13 +141,15 @@ export function setupLaunchFile(filesystem: MockFilesystem, options: Omit<Interc
 }
 
 /**
- * Sets up launchFile interceptor with custom file to launch
- * Useful for testing specific launch scenarios
+ * Sets up launchFile interceptor with custom file to launch for specific scenarios
  *
  * @param file File to launch
  * @param options Additional interceptor options
  */
-export function setupLaunchFileWithFile(file: FileItemDto, options: InterceptLaunchFileOptions = {}): void {
+export function setupLaunchFileWithFile(
+  file: FileItemDto,
+  options: InterceptLaunchFileOptions = {}
+): void {
   interceptLaunchFile({
     ...options,
     overrideFile: file,
@@ -204,13 +157,15 @@ export function setupLaunchFileWithFile(file: FileItemDto, options: InterceptLau
 }
 
 /**
- * Sets up launchFile interceptor with specific file path
- * Useful for testing specific file path scenarios
+ * Sets up launchFile interceptor with specific file path for path-specific tests
  *
  * @param filePath Path of file to launch
  * @param options Additional interceptor options
  */
-export function setupLaunchFileWithPath(filePath: string, options: InterceptLaunchFileOptions = {}): void {
+export function setupLaunchFileWithPath(
+  filePath: string,
+  options: InterceptLaunchFileOptions = {}
+): void {
   interceptLaunchFile({
     ...options,
     filePath,
@@ -218,8 +173,7 @@ export function setupLaunchFileWithPath(filePath: string, options: InterceptLaun
 }
 
 /**
- * Sets up launchFile interceptor with error response
- * Useful for testing launch error scenarios
+ * Sets up launchFile interceptor with error response for error scenario tests
  *
  * @param statusCode HTTP status code for the error (default: 500)
  * @param errorMessage Custom error message
@@ -233,13 +187,15 @@ export function setupErrorLaunchFile(statusCode = 500, errorMessage?: string): v
 }
 
 /**
- * Sets up launchFile interceptor with delay for testing loading states
- * Useful for testing launch loading scenarios and timeouts
+ * Sets up launchFile interceptor with delay for testing loading states and timeouts
  *
  * @param delayMs Delay in milliseconds before response
  * @param options Additional interceptor options
  */
-export function setupDelayedLaunchFile(delayMs: number, options: InterceptLaunchFileOptions = {}): void {
+export function setupDelayedLaunchFile(
+  delayMs: number,
+  options: InterceptLaunchFileOptions = {}
+): void {
   interceptLaunchFile({
     ...options,
     responseDelayMs: delayMs,
@@ -247,62 +203,46 @@ export function setupDelayedLaunchFile(delayMs: number, options: InterceptLaunch
 }
 
 /**
- * Verifies that a launchFile request was made
- * Useful for validation in tests
+ * Verifies that a launchFile request was made for test validation
  */
-export function verifyLaunchFileRequested(): Cypress.Chainable<any> {
+export function verifyLaunchFileRequested(): Cypress.Chainable<JQuery<HTMLElement>> {
   return cy.get(`@${LAUNCH_FILE_ENDPOINT.alias}`);
 }
 
 /**
- * Gets the last request made to the launchFile endpoint
- * Useful for verifying request parameters in tests
+ * Gets the last request made to the launchFile endpoint for parameter verification
  */
-export function getLastLaunchFileRequest(): Cypress.Chainable<any> {
+export function getLastLaunchFileRequest(): Cypress.Chainable<JQuery<HTMLElement>> {
   return cy.get(`@${LAUNCH_FILE_ENDPOINT.alias}`);
 }
 
 /**
- * Creates a sequence of file launch responses to test multiple launches
- * Useful for testing multi-step file launch workflows
+ * Creates a sequence of file launch responses for testing multi-step launch workflows
+ * Uses interceptSequence primitive for simplified sequential response handling
  *
  * @param files Array of files to launch in sequence
  * @param delayBetweenMs Delay between each response in milliseconds
  */
 export function setupLaunchFileSequence(files: FileItemDto[], delayBetweenMs = 1000): void {
-  let currentIndex = 0;
+  const sequenceResponses = files.map((file) => ({
+    message: `Successfully launched ${file.name}`,
+    launchedFile: file,
+    isCompatible: file.isCompatible ?? true,
+  }));
 
-  cy.intercept(
-    LAUNCH_FILE_ENDPOINT.method,
-    LAUNCH_FILE_ENDPOINT.pattern,
-    (req) => {
-      const currentFile = files[currentIndex % files.length];
-      currentIndex++;
-
-      const response: LaunchFileResponse = {
-        message: `Successfully launched ${currentFile.name}`,
-        launchedFile: currentFile,
-        isCompatible: currentFile.isCompatible ?? true,
-      };
-
-      req.reply({
-        statusCode: 200,
-        headers: { 'content-type': 'application/json' },
-        body: response,
-        delay: delayBetweenMs,
-      });
-    }
-  ).as(`${LAUNCH_FILE_ENDPOINT.alias}_sequence`);
+  interceptSequence(LAUNCH_FILE_ENDPOINT, sequenceResponses, delayBetweenMs);
 }
 
 /**
  * Sets up launchFile interceptor for testing incompatible file scenarios
- * Useful for testing how the system handles incompatible files
  *
  * @param file File to launch as incompatible
  * @param options Additional interceptor options
  */
-export function setupIncompatibleLaunchFile(file: FileItemDto, options: InterceptLaunchFileOptions = {}): void {
+export function setupIncompatibleLaunchFile(
+  file: FileItemDto,
+  options: InterceptLaunchFileOptions = {}
+): void {
   const incompatibleFile = { ...file, isCompatible: false };
 
   interceptLaunchFile({
@@ -311,16 +251,13 @@ export function setupIncompatibleLaunchFile(file: FileItemDto, options: Intercep
   });
 }
 
-// ============================================================================
-// Section 6: Export Constants (Backward Compatibility)
-// ============================================================================
+// Export Constants (Backward Compatibility)
 
-// Backward compatibility exports for existing import patterns
 export const LAUNCH_FILE_ALIAS = LAUNCH_FILE_ENDPOINT.alias;
 export const INTERCEPT_LAUNCH_FILE = 'launchFile';
 export const LAUNCH_FILE_METHOD = LAUNCH_FILE_ENDPOINT.method;
 
-// Helper functions for path resolution (moved from original implementation)
+// Helper functions for path resolution
 function resolvePath(queryParam: unknown, fallback = '/'): string {
   if (typeof queryParam === 'string' && queryParam.length > 0) {
     return decodeValue(queryParam);
@@ -346,29 +283,5 @@ function getQueryParam(request: CyHttpMessages.IncomingHttpRequest, key: string)
   return query[key];
 }
 
-/**
- * Gets the appropriate RFC section for HTTP status codes
- */
-function getRfcSection(statusCode: number): string {
-  if (statusCode === 400) return '15.5.1';
-  if (statusCode === 404) return '15.5.5';
-  if (statusCode === 500) return '15.6.1';
-  if (statusCode === 502) return '15.6.3';
-  return '15.5.5'; // default
-}
-
-/**
- * Gets appropriate error title for HTTP status codes
- */
-function getErrorTitle(statusCode: number): string {
-  switch (statusCode) {
-    case 400: return 'Bad Request';
-    case 401: return 'Unauthorized';
-    case 403: return 'Forbidden';
-    case 404: return 'Not Found';
-    case 500: return 'Internal Server Error';
-    case 502: return 'Bad Gateway';
-    case 503: return 'Service Unavailable';
-    default: return 'Error';
-  }
-}
+// Note: This interceptor requires custom cy.intercept() implementation for file path
+// extraction from requests, which cannot be handled by primitives

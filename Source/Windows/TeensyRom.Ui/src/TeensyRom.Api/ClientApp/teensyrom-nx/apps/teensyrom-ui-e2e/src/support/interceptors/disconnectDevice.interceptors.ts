@@ -1,35 +1,22 @@
 /// <reference types="cypress" />
 
-import type {
-  DisconnectDeviceResponse,
-} from '@teensyrom-nx/data-access/api-client';
+import type { DisconnectDeviceResponse } from '@teensyrom-nx/data-access/api-client';
+import {
+  interceptSuccess,
+  interceptError,
+  type EndpointDefinition,
+} from './primitives/interceptor-primitives';
 
-/**
- * disconnectDevice endpoint interceptor for device disconnection
- * This file consolidates all disconnectDevice-related testing functionality
- */
-
-// ============================================================================
-// Section 1: Endpoint Definition
-// ============================================================================
-
-/**
- * disconnectDevice endpoint configuration
- */
-export const DISCONNECT_DEVICE_ENDPOINT = {
+export const DISCONNECT_DEVICE_ENDPOINT: EndpointDefinition = {
   method: 'DELETE',
-  path: (deviceId: string) => `/devices/${deviceId}`,
-  full: (deviceId: string) => `http://localhost:5168/devices/${deviceId}`,
   pattern: 'http://localhost:5168/devices/*',
-  alias: 'disconnectDevice'
+  alias: 'disconnectDevice',
 } as const;
 
-// ============================================================================
-// Section 2: Interface Definitions
-// ============================================================================
+// INTERFACE DEFINITIONS
 
 /**
- * Options for interceptDisconnectDevice interceptor
+ * Options for disconnect device interceptor
  */
 export interface InterceptDisconnectDeviceOptions {
   /** When true, return HTTP 500 error to simulate disconnection failure */
@@ -42,93 +29,51 @@ export interface InterceptDisconnectDeviceOptions {
   responseDelayMs?: number;
 }
 
-// ============================================================================
-// Section 3: Interceptor Function
-// ============================================================================
-
 /**
- * Intercepts DELETE /devices/{deviceId} - Device disconnection endpoint
- * Route matches any deviceId via wildcard: DELETE http://localhost:5168/devices/<wildcard>
+ * Intercepts DELETE /devices/{deviceId} endpoint for device disconnection
+ * Route matches any deviceId via wildcard
  *
  * @param options Configuration options for the interceptor
  */
 export function interceptDisconnectDevice(options: InterceptDisconnectDeviceOptions = {}): void {
-  cy.intercept(
-    DISCONNECT_DEVICE_ENDPOINT.method,
-    DISCONNECT_DEVICE_ENDPOINT.pattern,
-    (req) => {
-      // Apply response delay if specified
-      if (options.responseDelayMs && options.responseDelayMs > 0) {
-        // Note: Cypress doesn't support req.delay() like req.reply({ delay }),
-        // so we handle this by using setTimeout in the reply
-      }
+  if (options.errorMode) {
+    interceptError(
+      DISCONNECT_DEVICE_ENDPOINT,
+      options.statusCode || 500,
+      options.errorMessage || 'Internal Server Error',
+      options.responseDelayMs
+    );
+    return;
+  }
 
-      if (options.errorMode) {
-        const statusCode = options.statusCode || 500;
-        const errorMessage = options.errorMessage || 'Internal Server Error';
+  const response: DisconnectDeviceResponse = {
+    message: 'Device disconnected successfully',
+  };
 
-        req.reply({
-          statusCode,
-          headers: {
-            'content-type': 'application/problem+json',
-          },
-          body: {
-            type: `https://tools.ietf.org/html/rfc9110#section-${getRfcSection(statusCode)}`,
-            title: getErrorTitle(statusCode),
-            status: statusCode,
-            detail: errorMessage,
-          },
-        });
-        return;
-      }
-
-      // Success response
-      const response: DisconnectDeviceResponse = {
-        message: 'Device disconnected successfully',
-      };
-
-      if (options.responseDelayMs && options.responseDelayMs > 0) {
-        req.reply({
-          statusCode: 200,
-          headers: { 'content-type': 'application/json' },
-          body: response,
-          delay: options.responseDelayMs,
-        });
-      } else {
-        req.reply({
-          statusCode: 200,
-          headers: { 'content-type': 'application/json' },
-          body: response,
-        });
-      }
-    }
-  ).as(DISCONNECT_DEVICE_ENDPOINT.alias);
+  interceptSuccess(DISCONNECT_DEVICE_ENDPOINT, response, options.responseDelayMs);
 }
 
-// ============================================================================
-// Section 4: Wait Function
-// ============================================================================
+// WAIT FUNCTION
 
 /**
  * Waits for disconnectDevice endpoint call to complete
- * Uses the registered alias from the interceptor
  */
 export function waitForDisconnectDevice(): void {
   cy.wait(`@${DISCONNECT_DEVICE_ENDPOINT.alias}`);
 }
 
-// ============================================================================
-// Section 5: Helper Functions
-// ============================================================================
+// HELPER FUNCTIONS
 
 /**
- * Sets up disconnectDevice interceptor with a delay
- * Useful for testing loading states during disconnection
+ * Sets up disconnectDevice interceptor with a delay for testing loading states
  *
  * @param delayMs Delay in milliseconds before response
  * @param options Additional interceptor options
  */
-export function setupDelayedDisconnectDevice(delayMs: number, options: InterceptDisconnectDeviceOptions = {}): void {
+export function setupDelayedDisconnectDevice(
+  delayMs: number,
+  options: InterceptDisconnectDeviceOptions = {}
+): void {
   interceptDisconnectDevice({
     ...options,
     responseDelayMs: delayMs,
@@ -152,51 +97,16 @@ export function setupErrorDisconnectDevice(statusCode = 500, errorMessage?: stri
 
 /**
  * Verifies that a disconnectDevice request was made
- * Useful for validation in tests
  */
-export function verifyDisconnectDeviceRequested(): Cypress.Chainable<any> {
+export function verifyDisconnectDeviceRequested(): Cypress.Chainable<JQuery<HTMLElement>> {
   return cy.get(`@${DISCONNECT_DEVICE_ENDPOINT.alias}`);
 }
 
 /**
  * Gets the last request made to the disconnectDevice endpoint
- * Useful for verifying request parameters in tests
  */
-export function getLastDisconnectDeviceRequest(): Cypress.Chainable<any> {
+export function getLastDisconnectDeviceRequest(): Cypress.Chainable<JQuery<HTMLElement>> {
   return cy.get(`@${DISCONNECT_DEVICE_ENDPOINT.alias}`);
 }
 
-// ============================================================================
-// Section 6: Export Constants (Backward Compatibility)
-// ============================================================================
-
-// Backward compatibility exports for existing import patterns
 export const DISCONNECT_DEVICE_ALIAS = DISCONNECT_DEVICE_ENDPOINT.alias;
-export const INTERCEPT_DISCONNECT_DEVICE = 'disconnectDevice';
-export const DISCONNECT_DEVICE_METHOD = DISCONNECT_DEVICE_ENDPOINT.method;
-
-/**
- * Gets the appropriate RFC section for HTTP status codes
- */
-function getRfcSection(statusCode: number): string {
-  if (statusCode === 400) return '15.5.1';
-  if (statusCode === 404) return '15.5.5';
-  if (statusCode === 500) return '15.6.1';
-  return '15.5.5'; // default
-}
-
-/**
- * Gets appropriate error title for HTTP status codes
- */
-function getErrorTitle(statusCode: number): string {
-  switch (statusCode) {
-    case 400: return 'Bad Request';
-    case 401: return 'Unauthorized';
-    case 403: return 'Forbidden';
-    case 404: return 'Not Found';
-    case 500: return 'Internal Server Error';
-    case 502: return 'Bad Gateway';
-    case 503: return 'Service Unavailable';
-    default: return 'Error';
-  }
-}

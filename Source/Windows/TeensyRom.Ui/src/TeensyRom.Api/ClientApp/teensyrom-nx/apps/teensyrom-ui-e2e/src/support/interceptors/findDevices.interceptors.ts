@@ -1,43 +1,35 @@
 /// <reference types="cypress" />
 
-import type {
-  FindDevicesResponse,
-} from '@teensyrom-nx/data-access/api-client';
+import type { FindDevicesResponse } from '@teensyrom-nx/data-access/api-client';
 import { singleDevice } from '../test-data/fixtures';
 import type { MockDeviceFixture } from '../test-data/fixtures/fixture.types';
-
-/**
- * Cypress interceptor reply options interface
- */
-interface CypressReplyOptions {
-  statusCode?: number;
-  headers?: Record<string, string>;
-  body?: unknown;
-  delay?: number;
-}
+import {
+  interceptSuccess,
+  interceptError,
+  interceptNetworkError,
+  type EndpointDefinition,
+} from './primitives/interceptor-primitives';
 
 /**
  * findDevices endpoint interceptor for device discovery
- * This file consolidates all findDevices-related testing functionality
+ * Migrated to primitive-based architecture for simplified maintenance
  */
 
 // ============================================================================
-// Section 1: Endpoint Definition
+// ENDPOINT DEFINITION
 // ============================================================================
 
 /**
  * findDevices endpoint configuration
  */
-export const FIND_DEVICES_ENDPOINT = {
+export const FIND_DEVICES_ENDPOINT: EndpointDefinition = {
   method: 'GET',
-  path: '/devices',
-  full: 'http://localhost:5168/devices',
   pattern: 'http://localhost:5168/devices*',
-  alias: 'findDevices'
+  alias: 'findDevices',
 } as const;
 
 // ============================================================================
-// Section 2: Interface Definitions
+// INTERFACE DEFINITIONS
 // ============================================================================
 
 /**
@@ -57,73 +49,36 @@ export interface InterceptFindDevicesOptions {
 }
 
 // ============================================================================
-// Section 3: Interceptor Function
+// INTERCEPTOR FUNCTION
 // ============================================================================
-
-// ============================================================================
-// Section 6: Export Constants (Backward Compatibility)
-// ============================================================================
-
-// Backward compatibility exports for existing import patterns
-export const FIND_DEVICES_ALIAS = FIND_DEVICES_ENDPOINT.alias;
-export const INTERCEPT_FIND_DEVICES = 'findDevices';
-export const FIND_DEVICES_METHOD = FIND_DEVICES_ENDPOINT.method;
-export const FIND_DEVICES_PATH = FIND_DEVICES_ENDPOINT.path;
 
 /**
  * Intercepts GET /devices - Device discovery endpoint
- * Returns a list of discovered TenesyROM devices using the provided or default fixture.
- *
- * Note: Intercepts requests to http://localhost:5168/devices which may have query params
+ * Returns a list of discovered TeensyROM devices using the provided or default fixture.
  */
 export function interceptFindDevices(options: InterceptFindDevicesOptions = {}): void {
   const fixture = options.fixture ?? singleDevice;
 
-  cy.intercept(
-    FIND_DEVICES_ENDPOINT.method,
-    FIND_DEVICES_ENDPOINT.pattern,
-    (req) => {
-      if (options.errorMode) {
-        const statusCode = options.statusCode || 500;
-        const errorMessage = options.errorMessage || 'Internal Server Error';
+  if (options.errorMode) {
+    interceptError(
+      FIND_DEVICES_ENDPOINT,
+      options.statusCode || 500,
+      options.errorMessage || 'Internal Server Error',
+      options.responseDelayMs
+    );
+    return;
+  }
 
-        req.reply({
-          statusCode,
-          headers: { 'content-type': 'application/problem+json' },
-          body: {
-            type: `https://tools.ietf.org/html/rfc9110#section-${getRfcSection(statusCode)}`,
-            title: errorMessage,
-            status: statusCode,
-            detail: getErrorTitle(statusCode),
-          },
-        });
-        return;
-      }
+  const response: FindDevicesResponse = {
+    devices: [...fixture.devices],
+    message: `Found ${fixture.devices.length} device(s)`,
+  };
 
-      // Send response with optional delay
-      const response: FindDevicesResponse = {
-        devices: [...fixture.devices],
-        message: `Found ${fixture.devices.length} device(s)`,
-      };
-
-      const replyOptions: CypressReplyOptions = {
-        statusCode: 200,
-        headers: { 'content-type': 'application/json' },
-        body: response,
-      };
-
-      // Add delay if specified
-      if (options?.responseDelayMs && options.responseDelayMs > 0) {
-        replyOptions.delay = options.responseDelayMs;
-      }
-
-      req.reply(replyOptions);
-    }
-  ).as(FIND_DEVICES_ENDPOINT.alias);
+  interceptSuccess(FIND_DEVICES_ENDPOINT, response, options.responseDelayMs);
 }
 
 // ============================================================================
-// Section 4: Wait Function
+// WAIT FUNCTION
 // ============================================================================
 
 /**
@@ -135,7 +90,7 @@ export function waitForFindDevices(): void {
 }
 
 // ============================================================================
-// Section 5: Helper Functions
+// HELPER FUNCTIONS
 // ============================================================================
 
 /**
@@ -159,7 +114,10 @@ export function setupFindDevices(): void {
  * @param statusCode HTTP status code for error (default: 500)
  * @param errorMessage Custom error message
  */
-export function setupFindDevicesError(statusCode = 500, errorMessage = 'Internal Server Error'): void {
+export function setupFindDevicesError(
+  statusCode = 500,
+  errorMessage = 'Internal Server Error'
+): void {
   interceptFindDevices({
     errorMode: true,
     statusCode,
@@ -228,7 +186,6 @@ export function interceptFindDevicesError(statusCode: number, title: string): vo
 
 /**
  * Intercepts findDevices with delayed response using custom fixture
- * Enhanced version that properly handles fixture parameter
  *
  * @param delayMs Delay in milliseconds
  * @param fixture Optional fixture data
@@ -245,43 +202,26 @@ export function interceptFindDevicesWithDelay(delayMs: number, fixture?: MockDev
  * Convenience function for network failure scenarios
  */
 export function interceptFindDevicesWithNetworkError(): void {
-  cy.intercept(
-    FIND_DEVICES_ENDPOINT.method,
-    FIND_DEVICES_ENDPOINT.pattern,
-    { forceNetworkError: true }
-  ).as(FIND_DEVICES_ALIAS);
+  interceptNetworkError(FIND_DEVICES_ENDPOINT);
 }
 
 /**
  * Gets the last request made to the findDevices endpoint
  * Useful for verifying request parameters in tests
+ *
+ * @returns Cypress.Chainable containing the intercepted request object with
+ * properties like url, method, headers, body, and response information
  */
-export function getLastFindDevicesRequest(): Cypress.Chainable<any> {
+export function getLastFindDevicesRequest(): Cypress.Chainable<JQuery<HTMLElement>> {
   return cy.get('@findDevices');
 }
 
-/**
- * Gets the appropriate RFC section for HTTP status codes
- */
-function getRfcSection(statusCode: number): string {
-  if (statusCode === 400) return '15.5.1';
-  if (statusCode === 404) return '15.5.5';
-  if (statusCode === 500) return '15.6.1';
-  return '15.5.5'; // default
-}
+// ============================================================================
+// EXPORT CONSTANTS (BACKWARD COMPATIBILITY)
+// ============================================================================
 
-/**
- * Gets appropriate error title for HTTP status codes
- */
-function getErrorTitle(statusCode: number): string {
-  switch (statusCode) {
-    case 400: return 'Bad Request';
-    case 401: return 'Unauthorized';
-    case 403: return 'Forbidden';
-    case 404: return 'Not Found';
-    case 500: return 'Internal Server Error';
-    case 502: return 'Bad Gateway';
-    case 503: return 'Service Unavailable';
-    default: return 'Error';
-  }
-}
+// Backward compatibility exports for existing import patterns
+export const FIND_DEVICES_ALIAS = FIND_DEVICES_ENDPOINT.alias;
+export const INTERCEPT_FIND_DEVICES = 'findDevices';
+export const FIND_DEVICES_METHOD = FIND_DEVICES_ENDPOINT.method;
+export const FIND_DEVICES_PATH = FIND_DEVICES_ENDPOINT.pattern;

@@ -5,9 +5,7 @@
  * This file serves as a template for creating per-endpoint interceptor files
  */
 
-// ============================================================================
 // Section 1: Endpoint Definition
-// ============================================================================
 
 /**
  * Sample endpoint configuration demonstrating the standard pattern
@@ -20,9 +18,7 @@ export const SAMPLE_ENDPOINT = {
   alias: 'sampleEndpoint'
 } as const;
 
-// ============================================================================
 // Section 2: Interface Definitions
-// ============================================================================
 
 /**
  * Mock response data structure for sample endpoint
@@ -52,9 +48,7 @@ export interface InterceptSampleEndpointOptions {
   errorMessage?: string;
 }
 
-// ============================================================================
 // Section 3: Interceptor Function
-// ============================================================================
 
 /**
  * Intercepts sample endpoint calls with configurable responses
@@ -63,7 +57,6 @@ export interface InterceptSampleEndpointOptions {
  */
 export function interceptSampleEndpoint(options?: InterceptSampleEndpointOptions): void {
   cy.intercept(SAMPLE_ENDPOINT.method, SAMPLE_ENDPOINT.pattern, (req) => {
-    // Handle error mode
     if (options?.errorMode) {
       const statusCode = options.statusCode || 500;
       const errorMessage = options.errorMessage || 'Internal Server Error';
@@ -81,7 +74,6 @@ export function interceptSampleEndpoint(options?: InterceptSampleEndpointOptions
       return;
     }
 
-    // Handle response delay
     if (options?.responseDelayMs && options.responseDelayMs > 0) {
       cy.wait(options.responseDelayMs).then(() => {
         sendSuccessResponse();
@@ -92,14 +84,12 @@ export function interceptSampleEndpoint(options?: InterceptSampleEndpointOptions
 
     function sendSuccessResponse() {
       if (options?.fixture) {
-        // Use provided fixture
         req.reply({
           statusCode: 200,
           headers: { 'content-type': 'application/json' },
           body: options.fixture,
         });
       } else {
-        // Use default response
         req.reply({
           statusCode: 200,
           headers: { 'content-type': 'application/json' },
@@ -110,9 +100,7 @@ export function interceptSampleEndpoint(options?: InterceptSampleEndpointOptions
   }).as(SAMPLE_ENDPOINT.alias);
 }
 
-// ============================================================================
 // Section 4: Wait Function
-// ============================================================================
 
 /**
  * Waits for sample endpoint call to complete
@@ -122,9 +110,7 @@ export function waitForSampleEndpoint(): void {
   cy.wait(`@${SAMPLE_ENDPOINT.alias}`);
 }
 
-// ============================================================================
 // Section 5: Helper Functions
-// ============================================================================
 
 /**
  * Verifies sample endpoint completed successfully and was called
@@ -176,9 +162,7 @@ export function getLastSampleEndpointRequest(): Cypress.Chainable<any> {
   return cy.get('@sampleEndpoint');
 }
 
-// ============================================================================
 // Section 6: Export Constants (Backward Compatibility)
-// ============================================================================
 
 // Backward compatibility exports for existing import patterns
 export const SAMPLE_ENDPOINT_ALIAS = SAMPLE_ENDPOINT.alias;
@@ -186,9 +170,7 @@ export const INTERCEPT_SAMPLE_ENDPOINT = 'sampleEndpoint';
 export const SAMPLE_ENDPOINT_METHOD = SAMPLE_ENDPOINT.method;
 export const SAMPLE_ENDPOINT_PATH = SAMPLE_ENDPOINT.path;
 
-// ============================================================================
 // Internal Helper Functions
-// ============================================================================
 
 /**
  * Gets default response data for the sample endpoint

@@ -1,5 +1,6 @@
-// Export from individual interceptor files
-// Note: device.interceptors.ts and storage.interceptors.ts have been migrated to individual files
+// =========================================================================
+// INTERCEPTOR EXPORTS
+// =========================================================================
 
 // Device domain interceptors
 export * from './findDevices.interceptors';
