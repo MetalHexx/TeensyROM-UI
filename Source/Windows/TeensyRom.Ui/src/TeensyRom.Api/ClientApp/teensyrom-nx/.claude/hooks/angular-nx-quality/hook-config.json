@@ -1,0 +1,160 @@
+{
+  "name": "TeensyROM Angular/Nx Quality Hook",
+  "version": "1.0.0",
+  "description": "Quality gate automation for TeensyROM's Angular/Nx monorepo with domain-driven architecture",
+
+  "filePatterns": {
+    "include": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx"
+    ],
+    "exclude": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.nx/**",
+      "**/coverage/**",
+      "**/tmp/**"
+    ]
+  },
+
+  "validation": {
+    "typescript": {
+      "enabled": true,
+      "strictMode": true,
+      "noEmit": true,
+      "skipLibCheck": true,
+      "criticalErrors": [
+        "error TS2304",  // Cannot find name
+        "error TS2322",  // Type is not assignable
+        "error TS2339",  // Property does not exist
+        "error TS7006",  // Parameter implicitly has 'any' type
+        "error TS2564",  // Property has no initializer
+        "error TS2705",  // An async function or method in ES5 requires 'Promise'
+        "error TS2345"   // Argument of type X is not assignable to parameter of type Y
+      ],
+      "configFiles": [
+        "tsconfig.json",
+        "tsconfig.base.json",
+        "tsconfig.lib.json",
+        "tsconfig.spec.json",
+        "tsconfig.app.json"
+      ]
+    },
+
+    "eslint": {
+      "enabled": true,
+      "configFile": "eslint.config.mjs",
+      "autoFix": true,
+      "autoFixableRules": [
+        "quotes",
+        "semi",
+        "comma-dangle",
+        "indent",
+        "object-curly-spacing",
+        "array-bracket-spacing",
+        "space-before-function-paren",
+        "keyword-spacing",
+        "no-trailing-spaces",
+        "eol-last"
+      ],
+      "criticalRules": [
+        "@nx/enforce-module-boundaries",
+        "@typescript-eslint/no-unused-vars",
+        "@typescript-eslint/no-explicit-any"
+      ]
+    },
+
+    "prettier": {
+      "enabled": true,
+      "configFile": ".prettierrc",
+      "autoFormat": true,
+      "checkOnly": false
+    }
+  },
+
+  "teensyrom": {
+    "architecture": {
+      "enforceModuleBoundaries": true,
+      "domainLayerProtection": true,
+      "featureIsolation": true,
+      "libraryTypes": {
+        "domain": {
+          "canDependOn": [],
+          "description": "Pure business logic - no external dependencies"
+        },
+        "application": {
+          "canDependOn": ["domain", "shared"],
+          "description": "CQRS application logic with NgRx Signal stores"
+        },
+        "infrastructure": {
+          "canDependOn": ["domain", "shared", "data-access"],
+          "description": "External integrations and infrastructure concerns"
+        },
+        "features": {
+          "canDependOn": ["application", "domain", "shared"],
+          "description": "Device and player UI features"
+        },
+        "shared": {
+          "canDependOn": ["shared", "domain"],
+          "description": "Shared utilities and UI components"
+        },
+        "data-access": {
+          "canDependOn": [],
+          "description": "OpenAPI generated client"
+        }
+      }
+    },
+
+    "angular": {
+      "version": "19",
+      "standaloneComponents": true,
+      "modernControlFlow": true,
+      "signalStores": true,
+      "materialComponents": true,
+      "patterns": {
+        "inputs": "input() instead of @Input()",
+        "outputs": "output() instead of @Output()",
+        "controlFlow": "@if, @for, @switch instead of directives"
+      }
+    },
+
+    "nx": {
+      "version": "21.1.2",
+      "workspaceType": "monorepo",
+      "buildSystem": "vite",
+      "cacheStrategy": "project-based",
+      "affectedDetection": true
+    }
+  },
+
+  "performance": {
+    "cacheStrategy": "sha256",
+    "parallelExecution": true,
+    "incrementalValidation": true,
+    "maxExecutionTime": 30000,
+    "cacheFile": "tsconfig-cache.json"
+  },
+
+  "output": {
+    "colors": true,
+    "verbose": false,
+    "summary": true,
+    "showAutoFixActions": true
+  },
+
+  "hooks": {
+    "postWrite": {
+      "enabled": true,
+      "autoFix": true,
+      "blockOnCritical": true
+    },
+    "postEdit": {
+      "enabled": true,
+      "autoFix": true,
+      "blockOnCritical": true
+    }
+  }
+}

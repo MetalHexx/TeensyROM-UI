@@ -13,8 +13,11 @@ Clean all TypeScript and ESLint errors from ONE specified file while ensuring no
 ## Context
 
 - File to clean: $ARGUMENTS
-- Current ESLint errors: !`pnpm nx lint --fix=false 2>&1 | grep -A 5 "$ARGUMENTS" || echo "No errors found"`
-- Current TypeScript errors: !`pnpm tsc --noEmit 2>&1 | grep "$ARGUMENTS" || echo "No errors found"`
+- **Run comprehensive quality analysis** to identify all issues in the file:
+  ```bash
+  node .claude/hooks/angular-nx-quality/quality-check.cjs --json "$ARGUMENTS"
+  ```
+- This provides complete issue analysis: TypeScript compilation errors, ESLint violations (all treated as critical), and Prettier formatting issues
 
 ## Your Task
 
@@ -23,9 +26,21 @@ Follow this systematic approach to clean the file:
 ### Step 1: Analyze Errors
 
 1. Read the file at `$ARGUMENTS` to understand its current state
-2. Use `get_errors` tool to identify all TypeScript and ESLint errors in the file
-3. Categorize errors by type (e.g., unused imports, type errors, linting violations)
-4. Create a mental checklist of all errors to fix
+2. **Run comprehensive quality analysis** to identify all issues:
+   ```bash
+   node .claude/hooks/angular-nx-quality/quality-check.cjs --json "$ARGUMENTS"
+   ```
+3. Parse the structured JSON output from stdout to understand:
+   - **TypeScript compilation errors** (severity 6-9)
+   - **ESLint violations** (all treated as critical, severity 8-9)
+     - Special attention to `@typescript-eslint/no-explicit-any` violations (severity 9)
+     - Style violations, unused variables, architecture issues
+   - **Prettier formatting issues** (severity 3, auto-fixable)
+4. Categorize errors by severity and type:
+   - **Critical TypeScript errors** - compilation failures, type mismatches
+   - **Critical ESLint violations** - `any` types, unused code, style issues
+   - **Format issues** - Prettier inconsistencies
+5. Create a prioritized checklist: TypeScript compilation errors → ESLint violations → formatting issues
 
 ### Step 2: Identify Test Files
 
@@ -43,27 +58,44 @@ Follow this systematic approach to clean the file:
 
 ### Step 4: Fix Errors Systematically
 
-Fix errors in this priority order:
+Fix errors in this priority order based on severity scores:
 
-1. **Unused imports/variables** - Safe to remove
-2. **Type errors** - Add proper types, fix type mismatches
-3. **ESLint violations** - Auto-fix where possible, manually fix complex issues
-4. **Architecture violations** - Fix module boundary violations per project's Clean Architecture rules
+1. **TypeScript compilation errors** (severity 8-9) - Must be fixed first
+   - Missing imports, type mismatches, interface errors
+   - Critical compilation failures that prevent code execution
+2. **ESLint type violations** (severity 9) - Critical type safety issues
+   - `@typescript-eslint/no-explicit-any` violations
+   - Replace `any` types with proper TypeScript types
+3. **ESLint architecture violations** (severity 8-9) - Module boundary and unused code issues
+   - Unused imports/variables, missing dependencies
+   - Architecture violations per Clean Architecture rules
+4. **ESLint style violations** (severity 8) - Code style and formatting issues
+   - Quotes, semicolons, indentation (all treated as critical)
+5. **Prettier formatting issues** (severity 3) - Auto-fixable formatting
 
 For each fix:
 
 - Make small, focused changes
 - Preserve existing functionality
-- Add types rather than using `any` (only use `any` as last resort)
-- Follow the project's coding standards (see attached instructions)
+- **Replace `any` types**: Use specific types based on context and usage patterns
+- Add proper types rather than using `unknown` or `any`
+- Follow the project's coding standards and Clean Architecture principles
 
 ### Step 5: Validate After Fixes
 
 After fixing all errors in the file:
 
-1. Re-run the tests: `pnpm nx test <project-name> --testFile="<test-file-path>"`
-2. Compare results to baseline
-3. If tests fail that previously passed:
+1. **Re-run comprehensive quality analysis** to verify all issues are resolved:
+   ```bash
+   node .claude/hooks/angular-nx-quality/quality-check.cjs --json "$ARGUMENTS"
+   ```
+2. Verify the output shows:
+   - **No critical issues** remaining (totalIssues should be 0 or only non-critical formatting issues)
+   - **TypeScript compilation** passes
+   - **ESLint violations** resolved (especially `no-explicit-any` issues)
+3. Re-run the tests: `pnpm nx test <project-name> --testFile="<test-file-path>"`
+4. Compare results to baseline
+5. If tests fail that previously passed:
    - Document the failure
    - Report that manual intervention is needed
    - Do NOT iterate multiple times - this is a single-file command
@@ -72,7 +104,11 @@ After fixing all errors in the file:
 
 Provide a summary including:
 
-- Number and types of errors fixed
+- Number and types of errors fixed by category:
+  - TypeScript compilation errors resolved
+  - ESLint violations fixed (especially `@typescript-eslint/no-explicit-any` issues)
+  - Style and formatting issues corrected
+- Quality check results before/after (totalIssues, critical issues count)
 - Test results (before/after)
 - Any errors that couldn't be fixed (with explanation)
 - Any pre-existing test failures
@@ -82,9 +118,11 @@ Provide a summary including:
 
 - **Single file focus** - This command cleans ONE file, not the whole workspace
 - **Never break functionality** - If fixes cause test failures, document them
+- **Zero tolerance for ESLint violations** - All ESLint issues are critical and must be fixed
+- **Replace `any` and `unknown` types** - Always use specific TypeScript types instead of `any` or `unknown`
 - **Respect Clean Architecture** - Don't fix module boundary violations by adding dependencies that violate architectural constraints
 - **Preserve intent** - Understand what the code is trying to do before changing it
-- **Type safety** - Add proper types; avoid `any` except when truly necessary
+- **Comprehensive quality** - Use quality-check.cjs to ensure ALL issues are identified and fixed
 - **No complex iteration** - Fix the file once and report; don't retry multiple times
 - **Document blockers** - If an error can't be fixed, explain why clearly
 

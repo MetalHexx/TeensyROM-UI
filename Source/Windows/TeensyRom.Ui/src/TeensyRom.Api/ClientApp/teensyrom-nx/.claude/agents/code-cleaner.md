@@ -38,17 +38,21 @@ You MUST BE USED proactively in these scenarios:
 
 ### 1. Identify files to clean
 
-Discover which files need attention for code errors:
+Use the orchestrator's provided context or run comprehensive quality analysis:
 
 ```bash
-# Get all TypeScript/ESLint errors
-pnpm nx lint --fix=false 2>&1
-pnpm tsc --noEmit 2>&1
+# Get quality analysis for specific files
+node .claude/hooks/angular-nx-quality/quality-check.cjs --json "file1.ts" "file2.ts"
+
+# Parse JSON output to prioritize files by severity
+# Files with critical issues (severity 8-9) get highest priority
 ```
 
-Create a list:
+Create a prioritized list based on quality-check.cjs severity scores:
 
-- **Code errors**: TypeScript compilation errors, ESLint violations, module boundary violations, unused imports
+- **Critical issues (severity 8-9)**: TypeScript compilation errors, `@typescript-eslint/no-explicit-any` violations
+- **ESLint violations** (all treated as critical): Style issues, architecture violations
+- **Format issues** (severity 3): Prettier formatting inconsistencies
 
 ### 2. Prioritize Code Files
 
@@ -124,13 +128,14 @@ If `/clean-code` reports issues that need iteration:
 After cleaning all files:
 
 ```bash
-# Run full workspace checks
-pnpm nx lint
-pnpm tsc --noEmit
-pnpm nx test
+# Run final quality check on cleaned files
+node .claude/hooks/angular-nx-quality/quality-check.cjs --json "file1.ts" "file2.ts"
+
+# Run workspace-wide validation
+pnpm nx lint && pnpm tsc --noEmit && pnpm nx test
 ```
 
-Verify no errors remain.
+Verify no critical issues remain across all cleaned files.
 
 ### 7. Report Results
 
