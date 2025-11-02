@@ -18,10 +18,7 @@ export default defineConfig({
     screenshotOnRunFailure: true,
     screenshotsFolder: 'dist/cypress/apps/teensyrom-ui-e2e/screenshots',
 
-    // Video configuration
-    video: true, // Always record for debugging
-    videoCompression: 32, // Balance quality vs size (0-51, lower = better)
-    videosFolder: 'dist/cypress/apps/teensyrom-ui-e2e/videos',
-    videoUploadOnPasses: false, // Auto-delete videos for passing tests
+    // Video configuration - disabled to avoid Windows file-locking issues
+    video: false,
   },
 });
