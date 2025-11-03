@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 
 /**
- * Device Connection Refresh & Recovery E2E Tests (Phase 3)
+ * Device Connection Refresh & Recovery E2E Tests
  *
  * Tests device refresh workflows and connection state persistence.
  * Validates that "Refresh Devices" button maintains connection states correctly
@@ -18,35 +18,6 @@
  * - Some tests use interceptor delays to create timing windows
  * - Edge case tests may be flaky if timing is too tight
  * - Focus on consistent final state, not intermediate states
- *
- * **Integration**:
- * - Builds on Phase 1 (single device) and Phase 2 (multi-device) patterns
- * - Uses all existing test helpers and fixtures
- * - Adds refresh complexity to connection workflows
- *
- * **Fixtures Used**:
- * - singleDevice: Single connected device
- * - disconnectedDevice: Single disconnected device
- * - multipleDevices: Three connected devices
- * - threeDisconnectedDevices: Three disconnected devices
- * - mixedConnectionDevices: Mixed connection states (connected, disconnected, connected)
- *
- * **Interceptors Used**:
- * - interceptFindDevices(): Mock device discovery (re-register before each refresh)
- * - interceptConnectDevice(): Mock device connection endpoint
- * - interceptDisconnectDevice(): Mock device disconnection endpoint
- *
- * **Key Helpers (test-helpers.ts)**:
- * - navigateToDeviceView(): Navigate to /devices
- * - waitForDeviceDiscovery(): Wait for initial device discovery
- * - clickRefreshDevices(): Click "Refresh Devices" button
- * - clickPowerButton(index): Click power button to connect/disconnect
- * - waitForConnection(): Wait for connection API call
- * - waitForDisconnection(): Wait for disconnection API call
- * - verifyConnected(index): Verify device is connected (visual + state)
- * - verifyDisconnected(index): Verify device is disconnected (visual + state)
- * - verifyDeviceCount(count): Verify number of devices displayed
- * - verifyFullDeviceInfo(index): Verify all device info fields present
  */
 
 import {
@@ -61,6 +32,9 @@ import {
   verifyDeviceCount,
   verifyFullDeviceInfo,
   getDeviceCard,
+  waitForConnectionToStart,
+  waitForDisconnectionToStart,
+  waitForFindDevicesToStart,
   DEVICE_CARD_SELECTORS,
   CSS_CLASSES,
   ICON_CLASSES,
@@ -71,14 +45,15 @@ import {
   waitForFindDevices,
 } from '../../support/interceptors/findDevices.interceptors';
 import {
+  setupConnectDeviceWithCounting,
+  getConnectDeviceCallCount,
+  setupConnectDeviceWithValidation,
+  setupConnectDeviceWithDelay,
   interceptConnectDevice,
-  CONNECT_DEVICE_ENDPOINT,
-  CONNECT_DEVICE_ALIAS,
 } from '../../support/interceptors/connectDevice.interceptors';
 import {
   interceptDisconnectDevice,
-  DISCONNECT_DEVICE_ENDPOINT,
-  DISCONNECT_DEVICE_ALIAS,
+  setupDisconnectDeviceWithDelay,
 } from '../../support/interceptors/disconnectDevice.interceptors';
 import {
   singleDevice,
@@ -146,11 +121,7 @@ describe('Device Connection - Refresh & Recovery', () => {
     });
 
     it('should not trigger reconnection API for already-connected devices', () => {
-      let connectApiCallCount = 0;
-      cy.intercept(CONNECT_DEVICE_ENDPOINT.method, CONNECT_DEVICE_ENDPOINT.pattern, (req) => {
-        connectApiCallCount++;
-        req.reply({ statusCode: 200, body: { message: 'Connected' } });
-      }).as(CONNECT_DEVICE_ALIAS);
+      setupConnectDeviceWithCounting();
 
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
@@ -158,8 +129,8 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       verifyConnected(0);
 
-      cy.wrap(null).then(() => {
-        expect(connectApiCallCount).to.equal(0);
+      getConnectDeviceCallCount().then((count) => {
+        expect(count).to.equal(0);
       });
     });
   });
@@ -205,11 +176,7 @@ describe('Device Connection - Refresh & Recovery', () => {
     it('should not auto-reconnect previously disconnected devices', () => {
       verifyDisconnected(0);
 
-      let connectApiCallCount = 0;
-      cy.intercept(CONNECT_DEVICE_ENDPOINT.method, CONNECT_DEVICE_ENDPOINT.pattern, (req) => {
-        connectApiCallCount++;
-        req.reply({ statusCode: 200, body: { message: 'Connected' } });
-      }).as(CONNECT_DEVICE_ALIAS);
+      setupConnectDeviceWithCounting();
 
       interceptFindDevices({ fixture: disconnectedDevice });
       clickRefreshDevices();
@@ -217,8 +184,8 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       verifyDisconnected(0);
 
-      cy.wrap(null).then(() => {
-        expect(connectApiCallCount).to.equal(0);
+      getConnectDeviceCallCount().then((count) => {
+        expect(count).to.equal(0);
       });
     });
 
@@ -356,17 +323,7 @@ describe('Device Connection - Refresh & Recovery', () => {
       clickRefreshDevices();
       waitForDeviceDiscovery();
 
-      cy.intercept('POST', 'http://localhost:5168/devices/*/connect', (req) => {
-        expect(req.url).to.include(deviceId);
-        req.reply({
-          statusCode: 200,
-          body: {
-            connectedCart: disconnectedDevice.devices[0],
-            message: 'Connected',
-          },
-        });
-      }).as('connectDevice');
-
+      setupConnectDeviceWithValidation(deviceId, disconnectedDevice.devices[0]);
       clickPowerButton(0);
       waitForConnection();
     });
@@ -416,20 +373,11 @@ describe('Device Connection - Refresh & Recovery', () => {
       navigateToDeviceView();
       waitForDeviceDiscovery();
 
-      cy.intercept(CONNECT_DEVICE_ENDPOINT.method, CONNECT_DEVICE_ENDPOINT.pattern, (req) => {
-        req.reply({
-          delay: 1000,
-          statusCode: 200,
-          body: {
-            connectedCart: singleDevice.devices[0],
-            message: 'Connected',
-          },
-        });
-      }).as(CONNECT_DEVICE_ALIAS);
+      setupConnectDeviceWithDelay(1000, singleDevice.devices[0]);
 
       clickPowerButton(0);
 
-      cy.wait(200);
+      waitForConnectionToStart();
       interceptFindDevices({ fixture: disconnectedDevice });
       clickRefreshDevices();
 
@@ -444,17 +392,11 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       verifyConnected(0);
 
-      cy.intercept(DISCONNECT_DEVICE_ENDPOINT.method, DISCONNECT_DEVICE_ENDPOINT.pattern, (req) => {
-        req.reply({
-          delay: 1000,
-          statusCode: 200,
-          body: { message: 'Disconnected' },
-        });
-      }).as(DISCONNECT_DEVICE_ALIAS);
+      setupDisconnectDeviceWithDelay(1000);
 
       clickPowerButton(0);
 
-      cy.wait(200);
+      waitForDisconnectionToStart();
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
 
@@ -471,7 +413,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       clickRefreshDevices();
 
-      cy.wait(200);
+      waitForFindDevicesToStart();
       interceptConnectDevice();
       clickPowerButton(0);
 

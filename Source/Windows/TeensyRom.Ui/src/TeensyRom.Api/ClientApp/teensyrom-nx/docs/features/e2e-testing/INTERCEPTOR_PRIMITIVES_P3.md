@@ -33,31 +33,24 @@ Complete the interceptor primitives architecture transformation by eliminating a
 
 > Provide a clear file tree showing new files (✨) and modified files (📝) to understand the implementation scope.
 
-**New Interceptor Infrastructure:**
+**Existing Endpoint Interceptors (Enhanced with New Helper Functions):**
 ```
-apps/teensyrom-ui-e2e/src/support/interceptors/device/
-├── device-connection-validation.interceptors.ts  ✨ New - Device ID validation utilities
-├── api-behavior.interceptors.ts                 ✨ New - API call counting and behavior validation
+apps/teensyrom-ui-e2e/src/support/interceptors/
+├── connectDevice.interceptors.ts                📝 Enhanced - Add validation & counting helpers
+├── disconnectDevice.interceptors.ts             📝 Enhanced - Add validation & counting helpers
 ├── findDevices.interceptors.ts                  ✅ Existing - Already migrated in Phase 2
-├── connectDevice.interceptors.ts                ✅ Existing - Already migrated in Phase 2
-├── disconnectDevice.interceptors.ts             ✅ Existing - Already migrated in Phase 2
-└── pingDevice.interceptors.ts                   ✅ Existing - Already migrated in Phase 2
+├── pingDevice.interceptors.ts                   ✅ Existing - Already migrated in Phase 2
+└── primitives/
+    ├── interceptor-primitives.ts                ✅ Existing - Core primitive functions
+    └── interceptor-primitives.spec.ts           ✅ Existing - Comprehensive test coverage
 ```
 
 **Test Files (Modified - Direct Intercepts Replaced):**
 ```
-apps/teensyrom-ui-e2e/src/e2e/
-├── device/
-│   ├── device-connection.cy.ts                  📝 Modified - Replace 2 direct intercepts
-│   ├── device-refresh-connection.cy.ts          📝 Modified - Replace 4 direct intercepts, document 2
-│   └── device-refresh-error.cy.ts               📝 Modified - Replace 6 direct intercepts
-```
-
-**Primitive Library (Unchanged - Already Complete):**
-```
-apps/teensyrom-ui-e2e/src/support/interceptors/primitives/
-├── interceptor-primitives.ts                    ✅ Existing - Core primitive functions
-└── interceptor-primitives.spec.ts              ✅ Existing - Comprehensive test coverage
+apps/teensyrom-ui-e2e/src/e2e/devices/
+├── device-connection.cy.ts                      📝 Modified - Replace 2 direct intercepts
+├── device-refresh-connection.cy.ts              📝 Modified - Replace 4 direct intercepts, document 2
+└── device-refresh-error.cy.ts                   📝 Modified - Replace 6 direct intercepts
 ```
 
 ---
@@ -84,35 +77,39 @@ apps/teensyrom-ui-e2e/src/support/interceptors/primitives/
 ---
 
 <details open>
-<summary><h3>Task 1: Create Enhanced Device Connection Validation Interceptors</h3></summary>
+<summary><h3>Task 1: Enhance connectDevice & disconnectDevice with Validation Helpers</h3></summary>
 
-**Purpose**: Create specialized wrapper functions for device ID validation scenarios that are currently handled by direct intercepts, providing reusable utilities that follow the primitive-based architecture.
+**Purpose**: Add new helper functions to existing `connectDevice.interceptors.ts` and `disconnectDevice.interceptors.ts` files for device ID validation scenarios currently handled by direct intercepts.
 
 **Related Documentation:**
 - [Device Connection Patterns](./INTERCEPTOR_PRIMITIVES_PLAN.md#primitive-function-categories) - Primitive usage patterns
 - [Device Domain Migration](./INTERCEPTOR_PRIMITIVES_P2.md#phase-21-device-domain-migration) - Device domain patterns from Phase 2
+- [Existing connectDevice Interceptor](../../../apps/teensyrom-ui-e2e/src/support/interceptors/connectDevice.interceptors.ts) - Current implementation
 
 **Implementation Subtasks:**
-- [ ] **Subtask 1.1**: Create `device-connection-validation.interceptors.ts` file with proper imports and structure
-- [ ] **Subtask 1.2**: Implement `interceptConnectDeviceWithValidation()` function using `interceptSuccess()` and `interceptError()` primitives
-- [ ] **Subtask 1.3**: Implement `interceptDisconnectDeviceWithValidation()` function using primitives
-- [ ] **Subtask 1.4**: Add device ID request inspection logic to validation functions
-- [ ] **Subtask 1.5**: Export all validation functions with proper TypeScript interfaces
+- [ ] **Subtask 1.1**: Enhance `connectDevice.interceptors.ts` with device ID validation helper functions
+- [ ] **Subtask 1.2**: Add `setupConnectDeviceWithValidation()` helper using `interceptSuccess()` and `interceptError()` primitives
+- [ ] **Subtask 1.3**: Add device ID request inspection logic to validation helper
+- [ ] **Subtask 1.4**: Enhance `disconnectDevice.interceptors.ts` with validation helper functions
+- [ ] **Subtask 1.5**: Add `setupDisconnectDeviceWithValidation()` helper using primitives
+- [ ] **Subtask 1.6**: Add device ID request inspection logic for disconnection validation
 
 **Testing Subtask:**
-- [ ] **Test Validation Functions**: Execute `@agent-e2e-runner` on `device-connection.cy.ts` to validate new interceptors work correctly
+- [ ] **Test Enhanced Helpers**: Execute `@agent-e2e-runner` on `device-connection.cy.ts` to validate new helpers work correctly
 
 **Workflow Execution:**
-- [ ] **Code Implementation**: Use `@agent-clean-coder` to create the new interceptor file
+- [ ] **Code Implementation**: Use `@agent-clean-coder` to add new helpers to existing interceptor files
 - [ ] **Initial Testing**: Use `@agent-e2e-runner` to test affected functionality
-- [ ] **Code Cleaning**: Use `@agent-code-cleaner` to clean the new file
+- [ ] **Code Cleaning**: Use `@agent-code-cleaner` to clean the enhanced files
 - [ ] **Final Testing**: Use `@agent-e2e-runner` to ensure no regressions from cleaning
 
 **Key Implementation Notes:**
-- Validation functions must use primitive functions (interceptSuccess, interceptError) under the hood
-- Request inspection logic should validate device IDs in connection/disconnection requests
-- All function signatures must maintain backward compatibility with existing test patterns
-- Error scenarios must follow RFC 9110 compliance standards established in Phase 2
+- New helpers follow the established pattern in existing interceptor files (see `connectDevice.interceptors.ts` structure)
+- Validation helpers use primitive functions (interceptSuccess, interceptError) under the hood
+- Request inspection logic validates device IDs in connection/disconnection requests
+- All function signatures maintain backward compatibility with existing test patterns
+- Error scenarios follow RFC 9110 compliance standards established in Phase 2
+- Add helpers to the "HELPER FUNCTIONS" section of each interceptor file
 
 **Testing Focus for Task 1:**
 
@@ -122,7 +119,7 @@ apps/teensyrom-ui-e2e/src/support/interceptors/primitives/
 - [ ] **Device ID Validation**: Connection requests with correct device IDs are accepted
 - [ ] **Invalid Device ID Handling**: Connection requests with invalid device IDs trigger appropriate errors
 - [ ] **Request Inspection**: Custom validation logic correctly examines request parameters
-- [ ] **Primitive Integration**: Validation functions properly use interceptor primitives
+- [ ] **Primitive Integration**: Validation helpers properly use interceptor primitives
 
 **Testing Reference:**
 - See [E2E Testing Standards](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) for behavioral testing patterns
@@ -133,35 +130,39 @@ apps/teensyrom-ui-e2e/src/support/interceptors/primitives/
 ---
 
 <details open>
-<summary><h3>Task 2: Create API Behavior Counting Utilities</h3></summary>
+<summary><h3>Task 2: Enhance connectDevice & disconnectDevice with Counting Helpers</h3></summary>
 
-**Purpose**: Create utilities for API call counting and behavior validation scenarios that are currently handled by direct intercepts in refresh connection tests.
+**Purpose**: Add new helper functions to existing `connectDevice.interceptors.ts` and `disconnectDevice.interceptors.ts` files for API call counting scenarios currently handled by direct intercepts in refresh connection tests.
 
 **Related Documentation:**
 - [API Call Counting Patterns](./INTERCEPTOR_PRIMITIVES_PLAN.md#dynamic-primitives) - Dynamic behavior patterns
 - [Behavior Validation Approach](./INTERCEPTOR_PRIMITIVES_P2.md#phase-22-player-domain-migration) - Validation patterns
+- [Existing connectDevice Interceptor](../../../apps/teensyrom-ui-e2e/src/support/interceptors/connectDevice.interceptors.ts) - Current implementation
 
 **Implementation Subtasks:**
-- [ ] **Subtask 2.1**: Create `api-behavior.interceptors.ts` file with counting infrastructure
-- [ ] **Subtask 2.2**: Implement `interceptConnectDeviceWithCounting()` function for API call validation
-- [ ] **Subtask 2.3**: Implement `interceptDisconnectDeviceWithCounting()` function for API call validation
-- [ ] **Subtask 2.4**: Add state management for tracking API call counts across test steps
-- [ ] **Subtask 2.5**: Create utility functions for resetting and validating call counts
+- [ ] **Subtask 2.1**: Enhance `connectDevice.interceptors.ts` with API call counting helper functions
+- [ ] **Subtask 2.2**: Add `setupConnectDeviceWithCounting()` helper for API call tracking
+- [ ] **Subtask 2.3**: Add state management logic for tracking connection call counts
+- [ ] **Subtask 2.4**: Enhance `disconnectDevice.interceptors.ts` with API call counting helper functions
+- [ ] **Subtask 2.5**: Add `setupDisconnectDeviceWithCounting()` helper for API call tracking
+- [ ] **Subtask 2.6**: Add utility functions for resetting and validating call counts
 
 **Testing Subtask:**
-- [ ] **Test Counting Functions**: Execute `@agent-e2e-runner` on `device-refresh-connection.cy.ts` to validate counting works correctly
+- [ ] **Test Counting Helpers**: Execute `@agent-e2e-runner` on `device-refresh-connection.cy.ts` to validate counting works correctly
 
 **Workflow Execution:**
-- [ ] **Code Implementation**: Use `@agent-clean-coder` to create the API behavior utilities
+- [ ] **Code Implementation**: Use `@agent-clean-coder` to add counting helpers to existing interceptor files
 - [ ] **Initial Testing**: Use `@agent-e2e-runner` to test affected functionality
-- [ ] **Code Cleaning**: Use `@agent-code-cleaner` to clean the new file
+- [ ] **Code Cleaning**: Use `@agent-code-cleaner` to clean the enhanced files
 - [ ] **Final Testing**: Use `@agent-e2e-runner` to ensure no regressions from cleaning
 
 **Key Implementation Notes:**
-- Counting utilities must maintain state across multiple test steps
-- Functions should integrate seamlessly with existing device connection interceptors
-- State management must be isolated between different test scenarios
-- Reset functionality must work correctly for test isolation
+- New helpers follow the established pattern in existing interceptor files (see `connectDevice.interceptors.ts` structure)
+- Counting helpers maintain state across multiple test steps using Cypress aliases or shared state
+- Functions integrate seamlessly with existing device connection interceptors
+- State management is isolated between different test scenarios
+- Reset functionality works correctly for test isolation
+- Add helpers to the "HELPER FUNCTIONS" section of each interceptor file
 
 **Testing Focus for Task 2:**
 
@@ -171,7 +172,7 @@ apps/teensyrom-ui-e2e/src/support/interceptors/primitives/
 - [ ] **Call Counting**: API calls are counted correctly during connection operations
 - [ ] **State Management**: Count state persists across multiple test steps
 - [ ] **Reset Functionality**: Count state resets properly between test scenarios
-- [ ] **Integration with Existing Tests**: New utilities work with existing test patterns
+- [ ] **Integration with Existing Tests**: New helpers work with existing test patterns
 
 **Testing Reference:**
 - See [E2E Testing Standards](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) for behavioral testing patterns
@@ -184,17 +185,18 @@ apps/teensyrom-ui-e2e/src/support/interceptors/primitives/
 <details open>
 <summary><h3>Task 3: Migrate device-connection.cy.ts Direct Intercepts</h3></summary>
 
-**Purpose**: Replace 2 direct `cy.intercept()` instances in device-connection.cy.ts with the new validation wrapper functions created in Task 1.
+**Purpose**: Replace 2 direct `cy.intercept()` instances in device-connection.cy.ts with the validation helper functions added to `connectDevice.interceptors.ts` and `disconnectDevice.interceptors.ts` in Task 1.
 
 **Related Documentation:**
 - [Direct Intercept Analysis](./INTERCEPTOR_PRIMITIVES_P2.md#phase-23-storage-domain-migration) - Analysis of remaining direct intercepts
 - [Test Migration Patterns](./INTERCEPTOR_PRIMITIVES_PLAN.md#phase-3-direct-intercept-cleanup) - Direct intercept cleanup guidance
+- [connectDevice Interceptor](../../../apps/teensyrom-ui-e2e/src/support/interceptors/connectDevice.interceptors.ts) - Enhanced validation helpers
 
 **Implementation Subtasks:**
 - [ ] **Subtask 3.1**: Analyze existing direct intercepts in `device-connection.cy.ts` (lines 89-106, 145-159)
-- [ ] **Subtask 3.2**: Replace connection API validation intercept with `interceptConnectDeviceWithValidation()` call
-- [ ] **Subtask 3.3**: Replace disconnection API validation intercept with `interceptDisconnectDeviceWithValidation()` call
-- [ ] **Subtask 3.4**: Update imports to include new validation interceptor functions
+- [ ] **Subtask 3.2**: Replace connection API validation intercept with `setupConnectDeviceWithValidation()` call from Task 1
+- [ ] **Subtask 3.3**: Replace disconnection API validation intercept with `setupDisconnectDeviceWithValidation()` call from Task 1
+- [ ] **Subtask 3.4**: Update imports to include new validation helper functions
 - [ ] **Subtask 3.5**: Verify all existing test assertions and logic remain unchanged
 
 **Testing Subtask:**
@@ -294,12 +296,12 @@ apps/teensyrom-ui-e2e/src/support/interceptors/primitives/
 
 **Implementation Subtasks:**
 - [ ] **Subtask 5.1**: Analyze existing direct intercepts in `device-refresh-connection.cy.ts` (lines 150-153, 209-212, 359-368, 419-427, 447-453)
-- [ ] **Subtask 5.2**: Replace API call counting intercepts (lines 150-153, 209-212) with counting utilities from Task 2
-- [ ] **Subtask 5.3**: Replace custom device ID validation in reconnection (lines 359-368) with validation wrapper from Task 1
-- [ ] **Subtask 5.4**: Replace delayed connection handling (lines 419-427) with enhanced wrapper
-- [ ] **Subtask 5.5**: Replace delayed disconnection handling (lines 447-453) with enhanced wrapper
+- [ ] **Subtask 5.2**: Replace API call counting intercepts (lines 150-153, 209-212) with counting helpers from Task 2
+- [ ] **Subtask 5.3**: Replace custom device ID validation in reconnection (lines 359-368) with validation helper from Task 1
+- [ ] **Subtask 5.4**: Replace delayed connection handling (lines 419-427) with enhanced helper from Task 1
+- [ ] **Subtask 5.5**: Replace delayed disconnection handling (lines 447-453) with enhanced helper from Task 1
 - [ ] **Subtask 5.6**: Document any scenarios that must remain as direct intercepts due to complexity
-- [ ] **Subtask 5.7**: Update imports to include new wrapper functions
+- [ ] **Subtask 5.7**: Update imports to include new helper functions
 
 **Testing Subtask:**
 - [ ] **Test Migrated File**: Execute `@agent-e2e-runner` on `device-refresh-connection.cy.ts` to validate complete functionality
@@ -311,9 +313,9 @@ apps/teensyrom-ui-e2e/src/support/interceptors/primitives/
 - [ ] **Final Testing**: Use `@agent-e2e-runner` to ensure no regressions from cleaning
 
 **Key Implementation Notes:**
-- API call counting must integrate seamlessly with counting utilities from Task 2
+- API call counting must integrate seamlessly with counting helpers from Task 2 endpoint interceptors
 - Complex timing scenarios may need to remain as direct intercepts with clear documentation
-- Device ID validation should use validation wrappers from Task 1
+- Device ID validation should use validation helpers from Task 1 endpoint interceptors
 - All refresh connection behavior must remain identical to before migration
 
 **Testing Focus for Task 5:**
@@ -387,17 +389,18 @@ apps/teensyrom-ui-e2e/src/support/interceptors/primitives/
 
 > List all files that will be changed or created during this phase with full relative paths from project root.
 
-**New Files:**
-- `apps/teensyrom-ui-e2e/src/support/interceptors/device/device-connection-validation.interceptors.ts`
-- `apps/teensyrom-ui-e2e/src/support/interceptors/device/api-behavior.interceptors.ts`
-- `docs/features/e2e-testing/INTERCEPTOR_PRIMITIVES_P3.md`
+**Modified Endpoint Interceptor Files:**
+- `apps/teensyrom-ui-e2e/src/support/interceptors/connectDevice.interceptors.ts` - Add validation & counting helpers
+- `apps/teensyrom-ui-e2e/src/support/interceptors/disconnectDevice.interceptors.ts` - Add validation & counting helpers
 
-**Modified Files:**
+**Modified Test Files:**
 - `apps/teensyrom-ui-e2e/src/e2e/devices/device-connection.cy.ts`
 - `apps/teensyrom-ui-e2e/src/e2e/devices/device-refresh-connection.cy.ts`
 - `apps/teensyrom-ui-e2e/src/e2e/devices/device-refresh-error.cy.ts`
-- `apps/teensyrom-ui-e2e/src/support/interceptors/primitives/INTERCEPTOR_PRIMITIVES.md`
-- `docs/features/e2e-testing/INTERCEPTOR_PRIMITIVES_P2.md`
+
+**Updated Documentation Files:**
+- `apps/teensyrom-ui-e2e/src/support/interceptors/primitives/INTERCEPTOR_PRIMITIVES.md` - Add documentation for new helpers
+- `docs/features/e2e-testing/INTERCEPTOR_PRIMITIVES_P3.md` - This phase implementation plan
 
 ---
 
@@ -448,11 +451,12 @@ apps/teensyrom-ui-e2e/src/support/interceptors/primitives/
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Functional Requirements:**
-- [ ] All 6 implementation tasks completed and checked off
+- [ ] All 5 implementation tasks completed and checked off
 - [ ] All subtasks within each task completed
 - [ ] 10 of 12 direct `cy.intercept()` instances eliminated (~83% reduction)
 - [ ] Code follows [Coding Standards](./CODING_STANDARDS.md)
-- [ ] Interceptor architecture follows established patterns from Phase 1-2
+- [ ] Maintains "1 interceptor per endpoint" architecture pattern
+- [ ] New helpers added to existing endpoint interceptor files (connectDevice, disconnectDevice)
 
 **Testing Requirements:**
 - [ ] All workflow execution steps completed for each file change
@@ -496,8 +500,9 @@ apps/teensyrom-ui-e2e/src/support/interceptors/primitives/
 
 ### Design Decisions
 
+- **One Interceptor Per Endpoint Pattern**: Maintain established architecture where each endpoint has a single interceptor file containing all wrapper functions for that endpoint
 - **Selective Migration Strategy**: Chose to eliminate ~83% of direct intercepts while documenting complex scenarios that should remain direct, avoiding over-engineering for unique test cases
-- **Enhanced Wrapper Approach**: Created specialized wrapper functions for common patterns (validation, counting, enhanced error handling) rather than forcing everything into generic primitives
+- **Enhanced Helper Functions**: Add specialized helper functions to existing endpoint interceptors (connectDevice, disconnectDevice) for validation and counting patterns
 - **Mandatory Workflow Policy**: Established strict clean-coder → e2e-runner → code-cleaner → e2e-runner cycle to ensure perfect code quality throughout the phase
 
 ### Implementation Constraints

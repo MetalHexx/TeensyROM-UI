@@ -33,21 +33,18 @@ import {
   verifyConnected,
   verifyDisconnected,
 } from './test-helpers';
-import {
-  interceptFindDevices,
-} from '../../support/interceptors/findDevices.interceptors';
+import { interceptFindDevices } from '../../support/interceptors/findDevices.interceptors';
 import {
   interceptDisconnectDevice,
-  DISCONNECT_DEVICE_ENDPOINT,
+  setupDisconnectDeviceWithValidation,
+  waitForDisconnectDevice,
 } from '../../support/interceptors/disconnectDevice.interceptors';
 import {
   interceptConnectDevice,
-  CONNECT_DEVICE_ENDPOINT,
+  setupConnectDeviceWithValidation,
+  waitForConnectDevice,
 } from '../../support/interceptors/connectDevice.interceptors';
-import {
-  singleDevice,
-  disconnectedDevice,
-} from '../../support/test-data/fixtures';
+import { singleDevice, disconnectedDevice } from '../../support/test-data/fixtures';
 
 describe('Device Connection - Single Device', () => {
   // =========================================================================
@@ -86,23 +83,13 @@ describe('Device Connection - Single Device', () => {
     });
 
     it('should call connection API with correct device ID', () => {
-      cy.intercept(
-        CONNECT_DEVICE_ENDPOINT.method,
-        CONNECT_DEVICE_ENDPOINT.pattern,
-        (req) => {
-          expect(req.url).to.include(disconnectedDevice.devices[0].deviceId);
-          req.reply({
-            statusCode: 200,
-            body: {
-              connectedCart: disconnectedDevice.devices[0],
-              message: 'Connected',
-            },
-          });
-        }
-      ).as('connectionRequest');
+      setupConnectDeviceWithValidation(
+        disconnectedDevice.devices[0].deviceId,
+        disconnectedDevice.devices[0]
+      );
 
       clickPowerButton(0);
-      cy.wait('@connectionRequest');
+      waitForConnectDevice();
     });
   });
 
@@ -129,9 +116,7 @@ describe('Device Connection - Single Device', () => {
       clickPowerButton(0);
       waitForDisconnection();
 
-      getDeviceCard(0)
-        .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
-        .should('have.class', 'normal');
+      getDeviceCard(0).find(DEVICE_CARD_SELECTORS.powerButtonIcon).should('have.class', 'normal');
     });
 
     it('should apply dimmed styling to device card after disconnection', () => {
@@ -142,20 +127,10 @@ describe('Device Connection - Single Device', () => {
     });
 
     it('should call disconnection API with correct device ID', () => {
-      cy.intercept(
-        DISCONNECT_DEVICE_ENDPOINT.method,
-        DISCONNECT_DEVICE_ENDPOINT.pattern,
-        (req) => {
-          expect(req.url).to.include(singleDevice.devices[0].deviceId);
-          req.reply({
-            statusCode: 200,
-            body: { message: 'Disconnected' },
-          });
-        }
-      ).as('disconnectionRequest');
+      setupDisconnectDeviceWithValidation(singleDevice.devices[0].deviceId);
 
       clickPowerButton(0);
-      cy.wait('@disconnectionRequest');
+      waitForDisconnectDevice();
     });
   });
 

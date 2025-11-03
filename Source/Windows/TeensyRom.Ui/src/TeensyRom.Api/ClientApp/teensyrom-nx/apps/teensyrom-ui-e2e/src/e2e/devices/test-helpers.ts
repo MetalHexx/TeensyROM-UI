@@ -23,14 +23,18 @@ export {
   getByClass,
 } from '../../support/constants/selector.constants';
 
-import { DEVICE_CARD_SELECTORS, DEVICE_VIEW_SELECTORS } from '../../support/constants/selector.constants';
-import { CONSTANTS, DOM_ATTRIBUTES, CSS_CLASSES } from '../../support/constants/selector.constants';
+import {
+  DEVICE_CARD_SELECTORS,
+  DEVICE_VIEW_SELECTORS,
+  CONSTANTS,
+  DOM_ATTRIBUTES,
+  CSS_CLASSES,
+} from '../../support/constants/selector.constants';
 import { FIND_DEVICES_ALIAS } from '../../support/interceptors/findDevices.interceptors';
 import { CONNECT_DEVICE_ALIAS } from '../../support/interceptors/connectDevice.interceptors';
 import { DISCONNECT_DEVICE_ALIAS } from '../../support/interceptors/disconnectDevice.interceptors';
 import { APP_ROUTES } from '../../support/constants/app-routes.constants';
 
-// Helper functions
 
 export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
   return cy.visit(APP_ROUTES.devices, {
@@ -64,21 +68,23 @@ export function verifyDeviceCard(options: {
 }): void {
   const { index, name, port, shouldBeConnected = true } = options;
 
-  getDeviceCard(index).should('be.visible').within(() => {
-    if (name) {
-      cy.get(DEVICE_CARD_SELECTORS.idLabel).should('contain.text', name);
-    }
+  getDeviceCard(index)
+    .should('be.visible')
+    .within(() => {
+      if (name) {
+        cy.get(DEVICE_CARD_SELECTORS.idLabel).should('contain.text', name);
+      }
 
-    if (port) {
-      cy.get(DEVICE_CARD_SELECTORS.portLabel).should('contain.text', port);
-    }
+      if (port) {
+        cy.get(DEVICE_CARD_SELECTORS.portLabel).should('contain.text', port);
+      }
 
-    if (shouldBeConnected) {
-      cy.get(DEVICE_CARD_SELECTORS.card).should('not.have.class', CSS_CLASSES.DIMMED);
-    } else {
-      cy.get(DEVICE_CARD_SELECTORS.card).should('have.class', CSS_CLASSES.DIMMED);
-    }
-  });
+      if (shouldBeConnected) {
+        cy.get(DEVICE_CARD_SELECTORS.card).should('not.have.class', CSS_CLASSES.DIMMED);
+      } else {
+        cy.get(DEVICE_CARD_SELECTORS.card).should('have.class', CSS_CLASSES.DIMMED);
+      }
+    });
 }
 
 /**
@@ -114,15 +120,10 @@ export function verifyLoadingState(timeout = 4000): void {
 /**
  * Verify device state label displays expected state
  */
-export function verifyDeviceState(options: {
-  deviceIndex: number;
-  state: string;
-}): void {
+export function verifyDeviceState(options: { deviceIndex: number; state: string }): void {
   const { deviceIndex, state } = options;
 
-  getDeviceCard(deviceIndex)
-    .find(DEVICE_CARD_SELECTORS.stateLabel)
-    .should('contain.text', state);
+  getDeviceCard(deviceIndex).find(DEVICE_CARD_SELECTORS.stateLabel).should('contain.text', state);
 }
 
 /**
@@ -191,7 +192,6 @@ export function clickRefreshDevices(): void {
   cy.contains('Refresh Devices').click();
 }
 
-// Connection workflow helpers
 
 export function clickPowerButton(deviceIndex: number): void {
   getDeviceCard(deviceIndex).find(DEVICE_CARD_SELECTORS.powerButton).click();
@@ -203,6 +203,30 @@ export function waitForConnection(timeout = CONSTANTS.DEFAULT_TIMEOUT): void {
 
 export function waitForDisconnection(timeout = CONSTANTS.DEFAULT_TIMEOUT): void {
   cy.wait(`@${DISCONNECT_DEVICE_ALIAS}`, { timeout });
+}
+
+/**
+ * Wait for connection API call to start
+ * Used to create timing windows for race condition testing
+ */
+export function waitForConnectionToStart(): void {
+  cy.wait(`@${CONNECT_DEVICE_ALIAS}`, { timeout: 2000 });
+}
+
+/**
+ * Wait for disconnection API call to start
+ * Used to create timing windows for race condition testing
+ */
+export function waitForDisconnectionToStart(): void {
+  cy.wait(`@${DISCONNECT_DEVICE_ALIAS}`, { timeout: 2000 });
+}
+
+/**
+ * Wait for find devices API call to start
+ * Used to create timing windows for race condition testing
+ */
+export function waitForFindDevicesToStart(): void {
+  cy.wait(`@${FIND_DEVICES_ALIAS}`, { timeout: 2000 });
 }
 
 export function verifyConnected(deviceIndex: number): void {

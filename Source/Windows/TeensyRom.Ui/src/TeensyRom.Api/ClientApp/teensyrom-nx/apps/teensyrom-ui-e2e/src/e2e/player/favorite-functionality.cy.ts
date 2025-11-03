@@ -154,7 +154,7 @@ describe('Favorites Functionality', () => {
       clickFavoriteButton();
       waitForSaveFavorite();
 
-      verifyErrorAlertDisplayed('Bad Request');
+      verifyErrorAlertDisplayed('Failed to save favorite. Please try again.');
 
       verifyFavoriteStateUnchangedAfterError('favorite_border');
 
@@ -182,7 +182,7 @@ describe('Favorites Functionality', () => {
       clickFavoriteButton();
       waitForRemoveFavorite();
 
-      verifyErrorAlertDisplayed('Bad Request');
+      verifyErrorAlertDisplayed('Failed to remove favorite. Please try again.');
 
       verifyFavoriteStateUnchangedAfterError('favorite');
 

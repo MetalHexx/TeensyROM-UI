@@ -6,18 +6,10 @@ import type { MockDeviceFixture } from '../test-data/fixtures/fixture.types';
 import {
   interceptSuccess,
   interceptError,
-  interceptNetworkError,
   type EndpointDefinition,
+  type CypressRequest,
+  type CypressMethod,
 } from './primitives/interceptor-primitives';
-
-/**
- * findDevices endpoint interceptor for device discovery
- * Migrated to primitive-based architecture for simplified maintenance
- */
-
-// ============================================================================
-// ENDPOINT DEFINITION
-// ============================================================================
 
 /**
  * findDevices endpoint configuration
@@ -27,10 +19,6 @@ export const FIND_DEVICES_ENDPOINT: EndpointDefinition = {
   pattern: 'http://localhost:5168/devices*',
   alias: 'findDevices',
 } as const;
-
-// ============================================================================
-// INTERFACE DEFINITIONS
-// ============================================================================
 
 /**
  * Options for interceptFindDevices interceptor
@@ -47,10 +35,6 @@ export interface InterceptFindDevicesOptions {
   /** Custom error message for error responses */
   errorMessage?: string;
 }
-
-// ============================================================================
-// INTERCEPTOR FUNCTION
-// ============================================================================
 
 /**
  * Intercepts GET /devices - Device discovery endpoint
@@ -77,24 +61,15 @@ export function interceptFindDevices(options: InterceptFindDevicesOptions = {}):
   interceptSuccess(FIND_DEVICES_ENDPOINT, response, options.responseDelayMs);
 }
 
-// ============================================================================
-// WAIT FUNCTION
-// ============================================================================
-
 /**
  * Waits for findDevices endpoint call to complete
- * Uses the registered alias from the interceptor
  */
 export function waitForFindDevices(): void {
   cy.wait(`@${FIND_DEVICES_ENDPOINT.alias}`);
 }
 
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
-
 /**
- * Verifies findDevices completed successfully and was called
+ * Verifies findDevices endpoint was called
  */
 export function verifyFindDevicesCompleted(): void {
   cy.get('@findDevices').should('exist');
@@ -198,14 +173,6 @@ export function interceptFindDevicesWithDelay(delayMs: number, fixture?: MockDev
 }
 
 /**
- * Intercepts findDevices with network error simulation
- * Convenience function for network failure scenarios
- */
-export function interceptFindDevicesWithNetworkError(): void {
-  interceptNetworkError(FIND_DEVICES_ENDPOINT);
-}
-
-/**
  * Gets the last request made to the findDevices endpoint
  * Useful for verifying request parameters in tests
  *
@@ -216,11 +183,79 @@ export function getLastFindDevicesRequest(): Cypress.Chainable<JQuery<HTMLElemen
   return cy.get('@findDevices');
 }
 
-// ============================================================================
-// EXPORT CONSTANTS (BACKWARD COMPATIBILITY)
-// ============================================================================
+/**
+ * Intercepts findDevices with ProblemDetails error response
+ *
+ * Intercepts the findDevices endpoint and returns a ProblemDetails-formatted error response.
+ * This is useful for testing error message extraction from the title field.
+ *
+ * @param statusCode HTTP status code (e.g., 404, 500)
+ * @param title ProblemDetails.title - user-friendly error message
+ * @param detail Optional ProblemDetails.detail - technical error details
+ *
+ * @example
+ * // Intercept 404 error with custom title
+ * interceptFindDevicesWithError(404, 'No TeensyRom devices found');
+ *
+ * @example
+ * // Intercept 404 with both title and detail
+ * interceptFindDevicesWithError(
+ *   404,
+ *   'No TeensyRom devices found',
+ *   'COM port scan completed with 0 devices detected'
+ * );
+ */
+export function interceptFindDevicesWithError(
+  statusCode: number,
+  title: string,
+  detail?: string
+): void {
+  cy.intercept(
+    FIND_DEVICES_ENDPOINT.method as CypressMethod,
+    FIND_DEVICES_ENDPOINT.pattern,
+    (req: CypressRequest) => {
+      const problemDetails = {
+        type: 'https://tools.ietf.org/html/rfc9110#section-11.4.1',
+        title,
+        status: statusCode,
+        detail: detail ?? title,
+      };
 
-// Backward compatibility exports for existing import patterns
+      req.reply({
+        statusCode,
+        headers: {
+          'content-type': 'application/problem+json',
+          'cache-control': 'no-cache',
+        },
+        body: problemDetails,
+      });
+    }
+  ).as(FIND_DEVICES_ENDPOINT.alias);
+}
+
+/**
+ * Intercepts findDevices with network error simulation
+ *
+ * Useful for testing bootstrap and refresh error handling when network connectivity is unavailable.
+ *
+ * @example
+ * interceptFindDevicesWithNetworkError();
+ * navigateToDeviceView(); // Bootstrap will fail with network error
+ * cy.get('[data-cy="empty-state-message"]').should('be.visible');
+ */
+export function interceptFindDevicesWithNetworkError(): void {
+  cy.intercept(
+    FIND_DEVICES_ENDPOINT.method as CypressMethod,
+    FIND_DEVICES_ENDPOINT.pattern,
+    (req: CypressRequest) => {
+      req.reply({ forceNetworkError: true });
+    }
+  ).as(FIND_DEVICES_ENDPOINT.alias);
+}
+
+/**
+ * Backward compatibility exports for existing import patterns
+ */
 export const FIND_DEVICES_ALIAS = FIND_DEVICES_ENDPOINT.alias;
 export const INTERCEPT_FIND_DEVICES = 'findDevices';
 export const FIND_DEVICES_METHOD = FIND_DEVICES_ENDPOINT.method;

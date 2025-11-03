@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import type { Method } from 'cypress/types/net-stubbing';
+
 /**
  * Interceptor Primitives Library
  *
@@ -11,15 +13,14 @@
 // INTERFACES AND TYPE DEFINITIONS
 // =========================================================================
 
+export type CypressMethod = Method;
+
 export interface EndpointDefinition {
-  method: string;
+  method: Method;
   pattern: string;
   alias: string;
 }
 
-/**
- * HTTP status code type for better type safety
- */
 export type StatusCode = 200 | 201 | 400 | 401 | 403 | 404 | 500 | 502 | 503;
 
 /**
@@ -40,7 +41,6 @@ export interface ProblemDetails {
 
 /**
  * Cypress request interface for interceptors
- * Extended to match IncomingHttpRequest interface for better compatibility
  */
 export interface CypressRequest {
   reply: (response: {
@@ -48,6 +48,7 @@ export interface CypressRequest {
     headers?: Record<string, string>;
     body?: unknown;
     delay?: number;
+    forceNetworkError?: boolean;
   }) => void;
   url: string;
   method: string;
@@ -61,47 +62,6 @@ export interface CypressRequest {
   resourceType: string;
   on: (event: string, handler: (...args: unknown[]) => void) => void;
 }
-
-/**
- * Cypress HTTP method type for interceptors
- */
-export type CypressMethod =
-  | 'ACL'
-  | 'BIND'
-  | 'CHECKOUT'
-  | 'CONNECT'
-  | 'COPY'
-  | 'DELETE'
-  | 'GET'
-  | 'HEAD'
-  | 'LINK'
-  | 'LOCK'
-  | 'M-SEARCH'
-  | 'MERGE'
-  | 'MKACTIVITY'
-  | 'MKCALENDAR'
-  | 'MKCOL'
-  | 'MOVE'
-  | 'NOTIFY'
-  | 'OPTIONS'
-  | 'PATCH'
-  | 'POST'
-  | 'PROPFIND'
-  | 'PROPPATCH'
-  | 'PURGE'
-  | 'PUT'
-  | 'REBIND'
-  | 'REPORT'
-  | 'SEARCH'
-  | 'SOURCE'
-  | 'SUBSCRIBE'
-  | 'TRACE'
-  | 'UNBIND'
-  | 'UNLINK'
-  | 'UNLOCK'
-  | 'UNSUBSCRIBE';
-
-// Helper Functions
 
 /**
  * Maps HTTP status codes to RFC 9110 sections
@@ -149,13 +109,9 @@ function createHeaders(
   contentType: string,
   customHeaders?: Record<string, string>
 ): Record<string, string> {
-  const baseHeaders = {
+  return {
     'content-type': contentType,
     'cache-control': 'no-cache',
-  };
-
-  return {
-    ...baseHeaders,
     ...customHeaders,
   };
 }
@@ -163,13 +119,14 @@ function createHeaders(
 /**
  * Creates a standard ProblemDetails error response
  * @param statusCode - HTTP status code
- * @param message - Custom error message
+ * @param message - Custom error message (used for both title and detail)
  * @returns RFC 9110 compliant ProblemDetails object
  */
 function createProblemDetails(statusCode: number, message: string): ProblemDetails {
+  const title = message || getErrorTitle(statusCode);
   return {
     type: `https://tools.ietf.org/html/rfc9110#section-${getRfcSection(statusCode)}`,
-    title: getErrorTitle(statusCode),
+    title,
     status: statusCode,
     detail: message,
   };
@@ -301,7 +258,9 @@ export function interceptSequence(
   }).as(endpoint.alias);
 }
 
-// Convenience Functions
+// =========================================================================
+// CONVENIENCE FUNCTIONS
+// =========================================================================
 
 /**
  * Convenience function for empty responses

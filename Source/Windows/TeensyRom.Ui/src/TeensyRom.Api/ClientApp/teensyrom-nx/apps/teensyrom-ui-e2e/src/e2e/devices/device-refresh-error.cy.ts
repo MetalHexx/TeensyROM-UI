@@ -27,7 +27,6 @@ import {
   getDeviceCard,
   DEVICE_VIEW_SELECTORS,
   DEVICE_CARD_SELECTORS,
-  createProblemDetailsResponse,
   expectDeviceCardVisible,
 } from './test-helpers';
 import {
@@ -43,12 +42,11 @@ import {
 import { APP_ROUTES } from '../../support/constants/app-routes.constants';
 import {
   interceptFindDevices,
-  FIND_DEVICES_ENDPOINT,
-  FIND_DEVICES_ALIAS,
   waitForFindDevices,
   interceptFindDevicesNotFound,
   interceptFindDevicesInternalServerError,
-  interceptFindDevicesWithNetworkError
+  interceptFindDevicesWithNetworkError,
+  interceptFindDevicesWithError,
 } from '../../support/interceptors/findDevices.interceptors';
 import { singleDevice } from '../../support/test-data/fixtures/devices.fixture';
 
@@ -119,13 +117,11 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
     });
 
     it('should extract error message from ProblemDetails.title over generic error', () => {
-      cy.intercept(
-        FIND_DEVICES_ENDPOINT.method,
-        FIND_DEVICES_ENDPOINT.pattern,
-        (req) => {
-          req.reply(createProblemDetailsResponse(404, errorMessage, 'Technical details: COM port scan completed with 0 devices detected'));
-        }
-      ).as(FIND_DEVICES_ALIAS);
+      interceptFindDevicesWithError(
+        404,
+        errorMessage,
+        'Technical details: COM port scan completed with 0 devices detected'
+      );
 
       clickRefreshDevices();
       waitForFindDevices();
@@ -137,13 +133,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
     it('should handle 404 with missing ProblemDetails.title by falling back to detail', () => {
       const detailMessage = 'No devices could be detected on the system';
 
-      cy.intercept(
-        FIND_DEVICES_ENDPOINT.method,
-        FIND_DEVICES_ENDPOINT.pattern,
-        (req) => {
-          req.reply(createProblemDetailsResponse(404, detailMessage));
-        }
-      ).as(FIND_DEVICES_ALIAS);
+      interceptFindDevicesWithError(404, detailMessage);
 
       clickRefreshDevices();
       waitForFindDevices();
@@ -174,13 +164,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
     });
 
     it('should allow recovery after 404 error when devices become available again', () => {
-      cy.intercept(
-        FIND_DEVICES_ENDPOINT.method,
-        FIND_DEVICES_ENDPOINT.pattern,
-        (req) => {
-          req.reply(createProblemDetailsResponse(404, errorMessage));
-        }
-      ).as(FIND_DEVICES_ALIAS);
+      interceptFindDevicesWithError(404, errorMessage);
 
       clickRefreshDevices();
       waitForFindDevices();
@@ -261,13 +245,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
     });
 
     it('should hide busy dialog when bootstrap fails with network error', () => {
-      cy.intercept(
-        FIND_DEVICES_ENDPOINT.method,
-        FIND_DEVICES_ENDPOINT.pattern,
-        (req) => {
-          req.reply({ forceNetworkError: true });
-        }
-      ).as(FIND_DEVICES_ALIAS);
+      interceptFindDevicesWithNetworkError();
 
       navigateToDeviceView();
       waitForFindDevices();
@@ -277,13 +255,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
     });
 
     it('should complete bootstrap and show error state within reasonable time when API fails', () => {
-      cy.intercept(
-        FIND_DEVICES_ENDPOINT.method,
-        FIND_DEVICES_ENDPOINT.pattern,
-        (req) => {
-          req.reply(createProblemDetailsResponse(404, errorMessage));
-        }
-      ).as(FIND_DEVICES_ALIAS);
+      interceptFindDevicesWithError(404, errorMessage);
 
       const startTime = Date.now();
       navigateToDeviceView();
@@ -300,13 +272,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
     });
 
     it('should allow recovery from bootstrap error', () => {
-      cy.intercept(
-        FIND_DEVICES_ENDPOINT.method,
-        FIND_DEVICES_ENDPOINT.pattern,
-        (req) => {
-          req.reply(createProblemDetailsResponse(404, errorMessage));
-        }
-      ).as(FIND_DEVICES_ALIAS);
+      interceptFindDevicesWithError(404, errorMessage);
 
       navigateToDeviceView();
       waitForFindDevices();
