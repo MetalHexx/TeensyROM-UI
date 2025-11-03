@@ -157,8 +157,14 @@ Basic routing and navigation validation.
 # Run all E2E tests
 pnpm nx e2e teensyrom-ui-e2e
 
+# Run all E2E tests with JSON reporting (for agents)
+pnpm nx e2e:report teensyrom-ui-e2e
+
 # Run specific test file
 pnpm nx e2e teensyrom-ui-e2e --spec="src/e2e/devices/device-discovery.cy.ts"
+
+# Run specific test file with JSON reporting
+pnpm nx e2e:report teensyrom-ui-e2e --spec="src/e2e/app.cy.ts"
 
 # Run in headed mode (see browser)
 pnpm nx e2e teensyrom-ui-e2e --headed --browser=chrome
@@ -177,6 +183,137 @@ pnpm nx e2e teensyrom-ui-e2e --grep="Loading States"
 **Cypress Test Runner**: Use `open-cypress` for interactive debugging with time-travel
 
 **Console Logs**: Available in browser DevTools during headed mode execution
+
+---
+
+## 📊 Test Reporting
+
+### JSON Reports for Agent Consumption
+
+The E2E test suite includes **Mochawesome JSON reporting** for deterministic test result analysis. This is particularly useful for automated agents (like Claude Code) to parse test outcomes and fix issues programmatically.
+
+### Running Tests with Reports
+
+**Primary Command** (for agent use):
+```bash
+pnpm nx e2e:report teensyrom-ui-e2e
+```
+
+**Run Specific Spec**:
+```bash
+pnpm nx e2e:report teensyrom-ui-e2e --spec=src/e2e/app.cy.ts
+pnpm nx e2e:report teensyrom-ui-e2e --spec=src/e2e/devices/device-discovery.cy.ts
+```
+
+**Note**: The `e2e:report` target automatically uses `serve-static` for faster startup and is optimized for headless test execution with JSON report generation.
+
+### Report Output Location
+
+Reports are generated in the Nx output directory:
+```
+dist/cypress/apps/teensyrom-ui-e2e/reports/
+├── index.json              # Main merged JSON report with all test results
+└── .jsons/                 # Individual test file reports (for multi-spec runs)
+    └── mochawesome.json
+```
+
+**Primary Report**: `apps/teensyrom-ui-e2e/dist/cypress/apps/teensyrom-ui-e2e/reports/index.json`
+
+### JSON Report Structure
+
+The JSON report contains complete test execution details:
+
+```json
+{
+  "stats": {
+    "suites": 2,
+    "tests": 10,
+    "passes": 8,
+    "failures": 2,
+    "pending": 0,
+    "start": "2025-01-15T10:30:00.000Z",
+    "end": "2025-01-15T10:30:45.123Z",
+    "duration": 45123
+  },
+  "results": [
+    {
+      "uuid": "...",
+      "title": "Device Discovery",
+      "fullFile": "src/e2e/devices/device-discovery.cy.ts",
+      "file": "src/e2e/devices/device-discovery.cy.ts",
+      "suites": [
+        {
+          "title": "Single Device",
+          "tests": [
+            {
+              "title": "should display device name",
+              "state": "passed",
+              "speed": "fast",
+              "duration": 1234,
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "code": "..."
+            },
+            {
+              "title": "should display device connection status",
+              "state": "failed",
+              "speed": null,
+              "duration": 2345,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "err": {
+                "message": "expected 'Disconnected' to equal 'Connected'",
+                "estack": "AssertionError: expected 'Disconnected' to equal 'Connected'\n    at Context.eval (webpack://...)",
+                "diff": "..."
+              },
+              "code": "..."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Using Reports for Debugging
+
+**For Agents/Automation**:
+1. Parse `stats` object for high-level test outcome (passes vs failures)
+2. Iterate through `results[].suites[].tests[]` for individual test details
+3. Check `test.state` field: `"passed"`, `"failed"`, or `"pending"`
+4. For failures, examine `test.err.message` and `test.err.estack` for root cause
+5. Use `test.fullFile` to identify which spec file contains the failure
+6. Use `test.title` and parent suite titles for precise test location
+
+**Example Agent Logic**:
+```typescript
+const report = JSON.parse(fs.readFileSync('apps/teensyrom-ui-e2e/dist/cypress/apps/teensyrom-ui-e2e/reports/index.json', 'utf8'));
+
+if (report.stats.failures > 0) {
+  report.results.forEach(result => {
+    result.suites?.forEach(suite => {
+      suite.tests?.forEach(test => {
+        if (test.fail) {
+          console.log(`FAILED: ${result.file} - ${suite.title} - ${test.title}`);
+          console.log(`Error: ${test.err.message}`);
+          console.log(`Stack: ${test.err.estack}`);
+        }
+      });
+    });
+  });
+}
+```
+
+### Reporter Configuration
+
+The reporter is configured in `cypress.config.ts`:
+- **JSON only**: HTML reports are disabled (agents don't need visual reports)
+- **No charts**: Reduces report size and generation time
+- **No embedded screenshots**: Screenshots remain separate for debugging
+- **Deterministic output**: Same test run produces identical JSON structure
 
 ---
 
@@ -373,14 +510,16 @@ Detailed implementation guides for each testing phase:
 
 ## ✅ Quick Reference
 
-**Run Tests**: `pnpm nx e2e teensyrom-ui-e2e`  
-**Debug Tests**: `pnpm nx e2e teensyrom-ui-e2e:open-cypress`  
-**API Spec**: `../../TeensyRom.Api/api-spec/TenesyRom.Api.json`  
-**Fixtures**: `src/support/test-data/fixtures/`  
-**Generators**: `src/support/test-data/generators/`  
-**Interceptors**: `src/support/interceptors/`  
-**Constants**: `src/support/constants/`  
-**Test Helpers**: `src/e2e/devices/test-helpers.ts`  
-**Test Specs**: `src/e2e/devices/`  
+**Run Tests**: `pnpm nx e2e teensyrom-ui-e2e`
+**Run Tests with JSON Reports**: `pnpm nx e2e:report teensyrom-ui-e2e`
+**Debug Tests**: `pnpm nx e2e teensyrom-ui-e2e:open-cypress`
+**Test Reports**: `apps/teensyrom-ui-e2e/dist/cypress/apps/teensyrom-ui-e2e/reports/index.json`
+**API Spec**: `../../TeensyRom.Api/api-spec/TenesyRom.Api.json`
+**Fixtures**: `src/support/test-data/fixtures/`
+**Generators**: `src/support/test-data/generators/`
+**Interceptors**: `src/support/interceptors/`
+**Constants**: `src/support/constants/`
+**Test Helpers**: `src/e2e/devices/test-helpers.ts`
+**Test Specs**: `src/e2e/devices/`
 
 **Current Status**: ✅ 33/33 active tests passing | 6 tests pending (Phase 5)

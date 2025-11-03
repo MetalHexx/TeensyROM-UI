@@ -14,6 +14,44 @@
         "passWithNoTests": true,
         "reportsDirectory": "../../coverage/apps/teensyrom-ui-e2e"
       }
+    },
+    "e2e:report": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/teensyrom-ui-e2e",
+        "command": "cypress run",
+        "env": {
+          "TS_NODE_COMPILER_OPTIONS": "{\"customConditions\":null}"
+        }
+      },
+      "cache": true,
+      "inputs": [
+        "default",
+        "^production",
+        {
+          "externalDependencies": ["cypress"]
+        }
+      ],
+      "outputs": [
+        "{workspaceRoot}/dist/cypress/apps/teensyrom-ui-e2e/reports",
+        "{workspaceRoot}/dist/cypress/apps/teensyrom-ui-e2e/screenshots"
+      ],
+      "dependsOn": [
+        {
+          "projects": ["teensyrom-ui"],
+          "target": "serve-static"
+        }
+      ],
+      "metadata": {
+        "technologies": ["cypress"],
+        "description": "Runs Cypress E2E tests with JSON reporting for agent consumption",
+        "help": {
+          "command": "pnpm exec cypress run --help",
+          "example": {
+            "args": ["--spec=src/e2e/app.cy.ts"]
+          }
+        }
+      }
     }
   }
 }
