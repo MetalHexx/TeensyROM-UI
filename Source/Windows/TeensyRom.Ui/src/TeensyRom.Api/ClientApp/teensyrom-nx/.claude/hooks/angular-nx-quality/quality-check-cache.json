@@ -1,7 +1,6 @@
 {
   "_comment": "TeensyROM Quality Check Cache - Optimizes TypeScript config resolution for Nx monorepo. Contains SHA256 hashes of tsconfig files and pattern-based mappings for 70-90% faster quality checks. Auto-generated and maintained by quality-check.cjs",
   "hashes": {
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\.claude\\hooks\\angular-nx-quality\\tsconfig-cache.json": "bb6897c478cc150af9f0145d9caf0d83163797c0f2b35e0182f8628eb3e9b59f",
     "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\apps\\teensyrom-ui\\tsconfig.app.json": "a5867e88ff6571b373cc8bb6ef34f6325fca631ab1ead85dfe869b1c9a200a18",
     "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\apps\\teensyrom-ui\\tsconfig.editor.json": "6bc71b95466ce21bc3588cc9f15e7ab9783e159f72a66f16879fb7ab6d411295",
     "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\apps\\teensyrom-ui\\tsconfig.json": "ac667aaa276d13b5c9d46b32c341ae50eb15bf57844ab3fa45b74c8c5fd9af3d",
@@ -9,61 +8,372 @@
     "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\apps\\teensyrom-ui-e2e\\tsconfig.json": "bc0bfaa63d439e2b31d0cda04cb2b504c772d1b55b51a4960696eec2c4e64554",
     "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\bootstrap\\tsconfig.json": "927519027e099bc004ce29154bf67d02d061ee8c70fef31808f5a0ffa779bcec",
     "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\bootstrap\\tsconfig.lib.json": "d74e42bbd40a19349a615148bf401bad00540f8b8199bc0316e3b41d869baf2a",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\routing\\tsconfig.json": "f6d1e6f4e0c5d632d0c432e3b3a6e6b8d0a2c8e3b5f9d1d2c8b3e6d6f9a2b4c5",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\routing\\tsconfig.lib.json": "e4f6c9b7a2c3d1a5b4c9d2e3f6a5b8c7d0e9f2a1b4c7d0e3f6a9b2c5d8e1f4a7",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\domain\\tsconfig.json": "9e5c4d2a3f6b8e7a5c4d2b9e6f3a5b8c7d0e2f4a1b6c9d2e5f8a1b4c7d0e3f6a",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\domain\\tsconfig.lib.json": "c5a7b9e2d6f4a1c8b3e6a5d2c9f4b7e8a1d3c5f8b2a5c8d1e4f7a9b2c5d8e1f4",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\domain\\tsconfig.spec.json": "b4e8c7a2d5f9a3c6b8e1d4f7a2c5b9e3f6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\device\\tsconfig.json": "e7a9c4d8b2f5a1c3e6b8d4f7a2c5b9e3f6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\device\\tsconfig.lib.json": "f8b1c5e9d3a6c9b4e7a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e0a2d5",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\device\\tsconfig.spec.json": "c9d6f8a2e5b9c3a7b1e4f8b2a5c7d0e3f6a9b2c5d8e1f4a7c9b3e6a8d1c4b7e",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\player\\tsconfig.json": "d0e3f6a9b2c5d8a1b4c7e0a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e0a2",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\player\\tsconfig.lib.json": "a1b4c7e0d3f6a9b2c5d8e1f4a7c9b3e6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\player\\tsconfig.spec.json": "b2c5d8e1f4a7c9b3e6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\infrastructure\\tsconfig.json": "c3d6f8a2e5b9c3a7b1e4f8b2a5c7d0e3f6a9b2c5d8e1f4a7c9b3e6a8d1c4b7e",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\infrastructure\\tsconfig.lib.json": "d4e7a9b3f6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e0a2d5",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\infrastructure\\tsconfig.spec.json": "e5f8b2a6c9b3e6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e0a",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\components\\tsconfig.json": "f6a9b2c5d8e1f4a7c9b3e6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\components\\tsconfig.lib.json": "a7c0d3f6b9e2a5c8b1e4f7a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e0a2",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\components\\tsconfig.spec.json": "b8e1f4a7c0d3f6b9e2a5c8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\navigation\\tsconfig.json": "c9b3e6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e0a2d5f8b1",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\navigation\\tsconfig.lib.json": "da2c5b9e3f6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e0a2d5",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\navigation\\tsconfig.spec.json": "eb3d6f8a2c5b9e3f6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\styles\\tsconfig.json": "fc4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\styles\\tsconfig.lib.json": "fd5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c5b9",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\styles\\tsconfig.spec.json": "fe6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e0a2d5f8b1c4e7a",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\tsconfig.base.json": "a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e0a2d5f8b1c4e7a9b",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\tsconfig.json": "b9e2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c",
-    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\tsconfig.spec.json": "c7e0a2d5f8b1c4e7a9b3d6f8a2c5b9e3f6a8d1c4b7e0a2d5f8b1c4e7a9b3d6f8a2c"
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\bootstrap\\tsconfig.spec.json": "7cb040b18298ab2fa7509da96ed9803cdab317326b7f89f7630d40659a9aee4d",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\navigation\\tsconfig.json": "927519027e099bc004ce29154bf67d02d061ee8c70fef31808f5a0ffa779bcec",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\navigation\\tsconfig.lib.json": "d74e42bbd40a19349a615148bf401bad00540f8b8199bc0316e3b41d869baf2a",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\navigation\\tsconfig.spec.json": "7cb040b18298ab2fa7509da96ed9803cdab317326b7f89f7630d40659a9aee4d",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\shell\\tsconfig.json": "927519027e099bc004ce29154bf67d02d061ee8c70fef31808f5a0ffa779bcec",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\shell\\tsconfig.lib.json": "d74e42bbd40a19349a615148bf401bad00540f8b8199bc0316e3b41d869baf2a",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\shell\\tsconfig.spec.json": "7cb040b18298ab2fa7509da96ed9803cdab317326b7f89f7630d40659a9aee4d",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\tsconfig.json": "393052a077414df2c890431a19077ec75d31c2616eb7c87b1127837109b3fab2",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\tsconfig.lib.json": "486f13b239ee59ec96ddf2e8a12ee35e3d5865ed8cf616b7e40f234d76fcd0ce",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\tsconfig.spec.json": "12b35eb507154399298d36cf7dfdb67a318a277951c8b84aac8e8eb4c6046882",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\application\\tsconfig.json": "a59c841c89d566d79f6df19bd7f0becde841c34ee0459b4679655aae4d36ac6f",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\application\\tsconfig.lib.json": "d455d5df5e93fa1511ce4478b50e97609a96a4cc29a30669b3b5a015dc2ced45",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\application\\tsconfig.spec.json": "c129be44c2c5d80f901b2ee8094be56f0f82bb998a89bfc0a2411870c808037c",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\data-access\\api-client\\tsconfig.json": "bf67ea9667f2a0333a6425f74317423a0205094774caa93b159e656f7e0ee01a",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\data-access\\api-client\\tsconfig.lib.json": "8be128613c3cc64ac5470cdcb19c6bf56aa8c70b01bc774e3fe1c0d9535be7e4",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\data-access\\api-client\\tsconfig.spec.json": "eafa1d8dbe5cc017faf4d0773fcf0afed069f8f75726eb4d09a1d7fa1b94f017",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\domain\\tsconfig.json": "78d250153a67295a76b2b1588ebd14e88ddba6d3c5f574d42bcf222ca26584d8",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\domain\\tsconfig.lib.json": "e859d903fd0940aa1e3f7032f85aa6884066427da56a3bdf9162ce07d5ed7602",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\domain\\tsconfig.spec.json": "0fb8ee0b05ef19abcb1535ddae73c9093ad6d66cf2c505ea474955c384c0f427",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\devices\\tsconfig.json": "927519027e099bc004ce29154bf67d02d061ee8c70fef31808f5a0ffa779bcec",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\devices\\tsconfig.lib.json": "d74e42bbd40a19349a615148bf401bad00540f8b8199bc0316e3b41d869baf2a",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\devices\\tsconfig.spec.json": "7cb040b18298ab2fa7509da96ed9803cdab317326b7f89f7630d40659a9aee4d",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\player\\tsconfig.json": "927519027e099bc004ce29154bf67d02d061ee8c70fef31808f5a0ffa779bcec",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\player\\tsconfig.lib.json": "d74e42bbd40a19349a615148bf401bad00540f8b8199bc0316e3b41d869baf2a",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\player\\tsconfig.spec.json": "7cb040b18298ab2fa7509da96ed9803cdab317326b7f89f7630d40659a9aee4d",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\infrastructure\\tsconfig.json": "377bc5852716bf1b65245464d133e90456a9bd9d7b4ceb9aef1c42a37636fd0b",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\infrastructure\\tsconfig.lib.json": "5f485e728a2cfde730731fefffec9029e1003ed0a7cce247770663eb5a860d55",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\infrastructure\\tsconfig.spec.json": "721aba72d6a7200da2f2b4cd474c83a002ce403f4ad5e853f685163b737052f4",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\tsconfig.json": "8c4139a7491df8ebfd97e3c5bcc6696965f7bbda19980796d73801c6abc8cae6",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\tsconfig.spec.json": "862e6356372bba89bc964f5c0a8e9b13d8b26b735e1dabe0b33dbccfa5bf2a22",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\components\\tsconfig.json": "927519027e099bc004ce29154bf67d02d061ee8c70fef31808f5a0ffa779bcec",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\components\\tsconfig.lib.json": "d74e42bbd40a19349a615148bf401bad00540f8b8199bc0316e3b41d869baf2a",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\components\\tsconfig.spec.json": "7cb040b18298ab2fa7509da96ed9803cdab317326b7f89f7630d40659a9aee4d",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\styles\\tsconfig.json": "927519027e099bc004ce29154bf67d02d061ee8c70fef31808f5a0ffa779bcec",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\styles\\tsconfig.lib.json": "d74e42bbd40a19349a615148bf401bad00540f8b8199bc0316e3b41d869baf2a",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\styles\\tsconfig.spec.json": "7cb040b18298ab2fa7509da96ed9803cdab317326b7f89f7630d40659a9aee4d",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\utils\\tsconfig.json": "0791f6227488a177e9586039a6fd7fd34063c0f566b093fe1e4886ce1d25a3f4",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\utils\\tsconfig.lib.json": "42832654dad74d07ce7b6f69b605ac2f0386714b13d483cdb2ee3917fc075270",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\utils\\tsconfig.spec.json": "463592e3b86b149fea6bc6b6a8c3b1e55e0ae417b0b977f79843d909811490a3",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\tsconfig.base.json": "a305bb1c2d2ab74930f3328508ca7de96a6c1343314a025ba73d9ca2113e63b3",
+    "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\tsconfig.json": "63f80affefd37041b4330a69195188b99c8f3e0ce302a1baebed6d25366bea99"
   },
   "mappings": {
     "apps/teensyrom-ui/**/*.ts": {
-      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\apps\\teensyrom-ui\\tsconfig.app.json",
-      "excludes": ["node_modules/**", "dist/**", ".nx/**"]
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\apps\\teensyrom-ui\\tsconfig.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "apps/teensyrom-ui/**/*.tsx": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\apps\\teensyrom-ui\\tsconfig.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "apps/teensyrom-ui/**/*.spec.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\apps\\teensyrom-ui\\tsconfig.spec.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
     },
     "apps/teensyrom-ui-e2e/**/*.ts": {
       "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\apps\\teensyrom-ui-e2e\\tsconfig.json",
-      "excludes": ["node_modules/**", "dist/**", ".nx/**"]
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "apps/teensyrom-ui-e2e/**/*.tsx": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\apps\\teensyrom-ui-e2e\\tsconfig.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/app/**/*.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/app/**/*.tsx": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/app/**/*.spec.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app\\tsconfig.spec.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/application/**/*.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\application\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/application/**/*.tsx": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\application\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/application/**/*.spec.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\application\\tsconfig.spec.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/data-access/**/*.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\data-access\\api-client\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/data-access/**/*.tsx": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\data-access\\api-client\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/data-access/**/*.spec.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\data-access\\api-client\\tsconfig.spec.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
     },
     "libs/domain/**/*.ts": {
       "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\domain\\tsconfig.lib.json",
-      "excludes": ["node_modules/**", "dist/**", ".nx/**"]
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
     },
-    "libs/app/**/*.ts": {
-      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\app/tsconfig.lib.json",
-      "excludes": ["node_modules/**", "dist/**", ".nx/**"]
+    "libs/domain/**/*.tsx": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\domain\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/domain/**/*.spec.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\domain\\tsconfig.spec.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/features/**/*.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\player\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/features/**/*.tsx": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\player\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/features/**/*.spec.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features\\player\\tsconfig.spec.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
     },
     "libs/infrastructure/**/*.ts": {
       "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\infrastructure\\tsconfig.lib.json",
-      "excludes": ["node_modules/**", "dist/**", ".nx/**"]
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
     },
-    "libs/features/**/*.ts": {
-      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\features/device/tsconfig.lib.json",
-      "excludes": ["node_modules/**", "dist/**", ".nx/**"]
+    "libs/infrastructure/**/*.tsx": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\infrastructure\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/infrastructure/**/*.spec.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\infrastructure\\tsconfig.spec.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/tsconfig.json/**/*.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\tsconfig.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/tsconfig.json/**/*.tsx": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\tsconfig.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/tsconfig.spec.json/**/*.spec.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\tsconfig.spec.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
     },
     "libs/ui/**/*.ts": {
-      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui/components/tsconfig.lib.json",
-      "excludes": ["node_modules/**", "dist/**", ".nx/**"]
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\styles\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/ui/**/*.tsx": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\styles\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/ui/**/*.spec.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\ui\\styles\\tsconfig.spec.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/utils/**/*.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\utils\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/utils/**/*.tsx": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\utils\\tsconfig.lib.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "libs/utils/**/*.spec.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\libs\\utils\\tsconfig.spec.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "**/*.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\tsconfig.base.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "**/*.tsx": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\tsconfig.base.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "*.ts": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\tsconfig.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
+    },
+    "*.tsx": {
+      "configPath": "C:\\dev\\src\\TeensyROM-UI\\Source\\Windows\\TeensyRom.Ui\\src\\TeensyRom.Api\\ClientApp\\teensyrom-nx\\tsconfig.json",
+      "excludes": [
+        "node_modules/**",
+        "dist/**",
+        ".nx/**",
+        "coverage/**"
+      ]
     }
   },
   "lastBuilt": "2025-11-02T01:33:00.123Z",
