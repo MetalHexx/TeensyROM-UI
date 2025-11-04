@@ -39,7 +39,6 @@ export default defineConfig({
 
     setupNodeEvents(on, config) {
       // Register mochawesome reporter plugin with resolved path
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const mochawesomeReporter = require('cypress-mochawesome-reporter/plugin');
       mochawesomeReporter(on);
       return config;
