@@ -9,3 +9,5 @@ export * from './api.constants';
 export * from './selector.constants';
 export * from './app-routes.constants';
 export * from './alert.constants';
+export * from './storage.constants';
+export * from './test.constants';
