@@ -6,17 +6,14 @@ allowed-tools: Bash(pnpm:*), Bash(nx:*), Read(apps/teensyrom-ui-e2e/dist/**)
 
 ## Steps to run
 
-- Take the [test-file-full-path] and just grab the file name. These files end in .cy.ts
-- We'll call this [file-name].
-  - For example, [file-name] should be look something like filename.cy.ts
-- If [file-name] is not empty call:
-  - pnpm nx e2e:report teensyrom-ui-e2e --spec=src/e2e/[file-name]
-- If [file-name] is empty, call:
-  - pnpm nx e2e:report teensyrom-ui-e2e
-
-## WAIT FOR THE TEST TO COMPLETE!!
-
-- Make sure you wait until ALL the tests are passing before you complete.
+1. Take the [test-file-full-path] and extract just the filename (these files end in .cy.ts)
+   - For example: `app.cy.ts`, `devices/device-indexing.cy.ts`
+2. Run the appropriate command with a 10-minute timeout (E2E tests take several minutes):
+   - If [file-name] is specified: `pnpm nx e2e:report teensyrom-ui-e2e --spec=src/e2e/[file-name]`
+   - If [file-name] is empty: `pnpm nx e2e:report teensyrom-ui-e2e`
+3. **Let the Bash tool wait for command completion naturally** (no polling needed)
+4. The command will exit with status code 0 on success, or non-zero on error
+5. After completion, read the JSON report and generate the test summary
 
 ## Read JSON Report
 
@@ -87,8 +84,10 @@ Return a detailed report using the format below, extracting data from the JSON r
 
 [If tests failed, analyze the error messages and stack traces from JSON to provide specific recommendations for fixing the issues]
 
-### Agent Instructions
+## Implementation Notes
 
-- Use the JSON report at the path above for detailed analysis
-- Navigate to files listed in `test.fullFile` to view and fix failing tests
-- Error messages and stack traces provide exact failure points
+- **No polling required**: The Bash tool automatically waits for command completion
+- **Single source of truth**: All test results come from the JSON report, not console output
+- **Efficient**: Only 2 tool calls needed (Bash to run tests, Read to get results)
+- **Deterministic**: JSON schema is stable; no fragile text pattern matching
+- **Exit codes**: Indicate if command ran (0 = success, non-zero = error), not if tests passed (JSON shows pass/fail)
