@@ -312,10 +312,7 @@ describe('Indexing Fixtures', () => {
         const sdAvailable = device.sdStorage?.available ?? false;
 
         // Verify we have at least one unique combination
-        if (
-          name === 'both available' ||
-          name === 'both unavailable'
-        ) {
+        if (name === 'both available' || name === 'both unavailable') {
           expect(usbAvailable).toBe(sdAvailable);
         } else {
           expect(usbAvailable).not.toBe(sdAvailable);

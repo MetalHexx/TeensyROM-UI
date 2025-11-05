@@ -57,7 +57,6 @@ describe('StorageItemComponent', () => {
       expect(component.iconColor()).toBe('normal');
     });
 
-
     it('should accept selected input', () => {
       fixture.componentRef.setInput('icon', 'folder');
       fixture.componentRef.setInput('label', 'Test');

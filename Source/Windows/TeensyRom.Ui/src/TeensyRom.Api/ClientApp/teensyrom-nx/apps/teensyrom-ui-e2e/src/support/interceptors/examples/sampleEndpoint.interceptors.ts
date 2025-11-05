@@ -15,7 +15,7 @@ export const SAMPLE_ENDPOINT = {
   path: '/api/sample',
   full: 'http://localhost:5168/api/sample',
   pattern: 'http://localhost:5168/api/sample*',
-  alias: 'sampleEndpoint'
+  alias: 'sampleEndpoint',
 } as const;
 
 // Section 2: Interface Definitions
@@ -133,7 +133,10 @@ export function setupSampleEndpoint(): void {
  * @param statusCode HTTP status code for error (default: 500)
  * @param errorMessage Custom error message
  */
-export function setupSampleEndpointError(statusCode = 500, errorMessage = 'Internal Server Error'): void {
+export function setupSampleEndpointError(
+  statusCode = 500,
+  errorMessage = 'Internal Server Error'
+): void {
   interceptSampleEndpoint({
     errorMode: true,
     statusCode,
@@ -201,13 +204,21 @@ function getRfcSection(statusCode: number): string {
  */
 function getErrorTitle(statusCode: number): string {
   switch (statusCode) {
-    case 400: return 'Bad Request';
-    case 401: return 'Unauthorized';
-    case 403: return 'Forbidden';
-    case 404: return 'Not Found';
-    case 500: return 'Internal Server Error';
-    case 502: return 'Bad Gateway';
-    case 503: return 'Service Unavailable';
-    default: return 'Error';
+    case 400:
+      return 'Bad Request';
+    case 401:
+      return 'Unauthorized';
+    case 403:
+      return 'Forbidden';
+    case 404:
+      return 'Not Found';
+    case 500:
+      return 'Internal Server Error';
+    case 502:
+      return 'Bad Gateway';
+    case 503:
+      return 'Service Unavailable';
+    default:
+      return 'Error';
   }
 }

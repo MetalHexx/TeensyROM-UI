@@ -23,7 +23,7 @@ export interface AnimationParent {
 
 /**
  * Animation parent mode for controlling animation chaining behavior.
- * 
+ *
  * - `undefined` (default): No chaining - component animates immediately
  * - `'auto'`: Explicitly opt into auto-chaining with nearest animation parent
  * - `AnimationParent`: Chain to a specific component (sibling, ancestor, or any component)

@@ -1,6 +1,19 @@
 import { Injectable, inject } from '@angular/core';
-import { FilesApiService, GetDirectoryResponse, SearchResponse, SaveFavoriteResponse, RemoveFavoriteResponse } from '@teensyrom-nx/data-access/api-client';
-import { StorageDirectory, StorageType, IStorageService, FileItem, PlayerFilterType, ALERT_SERVICE } from '@teensyrom-nx/domain';
+import {
+  FilesApiService,
+  GetDirectoryResponse,
+  SearchResponse,
+  SaveFavoriteResponse,
+  RemoveFavoriteResponse,
+} from '@teensyrom-nx/data-access/api-client';
+import {
+  StorageDirectory,
+  StorageType,
+  IStorageService,
+  FileItem,
+  PlayerFilterType,
+  ALERT_SERVICE,
+} from '@teensyrom-nx/domain';
 import { DomainMapper } from '../domain.mapper';
 import { Observable, map, catchError, from, throwError, mergeMap } from 'rxjs';
 import { logError } from '@teensyrom-nx/utils';
@@ -39,9 +52,9 @@ export class StorageService implements IStorageService {
 
   index(deviceId: string, storageType: StorageType, startingPath?: string): Observable<unknown> {
     const apiStorageType = DomainMapper.toApiStorageType(storageType);
-    return from(this.apiService.index({ deviceId, storageType: apiStorageType, startingPath })).pipe(
-      catchError((error) => this.handleError(error, 'index', 'Failed to index storage'))
-    );
+    return from(
+      this.apiService.index({ deviceId, storageType: apiStorageType, startingPath })
+    ).pipe(catchError((error) => this.handleError(error, 'index', 'Failed to index storage')));
   }
 
   indexAll(): Observable<unknown> {
@@ -68,23 +81,21 @@ export class StorageService implements IStorageService {
         searchText,
         skip,
         take,
-        filterType: apiFilterType
+        filterType: apiFilterType,
       })
     ).pipe(
       map((response: SearchResponse) => {
-        return response.files?.map(file => DomainMapper.toFileItem(file, this.baseApiUrl)) ?? [];
+        return response.files?.map((file) => DomainMapper.toFileItem(file, this.baseApiUrl)) ?? [];
       }),
       catchError((error) => this.handleError(error, 'search', 'Search operation failed'))
     );
   }
 
-  saveFavorite(
-    deviceId: string,
-    storageType: StorageType,
-    filePath: string
-  ): Observable<FileItem> {
+  saveFavorite(deviceId: string, storageType: StorageType, filePath: string): Observable<FileItem> {
     const apiStorageType = DomainMapper.toApiStorageType(storageType);
-    return from(this.apiService.saveFavorite({ deviceId, storageType: apiStorageType, filePath })).pipe(
+    return from(
+      this.apiService.saveFavorite({ deviceId, storageType: apiStorageType, filePath })
+    ).pipe(
       map((response: SaveFavoriteResponse) => {
         if (!response || !response.favoriteFile) {
           throw new Error('Invalid response: favoriteFile is missing from saveFavorite response');
@@ -99,13 +110,11 @@ export class StorageService implements IStorageService {
     );
   }
 
-  removeFavorite(
-    deviceId: string,
-    storageType: StorageType,
-    filePath: string
-  ): Observable<void> {
+  removeFavorite(deviceId: string, storageType: StorageType, filePath: string): Observable<void> {
     const apiStorageType = DomainMapper.toApiStorageType(storageType);
-    return from(this.apiService.removeFavorite({ deviceId, storageType: apiStorageType, filePath })).pipe(
+    return from(
+      this.apiService.removeFavorite({ deviceId, storageType: apiStorageType, filePath })
+    ).pipe(
       map((response: RemoveFavoriteResponse) => {
         if (!response) {
           throw new Error('Invalid response: removeFavorite returned empty response');
@@ -120,7 +129,11 @@ export class StorageService implements IStorageService {
     );
   }
 
-  private handleError(error: unknown, methodName: string, fallbackMessage: string): Observable<never> {
+  private handleError(
+    error: unknown,
+    methodName: string,
+    fallbackMessage: string
+  ): Observable<never> {
     return from(extractErrorMessage(error, fallbackMessage)).pipe(
       mergeMap((message) => {
         logError(`StorageService.${methodName} error:`, error);

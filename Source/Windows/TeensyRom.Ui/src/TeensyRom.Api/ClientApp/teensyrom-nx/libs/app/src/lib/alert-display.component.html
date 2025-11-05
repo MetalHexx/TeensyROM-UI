@@ -1,10 +1,7 @@
 <div class="alert-display">
   <mat-icon class="alert-icon">{{ iconName() }}</mat-icon>
   <span class="alert-message">{{ alert().message }}</span>
-  <button
-    mat-icon-button
-    (click)="onDismiss()"
-    aria-label="Dismiss alert">
+  <button mat-icon-button (click)="onDismiss()" aria-label="Dismiss alert">
     <mat-icon>close</mat-icon>
   </button>
 </div>

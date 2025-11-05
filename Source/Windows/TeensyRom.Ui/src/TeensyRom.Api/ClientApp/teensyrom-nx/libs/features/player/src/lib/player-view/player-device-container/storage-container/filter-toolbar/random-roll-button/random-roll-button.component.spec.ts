@@ -5,20 +5,20 @@ import { RandomRollButtonComponent } from './random-roll-button.component';
 
 const TEST_CONSTANTS = {
   CSS_CLASSES: {
-    DICE_ROLL: 'dice-roll'
+    DICE_ROLL: 'dice-roll',
   },
   COLORS: {
     NORMAL: 'normal',
     ERROR: 'error',
-    HIGHLIGHT: 'highlight'
+    HIGHLIGHT: 'highlight',
   },
   SELECTORS: {
     ICON_BUTTON: 'lib-icon-button',
-    MAT_ICON: 'mat-icon'
+    MAT_ICON: 'mat-icon',
   },
   INPUT_NAMES: {
-    COLOR: 'color'
-  }
+    COLOR: 'color',
+  },
 } as const;
 
 describe('RandomRollButtonComponent', () => {
@@ -28,7 +28,7 @@ describe('RandomRollButtonComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [provideNoopAnimations()],
-      imports: [RandomRollButtonComponent]
+      imports: [RandomRollButtonComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RandomRollButtonComponent);
@@ -53,9 +53,9 @@ describe('RandomRollButtonComponent', () => {
     const mockEvent = {
       target: {
         parentElement: {
-          querySelector: vitest.fn().mockReturnValue(mockMatIcon)
-        }
-      }
+          querySelector: vitest.fn().mockReturnValue(mockMatIcon),
+        },
+      },
     } as unknown as Event;
 
     component.animateDiceRoll(mockEvent);

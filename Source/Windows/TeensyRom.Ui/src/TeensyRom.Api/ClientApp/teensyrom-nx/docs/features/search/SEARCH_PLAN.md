@@ -3,6 +3,7 @@
 **Project Overview**: Implement comprehensive search functionality that allows users to search for files across TeensyROM storage devices with filtering capabilities, seamless UI integration, and proper player context coordination.
 
 **Standards Documentation**:
+
 - **Coding Standards**: [CODING_STANDARDS.md](../../CODING_STANDARDS.md)
 - **Testing Standards**: [TESTING_STANDARDS.md](../../TESTING_STANDARDS.md)
 - **State Standards**: [STATE_STANDARDS.md](../../STATE_STANDARDS.md)
@@ -33,11 +34,13 @@ Establish the foundation by updating domain contracts, implementing infrastructu
 ### High-Level Tasks
 
 1. **Update Storage Contract**: Add search method to [`libs/domain/src/lib/contracts/storage.contract.ts`](../../../libs/domain/src/lib/contracts/storage.contract.ts)
+
    - Method signature: `search(deviceId: string, storageType: StorageType, searchText: string, filterType?: PlayerFilterType): Observable<FileItem[]>`
    - Returns observable of FileItem array (no directories, only files)
    - Add JSDoc comments explaining search behavior
 
 2. **Implement StorageService.search()**: Update [`libs/infrastructure/src/lib/storage/storage.service.ts`](../../../libs/infrastructure/src/lib/storage/storage.service.ts)
+
    - Call `FilesApiService.search()` from API client ([`libs/data-access/api-client/src/lib/apis/FilesApiService.ts`](../../../libs/data-access/api-client/src/lib/apis/FilesApiService.ts))
    - Map `SearchResponse.files` array using `DomainMapper.toFileItem()` for each file
    - Extract base API URL from service configuration (same pattern as `getDirectory()`)
@@ -47,6 +50,7 @@ Establish the foundation by updating domain contracts, implementing infrastructu
    - Return `Observable<FileItem[]>` (not SearchResponse - only the files array)
 
 3. **Update DomainMapper**: Enhance [`libs/infrastructure/src/lib/domain.mapper.ts`](../../../libs/infrastructure/src/lib/domain.mapper.ts)
+
    - Add filter type mapping methods if needed (may already exist for player domain)
    - Ensure `toFileItem()` properly constructs image URLs with base API URL
    - Verify all FileItem properties are mapped correctly for search results
@@ -79,6 +83,7 @@ Extend the StorageStore with search state management, implementing actions for e
 ### High-Level Tasks
 
 1. **Add Search State Models**: Update [`libs/application/src/lib/storage/storage-store.ts`](../../../libs/application/src/lib/storage/storage-store.ts)
+
    ```typescript
    export interface SearchState {
      searchText: string;
@@ -88,7 +93,7 @@ Extend the StorageStore with search state management, implementing actions for e
      hasSearched: boolean;
      error: string | null;
    }
-   
+
    export interface StorageState {
      storageEntries: Record<string, StorageDirectoryState>;
      selectedDirectories: Record<string, SelectedDirectory>;
@@ -96,12 +101,14 @@ Extend the StorageStore with search state management, implementing actions for e
      searchState: Record<string, SearchState>; // NEW: keyed by deviceId
    }
    ```
+
    - Add `searchState` record to main state (per-device isolation)
    - `hasSearched` flag distinguishes "not searched" from "no results"
    - `isSearching` for loading state during API calls
    - Store searchText and filterType for UI display/state
 
 2. **Create search-files Action**: New file [`libs/application/src/lib/storage/actions/search-files.ts`](../../../libs/application/src/lib/storage/actions/search-files.ts)
+
    - Follow STATE_STANDARDS.md patterns (async/await, updateState with actionMessage)
    - Parameters: `{ deviceId, storageType, searchText, filterType }`
    - Create action message: `createAction('search-files')`
@@ -113,6 +120,7 @@ Extend the StorageStore with search state management, implementing actions for e
    - Add logging with LogType enum (🔍 for search operations)
 
 3. **Create clear-search Action**: New file [`libs/application/src/lib/storage/actions/clear-search.ts`](../../../libs/application/src/lib/storage/actions/clear-search.ts)
+
    - Follow STATE_STANDARDS.md patterns
    - Parameter: `{ deviceId }`
    - Create action message: `createAction('clear-search')`
@@ -121,6 +129,7 @@ Extend the StorageStore with search state management, implementing actions for e
    - Use updateState with actionMessage for Redux DevTools tracking
 
 4. **Auto-clear Search on Navigation**: Update existing navigation actions
+
    - [`navigate-to-directory.ts`](../../../libs/application/src/lib/storage/actions/navigate-to-directory.ts)
    - [`navigate-directory-backward.ts`](../../../libs/application/src/lib/storage/actions/navigate-directory-backward.ts)
    - [`navigate-directory-forward.ts`](../../../libs/application/src/lib/storage/actions/navigate-directory-forward.ts)
@@ -129,16 +138,19 @@ Extend the StorageStore with search state management, implementing actions for e
    - Ensures search clears when user navigates directories
 
 5. **Create Search Selector**: New file [`libs/application/src/lib/storage/selectors/get-search-state.ts`](../../../libs/application/src/lib/storage/selectors/get-search-state.ts)
+
    - Return computed signal: `Signal<SearchState | null>`
    - Parameter: `deviceId`
    - Lookup search state by deviceId in searchState record
    - Follow existing selector patterns in [`selectors/index.ts`](../../../libs/application/src/lib/storage/selectors/index.ts)
 
-6. **Update Action/Selector Exports**: 
+6. **Update Action/Selector Exports**:
+
    - Add new actions to [`actions/index.ts`](../../../libs/application/src/lib/storage/actions/index.ts)
    - Add new selector to [`selectors/index.ts`](../../../libs/application/src/lib/storage/selectors/index.ts)
 
 7. **Storage Helpers**: Update [`libs/application/src/lib/storage/storage-helpers.ts`](../../../libs/application/src/lib/storage/storage-helpers.ts)
+
    - Add search state mutation helpers (require actionMessage parameter)
    - `setSearchLoading()`, `setSearchResults()`, `setSearchError()`, `clearSearchState()`
    - Add search state query helpers (no actionMessage needed)
@@ -174,6 +186,7 @@ Build a dedicated search results component that displays search results in a cle
 ### High-Level Tasks
 
 1. **Create SearchResultsComponent**: New component at [`libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.ts`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.ts)
+
    - Input: `deviceId` (required)
    - Inject: `StorageStore`, `PLAYER_CONTEXT`
    - Computed signal: `searchState` from `storageStore.getSearchState(deviceId())()`
@@ -182,7 +195,8 @@ Build a dedicated search results component that displays search results in a cle
    - Display search results (files only, no directories)
    - Similar to DirectoryFilesComponent but simpler (no directory items)
 
-2. **File Selection & Launching**: 
+2. **File Selection & Launching**:
+
    - Local signal for selected item: `selectedItem = signal<FileItem | null>(null)`
    - Single-click selection (updates selectedItem)
    - Double-click launches file with Search launch mode
@@ -194,23 +208,26 @@ Build a dedicated search results component that displays search results in a cle
        file: clickedFile,
        directoryPath: file.parentPath, // From FileItem metadata
        files: searchState.results, // All search results
-       launchMode: LaunchMode.Search
+       launchMode: LaunchMode.Search,
      });
      ```
 
-3. **Current File Highlighting**: 
+3. **Current File Highlighting**:
+
    - Use effect pattern from DirectoryFilesComponent
    - Auto-select and scroll to currently playing file in search results
    - Check launch mode is Search before highlighting
    - Only highlight if file path matches and launch mode is Search
 
 4. **Component Styling**: Create [`search-results.component.scss`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.scss)
+
    - Copy patterns from directory-files.component.scss
    - Use ScalingCardComponent for file items
    - Highlight selected item, playing item, error states
    - Support virtual scrolling for large result sets
 
-5. **Empty/Loading/Error States**: 
+5. **Empty/Loading/Error States**:
+
    - Show loading spinner when `isSearching` is true
    - Show "No results found" when `hasSearched` but results empty
    - Show "Enter search text to begin" when not searched
@@ -245,6 +262,7 @@ Enhance the search toolbar component with functional search input, clear button,
 ### High-Level Tasks
 
 1. **Update SearchToolbarComponent**: Enhance [`libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.ts`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.ts)
+
    - Add input: `deviceId` (required)
    - Inject: `StorageStore`, `PLAYER_CONTEXT`
    - Get selected directory state to determine current storageType
@@ -254,6 +272,7 @@ Enhance the search toolbar component with functional search input, clear button,
    - Computed: `currentFilter` from player shuffle settings
 
 2. **Search Input Handling**:
+
    - Bind input field to searchText signal
    - Add Enter key handler to trigger search
    - Add search button with click handler
@@ -261,13 +280,14 @@ Enhance the search toolbar component with functional search input, clear button,
    - Disable search if searchText is empty or only whitespace
 
 3. **Execute Search**:
+
    - Call `storageStore.searchFiles()`:
      ```typescript
      await storageStore.searchFiles({
        deviceId: deviceId(),
        storageType: selectedDirectoryState().storageType,
        searchText: searchText().trim(),
-       filterType: currentFilter() || PlayerFilterType.All
+       filterType: currentFilter() || PlayerFilterType.All,
      });
      ```
    - Use current storage type from selected directory
@@ -275,18 +295,21 @@ Enhance the search toolbar component with functional search input, clear button,
    - Trim whitespace from search text
 
 4. **Clear Search Button**:
+
    - Show clear button (X icon) when `hasActiveSearch` is true
    - Click handler calls `storageStore.clearSearch({ deviceId })`
    - Clears searchText signal
    - Button styled as ScalingCompactCardComponent
 
 5. **Visual States**:
+
    - Disable search button when input empty
    - Show loading indicator during search (from search state)
    - Show error state on search button if search failed
    - Clear button visible only when search active
 
 6. **Toolbar Styling**: Update [`search-toolbar.component.scss`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.scss)
+
    - Match filter-toolbar styling patterns
    - Proper spacing for input + buttons
    - Responsive layout
@@ -318,25 +341,28 @@ Integrate search results component into storage container with conditional rende
 ### High-Level Tasks
 
 1. **Update StorageContainerComponent**: Modify [`libs/features/player/src/lib/player-view/player-device-container/storage-container/storage-container.component.ts`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/storage-container.component.ts)
+
    - Add SearchResultsComponent to imports
    - Add computed signal: `hasActiveSearch = computed(() => this.storageStore.getSearchState(this.deviceId())()?.hasSearched || false)`
    - Pass deviceId to search-toolbar component (currently missing)
 
 2. **Update StorageContainer Template**: Modify [`storage-container.component.html`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/storage-container.component.html)
+
    - Add deviceId input to search-toolbar: `<lib-search-toolbar [deviceId]="deviceId()"></lib-search-toolbar>`
    - Replace directory-files with conditional rendering in right-container:
      ```html
      <div class="right-container">
        @if (hasActiveSearch()) {
-         <lib-search-results [deviceId]="deviceId()"></lib-search-results>
+       <lib-search-results [deviceId]="deviceId()"></lib-search-results>
        } @else {
-         <lib-directory-files [deviceId]="deviceId()"></lib-directory-files>
+       <lib-directory-files [deviceId]="deviceId()"></lib-directory-files>
        }
      </div>
      ```
    - Ensure smooth transition between components
 
 3. **Hide Directory Tree During Search** (Optional Enhancement):
+
    - Consider computed signal to hide/disable directory tree when search active
    - Visual indication that tree navigation is unavailable during search
    - Or keep tree visible but indicate it's not interactive during search mode
@@ -366,26 +392,31 @@ Ensure player store properly handles Search launch mode, maintains search result
 ### High-Level Tasks
 
 1. **Verify Launch Mode Support**: Review [`libs/application/src/lib/player/actions/launch-file-with-context.ts`](../../../libs/application/src/lib/player/actions/launch-file-with-context.ts)
+
    - Ensure `LaunchMode.Search` is properly handled (likely already works)
    - Verify fileContext stores search results array
    - Verify currentIndex is calculated correctly within search results
 
 2. **Review Navigation Actions**: Check [`navigate-next.ts`](../../../libs/application/src/lib/player/actions/navigate-next.ts) and [`navigate-previous.ts`](../../../libs/application/src/lib/player/actions/navigate-previous.ts)
+
    - Verify they respect fileContext regardless of launch mode
    - Navigation should work identically for Directory and Search modes
    - Both modes use fileContext array and currentIndex
 
 3. **Search Clear on Shuffle**: Update [`launch-random-file.ts`](../../../libs/application/src/lib/player/actions/launch-random-file.ts)
+
    - When shuffle launches, it clears fileContext (already does this)
    - This automatically triggers search component to disappear
    - Verify behavior in player context service orchestration
 
 4. **Player Context Service**: Review [`libs/application/src/lib/player/player-context.service.ts`](../../../libs/application/src/lib/player/player-context.service.ts)
+
    - Verify `launchFileWithContext()` properly handles Search launch mode
    - Ensure fileContext preservation for search results
    - Check that next/previous work with search context
 
 5. **Player Store Testing**: Update [`libs/application/src/lib/player/player-store.spec.ts`](../../../libs/application/src/lib/player/player-store.spec.ts)
+
    - Test launching file with Search launch mode
    - Test navigation next/previous within search results
    - Test search context preservation

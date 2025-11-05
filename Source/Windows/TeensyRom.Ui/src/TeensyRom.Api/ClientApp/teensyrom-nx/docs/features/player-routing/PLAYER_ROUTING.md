@@ -31,11 +31,13 @@ Initialization continues in background
 Deep links trigger automatic navigation to a specific directory and optionally launch a file:
 
 **URL Format:**
+
 ```
 /player?device=DEVICE_ID&storage=SD|USB&path=/directory/path&file=filename.ext
 ```
 
 **Query Parameters:**
+
 - `device` (required) - Device ID to target
 - `storage` (required) - Storage type ('SD' or 'USB')
 - `path` (required) - Directory path to navigate to
@@ -43,10 +45,10 @@ Deep links trigger automatic navigation to a specific directory and optionally l
 
 **Example:**
 [http://localhost:4200/player?device=PSM2ZAKI&storage=SD&path=/music/MUSICIANS/F/Freedom&file=Deep_Madness.sid](http://localhost:4200/player?device=PSM2ZAKI&storage=SD&path=/music/MUSICIANS/F/Freedom&file=Deep_Madness.sid)
+
 ## Key Benefits
 
 - **Fast Navigation** - Page renders before storage initialization
 - **Progressive Loading** - UI updates as data arrives
 - **Deep Linking** - Direct navigation to specific directories/files
 - **Asynchronous Initialization** - Non-blocking background processing
-

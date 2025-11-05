@@ -5,6 +5,7 @@
 This directory contains the **test data generation system** for E2E tests. It provides type-safe, deterministic generator functions that create realistic API DTO objects for mocking backend responses.
 
 **Key Benefits:**
+
 - ✅ **Type-Safe**: Generates objects that fully satisfy API client DTO interfaces
 - ✅ **Deterministic**: Fixed seed ensures identical data on every test run
 - ✅ **Flexible**: Override any property for specific test scenarios
@@ -32,6 +33,7 @@ test-data/
 ```
 
 **Data Flow:**
+
 1. Import seeded `faker` from `faker-config.ts`
 2. Use generator functions from `generators/` to create individual DTOs
 3. Use fixture constants from `fixtures/` for common scenarios
@@ -53,12 +55,14 @@ All test data generation uses a **fixed seed value of 12345**. This ensures:
 ### Critical Import Rule
 
 **❌ NEVER import Faker directly:**
+
 ```typescript
 // ❌ Wrong - breaks determinism
 import { faker } from '@faker-js/faker';
 ```
 
 **✅ ALWAYS import from faker-config:**
+
 ```typescript
 // ✅ Correct - uses seeded instance
 import { faker } from '../faker-config';
@@ -88,18 +92,19 @@ const device2 = generateDevice();
 Generates a `CartStorageDto` object representing TeensyROM storage (SD card or USB).
 
 **Function Signature:**
+
 ```typescript
-function generateCartStorage(
-  overrides?: Partial<CartStorageDto>
-): CartStorageDto
+function generateCartStorage(overrides?: Partial<CartStorageDto>): CartStorageDto;
 ```
 
 **Default Values:**
+
 - `deviceId`: Random UUID
 - `type`: Randomly selected from `TeensyStorageType.Sd` or `TeensyStorageType.Usb`
 - `available`: `true`
 
 **Example - Default Usage:**
+
 ```typescript
 import { generateCartStorage } from './generators/device.generators';
 
@@ -112,10 +117,11 @@ const storage = generateCartStorage();
 ```
 
 **Example - Unavailable USB Storage:**
+
 ```typescript
 const usbStorage = generateCartStorage({
   type: TeensyStorageType.Usb,
-  available: false
+  available: false,
 });
 // {
 //   deviceId: "...",
@@ -131,13 +137,13 @@ const usbStorage = generateCartStorage({
 Generates a complete `CartDto` object representing a TeensyROM device.
 
 **Function Signature:**
+
 ```typescript
-function generateDevice(
-  overrides?: Partial<CartDto>
-): CartDto
+function generateDevice(overrides?: Partial<CartDto>): CartDto;
 ```
 
 **Default Values:**
+
 - `deviceId`: Random UUID
 - `isConnected`: `true`
 - `deviceState`: `DeviceState.Connected`
@@ -149,6 +155,7 @@ function generateDevice(
 - `usbStorage`: Generated via `generateCartStorage` with type USB
 
 **Example - Default Connected Device:**
+
 ```typescript
 import { generateDevice } from './generators/device.generators';
 
@@ -167,34 +174,37 @@ const device = generateDevice();
 ```
 
 **Example - Disconnected Device:**
+
 ```typescript
 const disconnectedDevice = generateDevice({
   isConnected: false,
-  deviceState: DeviceState.Connectable
+  deviceState: DeviceState.Connectable,
 });
 ```
 
 **Example - Incompatible Device:**
+
 ```typescript
 const incompatibleDevice = generateDevice({
   isCompatible: false,
-  fwVersion: "0.1.0"
+  fwVersion: '0.1.0',
 });
 ```
 
 **Example - Device with Unavailable Storage:**
+
 ```typescript
 const noStorageDevice = generateDevice({
   sdStorage: {
     deviceId: deviceId,
     type: TeensyStorageType.Sd,
-    available: false
+    available: false,
   },
   usbStorage: {
     deviceId: deviceId,
     type: TeensyStorageType.Usb,
-    available: false
-  }
+    available: false,
+  },
 });
 ```
 
@@ -208,14 +218,14 @@ Generators accept `Partial<T>` parameters, so you only specify what you want to 
 
 ```typescript
 // Override just one property
-const device = generateDevice({ name: "Test Device" });
+const device = generateDevice({ name: 'Test Device' });
 // All other properties use defaults/generated values
 
 // Override multiple properties
 const device = generateDevice({
   isConnected: false,
   deviceState: DeviceState.Busy,
-  isCompatible: false
+  isCompatible: false,
 });
 ```
 
@@ -226,10 +236,10 @@ For nested properties like `sdStorage` and `usbStorage`, provide complete overri
 ```typescript
 const device = generateDevice({
   sdStorage: {
-    deviceId: "custom-id",
+    deviceId: 'custom-id',
     type: TeensyStorageType.Sd,
-    available: false
-  }
+    available: false,
+  },
   // usbStorage uses default generated value
 });
 ```
@@ -244,7 +254,7 @@ const deviceId = faker.string.uuid();
 const device = generateDevice({
   deviceId,
   sdStorage: generateCartStorage({ deviceId, type: TeensyStorageType.Sd, available: true }),
-  usbStorage: generateCartStorage({ deviceId, type: TeensyStorageType.Usb, available: false })
+  usbStorage: generateCartStorage({ deviceId, type: TeensyStorageType.Usb, available: false }),
 });
 ```
 
@@ -263,7 +273,7 @@ it('should display connected device', () => {
 
   cy.intercept('GET', '/api/devices', {
     statusCode: 200,
-    body: { devices: [device] }
+    body: { devices: [device] },
   }).as('getDevices');
 
   cy.visit('/devices');
@@ -283,15 +293,11 @@ import { generateDevice } from '../support/test-data/generators/device.generator
 
 faker.seed(12345); // Reset seed
 
-const devices = [
-  generateDevice(),
-  generateDevice(),
-  generateDevice()
-];
+const devices = [generateDevice(), generateDevice(), generateDevice()];
 
 cy.intercept('GET', '/api/devices', {
   statusCode: 200,
-  body: { devices }
+  body: { devices },
 }).as('getDevices');
 ```
 
@@ -300,12 +306,12 @@ cy.intercept('GET', '/api/devices', {
 ```typescript
 const disconnectedDevice = generateDevice({
   isConnected: false,
-  deviceState: DeviceState.Connectable
+  deviceState: DeviceState.Connectable,
 });
 
 cy.intercept('GET', '/api/devices', {
   statusCode: 200,
-  body: { devices: [disconnectedDevice] }
+  body: { devices: [disconnectedDevice] },
 });
 
 // Test shows "Connect" button instead of "Connected" state
@@ -319,13 +325,13 @@ const device = generateDevice();
 // Mock successful discovery
 cy.intercept('GET', '/api/devices', {
   statusCode: 200,
-  body: { devices: [device] }
+  body: { devices: [device] },
 });
 
 // Mock connection failure
 cy.intercept('POST', `/api/devices/${device.deviceId}/connect`, {
   statusCode: 500,
-  body: { error: 'Connection failed' }
+  body: { error: 'Connection failed' },
 });
 
 // Test error handling
@@ -361,7 +367,7 @@ expect(device.sdStorage.type).toBe(TeensyStorageType.Usb); // Fails if random pi
 
 // ✅ Good - explicit override
 const device = generateDevice({
-  sdStorage: { deviceId: '', type: TeensyStorageType.Usb, available: true }
+  sdStorage: { deviceId: '', type: TeensyStorageType.Usb, available: true },
 });
 ```
 
@@ -400,7 +406,9 @@ it('should handle multiple devices', () => {
 });
 
 // ❌ Avoid - disconnected fixture far from test
-const DEVICES_FIXTURE = [/* 50 devices */];
+const DEVICES_FIXTURE = [
+  /* 50 devices */
+];
 it('should handle multiple devices', () => {
   // Which device am I testing?
 });
@@ -416,14 +424,14 @@ it('should handle multiple devices', () => {
 
 ### Available Fixtures
 
-| Fixture | Scenario | Quick Description |
-|---------|----------|-------------------|
-| `singleDevice` | 1 connected device | Most common "happy path" |
-| `multipleDevices` | 3 connected devices | Multi-device scenarios |
-| `noDevices` | Empty array | Empty state testing |
-| `disconnectedDevice` | Lost connection | Reconnection workflows |
-| `unavailableStorageDevice` | Storage unavailable | Storage error handling |
-| `mixedStateDevices` | Varied device states | Complex state testing |
+| Fixture                    | Scenario             | Quick Description        |
+| -------------------------- | -------------------- | ------------------------ |
+| `singleDevice`             | 1 connected device   | Most common "happy path" |
+| `multipleDevices`          | 3 connected devices  | Multi-device scenarios   |
+| `noDevices`                | Empty array          | Empty state testing      |
+| `disconnectedDevice`       | Lost connection      | Reconnection workflows   |
+| `unavailableStorageDevice` | Storage unavailable  | Storage error handling   |
+| `mixedStateDevices`        | Varied device states | Complex state testing    |
 
 ### Quick Example
 
@@ -434,18 +442,18 @@ it('should handle device connection', () => {
   // Start with no devices
   cy.intercept('GET', '/api/devices', {
     statusCode: 200,
-    body: noDevices
+    body: noDevices,
   });
-  
+
   cy.visit('/devices');
   cy.contains('No devices found').should('be.visible');
-  
+
   // Simulate device connection
   cy.intercept('GET', '/api/devices', {
     statusCode: 200,
-    body: singleDevice
+    body: singleDevice,
   });
-  
+
   cy.get('[data-testid="refresh"]').click();
   cy.contains('TeensyROM').should('be.visible');
 });
@@ -454,11 +462,13 @@ it('should handle device connection', () => {
 ### When to Use Fixtures vs Generators
 
 **Use Fixtures:**
+
 - ✅ Common scenarios (connected device, empty state, disconnected)
 - ✅ Multiple tests need the same device setup
 - ✅ Want deterministic, validated test data
 
 **Use Generators:**
+
 - ✅ Test-specific edge cases
 - ✅ Need custom property combinations
 - ✅ Temporary debugging scenarios
@@ -495,6 +505,7 @@ pnpm nx test teensyrom-ui-e2e
 **Cause**: Importing Faker directly instead of from `faker-config.ts`
 
 **Solution**:
+
 ```typescript
 // ❌ Wrong
 import { faker } from '@faker-js/faker';
@@ -512,6 +523,7 @@ import { faker } from '../support/test-data/faker-config';
 **Cause**: Incorrect relative path
 
 **Solution**:
+
 ```typescript
 // From e2e/ directory
 import { generateDevice } from '../support/test-data/generators/device.generators';

@@ -16,6 +16,7 @@
 Provide seamless video capture integration that allows users to view real-time output from their retro devices alongside file browsing and playback controls. This creates a unified experience where users can launch a game/program and immediately see the visual output without switching windows or applications.
 
 **Key Value Propositions**:
+
 - **Unified Interface**: Control device and view output in single browser window
 - **Cross-Platform**: Works on Windows, macOS, Linux without additional drivers
 - **Remote Access**: View device output over network (LAN/WAN)
@@ -50,15 +51,15 @@ Validate that modern browser MediaDevices API can access USB capture cards and s
 ```typescript
 // MediaDevices API approach
 const devices = await navigator.mediaDevices.enumerateDevices();
-const videoDevices = devices.filter(d => d.kind === 'videoinput');
+const videoDevices = devices.filter((d) => d.kind === 'videoinput');
 
 const stream = await navigator.mediaDevices.getUserMedia({
   video: {
     deviceId: { exact: selectedDeviceId },
     width: { ideal: 1920 },
     height: { ideal: 1080 },
-    frameRate: { ideal: 60 }
-  }
+    frameRate: { ideal: 60 },
+  },
 });
 
 videoElement.srcObject = stream;

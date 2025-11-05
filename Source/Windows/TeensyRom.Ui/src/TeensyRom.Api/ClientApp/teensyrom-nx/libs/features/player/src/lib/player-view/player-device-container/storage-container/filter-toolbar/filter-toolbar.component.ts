@@ -5,7 +5,7 @@ import {
   IconButtonComponent,
   IconButtonColor,
   JoystickIconComponent,
-  ImageIconComponent
+  ImageIconComponent,
 } from '@teensyrom-nx/ui/components';
 import { PLAYER_CONTEXT, StorageStore } from '@teensyrom-nx/application';
 import { PlayerFilterType } from '@teensyrom-nx/domain';
@@ -13,7 +13,14 @@ import { RandomRollButtonComponent } from './random-roll-button';
 
 @Component({
   selector: 'lib-filter-toolbar',
-  imports: [CommonModule, ScalingCompactCardComponent, IconButtonComponent, JoystickIconComponent, ImageIconComponent, RandomRollButtonComponent],
+  imports: [
+    CommonModule,
+    ScalingCompactCardComponent,
+    IconButtonComponent,
+    JoystickIconComponent,
+    ImageIconComponent,
+    RandomRollButtonComponent,
+  ],
   templateUrl: './filter-toolbar.component.html',
   styleUrl: './filter-toolbar.component.scss',
 })
@@ -27,8 +34,8 @@ export class FilterToolbarComponent {
   readonly PlayerFilterType = PlayerFilterType;
 
   // Computed signal for active filter
-  activeFilter = computed(() =>
-    this.playerContext.getShuffleSettings(this.deviceId())()?.filter ?? PlayerFilterType.All
+  activeFilter = computed(
+    () => this.playerContext.getShuffleSettings(this.deviceId())()?.filter ?? PlayerFilterType.All
   );
 
   // Computed signal for search state
@@ -41,25 +48,22 @@ export class FilterToolbarComponent {
   });
 
   // Computed signal to check if search is active
-  private readonly hasActiveSearch = computed(() => 
-    this.searchState()?.hasSearched ?? false
-  );
+  private readonly hasActiveSearch = computed(() => this.searchState()?.hasSearched ?? false);
 
   constructor() {
     // Effect: Re-search when filter changes during active search
     effect(() => {
       const currentFilter = this.activeFilter();
       const searchActive = this.hasActiveSearch();
-      
+
       // Use untracked to get search state without creating dependency
       untracked(() => {
         if (searchActive) {
           const state = this.searchState();
           const selectedDir = this.storageStore.getSelectedDirectoryState(this.deviceId())();
-          
+
           // Only re-search if we have valid state and search text
           if (state && state.searchText && selectedDir) {
-            
             void this.storageStore.searchFiles({
               deviceId: this.deviceId(),
               storageType: selectedDir.storageType,
@@ -97,7 +101,7 @@ export class FilterToolbarComponent {
     console.log('🚀 LaunchRandomFile method called!');
     const deviceId = this.deviceId();
     console.log('📱 Device ID:', deviceId);
-    
+
     if (deviceId) {
       try {
         await this.playerContext.launchRandomFile(deviceId);

@@ -26,8 +26,11 @@ export class FileImageComponent {
     }
     return 'hExx';
   });
-  imageUrls = computed(() =>
-    this.currentFile()?.file.images.map((img) => img.url).filter((url: string) => url && url.length > 0) ?? []
+  imageUrls = computed(
+    () =>
+      this.currentFile()
+        ?.file.images.map((img) => img.url)
+        .filter((url: string) => url && url.length > 0) ?? []
   );
   hasImages = computed(() => this.imageUrls().length > 0);
 }

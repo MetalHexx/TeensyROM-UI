@@ -11,11 +11,13 @@ Implement backward and forward navigation through play history when in shuffle m
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [ ] [Play History Planning Document](./PLAY_HISTORY_PLANNING.md) - High-level feature plan and Phase 2 requirements
 - [ ] [Player Domain Design Document](./PLAYER_DOMAIN_DESIGN.md) - Technical design and architecture
 - [ ] [Phase 1 Implementation](./PLAY_HISTORY_P1.md) - Foundation that Phase 2 builds upon
 
 **Standards & Guidelines:**
+
 - [ ] [Coding Standards](../../CODING_STANDARDS.md) - General coding patterns and conventions
 - [ ] [Testing Standards](../../TESTING_STANDARDS.md) - Behavioral testing approaches
 - [ ] [State Standards](../../STATE_STANDARDS.md) - State mutation patterns with updateState()
@@ -43,12 +45,14 @@ libs/application/src/lib/player/
 ## 📋 Implementation Guidelines
 
 > **IMPORTANT - Testing Policy:**
+>
 > - **Favor behavioral testing** - test observable behaviors, not implementation details
 > - Include tests **within each task** as work progresses, not at the end
 > - Test through `PlayerContextService` public API, not store actions directly
 > - See [Store Testing Guide](../../STORE_TESTING.md) for testing patterns
 
 > **IMPORTANT - Progress Tracking:**
+>
 > - **Mark checkboxes ✅ as you complete each subtask**
 > - Update progress throughout implementation, not just at the end
 
@@ -60,10 +64,12 @@ libs/application/src/lib/player/
 **Purpose**: Implement the action that moves backward through play history by decrementing the position and re-launching the file at that position. This action only operates when history exists and position allows backward movement.
 
 **Related Documentation:**
+
 - [Play History Planning - Phase 2](./PLAY_HISTORY_PLANNING.md#phase-2-history-navigation-in-shuffle-mode) - Phase 2 requirements
 - [State Standards](../../STATE_STANDARDS.md) - Use `updateState()` with `actionMessage` for all mutations
 
 **Implementation Subtasks:**
+
 - [ ] **Create Action File**: Create `navigate-backward-in-history.ts` in `actions/` folder
 - [ ] **Define Action Interface**: Create `NavigateBackwardInHistoryParams` with `deviceId` property
 - [ ] **Implement Action Logic**:
@@ -80,9 +86,11 @@ libs/application/src/lib/player/
 - [ ] **Integrate with Store**: Add `navigateBackwardInHistory` method to `PlayerStore`
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test behaviors for this task (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Action should return early if no history or already at position 0
 - Use `StorageKeyUtil.parse()` to extract `storageType` from history entry's `storageKey`
 - Re-use existing helper patterns like `setDirectoryNavigationSuccess()` if applicable
@@ -95,6 +103,7 @@ libs/application/src/lib/player/
 > Focus on **behavioral testing** through `PlayerContextService`, not direct store testing
 
 **Behaviors to Test:**
+
 - [ ] **Navigate backward decrements position**: After navigating backward, position is 1 less than before
 - [ ] **Navigate backward launches correct file**: File from history[position - 1] is launched
 - [ ] **Cannot navigate backward at position 0**: Attempting to navigate backward at start is a no-op
@@ -102,6 +111,7 @@ libs/application/src/lib/player/
 - [ ] **Navigate backward updates currentFile**: Current file is updated to the history entry's file
 
 **Testing Reference:**
+
 - See [Store Testing Guide](../../STORE_TESTING.md) for testing through `PlayerContextService`
 - See [Testing Standards](../../TESTING_STANDARDS.md) for behavioral testing patterns
 
@@ -115,10 +125,12 @@ libs/application/src/lib/player/
 **Purpose**: Implement the action that moves forward through play history by incrementing the position and re-launching the file at that position. This enables users to navigate forward after going backward in history.
 
 **Related Documentation:**
+
 - [Play History Planning - Scenario 5](./PLAY_HISTORY_PLANNING.md#scenario-5-navigate-forward-after-going-backward) - Forward navigation behavior
 - [State Standards](../../STATE_STANDARDS.md) - State mutation patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Create Action File**: Create `navigate-forward-in-history.ts` in `actions/` folder
 - [ ] **Define Action Interface**: Create `NavigateForwardInHistoryParams` with `deviceId` property
 - [ ] **Implement Action Logic**:
@@ -136,9 +148,11 @@ libs/application/src/lib/player/
 - [ ] **Integrate with Store**: Add `navigateForwardInHistory` method to `PlayerStore`
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test behaviors for this task (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Action should return early if position is -1 (at end) or position >= entries.length - 1
 - Similar structure to backward navigation but increments position
 - Position should be updated **after** successful file launch
@@ -148,6 +162,7 @@ libs/application/src/lib/player/
 **Testing Focus for Task 2:**
 
 **Behaviors to Test:**
+
 - [ ] **Navigate forward increments position**: After navigating forward, position is 1 more than before
 - [ ] **Navigate forward launches correct file**: File from history[position + 1] is launched
 - [ ] **Cannot navigate forward at end**: When position is -1, forward navigation is a no-op
@@ -156,6 +171,7 @@ libs/application/src/lib/player/
 - [ ] **Navigate forward updates currentFile**: Current file is updated to the history entry's file
 
 **Testing Reference:**
+
 - See [Store Testing Guide](../../STORE_TESTING.md) for testing patterns
 - See [Testing Standards](../../TESTING_STANDARDS.md) for behavioral testing
 
@@ -169,10 +185,12 @@ libs/application/src/lib/player/
 **Purpose**: Update the existing `navigateNext` action to check for forward history availability in shuffle mode. If forward history exists, navigate forward through history; otherwise, launch a new random file (existing behavior).
 
 **Related Documentation:**
+
 - [Play History Planning - Scenario 5](./PLAY_HISTORY_PLANNING.md#scenario-5-navigate-forward-after-going-backward) - Next button behavior with history
 - [Navigate Next Action](../../../libs/application/src/lib/player/actions/navigate-next.ts) - Current implementation
 
 **Implementation Subtasks:**
+
 - [ ] **Add History Check**: In shuffle mode branch, check `canNavigateForwardInHistory` before launching random
 - [ ] **Conditional Logic**:
   - If can navigate forward: Call `navigateForwardInHistory` action (delegate to new action)
@@ -180,9 +198,11 @@ libs/application/src/lib/player/
 - [ ] **Maintain Directory/Search Behavior**: Ensure Directory and Search modes continue to use file context navigation (no changes needed)
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test behaviors for this task (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - This modifies existing `navigate-next.ts`, does not create a new file
 - The shuffle mode branch (lines 34-52) needs conditional logic added
 - Check position and history before deciding which path to take
@@ -192,6 +212,7 @@ libs/application/src/lib/player/
 **Testing Focus for Task 3:**
 
 **Behaviors to Test:**
+
 - [ ] **Next in shuffle with forward history**: When position < entries.length - 1, next navigates forward in history
 - [ ] **Next in shuffle at end of history**: When position is -1, next launches new random file
 - [ ] **Next in shuffle after reaching last history entry**: When at entries.length - 1, next launches new random file
@@ -199,6 +220,7 @@ libs/application/src/lib/player/
 - [ ] **Next in search mode unchanged**: Search mode still navigates through file context
 
 **Testing Reference:**
+
 - See [Store Testing Guide](../../STORE_TESTING.md) for testing approach
 
 </details>
@@ -211,10 +233,12 @@ libs/application/src/lib/player/
 **Purpose**: Update the existing `navigatePrevious` action to use history navigation in shuffle mode instead of launching a random file. This replaces the "random file on previous" behavior with proper backward history navigation.
 
 **Related Documentation:**
+
 - [Play History Planning - Scenario 4](./PLAY_HISTORY_PLANNING.md#scenario-4-navigate-backward-in-shuffle-mode) - Previous button behavior
 - [Navigate Previous Action](../../../libs/application/src/lib/player/actions/navigate-previous.ts) - Current implementation
 
 **Implementation Subtasks:**
+
 - [ ] **Replace Random Launch Logic**: In shuffle mode branch (lines 34-52), replace random launch with history navigation
 - [ ] **Add History Check**: Check `canNavigateBackwardInHistory` before attempting navigation
 - [ ] **Conditional Logic**:
@@ -225,9 +249,11 @@ libs/application/src/lib/player/
 - [ ] **Maintain Directory/Search Behavior**: Ensure Directory and Search modes continue to use file context navigation (no changes)
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test behaviors for this task (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - This completely changes shuffle mode behavior for previous navigation
 - The comment on line 35 "launches another random file" is no longer accurate - update it
 - **Wraparound behavior**: When at position 0, wrap to entries.length - 1 (circular navigation)
@@ -236,6 +262,7 @@ libs/application/src/lib/player/
 **Testing Focus for Task 4:**
 
 **Behaviors to Test:**
+
 - [ ] **Previous in shuffle with history**: When position > 0 or position is -1 with entries, previous navigates backward
 - [ ] **Previous wraps at position 0**: When position is 0, previous wraps to end (entries.length - 1)
 - [ ] **Previous wraps at position -1 with entries**: When at end, previous goes to most recent entry
@@ -244,6 +271,7 @@ libs/application/src/lib/player/
 - [ ] **Previous with no history**: When no history exists, previous is a no-op
 
 **Testing Reference:**
+
 - See [Store Testing Guide](../../STORE_TESTING.md) for testing patterns
 
 </details>
@@ -256,10 +284,12 @@ libs/application/src/lib/player/
 **Purpose**: Modify the `next()` and `previous()` methods in `PlayerContextService` to properly orchestrate history navigation, including directory context loading and history recording after navigation.
 
 **Related Documentation:**
+
 - [Player Context Service](../../../libs/application/src/lib/player/player-context.service.ts) - Current orchestration logic
 - [State Standards](../../STATE_STANDARDS.md) - Orchestration vs action responsibilities
 
 **Implementation Subtasks:**
+
 - [ ] **Update `next()` Method**:
   - Check launch mode and history state
   - Determine whether to use history navigation or default next behavior
@@ -279,9 +309,11 @@ libs/application/src/lib/player/
   - Need to track "navigating in history" vs "launching new file"
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test behaviors for this task (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - History navigation (backward/forward through existing entries) should NOT record new history entries
 - Only launching NEW files should record history
 - May need a flag or check to differentiate "navigating history" from "launching new file"
@@ -292,6 +324,7 @@ libs/application/src/lib/player/
 **Critical Decision Point:**
 
 When user navigates backward in history then presses next:
+
 - **Scenario A**: Next navigates forward in history → Do NOT record new history entry
 - **Scenario B**: Next launches new file (when at end) → Record new history entry
 
@@ -300,6 +333,7 @@ Need to ensure `recordHistoryIfSuccessful()` is only called when launching NEW f
 **Testing Focus for Task 5:**
 
 **Behaviors to Test:**
+
 - [ ] **History navigation does not record new entries**: Navigating backward then forward does not create duplicate entries
 - [ ] **New file launch records history**: Launching new file after navigating backward records new entry
 - [ ] **Directory context loads for history entries**: After history navigation, directory files are available
@@ -307,6 +341,7 @@ Need to ensure `recordHistoryIfSuccessful()` is only called when launching NEW f
 - [ ] **Error handling in history navigation**: Failed history navigation does not corrupt state
 
 **Testing Reference:**
+
 - See [Store Testing Guide](../../STORE_TESTING.md) for orchestration testing
 - See [Testing Standards](../../TESTING_STANDARDS.md) for behavioral patterns
 
@@ -320,10 +355,12 @@ Need to ensure `recordHistoryIfSuccessful()` is only called when launching NEW f
 **Purpose**: Add comprehensive behavioral tests to `player-context.service.spec.ts` that validate all Phase 2 history navigation scenarios end-to-end, including boundary conditions and mode-specific behaviors.
 
 **Related Documentation:**
+
 - [Play History Planning - User Scenarios](./PLAY_HISTORY_PLANNING.md#history-navigation-scenarios) - Scenarios 4-8
 - [Store Testing Guide](../../STORE_TESTING.md) - Behavioral testing methodology
 
 **Implementation Subtasks:**
+
 - [ ] **Create Phase 2 Test Suite**: Add `describe('Phase 2: History Navigation in Shuffle Mode', () => {})` block
 - [ ] **Test Backward Navigation**:
   - Navigate backward moves to previous entry
@@ -362,9 +399,11 @@ Need to ensure `recordHistoryIfSuccessful()` is only called when launching NEW f
   - Failed file launch during history navigation
 
 **Testing Subtask:**
+
 - [ ] **All Tests Passing**: Ensure all new tests pass consistently
 
 **Key Implementation Notes:**
+
 - Tests should use the existing test setup and mocking patterns
 - Mock `IPlayerService.launchFile` to return history entry files
 - Use `nextTick()` helper for async operations
@@ -374,6 +413,7 @@ Need to ensure `recordHistoryIfSuccessful()` is only called when launching NEW f
 **Testing Focus for Task 6:**
 
 **Behaviors to Test:**
+
 - [ ] **Complete backward navigation workflow**: Launch 3 files, navigate backward twice, verify position and currentFile
 - [ ] **Complete forward navigation workflow**: Navigate backward, then forward, verify restoration
 - [ ] **Browser-style history clearing**: Navigate backward, launch new file, verify forward history cleared
@@ -384,6 +424,7 @@ Need to ensure `recordHistoryIfSuccessful()` is only called when launching NEW f
 - [ ] **History integrity**: History recording only on new launches, not history navigation
 
 **Testing Reference:**
+
 - See [Store Testing Guide](../../STORE_TESTING.md) for complete testing patterns
 - See existing Phase 1 tests in spec file for patterns to follow
 
@@ -394,10 +435,12 @@ Need to ensure `recordHistoryIfSuccessful()` is only called when launching NEW f
 ## 🗂️ Files Modified or Created
 
 **New Files:**
+
 - `libs/application/src/lib/player/actions/navigate-backward-in-history.ts`
 - `libs/application/src/lib/player/actions/navigate-forward-in-history.ts`
 
 **Modified Files:**
+
 - `libs/application/src/lib/player/player-store.ts` - Add `navigateBackwardInHistory` and `navigateForwardInHistory` methods
 - `libs/application/src/lib/player/actions/index.ts` - Export new history navigation actions
 - `libs/application/src/lib/player/actions/navigate-next.ts` - Add history check before random launch in shuffle mode
@@ -413,18 +456,21 @@ Need to ensure `recordHistoryIfSuccessful()` is only called when launching NEW f
 > **IMPORTANT:** Tests are written **within each task above**, not here. This section is only a summary for quick reference.
 
 > **Core Testing Philosophy:**
+>
 > - **Favor behavioral testing** - test what users/consumers observe, not how it's implemented
 > - **Test as you go** - tests are integrated into each task's subtasks, not deferred to the end
 > - **Test through public APIs** - test through `PlayerContextService`, not store actions directly
 > - **Mock at boundaries** - mock `IPlayerService` only, not internal player logic
 
 > **Reference Documentation:**
+>
 > - **All tasks**: [Testing Standards](../../TESTING_STANDARDS.md) - Core behavioral testing approach
 > - **All tasks**: [Store Testing](../../STORE_TESTING.md) - Testing through service layer
 
 ### Where Tests Are Written
 
 **Tests are embedded in each task above** with:
+
 - **Testing Subtask**: Checkbox in the task's subtask list
 - **Testing Focus**: "Behaviors to Test" section listing observable outcomes
 - **Testing Reference**: Links to relevant testing documentation
@@ -434,6 +480,7 @@ Need to ensure `recordHistoryIfSuccessful()` is only called when launching NEW f
 ### Test Execution Commands
 
 **Running Tests:**
+
 ```bash
 # Run application library tests (includes PlayerContextService tests)
 npx nx test application --run
@@ -446,6 +493,7 @@ npx nx test application --run --coverage
 ```
 
 **Expected Test Count:**
+
 - Phase 2 will add approximately **15-20 new behavioral tests**
 - Total test count after Phase 2: ~336-341 tests (currently 321)
 
@@ -459,6 +507,7 @@ npx nx test application --run --coverage
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Functional Requirements:**
+
 - [ ] All implementation tasks (1-6) completed and checked off
 - [ ] All subtasks within each task completed
 - [ ] `navigateBackwardInHistory` action created and integrated
@@ -470,6 +519,7 @@ npx nx test application --run --coverage
 - [ ] State management follows [State Standards](../../STATE_STANDARDS.md)
 
 **Testing Requirements:**
+
 - [ ] All testing subtasks completed within each task
 - [ ] All behavioral test checkboxes verified (see each task's Testing Focus)
 - [ ] Tests written alongside implementation (not deferred)
@@ -483,17 +533,20 @@ npx nx test application --run --coverage
 - [ ] Integration tests passing (Task 6)
 
 **Quality Checks:**
+
 - [ ] No TypeScript errors or warnings (`npx nx run teensyrom-ui:typecheck`)
 - [ ] Linting passes with no errors (`npx nx run teensyrom-ui:lint`)
 - [ ] Code formatting is consistent
 - [ ] No console errors in browser/terminal when running application
 
 **Documentation:**
+
 - [ ] Inline code comments added for history navigation logic
 - [ ] Action files have JSDoc comments explaining behavior
 - [ ] Complex logic in orchestration is documented
 
 **Ready for Next Phase:**
+
 - [ ] All success criteria met
 - [ ] No known bugs or issues
 - [ ] History navigation works correctly in shuffle mode
@@ -528,6 +581,7 @@ npx nx test application --run --coverage
 **Decision 1: Wraparound Behavior at Position 0** ✅ DECIDED
 
 When at the start of history (position 0) and user clicks previous:
+
 - **Option A**: Do nothing / stay at position 0 (disable button in UI)
 - **Option B**: Wrap to end (launch most recent entry) - **✅ SELECTED**
 - **Option C**: Launch new random file
@@ -537,11 +591,13 @@ When at the start of history (position 0) and user clicks previous:
 **Question 2: History Recording After Navigation**
 
 Should navigating in history update timestamps or any metadata?
+
 - **Recommended**: No. History entries are immutable. Navigation doesn't modify existing entries.
 
 **Question 3: Directory Context Loading**
 
 After navigating to a history entry, should we load the directory context for that file?
+
 - **Recommended**: Yes, for consistency. The file list should show the file's directory context.
 
 ### Future Enhancements (Phase 3+)
@@ -569,12 +625,14 @@ After navigating to a history entry, should we load the directory context for th
 ### Before Starting Implementation
 
 **Review Required Documentation:**
+
 1. Read all documents in "Required Reading" section above
 2. Understand Phase 1 implementation (foundation for Phase 2)
 3. Review user scenarios 4-8 in planning document
 4. Understand browser-style history behavior pattern
 
 **Clarify Open Questions:**
+
 1. **Wraparound Behavior**: Get user decision on what happens at position 0
 2. **History Recording**: Confirm history navigation should NOT record new entries
 3. **Directory Context**: Confirm directory should load for history entries
@@ -582,18 +640,21 @@ After navigating to a history entry, should we load the directory context for th
 ### During Implementation
 
 **Task Execution Order:**
+
 1. **Tasks 1-2 First**: Create backward/forward navigation actions (foundation)
 2. **Tasks 3-4 Next**: Modify existing navigation actions to use history
 3. **Task 5**: Update orchestration (brings everything together)
 4. **Task 6 Last**: Comprehensive integration testing (validates everything)
 
 **Testing Integration:**
+
 - Write tests for each task as you complete it
 - Test through `PlayerContextService` public API only
 - Use existing test patterns from Phase 1 as reference
 - Verify all Phase 1 tests still pass after changes
 
 **Progress Tracking:**
+
 1. ✅ Mark each subtask checkbox as completed
 2. 📝 Update "Discoveries During Implementation" section with findings
 3. ✅ Mark testing checkboxes as behaviors are verified
@@ -602,6 +663,7 @@ After navigating to a history entry, should we load the directory context for th
 ### Key Implementation Patterns
 
 **Action Structure** (follow existing patterns):
+
 ```typescript
 export function actionName(store: WritableStore<PlayerState>, playerService: IPlayerService) {
   return {
@@ -616,6 +678,7 @@ export function actionName(store: WritableStore<PlayerState>, playerService: IPl
 ```
 
 **Testing Pattern** (follow Phase 1 tests):
+
 ```typescript
 describe('Phase 2: History Navigation in Shuffle Mode', () => {
   beforeEach(() => {
@@ -643,22 +706,26 @@ describe('Phase 2: History Navigation in Shuffle Mode', () => {
 ## 🎓 Quick Reference
 
 ### Current Behavior (Phase 1)
+
 - Shuffle mode: Previous = random file, Next = random file
 - History tracked but not used for navigation
 - Position always -1 (at end)
 
 ### New Behavior (Phase 2)
+
 - Shuffle mode: Previous = navigate backward (if possible), Next = navigate forward OR random
 - History used for navigation in shuffle mode
 - Position tracks location in history (0 to entries.length-1, or -1 at end)
 
 ### Key Methods
+
 - `navigateBackwardInHistory()` - Move position backward, launch history[position - 1]
 - `navigateForwardInHistory()` - Move position forward, launch history[position + 1]
 - `canNavigateBackwardInHistory()` - Returns true if position > 0 or position == -1 with entries
 - `canNavigateForwardInHistory()` - Returns true if position != -1 and position < entries.length - 1
 
 ### Testing Through
+
 - `PlayerContextService.next()` - Public method for next navigation
 - `PlayerContextService.previous()` - Public method for previous navigation
 - `PlayerContextService.getPlayHistory()` - Read history state

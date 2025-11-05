@@ -1,5 +1,12 @@
 import { InjectionToken, Signal } from '@angular/core';
-import { FileItem, LaunchMode, PlayerStatus, StorageType, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
+import {
+  FileItem,
+  LaunchMode,
+  PlayerStatus,
+  StorageType,
+  PlayerFilterType,
+  PlayerScope,
+} from '@teensyrom-nx/domain';
 import { LaunchedFile, PlayerFileContext, ShuffleSettings, PlayHistory } from './player-store';
 import { TimerState } from './timer-state.interface';
 
@@ -24,7 +31,7 @@ export interface IPlayerContext {
   isLoading(deviceId: string): Signal<boolean>;
   getError(deviceId: string): Signal<string | null>;
   getStatus(deviceId: string): Signal<PlayerStatus>;
-  
+
   // Shuffle functionality
   launchRandomFile(deviceId: string): Promise<void>;
   toggleShuffleMode(deviceId: string): void;

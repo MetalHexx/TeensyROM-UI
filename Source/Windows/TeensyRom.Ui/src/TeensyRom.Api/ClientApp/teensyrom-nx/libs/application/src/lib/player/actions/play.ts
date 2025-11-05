@@ -46,7 +46,6 @@ export function play(store: WritableStore<PlayerState>, playerService: IPlayerSe
             },
           },
         }));
-
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to play';
         logError(`Play failed for ${deviceId}:`, error);

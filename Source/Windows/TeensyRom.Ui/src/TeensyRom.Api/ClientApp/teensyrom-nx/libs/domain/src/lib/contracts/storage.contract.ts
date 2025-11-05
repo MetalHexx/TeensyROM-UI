@@ -27,11 +27,7 @@ export interface IStorageService {
    * @param startingPath - Optional starting path for indexing
    * @returns Observable of index operation result
    */
-  index(
-    deviceId: string,
-    storageType: StorageType,
-    startingPath?: string
-  ): Observable<unknown>;
+  index(deviceId: string, storageType: StorageType, startingPath?: string): Observable<unknown>;
 
   /**
    * Index all storage on all devices.
@@ -41,11 +37,11 @@ export interface IStorageService {
 
   /**
    * Searches for files across the entire storage hierarchy based on search text and filter criteria.
-   * 
+   *
    * This method performs a comprehensive search across all files in the storage device,
    * searching through file names, titles, creators, and descriptions. Results are returned
    * as a flat list of files only (no directories).
-   * 
+   *
    * @param deviceId - The unique identifier of the device
    * @param storageType - The type of storage (USB, SD, etc.)
    * @param searchText - Text to search for in file names, titles, creators, and descriptions
@@ -53,7 +49,7 @@ export interface IStorageService {
    * @param skip - Optional number of results to skip for pagination (defaults to 0)
    * @param take - Optional number of results to return for pagination (defaults to 1000)
    * @returns Observable of FileItem array containing all matching files from the entire storage hierarchy
-   * 
+   *
    * @remarks
    * - Returns files only, no directories in the search results
    * - Files come from the entire storage hierarchy, not just a single directory
@@ -79,11 +75,7 @@ export interface IStorageService {
    * @param filePath - The path to the file to add to favorites
    * @returns Observable of FileItem with updated isFavorite flag
    */
-  saveFavorite(
-    deviceId: string,
-    storageType: StorageType,
-    filePath: string
-  ): Observable<FileItem>;
+  saveFavorite(deviceId: string, storageType: StorageType, filePath: string): Observable<FileItem>;
 
   /**
    * Removes a file from favorites.
@@ -92,11 +84,7 @@ export interface IStorageService {
    * @param filePath - The path to the file to remove from favorites
    * @returns Observable that completes when the operation succeeds
    */
-  removeFavorite(
-    deviceId: string,
-    storageType: StorageType,
-    filePath: string
-  ): Observable<void>;
+  removeFavorite(deviceId: string, storageType: StorageType, filePath: string): Observable<void>;
 }
 
 /**

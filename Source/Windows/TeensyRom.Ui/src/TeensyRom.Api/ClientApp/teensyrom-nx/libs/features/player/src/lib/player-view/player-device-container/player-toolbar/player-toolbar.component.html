@@ -2,209 +2,210 @@
 <lib-sliding-container
   containerHeight="80px"
   animationDirection="from-top"
-  [animationTrigger]="isPlayerLoaded()">
-
+  [animationTrigger]="isPlayerLoaded()"
+>
   <lib-scaling-compact-card animationEntry="from-top" animationParent="auto">
     <!-- Progress Bar (flush to top inside card) -->
     <lib-progress-bar
       [currentValue]="currentTime()"
       [totalValue]="totalTime()"
-      [show]="showProgressBar()">
+      [show]="showProgressBar()"
+    >
     </lib-progress-bar>
 
     <!-- Desktop Layout: Absolute centered file-info (>900px) -->
     <div class="player-controls desktop-layout" data-testid="player-toolbar">
-        <div class="playback-controls">
-          <lib-icon-button
-            icon="skip_previous"
-            ariaLabel="Previous File"
-            size="large"
-            variant="rounded-transparent"
-            color="normal"
-            [disabled]="!canNavigatePrevious()"
-            (buttonClick)="previous()"
-          >
-          </lib-icon-button>
+      <div class="playback-controls">
+        <lib-icon-button
+          icon="skip_previous"
+          ariaLabel="Previous File"
+          size="large"
+          variant="rounded-transparent"
+          color="normal"
+          [disabled]="!canNavigatePrevious()"
+          (buttonClick)="previous()"
+        >
+        </lib-icon-button>
 
-          @if (isCurrentFileMusicType()) {
-            <lib-icon-button
-              [icon]="getPlayPauseIcon()"
-              [ariaLabel]="getPlayPauseLabel()"
-              size="large"
-              variant="rounded-primary"
-              [color]="getPlayButtonColor()"
-              (buttonClick)="playPause()"
-            >
-            </lib-icon-button>
-          } @else {
-            <lib-icon-button
-              icon="stop"
-              ariaLabel="Stop Playback"
-              size="large"
-              variant="rounded-primary"
-              [color]="getPlayButtonColor()"
-              (buttonClick)="stop()"
-            >
-            </lib-icon-button>
-          }
+        @if (isCurrentFileMusicType()) {
+        <lib-icon-button
+          [icon]="getPlayPauseIcon()"
+          [ariaLabel]="getPlayPauseLabel()"
+          size="large"
+          variant="rounded-primary"
+          [color]="getPlayButtonColor()"
+          (buttonClick)="playPause()"
+        >
+        </lib-icon-button>
+        } @else {
+        <lib-icon-button
+          icon="stop"
+          ariaLabel="Stop Playback"
+          size="large"
+          variant="rounded-primary"
+          [color]="getPlayButtonColor()"
+          (buttonClick)="stop()"
+        >
+        </lib-icon-button>
+        }
 
-          <lib-icon-button
-            icon="skip_next"
-            ariaLabel="Next File"
-            size="large"
-            variant="rounded-transparent"
-            color="normal"
-            [disabled]="!canNavigate()"
-            (buttonClick)="next()"
-          >
-          </lib-icon-button>
-        </div>
+        <lib-icon-button
+          icon="skip_next"
+          ariaLabel="Next File"
+          size="large"
+          variant="rounded-transparent"
+          color="normal"
+          [disabled]="!canNavigate()"
+          (buttonClick)="next()"
+        >
+        </lib-icon-button>
+      </div>
 
-        <div class="time-display-section">
-          <lib-file-time
-            [currentTime]="currentTime()"
-            [totalTime]="totalTime()"
-            [show]="showProgressBar()"
-          ></lib-file-time>
-        </div>
+      <div class="time-display-section">
+        <lib-file-time
+          [currentTime]="currentTime()"
+          [totalTime]="totalTime()"
+          [show]="showProgressBar()"
+        ></lib-file-time>
+      </div>
 
-        <div class="file-info-section">
-          <lib-file-info [fileItem]="currentFile()?.file ?? null"></lib-file-info>
-        </div>
+      <div class="file-info-section">
+        <lib-file-info [fileItem]="currentFile()?.file ?? null"></lib-file-info>
+      </div>
 
-        <div class="toolbar-actions-section">
-          <lib-player-toolbar-actions [deviceId]="deviceId()"></lib-player-toolbar-actions>
-        </div>
+      <div class="toolbar-actions-section">
+        <lib-player-toolbar-actions [deviceId]="deviceId()"></lib-player-toolbar-actions>
+      </div>
     </div>
 
     <!-- Tablet Layout: Flexbox with file-info in remaining space (641px-900px) -->
     <div class="player-controls tablet-layout" data-testid="player-toolbar">
-        <div class="playback-controls">
-          <lib-icon-button
-            icon="skip_previous"
-            ariaLabel="Previous File"
-            size="large"
-            variant="rounded-transparent"
-            color="normal"
-            [disabled]="!canNavigatePrevious()"
-            (buttonClick)="previous()"
-          >
-          </lib-icon-button>
+      <div class="playback-controls">
+        <lib-icon-button
+          icon="skip_previous"
+          ariaLabel="Previous File"
+          size="large"
+          variant="rounded-transparent"
+          color="normal"
+          [disabled]="!canNavigatePrevious()"
+          (buttonClick)="previous()"
+        >
+        </lib-icon-button>
 
-          @if (isCurrentFileMusicType()) {
-            <lib-icon-button
-              [icon]="getPlayPauseIcon()"
-              [ariaLabel]="getPlayPauseLabel()"
-              size="large"
-              variant="rounded-primary"
-              [color]="getPlayButtonColor()"
-              (buttonClick)="playPause()"
-            >
-            </lib-icon-button>
-          } @else {
-            <lib-icon-button
-              icon="stop"
-              ariaLabel="Stop Playback"
-              size="large"
-              variant="rounded-primary"
-              [color]="getPlayButtonColor()"
-              (buttonClick)="stop()"
-            >
-            </lib-icon-button>
-          }
+        @if (isCurrentFileMusicType()) {
+        <lib-icon-button
+          [icon]="getPlayPauseIcon()"
+          [ariaLabel]="getPlayPauseLabel()"
+          size="large"
+          variant="rounded-primary"
+          [color]="getPlayButtonColor()"
+          (buttonClick)="playPause()"
+        >
+        </lib-icon-button>
+        } @else {
+        <lib-icon-button
+          icon="stop"
+          ariaLabel="Stop Playback"
+          size="large"
+          variant="rounded-primary"
+          [color]="getPlayButtonColor()"
+          (buttonClick)="stop()"
+        >
+        </lib-icon-button>
+        }
 
-          <lib-icon-button
-            icon="skip_next"
-            ariaLabel="Next File"
-            size="large"
-            variant="rounded-transparent"
-            color="normal"
-            [disabled]="!canNavigate()"
-            (buttonClick)="next()"
-          >
-          </lib-icon-button>
-        </div>
+        <lib-icon-button
+          icon="skip_next"
+          ariaLabel="Next File"
+          size="large"
+          variant="rounded-transparent"
+          color="normal"
+          [disabled]="!canNavigate()"
+          (buttonClick)="next()"
+        >
+        </lib-icon-button>
+      </div>
 
-        <div class="time-display-section">
-          <lib-file-time
-            [currentTime]="currentTime()"
-            [totalTime]="totalTime()"
-            [show]="showProgressBar()"
-          ></lib-file-time>
-        </div>
+      <div class="time-display-section">
+        <lib-file-time
+          [currentTime]="currentTime()"
+          [totalTime]="totalTime()"
+          [show]="showProgressBar()"
+        ></lib-file-time>
+      </div>
 
-        <div class="file-info-section">
-          <lib-file-info [fileItem]="currentFile()?.file ?? null"></lib-file-info>
-        </div>
+      <div class="file-info-section">
+        <lib-file-info [fileItem]="currentFile()?.file ?? null"></lib-file-info>
+      </div>
 
-        <div class="toolbar-actions-section">
-          <lib-player-toolbar-actions [deviceId]="deviceId()"></lib-player-toolbar-actions>
-        </div>
+      <div class="toolbar-actions-section">
+        <lib-player-toolbar-actions [deviceId]="deviceId()"></lib-player-toolbar-actions>
+      </div>
     </div>
 
     <!-- Mobile Layout: Stacked vertical (≤640px) -->
     <div class="player-controls mobile-layout" data-testid="player-toolbar">
-        <div class="playback-controls">
-          <lib-icon-button
-            icon="skip_previous"
-            ariaLabel="Previous File"
-            size="large"
-            variant="rounded-transparent"
-            color="normal"
-            [disabled]="!canNavigatePrevious()"
-            (buttonClick)="previous()"
-          >
-          </lib-icon-button>
+      <div class="playback-controls">
+        <lib-icon-button
+          icon="skip_previous"
+          ariaLabel="Previous File"
+          size="large"
+          variant="rounded-transparent"
+          color="normal"
+          [disabled]="!canNavigatePrevious()"
+          (buttonClick)="previous()"
+        >
+        </lib-icon-button>
 
-          @if (isCurrentFileMusicType()) {
-            <lib-icon-button
-              [icon]="getPlayPauseIcon()"
-              [ariaLabel]="getPlayPauseLabel()"
-              size="large"
-              variant="rounded-primary"
-              [color]="getPlayButtonColor()"
-              (buttonClick)="playPause()"
-            >
-            </lib-icon-button>
-          } @else {
-            <lib-icon-button
-              icon="stop"
-              ariaLabel="Stop Playback"
-              size="large"
-              variant="rounded-primary"
-              [color]="getPlayButtonColor()"
-              (buttonClick)="stop()"
-            >
-            </lib-icon-button>
-          }
+        @if (isCurrentFileMusicType()) {
+        <lib-icon-button
+          [icon]="getPlayPauseIcon()"
+          [ariaLabel]="getPlayPauseLabel()"
+          size="large"
+          variant="rounded-primary"
+          [color]="getPlayButtonColor()"
+          (buttonClick)="playPause()"
+        >
+        </lib-icon-button>
+        } @else {
+        <lib-icon-button
+          icon="stop"
+          ariaLabel="Stop Playback"
+          size="large"
+          variant="rounded-primary"
+          [color]="getPlayButtonColor()"
+          (buttonClick)="stop()"
+        >
+        </lib-icon-button>
+        }
 
-          <lib-icon-button
-            icon="skip_next"
-            ariaLabel="Next File"
-            size="large"
-            variant="rounded-transparent"
-            color="normal"
-            [disabled]="!canNavigate()"
-            (buttonClick)="next()"
-          >
-          </lib-icon-button>
-        </div>
+        <lib-icon-button
+          icon="skip_next"
+          ariaLabel="Next File"
+          size="large"
+          variant="rounded-transparent"
+          color="normal"
+          [disabled]="!canNavigate()"
+          (buttonClick)="next()"
+        >
+        </lib-icon-button>
+      </div>
 
-        <div class="time-display-section">
-          <lib-file-time
-            [currentTime]="currentTime()"
-            [totalTime]="totalTime()"
-            [show]="showProgressBar()"
-          ></lib-file-time>
-        </div>
+      <div class="time-display-section">
+        <lib-file-time
+          [currentTime]="currentTime()"
+          [totalTime]="totalTime()"
+          [show]="showProgressBar()"
+        ></lib-file-time>
+      </div>
 
-        <div class="file-info-section">
-          <lib-file-info [fileItem]="currentFile()?.file ?? null"></lib-file-info>
-        </div>
+      <div class="file-info-section">
+        <lib-file-info [fileItem]="currentFile()?.file ?? null"></lib-file-info>
+      </div>
 
-        <div class="toolbar-actions-section">
-          <lib-player-toolbar-actions [deviceId]="deviceId()"></lib-player-toolbar-actions>
-        </div>
+      <div class="toolbar-actions-section">
+        <lib-player-toolbar-actions [deviceId]="deviceId()"></lib-player-toolbar-actions>
+      </div>
     </div>
   </lib-scaling-compact-card>
 </lib-sliding-container>

@@ -52,11 +52,7 @@ export class AlertService implements IAlertService {
     this.show(message, AlertSeverity.Success, position, autoDismissMs);
   }
 
-  error(
-    message: string,
-    position: AlertPosition = DEFAULT_POSITION,
-    autoDismissMs?: number
-  ): void {
+  error(message: string, position: AlertPosition = DEFAULT_POSITION, autoDismissMs?: number): void {
     this.show(message, AlertSeverity.Error, position, autoDismissMs);
   }
 
@@ -68,11 +64,7 @@ export class AlertService implements IAlertService {
     this.show(message, AlertSeverity.Warning, position, autoDismissMs);
   }
 
-  info(
-    message: string,
-    position: AlertPosition = DEFAULT_POSITION,
-    autoDismissMs?: number
-  ): void {
+  info(message: string, position: AlertPosition = DEFAULT_POSITION, autoDismissMs?: number): void {
     this.show(message, AlertSeverity.Info, position, autoDismissMs);
   }
 

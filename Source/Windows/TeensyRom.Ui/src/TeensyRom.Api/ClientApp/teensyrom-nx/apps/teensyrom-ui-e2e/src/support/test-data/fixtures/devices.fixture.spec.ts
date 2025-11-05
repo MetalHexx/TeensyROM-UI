@@ -570,12 +570,8 @@ describe('mixedConnectionDevices Fixture', () => {
     });
 
     it('should have mixed connection states overall', () => {
-      const connectedCount = mixedConnectionDevices.devices.filter(
-        (d) => d.isConnected
-      ).length;
-      const disconnectedCount = mixedConnectionDevices.devices.filter(
-        (d) => !d.isConnected
-      ).length;
+      const connectedCount = mixedConnectionDevices.devices.filter((d) => d.isConnected).length;
+      const disconnectedCount = mixedConnectionDevices.devices.filter((d) => !d.isConnected).length;
 
       expect(connectedCount).toBe(2);
       expect(disconnectedCount).toBe(1);

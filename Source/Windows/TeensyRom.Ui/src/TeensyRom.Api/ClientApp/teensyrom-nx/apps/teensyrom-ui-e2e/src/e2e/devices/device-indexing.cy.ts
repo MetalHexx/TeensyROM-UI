@@ -13,7 +13,7 @@
 
 import {
   interceptFindDevices,
-  waitForFindDevices
+  waitForFindDevices,
 } from '../../support/interceptors/findDevices.interceptors';
 import {
   deviceWithAvailableStorage,
@@ -31,9 +31,7 @@ import {
   clickIndexAllButton,
   waitForIndexingComplete,
 } from '../../support/helpers/indexing.helpers';
-import {
-  INDEXING_INTERCEPT_ALIASES,
-} from '../../support/interceptors/indexStorage.interceptors';
+import { INDEXING_INTERCEPT_ALIASES } from '../../support/interceptors/indexStorage.interceptors';
 import { TeensyStorageType } from '@teensyrom-nx/data-access/api-client';
 import {
   STORAGE_INDEX_BUTTON_SELECTORS,

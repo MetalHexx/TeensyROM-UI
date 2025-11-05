@@ -6,13 +6,20 @@ import { WritableStore } from '../player-helpers';
 
 export function updatePlayerStatus(store: WritableStore<PlayerState>) {
   return {
-    updatePlayerStatus: ({ deviceId, status }: {
+    updatePlayerStatus: ({
+      deviceId,
+      status,
+    }: {
       deviceId: string;
       status: PlayerStatus;
     }): void => {
       const actionMessage = createAction('update-player-status');
 
-      logInfo(LogType.Info, `Updating player status for ${deviceId} to ${status}`, { deviceId, status, actionMessage });
+      logInfo(LogType.Info, `Updating player status for ${deviceId} to ${status}`, {
+        deviceId,
+        status,
+        actionMessage,
+      });
 
       updateState(store, actionMessage, (state) => ({
         players: {

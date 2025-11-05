@@ -13,7 +13,7 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
     '[@fadeIn]': 'animationStateWithParams()',
     '(@fadeIn.done)': 'onAnimationDone()',
     '[class.visible]': 'animationState() === "visible"',
-    '[class.hidden]': 'animationState() === "hidden"'
+    '[class.hidden]': 'animationState() === "hidden"',
   },
   providers: [
     {
@@ -22,43 +22,64 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
         // Always register self as a parent (children can opt-in to wait)
         return self.animationCompleteSignal.asReadonly();
       },
-      deps: [[new Self(), FadingContainerComponent]]
-    }
+      deps: [[new Self(), FadingContainerComponent]],
+    },
   ],
   animations: [
     trigger('fadeIn', [
-      transition('void => visible', [
-        style({
-          opacity: 0,
-          filter: 'blur(10px)'
-        }),
-        animate('{{ duration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
-          opacity: 1,
-          filter: 'blur(0px)'
-        }))
-      ], { params: { duration: 200 } }),
-      transition('hidden => visible', [
-        style({
-          opacity: 0,
-          filter: 'blur(10px)'
-        }),
-        animate('{{ duration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
-          opacity: 1,
-          filter: 'blur(0px)'
-        }))
-      ], { params: { duration: 200 } }),
-      transition('visible => hidden', [
-        style({
-          opacity: 1,
-          filter: 'blur(0px)'
-        }),
-        animate('{{ duration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
-          opacity: 0,
-          filter: 'blur(10px)'
-        }))
-      ], { params: { duration: 200 } })
-    ])
-  ]
+      transition(
+        'void => visible',
+        [
+          style({
+            opacity: 0,
+            filter: 'blur(10px)',
+          }),
+          animate(
+            '{{ duration }}ms cubic-bezier(0.35, 0, 0.25, 1)',
+            style({
+              opacity: 1,
+              filter: 'blur(0px)',
+            })
+          ),
+        ],
+        { params: { duration: 200 } }
+      ),
+      transition(
+        'hidden => visible',
+        [
+          style({
+            opacity: 0,
+            filter: 'blur(10px)',
+          }),
+          animate(
+            '{{ duration }}ms cubic-bezier(0.35, 0, 0.25, 1)',
+            style({
+              opacity: 1,
+              filter: 'blur(0px)',
+            })
+          ),
+        ],
+        { params: { duration: 200 } }
+      ),
+      transition(
+        'visible => hidden',
+        [
+          style({
+            opacity: 1,
+            filter: 'blur(0px)',
+          }),
+          animate(
+            '{{ duration }}ms cubic-bezier(0.35, 0, 0.25, 1)',
+            style({
+              opacity: 0,
+              filter: 'blur(10px)',
+            })
+          ),
+        ],
+        { params: { duration: 200 } }
+      ),
+    ]),
+  ],
 })
 export class FadingContainerComponent {
   // Animation configuration inputs
@@ -96,7 +117,7 @@ export class FadingContainerComponent {
   // Inject parent completion signal (if exists)
   private parentComplete = inject(PARENT_ANIMATION_COMPLETE, {
     optional: true,
-    skipSelf: true
+    skipSelf: true,
   });
 
   // Determine when to render content (for DOM entry)
@@ -110,12 +131,12 @@ export class FadingContainerComponent {
 
     // Priority 2: Check animation parent mode
     const parentMode = this.animationParent();
-    
+
     // If 'auto', wait for parent
     if (parentMode === 'auto' && this.parentComplete) {
       return this.parentComplete();
     }
-    
+
     // If custom parent provided, wait for that parent
     if (parentMode && parentMode !== 'auto' && parentMode !== null) {
       return parentMode.animationCompleteSignal.asReadonly()();
@@ -134,7 +155,7 @@ export class FadingContainerComponent {
   // Animation state with duration params for Angular animations
   protected animationStateWithParams = computed(() => ({
     value: this.animationState(),
-    params: { duration: this.animationDuration() }
+    params: { duration: this.animationDuration() },
   }));
 
   onAnimationDone(): void {

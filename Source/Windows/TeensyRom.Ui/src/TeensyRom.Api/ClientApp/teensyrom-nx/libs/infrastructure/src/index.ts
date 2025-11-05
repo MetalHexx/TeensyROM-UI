@@ -14,4 +14,3 @@ export * from './lib/storage/providers';
 // Player implementations
 export * from './lib/player/player.service';
 export * from './lib/player/providers';
-

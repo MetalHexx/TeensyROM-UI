@@ -1,6 +1,6 @@
 /**
  * Application Routes Constants
- * 
+ *
  * Centralized definitions for all application routes.
  * Single source of truth for app navigation paths - update here, affects all tests.
  */

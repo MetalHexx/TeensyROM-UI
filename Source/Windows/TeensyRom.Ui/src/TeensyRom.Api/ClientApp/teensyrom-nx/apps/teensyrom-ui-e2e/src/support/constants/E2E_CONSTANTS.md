@@ -2,7 +2,7 @@
 
 ## 🎯 Purpose
 
-E2E tests must be **declarative**—they describe *what* behavior is expected, not *how* to interact with the UI. By centralizing all infrastructure details (API endpoints, DOM selectors, navigation routes) into typed constant files, we achieve:
+E2E tests must be **declarative**—they describe _what_ behavior is expected, not _how_ to interact with the UI. By centralizing all infrastructure details (API endpoints, DOM selectors, navigation routes) into typed constant files, we achieve:
 
 - **Single source of truth** - Update selectors, URLs, or routes in one place
 - **Readable tests** - `ALERT_SELECTORS.container` is self-documenting; `.alert-display` is not
@@ -49,8 +49,13 @@ constants/
 ```
 
 Import from test helpers or directly:
+
 ```typescript
-import { navigateToDeviceView, DEVICE_CARD_SELECTORS, APP_ROUTES } from '../support/devices/test-helpers';
+import {
+  navigateToDeviceView,
+  DEVICE_CARD_SELECTORS,
+  APP_ROUTES,
+} from '../support/devices/test-helpers';
 // or
 import { APP_ROUTES } from '../support/constants/app-routes.constants';
 ```
@@ -62,6 +67,7 @@ import { APP_ROUTES } from '../support/constants/app-routes.constants';
 **Purpose**: Centralize all API endpoint configuration for Cypress intercepts.
 
 **Contains**:
+
 - `API_CONFIG` - Base URL (`http://localhost:5168`—no /api prefix), timeout settings
 - `DEVICE_ENDPOINTS` - Endpoint objects with `method` (GET/POST/DELETE) and `pattern` (URL with wildcards)
 - `INTERCEPT_ALIASES` - Readable names for `cy.intercept().as()` aliases
@@ -70,12 +76,11 @@ import { APP_ROUTES } from '../support/constants/app-routes.constants';
 **Key insight**: The API has no `/api` prefix—routes go directly to `localhost:5168/devices`, not `localhost:5168/api/devices`.
 
 **Usage**:
+
 ```typescript
-cy.intercept(
-  DEVICE_ENDPOINTS.FIND_DEVICES.method,
-  DEVICE_ENDPOINTS.FIND_DEVICES.pattern,
-  { body: [] }
-).as(INTERCEPT_ALIASES.FIND_DEVICES);
+cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.method, DEVICE_ENDPOINTS.FIND_DEVICES.pattern, {
+  body: [],
+}).as(INTERCEPT_ALIASES.FIND_DEVICES);
 ```
 
 ---
@@ -85,6 +90,7 @@ cy.intercept(
 **Purpose**: Centralize all DOM selectors, CSS classes, and UI-related constants.
 
 **Contains**:
+
 - `ALERT_SELECTORS` - Alert container, message, dismiss button
 - `DEVICE_VIEW_SELECTORS` - Device list, empty state, loading indicator
 - `DEVICE_CARD_SELECTORS` - Card, power button, ID/port labels, status icons
@@ -98,10 +104,13 @@ cy.intercept(
 ⚠️ **Important**: `data-testid` attributes should **only be added at component usage sites**, not as props in reusable component definitions. Update constants when component selectors change.
 
 **Usage**:
+
 ```typescript
-cy.get(DEVICE_CARD_SELECTORS.card).first().within(() => {
-  cy.get(DEVICE_CARD_SELECTORS.powerButton).click();
-});
+cy.get(DEVICE_CARD_SELECTORS.card)
+  .first()
+  .within(() => {
+    cy.get(DEVICE_CARD_SELECTORS.powerButton).click();
+  });
 
 cy.get(ALERT_SELECTORS.container).should('be.visible');
 ```
@@ -113,6 +122,7 @@ cy.get(ALERT_SELECTORS.container).should('be.visible');
 **Purpose**: Centralize all navigation paths and route-related utilities.
 
 **Contains**:
+
 - `APP_ROUTES` - Route path constants: `root: '/'`, `devices: '/devices'`, `player: '/player'`
 - `ROUTE_NAMES` - Logical names for routes (used in guards, breadcrumbs, etc.)
 - `getRoute()` - Helper to normalize route strings
@@ -120,6 +130,7 @@ cy.get(ALERT_SELECTORS.container).should('be.visible');
 **Wrapped by test helpers** like `navigateToDeviceView()` that add pre-visit setup (clearing storage, etc.).
 
 **Usage**:
+
 ```typescript
 cy.visit(APP_ROUTES.devices);
 
@@ -134,14 +145,17 @@ navigateToDeviceView();
 **When you add a new feature**, update constants first, then write tests:
 
 ### New API Endpoint
+
 1. Add to `DEVICE_ENDPOINTS`: `{ method: 'POST', pattern: 'url*' }`
 2. Add to `INTERCEPT_ALIASES`: `NEW_FEATURE: 'newFeature'`
 
 ### New UI Component
+
 1. Create selector group: `NEW_COMPONENT_SELECTORS = { container: '[data-testid="..."]', button: '...' }`
 2. Organize by component type (keep related selectors together)
 
 ### New Route
+
 1. Add to `APP_ROUTES`: `newFeature: '/new-feature'`
 2. Optionally create navigation helper in `test-helpers.ts`
 

@@ -303,6 +303,7 @@ Then a red error alert appears at the configured position with an error icon and
 And the alert automatically dismisses after 3 seconds
 And the user can manually dismiss the alert by clicking the dismiss button before auto-dismiss
 ```
+
 </details>
 
 <details open>
@@ -314,6 +315,7 @@ When the application layer explicitly triggers a success alert
 Then a green success alert appears with a check icon and success message
 And the alert automatically dismisses after 3 seconds
 ```
+
 </details>
 
 <details open>
@@ -325,6 +327,7 @@ When a warning alert is triggered
 Then a yellow/amber warning alert appears with a warning icon and descriptive message
 And the alert automatically dismisses after 3 seconds
 ```
+
 </details>
 
 <details open>
@@ -336,6 +339,7 @@ When an info alert is triggered
 Then a cyan info alert appears with an info icon and the message
 And the alert automatically dismisses after 3 seconds
 ```
+
 </details>
 
 ---
@@ -353,6 +357,7 @@ Then the new alert appears at the bottom of the container
 And existing alerts shift smoothly upward with 250ms animation to make room
 And the new alert entry animation plays from-bottom
 ```
+
 </details>
 
 <details open>
@@ -366,6 +371,7 @@ Then the new alert appears at the top of the container
 And existing alerts shift smoothly downward with 250ms animation to make room
 And the new alert entry animation plays from-top
 ```
+
 </details>
 
 <details open>
@@ -378,6 +384,7 @@ Then each alert appears at its specified fixed position
 And alerts at the same position stack correctly according to their top/bottom placement
 And all positions render correctly in viewport corners/edges
 ```
+
 </details>
 
 <details open>
@@ -390,6 +397,7 @@ Then the dismissed alert plays exit animation and is removed
 And remaining alerts shift smoothly to fill the gap with 250ms animation
 And no jumpy or abrupt position changes occur
 ```
+
 </details>
 
 ---
@@ -407,6 +415,7 @@ And displays a red error alert with "Device not found"
 And logs the error to console
 And rethrows the error for upstream handling
 ```
+
 </details>
 
 <details open>
@@ -419,6 +428,7 @@ Then the service displays an error alert with contextual fallback message
 And the fallback message describes the operation and context
 And the error is logged and rethrown
 ```
+
 </details>
 
 <details open>
@@ -431,6 +441,7 @@ Then no automatic success alert is displayed
 And the application layer decides whether to show success feedback
 And significant operations trigger explicit success alerts from application layer
 ```
+
 </details>
 
 ---
@@ -446,6 +457,7 @@ When an alert is triggered
 Then the scaling-compact-card entry animation plays from-bottom direction
 And the alert scales and fades in smoothly over 400ms
 ```
+
 </details>
 
 <details open>
@@ -457,6 +469,7 @@ When an alert is triggered
 Then the scaling-compact-card entry animation plays from-top direction
 And the alert scales and fades in smoothly over 400ms
 ```
+
 </details>
 
 <details open>
@@ -469,6 +482,7 @@ Then the scaling-compact-card exit animation plays
 And the alert scales and fades out smoothly over 300ms
 And the alert is removed from the DOM after animation completes
 ```
+
 </details>
 
 <details open>
@@ -481,6 +495,7 @@ Then the auto-dismiss timer is immediately cancelled and cleaned up
 And the exit animation plays immediately
 And no memory leak occurs from timer subscription
 ```
+
 </details>
 
 <details open>
@@ -492,6 +507,7 @@ When the alert appears
 Then the alert remains visible for 5 seconds instead of default 3 seconds
 And automatically dismisses after the custom duration
 ```
+
 </details>
 
 ---
@@ -508,6 +524,7 @@ Then the alert container has role="alert" for ARIA announcements
 And the screen reader announces the alert message immediately
 And the alert content is accessible to assistive technologies
 ```
+
 </details>
 
 <details open>
@@ -520,6 +537,7 @@ Then the dismiss button receives keyboard focus with visible focus indicator
 And pressing Enter or Space dismisses the alert
 And the dismiss button has proper aria-label for screen readers
 ```
+
 </details>
 
 ---
@@ -537,6 +555,7 @@ And animations remain smooth across all alerts
 And no memory leaks occur from timer subscriptions
 And the UI remains responsive during alert processing
 ```
+
 </details>
 
 <details open>
@@ -549,6 +568,7 @@ Then all three alerts are displayed independently
 And each alert has its own auto-dismiss timer
 And users see each occurrence distinctly
 ```
+
 </details>
 
 <details open>
@@ -561,6 +581,7 @@ Then all active alert colors update to dark mode design tokens
 And new alerts use dark mode colors
 And color transitions are smooth without visual glitches
 ```
+
 </details>
 
 </details>
@@ -618,6 +639,7 @@ And color transitions are smooth without visual glitches
 ### Component Composition
 
 Alert display leverages existing UI components:
+
 - Animation wrapper component for entry/exit effects
 - Icon and label component for content layout
 - Styled icon component with semantic colors
@@ -625,12 +647,12 @@ Alert display leverages existing UI components:
 
 ### Color Mapping
 
-| Severity | Design Token | Light Mode | Dark Mode | Icon |
-|----------|--------------|------------|-----------|------|
-| Success | `--color-success` | `#86c691` | `#6fdc8c` | `check_circle` |
-| Error | `--color-error` | `#cc666c` | `#ff6f6f` | `error` |
-| Warning | `--color-warning` (new, aliases directory) | `#f5d76e` | `#f5e29e` | `warning` |
-| Info | `--color-highlight` | `#00f7ff` | `#00f7ff` | `info` |
+| Severity | Design Token                               | Light Mode | Dark Mode | Icon           |
+| -------- | ------------------------------------------ | ---------- | --------- | -------------- |
+| Success  | `--color-success`                          | `#86c691`  | `#6fdc8c` | `check_circle` |
+| Error    | `--color-error`                            | `#cc666c`  | `#ff6f6f` | `error`        |
+| Warning  | `--color-warning` (new, aliases directory) | `#f5d76e`  | `#f5e29e` | `warning`      |
+| Info     | `--color-highlight`                        | `#00f7ff`  | `#00f7ff` | `info`         |
 
 ### Animation Specifications
 
@@ -661,11 +683,13 @@ BL = Bottom-Left   BC = Bottom-Center   BR = Bottom-Right
 ### Stacking Behavior
 
 **Bottom Positions** (BL, BC, BR):
+
 - New alerts appear at bottom of stack
 - Existing alerts shift upward smoothly to make room
 - Entry animation plays from bottom direction
 
 **Top Positions** (TL, TC, TR):
+
 - New alerts appear at top of stack
 - Existing alerts shift downward smoothly to make room
 - Entry animation plays from top direction

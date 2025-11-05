@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
   selector: 'lib-file-time',
   imports: [CommonModule],
   templateUrl: './file-time.component.html',
-  styleUrl: './file-time.component.scss'
+  styleUrl: './file-time.component.scss',
 })
 export class FileTimeComponent {
   currentTime = input<number>(0);

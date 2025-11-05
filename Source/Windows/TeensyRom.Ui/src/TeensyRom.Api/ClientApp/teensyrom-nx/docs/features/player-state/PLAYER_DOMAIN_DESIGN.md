@@ -73,12 +73,7 @@ This section defines the core data structures and types that form the foundation
 The Player domain leverages existing shared domain models:
 
 ```typescript
-import {
-  FileItem,
-  FileItemType,
-  ViewableItemImage,
-  StorageType
-} from '@teensyrom-nx/domain';
+import { FileItem, FileItemType, ViewableItemImage, StorageType } from '@teensyrom-nx/domain';
 ```
 
 ### Player-Specific Domain Types
@@ -86,12 +81,14 @@ import {
 Additional player-specific enums to be added to `libs/domain/src/lib/models/`:
 
 **Core Enums**:
+
 - **PlayerFilterType**: Content filtering (All, Games, Music, Images, Hex)
 - **PlayerScope**: Shuffle scope options (Storage, DirectoryDeep, DirectoryShallow)
 - **PlayerStatus**: Playback states (Stopped, Playing, Paused, Loading)
 - **LaunchMode**: Navigation modes (Directory, Shuffle, Search)
 
 **Advanced Control Enums**:
+
 - **SpeedCurveType**: Speed control curves (Linear, Logarithmic)
 - **SeekMode**: Seeking speed options (Accurate, Insane)
 - **NudgeDirection**: Nudging directions (Positive, Negative)
@@ -100,6 +97,7 @@ Additional player-specific enums to be added to `libs/domain/src/lib/models/`:
 - **TimerDuration**: Custom timer options (5s, 10s, 15s, 30s, 1m, 3m, 5m, 10m, 15m, 30m, 1hr)
 
 **Navigation Enums**:
+
 - **HistoryDirection**: Navigation direction (Forward, Backward)
 - **ProgressionTrigger**: Auto-progression triggers (TimerExpired, SongCompleted, UserTriggered)
 
@@ -119,6 +117,7 @@ Additional player-specific enums to be added to `libs/domain/src/lib/models/`:
 - **PlayerState**: Root state with device-keyed player states for multi-device support
 
 **Key State Features**:
+
 - **Multi-Device Independence**: Separate state per TeensyROM device
 - **Cross-Domain References**: StorageKey pattern for storage domain integration
 - **History Management**: Browser-style navigation with forward/backward support
@@ -137,17 +136,20 @@ Domain contracts define the interface boundaries between layers in the Clean Arc
 **Purpose**: Domain contract for infrastructure layer operations - focused exclusively on external system integration and hardware communication.
 
 **Core Infrastructure Responsibilities**:
+
 - **File Launch Operations**: Launch specific files on TeensyROM hardware
 - **Random File Selection**: Server-side random file selection with filtering
 - **External System Integration**: Direct communication with TeensyROM API endpoints
 - **Hardware State Synchronization**: Maintain consistency with physical device state
 
 **Key Interface Operations**:
+
 - **Launch Operations**: `launchFile()`, `launchRandom()` - simple infrastructure calls
 - **External System Coordination**: All operations trigger corresponding hardware actions
 - **Domain Model Mapping**: Infrastructure responses mapped to domain models via DomainMapper
 
 **Domain Contract Focus**:
+
 - **Pure Infrastructure**: No application logic, state management, or UI concerns
 - **Simple Operations**: Direct API integration without orchestration or workflow management
 - **External System Boundary**: Interface between domain and external TeensyROM systems
@@ -166,6 +168,7 @@ The infrastructure layer handles all external system integration and API communi
 **Purpose**: Simple infrastructure implementation focused exclusively on API integration and domain model mapping.
 
 **Core Implementation Focus**:
+
 - **Launch Operations**: Calls PlayerApiService for file launching, maps response using DomainMapper.toFileItem()
 - **Random Selection**: Integrates with server-side random file selection APIs
 - **Error Handling**: Maps HTTP errors to domain error messages
@@ -173,6 +176,7 @@ The infrastructure layer handles all external system integration and API communi
 - **Pure Infrastructure**: No application logic, state management, or orchestration
 
 **Service Characteristics**:
+
 - **Simple API Integration**: Direct calls to TeensyROM API endpoints
 - **Domain Model Focus**: Returns properly mapped domain models (FileItem, etc.)
 - **Stateless Operations**: No internal state management or caching
@@ -192,6 +196,7 @@ The application layer serves as the orchestration hub of the player system, coor
 **Purpose**: Application layer interface for comprehensive player workflow orchestration, providing a clean wrapper around PlayerStore and infrastructure services.
 
 **Key Responsibilities**:
+
 - **Store Wrapper**: High-level API that orchestrates PlayerStore actions and selectors
 - **Infrastructure Coordination**: Bridges between PlayerStore state and IPlayerService operations
 - **Business Logic Layer**: Implements all complex player workflows and business rules
@@ -199,6 +204,7 @@ The application layer serves as the orchestration hub of the player system, coor
 - **Multi-Device Orchestration**: Coordinates independent player state across multiple devices
 
 **Complete Interface Shape**:
+
 - **Launch Operations**: `launchFileWithContext()`, `launchRandomFile()`, `launchFile()`
 - **Playback Controls**: `play()`, `pause()`, `stop()`, `restart()`
 - **Navigation**: `next()`, `previous()`, `navigateHistory()`
@@ -217,18 +223,21 @@ The application layer serves as the orchestration hub of the player system, coor
 **Purpose**: Concrete implementation of IPlayerContext - the central orchestration service that wraps PlayerStore and coordinates all player workflows.
 
 **Store Orchestration**:
+
 - **Action Coordination**: Calls appropriate PlayerStore actions based on business logic
 - **State Management**: Manages complex state transitions through store actions
 - **Selector Delegation**: Exposes PlayerStore selectors as clean signal-based API
 - **Multi-Device Coordination**: Orchestrates device-specific state operations
 
 **Business Logic Implementation**:
+
 - **Workflow Orchestration**: Implements complex player workflows by coordinating multiple store actions
 - **Infrastructure Integration**: Calls IPlayerService and processes results through store updates
 - **Timer Integration**: Orchestrates TimerService and PlayerTimerManager operations, synchronizing timer events with store state
 - **Error Handling**: Manages error states and coordinates error recovery workflows
 
 **Integration Patterns**:
+
 - **Store Integration**: Primary interface to PlayerStore - calls actions, exposes selectors
 - **Infrastructure Integration**: Calls PlayerService for external operations, processes results
 - **Timer Integration**: Uses TimerService and PlayerTimerManager to facilitate timer events and operations, coordinating timer state with store updates
@@ -326,6 +335,7 @@ export const PlayerStore = signalStore(
 **Purpose**: Computed signal getters that provide reactive access to player state for UI components.
 
 **Key Selectors**:
+
 - **get-device-player**: Returns complete player state for device
 - **get-current-file**: Returns currently launched file for device
 - **get-player-file-context**: Returns file context for navigation (directories, search results, playlists)
@@ -360,6 +370,7 @@ The timer management system provides sophisticated timing control for all media 
 **Purpose**: RxJS-based timer functionality for application-level timing concerns.
 
 **Key Responsibilities**:
+
 - **Timer Lifecycle**: Create, start, pause, stop, and reset individual timers
 - **Speed Control**: Variable playback speed with real-time adjustment
 - **Observable Integration**: Provide RxJS streams for timer state updates
@@ -370,20 +381,22 @@ The timer management system provides sophisticated timing control for all media 
 **Purpose**: Device-aware timer coordination that bridges TimerService with PlayerStore integration.
 
 **Key Responsibilities**:
+
 - **Device-Specific Timers**: Manage independent timer instances per device
 - **Timer Coordination**: Coordinate timer operations with store state updates
 - **State Synchronization**: Bridge timer observables with store state management
 - **Lifecycle Management**: Handle timer creation/destruction with device lifecycle
 
-
 ### Multi-Device Timer Support
 
 **Independent Timers:**
+
 - Each device has its own timer state in PlayerStore
 - Timer lifecycle tied to device lifecycle
 - Automatic cleanup when device disconnects
 
 **Signal Integration:**
+
 - NgRx Signal Store provides reactive state for UI components
 - PlayerFacadeService exposes signal-based API for modern Angular 19 patterns
 - Internal RxJS timer observables converted to signals for UI consumption
@@ -393,16 +406,19 @@ The timer management system provides sophisticated timing control for all media 
 ### Timer Behaviors
 
 **Automatic Timer Setup:**
+
 - Music files: Use metadata duration as totalTime
 - Games/Images: Custom timer duration or no timer
 - Timer state persists across pause/resume operations
 
 **Speed Control Integration:**
+
 - Timer speed affects both currentTime progression and totalTime calculations
 - Speed changes immediately affect active timers
 - Speed state persists in PlayerStore for consistency
 
 **UI Component Integration:**
+
 - Player toolbar uses signal-based timer state for progress display
 - Directory files highlight current playing file via getCurrentFile() signal
 - Consistent signal-based API across all player UI components
@@ -457,15 +473,18 @@ Cross-domain integration defines how the player domain interacts with other doma
 The incremental development approach breaks down the complex player system into manageable phases, each delivering independently valuable functionality. This strategy allows for early validation of core concepts while progressively building toward the complete feature set. Each phase establishes solid foundations for subsequent phases while maintaining system coherence and avoiding technical debt.
 
 ### Phase 1: Basic File Launching with Context
+
 **Goal**: Launch a file from directory listing with navigation context (no playback controls)
 
 **Scope**:
+
 - Launch file from directory file listing (double-click behavior)
 - Store current file and file context for future navigation
 - Basic domain models and state structure
 - **NO** playback controls, timers, or navigation yet
 
 **Implementation**:
+
 - `DevicePlayerState` (minimal: deviceId, currentFile, fileContext)
 - `LaunchedFile` and `PlayerFileContext` interfaces
 - `launch-file-with-context` action (Directory mode only)
@@ -478,14 +497,17 @@ The incremental development approach breaks down the complex player system into 
 ---
 
 ### Phase 2: Random File Launching (Shuffle Mode)
+
 **Goal**: Launch random files with shuffle settings (still no playback controls)
 
 **Scope**:
+
 - Add shuffle file launching capability
 - Introduce shuffle settings and launch modes
 - **NO** navigation between random files yet, just launching
 
 **Additions**:
+
 - `ShuffleSettings` interface (scope, filter, startingDirectory)
 - `LaunchMode` enum (Directory, Shuffle)
 - `launch-random-file` action
@@ -497,9 +519,11 @@ The incremental development approach breaks down the complex player system into 
 ---
 
 ### Phase 3: Basic Playback Controls + File Navigation
+
 **Goal**: Add play/pause/stop status + next/previous navigation within file context
 
 **Scope**:
+
 - Track playback status (Playing, Paused, Stopped, Loading)
 - Navigate through directory files using existing context
 - Different playback behaviors: Songs (play/pause), Games/Images (play/stop)
@@ -507,6 +531,7 @@ The incremental development approach breaks down the complex player system into 
 - **NO** timers, progress tracking, auto-progression, or file history yet
 
 **Additions**:
+
 - `PlayerStatus` enum
 - `update-player-status` action
 - Next/Previous navigation using `currentFileIndex` in `PlayerFileContext` for Directory mode
@@ -518,9 +543,11 @@ The incremental development approach breaks down the complex player system into 
 ---
 
 ### Phase 4: Filter System UI Integration + Error State Visual Feedback
+
 **Goal**: Wire up filter toolbar to existing filter infrastructure and add error state visual indicators
 
 **Scope**:
+
 - Connect filter button click handlers to `setFilterMode()`
 - Visual feedback for active filter selection (cyan highlight)
 - Visual feedback for error states (red color on all interactive buttons)
@@ -528,6 +555,7 @@ The incremental development approach breaks down the complex player system into 
 - **NO** new backend logic - all filter infrastructure already exists from Phase 2
 
 **Implementation**:
+
 - Filter toolbar click handlers call `setFilterMode()`
 - Active filter signal derived from `getShuffleSettings()`
 - Error state signal derived from `getError()`
@@ -539,9 +567,11 @@ The incremental development approach breaks down the complex player system into 
 ---
 
 ### Phase 5: Timer System + Auto-Progression
+
 **Goal**: Add basic timer functionality with automatic file progression
 
 **Scope**:
+
 - Timer state for progress tracking
 - Song progress display (metadata duration)
 - timer duration only for songs right now.
@@ -549,6 +579,7 @@ The incremental development approach breaks down the complex player system into 
 - **NO** custom timer durations or file history yet
 
 **Additions**:
+
 - `TimerState` interface
 - `TimerService`, `PlayerTimerManager`, `PlayerContextService`
 - `update-timer-state` action
@@ -560,9 +591,11 @@ The incremental development approach breaks down the complex player system into 
 ---
 
 ### Phase 6: Asset Image URLs & Animated Image Carousel
+
 **Goal**: Display file artwork/screenshots with animated carousel cycling through available images
 
 **Scope**:
+
 - Regenerate API client to pick up `baseAssetPath` property on `ViewableItemImageDto`
 - Add `url` property to `ViewableItemImage` domain model
 - Update `DomainMapper` to construct full URLs from `baseAssetPath` + base API URL
@@ -573,6 +606,7 @@ The incremental development approach breaks down the complex player system into 
 - **NO** custom Asset service - base URL extracted from existing infrastructure services
 
 **Additions**:
+
 - `ViewableItemImage.url` property (full URL to image asset)
 - `DomainMapper.toViewableItemImage(dto, baseApiUrl)` - accepts base URL parameter
 - `DomainMapper.toFileItem(dto, baseApiUrl)` - passes URL to image mapper
@@ -590,6 +624,7 @@ The incremental development approach breaks down the complex player system into 
 **Important**: The `PLAYER_DOMAIN_DESIGN.md` document should continue being referenced and updated as new concepts emerge during implementation. Each phase may reveal design adjustments or additional patterns that need to be addressed.
 
 **Key Principles**:
+
 1. **Each phase is independently valuable and demonstrable**
 2. **Additive changes - don't break previous phases**
 3. **Continuously update this document as concepts emerge**

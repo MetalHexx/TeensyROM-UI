@@ -174,4 +174,4 @@ The project is located within a larger TeensyROM solution:
 - **Rate Limiting**: Strict rate limiting applied to all endpoints
 - **Asset Management**: Automatic asset unpacking on startup
 - **API Documentation**: Available at `/scalar/v1` when running
-- always warn about the context remaining and before starting a new task.  make sure the left over context is enough to complete the task or not.  if not, suggest to the user to use compact.
+- always warn about the context remaining and before starting a new task. make sure the left over context is enough to complete the task or not. if not, suggest to the user to use compact.

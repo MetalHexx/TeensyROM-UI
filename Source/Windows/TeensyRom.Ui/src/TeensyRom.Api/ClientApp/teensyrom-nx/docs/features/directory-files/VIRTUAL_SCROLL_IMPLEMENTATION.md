@@ -15,6 +15,7 @@ Successfully implemented Angular CDK Virtual Scrolling in the `directory-files` 
 ### Before Implementation
 
 **Symptoms**:
+
 - Slow initial render when navigating to directories with many files (~750ms for 1000 files)
 - Janky animations throughout application due to heavy DOM manipulation
 - Poor scrolling performance (30-45fps) with large lists
@@ -42,6 +43,7 @@ Implemented virtual scrolling using `CdkVirtualScrollViewport` from `@angular/cd
 ### Configuration
 
 **Virtual Viewport**:
+
 ```html
 <cdk-virtual-scroll-viewport
   #viewport
@@ -49,10 +51,11 @@ Implemented virtual scrolling using `CdkVirtualScrollViewport` from `@angular/cd
   minBufferPx="200"
   maxBufferPx="400"
   class="files-viewport"
->
+></cdk-virtual-scroll-viewport>
 ```
 
 **Key Parameters**:
+
 - `itemSize="52"`: Fixed height strategy (measured `.file-list-item` height)
 - `minBufferPx="200"`: Pre-render 200px above/below visible area
 - `maxBufferPx="400"`: Maximum buffer before recycling DOM nodes
@@ -108,8 +111,8 @@ private scrollToSelectedFile(filePath: string): void {
 
       // Measure actual item height (handles theme changes)
       const firstElement = document.querySelector('.file-list-item');
-      const actualItemHeight = firstElement 
-        ? firstElement.getBoundingClientRect().height 
+      const actualItemHeight = firstElement
+        ? firstElement.getBoundingClientRect().height
         : 52;
 
       // Calculate centered offset
@@ -124,6 +127,7 @@ private scrollToSelectedFile(filePath: string): void {
 ```
 
 **Key Features**:
+
 - Dynamic height measurement (adapts to theme/font changes)
 - Centered positioning for better UX
 - Fallback to `scrollToIndex()` if viewport not ready
@@ -135,13 +139,13 @@ private scrollToSelectedFile(filePath: string): void {
 
 ### Metrics Achieved
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| **DOM Nodes (1000 files)** | ~1000 | ~30 | **97% reduction** |
-| **Initial Render** | ~750ms | <50ms | **50x faster** |
-| **Scroll FPS** | 30-45fps | 60fps | **Smooth scrolling** |
-| **Memory Usage** | ~150MB | ~15MB | **90% reduction** |
-| **Auto-scroll Accuracy** | Top-aligned | Centered | **Better UX** |
+| Metric                     | Before      | After    | Improvement          |
+| -------------------------- | ----------- | -------- | -------------------- |
+| **DOM Nodes (1000 files)** | ~1000       | ~30      | **97% reduction**    |
+| **Initial Render**         | ~750ms      | <50ms    | **50x faster**       |
+| **Scroll FPS**             | 30-45fps    | 60fps    | **Smooth scrolling** |
+| **Memory Usage**           | ~150MB      | ~15MB    | **90% reduction**    |
+| **Auto-scroll Accuracy**   | Top-aligned | Centered | **Better UX**        |
 
 ### Real-World Impact
 
@@ -157,6 +161,7 @@ private scrollToSelectedFile(filePath: string): void {
 ### Component Files
 
 1. **directory-files.component.ts**
+
    - Added `ScrollingModule` import
    - Added `viewport` viewChild reference
    - Implemented `scrollToSelectedFile()` with dynamic measurement
@@ -164,12 +169,14 @@ private scrollToSelectedFile(filePath: string): void {
    - Added comprehensive JSDoc documentation
 
 2. **directory-files.component.html**
+
    - Wrapped items in `<cdk-virtual-scroll-viewport>`
    - Added `#viewport` template reference
    - Wrapped viewport in `.viewport-wrapper` div
    - Preserved all existing item rendering logic
 
 3. **directory-files.component.scss**
+
    - Added `.viewport-wrapper` absolute positioning
    - Added `.files-viewport` height constraint styles
    - Added `::ng-deep mat-card-content` height constraint (400px)
@@ -182,17 +189,20 @@ private scrollToSelectedFile(filePath: string): void {
 ### Documentation
 
 5. **VIRTUAL_SCROLL_PLAN.md**
+
    - Updated with implementation results
    - Added performance metrics
    - Marked phases 1-7 complete
 
 6. **VIRTUAL_SCROLL_TESTING.md** (new)
+
    - Comprehensive testing guide
    - Manual testing checklists
    - Performance profiling instructions
    - Browser testing procedures
 
 7. **COMPONENT_LIBRARY.md**
+
    - Added "Performance Best Practices" section
    - Documented virtual scrolling pattern
    - Included code examples and guidelines
@@ -209,6 +219,7 @@ private scrollToSelectedFile(filePath: string): void {
 ### Automated Tests
 
 **Unit Tests**: 18 passing
+
 - Core functionality (selection, navigation, launch)
 - Player integration (playing file detection, auto-selection)
 - Highlight behavior (playing state, error state)
@@ -219,6 +230,7 @@ private scrollToSelectedFile(filePath: string): void {
 ### Manual Testing
 
 **Performed**:
+
 - ✅ Small directories (< 10 files)
 - ✅ Medium directories (50-100 files)
 - ✅ Large directories (500+ files)
@@ -267,6 +279,7 @@ private scrollToSelectedFile(filePath: string): void {
 ### Backward Compatibility
 
 ✅ **Fully backward compatible**:
+
 - All existing features preserved
 - Same API surface for parent components
 - No data structure changes
@@ -275,6 +288,7 @@ private scrollToSelectedFile(filePath: string): void {
 ### Rollout Strategy
 
 **Implemented**: Direct rollout (no feature flag)
+
 - Low risk due to CDK maturity
 - Comprehensive testing completed
 - Easy rollback if needed (revert 4 files)
@@ -282,6 +296,7 @@ private scrollToSelectedFile(filePath: string): void {
 ### Monitoring
 
 **Key Metrics to Watch**:
+
 - Initial render time (should stay < 50ms)
 - Scroll FPS (should stay 60fps)
 - DOM node count (should stay < 50)
@@ -294,19 +309,23 @@ private scrollToSelectedFile(filePath: string): void {
 ### Potential Improvements
 
 1. **Keyboard Navigation**
+
    - Arrow keys to move selection
    - Auto-scroll to keep selected item visible
    - Enter to activate item
 
 2. **Sticky Section Headers**
+
    - Separate "Directories" and "Files" sections
    - Sticky headers that stay visible during scroll
 
 3. **Variable Height Support**
+
    - Switch to `autosize` if item heights become inconsistent
    - Handle thumbnails or additional metadata
 
 4. **Grid View**
+
    - Use virtual scrolling with CSS Grid
    - Display file thumbnails in grid layout
 
@@ -326,6 +345,7 @@ private scrollToSelectedFile(filePath: string): void {
 **Description**: Loading indicator doesn't animate smoothly during directory navigation. This is an **app-wide performance issue** affecting leet-text animations, not related to virtual scrolling implementation.
 
 **Investigation Needed**:
+
 - Profile app with Chrome DevTools during navigation
 - Identify components/services blocking main thread
 - Check StorageStore navigation actions

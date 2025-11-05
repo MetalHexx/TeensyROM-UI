@@ -14,10 +14,10 @@ import { trigger, transition, style, animate } from '@angular/animations';
     trigger('fadeIn', [
       transition(':increment, :decrement', [
         style({ opacity: 0 }),
-        animate('1s ease-out', style({ opacity: 1 }))
-      ])
-    ])
-  ]
+        animate('1s ease-out', style({ opacity: 1 })),
+      ]),
+    ]),
+  ],
 })
 export class CycleImageComponent {
   // Inputs
@@ -61,7 +61,7 @@ export class CycleImageComponent {
       this.currentIndex.set(0);
       this.previousIndex.set(null);
       this.showPrevious.set(false);
-      this.animationKey.update(v => v + 1);
+      this.animationKey.update((v) => v + 1);
     });
 
     // Start carousel when there are multiple images
@@ -90,7 +90,7 @@ export class CycleImageComponent {
     // Update to next image
     const nextIndex = (this.currentIndex() + 1) % this.effectiveImages().length;
     this.currentIndex.set(nextIndex);
-    this.animationKey.update(v => v + 1);
+    this.animationKey.update((v) => v + 1);
 
     // After animation duration, hide previous
     setTimeout(() => {

@@ -1,6 +1,9 @@
 import 'zone.js';
 import { getTestBed } from '@angular/core/testing';
-import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
+import {
+  BrowserDynamicTestingModule,
+  platformBrowserDynamicTesting,
+} from '@angular/platform-browser-dynamic/testing';
 
 // Polyfill for MSW v2 - TransformStream is not available in jsdom
 if (!globalThis.TransformStream) {
@@ -9,8 +12,4 @@ if (!globalThis.TransformStream) {
 }
 
 // Initialize Angular testing environment
-getTestBed().initTestEnvironment(
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting()
-);
-
+getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());

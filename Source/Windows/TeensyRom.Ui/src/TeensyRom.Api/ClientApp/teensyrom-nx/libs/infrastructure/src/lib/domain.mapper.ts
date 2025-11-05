@@ -77,14 +77,17 @@ export class DomainMapper {
 
   // ===== STORAGE MAPPING =====
 
-  static toStorageDirectory(storageCacheDto: StorageCacheDto, baseApiUrl: string): StorageDirectory {
+  static toStorageDirectory(
+    storageCacheDto: StorageCacheDto,
+    baseApiUrl: string
+  ): StorageDirectory {
     if (!storageCacheDto) {
       throw new Error('StorageCacheDto is required for transformation');
     }
 
     return {
       directories: storageCacheDto.directories?.map(DomainMapper.toDirectoryItem) ?? [],
-      files: storageCacheDto.files?.map(file => DomainMapper.toFileItem(file, baseApiUrl)) ?? [],
+      files: storageCacheDto.files?.map((file) => DomainMapper.toFileItem(file, baseApiUrl)) ?? [],
       path: storageCacheDto.path ?? '',
     };
   }
@@ -124,7 +127,8 @@ export class DomainMapper {
       playLength: fileItemDto.playLength ?? '',
       subtuneLengths: fileItemDto.subtuneLengths ?? [],
       startSubtuneNum: fileItemDto.startSubtuneNum ?? 0,
-      images: fileItemDto.images?.map(img => DomainMapper.toViewableItemImage(img, baseApiUrl)) ?? [],
+      images:
+        fileItemDto.images?.map((img) => DomainMapper.toViewableItemImage(img, baseApiUrl)) ?? [],
       type: DomainMapper.toFileItemType(fileItemDto.type),
       links: fileItemDto.links?.map(DomainMapper.toFileLink) ?? [],
       tags: fileItemDto.tags?.map(DomainMapper.toFileTag) ?? [],
@@ -135,7 +139,10 @@ export class DomainMapper {
     };
   }
 
-  static toViewableItemImage(viewableItemImageDto: ViewableItemImageDto, baseApiUrl: string): ViewableItemImage {
+  static toViewableItemImage(
+    viewableItemImageDto: ViewableItemImageDto,
+    baseApiUrl: string
+  ): ViewableItemImage {
     if (!viewableItemImageDto) {
       throw new Error('ViewableItemImageDto is required for transformation');
     }
@@ -252,7 +259,7 @@ export class DomainMapper {
   static toFileLink(dto: FileLinkDto): FileLink {
     return {
       name: dto.name ?? '',
-      url: dto.url ?? ''
+      url: dto.url ?? '',
     };
   }
 
@@ -262,7 +269,7 @@ export class DomainMapper {
   static toFileTag(dto: FileTagDto): FileTag {
     return {
       name: dto.name ?? '',
-      type: dto.type ?? ''
+      type: dto.type ?? '',
     };
   }
 
@@ -274,7 +281,7 @@ export class DomainMapper {
       videoId: dto.videoId ?? '',
       url: dto.url ?? '',
       channel: dto.channel ?? '',
-      subtune: dto.subtune ?? 0
+      subtune: dto.subtune ?? 0,
     };
   }
 
@@ -284,7 +291,7 @@ export class DomainMapper {
   static toCompetition(dto: CompetitionDto): Competition {
     return {
       name: dto.name ?? '',
-      place: dto.place ?? undefined
+      place: dto.place ?? undefined,
     };
   }
 }

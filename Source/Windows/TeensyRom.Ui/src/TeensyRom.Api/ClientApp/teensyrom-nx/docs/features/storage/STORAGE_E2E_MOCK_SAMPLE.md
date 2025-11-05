@@ -51,6 +51,7 @@ Commodore 64 cartridge ROM files (.crt format). Organized alphabetically with 20
 File sizes typically: 64.2 KB, 80.2 KB, or 88.2 KB
 
 ### Sample Files:
+
 ```
 /games/10th Frame.crt (64.2 KB)
 /games/180.crt (80.2 KB)
@@ -62,6 +63,7 @@ File sizes typically: 64.2 KB, 80.2 KB, or 88.2 KB
 ```
 
 ### Games Subdirectories:
+
 ```
 /games/Extras/ - Extra ROM variants
 /games/Large/ - Large ROM files
@@ -77,6 +79,7 @@ SID music files organized by artist name, grouped alphabetically (A-Z, 0-9).
 Individual artist folders contain multiple SID compositions.
 
 ### Sample Artist/Track Paths:
+
 ```
 /music/MUSICIANS/L/LukHash/Alpha.sid (6.7 KB)
 /music/MUSICIANS/L/LukHash/Another_World.sid (8.3 KB)
@@ -91,6 +94,7 @@ Individual artist folders contain multiple SID compositions.
 ```
 
 ### Other Artist Examples:
+
 - L_Oreal
 - LaBatt_Darren
 - Lagace_Ken
@@ -120,6 +124,7 @@ Individual artist folders contain multiple SID compositions.
 Demo SID music files organized in alphabetical ranges: 0-9, A-F, G-L, M-R, S-Z, Commodore, UNKNOWN
 
 ### Sample Demo Tracks (S-Z range):
+
 ```
 /music/DEMOS/S-Z/S_O_S.sid (15.1 KB)
 /music/DEMOS/S-Z/S_S_B_Melee_Trophy.sid (2.7 KB)
@@ -188,6 +193,7 @@ Image files in Koala paint format (.kla) and sequencer format (.seq)
 Typical file size: 6.4-9.8 KB
 
 ### Sample Image Files:
+
 ```
 /images/6000Addr.koa (9.8 KB)
 /images/ChrisCornell1.kla (9.8 KB)
@@ -215,6 +221,7 @@ Typical file size: 6.4-9.8 KB
 Text-based configuration files at the SD card root level.
 
 ### Files:
+
 ```
 /cart-tag.txt (30.0 B) - Cartridge tag configuration
 /remote-config.txt (124.0 B) - Remote configuration settings
@@ -223,29 +230,34 @@ Text-based configuration files at the SD card root level.
 ## File Format Reference
 
 ### .crt (Commodore 64 Cartridge ROM)
+
 - **Size**: Typically 64.2 KB, 80.2 KB, or 88.2 KB
 - **Location**: `/games/` and subdirectories
 - **Usage**: Playable game ROM files for C64 emulation
 - **Naming**: Alphabetically sorted, may include release year or variant info
 
 ### .sid (SID Music File)
+
 - **Size**: 1 KB - 60+ KB (highly variable)
 - **Location**: `/music/DEMOS/` and `/music/MUSICIANS/[Letter]/[Artist]/`
 - **Usage**: Commodore 64 music/audio files
 - **Format**: SoundInitializer music format (SID)
 
 ### .kla (Koala Paint Image)
+
 - **Size**: Typically 9.8 KB
 - **Location**: `/images/`
 - **Usage**: Commodore 64 bitmap image file
 - **Format**: Koala paint bitmap format
 
 ### .seq (Sequencer File)
+
 - **Size**: Typically 6.4 KB
 - **Location**: `/images/`
 - **Usage**: Image sequencer or animation file
 
 ### .txt (Text Configuration)
+
 - **Size**: Tiny (30-124 bytes)
 - **Location**: Root level `/`
 - **Usage**: Configuration metadata
@@ -262,22 +274,26 @@ Text-based configuration files at the SD card root level.
 ## Use Cases for E2E Testing
 
 ### File Browser Navigation
+
 - Test directory traversal with deep hierarchies (5+ levels)
 - Test breadcrumb navigation accuracy
 - Test "Up" button functionality at multiple levels
 - Test listing performance with 2000+ files
 
 ### Search and Filter
+
 - Mock search results for common game/artist names
 - Test filtering by file extension (.sid, .crt, .kla)
 - Test alphabetical sorting in large directories
 
 ### Playback
+
 - Mock loading SID files from `/music/` directories
 - Mock loading game ROMs from `/games/` subdirectories
 - Test file metadata display (size, artist, title)
 
 ### Directory Structure Validation
+
 - Verify alphabetic folder organization in MUSICIANS directory
 - Validate range-based demo folder structure
 - Test SD card root directory listing
@@ -285,6 +301,7 @@ Text-based configuration files at the SD card root level.
 ## Sample Mock Data Generation
 
 For E2E tests, use the paths listed above to:
+
 1. Create mock directory structures
 2. Generate stub files with appropriate sizes
 3. Mock API responses returning these file listings

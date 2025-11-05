@@ -27,12 +27,12 @@ Implement timer functionality with automatic file progression for music playback
   - **TimerState interface shape:**
     ```typescript
     export interface TimerState {
-      totalTime: number;      // Total duration in milliseconds
-      currentTime: number;    // Current position in milliseconds
-      isRunning: boolean;     // Timer actively counting
-      isPaused: boolean;      // Timer paused (music only)
-      speed: number;          // Speed multiplier (1.0 = normal, Phase 5 only)
-      showProgress: boolean;  // Display progress bar in UI
+      totalTime: number; // Total duration in milliseconds
+      currentTime: number; // Current position in milliseconds
+      isRunning: boolean; // Timer actively counting
+      isPaused: boolean; // Timer paused (music only)
+      speed: number; // Speed multiplier (1.0 = normal, Phase 5 only)
+      showProgress: boolean; // Display progress bar in UI
     }
     ```
   - All times in milliseconds for precision
@@ -152,7 +152,7 @@ Implement timer functionality with automatic file progression for music playback
       status: PlayerStatus;
       launchMode: LaunchMode;
       shuffleSettings: ShuffleSettings;
-      timerState: TimerState | null;  // NEW - Phase 5
+      timerState: TimerState | null; // NEW - Phase 5
       isLoading: boolean;
       error: string | null;
       lastUpdated: number | null;
@@ -160,7 +160,7 @@ Implement timer functionality with automatic file progression for music playback
     ```
   - **Update initial state (in initialization logic):**
     ```typescript
-    timerState: null  // No timer initially
+    timerState: null; // No timer initially
     ```
   - **Update helper function:**
     - Added `timerState: null` to `createDefaultDeviceState()` in player-helpers.ts
@@ -258,9 +258,11 @@ Implement timer functionality with automatic file progression for music playback
 **Purpose**: Test complete timer system through PlayerContextService with full integration covering all timer behaviors, multi-device coordination, and edge cases.
 
 - [x] Update `libs/application/src/lib/player/player-context.service.spec.ts`
+
   - Add "Phase 5: Timer System Integration" describe block
-  
+
   **Timer Creation & Lifecycle:**
+
   - [x] Music file launch creates timer with parsed playLength duration
   - [x] Timer state initially: isRunning: true, currentTime: 0, showProgress: true
   - [x] Non-music file launch does NOT create timer (timerState: null)
@@ -269,8 +271,9 @@ Implement timer functionality with automatic file progression for music playback
   - [x] Invalid playLength format results in no timer created
   - [x] Empty playLength string handled gracefully (no timer)
   - [x] Timer state includes correct totalTime from parsed playLength
-  
+
   **Auto-Progression:**
+
   - [ ] Timer completion triggers next() automatically (DEFERRED to Phase 6)
   - [ ] Next file launched with new timer created after completion (DEFERRED to Phase 6)
   - [ ] Auto-progression works in Directory mode (DEFERRED to Phase 6)
@@ -280,8 +283,9 @@ Implement timer functionality with automatic file progression for music playback
   - [ ] Directory mode: Auto-progression respects file order (DEFERRED to Phase 6)
   - [ ] Shuffle mode: Auto-progression launches random file (DEFERRED to Phase 6)
   - [ ] Last file in directory: Auto-progression behavior (wrap or stop) (DEFERRED to Phase 6)
-  
+
   **Playback Control Integration:**
+
   - [x] Music pause() pauses timer (isPaused: true, isRunning: false)
   - [x] Music play() from paused resumes timer (isPaused: false, isRunning: true)
   - [x] Music stop() stops timer and resets currentTime to 0
@@ -291,8 +295,9 @@ Implement timer functionality with automatic file progression for music playback
   - [x] Play/Pause/Stop on non-music file does NOT affect timer
   - [x] Pause on stopped timer has no effect (tested via noop scenarios)
   - [x] Resume when not paused has no effect (tested via noop scenarios)
-  
+
   **Navigation Timer Tests:**
+
   - [x] next() destroys old timer, creates new timer for next music file
   - [x] previous() destroys old timer, creates new timer for previous music file (tested via next)
   - [x] Timer state resets correctly between file transitions
@@ -301,8 +306,9 @@ Implement timer functionality with automatic file progression for music playback
   - [x] Navigation preserves playback state (Playing/Paused) (verified in navigation tests)
   - [x] Rapid navigation (next/next/next) cleanly recreates timers (tested via rapid cycles)
   - [x] Navigation in shuffle mode creates timer for random music file (implicit in shuffle tests)
-  
+
   **Multi-Device Timer Tests:**
+
   - [x] Each device maintains independent timer state
   - [x] Device1 timer progression does not affect Device2
   - [x] Device1 auto-progression does not affect Device2 timer (N/A - auto-progression deferred)
@@ -311,15 +317,17 @@ Implement timer functionality with automatic file progression for music playback
   - [x] Multiple devices can complete timers simultaneously (capability verified)
   - [x] Independent pause/resume per device
   - [x] Independent navigation per device (verified in multi-device tests)
-  
+
   **Timer Subscription Management:**
+
   - [x] Timer subscriptions cleaned up on file change (implicit in navigation tests)
   - [x] Timer subscriptions cleaned up on device removal (tested)
   - [x] No memory leaks from abandoned subscriptions (verified via cleanup tests)
   - [x] Subscriptions recreated correctly on new file launch (verified via multiple launch tests)
   - [x] Multiple timer recreations don't accumulate subscriptions (tested via rapid cycles)
-  
+
   **Edge Cases & Error Handling:**
+
   - [x] Timer survives file launch errors (timer creation independent) (N/A - not applicable to current tests)
   - [x] Timer handles rapid play/pause/stop cycles
   - [x] Timer handles navigation during playback (tested)
@@ -328,15 +336,17 @@ Implement timer functionality with automatic file progression for music playback
   - [x] getTimerState returns null for non-existent device
   - [x] getTimerState returns null before any file launched
   - [x] Timer operations on non-music files safely ignored
-  
+
   **Store Integration:**
+
   - [x] updateTimerState action called with correct state (implicit in integration tests)
   - [x] Store timerState updated reactively via computed signal
   - [x] Redux DevTools shows timer state mutations with actionMessage (verified via logs)
   - [x] Store lastUpdated timestamp updated on timer changes (implicit in store actions)
   - [x] Store state consistency across timer lifecycle
-  
+
   **PlayerTimerManager Integration:**
+
   - [x] createTimer called with correct deviceId and totalTime (implicit in timer creation tests)
   - [x] onTimerUpdate$ subscription receives timer state updates (verified via reactive updates)
   - [x] onTimerComplete$ subscription receives completion event (capability present, auto-progression deferred)
@@ -345,6 +355,7 @@ Implement timer functionality with automatic file progression for music playback
   - [x] Timer manager handles rapid timer creation/destruction (tested in rapid cycles)
 
 **Testing Strategy:**
+
 - Test through PlayerContextService as public API ✅
 - Full integration: PlayerStore, PlayerTimerManager, TimerService all real ✅
 - Only mock external dependencies (PLAYER_SERVICE, DEVICE_SERVICE) ✅
@@ -357,6 +368,7 @@ Implement timer functionality with automatic file progression for music playback
 **Status**: ✅ Complete - All integration tests passing (277/277 total, including 110 PlayerContextService integration tests with 27 Phase 5 timer-specific tests)
 
 **Implementation Notes:**
+
 - Fixed timer state emission on pause/resume in `timer.service.ts` - now emits state immediately when paused/resumed
 - Auto-progression tests deferred to Phase 6 (requires completion event handling)
 - Navigation from music to non-music currently persists timer (cleanup opportunity noted for future)
@@ -374,6 +386,7 @@ Implement timer functionality with automatic file progression for music playback
 **Status**: ⏸️ **DEFERRED** - Core timer functionality complete and tested. UI component deferred to allow focus on other features. Timer state is fully functional and ready for UI integration when needed.
 
 **Implementation Details (for future reference):**
+
 - Create progress-bar component with Material `mat-progress-bar`
 - Use `playerContext.getTimerState(deviceId)` for reactive timer data
 - Calculate `progressPercent = (currentTime / totalTime) * 100`
@@ -391,6 +404,7 @@ Implement timer functionality with automatic file progression for music playback
 **Purpose**: Handle incompatible SID files gracefully by still navigating to the failed file and cleaning up timer state.
 
 **Background**: Some SID files are incompatible with TeensyROM hardware and will fail to launch. When this happens, we need to:
+
 - Still show the file as "current" in the UI so users know which file failed
 - Load the directory context (especially important for shuffle mode)
 - Clean up any existing timer since the file didn't actually play
@@ -399,6 +413,7 @@ Implement timer functionality with automatic file progression for music playback
 **Changes Required**:
 
 - [x] Update `libs/application/src/lib/player/actions/launch-file-with-context.ts`
+
   - **Current behavior**: On error, calls `setPlayerError()` which does NOT set currentFile/fileContext (lines 69-76)
   - **New behavior**: In catch block, still create `launchedFile` and `fileContext` from the requested file
   - Call new helper `setPlayerLaunchFailure()` instead of `setPlayerError()`
@@ -408,6 +423,7 @@ Implement timer functionality with automatic file progression for music playback
   - **Key decision**: Action does NOT throw - sets error state in store instead
 
 - [x] Update `libs/application/src/lib/player/player-helpers.ts`
+
   - Create new `setPlayerLaunchFailure()` helper function
   - Similar to `setPlayerLaunchSuccess()` but sets error state
   - Parameters: `(store, deviceId, launchedFile, fileContext, errorMessage, actionMessage)`
@@ -425,7 +441,7 @@ Implement timer functionality with automatic file progression for music playback
 - [x] Update `libs/application/src/lib/player/player-context.service.ts`
   - **launchFileWithContext()** (lines 33-52):
     - After `await this.store.launchFileWithContext(...)` call
-    - Check error state with `hasErrorAndCleanup(deviceId)` 
+    - Check error state with `hasErrorAndCleanup(deviceId)`
     - If error exists: timer is cleaned up, skip timer setup
     - If no error: continue with `setupTimerForFile()` as normal
     - **KEY FIX**: Do NOT return early - store action already set currentFile and fileContext
@@ -445,6 +461,7 @@ Implement timer functionality with automatic file progression for music playback
 **Key Design**: Failed launches set currentFile + fileContext + error, allowing UI to display which file failed. Timer cleanup prevents orphaned timers. Directory context loading still happens for better UX. Actions handle errors internally without throwing.
 
 **Testing Requirements**:
+
 - [x] Test failed launch sets currentFile with error state
 - [x] Test timer cleanup occurs on failed launch
 - [x] Test directory context set even when launch fails (shuffle mode)
@@ -463,6 +480,7 @@ Implement timer functionality with automatic file progression for music playback
 **Background**: Currently, the playing file shows with a pulsing blue/green highlight using `--color-highlight`. When a SID file fails to launch, we want to show a red pulsing highlight using `--color-error` to visually indicate the failure.
 
 **Current Implementation**:
+
 - `directory-files.component.scss` line 30-37: Uses `pulsing-highlight` mixin with `--color-highlight`
 - `directory-files.component.ts` line 117-120: `isCurrentlyPlaying()` checks if file matches currentFile
 - `directory-files.component.html` line 13: Sets `data-is-playing` attribute for styling
@@ -470,11 +488,13 @@ Implement timer functionality with automatic file progression for music playback
 **Changes Required**:
 
 - [x] Update `libs/features/player/.../directory-files/directory-files.component.ts`
+
   - Add computed signal: `hasCurrentFileError = computed(() => this.playerContext.getError(this.deviceId())() !== null)`
   - This checks if player has error state for the device
   - Export for template usage
 
 - [x] Update `libs/features/player/.../directory-files/directory-files.component.html`
+
   - Locate the `file-list-item` div (line 10-14)
   - Add new attribute: `[attr.data-has-error]="hasCurrentFileError()"`
   - Keep existing `[attr.data-is-playing]="isCurrentlyPlaying(item)"`
@@ -485,7 +505,7 @@ Implement timer functionality with automatic file progression for music playback
   - Add new specific rule BEFORE the existing one (higher specificity):
     ```scss
     // Failed launch: Red pulsing highlight
-    &[data-is-playing="true"][data-has-error="true"] {
+    &[data-is-playing='true'][data-has-error='true'] {
       @include styles.pulsing-highlight(
         $color: var(--color-error),
         $opacity: 15%,
@@ -501,6 +521,7 @@ Implement timer functionality with automatic file progression for music playback
   - Keep existing `&[data-is-playing="true"]` rule for successful launches
 
 **Visual Result**:
+
 - **Successful launch**: Blue/green pulsing highlight (`--color-highlight`)
 - **Failed launch**: Red pulsing highlight (`--color-error`)
 - Same visual pattern (pulsing border), different color communicates state
@@ -508,6 +529,7 @@ Implement timer functionality with automatic file progression for music playback
 **Key Design**: Pure CSS-based visual feedback. No additional state or logic needed beyond existing error tracking. Works automatically when error state is set.
 
 **Testing**:
+
 - [x] Test `hasCurrentFileError()` returns false when no error
 - [x] Test `hasCurrentFileError()` returns true when error exists
 - [x] Test `data-is-playing` attribute rendered correctly for playing file
@@ -516,8 +538,9 @@ Implement timer functionality with automatic file progression for music playback
 **Status**: ✅ COMPLETE - All 4 new tests passing (16 total in directory-files.component.spec.ts), all 277 application tests passing
 
 **Visual Testing (Manual Verification Recommended):**
+
 - [ ] Test successful file launch shows normal highlight color
-- [ ] Test failed file launch shows error highlight color  
+- [ ] Test failed file launch shows error highlight color
 - [ ] Test error highlight persists until new file launched
 - [ ] Test clearing error (successful launch) restores normal highlight
 
@@ -528,6 +551,7 @@ Implement timer functionality with automatic file progression for music playback
 ### New Files (14 total)
 
 **Application Layer - Timer Infrastructure:**
+
 - ✅ [libs/application/src/lib/player/timer-state.interface.ts](../../../libs/application/src/lib/player/timer-state.interface.ts) - COMPLETE
 - ✅ [libs/application/src/lib/player/timer-utils.ts](../../../libs/application/src/lib/player/timer-utils.ts) - COMPLETE
 - ✅ [libs/application/src/lib/player/timer-utils.spec.ts](../../../libs/application/src/lib/player/timer-utils.spec.ts) - COMPLETE (17 tests)
@@ -537,10 +561,12 @@ Implement timer functionality with automatic file progression for music playback
 - ✅ [libs/application/src/lib/player/player-timer-manager.spec.ts](../../../libs/application/src/lib/player/player-timer-manager.spec.ts) - COMPLETE (36 tests)
 
 **Store - Actions & Selectors:**
+
 - ✅ [libs/application/src/lib/player/actions/update-timer-state.ts](../../../libs/application/src/lib/player/actions/update-timer-state.ts) - COMPLETE
 - ✅ [libs/application/src/lib/player/selectors/get-timer-state.ts](../../../libs/application/src/lib/player/selectors/get-timer-state.ts) - COMPLETE
 
 **UI - Progress Bar Component:**
+
 - ⏸️ [libs/features/player/.../player-toolbar/progress-bar/progress-bar.component.ts](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/progress-bar/progress-bar.component.ts) - DEFERRED (Task 9)
 - ⏸️ [libs/features/player/.../player-toolbar/progress-bar/progress-bar.component.html](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/progress-bar/progress-bar.component.html) - DEFERRED (Task 9)
 - ⏸️ [libs/features/player/.../player-toolbar/progress-bar/progress-bar.component.scss](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/progress-bar/progress-bar.component.scss) - DEFERRED (Task 9)
@@ -548,27 +574,32 @@ Implement timer functionality with automatic file progression for music playback
 ### Modified Files (16 total)
 
 **Store:**
+
 - ✅ [libs/application/src/lib/player/player-store.ts](../../../libs/application/src/lib/player/player-store.ts) - COMPLETE (timerState added)
 - ✅ [libs/application/src/lib/player/player-helpers.ts](../../../libs/application/src/lib/player/player-helpers.ts) - COMPLETE (Task 10 - setPlayerLaunchFailure + navigation helpers added)
 - ✅ [libs/application/src/lib/player/actions/index.ts](../../../libs/application/src/lib/player/actions/index.ts) - COMPLETE (updateTimerState export)
 - ✅ [libs/application/src/lib/player/selectors/index.ts](../../../libs/application/src/lib/player/selectors/index.ts) - COMPLETE (getTimerState export)
 
 **Actions:**
+
 - ✅ [libs/application/src/lib/player/actions/launch-file-with-context.ts](../../../libs/application/src/lib/player/actions/launch-file-with-context.ts) - COMPLETE (Task 10 - failed launch recovery)
 - ✅ [libs/application/src/lib/player/actions/navigate-next.ts](../../../libs/application/src/lib/player/actions/navigate-next.ts) - COMPLETE (Refactored to use helper functions)
 - ✅ [libs/application/src/lib/player/actions/navigate-previous.ts](../../../libs/application/src/lib/player/actions/navigate-previous.ts) - COMPLETE (Refactored to use helper functions)
 
 **PlayerContext:**
+
 - ✅ [libs/application/src/lib/player/player-context.interface.ts](../../../libs/application/src/lib/player/player-context.interface.ts) - COMPLETE (getTimerState method)
 - ✅ [libs/application/src/lib/player/player-context.service.ts](../../../libs/application/src/lib/player/player-context.service.ts) - COMPLETE (Task 10 - failed launch timer cleanup)
 - ✅ [libs/application/src/lib/player/player-context.service.spec.ts](../../../libs/application/src/lib/player/player-context.service.spec.ts) - COMPLETE (110 tests including Phase 5 timer integration)
 
 **UI - Player Toolbar:**
+
 - ⏸️ [libs/features/player/.../player-toolbar/player-toolbar.component.ts](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.ts) - DEFERRED (Task 9 - integrate progress bar)
 - ⏸️ [libs/features/player/.../player-toolbar/player-toolbar.component.html](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.html) - DEFERRED (Task 9 - add progress bar element)
 - ⏸️ [libs/features/player/.../player-toolbar/player-toolbar.component.scss](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.scss) - DEFERRED (Task 9 - progress bar positioning)
 
 **UI - Directory Files:**
+
 - ✅ [libs/features/player/.../directory-files/directory-files.component.ts](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.ts) - COMPLETE (Task 11 - hasCurrentFileError computed signal)
 - ✅ [libs/features/player/.../directory-files/directory-files.component.html](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.html) - COMPLETE (Task 11 - data-has-error attribute)
 - ✅ [libs/features/player/.../directory-files/directory-files.component.scss](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.scss) - COMPLETE (Task 11 - error highlight styling)
@@ -581,6 +612,7 @@ Implement timer functionality with automatic file progression for music playback
 ### ✅ Unit Tests - COMPLETE
 
 **TimerService (`timer.service.spec.ts`) - 32/32 tests passing:**
+
 - [x] Timer starts at currentTime: 0
 - [x] Timer increments correctly over time (real async timers)
 - [x] Pause stops progression, maintains currentTime
@@ -592,6 +624,7 @@ Implement timer functionality with automatic file progression for music playback
 - [x] Timer state getters return correct values
 
 **PlayerTimerManager (`player-timer-manager.spec.ts`) - 36/36 tests passing:**
+
 - [x] Create multiple independent device timers
 - [x] Timer cleanup on device removal
 - [x] Observable streams emit correct TimerState
@@ -604,6 +637,7 @@ Implement timer functionality with automatic file progression for music playback
 - [x] Rapid create/destroy cycles
 
 **Timer Utils (`timer-utils.spec.ts`) - 17/17 tests passing:**
+
 - [x] Parse valid "MM:SS" format
 - [x] Parse valid "H:MM:SS" format
 - [x] Invalid formats return 0
@@ -613,6 +647,7 @@ Implement timer functionality with automatic file progression for music playback
 ### ✅ Integration Tests - COMPLETE
 
 **PlayerContextService (`player-context.service.spec.ts`) - Phase 5 Timer Integration:**
+
 - [x] **110 total PlayerContextService tests passing**
 - [x] **27 Phase 5-specific timer integration tests**
 - [x] **Task 8 comprehensive timer integration** - COMPLETE
@@ -620,6 +655,7 @@ Implement timer functionality with automatic file progression for music playback
 - [x] All timer lifecycle, multi-device, and error handling scenarios covered
 
 **Test Coverage Areas (from Task 8):**
+
 - Timer creation & lifecycle
 - Auto-progression in Directory/Shuffle modes
 - Playback control integration (play/pause/stop/resume)
@@ -632,6 +668,7 @@ Implement timer functionality with automatic file progression for music playback
 - Logging verification
 
 **Testing Strategy:**
+
 - Test through PlayerContextService as public API
 - Full integration: Real PlayerStore, PlayerTimerManager, TimerService
 - Mock only external dependencies (PLAYER_SERVICE, DEVICE_SERVICE)
@@ -644,6 +681,7 @@ Implement timer functionality with automatic file progression for music playback
 ## ✅ Success Criteria
 
 **Core Functionality:**
+
 - [x] Music files parse playLength metadata correctly (MM:SS and H:MM:SS formats)
 - [x] Timer created automatically when music file launches
 - [x] Timer state tracked in PlayerStore with reactive signal access
@@ -653,17 +691,20 @@ Implement timer functionality with automatic file progression for music playback
 - [ ] Progress bar automatically shows for music, hidden for non-music files
 
 **Playback Controls:**
+
 - [x] Pause/Resume controls properly affect timer state (music only)
 - [x] Stop resets timer to 0 but preserves instance for UI
 - [x] Play from paused state resumes timer from current position
 - [x] Timer state changes reflected immediately in store
 
 **Multi-Device:**
+
 - [x] Multiple devices maintain independent timers without conflicts
 - [x] Timer cleanup on device removal prevents memory leaks
 - [x] Each device's timer progression is isolated
 
 **Testing:**
+
 - [x] All unit tests pass (TimerService: 32/32, PlayerTimerManager: 36/36, Utils: 17/17)
 - [x] Integration tests complete (110 PlayerContextService tests including 27 Phase 5 tests)
 - [x] Task 8 comprehensive timer integration tests - COMPLETE
@@ -672,6 +713,7 @@ Implement timer functionality with automatic file progression for music playback
 - [x] Task 11 visual feedback tests - 4 new tests passing
 
 **Code Quality:**
+
 - [x] Comprehensive logging at all timer lifecycle points using LogType enum
 - [x] Redux DevTools shows correlated timer state updates with actionMessage
 - [x] Proper subscription cleanup preventing memory leaks
@@ -679,11 +721,13 @@ Implement timer functionality with automatic file progression for music playback
 - [x] Type safety maintained throughout timer system
 
 **UI (Task 9) - DEFERRED:**
+
 - ⏸️ Progress bar component deferred to allow focus on other features
 - ⏸️ Timer state fully functional and ready for UI integration when needed
 - ⏸️ All backend timer infrastructure complete and tested
 
 **Phase 5 Complete When:**
+
 - [x] Tasks 1-8 complete (timer infrastructure, orchestration, and comprehensive testing)
 - [x] Task 10 complete (failed launch error handling & recovery)
 - [x] Task 11 complete (visual feedback for failed launches)
@@ -694,6 +738,7 @@ Implement timer functionality with automatic file progression for music playback
 - [x] Code refactoring complete (navigation actions deduplicated)
 
 **Error Handling:**
+
 - [x] Invalid playLength format (no timer created, graceful fallback)
 - [x] Empty playLength string handled gracefully
 - [x] Timer survives file launch errors
@@ -706,16 +751,19 @@ Implement timer functionality with automatic file progression for music playback
 ### Phase 5 Scope Limitations
 
 **Music Files Only:**
+
 - Timer functionality **only for FileItemType.Song** with valid playLength metadata
 - Games and Images explicitly **excluded** from Phase 5 timer system
 - Custom timer durations deferred to future phases
 
 **Hardcoded Behaviors:**
+
 - Speed always 1.0 (speed control in future phase)
 - No timer override for music (future phase)
 - No custom timer UI (future phase)
 
 **playLength Parsing:**
+
 - Support "MM:SS" format (e.g., "3:45" → 225000ms)
 - Support "H:MM:SS" format (e.g., "1:02:30" → 3750000ms)
 - Invalid formats default to 0ms (no timer created)
@@ -724,17 +772,20 @@ Implement timer functionality with automatic file progression for music playback
 ### Architecture Principles
 
 **Timer Logic Separation:**
+
 - **PlayerContextService**: Owns all timer orchestration logic
 - **PlayerTimerManager**: Coordinates multi-device timer instances
 - **TimerService**: Pure RxJS timer implementation
 - **PlayerStore**: Pure state tracking only - NO timer logic
 
 **State Management:**
+
 - Follow STATE_STANDARDS.md: `updateState` with `actionMessage` (NOT patchState)
 - Comprehensive logging with LogType enum at all state mutations
 - Redux DevTools correlation for timer state updates
 
 **Testing Strategy:**
+
 - Test through PlayerContextService as public API
 - Full integration: PlayerStore, PlayerTimerManager, TimerService (all real, not mocked)
 - Only mock external dependencies (PLAYER_SERVICE, DEVICE_SERVICE)
@@ -743,6 +794,7 @@ Implement timer functionality with automatic file progression for music playback
 ### Future Phase Extensions
 
 **Phase 6+ (Planned):**
+
 - Custom timer durations for Games/Images
 - Music timer override (replace metadata duration)
 - Speed control integration (speed multiplier affects timer progression)
@@ -752,17 +804,20 @@ Implement timer functionality with automatic file progression for music playback
 ### Design Decisions
 
 **Why showProgress in TimerState?**
+
 - Explicit UI visibility control separate from timer existence
 - Phase 5: Always true for music (simple logic)
 - Future: Will respect custom timer settings, overrides, user preferences
 - Simplifies component logic: Single boolean check
 
 **Why Application Layer for Timer?**
+
 - Timer is implementation detail of player orchestration
 - Not a domain concept (domain is agnostic to timing implementation)
 - Allows flexibility to change timer implementation without domain changes
 
 **Why Milliseconds for Time?**
+
 - Precision for accurate progress calculations
 - Standard JavaScript time unit (Date.now(), setTimeout)
 - Easy conversion to display formats (MM:SS) in UI layer

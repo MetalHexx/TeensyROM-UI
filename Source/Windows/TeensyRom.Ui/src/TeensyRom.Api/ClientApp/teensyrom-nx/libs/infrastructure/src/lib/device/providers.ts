@@ -9,10 +9,7 @@ import { DeviceService } from './device.service';
 import { DeviceLogsService } from './device-logs.service';
 import { DeviceEventsService } from './device-events.service';
 import { StorageService } from '../storage/storage.service';
-import {
-  DevicesApiService,
-  Configuration,
-} from '@teensyrom-nx/data-access/api-client';
+import { DevicesApiService, Configuration } from '@teensyrom-nx/data-access/api-client';
 
 // API Client provider
 export const DEVICES_API_CLIENT_PROVIDER = {
@@ -43,4 +40,3 @@ export const DEVICE_STORAGE_SERVICE_PROVIDER = {
   provide: DEVICE_STORAGE_SERVICE,
   useClass: StorageService,
 };
-

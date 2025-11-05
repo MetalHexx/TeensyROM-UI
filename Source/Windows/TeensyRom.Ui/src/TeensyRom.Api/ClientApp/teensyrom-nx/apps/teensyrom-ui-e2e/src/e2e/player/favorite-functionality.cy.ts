@@ -3,31 +3,44 @@ import { createMockFilesystem } from '../../support/test-data/generators/storage
 import { singleDevice } from '../../support/test-data/fixtures';
 import { interceptConnectDevice } from '../../support/interceptors/connectDevice.interceptors';
 import { interceptFindDevices } from '../../support/interceptors/findDevices.interceptors';
-import { interceptGetDirectory } from '../../support/interceptors/getDirectory.interceptors';
-import { interceptSaveFavorite, waitForSaveFavorite } from '../../support/interceptors/saveFavorite.interceptors';
-import { interceptRemoveFavorite, waitForRemoveFavorite } from '../../support/interceptors/removeFavorite.interceptors';
-import { interceptLaunchFile } from '../../support/interceptors/launchFile.interceptors';
+import {
+  interceptGetDirectory,
+  waitForGetDirectory,
+} from '../../support/interceptors/getDirectory.interceptors';
+import {
+  interceptSaveFavorite,
+  waitForSaveFavorite,
+  setupErrorSaveFavorite,
+} from '../../support/interceptors/saveFavorite.interceptors';
+import {
+  interceptRemoveFavorite,
+  waitForRemoveFavorite,
+  setupErrorRemoveFavorite,
+} from '../../support/interceptors/removeFavorite.interceptors';
+import {
+  interceptLaunchFile,
+  waitForLaunchFile,
+} from '../../support/interceptors/launchFile.interceptors';
 import { VIEWPORT, MOCK_SEEDS, TIMEOUTS } from '../../support/constants/test.constants';
-import { TeensyStorageType, TEST_FILES, TEST_PATHS } from '../../support/constants/storage.constants';
+import {
+  TeensyStorageType,
+  TEST_FILES,
+  TEST_PATHS,
+} from '../../support/constants/storage.constants';
 import { DIRECTORY_FILES_SELECTORS } from '../../support/constants/selector.constants';
 import {
   navigateToPlayer,
   verifyFavoriteIconIsEmpty,
   clickFavoriteButton,
-  clickFavoriteButtonAndWait,
   verifyFavoriteIconIsFilled,
   waitForPlayerToolbarVisible,
   waitForFavoriteButtonReady,
-  clickFavoriteButtonAndWaitForRemove,
-  launchFileFromFavorites,
   verifyFileNotInDirectory,
-  setupSaveFavoriteErrorScenario,
-  setupRemoveFavoriteErrorScenario,
   verifyErrorAlertDisplayed,
   verifyFavoriteStateUnchangedAfterError,
   verifyFavoriteButtonEnabledAfterError,
   navigateToDirectory,
-  waitForDirectoryLoad,
+  waitForDirectoryFilesToBeVisible,
 } from './test-helpers';
 
 describe('Favorites Functionality', () => {
@@ -74,9 +87,8 @@ describe('Favorites Functionality', () => {
       waitForPlayerToolbarVisible();
       waitForFavoriteButtonReady();
 
-      cy.log('About to click favorite button');
-      clickFavoriteButtonAndWait();
-      cy.log('Favorite button clicked and API call completed');
+      clickFavoriteButton();
+      waitForSaveFavorite();
 
       verifyFavoriteIconIsFilled();
     });
@@ -101,9 +113,8 @@ describe('Favorites Functionality', () => {
       waitForPlayerToolbarVisible();
       waitForFavoriteButtonReady();
 
-      cy.log('About to click favorite button to unfavorite');
-      clickFavoriteButtonAndWaitForRemove();
-      cy.log('Favorite button clicked and remove API call completed');
+      clickFavoriteButton();
+      waitForRemoveFavorite();
 
       verifyFavoriteIconIsEmpty();
     });
@@ -117,31 +128,42 @@ describe('Favorites Functionality', () => {
       interceptLaunchFile({ filesystem });
       interceptRemoveFavorite({ filesystem });
 
-      launchFileFromFavorites({
+      navigateToDirectory({
         device: testDeviceId,
         storage: TeensyStorageType.Sd,
-        fileName: TEST_FILES.GAMES.PAC_MAN.fileName,
+        path: TEST_PATHS.FAVORITES_GAMES,
+        file: TEST_FILES.GAMES.PAC_MAN.fileName,
       });
+      waitForGetDirectory();
+      waitForLaunchFile();
+      waitForDirectoryFilesToBeVisible(TEST_PATHS.FAVORITES_GAMES);
+
+      const pacManFavoritePath = `${TEST_PATHS.FAVORITES_GAMES}/${TEST_FILES.GAMES.PAC_MAN.fileName}`;
+      cy.get(DIRECTORY_FILES_SELECTORS.fileListItem(pacManFavoritePath))
+        .should('be.visible')
+        .click({ force: true });
+
       waitForPlayerToolbarVisible();
       waitForFavoriteButtonReady();
       verifyFavoriteIconIsFilled();
 
-      clickFavoriteButtonAndWaitForRemove();
+      clickFavoriteButton();
+      waitForRemoveFavorite();
 
       // Force a directory refresh to ensure the UI reflects the favorite removal
       // This handles the timing gap between API completion and UI update
-      cy.log('Forcing directory refresh to ensure UI is updated');
       navigateToDirectory({
         device: testDeviceId,
         storage: TeensyStorageType.Sd,
         path: TEST_PATHS.FAVORITES_GAMES,
       });
-      waitForDirectoryLoad();
+      waitForGetDirectory();
 
       // Wait for the file list to update after the directory refresh
-      cy.get(DIRECTORY_FILES_SELECTORS.directoryFilesContainer, { timeout: TIMEOUTS.DEFAULT }).should('exist');
+      cy.get(DIRECTORY_FILES_SELECTORS.directoryFilesContainer, {
+        timeout: TIMEOUTS.DEFAULT,
+      }).should('exist');
 
-      cy.log('Verifying PAC_MAN disappeared from favorites directory');
       const favoritesFilePath = `${TEST_PATHS.FAVORITES_GAMES}/${TEST_FILES.GAMES.PAC_MAN.fileName}`;
       verifyFileNotInDirectory(favoritesFilePath);
     });
@@ -149,7 +171,7 @@ describe('Favorites Functionality', () => {
 
   describe('API Error Handling and User Feedback', () => {
     it('should display error alert when save favorite operation fails', () => {
-      setupSaveFavoriteErrorScenario(filesystem);
+      setupErrorSaveFavorite();
 
       interceptGetDirectory({ filesystem });
       interceptLaunchFile({ filesystem });
@@ -164,7 +186,6 @@ describe('Favorites Functionality', () => {
       waitForPlayerToolbarVisible();
       waitForFavoriteButtonReady();
 
-      cy.log('About to click favorite button expecting error');
       clickFavoriteButton();
       waitForSaveFavorite();
 
@@ -177,7 +198,7 @@ describe('Favorites Functionality', () => {
 
     it('should display error alert when remove favorite operation fails', () => {
       filesystem.saveFavorite(TEST_FILES.GAMES.PAC_MAN.filePath);
-      setupRemoveFavoriteErrorScenario(filesystem);
+      setupErrorRemoveFavorite();
 
       interceptGetDirectory({ filesystem });
       interceptLaunchFile({ filesystem });
@@ -192,7 +213,6 @@ describe('Favorites Functionality', () => {
       waitForPlayerToolbarVisible();
       waitForFavoriteButtonReady();
 
-      cy.log('About to click favorite button expecting remove error');
       clickFavoriteButton();
       waitForRemoveFavorite();
 

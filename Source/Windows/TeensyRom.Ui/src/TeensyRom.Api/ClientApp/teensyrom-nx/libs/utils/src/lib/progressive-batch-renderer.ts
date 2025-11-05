@@ -1,23 +1,23 @@
 /**
  * A pure TypeScript utility for progressively rendering large arrays in batches
  * to avoid blocking the main thread.
- * 
+ *
  * **Use Cases**:
  * - Rendering large lists (1000+ items)
  * - Transforming arrays with expensive operations
  * - Loading search results progressively
  * - Populating data grids or tables
- * 
+ *
  * **How it works**:
  * - Splits array into configurable batch sizes (default: 50)
  * - Uses `requestAnimationFrame` to process batches across multiple frames
  * - Accumulates results and calls callback after each batch
  * - Returns cancellation token for cleanup
- * 
+ *
  * @example
  * ```typescript
  * const renderer = new ProgressiveBatchRenderer<Product, DisplayProduct>();
- * 
+ *
  * const cancellation = renderer.renderBatches(
  *   products,
  *   (product) => ({ ...product, displayPrice: formatPrice(product.price) }),
@@ -25,7 +25,7 @@
  *   (completed) => this.isLoading.set(!completed),
  *   50 // batch size
  * );
- * 
+ *
  * // Later, if needed:
  * cancellation.cancel();
  * ```
@@ -33,7 +33,7 @@
 export class ProgressiveBatchRenderer<TInput, TOutput> {
   /**
    * Renders an array progressively in batches using requestAnimationFrame.
-   * 
+   *
    * @param items - Source array to process
    * @param transform - Function to transform each item
    * @param onBatchUpdate - Called after each batch with accumulated results
@@ -63,7 +63,7 @@ export class ProgressiveBatchRenderer<TInput, TOutput> {
       }
 
       const endIndex = Math.min(currentIndex + batchSize, totalItems);
-      
+
       // Process batch
       for (let i = currentIndex; i < endIndex; i++) {
         accumulated.push(transform(items[i], i));
@@ -95,7 +95,7 @@ export class ProgressiveBatchRenderer<TInput, TOutput> {
           rafId = null;
         }
         onProgressUpdate(true); // Mark as complete on cancel
-      }
+      },
     };
   }
 }

@@ -43,12 +43,12 @@ export class PlayerService implements IPlayerService {
           throw new Error('Invalid response: launchedFile is missing');
         }
         const fileItem = DomainMapper.toFileItem(response.launchedFile, this.baseApiUrl);
-        
+
         // Check compatibility and show warning if file is not compatible
         if (!fileItem.isCompatible && response.message) {
           this.alertService.warning(response.message);
         }
-        
+
         return fileItem;
       }),
       catchError((error) => this.handleError(error, 'launchFile', 'Failed to launch file'))
@@ -63,11 +63,11 @@ export class PlayerService implements IPlayerService {
   ): Observable<FileItem> {
     // For Phase 2, we default to SD storage - this should be configurable in future phases
     const apiStorageType = DomainMapper.toApiStorageType(StorageType.Sd);
-    
+
     // Map domain enums to API enums using DomainMapper
     const apiScope = DomainMapper.toApiPlayerScope(scope);
     const apiFilter = DomainMapper.toApiPlayerFilter(filter);
-    
+
     return from(
       this.apiService.launchRandom({
         deviceId,
@@ -82,12 +82,12 @@ export class PlayerService implements IPlayerService {
           throw new Error('Invalid response: launchedFile is missing');
         }
         const fileItem = DomainMapper.toFileItem(response.launchedFile, this.baseApiUrl);
-        
+
         // Check compatibility and show warning if file is not compatible
         if (!fileItem.isCompatible && response.message) {
           this.alertService.warning(response.message);
         }
-        
+
         return fileItem;
       }),
       catchError((error) => this.handleError(error, 'launchRandom', 'Failed to launch random file'))
@@ -95,9 +95,7 @@ export class PlayerService implements IPlayerService {
   }
 
   toggleMusic(deviceId: string): Observable<void> {
-    return from(
-      this.apiService.toggleMusic({ deviceId })
-    ).pipe(
+    return from(this.apiService.toggleMusic({ deviceId })).pipe(
       map((response) => {
         if (!response?.message) {
           throw new Error('Invalid response: message is missing');
@@ -109,7 +107,11 @@ export class PlayerService implements IPlayerService {
     );
   }
 
-  private handleError(error: unknown, methodName: string, fallbackMessage: string): Observable<never> {
+  private handleError(
+    error: unknown,
+    methodName: string,
+    fallbackMessage: string
+  ): Observable<never> {
     return from(extractErrorMessage(error, fallbackMessage)).pipe(
       mergeMap((message) => {
         logError(`PlayerService.${methodName} failed:`, error);

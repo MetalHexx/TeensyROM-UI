@@ -18,7 +18,7 @@ lib-scaling-card {
 
 .description-section {
   margin-bottom: 1rem;
-  
+
   .section-title {
     margin: 0 0 0.75rem 0;
     font-size: 0.875rem;
@@ -27,7 +27,7 @@ lib-scaling-card {
     text-transform: uppercase;
     letter-spacing: 0.1em;
   }
-  
+
   .description {
     margin: 0;
   }
@@ -44,7 +44,7 @@ lib-scaling-card {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
   margin-top: 1rem;
-  
+
   // Each direct child (section) becomes a column
   > * {
     min-width: 0; // Allows proper text wrapping
@@ -61,11 +61,11 @@ lib-scaling-card {
   align-items: center;
   gap: 0.5rem;
   margin: 1rem 0;
-  
+
   mat-icon {
     color: gold;
   }
-  
+
   .rating-count {
     color: var(--mat-sys-outline);
     font-size: 0.875rem;
@@ -80,7 +80,7 @@ lib-scaling-card {
   display: flex;
   flex-direction: column; // Keep title on top, content below
   gap: 0.75rem;
-  
+
   h4 {
     margin: 0;
     font-size: 0.875rem;
@@ -98,11 +98,17 @@ lib-scaling-card {
     flex-wrap: wrap;
     gap: 0.5rem;
   }
-  
+
   mat-chip {
-    &.tag-genre { --mdc-chip-container-color: var(--mat-sys-primary-container); }
-    &.tag-style { --mdc-chip-container-color: var(--mat-sys-secondary-container); }
-    &.tag-theme { --mdc-chip-container-color: var(--mat-sys-tertiary-container); }
+    &.tag-genre {
+      --mdc-chip-container-color: var(--mat-sys-primary-container);
+    }
+    &.tag-style {
+      --mdc-chip-container-color: var(--mat-sys-secondary-container);
+    }
+    &.tag-theme {
+      --mdc-chip-container-color: var(--mat-sys-tertiary-container);
+    }
   }
 }
 
@@ -120,12 +126,12 @@ lib-scaling-card {
   background-color: var(--mat-sys-surface-container-low);
   border-radius: 0.5rem;
   border-left: 3px solid var(--mat-sys-tertiary);
-  
+
   .year {
     color: var(--mat-sys-on-surface-variant);
     margin-left: 0.5rem;
   }
-  
+
   .position {
     color: var(--mat-sys-primary);
     font-weight: 500;

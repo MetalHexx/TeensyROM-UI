@@ -20,7 +20,6 @@ import { parsePlayLength } from './timer-utils';
 import { logInfo, logWarn, LogType } from '@teensyrom-nx/utils';
 import { Subscription } from 'rxjs';
 
-
 @Injectable({ providedIn: 'root' })
 export class PlayerContextService implements IPlayerContext {
   private readonly store = inject(PlayerStore);
@@ -41,7 +40,7 @@ export class PlayerContextService implements IPlayerContext {
   removePlayer(deviceId: string): void {
     // Phase 5: Cleanup timer subscriptions before removing player
     this.cleanupTimerSubscriptions(deviceId);
-    
+
     this.store.removePlayer({ deviceId });
   }
 
@@ -154,17 +153,19 @@ export class PlayerContextService implements IPlayerContext {
     const { deviceId, storageType } = StorageKeyUtil.parse(storageKey);
 
     try {
-      await this.storageStore.navigateToDirectory({ 
-        deviceId, 
-        storageType, 
-        path: currentFile.parentPath 
+      await this.storageStore.navigateToDirectory({
+        deviceId,
+        storageType,
+        path: currentFile.parentPath,
       });
 
       const directoryState = this.storageStore.getSelectedDirectoryState(deviceId)();
-      
+
       if (directoryState?.directory?.files) {
-        const currentIndex = directoryState.directory.files.findIndex(file => file.path === currentFile.file.path);
-        
+        const currentIndex = directoryState.directory.files.findIndex(
+          (file) => file.path === currentFile.file.path
+        );
+
         if (currentIndex >= 0) {
           this.store.loadFileContext({
             deviceId,
@@ -172,7 +173,7 @@ export class PlayerContextService implements IPlayerContext {
             directoryPath: currentFile.parentPath,
             files: directoryState.directory.files,
             currentFileIndex: currentIndex,
-            launchMode: this.store.getLaunchMode(deviceId)()
+            launchMode: this.store.getLaunchMode(deviceId)(),
           });
         }
       }
@@ -223,7 +224,7 @@ export class PlayerContextService implements IPlayerContext {
     }
 
     await this.store.play({ deviceId });
-    
+
     // Phase 5: Resume timer for music files
     if (this.isCurrentFileMusicType(deviceId)) {
       this.timerManager.resumeTimer(deviceId);
@@ -238,7 +239,7 @@ export class PlayerContextService implements IPlayerContext {
     }
 
     await this.store.pauseMusic({ deviceId });
-    
+
     // Phase 5: Pause timer for music files
     if (this.isCurrentFileMusicType(deviceId)) {
       this.timerManager.pauseTimer(deviceId);
@@ -247,7 +248,7 @@ export class PlayerContextService implements IPlayerContext {
 
   async stop(deviceId: string): Promise<void> {
     await this.store.stopPlayback({ deviceId });
-    
+
     // Phase 5: Stop timer
     this.timerManager.stopTimer(deviceId);
   }
@@ -257,7 +258,10 @@ export class PlayerContextService implements IPlayerContext {
 
     // If in shuffle mode AND forward history is available, use history navigation
     if (launchMode === LaunchMode.Shuffle && this.store.canNavigateForwardInHistory(deviceId)()) {
-      logInfo(LogType.Info, `Next: Using forward history navigation for shuffle mode on device ${deviceId}`);
+      logInfo(
+        LogType.Info,
+        `Next: Using forward history navigation for shuffle mode on device ${deviceId}`
+      );
 
       // Navigate forward through history
       await this.store.navigateForwardInHistory({ deviceId });
@@ -305,7 +309,10 @@ export class PlayerContextService implements IPlayerContext {
 
     // If in shuffle mode AND history navigation is available, use history navigation
     if (launchMode === LaunchMode.Shuffle && this.store.canNavigateBackwardInHistory(deviceId)()) {
-      logInfo(LogType.Info, `Previous: Using history navigation for shuffle mode on device ${deviceId}`);
+      logInfo(
+        LogType.Info,
+        `Previous: Using history navigation for shuffle mode on device ${deviceId}`
+      );
 
       // Navigate backward through history
       await this.store.navigateBackwardInHistory({ deviceId });
@@ -390,20 +397,27 @@ export class PlayerContextService implements IPlayerContext {
 
     // Parse play length
     let totalTime = parsePlayLength(file.playLength ?? '');
-    
+
     // If parsing failed or returned 0, use default 3-minute timer and log warning
     if (totalTime === 0) {
       const DEFAULT_TIMER_MS = 180000; // 3 minutes
       totalTime = DEFAULT_TIMER_MS;
-      
+
       if (!file.playLength || file.playLength.trim() === '') {
-        logWarn(`Music file ${file.name} has empty playLength. Using default 3-minute timer. Backend should provide playLength.`);
+        logWarn(
+          `Music file ${file.name} has empty playLength. Using default 3-minute timer. Backend should provide playLength.`
+        );
       } else {
-        logWarn(`Music file ${file.name} has invalid playLength format: "${file.playLength}". Using default 3-minute timer. Backend should provide valid playLength.`);
+        logWarn(
+          `Music file ${file.name} has invalid playLength format: "${file.playLength}". Using default 3-minute timer. Backend should provide valid playLength.`
+        );
       }
     }
 
-    logInfo(LogType.Start, `Setting up timer for ${file.name} (${totalTime}ms) on device ${deviceId}`);
+    logInfo(
+      LogType.Start,
+      `Setting up timer for ${file.name} (${totalTime}ms) on device ${deviceId}`
+    );
 
     // Cleanup existing timer subscriptions
     this.cleanupTimerSubscriptions(deviceId);
@@ -418,7 +432,10 @@ export class PlayerContextService implements IPlayerContext {
 
     // Subscribe to timer completion for auto-progression
     const completeSub = this.timerManager.onTimerComplete$(deviceId).subscribe(() => {
-      logInfo(LogType.Success, `Timer completed for device ${deviceId}, auto-progressing to next file`);
+      logInfo(
+        LogType.Success,
+        `Timer completed for device ${deviceId}, auto-progressing to next file`
+      );
       void this.next(deviceId);
     });
 
@@ -434,7 +451,7 @@ export class PlayerContextService implements IPlayerContext {
   private cleanupTimerSubscriptions(deviceId: string): void {
     const subs = this.timerSubscriptions.get(deviceId);
     if (subs) {
-      subs.forEach(sub => sub.unsubscribe());
+      subs.forEach((sub) => sub.unsubscribe());
       this.timerSubscriptions.delete(deviceId);
     }
     this.timerManager.destroyTimer(deviceId);
@@ -639,7 +656,7 @@ export class PlayerContextService implements IPlayerContext {
       return;
     }
 
-    const targetFile = directoryFiles.find(file => file.name === fileName);
+    const targetFile = directoryFiles.find((file) => file.name === fileName);
 
     if (!targetFile) {
       logWarn(`File "${fileName}" not found during browser navigation`);

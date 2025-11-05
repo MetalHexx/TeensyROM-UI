@@ -14,7 +14,11 @@ export function updateShuffleSettings(store: WritableStore<PlayerState>) {
     }): void => {
       const actionMessage = createAction('update-shuffle-settings');
 
-      logInfo(LogType.Start, `PlayerAction: Updating shuffle settings for device ${deviceId}`, shuffleSettings);
+      logInfo(
+        LogType.Start,
+        `PlayerAction: Updating shuffle settings for device ${deviceId}`,
+        shuffleSettings
+      );
 
       // Ensure player state exists
       ensurePlayerState(store, deviceId, actionMessage);

@@ -110,7 +110,7 @@ describe('ScalingCardComponent', () => {
 
       // Verify the mode is set correctly
       expect(childComponent.animationParent()).toBe('auto');
-      
+
       // Note: Full DI hierarchy testing (parent->child waiting) requires integration tests
       // This unit test verifies the input accepts 'auto' mode correctly
     });

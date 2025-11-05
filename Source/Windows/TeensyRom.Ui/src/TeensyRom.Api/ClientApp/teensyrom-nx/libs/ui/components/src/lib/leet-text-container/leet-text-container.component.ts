@@ -1,4 +1,13 @@
-import { Component, input, output, signal, effect, Self, ElementRef, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  input,
+  output,
+  signal,
+  effect,
+  Self,
+  ElementRef,
+  AfterViewInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import type { AnimationParentMode } from '../shared/animation.types';
 import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
@@ -9,7 +18,7 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
   templateUrl: './leet-text-container.component.html',
   styleUrl: './leet-text-container.component.scss',
   host: {
-    '[class.animating]': 'isAnimating()'
+    '[class.animating]': 'isAnimating()',
   },
   providers: [
     {
@@ -17,9 +26,9 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
       useFactory: (self: LeetTextContainerComponent) => {
         return self.animationCompleteSignal.asReadonly();
       },
-      deps: [[new Self(), LeetTextContainerComponent]]
-    }
-  ]
+      deps: [[new Self(), LeetTextContainerComponent]],
+    },
+  ],
 })
 export class LeetTextContainerComponent implements AfterViewInit {
   /**
@@ -70,18 +79,17 @@ export class LeetTextContainerComponent implements AfterViewInit {
   // Spinner character for the animation
   protected spinnerChar = signal('');
 
-
   // Leet character mappings
   private leetMap: Record<string, string[]> = {
-    'a': ['@', '4', 'a'],
-    'e': ['3', 'e'],
-    'i': ['1', '!', 'i'],
-    'o': ['0', 'o'],
-    's': ['5', '$', 's'],
-    't': ['7', '+', 't'],
-    'l': ['1', '|', 'l'],
-    'g': ['9', '6', 'g'],
-    'b': ['8', 'b'],
+    a: ['@', '4', 'a'],
+    e: ['3', 'e'],
+    i: ['1', '!', 'i'],
+    o: ['0', 'o'],
+    s: ['5', '$', 's'],
+    t: ['7', '+', 't'],
+    l: ['1', '|', 'l'],
+    g: ['9', '6', 'g'],
+    b: ['8', 'b'],
   };
 
   // Spinner animation characters
@@ -132,22 +140,25 @@ export class LeetTextContainerComponent implements AfterViewInit {
     const cycleInterval = setInterval(() => {
       const charIndex = translatableIndices[currentPosition];
 
-      const result = text.split('').map((char, index) => {
-        const lowerChar = char.toLowerCase();
+      const result = text
+        .split('')
+        .map((char, index) => {
+          const lowerChar = char.toLowerCase();
 
-        // Check if this character has leet mappings
-        if (this.leetMap[lowerChar]) {
-          const options = this.leetMap[lowerChar];
+          // Check if this character has leet mappings
+          if (this.leetMap[lowerChar]) {
+            const options = this.leetMap[lowerChar];
 
-          // If this is the current cycling position, show leet character
-          if (index === charIndex) {
-            const leetChar = options[Math.floor(Math.random() * (options.length - 1))];
-            return char === char.toUpperCase() ? leetChar.toUpperCase() : leetChar;
+            // If this is the current cycling position, show leet character
+            if (index === charIndex) {
+              const leetChar = options[Math.floor(Math.random() * (options.length - 1))];
+              return char === char.toUpperCase() ? leetChar.toUpperCase() : leetChar;
+            }
           }
-        }
 
-        return char;
-      }).join('');
+          return char;
+        })
+        .join('');
 
       this.displayText.set(result);
 
@@ -189,7 +200,6 @@ export class LeetTextContainerComponent implements AfterViewInit {
     }, 100);
   }
 
-
   private startLeetAnimation(finalText: string): void {
     this.isAnimating.set(true);
     const duration = this.animationDuration();
@@ -229,25 +239,28 @@ export class LeetTextContainerComponent implements AfterViewInit {
   }
 
   private generateLeetText(text: string, leetAmount: number): string {
-    return text.split('').map((char, index) => {
-      const lowerChar = char.toLowerCase();
+    return text
+      .split('')
+      .map((char, index) => {
+        const lowerChar = char.toLowerCase();
 
-      // Check if this character has a leet mapping
-      if (this.leetMap[lowerChar]) {
-        const options = this.leetMap[lowerChar];
+        // Check if this character has a leet mapping
+        if (this.leetMap[lowerChar]) {
+          const options = this.leetMap[lowerChar];
 
-        // Calculate if we should use leet for this character based on leetAmount
-        // Use deterministic pattern based on character position for consistency
-        const shouldLeet = Math.random() < leetAmount;
+          // Calculate if we should use leet for this character based on leetAmount
+          // Use deterministic pattern based on character position for consistency
+          const shouldLeet = Math.random() < leetAmount;
 
-        if (shouldLeet) {
-          // Pick a random leet character (excluding the last option which is the original)
-          const leetChar = options[Math.floor(Math.random() * (options.length - 1))];
-          return char === char.toUpperCase() ? leetChar.toUpperCase() : leetChar;
+          if (shouldLeet) {
+            // Pick a random leet character (excluding the last option which is the original)
+            const leetChar = options[Math.floor(Math.random() * (options.length - 1))];
+            return char === char.toUpperCase() ? leetChar.toUpperCase() : leetChar;
+          }
         }
-      }
 
-      return char;
-    }).join('');
+        return char;
+      })
+      .join('');
   }
 }

@@ -30,26 +30,26 @@ describe('FadingContainerComponent', () => {
   it('should respect animationTrigger input', () => {
     fixture.componentRef.setInput('animationTrigger', false);
     fixture.detectChanges();
-    
+
     expect(component['shouldRender']()).toBe(false);
 
     fixture.componentRef.setInput('animationTrigger', true);
     fixture.detectChanges();
-    
+
     expect(component['shouldRender']()).toBe(true);
   });
 
   describe('animationParent input', () => {
     it('should wait for parent animation when animationParent is "auto"', async () => {
       const parentComplete = signal(false);
-      
+
       await TestBed.resetTestingModule();
       await TestBed.configureTestingModule({
         imports: [FadingContainerComponent],
         providers: [
           provideNoopAnimations(),
-          { provide: PARENT_ANIMATION_COMPLETE, useValue: parentComplete.asReadonly() }
-        ]
+          { provide: PARENT_ANIMATION_COMPLETE, useValue: parentComplete.asReadonly() },
+        ],
       }).compileComponents();
 
       const testFixture = TestBed.createComponent(FadingContainerComponent);
@@ -79,12 +79,12 @@ describe('FadingContainerComponent', () => {
   it('should set correct animation state based on shouldRender', () => {
     fixture.componentRef.setInput('animationTrigger', true);
     fixture.detectChanges();
-    
+
     expect(component['animationState']()).toBe('visible');
 
     fixture.componentRef.setInput('animationTrigger', false);
     fixture.detectChanges();
-    
+
     expect(component['animationState']()).toBe('hidden');
   });
 

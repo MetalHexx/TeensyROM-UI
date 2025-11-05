@@ -2,10 +2,7 @@
   type="button"
   (click)="onButtonClick()"
   [disabled]="disabled()"
-  [attr.aria-label]="ariaLabelText()">
-  <lib-link
-    [label]="label()"
-    [icon]="icon()"
-    [iconColor]="iconColor()">
-  </lib-link>
+  [attr.aria-label]="ariaLabelText()"
+>
+  <lib-link [label]="label()" [icon]="icon()" [iconColor]="iconColor()"> </lib-link>
 </button>

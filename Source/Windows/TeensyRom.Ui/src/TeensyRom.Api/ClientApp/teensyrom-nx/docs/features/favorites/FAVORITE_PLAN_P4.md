@@ -13,15 +13,18 @@ Create application layer store actions for favorite operations in the `StorageSt
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [ ] [Favorite Feature Plan](./FAVORITE_PLAN.md) - High-level feature plan and context
 - [ ] [Phase 3 Documentation](./FAVORITE_PLAN_P3.md) - Infrastructure layer implementation
 
 **Standards & Guidelines:**
+
 - [ ] [State Standards](../../STATE_STANDARDS.md) - NgRx Signal Store patterns with async/await
 - [ ] [Store Testing Guide](../../STORE_TESTING.md) - Behavioral testing methodology
 - [ ] [Testing Standards](../../TESTING_STANDARDS.md) - General testing approaches
 
 **Reference Implementations:**
+
 - [ ] [storage-store.ts](../../../libs/application/src/lib/storage/storage-store.ts) - Existing store structure
 - [ ] [initialize-storage.ts](../../../libs/application/src/lib/storage/actions/initialize-storage.ts) - Action pattern example
 - [ ] [storage-helpers.ts](../../../libs/application/src/lib/storage/storage-helpers.ts) - Helper function patterns
@@ -54,10 +57,12 @@ libs/application/src/lib/storage/
 **Purpose**: Add state properties to track favorite operation loading states and errors globally across all devices and storage types.
 
 **Related Documentation:**
+
 - [StorageState interface](../../../libs/application/src/lib/storage/storage-store.ts#L49) - Current state structure
 - [State Standards - State Structure](../../STATE_STANDARDS.md#state-structure-organization) - State organization patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Add `FavoriteOperationsState` interface** to `storage-store.ts` with properties:
   - `isProcessing: boolean` - Global loading flag for both save and remove operations
   - `error: string | null` - Error message from failed favorite operations
@@ -65,14 +70,17 @@ libs/application/src/lib/storage/
 - [ ] **Update `initialState`** to include initial `favoriteOperationsState` object with all flags set to false/null
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test store initialization includes favoriteOperationsState (see Testing section)
 
 **Key Implementation Notes:**
+
 - Use single global loading flag since UI has one toggle button that performs both operations
 - Error state should be cleared when starting a new operation
 - Follow existing state interface patterns from `StorageState`
 
 **Critical State Structure** (small snippet for clarity):
+
 ```typescript
 export interface FavoriteOperationsState {
   isProcessing: boolean;
@@ -90,10 +98,12 @@ export interface StorageState {
 > Focus on behavioral testing - observable state initialization
 
 **Behaviors to Test:**
+
 - [ ] **Initial state includes favoriteOperationsState**: Store initializes with favoriteOperationsState object containing expected default values
 - [ ] **Default values are correct**: isProcessing is false, error is null
 
 **Testing Reference:**
+
 - See [storage-store.spec.ts](../../../libs/application/src/lib/storage/storage-store.spec.ts#L119) - Store Setup tests
 
 </details>
@@ -106,11 +116,13 @@ export interface StorageState {
 **Purpose**: Implement `saveFavorite` action that calls infrastructure service to save a favorite and updates the file's `isFavorite` flag in the currently loaded directory.
 
 **Related Documentation:**
+
 - [initialize-storage.ts](../../../libs/application/src/lib/storage/actions/initialize-storage.ts) - Action pattern with async/await
 - [IStorageService.saveFavorite](../../../libs/domain/src/lib/contracts/storage.contract.ts) - Infrastructure service method
 - [State Standards - Action Pattern](../../STATE_STANDARDS.md#function-file-structure) - Action implementation pattern
 
 **Implementation Subtasks:**
+
 - [ ] **Create `save-favorite.ts`** file in `actions/` folder
 - [ ] **Export `saveFavorite` function** that returns object with `saveFavorite` async method
 - [ ] **Accept parameters**: `deviceId: string`, `storageType: StorageType`, `filePath: string`
@@ -123,9 +135,11 @@ export interface StorageState {
 - [ ] **Use `updateState` with `actionMessage`** for ALL state mutations (not `patchState`)
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test save favorite behaviors (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Infrastructure service already displays success/error alerts via alert service integration
 - Only update the file's `isFavorite` flag in the CURRENT directory (identified by `StorageKey`)
 - Use `updateFileInDirectory` helper function (created in Task 4) to update file flag
@@ -134,6 +148,7 @@ export interface StorageState {
 - Pass `actionMessage` to all helper functions that mutate state
 
 **Action Method Signature** (small snippet for clarity):
+
 ```typescript
 saveFavorite: async ({
   deviceId,
@@ -151,6 +166,7 @@ saveFavorite: async ({
 > Focus on behavioral testing - observable outcomes from save favorite operation
 
 **Behaviors to Test:**
+
 - [ ] **Loading state appears during operation**: `isProcessing` is true during API call, false after completion
 - [ ] **Success updates file flag**: File's `isFavorite` flag changes from false to true in current directory
 - [ ] **Success clears error state**: Error is null after successful save
@@ -161,6 +177,7 @@ saveFavorite: async ({
 - [ ] **Multi-device isolation**: Saving favorite for one device doesn't affect other devices' state
 
 **Testing Reference:**
+
 - See [storage-store.spec.ts - initializeStorage tests](../../../libs/application/src/lib/storage/storage-store.spec.ts#L157) for async action testing patterns
 - See [storage-store.spec.ts - error handling](../../../libs/application/src/lib/storage/storage-store.spec.ts#L242) for error scenario patterns
 
@@ -174,10 +191,12 @@ saveFavorite: async ({
 **Purpose**: Implement `removeFavorite` action that calls infrastructure service to remove a favorite, updates the file's `isFavorite` flag, and optionally removes the file from directory listing if viewing favorites directory.
 
 **Related Documentation:**
+
 - [IStorageService.removeFavorite](../../../libs/domain/src/lib/contracts/storage.contract.ts) - Infrastructure service method
 - [State Standards - Action Pattern](../../STATE_STANDARDS.md#function-file-structure) - Action implementation pattern
 
 **Implementation Subtasks:**
+
 - [ ] **Create `remove-favorite.ts`** file in `actions/` folder
 - [ ] **Export `removeFavorite` function** that returns object with `removeFavorite` async method
 - [ ] **Accept parameters**: `deviceId: string`, `storageType: StorageType`, `filePath: string`
@@ -192,9 +211,11 @@ saveFavorite: async ({
 - [ ] **Use `updateState` with `actionMessage`** for ALL state mutations
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test remove favorite behaviors (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Check if current directory path starts with `/favorites/` to determine removal vs flag update
 - Use `removeFileFromDirectory` helper (created in Task 4) to remove file from listing
 - Use `updateFileInDirectory` helper to update flag when not in favorites directory
@@ -202,6 +223,7 @@ saveFavorite: async ({
 - Follow same async/await and error handling patterns as save action
 
 **Action Method Signature** (small snippet for clarity):
+
 ```typescript
 removeFavorite: async ({
   deviceId,
@@ -219,6 +241,7 @@ removeFavorite: async ({
 > Focus on behavioral testing - observable outcomes from remove favorite operation
 
 **Behaviors to Test:**
+
 - [ ] **Loading state appears during operation**: `isProcessing` is true during API call, false after completion
 - [ ] **Success updates file flag in normal directory**: File's `isFavorite` flag changes from true to false
 - [ ] **Success removes file from favorites directory**: When viewing `/favorites/games`, file is removed from directory listing
@@ -230,6 +253,7 @@ removeFavorite: async ({
 - [ ] **Multi-device isolation**: Removing favorite for one device doesn't affect other devices' state
 
 **Testing Reference:**
+
 - See [storage-store.spec.ts - navigateToDirectory](../../../libs/application/src/lib/storage/storage-store.spec.ts#L279) for directory update patterns
 - See [storage-store.spec.ts - error handling](../../../libs/application/src/lib/storage/storage-store.spec.ts#L339) for error scenarios
 
@@ -243,10 +267,12 @@ removeFavorite: async ({
 **Purpose**: Create reusable helper functions to update file favorite flags and remove files from directory listings, following established helper patterns.
 
 **Related Documentation:**
+
 - [storage-helpers.ts](../../../libs/application/src/lib/storage/storage-helpers.ts) - Existing helper functions
 - [State Standards - Helper Utilities](../../STATE_STANDARDS.md#helper-utilities) - Helper function patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Add `updateFileInDirectory` helper function** to `storage-helpers.ts`:
   - Accept `store`, `key`, `filePath`, `updates` (partial FileItem), and `actionMessage` parameters
   - Retrieve storage entry by key
@@ -269,9 +295,11 @@ removeFavorite: async ({
   - Set error, clear `isProcessing` flag
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Helper functions are tested through action behaviors (no isolated helper tests needed)
 
 **Key Implementation Notes:**
+
 - All helper functions MUST accept `actionMessage` as final parameter for Redux DevTools tracking
 - Use `updateState` (not `patchState`) for all state mutations
 - Handle missing entries gracefully (check for undefined before accessing)
@@ -279,6 +307,7 @@ removeFavorite: async ({
 - Use existing helpers like `getStorage()` to retrieve entries
 
 **Helper Function Signatures** (small snippet for clarity):
+
 ```typescript
 export function updateFileInDirectory(
   store: WritableStore<StorageState>,
@@ -301,12 +330,14 @@ export function removeFileFromDirectory(
 > Helper functions are tested through action behaviors - no isolated unit tests needed
 
 **Behaviors Validated Through Actions:**
+
 - [ ] **File flag updates correctly**: Actions successfully update `isFavorite` flag via helper
 - [ ] **File removal works correctly**: Actions successfully remove files from directory via helper
 - [ ] **Missing entries handled gracefully**: Helpers don't throw when entry or file not found
 - [ ] **State immutability preserved**: Helper mutations create new objects, don't mutate existing
 
 **Testing Reference:**
+
 - Helpers are validated through action tests - see Tasks 2 and 3 testing sections
 
 </details>
@@ -319,18 +350,22 @@ export function removeFileFromDirectory(
 **Purpose**: Export new favorite actions from actions index file to make them available on the store instance.
 
 **Related Documentation:**
+
 - [actions/index.ts](../../../libs/application/src/lib/storage/actions/index.ts) - Actions export pattern
 
 **Implementation Subtasks:**
+
 - [ ] **Import `saveFavorite`** from `./save-favorite`
 - [ ] **Import `removeFavorite`** from `./remove-favorite`
 - [ ] **Spread both actions** into the return object of `withStorageActions()`
 - [ ] **Verify TypeScript compilation** succeeds with new exports
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify store exposes new action methods (see Testing section)
 
 **Key Implementation Notes:**
+
 - Follow existing pattern from actions index file
 - Both actions share the same `storageService` injection from `withStorageActions`
 - No additional service parameters needed for favorite actions
@@ -340,10 +375,12 @@ export function removeFileFromDirectory(
 > Verify store API surface includes new methods
 
 **Behaviors to Test:**
+
 - [ ] **Store exposes saveFavorite method**: `typeof store.saveFavorite === 'function'`
 - [ ] **Store exposes removeFavorite method**: `typeof store.removeFavorite === 'function'`
 
 **Testing Reference:**
+
 - See [storage-store.spec.ts - Store Setup](../../../libs/application/src/lib/storage/storage-store.spec.ts#L131) for method exposure tests
 
 </details>
@@ -355,10 +392,12 @@ export function removeFileFromDirectory(
 > Full relative paths from project root for all files changed in this phase.
 
 **New Files:**
+
 - `libs/application/src/lib/storage/actions/save-favorite.ts`
 - `libs/application/src/lib/storage/actions/remove-favorite.ts`
 
 **Modified Files:**
+
 - `libs/application/src/lib/storage/storage-store.ts`
 - `libs/application/src/lib/storage/storage-helpers.ts`
 - `libs/application/src/lib/storage/actions/index.ts`
@@ -372,12 +411,14 @@ export function removeFileFromDirectory(
 > **IMPORTANT:** Tests are written **within each task above**, not here. This section is only a summary for quick reference.
 
 > **Core Testing Philosophy:**
+>
 > - **Favor behavioral testing** - test observable outcomes, not implementation
 > - **Test as you go** - tests are integrated into each task's subtasks
 > - **Test through public APIs** - test store methods, not internal helpers
 > - **Mock at boundaries** - mock infrastructure service, use real store and helpers
 
 > **Reference Documentation:**
+>
 > - **All tasks**: [Testing Standards](../../TESTING_STANDARDS.md) - Core behavioral testing approach
 > - **Store testing**: [Store Testing](../../STORE_TESTING.md) - Store-specific patterns
 > - **Existing tests**: [storage-store.spec.ts](../../../libs/application/src/lib/storage/storage-store.spec.ts) - Patterns to follow
@@ -385,6 +426,7 @@ export function removeFileFromDirectory(
 ### Where Tests Are Written
 
 **Tests are embedded in each task above** with:
+
 - **Testing Subtask**: Checkbox in task's subtask list
 - **Testing Focus**: "Behaviors to Test" section listing observable outcomes
 - **Testing Reference**: Links to relevant testing documentation
@@ -394,6 +436,7 @@ export function removeFileFromDirectory(
 ### Test Setup Requirements
 
 **TestBed Configuration:**
+
 - Provide `StorageStore` as subject under test
 - Mock `STORAGE_SERVICE` token with typed mock functions:
   - `saveFavorite: MockedFunction<(deviceId, storageType, filePath) => Observable<FileItem>>`
@@ -401,18 +444,21 @@ export function removeFileFromDirectory(
 - All other infrastructure methods mocked (getDirectory, search, etc.)
 
 **Mock Control:**
+
 - Use `vi.fn()` for typed mock functions
 - Control return values with `mockReturnValue(of(...))` for success
 - Control errors with `mockReturnValue(throwError(() => new Error(...)))`
 - Verify calls with `expect(mock).toHaveBeenCalledWith(...)`
 
 **Async Handling:**
+
 - Use `await` for all async store method calls
 - No additional flush needed - async/await handles promises directly
 
 ### Test Organization by Feature
 
 **Describe Blocks:**
+
 - `saveFavorite() - Save Favorite Operation` - All save favorite behaviors
 - `removeFavorite() - Remove Favorite Operation` - All remove favorite behaviors
 - `Favorite Operations - Loading States` - Loading state coordination tests
@@ -422,6 +468,7 @@ export function removeFileFromDirectory(
 ### Test Execution Commands
 
 **Running Tests:**
+
 ```bash
 # Run storage store tests
 npx nx test application
@@ -443,6 +490,7 @@ npx nx run-many --target=test --projects=application
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Functional Requirements:**
+
 - [ ] All implementation tasks completed and checked off
 - [ ] All subtasks within each task completed
 - [ ] Code follows [State Standards](../../STATE_STANDARDS.md)
@@ -450,6 +498,7 @@ npx nx run-many --target=test --projects=application
 - [ ] Actions follow async/await pattern with `firstValueFrom()`
 
 **State Management Requirements:**
+
 - [ ] `FavoriteOperationsState` interface added to `storage-store.ts`
 - [ ] `favoriteOperationsState` property added to `StorageState` interface
 - [ ] Initial state includes `favoriteOperationsState` with correct defaults
@@ -458,6 +507,7 @@ npx nx run-many --target=test --projects=application
 - [ ] File `isFavorite` flags update correctly after operations
 
 **Action Implementation Requirements:**
+
 - [ ] `saveFavorite` action created in `save-favorite.ts`
 - [ ] `removeFavorite` action created in `remove-favorite.ts`
 - [ ] Both actions exported from `actions/index.ts`
@@ -468,6 +518,7 @@ npx nx run-many --target=test --projects=application
 - [ ] File removal works for favorites directories
 
 **Helper Function Requirements:**
+
 - [ ] `updateFileInDirectory` helper added to `storage-helpers.ts`
 - [ ] `removeFileFromDirectory` helper added to `storage-helpers.ts`
 - [ ] Loading state helpers added for favorite operations
@@ -476,6 +527,7 @@ npx nx run-many --target=test --projects=application
 - [ ] Helpers handle missing entries gracefully
 
 **Testing Requirements:**
+
 - [ ] All testing subtasks completed within each task
 - [ ] All behavioral test checkboxes verified
 - [ ] Tests written alongside implementation (not deferred)
@@ -486,6 +538,7 @@ npx nx run-many --target=test --projects=application
 - [ ] Tests focus on observable behaviors, not implementation
 
 **Quality Checks:**
+
 - [ ] No TypeScript errors or warnings
 - [ ] Linting passes with no errors (`npm run lint`)
 - [ ] Code formatting is consistent
@@ -493,6 +546,7 @@ npx nx run-many --target=test --projects=application
 - [ ] Redux DevTools shows action messages correctly
 
 **Integration Checks:**
+
 - [ ] Store exposes `saveFavorite` method
 - [ ] Store exposes `removeFavorite` method
 - [ ] Actions integrate correctly with existing store state
@@ -500,6 +554,7 @@ npx nx run-many --target=test --projects=application
 - [ ] Multi-device state isolation preserved
 
 **Ready for Next Phase:**
+
 - [ ] All success criteria met
 - [ ] No known bugs or issues
 - [ ] Code reviewed and approved (if applicable)
@@ -561,17 +616,20 @@ npx nx run-many --target=test --projects=application
 > **Links to existing implementations demonstrating patterns to follow**
 
 **Action Patterns:**
+
 - [initialize-storage.ts](../../../libs/application/src/lib/storage/actions/initialize-storage.ts) - Complete async action with service call, state updates, error handling
 - [navigate-to-directory.ts](../../../libs/application/src/lib/storage/actions/navigate-to-directory.ts) - Action with conditional logic and state updates
 - [refresh-directory.ts](../../../libs/application/src/lib/storage/actions/refresh-directory.ts) - Simple refresh pattern
 
 **Helper Patterns:**
+
 - [storage-helpers.ts](../../../libs/application/src/lib/storage/storage-helpers.ts) - All helper functions with state mutations and queries
 - [setLoadingStorage](../../../libs/application/src/lib/storage/storage-helpers.ts#L13) - Loading state helper
 - [updateStorage](../../../libs/application/src/lib/storage/storage-helpers.ts#L33) - Generic update helper
 - [getStorage](../../../libs/application/src/lib/storage/storage-helpers.ts#L76) - Query helper (no actionMessage)
 
 **Testing Patterns:**
+
 - [storage-store.spec.ts](../../../libs/application/src/lib/storage/storage-store.spec.ts) - Complete behavioral test suite
 - [Store Setup tests](../../../libs/application/src/lib/storage/storage-store.spec.ts#L119) - Initialization and method exposure
 - [initializeStorage tests](../../../libs/application/src/lib/storage/storage-store.spec.ts#L157) - Async action success/error scenarios
@@ -579,6 +637,7 @@ npx nx run-many --target=test --projects=application
 - [Multi-device tests](../../../libs/application/src/lib/storage/storage-store.spec.ts#L914) - Device isolation patterns
 
 **Infrastructure Service:**
+
 - [storage.service.ts](../../../libs/infrastructure/src/lib/storage/storage.service.ts) - Infrastructure implementation with alert service integration
 - [IStorageService](../../../libs/domain/src/lib/contracts/storage.contract.ts) - Service contract interface
 
@@ -587,6 +646,7 @@ npx nx run-many --target=test --projects=application
 ## 🎓 Key Patterns Summary
 
 **What to Do:**
+
 - Describe WHAT to implement (method names, parameters, behavior)
 - Reference existing implementations as examples
 - Use small snippets (2-5 lines) for critical type definitions
@@ -596,6 +656,7 @@ npx nx run-many --target=test --projects=application
 - Test through public store API, not internal helpers
 
 **What NOT to Do:**
+
 - Don't write full implementation code
 - Don't use patchState (use updateState)
 - Don't test implementation details
@@ -609,11 +670,13 @@ npx nx run-many --target=test --projects=application
 ## 📚 Related Documentation
 
 **Primary References:**
+
 - [Favorite Feature Plan](./FAVORITE_PLAN.md) - Overall feature context
 - [Phase 3 Documentation](./FAVORITE_PLAN_P3.md) - Infrastructure layer (prerequisites)
 - [State Standards](../../STATE_STANDARDS.md) - NgRx Signal Store patterns
 - [Store Testing](../../STORE_TESTING.md) - Behavioral testing methodology
 
 **Supporting Documentation:**
+
 - [Testing Standards](../../TESTING_STANDARDS.md) - General testing approaches
 - [Coding Standards](../../CODING_STANDARDS.md) - Code style and conventions

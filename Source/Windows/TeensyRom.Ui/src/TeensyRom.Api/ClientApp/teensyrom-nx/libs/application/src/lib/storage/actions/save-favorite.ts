@@ -6,10 +6,7 @@ import { WritableStore, getStorage } from '../storage-helpers';
 import { LogType, logInfo, logError, createAction } from '@teensyrom-nx/utils';
 import { updateState } from '@angular-architects/ngrx-toolkit';
 
-export function saveFavorite(
-  store: WritableStore<StorageState>,
-  storageService: IStorageService
-) {
+export function saveFavorite(store: WritableStore<StorageState>, storageService: IStorageService) {
   return {
     saveFavorite: async ({
       deviceId,

@@ -9,7 +9,7 @@ import { MatCardModule } from '@angular/material/card';
   styleUrl: './card-layout.component.scss',
   host: {
     '[class.no-overflow]': 'enableOverflow() === false',
-  }
+  },
 })
 export class CardLayoutComponent {
   title = input<string>();

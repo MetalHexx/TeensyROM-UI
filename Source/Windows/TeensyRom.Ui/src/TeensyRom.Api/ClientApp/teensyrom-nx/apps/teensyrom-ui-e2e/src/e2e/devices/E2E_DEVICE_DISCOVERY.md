@@ -5,6 +5,7 @@ This directory contains comprehensive E2E tests for the device discovery workflo
 ## Purpose
 
 These tests verify that the device discovery feature works correctly by:
+
 - Testing UI rendering with various device states
 - Validating device information display
 - Testing empty states and loading states
@@ -14,9 +15,11 @@ These tests verify that the device discovery feature works correctly by:
 ## Test Scenarios Covered
 
 ### ✅ Single Device Discovery
+
 Tests that device view correctly displays a single TeensyROM device with all device information visible and properly formatted.
 
 **Behaviors Tested:**
+
 - Device card renders with fixture data
 - Device name is displayed
 - Device port (COM port) is visible
@@ -29,9 +32,11 @@ Tests that device view correctly displays a single TeensyROM device with all dev
 ---
 
 ### ✅ Multiple Devices Discovery
+
 Tests that device view correctly displays multiple TeensyROM devices simultaneously, showing all devices with unique information.
 
 **Behaviors Tested:**
+
 - Correct device count (3 devices from fixture)
 - Each device shows unique name
 - Each device shows different port
@@ -43,9 +48,11 @@ Tests that device view correctly displays multiple TeensyROM devices simultaneou
 ---
 
 ### ✅ No Devices (Empty State)
+
 Tests that device view correctly displays empty state UI when no devices are discovered.
 
 **Behaviors Tested:**
+
 - "No devices found" message displays
 - No device cards render
 - Empty state has appropriate styling
@@ -56,9 +63,11 @@ Tests that device view correctly displays empty state UI when no devices are dis
 ---
 
 ### ✅ Disconnected Device
+
 Tests that device view correctly displays a device that has lost its connection.
 
 **Behaviors Tested:**
+
 - Disconnected device card still renders
 - Connection status shows "disconnected"
 - Device information (name, port) preserved
@@ -70,9 +79,11 @@ Tests that device view correctly displays a device that has lost its connection.
 ---
 
 ### ✅ Unavailable Storage
+
 Tests that device view correctly displays warnings when storage is unavailable.
 
 **Behaviors Tested:**
+
 - Device card renders (device is connected)
 - Connection status shows as connected
 - Storage warning/error indicator displays
@@ -84,9 +95,11 @@ Tests that device view correctly displays warnings when storage is unavailable.
 ---
 
 ### ✅ Mixed Device States
+
 Tests that device view correctly displays multiple devices in different states simultaneously.
 
 **Behaviors Tested:**
+
 - All devices render (3 total)
 - First device shows connected
 - Second device shows busy/processing
@@ -98,9 +111,11 @@ Tests that device view correctly displays multiple devices in different states s
 ---
 
 ### ✅ Loading States
+
 Tests that device view shows appropriate loading state during device discovery API call.
 
 **Behaviors Tested:**
+
 - Loading indicator shows during API call
 - Loading indicator disappears after response
 - No device cards shown while loading
@@ -111,9 +126,11 @@ Tests that device view shows appropriate loading state during device discovery A
 ---
 
 ### ✅ Error Handling
+
 Tests that device view correctly handles API errors and shows error states.
 
 **Behaviors Tested:**
+
 - Error message displays on API failure
 - No devices shown on error
 - Retry option available
@@ -126,26 +143,31 @@ Tests that device view correctly handles API errors and shows error states.
 ## Running Tests
 
 ### Run all device discovery tests
+
 ```bash
 npx nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts"
 ```
 
 ### Run all device tests (including navigation)
+
 ```bash
 npx nx e2e teensyrom-ui-e2e --spec="**/devices/**"
 ```
 
 ### Run in headed mode (see browser)
+
 ```bash
 npx nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts" --headed
 ```
 
 ### Run specific test suite (using grep)
+
 ```bash
 npx nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts" --grep="Single Device"
 ```
 
 ### Run tests from project root (teensyrom-nx/)
+
 ```bash
 # Headless (CI mode)
 pnpm nx e2e teensyrom-ui-e2e --headless
@@ -178,35 +200,36 @@ pnpm nx e2e teensyrom-ui-e2e --headed
 ## Selectors (data-testid Strategy)
 
 Tests use `data-testid` attributes for reliable element selection. This approach is preferred because:
+
 - Selectors don't break when styling changes
 - Selectors reflect test intent (semantic)
 - Selectors are resilient to CSS changes
 
 ### Device View Selectors
 
-| Selector | Element | Purpose |
-|----------|---------|---------|
-| `device-view` | `.device-view` | Main device view container |
-| `loading-indicator` | Loading state div | Visible while loading devices |
-| `device-list` | `.device-list` | Container for device cards |
-| `empty-state-message` | `<p>No devices found</p>` | Message when no devices |
-| `device-item-{deviceId}` | `<lib-device-item>` | Individual device card |
-| `device-card` | `<lib-scaling-card>` | Device card wrapper |
-| `device-power-button` | Power button | Connect/disconnect button |
+| Selector                 | Element                   | Purpose                       |
+| ------------------------ | ------------------------- | ----------------------------- |
+| `device-view`            | `.device-view`            | Main device view container    |
+| `loading-indicator`      | Loading state div         | Visible while loading devices |
+| `device-list`            | `.device-list`            | Container for device cards    |
+| `empty-state-message`    | `<p>No devices found</p>` | Message when no devices       |
+| `device-item-{deviceId}` | `<lib-device-item>`       | Individual device card        |
+| `device-card`            | `<lib-scaling-card>`      | Device card wrapper           |
+| `device-power-button`    | Power button              | Connect/disconnect button     |
 
 ### Device Item Selectors
 
-| Selector | Element | Purpose |
-|----------|---------|---------|
-| `device-info` | `.device-info` | Device information section |
-| `device-id-label` | Device ID icon-label | Device ID display |
-| `device-firmware-label` | Firmware icon-label | Firmware version |
-| `device-port-label` | Port icon-label | COM port/USB path |
-| `device-state-label` | State icon-label | Device state (Connected, etc.) |
-| `device-compatible-label` | Compatible icon-label | Compatibility status |
-| `device-storage` | `.device-storage` | Storage status section |
-| `usb-storage-status` | USB storage component | USB storage status |
-| `sd-storage-status` | SD storage component | SD card storage status |
+| Selector                  | Element               | Purpose                        |
+| ------------------------- | --------------------- | ------------------------------ |
+| `device-info`             | `.device-info`        | Device information section     |
+| `device-id-label`         | Device ID icon-label  | Device ID display              |
+| `device-firmware-label`   | Firmware icon-label   | Firmware version               |
+| `device-port-label`       | Port icon-label       | COM port/USB path              |
+| `device-state-label`      | State icon-label      | Device state (Connected, etc.) |
+| `device-compatible-label` | Compatible icon-label | Compatibility status           |
+| `device-storage`          | `.device-storage`     | Storage status section         |
+| `usb-storage-status`      | USB storage component | USB storage status             |
+| `sd-storage-status`       | SD storage component  | SD card storage status         |
 
 ## Test Helpers
 
@@ -225,6 +248,7 @@ Helper functions in `test-helpers.ts` encapsulate common test operations:
 **Problem:** `cy.get('[data-testid="..."]')` times out
 
 **Solutions:**
+
 1. Verify component renders (check browser dev tools)
 2. Verify data-testid attribute exists on element
 3. Check selector spelling matches exactly
@@ -235,6 +259,7 @@ Helper functions in `test-helpers.ts` encapsulate common test operations:
 **Problem:** Can't capture loading state between requests
 
 **Solutions:**
+
 1. Use `cy.intercept()` with delay: `cy.intercept('GET', '/api/devices*', (req) => { req.reply({ delay: 1000, ... }) })`
 2. Verify loading signal in component updates correctly
 3. Check that API call happens on component initialization
@@ -244,6 +269,7 @@ Helper functions in `test-helpers.ts` encapsulate common test operations:
 **Problem:** UI shows different data than fixture
 
 **Solutions:**
+
 1. Verify interceptor returns correct fixture
 2. Check component maps API response to domain model correctly
 3. Look for data transformations in component
@@ -252,11 +278,13 @@ Helper functions in `test-helpers.ts` encapsulate common test operations:
 ### Flaky Tests (Intermittent Failures)
 
 **Common Causes:**
+
 1. Arbitrary waits (`cy.wait(1000)`) - replace with `cy.wait('@alias')`
 2. Race conditions - ensure interceptor is set up before navigation
 3. Timing issues - use Cypress retry-ability with proper assertions
 
 **Solutions:**
+
 1. Remove arbitrary timeouts
 2. Use `.should()` for retry-able assertions
 3. Wait for network requests with `cy.wait('@findDevices')`
@@ -267,6 +295,7 @@ Helper functions in `test-helpers.ts` encapsulate common test operations:
 **Problem:** `.should('contain.text', 'value')` fails but text is visible
 
 **Solutions:**
+
 1. Use `.should('be.visible')` first to check element exists
 2. Verify whitespace in assertion matches rendered text
 3. Check for dynamic content (signals, observables) updates
@@ -279,6 +308,7 @@ Helper functions in `test-helpers.ts` encapsulate common test operations:
 **Estimated Execution Time:** < 2 minutes for full suite
 
 **Coverage:**
+
 - ✅ Happy paths (single/multiple devices)
 - ✅ Edge cases (empty state, disconnected)
 - ✅ Error scenarios (API failures)

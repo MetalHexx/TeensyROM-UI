@@ -222,7 +222,7 @@ export const allStorageUnavailable: MockDeviceFixture = (() => {
  */
 export const multipleDevicesForIndexing: MockDeviceFixture = (() => {
   faker.seed(54325);
-  
+
   const device1 = generateDevice({
     isConnected: true,
     deviceState: DeviceState.Connected,
@@ -289,7 +289,7 @@ export const multipleDevicesForIndexing: MockDeviceFixture = (() => {
  */
 export const threeDevicesFullIndexing: MockDeviceFixture = (() => {
   faker.seed(54326);
-  
+
   const devices = [
     generateDevice({
       isConnected: true,

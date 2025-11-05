@@ -4,15 +4,16 @@
   [enableOverflow]="true"
   [animationDuration]="1200"
   animationEntry="from-top"
-  animationExit="from-bottom">
-  
+  animationExit="from-bottom"
+>
   <!-- Close button in corner -->
   <div slot="corner">
     <lib-icon-button
       icon="close"
       ariaLabel="Close dialog"
       variant="rounded-transparent"
-      (buttonClick)="onClose()">
+      (buttonClick)="onClose()"
+    >
     </lib-icon-button>
   </div>
 
@@ -24,7 +25,8 @@
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       referrerpolicy="strict-origin-when-cross-origin"
       allowfullscreen
-      loading="lazy">
+      loading="lazy"
+    >
     </iframe>
   </div>
 </lib-scaling-card>

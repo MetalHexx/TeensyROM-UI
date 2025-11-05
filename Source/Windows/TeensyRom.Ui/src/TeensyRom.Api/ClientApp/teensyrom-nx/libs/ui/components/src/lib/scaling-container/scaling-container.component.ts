@@ -13,7 +13,7 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
     '[@scaleIn]': 'animationState()',
     '(@scaleIn.done)': 'onAnimationDone()',
     '[class.visible]': 'animationState().value === "visible"',
-    '[class.hidden]': 'animationState().value === "hidden"'
+    '[class.hidden]': 'animationState().value === "hidden"',
   },
   providers: [
     {
@@ -22,94 +22,130 @@ import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
         // Always register self as a parent (children can opt-in to wait)
         return self.animationCompleteSignal.asReadonly();
       },
-      deps: [[new Self(), ScalingContainerComponent]]
-    }
+      deps: [[new Self(), ScalingContainerComponent]],
+    },
   ],
   animations: [
     trigger('scaleIn', [
-      transition('void => visible', [
-        style({
-          opacity: 0,
-          transform: '{{ startTransform }} scale(0.8)',
-          transformOrigin: '{{ transformOrigin }}'
-        }),
-        group([
-          animate('{{ transformDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
-            transform: 'translate(0, 0) scale(1)',
-            transformOrigin: '{{ transformOrigin }}'
-          })),
-          animate('{{ opacityDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
-            opacity: 1
-          }))
-        ])
-      ], { params: { 
-        startTransform: 'translate(-40px, -40px)', 
-        transformOrigin: 'top left',
-        transformDuration: '2000',
-        opacityDuration: '3000'
-      } }),
-      transition('hidden => visible', [
-        style({
-          opacity: 0,
-          transform: '{{ startTransform }} scale(0.8)',
-          transformOrigin: '{{ transformOrigin }}'
-        }),
-        group([
-          animate('{{ transformDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
-            transform: 'translate(0, 0) scale(1)',
-            transformOrigin: '{{ transformOrigin }}'
-          })),
-          animate('{{ opacityDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
-            opacity: 1
-          }))
-        ])
-      ], { params: { 
-        startTransform: 'translate(-40px, -40px)', 
-        transformOrigin: 'top left',
-        transformDuration: '2000',
-        opacityDuration: '3000'
-      } }),
-      transition('visible => hidden', [
-        style({
-          transformOrigin: '{{ transformOrigin }}'
-        }),
-        group([
-          animate('{{ transformDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
-            transform: '{{ exitTransform }} scale(0.8)',
-            transformOrigin: '{{ transformOrigin }}'
-          })),
-          animate('{{ opacityDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)', style({
-            opacity: 0
-          }))
-        ])
-      ], { params: { 
-        exitTransform: 'translate(40px, 40px)', 
-        transformOrigin: 'top left',
-        transformDuration: '2000',
-        opacityDuration: '3000'
-      } })
-    ])
-  ]
+      transition(
+        'void => visible',
+        [
+          style({
+            opacity: 0,
+            transform: '{{ startTransform }} scale(0.8)',
+            transformOrigin: '{{ transformOrigin }}',
+          }),
+          group([
+            animate(
+              '{{ transformDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)',
+              style({
+                transform: 'translate(0, 0) scale(1)',
+                transformOrigin: '{{ transformOrigin }}',
+              })
+            ),
+            animate(
+              '{{ opacityDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)',
+              style({
+                opacity: 1,
+              })
+            ),
+          ]),
+        ],
+        {
+          params: {
+            startTransform: 'translate(-40px, -40px)',
+            transformOrigin: 'top left',
+            transformDuration: '2000',
+            opacityDuration: '3000',
+          },
+        }
+      ),
+      transition(
+        'hidden => visible',
+        [
+          style({
+            opacity: 0,
+            transform: '{{ startTransform }} scale(0.8)',
+            transformOrigin: '{{ transformOrigin }}',
+          }),
+          group([
+            animate(
+              '{{ transformDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)',
+              style({
+                transform: 'translate(0, 0) scale(1)',
+                transformOrigin: '{{ transformOrigin }}',
+              })
+            ),
+            animate(
+              '{{ opacityDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)',
+              style({
+                opacity: 1,
+              })
+            ),
+          ]),
+        ],
+        {
+          params: {
+            startTransform: 'translate(-40px, -40px)',
+            transformOrigin: 'top left',
+            transformDuration: '2000',
+            opacityDuration: '3000',
+          },
+        }
+      ),
+      transition(
+        'visible => hidden',
+        [
+          style({
+            transformOrigin: '{{ transformOrigin }}',
+          }),
+          group([
+            animate(
+              '{{ transformDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)',
+              style({
+                transform: '{{ exitTransform }} scale(0.8)',
+                transformOrigin: '{{ transformOrigin }}',
+              })
+            ),
+            animate(
+              '{{ opacityDuration }}ms cubic-bezier(0.35, 0, 0.25, 1)',
+              style({
+                opacity: 0,
+              })
+            ),
+          ]),
+        ],
+        {
+          params: {
+            exitTransform: 'translate(40px, 40px)',
+            transformOrigin: 'top left',
+            transformDuration: '2000',
+            opacityDuration: '3000',
+          },
+        }
+      ),
+    ]),
+  ],
 })
 export class ScalingContainerComponent {
   // Animation configuration inputs
   animationEntry = input<AnimationDirection>('random');
   animationExit = input<AnimationDirection>('random');
   animationTrigger = input<boolean | undefined>(undefined);
-  
+
   /**
    * Animation duration in milliseconds for transform animation (default: 2000ms)
    * Opacity animation runs 1.5x this duration for smooth fade
    */
   animationDuration = input<number>(2000);
-  
+
   /**
    * Controls whether this component waits for parent animations:
    * - undefined (default): No waiting - component animates immediately
    * - 'auto': Opt-in to wait for nearest animation parent in DI tree
    * - AnimationParent: Wait for specific component (sibling, ancestor, or any component)
    * - null: No waiting - same as undefined
-   * 
+   *
    * Note: This component always registers as an animation parent for its children,
    * regardless of this setting. This input only controls waiting behavior.
    */
@@ -134,7 +170,7 @@ export class ScalingContainerComponent {
   // Inject parent completion signal (if exists)
   private parentComplete = inject(PARENT_ANIMATION_COMPLETE, {
     optional: true,
-    skipSelf: true
+    skipSelf: true,
   });
 
   // Determine when to render content (for DOM entry)
@@ -148,12 +184,12 @@ export class ScalingContainerComponent {
 
     // Priority 2: Check animation parent mode
     const parentMode = this.animationParent();
-    
+
     // If 'auto', wait for parent
     if (parentMode === 'auto' && this.parentComplete) {
       return this.parentComplete();
     }
-    
+
     // If custom parent provided, wait for that parent
     if (parentMode && parentMode !== 'auto' && parentMode !== null) {
       return parentMode.animationCompleteSignal.asReadonly()();
@@ -176,8 +212,8 @@ export class ScalingContainerComponent {
         exitTransform: this.getTransformForDirection(this.animationExit(), true),
         transformOrigin: this.getTransformOrigin(this.animationEntry()),
         transformDuration: transformDuration.toString(),
-        opacityDuration: opacityDuration.toString()
-      }
+        opacityDuration: opacityDuration.toString(),
+      },
     };
   });
 
@@ -193,19 +229,21 @@ export class ScalingContainerComponent {
     // So entry and exit use the SAME offset, just applied at different times
 
     const directionMap: Record<Exclude<AnimationDirection, 'random' | 'none'>, string> = {
-      'from-left': `translate(-40px, 0)`,      // Coming from left = starts at left (-X)
-      'from-right': `translate(40px, 0)`,      // Coming from right = starts at right (+X)
-      'from-top': `translate(0, -40px)`,       // Coming from top = starts at top (-Y)
-      'from-bottom': `translate(0, 40px)`,     // Coming from bottom = starts at bottom (+Y)
+      'from-left': `translate(-40px, 0)`, // Coming from left = starts at left (-X)
+      'from-right': `translate(40px, 0)`, // Coming from right = starts at right (+X)
+      'from-top': `translate(0, -40px)`, // Coming from top = starts at top (-Y)
+      'from-bottom': `translate(0, 40px)`, // Coming from bottom = starts at bottom (+Y)
       'from-top-left': `translate(-40px, -40px)`,
       'from-top-right': `translate(40px, -40px)`,
       'from-bottom-left': `translate(-40px, 40px)`,
-      'from-bottom-right': `translate(40px, 40px)`,  // Starts at bottom-right (+X, +Y)
+      'from-bottom-right': `translate(40px, 40px)`, // Starts at bottom-right (+X, +Y)
     };
 
     // Handle random direction - memoize selection per instance
     if (direction === 'random') {
-      const directions = Object.keys(directionMap) as Array<Exclude<AnimationDirection, 'random' | 'none'>>;
+      const directions = Object.keys(directionMap) as Array<
+        Exclude<AnimationDirection, 'random' | 'none'>
+      >;
 
       if (isExit) {
         if (!this.selectedExitDirection) {
@@ -241,7 +279,9 @@ export class ScalingContainerComponent {
         return originMap[this.selectedEntryDirection];
       }
 
-      const directions = Object.keys(originMap) as Array<Exclude<AnimationDirection, 'random' | 'none'>>;
+      const directions = Object.keys(originMap) as Array<
+        Exclude<AnimationDirection, 'random' | 'none'>
+      >;
       const randomDir = directions[Math.floor(Math.random() * directions.length)];
       return originMap[randomDir];
     }
@@ -268,7 +308,7 @@ export class ScalingContainerComponent {
   constructor() {
     effect(() => {
       const shouldShow = this.shouldRender();
-      
+
       // If we should show, ensure we're in the DOM before animation starts
       if (shouldShow) {
         this.shouldBeInDom.set(true);

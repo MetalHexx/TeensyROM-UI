@@ -10,7 +10,7 @@ import { StorageKeyUtil } from '@teensyrom-nx/application';
   selector: 'lib-player-toolbar-actions',
   imports: [CommonModule, MatIconModule, IconButtonComponent],
   templateUrl: './player-toolbar-actions.component.html',
-  styleUrl: './player-toolbar-actions.component.scss'
+  styleUrl: './player-toolbar-actions.component.scss',
 })
 export class PlayerToolbarActionsComponent {
   private readonly playerContext = inject(PLAYER_CONTEXT);
@@ -71,7 +71,7 @@ export class PlayerToolbarActionsComponent {
     }
 
     const favoriteState = this.storageStore.favoriteOperationsState();
-    
+
     if (favoriteState.isProcessing || favoriteState.error) {
       return;
     }

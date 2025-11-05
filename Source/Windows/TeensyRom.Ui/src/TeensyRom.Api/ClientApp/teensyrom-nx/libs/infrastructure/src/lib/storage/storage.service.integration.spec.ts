@@ -47,12 +47,10 @@ describe('StorageService Integration Tests', () => {
     });
 
     const filesApiService = new FilesApiService(config);
-    
+
     // Configure TestBed to provide the alert service
     TestBed.configureTestingModule({
-      providers: [
-        { provide: ALERT_SERVICE, useValue: mockAlertService },
-      ],
+      providers: [{ provide: ALERT_SERVICE, useValue: mockAlertService }],
     });
 
     // Create StorageService with TestBed's DI

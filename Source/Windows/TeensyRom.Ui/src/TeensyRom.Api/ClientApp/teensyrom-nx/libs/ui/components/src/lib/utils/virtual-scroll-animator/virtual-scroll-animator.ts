@@ -3,23 +3,23 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 /**
  * A reusable utility for animating scroll-to-item in CDK Virtual Scroll viewports.
- * 
+ *
  * **Features**:
  * - Smooth scrolling to specific items with centering
  * - Dynamic height measurement for theme/font changes
  * - Fallback handling for various edge cases
  * - Loading state management during scroll animation
- * 
+ *
  * **Use Cases**:
  * - Auto-scroll to currently playing item in media lists
  * - Scroll to selected item in product catalogs
  * - Jump to search result in large lists
  * - Navigate to specific message in chat history
- * 
+ *
  * @example
  * ```typescript
  * const animator = new VirtualScrollAnimator<FileItem>();
- * 
+ *
  * animator.scrollToItem({
  *   viewport: this.viewport,
  *   items: this.files(),
@@ -35,7 +35,7 @@ export class VirtualScrollAnimator<T> {
 
   /**
    * Scrolls the virtual viewport to center a specific item.
-   * 
+   *
    * @param config - Configuration object
    */
   scrollToItem(config: ScrollToItemConfig<T>): void {
@@ -47,7 +47,7 @@ export class VirtualScrollAnimator<T> {
       isScrollingSignal,
       scrollDuration = 600,
       renderDelay = 100,
-      onComplete
+      onComplete,
     } = config;
 
     // Clear any existing scroll timeout
@@ -91,8 +91,8 @@ export class VirtualScrollAnimator<T> {
         }
 
         // Calculate offset to center the item in viewport
-        const offsetToCenter = Math.max(0, (viewportHeight / 2) - (actualItemHeight / 2));
-        const targetOffset = Math.max(0, (targetIndex * actualItemHeight) - offsetToCenter);
+        const offsetToCenter = Math.max(0, viewportHeight / 2 - actualItemHeight / 2);
+        const targetOffset = Math.max(0, targetIndex * actualItemHeight - offsetToCenter);
 
         // Scroll to the calculated offset to center the item
         viewportInstance.scrollToOffset(targetOffset, 'smooth');
@@ -125,11 +125,11 @@ export class VirtualScrollAnimator<T> {
    */
   private measureItemHeight(defaultHeight: number, selector = '.file-list-item'): number {
     const firstRenderedElement = document.querySelector(selector);
-    
+
     if (firstRenderedElement) {
       return firstRenderedElement.getBoundingClientRect().height;
     }
-    
+
     return defaultHeight;
   }
 
@@ -149,7 +149,10 @@ export class VirtualScrollAnimator<T> {
   /**
    * Marks scroll as complete and triggers callback.
    */
-  private completeScroll(isScrollingSignal: WritableSignal<boolean>, onComplete?: () => void): void {
+  private completeScroll(
+    isScrollingSignal: WritableSignal<boolean>,
+    onComplete?: () => void
+  ): void {
     isScrollingSignal.set(false);
     this.scrollTimeoutId = null;
     onComplete?.();
@@ -162,25 +165,25 @@ export class VirtualScrollAnimator<T> {
 export interface ScrollToItemConfig<T> {
   /** Signal containing the viewport reference */
   viewport: Signal<CdkVirtualScrollViewport | undefined>;
-  
+
   /** Array of items to search through */
   items: T[];
-  
+
   /** Function to find the target item's index */
   findIndex: (items: T[]) => number;
-  
+
   /** Configured item height in pixels */
   itemHeight: number;
-  
+
   /** Signal to track scrolling state */
   isScrollingSignal: WritableSignal<boolean>;
-  
+
   /** Duration of scroll animation in ms (default: 600) */
   scrollDuration?: number;
-  
+
   /** Delay before starting scroll to ensure DOM is ready (default: 100) */
   renderDelay?: number;
-  
+
   /** Optional callback when scroll completes */
   onComplete?: () => void;
 }

@@ -32,7 +32,7 @@ describe('LoadingTextComponent', () => {
   it('should apply visible class when visible input is true', () => {
     componentRef.setInput('visible', true);
     fixture.detectChanges();
-    
+
     const hostElement = fixture.nativeElement as HTMLElement;
     expect(hostElement.classList.contains('visible')).toBe(true);
   });
@@ -40,7 +40,7 @@ describe('LoadingTextComponent', () => {
   it('should not apply visible class when visible input is false', () => {
     componentRef.setInput('visible', false);
     fixture.detectChanges();
-    
+
     const hostElement = fixture.nativeElement as HTMLElement;
     expect(hostElement.classList.contains('visible')).toBe(false);
   });
@@ -48,20 +48,20 @@ describe('LoadingTextComponent', () => {
   it('should accept custom animation duration', () => {
     componentRef.setInput('animationDuration', 500);
     fixture.detectChanges();
-    
+
     expect(component.animationDuration()).toBe(500);
   });
 
   it('should allow disabling spinner', () => {
     componentRef.setInput('showSpinner', false);
     fixture.detectChanges();
-    
+
     expect(component.showSpinner()).toBe(false);
   });
 
   it('should display "Loading..." as default text', () => {
     fixture.detectChanges();
-    
+
     const loadingTextWrapper = fixture.nativeElement.querySelector('.loading-text-wrapper');
     expect(loadingTextWrapper?.textContent?.trim()).toBe('Loading...');
   });
@@ -72,7 +72,7 @@ describe('LoadingTextComponent', () => {
     const customElement = customFixture.nativeElement as HTMLElement;
     customElement.textContent = 'Processing...';
     customFixture.detectChanges();
-    
+
     expect(customElement.textContent?.trim()).toContain('Processing...');
   });
 });

@@ -1,52 +1,53 @@
 <div class="directory-files">
-  <lib-scaling-card 
-    title="Current Directory" 
-    [animationTrigger]="animationTrigger()" 
-    [animationEntry]="'from-left'" 
+  <lib-scaling-card
+    title="Current Directory"
+    [animationTrigger]="animationTrigger()"
+    [animationEntry]="'from-left'"
     [animationExit]="'from-right'"
-    [enableOverflow]="false">
-
+    [enableOverflow]="false"
+  >
     <lib-loading-text slot="corner" [visible]="isLoading()"></lib-loading-text>
 
     @if (directoryContents().error) {
     <p class="error">Error: {{ directoryContents().error }}</p>
-    } @else if (directoryContents().hasContent && (directoryContents().directories.length > 0 || directoryContents().files.length > 0)) {
-      <div class="viewport-wrapper">
-        <cdk-virtual-scroll-viewport
-          #viewport
-          itemSize="52"
-          class="files-viewport"
-          minBufferPx="200"
-          maxBufferPx="400"
+    } @else if (directoryContents().hasContent && (directoryContents().directories.length > 0 ||
+    directoryContents().files.length > 0)) {
+    <div class="viewport-wrapper">
+      <cdk-virtual-scroll-viewport
+        #viewport
+        itemSize="52"
+        class="files-viewport"
+        minBufferPx="200"
+        maxBufferPx="400"
+      >
+        @for (item of directoriesAndFiles(); track item.path) {
+        <div
+          class="file-list-item list-item-highlight"
+          [attr.data-item-path]="item.path"
+          [attr.data-is-playing]="isCurrentlyPlaying(item)"
+          [attr.data-has-error]="hasCurrentFileError()"
         >
-          @for (item of directoriesAndFiles(); track item.path) {
-          <div
-            class="file-list-item list-item-highlight"
-            [attr.data-item-path]="item.path"
-            [attr.data-is-playing]="isCurrentlyPlaying(item)"
-            [attr.data-has-error]="hasCurrentFileError()"
+          @if (isDirectory(item)) {
+          <lib-directory-item
+            [directoryItem]="item"
+            [selected]="isSelected(item)"
+            (itemSelected)="onItemSelected($event)"
+            (itemDoubleClicked)="onDirectoryDoubleClick($event)"
           >
-            @if (isDirectory(item)) {
-            <lib-directory-item
-              [directoryItem]="item"
-              [selected]="isSelected(item)"
-              (itemSelected)="onItemSelected($event)"
-              (itemDoubleClicked)="onDirectoryDoubleClick($event)"
-            >
-            </lib-directory-item>
-            } @else {
-            <lib-file-item
-              [fileItem]="item"
-              [selected]="isSelected(item)"
-              (itemSelected)="onItemSelected($event)"
-              (itemDoubleClick)="onFileDoubleClick($event)"
-            >
-            </lib-file-item>
-            }
-          </div>
+          </lib-directory-item>
+          } @else {
+          <lib-file-item
+            [fileItem]="item"
+            [selected]="isSelected(item)"
+            (itemSelected)="onItemSelected($event)"
+            (itemDoubleClick)="onFileDoubleClick($event)"
+          >
+          </lib-file-item>
           }
-        </cdk-virtual-scroll-viewport>
-      </div>
+        </div>
+        }
+      </cdk-virtual-scroll-viewport>
+    </div>
     } @else {
     <p>No directory selected or directory is empty.</p>
     }

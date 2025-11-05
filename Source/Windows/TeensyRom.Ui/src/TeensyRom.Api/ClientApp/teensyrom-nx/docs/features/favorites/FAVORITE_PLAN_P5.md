@@ -11,10 +11,12 @@ Add a favorite button to the player toolbar that displays favorite status and tr
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [ ] [Favorite Files Feature Plan](./FAVORITE_PLAN.md) - High-level feature plan with architecture overview
 - [ ] [Favorite Files Feature Plan - Phase 5](./FAVORITE_PLAN.md#phase-5-frontend---player-toolbar-favorite-button-ui) - Specific phase 5 requirements
 
 **Standards & Guidelines:**
+
 - [ ] [Coding Standards](../../CODING_STANDARDS.md) - Component structure, input/output patterns, modern control flow
 - [ ] [Testing Standards](../../TESTING_STANDARDS.md) - Testing philosophy and layer-specific guidance
 - [ ] [Smart Component Testing](../../SMART_COMPONENT_TESTING.md) - Testing feature components with mocked dependencies
@@ -43,11 +45,13 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 **Purpose**: Integrate the favorite button into the existing `player-toolbar-actions.component.ts` alongside the shuffle button, following the same patterns for state management and user interaction.
 
 **Related Documentation:**
+
 - [player-toolbar-actions.component.ts](../../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar-actions/player-toolbar-actions.component.ts) - Existing shuffle button implementation to follow
 - [Icon Button Component](../../../../libs/ui/components/src/lib/icon-button/icon-button.component.ts) - UI component to use
 - [Storage Store Actions](../../../../libs/application/src/lib/storage/actions/index.ts) - Store actions to call
 
 **Implementation Subtasks:**
+
 - [ ] **Import StorageStore**: Add import for `StorageStore` from `@teensyrom-nx/application`
 - [ ] **Inject StorageStore**: Add `private readonly storageStore = inject(StorageStore)` following the same pattern as `playerContext`
 - [ ] **Create `toggleFavorite()` method**: Async method that reads current file from player context, checks favorite status, and calls appropriate storage store action
@@ -55,9 +59,11 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 - [ ] **Create `isFavoriteOperationInProgress()` method**: Returns `storageStore.favoriteOperationsState().isProcessing` to disable button during operations
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test favorite button behaviors (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Follow the exact same pattern as `toggleShuffleMode()` and `isShuffleMode()` methods
 - Use `playerContext.getCurrentFile(deviceId)()?.file` to get current file (may be null)
 - Handle null file gracefully - button should be disabled if no file loaded
@@ -69,6 +75,7 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 **Testing Focus for Task 1:**
 
 **Behaviors to Test:**
+
 - [ ] **Initialization**: Component initializes with both `playerContext` and `storageStore` injected
 - [ ] **isFavorite() returns true**: When current file has `isFavorite: true` flag
 - [ ] **isFavorite() returns false**: When current file has `isFavorite: false` flag
@@ -79,6 +86,7 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 - [ ] **isFavoriteOperationInProgress() reflects store state**: Returns true when `storageStore.favoriteOperationsState().isProcessing` is true
 
 **Testing Reference:**
+
 - See [Smart Component Testing](../../SMART_COMPONENT_TESTING.md) for component testing patterns
 - Mock `IPlayerContext` and `StorageStore` using interfaces
 - Use signal mocks for reactive state (`getCurrentFile`, `favoriteOperationsState`)
@@ -93,11 +101,13 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 **Purpose**: Add the favorite button to the component template alongside the shuffle button, using appropriate Material icons and binding to component methods.
 
 **Related Documentation:**
+
 - [player-toolbar-actions.component.html](../../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar-actions/player-toolbar-actions.component.html) - Existing shuffle button markup to follow
 - [Icon Button Component](../../../../libs/ui/components/src/lib/icon-button/icon-button.component.ts) - Component API reference
 - [Material Icons](https://fonts.google.com/icons) - Icon names reference
 
 **Implementation Subtasks:**
+
 - [ ] **Add lib-icon-button**: Add second `<lib-icon-button>` element inside `.toolbar-actions` div
 - [ ] **Set icon binding**: Use `@if/@else` control flow - `icon="favorite"` when `isFavorite()` is true, `icon="favorite_border"` when false
 - [ ] **Set ariaLabel binding**: Use descriptive label that changes based on state - "Remove from Favorites" vs "Add to Favorites"
@@ -109,9 +119,11 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 - [ ] **Add computed signal for currentFile**: Add `currentFile = computed(() => this.playerContext.getCurrentFile(this.deviceId())())` to component for template access
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test template rendering and user interactions (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Position favorite button after shuffle button in the DOM order
 - Use `@if (isFavorite()) { } @else { }` control flow for conditional icon
 - Both icons are Material icons: `favorite` (solid heart) and `favorite_border` (empty heart)
@@ -122,6 +134,7 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 **Testing Focus for Task 2:**
 
 **Behaviors to Test:**
+
 - [ ] **Empty heart icon displayed**: When `isFavorite()` returns false, template shows `favorite_border` icon
 - [ ] **Solid heart icon displayed**: When `isFavorite()` returns true, template shows `favorite` icon
 - [ ] **Normal color displayed**: When not favorited, button uses `color="normal"`
@@ -133,6 +146,7 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 - [ ] **Aria label reflects action**: Label changes based on current favorite state
 
 **Testing Reference:**
+
 - See [Smart Component Testing](../../SMART_COMPONENT_TESTING.md) for DOM testing patterns
 - Use `fixture.debugElement.query()` to locate button element
 - Assert on icon content, color classes, and disabled attribute
@@ -148,19 +162,23 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 **Purpose**: Add any necessary styling to position or style the favorite button, though it should inherit most styling from the icon-button component and toolbar layout.
 
 **Related Documentation:**
+
 - [Style Guide](../../STYLE_GUIDE.md) - Global utility classes and design tokens
 - [player-toolbar-actions.component.scss](../../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar-actions/player-toolbar-actions.component.scss) - Existing component styles
 
 **Implementation Subtasks:**
+
 - [ ] **Review existing styles**: Check if additional styling is needed for button spacing or layout
 - [ ] **Add spacing rules**: If needed, add margin or gap between shuffle and favorite buttons
 - [ ] **Verify responsive behavior**: Ensure button displays correctly on mobile, tablet, and desktop layouts
 - [ ] **Test visual consistency**: Verify button matches design system and aligns with shuffle button
 
 **Testing Subtask:**
+
 - [ ] **Manual Visual Testing**: Verify button appearance and spacing across different screen sizes
 
 **Key Implementation Notes:**
+
 - Most styling should be inherited from `.toolbar-actions` container and `lib-icon-button` component
 - If buttons need spacing, use CSS gap or margin-left on favorite button
 - Follow existing SCSS patterns in the component's stylesheet
@@ -169,6 +187,7 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 **Testing Focus for Task 3:**
 
 **Visual Behaviors to Verify:**
+
 - [ ] **Button spacing**: Appropriate space between shuffle and favorite buttons
 - [ ] **Alignment**: Buttons align vertically and horizontally with other toolbar controls
 - [ ] **Responsive layout**: Buttons remain usable on mobile, tablet, and desktop
@@ -176,6 +195,7 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 - [ ] **Focus states**: Button focus indicators are visible and accessible
 
 **Testing Reference:**
+
 - Manual testing in browser at different viewport sizes
 - Use browser DevTools to inspect layout and spacing
 - Verify against existing shuffle button as reference
@@ -187,6 +207,7 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 ## 🗂️ Files Modified or Created
 
 **Modified Files:**
+
 - `libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar-actions/player-toolbar-actions.component.ts`
 - `libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar-actions/player-toolbar-actions.component.html`
 - `libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar-actions/player-toolbar-actions.component.spec.ts`
@@ -209,12 +230,14 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 ### Test Organization
 
 **Task 1 Tests** (Component Logic):
+
 - Service injection and initialization
 - Method behaviors (`isFavorite()`, `toggleFavorite()`, `isFavoriteOperationInProgress()`)
 - Store action calls with correct parameters
 - Null file handling
 
 **Task 2 Tests** (Template & DOM):
+
 - Icon rendering based on favorite state
 - Color changes based on favorite state
 - Button disabled/enabled states
@@ -222,6 +245,7 @@ libs/features/player/src/lib/player-view/player-device-container/player-toolbar/
 - Aria label updates
 
 **Task 3 Tests** (Visual):
+
 - Manual browser testing at different viewport sizes
 - Spacing and alignment verification
 - Responsive layout validation
@@ -240,17 +264,17 @@ let favoriteOperationsStateSignal: WritableSignal<FavoriteOperationsState>;
 beforeEach(() => {
   currentFileSignal = signal(null);
   favoriteOperationsStateSignal = signal({ isProcessing: false, error: null });
-  
+
   mockPlayerContext = {
     getCurrentFile: vi.fn(() => signal(currentFileSignal()).asReadonly()),
   };
-  
+
   mockStorageStore = {
     saveFavorite: vi.fn(),
     removeFavorite: vi.fn(),
     favoriteOperationsState: signal(favoriteOperationsStateSignal()).asReadonly(),
   };
-  
+
   TestBed.configureTestingModule({
     providers: [
       { provide: PLAYER_CONTEXT, useValue: mockPlayerContext },
@@ -281,6 +305,7 @@ npx nx test player --coverage
 <summary><h2>✅ Success Criteria</h2></summary>
 
 **Functional Requirements:**
+
 - [ ] All implementation tasks completed and checked off
 - [ ] All subtasks within each task completed
 - [ ] Favorite button appears in player toolbar actions alongside shuffle button
@@ -293,6 +318,7 @@ npx nx test player --coverage
 - [ ] Code follows [Coding Standards](../../CODING_STANDARDS.md)
 
 **Testing Requirements:**
+
 - [ ] All testing subtasks completed within each task
 - [ ] Component logic tests pass (Task 1)
 - [ ] Template rendering tests pass (Task 2)
@@ -302,6 +328,7 @@ npx nx test player --coverage
 - [ ] All tests passing with no failures
 
 **Quality Checks:**
+
 - [ ] No TypeScript errors or warnings
 - [ ] Linting passes (`npx nx lint player`)
 - [ ] Component follows Angular 19 modern patterns (signals, control flow)
@@ -309,6 +336,7 @@ npx nx test player --coverage
 - [ ] No console errors when running application
 
 **Integration Verification:**
+
 - [ ] Favorite button works correctly with existing player controls
 - [ ] Alert notifications appear on success/error (handled by infrastructure service)
 - [ ] Button state updates correctly when file changes in player
@@ -316,6 +344,7 @@ npx nx test player --coverage
 - [ ] UI remains responsive during favorite operations
 
 **Ready for Next Phase:**
+
 - [ ] All success criteria met
 - [ ] No known bugs or issues
 - [ ] Ready to proceed to Phase 6 (E2E tests)

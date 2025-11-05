@@ -235,17 +235,21 @@ export function setupFavoriteRemovalSequence(paths: string[], delayBetweenMs = 1
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function setupNonExistentFavoriteTest(filePath: string): void {
-  cy.intercept(REMOVE_FAVORITE_ENDPOINT.method as Method, REMOVE_FAVORITE_ENDPOINT.pattern, (req: CypressRequest) => {
-    const response: RemoveFavoriteResponse = {
-      message: `Favorite not found in /favorites/games - nothing to remove`,
-    };
+  cy.intercept(
+    REMOVE_FAVORITE_ENDPOINT.method as Method,
+    REMOVE_FAVORITE_ENDPOINT.pattern,
+    (req: CypressRequest) => {
+      const response: RemoveFavoriteResponse = {
+        message: `Favorite not found in /favorites/games - nothing to remove`,
+      };
 
-    req.reply({
-      statusCode: 200,
-      headers: { 'content-type': 'application/json' },
-      body: response,
-    });
-  }).as(`${REMOVE_FAVORITE_ENDPOINT.alias}_nonexistent`);
+      req.reply({
+        statusCode: 200,
+        headers: { 'content-type': 'application/json' },
+        body: response,
+      });
+    }
+  ).as(`${REMOVE_FAVORITE_ENDPOINT.alias}_nonexistent`);
 }
 
 /**
@@ -256,19 +260,23 @@ export function setupNonExistentFavoriteTest(filePath: string): void {
 export function setupBatchFavoriteCleanup(cleanupCount: number): void {
   let removedCount = 0;
 
-  cy.intercept(REMOVE_FAVORITE_ENDPOINT.method as Method, REMOVE_FAVORITE_ENDPOINT.pattern, (req: CypressRequest) => {
-    removedCount++;
+  cy.intercept(
+    REMOVE_FAVORITE_ENDPOINT.method as Method,
+    REMOVE_FAVORITE_ENDPOINT.pattern,
+    (req: CypressRequest) => {
+      removedCount++;
 
-    const response: RemoveFavoriteResponse = {
-      message: `Favorite untagged and removed from /favorites/games (${removedCount}/${cleanupCount})`,
-    };
+      const response: RemoveFavoriteResponse = {
+        message: `Favorite untagged and removed from /favorites/games (${removedCount}/${cleanupCount})`,
+      };
 
-    req.reply({
-      statusCode: 200,
-      headers: { 'content-type': 'application/json' },
-      body: response,
-    });
-  }).as(`${REMOVE_FAVORITE_ENDPOINT.alias}_batch`);
+      req.reply({
+        statusCode: 200,
+        headers: { 'content-type': 'application/json' },
+        body: response,
+      });
+    }
+  ).as(`${REMOVE_FAVORITE_ENDPOINT.alias}_batch`);
 }
 
 export const REMOVE_FAVORITE_ALIAS = REMOVE_FAVORITE_ENDPOINT.alias;

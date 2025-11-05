@@ -20,6 +20,7 @@
 ### Writing Principles
 
 **Keep It High-Level:**
+
 - Focus on user behaviors, system behaviors, and business outcomes
 - Avoid technical implementation details (no specific function names, file paths, or code snippets)
 - Refer to concepts generically (e.g., "state management", "UI components", "navigation controls")
@@ -28,16 +29,19 @@
 **Examples of Good vs Bad Descriptions:**
 
 ✅ **Good** (High-level, behavior-focused):
+
 - "Create a view component that displays a chronological list of played files"
 - "Add navigation controls for moving backward and forward through history"
 - "Track file launches across all playback modes with timestamps"
 
 ❌ **Bad** (Too technical, implementation-focused):
+
 - "Create PlayHistoryComponent.ts with FileItem[] array and @Input() deviceId"
 - "Implement navigateBackward() method in PlayerStore using updateState()"
 - "Add playHistory: HistoryEntry[] to DevicePlayerState interface"
 
 **Generic Concept Language:**
+
 - State structure, state management, data structure
 - View components, UI components, display components
 - Actions, operations, behaviors
@@ -46,6 +50,7 @@
 - Integration points, coordination, communication
 
 **Focus Areas:**
+
 - **User Value**: What benefit does this provide to users?
 - **Behaviors**: What happens when users interact with the feature?
 - **States**: What different modes or conditions exist?
@@ -67,11 +72,13 @@ Each planning document should include:
 ### Phase Structure Best Practices
 
 **Independent Value:**
+
 - Each phase should deliver something demonstrable and valuable on its own
 - Phases build on each other without requiring future phases to be useful
 - Early phases validate core concepts before adding complexity
 
 **Phase Components:**
+
 - **Objective**: What this phase achieves
 - **Key Deliverables**: Specific outcomes (checkbox format for tracking)
 - **High-Level Tasks**: Major activities needed to complete the phase
@@ -90,6 +97,7 @@ Each planning document should include:
 **Third Paragraph** (optional): Any broader system benefits or architectural improvements.
 
 **Example:**
+
 > Enable users to track and navigate through their playback history across all player modes (Directory, Shuffle, Search). The history system provides a familiar browser-like navigation experience, particularly valuable in shuffle mode where users can revisit previously played files. The feature includes a dedicated history view component that can be toggled on/off, intelligently switching between directory navigation, search results, and play history based on user context.
 >
 > **User Value**: Users in shuffle mode can navigate backward through their play history to replay favorite discoveries, while all users benefit from a complete playback timeline showing what they've listened to or viewed. The browser-style forward/backward navigation feels intuitive and familiar.
@@ -126,6 +134,7 @@ Each planning document should include:
 - **Question Category**: Specific decision that needs to be made with context
 
 **Example:**
+
 > - **History Entry Deduplication**: If the same file is played multiple times, should each play create a new history entry, or should we group consecutive duplicates?
 > - **Maximum History Size**: What is the optimal maximum number of history entries before we start removing oldest entries?
 
@@ -201,6 +210,7 @@ Each planning document should include:
 - **Decision Name**: Explanation of the approach and rationale
 
 **Example:**
+
 > - **Browser-Style History**: Use familiar forward/backward navigation pattern where going backward then launching a new file clears forward history, matching user expectations from web browsing
 > - **Shuffle-Only Navigation**: Restrict backward/forward history navigation to shuffle mode only, while still tracking history in all modes for visibility and reference
 
@@ -212,6 +222,7 @@ Each planning document should include:
 - **System/Component Name**: How this feature integrates with the existing system
 
 **Example:**
+
 > - **Player Store**: History tracking integrates directly into existing device player state alongside current file and file context
 > - **Navigation Actions**: History navigation actions coordinate with existing navigate previous/next actions, conditionally replacing shuffle mode behavior
 > - **Storage Container**: View switching logic extends to manage three views instead of two, with intelligent automatic hiding
@@ -232,6 +243,7 @@ Each planning document should include:
 - [ ] Test category or behavior area E
 
 **Example:**
+
 > - [ ] History state structure initialization and cleanup
 > - [ ] History recording action adds entries correctly
 > - [ ] Forward history clearing when navigating after going backward
@@ -244,6 +256,7 @@ Each planning document should include:
 - [ ] Multi-component flow or interaction D
 
 **Example:**
+
 > - [ ] Complete history tracking flow across different launch modes
 > - [ ] History navigation integration with player service file launching
 > - [ ] View switching logic between directory, search, and history views
@@ -256,6 +269,7 @@ Each planning document should include:
 - [ ] Edge case or error scenario D
 
 **Example:**
+
 > - [ ] User launches files in shuffle mode and navigates backward through history
 > - [ ] User toggles history view on/off in directory trail
 > - [ ] Search automatically hides history view and shows search results
@@ -277,6 +291,7 @@ Each planning document should include:
 - [ ] Feature ready for production deployment
 
 **Example:**
+
 > - [ ] Play history is tracked for all file launches regardless of mode (Directory, Shuffle, Search)
 > - [ ] Users can navigate backward/forward through history in shuffle mode using previous/next controls
 > - [ ] Going backward in history then launching a new file clears forward history (browser behavior)
@@ -300,6 +315,7 @@ Given [initial state or context]
 When [user action or system event]
 Then [expected outcome or behavior]
 ```
+
 </details>
 
 <details open>
@@ -310,6 +326,7 @@ Given [initial state or context]
 When [user action or system event]
 Then [expected outcome or behavior]
 ```
+
 </details>
 
 <details open>
@@ -320,6 +337,7 @@ Given [initial state or context]
 When [user action or system event]
 Then [expected outcome or behavior]
 ```
+
 </details>
 
 ---
@@ -334,6 +352,7 @@ Given [initial state or context]
 When [user action or system event]
 Then [expected outcome or behavior]
 ```
+
 </details>
 
 <details open>
@@ -344,6 +363,7 @@ Given [initial state or context]
 When [user action or system event]
 Then [expected outcome or behavior]
 ```
+
 </details>
 
 ---
@@ -358,6 +378,7 @@ Given [initial state or context]
 When [user action or system event]
 Then [expected outcome or behavior]
 ```
+
 </details>
 
 ---
@@ -377,6 +398,7 @@ Given a user is browsing directory files
 When the user double-clicks a file to launch it
 Then the file is added to play history with a timestamp and Directory launch mode
 ```
+
 </details>
 
 <details open>
@@ -387,6 +409,7 @@ Given a user is in shuffle mode
 When a random file is launched
 Then the file is added to play history with a timestamp and Shuffle launch mode
 ```
+
 </details>
 
 </details>
@@ -394,6 +417,7 @@ Then the file is added to play history with a timestamp and Shuffle launch mode
 ---
 
 **Tips for Writing Scenarios:**
+
 - Use `<details open>` blocks with `<summary>` for collapsible, scannable scenarios
 - Wrap Given-When-Then in ` ```gherkin ` code blocks for syntax highlighting and visual boundaries
 - Stack Given, When, Then vertically (one per line) for easy reading
@@ -433,6 +457,7 @@ Then the file is added to play history with a timestamp and Shuffle launch mode
 - **Consideration 4**: Performance or scalability consideration
 
 **Example:**
+
 > - **History Size Limits**: Consider implementing a maximum history size (e.g., 100 entries) to prevent unbounded state growth over long sessions
 > - **History Persistence**: Current design stores history in memory only; future enhancement could persist history to local storage for cross-session continuity
 
@@ -443,6 +468,7 @@ Then the file is added to play history with a timestamp and Shuffle launch mode
 - **Enhancement 3**: Integration with future features
 
 **Example:**
+
 > - **History Search/Filter**: Allow users to search or filter their play history
 > - **Favorite/Bookmark from History**: Let users mark history entries as favorites
 > - **History Statistics**: Show playback statistics (most played, recently played, etc.)
@@ -452,13 +478,16 @@ Then the file is added to play history with a timestamp and Shuffle launch mode
 [Consolidate all open questions from each phase for easy reference]
 
 **Phase 1:**
+
 - Question from Phase 1
 - Question from Phase 1
 
 **Phase 2:**
+
 - Question from Phase 2
 
 **Phase N:**
+
 - Question from Phase N
 
 </details>
@@ -468,12 +497,14 @@ Then the file is added to play history with a timestamp and Shuffle launch mode
 ## 💡 Tips for Using This Template
 
 **Before Writing:**
+
 1. Review the existing codebase to understand current behavior patterns
 2. Identify similar features to use as behavior models
 3. Understand user workflows and pain points
 4. Consider how the feature fits into the broader architecture
 
 **While Writing:**
+
 1. Focus on behaviors users will see, not code structures
 2. Use generic concept names instead of specific artifact names
 3. Break work into phases that each deliver independent value
@@ -482,6 +513,7 @@ Then the file is added to play history with a timestamp and Shuffle launch mode
 6. Keep language non-technical and accessible
 
 **After Writing:**
+
 1. Verify each phase can stand alone and deliver value
 2. Ensure scenarios cover happy path, alternatives, and edge cases
 3. Check that success criteria are measurable and specific

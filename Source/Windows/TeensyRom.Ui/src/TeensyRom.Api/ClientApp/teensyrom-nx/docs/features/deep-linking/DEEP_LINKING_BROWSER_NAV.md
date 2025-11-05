@@ -15,11 +15,13 @@ Enable browser back/forward button navigation to trigger file relaunches based o
 > Review these documents before starting implementation.
 
 **Feature Documentation:**
+
 - [x] [DEEP_LINKING_PLAN.md](./DEEP_LINKING_PLAN.md) - Deep linking architecture and Phase 1-3 implementation
 - [x] [player-route.resolver.ts](../../../libs/app/navigation/src/lib/player-route.resolver.ts) - Current resolver implementation
 - [x] [player-context.service.ts](../../../libs/application/src/lib/player/player-context.service.ts) - Service that handles file launching
 
 **Standards & Guidelines:**
+
 - [x] [Coding Standards](../../CODING_STANDARDS.md) - General coding patterns and conventions
 - [x] [Testing Standards](../../TESTING_STANDARDS.md) - Testing approaches and best practices
 - [x] [Service Standards](../../SERVICE_STANDARDS.md) - Service layer patterns and DI
@@ -71,11 +73,13 @@ apps/teensyrom-ui-e2e/src/e2e/player/
 **Purpose**: Add browser `popstate` event listener to detect back/forward navigation and relaunch files based on URL query parameters.
 
 **Related Documentation:**
+
 - [Location API - MDN](https://developer.mozilla.org/en-US/docs/Web/API/Location)
 - [PopState Event - MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/popstate_event)
 - [Service Standards](../../SERVICE_STANDARDS.md) - Dependency injection patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Add private field**: Add `popstateListener` property to track the event listener for cleanup
 - [ ] **Create startListeningToPopState method**: Public method that registers `popstate` event listener
 - [ ] **Create stopListeningToPopState method**: Public method that removes `popstate` event listener
@@ -84,17 +88,20 @@ apps/teensyrom-ui-e2e/src/e2e/player/
 - [ ] **Update PLAYER_CONTEXT injection token**: Ensure contract includes new methods
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test popstate listener behaviors (see Testing section below)
 
 **Key Implementation Notes:**
 
 **PopState Listener Pattern**:
+
 - Use native browser `window.addEventListener('popstate', ...)` not Angular Router events
 - Listener fires when user clicks back/forward buttons
 - Does NOT fire when `location.go()` is called (only actual browser navigation)
 - Must cleanup listener to avoid memory leaks
 
 **URL Parsing Strategy**:
+
 - Use Angular `ActivatedRoute` or parse `window.location.search` directly
 - Extract query parameters: `device`, `storage`, `path`, `file`
 - If all 4 parameters present → relaunch file
@@ -102,12 +109,14 @@ apps/teensyrom-ui-e2e/src/e2e/player/
 - If fewer parameters → do nothing (let normal navigation work)
 
 **Integration with Existing Code**:
+
 - Reuse existing `launchFileWithContext()` method for file launches
 - Reuse `StorageStore.navigateToDirectory()` for directory-only navigation
 - Handle missing files gracefully (show alert via `ALERT_SERVICE`)
 - Prevent duplicate URL updates (set flag during popstate handling)
 
 **Lifecycle Management**:
+
 - Start listening: Called from route resolver after initialization
 - Stop listening: Called when player is destroyed (optional, but clean)
 - Guard against multiple registrations
@@ -117,6 +126,7 @@ apps/teensyrom-ui-e2e/src/e2e/player/
 > Focus on **behavioral testing** - what observable outcomes occur?
 
 **Behaviors to Test:**
+
 - [ ] **Behavior A**: `startListeningToPopState()` registers event listener without errors
 - [ ] **Behavior B**: `stopListeningToPopState()` removes event listener and allows re-registration
 - [ ] **Behavior C**: PopState with valid 4 parameters relaunches file
@@ -126,6 +136,7 @@ apps/teensyrom-ui-e2e/src/e2e/player/
 - [ ] **Behavior G**: URL update suppressed during popstate handling (no duplicate history entries)
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for behavioral testing patterns
 - See [Service Standards](../../SERVICE_STANDARDS.md) for service testing examples
 
@@ -139,10 +150,12 @@ apps/teensyrom-ui-e2e/src/e2e/player/
 **Purpose**: Implement the popstate listener logic in `PlayerContextService` to handle browser navigation events.
 
 **Related Documentation:**
+
 - [player-context.service.ts](../../../libs/application/src/lib/player/player-context.service.ts) - Current implementation
 - [Service Standards](../../SERVICE_STANDARDS.md#dependency-injection) - DI patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Inject dependencies**: Add `ActivatedRoute` and `ALERT_SERVICE` to constructor if not already present
 - [ ] **Add private fields**: Add `popstateListener` and `isHandlingPopState` flag
 - [ ] **Implement startListeningToPopState**: Register event listener with `handlePopState` handler
@@ -152,11 +165,13 @@ apps/teensyrom-ui-e2e/src/e2e/player/
 - [ ] **Add alert integration**: Show warning alerts for missing files via `ALERT_SERVICE`
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify service methods work correctly (see Testing section below)
 
 **Key Implementation Notes:**
 
 **PopState Handler Logic Flow**:
+
 ```
 1. Parse URL query parameters (device, storage, path, file)
 2. Validate all required parameters present
@@ -173,17 +188,20 @@ apps/teensyrom-ui-e2e/src/e2e/player/
 ```
 
 **URL Update Suppression**:
+
 - Check `isHandlingPopState` flag before calling `location.go()`
 - Prevents duplicate history entries during back/forward navigation
 - Flag automatically resets after handler completes
 
 **Error Handling**:
+
 - Missing required parameters: Log warning, no alert (expected for non-deep-link URLs)
 - File not found: Show warning alert via `ALERT_SERVICE`
 - Directory load failure: Show warning alert via `ALERT_SERVICE`
 - API errors: Handled by existing error handling in stores
 
 **Listener Cleanup Pattern**:
+
 ```typescript
 // Store bound function reference for removeEventListener
 private popstateListener: ((event: PopStateEvent) => void) | null = null;
@@ -205,6 +223,7 @@ stopListeningToPopState(): void {
 **Testing Focus for Task 2:**
 
 **Behaviors to Test:**
+
 - [ ] **Service initialization**: Listener not registered by default
 - [ ] **Start listener**: Listener registered successfully
 - [ ] **Stop listener**: Listener removed successfully
@@ -214,6 +233,7 @@ stopListeningToPopState(): void {
 - [ ] **Alert integration**: Warning alerts shown for errors
 
 **Testing Reference:**
+
 - Unit test with mocked `StorageStore`, `ALERT_SERVICE`
 - Spy on `window.addEventListener` and `window.removeEventListener`
 - Simulate popstate events via `window.dispatchEvent(new PopStateEvent('popstate'))`
@@ -228,30 +248,34 @@ stopListeningToPopState(): void {
 **Purpose**: Add lifecycle methods to the `IPlayerContext` domain contract to expose popstate listener management.
 
 **Related Documentation:**
+
 - [player-context.interface.ts](../../../libs/application/src/lib/player/player-context.interface.ts) - Contract definition
 
 **Implementation Subtasks:**
+
 - [ ] **Add startListeningToPopState**: Add method signature to interface
 - [ ] **Add stopListeningToPopState**: Add method signature to interface
 - [ ] **Add JSDoc comments**: Document purpose and usage of new methods
 
 **Testing Subtask:**
+
 - [ ] **No tests needed**: Interfaces are not tested, used as contracts
 
 **Key Implementation Notes:**
 
 **Interface Contract**:
+
 ```typescript
 export interface IPlayerContext {
   // ... existing methods ...
-  
+
   /**
    * Start listening to browser popstate events for back/forward navigation.
    * Automatically relaunches files based on URL query parameters.
    * Should be called once during player initialization (e.g., from route resolver).
    */
   startListeningToPopState(): void;
-  
+
   /**
    * Stop listening to browser popstate events.
    * Cleans up event listener to prevent memory leaks.
@@ -273,24 +297,29 @@ export interface IPlayerContext {
 **Purpose**: Call `startListeningToPopState()` from the route resolver to activate browser navigation support when player route is accessed.
 
 **Related Documentation:**
+
 - [player-route.resolver.ts](../../../libs/app/navigation/src/lib/player-route.resolver.ts) - Resolver implementation
 
 **Implementation Subtasks:**
+
 - [ ] **Inject PlayerContextService**: Add to `initPlayer()` function parameters
 - [ ] **Call startListeningToPopState**: Add call after storage initialization completes
 - [ ] **Add logging**: Log when listener starts for debugging visibility
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify resolver calls listener method (see Testing section below)
 
 **Key Implementation Notes:**
 
 **Resolver Integration Point**:
+
 - Call `playerContextService.startListeningToPopState()` in `initPlayer()` function
 - Place after `initializeAllDeviceStorage()` completes (ensures stores are ready)
 - Place before `initDeeplinking()` (deep linking may trigger file launches)
 
 **Orchestration Order**:
+
 ```
 1. waitForDeviceStoreInitialization()
 2. initializeAllDeviceStorage()
@@ -299,17 +328,20 @@ export interface IPlayerContext {
 ```
 
 **Error Handling**:
+
 - No try-catch needed - `startListeningToPopState()` is synchronous and won't throw
 - Service handles multiple calls gracefully (guards against double-registration)
 
 **Testing Focus for Task 4:**
 
 **Behaviors to Test:**
+
 - [ ] **Resolver calls listener**: `startListeningToPopState()` called during initialization
 - [ ] **Call happens after storage init**: Listener starts after devices/storage ready
 - [ ] **Call happens before deep linking**: Listener active before initial file launch
 
 **Testing Reference:**
+
 - Integration test with real resolver and mocked services
 - Spy on `PlayerContextService.startListeningToPopState()`
 - Verify call sequence matches orchestration order
@@ -324,21 +356,25 @@ export interface IPlayerContext {
 **Purpose**: Add Cypress E2E test validating that browser back/forward buttons trigger file relaunches based on URL query parameters.
 
 **Related Documentation:**
+
 - [E2E_TESTS.md](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - E2E testing guide
 - [deep-linking.cy.ts](../../../apps/teensyrom-ui-e2e/src/e2e/player/deep-linking.cy.ts) - Existing deep linking tests
 
 **Implementation Subtasks:**
+
 - [ ] **Add test suite**: Create `Browser Back/Forward Navigation` describe block
 - [ ] **Add test**: "relaunches file when browser back button clicked"
 - [ ] **Add test**: "relaunches file when browser forward button clicked"
 - [ ] **Use existing helpers**: Leverage `goBack()`, `goForward()`, `expectFileIsLaunched()`, etc.
 
 **Testing Subtask:**
+
 - [ ] **Run tests**: Verify tests pass with implementation (`pnpm nx e2e teensyrom-ui-e2e`)
 
 **Key Implementation Notes:**
 
 **Test Scenario Pattern**:
+
 ```gherkin
 Given a user has launched File A
 And navigates to File B (URL updated in history)
@@ -349,6 +385,7 @@ And browser forward should still work to get back to File B
 ```
 
 **Test Structure**:
+
 ```typescript
 describe('Browser Back/Forward Navigation', () => {
   it('relaunches file when browser back button clicked', () => {
@@ -356,21 +393,21 @@ describe('Browser Back/Forward Navigation', () => {
     navigateToPlayerWithParams({ device, storage, path, file: fileA });
     waitForFileToLoad();
     expectFileIsLaunched(fileA.title);
-    
+
     // 2. Launch file B (via click or next button)
     clickNextButton();
     waitForFileInfoToAppear();
     expectFileIsLaunched(fileB.title);
-    
+
     // 3. Click browser back
     goBack();
-    
+
     // 4. Verify file A relaunched
     waitForFileInfoToAppear();
     expectFileIsLaunched(fileA.title);
     expectUrlContainsParams({ device, storage, path, file: fileA.fileName });
   });
-  
+
   it('relaunches file when browser forward button clicked', () => {
     // Similar pattern but test forward after back
   });
@@ -378,6 +415,7 @@ describe('Browser Back/Forward Navigation', () => {
 ```
 
 **Interceptor Requirements**:
+
 - Reuse `interceptLaunchFile({ filesystem })` for file launches
 - Reuse `interceptGetDirectory({ filesystem })` for directory loads
 - No new interceptors needed
@@ -385,12 +423,14 @@ describe('Browser Back/Forward Navigation', () => {
 **Testing Focus for Task 5:**
 
 **Behaviors to Test:**
+
 - [ ] **Browser back relaunches previous file**: File A → File B → Back → File A launches
 - [ ] **Browser forward relaunches next file**: File A → File B → Back → Forward → File B launches
 - [ ] **URL updates correctly**: URL reflects currently playing file after navigation
 - [ ] **Multiple back/forward cycles work**: Can navigate back and forward multiple times
 
 **Testing Reference:**
+
 - See [E2E_TESTS.md](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) for Cypress patterns
 - Use existing helpers from `test-helpers.ts`
 - Follow existing test structure in `deep-linking.cy.ts`
@@ -402,6 +442,7 @@ describe('Browser Back/Forward Navigation', () => {
 ## 🗂️ Files Modified or Created
 
 **Modified Files:**
+
 - `libs/application/src/lib/player/player-context.service.ts` - Add popstate listener logic
 - `libs/application/src/lib/player/player-context.interface.ts` - Add lifecycle methods to contract
 - `libs/app/navigation/src/lib/player-route.resolver.ts` - Call listener on initialization
@@ -417,18 +458,21 @@ describe('Browser Back/Forward Navigation', () => {
 > **IMPORTANT:** Tests are written **within each task above**, not here. This section is only a summary for quick reference.
 
 > **Core Testing Philosophy:**
+>
 > - **Favor behavioral testing** - test what users/consumers observe, not how it's implemented
 > - **Test as you go** - tests are integrated into each task's subtasks, not deferred to the end
 > - **Test through public APIs** - services should be tested through their public interfaces
 > - **Mock at boundaries** - mock infrastructure services, not internal logic
 
 > **Reference Documentation:**
+>
 > - **All tasks**: [Testing Standards](../../TESTING_STANDARDS.md) - Core behavioral testing approach
 > - **Service testing**: [Service Standards](../../SERVICE_STANDARDS.md) - Service layer testing patterns
 
 ### Where Tests Are Written
 
 **Tests are embedded in each task above** with:
+
 - **Testing Subtask**: Checkbox in the task's subtask list (e.g., "Write Tests: Test behaviors for this task")
 - **Testing Focus**: "Behaviors to Test" section listing observable outcomes
 - **Testing Reference**: Links to relevant testing documentation
@@ -438,6 +482,7 @@ describe('Browser Back/Forward Navigation', () => {
 ### Test Coverage
 
 **Unit Tests (PlayerContextService)**:
+
 - PopState listener registration/cleanup
 - URL parameter parsing
 - File relaunch on valid parameters
@@ -446,10 +491,12 @@ describe('Browser Back/Forward Navigation', () => {
 - URL update suppression during popstate handling
 
 **Integration Tests (Route Resolver)**:
+
 - Resolver calls `startListeningToPopState()` during initialization
 - Call sequencing relative to storage initialization
 
 **E2E Tests (Cypress)**:
+
 - Browser back button relaunches previous file
 - Browser forward button relaunches next file
 - URL updates correctly after browser navigation
@@ -458,6 +505,7 @@ describe('Browser Back/Forward Navigation', () => {
 ### Test Execution Commands
 
 **Running Unit Tests:**
+
 ```bash
 # Run tests for player application layer
 npx nx test application
@@ -467,6 +515,7 @@ npx nx test application --watch
 ```
 
 **Running E2E Tests:**
+
 ```bash
 # Run all E2E tests
 pnpm nx e2e teensyrom-ui-e2e
@@ -488,6 +537,7 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Functional Requirements:**
+
 - [ ] All implementation tasks completed and checked off
 - [ ] All subtasks within each task completed
 - [ ] `startListeningToPopState()` method implemented in `PlayerContextService`
@@ -498,6 +548,7 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 - [ ] Code follows [Coding Standards](../../CODING_STANDARDS.md)
 
 **Testing Requirements:**
+
 - [ ] All testing subtasks completed within each task
 - [ ] All behavioral test checkboxes verified
 - [ ] Unit tests for `PlayerContextService` popstate logic passing
@@ -507,6 +558,7 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 - [ ] All tests passing with no failures
 
 **Quality Checks:**
+
 - [ ] No TypeScript errors or warnings
 - [ ] Linting passes with no errors (`pnpm nx lint`)
 - [ ] Code formatting is consistent
@@ -514,11 +566,13 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 - [ ] No memory leaks from event listeners (cleanup verified)
 
 **Documentation:**
+
 - [ ] Inline code comments added for popstate handler logic
 - [ ] JSDoc comments added to interface methods
 - [ ] DEEP_LINKING_PLAN.md updated with completion status
 
 **User Experience:**
+
 - [ ] Browser back button relaunches previous file
 - [ ] Browser forward button relaunches next file
 - [ ] URL accurately reflects current file after browser navigation
@@ -527,6 +581,7 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 - [ ] Multiple back/forward cycles work smoothly
 
 **Ready for Production:**
+
 - [ ] All success criteria met
 - [ ] No known bugs or issues
 - [ ] Manually tested with real devices (if available)
@@ -542,21 +597,25 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 ### Design Decisions
 
 **Decision 1: Service-Level Popstate Handling**
+
 - **Rationale**: `PlayerContextService` already manages file launching and URL updates—it's the natural place for browser navigation handling. Keeps all navigation logic centralized.
 - **Alternative Considered**: Component-level listener was considered but would couple navigation logic to UI layer and complicate lifecycle management.
 - **Trade-off**: Service must have slightly more responsibility but maintains better separation of concerns.
 
 **Decision 2: Listener Lifecycle via Route Resolver**
+
 - **Rationale**: Resolver already orchestrates player initialization—adding listener startup here keeps initialization logic together and ensures listener is active when player route is accessed.
 - **Alternative Considered**: APP_INITIALIZER or component ngOnInit were considered but resolver provides best integration point with existing architecture.
 - **Trade-off**: Resolver has additional responsibility but avoids component coupling.
 
 **Decision 3: URL Update Suppression Flag**
+
 - **Rationale**: During popstate handling, we launch files which would normally update the URL again via `location.go()`. This would create duplicate history entries. A flag suppresses URL updates during popstate.
 - **Alternative Considered**: Could refactor URL update logic to accept a flag parameter, but internal flag is simpler and less invasive.
 - **Trade-off**: Slightly more state to manage but prevents duplicate history entries cleanly.
 
 **Decision 4: Alert Service Integration**
+
 - **Rationale**: Users should see warning alerts when browser navigation fails (file not found, directory load failed). Provides feedback that navigation was attempted but couldn't complete.
 - **Alternative Considered**: Silent failures, but this provides poor UX—users wouldn't know why navigation didn't work.
 - **Trade-off**: Additional dependency on `ALERT_SERVICE` but significantly improves user experience.
@@ -564,16 +623,19 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 ### Implementation Constraints
 
 **Constraint 1: PopState Event Timing**
+
 - PopState events fire **after** the URL has already changed
 - Handler must parse the **current** URL (not event state) to get parameters
 - Angular `ActivatedRoute` may not update synchronously—use `window.location.search` for parsing
 
 **Constraint 2: Storage Initialization Requirement**
+
 - Popstate handler requires `StorageStore` to be initialized to load directories
 - Listener must start after storage initialization in resolver
 - Early navigation before storage ready should be handled gracefully (no crashes)
 
 **Constraint 3: Cross-Device Navigation**
+
 - URL may reference a different device than currently selected
 - Handler should validate device exists in `DeviceStore` before attempting navigation
 - Graceful fallback for missing devices (show alert, don't crash)
@@ -581,16 +643,19 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 ### Future Enhancements
 
 **Enhancement 1: Preserve Player State**
+
 - Currently only relaunches files—playback position, timer state, etc. are reset
 - Future: Could preserve and restore player state (play/pause status, timer position)
 - Would require serializing state to URL or session storage
 
 **Enhancement 2: Deep Link Validation**
+
 - Currently assumes URL parameters are valid if present
 - Future: Could add validation service to check device connectivity, storage availability before attempting navigation
 - Would provide better error messages for invalid deep links
 
 **Enhancement 3: Loading States**
+
 - Currently no visual indication when browser navigation triggers file launch
 - Future: Could show loading spinner or toast during navigation
 - Would improve perceived performance for slower operations
@@ -598,16 +663,19 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 ### Potential Edge Cases
 
 **Edge Case 1: Rapid Back/Forward Clicks**
+
 - User rapidly clicking back/forward could trigger multiple overlapping file launches
 - **Mitigation**: Debounce handler or check if launch is already in progress
 - **Priority**: Low - unlikely to occur in normal usage
 
 **Edge Case 2: Navigation During Active Playback**
+
 - Browser back during music playback could interrupt timer
 - **Mitigation**: Current timer cleanup logic should handle this correctly
 - **Priority**: Low - existing code handles state transitions
 
 **Edge Case 3: Device Disconnect During Navigation**
+
 - User navigates back to file on device that is now disconnected
 - **Mitigation**: Existing error handling in stores should show appropriate error
 - **Priority**: Medium - should show meaningful error to user
@@ -661,6 +729,7 @@ Before starting implementation:
 ### Debugging Tips
 
 **If browser back/forward doesn't work:**
+
 1. Check browser console for errors
 2. Verify listener was registered (add log statement)
 3. Verify popstate event fires (add log in handler)
@@ -668,12 +737,14 @@ Before starting implementation:
 5. Verify storage and device stores are initialized
 
 **If file doesn't relaunch:**
+
 1. Verify URL parameters are parsed correctly
 2. Check if file exists in directory (log directory.files)
 3. Verify `launchFileWithContext()` is called
 4. Check for errors in player store
 
 **If URL updates during popstate:**
+
 1. Verify `isHandlingPopState` flag is set before launch
 2. Check flag is checked in `updateUrlForLaunchedFile()`
 3. Verify flag resets after handler completes
@@ -702,17 +773,20 @@ Before starting implementation:
 ### PopState Event vs Angular Router
 
 **PopState Event** (Browser Native):
+
 - Fires when browser back/forward buttons clicked
 - Fires when `history.back()` / `history.forward()` called
 - Does NOT fire when `location.go()` called
 - Does NOT fire when `router.navigate()` called
 
 **Angular Router**:
+
 - Fires NavigationEnd event on route changes
 - Does NOT fire on query parameter changes when using `location.go()`
 - Route resolvers only run on initial navigation to route
 
 **Why We Need PopState**:
+
 - We use `location.go()` to avoid re-running resolver on every file change
 - This means Angular Router doesn't detect URL changes
 - PopState listener is the only way to detect browser back/forward clicks

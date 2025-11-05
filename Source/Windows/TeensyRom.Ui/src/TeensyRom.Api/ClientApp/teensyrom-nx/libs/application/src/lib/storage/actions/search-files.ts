@@ -6,10 +6,7 @@ import { WritableStore } from '../storage-helpers';
 import { createAction, LogType, logInfo, logError } from '@teensyrom-nx/utils';
 import { updateState } from '@angular-architects/ngrx-toolkit';
 
-export function searchFiles(
-  store: WritableStore<StorageState>,
-  storageService: IStorageService
-) {
+export function searchFiles(store: WritableStore<StorageState>, storageService: IStorageService) {
   return {
     searchFiles: async ({
       deviceId,

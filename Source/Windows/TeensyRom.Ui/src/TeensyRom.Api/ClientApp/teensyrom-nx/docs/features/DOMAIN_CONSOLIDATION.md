@@ -17,7 +17,9 @@ This represents the final step in the domain refactoring process, creating a cle
 ## Current Domain Structure Analysis
 
 ### Files to Consolidate from Device Domain (`libs/domain/device/services/`)
+
 **Models & Contracts (5 files):**
+
 - `src/lib/device.models.ts` - Device domain models
 - `src/lib/contracts/device.contract.ts` - IDeviceService interface + token
 - `src/lib/contracts/device-logs.contract.ts` - IDeviceLogsService interface + token
@@ -25,41 +27,54 @@ This represents the final step in the domain refactoring process, creating a cle
 - `src/lib/contracts/storage.contract.ts` - IStorageService interface + token (device-specific)
 
 **Configuration Files:**
+
 - `src/index.ts`, `project.json`, `tsconfig.*`, `eslint.config.mjs`, `README.md`, etc.
 
 ### Files to Consolidate from Storage Domain (`libs/domain/storage/services/`)
+
 **Models & Contracts (2 files):**
+
 - `src/lib/storage.models.ts` - Storage domain models
 - `src/lib/contracts/storage.contract.ts` - IStorageService interface + token
 
 **Configuration Files:**
+
 - `src/index.ts`, `project.json`, `tsconfig.*`, `vite.config.ts`, etc.
 
 ## Import Usage Analysis
 
 ### Application Library Dependencies (20+ files)
+
 **Device Imports:**
+
 - `libs/application/src/lib/device/device-store.ts` → Device models + contracts
 - `libs/application/src/lib/device/methods/*.ts` (8 files) → Device + storage interfaces/tokens
 
 **Storage Imports:**
-- `libs/application/src/lib/storage/storage-store.ts` → Storage models 
+
+- `libs/application/src/lib/storage/storage-store.ts` → Storage models
 - `libs/application/src/lib/storage/actions/*.ts` (9 files) → Storage interfaces/tokens
 - `libs/application/src/lib/storage/*.ts` (3 files) → Storage models
 
 ### Infrastructure Library Dependencies (20+ files)
+
 **Device Infrastructure:**
+
 - `libs/infrastructure/src/lib/device/*.ts` (6 files) → Device models + interfaces
 
 **Storage Infrastructure:**
+
 - `libs/infrastructure/src/lib/storage/*.ts` (6 files) → Storage models + interfaces
 
 ### Feature Library Dependencies (20+ files)
+
 **Device Features:**
+
 - `libs/features/devices/src/lib/device-view/device-logs/*.ts` → Device interfaces/tokens
 - `libs/features/devices/src/lib/device-view/device-item/*.ts` → Device models
 
 **Player Features:**
+
 - `libs/features/player/src/lib/player-view/*.ts` (10+ files) → Storage models + Device models
 - Various component files → DirectoryItem, FileItem, FileItemType, StorageType, etc.
 
@@ -68,6 +83,7 @@ This represents the final step in the domain refactoring process, creating a cle
 ### Phase 1: Create Consolidated Domain Library
 
 #### 1.1 Generate Domain Library
+
 - [ ] **Create domain Nx library using NX standards**
   ```bash
   npx nx generate @nrwl/angular:library \
@@ -83,27 +99,29 @@ This represents the final step in the domain refactoring process, creating a cle
   - Confirm barrel export in `src/index.ts`
 
 #### 1.2 Configure Domain Library Structure
+
 - [ ] **Create domain-specific folders within domain**
   ```
   libs/domain/src/lib/
   ├── device/                    # Device domain
-  │   ├── models/               
+  │   ├── models/
   │   │   └── device.models.ts   # Device, DeviceStorage, etc.
-  │   └── contracts/             
+  │   └── contracts/
   │       ├── device.contract.ts          # IDeviceService + token
   │       ├── device-logs.contract.ts     # IDeviceLogsService + token
   │       ├── device-events.contract.ts   # IDeviceEventsService + token
   │       └── storage.contract.ts         # IStorageService (device) + token
   ├── storage/                   # Storage domain
-  │   ├── models/               
+  │   ├── models/
   │   │   └── storage.models.ts  # StorageDirectory, FileItem, etc.
-  │   └── contracts/             
+  │   └── contracts/
   │       └── storage.contract.ts         # IStorageService + token
   └── shared/                    # Future shared domain concepts
       └── (future common models/interfaces)
   ```
 
 #### 1.3 Configure Dependencies
+
 - [ ] **Update `project.json` with minimal dependencies**
   ```json
   {
@@ -121,19 +139,23 @@ This represents the final step in the domain refactoring process, creating a cle
 ### Phase 2: Move Domain Files to Consolidated Library
 
 #### 2.1 Move Device Domain Files
+
 - [ ] **Copy device models to `libs/domain/src/lib/device/models/device.models.ts`**
+
   - Source: `libs/domain/device/services/src/lib/device.models.ts`
   - No import changes needed (pure models)
 
 - [ ] **Copy device contracts to `libs/domain/src/lib/device/contracts/`**
   - `device.contract.ts` (IDeviceService + DEVICE_SERVICE token)
-  - `device-logs.contract.ts` (IDeviceLogsService + DEVICE_LOGS_SERVICE token)  
+  - `device-logs.contract.ts` (IDeviceLogsService + DEVICE_LOGS_SERVICE token)
   - `device-events.contract.ts` (IDeviceEventsService + DEVICE_EVENTS_SERVICE token)
   - `storage.contract.ts` (IStorageService for device + DEVICE_STORAGE_SERVICE token)
   - Verify all Angular imports remain correct
 
 #### 2.2 Move Storage Domain Files
+
 - [ ] **Copy storage models to `libs/domain/src/lib/storage/models/storage.models.ts`**
+
   - Source: `libs/domain/storage/services/src/lib/storage.models.ts`
   - No import changes needed (pure models/enums)
 
@@ -142,7 +164,9 @@ This represents the final step in the domain refactoring process, creating a cle
   - Verify Angular imports remain correct
 
 #### 2.3 Configure Domain Library Exports
+
 - [ ] **Update `libs/domain/src/index.ts`**
+
   ```typescript
   // Device domain exports
   export * from './lib/device/models/device.models';
@@ -150,11 +174,11 @@ This represents the final step in the domain refactoring process, creating a cle
   export * from './lib/device/contracts/device-logs.contract';
   export * from './lib/device/contracts/device-events.contract';
   export * from './lib/device/contracts/storage.contract';
-  
+
   // Storage domain exports
   export * from './lib/storage/models/storage.models';
   export * from './lib/storage/contracts/storage.contract';
-  
+
   // Future: Additional domain exports will go here
   // export * from './lib/player/models/player.models';
   // export * from './lib/user/contracts/user.contract';
@@ -163,6 +187,7 @@ This represents the final step in the domain refactoring process, creating a cle
 ### Phase 3: Update TypeScript Configuration
 
 #### 3.1 Add Domain Library Path Mapping
+
 - [ ] **Update `tsconfig.base.json` paths**
   ```json
   "paths": {
@@ -175,22 +200,37 @@ This represents the final step in the domain refactoring process, creating a cle
   ```
 
 #### 3.2 Copy Configuration Files
+
 - [ ] **Create proper configuration files for domain library**
   - Copy `tsconfig.lib.json` from device services (adjust paths)
-  - Copy `tsconfig.spec.json` from device services (adjust coverage directory)  
+  - Copy `tsconfig.spec.json` from device services (adjust coverage directory)
   - Copy `vite.config.mts` from device services (adjust cache/coverage paths)
   - Copy `eslint.config.mjs` from device services (no changes needed)
 
 ### Phase 4: Update Application Library Dependencies
 
 #### 4.1 Update Device Store and Methods
+
 - [ ] **Update `libs/application/src/lib/device/device-store.ts`**
+
   ```typescript
   // Before:
-  import { Device, IDeviceService, DEVICE_SERVICE, IStorageService, DEVICE_STORAGE_SERVICE } from '@teensyrom-nx/domain/device/services';
-  
+  import {
+    Device,
+    IDeviceService,
+    DEVICE_SERVICE,
+    IStorageService,
+    DEVICE_STORAGE_SERVICE,
+  } from '@teensyrom-nx/domain/device/services';
+
   // After:
-  import { Device, IDeviceService, DEVICE_SERVICE, IStorageService, DEVICE_STORAGE_SERVICE } from '@teensyrom-nx/domain';
+  import {
+    Device,
+    IDeviceService,
+    DEVICE_SERVICE,
+    IStorageService,
+    DEVICE_STORAGE_SERVICE,
+  } from '@teensyrom-nx/domain';
   ```
 
 - [ ] **Update device methods in `libs/application/src/lib/device/methods/`** (8 files)
@@ -198,16 +238,19 @@ This represents the final step in the domain refactoring process, creating a cle
   - Change imports from `@teensyrom-nx/domain/device/services` to `@teensyrom-nx/domain`
 
 #### 4.2 Update Storage Store and Actions
+
 - [ ] **Update `libs/application/src/lib/storage/storage-store.ts`**
+
   ```typescript
   // Before:
   import { StorageType, StorageDirectory } from '@teensyrom-nx/domain/storage/services';
-  
+
   // After:
   import { StorageType, StorageDirectory } from '@teensyrom-nx/domain';
   ```
 
 - [ ] **Update storage utilities**
+
   - `storage-key.util.ts` → Change storage imports to `@teensyrom-nx/domain`
   - `storage-helpers.ts` → Change storage imports to `@teensyrom-nx/domain`
 
@@ -218,6 +261,7 @@ This represents the final step in the domain refactoring process, creating a cle
 ### Phase 5: Update Infrastructure Library Dependencies
 
 #### 5.1 Update Device Infrastructure
+
 - [ ] **Update device services in `libs/infrastructure/src/lib/device/`** (6 files)
   - `device.service.ts` → Change device imports to `@teensyrom-nx/domain`
   - `device.mapper.ts` → Change device model imports to `@teensyrom-nx/domain`
@@ -227,6 +271,7 @@ This represents the final step in the domain refactoring process, creating a cle
   - `providers.ts` → Change token imports to `@teensyrom-nx/domain`
 
 #### 5.2 Update Storage Infrastructure
+
 - [ ] **Update storage services in `libs/infrastructure/src/lib/storage/`** (6 files)
   - `storage.service.ts` → Change all imports to `@teensyrom-nx/domain`
   - `storage.mapper.ts` → Change model imports to `@teensyrom-nx/domain`
@@ -236,11 +281,13 @@ This represents the final step in the domain refactoring process, creating a cle
 ### Phase 6: Update Feature Library Dependencies
 
 #### 6.1 Update Device Features
+
 - [ ] **Update device components in `libs/features/devices/src/lib/device-view/`**
   - `device-item/device-item.component.ts` → Change device model imports to `@teensyrom-nx/domain`
   - `device-logs/device-logs.component.ts` → Change interface/token imports to `@teensyrom-nx/domain`
 
 #### 6.2 Update Player Features (Major Updates)
+
 - [ ] **Update player components with storage/device model imports** (10+ files)
   - `player-view.component.ts` → Update StorageType, Device imports to `@teensyrom-nx/domain`
   - `player-device-container.component.ts` → Update Device imports to `@teensyrom-nx/domain`
@@ -250,6 +297,7 @@ This represents the final step in the domain refactoring process, creating a cle
   - `file-item/*.ts` → Update FileItem, FileItemType imports to `@teensyrom-nx/domain`
 
 #### 6.3 Update Feature Test Files
+
 - [ ] **Update test imports in feature libraries**
   - All `*.spec.ts` files referencing domain imports
   - Change from domain-specific paths to `@teensyrom-nx/domain`
@@ -257,6 +305,7 @@ This represents the final step in the domain refactoring process, creating a cle
 ### Phase 7: Build and Test Verification
 
 #### 7.1 Lint Verification
+
 - [ ] **Lint new domain library**
   ```bash
   npx nx lint domain
@@ -264,12 +313,13 @@ This represents the final step in the domain refactoring process, creating a cle
 - [ ] **Lint all affected libraries**
   ```bash
   npx nx lint application
-  npx nx lint infrastructure  
+  npx nx lint infrastructure
   npx nx lint features-devices
   npx nx lint features-player
   ```
 
 #### 7.2 Test Verification
+
 - [ ] **Run domain library tests** (should have minimal/no tests)
   ```bash
   npx nx test domain --run
@@ -283,6 +333,7 @@ This represents the final step in the domain refactoring process, creating a cle
   ```
 
 #### 7.3 Build Verification
+
 - [ ] **Build main application**
   ```bash
   npx nx build teensyrom-ui
@@ -293,6 +344,7 @@ This represents the final step in the domain refactoring process, creating a cle
   ```
 
 #### 7.4 Runtime Verification
+
 - [ ] **Serve application**
   ```bash
   npx nx serve teensyrom-ui
@@ -307,32 +359,38 @@ This represents the final step in the domain refactoring process, creating a cle
 ### Phase 8: Remove Legacy Domain Libraries
 
 #### 8.1 Remove Device Domain Library
+
 - [ ] **Delete entire `libs/domain/device/` directory**
   - Remove all source files, configuration files, and tests
   - This includes: `services/src/`, `project.json`, `tsconfig.*`, etc.
 
-#### 8.2 Remove Storage Domain Library  
+#### 8.2 Remove Storage Domain Library
+
 - [ ] **Delete entire `libs/domain/storage/` directory**
   - Remove all source files, configuration files, and tests
   - This includes: `services/src/`, `project.json`, `tsconfig.*`, etc.
 
 #### 8.3 Remove Domain Directory (Optional)
+
 - [ ] **Remove empty `libs/domain/` directory**
   - Should now be empty after removing device and storage
   - Clean up any remaining documentation files
 
 #### 8.4 Clean Up TypeScript Configuration
+
 - [ ] **Remove old path mappings from `tsconfig.base.json`**
+
   ```json
   // Remove these lines:
   "@teensyrom-nx/domain/device/services": ["libs/domain/device/services/src/index.ts"],
   "@teensyrom-nx/domain/storage/services": ["libs/domain/storage/services/src/index.ts"],
-  
+
   // Keep this line:
   "@teensyrom-nx/domain": ["libs/domain/src/index.ts"],
   ```
 
 #### 8.5 Verify No Broken References
+
 - [ ] **Search for any remaining old domain references**
   ```bash
   # Search for old import paths
@@ -345,7 +403,9 @@ This represents the final step in the domain refactoring process, creating a cle
 ### Phase 9: Cleanup and Documentation
 
 #### 9.1 Update Library Dependencies
+
 - [ ] **Update `libs/application/project.json`**
+
   ```json
   "implicitDependencies": [
     "domain",        // New dependency
@@ -354,7 +414,8 @@ This represents the final step in the domain refactoring process, creating a cle
   ```
 
 - [ ] **Update `libs/infrastructure/project.json`**
-  ```json  
+
+  ```json
   "implicitDependencies": [
     "domain",        // New dependency
     "api-client"      // Existing dependency
@@ -366,7 +427,9 @@ This represents the final step in the domain refactoring process, creating a cle
   - `libs/features/player/project.json` → Add "domain" dependency
 
 #### 9.2 Update Documentation
+
 - [ ] **Create `libs/domain/README.md`**
+
   - Document purpose of consolidated domain library
   - Explain device and storage domain structure
   - Document how to add new domains
@@ -378,6 +441,7 @@ This represents the final step in the domain refactoring process, creating a cle
   - Update component library documentation with new import paths
 
 #### 9.3 Dependency Graph Verification
+
 - [ ] **Generate dependency graph**
   ```bash
   npx nx graph
@@ -385,7 +449,7 @@ This represents the final step in the domain refactoring process, creating a cle
 - [ ] **Verify clean dependencies**
   - Domain library has no dependencies (pure domain)
   - Infrastructure depends only on domain and external APIs
-  - Application depends on domain and infrastructure  
+  - Application depends on domain and infrastructure
   - Features depend on domain, application, and infrastructure
   - No circular dependencies exist
   - Clean separation of concerns maintained
@@ -393,12 +457,13 @@ This represents the final step in the domain refactoring process, creating a cle
 ## Architecture After Refactor
 
 ### Current State (Post-Consolidation):
+
 ```
 libs/domain/                    # Single consolidated domain library
 ├── src/lib/device/             # Device domain
 │   ├── models/device.models.ts # Device, DeviceStorage models
 │   └── contracts/              # All device service interfaces + tokens
-├── src/lib/storage/            # Storage domain  
+├── src/lib/storage/            # Storage domain
 │   ├── models/storage.models.ts# StorageDirectory, FileItem models
 │   └── contracts/              # Storage service interfaces + tokens
 └── src/index.ts               # Barrel exports (all models + contracts)
@@ -408,7 +473,7 @@ libs/infrastructure/             # All concrete implementations
 └── src/lib/storage/            # Storage implementations → uses @teensyrom-nx/domain
 
 libs/application/                # All application state management
-├── src/lib/device/             # Device state → uses @teensyrom-nx/domain  
+├── src/lib/device/             # Device state → uses @teensyrom-nx/domain
 └── src/lib/storage/            # Storage state → uses @teensyrom-nx/domain
 
 libs/features/                   # Feature UI components
@@ -417,10 +482,11 @@ libs/features/                   # Feature UI components
 ```
 
 ### Final Target Architecture:
+
 ```
 libs/domain/                    # Pure domain layer
 ├── device/                     # Device models + contracts
-├── storage/                    # Storage models + contracts  
+├── storage/                    # Storage models + contracts
 └── (future)/                   # Future domains (player, user, etc.)
 
 libs/infrastructure/             # Implementation layer
@@ -461,6 +527,7 @@ libs/features/                   # Presentation layer
 ## Rollback Plan
 
 If issues arise, rollback can be performed by:
+
 1. Reverting all import paths back to original domain-specific paths
 2. Restoring `libs/domain/device/services` and `libs/domain/storage/services` libraries
 3. Removing `libs/domain` library

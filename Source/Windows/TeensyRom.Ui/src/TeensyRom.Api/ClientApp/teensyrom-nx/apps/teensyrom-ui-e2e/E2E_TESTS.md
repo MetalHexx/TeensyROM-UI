@@ -5,6 +5,7 @@
 This E2E test suite validates the TeensyROM UI using Cypress with a **fixture-driven, interceptor-based** approach. Tests run independently of the backend API by mocking HTTP responses with realistic device data.
 
 **Key Benefits**:
+
 - ✅ Deterministic tests (no flakiness from real API)
 - ✅ Fast execution (no network latency)
 - ✅ Isolated scenarios (test specific device states)
@@ -27,6 +28,7 @@ E2E Tests (Cypress Specs)
 #### 1. Test Data Layer (`src/support/test-data/`)
 
 **Fixtures** (`src/support/test-data/fixtures/devices.fixture.ts`):
+
 - Pre-built, realistic device data for common scenarios
 - Examples: `singleDevice`, `multipleDevices`, `noDevices`, `disconnectedDevice`
 - Type-safe with `MockDeviceFixture` interface
@@ -34,12 +36,14 @@ E2E Tests (Cypress Specs)
 - See [E2E_FIXTURES.md](./src/support/test-data/fixtures/E2E_FIXTURES.md) for detailed fixture reference
 
 **Generators** (`src/support/test-data/generators/device.generators.ts`):
+
 - Factory functions using `@faker-js/faker` for dynamic test data
 - Create custom scenarios: `generateDevice()`, `generateDeviceWithState()`
 - Useful for edge cases and property-based testing
 - See [E2E_TEST_GENERATORS.md](./src/support/test-data/generators/E2E_TEST_GENERATORS.md) for generator reference
 
 **Example Usage**:
+
 ```typescript
 import { singleDevice, multipleDevices } from '../support/test-data/fixtures';
 import { generateDevice } from '../support/test-data/generators';
@@ -54,6 +58,7 @@ const customDevice = generateDevice({ firmwareVersion: 'v2.0.0' });
 #### 2. API Mocking Layer (`src/support/interceptors/`)
 
 **Interceptors** (`src/support/interceptors/device.interceptors.ts`):
+
 - Wrapper functions around `cy.intercept()` for consistent API mocking
 - Handle request/response structure automatically
 - Support error modes for failure testing
@@ -61,6 +66,7 @@ const customDevice = generateDevice({ firmwareVersion: 'v2.0.0' });
 - See [E2E_INTERCEPTORS.md](./src/support/interceptors/E2E_INTERCEPTORS.md) for detailed interceptor reference
 
 **Available Interceptors**:
+
 - `interceptFindDevices()` - Device discovery (`GET /devices`)
 - `interceptConnectDevice()` - Device connection (`POST /devices/{id}/connect`)
 - `interceptDisconnectDevice()` - Device disconnection (`DELETE /devices/{id}`)
@@ -74,8 +80,12 @@ const customDevice = generateDevice({ firmwareVersion: 'v2.0.0' });
 **Wait Functions**: Each interceptor provides co-located `waitFor<EndpointName>()` functions for standardized timing control. See [E2E_INTERCEPTORS.md](./src/support/interceptors/E2E_INTERCEPTORS.md) for complete reference.
 
 **Example Usage**:
+
 ```typescript
-import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
+import {
+  interceptFindDevices,
+  waitForFindDevices,
+} from '../support/interceptors/findDevices.interceptors';
 
 beforeEach(() => {
   interceptFindDevices({ fixture: singleDevice });
@@ -95,21 +105,28 @@ it('should handle API errors', () => {
 #### 3. E2E Tests (`src/e2e/devices/`)
 
 **Test Helpers** (`src/e2e/devices/test-helpers.ts`):
+
 - Centralized selectors (single source of truth)
 - Reusable navigation and assertion functions
 - Type-safe constants for routes, timeouts, CSS classes
 
 **Constants** (`src/support/constants/`):
+
 - See [E2E_CONSTANTS.md](./src/support/constants/E2E_CONSTANTS.md) for centralized constants reference
 
 **Test Specs** (`src/e2e/devices/device-discovery.cy.ts`, etc.):
+
 - Organized by feature/workflow
 - Use descriptive test names
 - Leverage helpers for consistency
 
 **Example Test Structure**:
+
 ```typescript
-import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
+import {
+  interceptFindDevices,
+  waitForFindDevices,
+} from '../support/interceptors/findDevices.interceptors';
 
 describe('Device Discovery', () => {
   beforeEach(() => {
@@ -135,11 +152,13 @@ describe('Device Discovery', () => {
 ### Device Discovery Test Suite (`device-discovery.cy.ts`)
 
 **Total Tests**: 39 tests
+
 - **Passing**: 33 active tests
 - **Pending**: 6 tests (skipped for Phase 5 - SignalR event mocking)
 - **Duration**: ~13 seconds
 
 **Test Scenarios**:
+
 1. **Single Device Discovery** - Display single device with all information
 2. **Multiple Devices** - Display multiple devices with unique data
 3. **Empty State** - No devices found UI
@@ -150,6 +169,7 @@ describe('Device Discovery', () => {
 8. **Error Handling** - API failure scenarios
 
 **Pending Tests** (SignalR Required):
+
 - Device state display tests require SignalR hub mocking
 - Will be implemented in Phase 5 with `device-events.interceptors.ts`
 
@@ -205,11 +225,13 @@ The E2E test suite includes **Mochawesome JSON reporting** for deterministic tes
 ### Running Tests with Reports
 
 **Primary Command** (for agent use):
+
 ```bash
 pnpm nx e2e:report teensyrom-ui-e2e
 ```
 
 **Run Specific Spec**:
+
 ```bash
 pnpm nx e2e:report teensyrom-ui-e2e --spec=src/e2e/app.cy.ts
 pnpm nx e2e:report teensyrom-ui-e2e --spec=src/e2e/devices/device-discovery.cy.ts
@@ -220,6 +242,7 @@ pnpm nx e2e:report teensyrom-ui-e2e --spec=src/e2e/devices/device-discovery.cy.t
 ### Report Output Location
 
 Reports are generated in the Nx output directory:
+
 ```
 dist/cypress/apps/teensyrom-ui-e2e/reports/
 ├── index.json              # Main merged JSON report with all test results
@@ -291,6 +314,7 @@ The JSON report contains complete test execution details:
 ### Using Reports for Debugging
 
 **For Agents/Automation**:
+
 1. Parse `stats` object for high-level test outcome (passes vs failures)
 2. Iterate through `results[].suites[].tests[]` for individual test details
 3. Check `test.state` field: `"passed"`, `"failed"`, or `"pending"`
@@ -299,13 +323,19 @@ The JSON report contains complete test execution details:
 6. Use `test.title` and parent suite titles for precise test location
 
 **Example Agent Logic**:
+
 ```typescript
-const report = JSON.parse(fs.readFileSync('apps/teensyrom-ui-e2e/dist/cypress/apps/teensyrom-ui-e2e/reports/index.json', 'utf8'));
+const report = JSON.parse(
+  fs.readFileSync(
+    'apps/teensyrom-ui-e2e/dist/cypress/apps/teensyrom-ui-e2e/reports/index.json',
+    'utf8'
+  )
+);
 
 if (report.stats.failures > 0) {
-  report.results.forEach(result => {
-    result.suites?.forEach(suite => {
-      suite.tests?.forEach(test => {
+  report.results.forEach((result) => {
+    result.suites?.forEach((suite) => {
+      suite.tests?.forEach((test) => {
         if (test.fail) {
           console.log(`FAILED: ${result.file} - ${suite.title} - ${test.title}`);
           console.log(`Error: ${test.err.message}`);
@@ -320,6 +350,7 @@ if (report.stats.failures > 0) {
 ### Reporter Configuration
 
 The reporter is configured in `cypress.config.ts`:
+
 - **JSON only**: HTML reports are disabled (agents don't need visual reports)
 - **No charts**: Reduces report size and generation time
 - **No embedded screenshots**: Screenshots remain separate for debugging
@@ -334,6 +365,7 @@ The reporter is configured in `cypress.config.ts`:
 For deep debugging of interceptor timing issues, network traffic, and application state during test execution, you can use the **Chrome DevTools Model Context Protocol (MCP)** server.
 
 **What It Provides**:
+
 - Real-time network request inspection during Cypress tests
 - Console log monitoring during test execution
 - DOM state verification at specific test breakpoints
@@ -342,12 +374,14 @@ For deep debugging of interceptor timing issues, network traffic, and applicatio
 **Setup Guide**: See `src/support/constants/E2E_CONSTANTS.md`
 
 **Quick Setup**:
+
 1. Install MCP server: `npm install -g @modelcontextprotocol/server-chrome-devtools`
 2. Launch Chrome with debugging: `chrome.exe --remote-debugging-port=9222`
 3. Run tests in headed Chrome mode
 4. Connect via VS Code Copilot: `@chrome connect to localhost:9222`
 
 **Common Debug Commands**:
+
 ```
 @chrome get network requests       # See all API calls
 @chrome get console logs           # See application logs
@@ -356,6 +390,7 @@ For deep debugging of interceptor timing issues, network traffic, and applicatio
 ```
 
 **Use Cases**:
+
 - Investigate why `cy.wait('@alias')` times out
 - Verify interceptor patterns match actual API calls
 - Check if API calls happen before interceptor registration
@@ -372,18 +407,21 @@ The backend API specification is the source of truth for endpoint structures, re
 **Location**: `TeensyRom.Api/api-spec/TeensyRom.Api.json`
 
 **When to Consult**:
+
 - ✅ Interceptor pattern doesn't match actual API calls
 - ✅ Response structure differs from expectations
 - ✅ New endpoints added to backend need E2E coverage
 - ✅ API contract changes require test updates
 
 **Key Information**:
+
 - **Base Path**: `http://localhost:5168` (cross-origin from Angular app at `localhost:4200`)
 - **Endpoint Paths**: No `/api` prefix (e.g., `/devices`, not `/api/devices`)
 - **Response Schemas**: Detailed type definitions for all DTOs
 - **HTTP Methods**: GET, POST, DELETE patterns
 
 **Common Pitfall**:
+
 ```typescript
 // ❌ Incorrect - assumes /api prefix
 cy.intercept('GET', '/api/devices*', ...)
@@ -399,12 +437,14 @@ The TypeScript API client is auto-generated from the OpenAPI spec and provides t
 **Location**: `libs/data-access/api-client/src/lib/apis/DevicesApiService.ts`
 
 **Use For**:
+
 - Verifying exact endpoint signatures
 - Understanding request/response types
 - Checking query parameters
 - Identifying HTTP methods
 
 **Regeneration** (when API changes):
+
 ```bash
 # From backend project
 dotnet build TeensyRom.Api.csproj
@@ -422,6 +462,7 @@ pnpm run generate:api-client
 All E2E tests **MUST** use centralized constants from the constants layer - hardcoding values is strictly prohibited.
 
 **API Endpoints** - Use `DEVICE_ENDPOINTS` from `api.constants.ts`:
+
 ```typescript
 // ❌ Hardcoded - not allowed
 cy.intercept('GET', 'http://localhost:5168/devices*', ...)
@@ -431,30 +472,33 @@ cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.method, DEVICE_ENDPOINTS.FIND_DEVICES
 ```
 
 **UI Selectors** - Use selector groups from `selector.constants.ts`:
+
 ```typescript
 // ❌ Hardcoded - not allowed
-cy.get('.alert-display').should('be.visible')
-cy.get('[data-testid="device-card"]').should('have.length', 5)
+cy.get('.alert-display').should('be.visible');
+cy.get('[data-testid="device-card"]').should('have.length', 5);
 
 // ✅ Correct - uses centralized selector constants
-cy.get(ALERT_SELECTORS.container).should('be.visible')
-cy.get(DEVICE_CARD_SELECTORS.card).should('have.length', 5)
+cy.get(ALERT_SELECTORS.container).should('be.visible');
+cy.get(DEVICE_CARD_SELECTORS.card).should('have.length', 5);
 ```
 
 **Error Responses** - Use `createProblemDetailsResponse()` helper:
+
 ```typescript
 // ❌ Verbose & repetitive - not allowed
 req.reply({
   statusCode: 404,
   headers: { 'content-type': 'application/problem+json' },
-  body: { type: '...', title: msg, status: 404 }
-})
+  body: { type: '...', title: msg, status: 404 },
+});
 
 // ✅ Correct - uses generic helper
-req.reply(createProblemDetailsResponse(404, errorMessage))
+req.reply(createProblemDetailsResponse(404, errorMessage));
 ```
 
 **Benefits**:
+
 - ✅ Single source of truth - change once, affects all tests
 - ✅ Maintainability - selectors/endpoints update automatically
 - ✅ Type safety - constants are typed, catch breakage early
@@ -462,6 +506,7 @@ req.reply(createProblemDetailsResponse(404, errorMessage))
 - ✅ Reduced duplication - no copy-paste errors
 
 **Re-export Pattern** - Import from test-helpers for convenience:
+
 ```typescript
 import {
   DEVICE_ENDPOINTS,
@@ -474,6 +519,7 @@ import {
 ### Wait Function Patterns
 
 **Co-located Wait Functions** - Import wait functions directly from interceptor files:
+
 ```typescript
 // ❌ Old pattern - wait functions in separate files
 import { interceptFindDevices } from '../support/interceptors';
@@ -483,38 +529,41 @@ import { waitForDeviceDiscovery } from '../e2e/devices/test-helpers';
 import {
   interceptFindDevices,
   waitForFindDevices,
-  waitForFindDevicesToStart  // For race condition testing
+  waitForFindDevicesToStart, // For race condition testing
 } from '../support/interceptors/findDevices.interceptors';
 ```
 
 **Unified Naming Convention** - All wait functions follow `waitFor<EndpointName>` pattern:
+
 ```typescript
 // Standard waits (wait for completion)
-waitForFindDevices()
-waitForConnectDevice()
-waitForLaunchFile()
+waitForFindDevices();
+waitForConnectDevice();
+waitForLaunchFile();
 
 // Race condition variants (wait for start, not completion)
-waitForFindDevicesToStart()
-waitForConnectDeviceToStart()
-waitForLaunchFileToStart()
+waitForFindDevicesToStart();
+waitForConnectDeviceToStart();
+waitForLaunchFileToStart();
 ```
 
 **Import Strategy** - Direct imports from interceptor files (no barrel exports):
+
 ```typescript
 // Import both interceptor and its wait functions from same file
 import {
   interceptFindDevices,
-  waitForFindDevices
+  waitForFindDevices,
 } from '../support/interceptors/findDevices.interceptors';
 
 import {
   interceptLaunchFile,
-  waitForLaunchFile
+  waitForLaunchFile,
 } from '../support/interceptors/launchFile.interceptors';
 ```
 
 **Benefits**:
+
 - ✅ **Co-location** - Wait functions located with their interceptors
 - ✅ **Unified naming** - Consistent `waitFor<EndpointName>` pattern
 - ✅ **Race condition testing** - `*ToStart()` variants for precise timing
@@ -522,23 +571,27 @@ import {
 - ✅ **Maintainability** - Changes to interceptors automatically reflected in wait functions
 
 ### Test Independence
+
 - Each test sets up its own interceptors and state
 - Use `beforeEach` for common setup
 - Clear storage in `navigateToDeviceView()` helper
 - Never depend on execution order
 
 ### Selector Strategy
+
 1. **Preferred**: `data-testid` attributes (e.g., `[data-testid="device-card"]`)
 2. **Acceptable**: Semantic HTML elements (`button`, `nav`)
 3. **Avoid**: CSS classes (brittle, change with styling)
 
 ### Fixture Management
+
 - Use existing fixtures for common scenarios
 - Create new fixtures for reusable edge cases
 - Use generators for one-off custom scenarios
 - Keep fixtures in sync with backend DTOs
 
 ### Interceptor Patterns
+
 - Always use full URLs for cross-origin requests
 - Register interceptors before navigation (`beforeEach`)
 - Use descriptive aliases (`@findDevices`, not `@api`)
@@ -547,6 +600,7 @@ import {
 - Import wait functions directly from interceptor files (not from barrel exports)
 
 ### Test Naming
+
 - Be descriptive: `should display device name` not `test 1`
 - Use BDD style: `should [expected behavior] when [condition]`
 - Group related tests in `describe` blocks
@@ -556,14 +610,16 @@ import {
 ## 📖 Additional Documentation
 
 ### Phase Documentation
+
 Detailed implementation guides for each testing phase:
 
 - **Phase 2**: Fixtures & Generators - [E2E_FIXTURES.md](./src/support/test-data/fixtures/E2E_FIXTURES.md)
-- **Phase 3**: API Interceptors & Wait Functions - [E2E_INTERCEPTORS.md](./src/support/interceptors/E2E_INTERCEPTORS.md) *(Updated with wait helper functions)*
+- **Phase 3**: API Interceptors & Wait Functions - [E2E_INTERCEPTORS.md](./src/support/interceptors/E2E_INTERCEPTORS.md) _(Updated with wait helper functions)_
 - **Phase 4**: Device Discovery Tests - [E2E_DEVICE_DISCOVERY.md](./src/e2e/devices/E2E_DEVICE_DISCOVERY.md)
 - **Constants & Selectors**: [E2E_CONSTANTS.md](./src/support/constants/E2E_CONSTANTS.md)
 
 ### Related Guides
+
 - **Test Data Generators**: [E2E_TEST_GENERATORS.md](./src/support/test-data/generators/E2E_TEST_GENERATORS.md)
 - **API Client Generation**: `../../docs/API_CLIENT_GENERATION.md`
 - **Testing Standards**: `../../docs/TESTING_STANDARDS.md`

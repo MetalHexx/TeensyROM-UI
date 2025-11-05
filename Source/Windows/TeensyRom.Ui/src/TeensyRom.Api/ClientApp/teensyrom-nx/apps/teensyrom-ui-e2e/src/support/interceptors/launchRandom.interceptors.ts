@@ -97,8 +97,7 @@ export function interceptLaunchRandom(options: InterceptLaunchRandomOptions = {}
       } else {
         launchedFile = generateFileItem();
       }
-    }
-    else {
+    } else {
       launchedFile = generateFileItem();
     }
 

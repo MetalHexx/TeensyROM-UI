@@ -119,23 +119,24 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
   - Auto-execute search after 2 seconds of no typing
   - Only execute if `canSearch()` is true
   - Pattern:
+
     ```typescript
     private searchTimeout?: ReturnType<typeof setTimeout>;
-    
+
     constructor() {
       effect(() => {
         const text = this.searchText();
-        
+
         // Clear previous timeout
         if (this.searchTimeout) {
           clearTimeout(this.searchTimeout);
         }
-        
+
         // Don't auto-search on empty text
         if (text.trim().length === 0) {
           return;
         }
-        
+
         // Use untracked to prevent infinite loops when checking other signals
         untracked(() => {
           if (this.canSearch()) {
@@ -149,6 +150,7 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
     ```
 
 **Alternative Approach** (Manual Search Only):
+
 - If debouncing is not desired, remove the effect
 - Search only executes on Enter key press or button click
 - Simpler implementation, more explicit user control
@@ -212,14 +214,14 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
   - Structure:
     ```html
     @if (showClearButton()) {
-      <lib-icon-button
-        icon="close"
-        ariaLabel="Clear search results"
-        color="normal"
-        size="small"
-        (buttonClick)="clearSearch()"
-      >
-      </lib-icon-button>
+    <lib-icon-button
+      icon="close"
+      ariaLabel="Clear search results"
+      color="normal"
+      size="small"
+      (buttonClick)="clearSearch()"
+    >
+    </lib-icon-button>
     }
     ```
   - **Icon Choice**: Use 'close' (X) instead of 'clear' for better visual clarity
@@ -232,11 +234,12 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
   - Pattern:
     ```html
     @if (isSearching()) {
-      <mat-spinner diameter="20"></mat-spinner>
+    <mat-spinner diameter="20"></mat-spinner>
     }
     ```
 
 **Layout Considerations**:
+
 - Maintain horizontal layout with input and buttons
 - Use flexbox with gap for proper spacing
 - Ensure clear button doesn't cause layout shift when appearing/disappearing
@@ -279,6 +282,7 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
   - Input field min-width on small screens
 
 **Example Structure**:
+
 ```scss
 :host {
   display: flex;
@@ -355,9 +359,9 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
     ```html
     <div class="right-container">
       @if (hasActiveSearch()) {
-        <lib-search-results [deviceId]="deviceId()"></lib-search-results>
+      <lib-search-results [deviceId]="deviceId()"></lib-search-results>
       } @else {
-        <lib-directory-files [deviceId]="deviceId()"></lib-directory-files>
+      <lib-directory-files [deviceId]="deviceId()"></lib-directory-files>
       }
     </div>
     ```
@@ -371,6 +375,7 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
 **File**: [`libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.spec.ts`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.spec.ts)
 
 **Test Setup**:
+
 - [ ] Import testing utilities
   - `ComponentFixture, TestBed` from `@angular/core/testing`
   - `MockedFunction, vi` from `vitest`
@@ -396,12 +401,14 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
 **Test Suites**:
 
 **Component Initialization**:
+
 - [ ] Test: Component creates successfully
 - [ ] Test: DeviceId input is required and set correctly
 - [ ] Test: Initial searchText is empty string
 - [ ] Test: Computed signals initialize with correct values
 
 **Search Input Handling**:
+
 - [ ] Test: onSearchInputChange updates searchText signal
   - Set input value: `component.onSearchInputChange('test query')`
   - Assert: `component.searchText() === 'test query'`
@@ -416,6 +423,7 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
   - Assert: `component.canSearch() === false`
 
 **Search Execution**:
+
 - [ ] Test: executeSearch calls searchFiles with correct parameters
   - Mock: Selected directory with storageType
   - Set: `component.searchText.set('test query')`
@@ -447,6 +455,7 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
   - Assert: `searchFiles` called
 
 **Debouncing (if implemented)**:
+
 - [ ] Test: Auto-search triggers after 2 second delay
   - Set: `component.searchText.set('test')`
   - Wait: 2000ms (use `vi.advanceTimersByTime()` with `vi.useFakeTimers()`)
@@ -461,6 +470,7 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
   - Assert: `searchFiles` called with 'test2'
 
 **Clear Search**:
+
 - [ ] Test: clearSearch calls clearSearch action
   - Mock: Active search state (`hasSearched: true`)
   - Call: `component.clearSearch()`
@@ -489,6 +499,7 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
   - Assert: Button element is null (don't show clear button for empty results)
 
 **Computed Signals**:
+
 - [ ] Test: hasActiveSearch reflects search state
   - Mock: `hasSearched: false`
   - Assert: `component.hasActiveSearch() === false`
@@ -507,6 +518,7 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
   - Assert: `component.currentStorageType() === StorageType.Sd`
 
 **Edge Cases**:
+
 - [ ] Test: Component handles null selected directory state
   - Mock: `getSelectedDirectoryState()` returns null
   - Detect changes
@@ -524,6 +536,7 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
   - Assert: Component doesn't crash
 
 **Follow TESTING_STANDARDS.md**:
+
 - Use Vitest mocking patterns
 - Use TestBed for component instantiation
 - Test behavior, not implementation
@@ -535,6 +548,7 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
 ## 🗂️ File Changes
 
 ### Updated Files
+
 - [`libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.ts`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.ts) - Add search functionality
 - [`libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.html`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.html) - Add clear button and bindings
 - [`libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.scss`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-toolbar/search-toolbar.component.scss) - Style clear button
@@ -543,6 +557,7 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
 - [`libs/features/player/src/lib/player-view/player-device-container/storage-container/storage-container.component.html`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/storage-container.component.html) - Add conditional rendering
 
 ### Reference Files (No Changes)
+
 - [`libs/features/player/src/lib/player-view/player-device-container/storage-container/filter-toolbar/filter-toolbar.component.ts`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/filter-toolbar/filter-toolbar.component.ts) - Pattern reference for filter integration
 - [`libs/application/src/lib/storage/actions/search-files.ts`](../../../libs/application/src/lib/storage/actions/search-files.ts) - Search action being called
 - [`libs/application/src/lib/storage/actions/clear-search.ts`](../../../libs/application/src/lib/storage/actions/clear-search.ts) - Clear action being called
@@ -553,12 +568,14 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
 ### Unit Tests
 
 **Search Input**:
+
 - [ ] Input change updates searchText signal
 - [ ] canSearch computed signal correctness
 - [ ] Empty text disables search
 - [ ] Searching state disables search
 
 **Search Execution**:
+
 - [ ] Execute search calls searchFiles with correct params
 - [ ] Search text is trimmed
 - [ ] Current filter is used
@@ -566,11 +583,13 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
 - [ ] Null storageType prevents search
 
 **Debouncing** (if implemented):
+
 - [ ] Auto-search after 2 second delay
 - [ ] Typing resets timer
 - [ ] No auto-search on empty text
 
 **Clear Search**:
+
 - [ ] clearSearch calls clear action
 - [ ] searchText signal cleared
 - [ ] Clear button visible only when results exist
@@ -578,17 +597,20 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
 - [ ] Clear button uses small size
 
 **Computed Signals**:
+
 - [ ] hasActiveSearch reflects state
 - [ ] isSearching reflects state
 - [ ] currentFilter gets from context
 - [ ] currentStorageType extracts correctly
 
 **Edge Cases**:
+
 - [ ] Null selected directory handled
 - [ ] Null search state handled
 - [ ] Empty deviceId doesn't crash
 
 **Test Coverage Requirements**:
+
 - Minimum 80% line coverage
 - 100% coverage for search/clear execution paths
 - All user interactions tested
@@ -694,6 +716,7 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
 ### Alternative Implementation: Manual Search Only
 
 If auto-search debouncing is not desired:
+
 1. Remove effect from constructor
 2. Remove searchTimeout property
 3. Search only on Enter key or button click
@@ -702,12 +725,14 @@ If auto-search debouncing is not desired:
 6. Less API calls
 
 Benefits:
+
 - Simpler code
 - Fewer API calls
 - More predictable behavior
 - User controls when to search
 
 Trade-offs:
+
 - Less convenient (requires Enter/click)
 - Less modern UX pattern
 - May feel less responsive

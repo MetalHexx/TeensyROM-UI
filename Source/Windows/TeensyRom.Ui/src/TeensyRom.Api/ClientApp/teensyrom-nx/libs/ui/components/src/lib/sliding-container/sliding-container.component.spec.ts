@@ -25,11 +25,11 @@ describe('SlidingContainerComponent', () => {
   it('should project content through ng-content', () => {
     // Use the existing TestBed configuration and just test content projection
     fixture.componentRef.setInput('containerHeight', '100px');
-    
+
     // Add test content directly to the component fixture
     const compiled = fixture.nativeElement;
     const containerDiv = compiled.querySelector('.sliding-container');
-    
+
     // Since we can't easily test ng-content projection with the current setup,
     // let's just verify the container element exists and has the right class
     expect(containerDiv).toBeTruthy();
@@ -47,7 +47,7 @@ describe('SlidingContainerComponent', () => {
   it('should show container by default when no animation trigger is provided', () => {
     // Default behavior - should show immediately
     expect(component.showContainer()).toBe(true);
-    
+
     const compiled = fixture.nativeElement;
     const containerDiv = compiled.querySelector('.sliding-container');
     expect(containerDiv).toBeTruthy();
@@ -58,15 +58,15 @@ describe('SlidingContainerComponent', () => {
 
   it('should emit animationComplete when animation finishes', () => {
     let animationCompleted = false;
-    
+
     // Subscribe to the animation complete event
     component.animationComplete.subscribe(() => {
       animationCompleted = true;
     });
-    
+
     // Trigger the animation completion
     component.onContainerAnimationDone();
-    
+
     expect(animationCompleted).toBe(true);
   });
 
@@ -138,7 +138,7 @@ describe('SlidingContainerComponent', () => {
 
       // Verify the mode is set correctly
       expect(childComponent.animationParent()).toBe('auto');
-      
+
       // Note: Full DI hierarchy testing (parent->child waiting) requires integration tests
       // This unit test verifies the input accepts 'auto' mode correctly
     });

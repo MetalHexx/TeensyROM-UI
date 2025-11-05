@@ -21,6 +21,7 @@ Domain (libs/domain) → Application (libs/application) → Infrastructure (libs
 ```
 
 **Layer Rules** (ESLint will fail builds on violations):
+
 - **Domain**: Pure TypeScript contracts/models in shared `models/` and `contracts/` folders - ZERO dependencies
 - **Application**: NgRx Signal Stores, use cases - depends ONLY on domain + shared utilities
 - **Infrastructure**: Service implementations, HTTP clients - depends on domain + api-client
@@ -33,7 +34,9 @@ Domain (libs/domain) → Application (libs/application) → Infrastructure (libs
 
 ```typescript
 // Domain contract with injection token (libs/domain/contracts/)
-export interface IDeviceService { /* methods */ }
+export interface IDeviceService {
+  /* methods */
+}
 export const DEVICE_SERVICE = new InjectionToken<IDeviceService>('IDeviceService');
 
 // Infrastructure implementation (libs/infrastructure/)
@@ -43,9 +46,7 @@ export class DeviceService implements IDeviceService {
 }
 
 // Provider binding (libs/infrastructure/providers.ts)
-export const DEVICE_PROVIDERS = [
-  { provide: DEVICE_SERVICE, useClass: DeviceService }
-];
+export const DEVICE_PROVIDERS = [{ provide: DEVICE_SERVICE, useClass: DeviceService }];
 
 // Application layer consumes via contract (libs/application/)
 export class DeviceStore {
@@ -138,7 +139,7 @@ export class MyComponent {
   // ✅ Signal-based inputs/outputs
   data = input.required<string>();
   clicked = output<void>();
-  
+
   // ✅ Modern control flow in templates
   // @if (condition) { } @else { }
   // @for (item of items; track item.id) { }
@@ -153,13 +154,13 @@ export class MyComponent {
 
 ## Testing Strategy by Layer
 
-| Layer | Approach | Mock Boundary |
-|-------|----------|---------------|
-| Domain | Don't test contracts - use as mocks | N/A |
-| Infrastructure | Unit test with mocked API clients | Mock `*ApiService` |
-| Application | Behavioral test - real stores/services | Mock infrastructure |
-| Features | Unit test with mocked application | Mock stores/services |
-| UI | Unit test presentational logic | Minimal mocking |
+| Layer          | Approach                               | Mock Boundary        |
+| -------------- | -------------------------------------- | -------------------- |
+| Domain         | Don't test contracts - use as mocks    | N/A                  |
+| Infrastructure | Unit test with mocked API clients      | Mock `*ApiService`   |
+| Application    | Behavioral test - real stores/services | Mock infrastructure  |
+| Features       | Unit test with mocked application      | Mock stores/services |
+| UI             | Unit test presentational logic         | Minimal mocking      |
 
 **Key Pattern**: Mock only at infrastructure boundaries. Application and features tests use real stores/services integrating together.
 
@@ -167,8 +168,8 @@ export class MyComponent {
 // Application layer test - behavioral testing
 TestBed.configureTestingModule({
   providers: [
-    DeviceStore,                                               // Real store
-    { provide: DEVICE_SERVICE, useValue: mockDeviceService },  // Mock infrastructure
+    DeviceStore, // Real store
+    { provide: DEVICE_SERVICE, useValue: mockDeviceService }, // Mock infrastructure
   ],
 });
 ```
@@ -176,19 +177,21 @@ TestBed.configureTestingModule({
 ## Common Pitfalls to Avoid
 
 1. **Cross-Feature Imports**: Features CANNOT import each other - ESLint will fail
+
    ```typescript
    // ❌ Don't do this
-   import { PlayerComponent } from '@teensyrom-nx/player';  // From devices feature
-   
+   import { PlayerComponent } from '@teensyrom-nx/player'; // From devices feature
+
    // ✅ Share via application layer
    import { DeviceStore } from '@teensyrom-nx/application';
    ```
 
 2. **API Client Direct Usage**: Never import API clients outside infrastructure
+
    ```typescript
    // ❌ Don't do this
    import { DevicesApiService } from '@teensyrom-nx/data-access/api-client';  // In features
-   
+
    // ✅ Use domain contracts
    private deviceService = inject(DEVICE_SERVICE);
    ```
@@ -202,6 +205,7 @@ TestBed.configureTestingModule({
 **Reusable components**: `libs/ui/components` - consult `docs/COMPONENT_LIBRARY.md` before creating new ones
 
 **Key components**:
+
 - Layout: `lib-card-layout`, `lib-compact-card-layout`
 - Animated: `lib-scaling-card`, `lib-scaling-container`, `lib-sliding-container`
 - Forms: `lib-input-field`, `lib-action-button`, `lib-icon-button`
@@ -212,6 +216,7 @@ TestBed.configureTestingModule({
 ## SignalR Integration
 
 Real-time communication via SignalR hubs:
+
 - Device logs: `/logHub`
 - Device events: `/deviceEventHub`
 

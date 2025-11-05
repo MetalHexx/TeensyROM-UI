@@ -10,12 +10,21 @@ export interface NavigateBackwardInHistoryParams {
   deviceId: string;
 }
 
-export function navigateBackwardInHistory(store: WritableStore<PlayerState>, playerService: IPlayerService) {
+export function navigateBackwardInHistory(
+  store: WritableStore<PlayerState>,
+  playerService: IPlayerService
+) {
   return {
-    navigateBackwardInHistory: async ({ deviceId }: NavigateBackwardInHistoryParams): Promise<void> => {
+    navigateBackwardInHistory: async ({
+      deviceId,
+    }: NavigateBackwardInHistoryParams): Promise<void> => {
       const actionMessage = createAction('navigate-backward-in-history');
 
-      logInfo(LogType.Start, `NavigateBackwardInHistory: Starting backward navigation for device ${deviceId}`, { deviceId, actionMessage });
+      logInfo(
+        LogType.Start,
+        `NavigateBackwardInHistory: Starting backward navigation for device ${deviceId}`,
+        { deviceId, actionMessage }
+      );
 
       const playerState = getPlayerState(store, deviceId);
 
@@ -27,7 +36,10 @@ export function navigateBackwardInHistory(store: WritableStore<PlayerState>, pla
       const history = playerState.playHistory;
 
       if (!history || history.entries.length === 0) {
-        logInfo(LogType.Info, `NavigateBackwardInHistory: No history entries available for device ${deviceId}`);
+        logInfo(
+          LogType.Info,
+          `NavigateBackwardInHistory: No history entries available for device ${deviceId}`
+        );
         return;
       }
 
@@ -38,15 +50,24 @@ export function navigateBackwardInHistory(store: WritableStore<PlayerState>, pla
       if (currentPosition === -1) {
         // At end, move to most recent entry
         targetPosition = history.entries.length - 1;
-        logInfo(LogType.Info, `NavigateBackwardInHistory: At end (-1), moving to most recent entry at position ${targetPosition}`);
+        logInfo(
+          LogType.Info,
+          `NavigateBackwardInHistory: At end (-1), moving to most recent entry at position ${targetPosition}`
+        );
       } else if (currentPosition === 0) {
         // At start, wrap to end
         targetPosition = history.entries.length - 1;
-        logInfo(LogType.Info, `NavigateBackwardInHistory: At start (0), wrapping to end at position ${targetPosition}`);
+        logInfo(
+          LogType.Info,
+          `NavigateBackwardInHistory: At start (0), wrapping to end at position ${targetPosition}`
+        );
       } else {
         // Normal backward movement
         targetPosition = currentPosition - 1;
-        logInfo(LogType.Info, `NavigateBackwardInHistory: Moving from position ${currentPosition} to ${targetPosition}`);
+        logInfo(
+          LogType.Info,
+          `NavigateBackwardInHistory: Moving from position ${currentPosition} to ${targetPosition}`
+        );
       }
 
       const historyEntry = history.entries[targetPosition];
@@ -56,7 +77,10 @@ export function navigateBackwardInHistory(store: WritableStore<PlayerState>, pla
         return;
       }
 
-      logInfo(LogType.Info, `NavigateBackwardInHistory: Navigating to file ${historyEntry.file.name} from history`);
+      logInfo(
+        LogType.Info,
+        `NavigateBackwardInHistory: Navigating to file ${historyEntry.file.name} from history`
+      );
 
       // Extract storage type from storage key
       const { storageType } = StorageKeyUtil.parse(historyEntry.storageKey);
@@ -70,7 +94,10 @@ export function navigateBackwardInHistory(store: WritableStore<PlayerState>, pla
           playerService.launchFile(deviceId, storageType, historyEntry.file.path)
         );
 
-        logInfo(LogType.Success, `NavigateBackwardInHistory: File ${launchedFile.name} launched successfully`);
+        logInfo(
+          LogType.Success,
+          `NavigateBackwardInHistory: File ${launchedFile.name} launched successfully`
+        );
 
         // On success, update state with the launched file and new position
         updateState(store, actionMessage, (state) => {
@@ -107,8 +134,10 @@ export function navigateBackwardInHistory(store: WritableStore<PlayerState>, pla
           };
         });
 
-        logInfo(LogType.Finish, `NavigateBackwardInHistory: Backward navigation completed for device ${deviceId}. New position: ${targetPosition}`);
-
+        logInfo(
+          LogType.Finish,
+          `NavigateBackwardInHistory: Backward navigation completed for device ${deviceId}. New position: ${targetPosition}`
+        );
       } catch (error) {
         const errorMessage = (error as Error)?.message || 'Failed to navigate backward in history';
         logError(`NavigateBackwardInHistory: Failed for device ${deviceId}:`, error);

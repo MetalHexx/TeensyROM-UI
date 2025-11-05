@@ -76,7 +76,8 @@
 }
 
 @keyframes wave {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -91,13 +92,27 @@
 }
 
 @keyframes rainbow {
-  0% { color: #ff0000; }
-  16.6% { color: #ff8800; }
-  33.3% { color: #ffff00; }
-  50% { color: #00ff00; }
-  66.6% { color: #0088ff; }
-  83.3% { color: #8800ff; }
-  100% { color: #ff0000; }
+  0% {
+    color: #ff0000;
+  }
+  16.6% {
+    color: #ff8800;
+  }
+  33.3% {
+    color: #ffff00;
+  }
+  50% {
+    color: #00ff00;
+  }
+  66.6% {
+    color: #0088ff;
+  }
+  83.3% {
+    color: #8800ff;
+  }
+  100% {
+    color: #ff0000;
+  }
 }
 
 // Glitch effect - Random displacement
@@ -107,7 +122,8 @@
 }
 
 @keyframes glitch {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0);
   }
   25% {
@@ -128,7 +144,8 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1, 1);
   }
   25% {
@@ -149,7 +166,8 @@
 }
 
 @keyframes copper {
-  0%, 100% {
+  0%,
+  100% {
     color: #ff6600;
     text-shadow: 0 0 8px #ff6600;
   }
@@ -174,7 +192,8 @@
 }
 
 @keyframes spiral {
-  0%, 100% {
+  0%,
+  100% {
     transform: rotateY(0deg);
   }
   50% {

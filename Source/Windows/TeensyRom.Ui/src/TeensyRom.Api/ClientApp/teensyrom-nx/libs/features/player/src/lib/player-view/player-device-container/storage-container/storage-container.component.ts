@@ -39,11 +39,14 @@ export class StorageContainerComponent {
     if (!selectedDir) {
       return false;
     }
-    const searchState = this.storageStore.getSearchState(this.deviceId(), selectedDir.storageType)();
+    const searchState = this.storageStore.getSearchState(
+      this.deviceId(),
+      selectedDir.storageType
+    )();
     return searchState?.hasSearched ?? false;
   });
 
-  readonly historyViewVisible = computed(() => 
+  readonly historyViewVisible = computed(() =>
     this.playerContext.isHistoryViewVisible(this.deviceId())()
   );
 
@@ -52,7 +55,7 @@ export class StorageContainerComponent {
     return (history?.entries.length ?? 0) > 0;
   });
 
-  readonly shouldShowHistory = computed(() => 
-    this.historyViewVisible() && !this.hasActiveSearch() && this.hasPlayHistory()
+  readonly shouldShowHistory = computed(
+    () => this.historyViewVisible() && !this.hasActiveSearch() && this.hasPlayHistory()
   );
 }

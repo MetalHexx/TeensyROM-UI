@@ -17,12 +17,12 @@ mat-progress-bar {
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
   overflow: hidden;
-  
+
   // Override Material progress bar color with theme variable
   ::ng-deep .mdc-linear-progress__bar-inner {
     border-color: var(--color-primary-bright);
   }
-  
+
   // Clip the progress bar background to the curves
   ::ng-deep .mdc-linear-progress__buffer {
     border-top-left-radius: 4px;

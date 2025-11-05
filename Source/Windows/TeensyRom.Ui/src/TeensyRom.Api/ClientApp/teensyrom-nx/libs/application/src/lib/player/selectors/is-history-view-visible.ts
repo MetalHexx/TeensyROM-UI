@@ -12,11 +12,11 @@ export function isHistoryViewVisible(store: WritableStore<PlayerState>) {
     isHistoryViewVisible: (deviceId: string) =>
       computed(() => {
         const playerState = store.players()[deviceId];
-        
+
         if (!playerState) {
           return false;
         }
-        
+
         return playerState.historyViewVisible;
       }),
   };

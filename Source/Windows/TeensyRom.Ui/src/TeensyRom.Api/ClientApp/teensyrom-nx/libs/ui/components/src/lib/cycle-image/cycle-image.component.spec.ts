@@ -44,7 +44,7 @@ describe('CycleImageComponent', () => {
     expect(component.hasMultipleImages()).toBe(false);
 
     const initialIndex = component.currentIndex();
-    
+
     // Wait for what would be an interval - should not cycle
     tick(10000);
     expect(component.currentIndex()).toBe(initialIndex);
@@ -96,7 +96,7 @@ describe('CycleImageComponent', () => {
 
   it('should enable simple mode for thumbnail and small sizes', () => {
     componentRef.setInput('images', ['image1.png']);
-    
+
     componentRef.setInput('size', 'thumbnail');
     fixture.detectChanges();
     expect(component.isSimpleMode()).toBe(true);

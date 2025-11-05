@@ -6,11 +6,11 @@
   (click)="onButtonClick()"
 >
   @if (hasIcon()) {
-    <mat-icon [class]="iconClasses()">{{ icon() }}</mat-icon>
+  <mat-icon [class]="iconClasses()">{{ icon() }}</mat-icon>
   } @else {
-    <!-- ng-content for custom icon components -->
-    <span [class]="iconClasses()" class="custom-icon">
-      <ng-content></ng-content>
-    </span>
+  <!-- ng-content for custom icon components -->
+  <span [class]="iconClasses()" class="custom-icon">
+    <ng-content></ng-content>
+  </span>
   }
 </button>

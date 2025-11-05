@@ -5,16 +5,16 @@
 export enum PlayerFilterType {
   /** Any supported file type */
   All = 'ALL',
-  
+
   /** Game files only */
   Games = 'GAMES',
-  
+
   /** SID files only */
   Music = 'MUSIC',
-  
+
   /** Image files only */
   Images = 'IMAGES',
-  
+
   /** Hex files only */
-  Hex = 'HEX'
+  Hex = 'HEX',
 }

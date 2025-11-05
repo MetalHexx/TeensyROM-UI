@@ -5,6 +5,7 @@
 To interact with the TeensyROM Player UI, follow these steps:
 
 ### 1. Start Browser Session
+
 ```
 Use the mcp_chrome-devtoo_new_page tool to create a new browser page:
 - URL: http://localhost:4200
@@ -12,6 +13,7 @@ Use the mcp_chrome-devtoo_new_page tool to create a new browser page:
 ```
 
 ### 2. Take Initial Snapshot
+
 ```
 Before any interaction, capture the current UI state:
 - Use: mcp_chrome-devtoo_take_snapshot
@@ -20,6 +22,7 @@ Before any interaction, capture the current UI state:
 ```
 
 ### 3. Interact with Controls
+
 ```
 All interactions use these tools:
 - mcp_chrome-devtoo_click(uid) - Click any button/link
@@ -29,6 +32,7 @@ All interactions use these tools:
 ```
 
 ### 4. Update Element References
+
 ```
 After major UI changes (navigation, page reload):
 - Always call mcp_chrome-devtoo_take_snapshot again
@@ -37,6 +41,7 @@ After major UI changes (navigation, page reload):
 ```
 
 ### 5. Reference Control Map
+
 ```
 Use the "Technical Control Mapping (Master Reference)" section below
 - Find the control you need by name
@@ -63,6 +68,7 @@ The Player view is the primary interface for browsing and launching audio files 
 ## Main Layout
 
 ### Top Section (Player Info Panel)
+
 - **Album Art**: Large album cover image on the left
 - **File Metadata**: Shows artist name and metadata (DeepSID, PAL/NTSC, SID chip type)
 - **File Title & Year**: Large text showing current track and release info
@@ -71,6 +77,7 @@ The Player view is the primary interface for browsing and launching audio files 
 - **Theme Toggle**: Light/dark mode button (top right)
 
 ### Player Controls (Bottom Bar)
+
 - **Previous File Button**: Navigate to previous track
 - **Play/Pause Button**: Toggle playback (visual indicator shows state)
 - **Next File Button**: Jump to next track
@@ -82,6 +89,7 @@ The Player view is the primary interface for browsing and launching audio files 
 ### File Browser Panel (Right Side)
 
 #### Navigation Toolbar
+
 - **Back Button**: Navigate to previous directory (disabled if no history)
 - **Forward Button**: Navigate forward in history (disabled if at end)
 - **Up Button**: Go to parent directory
@@ -89,32 +97,38 @@ The Player view is the primary interface for browsing and launching audio files 
 - **Toggle History Button**: Show/hide directory history
 
 #### Current Path Display
+
 - Shows breadcrumb path (e.g., "SD Card > music > MUSICIANS > S > Simon_Laszlo")
 - Updates dynamically as you navigate
 
 #### Filter Buttons
+
 - **Filter: Allow All Files**: Show all file types
 - **Filter: Games Only**: Show only game files
 - **Filter: Music Only**: Show only music files
 - **Filter: Images Only**: Show only image files
 
 #### Random Launch Button
+
 - **Launch Random File**: Dice icon button
 - Randomly selects a file from current directory and launches it
 - Great for discovery
 
 #### Search Feature
+
 - **Search Textbox**: Type to filter files in current directory
 - **Search Results Section**: Shows filtered results matching your query
 - **Clear Search Button**: Resets search filter (appears when searching)
 
 #### File Tree (Left Sidebar)
+
 - **Device PSM2ZAKI**: Primary device with collapsible toggle
   - **USB Storage**: Toggle to expand/collapse USB files
   - **SD Storage**: Toggle to expand/collapse SD card files
 - Click toggles to expand/collapse storage devices
 
 #### Current Directory Listing
+
 - Lists all files in current directory (below "Current Directory" heading)
 - Shows file names and sizes (e.g., "3_Years_2.sid 4.7 KB")
 - Click any file to launch it
@@ -123,17 +137,20 @@ The Player view is the primary interface for browsing and launching audio files 
 ## Interaction Patterns
 
 ### Launching Files
+
 1. Navigate to desired folder using directory buttons or file list
 2. Click on any file in the listing to launch it
 3. Player controls will activate and show playback information
 4. Or use **Launch Random File** for surprise discovery
 
 ### Browsing Navigation
+
 1. Use **Up** to go to parent directory
 2. Use **Back/Forward** to navigate history
 3. Use **Toggle History** to see navigation breadcrumb
 
 ### Searching for Files
+
 1. Type in the **Search** textbox
 2. "Search Results" section appears below tree
 3. Filtered results show matching files
@@ -141,11 +158,13 @@ The Player view is the primary interface for browsing and launching audio files 
 5. Search works across current directory only
 
 ### Filtering File Types
+
 - Click any of the 4 filter buttons to toggle file type visibility
 - Current filter affects what displays in directory listing
 - Active filter persists as you navigate
 
 ### Playback Control
+
 - **Previous/Next buttons**: Skip between files in current directory
 - **Play/Pause**: Toggle playback
 - **Shuffle Toggle**: Randomize playback order
@@ -241,6 +260,7 @@ WORKFLOW_RANDOM | Launch random file | 1. Click: button "Launch Random File" 2. 
 ```
 
 **Programmatic Parsing Guide:**
+
 - File entries: Regex `(\w+)\.(\w+)\s+([\d.]+)\s+(\w+)` extracts [filename, extension, size_value, size_unit]
 - Playback time: Split StaticText "HH:MM / HH:MM" by " / " to get [current, total]
 - Breadcrumb: Collect sequential StaticText between storage label and "Current Directory" heading
@@ -250,10 +270,13 @@ WORKFLOW_RANDOM | Launch random file | 1. Click: button "Launch Random File" 2. 
 - Active filters: Cross-reference button appearance with file list contents
 
 **Async Wait Signals:**
+
 - Directory load complete: Loading indicator disappears from breadcrumb area
 - File metadata ready: Artist/title text appears, HVSC section populated
 - Search results ready: `heading "Search Results"` visible
 - Playback started: `progressbar ""` has `value > 0`, time text updates
 - Navigation complete: Breadcrumb path changed, file list updated
+
 ```
 
+```

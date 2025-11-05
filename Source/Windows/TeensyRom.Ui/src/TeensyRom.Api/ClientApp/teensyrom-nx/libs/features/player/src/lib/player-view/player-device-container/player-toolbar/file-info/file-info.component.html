@@ -1,13 +1,13 @@
 @if (fileItem()) {
-  <div class="file-info" data-testid="current-file-info">
-    <lib-cycle-image [images]="imageUrls()" [intervalMs]="4000" size="thumbnail"></lib-cycle-image>
-    <div class="file-text">
-      <div class="file-title">{{ fileItem()?.title }}</div>
-      @if (fileItem()?.creator) {
-        <div class="file-creator">{{ fileItem()?.creator }}</div>
-      } @else if (fileTypeName()) {
-        <div class="file-creator">{{ fileTypeName() }}</div>
-      }
-    </div>
+<div class="file-info" data-testid="current-file-info">
+  <lib-cycle-image [images]="imageUrls()" [intervalMs]="4000" size="thumbnail"></lib-cycle-image>
+  <div class="file-text">
+    <div class="file-title">{{ fileItem()?.title }}</div>
+    @if (fileItem()?.creator) {
+    <div class="file-creator">{{ fileItem()?.creator }}</div>
+    } @else if (fileTypeName()) {
+    <div class="file-creator">{{ fileTypeName() }}</div>
+    }
   </div>
+</div>
 }

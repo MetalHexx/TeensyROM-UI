@@ -9,22 +9,22 @@ export type EmptyStateMessageSize = 'small' | 'medium' | 'large';
 
 /**
  * Empty State Message Component
- * 
+ *
  * A reusable component for displaying centered empty state messages with an icon,
  * title, and optional descriptive text. Commonly used for "no data" scenarios like
  * empty lists, no search results, or missing connections.
- * 
+ *
  * @example
  * ```html
  * <!-- Basic usage with required fields -->
- * <lib-empty-state-message 
- *   icon="devices" 
+ * <lib-empty-state-message
+ *   icon="devices"
  *   title="No Connected Devices">
  * </lib-empty-state-message>
- * 
+ *
  * <!-- Full usage with all optional fields -->
- * <lib-empty-state-message 
- *   icon="search_off" 
+ * <lib-empty-state-message
+ *   icon="search_off"
  *   title="No Results Found"
  *   message="Try adjusting your search terms."
  *   secondaryMessage="Visit the Device View to manage your devices."

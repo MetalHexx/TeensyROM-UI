@@ -2,13 +2,15 @@
 
 **Phase Goal**: Validate that connection/disconnection errors display proper alert messages to users. Ensure alerts appear, contain appropriate error information, are dismissible, and auto-dismiss correctly.
 
-**Prerequisites**: 
+**Prerequisites**:
+
 - ✅ Phase 1 complete (single device connection error tests structure exists)
 - ✅ Phase 2 complete (multi-device error isolation tests structure exists)
 - ✅ Alert system implemented (`AlertService`, `AlertContainerComponent`, `AlertDisplayComponent`)
 - ✅ Infrastructure services call `alertService.error()` on failures
 
 **Alert System Overview**:
+
 - **Service**: `AlertService` implements `IAlertService` (domain contract)
 - **Display**: `AlertContainerComponent` + `AlertDisplayComponent` render alerts
 - **Auto-dismiss**: 3000ms default (configurable)
@@ -31,26 +33,23 @@
    - Checks alert container is visible
    - Optionally verifies specific message text
    - Usage: `verifyAlertDisplayed('Connection failed')`
-   
 2. **`verifyErrorAlert(expectedMessage?: string)`**
    - Verifies alert has error severity styling
    - Optionally checks message text
    - Usage: `verifyErrorAlert('Failed to connect to device')`
-   
 3. **`verifyAlertDismissed()`**
    - Verifies no alerts are currently displayed
    - Usage: `verifyAlertDismissed()`
-   
 4. **`dismissAlert()`**
    - Clicks alert close/dismiss button
    - Usage: `dismissAlert()`
-   
 5. **`waitForAlertAutoDismiss(timeout = 4000)`**
    - Waits for alert to auto-dismiss
    - Default timeout slightly longer than 3000ms auto-dismiss
    - Usage: `waitForAlertAutoDismiss()`
 
 **Selector Constants to Add**:
+
 ```typescript
 export const ALERT_SELECTORS = {
   container: '[data-testid="alert-container"]',
@@ -62,6 +61,7 @@ export const ALERT_SELECTORS = {
 ```
 
 **Implementation Pattern**:
+
 ```typescript
 export function verifyErrorAlert(expectedMessage?: string): void {
   cy.get(ALERT_SELECTORS.errorAlert).should('be.visible');
@@ -72,6 +72,7 @@ export function verifyErrorAlert(expectedMessage?: string): void {
 ```
 
 **Notes**:
+
 - Alert components will need `data-testid` attributes added
 - Helpers should be flexible (optional message checking)
 - Follow existing helper patterns for consistency
@@ -80,7 +81,8 @@ export function verifyErrorAlert(expectedMessage?: string): void {
 
 ### Task 2: Add `data-testid` Attributes to Alert Components
 
-**Files**: 
+**Files**:
+
 - `libs/app/src/lib/alert-container.component.html`
 - `libs/app/src/lib/alert-display.component.ts` (or .html if template exists)
 
@@ -89,28 +91,34 @@ export function verifyErrorAlert(expectedMessage?: string): void {
 **Attributes to Add**:
 
 1. **Alert Container**:
+
    ```html
-   <div class="alert-container" data-testid="alert-container">
+   <div class="alert-container" data-testid="alert-container"></div>
    ```
 
 2. **Individual Alert**:
+
    ```html
-   <div class="alert-message" 
-        data-testid="alert-message"
-        [attr.data-severity]="alert.severity">
+   <div
+     class="alert-message"
+     data-testid="alert-message"
+     [attr.data-severity]="alert.severity"
+   ></div>
    ```
 
 3. **Alert Message Text**:
+
    ```html
    <span data-testid="alert-message-text">{{ alert.message }}</span>
    ```
 
 4. **Dismiss Button** (if exists):
    ```html
-   <button data-testid="alert-dismiss-button" (click)="dismiss()">
+   <button data-testid="alert-dismiss-button" (click)="dismiss()"></button>
    ```
 
 **Notes**:
+
 - Use `[attr.data-severity]` for dynamic severity binding
 - Allows filtering alerts by severity in tests
 - Keep existing classes/styling intact
@@ -128,6 +136,7 @@ export function verifyErrorAlert(expectedMessage?: string): void {
 **New Test Cases**:
 
 1. **"should display error alert when connection fails"**
+
    - Setup: `disconnectedDevice` fixture
    - Use `interceptConnectDevice({ errorMode: true })`
    - Click power button to attempt connection
@@ -136,12 +145,14 @@ export function verifyErrorAlert(expectedMessage?: string): void {
    - Optional: verify message contains "connection" or "failed"
 
 2. **"should allow manual dismissal of connection error alert"**
+
    - Same setup as above
    - After error alert appears
    - Click dismiss button: `dismissAlert()`
    - Verify alert dismissed: `verifyAlertDismissed()`
 
 3. **"should auto-dismiss connection error alert after timeout"**
+
    - Same setup
    - After error alert appears
    - Wait for auto-dismiss: `waitForAlertAutoDismiss()`
@@ -153,17 +164,18 @@ export function verifyErrorAlert(expectedMessage?: string): void {
    - Device state unchanged by alert dismissal
 
 **Pattern**:
+
 ```typescript
 it('should display error alert when connection fails', () => {
   interceptFindDevices({ fixture: disconnectedDevice });
   interceptConnectDevice({ errorMode: true });
   navigateToDeviceView();
   waitForDeviceDiscovery();
-  
+
   verifyDisconnected(0);
   clickPowerButton(0);
   cy.wait('@connectDevice');
-  
+
   verifyErrorAlert(); // New alert verification
   verifyDisconnected(0); // State unchanged
 });
@@ -182,6 +194,7 @@ it('should display error alert when connection fails', () => {
 **New Test Cases**:
 
 1. **"should display error alert when disconnection fails"**
+
    - Setup: `singleDevice` fixture (connected)
    - Use `interceptDisconnectDevice({ errorMode: true })`
    - Click power button to attempt disconnection
@@ -189,11 +202,13 @@ it('should display error alert when connection fails', () => {
    - Verify error alert displayed: `verifyErrorAlert()`
 
 2. **"should allow manual dismissal of disconnection error alert"**
+
    - Same setup
    - After error alert appears, dismiss manually
    - Verify alert dismissed
 
 3. **"should auto-dismiss disconnection error alert after timeout"**
+
    - Same setup
    - Wait for auto-dismiss
    - Verify alert dismissed after ~3 seconds
@@ -216,6 +231,7 @@ it('should display error alert when connection fails', () => {
 **New Test Cases**:
 
 1. **"should display single error alert for single device connection failure"**
+
    - Setup: `threeDisconnectedDevices` fixture
    - Use `interceptConnectDevice({ errorMode: true })`
    - Try to connect device 1 - should fail
@@ -223,12 +239,14 @@ it('should display error alert when connection fails', () => {
    - Verify alert message references device or connection failure
 
 2. **"should not display duplicate alerts for same error"**
+
    - Same setup
    - After first error alert appears
    - Verify only one alert visible (check alert count)
    - No duplicate error messages
 
 3. **"should allow operations on other devices while error alert displayed"**
+
    - Connection error on device 1, alert displayed
    - Change interceptor to success mode
    - Connect device 2 successfully while alert still visible
@@ -242,6 +260,7 @@ it('should display error alert when connection fails', () => {
    - Each device error gets its own alert
 
 **Notes**:
+
 - Verify alerts don't stack inappropriately
 - Single error = single alert
 - Multiple errors can show multiple alerts (if timing allows)
@@ -259,6 +278,7 @@ it('should display error alert when connection fails', () => {
 **New Test Cases**:
 
 1. **"should display error alert when refresh fails"**
+
    - Setup: `singleDevice` fixture (connected)
    - Use `interceptFindDevices({ errorMode: true })`
    - Click refresh - should fail
@@ -266,11 +286,13 @@ it('should display error alert when connection fails', () => {
    - Optional: verify message contains "refresh" or "discovery"
 
 2. **"should auto-dismiss refresh error alert"**
+
    - Same setup
    - Wait for auto-dismiss: `waitForAlertAutoDismiss()`
    - Verify alert dismissed: `verifyAlertDismissed()`
 
 3. **"should allow retry after dismissing refresh error alert"**
+
    - First refresh fails, alert appears
    - Dismiss alert: `dismissAlert()`
    - Change interceptor to success mode
@@ -293,6 +315,7 @@ it('should display error alert when connection fails', () => {
 **Objective**: Validate alert message content is meaningful and helpful to users.
 
 **Test Structure**:
+
 ```
 describe('Device Connection - Alert Messages', () => {
   describe('Alert Message Content', () => {
@@ -304,17 +327,20 @@ describe('Device Connection - Alert Messages', () => {
 **Test Cases**:
 
 1. **"should display meaningful connection error message"**
+
    - Connection fails
    - Verify alert message is not empty
    - Verify message contains helpful keywords (e.g., "connection", "failed", "device")
    - Message should help user understand what went wrong
 
 2. **"should display meaningful disconnection error message"**
+
    - Disconnection fails
    - Verify message is descriptive
    - Message should indicate disconnection problem
 
 3. **"should display meaningful refresh error message"**
+
    - Refresh fails
    - Verify message indicates discovery/refresh problem
    - Message should be distinct from connection errors
@@ -325,6 +351,7 @@ describe('Device Connection - Alert Messages', () => {
    - Professional, user-friendly language
 
 **Notes**:
+
 - These tests validate UX quality of error messages
 - Messages should be clear, actionable when possible
 - Avoid technical jargon in user-facing messages
@@ -338,6 +365,7 @@ describe('Device Connection - Alert Messages', () => {
 **Objective**: Validate alert auto-dismiss timing is correct and configurable.
 
 **Test Structure**:
+
 ```
 describe('Alert Auto-Dismiss Behavior', () => {
   // Test cases here
@@ -347,18 +375,21 @@ describe('Alert Auto-Dismiss Behavior', () => {
 **Test Cases**:
 
 1. **"should auto-dismiss error alert after default timeout"**
+
    - Trigger connection error
    - Start timer
    - Wait for alert to disappear
    - Verify dismissal happens around 3000ms (within reasonable tolerance)
 
 2. **"should not dismiss alert before timeout"**
+
    - Trigger error
    - Wait 2000ms (less than 3000ms default)
    - Verify alert still visible
    - Then wait remaining time, verify dismissed
 
 3. **"should cancel auto-dismiss when manually dismissed"**
+
    - Trigger error
    - Manually dismiss before auto-dismiss timer
    - Verify immediate dismissal
@@ -370,6 +401,7 @@ describe('Alert Auto-Dismiss Behavior', () => {
    - First alert dismissed first, second alert persists
 
 **Notes**:
+
 - These tests validate timing behavior
 - Use Cypress clock for precise timing control if needed
 - Or use tolerance (e.g., 2900-3200ms acceptable range)
@@ -383,6 +415,7 @@ describe('Alert Auto-Dismiss Behavior', () => {
 **Objective**: Validate alert visual presentation and positioning.
 
 **Test Structure**:
+
 ```
 describe('Alert Visual Presentation', () => {
   // Test cases here
@@ -392,16 +425,19 @@ describe('Alert Visual Presentation', () => {
 **Test Cases**:
 
 1. **"should display error alert with error severity styling"**
+
    - Trigger connection error
    - Verify alert has error severity attribute: `[data-severity="error"]`
    - Verify error styling applied (red color, error icon, etc.)
 
 2. **"should position alert at bottom-right by default"**
+
    - Trigger error
    - Verify alert container positioned at bottom-right
    - Check computed styles or positioning classes
 
 3. **"should make alert visible and readable"**
+
    - Trigger error
    - Verify alert is not obscured by other UI elements
    - Verify text is readable (contrast, font size)
@@ -414,6 +450,7 @@ describe('Alert Visual Presentation', () => {
    - Verify alert has exit animation class
 
 **Notes**:
+
 - Focus on user experience quality
 - Alert should be noticeable but not intrusive
 - Professional, polished appearance
@@ -429,6 +466,7 @@ describe('Alert Visual Presentation', () => {
 **Sections to Add/Update**:
 
 1. **Alert Testing Section**:
+
    - Add new section explaining alert validation
    - Document alert helpers and selectors
    - Explain alert system architecture briefly
@@ -438,35 +476,40 @@ describe('Alert Visual Presentation', () => {
    - Show combined device state + alert verification example
 
 **Example Addition**:
-```markdown
+
+````markdown
 ### Alert Validation
 
 The application uses a custom alert system to display errors, warnings, and success messages to users.
 
 **Alert Helpers**:
+
 - `verifyErrorAlert()` - Verify error alert is displayed
 - `dismissAlert()` - Manually dismiss alert
 - `waitForAlertAutoDismiss()` - Wait for auto-dismiss (3 seconds)
 
 **Testing Pattern**:
+
 ```typescript
 it('should handle error with alert', () => {
   // Trigger error condition
   interceptConnectDevice({ errorMode: true });
   clickPowerButton(0);
-  
+
   // Verify error alert
   verifyErrorAlert('Connection failed');
-  
+
   // Verify device state
   verifyDisconnected(0);
-  
+
   // Verify alert dismisses
   waitForAlertAutoDismiss();
   verifyAlertDismissed();
 });
 ```
-```
+````
+
+````
 
 ---
 
@@ -517,27 +560,28 @@ it('should handle error with alert', () => {
 it('should show error alert on failure', () => {
   // Setup error condition
   interceptConnectDevice({ errorMode: true });
-  
+
   // Trigger operation
   clickPowerButton(0);
   cy.wait('@connectDevice');
-  
+
   // Verify alert displayed
   verifyErrorAlert();
-  
+
   // Optionally check message content
   verifyErrorAlert('Failed to connect');
-  
+
   // Verify device state independent of alert
   verifyDisconnected(0);
-  
+
   // Verify alert dismisses
   waitForAlertAutoDismiss();
   verifyAlertDismissed();
 });
-```
+````
 
 ### Alert Service Implementation Notes
+
 - `AlertService` auto-dismisses after 3000ms by default
 - `AlertService.error()` called by infrastructure services on HTTP errors
 - Alerts positioned bottom-right by default
@@ -545,6 +589,7 @@ it('should show error alert on failure', () => {
 - Each alert has unique ID for dismissal tracking
 
 ### Component Template Considerations
+
 - Need to verify actual template structure before finalizing selectors
 - Alert component may use separate template file or inline template
 - Dismiss button may be icon-only or text button
@@ -555,6 +600,7 @@ it('should show error alert on failure', () => {
 ## ❓ Questions for Phase 4
 
 **To Verify During Implementation**:
+
 1. **Alert Template Structure**: Exact template structure of `AlertDisplayComponent` - is there a separate `.html` file?
 2. **Dismiss Button**: Does alert have manual dismiss button? What selector?
 3. **Alert Stacking**: Can multiple alerts display simultaneously? How are they positioned?
@@ -562,6 +608,7 @@ it('should show error alert on failure', () => {
 5. **Error Message Source**: What error messages come from backend vs frontend? Can we rely on specific text?
 
 **Potential Issues**:
+
 1. **Timing Sensitivity**: Auto-dismiss tests may be flaky - may need Cypress clock control
 2. **Alert Positioning**: Bottom-right position may be viewport-dependent
 3. **Multiple Alerts**: If alerts stack, need different selection strategy (first, last, by message, etc.)
@@ -571,17 +618,20 @@ it('should show error alert on failure', () => {
 ## 🔗 Integration with Phases 1-3
 
 **Dependencies**:
+
 - Phase 4 extends Phases 1-3 with alert validation
 - Existing error tests provide setup - just add alert verification
 - No changes to existing test logic, only additions
 
 **Test File Updates**:
+
 - **P1 file**: Add 8 alert tests to existing error suites
 - **P2 file**: Add 4 alert tests to existing error suite
 - **P3 file**: Add 4 alert tests to existing error suite
 - **New P4 file**: 12 dedicated alert tests
 
 **Regression Prevention**:
+
 - Alert tests are additive, not replacements
 - Existing tests still verify device state behavior
 - Alert verification enhances coverage, doesn't replace existing checks
@@ -604,18 +654,22 @@ Phase 4 completes the connection testing by validating user-facing error feedbac
 ## 📊 Complete Test Suite Summary (After Phase 4)
 
 **Phase 1** (Single Device): 12-15 tests → **+8 alert tests** = 20-23 tests
+
 - Connection/disconnection workflows
 - Error handling with alert validation
 
 **Phase 2** (Multi-Device): 18-22 tests → **+4 alert tests** = 22-26 tests
+
 - Multi-device operations
 - Error isolation with alert validation
 
 **Phase 3** (Refresh & Recovery): 20-24 tests → **+4 alert tests** = 24-28 tests
+
 - Refresh workflows
 - State persistence with alert validation
 
 **Phase 4** (Alert Validation): **+12 dedicated tests** = 12 tests
+
 - Alert content, timing, visual state
 - Alert system behavior validation
 

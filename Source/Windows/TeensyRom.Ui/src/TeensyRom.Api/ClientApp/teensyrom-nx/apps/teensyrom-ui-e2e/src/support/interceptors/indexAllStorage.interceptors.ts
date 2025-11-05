@@ -159,7 +159,6 @@ export function waitForIndexAllStorage(): void {
   cy.wait(`@${INDEX_ALL_STORAGE_ENDPOINT.alias}`);
 }
 
-
 /**
  * Sets up indexAllStorage interceptor with error response
  * Useful for testing batch indexing error scenarios

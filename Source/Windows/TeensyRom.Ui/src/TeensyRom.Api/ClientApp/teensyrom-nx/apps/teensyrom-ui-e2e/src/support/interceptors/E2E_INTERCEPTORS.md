@@ -5,6 +5,7 @@
 Device API Interceptors provide functions that mock TeensyROM device endpoints using Cypress's `cy.intercept()` API. These interceptors consume Phase 2 fixtures to return realistic device discovery, connection, and state responses without requiring a live backend server.
 
 Interceptors bridge static test data (fixtures) with dynamic test scenarios by:
+
 - Handling HTTP route matching and response structure
 - Supporting error modes for testing failure scenarios
 - Registering named aliases for test assertions
@@ -20,7 +21,10 @@ Interceptors bridge static test data (fixtures) with dynamic test scenarios by:
 
 ```typescript
 import { cy } from 'cypress';
-import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
+import {
+  interceptFindDevices,
+  waitForFindDevices,
+} from '../support/interceptors/findDevices.interceptors';
 
 describe('Device Discovery', () => {
   it('should display discovered devices', () => {
@@ -40,7 +44,10 @@ describe('Device Discovery', () => {
 
 ```typescript
 import { multipleDevices } from '../support/test-data/fixtures';
-import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
+import {
+  interceptFindDevices,
+  waitForFindDevices,
+} from '../support/interceptors/findDevices.interceptors';
 
 describe('Device Discovery', () => {
   it('should handle multiple devices', () => {
@@ -57,7 +64,10 @@ describe('Device Discovery', () => {
 ### Error Mode Testing
 
 ```typescript
-import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
+import {
+  interceptFindDevices,
+  waitForFindDevices,
+} from '../support/interceptors/findDevices.interceptors';
 
 describe('Device Discovery', () => {
   it('should handle discovery errors', () => {
@@ -76,6 +86,7 @@ describe('Device Discovery', () => {
 ## Interceptor Functions
 
 All device interceptors follow the same consistent pattern:
+
 - Named function: `intercept[Action]`
 - Options parameter with defaults
 - Cypress route matching
@@ -87,10 +98,11 @@ All device interceptors follow the same consistent pattern:
 Intercepts `GET /api/devices` - Device discovery endpoint.
 
 ```typescript
-function interceptFindDevices(options?: InterceptFindDevicesOptions): void
+function interceptFindDevices(options?: InterceptFindDevicesOptions): void;
 ```
 
 **Parameters:**
+
 - `fixture?`: Override default `singleDevice` fixture
 - `errorMode?`: Return 500 error when true
 
@@ -105,10 +117,11 @@ function interceptFindDevices(options?: InterceptFindDevicesOptions): void
 Intercepts `POST /api/devices/{deviceId}/connect` - Device connection endpoint.
 
 ```typescript
-function interceptConnectDevice(options?: InterceptConnectDeviceOptions): void
+function interceptConnectDevice(options?: InterceptConnectDeviceOptions): void;
 ```
 
 **Parameters:**
+
 - `device?`: Override default device (first device from `singleDevice` fixture)
 - `errorMode?`: Return 500 error when true
 
@@ -125,10 +138,11 @@ function interceptConnectDevice(options?: InterceptConnectDeviceOptions): void
 Intercepts `DELETE /api/devices/{deviceId}` - Device disconnection endpoint.
 
 ```typescript
-function interceptDisconnectDevice(options?: InterceptDisconnectDeviceOptions): void
+function interceptDisconnectDevice(options?: InterceptDisconnectDeviceOptions): void;
 ```
 
 **Parameters:**
+
 - `errorMode?`: Return 500 error when true
 
 **Alias**: `@disconnectDevice`
@@ -144,10 +158,11 @@ function interceptDisconnectDevice(options?: InterceptDisconnectDeviceOptions): 
 Intercepts `GET /api/devices/{deviceId}/ping` - Device health check endpoint.
 
 ```typescript
-function interceptPingDevice(options?: InterceptPingDeviceOptions): void
+function interceptPingDevice(options?: InterceptPingDeviceOptions): void;
 ```
 
 **Parameters:**
+
 - `isAlive?`: Return success (true, default) or failure (false) response
 - `errorMode?`: Return 500 error when true
 
@@ -189,6 +204,7 @@ interface InterceptPingDeviceOptions {
 ```
 
 **Key Conventions:**
+
 - All options are optional with sensible defaults
 - `errorMode: true` always returns HTTP 500 status
 - Custom parameters (`fixture`, `device`, `isAlive`) override defaults
@@ -200,12 +216,12 @@ interface InterceptPingDeviceOptions {
 
 All interceptors register named aliases matching their function names for test assertions:
 
-| Function | Alias | Usage |
-|----------|-------|-------|
-| `interceptFindDevices()` | `@findDevices` | `cy.wait('@findDevices')` |
-| `interceptConnectDevice()` | `@connectDevice` | `cy.wait('@connectDevice')` |
+| Function                      | Alias               | Usage                          |
+| ----------------------------- | ------------------- | ------------------------------ |
+| `interceptFindDevices()`      | `@findDevices`      | `cy.wait('@findDevices')`      |
+| `interceptConnectDevice()`    | `@connectDevice`    | `cy.wait('@connectDevice')`    |
 | `interceptDisconnectDevice()` | `@disconnectDevice` | `cy.wait('@disconnectDevice')` |
-| `interceptPingDevice()` | `@pingDevice` | `cy.wait('@pingDevice')` |
+| `interceptPingDevice()`       | `@pingDevice`       | `cy.wait('@pingDevice')`       |
 
 **Usage Example:**
 
@@ -218,7 +234,7 @@ cy.wait('@findDevices').then((interception) => {
   // Assert on intercepted request
   expect(interception.request.url).to.include('/api/devices');
   expect(interception.response.statusCode).to.equal(200);
-  
+
   // Assert on response body
   expect(interception.response.body.devices).to.have.length.greaterThan(0);
 });
@@ -245,6 +261,7 @@ interceptPingDevice({ errorMode: true });
 ```
 
 When `errorMode: true`, interceptor returns:
+
 - **HTTP Status**: 500 Internal Server Error
 - **Response Body**: `ProblemDetails` structure
   ```typescript
@@ -257,6 +274,7 @@ When `errorMode: true`, interceptor returns:
   ```
 
 **Exception**: `interceptPingDevice()` distinguishes between:
+
 - `isAlive: false` - Device not responding (200 status, failure message)
 - `errorMode: true` - Server error (500 status)
 
@@ -347,7 +365,7 @@ All interceptors return responses matching the generated API client types:
 
 ```typescript
 {
-  device: CartDto
+  device: CartDto;
 }
 ```
 
@@ -355,7 +373,7 @@ All interceptors return responses matching the generated API client types:
 
 ```typescript
 {
-  message: string
+  message: string;
 }
 ```
 
@@ -363,7 +381,7 @@ All interceptors return responses matching the generated API client types:
 
 ```typescript
 {
-  isAlive: boolean
+  isAlive: boolean;
 }
 ```
 
@@ -390,16 +408,16 @@ describe('Device Connection Flow', () => {
   it('should discover and connect to device', () => {
     // Mock device discovery
     interceptFindDevices();
-    
+
     // Mock device connection
     interceptConnectDevice();
-    
+
     cy.visit('/devices');
     cy.wait('@findDevices');
-    
+
     cy.get('[data-testid="device-item"]').first().click();
     cy.wait('@connectDevice');
-    
+
     cy.get('[data-testid="connected-indicator"]').should('be.visible');
   });
 });
@@ -413,13 +431,13 @@ describe('Multiple Devices', () => {
   it('should display and allow selection of multiple devices', () => {
     interceptFindDevices({ fixture: multipleDevices });
     interceptConnectDevice();
-    
+
     cy.visit('/devices');
     cy.wait('@findDevices');
-    
+
     cy.get('[data-testid="device-item"]').should('have.length', 3);
     cy.get('[data-testid="device-item"]').eq(1).click();
-    
+
     cy.wait('@connectDevice');
   });
 });
@@ -432,10 +450,10 @@ describe('Multiple Devices', () => {
 describe('Error Handling', () => {
   it('should display error when device discovery fails', () => {
     interceptFindDevices({ errorMode: true });
-    
+
     cy.visit('/devices');
     cy.wait('@findDevices');
-    
+
     cy.get('[data-testid="error-banner"]').should('be.visible');
     cy.get('[data-testid="error-message"]').should('contain', 'discovery failed');
   });
@@ -451,16 +469,16 @@ describe('Device Health Check', () => {
     interceptFindDevices();
     interceptConnectDevice();
     interceptPingDevice({ isAlive: true });
-    
+
     cy.visit('/devices');
     cy.wait('@findDevices');
-    
+
     cy.get('[data-testid="device-item"]').first().click();
     cy.wait('@connectDevice');
-    
+
     cy.get('[data-testid="health-check-btn"]').click();
     cy.wait('@pingDevice');
-    
+
     cy.get('[data-testid="device-status"]').should('contain', 'Alive');
   });
 });
@@ -471,36 +489,40 @@ describe('Device Health Check', () => {
 ## Best Practices
 
 1. **Register interceptors before navigation**: Always call interceptor functions before `cy.visit()` or API calls
+
    ```typescript
-   interceptFindDevices();  // ✅ Do this first
-   cy.visit('/devices');   // Then navigate
+   interceptFindDevices(); // ✅ Do this first
+   cy.visit('/devices'); // Then navigate
    ```
 
 2. **Use specific fixtures for scenarios**: Don't rely on defaults for non-trivial tests
+
    ```typescript
    // ❌ Less clear what you're testing
    interceptFindDevices();
-   
+
    // ✅ Clear test intent
    interceptFindDevices({ fixture: multipleDevices });
    ```
 
 3. **Chain related interceptors**: Register all mocks for a workflow together
+
    ```typescript
    // ✅ Clear workflow intent
    interceptFindDevices();
    interceptConnectDevice();
    interceptDisconnectDevice();
-   
+
    // Then test the full workflow
    ```
 
 4. **Wait for aliases**: Always use `cy.wait()` with aliases to ensure requests complete
+
    ```typescript
    interceptFindDevices();
    cy.visit('/devices');
-   cy.wait('@findDevices');  // ✅ Ensures request completed
-   
+   cy.wait('@findDevices'); // ✅ Ensures request completed
+
    cy.get('[data-testid="device-list"]').should('be.visible');
    ```
 
@@ -511,7 +533,7 @@ describe('Device Health Check', () => {
        interceptFindDevices();
        // ... success test
      });
-     
+
      it('should handle discovery errors', () => {
        interceptFindDevices({ errorMode: true });
        // ... error test
@@ -545,7 +567,10 @@ beforeEach(() => {
 For precise timing control and race condition testing, each interceptor also exports a `waitFor<EndpointName>ToStart()` variant:
 
 ```typescript
-import { interceptFindDevices, waitForFindDevicesToStart } from './interceptors/findDevices.interceptors';
+import {
+  interceptFindDevices,
+  waitForFindDevicesToStart,
+} from './interceptors/findDevices.interceptors';
 
 // Race condition testing - wait for request to start (not complete)
 it('should handle UI state during API call', () => {
@@ -566,44 +591,46 @@ it('should handle UI state during API call', () => {
 
 All interceptors provide these wait functions:
 
-| Interceptor File | Standard Wait Function | Race Condition Variant |
-|------------------|-----------------------|------------------------|
-| `findDevices.interceptors.ts` | `waitForFindDevices()` | `waitForFindDevicesToStart()` |
-| `connectDevice.interceptors.ts` | `waitForConnectDevice()` | `waitForConnectDeviceToStart()` |
+| Interceptor File                   | Standard Wait Function      | Race Condition Variant             |
+| ---------------------------------- | --------------------------- | ---------------------------------- |
+| `findDevices.interceptors.ts`      | `waitForFindDevices()`      | `waitForFindDevicesToStart()`      |
+| `connectDevice.interceptors.ts`    | `waitForConnectDevice()`    | `waitForConnectDeviceToStart()`    |
 | `disconnectDevice.interceptors.ts` | `waitForDisconnectDevice()` | `waitForDisconnectDeviceToStart()` |
-| `pingDevice.interceptors.ts` | `waitForPingDevice()` | `waitForPingDeviceToStart()` |
-| `getDirectory.interceptors.ts` | `waitForGetDirectory()` | `waitForGetDirectoryToStart()` |
-| `indexStorage.interceptors.ts` | `waitForIndexStorage()` | `waitForIndexStorageToStart()` |
-| `indexAllStorage.interceptors.ts` | `waitForIndexAllStorage()` | `waitForIndexAllStorageToStart()` |
-| `launchFile.interceptors.ts` | `waitForLaunchFile()` | `waitForLaunchFileToStart()` |
-| `launchRandom.interceptors.ts` | `waitForLaunchRandom()` | `waitForLaunchRandomToStart()` |
-| `player.interceptors.ts` | `waitForPlayer()` | `waitForPlayerToStart()` |
-| `saveFavorite.interceptors.ts` | `waitForSaveFavorite()` | `waitForSaveFavoriteToStart()` |
-| `removeFavorite.interceptors.ts` | `waitForRemoveFavorite()` | `waitForRemoveFavoriteToStart()` |
+| `pingDevice.interceptors.ts`       | `waitForPingDevice()`       | `waitForPingDeviceToStart()`       |
+| `getDirectory.interceptors.ts`     | `waitForGetDirectory()`     | `waitForGetDirectoryToStart()`     |
+| `indexStorage.interceptors.ts`     | `waitForIndexStorage()`     | `waitForIndexStorageToStart()`     |
+| `indexAllStorage.interceptors.ts`  | `waitForIndexAllStorage()`  | `waitForIndexAllStorageToStart()`  |
+| `launchFile.interceptors.ts`       | `waitForLaunchFile()`       | `waitForLaunchFileToStart()`       |
+| `launchRandom.interceptors.ts`     | `waitForLaunchRandom()`     | `waitForLaunchRandomToStart()`     |
+| `player.interceptors.ts`           | `waitForPlayer()`           | `waitForPlayerToStart()`           |
+| `saveFavorite.interceptors.ts`     | `waitForSaveFavorite()`     | `waitForSaveFavoriteToStart()`     |
+| `removeFavorite.interceptors.ts`   | `waitForRemoveFavorite()`   | `waitForRemoveFavoriteToStart()`   |
 
 ### Import Patterns
 
 **Direct Import from Interceptor Files** (Recommended):
+
 ```typescript
 // Import both interceptor and wait function from same file
 import {
   interceptFindDevices,
   waitForFindDevices,
-  waitForFindDevicesToStart
+  waitForFindDevicesToStart,
 } from '../support/interceptors/findDevices.interceptors';
 
 // Import multiple interceptors and their wait functions
 import {
   interceptFindDevices,
-  waitForFindDevices
+  waitForFindDevices,
 } from '../support/interceptors/findDevices.interceptors';
 import {
   interceptConnectDevice,
-  waitForConnectDevice
+  waitForConnectDevice,
 } from '../support/interceptors/connectDevice.interceptors';
 ```
 
 **Barrel Import Pattern** (From index.ts):
+
 ```typescript
 import {
   interceptFindDevices,
@@ -619,9 +646,16 @@ import { waitForConnectDevice } from '../support/interceptors/connectDevice.inte
 ### Usage Examples
 
 **Basic Test Setup**:
+
 ```typescript
-import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
-import { interceptConnectDevice, waitForConnectDevice } from '../support/interceptors/connectDevice.interceptors';
+import {
+  interceptFindDevices,
+  waitForFindDevices,
+} from '../support/interceptors/findDevices.interceptors';
+import {
+  interceptConnectDevice,
+  waitForConnectDevice,
+} from '../support/interceptors/connectDevice.interceptors';
 
 describe('Device Connection', () => {
   beforeEach(() => {
@@ -640,11 +674,12 @@ describe('Device Connection', () => {
 ```
 
 **Loading State Testing**:
+
 ```typescript
 import {
   interceptFindDevices,
   waitForFindDevicesToStart,
-  waitForFindDevices
+  waitForFindDevices,
 } from '../support/interceptors/findDevices.interceptors';
 
 describe('Loading States', () => {
@@ -665,14 +700,15 @@ describe('Loading States', () => {
 ```
 
 **Multiple API Calls**:
+
 ```typescript
 import {
   interceptFindDevices,
-  waitForFindDevices
+  waitForFindDevices,
 } from '../support/interceptors/findDevices.interceptors';
 import {
   interceptGetDirectory,
-  waitForGetDirectory
+  waitForGetDirectory,
 } from '../support/interceptors/getDirectory.interceptors';
 
 describe('File Browser Workflow', () => {
@@ -695,6 +731,7 @@ describe('File Browser Workflow', () => {
 ### Migration Changes
 
 **Previous Pattern** (Wait functions in separate files):
+
 ```typescript
 // ❌ Old pattern - wait functions in separate test-helpers files
 import { interceptFindDevices } from '../support/interceptors';
@@ -702,11 +739,12 @@ import { waitForDeviceDiscovery } from '../e2e/devices/test-helpers';
 ```
 
 **Current Pattern** (Wait functions co-located with interceptors):
+
 ```typescript
 // ✅ Current pattern - wait functions in interceptor files
 import {
   interceptFindDevices,
-  waitForFindDevices
+  waitForFindDevices,
 } from '../support/interceptors/findDevices.interceptors';
 ```
 
@@ -733,12 +771,12 @@ import {
 
 All interceptors correspond to endpoints in `DevicesApiService`:
 
-| Interceptor | Endpoint | HTTP Method | Route |
-|------------|----------|------------|-------|
-| `interceptFindDevices` | findDevices | GET | `/api/devices` |
-| `interceptConnectDevice` | connectDevice | POST | `/api/devices/{deviceId}/connect` |
-| `interceptDisconnectDevice` | disconnectDevice | DELETE | `/api/devices/{deviceId}` |
-| `interceptPingDevice` | pingDevice | GET | `/api/devices/{deviceId}/ping` |
+| Interceptor                 | Endpoint         | HTTP Method | Route                             |
+| --------------------------- | ---------------- | ----------- | --------------------------------- |
+| `interceptFindDevices`      | findDevices      | GET         | `/api/devices`                    |
+| `interceptConnectDevice`    | connectDevice    | POST        | `/api/devices/{deviceId}/connect` |
+| `interceptDisconnectDevice` | disconnectDevice | DELETE      | `/api/devices/{deviceId}`         |
+| `interceptPingDevice`       | pingDevice       | GET         | `/api/devices/{deviceId}/ping`    |
 
 See `libs/data-access/api-client/src/lib/apis/DevicesApiService.ts` for full API signatures.
 

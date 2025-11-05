@@ -12,7 +12,6 @@
 
 ---
 
-
 **Purpose**: This document outlines a systematic, one-endpoint-at-a-time approach to consolidate fragmented E2E testing infrastructure into self-contained, maintainable units.
 
 ## 🎯 Project Objective
@@ -465,25 +464,30 @@ And developers can either optimize the implementation or rollback to previous st
 ### Summary of Open Questions
 
 **Phase 1:**
+
 - What specific validation criteria should each endpoint migration meet before proceeding to the next endpoint?
 - How should we establish consistent explicit import patterns while avoiding import statement clutter?
 - What specific conditions or failure metrics should trigger an automatic rollback of an endpoint migration?
 
 **Phase 2:**
+
 - How should we handle tests that use multiple device endpoints - update all at once or incrementally per endpoint?
 - What consistent error handling patterns should we establish across all device interceptors?
 - How do we validate that the new consolidated approach doesn't introduce performance regressions?
 
 **Phase 3:**
+
 - How should we handle endpoints that manage complex state or have cross-endpoint dependencies?
 - What consistent patterns should we establish for endpoints with complex path resolution or query parameter handling?
 
 **Phase 4:**
+
 - How do we gracefully migrate the existing indexing endpoints that already follow a different pattern?
 - What comprehensive cross-domain scenarios should we validate to ensure complete integration?
 - How do we ensure the final architecture supports easy addition of new endpoints?
 
 **Phase 5:**
+
 - What level of detail should we provide in developer migration guides to ensure smooth adoption?
 - What specific performance metrics should we validate to ensure the new architecture meets or exceeds current standards?
 - What documentation and guidelines should we provide for long-term maintenance of the consolidated architecture?

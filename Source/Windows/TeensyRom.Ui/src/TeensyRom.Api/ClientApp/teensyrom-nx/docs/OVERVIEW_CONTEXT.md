@@ -1,4 +1,3 @@
-
 # TeensyROM Angular Nx Monorepo Context & Architecture
 
 ## Project Overview
@@ -29,7 +28,7 @@ This application follows **Clean Architecture** principles with clear separation
 ### Architecture Layers
 
 1. **Domain Layer** (`libs/domain`) - Pure business logic, contracts, and models
-2. **Application Layer** (`libs/application`) - Use cases, state management, and application services  
+2. **Application Layer** (`libs/application`) - Use cases, state management, and application services
 3. **Infrastructure Layer** (`libs/infrastructure`) - External concerns (HTTP clients, SignalR, etc.)
 4. **Presentation Layer** (`libs/features`, `libs/ui`) - UI components and user interactions
 
@@ -43,8 +42,9 @@ This application follows **Clean Architecture** principles with clear separation
 ### Dependency Constraint Enforcement
 
 **ESLint Module Boundaries**: Nx ESLint rules automatically enforce Clean Architecture dependency constraints at build/lint time using project tags:
+
 - **Domain Layer**: `["scope:domain"]` - Cannot depend on any other layers
-- **Application Layer**: `["scope:application"]` - Can only depend on domain and shared utilities  
+- **Application Layer**: `["scope:application"]` - Can only depend on domain and shared utilities
 - **Infrastructure Layer**: `["scope:infrastructure"]` - Can only depend on domain, shared, and api-client
 - **Features Layer**: `["scope:features", "feature:device|player"]` - Can depend on application, domain, and shared UI (features isolated from each other)
 - **App Layer**: `["scope:app"]` - Can import from infrastructure (composition root), features, application, and shared
@@ -91,19 +91,22 @@ This application follows **Clean Architecture** principles with clear separation
 
 **Shared Model Structure**:
 All domain models are located in the shared `models/` folder for universal access:
+
 - **Device Models**: `Device`, `DeviceStorage`
 - **Storage Models**: `DirectoryItem`, `FileItem`, `ViewableItemImage`, `FileItemType`, `StorageType`, `StorageDirectory`
 - **Individual Files**: Each interface/enum is in its own file for better maintainability and tree-shaking
 
 **Shared Contract Structure**:
-All domain contracts are located in the shared `contracts/` folder for universal access: 
+All domain contracts are located in the shared `contracts/` folder for universal access:
+
 - **Device Contracts**: `IDeviceService`, `IDeviceEventsService`, `IDeviceLogsService` + injection tokens
 - **Storage Contracts**: `IStorageService` + injection tokens
 - **Individual Files**: Each interface/token is in its own file for better maintainability and tree-shaking
 
 **Contract Examples**:
+
 - `IDeviceService` contract defining device operations
-- `IStorageService` contract defining file system operations  
+- `IStorageService` contract defining file system operations
 - Domain validation rules and business logic
 
 ### 2. Application Layer (`libs/application`) - Use Cases & State
@@ -116,6 +119,7 @@ All domain contracts are located in the shared `contracts/` folder for universal
 - **Depends Only on Domain**: Uses domain contracts, never infrastructure implementations
 
 **Examples**:
+
 - Device state management with connection workflows
 - Storage state management with navigation and file operations
 - Application-level orchestration of domain services
@@ -131,6 +135,7 @@ All domain contracts are located in the shared `contracts/` folder for universal
 - **Framework Dependencies**: Angular-specific and external library integrations
 
 **Examples**:
+
 - `DeviceService` implementing `IDeviceService` using HTTP and SignalR
 - `StorageService` implementing `IStorageService` using HTTP API
 - Data mapping between API DTOs and domain models
@@ -163,7 +168,7 @@ All domain contracts are located in the shared `contracts/` folder for universal
 ### ✅ Completed Features
 
 - **Device Management**: Full discovery, connection, disconnection, and real-time status monitoring
-- **SignalR Integration**: Real-time device logs and events with proper connection management  
+- **SignalR Integration**: Real-time device logs and events with proper connection management
 - **OpenAPI Client**: Complete TypeScript client generation with post-processing pipeline
 - **Application Shell**: Navigation, layout, header with integrated device state and busy dialogs
 - **Clean Architecture**: Proper separation of concerns with dependency inversion
@@ -179,7 +184,7 @@ All domain contracts are located in the shared `contracts/` folder for universal
 
 - **Player Controls**: Playback controls, file launching, and media management
 - **Settings Domain**: User preferences, application configuration, and persistence
-- **DJ Mixer Features**: Advanced audio mixing and MIDI I/O capabilities  
+- **DJ Mixer Features**: Advanced audio mixing and MIDI I/O capabilities
 - **Theme System**: Complete theming infrastructure and customization
 - **File Launch History**: Persistent metadata and usage tracking
 
@@ -201,7 +206,7 @@ libs/
 │   └── src/lib/                                # [library] Clean domain architecture with shared models and contracts
 │       ├── models/                             # [folder] Shared domain models (universal access)
 │       │   ├── device.model.ts                 # [file] Device interface
-│       │   ├── device-storage.model.ts         # [file] DeviceStorage interface  
+│       │   ├── device-storage.model.ts         # [file] DeviceStorage interface
 │       │   ├── directory-item.model.ts         # [file] DirectoryItem interface
 │       │   ├── file-item.model.ts              # [file] FileItem interface
 │       │   ├── file-item-type.enum.ts          # [file] FileItemType enum
@@ -316,7 +321,7 @@ libs/
     └── api-client/                             # [library] Generated OpenAPI TypeScript client
         ├── apis/                               # [folder] Generated API services (*ApiService naming)
         │   ├── DevicesApiService.ts            # [file] Device API client (post-processed naming)
-        │   ├── FilesApiService.ts              # [file] Storage/Files API client  
+        │   ├── FilesApiService.ts              # [file] Storage/Files API client
         │   └── PlayerApiService.ts             # [file] Player API client
         ├── models/                             # [folder] Generated DTO models and types
         ├── scripts/                            # [folder] OpenAPI generation and post-processing scripts
@@ -386,7 +391,7 @@ libs/
 ### API Client Integration
 
 - **Generated Clients**: Build-time OpenAPI generation from .NET API (no running server required)
-- **Post-processing**: Automatic renaming of `*Service` to `*ApiService` for clarity  
+- **Post-processing**: Automatic renaming of `*Service` to `*ApiService` for clarity
 - **Infrastructure Wrapped**: Promise-based TypeScript client wrapped with RxJS in infrastructure
 - **Domain Mapping**: Always map through infrastructure mappers, never import API types directly
 - **Clean Architecture Compliance**: API clients consumed only by infrastructure layer services
@@ -394,12 +399,13 @@ libs/
 **📖 Documentation**: See [API_CLIENT_GENERATION.md](API_CLIENT_GENERATION.md) for complete client regeneration guide
 
 **Integration Pattern**:
+
 ```typescript
 // ✅ Infrastructure layer service implementing domain contract
 @Injectable()
 export class DeviceService implements IDeviceService {
   constructor(private readonly apiClient: DevicesApiService) {}
-  
+
   async getDevices(): Promise<Device[]> {
     const dtos = await this.apiClient.getDevices();
     return DeviceMapper.toDomainModels(dtos);
@@ -426,6 +432,7 @@ import { DevicesApiService } from '@teensyrom-nx/data-access/api-client'; // BAD
 - **Import Boundaries**: UI components never import from domain, application, or infrastructure layers
 
 **Example Usage**:
+
 ```typescript
 // ❌ Bad - UI component importing business logic
 import { DeviceService } from '@teensyrom-nx/infrastructure';
@@ -438,7 +445,8 @@ import { DeviceStore } from '@teensyrom-nx/application';
 import { ActionButtonComponent } from '@teensyrom-nx/ui/components';
 ```
 
-**📖 References**: 
+**📖 References**:
+
 - [COMPONENT_LIBRARY.md](COMPONENT_LIBRARY.md) - Complete component API documentation
 - [STYLE_GUIDE.md](STYLE_GUIDE.md) - Global styling patterns and utility classes
 

@@ -15,10 +15,7 @@ export class DeviceService implements IDeviceService {
   private readonly apiService: DevicesApiService;
   private readonly alertService: IAlertService;
 
-  constructor(
-    apiService: DevicesApiService,
-    @Inject(ALERT_SERVICE) alertService: IAlertService
-  ) {
+  constructor(apiService: DevicesApiService, @Inject(ALERT_SERVICE) alertService: IAlertService) {
     this.apiService = apiService;
     this.alertService = alertService;
   }
@@ -35,7 +32,9 @@ export class DeviceService implements IDeviceService {
       map((response: FindDevicesResponse) =>
         DomainMapper.toDeviceList(response.devices.filter((d) => d.isConnected) || [])
       ),
-      catchError((error) => this.handleError(error, 'getConnectedDevices', 'Failed to retrieve connected devices'))
+      catchError((error) =>
+        this.handleError(error, 'getConnectedDevices', 'Failed to retrieve connected devices')
+      )
     );
   }
 
@@ -49,7 +48,9 @@ export class DeviceService implements IDeviceService {
   disconnectDevice(deviceId: string): Observable<void> {
     return from(this.apiService.disconnectDevice({ deviceId })).pipe(
       map(() => void 0),
-      catchError((error) => this.handleError(error, 'disconnectDevice', 'Failed to disconnect device'))
+      catchError((error) =>
+        this.handleError(error, 'disconnectDevice', 'Failed to disconnect device')
+      )
     );
   }
 
@@ -67,7 +68,11 @@ export class DeviceService implements IDeviceService {
     );
   }
 
-  private handleError(error: unknown, methodName: string, fallbackMessage: string): Observable<never> {
+  private handleError(
+    error: unknown,
+    methodName: string,
+    fallbackMessage: string
+  ): Observable<never> {
     return from(extractErrorMessage(error, fallbackMessage)).pipe(
       mergeMap((message) => {
         logError(`DeviceService.${methodName} error:`, error);
@@ -77,4 +82,3 @@ export class DeviceService implements IDeviceService {
     );
   }
 }
-

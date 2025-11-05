@@ -101,13 +101,13 @@ describe('PlayerTimerManager', () => {
       manager.createTimer('device1', 5000);
       await waitForTime(150);
       const firstEmissions = emissionCount;
-      
+
       manager.destroyTimer('device1');
-      
+
       // Create new timer - should reuse same subject and subscriber should still receive events
       manager.createTimer('device1', 5000);
       await waitForTime(150);
-      
+
       expect(emissionCount).toBeGreaterThan(firstEmissions);
     });
   });

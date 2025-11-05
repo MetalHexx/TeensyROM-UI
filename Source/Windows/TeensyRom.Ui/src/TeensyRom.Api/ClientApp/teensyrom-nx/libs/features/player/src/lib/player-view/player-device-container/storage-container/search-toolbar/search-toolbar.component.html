@@ -2,7 +2,7 @@
   <div class="search-toolbar-content">
     <lib-input-field
       label="Search"
-      placeholder="Ex: +iron +maiden +&quot;Aces High&quot;"
+      placeholder='Ex: +iron +maiden +"Aces High"'
       prefixIcon="search"
       class="search-field"
       #searchInput
@@ -11,14 +11,14 @@
     >
     </lib-input-field>
     @if (showClearButton()) {
-      <lib-icon-button
-        icon="close"
-        ariaLabel="Clear search results"
-        color="normal"
-        size="medium"
-        (buttonClick)="clearSearch()"
-      >
-      </lib-icon-button>
+    <lib-icon-button
+      icon="close"
+      ariaLabel="Clear search results"
+      color="normal"
+      size="medium"
+      (buttonClick)="clearSearch()"
+    >
+    </lib-icon-button>
     }
   </div>
 </lib-scaling-compact-card>

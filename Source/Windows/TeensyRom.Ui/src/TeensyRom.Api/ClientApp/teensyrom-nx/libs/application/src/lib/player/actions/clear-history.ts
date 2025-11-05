@@ -17,7 +17,10 @@ export function clearHistory(store: WritableStore<PlayerState>) {
       const playerState = getPlayerState(store, deviceId);
 
       if (!playerState) {
-        logInfo(LogType.Info, `ClearHistory: No player state for device ${deviceId}, nothing to clear`);
+        logInfo(
+          LogType.Info,
+          `ClearHistory: No player state for device ${deviceId}, nothing to clear`
+        );
         return;
       }
 
@@ -32,7 +35,10 @@ export function clearHistory(store: WritableStore<PlayerState>) {
           return state;
         }
 
-        logInfo(LogType.Success, `ClearHistory: History cleared successfully for device ${deviceId}`);
+        logInfo(
+          LogType.Success,
+          `ClearHistory: History cleared successfully for device ${deviceId}`
+        );
 
         return {
           players: {

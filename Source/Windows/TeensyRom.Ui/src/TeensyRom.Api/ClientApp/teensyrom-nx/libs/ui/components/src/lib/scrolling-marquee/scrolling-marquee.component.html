@@ -7,11 +7,9 @@
     [style.--scroll-duration.s]="scrollDuration()"
   >
     @if (effectClass() === 'none-effect') {
-      {{ text() }}
-    } @else {
-      @for (char of characters(); track $index) {
-        <span class="char" [style.--char-index]="$index">{{ char }}</span>
-      }
-    }
+    {{ text() }}
+    } @else { @for (char of characters(); track $index) {
+    <span class="char" [style.--char-index]="$index">{{ char }}</span>
+    } }
   </div>
 </div>

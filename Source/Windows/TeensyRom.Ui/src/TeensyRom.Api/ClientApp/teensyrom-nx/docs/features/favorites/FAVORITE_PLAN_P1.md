@@ -49,15 +49,18 @@ TeensyRom.Api.Tests.Integration/
 ### Reference Files
 
 **Endpoint Patterns**:
+
 - [`LaunchFileEndpoint.cs`](../../../../../TeensyRom.Api/Endpoints/Player/LaunchFile/LaunchFileEndpoint.cs) - Endpoint structure, device validation, error handling
 - [`LaunchFileModels.cs`](../../../../../TeensyRom.Api/Endpoints/Player/LaunchFile/LaunchFileModels.cs) - Request/response models, FluentValidation patterns
 
 **Storage Logic**:
+
 - [`CachedStorageService.cs`](../../../../../TeensyRom.Core.Storage/CachedStorageService.cs) - Lines 57-104 contain SaveFavorite logic to extract
 - [`StorageService.cs`](../../../../../TeensyRom.Core.Storage/StorageService.cs) - Target file for new SaveFavorite method
 - [`StorageHelper.cs`](../../../../../TeensyRom.Core/Entities/Storage/StorageHelper.cs) - GetFavoritePath() method, favorite directory constants
 
 **Testing Patterns**:
+
 - [`LaunchFileTests.cs`](../../../../../TeensyRom.Api.Tests.Integration/LaunchFileTests.cs) - Test structure, assertion patterns, fixture usage
 - [`EndpointFixture.cs`](../../../../../TeensyRom.Api.Tests.Integration/Common/EndpointFixture.cs) - Helper methods: GetConnectedDevice(), Preindex()
 
@@ -74,11 +77,13 @@ TeensyRom.Api.Tests.Integration/
 **Components to Create**:
 
 1. **SaveFavoriteRequest**
+
    - Properties: `DeviceId` (route), `StorageType` (route), `FilePath` (query)
    - Mirror [`LaunchFileRequest`](../../../../../TeensyRom.Api/Endpoints/Player/LaunchFile/LaunchFileModels.cs) structure exactly
    - Use `[FromRoute]` and `[FromQuery]` attributes
 
-2. **SaveFavoriteRequestValidator** 
+2. **SaveFavoriteRequestValidator**
+
    - Copy [`LaunchFileRequestValidator`](../../../../../TeensyRom.Api/Endpoints/Player/LaunchFile/LaunchFileModels.cs) pattern
    - Validate: DeviceId format, FilePath format, StorageType enum
 
@@ -88,6 +93,7 @@ TeensyRom.Api.Tests.Integration/
    - Use `FileItemDto` type for file properties
 
 **Key Decisions**:
+
 - Return both original and favorite file for UI state management
 - Include FavoritePath to show user where favorite was saved
 
@@ -100,12 +106,14 @@ TeensyRom.Api.Tests.Integration/
 **Reference**: [`LaunchFileEndpoint.cs`](../../../../../TeensyRom.Api/Endpoints/Player/LaunchFile/LaunchFileEndpoint.cs) - Mirror this structure exactly
 
 **Endpoint Configuration**:
+
 - Route: `POST /devices/{deviceId}/storage/{storageType}/favorite`
 - Name: "SaveFavorite"
 - Tags: "Files"
 - Status codes: 200 OK, 400 Bad Request, 404 Not Found, 502 Bad Gateway
 
 **Handle Method Flow** (copy [`LaunchFileEndpoint`](../../../../../TeensyRom.Api/Endpoints/Player/LaunchFile/LaunchFileEndpoint.cs) structure):
+
 1. Get device from `deviceManager.GetConnectedDevice(r.DeviceId)` → SendNotFound if null
 2. Get storage service (check SD/USB availability) → SendNotFound if unavailable
 3. Get file with `storage.GetFile(new FilePath(r.FilePath))` → SendNotFound if null
@@ -114,6 +122,7 @@ TeensyRom.Api.Tests.Integration/
 6. Build response with `FileItemDto.FromLaunchable()` → Send success
 
 **Error Handling**:
+
 - Device not found → 404
 - Storage unavailable → 404
 - File not found → 404
@@ -128,12 +137,14 @@ TeensyRom.Api.Tests.Integration/
 
 **Source**: [`CachedStorageService.cs`](../../../../../TeensyRom.Core.Storage/CachedStorageService.cs) lines 57-104 - Copy this method
 
-**Method Signature**: 
+**Method Signature**:
+
 ```csharp
 public async Task<LaunchableItem?> SaveFavorite(LaunchableItem launchItem)
 ```
 
 **Implementation Steps**:
+
 1. Get favorite path from [`StorageHelper.GetFavoritePath()`](../../../../../TeensyRom.Core/Entities/Storage/StorageHelper.cs)
 2. Create `FavoriteFileCommand` with source and target paths
 3. Send command via `mediator.Send()`
@@ -145,6 +156,7 @@ public async Task<LaunchableItem?> SaveFavorite(LaunchableItem launchItem)
 9. Return favorite copy
 
 **Variable Adaptations** (from [`CachedStorageService`](../../../../../TeensyRom.Core.Storage/CachedStorageService.cs)):
+
 - `_settings.StorageType` → `settings.CartStorage.Type`
 - `_mediator` → `mediator`
 - `_alert` → `alert`
@@ -152,6 +164,7 @@ public async Task<LaunchableItem?> SaveFavorite(LaunchableItem launchItem)
 - `_storageCache` → `cache`
 
 **Dependencies**:
+
 - Existing `FavoriteFileCommand` from TeensyRom.Core.Serial
 - `IStorageCache` methods: `UpsertFile()`, `FindParentFile()`, `FindSiblings()`, `WriteToDisk()`
 
@@ -164,6 +177,7 @@ public async Task<LaunchableItem?> SaveFavorite(LaunchableItem launchItem)
 **Reference**: [`LaunchFileTests.cs`](../../../../../TeensyRom.Api.Tests.Integration/LaunchFileTests.cs) - Copy test structure and patterns
 
 **Test Class Setup**:
+
 - Attribute: `[Collection("Endpoint")]`
 - Constructor: `SaveFavoriteTests(EndpointFixture f)`
 - Implement: `IDisposable` with `f.Reset()` in Dispose
@@ -172,31 +186,30 @@ public async Task<LaunchableItem?> SaveFavorite(LaunchableItem launchItem)
 **10 Test Methods to Implement**:
 
 **Success Scenarios** (4 tests):
+
 1. **When_SavingMusicFileAsFavorite_ReturnsSuccessWithFavoriteInfo**
+
    - Use [`f.GetConnectedDevice()`](../../../../../TeensyRom.Api.Tests.Integration/Common/EndpointFixture.cs) and [`f.Preindex()`](../../../../../TeensyRom.Api.Tests.Integration/Common/EndpointFixture.cs)
    - Assert 200 OK with SaveFavoriteResponse
    - Verify OriginalFile.Path matches request
    - Verify FavoritePath contains "/favorites/music"
 
 2. **When_SavingGameFileAsFavorite_ReturnsSuccessWithCorrectPath**
+
    - Verify FavoritePath contains "/favorites/games"
 
 3. **When_SavingImageFileAsFavorite_ReturnsSuccessWithCorrectPath**
+
    - Verify FavoritePath contains "/favorites/images"
 
 4. **When_SavingMultipleFavorites_InSequence_AllSucceed**
    - Test music, game, image files sequentially
    - Add brief delays between operations
 
-**Error Scenarios** (6 tests):
-5. **When_SavingFavorite_WithNonExistentFile_ReturnsNotFound** → 404
-6. **When_SavingFavorite_WithInvalidDeviceId_ReturnsValidationError** → 400
-7. **When_SavingFavorite_WithDeviceThatDoesntExist_ReturnsNotFound** → 404
-8. **When_SavingFavorite_WithUnavailableSDStorage_ReturnsNotFound** → 404 (skip if SD available)
-9. **When_SavingFavorite_WithInvalidStorageType_ReturnsBadRequest** → 400
-10. **When_SavingFavorite_WithEmptyFilePath_ReturnsBadRequest** → 400
+**Error Scenarios** (6 tests): 5. **When_SavingFavorite_WithNonExistentFile_ReturnsNotFound** → 404 6. **When_SavingFavorite_WithInvalidDeviceId_ReturnsValidationError** → 400 7. **When_SavingFavorite_WithDeviceThatDoesntExist_ReturnsNotFound** → 404 8. **When_SavingFavorite_WithUnavailableSDStorage_ReturnsNotFound** → 404 (skip if SD available) 9. **When_SavingFavorite_WithInvalidStorageType_ReturnsBadRequest** → 400 10. **When_SavingFavorite_WithEmptyFilePath_ReturnsBadRequest** → 400
 
 **Test Patterns** (from [`LaunchFileTests.cs`](../../../../../TeensyRom.Api.Tests.Integration/LaunchFileTests.cs)):
+
 - Use [`EndpointFixture`](../../../../../TeensyRom.Api.Tests.Integration/Common/EndpointFixture.cs) helper methods
 - FluentAssertions: `.Should().BeSuccessful<T>()`, `.Should().BeProblem()`, `.Should().BeValidationProblem()`
 - Check `.WithStatusCode()`, `.WithContentNotNull()`
@@ -219,16 +232,19 @@ Before starting implementation, verify:
 ### Development Testing Workflow
 
 1. **Task 1 Completion** (Models):
+
    - Build the project, verify no compilation errors
    - Validators should compile without issues
 
 2. **Task 2 Completion** (Endpoint):
+
    - Build the project
    - Endpoint should register in Swagger/Scalar docs at `/scalar/v1`
    - Verify endpoint appears at `/devices/{deviceId}/storage/{storageType}/favorite`
    - Test with Swagger UI (expect 404 initially until method implemented)
 
 3. **Task 3 Completion** (Storage Service):
+
    - Build the project
    - Run existing storage service tests (should still pass)
    - Manually test endpoint with Swagger (should work end-to-end)
@@ -257,6 +273,7 @@ dotnet run --project src/TeensyRom.Api
 ```
 
 **Expected Results**:
+
 - ✅ Solution builds with zero errors
 - ✅ All 10 SaveFavoriteTests pass
 - ✅ Endpoint accessible via Scalar docs
@@ -268,12 +285,14 @@ dotnet run --project src/TeensyRom.Api
 
 ### Technical Considerations
 
-1. **Duplicate Favorite Handling**: 
+1. **Duplicate Favorite Handling**:
+
    - Current implementation doesn't check if file is already favorited
    - Will create duplicate if called twice on same file
    - **Resolution**: Open question for Phase 1 - document behavior, address in Phase 2
 
 2. **Cache Consistency**:
+
    - SaveFavorite updates cache immediately
    - Parent/sibling relationships maintained via [`IStorageCache.FindParentFile()`](../../../../../TeensyRom.Core.Storage/IStorageCache.cs) and [`FindSiblings()`](../../../../../TeensyRom.Core.Storage/IStorageCache.cs)
    - Cache persisted to disk after operation
@@ -287,15 +306,18 @@ dotnet run --project src/TeensyRom.Api
 ### Open Questions (Phase 1 Specific)
 
 **Q1: Should the endpoint return the newly created favorite file information in the response?**
+
 - **Answer**: YES - Response includes both OriginalFile and FavoriteFile
 - **Rationale**: Frontend needs both for UI updates and state management
 
 **Q2: How should the endpoint handle attempting to favorite an already favorited file?**
+
 - **Answer**: DEFER TO PHASE 2
 - **Current Behavior**: Will create duplicate
 - **Rationale**: Phase 1 focuses on happy path, Phase 2 adds remove/duplicate detection
 
 **Q3: Should there be rate limiting or validation on the number of favorites a user can create?**
+
 - **Answer**: NO for Phase 1
 - **Rationale**: Not a requirement, can add later if needed
 - **Storage Impact**: Minimal - favorites are small file references
@@ -397,6 +419,7 @@ Phase 1 is complete when:
 10. ✅ Endpoint documented in Scalar API docs
 
 **Acceptance Test**: Using Scalar docs, save a music file as favorite. Verify:
+
 - Returns 200 OK with SaveFavoriteResponse
 - Original file path matches request
 - Favorite file path is in `/favorites/music/`

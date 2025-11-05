@@ -1,6 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AlertContainerComponent } from './alert-container.component';
-import { ALERT_SERVICE, AlertPosition, AlertMessage, AlertSeverity, IAlertService } from '@teensyrom-nx/domain';
+import {
+  ALERT_SERVICE,
+  AlertPosition,
+  AlertMessage,
+  AlertSeverity,
+  IAlertService,
+} from '@teensyrom-nx/domain';
 import { BehaviorSubject } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -56,9 +62,7 @@ describe('AlertContainerComponent', () => {
   });
 
   it('should render alerts from service', () => {
-    const displayComponents = fixture.debugElement.queryAll(
-      By.css('lib-alert-display')
-    );
+    const displayComponents = fixture.debugElement.queryAll(By.css('lib-alert-display'));
     expect(displayComponents.length).toBe(2);
   });
 

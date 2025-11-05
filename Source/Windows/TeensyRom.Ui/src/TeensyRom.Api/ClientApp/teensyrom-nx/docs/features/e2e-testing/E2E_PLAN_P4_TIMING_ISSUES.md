@@ -10,7 +10,7 @@
 Phase 4 Device Discovery E2E tests were experiencing systematic timeout failures. **12 out of 39 tests were failing** with the error:
 
 ```
-CypressError: Timed out retrying after 10000ms: `cy.wait()` timed out waiting `10000ms` 
+CypressError: Timed out retrying after 10000ms: `cy.wait()` timed out waiting `10000ms`
 for the 1st request to the route: `findDevices`. No request ever occurred.
 ```
 
@@ -22,6 +22,7 @@ for the 1st request to the route: `findDevices`. No request ever occurred.
 **Interceptor URL pattern mismatch**: Tests used `/api/devices*` but actual API calls were to `http://localhost:5168/devices`
 
 ### Discovery Process
+
 1. Examined OpenAPI spec at `api-spec/TeensyRom.Api.json`
 2. Confirmed endpoint is `/devices` (no `/api` prefix)
 3. Checked generated API client configuration: `basePath: 'http://localhost:5168'`
@@ -63,6 +64,7 @@ async init(): Promise<void> {
 ```
 
 This means:
+
 - When Angular boots, it immediately calls the device discovery API
 - This happens **before** the user navigates to any specific route
 - The `/devices` route does NOT trigger device loading - it just displays already-loaded devices
@@ -73,9 +75,9 @@ Our tests follow this sequence:
 
 ```typescript
 beforeEach(() => {
-  interceptFindDevices({ fixture: singleDevice });  // 1. Setup interceptor
-  navigateToDeviceView();                           // 2. cy.visit('/devices')
-  waitForDeviceDiscovery();                         // 3. cy.wait('@findDevices', { timeout: 10000 })
+  interceptFindDevices({ fixture: singleDevice }); // 1. Setup interceptor
+  navigateToDeviceView(); // 2. cy.visit('/devices')
+  waitForDeviceDiscovery(); // 3. cy.wait('@findDevices', { timeout: 10000 })
 });
 ```
 
@@ -97,18 +99,22 @@ This suggests one of these scenarios:
 ## 🧪 What We've Tried
 
 ### Attempt 1: Increase Timeout
+
 **Change**: Extended timeout from 5000ms to 10000ms  
 **Result**: ❌ Same timeout error, just takes longer to fail
 
 ### Attempt 2: Clear Storage
+
 **Change**: Added `localStorage.clear()` and `sessionStorage.clear()` in `onBeforeLoad` hook  
 **Result**: ❌ No change - still timing out
 
 ### Attempt 3: Add Import
+
 **Change**: Fixed missing `waitForDeviceDiscovery` import  
 **Result**: ✅ Tests now run but still timeout on API wait
 
 ### Attempt 4: Centralize Navigation
+
 **Change**: Created `navigateToDeviceView()` helper with storage clearing  
 **Result**: ❌ No change - interceptor still not catching request
 
@@ -135,6 +141,7 @@ it('should show loading indicator during API call', () => {
 ```
 
 **Why these pass**:
+
 - They use `cy.intercept()` directly in the test body (not in beforeEach)
 - They set up the interceptor immediately before navigation
 - One uses a delay, making the timing more explicit
@@ -146,6 +153,7 @@ This suggests **the interceptor setup timing is critical** - setting it up in `b
 ## 📊 Test Infrastructure
 
 ### Interceptor Function
+
 ```typescript
 // apps/teensyrom-ui-e2e/src/support/interceptors/device.interceptors.ts
 export function interceptFindDevices(options: InterceptFindDevicesOptions = {}): void {
@@ -166,6 +174,7 @@ export function interceptFindDevices(options: InterceptFindDevicesOptions = {}):
 ```
 
 ### Test Helper
+
 ```typescript
 // apps/teensyrom-ui-e2e/src/e2e/devices/test-helpers.ts
 export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
@@ -183,6 +192,7 @@ export function waitForDeviceDiscovery(timeout = 10000): void {
 ```
 
 ### Centralized Constants
+
 ```typescript
 export const API_ROUTES = {
   BASE: '/api',
@@ -205,7 +215,9 @@ export const API_ROUTE_ALIASES = {
 ## 🤔 Questions to Investigate
 
 ### 1. What is the Actual API Call?
+
 We need to verify:
+
 - What is the **exact URL** of the API call? (Is it `/api/devices` or something else?)
 - Does it include query parameters? (e.g., `/api/devices?refresh=true`)
 - What HTTP method is used? (We assume GET)
@@ -213,17 +225,20 @@ We need to verify:
 **How to check**: Open Chrome DevTools Network tab, load `http://localhost:4200/devices`, observe the request
 
 ### 2. Is the DeviceStore Caching Devices?
+
 We need to verify:
+
 - Does the store check `hasInitialised` before calling the API?
 - Does clearing storage actually clear the store state?
 - Is there a way to force the store to re-initialize?
 
 **Relevant code**:
+
 ```typescript
 // libs/application/src/lib/device/device-store.ts
 const initialState: DeviceState = {
   devices: [],
-  hasInitialised: false,  // ← Does this prevent re-fetching?
+  hasInitialised: false, // ← Does this prevent re-fetching?
   isLoading: true,
   isIndexing: false,
   error: null,
@@ -231,13 +246,17 @@ const initialState: DeviceState = {
 ```
 
 ### 3. Are Multiple Interceptors Conflicting?
+
 We need to verify:
+
 - When a test completes, does the interceptor persist?
 - Do multiple interceptors for the same route conflict?
 - Should we be clearing routes between tests?
 
 ### 4. Is the Timing a Race Condition?
+
 We need to verify:
+
 - Does `cy.intercept()` register asynchronously?
 - Does `cy.visit()` wait for intercept registration?
 - Should we add an artificial delay between setup and navigation?
@@ -247,6 +266,7 @@ We need to verify:
 ## 🛠️ Potential Solutions
 
 ### Solution 1: Use Inline Interceptors (Like Passing Tests)
+
 Move interceptor setup into each test body instead of beforeEach:
 
 ```typescript
@@ -254,7 +274,7 @@ it('should display single device', () => {
   interceptFindDevices({ fixture: singleDevice });
   navigateToDeviceView();
   waitForDeviceDiscovery();
-  
+
   verifyDeviceCount(1);
 });
 ```
@@ -263,6 +283,7 @@ it('should display single device', () => {
 **Cons**: Violates DRY principle, duplicates setup code
 
 ### Solution 2: Mock the Bootstrap Service
+
 Instead of intercepting the API, mock the AppBootstrapService:
 
 ```typescript
@@ -271,7 +292,7 @@ beforeEach(() => {
     onBeforeLoad: (win) => {
       // Inject mock bootstrap service
       win['__mockBootstrap'] = true;
-    }
+    },
   });
 });
 ```
@@ -280,6 +301,7 @@ beforeEach(() => {
 **Cons**: Requires application code changes, less realistic testing
 
 ### Solution 3: Add Explicit Wait for Intercept Registration
+
 Add a delay or cy.wait() after interceptor setup:
 
 ```typescript
@@ -295,6 +317,7 @@ beforeEach(() => {
 **Cons**: Arbitrary delays are unreliable, may not solve the root cause
 
 ### Solution 4: Verify URL Pattern and Fix Match
+
 Check the actual API call and ensure our pattern matches:
 
 ```typescript
@@ -309,6 +332,7 @@ cy.intercept('GET', '/api/devices?*', (req) => { ... }).as('findDevices');
 **Cons**: Need to observe the actual API call first
 
 ### Solution 5: Use cy.intercept() with URL Matcher Object
+
 More explicit URL matching:
 
 ```typescript
@@ -331,18 +355,21 @@ cy.intercept({
 ### Immediate Actions
 
 1. **Observe the Actual API Call**
+
    - Open Chrome DevTools Network tab
    - Navigate to `http://localhost:4200/devices`
    - Record the exact URL, method, headers, response of the device discovery call
    - Screenshot the Network tab
 
 2. **Test URL Pattern Variations**
+
    - Try exact match: `'/api/devices'`
    - Try with trailing slash: `'/api/devices/'`
    - Try wildcard variations: `'**/api/devices'`, `'**/api/devices*'`
    - Try URL object matcher
 
 3. **Test Interceptor Timing**
+
    - Move one test's interceptor setup inline (like the passing tests)
    - If it passes, we know it's a timing issue
    - If it still fails, we know it's a pattern matching issue
@@ -356,12 +383,14 @@ cy.intercept({
 
 **Chrome DevTools MCP Integration**:
 Yes, setting up the Chrome DevTools MCP would be extremely valuable for:
+
 - Real-time network traffic observation
 - Console log inspection during test execution
 - DOM state verification
 - Source code debugging
 
 This would allow us to:
+
 1. See exactly when the API call happens
 2. Verify the interceptor is registered before the call
 3. Check if there are multiple calls or cached responses
@@ -374,6 +403,7 @@ This would allow us to:
 ## 📝 Test Failure Pattern
 
 **Failing Tests** (12 total):
+
 - All tests in: Single Device Discovery (6 tests)
 - All tests in: Multiple Devices Discovery (5 tests)
 - All tests in: No Devices (4 tests)
@@ -384,6 +414,7 @@ This would allow us to:
 - All tests in: Error Handling (4 tests)
 
 **Passing Tests** (2 total):
+
 - Loading States: "should show loading indicator during API call"
 - Loading States: "should not show devices while loading"
 

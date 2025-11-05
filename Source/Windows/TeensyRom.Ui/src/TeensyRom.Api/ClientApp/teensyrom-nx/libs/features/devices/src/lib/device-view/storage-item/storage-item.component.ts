@@ -15,8 +15,8 @@ import { MatButtonModule } from '@angular/material/button';
     MatChipsModule,
     IconLabelComponent,
     MatButtonModule,
-    IconButtonComponent
-],
+    IconButtonComponent,
+  ],
   templateUrl: './storage-item.component.html',
   styleUrl: './storage-item.component.scss',
 })

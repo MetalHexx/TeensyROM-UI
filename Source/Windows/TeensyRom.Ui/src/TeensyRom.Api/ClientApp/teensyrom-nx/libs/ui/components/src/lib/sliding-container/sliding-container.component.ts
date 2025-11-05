@@ -4,11 +4,7 @@ import { trigger, style, transition, animate } from '@angular/animations';
 import type { AnimationDirection, AnimationParentMode } from '../shared/animation.types';
 import { PARENT_ANIMATION_COMPLETE } from '../shared/animation-tokens';
 
-export type ContainerAnimationDirection =
-  | AnimationDirection
-  | 'slide-down'
-  | 'slide-up'
-  | 'fade';
+export type ContainerAnimationDirection = AnimationDirection | 'slide-down' | 'slide-up' | 'fade';
 
 @Component({
   selector: 'lib-sliding-container',
@@ -17,7 +13,7 @@ export type ContainerAnimationDirection =
   styleUrl: './sliding-container.component.scss',
   host: {
     '[class.visible]': 'animationParams.value === "visible"',
-    '[class.hidden]': 'animationParams.value === "hidden"'
+    '[class.hidden]': 'animationParams.value === "hidden"',
   },
   providers: [
     {
@@ -26,73 +22,100 @@ export type ContainerAnimationDirection =
         // Always register self as a parent (children can opt-in to wait)
         return self.animationCompleteSignal.asReadonly();
       },
-      deps: [[new Self(), SlidingContainerComponent]]
-    }
+      deps: [[new Self(), SlidingContainerComponent]],
+    },
   ],
   animations: [
     trigger('containerAnimation', [
-      transition('void => visible', [
-        style({
-          opacity: 0,
-          height: '{{ startHeight }}',
-          width: '{{ startWidth }}',
-          transform: '{{ startTransform }}'
-        }),
-        animate('{{ duration }}ms {{ easing }}', style({
-          opacity: 1,
-          height: '{{ endHeight }}',
-          width: '{{ endWidth }}',
-          transform: '{{ endTransform }}'
-        }))
-      ], { params: { 
-        startHeight: '0', 
-        endHeight: 'auto',
-        startWidth: 'auto',
-        endWidth: 'auto',
-        startTransform: 'translateY(-20px)', 
-        endTransform: 'translateY(0)',
-        duration: '400',
-        easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
-      }}),
-      transition('hidden => visible', [
-        style({
-          opacity: 0,
-          height: '{{ startHeight }}',
-          width: '{{ startWidth }}',
-          transform: '{{ startTransform }}'
-        }),
-        animate('{{ duration }}ms {{ easing }}', style({
-          opacity: 1,
-          height: '{{ endHeight }}',
-          width: '{{ endWidth }}',
-          transform: '{{ endTransform }}'
-        }))
-      ], { params: { 
-        startHeight: '0', 
-        endHeight: 'auto',
-        startWidth: 'auto',
-        endWidth: 'auto',
-        startTransform: 'translateY(-20px)', 
-        endTransform: 'translateY(0)',
-        duration: '400',
-        easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
-      }}),
-      transition('visible => hidden', [
-        animate('{{ duration }}ms {{ easing }}', style({
-          opacity: 0,
-          height: '{{ startHeight }}',
-          width: '{{ startWidth }}',
-          transform: '{{ startTransform }}'
-        }))
-      ], { params: { 
-        startHeight: '0',
-        startWidth: 'auto',
-        startTransform: 'translateY(-20px)',
-        duration: '400',
-        easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
-      }})
-    ])
-  ]
+      transition(
+        'void => visible',
+        [
+          style({
+            opacity: 0,
+            height: '{{ startHeight }}',
+            width: '{{ startWidth }}',
+            transform: '{{ startTransform }}',
+          }),
+          animate(
+            '{{ duration }}ms {{ easing }}',
+            style({
+              opacity: 1,
+              height: '{{ endHeight }}',
+              width: '{{ endWidth }}',
+              transform: '{{ endTransform }}',
+            })
+          ),
+        ],
+        {
+          params: {
+            startHeight: '0',
+            endHeight: 'auto',
+            startWidth: 'auto',
+            endWidth: 'auto',
+            startTransform: 'translateY(-20px)',
+            endTransform: 'translateY(0)',
+            duration: '400',
+            easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+          },
+        }
+      ),
+      transition(
+        'hidden => visible',
+        [
+          style({
+            opacity: 0,
+            height: '{{ startHeight }}',
+            width: '{{ startWidth }}',
+            transform: '{{ startTransform }}',
+          }),
+          animate(
+            '{{ duration }}ms {{ easing }}',
+            style({
+              opacity: 1,
+              height: '{{ endHeight }}',
+              width: '{{ endWidth }}',
+              transform: '{{ endTransform }}',
+            })
+          ),
+        ],
+        {
+          params: {
+            startHeight: '0',
+            endHeight: 'auto',
+            startWidth: 'auto',
+            endWidth: 'auto',
+            startTransform: 'translateY(-20px)',
+            endTransform: 'translateY(0)',
+            duration: '400',
+            easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+          },
+        }
+      ),
+      transition(
+        'visible => hidden',
+        [
+          animate(
+            '{{ duration }}ms {{ easing }}',
+            style({
+              opacity: 0,
+              height: '{{ startHeight }}',
+              width: '{{ startWidth }}',
+              transform: '{{ startTransform }}',
+            })
+          ),
+        ],
+        {
+          params: {
+            startHeight: '0',
+            startWidth: 'auto',
+            startTransform: 'translateY(-20px)',
+            duration: '400',
+            easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+          },
+        }
+      ),
+    ]),
+  ],
 })
 export class SlidingContainerComponent {
   // Animation configuration inputs
@@ -101,14 +124,14 @@ export class SlidingContainerComponent {
   animationDuration = input<number>(400); // Duration of container animation
   animationDirection = input<ContainerAnimationDirection>('from-top'); // Animation direction
   animationTrigger = input<boolean | undefined>(undefined); // Optional trigger for manual control
-  
+
   /**
    * Controls whether this component waits for parent animations:
    * - undefined (default): No waiting - component animates immediately
    * - 'auto': Opt-in to wait for nearest animation parent in DI tree
    * - AnimationParent: Wait for specific component (sibling, ancestor, or any component)
    * - null: No waiting - same as undefined
-   * 
+   *
    * Note: This component always registers as an animation parent for its children,
    * regardless of this setting. This input only controls waiting behavior.
    */
@@ -129,7 +152,7 @@ export class SlidingContainerComponent {
   // Inject parent completion signal (if exists)
   private parentComplete = inject(PARENT_ANIMATION_COMPLETE, {
     optional: true,
-    skipSelf: true
+    skipSelf: true,
   });
 
   // Determine when to render the container
@@ -143,12 +166,12 @@ export class SlidingContainerComponent {
 
     // Priority 2: Check animation parent mode
     const parentMode = this.animationParent();
-    
+
     // If 'auto', wait for parent
     if (parentMode === 'auto' && this.parentComplete) {
       return this.parentComplete();
     }
-    
+
     // If custom parent provided, wait for that parent
     if (parentMode && parentMode !== 'auto' && parentMode !== null) {
       return parentMode.animationCompleteSignal.asReadonly()();
@@ -165,7 +188,8 @@ export class SlidingContainerComponent {
     const duration = this.animationDuration();
     const height = this.containerHeight();
     const width = this.containerWidth();
-    const { startHeight, endHeight, startWidth, endWidth, startTransform, endTransform } = this.getAnimationValues(direction, height, width);
+    const { startHeight, endHeight, startWidth, endWidth, startTransform, endTransform } =
+      this.getAnimationValues(direction, height, width);
 
     return {
       value: shouldShow ? 'visible' : 'hidden',
@@ -177,8 +201,8 @@ export class SlidingContainerComponent {
         startTransform,
         endTransform,
         duration: duration.toString(),
-        easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
-      }
+        easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+      },
     };
   }
 
@@ -199,7 +223,7 @@ export class SlidingContainerComponent {
   constructor() {
     effect(() => {
       const shouldShow = this.showContainer();
-      
+
       // If we should show, ensure we're in the DOM before animation starts
       if (shouldShow) {
         this.shouldBeInDom.set(true);
@@ -208,7 +232,11 @@ export class SlidingContainerComponent {
     });
   }
 
-  private getAnimationValues(direction: ContainerAnimationDirection, height: string, width: string): {
+  private getAnimationValues(
+    direction: ContainerAnimationDirection,
+    height: string,
+    width: string
+  ): {
     startHeight: string;
     endHeight: string;
     startWidth: string;
@@ -224,9 +252,9 @@ export class SlidingContainerComponent {
           startWidth: width,
           endWidth: width,
           startTransform: 'translate(0, 0)',
-          endTransform: 'translate(0, 0)'
+          endTransform: 'translate(0, 0)',
         };
-      
+
       case 'slide-down':
       case 'from-top':
         return {
@@ -235,9 +263,9 @@ export class SlidingContainerComponent {
           startWidth: width,
           endWidth: width,
           startTransform: 'translateY(-20px)',
-          endTransform: 'translateY(0)'
+          endTransform: 'translateY(0)',
         };
-      
+
       case 'slide-up':
       case 'from-bottom':
         return {
@@ -246,9 +274,9 @@ export class SlidingContainerComponent {
           startWidth: width,
           endWidth: width,
           startTransform: 'translateY(20px)',
-          endTransform: 'translateY(0)'
+          endTransform: 'translateY(0)',
         };
-      
+
       case 'from-left':
         return {
           startHeight: height,
@@ -256,9 +284,9 @@ export class SlidingContainerComponent {
           startWidth: width,
           endWidth: width,
           startTransform: 'translateX(-20px)',
-          endTransform: 'translateX(0)'
+          endTransform: 'translateX(0)',
         };
-      
+
       case 'from-right':
         return {
           startHeight: height,
@@ -266,9 +294,9 @@ export class SlidingContainerComponent {
           startWidth: width,
           endWidth: width,
           startTransform: 'translateX(20px)',
-          endTransform: 'translateX(0)'
+          endTransform: 'translateX(0)',
         };
-      
+
       case 'from-top-left':
         return {
           startHeight: '0',
@@ -276,9 +304,9 @@ export class SlidingContainerComponent {
           startWidth: width,
           endWidth: width,
           startTransform: 'translate(-20px, -20px)',
-          endTransform: 'translate(0, 0)'
+          endTransform: 'translate(0, 0)',
         };
-      
+
       case 'from-top-right':
         return {
           startHeight: '0',
@@ -286,9 +314,9 @@ export class SlidingContainerComponent {
           startWidth: width,
           endWidth: width,
           startTransform: 'translate(20px, -20px)',
-          endTransform: 'translate(0, 0)'
+          endTransform: 'translate(0, 0)',
         };
-      
+
       case 'from-bottom-left':
         return {
           startHeight: '0',
@@ -296,9 +324,9 @@ export class SlidingContainerComponent {
           startWidth: width,
           endWidth: width,
           startTransform: 'translate(-20px, 20px)',
-          endTransform: 'translate(0, 0)'
+          endTransform: 'translate(0, 0)',
         };
-      
+
       case 'from-bottom-right':
         return {
           startHeight: '0',
@@ -306,9 +334,9 @@ export class SlidingContainerComponent {
           startWidth: width,
           endWidth: width,
           startTransform: 'translate(20px, 20px)',
-          endTransform: 'translate(0, 0)'
+          endTransform: 'translate(0, 0)',
         };
-      
+
       case 'none':
         return {
           startHeight: height,
@@ -316,18 +344,24 @@ export class SlidingContainerComponent {
           startWidth: width,
           endWidth: width,
           startTransform: 'translate(0, 0)',
-          endTransform: 'translate(0, 0)'
+          endTransform: 'translate(0, 0)',
         };
-      
+
       case 'random': {
         const directions: ContainerAnimationDirection[] = [
-          'from-left', 'from-right', 'from-top', 'from-bottom',
-          'from-top-left', 'from-top-right', 'from-bottom-left', 'from-bottom-right'
+          'from-left',
+          'from-right',
+          'from-top',
+          'from-bottom',
+          'from-top-left',
+          'from-top-right',
+          'from-bottom-left',
+          'from-bottom-right',
         ];
         const randomDir = directions[Math.floor(Math.random() * directions.length)];
         return this.getAnimationValues(randomDir, height, width);
       }
-      
+
       default:
         return this.getAnimationValues('from-top', height, width);
     }

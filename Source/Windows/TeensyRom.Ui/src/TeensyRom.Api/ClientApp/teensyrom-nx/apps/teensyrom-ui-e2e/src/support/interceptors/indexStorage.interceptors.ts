@@ -28,7 +28,6 @@ export const INDEX_STORAGE_ENDPOINT: EndpointDefinition = {
   alias: 'indexStorage',
 } as const;
 
-
 /** Configuration options for indexStorage interceptor */
 export interface InterceptIndexStorageOptions {
   /** Mock filesystem instance for realistic indexing scenarios */
@@ -64,7 +63,6 @@ export interface IndexStorageBatchOptions {
   /** Array of device/storage combinations that should fail */
   failingCombos?: Array<{ deviceId: string; storageType: 'USB' | 'SD' }>;
 }
-
 
 /**
  * Intercepts POST /devices/{deviceId}/storage/{storageType}/index
@@ -132,7 +130,6 @@ export function interceptIndexStorage(options: InterceptIndexStorageOptions = {}
   }).as(alias);
 }
 
-
 /**
  * Waits for indexStorage endpoint call to complete
  *
@@ -142,7 +139,6 @@ export function waitForIndexStorage(alias?: string): void {
   const waitAlias = alias || `@${INDEX_STORAGE_ENDPOINT.alias}`;
   cy.wait(waitAlias);
 }
-
 
 /**
  * Sets up indexStorage interceptor for specific device
@@ -311,9 +307,9 @@ export function setupIndexStorageSequence(
   deviceStorageCombos: DeviceStorageCombo[],
   delayBetweenMs = 1000
 ): void {
-    const sequenceResponses = deviceStorageCombos.map(() => ({}));
+  const sequenceResponses = deviceStorageCombos.map(() => ({}));
 
-    interceptSequence(INDEX_STORAGE_ENDPOINT, sequenceResponses, delayBetweenMs);
+  interceptSequence(INDEX_STORAGE_ENDPOINT, sequenceResponses, delayBetweenMs);
 }
 
 /**
@@ -347,7 +343,6 @@ export function setupPartialFailureIndexStorage(
     });
   });
 }
-
 
 // Backward compatibility exports for existing import patterns
 export const INDEX_STORAGE_ALIAS = INDEX_STORAGE_ENDPOINT.alias;

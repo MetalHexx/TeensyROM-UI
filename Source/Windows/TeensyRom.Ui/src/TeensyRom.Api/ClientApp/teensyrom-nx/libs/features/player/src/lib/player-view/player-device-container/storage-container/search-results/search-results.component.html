@@ -1,46 +1,49 @@
 <div class="search-results">
-  <lib-scaling-card title="Search Results" [animationTrigger]="animationTrigger()" [animationEntry]="'from-left'" [animationExit]="'from-right'">
+  <lib-scaling-card
+    title="Search Results"
+    [animationTrigger]="animationTrigger()"
+    [animationEntry]="'from-left'"
+    [animationExit]="'from-right'"
+  >
     @if (searchError()) {
-      <div class="error-state">{{ searchError() }}</div>
-    }
-
-    @if (!hasSearched()) {
-      <lib-empty-state-message 
-        icon="search" 
-        title="Ready to Search"
-        message="Enter search text to find files."
-        size="small">
-      </lib-empty-state-message>
-    }
-
-    @if (hasSearched() && searchResults().length === 0 && !isSearching() && !searchError()) {
-      <lib-empty-state-message 
-        icon="search_off" 
-        title="No Files Found"
-        message="Try adjusting your search terms."
-        [secondaryMessage]="emptyStateSecondaryMessage()"
-        size="small">
-      </lib-empty-state-message>
-    }
-
-    @if (searchResults().length > 0) {
-      <div class="search-results-list">
-        @for (file of searchResults(); track file.path) {
-          <div
-            class="file-list-item list-item-highlight"
-            [attr.data-item-path]="file.path"
-            [attr.data-is-playing]="isCurrentlyPlaying(file)"
-            [attr.data-has-error]="hasPlayerError() && isCurrentlyPlaying(file)">
-            <lib-search-item
-              [fileItem]="file"
-              [selected]="isSelected(file)"
-              [isPlaying]="isCurrentlyPlaying(file)"
-              (itemSelected)="onFileSelected(file)"
-              (itemDoubleClick)="onFileDoubleClick(file)">
-            </lib-search-item>
-          </div>
-        }
+    <div class="error-state">{{ searchError() }}</div>
+    } @if (!hasSearched()) {
+    <lib-empty-state-message
+      icon="search"
+      title="Ready to Search"
+      message="Enter search text to find files."
+      size="small"
+    >
+    </lib-empty-state-message>
+    } @if (hasSearched() && searchResults().length === 0 && !isSearching() && !searchError()) {
+    <lib-empty-state-message
+      icon="search_off"
+      title="No Files Found"
+      message="Try adjusting your search terms."
+      [secondaryMessage]="emptyStateSecondaryMessage()"
+      size="small"
+    >
+    </lib-empty-state-message>
+    } @if (searchResults().length > 0) {
+    <div class="search-results-list">
+      @for (file of searchResults(); track file.path) {
+      <div
+        class="file-list-item list-item-highlight"
+        [attr.data-item-path]="file.path"
+        [attr.data-is-playing]="isCurrentlyPlaying(file)"
+        [attr.data-has-error]="hasPlayerError() && isCurrentlyPlaying(file)"
+      >
+        <lib-search-item
+          [fileItem]="file"
+          [selected]="isSelected(file)"
+          [isPlaying]="isCurrentlyPlaying(file)"
+          (itemSelected)="onFileSelected(file)"
+          (itemDoubleClick)="onFileDoubleClick(file)"
+        >
+        </lib-search-item>
       </div>
+      }
+    </div>
     }
   </lib-scaling-card>
 </div>

@@ -13,6 +13,7 @@ This document tracks future feature ideas and improvements that should be consid
 **Issue**: The application currently lacks comprehensive tooltips across components, which reduces discoverability and user experience for interface elements.
 
 **Affected Areas**:
+
 - Icon buttons throughout the application (filter buttons, navigation, player controls)
 - Form inputs and controls
 - Status indicators and badges
@@ -20,6 +21,7 @@ This document tracks future feature ideas and improvements that should be consid
 - Action buttons and controls
 
 **Current Problems**:
+
 - Users may not understand the purpose of icon-only buttons
 - No contextual help for complex interface elements
 - Reduced accessibility for screen readers
@@ -27,6 +29,7 @@ This document tracks future feature ideas and improvements that should be consid
 
 **Recommended Solution**:
 Implement comprehensive tooltip system:
+
 - Add `matTooltip` directives to all interactive elements
 - Create consistent tooltip messaging and positioning
 - Ensure tooltips are accessible and keyboard navigable
@@ -35,6 +38,7 @@ Implement comprehensive tooltip system:
 - Document tooltip usage patterns in style guide
 
 **Benefits**:
+
 - Improved user experience and interface discoverability
 - Better accessibility compliance
 - Reduced learning curve for new users
@@ -52,6 +56,7 @@ Implement comprehensive tooltip system:
 **Issue**: The application currently lacks a unified error handling system, making it difficult for users to understand when operations fail or encounter issues.
 
 **Affected Areas**:
+
 - HTTP API calls and network errors
 - File operations (upload, download, launch)
 - Device communication errors
@@ -59,6 +64,7 @@ Implement comprehensive tooltip system:
 - Background operations and async tasks
 
 **Current Problems**:
+
 - Errors are only logged to console, invisible to users
 - No user feedback when operations fail
 - Difficult to debug issues from user perspective
@@ -67,6 +73,7 @@ Implement comprehensive tooltip system:
 
 **Recommended Solution**:
 Implement global error handling with toast notification system:
+
 - Create global error interceptor for HTTP requests
 - Implement toast notification service with stacking support
 - Add error boundary components for React-style error handling
@@ -77,6 +84,7 @@ Implement global error handling with toast notification system:
 - Consider toast positioning, duration, and user interaction options
 
 **Benefits**:
+
 - Immediate user feedback for all error conditions
 - Consistent error messaging across the application
 - Better user understanding of system state and issues
@@ -95,12 +103,14 @@ Implement global error handling with toast notification system:
 **Issue**: Currently, when operations fail, there's no visual indication on the specific button that caused the error. All buttons maintain their normal appearance even when their associated actions fail.
 
 **Affected Components**:
+
 - Player controls (next, previous, play, pause, stop buttons)
 - Filter buttons (all files, games, music, images, random launch)
 - Navigation buttons and action controls
 - Any interactive button that can trigger operations
 
 **Current Problems**:
+
 - No visual feedback on which specific button/action caused an error
 - Users cannot easily identify the source of failed operations
 - All buttons look the same regardless of their operational state
@@ -108,6 +118,7 @@ Implement global error handling with toast notification system:
 
 **Recommended Solution**:
 Implement granular error state system for buttons:
+
 - Add error state styling to `IconButtonComponent` (red border, error icon overlay, etc.)
 - Create button state management for tracking individual button errors
 - Implement error state timeout/reset mechanisms
@@ -116,6 +127,7 @@ Implement granular error state system for buttons:
 - Consider error state animations or visual feedback
 
 **Benefits**:
+
 - Clear visual feedback for failed operations
 - Better user understanding of which actions are failing
 - Improved debugging and user support experience
@@ -137,16 +149,19 @@ Implement granular error state system for buttons:
 **Issue**: The refresh button in the directory trail component currently only reloads the cached directory contents from the store. It doesn't trigger a full re-index from the device, which means users cannot force a refresh when the file system has changed on the device.
 
 **Affected Components**:
+
 - `DirectoryTrailComponent` (smart container)
 - `DirectoryNavigateComponent` (navigation buttons)
 - Storage store actions
 
 **Current Behavior**:
+
 - Refresh button calls store action to reload current directory from cache
 - No actual communication with device/API
 - Users cannot see new files added to device without manual navigation
 
 **Desired Behavior**:
+
 - Refresh button triggers `indexStorage` action (see `index-storage.ts`)
 - Performs actual API call to re-index current directory from device
 - Updates store with fresh directory contents
@@ -154,6 +169,7 @@ Implement granular error state system for buttons:
 - Handles indexing errors gracefully with user feedback
 
 **Implementation Notes**:
+
 - Use existing `indexStorage` method from `libs/application/src/lib/device/methods/index-storage.ts`
 - Requires `deviceId`, `storageType`, and current `path` as parameters
 - Sets `isIndexing` state during operation for loading UI
@@ -161,6 +177,7 @@ Implement granular error state system for buttons:
 - Consider adding optional `deep` parameter for recursive indexing vs single directory
 
 **Benefits**:
+
 - Users can manually refresh directory contents when device changes
 - Better synchronization with actual device file system state
 - More intuitive "refresh" behavior matching user expectations

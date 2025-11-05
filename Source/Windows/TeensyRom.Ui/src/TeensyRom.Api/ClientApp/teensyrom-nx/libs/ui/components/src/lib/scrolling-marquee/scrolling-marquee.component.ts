@@ -15,14 +15,14 @@ import { CommonModule } from '@angular/common';
  * Available marquee effect types
  */
 export type MarqueeEffect =
-  | 'none'           // Basic scroll only
-  | 'wave'           // Sine wave vertical motion
-  | 'rainbow'        // Color spectrum cycling
-  | 'glitch'         // Random displacement
-  | 'bounce'         // Elastic squash/stretch
-  | 'copper'         // Copper bar sweep
-  | 'spiral'         // 3D rotation twist
-  | 'random';        // Randomly select an effect (excluding 'none' and 'random')
+  | 'none' // Basic scroll only
+  | 'wave' // Sine wave vertical motion
+  | 'rainbow' // Color spectrum cycling
+  | 'glitch' // Random displacement
+  | 'bounce' // Elastic squash/stretch
+  | 'copper' // Copper bar sweep
+  | 'spiral' // 3D rotation twist
+  | 'random'; // Randomly select an effect (excluding 'none' and 'random')
 
 @Component({
   selector: 'lib-scrolling-marquee',
@@ -69,26 +69,29 @@ export class ScrollingMarqueeComponent {
 
   constructor(private injector: Injector) {
     // Select random effect if 'random' is chosen, re-select when text changes
-    effect(() => {
-      const effectInput = this.effect();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const currentText = this.text(); // Track text changes to trigger new random selection
+    effect(
+      () => {
+        const effectInput = this.effect();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const currentText = this.text(); // Track text changes to trigger new random selection
 
-      if (effectInput === 'random') {
-        const effects: Exclude<MarqueeEffect, 'none' | 'random'>[] = [
-          'wave',
-          'rainbow',
-          'glitch',
-          'bounce',
-          'copper',
-          'spiral'
-        ];
-        const randomEffect = effects[Math.floor(Math.random() * effects.length)];
-        this.selectedEffect.set(randomEffect);
-      } else {
-        this.selectedEffect.set(effectInput);
-      }
-    }, { injector: this.injector });
+        if (effectInput === 'random') {
+          const effects: Exclude<MarqueeEffect, 'none' | 'random'>[] = [
+            'wave',
+            'rainbow',
+            'glitch',
+            'bounce',
+            'copper',
+            'spiral',
+          ];
+          const randomEffect = effects[Math.floor(Math.random() * effects.length)];
+          this.selectedEffect.set(randomEffect);
+        } else {
+          this.selectedEffect.set(effectInput);
+        }
+      },
+      { injector: this.injector }
+    );
     // Check overflow after render
     afterNextRender(
       () => {

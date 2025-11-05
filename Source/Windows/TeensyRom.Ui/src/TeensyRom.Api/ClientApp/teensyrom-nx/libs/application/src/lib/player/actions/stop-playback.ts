@@ -29,7 +29,6 @@ export function stopPlayback(store: WritableStore<PlayerState>, deviceService: I
             },
           },
         }));
-
       } catch (error) {
         const errorMessage = (error as any)?.message || 'Failed to stop playback';
         logError(`Stop playback failed for ${deviceId}:`, error);

@@ -61,7 +61,7 @@
       "Bash(bash:*)",
       "Bash(pnpm tsc:*)",
       "Bash(nx show:*)",
-        "Bash(node ./.claude/hooks/angular-nx-quality/quality-check.cjs:*)",
+      "Bash(node ./.claude/hooks/angular-nx-quality/quality-check.cjs:*)",
       "Bash(pnpm dlx tsc:*)"
     ],
     "deny": [],

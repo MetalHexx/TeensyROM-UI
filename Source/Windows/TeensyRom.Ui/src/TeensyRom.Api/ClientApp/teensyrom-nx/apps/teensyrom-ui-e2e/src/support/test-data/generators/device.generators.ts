@@ -50,9 +50,7 @@ import { faker } from '../faker-config';
  * });
  * ```
  */
-export function generateCartStorage(
-  overrides?: Partial<CartStorageDto>
-): CartStorageDto {
+export function generateCartStorage(overrides?: Partial<CartStorageDto>): CartStorageDto {
   const generated: CartStorageDto = {
     deviceId: faker.string.uuid(),
     type: faker.helpers.arrayElement([TeensyStorageType.Sd, TeensyStorageType.Usb]),
@@ -96,7 +94,10 @@ export function generateCartStorage(
  */
 export function generateDevice(overrides?: Partial<CartDto>): CartDto {
   const deviceId = faker.string.uuid();
-  const fwVersion = `${faker.number.int({ min: 1, max: 2 })}.${faker.number.int({ min: 0, max: 9 })}.${faker.number.int({ min: 0, max: 20 })}`;
+  const fwVersion = `${faker.number.int({ min: 1, max: 2 })}.${faker.number.int({
+    min: 0,
+    max: 9,
+  })}.${faker.number.int({ min: 0, max: 20 })}`;
 
   const generated: CartDto = {
     deviceId,

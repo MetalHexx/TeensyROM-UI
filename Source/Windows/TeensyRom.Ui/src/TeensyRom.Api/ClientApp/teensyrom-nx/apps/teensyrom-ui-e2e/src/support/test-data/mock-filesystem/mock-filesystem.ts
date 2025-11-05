@@ -94,7 +94,9 @@ export class MockFilesystem {
       isFavorite: true,
     };
 
-    favoritesDirectory.files = favoritesDirectory.files.filter((file) => file.name !== favoriteCopy.name);
+    favoritesDirectory.files = favoritesDirectory.files.filter(
+      (file) => file.name !== favoriteCopy.name
+    );
     favoritesDirectory.files.push(favoriteCopy);
 
     return {
@@ -125,7 +127,8 @@ export class MockFilesystem {
 
       if (favoriteCopy) {
         const sourceDirectory = this.directories.get(favoriteCopy.parentPath);
-        originalFile = sourceDirectory?.files.find((file) => file.name === favoriteCopy.name) ?? null;
+        originalFile =
+          sourceDirectory?.files.find((file) => file.name === favoriteCopy.name) ?? null;
       }
     } else {
       originalFile = this.findFile(resolvedPath);
@@ -141,7 +144,9 @@ export class MockFilesystem {
     originalFile.isFavorite = false;
     const favoritesDirectory = this.directories.get(favoritesPath);
     if (favoritesDirectory) {
-      favoritesDirectory.files = favoritesDirectory.files.filter((file) => file.name !== originalFile.name);
+      favoritesDirectory.files = favoritesDirectory.files.filter(
+        (file) => file.name !== originalFile.name
+      );
     }
 
     return {

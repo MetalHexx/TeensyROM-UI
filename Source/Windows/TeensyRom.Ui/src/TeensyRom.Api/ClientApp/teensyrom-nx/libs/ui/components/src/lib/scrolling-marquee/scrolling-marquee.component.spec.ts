@@ -155,9 +155,7 @@ describe('ScrollingMarqueeComponent', () => {
       component.scrollDuration.set(15);
       fixture.detectChanges();
 
-      const contentElement = fixture.nativeElement.querySelector(
-        '.marquee-content'
-      ) as HTMLElement;
+      const contentElement = fixture.nativeElement.querySelector('.marquee-content') as HTMLElement;
       const duration = contentElement?.style.getPropertyValue('--scroll-duration');
       expect(duration).toBe('15s');
     });

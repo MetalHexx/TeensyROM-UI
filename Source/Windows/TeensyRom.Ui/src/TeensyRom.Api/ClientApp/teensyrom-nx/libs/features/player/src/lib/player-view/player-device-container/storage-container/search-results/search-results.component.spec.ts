@@ -3,8 +3,24 @@ import { signal, WritableSignal, Signal } from '@angular/core';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { SearchResultsComponent } from './search-results.component';
-import { PLAYER_CONTEXT, SearchState, LaunchedFile, StorageKeyUtil, IPlayerContext, StorageStore, StorageDirectoryState, ShuffleSettings } from '@teensyrom-nx/application';
-import { FileItem, FileItemType, LaunchMode, StorageType, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
+import {
+  PLAYER_CONTEXT,
+  SearchState,
+  LaunchedFile,
+  StorageKeyUtil,
+  IPlayerContext,
+  StorageStore,
+  StorageDirectoryState,
+  ShuffleSettings,
+} from '@teensyrom-nx/application';
+import {
+  FileItem,
+  FileItemType,
+  LaunchMode,
+  StorageType,
+  PlayerFilterType,
+  PlayerScope,
+} from '@teensyrom-nx/domain';
 
 describe('SearchResultsComponent', () => {
   let component: SearchResultsComponent;
@@ -75,7 +91,10 @@ describe('SearchResultsComponent', () => {
     launchModeSignal = signal<LaunchMode>(LaunchMode.Directory);
     errorSignal = signal<string | null>(null);
     selectedDirectorySignal = signal<StorageDirectoryState | null>(null);
-    shuffleSettingsSignal = signal<ShuffleSettings | null>({ filter: PlayerFilterType.All, scope: PlayerScope.DirectoryShallow });
+    shuffleSettingsSignal = signal<ShuffleSettings | null>({
+      filter: PlayerFilterType.All,
+      scope: PlayerScope.DirectoryShallow,
+    });
 
     // Create mock StorageStore
     mockStorageStore = {
@@ -338,7 +357,9 @@ describe('SearchResultsComponent', () => {
     });
 
     it('should highlight currently playing file in search mode', () => {
-      currentFileSignal.set(createLaunchedFile(mockFileItem1, '/test', 'test-device', StorageType.Usb));
+      currentFileSignal.set(
+        createLaunchedFile(mockFileItem1, '/test', 'test-device', StorageType.Usb)
+      );
       launchModeSignal.set(LaunchMode.Search);
 
       fixture.detectChanges();
@@ -348,7 +369,9 @@ describe('SearchResultsComponent', () => {
     });
 
     it('should NOT highlight playing file in directory mode', () => {
-      currentFileSignal.set(createLaunchedFile(mockFileItem1, '/test', 'test-device', StorageType.Usb));
+      currentFileSignal.set(
+        createLaunchedFile(mockFileItem1, '/test', 'test-device', StorageType.Usb)
+      );
       launchModeSignal.set(LaunchMode.Directory);
 
       fixture.detectChanges();
@@ -357,7 +380,9 @@ describe('SearchResultsComponent', () => {
     });
 
     it('should show error state for playing file with error', () => {
-      currentFileSignal.set(createLaunchedFile(mockFileItem1, '/test', 'test-device', StorageType.Usb));
+      currentFileSignal.set(
+        createLaunchedFile(mockFileItem1, '/test', 'test-device', StorageType.Usb)
+      );
       launchModeSignal.set(LaunchMode.Search);
       errorSignal.set('Playback failed');
 
@@ -374,7 +399,9 @@ describe('SearchResultsComponent', () => {
       expect(component.selectedItem()).toBeNull();
 
       // Start playing a file
-      currentFileSignal.set(createLaunchedFile(mockFileItem1, '/test', 'test-device', StorageType.Usb));
+      currentFileSignal.set(
+        createLaunchedFile(mockFileItem1, '/test', 'test-device', StorageType.Usb)
+      );
       fixture.detectChanges();
 
       // File should be auto-selected
@@ -434,7 +461,9 @@ describe('SearchResultsComponent', () => {
         error: null,
       });
 
-      currentFileSignal.set(createLaunchedFile(differentFile, '/other', 'test-device', StorageType.Usb));
+      currentFileSignal.set(
+        createLaunchedFile(differentFile, '/other', 'test-device', StorageType.Usb)
+      );
       launchModeSignal.set(LaunchMode.Search);
 
       fixture.detectChanges();
@@ -459,7 +488,12 @@ describe('SearchResultsComponent', () => {
 });
 
 // Helper function to create LaunchedFile objects
-function createLaunchedFile(file: FileItem, parentPath: string, deviceId: string, storageType: StorageType): LaunchedFile {
+function createLaunchedFile(
+  file: FileItem,
+  parentPath: string,
+  deviceId: string,
+  storageType: StorageType
+): LaunchedFile {
   return {
     storageKey: StorageKeyUtil.create(deviceId, storageType),
     file,

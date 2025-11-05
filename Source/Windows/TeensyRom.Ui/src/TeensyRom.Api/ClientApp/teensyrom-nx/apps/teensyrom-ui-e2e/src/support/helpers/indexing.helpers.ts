@@ -12,7 +12,10 @@
  * - Storage Type: `@teensyrom-nx/data-access/api-client` (TeensyStorageType)
  */
 
-import { STORAGE_INDEX_BUTTON_SELECTORS, BUSY_DIALOG_GENERIC_SELECTORS } from '../constants/selector.constants';
+import {
+  STORAGE_INDEX_BUTTON_SELECTORS,
+  BUSY_DIALOG_GENERIC_SELECTORS,
+} from '../constants/selector.constants';
 // import { TeensyStorageType } from '@teensyrom-nx/data-access/api-client'; // Unused import removed
 import {
   interceptIndexStorage,
@@ -39,7 +42,12 @@ import {
  */
 export function setupIndexingScenario(
   fixture: { devices: readonly any[] },
-  interceptorOptions?: { delay?: number; statusCode?: number; errorMode?: boolean; errorMessage?: string }
+  interceptorOptions?: {
+    delay?: number;
+    statusCode?: number;
+    errorMode?: boolean;
+    errorMessage?: string;
+  }
 ) {
   // Collect all device IDs and storage types
   const deviceIds: string[] = [];
@@ -75,7 +83,7 @@ export function setupIndexingScenario(
         errorMode: interceptorOptions?.errorMode,
         statusCode: interceptorOptions?.statusCode,
         errorMessage: interceptorOptions?.errorMessage,
-        customAlias: `indexStorage_${deviceId}_SD`
+        customAlias: `indexStorage_${deviceId}_SD`,
       });
     }
 
@@ -87,7 +95,7 @@ export function setupIndexingScenario(
         errorMode: interceptorOptions?.errorMode,
         statusCode: interceptorOptions?.statusCode,
         errorMessage: interceptorOptions?.errorMessage,
-        customAlias: `indexStorage_${deviceId}_USB`
+        customAlias: `indexStorage_${deviceId}_USB`,
       });
     }
   });
@@ -114,13 +122,9 @@ export function setupIndexingScenario(
  * verifyBusyDialogDisplayed();
  * verifyBusyDialogDisplayed(2000); // Wait up to 2s for dialog to appear
  */
-export function verifyBusyDialogDisplayed(
-  timeout = 1000
-): Cypress.Chainable<JQuery<HTMLElement>> {
+export function verifyBusyDialogDisplayed(timeout = 1000): Cypress.Chainable<JQuery<HTMLElement>> {
   // Wait for the indexing dialog by checking for its specific title text
-  cy.get('h2', { timeout })
-    .contains('Indexing Storage')
-    .should('exist');
+  cy.get('h2', { timeout }).contains('Indexing Storage').should('exist');
 
   return cy.get(BUSY_DIALOG_GENERIC_SELECTORS.container, { timeout });
 }
@@ -181,7 +185,9 @@ export function verifyStorageIndexButtonState(
  * clickStorageIndexButton('usb');
  * clickStorageIndexButton('sd');
  */
-export function clickStorageIndexButton(storageType: 'usb' | 'sd'): Cypress.Chainable<JQuery<HTMLElement>> {
+export function clickStorageIndexButton(
+  storageType: 'usb' | 'sd'
+): Cypress.Chainable<JQuery<HTMLElement>> {
   const selector = STORAGE_INDEX_BUTTON_SELECTORS.byType(storageType);
   return cy.get(selector).click();
 }
@@ -256,7 +262,10 @@ export function waitForIndexingComplete(
  * waitForIndexingComplete('device-id-123', 'USB');
  * verifyIndexingCallMade('device-id-123', 'USB'); // Optional verification
  */
-export function verifyIndexingCallMade(deviceId: string, storageType: 'USB' | 'SD'): Cypress.Chainable<any> {
+export function verifyIndexingCallMade(
+  deviceId: string,
+  storageType: 'USB' | 'SD'
+): Cypress.Chainable<any> {
   const alias = INDEXING_INTERCEPT_ALIASES.byDeviceAndType(deviceId, storageType);
   return cy.get(`@${alias}`).should('exist') as any;
 }

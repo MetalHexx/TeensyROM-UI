@@ -7,6 +7,7 @@ This guide walks through setting up the Chrome DevTools Model Context Protocol (
 **Purpose**: Debug why Cypress interceptors aren't catching API calls made during Angular app bootstrap.
 
 **What This Enables**:
+
 - Real-time Network tab inspection during test execution
 - Console log monitoring during Cypress tests
 - DOM state verification at specific test breakpoints
@@ -17,6 +18,7 @@ This guide walks through setting up the Chrome DevTools Model Context Protocol (
 ## 🎯 Prerequisites
 
 ### Required Tools
+
 - **Node.js 18+** - Runtime for the MCP server
 - **pnpm** - Package manager (already used in this project)
 - **Chrome/Chromium** - Browser with DevTools Protocol support
@@ -24,6 +26,7 @@ This guide walks through setting up the Chrome DevTools Model Context Protocol (
 - **Cypress** - Already configured in this project
 
 ### Repository Context
+
 - Project: TeensyROM-UI
 - Location: `C:\dev\src\TeensyROM-UI\Source\Windows\TeensyRom.Ui\src\TeensyRom.Api\ClientApp\teensyrom-nx`
 - Current Branch: `core-refactor2`
@@ -59,6 +62,7 @@ pnpm exec chrome-devtools-mcp --version
 ```
 
 **Expected Output**:
+
 ```
 @modelcontextprotocol/server-chrome-devtools v1.x.x
 ```
@@ -88,6 +92,7 @@ The MCP server needs to be registered in VS Code's Copilot configuration.
 ```
 
 **If Installed Locally** (Option B):
+
 ```json
 {
   "github.copilot.chat.mcp.enabled": true,
@@ -103,6 +108,7 @@ The MCP server needs to be registered in VS Code's Copilot configuration.
 ```
 
 **Save and Reload VS Code**:
+
 ```
 Ctrl+Shift+P → "Developer: Reload Window"
 ```
@@ -127,15 +133,18 @@ The MCP server connects to Chrome via the DevTools Protocol, which requires Chro
 ```
 
 **Flags Explained**:
+
 - `--remote-debugging-port=9222` - Opens DevTools Protocol on port 9222 (standard port)
 - `--user-data-dir="C:\temp\chrome-debug-profile"` - Uses separate profile to avoid conflicts with your regular Chrome session
 
 **Verification**:
+
 1. Chrome should open with a yellow warning banner: "Chrome is being controlled by automated test software"
 2. Navigate to `http://localhost:9222/json` in the debug Chrome instance
 3. You should see JSON output listing inspectable pages
 
 **Expected Output at `localhost:9222/json`**:
+
 ```json
 [
   {
@@ -161,12 +170,14 @@ The MCP server connects to Chrome via the DevTools Protocol, which requires Chro
 ```
 
 **Expected Response**:
+
 ```
 ✅ Connected to Chrome DevTools at localhost:9222
 📊 Found 1 inspectable page(s)
 ```
 
 **If Connection Fails**:
+
 - Verify Chrome is running with `--remote-debugging-port=9222`
 - Check that port 9222 is not blocked by firewall
 - Ensure no other process is using port 9222
@@ -209,31 +220,37 @@ Once tests are running, use VS Code Copilot Chat to query the MCP server:
 ```
 @chrome list tabs
 ```
+
 Lists all open tabs/pages in the debug Chrome instance.
 
 ```
 @chrome navigate to http://localhost:4200/devices
 ```
+
 Navigates to the device view in the test app.
 
 ```
 @chrome get network requests
 ```
+
 Shows all network requests made by the page (critical for debugging interceptor issues).
 
 ```
 @chrome get console logs
 ```
+
 Retrieves console output from the application.
 
 ```
 @chrome execute script: localStorage.getItem('devices')
 ```
+
 Executes JavaScript in the page context to inspect state.
 
 ```
 @chrome take screenshot
 ```
+
 Captures a screenshot of the current page state.
 
 ---
@@ -247,6 +264,7 @@ Captures a screenshot of the current page state.
 **Step 1: Observe the Actual API Call**
 
 1. **Run test in headed mode**:
+
    ```powershell
    pnpm nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts" --headed --browser=chrome
    ```
@@ -254,6 +272,7 @@ Captures a screenshot of the current page state.
 2. **Let test navigate to `/devices` route**
 
 3. **Query MCP server for network requests**:
+
    ```
    @chrome get network requests
    ```
@@ -266,6 +285,7 @@ Captures a screenshot of the current page state.
    - Timing (when it fired relative to page load)
 
 **Expected Insights**:
+
 - If URL is `/api/devices` (no wildcard), our interceptor pattern `/api/devices*` should match
 - If URL has query params like `/api/devices?refresh=true`, we need to adjust the pattern
 - If no API call appears, the store may be caching devices
@@ -273,6 +293,7 @@ Captures a screenshot of the current page state.
 **Step 2: Verify Interceptor Registration Timing**
 
 1. **Add console logging to the test**:
+
    ```typescript
    beforeEach(() => {
      cy.log('Setting up interceptor');
@@ -285,6 +306,7 @@ Captures a screenshot of the current page state.
    ```
 
 2. **Query MCP for console logs**:
+
    ```
    @chrome get console logs
    ```
@@ -296,12 +318,14 @@ Captures a screenshot of the current page state.
    - API call logs (if any)
 
 **Expected Insights**:
+
 - If API call happens before "Interceptor registered", we have a timing issue
 - If API call doesn't appear at all, the bootstrap may be skipping it due to cached state
 
 **Step 3: Inspect DeviceStore State**
 
 1. **Query store state via console**:
+
    ```
    @chrome execute script: window.__teensyromDebug?.deviceStore?.devices()
    ```
@@ -319,12 +343,14 @@ Captures a screenshot of the current page state.
    ```
 
 **Expected Insights**:
+
 - If `hasInitialised` is `true` on page load, bootstrap may skip API call
 - If `devices` array is not empty, store is persisting state across tests
 
 **Step 4: Monitor Bootstrap Service**
 
 1. **Add logging to AppBootstrapService** (temporary):
+
    ```typescript
    async init(): Promise<void> {
      console.log('[Bootstrap] init() called');
@@ -343,6 +369,7 @@ Captures a screenshot of the current page state.
    ```
 
 **Expected Insights**:
+
 - Confirms whether `findDevices()` is actually being called
 - Shows timing relative to interceptor setup
 
@@ -353,6 +380,7 @@ Captures a screenshot of the current page state.
 ### Scenario 1: Inline Interceptor (Known to Pass)
 
 **Test**:
+
 ```typescript
 it('should show loading indicator', () => {
   cy.intercept('GET', '/api/devices*', (req) => {
@@ -369,11 +397,13 @@ it('should show loading indicator', () => {
 ```
 
 **MCP Investigation**:
+
 ```
 @chrome get network requests
 ```
 
 **Look For**:
+
 - Does the interceptor catch the request?
 - What is the exact URL?
 - What is the timing between intercept setup and request?
@@ -381,6 +411,7 @@ it('should show loading indicator', () => {
 ### Scenario 2: beforeEach Interceptor (Known to Fail)
 
 **Test**:
+
 ```typescript
 beforeEach(() => {
   interceptFindDevices({ fixture: singleDevice });
@@ -394,12 +425,14 @@ it('should display single device', () => {
 ```
 
 **MCP Investigation**:
+
 ```
 @chrome get network requests
 @chrome get console logs
 ```
 
 **Look For**:
+
 - Does the request happen before interceptor is ready?
 - Is there a race condition between `beforeEach` and `cy.visit()`?
 
@@ -412,6 +445,7 @@ it('should display single device', () => {
 **Finding**: Actual API call is `/api/devices` (no wildcard needed)
 
 **Solution**:
+
 ```typescript
 // Update interceptor
 cy.intercept('GET', '/api/devices', (req) => { ... }).as('findDevices');
@@ -422,6 +456,7 @@ cy.intercept('GET', '/api/devices', (req) => { ... }).as('findDevices');
 **Finding**: API call happens before interceptor registers
 
 **Solution**:
+
 ```typescript
 // Move interceptor inline
 it('should display single device', () => {
@@ -437,6 +472,7 @@ it('should display single device', () => {
 **Finding**: `hasInitialised` is true, preventing API call
 
 **Solution**:
+
 ```typescript
 // Force store reset
 export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
@@ -462,6 +498,7 @@ export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
 **Issue**: `@chrome connect to localhost:9222` fails
 
 **Solutions**:
+
 1. Verify Chrome is running with `--remote-debugging-port=9222`
 2. Check `localhost:9222/json` in browser
 3. Restart Chrome with debug flags
@@ -472,6 +509,7 @@ export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
 **Issue**: `pnpm nx e2e teensyrom-ui-e2e --browser=chrome` fails
 
 **Solutions**:
+
 1. Install Chrome if not present: https://www.google.com/chrome/
 2. Verify Cypress detects Chrome: `pnpm exec cypress info`
 3. Try `--browser=chromium` if Chrome not detected
@@ -481,6 +519,7 @@ export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
 **Issue**: `@chrome get network requests` returns empty
 
 **Solutions**:
+
 1. Ensure page is loaded before querying
 2. Navigate to page first: `@chrome navigate to http://localhost:4200/devices`
 3. Wait for page load, then query network
@@ -490,6 +529,7 @@ export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
 **Issue**: `@chrome get console logs` returns empty
 
 **Solutions**:
+
 1. Ensure DevTools is open (in headed mode)
 2. Enable "Preserve log" in Network tab
 3. Add explicit `console.log()` statements to application code
@@ -501,18 +541,21 @@ export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
 ### Talking Points
 
 **1. The Problem**:
+
 - 12 out of 39 E2E tests are timing out
 - Cypress can't find the API request: "No request ever occurred"
 - Angular app bootstrap calls `findDevices()` on startup
 - Interceptor pattern isn't catching the request
 
 **2. Traditional Debugging Limitations**:
+
 - Can't see real-time network traffic during test execution
 - Console logs lost between test runs
 - No visibility into application state during Cypress tests
 - Guessing at timing issues without hard data
 
 **3. MCP Solution**:
+
 - AI assistant connects directly to Chrome DevTools
 - Real-time network request inspection
 - Console log monitoring during test execution
@@ -520,6 +563,7 @@ export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
 - Screenshot capture at any point in test
 
 **4. Investigation Flow**:
+
 ```
 Run Cypress test (headed mode)
     ↓
@@ -537,31 +581,39 @@ Apply fix and re-test
 ### Live Demo Script
 
 **Step 1**: Show the failing test
+
 ```powershell
 pnpm nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts" --headed --browser=chrome
 ```
 
 **Step 2**: Connect MCP
+
 ```
 @chrome connect to localhost:9222
 ```
 
 **Step 3**: Show network requests
+
 ```
 @chrome get network requests
 ```
+
 Point out: "Here's the exact API call being made - notice the URL pattern"
 
 **Step 4**: Show console logs
+
 ```
 @chrome get console logs
 ```
+
 Point out: "See when the bootstrap service fires relative to test setup"
 
 **Step 5**: Inspect state
+
 ```
 @chrome execute script: window.__teensyromDebug?.deviceStore?.hasInitialised?.()
 ```
+
 Point out: "The store state shows why the API call isn't happening"
 
 **Step 6**: Show the fix

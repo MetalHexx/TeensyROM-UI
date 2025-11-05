@@ -11,14 +11,17 @@ Validate that Cypress E2E testing infrastructure is correctly configured and can
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [ ] [E2E Testing Plan](./E2E_PLAN.md) - High-level E2E testing strategy and phase breakdown
 - [ ] [app.routes.ts](../../apps/teensyrom-ui/src/app/app.routes.ts) - Application routing configuration
 
 **Standards & Guidelines:**
+
 - [ ] [Coding Standards](../../docs/CODING_STANDARDS.md) - General coding patterns and conventions
 - [ ] [Testing Standards](../../docs/TESTING_STANDARDS.md) - Testing approaches and best practices
 
 **Existing Cypress Files to Review:**
+
 - [ ] `apps/teensyrom-ui-e2e/cypress.config.ts` - Cypress configuration with baseUrl and server settings
 - [ ] `apps/teensyrom-ui-e2e/src/e2e/app.cy.ts` - Existing example test showing Cypress patterns
 - [ ] `apps/teensyrom-ui-e2e/src/support/app.po.ts` - Page object pattern example
@@ -52,11 +55,13 @@ apps/teensyrom-ui-e2e/
 **Purpose**: Verify that Cypress is properly installed, configured, and integrated with the Nx workspace before creating new tests. Confirm existing setup can run tests against the Angular application.
 
 **Related Documentation:**
+
 - [Cypress Config](../../apps/teensyrom-ui-e2e/cypress.config.ts) - Current Cypress configuration
 - [Nx Project Config](../../apps/teensyrom-ui-e2e/project.json) - E2E project configuration
 - [Existing Test](../../apps/teensyrom-ui-e2e/src/e2e/app.cy.ts) - Example test pattern
 
 **Implementation Subtasks:**
+
 - [ ] **Inspect cypress.config.ts**: Confirm baseUrl is set to `http://localhost:4200` and webServerCommand references `teensyrom-ui:serve`
 - [ ] **Verify Nx integration**: Check that `project.json` has implicit dependency on `teensyrom-ui` application
 - [ ] **Review existing test structure**: Examine `app.cy.ts` to understand existing test patterns, `beforeEach` hooks, and assertion syntax
@@ -64,9 +69,11 @@ apps/teensyrom-ui-e2e/
 - [ ] **Verify Cypress installation**: Confirm Cypress dependencies exist in root `package.json`
 
 **Testing Subtask:**
+
 - [ ] **Run Existing Test**: Execute `pnpm nx e2e teensyrom-ui-e2e` to verify existing `app.cy.ts` test runs (even if it fails due to outdated content)
 
 **Key Implementation Notes:**
+
 - Cypress config uses Nx E2E preset with automatic dev server management
 - baseUrl `http://localhost:4200` matches Angular dev server default port
 - Existing `app.cy.ts` may have outdated content (references `/Welcome/` greeting) - this is expected
@@ -76,6 +83,7 @@ apps/teensyrom-ui-e2e/
 **Testing Focus for Task 1:**
 
 **Behaviors to Verify:**
+
 - [ ] **Cypress runs**: Command `pnpm nx e2e teensyrom-ui-e2e` executes without installation errors
 - [ ] **Dev server starts**: Angular application serves on port 4200 during test execution
 - [ ] **Cypress UI launches**: Cypress test runner or headless mode executes successfully
@@ -83,6 +91,7 @@ apps/teensyrom-ui-e2e/
 - [ ] **Screenshots configured**: Confirm screenshots directory exists or will be created on failure
 
 **Testing Reference:**
+
 - Cypress documentation for Nx integration verification
 
 </details>
@@ -95,10 +104,12 @@ apps/teensyrom-ui-e2e/
 **Purpose**: Implement the first device-focused E2E test that validates basic navigation to the device view route. This establishes the testing foundation for all future device management tests.
 
 **Related Documentation:**
+
 - [Device View Component](../../libs/features/devices/src/lib/device-view/device-view.component.ts) - Component structure and selector
 - [Application Routes](../../apps/teensyrom-ui/src/app/app.routes.ts) - Routing configuration showing `/devices` path
 
 **Implementation Subtasks:**
+
 - [ ] **Create devices directory**: Add `apps/teensyrom-ui-e2e/src/e2e/devices/` folder for device-related tests
 - [ ] **Create test file**: Add `device-view-navigation.cy.ts` in devices directory
 - [ ] **Write test suite**: Create `describe` block titled "Device View - Navigation"
@@ -108,9 +119,11 @@ apps/teensyrom-ui-e2e/
 - [ ] **Assert device view renders**: Verify `.device-view` container exists using `cy.get('.device-view').should('exist')`
 
 **Testing Subtask:**
+
 - [ ] **Run new test**: Execute `pnpm nx e2e teensyrom-ui-e2e --spec="src/e2e/devices/device-view-navigation.cy.ts"` to run specific test file
 
 **Key Implementation Notes:**
+
 - Device view component uses CSS class `.device-view` on root container - this is the primary assertion target
 - Default route (`/`) redirects to `/devices` per `app.routes.ts` configuration
 - No API mocking needed - test should handle "no devices found" empty state gracefully
@@ -119,11 +132,13 @@ apps/teensyrom-ui-e2e/
 **Testing Focus for Task 2:**
 
 **Behaviors to Test:**
+
 - [ ] **Navigation succeeds**: Browser navigates to `/devices` route without errors
 - [ ] **URL updates correctly**: Address bar shows `/devices` path after navigation
 - [ ] **Device view present**: `.device-view` root container exists in DOM
 
 **Testing Reference:**
+
 - See [Testing Standards](../../docs/TESTING_STANDARDS.md) for E2E behavioral testing approach
 - Cypress best practices for `cy.visit()`, `cy.get()`, and URL assertions
 
@@ -137,9 +152,11 @@ apps/teensyrom-ui-e2e/
 **Purpose**: Document the device view test structure, conventions, and patterns to guide future test development in subsequent phases. Establish naming conventions and organizational standards.
 
 **Related Documentation:**
+
 - [E2E Plan](./E2E_PLAN.md) - Overall E2E testing strategy
 
 **Implementation Subtasks:**
+
 - [ ] **Create DEVICE_TESTS.md**: Add documentation file in `apps/teensyrom-ui-e2e/src/e2e/devices/` directory
 - [ ] **Document test purpose**: Explain that device tests cover device discovery, connection, and management workflows
 - [ ] **Document file naming**: Establish `[feature]-[workflow].cy.ts` convention (e.g., `device-view-navigation.cy.ts`)
@@ -149,9 +166,11 @@ apps/teensyrom-ui-e2e/
 - [ ] **List test files**: Include index of current test files with brief descriptions
 
 **Testing Subtask:**
+
 - [ ] **Review documentation**: Verify DEVICE_TESTS.md is clear and helpful for developers creating new tests
 
 **Key Implementation Notes:**
+
 - Documentation should be concise and actionable - focus on conventions over explanations
 - Include examples from `device-view-navigation.cy.ts` to illustrate patterns
 - Reference E2E_PLAN.md for context on future phases
@@ -160,6 +179,7 @@ apps/teensyrom-ui-e2e/
 **Testing Focus for Task 3:**
 
 **Documentation Quality Checks:**
+
 - [ ] **DEVICE_TESTS.md exists**: File created in correct location
 - [ ] **Conventions documented**: Naming, structure, and organization patterns explained
 - [ ] **Examples included**: Concrete examples from actual test files referenced
@@ -167,6 +187,7 @@ apps/teensyrom-ui-e2e/
 - [ ] **Actionable guidance**: Developers can create new tests following documented patterns
 
 **Testing Reference:**
+
 - Documentation should help developers understand the testing approach without reading source code
 
 </details>
@@ -179,9 +200,11 @@ apps/teensyrom-ui-e2e/
 **Purpose**: Confirm the new device view test runs successfully, produces consistent results, and generates screenshot artifacts on test failure. Validate Cypress integration end-to-end.
 
 **Related Documentation:**
+
 - [Cypress Config](../../apps/teensyrom-ui-e2e/cypress.config.ts) - Screenshot and video configuration
 
 **Implementation Subtasks:**
+
 - [ ] **Run full test suite**: Execute `pnpm nx e2e teensyrom-ui-e2e` to run all E2E tests including new device test
 - [ ] **Run specific test**: Execute `pnpm nx e2e teensyrom-ui-e2e --spec="src/e2e/devices/device-view-navigation.cy.ts"` to run only device test
 - [ ] **Verify test passes**: Confirm all assertions in device view navigation test succeed (green checkmarks)
@@ -192,9 +215,11 @@ apps/teensyrom-ui-e2e/
 - [ ] **Check for warnings**: Review Cypress output for deprecation warnings or configuration issues
 
 **Testing Subtask:**
+
 - [ ] **Document test results**: Record test execution time, screenshot behavior, and any warnings encountered
 
 **Key Implementation Notes:**
+
 - Cypress should automatically start dev server before running tests via Nx integration
 - Screenshots only generated on test failure by default - this is expected behavior
 - Test execution time should be fast since no API calls are mocked/delayed yet
@@ -204,6 +229,7 @@ apps/teensyrom-ui-e2e/
 **Testing Focus for Task 4:**
 
 **Behaviors to Verify:**
+
 - [ ] **Test passes consistently**: Test succeeds on multiple runs with same results
 - [ ] **Execution time reasonable**: Test completes in under 10 seconds
 - [ ] **Dev server starts automatically**: Angular app serves without manual intervention
@@ -213,6 +239,7 @@ apps/teensyrom-ui-e2e/
 - [ ] **Test is deterministic**: Running test multiple times produces same pass/fail result
 
 **Testing Reference:**
+
 - Cypress documentation on screenshot and artifact configuration
 - Nx Cypress integration documentation for dev server behavior
 
@@ -223,10 +250,12 @@ apps/teensyrom-ui-e2e/
 ## 🗂️ Files Modified or Created
 
 **New Files:**
+
 - `apps/teensyrom-ui-e2e/src/e2e/devices/device-view-navigation.cy.ts` - First device view navigation test
 - `apps/teensyrom-ui-e2e/src/e2e/devices/DEVICE_TESTS.md` - Device test documentation and conventions
 
 **Modified Files:**
+
 - None (all existing files remain unchanged)
 
 ---
@@ -239,6 +268,7 @@ apps/teensyrom-ui-e2e/
 ### Where Tests Are Written
 
 **Tests are embedded in each task above** with:
+
 - **Testing Subtask**: Checkbox in the task's subtask list
 - **Testing Focus**: "Behaviors to Verify/Test" section listing observable outcomes
 - **Testing Reference**: Links to relevant documentation
@@ -248,6 +278,7 @@ apps/teensyrom-ui-e2e/
 ### Test Execution Commands
 
 **Running Cypress Tests:**
+
 ```powershell
 # Run all E2E tests (existing + new device test)
 pnpm nx e2e teensyrom-ui-e2e
@@ -263,6 +294,7 @@ pnpm nx e2e teensyrom-ui-e2e --browser=chrome
 ```
 
 **Expected Output:**
+
 - Angular dev server starts on port 4200
 - Cypress executes tests (headless by default)
 - Test results display in terminal (pass/fail)
@@ -278,12 +310,14 @@ pnpm nx e2e teensyrom-ui-e2e --browser=chrome
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Functional Requirements:**
+
 - [ ] All implementation tasks completed and checked off
 - [ ] All subtasks within each task completed
 - [ ] Device view navigation test file created
 - [ ] Test documentation (DEVICE_TESTS.md) created
 
 **Testing Requirements:**
+
 - [ ] All testing subtasks completed within each task
 - [ ] Existing Cypress test runs (pass or fail doesn't matter)
 - [ ] New device view navigation test runs successfully
@@ -291,18 +325,21 @@ pnpm nx e2e teensyrom-ui-e2e --browser=chrome
 - [ ] Screenshot capture verified working on failure scenario
 
 **Quality Checks:**
+
 - [ ] No Cypress configuration errors
 - [ ] Dev server starts automatically during test execution
 - [ ] No blocking warnings in Cypress output
 - [ ] Test execution completes in under 10 seconds
 
 **Documentation:**
+
 - [ ] DEVICE_TESTS.md created in devices test directory
 - [ ] Test conventions and patterns documented
 - [ ] Examples included from actual test file
 - [ ] Documentation is clear and actionable
 
 **Ready for Next Phase:**
+
 - [ ] All success criteria met
 - [ ] Cypress E2E infrastructure validated and working
 - [ ] First device test establishes pattern for future tests

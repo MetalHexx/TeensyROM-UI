@@ -11,6 +11,7 @@ Create a modal dialog feature that displays embedded YouTube videos when users c
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Standards & Guidelines:**
+
 - [ ] [Coding Standards](../../CODING_STANDARDS.md) - General coding patterns and conventions
 - [ ] [Testing Standards](../../TESTING_STANDARDS.md) - Testing approaches and best practices
 - [ ] [Style Guide](../../STYLE_GUIDE.md) - Component styling patterns and Material Design customizations
@@ -56,10 +57,12 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 **Purpose**: Extract the visual presentation (icon + label) from `ExternalLinkComponent` into a reusable base component that can be composed by both navigation and action link components.
 
 **Related Documentation:**
+
 - [Component Library](../../COMPONENT_LIBRARY.md#link-components) - Existing link component pattern
 - [Icon Label Component](../../COMPONENT_LIBRARY.md#iconlabelcomponent) - Component we'll reuse for rendering
 
 **Implementation Subtasks:**
+
 - [ ] **Create `LinkComponent` class** in `libs/ui/components/src/lib/link/link.component.ts`
 - [ ] **Add required inputs**: `label` (required), `icon` (default: 'link'), `iconColor` (default: 'primary')
 - [ ] **Create template** that renders `IconLabelComponent` with bound inputs
@@ -67,9 +70,11 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 - [ ] **Export component** from `libs/ui/components/src/index.ts`
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify link renders icon and label correctly
 
 **Key Implementation Notes:**
+
 - This component is pure presentation - no behavior, no events, no navigation
 - Use `IconLabelComponent` internally for consistent icon + label rendering
 - Keep styling minimal - just flex display and basic layout
@@ -77,12 +82,14 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 **Testing Focus for Task 1:**
 
 **Behaviors to Test:**
+
 - [ ] **Renders label text**: Component displays the provided label text
 - [ ] **Renders icon**: Component displays the provided Material icon
 - [ ] **Icon color applied**: Component applies the specified icon color variant
 - [ ] **Default values work**: Component uses default icon and color when not specified
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for behavioral testing patterns
 
 </details>
@@ -95,10 +102,12 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 **Purpose**: Refactor `ExternalLinkComponent` to compose with the new `LinkComponent`, extracting presentation logic while maintaining all existing functionality and API contracts.
 
 **Related Documentation:**
+
 - [Component Library](../../COMPONENT_LIBRARY.md#externallinkcomponent) - Current implementation reference
 - [Coding Standards](../../CODING_STANDARDS.md) - Component composition patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Import `LinkComponent`** into `ExternalLinkComponent` imports array
 - [ ] **Update template** to wrap `lib-link` inside the `<a>` tag
 - [ ] **Pass through props** - bind `icon`, `iconColor`, `label` to `lib-link`
@@ -106,9 +115,11 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 - [ ] **Verify all existing inputs/outputs** still work (href, target, rel, aria-label, etc.)
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify refactored component maintains all existing behaviors
 
 **Key Implementation Notes:**
+
 - All existing API contracts must remain unchanged - zero breaking changes
 - All existing tests should pass without modification (except imports)
 - Template changes should only affect composition, not rendered output
@@ -117,6 +128,7 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 **Testing Focus for Task 2:**
 
 **Behaviors to Test:**
+
 - [ ] **All existing tests pass**: Refactored component maintains backward compatibility
 - [ ] **Renders identically**: Visual output is unchanged from previous implementation
 - [ ] **Security attributes applied**: External links still get proper rel attributes
@@ -124,6 +136,7 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 - [ ] **ARIA labels work**: Accessibility attributes still apply correctly
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for regression testing approach
 
 </details>
@@ -136,10 +149,12 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 **Purpose**: Create a new component that looks identical to `ExternalLinkComponent` but uses a semantic `<button>` element and emits click events instead of navigating, enabling modal and action-based interactions.
 
 **Related Documentation:**
+
 - [Component Library](../../COMPONENT_LIBRARY.md#externallinkcomponent) - Visual pattern to match
 - [Style Guide](../../STYLE_GUIDE.md) - Utility classes like `.selectable-item`
 
 **Implementation Subtasks:**
+
 - [ ] **Create `ActionLinkComponent` class** in `libs/ui/components/src/lib/action-link/`
 - [ ] **Add inputs**: `label` (required), `icon` (default: 'link'), `iconColor` (default: 'primary'), `ariaLabel` (optional), `disabled` (default: false)
 - [ ] **Add output**: `linkClick` event emitter of type `void`
@@ -149,9 +164,11 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 - [ ] **Export component** from `libs/ui/components/src/index.ts`
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify action link renders and emits events correctly
 
 **Key Implementation Notes:**
+
 - Use semantic `<button type="button">` for proper accessibility
 - Apply `.selectable-item` mixin from style guide for consistent hover/active states
 - Style button to look like a link (no border, background, proper cursor, text color)
@@ -161,6 +178,7 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 **Testing Focus for Task 3:**
 
 **Behaviors to Test:**
+
 - [ ] **Renders link appearance**: Component looks like ExternalLinkComponent
 - [ ] **Emits click events**: Click on enabled component emits linkClick event
 - [ ] **Disabled state works**: Disabled component does not emit events
@@ -169,6 +187,7 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 - [ ] **Icon and label render**: Composed LinkComponent displays correctly
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for component testing patterns
 
 </details>
@@ -181,11 +200,13 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 **Purpose**: Create a dialog component that displays an embedded YouTube video player using an iframe, with proper responsive sizing and Material Design dialog styling.
 
 **Related Documentation:**
+
 - [Component Library](../../COMPONENT_LIBRARY.md) - Dialog patterns (see BusyDialogComponent)
 - [Style Guide](../../STYLE_GUIDE.md) - `.glassy` class for dialog styling
 - [Layout Component](../../../libs/app/shell/src/lib/layout/layout.component.ts) - Existing dialog usage example
 
 **Implementation Subtasks:**
+
 - [ ] **Create `YouTubeDialogComponent` class** in `libs/features/player/.../file-other/youtube-dialog/`
 - [ ] **Import Angular Material dialog modules**: `MatDialogModule`, `MAT_DIALOG_DATA`, `MatDialogRef`
 - [ ] **Add dialog data interface**: Define type for video data (videoId, url, channel)
@@ -196,9 +217,11 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 - [ ] **Add close button**: Material icon button in dialog actions
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify dialog renders and displays video correctly
 
 **Key Implementation Notes:**
+
 - YouTube embed URL format: `https://www.youtube.com/embed/{videoId}`
 - Use `aspect-ratio: 16/9` CSS for responsive iframe sizing
 - Dialog should be dismissible via backdrop click and ESC key (Material default)
@@ -207,6 +230,7 @@ libs/features/player/src/lib/player-view/player-device-container/file-other/
 - Title should show video channel name from `YouTubeVideo.channel`
 
 **Critical Dialog Data Type**:
+
 ```typescript
 interface YouTubeDialogData {
   video: YouTubeVideo;
@@ -216,6 +240,7 @@ interface YouTubeDialogData {
 **Testing Focus for Task 4:**
 
 **Behaviors to Test:**
+
 - [ ] **Dialog opens**: Component initializes with provided video data
 - [ ] **Video data displayed**: Channel name appears in dialog title
 - [ ] **Iframe renders**: YouTube iframe is created with correct embed URL
@@ -223,6 +248,7 @@ interface YouTubeDialogData {
 - [ ] **Responsive sizing**: Dialog adapts to different screen sizes
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for dialog component testing
 
 </details>
@@ -235,10 +261,12 @@ interface YouTubeDialogData {
 **Purpose**: Add comprehensive documentation for the new reusable components (`LinkComponent` and `ActionLinkComponent`) to the Component Library, ensuring other developers can discover and use these components correctly.
 
 **Related Documentation:**
+
 - [Component Library](../../COMPONENT_LIBRARY.md) - Existing component documentation patterns
 - [Component Library Link Components Section](../../COMPONENT_LIBRARY.md#link-components) - Where to add new entries
 
 **Implementation Subtasks:**
+
 - [ ] **Add `LinkComponent` documentation** in Component Library under Link Components section
 - [ ] **Add `ActionLinkComponent` documentation** in Component Library under Link Components section
 - [ ] **Update `ExternalLinkComponent` documentation** to mention it now composes `LinkComponent`
@@ -247,9 +275,11 @@ interface YouTubeDialogData {
 - [ ] **Add cross-references** between LinkComponent, ActionLinkComponent, and ExternalLinkComponent
 
 **Testing Subtask:**
+
 - [ ] **Verify Documentation**: Review that all examples are accurate and complete
 
 **Key Implementation Notes:**
+
 - Follow existing documentation patterns from other components in the library
 - Include selector, properties, events, and usage examples for each component
 - Add "See Also" references to related components
@@ -257,6 +287,7 @@ interface YouTubeDialogData {
 - Explain semantic HTML differences (`<a>` vs `<button>`)
 
 **Documentation Structure for Each Component**:
+
 ```markdown
 ### `ComponentName`
 
@@ -265,9 +296,11 @@ interface YouTubeDialogData {
 **Selector**: `lib-component-name`
 
 **Properties**:
+
 - `prop1` (required/optional): `type` - Description
 
 **Events** (if applicable):
+
 - `eventName`: Description
 
 **Usage Examples**: [Code blocks with HTML examples]
@@ -280,12 +313,14 @@ interface YouTubeDialogData {
 **Testing Focus for Task 5:**
 
 **Documentation Completeness:**
+
 - [ ] **All properties documented**: Every input and output is listed with types
 - [ ] **Usage examples provided**: Common use cases have working code examples
 - [ ] **Semantic differences explained**: Clear guidance on when to use each component
 - [ ] **Cross-references added**: Links between related components work correctly
 
 **Testing Reference:**
+
 - Validate examples compile and follow coding standards
 
 </details>
@@ -298,10 +333,12 @@ interface YouTubeDialogData {
 **Purpose**: Replace the current `ExternalLinkComponent` usage for YouTube videos with `ActionLinkComponent`, and wire up dialog opening logic when users click on YouTube video links.
 
 **Related Documentation:**
+
 - [file-other.component.html](../../../libs/features/player/src/lib/player-view/player-device-container/file-other/file-other.component.html) - Current implementation
 - [Layout Component](../../../libs/app/shell/src/lib/layout/layout.component.ts) - Dialog opening pattern reference
 
 **Implementation Subtasks:**
+
 - [ ] **Inject `MatDialog` service** into `FileOtherComponent`
 - [ ] **Create `openYouTubeDialog` method** that accepts `YouTubeVideo` parameter
 - [ ] **Implement dialog opening logic** using `this.dialog.open()` with configuration
@@ -310,9 +347,11 @@ interface YouTubeDialogData {
 - [ ] **Keep external link for other links** (CSDb, DeepSID, etc. - don't change them)
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify clicking YouTube links opens dialog with correct video
 
 **Key Implementation Notes:**
+
 - Dialog configuration: `width: '800px'`, `maxWidth: '90vw'` for responsive sizing
 - Pass video object via `data` property: `{ video: YouTubeVideo }`
 - Consider adding `panelClass: 'youtube-dialog'` for custom styling hook
@@ -320,6 +359,7 @@ interface YouTubeDialogData {
 - YouTube videos are identified by the `play_circle` icon in the current implementation
 
 **Dialog Opening Pattern**:
+
 ```typescript
 openYouTubeDialog(video: YouTubeVideo): void {
   this.dialog.open(YouTubeDialogComponent, {
@@ -333,6 +373,7 @@ openYouTubeDialog(video: YouTubeVideo): void {
 **Testing Focus for Task 6:**
 
 **Behaviors to Test:**
+
 - [ ] **Clicking YouTube link opens dialog**: ActionLink click handler triggers dialog
 - [ ] **Correct video passed to dialog**: Dialog receives the clicked video's data
 - [ ] **Dialog opens with video**: YouTubeDialogComponent displays with correct video
@@ -340,6 +381,7 @@ openYouTubeDialog(video: YouTubeVideo): void {
 - [ ] **Multiple videos work**: Each video link opens dialog with correct video
 
 **Testing Reference:**
+
 - See [Smart Component Testing](../../SMART_COMPONENT_TESTING.md) for testing component integration
 
 </details>
@@ -349,6 +391,7 @@ openYouTubeDialog(video: YouTubeVideo): void {
 ## 🗂️ Files Modified or Created
 
 **New Files:**
+
 - `libs/ui/components/src/lib/link/link.component.ts`
 - `libs/ui/components/src/lib/link/link.component.scss`
 - `libs/ui/components/src/lib/link/link.component.spec.ts`
@@ -362,6 +405,7 @@ openYouTubeDialog(video: YouTubeVideo): void {
 - `libs/features/player/src/lib/player-view/player-device-container/file-other/youtube-dialog/youtube-dialog.component.spec.ts`
 
 **Modified Files:**
+
 - `libs/ui/components/src/index.ts`
 - `libs/ui/components/src/lib/external-link/external-link.component.ts`
 - `libs/ui/components/src/lib/external-link/external-link.component.html`
@@ -381,6 +425,7 @@ openYouTubeDialog(video: YouTubeVideo): void {
 ### Where Tests Are Written
 
 **Tests are embedded in each task above** with:
+
 - **Testing Subtask**: Checkbox in the task's subtask list
 - **Testing Focus**: "Behaviors to Test" section listing observable outcomes
 - **Testing Reference**: Links to relevant testing documentation
@@ -417,12 +462,14 @@ pnpm nx run-many --target=test --all
 <summary><h2>✅ Success Criteria</h2></summary>
 
 **Functional Requirements:**
+
 - [ ] All implementation tasks completed and checked off
 - [ ] All subtasks within each task completed
 - [ ] Code follows [Coding Standards](../../CODING_STANDARDS.md)
 - [ ] Components follow patterns from [Component Library](../../COMPONENT_LIBRARY.md)
 
 **Testing Requirements:**
+
 - [ ] All testing subtasks completed within each task
 - [ ] All behavioral test checkboxes verified
 - [ ] Tests written alongside implementation (not deferred)
@@ -430,12 +477,14 @@ pnpm nx run-many --target=test --all
 - [ ] Existing ExternalLinkComponent tests still pass (regression)
 
 **Quality Checks:**
+
 - [ ] No TypeScript errors or warnings
 - [ ] Linting passes with no errors (`pnpm nx lint`)
 - [ ] Code formatting is consistent
 - [ ] No console errors in browser when clicking YouTube links
 
 **User Experience:**
+
 - [ ] Clicking YouTube video links opens modal dialog (not new tab)
 - [ ] Dialog displays embedded YouTube video player
 - [ ] Dialog is responsive on different screen sizes
@@ -444,6 +493,7 @@ pnpm nx run-many --target=test --all
 - [ ] YouTube links are visually distinguishable with play_circle icon
 
 **Documentation:**
+
 - [ ] Component Library updated with LinkComponent and ActionLinkComponent entries (Task 5)
 - [ ] ExternalLinkComponent documentation updated to mention composition pattern
 - [ ] Usage examples provided for all new components
@@ -451,6 +501,7 @@ pnpm nx run-many --target=test --all
 - [ ] JSDoc comments added for public component APIs
 
 **Ready for Production:**
+
 - [ ] All success criteria met
 - [ ] No known bugs or issues
 - [ ] Feature tested in browser manually
@@ -511,12 +562,14 @@ pnpm nx run-many --target=test --all
 ## 💡 Tips for Implementing This Phase
 
 **Before Starting:**
+
 1. Review the existing `ExternalLinkComponent` implementation to understand current structure
 2. Look at `BusyDialogComponent` in layout component for dialog pattern reference
 3. Test YouTube embed URLs manually in browser to verify format
 4. Check Material Design documentation for Dialog API updates in v19
 
 **While Implementing:**
+
 1. Start with LinkComponent - it's the foundation for the other components
 2. Test ExternalLinkComponent refactor thoroughly - ensure no regressions
 3. Use ActionLinkComponent's tests to verify button semantics work correctly
@@ -524,12 +577,14 @@ pnpm nx run-many --target=test --all
 5. Check responsive behavior at mobile, tablet, and desktop sizes
 
 **Common Pitfalls:**
+
 - Don't forget `type="button"` on ActionLinkComponent button (prevents form submission)
 - Ensure YouTube embed URL uses `embed/` path, not `watch?v=`
 - Remember to export new components from index.ts barrel files
 - Don't modify other external links in file-other template - only YouTube links
 
 **Testing Strategy:**
+
 - Write LinkComponent tests first - establishes baseline for composition
 - ExternalLinkComponent tests should mostly pass without changes
 - ActionLinkComponent needs comprehensive accessibility testing (keyboard, ARIA)

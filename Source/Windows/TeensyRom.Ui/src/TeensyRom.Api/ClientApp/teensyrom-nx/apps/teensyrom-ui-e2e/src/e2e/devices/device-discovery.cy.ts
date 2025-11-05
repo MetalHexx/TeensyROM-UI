@@ -94,17 +94,11 @@ describe('Device Discovery E2E Tests', () => {
     });
 
     it('should show unique device information for each device', () => {
-      getDeviceCard(0)
-        .find(DEVICE_CARD_SELECTORS.idLabel)
-        .should('exist');
+      getDeviceCard(0).find(DEVICE_CARD_SELECTORS.idLabel).should('exist');
 
-      getDeviceCard(1)
-        .find(DEVICE_CARD_SELECTORS.idLabel)
-        .should('exist');
+      getDeviceCard(1).find(DEVICE_CARD_SELECTORS.idLabel).should('exist');
 
-      getDeviceCard(2)
-        .find(DEVICE_CARD_SELECTORS.idLabel)
-        .should('exist');
+      getDeviceCard(2).find(DEVICE_CARD_SELECTORS.idLabel).should('exist');
     });
 
     it('should show connected status for all devices', () => {
@@ -182,9 +176,7 @@ describe('Device Discovery E2E Tests', () => {
     });
 
     it('should show power button for reconnect', () => {
-      getDeviceCard(0)
-        .find(DEVICE_CARD_SELECTORS.powerButton)
-        .should('be.visible');
+      getDeviceCard(0).find(DEVICE_CARD_SELECTORS.powerButton).should('be.visible');
     });
   });
 

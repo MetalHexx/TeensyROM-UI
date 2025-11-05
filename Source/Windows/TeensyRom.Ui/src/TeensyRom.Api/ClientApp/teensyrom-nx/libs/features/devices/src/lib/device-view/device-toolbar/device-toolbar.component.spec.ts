@@ -54,17 +54,27 @@ describe('DeviceToolbarComponent', () => {
 
     const mockEventsService: Partial<IDeviceEventsService> = {
       allEvents: signal(new Map()),
-      connect: () => { /* mock implementation */ },
-      disconnect: () => { /* mock implementation */ },
+      connect: () => {
+        /* mock implementation */
+      },
+      disconnect: () => {
+        /* mock implementation */
+      },
       getDeviceState: () => signal(null),
     };
 
     const mockLogsService: Partial<IDeviceLogsService> = {
       isConnected: signal(false),
       logs: signal([]),
-      connect: () => { /* mock implementation */ },
-      disconnect: () => { /* mock implementation */ },
-      clear: () => { /* mock implementation */ },
+      connect: () => {
+        /* mock implementation */
+      },
+      disconnect: () => {
+        /* mock implementation */
+      },
+      clear: () => {
+        /* mock implementation */
+      },
     };
 
     // Create a writable signal that we can update in tests

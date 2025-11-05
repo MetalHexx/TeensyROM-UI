@@ -1,10 +1,11 @@
 @if (shouldRenderInDom()) {
-  <div 
-    [@containerAnimation]="animationParams"
-    (@containerAnimation.done)="onContainerAnimationDone()"
-    [style.height]="containerHeight()"
-    [style.width]="containerWidth()"
-    class="sliding-container">
-    <ng-content></ng-content>
-  </div>
+<div
+  [@containerAnimation]="animationParams"
+  (@containerAnimation.done)="onContainerAnimationDone()"
+  [style.height]="containerHeight()"
+  [style.width]="containerWidth()"
+  class="sliding-container"
+>
+  <ng-content></ng-content>
+</div>
 }

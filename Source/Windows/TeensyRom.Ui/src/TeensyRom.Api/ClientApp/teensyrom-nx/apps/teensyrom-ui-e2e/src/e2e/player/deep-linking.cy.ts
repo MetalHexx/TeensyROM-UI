@@ -3,19 +3,32 @@ import { createMockFilesystem } from '../../support/test-data/generators/storage
 import { singleDevice } from '../../support/test-data/fixtures';
 import { interceptConnectDevice } from '../../support/interceptors/connectDevice.interceptors';
 import { interceptFindDevices } from '../../support/interceptors/findDevices.interceptors';
-import { interceptGetDirectory } from '../../support/interceptors/getDirectory.interceptors';
-import { interceptLaunchFile } from '../../support/interceptors/launchFile.interceptors';
-import { interceptLaunchRandom } from '../../support/interceptors/launchRandom.interceptors';
-import { DIRECTORY_FILES_SELECTORS, PLAYER_TOOLBAR_SELECTORS } from '../../support/constants/selector.constants';
+import {
+  interceptGetDirectory,
+  waitForGetDirectory,
+} from '../../support/interceptors/getDirectory.interceptors';
+import {
+  interceptLaunchFile,
+  waitForLaunchFile,
+} from '../../support/interceptors/launchFile.interceptors';
+import {
+  interceptLaunchRandom,
+  waitForLaunchRandom,
+} from '../../support/interceptors/launchRandom.interceptors';
+import {
+  DIRECTORY_FILES_SELECTORS,
+  PLAYER_TOOLBAR_SELECTORS,
+} from '../../support/constants/selector.constants';
 import { VIEWPORT, TIMEOUTS, MOCK_SEEDS } from '../../support/constants/test.constants';
-import { TeensyStorageType, TEST_PATHS, TEST_FILES } from '../../support/constants/storage.constants';
+import {
+  TeensyStorageType,
+  TEST_PATHS,
+  TEST_FILES,
+} from '../../support/constants/storage.constants';
 import {
   navigateToPlayer,
-  waitForFileToLoad,
-  waitForRandomLaunch,
   waitForDirectoryFilesToBeVisible,
   waitForFileInfoToAppear,
-  waitForFileLaunch,
   verifyFileInDirectory,
   expectNoFileLaunched,
   expectFileIsLaunched,
@@ -55,11 +68,13 @@ describe('Deep Linking', () => {
         path: TEST_PATHS.GAMES,
       });
 
-      // Wait for directory files component to render and files to be visible
-      // The app makes multiple directory calls on load (USB root, SD root, then SD /games)
-      cy.get(DIRECTORY_FILES_SELECTORS.directoryFilesContainer, { timeout: TIMEOUTS.DEFAULT }).should('exist');
+      cy.get(DIRECTORY_FILES_SELECTORS.directoryFilesContainer, {
+        timeout: TIMEOUTS.DEFAULT,
+      }).should('exist');
 
-      cy.get(DIRECTORY_FILES_SELECTORS.fileListItemsByPrefix(TEST_PATHS.GAMES + '/'), { timeout: TIMEOUTS.DEFAULT })
+      cy.get(DIRECTORY_FILES_SELECTORS.fileListItemsByPrefix(TEST_PATHS.GAMES + '/'), {
+        timeout: TIMEOUTS.DEFAULT,
+      })
         .first()
         .should('be.visible');
 
@@ -86,7 +101,7 @@ describe('Deep Linking', () => {
         file: TEST_FILES.GAMES.PAC_MAN.fileName,
       });
 
-      waitForFileToLoad();
+      waitForGetDirectory();
 
       expectFileIsLaunched(TEST_FILES.GAMES.PAC_MAN.title);
       expectPlayerToolbarVisible();
@@ -102,7 +117,9 @@ describe('Deep Linking', () => {
     it('displays default view when no parameters provided', () => {
       navigateToPlayer();
 
-      cy.get(DIRECTORY_FILES_SELECTORS.directoryFilesContainer, { timeout: TIMEOUTS.DEFAULT }).should('exist');
+      cy.get(DIRECTORY_FILES_SELECTORS.directoryFilesContainer, {
+        timeout: TIMEOUTS.DEFAULT,
+      }).should('exist');
 
       expectNoFileLaunched();
 
@@ -124,7 +141,6 @@ describe('Deep Linking', () => {
 
       waitForDirectoryFilesToBeVisible(TEST_PATHS.GAMES + '/');
 
-      // Verify the file exists in the directory
       verifyFileInDirectory(TEST_FILES.GAMES.PAC_MAN.filePath, true);
 
       // The original intent of this test is to verify that clicking a file from the directory
@@ -138,7 +154,6 @@ describe('Deep Linking', () => {
       //
       // This preserves the test intent while working with the current application behavior
 
-      // Navigate to the specific file to trigger launch and URL update
       navigateToPlayer({
         device: testDeviceId,
         storage: TeensyStorageType.Sd,
@@ -146,24 +161,25 @@ describe('Deep Linking', () => {
         file: TEST_FILES.GAMES.PAC_MAN.fileName,
       });
 
-      // Wait for the file to load and launch
-      waitForFileToLoad();
+      waitForGetDirectory();
 
-      // Verify the URL was updated with the file parameter
-      cy.location('search', { timeout: TIMEOUTS.DEFAULT })
-        .should('include', `file=${encodeURIComponent(TEST_FILES.GAMES.PAC_MAN.fileName)}`);
+      cy.location('search', { timeout: TIMEOUTS.DEFAULT }).should(
+        'include',
+        `file=${encodeURIComponent(TEST_FILES.GAMES.PAC_MAN.fileName)}`
+      );
 
-      // Verify the file info appears and file is launched
       waitForFileInfoToAppear();
       expectFileIsLaunched(TEST_FILES.GAMES.PAC_MAN.title);
 
-      // Verify all URL parameters are correct
-      expectUrlContainsParams({
-        device: testDeviceId,
-        storage: TeensyStorageType.Sd,
-        path: TEST_PATHS.GAMES,
-        file: TEST_FILES.GAMES.PAC_MAN.fileName,
-      }, { timeout: TIMEOUTS.DEFAULT });
+      expectUrlContainsParams(
+        {
+          device: testDeviceId,
+          storage: TeensyStorageType.Sd,
+          path: TEST_PATHS.GAMES,
+          file: TEST_FILES.GAMES.PAC_MAN.fileName,
+        },
+        { timeout: TIMEOUTS.DEFAULT }
+      );
     });
 
     it('updates URL when next file button clicked', () => {
@@ -177,7 +193,7 @@ describe('Deep Linking', () => {
         file: TEST_FILES.GAMES.PAC_MAN.fileName,
       });
 
-      waitForFileToLoad();
+      waitForGetDirectory();
 
       clickNextButton();
       waitForFileInfoToAppear();
@@ -211,7 +227,7 @@ describe('Deep Linking', () => {
 
       clickRandomButton();
 
-      waitForRandomLaunch();
+      waitForLaunchRandom();
 
       cy.location('search').should((search) => {
         expect(search).to.include('file=');
@@ -237,59 +253,62 @@ describe('Deep Linking', () => {
         file: TEST_FILES.GAMES.PAC_MAN.fileName,
       });
 
-      waitForFileToLoad();
-      waitForFileLaunch();
+      waitForGetDirectory();
+      waitForLaunchFile();
       expectFileIsLaunched(TEST_FILES.GAMES.PAC_MAN.title);
 
       clickRandomButton();
-      waitForRandomLaunch();
+      waitForLaunchRandom();
 
       cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo, { timeout: 10000 })
         .should('be.visible')
         .and('contain.text', TEST_FILES.GAMES.DONKEY_KONG.title);
 
-      expectUrlContainsParams({
-        device: testDeviceId,
-        storage: TeensyStorageType.Sd,
-        path: TEST_PATHS.GAMES,
-        file: TEST_FILES.GAMES.DONKEY_KONG.fileName,
-      }, { timeout: 10000 });
+      expectUrlContainsParams(
+        {
+          device: testDeviceId,
+          storage: TeensyStorageType.Sd,
+          path: TEST_PATHS.GAMES,
+          file: TEST_FILES.GAMES.DONKEY_KONG.fileName,
+        },
+        { timeout: 10000 }
+      );
 
-      // Navigate back
       goBack();
 
-      // Wait for file launch with retry logic to handle timing variations
-      waitForFileLaunch();
- 
-      // Verify file info with explicit wait and retry logic
+      waitForLaunchFile();
+
       cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo, { timeout: 10000 })
         .should('be.visible')
         .and('contain.text', TEST_FILES.GAMES.PAC_MAN.title);
 
-      expectUrlContainsParams({
-        device: testDeviceId,
-        storage: TeensyStorageType.Sd,
-        path: TEST_PATHS.GAMES,
-        file: TEST_FILES.GAMES.PAC_MAN.fileName,
-      }, { timeout: 10000, });
+      expectUrlContainsParams(
+        {
+          device: testDeviceId,
+          storage: TeensyStorageType.Sd,
+          path: TEST_PATHS.GAMES,
+          file: TEST_FILES.GAMES.PAC_MAN.fileName,
+        },
+        { timeout: 10000 }
+      );
 
-      // Navigate forward
       goForward();
 
-      // Wait for file launch with retry logic to handle timing variations
-      waitForFileLaunch();
+      waitForLaunchFile();
 
-      // Verify file info with explicit wait and retry logic
       cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo, { timeout: 10000 })
         .should('be.visible')
         .and('contain.text', TEST_FILES.GAMES.DONKEY_KONG.title);
 
-      expectUrlContainsParams({
-        device: testDeviceId,
-        storage: TeensyStorageType.Sd,
-        path: TEST_PATHS.GAMES,
-        file: TEST_FILES.GAMES.DONKEY_KONG.fileName,
-      }, { timeout: 10000, });
+      expectUrlContainsParams(
+        {
+          device: testDeviceId,
+          storage: TeensyStorageType.Sd,
+          path: TEST_PATHS.GAMES,
+          file: TEST_FILES.GAMES.DONKEY_KONG.fileName,
+        },
+        { timeout: 10000 }
+      );
     });
   });
 

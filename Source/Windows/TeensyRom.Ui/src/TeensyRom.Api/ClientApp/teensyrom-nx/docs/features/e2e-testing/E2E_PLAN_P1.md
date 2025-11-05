@@ -13,14 +13,17 @@ Install Faker with a fixed seed and create type-safe generator functions for dev
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [x] [E2E Testing Plan](./E2E_PLAN.md) - Overall E2E testing strategy and phase overview
 - [ ] [API Client Types](../../../libs/data-access/api-client/src/lib/models/) - Generated API DTO types to generate
 
 **Standards & Guidelines:**
+
 - [ ] [Coding Standards](../../CODING_STANDARDS.md) - General coding patterns and conventions
 - [ ] [Testing Standards](../../TESTING_STANDARDS.md) - Testing approaches and best practices
 
 **External References:**
+
 - [Faker.js Documentation](https://fakerjs.dev/guide/) - Faker API reference
 - [Faker.js Seeding](https://fakerjs.dev/guide/usage.html#seeding) - Fixed seed configuration
 
@@ -49,10 +52,12 @@ apps/teensyrom-ui-e2e/
 **Purpose**: Set up Vitest as the test runner for the E2E project to enable unit testing of generator functions.
 
 **Related Documentation:**
+
 - [Vitest Configuration](https://vitest.dev/config/) - Vitest configuration reference
 - [Nx Vitest Plugin](https://nx.dev/packages/vite/executors/test) - Nx integration for Vitest
 
 **Implementation Subtasks:**
+
 - [ ] Create `apps/teensyrom-ui-e2e/vitest.config.ts` with proper configuration
 - [ ] Configure test environment to use `node` (for unit tests, not browser)
 - [ ] Set up coverage reporting (optional for Phase 1)
@@ -61,15 +66,18 @@ apps/teensyrom-ui-e2e/
 - [ ] Verify Vitest picks up the workspace configuration
 
 **Testing Subtask:**
+
 - [ ] **Verify Configuration**: Run `nx test teensyrom-ui-e2e --run` with no tests to confirm setup
 
 **Key Implementation Notes:**
+
 - E2E project needs Vitest for **generator unit tests**, not for actual E2E tests (those use Cypress)
 - Test environment should be `node` since generators are pure TypeScript functions
 - Vitest config should extend workspace vitest.workspace.ts pattern
 - Keep configuration minimal - workspace defaults should handle most settings
 
 **Vitest Configuration Template:**
+
 ```typescript
 import { defineConfig } from 'vitest/config';
 
@@ -88,6 +96,7 @@ export default defineConfig({
 ```
 
 **Project.json Test Target:**
+
 ```json
 {
   "test": {
@@ -104,6 +113,7 @@ export default defineConfig({
 **Testing Focus for Task 1:**
 
 **Behaviors to Test:**
+
 - [ ] Vitest configuration loads without errors
 - [ ] Test runner discovers spec files in `src/support/` directory
 - [ ] `nx test teensyrom-ui-e2e` command executes successfully
@@ -119,21 +129,26 @@ export default defineConfig({
 **Purpose**: Add Faker library to the project as a dev dependency for generating realistic test data.
 
 **Related Documentation:**
+
 - [Faker Installation Guide](https://fakerjs.dev/guide/) - Installation instructions
 
 **Implementation Subtasks:**
+
 - [ ] Install `@faker-js/faker` package using pnpm as a dev dependency
 - [ ] Verify package appears in `devDependencies` in `package.json`
 
 **Testing Subtask:**
+
 - [ ] **Verify Installation**: Confirm Faker can be imported in a test file
 
 **Key Implementation Notes:**
+
 - Use the scoped package `@faker-js/faker`, not the legacy `faker` package
 - Install as dev dependency since it's only used in E2E tests
 - Version should be latest stable (Faker 9.x as of early 2025)
 
 **Installation Command:**
+
 ```bash
 pnpm add -D @faker-js/faker
 ```
@@ -141,6 +156,7 @@ pnpm add -D @faker-js/faker
 **Testing Focus for Task 1:**
 
 **Behaviors to Test:**
+
 - [ ] Faker imports successfully without errors
 - [ ] Basic Faker methods are accessible (e.g., `faker.string.uuid()`)
 
@@ -154,9 +170,11 @@ pnpm add -D @faker-js/faker
 **Purpose**: Configure a Faker instance with a fixed seed (12345) to ensure 100% reproducible test data across all test runs.
 
 **Related Documentation:**
+
 - [Faker Seeding Documentation](https://fakerjs.dev/guide/usage.html#seeding) - How to configure fixed seeds
 
 **Implementation Subtasks:**
+
 - [ ] Create `apps/teensyrom-ui-e2e/src/support/test-data/faker-config.ts`
 - [ ] Import Faker from `@faker-js/faker`
 - [ ] Configure Faker instance with seed value `12345`
@@ -164,15 +182,18 @@ pnpm add -D @faker-js/faker
 - [ ] Add JSDoc comments explaining seed purpose
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify Faker determinism (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Seed value `12345` chosen arbitrarily but documented in E2E_PLAN.md
 - All generators must import from this config file, NOT directly from Faker
 - Seed ensures identical data on every test run for reproducibility
 - Determinism is critical for debugging failed tests
 
 **Critical Configuration Structure**:
+
 ```typescript
 // Configure with seed and export
 import { faker as fakerInstance } from '@faker-js/faker';
@@ -183,11 +204,13 @@ export const faker = fakerInstance;
 **Testing Focus for Task 2:**
 
 **Behaviors to Test:**
+
 - [ ] Faker instance generates identical values across multiple calls with same seed
 - [ ] Resetting seed to 12345 produces same sequence
 - [ ] Multiple imports of faker config share same seeded state
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for unit testing approach
 
 </details>
@@ -200,9 +223,11 @@ export const faker = fakerInstance;
 **Purpose**: Generate realistic CartStorageDto objects representing TeensyROM storage (SD card or USB).
 
 **Related Documentation:**
+
 - [CartStorageDto API Type](../../../libs/data-access/api-client/src/lib/models/CartStorageDto.ts) - DTO interface to implement
 
 **Implementation Subtasks:**
+
 - [ ] Create `apps/teensyrom-ui-e2e/src/support/test-data/generators/device.generators.ts`
 - [ ] Import `CartStorageDto` and `TeensyStorageType` from `@teensyrom-nx/data-access/api-client`
 - [ ] Import `faker` from `../faker-config`
@@ -214,9 +239,11 @@ export const faker = fakerInstance;
 - [ ] Add JSDoc describing function purpose and parameters
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify CartStorageDto generation (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Default `available` to `true` for common scenarios; tests explicitly set to `false` when needed
 - Use `faker.helpers.arrayElement(['SD', 'USB'])` for type selection
 - Overrides parameter allows tests to specify exact values when needed
@@ -225,6 +252,7 @@ export const faker = fakerInstance;
 **Testing Focus for Task 3:**
 
 **Behaviors to Test:**
+
 - [ ] Generated object has all required CartStorageDto properties
 - [ ] `deviceId` is a valid UUID format
 - [ ] `type` is either 'SD' or 'USB' (TeensyStorageType values)
@@ -233,6 +261,7 @@ export const faker = fakerInstance;
 - [ ] Multiple calls produce consistent results (deterministic sequence from seed)
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for unit testing patterns
 
 </details>
@@ -245,10 +274,12 @@ export const faker = fakerInstance;
 **Purpose**: Generate realistic CartDto objects representing complete TeensyROM device data with all properties populated.
 
 **Related Documentation:**
+
 - [CartDto API Type](../../../libs/data-access/api-client/src/lib/models/CartDto.ts) - DTO interface to implement
 - [DeviceState API Type](../../../libs/data-access/api-client/src/lib/models/DeviceState.ts) - Device state enum values
 
 **Implementation Subtasks:**
+
 - [ ] Import `CartDto` and `DeviceState` from `@teensyrom-nx/data-access/api-client`
 - [ ] Create `generateDevice` function in `device.generators.ts`
 - [ ] Accept optional `Partial<CartDto>` overrides parameter
@@ -265,9 +296,11 @@ export const faker = fakerInstance;
 - [ ] Add comprehensive JSDoc
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify CartDto generation (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Default to "happy path" values (connected, compatible, available storage)
 - Tests explicitly override when they need specific failure scenarios
 - COM ports should be realistic Windows serial port names (COM3-COM6 range)
@@ -278,6 +311,7 @@ export const faker = fakerInstance;
 **Testing Focus for Task 4:**
 
 **Behaviors to Test:**
+
 - [ ] Generated object has all required CartDto properties
 - [ ] `deviceId` is a valid UUID format
 - [ ] `isConnected` defaults to `true`
@@ -291,6 +325,7 @@ export const faker = fakerInstance;
 - [ ] Multiple calls produce consistent results (deterministic sequence from seed)
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for behavioral testing approach
 
 </details>
@@ -303,9 +338,11 @@ export const faker = fakerInstance;
 **Purpose**: Document the test data system architecture, generator usage patterns, and best practices for future developers.
 
 **Related Documentation:**
+
 - [E2E Testing Plan](./E2E_PLAN.md) - Overall context for test data system
 
 **Implementation Subtasks:**
+
 - [ ] Create `apps/teensyrom-ui-e2e/src/support/test-data/FAKE_TEST_DATA.md`
 - [ ] Document purpose of test-data directory
 - [ ] Explain fixed seed strategy and why seed 12345 is used
@@ -317,9 +354,11 @@ export const faker = fakerInstance;
 - [ ] Include examples of combining generators with custom data
 
 **Testing Subtask:**
+
 - [ ] **Review Documentation**: Have another developer review for clarity (manual verification)
 
 **Key Implementation Notes:**
+
 - Target audience: developers writing E2E tests or extending the test data system
 - Include copy-paste-ready code examples showing default usage and override patterns
 - Emphasize the importance of importing from `faker-config.ts`, not directly from Faker
@@ -327,6 +366,7 @@ export const faker = fakerInstance;
 - Show how tests control scenarios through explicit overrides, not randomness
 
 **Documentation Sections:**
+
 1. **Overview**: Purpose and architecture
 2. **Faker Configuration**: Seed strategy and determinism
 3. **Generators**: Available generator functions and signatures
@@ -343,6 +383,7 @@ export const faker = fakerInstance;
 ## 🗂️ Files Modified or Created
 
 **New Files:**
+
 - `apps/teensyrom-ui-e2e/vitest.config.ts` - Vitest configuration for E2E project
 - `apps/teensyrom-ui-e2e/src/support/test-data/FAKE_TEST_DATA.md` - Test data documentation
 - `apps/teensyrom-ui-e2e/src/support/test-data/faker-config.ts` - Faker with fixed seed
@@ -350,6 +391,7 @@ export const faker = fakerInstance;
 - `apps/teensyrom-ui-e2e/src/support/test-data/generators/device.generators.spec.ts` - Generator tests
 
 **Modified Files:**
+
 - `package.json` - Add `@faker-js/faker` to devDependencies
 - `apps/teensyrom-ui-e2e/project.json` - Add Vitest test target
 
@@ -361,6 +403,7 @@ export const faker = fakerInstance;
 > **IMPORTANT:** Tests are written **within each task above**, not here. This section is only a summary for quick reference.
 
 > **Core Testing Philosophy:**
+>
 > - **Test determinism**: Same seed = same data sequence
 > - **Test type correctness**: Generated objects match DTO interfaces
 > - **Test override behavior**: Custom values replace generated values
@@ -370,6 +413,7 @@ export const faker = fakerInstance;
 ### Where Tests Are Written
 
 **Tests are embedded in Task 3, 4, and 5** with:
+
 - **Testing Subtask**: "Write Tests" checkbox in each task
 - **Testing Focus**: "Behaviors to Test" section with specific outcomes
 - **Testing Reference**: Links to testing documentation
@@ -377,6 +421,7 @@ export const faker = fakerInstance;
 ### Test File Location
 
 All generator tests live in:
+
 - `apps/teensyrom-ui-e2e/src/support/test-data/generators/device.generators.spec.ts`
 
 ### Test Execution Commands
@@ -404,6 +449,7 @@ pnpm nx test teensyrom-ui-e2e --coverage
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Functional Requirements:**
+
 - [ ] Vitest configured for E2E project with test target in project.json
 - [ ] Vitest config file created (vitest.config.ts)
 - [ ] Faker installed and appears in `package.json` devDependencies
@@ -415,6 +461,7 @@ pnpm nx test teensyrom-ui-e2e --coverage
 - [ ] FAKE_TEST_DATA.md documentation completed with examples
 
 **Testing Requirements:**
+
 - [ ] Vitest runs successfully with `pnpm nx test teensyrom-ui-e2e`
 - [ ] Test runner discovers spec files in src/support/ directory
 - [ ] Faker determinism test passes (same seed = same sequence)
@@ -426,18 +473,21 @@ pnpm nx test teensyrom-ui-e2e --coverage
 - [ ] Tests demonstrate reproducibility
 
 **Type Safety:**
+
 - [ ] No TypeScript errors in generator files
 - [ ] Generated objects fully satisfy DTO interfaces
 - [ ] Overrides parameter types match DTO Partial types
 - [ ] All imports resolve correctly
 
 **Quality Checks:**
+
 - [ ] Linting passes with no errors (`pnpm nx lint teensyrom-ui-e2e`)
 - [ ] Code formatting is consistent
 - [ ] JSDoc comments present on all exported functions
 - [ ] No console warnings when running tests
 
 **Documentation:**
+
 - [ ] FAKE_TEST_DATA.md explains test data architecture
 - [ ] Usage examples are clear and runnable
 - [ ] Override patterns documented with examples
@@ -445,6 +495,7 @@ pnpm nx test teensyrom-ui-e2e --coverage
 - [ ] Default values documented and explained
 
 **Ready for Next Phase:**
+
 - [ ] All success criteria met
 - [ ] Generators produce realistic device data
 - [ ] Tests demonstrate generators work correctly
@@ -543,6 +594,7 @@ Once all success criteria are met:
 3. **Phase 4**: Write actual E2E tests for device discovery
 
 **Validation**: Before moving to Phase 2, confirm you can:
+
 - Import and use `generateDevice` in a Cypress test file
 - Generate multiple devices with varied properties (due to faker sequence)
 - Override specific properties while keeping others from defaults/faker

@@ -51,23 +51,19 @@ describe('Device Toolbar Button Disabled State', () => {
     });
 
     it('should disable Index All button when no devices exist', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
-        .should('be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('be.disabled');
     });
 
     it('should disable Reset Devices button when no devices exist', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
-        .should('be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton).should('be.disabled');
     });
 
     it('should disable Ping Devices button when no devices exist', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton)
-        .should('be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton).should('be.disabled');
     });
 
     it('should keep Refresh Devices button enabled when no devices exist', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton)
-        .should('not.be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton).should('not.be.disabled');
     });
   });
 
@@ -82,23 +78,19 @@ describe('Device Toolbar Button Disabled State', () => {
     });
 
     it('should disable Index All button when all devices are disconnected', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
-        .should('be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('be.disabled');
     });
 
     it('should disable Reset Devices button when all devices are disconnected', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
-        .should('be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton).should('be.disabled');
     });
 
     it('should disable Ping Devices button when all devices are disconnected', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton)
-        .should('be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton).should('be.disabled');
     });
 
     it('should keep Refresh Devices button enabled when all devices are disconnected', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton)
-        .should('not.be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton).should('not.be.disabled');
     });
 
     it('should display three disconnected device cards', () => {
@@ -117,23 +109,19 @@ describe('Device Toolbar Button Disabled State', () => {
     });
 
     it('should enable Index All button when at least one device is connected', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
-        .should('not.be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('not.be.disabled');
     });
 
     it('should enable Reset Devices button when at least one device is connected', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
-        .should('not.be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton).should('not.be.disabled');
     });
 
     it('should enable Ping Devices button when at least one device is connected', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton)
-        .should('not.be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton).should('not.be.disabled');
     });
 
     it('should keep Refresh Devices button enabled when at least one device is connected', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton)
-        .should('not.be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton).should('not.be.disabled');
     });
 
     it('should display the connected device card', () => {
@@ -152,23 +140,19 @@ describe('Device Toolbar Button Disabled State', () => {
     });
 
     it('should enable Index All button when at least one device is connected (mixed state)', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
-        .should('not.be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('not.be.disabled');
     });
 
     it('should enable Reset Devices button when at least one device is connected (mixed state)', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
-        .should('not.be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton).should('not.be.disabled');
     });
 
     it('should enable Ping Devices button when at least one device is connected (mixed state)', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton)
-        .should('not.be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton).should('not.be.disabled');
     });
 
     it('should keep Refresh Devices button enabled (mixed state)', () => {
-      cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton)
-        .should('not.be.disabled');
+      cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton).should('not.be.disabled');
     });
 
     it('should display all three devices regardless of connection state', () => {
@@ -233,62 +217,48 @@ describe('Device Toolbar Button Disabled State', () => {
       });
 
       it('should start with action buttons disabled when device is disconnected', () => {
-        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
-          .should('be.disabled');
-        cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
-          .should('be.disabled');
-        cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton)
-          .should('be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton).should('be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton).should('be.disabled');
       });
 
       it('should enable action buttons after connecting a device via power button', () => {
-        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
-          .should('be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('be.disabled');
 
         clickPowerButton(0);
         waitForConnectDevice();
 
-        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
-          .should('not.be.disabled');
-        cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
-          .should('not.be.disabled');
-        cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton)
-          .should('not.be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('not.be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton).should('not.be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton).should('not.be.disabled');
       });
 
       it('should disable action buttons after disconnecting a connected device', () => {
         clickPowerButton(0);
         waitForConnectDevice();
 
-        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
-          .should('not.be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('not.be.disabled');
 
         clickPowerButton(0);
         waitForDisconnectDevice();
 
-        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
-          .should('be.disabled');
-        cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
-          .should('be.disabled');
-        cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton)
-          .should('be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton).should('be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton).should('be.disabled');
       });
 
       it('should keep Refresh Devices button enabled throughout connect/disconnect workflow', () => {
-        cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton)
-          .should('not.be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton).should('not.be.disabled');
 
         clickPowerButton(0);
         waitForConnectDevice();
 
-        cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton)
-          .should('not.be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton).should('not.be.disabled');
 
         clickPowerButton(0);
         waitForDisconnectDevice();
 
-        cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton)
-          .should('not.be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton).should('not.be.disabled');
       });
     });
 
@@ -303,42 +273,32 @@ describe('Device Toolbar Button Disabled State', () => {
       });
 
       it('should start with all action buttons disabled when all three devices are disconnected', () => {
-        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
-          .should('be.disabled');
-        cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
-          .should('be.disabled');
-        cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton)
-          .should('be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton).should('be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton).should('be.disabled');
       });
 
       it('should enable action buttons after connecting first of three devices', () => {
         clickPowerButton(0);
         waitForConnectDevice();
 
-        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
-          .should('not.be.disabled');
-        cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
-          .should('not.be.disabled');
-        cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton)
-          .should('not.be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('not.be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton).should('not.be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton).should('not.be.disabled');
       });
 
       it('should disable action buttons after disconnecting the only connected device', () => {
         clickPowerButton(0);
         waitForConnectDevice();
 
-        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
-          .should('not.be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('not.be.disabled');
 
         clickPowerButton(0);
         waitForDisconnectDevice();
 
-        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
-          .should('be.disabled');
-        cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton)
-          .should('be.disabled');
-        cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton)
-          .should('be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.resetButton).should('be.disabled');
+        cy.get(DEVICE_TOOLBAR_SELECTORS.pingButton).should('be.disabled');
       });
     });
   });

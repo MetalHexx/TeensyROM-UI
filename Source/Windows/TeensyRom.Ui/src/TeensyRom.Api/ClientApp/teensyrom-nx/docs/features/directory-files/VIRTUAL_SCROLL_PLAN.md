@@ -3,12 +3,14 @@
 **Project Overview**: Implement Angular CDK Virtual Scrolling to optimize the directory-files component for large file listings, eliminating rendering performance issues that cause janky animations throughout the application.
 
 **Related Documentation**:
+
 - [Directory Files Plan](./DIRECTORY_FILES_PLAN.md)
 - [Directory Files Tasks](./DIRECTORY_FILES_TASKS.md)
 - [Testing Standards](../../TESTING_STANDARDS.md)
 - [Component Library](../../COMPONENT_LIBRARY.md)
 
 **Official Documentation**:
+
 - [Angular CDK Scrolling Overview](https://material.angular.io/cdk/scrolling/overview)
 - [Virtual Scroll API Reference](https://material.angular.io/cdk/scrolling/api)
 
@@ -32,17 +34,19 @@ Optimize the directory-files component to handle large file listings (hundreds t
 ### Performance Bottleneck
 
 **Current Implementation**:
+
 ```html
 <div class="files-list">
   @for (item of directoriesAndFiles(); track item.path) {
-    <div class="file-list-item list-item-highlight" [attr.data-item-path]="item.path">
-      <!-- Renders ALL items immediately -->
-    </div>
+  <div class="file-list-item list-item-highlight" [attr.data-item-path]="item.path">
+    <!-- Renders ALL items immediately -->
+  </div>
   }
 </div>
 ```
 
 **Problem**: With 500+ files, this creates 500+ DOM nodes on initial render:
+
 - ~200-500ms render time (blocks UI thread)
 - Heavy layout/paint operations
 - Impacts animations in other components (scaling cards, transitions)
@@ -66,23 +70,23 @@ Optimize the directory-files component to handle large file listings (hundreds t
 
 **Why CDK Virtual Scrolling?**
 
-| Feature | Benefit |
-|---------|---------|
-| **Official Angular Solution** | Well-maintained, long-term support, integrates seamlessly |
-| **DOM Recycling** | Renders only visible items + small buffer, recycles nodes on scroll |
-| **Performance** | 10-20x faster initial render, constant memory usage |
-| **Signal Compatible** | Works perfectly with Angular 19 signals and computed values |
-| **Minimal Changes** | ~50 lines of code, existing logic mostly unchanged |
-| **Built-in APIs** | `scrollToIndex()` for auto-scroll, `measureScrollOffset()` for position |
+| Feature                       | Benefit                                                                 |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| **Official Angular Solution** | Well-maintained, long-term support, integrates seamlessly               |
+| **DOM Recycling**             | Renders only visible items + small buffer, recycles nodes on scroll     |
+| **Performance**               | 10-20x faster initial render, constant memory usage                     |
+| **Signal Compatible**         | Works perfectly with Angular 19 signals and computed values             |
+| **Minimal Changes**           | ~50 lines of code, existing logic mostly unchanged                      |
+| **Built-in APIs**             | `scrollToIndex()` for auto-scroll, `measureScrollOffset()` for position |
 
 **Performance Comparison**:
 
-| Items | Current Render | CDK Virtual Render | Improvement |
-|-------|---------------|-------------------|-------------|
-| 100 | 80ms | 15ms | **5.3x faster** |
-| 500 | 350ms | 15ms | **23x faster** |
-| 1000 | 750ms | 15ms | **50x faster** |
-| 5000 | 4000ms+ | 15ms | **266x faster** |
+| Items | Current Render | CDK Virtual Render | Improvement     |
+| ----- | -------------- | ------------------ | --------------- |
+| 100   | 80ms           | 15ms               | **5.3x faster** |
+| 500   | 350ms          | 15ms               | **23x faster**  |
+| 1000  | 750ms          | 15ms               | **50x faster**  |
+| 5000  | 4000ms+        | 15ms               | **266x faster** |
 
 ---
 
@@ -91,16 +95,19 @@ Optimize the directory-files component to handle large file listings (hundreds t
 ## Phase 1: Setup & Dependencies
 
 ### Objective
+
 Verify CDK availability and configure imports for virtual scrolling.
 
 ### Tasks
 
 1. **Check CDK Installation**
+
    - Verify `@angular/cdk` is installed (likely already present with Material)
    - Check version compatibility with Angular 19
    - Run: `pnpm list @angular/cdk`
 
 2. **Import ScrollingModule**
+
    - Add to `DirectoryFilesComponent` imports array
    - Import types: `CdkVirtualScrollViewport`, `ScrollingModule`
 
@@ -131,7 +138,7 @@ import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrollin
     LoadingTextComponent,
     DirectoryItemComponent,
     FileItemComponent,
-    ScrollingModule,  // ← Add this
+    ScrollingModule, // ← Add this
   ],
   // ...
 })
@@ -151,17 +158,20 @@ export class DirectoryFilesComponent {
 ## Phase 2: Basic Virtual Viewport Implementation
 
 ### Objective
+
 Replace the standard scrollable div with CDK virtual scroll viewport.
 
 ### Tasks
 
 1. **Update Template Structure**
+
    - Wrap file list in `<cdk-virtual-scroll-viewport>`
    - Set `itemSize` based on Phase 1 measurements
    - Configure viewport height constraint
    - Keep existing `@for` loop and item rendering logic
 
 2. **Configure Viewport Settings**
+
    - **Strategy A (Fixed Height)**: Use `itemSize="48"` if all items same height
    - **Strategy B (Dynamic Height)**: Use `autosize` if heights vary
    - Set viewport height: `min-height: 0` and `flex: 1` to fill container
@@ -183,17 +193,19 @@ Replace the standard scrollable div with CDK virtual scroll viewport.
 **File**: `directory-files.component.html`
 
 **BEFORE**:
+
 ```html
 <div class="files-list">
   @for (item of directoriesAndFiles(); track item.path) {
-    <div class="file-list-item list-item-highlight" [attr.data-item-path]="item.path">
-      <!-- Item content -->
-    </div>
+  <div class="file-list-item list-item-highlight" [attr.data-item-path]="item.path">
+    <!-- Item content -->
+  </div>
   }
 </div>
 ```
 
 **AFTER** (Strategy A - Fixed Height):
+
 ```html
 <cdk-virtual-scroll-viewport
   itemSize="48"
@@ -202,21 +214,17 @@ Replace the standard scrollable div with CDK virtual scroll viewport.
   maxBufferPx="400"
 >
   @for (item of directoriesAndFiles(); track item.path) {
-    <div class="file-list-item list-item-highlight" [attr.data-item-path]="item.path">
-      <!-- Item content - UNCHANGED -->
-    </div>
+  <div class="file-list-item list-item-highlight" [attr.data-item-path]="item.path">
+    <!-- Item content - UNCHANGED -->
+  </div>
   }
 </cdk-virtual-scroll-viewport>
 ```
 
 **AFTER** (Strategy B - Dynamic Height):
+
 ```html
-<cdk-virtual-scroll-viewport
-  autosize
-  class="files-viewport"
-  minBufferPx="200"
-  maxBufferPx="400"
->
+<cdk-virtual-scroll-viewport autosize class="files-viewport" minBufferPx="200" maxBufferPx="400">
   <!-- Same as Strategy A -->
 </cdk-virtual-scroll-viewport>
 ```
@@ -228,11 +236,11 @@ Replace the standard scrollable div with CDK virtual scroll viewport.
   flex: 1;
   min-height: 0; // Critical for flex containers
   width: 100%;
-  
+
   // Viewport needs explicit height constraint
   // Option 1: Fill parent container
   height: 100%;
-  
+
   // Option 2: Max height if parent is unconstrained
   // max-height: calc(100vh - 300px);
 }
@@ -262,11 +270,13 @@ Replace the standard scrollable div with CDK virtual scroll viewport.
 ## Phase 3: Fix Auto-Scroll to Playing File
 
 ### Objective
+
 Restore the "scroll to currently playing file" feature using CDK's `scrollToIndex()` API.
 
 ### Current Implementation Problem
 
 **Current approach**:
+
 ```typescript
 private scrollToSelectedFile(filePath: string): void {
   setTimeout(() => {
@@ -285,10 +295,12 @@ private scrollToSelectedFile(filePath: string): void {
 ### Tasks
 
 1. **Inject Virtual Viewport**
+
    - Use `viewChild` to get reference to `CdkVirtualScrollViewport`
    - Handle optional viewport (may not be rendered yet)
 
 2. **Replace DOM Query with Index Lookup**
+
    - Find index of target item in `directoriesAndFiles()` array
    - Use `viewport.scrollToIndex()` instead of DOM query
 
@@ -321,7 +333,7 @@ export class DirectoryFilesComponent {
     // Use setTimeout to ensure viewport is rendered and data is loaded
     setTimeout(() => {
       const viewportInstance = this.viewport();
-      
+
       if (!viewportInstance) {
         console.warn('Virtual viewport not available yet');
         return;
@@ -329,7 +341,7 @@ export class DirectoryFilesComponent {
 
       // Find the index of the item in the array
       const items = this.directoriesAndFiles();
-      const targetIndex = items.findIndex(item => item.path === filePath);
+      const targetIndex = items.findIndex((item) => item.path === filePath);
 
       if (targetIndex === -1) {
         console.warn('Target file not found in current directory:', filePath);
@@ -339,7 +351,7 @@ export class DirectoryFilesComponent {
       // Scroll to the item using CDK API
       // 'smooth' behavior with item centered in viewport
       viewportInstance.scrollToIndex(targetIndex, 'smooth');
-      
+
       // Alternative: Set scroll position directly for instant scroll
       // const offset = targetIndex * ITEM_HEIGHT;
       // viewportInstance.scrollToOffset(offset, 'smooth');
@@ -351,13 +363,8 @@ export class DirectoryFilesComponent {
 **File**: `directory-files.component.html`
 
 ```html
-<cdk-virtual-scroll-viewport
-  #viewport  <!-- Add template reference -->
-  itemSize="48"
-  class="files-viewport"
-  minBufferPx="200"
-  maxBufferPx="400"
->
+<cdk-virtual-scroll-viewport #viewport <!-- Add template reference -->
+  itemSize="48" class="files-viewport" minBufferPx="200" maxBufferPx="400" >
   <!-- Items -->
 </cdk-virtual-scroll-viewport>
 ```
@@ -373,11 +380,12 @@ scrollToIndex(index: number, behavior?: ScrollBehavior): void
 - **Position**: Scrolls item to top of viewport (can't specify 'center' like native scrollIntoView)
 
 **Workaround for Centering**:
+
 ```typescript
 const itemHeight = 48;
 const viewportHeight = viewportInstance.getViewportSize();
-const offsetToCenter = (viewportHeight / 2) - (itemHeight / 2);
-const targetOffset = (targetIndex * itemHeight) - offsetToCenter;
+const offsetToCenter = viewportHeight / 2 - itemHeight / 2;
+const targetOffset = targetIndex * itemHeight - offsetToCenter;
 
 viewportInstance.scrollToOffset(targetOffset, 'smooth');
 ```
@@ -395,22 +403,26 @@ viewportInstance.scrollToOffset(targetOffset, 'smooth');
 ## Phase 4: Handle Selection & Interaction
 
 ### Objective
+
 Ensure selection highlighting, click handlers, and data attributes work correctly with virtual scrolling.
 
 ### Tasks
 
 1. **Verify Data Attributes**
+
    - Ensure `[attr.data-item-path]` still works for debugging
    - Confirm `[attr.data-is-playing]` updates correctly
    - Test `[attr.data-has-error]` propagates properly
 
 2. **Test Click Handlers**
+
    - Single click selection on directories
    - Single click selection on files
    - Double click navigation on directories
    - Double click file launch on files
 
 3. **Verify Selection State**
+
    - Selected item stays highlighted when scrolling
    - Selection clears when navigating to new directory
    - Playing item indicator shows even if not visible initially
@@ -430,6 +442,7 @@ Ensure selection highlighting, click handlers, and data attributes work correctl
 ### Testing Checklist
 
 **Manual Tests**:
+
 - [ ] Click on item 10 positions down → scrolls and selects
 - [ ] Double-click directory → navigates, clears selection
 - [ ] Double-click file → launches playback
@@ -438,6 +451,7 @@ Ensure selection highlighting, click handlers, and data attributes work correctl
 - [ ] Navigate away and back → selection cleared, viewport resets to top
 
 **Edge Cases**:
+
 - [ ] Select item, scroll it out of view, scroll back → still selected
 - [ ] Rapid directory navigation → no stale selection from previous directory
 - [ ] Empty directory → shows "No directory selected" message
@@ -454,21 +468,25 @@ Ensure selection highlighting, click handlers, and data attributes work correctl
 ## Phase 5: Performance Tuning & Optimization
 
 ### Objective
+
 Fine-tune virtual scrolling parameters for optimal performance and user experience.
 
 ### Tasks
 
 1. **Measure Performance Gains**
+
    - Use Chrome DevTools Performance tab
    - Compare before/after with large directory (1000+ files)
    - Metrics: Initial render time, scroll FPS, memory usage
 
 2. **Optimize Buffer Sizes**
+
    - Test different `minBufferPx` values (100, 200, 400)
    - Test different `maxBufferPx` values (200, 400, 800)
    - Balance between smooth scrolling and memory usage
 
 3. **Tune Item Size Strategy**
+
    - If using fixed `itemSize`, verify no visual glitches
    - If using `autosize`, measure performance impact
    - Consider hybrid: fixed size with occasional recalculation
@@ -480,41 +498,44 @@ Fine-tune virtual scrolling parameters for optimal performance and user experien
 
 ### Performance Targets
 
-| Metric | Current | Target | Achieved |
-|--------|---------|--------|----------|
-| **Initial Render (1000 items)** | ~750ms | <50ms | ☐ |
-| **Scroll FPS** | 30-45fps | 60fps | ☐ |
-| **DOM Nodes (1000 items)** | 1000 | <50 | ☐ |
-| **Memory Usage (1000 items)** | ~150MB | <50MB | ☐ |
-| **Time to Interactive** | ~1.5s | <300ms | ☐ |
+| Metric                          | Current  | Target | Achieved |
+| ------------------------------- | -------- | ------ | -------- |
+| **Initial Render (1000 items)** | ~750ms   | <50ms  | ☐        |
+| **Scroll FPS**                  | 30-45fps | 60fps  | ☐        |
+| **DOM Nodes (1000 items)**      | 1000     | <50    | ☐        |
+| **Memory Usage (1000 items)**   | ~150MB   | <50MB  | ☐        |
+| **Time to Interactive**         | ~1.5s    | <300ms | ☐        |
 
 ### Buffer Size Guidelines
 
 **Conservative (smooth but more memory)**:
+
 ```html
 <cdk-virtual-scroll-viewport
   itemSize="48"
   minBufferPx="400"
   maxBufferPx="800"
->
+></cdk-virtual-scroll-viewport>
 ```
 
 **Aggressive (less memory, may show white space on fast scroll)**:
+
 ```html
 <cdk-virtual-scroll-viewport
   itemSize="48"
   minBufferPx="100"
   maxBufferPx="200"
->
+></cdk-virtual-scroll-viewport>
 ```
 
 **Recommended Balanced**:
+
 ```html
 <cdk-virtual-scroll-viewport
   itemSize="48"
   minBufferPx="200"
   maxBufferPx="400"
->
+></cdk-virtual-scroll-viewport>
 ```
 
 ### Deliverables
@@ -536,6 +557,7 @@ Fine-tune virtual scrolling parameters for optimal performance and user experien
 ## Phase 6: Testing & Validation
 
 ### Objective
+
 Comprehensive testing to ensure virtual scrolling works correctly in all scenarios.
 
 ### Unit Tests
@@ -597,14 +619,17 @@ describe('Interactions with Virtual Scrolling', () => {
 Test with real-world scenarios:
 
 1. **Large Directory Navigation**
+
    - Navigate to directory with 1000+ files
    - Verify smooth render and no lag
 
 2. **Shuffle Mode Playback**
+
    - Start shuffle from large playlist
    - Verify auto-scroll finds file and scrolls correctly
 
 3. **Rapid Navigation**
+
    - Click through multiple directories quickly
    - Verify no stale state or memory leaks
 
@@ -620,16 +645,16 @@ Use Chrome DevTools to verify:
 // Performance measurement utility
 function measureRenderTime(directorySize: number) {
   performance.mark('render-start');
-  
+
   // Trigger directory load
   storageStore.navigateToDirectory({...});
-  
+
   // Wait for render complete
   fixture.detectChanges();
-  
+
   performance.mark('render-end');
   performance.measure('directory-render', 'render-start', 'render-end');
-  
+
   const measure = performance.getEntriesByName('directory-render')[0];
   console.log(`Render time for ${directorySize} items: ${measure.duration}ms`);
 }
@@ -638,6 +663,7 @@ function measureRenderTime(directorySize: number) {
 ### Manual Testing Checklist
 
 **Functional Tests**:
+
 - [ ] Navigate to directory with 10 files → renders instantly
 - [ ] Navigate to directory with 100 files → renders instantly
 - [ ] Navigate to directory with 1000 files → renders instantly
@@ -649,6 +675,7 @@ function measureRenderTime(directorySize: number) {
 - [ ] Launch file in shuffle mode → auto-scrolls to playing file
 
 **Visual Tests**:
+
 - [ ] No visual glitches during scroll
 - [ ] Selection highlighting appears instantly
 - [ ] Hover effects work on all items
@@ -656,6 +683,7 @@ function measureRenderTime(directorySize: number) {
 - [ ] Error state color shows when playback fails
 
 **Edge Case Tests**:
+
 - [ ] Empty directory → "No directory selected" message shows
 - [ ] Directory with single item → renders without scroll
 - [ ] Directory with mix of long/short filenames → layouts correctly
@@ -675,20 +703,24 @@ function measureRenderTime(directorySize: number) {
 ## Phase 7: Documentation & Cleanup
 
 ### Objective
+
 Update documentation and clean up any temporary code or comments.
 
 ### Tasks
 
 1. **Update Component Documentation**
+
    - Add JSDoc comments explaining virtual scrolling
    - Document buffer size configurations
    - Note performance characteristics
 
 2. **Update COMPONENT_LIBRARY.md**
+
    - Add note about virtual scrolling in DirectoryFiles
    - Document best practices for large lists
 
 3. **Code Cleanup**
+
    - Remove old `scrollToSelectedFile()` implementation
    - Remove unused DOM query code
    - Clean up debug console.logs
@@ -730,6 +762,7 @@ Update documentation and clean up any temporary code or comments.
 **Target**: 100% coverage for virtual scrolling logic
 
 **Key Test Cases**:
+
 - Viewport initialization
 - ScrollToIndex calls
 - Buffer configuration
@@ -740,6 +773,7 @@ Update documentation and clean up any temporary code or comments.
 ### Integration Test Scenarios
 
 **Critical Paths**:
+
 1. Load large directory → verify performance
 2. Play file → verify auto-scroll
 3. Navigate directories → verify state reset
@@ -748,6 +782,7 @@ Update documentation and clean up any temporary code or comments.
 ### E2E Test Scenarios
 
 **User Journeys**:
+
 1. User browses directory with 1000 files, selects one, plays it
 2. User uses shuffle mode, directory context loads, playing file scrolls into view
 3. User rapidly navigates between large and small directories
@@ -789,12 +824,14 @@ Update documentation and clean up any temporary code or comments.
 **Fixed Height (`itemSize="48"`):**
 
 ✅ **Pros**:
+
 - Fastest performance
 - Simplest implementation
 - Predictable scroll behavior
 - Best for uniform items
 
 ❌ **Cons**:
+
 - All items must be exact same height
 - Can cause visual misalignment if heights vary
 - No support for dynamic content
@@ -802,11 +839,13 @@ Update documentation and clean up any temporary code or comments.
 **Autosize (`autosize`):**
 
 ✅ **Pros**:
+
 - Handles variable heights automatically
 - More flexible for mixed content
 - Adapts to content changes
 
 ❌ **Cons**:
+
 - ~10% slower performance
 - Requires measurement on scroll
 - More complex implementation
@@ -818,6 +857,7 @@ Update documentation and clean up any temporary code or comments.
 Virtual scrolling **requires** a height constraint. Options:
 
 **Option A - Flex Layout (Recommended)**:
+
 ```scss
 .directory-files {
   display: flex;
@@ -832,6 +872,7 @@ Virtual scrolling **requires** a height constraint. Options:
 ```
 
 **Option B - Explicit Height**:
+
 ```scss
 .files-viewport {
   height: 600px;
@@ -839,6 +880,7 @@ Virtual scrolling **requires** a height constraint. Options:
 ```
 
 **Option C - Calc Height**:
+
 ```scss
 .files-viewport {
   height: calc(100vh - 300px); // Subtract header/footer
@@ -858,11 +900,13 @@ The `item.path` is unique and stable, perfect for virtual scrolling.
 ### Memory Considerations
 
 **Before Virtual Scrolling (1000 items)**:
+
 - DOM Nodes: 1000 elements
 - Memory: ~150MB
 - Render Time: 750ms
 
 **After Virtual Scrolling (1000 items)**:
+
 - DOM Nodes: 30 elements (visible + buffer)
 - Memory: ~15MB (10x reduction)
 - Render Time: 15ms (50x faster)
@@ -870,6 +914,7 @@ The `item.path` is unique and stable, perfect for virtual scrolling.
 ### Browser Compatibility
 
 CDK Virtual Scrolling uses:
+
 - CSS transforms (widely supported)
 - IntersectionObserver (modern browsers)
 - RequestAnimationFrame (all browsers)
@@ -892,28 +937,31 @@ CDK Virtual Scrolling uses:
 If issues encountered:
 
 1. **Add threshold check**:
+
 ```typescript
-readonly shouldUseVirtualScroll = computed(() => 
+readonly shouldUseVirtualScroll = computed(() =>
   this.directoriesAndFiles().length > 100
 );
 ```
 
 2. **Conditional template**:
+
 ```html
 @if (shouldUseVirtualScroll()) {
-  <cdk-virtual-scroll-viewport>
-    <!-- Virtual scrolling -->
-  </cdk-virtual-scroll-viewport>
+<cdk-virtual-scroll-viewport>
+  <!-- Virtual scrolling -->
+</cdk-virtual-scroll-viewport>
 } @else {
-  <div class="files-list">
-    <!-- Standard rendering -->
-  </div>
+<div class="files-list">
+  <!-- Standard rendering -->
+</div>
 }
 ```
 
 ### Rollback Plan
 
 If critical issues found:
+
 1. Feature flag to disable virtual scrolling
 2. Revert to previous implementation
 3. Fix issues in isolated branch
@@ -935,19 +983,19 @@ If critical issues found:
 class CdkVirtualScrollViewport {
   // Scroll to specific index
   scrollToIndex(index: number, behavior?: ScrollBehavior): void;
-  
+
   // Scroll to specific offset (pixels)
   scrollToOffset(offset: number, behavior?: ScrollBehavior): void;
-  
+
   // Get current scroll position
   measureScrollOffset(from?: 'top' | 'left' | 'right' | 'bottom'): number;
-  
+
   // Get viewport dimensions
   getViewportSize(): number;
-  
+
   // Get range of visible items
   getRenderedRange(): ListRange; // { start: number, end: number }
-  
+
   // Manually trigger range update
   checkViewportSize(): void;
 }
@@ -956,16 +1004,19 @@ class CdkVirtualScrollViewport {
 ### Related Files
 
 **Component Files**:
+
 - `libs/features/player/.../directory-files/directory-files.component.ts`
 - `libs/features/player/.../directory-files/directory-files.component.html`
 - `libs/features/player/.../directory-files/directory-files.component.scss`
 - `libs/features/player/.../directory-files/directory-files.component.spec.ts`
 
 **Child Components** (unchanged):
+
 - `directory-item/directory-item.component.ts`
 - `file-item/file-item.component.ts`
 
 **Store** (unchanged):
+
 - `libs/application/storage/storage-store.ts`
 
 ### Additional Reading
@@ -980,11 +1031,13 @@ class CdkVirtualScrollViewport {
 ### Design Decisions
 
 1. **Why CDK over custom solution?**
+
    - Battle-tested, maintained by Angular team
    - Handles edge cases we'd need to solve manually
    - Better performance than most custom implementations
 
 2. **Why not Intersection Observer pagination?**
+
    - Doesn't recycle DOM nodes (memory grows)
    - More complex edge cases
    - CDK provides better UX
@@ -1043,20 +1096,21 @@ class CdkVirtualScrollViewport {
 ✅ **Phase 4: Selection & Interaction** - All click handlers and data attributes working  
 ✅ **Phase 5: Performance Tuning** - Optimized buffers (200/400px), height constraints (400px card)  
 ✅ **Phase 6: Testing & Validation** - 18 unit tests passing, manual testing guide created  
-✅ **Phase 7: Documentation & Cleanup** - This document updated, component library updated  
+✅ **Phase 7: Documentation & Cleanup** - This document updated, component library updated
 
 ### Performance Results Achieved
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| **DOM nodes (1000 files)** | ~1000 | ~30 | **97% reduction** |
-| **Initial render** | ~750ms | <50ms | **50x faster** |
-| **Scroll FPS** | 30-45fps | 60fps | **Smooth scrolling** |
-| **Auto-scroll accuracy** | Approximate | Centered | **Improved UX** |
+| Metric                     | Before      | After    | Improvement          |
+| -------------------------- | ----------- | -------- | -------------------- |
+| **DOM nodes (1000 files)** | ~1000       | ~30      | **97% reduction**    |
+| **Initial render**         | ~750ms      | <50ms    | **50x faster**       |
+| **Scroll FPS**             | 30-45fps    | 60fps    | **Smooth scrolling** |
+| **Auto-scroll accuracy**   | Approximate | Centered | **Improved UX**      |
 
 ### Key Implementation Details
 
 **Virtual Viewport Configuration**:
+
 ```html
 <cdk-virtual-scroll-viewport
   #viewport
@@ -1064,7 +1118,7 @@ class CdkVirtualScrollViewport {
   minBufferPx="200"
   maxBufferPx="400"
   class="files-viewport"
->
+></cdk-virtual-scroll-viewport>
 ```
 
 **Height Strategy**: Fixed itemSize="52" based on measured `.file-list-item` height
@@ -1072,9 +1126,10 @@ class CdkVirtualScrollViewport {
 **Container Constraint**: Mat-card-content set to 400px with viewport absolutely positioned to fill
 
 **Auto-Scroll Algorithm**: Dynamic height measurement with centering calculation:
+
 ```typescript
 const actualItemHeight = firstRenderedElement.getBoundingClientRect().height;
-const targetOffset = (targetIndex * actualItemHeight) - ((viewportHeight / 2) - (actualItemHeight / 2));
+const targetOffset = targetIndex * actualItemHeight - (viewportHeight / 2 - actualItemHeight / 2);
 ```
 
 ### Files Modified

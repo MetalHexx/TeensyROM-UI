@@ -19,27 +19,32 @@ This refactor lifts all domain contracts from their domain-specific folders to a
 ### Files to Refactor
 
 **Device Contracts** (`libs/domain/src/lib/device/contracts/`):
+
 - `device.contract.ts` - `IDeviceService` interface + `DEVICE_SERVICE` token
-- `device-events.contract.ts` - `IDeviceEventsService` interface + `DEVICE_EVENTS_SERVICE` token  
+- `device-events.contract.ts` - `IDeviceEventsService` interface + `DEVICE_EVENTS_SERVICE` token
 - `device-logs.contract.ts` - `IDeviceLogsService` interface + `DEVICE_LOGS_SERVICE` token
 
 **Storage Contracts** (`libs/domain/src/lib/storage/contracts/`):
+
 - `storage.contract.ts` - `IStorageService` interface + `STORAGE_SERVICE` token
 
 **Additional Tokens** (`libs/domain/src/index.ts`):
+
 - `DEVICE_STORAGE_SERVICE` - Uses `IStorageService` interface
 
 ### Impact Analysis
 
 **Libraries with Breaking Changes:**
+
 - `libs/domain/` - Internal barrel exports (1 file)
 - `libs/infrastructure/` - Service implementations and providers (~6 files)
 - `libs/features/player/` - Test files importing providers (~1 file)
 
 **Good News**: Most consumers already import via `@teensyrom-nx/domain` barrel export, so changes are limited to:
+
 1. Domain barrel export (1 file)
 2. Infrastructure service implementations (~4 files)
-3. Infrastructure provider files (~2 files) 
+3. Infrastructure provider files (~2 files)
 4. Any test files with direct provider imports (~1 file)
 
 ---
@@ -66,6 +71,7 @@ libs/domain/src/lib/
 ### Phase 0: Establish Baseline ⏱️ ~15 min
 
 #### 0.1 Pre-Refactor Test Baseline
+
 - [ ] **Clear Nx cache**: `npx nx reset`
 - [ ] **Run full workspace linting**: `npx nx run-many --target=lint --all`
 - [ ] **Run full workspace tests**: `npx nx run-many --target=test --all --run`
@@ -73,6 +79,7 @@ libs/domain/src/lib/
 - [ ] **Verify serve works**: `npx nx serve teensyrom-ui` (quick startup check)
 
 #### 0.2 Document Baseline Results
+
 - [ ] **Record any existing test failures** (note in refactor log)
 - [ ] **Verify workspace is in good state** before proceeding
 - [ ] **Stop if baseline tests fail** - fix issues before refactor
@@ -82,6 +89,7 @@ libs/domain/src/lib/
 ### Phase 1: Create Shared Contracts Structure ⏱️ ~30 min
 
 #### 1.1 Create Contracts Directory & Files
+
 - [ ] **Create `libs/domain/src/lib/contracts/` directory**
 - [ ] **Create individual contract files**:
   - `device.contract.ts` (IDeviceService + DEVICE_SERVICE)
@@ -92,6 +100,7 @@ libs/domain/src/lib/
 - [ ] **Create `contracts/index.ts` barrel export**
 
 #### 1.2 Update Domain Barrel Export
+
 - [ ] **Update `libs/domain/src/index.ts`**
   - Remove: All contract exports from old paths
   - Add: `export * from './lib/contracts';`
@@ -100,21 +109,25 @@ libs/domain/src/lib/
 ### Phase 2: Verify No Breaking Changes ⏱️ ~20 min
 
 #### 2.1 Incremental Testing (Test Each Library After Changes)
+
 - [ ] **Clear Nx cache**: `npx nx reset`
 - [ ] **Lint domain library**: `npx nx lint domain`
 - [ ] **Test domain library**: `npx nx test domain --run`
 
-#### 2.2 Test All Consuming Libraries  
+#### 2.2 Test All Consuming Libraries
+
 - [ ] **Test infrastructure layer**: `npx nx test infrastructure --run`
-- [ ] **Test device features**: `npx nx test features-devices --run` 
+- [ ] **Test device features**: `npx nx test features-devices --run`
 - [ ] **Test player features**: `npx nx test player --run`
 - [ ] **Test UI components**: `npx nx test ui-components --run`
 
 #### 2.3 Build & Serve Verification
+
 - [ ] **Build main application**: `npx nx build teensyrom-ui`
 - [ ] **Verify serve works**: `npx nx serve teensyrom-ui` (quick startup check)
 
 #### 2.4 Full Workspace Test Suite
+
 - [ ] **Run all workspace tests**: `npx nx run-many --target=test --all --run`
 - [ ] **Run all workspace linting**: `npx nx run-many --target=lint --all`
 
@@ -123,6 +136,7 @@ libs/domain/src/lib/
 ### Phase 3: Remove Legacy Files ⏱️ ~15 min
 
 #### 3.1 Remove Old Contract Files & Directories
+
 - [ ] **Delete `libs/domain/src/lib/device/contracts/device.contract.ts`**
 - [ ] **Delete `libs/domain/src/lib/device/contracts/device-events.contract.ts`**
 - [ ] **Delete `libs/domain/src/lib/device/contracts/device-logs.contract.ts`**
@@ -135,7 +149,8 @@ libs/domain/src/lib/
   - `libs/domain/src/lib/storage/` (if empty)
 
 #### 3.2 Final Verification & Testing
-- [ ] **Search for broken references**: 
+
+- [ ] **Search for broken references**:
   ```bash
   grep -r "device/contracts\|storage/contracts" libs/ --include="*.ts"
   ```
@@ -148,6 +163,7 @@ libs/domain/src/lib/
 > **✅ SUCCESS CRITERIA**: All tests pass at same level as Phase 0 baseline
 
 ### Phase 4: Documentation Update ⏱️ ~5 min
+
 - [ ] **Update OVERVIEW_CONTEXT.md** - Reflect new shared contract structure in domain layer description
 
 ---
@@ -157,6 +173,7 @@ libs/domain/src/lib/
 ### New Contract Files Content
 
 **`contracts/device.contract.ts`**:
+
 ```typescript
 import { InjectionToken } from '@angular/core';
 import {
@@ -180,6 +197,7 @@ export const DEVICE_SERVICE = new InjectionToken<IDeviceService>('DEVICE_SERVICE
 ```
 
 **`contracts/device-events.contract.ts`**:
+
 ```typescript
 import { InjectionToken, Signal } from '@angular/core';
 import { DeviceState } from '@teensyrom-nx/data-access/api-client';
@@ -191,10 +209,13 @@ export interface IDeviceEventsService {
   getDeviceState(deviceId: string): Signal<DeviceState | null>;
 }
 
-export const DEVICE_EVENTS_SERVICE = new InjectionToken<IDeviceEventsService>('DEVICE_EVENTS_SERVICE');
+export const DEVICE_EVENTS_SERVICE = new InjectionToken<IDeviceEventsService>(
+  'DEVICE_EVENTS_SERVICE'
+);
 ```
 
 **`contracts/device-logs.contract.ts`**:
+
 ```typescript
 import { InjectionToken, Signal } from '@angular/core';
 
@@ -210,6 +231,7 @@ export const DEVICE_LOGS_SERVICE = new InjectionToken<IDeviceLogsService>('DEVIC
 ```
 
 **`contracts/storage.contract.ts`**:
+
 ```typescript
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -240,11 +262,7 @@ export interface IStorageService {
    * @param startingPath - Optional starting path for indexing
    * @returns Observable of index operation result
    */
-  index(
-    deviceId: string,
-    storageType: StorageType,
-    startingPath?: string
-  ): Observable<unknown>;
+  index(deviceId: string, storageType: StorageType, startingPath?: string): Observable<unknown>;
 
   /**
    * Index all storage on all devices.
@@ -262,6 +280,7 @@ export const STORAGE_SERVICE = new InjectionToken<IStorageService>('STORAGE_SERV
 ```
 
 **`contracts/device-storage.token.ts`**:
+
 ```typescript
 import { InjectionToken } from '@angular/core';
 import { IStorageService } from './storage.contract';
@@ -275,13 +294,14 @@ export const DEVICE_STORAGE_SERVICE = new InjectionToken<IStorageService>('DEVIC
 ```
 
 **`contracts/index.ts`**:
+
 ```typescript
 // Device contracts
 export * from './device.contract';
 export * from './device-events.contract';
 export * from './device-logs.contract';
 
-// Storage contracts  
+// Storage contracts
 export * from './storage.contract';
 export * from './device-storage.token';
 ```
@@ -291,6 +311,7 @@ export * from './device-storage.token';
 ## Import Pattern Changes
 
 ### Before:
+
 ```typescript
 // Domain barrel (what consumers use - remains same)
 import { IDeviceService, DEVICE_SERVICE } from '@teensyrom-nx/domain';
@@ -298,13 +319,15 @@ import { IStorageService, STORAGE_SERVICE } from '@teensyrom-nx/domain';
 ```
 
 ### After:
-```typescript  
+
+```typescript
 // Domain barrel (unchanged - consumers won't break)
 import { IDeviceService, DEVICE_SERVICE } from '@teensyrom-nx/domain';
 import { IStorageService, STORAGE_SERVICE } from '@teensyrom-nx/domain';
 ```
 
 ### Domain Barrel Export Changes:
+
 ```typescript
 // Before:
 export * from './lib/device/contracts/device.contract';
@@ -321,7 +344,7 @@ export * from './lib/contracts';
 ## Benefits
 
 - ✅ **No Breaking Changes**: All imports via barrel export remain unchanged
-- ✅ **Shared Contracts**: Universal access from single import path  
+- ✅ **Shared Contracts**: Universal access from single import path
 - ✅ **Individual Files**: Better maintainability and tree-shaking
 - ✅ **No Cross-Domain Coupling**: All contracts accessible equally
 - ✅ **Clean Organization**: Logical separation of contracts from models
@@ -329,7 +352,8 @@ export * from './lib/contracts';
 
 ## Risk Assessment
 
-**Low Risk**: 
+**Low Risk**:
+
 - All consumers use barrel exports (`@teensyrom-nx/domain`)
 - Only domain barrel export needs changes
 - No import path changes for consuming libraries
@@ -343,9 +367,10 @@ export * from './lib/contracts';
 ## Rollback Plan
 
 If issues arise:
+
 1. Restore old contract files in original locations:
    - `device/contracts/device.contract.ts`
-   - `device/contracts/device-events.contract.ts` 
+   - `device/contracts/device-events.contract.ts`
    - `device/contracts/device-logs.contract.ts`
    - `storage/contracts/storage.contract.ts`
 2. Revert domain barrel export changes in `index.ts`
@@ -357,10 +382,12 @@ If issues arise:
 ## Dependencies
 
 **Should be run AFTER**:
+
 - Domain Model Refactor (if not already completed)
 - All baseline tests passing
 
 **Can be run INDEPENDENTLY**:
+
 - This refactor doesn't depend on the model refactor
 - Can be done before or after model refactor
 - Both refactors together will create clean domain architecture

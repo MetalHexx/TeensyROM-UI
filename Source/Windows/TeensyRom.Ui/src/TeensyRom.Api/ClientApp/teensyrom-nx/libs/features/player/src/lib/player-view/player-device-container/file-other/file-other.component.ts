@@ -1,7 +1,12 @@
 import { Component, input, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
-import { ScalingCardComponent, EmptyStateMessageComponent, ExternalLinkComponent, ActionLinkComponent } from '@teensyrom-nx/ui/components';
+import {
+  ScalingCardComponent,
+  EmptyStateMessageComponent,
+  ExternalLinkComponent,
+  ActionLinkComponent,
+} from '@teensyrom-nx/ui/components';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
@@ -10,7 +15,15 @@ import { YouTubeDialogComponent } from './youtube-dialog/youtube-dialog.componen
 
 @Component({
   selector: 'lib-file-other',
-  imports: [CommonModule, ScalingCardComponent, MatChipsModule, MatIconModule, EmptyStateMessageComponent, ExternalLinkComponent, ActionLinkComponent],
+  imports: [
+    CommonModule,
+    ScalingCardComponent,
+    MatChipsModule,
+    MatIconModule,
+    EmptyStateMessageComponent,
+    ExternalLinkComponent,
+    ActionLinkComponent,
+  ],
   templateUrl: './file-other.component.html',
   styleUrl: './file-other.component.scss',
 })
@@ -22,7 +35,9 @@ export class FileOtherComponent {
   deviceId = input.required<string>();
 
   // Computed signals derived from current file
-  private readonly currentFile = computed(() => this.playerContext.getCurrentFile(this.deviceId())());
+  private readonly currentFile = computed(() =>
+    this.playerContext.getCurrentFile(this.deviceId())()
+  );
 
   readonly filename = computed(() => this.currentFile()?.file.name ?? '');
   readonly title = computed(() => this.currentFile()?.file.title ?? '');
@@ -33,7 +48,7 @@ export class FileOtherComponent {
   readonly metadataSource = computed(() => this.currentFile()?.file.metadataSource ?? '');
   readonly fileType = computed(() => this.currentFile()?.file.type);
   readonly isSong = computed(() => this.fileType() === FileItemType.Song);
-  
+
   // NEW: DeepSID metadata computed signals
   readonly links = computed(() => this.currentFile()?.file.links ?? []);
   readonly tags = computed(() => this.currentFile()?.file.tags ?? []);
@@ -44,9 +59,14 @@ export class FileOtherComponent {
 
   readonly hasContent = computed(() => {
     const file = this.currentFile();
-    return !!(file?.file.title || file?.file.description || 
-              file?.file.links?.length || file?.file.tags?.length ||
-              file?.file.youTubeVideos?.length || file?.file.competitions?.length);
+    return !!(
+      file?.file.title ||
+      file?.file.description ||
+      file?.file.links?.length ||
+      file?.file.tags?.length ||
+      file?.file.youTubeVideos?.length ||
+      file?.file.competitions?.length
+    );
   });
   readonly hasFile = computed(() => !!this.currentFile());
 

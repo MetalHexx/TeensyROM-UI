@@ -2,13 +2,15 @@
   [animationEntry]="animationEntry()"
   [animationExit]="animationExit()"
   [animationDuration]="animationDuration()"
-  [animationTrigger]="shouldRender()">
+  [animationTrigger]="shouldRender()"
+>
   <lib-card-layout
     [cardClass]="cardClass()"
     [title]="title()"
     [subtitle]="subtitle()"
     [metadataSource]="metadataSource()"
-    [enableOverflow]="enableOverflow()">
+    [enableOverflow]="enableOverflow()"
+  >
     <ng-content></ng-content>
     <ng-content select="[slot=corner]" slot="corner"></ng-content>
   </lib-card-layout>

@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, input, inject, computed, signal, effect } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  inject,
+  computed,
+  signal,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StorageStore, PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
 import { FileItem, LaunchMode, PlayerFilterType } from '@teensyrom-nx/domain';
@@ -20,14 +28,12 @@ export class SearchResultsComponent {
   private readonly playerContext: IPlayerContext = inject(PLAYER_CONTEXT);
 
   // Computed signal for selected directory state to get storage type
-  readonly selectedDirectoryState = computed(() => 
+  readonly selectedDirectoryState = computed(() =>
     this.storageStore.getSelectedDirectoryState(this.deviceId())()
   );
 
   // Computed signal for current storage type
-  readonly currentStorageType = computed(() => 
-    this.selectedDirectoryState()?.storageType ?? null
-  );
+  readonly currentStorageType = computed(() => this.selectedDirectoryState()?.storageType ?? null);
 
   // Computed signal for search state
   readonly searchState = computed(() => {
@@ -39,49 +45,35 @@ export class SearchResultsComponent {
   });
 
   // Computed signal for search results
-  readonly searchResults = computed(() => 
-    this.searchState()?.results ?? []
-  );
+  readonly searchResults = computed(() => this.searchState()?.results ?? []);
 
   // Computed signal for loading state (used to prevent "No files found" flash)
-  readonly isSearching = computed(() => 
-    this.searchState()?.isSearching ?? false
-  );
+  readonly isSearching = computed(() => this.searchState()?.isSearching ?? false);
 
   // Computed signal for search status
-  readonly hasSearched = computed(() => 
-    this.searchState()?.hasSearched ?? false
-  );
+  readonly hasSearched = computed(() => this.searchState()?.hasSearched ?? false);
 
   // Computed signal for error state
-  readonly searchError = computed(() => 
-    this.searchState()?.error ?? null
-  );
+  readonly searchError = computed(() => this.searchState()?.error ?? null);
 
   // Computed signal for current playing file
-  readonly currentPlayingFile = computed(() => 
+  readonly currentPlayingFile = computed(() =>
     this.playerContext.getCurrentFile(this.deviceId())()
   );
 
   // Computed signal for launch mode
-  readonly currentLaunchMode = computed(() => 
-    this.playerContext.getLaunchMode(this.deviceId())()
-  );
+  readonly currentLaunchMode = computed(() => this.playerContext.getLaunchMode(this.deviceId())());
 
   // Computed signal for player error state
-  readonly hasPlayerError = computed(() => 
-    this.playerContext.getError(this.deviceId())() !== null
-  );
+  readonly hasPlayerError = computed(() => this.playerContext.getError(this.deviceId())() !== null);
 
   // Computed signal for current filter
-  readonly currentFilter = computed(() => 
-    this.playerContext.getShuffleSettings(this.deviceId())()?.filter ?? PlayerFilterType.All
+  readonly currentFilter = computed(
+    () => this.playerContext.getShuffleSettings(this.deviceId())()?.filter ?? PlayerFilterType.All
   );
 
   // Computed signal to check if a specific filter is applied (not "All")
-  readonly hasActiveFilter = computed(() => 
-    this.currentFilter() !== PlayerFilterType.All
-  );
+  readonly hasActiveFilter = computed(() => this.currentFilter() !== PlayerFilterType.All);
 
   // Computed signal for filter display name
   readonly filterDisplayName = computed(() => {
@@ -124,7 +116,7 @@ export class SearchResultsComponent {
       }
 
       // Find the playing file in the search results
-      const playingFileItem = results.find(item => item.path === playingFile.file.path);
+      const playingFileItem = results.find((item) => item.path === playingFile.file.path);
 
       if (playingFileItem) {
         // Select the playing file
@@ -168,7 +160,7 @@ export class SearchResultsComponent {
   isCurrentlyPlaying(file: FileItem): boolean {
     const playingFile = this.currentPlayingFile();
     const launchMode = this.currentLaunchMode();
-    
+
     // Only highlight if file is playing AND we're in Search mode
     return playingFile?.file.path === file.path && launchMode === LaunchMode.Search;
   }
@@ -177,12 +169,14 @@ export class SearchResultsComponent {
     // Use setTimeout to ensure the DOM is updated after the selection change
     setTimeout(() => {
       // Find the DOM element for the selected file using the data attribute
-      const targetElement = document.querySelector(`.file-list-item[data-item-path="${CSS.escape(filePath)}"]`);
+      const targetElement = document.querySelector(
+        `.file-list-item[data-item-path="${CSS.escape(filePath)}"]`
+      );
 
       if (targetElement) {
         targetElement.scrollIntoView({
           behavior: 'smooth',
-          block: 'center'
+          block: 'center',
         });
       }
     }, 0);

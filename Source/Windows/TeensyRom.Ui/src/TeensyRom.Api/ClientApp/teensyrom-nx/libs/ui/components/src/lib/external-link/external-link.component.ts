@@ -44,7 +44,7 @@ export class ExternalLinkComponent {
   ariaLabelText = computed(() => {
     const customLabel = this.ariaLabel();
     if (customLabel) return customLabel;
-    
+
     const label = this.label();
     if (this.isExternal() && this.target() === '_blank') {
       return `${label} (opens in new window)`;

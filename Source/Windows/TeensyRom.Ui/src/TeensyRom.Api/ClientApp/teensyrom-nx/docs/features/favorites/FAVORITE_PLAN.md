@@ -44,6 +44,7 @@ Create the backend API endpoint for saving files as favorites, along with the st
 ### High-Level Tasks
 
 1. **Create FavoriteFileEndpoint**: Implement a new endpoint following the pattern established by [`LaunchFileEndpoint.cs`](../../../../../TeensyRom.Api/Endpoints/Player/LaunchFile/LaunchFileEndpoint.cs)
+
    - Accept device ID, storage type, and file path as parameters
    - Validate device exists and has requested storage available
    - Retrieve the file using storage service
@@ -51,6 +52,7 @@ Create the backend API endpoint for saving files as favorites, along with the st
    - Return appropriate success/error responses
 
 2. **Extract SaveFavorite Logic**: Copy the `SaveFavorite` method from [`CachedStorageService.cs`](../../../../../TeensyRom.Core.Storage/CachedStorageService.cs) to [`StorageService.cs`](../../../../../TeensyRom.Core.Storage/StorageService.cs)
+
    - Adapt method to work with `StorageService` infrastructure
    - Maintain parent path reference preservation logic
    - Ensure favorite type-specific directory targeting works correctly
@@ -89,6 +91,7 @@ Create the backend API endpoint for removing files from favorites, along with co
 ### High-Level Tasks
 
 1. **Create RemoveFavoriteEndpoint**: Implement endpoint following similar patterns to FavoriteFileEndpoint
+
    - Accept device ID, storage type, and file path as parameters
    - Validate device and storage availability
    - Retrieve the file using storage service
@@ -96,6 +99,7 @@ Create the backend API endpoint for removing files from favorites, along with co
    - Return appropriate success/error responses
 
 2. **Extract RemoveFavorite Logic**: Copy the `RemoveFavorite` method from [`CachedStorageService.cs`](../../../../../TeensyRom.Core.Storage/CachedStorageService.cs) to [`StorageService.cs`](../../../../../TeensyRom.Core.Storage/StorageService.cs)
+
    - Adapt method to work with `StorageService` infrastructure
    - Ensure favorite file deletion occurs
    - Maintain favorite status synchronization with original file
@@ -134,11 +138,13 @@ Generate the TypeScript API client for the new favorite endpoints and create inf
 ### High-Level Tasks
 
 1. **Generate API Client**: Follow the documented process to regenerate the TypeScript client
+
    - Build the .NET API project to produce OpenAPI spec
    - Run `pnpm run generate:api-client` from the Angular workspace
    - Verify new favorite endpoints appear in generated client
 
 2. **Add Infrastructure Methods**: Extend the storage service with favorite operations
+
    - Add `saveFavorite()` method that calls generated API client
    - Add `removeFavorite()` method that calls generated API client
    - Map parameters from domain types to API types
@@ -150,6 +156,7 @@ Generate the TypeScript API client for the new favorite endpoints and create inf
    - Display error messages from API response (via extractErrorMessage) on failures
 
 3. **Extend Domain Mapper**: Add transformation methods for favorite operations
+
    - Map API response types to domain `FileItem` models
    - Ensure `isFavorite` flag is correctly set in mappings
    - Handle error responses appropriately
@@ -191,6 +198,7 @@ Create application layer store actions for favorite operations, integrating infr
 ### High-Level Tasks
 
 1. **Create Store Actions**: Add favorite management actions to the storage store
+
    - Implement `saveFavorite` action using async/await pattern
    - Implement `removeFavorite` action using async/await pattern
    - Use `updateState` with `actionMessage` for Redux DevTools correlation
@@ -199,6 +207,7 @@ Create application layer store actions for favorite operations, integrating infr
    - Set error states on failure with meaningful messages
 
 2. **Update State Shape**: Extend storage state if needed for favorite tracking
+
    - Ensure files in storage directories have `isFavorite` flag
    - Update cached directory entries when favorite status changes
    - Maintain consistency between original and favorite file states
@@ -240,6 +249,7 @@ Add a favorite button to the player toolbar that displays favorite status and tr
 ### High-Level Tasks
 
 1. **Add Favorite Button Component**: Integrate icon button into player toolbar
+
    - Position button next to existing shuffle button
    - Use Material icon 'favorite_border' for unfavorited state
    - Use Material icon 'favorite' for favorited state
@@ -247,6 +257,7 @@ Add a favorite button to the player toolbar that displays favorite status and tr
    - Add appropriate aria-label for accessibility
 
 2. **Implement Toggle Logic**: Add methods to handle favorite state changes
+
    - Check current file's `isFavorite` flag from player context
    - Call `saveFavorite` action when not favorited
    - Call `removeFavorite` action when favorited
@@ -254,6 +265,7 @@ Add a favorite button to the player toolbar that displays favorite status and tr
    - Show error state visually if operation fails
 
 3. **Wire Up State**: Connect component to application state
+
    - Subscribe to current file from player context
    - Subscribe to loading state from storage store
    - Subscribe to error state from storage store
@@ -295,23 +307,27 @@ Create end-to-end Cypress tests that validate the complete favorite workflow fro
 ### High-Level Tasks
 
 1. **Create Storage Test Directory**: Organize tests by feature area
+
    - Create `/storage` folder for storage-related E2E tests
    - Follow organizational pattern from [`device-connection.cy.ts`](../../../apps/teensyrom-ui-e2e/src/e2e/devices/device-connection.cy.ts)
    - Create test helpers file for reusable favorite test functions
 
 2. **Create Storage Interceptors**: Build API mocking for favorite endpoints
+
    - Create `storage.interceptors.ts` with `interceptSaveFavorite()` function
    - Create `interceptRemoveFavorite()` function
    - Support success and error modes for testing failure scenarios
    - Follow patterns from [`device.interceptors.ts`](../../../apps/teensyrom-ui-e2e/src/support/interceptors/device.interceptors.ts)
 
 3. **Create Fixture Data**: Build realistic test data for favorite scenarios
+
    - Create file fixtures with `isFavorite: false` for save tests
    - Create file fixtures with `isFavorite: true` for remove tests
    - Create directory fixtures containing favorite files
    - Follow fixture patterns from [`devices.fixture.ts`](../../../apps/teensyrom-ui-e2e/src/support/test-data/fixtures/devices.fixture.ts)
 
 4. **Write E2E Test Scenarios**: Comprehensive workflow validation
+
    - Test favoriting a non-favorited file shows solid heart icon
    - Test unfavoriting a favorited file shows empty heart icon
    - Test favorite button disabled during operation
@@ -352,6 +368,7 @@ Create end-to-end Cypress tests that validate the complete favorite workflow fro
 The backend follows Clean Architecture patterns with clear separation between API endpoints, application logic, and storage operations.
 
 **Endpoint Layer** (`TeensyRom.Api/Endpoints/Files/`):
+
 - `FavoriteFileEndpoint.cs` - REST endpoint for saving favorites
 - `RemoveFavoriteEndpoint.cs` - REST endpoint for removing favorites
 - Follow RadEndpoints minimal API pattern
@@ -359,6 +376,7 @@ The backend follows Clean Architecture patterns with clear separation between AP
 - Delegate to storage services for file operations
 
 **Storage Service Layer** (`TeensyRom.Core.Storage/`):
+
 - `StorageService.cs` contains core favorite operations
 - `SaveFavorite()` - Creates favorite copy with parent path link
 - `RemoveFavorite()` - Deletes favorite copy, updates original status
@@ -366,6 +384,7 @@ The backend follows Clean Architecture patterns with clear separation between AP
 - Maintains bidirectional relationship between original and favorite files
 
 **Storage Behavior**:
+
 - Favorite files are copies, not references
 - Original files retain `parentPath` reference to location before favoriting
 - Favorite directories are type-specific: `/favorites/games`, `/favorites/music`, `/favorites/images`
@@ -377,6 +396,7 @@ The backend follows Clean Architecture patterns with clear separation between AP
 The frontend follows Clean Architecture with distinct layers: Domain → Application → Infrastructure → Features.
 
 **Infrastructure Layer** (`libs/infrastructure/src/lib/storage/`):
+
 - `storage.service.ts` - Implements `IStorageService` domain contract
 - Calls generated API client methods
 - Maps API DTOs to domain models via `domain.mapper.ts`
@@ -384,34 +404,40 @@ The frontend follows Clean Architecture with distinct layers: Domain → Applica
 - Uses [`alert.service.ts`](../../../libs/app/src/lib/alert.service.ts) to display success/error notifications to users
 
 **Application Layer** (`libs/application/src/lib/storage/`):
+
 - `storage-store.ts` - NgRx Signal Store managing storage state
 - Actions: `saveFavorite()`, `removeFavorite()`
 - Manages loading states, error states, and file state updates
 - Uses async/await pattern with `firstValueFrom()` for Promise-based flow
 
 **Feature Layer** (`libs/features/player/`):
+
 - `player-toolbar.component.ts` - Smart component with favorite button
 - Consumes player context for current file information
 - Dispatches favorite actions to storage store
 - Reactively updates UI based on state signals
 
 **Domain Layer** (`libs/domain/src/lib/models/`):
+
 - `file-item.model.ts` already contains `isFavorite: boolean` flag
 - No changes needed to domain models
 
 ### Integration Points
 
 **Backend to Frontend**:
+
 - OpenAPI spec generation during .NET build
 - TypeScript client generation via `pnpm run generate:api-client`
 - API client consumed by infrastructure services
 
 **Application to Infrastructure**:
+
 - Store actions call infrastructure service methods
 - Infrastructure returns Observables mapped to domain models
 - Error handling bubbles up through layers
 
 **Feature to Application**:
+
 - Components inject store via dependency injection
 - Components call store action methods
 - Components subscribe to store state signals
@@ -424,10 +450,12 @@ The frontend follows Clean Architecture with distinct layers: Domain → Applica
 ### Backend Testing (Integration Tests)
 
 **Test Files**:
+
 - `SaveFavoriteTests.cs` - Integration tests for save favorite endpoint
 - `RemoveFavoriteTests.cs` - Integration tests for remove favorite endpoint
 
 **Coverage Areas**:
+
 - Success scenarios for all file types (games, music, images)
 - Error scenarios (device not found, file not found, storage unavailable)
 - Validation failures (invalid device ID, invalid storage type, invalid paths)
@@ -436,6 +464,7 @@ The frontend follows Clean Architecture with distinct layers: Domain → Applica
 - Favorite/unfavorite idempotency
 
 **Test Pattern**:
+
 - Follow patterns from [`LaunchFileTests.cs`](../../../../../TeensyRom.Api.Tests.Integration/LaunchFileTests.cs)
 - Use EndpointFixture for test infrastructure
 - Test against real connected TeensyROM device (integration test environment)
@@ -445,12 +474,14 @@ The frontend follows Clean Architecture with distinct layers: Domain → Applica
 ### Frontend Testing
 
 **Unit Tests** (Infrastructure Layer):
+
 - Storage service methods call API client correctly
 - Domain mapper transforms favorite responses accurately
 - Error responses handled appropriately
 - Mock API client at infrastructure boundary
 
 **Unit Tests** (Application Layer):
+
 - Store actions update state correctly on success
 - Store actions set error state on failure
 - Loading states managed properly
@@ -458,6 +489,7 @@ The frontend follows Clean Architecture with distinct layers: Domain → Applica
 - Mock infrastructure service per [`STORE_TESTING.md`](../../STORE_TESTING.md)
 
 **Component Tests** (Feature Layer):
+
 - Favorite button displays correct icon for state
 - Button click dispatches correct action
 - Button disabled during loading
@@ -465,6 +497,7 @@ The frontend follows Clean Architecture with distinct layers: Domain → Applica
 - Mock player context and storage store
 
 **E2E Tests** (Cypress):
+
 - Complete workflow: click button → API call → state update → UI reflects change
 - Favorite operation success path
 - Unfavorite operation success path
@@ -493,6 +526,7 @@ And the favorite button icon changes to a solid heart
 And a success alert message is displayed with text from the API response
 And the alert auto-dismisses after the default timeout
 ```
+
 </details>
 
 <details open>
@@ -508,6 +542,7 @@ And an error alert message is displayed with text extracted from the API error r
 And the alert auto-dismisses after the default timeout
 And the user can retry the operation
 ```
+
 </details>
 
 <details open>
@@ -524,6 +559,7 @@ When the operation completes
 Then the button is re-enabled
 And the icon updates to reflect the new state
 ```
+
 </details>
 
 <details open>
@@ -539,6 +575,7 @@ And the file's isFavorite flag is true
 When the user clicks to unfavorite
 Then both the original and favorite copy are updated
 ```
+
 </details>
 
 </details>
@@ -562,6 +599,7 @@ And the favorite button icon changes to an empty heart
 And a success alert message is displayed with text from the API response
 And the alert auto-dismisses after the default timeout
 ```
+
 </details>
 
 <details open>
@@ -578,6 +616,7 @@ And the alert auto-dismisses after the default timeout
 And the favorite copy remains in the favorites directory
 And the user can retry the operation
 ```
+
 </details>
 
 <details open>
@@ -592,6 +631,7 @@ And if the user navigates to the original location
 Then the original file shows as not favorited
 And the bidirectional link is properly severed
 ```
+
 </details>
 
 </details>
@@ -612,6 +652,7 @@ Then the favorite button shows an empty heart icon (favorite_border)
 And the button is enabled and clickable
 And hovering may show "Add to Favorites" tooltip
 ```
+
 </details>
 
 <details open>
@@ -625,6 +666,7 @@ Then the favorite button shows a solid heart icon (favorite)
 And the button is enabled and clickable
 And hovering may show "Remove from Favorites" tooltip
 ```
+
 </details>
 
 <details open>
@@ -638,6 +680,7 @@ And then navigates back to the previously favorited file
 Then the solid heart icon is still displayed
 And the file's favorite status is maintained in state
 ```
+
 </details>
 
 </details>
@@ -658,6 +701,7 @@ And the alert displays in the bottom-right corner
 And the alert auto-dismisses after the default timeout
 And the alert can be manually dismissed by clicking the close button
 ```
+
 </details>
 
 <details open>
@@ -671,6 +715,7 @@ And the alert displays in the bottom-right corner
 And the alert auto-dismisses after the default timeout
 And the alert can be manually dismissed by clicking the close button
 ```
+
 </details>
 
 <details open>
@@ -684,6 +729,7 @@ And the alert displays in the bottom-right corner
 And the alert auto-dismisses after the default timeout
 And the alert can be manually dismissed by clicking the close button
 ```
+
 </details>
 
 <details open>
@@ -697,6 +743,7 @@ And alerts stack vertically in the bottom-right corner
 And each alert auto-dismisses independently after the default timeout
 And the alert display area handles multiple simultaneous alerts gracefully
 ```
+
 </details>
 
 </details>
@@ -717,6 +764,7 @@ Then the remove favorite operation is triggered (not save)
 And the system does not attempt to create a duplicate favorite
 And the favorite status is toggled off
 ```
+
 </details>
 
 <details open>
@@ -729,6 +777,7 @@ Then the favorite button may be hidden or disabled
 And clicking it has no effect
 And no API calls are made
 ```
+
 </details>
 
 <details open>
@@ -744,6 +793,7 @@ When the operation completes
 Then the final state reflects the successful operation
 And the button is re-enabled for further interaction
 ```
+
 </details>
 
 <details open>
@@ -759,6 +809,7 @@ When the user favorites an image file
 Then it is saved to /favorites/images directory
 And each favorite is properly categorized by type
 ```
+
 </details>
 
 </details>
@@ -884,32 +935,38 @@ And each favorite is properly categorized by type
 ### Summary of Open Questions
 
 **Phase 1 (Backend - Save Favorite)**:
+
 - Should the endpoint return the newly created favorite file information in the response?
 - How should the endpoint handle attempting to favorite an already favorited file?
 - Should there be rate limiting or validation on the number of favorites a user can create?
 
 **Phase 2 (Backend - Remove Favorite)**:
+
 - Should removing a favorite from the favorite directory automatically unfavorite the original?
 - How should the system handle orphaned favorites (original file deleted)?
 - Should there be a "remove all favorites" bulk operation?
 
 **Phase 3 (Frontend - Infrastructure)**:
+
 - Should favorite operations return the updated file or just a success indicator?
 - How should optimistic UI updates be handled (update before API confirms)?
 - Should there be a retry mechanism for failed favorite operations?
 
 **Phase 4 (Frontend - Application)**:
+
 - Should the action automatically refresh the current directory after favoriting?
 - How should the store handle rapid successive favorite/unfavorite operations?
 - Should favorite status be persisted across application sessions?
 
 **Phase 5 (Frontend - UI)**:
+
 - Should there be a tooltip showing favorite status on hover?
 - Should the button show a loading spinner during operations?
 - Should there be animation when toggling favorite state?
 - Should the button be hidden when no file is loaded?
 
 **Phase 6 (Frontend - E2E)**:
+
 - Should tests validate favorite file appears in favorites directory?
 - Should tests cover all file types (games, music, images)?
 - Should tests validate bidirectional favorite status (original ↔ favorite)?
@@ -922,11 +979,13 @@ And each favorite is properly categorized by type
 This feature follows established patterns from existing functionality. Key reference implementations:
 
 **Backend Patterns**:
+
 - [`LaunchFileEndpoint.cs`](../../../../../TeensyRom.Api/Endpoints/Player/LaunchFile/LaunchFileEndpoint.cs) - Endpoint structure, device validation, storage service usage
 - [`LaunchFileTests.cs`](../../../../../TeensyRom.Api.Tests.Integration/LaunchFileTests.cs) - Integration test patterns, fixture usage, assertions
 - [`CachedStorageService.SaveFavorite()`](../../../../../TeensyRom.Core.Storage/CachedStorageService.cs) - Complete favorite logic to be extracted
 
 **Frontend Patterns**:
+
 - [`storage.service.ts`](../../../libs/infrastructure/src/lib/storage/storage.service.ts) - Infrastructure service structure
 - [`device.service.ts`](../../../libs/infrastructure/src/lib/device/device.service.ts) - Alert service integration pattern and error handling
 - [`api-error.utils.ts`](../../../libs/infrastructure/src/lib/error/api-error.utils.ts) - Error message extraction utility
@@ -936,7 +995,7 @@ This feature follows established patterns from existing functionality. Key refer
 - [`icon-button.component.ts`](../../../libs/ui/components/src/lib/icon-button/icon-button.component.ts) - Reusable button component
 
 **Testing Patterns**:
+
 - [`device-connection.cy.ts`](../../../apps/teensyrom-ui-e2e/src/e2e/devices/device-connection.cy.ts) - E2E test organization
 - [`device.interceptors.ts`](../../../apps/teensyrom-ui-e2e/src/support/interceptors/device.interceptors.ts) - Interceptor patterns
 - [`devices.fixture.ts`](../../../apps/teensyrom-ui-e2e/src/support/test-data/fixtures/devices.fixture.ts) - Fixture data structure
-

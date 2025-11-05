@@ -9,7 +9,6 @@ import {
   type CypressMethod,
 } from './primitives/interceptor-primitives';
 
-
 interface WindowWithDisconnectCallCount {
   __disconnectDeviceCallCount?: number;
 }
@@ -19,7 +18,6 @@ export const DISCONNECT_DEVICE_ENDPOINT: EndpointDefinition = {
   pattern: 'http://localhost:5168/devices/*',
   alias: 'disconnectDevice',
 } as const;
-
 
 export interface InterceptDisconnectDeviceOptions {
   /** When true, return HTTP 500 error to simulate disconnection failure */
@@ -50,7 +48,6 @@ export function interceptDisconnectDevice(options: InterceptDisconnectDeviceOpti
   interceptSuccess(DISCONNECT_DEVICE_ENDPOINT, response, options.responseDelayMs);
 }
 
-
 export function waitForDisconnectDevice(): void {
   cy.wait(`@${DISCONNECT_DEVICE_ENDPOINT.alias}`);
 }
@@ -63,7 +60,6 @@ export function waitForDisconnectDevice(): void {
 export function waitForDisconnectDeviceToStart(timeout = 2000): void {
   cy.wait(`@${DISCONNECT_DEVICE_ENDPOINT.alias}`, { timeout });
 }
-
 
 /**
  * Sets up disconnectDevice interceptor with a delay for testing loading states
@@ -110,7 +106,6 @@ export function setupErrorDisconnectDevice(statusCode = 500, errorMessage?: stri
 export function verifyDisconnectDeviceRequested(): Cypress.Chainable<JQuery<HTMLElement>> {
   return cy.get(`@${DISCONNECT_DEVICE_ENDPOINT.alias}`);
 }
-
 
 function createDisconnectDeviceHeaders(contentType: string): Record<string, string> {
   return {

@@ -1,9 +1,6 @@
 import { STORAGE_SERVICE } from '@teensyrom-nx/domain';
 import { StorageService } from './storage.service';
-import {
-  FilesApiService,
-  Configuration,
-} from '@teensyrom-nx/data-access/api-client';
+import { FilesApiService, Configuration } from '@teensyrom-nx/data-access/api-client';
 
 // API Client provider for Files
 export const FILES_API_CLIENT_PROVIDER = {

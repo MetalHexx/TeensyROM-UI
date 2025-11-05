@@ -17,6 +17,7 @@ Pure layout components without animations. Use these when you need static cards.
 **Selector**: `lib-card-layout`
 
 **Properties**:
+
 - `title`: Header title (optional)
 - `subtitle`: Text below title (optional)
 - `metadataSource`: Footer attribution (optional)
@@ -42,6 +43,7 @@ Pure layout components without animations. Use these when you need static cards.
 **Selector**: `lib-compact-card-layout`
 
 **Properties**:
+
 - `enableOverflow`: Allow scrollbars (default: `true`)
 
 **Usage**:
@@ -69,6 +71,7 @@ Animated cards that combine layout + animation. See [Animation System](#animatio
 **Selector**: `lib-scaling-card`
 
 **Properties**:
+
 - Layout props: `title`, `subtitle`, `metadataSource`, `enableOverflow`, `cardClass`
 - Animation props: `animationEntry`, `animationExit`, `animationTrigger`, `animationParent`, `animationDuration`
 
@@ -81,11 +84,12 @@ Animated cards that combine layout + animation. See [Animation System](#animatio
 </lib-scaling-card>
 
 <!-- With custom animation speed and glassy effect -->
-<lib-scaling-card 
-  cardClass="glassy-card" 
-  title="YouTube Video" 
+<lib-scaling-card
+  cardClass="glassy-card"
+  title="YouTube Video"
   [animationDuration]="1200"
-  animationEntry="from-top">
+  animationEntry="from-top"
+>
   <iframe src="..."></iframe>
 </lib-scaling-card>
 ```
@@ -99,6 +103,7 @@ Animated cards that combine layout + animation. See [Animation System](#animatio
 **Selector**: `lib-scaling-compact-card`
 
 **Properties**:
+
 - Layout props: `enableOverflow`, `cardClass`
 - Animation props: `animationEntry`, `animationExit`, `animationTrigger`, `animationParent`, `animationDuration`
 
@@ -110,9 +115,7 @@ Animated cards that combine layout + animation. See [Animation System](#animatio
 </lib-scaling-compact-card>
 
 <!-- With custom animation speed -->
-<lib-scaling-compact-card 
-  [animationDuration]="800"
-  animationEntry="from-left">
+<lib-scaling-compact-card [animationDuration]="800" animationEntry="from-left">
   <form>...</form>
 </lib-scaling-compact-card>
 ```
@@ -132,6 +135,7 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 **Selector**: `lib-sliding-container`
 
 **Properties**:
+
 - `containerHeight`: Height (default: `'auto'`)
 - `containerWidth`: Width (default: `'auto'`)
 - `animationDuration`: Duration in ms (default: `400`)
@@ -141,9 +145,11 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 - `showContainer`: Computed signal controlling visibility (internal)
 
 **Events**:
+
 - `animationComplete`: Emitted when animation finishes
 
 **Animation Behavior**:
+
 - **Entry**: Height/width expansion from 0 to target size with opacity fade-in and directional slide. Uses cubic-bezier easing for smooth motion.
 - **Exit**: Uses `animationTrigger` to play reverse animation before removing from DOM. Component stays visible during exit animation.
 - **Transitions**: `void => visible` (initial), `hidden => visible` (show), `visible => hidden` (hide with animation)
@@ -152,9 +158,7 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 
 ```html
 <!-- Basic entry animation -->
-<lib-sliding-container
-  containerHeight="80px"
-  animationDirection="from-top">
+<lib-sliding-container containerHeight="80px" animationDirection="from-top">
   <lib-scaling-compact-card>
     <div class="toolbar">...</div>
   </lib-scaling-compact-card>
@@ -164,7 +168,8 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 <lib-sliding-container
   containerHeight="80px"
   animationDirection="slide-down"
-  [animationTrigger]="isVisible()">
+  [animationTrigger]="isVisible()"
+>
   <div>Slides in and out smoothly</div>
 </lib-sliding-container>
 
@@ -177,15 +182,18 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 ```
 
 **Exit Animation Pattern**: When using `animationTrigger`, the component will:
+
 1. Play exit animation when trigger becomes `false`
 2. Remove from DOM after animation completes
 3. Re-appear with entry animation when trigger becomes `true`
 
 **Z-Index Management**: The component automatically manages z-index layering for proper click handling when multiple animated components overlap:
+
 - **Visible state** (`animationTrigger=true`): `z-index: 1000` - Component is on top and fully interactive
 - **Hidden state** (`animationTrigger=false`): `z-index: 1` - Component is below and won't block clicks during exit animation
 
 **Comparison**:
+
 - **SlidingContainer**: Height/width expansion, affects layout flow, pushes surrounding content, **supports exit animations**
 - **ScalingContainer**: Transform-based, no layout impact, visual "pop" effect
 
@@ -198,6 +206,7 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 **Selector**: `lib-scaling-container`
 
 **Properties**:
+
 - `animationEntry`: Entry direction - `'random'`, `'from-left'`, `'from-right'`, `'from-top'`, `'from-bottom'`, etc. (default: `'random'`)
 - `animationExit`: Exit direction (default: `'random'`)
 - `animationTrigger`: Manual control signal (optional) - **Enables exit animations**
@@ -205,9 +214,11 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 - `animationDuration`: Transform animation duration in milliseconds (default: `2000`) - Opacity duration is automatically calculated as 1.5x this value for smoother fade effect
 
 **Events**:
+
 - `animationComplete`: Emitted when animation finishes
 
 **Animation Behavior**:
+
 - **Entry**: 0.8→1.0 scale, opacity 0→1 fade, -40px directional slide. Transform uses `animationDuration` (default 2000ms), opacity uses 1.5x that value (default 3000ms) for smooth reveal.
 - **Exit**: Uses `animationTrigger` to play reverse animation before removing from DOM. Component stays visible during exit animation.
 - **Transitions**: `void => visible` (initial), `hidden => visible` (show), `visible => hidden` (hide with animation)
@@ -222,17 +233,16 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 </lib-scaling-container>
 
 <!-- Custom faster animation (1200ms transform, 1800ms opacity) -->
-<lib-scaling-container 
-  animationEntry="from-top"
-  [animationDuration]="1200">
+<lib-scaling-container animationEntry="from-top" [animationDuration]="1200">
   <div>Snappy animation</div>
 </lib-scaling-container>
 
 <!-- With exit animations using animationTrigger -->
-<lib-scaling-container 
-  animationEntry="from-left" 
+<lib-scaling-container
+  animationEntry="from-left"
   animationExit="from-right"
-  [animationTrigger]="isVisible()">
+  [animationTrigger]="isVisible()"
+>
   <div>Animates in and out smoothly</div>
 </lib-scaling-container>
 
@@ -250,44 +260,46 @@ Reusable animation wrappers. Can be used directly or composed into other compone
 </lib-sliding-container>
 ```
 
-**Browser Limitation Note**: 
+**Browser Limitation Note**:
 
 When using CSS `backdrop-filter` (e.g., for glassy effects) on animated content, the blur may not render smoothly during transform animations. This is a browser limitation where GPU-accelerated transforms don't play well with backdrop-filter.
 
 **Workaround**: For dialogs or overlays with glassy effects:
+
 1. Apply `backdrop-filter` to the static dialog container (non-animated parent)
 2. Use ScalingContainer for the inner animated card
 3. This creates a layered effect where the blur is always visible
 
 Example:
+
 ```typescript
 // Dialog config
 this.dialog.open(MyDialogComponent, {
-  panelClass: 'my-glassy-dialog',  // Has backdrop-filter on .mat-mdc-dialog-container
-  backdropClass: 'my-dialog-backdrop'
+  panelClass: 'my-glassy-dialog', // Has backdrop-filter on .mat-mdc-dialog-container
+  backdropClass: 'my-dialog-backdrop',
 });
 ```
 
 ```html
 <!-- Dialog template -->
-<lib-scaling-card 
-  cardClass="glassy-card"
-  [animationDuration]="1200"
-  animationEntry="from-top">
+<lib-scaling-card cardClass="glassy-card" [animationDuration]="1200" animationEntry="from-top">
   <div>Content with smooth blur effect</div>
 </lib-scaling-card>
 ```
 
 **Exit Animation Pattern**: When using `animationTrigger`, always render both components and let the trigger control visibility. Position them absolutely if overlapping. The component will:
+
 1. Play exit animation when trigger becomes `false`
 2. Remove from DOM after animation completes
 3. Re-appear with entry animation when trigger becomes `true`
 
 **Z-Index Management**: The component automatically manages z-index layering for proper click handling when multiple animated components overlap:
+
 - **Visible state** (`animationTrigger=true`): `z-index: 1000` - Component is on top and fully interactive
 - **Hidden state** (`animationTrigger=false`): `z-index: 1` - Component is below and won't block clicks during exit animation
 
 **Comparison**:
+
 - **ScalingContainer**: Transform-based, no layout impact, visual "pop" effect, **supports exit animations**
 - **SlidingContainer**: Height/width expansion, pushes surrounding content
 
@@ -302,14 +314,17 @@ this.dialog.open(MyDialogComponent, {
 **Selector**: `lib-fading-container`
 
 **Properties**:
+
 - `animationTrigger`: Manual control signal (optional) - **Enables exit animations**
 - `animationParent`: Override animation chaining (optional - see [Animation System](#animation-system))
 - `animationDuration`: Animation duration in milliseconds (default: `200`)
 
 **Events**:
+
 - `animationComplete`: Emitted when animation finishes
 
 **Animation Behavior**:
+
 - **Entry**: 0→1 opacity fade with 10px→0px blur effect. Single smooth transition (default 200ms) with cubic-bezier easing.
 - **Exit**: Uses `animationTrigger` to play reverse animation before removing from DOM. Component stays visible during exit animation.
 - **Transitions**: `void => visible` (initial), `hidden => visible` (show), `visible => hidden` (hide with animation)
@@ -320,6 +335,7 @@ this.dialog.open(MyDialogComponent, {
 Because FadingContainer uses **no CSS transforms**, it's the best choice for content with `backdrop-filter` (glassy effects). Browsers render backdrop-filter smoothly during opacity-only animations, avoiding the "blur pop-in" issue that occurs with transform-based animations.
 
 **Use FadingContainer when**:
+
 - Content has `.glassy-card` or other backdrop-filter styling
 - You want the smoothest possible blur effect throughout animation
 - Transform-based "pop" effect is not needed
@@ -369,20 +385,24 @@ Because FadingContainer uses **no CSS transforms**, it's the best choice for con
 ```
 
 **Exit Animation Pattern**: When using `animationTrigger`, always render both components and let the trigger control visibility. Position them absolutely if overlapping. The component will:
+
 1. Play exit animation when trigger becomes `false`
 2. Remove from DOM after animation completes
 3. Re-appear with entry animation when trigger becomes `true`
 
 **Z-Index Management**: The component automatically manages z-index layering for proper click handling when multiple animated components overlap:
+
 - **Visible state** (`animationTrigger=true`): `z-index: 1000` - Component is on top and fully interactive
 - **Hidden state** (`animationTrigger=false`): `z-index: 1` - Component is below and won't block clicks during exit animation
 
 **Comparison**:
+
 - **FadingContainer**: Pure opacity + blur, no transforms, no layout impact, subtle lightweight animation
 - **ScalingContainer**: Transform-based with scale + directional slide, visual "pop" effect
 - **SlidingContainer**: Height/width expansion, pushes surrounding content
 
 **Use Cases**:
+
 - Subtle content transitions where directional movement would be distracting
 - Modal overlays and tooltips that need gentle appearance/disappearance
 - Content areas where you want smooth transitions without "popping" or sliding
@@ -398,6 +418,7 @@ Because FadingContainer uses **no CSS transforms**, it's the best choice for con
 **Selector**: `lib-loading-text`
 
 **Properties**:
+
 - `visible`: `boolean` - Controls visibility with fade animation (default: `false`)
 - `showSpinner`: `boolean` - Show animated spinner before text (default: `true`)
 - `animationDuration`: `number` - Duration of leet cycling in ms (default: `1000`)
@@ -414,37 +435,33 @@ Because FadingContainer uses **no CSS transforms**, it's the best choice for con
 </lib-scaling-card>
 
 <!-- Custom text -->
-<lib-loading-text [visible]="isProcessing()">
-  Processing...
-</lib-loading-text>
+<lib-loading-text [visible]="isProcessing()"> Processing... </lib-loading-text>
 
 <!-- Without spinner -->
-<lib-loading-text [visible]="isSaving()" [showSpinner]="false">
-  Saving...
-</lib-loading-text>
+<lib-loading-text [visible]="isSaving()" [showSpinner]="false"> Saving... </lib-loading-text>
 
 <!-- Custom animation speed -->
-<lib-loading-text 
-  [visible]="isLoading()" 
-  [animationDuration]="500"
->
+<lib-loading-text [visible]="isLoading()" [animationDuration]="500">
   Fast Loading...
 </lib-loading-text>
 ```
 
 **Animation Behavior**:
+
 - **Fade In**: 200ms cubic-bezier transition when `visible` becomes `true`
 - **Fade Out**: 200ms cubic-bezier transition when `visible` becomes `false`
 - **Leet Cycling**: Continuous character transformation while visible
 - **Spinner**: Classic `/` `-` `\` `|` rotation at 100ms intervals (when enabled)
 
 **Use Cases**:
+
 - Loading indicators in card corner slots
 - Status messages in toolbars and headers
 - Retro-styled loading states
 - Processing/saving feedback with personality
 
 **Comparison**:
+
 - **LoadingTextComponent**: Pre-packaged loading indicator with fade animations and leet-speak
 - **LeetTextContainerComponent**: Raw leet-speak animation without fade transitions
 
@@ -457,6 +474,7 @@ Because FadingContainer uses **no CSS transforms**, it's the best choice for con
 **Selector**: `lib-leet-text-container`
 
 **Properties**:
+
 - `animationTrigger`: Manual control signal (optional) - **Enables exit animations**
 - `animationDuration`: `number` - Duration of the leet cycling animation in milliseconds (default: `1000`)
 - `animationParent`: Override animation chaining (optional - see [Animation System](#animation-system))
@@ -464,9 +482,11 @@ Because FadingContainer uses **no CSS transforms**, it's the best choice for con
 - `showBackSpinner`: `boolean` - Show animated spinner after the text (default: `false`)
 
 **Events**:
+
 - `animationComplete`: Emitted when animations complete
 
 **Animation Behavior**:
+
 - **Continuous Cycling**: One character at a time transforms to leet-speak, creating a wave effect
 - **Bidirectional Wave**: Animation moves forward through the text, then reverses and moves backward
 - **Smart Character Selection**: Only cycles through characters that have leet mappings, skipping punctuation and spaces
@@ -481,28 +501,20 @@ Because FadingContainer uses **no CSS transforms**, it's the best choice for con
 <lib-leet-text-container>Loading...</lib-leet-text-container>
 
 <!-- With front spinner -->
-<lib-leet-text-container [showFrontSpinner]="true">
-  Loading...
-</lib-leet-text-container>
+<lib-leet-text-container [showFrontSpinner]="true"> Loading... </lib-leet-text-container>
 
 <!-- With both spinners -->
-<lib-leet-text-container
-  [showFrontSpinner]="true"
-  [showBackSpinner]="true">
+<lib-leet-text-container [showFrontSpinner]="true" [showBackSpinner]="true">
   Processing...
 </lib-leet-text-container>
 
 <!-- With animation trigger control -->
-<lib-leet-text-container
-  [showFrontSpinner]="true"
-  [animationTrigger]="isVisible()">
+<lib-leet-text-container [showFrontSpinner]="true" [animationTrigger]="isVisible()">
   Status: {{ statusMessage() }}
 </lib-leet-text-container>
 
 <!-- Custom animation speed (controls cycling speed) -->
-<lib-leet-text-container
-  [showFrontSpinner]="true"
-  [animationDuration]="500">
+<lib-leet-text-container [showFrontSpinner]="true" [animationDuration]="500">
   Fast Animation
 </lib-leet-text-container>
 ```
@@ -524,9 +536,7 @@ export class LoadingComponent {
 <!-- Loading indicator in corner slot -->
 <lib-scaling-card title="Data">
   <div slot="corner">
-    <lib-leet-text-container [showFrontSpinner]="true">
-      Loading...
-    </lib-leet-text-container>
+    <lib-leet-text-container [showFrontSpinner]="true"> Loading... </lib-leet-text-container>
   </div>
   <!-- Card content -->
 </lib-scaling-card>
@@ -535,6 +545,7 @@ export class LoadingComponent {
 **Character Mapping**:
 
 The component uses the following leet-speak substitutions:
+
 - `a` → `@`, `4`
 - `e` → `3`
 - `i` → `1`, `!`
@@ -565,6 +576,7 @@ The component uses the following leet-speak substitutions:
 **Animation System Integration**:
 
 The component fully integrates with the animation system:
+
 - Registers as animation parent via DI provider
 - Supports `animationParent` for waiting on parent animations
 - Emits `animationComplete` when animations finish
@@ -575,6 +587,7 @@ The component fully integrates with the animation system:
 Text is provided via `ng-content` between the component tags. The component automatically extracts the text content and applies the leet-speak animation to it while hiding the original content.
 
 **Use Cases**:
+
 - Loading indicators with retro terminal aesthetic
 - Status messages with cyberpunk styling
 - Corner indicators in cards showing processing state
@@ -582,6 +595,7 @@ Text is provided via `ng-content` between the component tags. The component auto
 - Gaming UI elements with demoscene inspiration
 
 **Performance Considerations**:
+
 - Wave animation cycles at 200ms intervals (one character at a time)
 - Gradient animation is CSS-based and GPU-accelerated
 - Character substitution uses efficient string splitting
@@ -655,7 +669,7 @@ All animatable components support an `animationParent` input for controlling whe
   <!-- These don't wait - they're just using the container for layout -->
   <lib-scaling-card>Animates immediately</lib-scaling-card>
   <lib-scaling-card>Animates immediately</lib-scaling-card>
-  
+
   <!-- This one opts into waiting for parent -->
   <lib-scaling-card animationParent="auto">Waits for parent animation</lib-scaling-card>
 </lib-sliding-container>
@@ -663,14 +677,13 @@ All animatable components support an `animationParent` input for controlling whe
 <!-- Custom parent: redirect animation chain to any component -->
 <div class="layout">
   <!-- Master timeline controller (animation parent for coordination) -->
-  <lib-sliding-container #masterTimeline [animationTrigger]="show()">
-  </lib-sliding-container>
-  
+  <lib-sliding-container #masterTimeline [animationTrigger]="show()"> </lib-sliding-container>
+
   <!-- Elsewhere in the tree - siblings sync to same animation parent -->
   <div class="section-a">
     <lib-scaling-card [animationParent]="masterTimeline">Card A</lib-scaling-card>
   </div>
-  
+
   <div class="section-b">
     <lib-scaling-card [animationParent]="masterTimeline">Card B</lib-scaling-card>
   </div>
@@ -703,34 +716,34 @@ All animatable components support an `animationParent` input for controlling whe
 
 ```html
 <!-- Basic usage with required fields only -->
-<lib-empty-state-message 
-  icon="devices" 
-  title="No Connected Devices">
-</lib-empty-state-message>
+<lib-empty-state-message icon="devices" title="No Connected Devices"> </lib-empty-state-message>
 
 <!-- With all optional fields -->
-<lib-empty-state-message 
-  icon="search_off" 
+<lib-empty-state-message
+  icon="search_off"
   title="No Results Found"
   message="Try adjusting your search terms or filter settings."
-  secondaryMessage="Visit the <strong>Device View</strong> to manage your devices.">
+  secondaryMessage="Visit the <strong>Device View</strong> to manage your devices."
+>
 </lib-empty-state-message>
 
 <!-- Small size for compact areas -->
-<lib-empty-state-message 
-  icon="folder_open" 
+<lib-empty-state-message
+  icon="folder_open"
   title="Empty Folder"
   message="This folder contains no files."
-  size="small">
+  size="small"
+>
 </lib-empty-state-message>
 
 <!-- Large size for prominent empty states -->
-<lib-empty-state-message 
-  icon="cloud_off" 
+<lib-empty-state-message
+  icon="cloud_off"
   title="No Connection"
   message="Unable to connect to the device."
   secondaryMessage="Check your USB connection and try again."
-  size="large">
+  size="large"
+>
 </lib-empty-state-message>
 ```
 
@@ -740,23 +753,23 @@ All animatable components support an `animationParent` input for controlling whe
 export class FileListComponent {
   files = signal<File[]>([]);
   isLoading = signal(false);
-  
+
   emptyStateConfig = computed(() => {
     if (this.isLoading()) {
       return null; // Show loading spinner instead
     }
-    
+
     const fileCount = this.files().length;
-    
+
     if (fileCount === 0) {
       return {
         icon: 'folder_open',
         title: 'No Files Found',
         message: 'This directory is empty.',
-        secondaryMessage: 'Upload files to get started.'
+        secondaryMessage: 'Upload files to get started.',
       };
     }
-    
+
     return null; // Files exist, show file list
   });
 }
@@ -764,22 +777,24 @@ export class FileListComponent {
 
 ```html
 @if (emptyStateConfig()) {
-  <lib-empty-state-message 
-    [icon]="emptyStateConfig()!.icon"
-    [title]="emptyStateConfig()!.title"
-    [message]="emptyStateConfig()!.message"
-    [secondaryMessage]="emptyStateConfig()!.secondaryMessage">
-  </lib-empty-state-message>
+<lib-empty-state-message
+  [icon]="emptyStateConfig()!.icon"
+  [title]="emptyStateConfig()!.title"
+  [message]="emptyStateConfig()!.message"
+  [secondaryMessage]="emptyStateConfig()!.secondaryMessage"
+>
+</lib-empty-state-message>
 } @else if (isLoading()) {
-  <mat-spinner></mat-spinner>
+<mat-spinner></mat-spinner>
 } @else {
-  <!-- File list content -->
+<!-- File list content -->
 }
 ```
 
 **Size Variants**:
 
 - **Small** (`size="small"`):
+
   - Icon: 2rem (32px)
   - Title: 1rem
   - Padding: 1rem
@@ -787,6 +802,7 @@ export class FileListComponent {
   - Use case: Compact areas, sidebar panels, small containers
 
 - **Medium** (`size="medium"`) - Default:
+
   - Icon: 4rem (64px)
   - Title: 1.5rem
   - Padding: 2rem
@@ -817,7 +833,7 @@ export class FileListComponent {
 - Text content is screen reader friendly
 - No interactive elements to maintain focus management simplicity
 
-**Best Practice**: 
+**Best Practice**:
 
 - Use for all empty state scenarios to maintain consistent UX patterns
 - Choose size based on container: small for panels, medium for content areas, large for full pages
@@ -871,8 +887,7 @@ export class FileListComponent {
 
 ```html
 <!-- Search input with suffix icon -->
-<lib-input-field label="Search" suffixIcon="search">
-</lib-input-field>
+<lib-input-field label="Search" suffixIcon="search"> </lib-input-field>
 
 <!-- Email input with prefix icon -->
 <lib-input-field
@@ -1058,6 +1073,7 @@ The component provides **three flexible approaches** for handling user input:
 **Best Practice**: Use `ExternalLinkComponent` for navigation links and `ActionLinkComponent` for button-style action triggers. `LinkComponent` is primarily for internal composition.
 
 **Composition Pattern**: This component exemplifies the composition pattern used throughout the TeensyROM UI library:
+
 - Base presentation component handles display logic
 - Wrapper components add specific behaviors (navigation, event emission, etc.)
 - Reduces code duplication while maintaining single responsibility principle
@@ -1092,7 +1108,8 @@ The component provides **three flexible approaches** for handling user input:
   label="Watch Tutorial"
   icon="play_circle"
   iconColor="primary"
-  (linkClick)="openYouTubeDialog(video)">
+  (linkClick)="openYouTubeDialog(video)"
+>
 </lib-action-link>
 
 <!-- Disabled state -->
@@ -1101,15 +1118,12 @@ The component provides **three flexible approaches** for handling user input:
   icon="delete"
   iconColor="error"
   [disabled]="!canDelete"
-  (linkClick)="deleteItem()">
+  (linkClick)="deleteItem()"
+>
 </lib-action-link>
 
 <!-- With custom icon color -->
-<lib-action-link
-  label="Archive"
-  icon="archive"
-  iconColor="highlight"
-  (linkClick)="archiveItem()">
+<lib-action-link label="Archive" icon="archive" iconColor="highlight" (linkClick)="archiveItem()">
 </lib-action-link>
 ```
 
@@ -1124,7 +1138,7 @@ export class FileOtherComponent {
     this.dialog.open(YouTubeDialogComponent, {
       data: { video },
       width: '800px',
-      maxWidth: '90vw'
+      maxWidth: '90vw',
     });
   }
 }
@@ -1133,11 +1147,8 @@ export class FileOtherComponent {
 ```html
 <!-- In template -->
 @for (video of youtubeVideos(); track video.videoId) {
-  <lib-action-link
-    [label]="video.channel"
-    icon="play_circle"
-    (linkClick)="openYouTubeDialog(video)">
-  </lib-action-link>
+<lib-action-link [label]="video.channel" icon="play_circle" (linkClick)="openYouTubeDialog(video)">
+</lib-action-link>
 }
 ```
 
@@ -1178,13 +1189,13 @@ export class FileOtherComponent {
 - `label` (required): `string` - Link text displayed to the user
 - `icon` (optional): `string` - Material Design icon name to display next to label - defaults to 'link'
 - `iconColor` (optional): `StyledIconColor` - Icon color variant (`'primary'`, `'error'`, `'normal'`, etc.) - defaults to 'primary'
-- `target` (optional): `'_blank' | '_self'` - Link target behavior (new window vs current) - defaults to '_blank'
-- `ariaLabel` (optional): `string` - Custom accessibility label for screen readers. Auto-generated if not provided with "(opens in new window)" suffix for external _blank links
+- `target` (optional): `'_blank' | '_self'` - Link target behavior (new window vs current) - defaults to '\_blank'
+- `ariaLabel` (optional): `string` - Custom accessibility label for screen readers. Auto-generated if not provided with "(opens in new window)" suffix for external \_blank links
 
 **Computed Signals** (Internal):
 
 - `isExternal()`: Detects if URL starts with http:// or https://
-- `relAttribute()`: Returns 'noopener noreferrer' for external _blank links, undefined otherwise
+- `relAttribute()`: Returns 'noopener noreferrer' for external \_blank links, undefined otherwise
 - `effectiveTarget()`: Returns the target value
 - `ariaLabelText()`: Returns descriptive aria-label for accessibility
 
@@ -1192,17 +1203,10 @@ export class FileOtherComponent {
 
 ```html
 <!-- Basic external link with defaults -->
-<lib-external-link
-  href="https://example.com"
-  label="Visit Example">
-</lib-external-link>
+<lib-external-link href="https://example.com" label="Visit Example"> </lib-external-link>
 
 <!-- Internal link (same tab) -->
-<lib-external-link
-  href="/documentation"
-  label="Read Docs"
-  target="_self"
-  icon="description">
+<lib-external-link href="/documentation" label="Read Docs" target="_self" icon="description">
 </lib-external-link>
 
 <!-- YouTube link with custom icon and error color -->
@@ -1210,22 +1214,21 @@ export class FileOtherComponent {
   href="https://youtube.com/watch?v=xyz"
   label="Watch Tutorial"
   icon="play_circle"
-  iconColor="error">
+  iconColor="error"
+>
 </lib-external-link>
 
 <!-- CSDb link with custom aria-label -->
 <lib-external-link
   href="https://csdb.dk/entry.php?id=123"
   label="CSDb Entry"
-  ariaLabel="View this entry on CSDb database">
+  ariaLabel="View this entry on CSDb database"
+>
 </lib-external-link>
 
 <!-- In a file metadata context -->
 <div class="metadata-links">
-  <lib-external-link
-    [href]="file.deepSidUrl"
-    label="DeepSID"
-    icon="music_note">
+  <lib-external-link [href]="file.deepSidUrl" label="DeepSID" icon="music_note">
   </lib-external-link>
 </div>
 ```
@@ -1236,11 +1239,11 @@ export class FileOtherComponent {
 // In a component displaying file metadata
 export class FileMetadataComponent {
   file = input.required<FileItem>();
-  
+
   deepSidLinks = computed(() => {
-    return this.file().deepSidLinks.map(link => ({
+    return this.file().deepSidLinks.map((link) => ({
       url: link.url,
-      name: link.name
+      name: link.name,
     }));
   });
 }
@@ -1249,10 +1252,7 @@ export class FileMetadataComponent {
 ```html
 <!-- Rendering multiple links -->
 @for (link of deepSidLinks(); track link.url) {
-  <lib-external-link
-    [href]="link.url"
-    [label]="link.name">
-  </lib-external-link>
+<lib-external-link [href]="link.url" [label]="link.name"> </lib-external-link>
 }
 ```
 
@@ -1270,7 +1270,7 @@ export class FileMetadataComponent {
 - **Native Anchor Element**: Uses semantic `<a>` tag for proper link semantics
 - **Keyboard Accessible**: Full keyboard navigation support (Tab key focus, Enter key activation)
 - **Screen Reader Support**:
-  - Auto-generated aria-label with "(opens in new window)" suffix for external _blank links
+  - Auto-generated aria-label with "(opens in new window)" suffix for external \_blank links
   - Custom ariaLabel input for overriding auto-generated labels
   - Title attribute for browser tooltips
 - **Semantic HTML**: Proper role and ARIA attributes via native anchor element
@@ -1286,6 +1286,7 @@ export class FileMetadataComponent {
 **Template Composition**:
 
 The component composes two child elements:
+
 - `<a>` - Semantic anchor element with href, target, rel, aria-label, and title bindings
 - `<lib-icon-label>` - Displays icon and label side-by-side
 
@@ -1345,7 +1346,7 @@ export class FileOtherComponent {
       data: { video },
       width: '800px',
       maxWidth: '90vw',
-      panelClass: 'youtube-dialog'
+      panelClass: 'youtube-dialog',
     });
   }
 }
@@ -1354,17 +1355,15 @@ export class FileOtherComponent {
 ```html
 <!-- In template - triggered via ActionLinkComponent -->
 @for (video of youtubeVideos(); track video.videoId) {
-  <lib-action-link
-    [label]="video.channel"
-    icon="play_circle"
-    (linkClick)="openYouTubeDialog(video)">
-  </lib-action-link>
+<lib-action-link [label]="video.channel" icon="play_circle" (linkClick)="openYouTubeDialog(video)">
+</lib-action-link>
 }
 ```
 
 **Component Template Structure**:
 
 The component uses a `ScalingCardComponent` with:
+
 - **Title**: Video channel name (from `data.video.channel`)
 - **Content**: Responsive iframe container with 16:9 aspect ratio
 - **Actions**: Close button via `lib-icon-button` in corner slot
@@ -1439,8 +1438,7 @@ The component uses a `ScalingCardComponent` with:
 
 ```html
 <!-- Basic file item -->
-<lib-storage-item icon="insert_drive_file" label="readme.txt">
-</lib-storage-item>
+<lib-storage-item icon="insert_drive_file" label="readme.txt"> </lib-storage-item>
 
 <!-- Folder with directory color -->
 <lib-storage-item
@@ -1463,17 +1461,16 @@ The component uses a `ScalingCardComponent` with:
 >
   <lib-storage-item-actions label="1.5 KB">
     <lib-icon-button icon="play_arrow" ariaLabel="Play" (buttonClick)="play()"></lib-icon-button>
-    <lib-icon-button icon="download" ariaLabel="Download" (buttonClick)="download()"></lib-icon-button>
+    <lib-icon-button
+      icon="download"
+      ariaLabel="Download"
+      (buttonClick)="download()"
+    ></lib-icon-button>
   </lib-storage-item-actions>
 </lib-storage-item>
 
 <!-- Disabled item -->
-<lib-storage-item
-  icon="lock"
-  label="Protected.dat"
-  [disabled]="true"
->
-</lib-storage-item>
+<lib-storage-item icon="lock" label="Protected.dat" [disabled]="true"> </lib-storage-item>
 
 <!-- Active/focused item in list -->
 <lib-storage-item
@@ -1499,7 +1496,7 @@ export class FileListComponent {
   toggleSelection(id: string): void {
     const current = this.selectedIds();
     if (current.includes(id)) {
-      this.selectedIds.set(current.filter(x => x !== id));
+      this.selectedIds.set(current.filter((x) => x !== id));
     } else {
       this.selectedIds.set([...current, id]);
     }
@@ -1514,25 +1511,25 @@ export class FileListComponent {
 
 ```html
 @for (item of files(); track item.id) {
-  <lib-storage-item
-    [icon]="item.icon"
-    [iconColor]="item.type === 'folder' ? 'directory' : 'normal'"
-    [label]="item.name"
-    [selected]="isSelected(item.id)"
-    [active]="$index === activeIndex()"
-    (selectedChange)="toggleSelection(item.id)"
-    (activated)="openItem(item)"
-  >
-    @if (item.size) {
-      <lib-storage-item-actions [label]="item.size">
-        <lib-icon-button 
-          icon="more_vert" 
-          ariaLabel="More options"
-          (buttonClick)="showOptions(item)"
-        ></lib-icon-button>
-      </lib-storage-item-actions>
-    }
-  </lib-storage-item>
+<lib-storage-item
+  [icon]="item.icon"
+  [iconColor]="item.type === 'folder' ? 'directory' : 'normal'"
+  [label]="item.name"
+  [selected]="isSelected(item.id)"
+  [active]="$index === activeIndex()"
+  (selectedChange)="toggleSelection(item.id)"
+  (activated)="openItem(item)"
+>
+  @if (item.size) {
+  <lib-storage-item-actions [label]="item.size">
+    <lib-icon-button
+      icon="more_vert"
+      ariaLabel="More options"
+      (buttonClick)="showOptions(item)"
+    ></lib-icon-button>
+  </lib-storage-item-actions>
+  }
+</lib-storage-item>
 }
 ```
 
@@ -1562,6 +1559,7 @@ export class FileListComponent {
 **Styling Integration**:
 
 Uses the `@include styles.selectable-item` mixin from the style guide, which provides:
+
 - Consistent hover/focus/active states
 - Selection highlighting
 - Smooth transitions
@@ -1594,7 +1592,11 @@ The component uses `ng-content` to project `lib-storage-item-actions` into the r
 <lib-storage-item icon="music_note" label="Song.sid">
   <lib-storage-item-actions label="1.5 KB">
     <lib-icon-button icon="play_arrow" ariaLabel="Play" (buttonClick)="play()"></lib-icon-button>
-    <lib-icon-button icon="download" ariaLabel="Download" (buttonClick)="download()"></lib-icon-button>
+    <lib-icon-button
+      icon="download"
+      ariaLabel="Download"
+      (buttonClick)="download()"
+    ></lib-icon-button>
   </lib-storage-item-actions>
 </lib-storage-item>
 
@@ -1609,7 +1611,12 @@ The component uses `ng-content` to project `lib-storage-item-actions` into the r
 <lib-storage-item icon="image" label="screenshot.png">
   <lib-storage-item-actions>
     <lib-icon-button icon="visibility" ariaLabel="View" (buttonClick)="view()"></lib-icon-button>
-    <lib-icon-button icon="delete" ariaLabel="Delete" color="error" (buttonClick)="delete()"></lib-icon-button>
+    <lib-icon-button
+      icon="delete"
+      ariaLabel="Delete"
+      color="error"
+      (buttonClick)="delete()"
+    ></lib-icon-button>
   </lib-storage-item-actions>
 </lib-storage-item>
 
@@ -1657,14 +1664,14 @@ export class FileListItemComponent {
 ```html
 <lib-storage-item [icon]="file().icon" [label]="file().name">
   <lib-storage-item-actions [label]="metadataLabel()">
-    <lib-icon-button 
-      icon="play_arrow" 
+    <lib-icon-button
+      icon="play_arrow"
       ariaLabel="Play"
       [disabled]="!file().canPlay"
       (buttonClick)="playFile()"
     ></lib-icon-button>
-    <lib-icon-button 
-      icon="more_vert" 
+    <lib-icon-button
+      icon="more_vert"
       ariaLabel="More options"
       (buttonClick)="showMenu($event)"
     ></lib-icon-button>
@@ -1685,7 +1692,8 @@ export class FileListItemComponent {
 - **Container**: Flexbox layout with center alignment and consistent spacing
 - **Integration**: Seamlessly integrates with parent storage item layout
 
-**Best Practice**: 
+**Best Practice**:
+
 - Use for all action buttons and metadata in storage items
 - Keep the number of actions minimal (2-3 buttons max) for clean UI
 - Use `label` for contextual metadata (size, date, count, etc.)
@@ -1730,19 +1738,11 @@ export class FileListItemComponent {
 </lib-icon-button>
 
 <!-- 2. Custom Icon Components (recommended for reusable custom icons) -->
-<lib-icon-button
-  ariaLabel="Games Filter"
-  size="large"
-  (buttonClick)="onGamesClick()"
->
+<lib-icon-button ariaLabel="Games Filter" size="large" (buttonClick)="onGamesClick()">
   <lib-joystick-icon></lib-joystick-icon>
 </lib-icon-button>
 
-<lib-icon-button
-  ariaLabel="Images Filter"
-  size="large"
-  (buttonClick)="onImagesClick()"
->
+<lib-icon-button ariaLabel="Images Filter" size="large" (buttonClick)="onImagesClick()">
   <lib-image-icon></lib-image-icon>
 </lib-icon-button>
 
@@ -1975,11 +1975,7 @@ export class MyComponent {
 
 ```html
 <!-- In icon buttons (recommended pattern) -->
-<lib-icon-button
-  ariaLabel="Games Filter"
-  size="large"
-  (buttonClick)="onGamesClick()"
->
+<lib-icon-button ariaLabel="Games Filter" size="large" (buttonClick)="onGamesClick()">
   <lib-joystick-icon></lib-joystick-icon>
 </lib-icon-button>
 
@@ -2016,11 +2012,7 @@ export class MyComponent {
 
 ```html
 <!-- In icon buttons (recommended pattern) -->
-<lib-icon-button
-  ariaLabel="Images Filter"
-  size="large"
-  (buttonClick)="onImagesClick()"
->
+<lib-icon-button ariaLabel="Images Filter" size="large" (buttonClick)="onImagesClick()">
   <lib-image-icon></lib-image-icon>
 </lib-icon-button>
 
@@ -2106,6 +2098,7 @@ export class FileInfoComponent {
 **Style Details**:
 
 - **Size Mapping**:
+
   - `small` → 32px × 32px (compact lists, inline previews)
   - `medium` → 48px × 48px (standard player controls, file listings)
   - `large` → 64px × 64px (detailed views, featured content)
@@ -2141,23 +2134,13 @@ export class FileInfoComponent {
 <lib-cycle-image [images]="albumArtUrls"></lib-cycle-image>
 
 <!-- Small thumbnail for player toolbar (simple mode - no blur) -->
-<lib-cycle-image
-  [images]="fileItem.images.map(img => img.url)"
-  size="thumbnail">
-</lib-cycle-image>
+<lib-cycle-image [images]="fileItem.images.map(img => img.url)" size="thumbnail"> </lib-cycle-image>
 
 <!-- Medium size with custom interval -->
-<lib-cycle-image
-  [images]="galleryImages"
-  size="medium"
-  [intervalMs]="5000">
-</lib-cycle-image>
+<lib-cycle-image [images]="galleryImages" size="medium" [intervalMs]="5000"> </lib-cycle-image>
 
 <!-- With placeholder for empty state -->
-<lib-cycle-image
-  [images]="screenshots"
-  placeholderUrl="/assets/no-image.png"
-  size="large">
+<lib-cycle-image [images]="screenshots" placeholderUrl="/assets/no-image.png" size="large">
 </lib-cycle-image>
 ```
 
@@ -2174,7 +2157,7 @@ export class FileInfoComponent {
     if (!item?.images || item.images.length === 0) {
       return [];
     }
-    return item.images.map(img => img.url);
+    return item.images.map((img) => img.url);
   });
 }
 ```
@@ -2182,7 +2165,7 @@ export class FileInfoComponent {
 ```html
 <!-- In template - conditional rendering with cycling -->
 @if (imageUrls().length > 0) {
-  <lib-cycle-image [images]="imageUrls()" size="thumbnail"></lib-cycle-image>
+<lib-cycle-image [images]="imageUrls()" size="thumbnail"></lib-cycle-image>
 }
 ```
 
@@ -2199,18 +2182,21 @@ export class FileInfoComponent {
 **Size Variants**:
 
 - **`thumbnail`** (48px × 48px):
+
   - Simple mode (no blur effects)
   - `object-fit: cover` for clean thumbnails
   - 4px border radius
   - Perfect for: Player toolbars, compact lists, inline previews
 
 - **`small`** (80px × 80px):
+
   - Simple mode (no blur effects)
   - `object-fit: cover`
   - 6px border radius
   - Perfect for: Card thumbnails, small galleries
 
 - **`medium`** (160px × 160px):
+
   - Complex mode with blurred background
   - `object-fit: contain` with clip-path
   - 8px border radius
@@ -2232,6 +2218,7 @@ export class FileInfoComponent {
 **Complex vs Simple Mode**:
 
 - **Complex Mode** (medium/large):
+
   - Dual-layer blurred backgrounds for depth
   - Fade-in-from-blur animation
   - Artistic presentation with `object-fit: contain`
@@ -2244,6 +2231,7 @@ export class FileInfoComponent {
   - No blur effects for performance
 
 **Best Practice**:
+
 - Use `size="thumbnail"` in player toolbars and compact UI
 - Use `size="medium"` or `size="large"` for detail views and galleries
 - Provide multiple images for automatic cycling effect
@@ -2297,30 +2285,17 @@ export class FileInfoComponent {
 <lib-scrolling-marquee [text]="fileDescription()"></lib-scrolling-marquee>
 
 <!-- With retro demo effect -->
-<lib-scrolling-marquee
-  [text]="fileDescription()"
-  effect="wave">
-</lib-scrolling-marquee>
+<lib-scrolling-marquee [text]="fileDescription()" effect="wave"> </lib-scrolling-marquee>
 
 <!-- Random effect (selects different effect each time) -->
-<lib-scrolling-marquee
-  [text]="fileDescription()"
-  effect="random">
-</lib-scrolling-marquee>
+<lib-scrolling-marquee [text]="fileDescription()" effect="random"> </lib-scrolling-marquee>
 
 <!-- Custom speed and direction with rainbow effect -->
-<lib-scrolling-marquee
-  [text]="longText"
-  [speed]="100"
-  direction="right"
-  effect="rainbow">
+<lib-scrolling-marquee [text]="longText" [speed]="100" direction="right" effect="rainbow">
 </lib-scrolling-marquee>
 
 <!-- Disable pause on hover with glitch effect -->
-<lib-scrolling-marquee
-  [text]="notification"
-  [pauseOnHover]="false"
-  effect="glitch">
+<lib-scrolling-marquee [text]="notification" [pauseOnHover]="false" effect="glitch">
 </lib-scrolling-marquee>
 ```
 
@@ -2708,10 +2683,12 @@ Angular-specific utilities for common UI patterns. Located in `libs/ui/component
 
 **Location**: `libs/ui/components/src/lib/utils/virtual-scroll-animator/`
 
-**Type Parameter**: 
+**Type Parameter**:
+
 - `T` - Type of items in the scrollable list
 
 **Key Features**:
+
 - Smooth scrolling to specific items with viewport centering
 - Dynamic height measurement for theme/font changes
 - Fallback handling for various edge cases
@@ -2726,23 +2703,23 @@ import { VirtualScrollAnimator } from '@teensyrom-nx/ui/components';
 export class FileListComponent {
   private readonly scrollAnimator = new VirtualScrollAnimator<FileItem>();
   private readonly _isScrolling = signal(false);
-  
+
   viewport = viewChild<CdkVirtualScrollViewport>('virtualScroll');
   files = signal<FileItem[]>([]);
-  
+
   scrollToFile(fileId: string) {
     this.scrollAnimator.scrollToItem({
       viewport: this.viewport,
       items: this.files(),
-      findIndex: (items) => items.findIndex(f => f.id === fileId),
+      findIndex: (items) => items.findIndex((f) => f.id === fileId),
       itemHeight: 52,
       isScrollingSignal: this._isScrolling,
       scrollDuration: 600,
       renderDelay: 100,
-      onComplete: () => console.log('Scroll complete')
+      onComplete: () => console.log('Scroll complete'),
     });
   }
-  
+
   ngOnDestroy() {
     this.scrollAnimator.destroy();
   }
@@ -2767,6 +2744,7 @@ export class FileListComponent {
 - `destroy()` - Cleanup method for ngOnDestroy
 
 **Use Cases**:
+
 - Auto-scroll to currently playing item in media lists
 - Scroll to selected item in product catalogs
 - Jump to search result in large lists

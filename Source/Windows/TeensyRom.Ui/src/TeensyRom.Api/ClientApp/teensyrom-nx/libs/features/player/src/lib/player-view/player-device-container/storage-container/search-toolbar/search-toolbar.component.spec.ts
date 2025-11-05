@@ -5,7 +5,15 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { By } from '@angular/platform-browser';
 import { SearchToolbarComponent } from './search-toolbar.component';
-import { STORAGE_SERVICE, IStorageService, StorageDirectory, StorageType, LaunchMode, PlayerStatus, PlayerFilterType } from '@teensyrom-nx/domain';
+import {
+  STORAGE_SERVICE,
+  IStorageService,
+  StorageDirectory,
+  StorageType,
+  LaunchMode,
+  PlayerStatus,
+  PlayerFilterType,
+} from '@teensyrom-nx/domain';
 import { PLAYER_CONTEXT, IPlayerContext, StorageStore } from '@teensyrom-nx/application';
 
 describe('SearchToolbarComponent', () => {
@@ -21,13 +29,14 @@ describe('SearchToolbarComponent', () => {
 
   beforeEach(async () => {
     const mockStorageService: Partial<IStorageService> = {
-      getDirectory: () => of({
-        deviceId: 'test-device',
-        storageType: StorageType.Sd,
-        path: '/',
-        files: [],
-        directories: [],
-      } as StorageDirectory),
+      getDirectory: () =>
+        of({
+          deviceId: 'test-device',
+          storageType: StorageType.Sd,
+          path: '/',
+          files: [],
+          directories: [],
+        } as StorageDirectory),
     };
 
     mockStorageStore = {
@@ -75,7 +84,9 @@ describe('SearchToolbarComponent', () => {
       setShuffleScope: vi.fn(),
       setFilterMode: vi.fn(),
       getLaunchMode: vi.fn().mockReturnValue(signal(LaunchMode.Directory).asReadonly()),
-      getShuffleSettings: vi.fn().mockReturnValue(signal({ filter: PlayerFilterType.All }).asReadonly()),
+      getShuffleSettings: vi
+        .fn()
+        .mockReturnValue(signal({ filter: PlayerFilterType.All }).asReadonly()),
       getTimerState: vi.fn().mockReturnValue(signal(null).asReadonly()),
       isCurrentFileCompatible: vi.fn().mockReturnValue(signal(true).asReadonly()),
       getPlayHistory: vi.fn().mockReturnValue(signal(null).asReadonly()),

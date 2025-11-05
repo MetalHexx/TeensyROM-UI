@@ -15,6 +15,7 @@ This document establishes standards for state management using NgRx Signal Store
 **REQUIRED**: All store actions MUST use `updateState()` from `@angular-architects/ngrx-toolkit` with an `actionMessage` parameter instead of `patchState()` from `@ngrx/signals`.
 
 **Rationale**: The `patchState()` function does not support the `actionMessage` parameter required for Redux DevTools correlation. Without `actionMessage` tracking:
+
 - State mutations cannot be traced in Redux DevTools
 - Multiple state updates from a single action cannot be correlated
 - Debugging complex state flows becomes extremely difficult
@@ -98,6 +99,7 @@ setLoading(store, key, actionMessage); // Pass actionMessage to helper
 ```
 
 **Benefits of updateState with actionMessage**:
+
 - ✅ Full Redux DevTools integration with action correlation
 - ✅ All state mutations from a single operation show the same identifier
 - ✅ Easier debugging of complex state flows

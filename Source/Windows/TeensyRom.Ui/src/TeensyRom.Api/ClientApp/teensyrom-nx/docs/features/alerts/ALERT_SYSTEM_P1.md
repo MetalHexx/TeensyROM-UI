@@ -11,10 +11,12 @@ Establish the foundational alert system architecture by creating domain contract
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [ ] [Alert System Plan](./ALERT_SYSTEM_PLAN.md) - High-level feature plan and phases
 - [ ] [Phase Template](../../PHASE_TEMPLATE.md) - Template structure for phase implementation
 
 **Standards & Guidelines:**
+
 - [ ] [Coding Standards](../../CODING_STANDARDS.md) - Angular 19 patterns, signals, modern control flow
 - [ ] [Testing Standards](../../TESTING_STANDARDS.md) - Testing approaches by layer
 - [ ] [NX Library Standards](../../NX_LIBRARY_STANDARDS.md) - Library creation and organization
@@ -76,10 +78,12 @@ apps/teensyrom-ui/src/app/
 **Purpose**: Define the pure TypeScript contracts and models that establish the alert system's interface. This provides the abstraction that all layers can depend on while maintaining Clean Architecture boundaries.
 
 **Related Documentation:**
+
 - [Clean Architecture - Domain Layer](../../OVERVIEW_CONTEXT.md#1-domain-layer-libsdomain---pure-business-logic) - Domain layer responsibilities
 - [Domain Contract Pattern](../../OVERVIEW_CONTEXT.md#dependency-injection-patterns) - Contract + injection token pattern
 
 **Implementation Subtasks:**
+
 - [ ] **Create `AlertSeverity` enum**: Define severity levels in `libs/domain/src/lib/models/alert-severity.enum.ts` with string values: `Success`, `Error`, `Warning`, `Info`
 - [ ] **Create `AlertPosition` enum**: Define position options in `libs/domain/src/lib/models/alert-position.enum.ts` with string values: `TopLeft`, `TopCenter`, `TopRight`, `BottomLeft`, `BottomCenter`, `BottomRight`
 - [ ] **Create `AlertMessage` interface**: Define alert data structure in `libs/domain/src/lib/models/alert-message.model.ts` with properties for id, message, severity, position, and optional autoDismissMs
@@ -89,9 +93,11 @@ apps/teensyrom-ui/src/app/
 - [ ] **Check off completed subtasks**: Mark each subtask above as complete in this document as you finish it
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: No tests needed - domain contracts/models are pure TypeScript definitions used as mocks in other layers
 
 **Key Implementation Notes:**
+
 - All domain files must be pure TypeScript with zero dependencies (no Angular, no RxJS in models)
 - Contract file can import RxJS Observable since it defines the service interface shape
 - Follow existing domain contract pattern from device.contract.ts for consistency
@@ -110,11 +116,13 @@ apps/teensyrom-ui/src/app/
 **Purpose**: Create the new `libs/app/alerts` library following NX library standards with proper Clean Architecture tags. This library will contain the alert service implementation and UI components.
 
 **Related Documentation:**
+
 - [NX Library Standards - Library Creation](../../NX_LIBRARY_STANDARDS.md#library-creation-commands) - Library generation commands
 - [NX Library Standards - Project Configuration](../../NX_LIBRARY_STANDARDS.md#projectjson-template) - Required project tags
 - [Clean Architecture - App Layer](../../OVERVIEW_CONTEXT.md#4-presentation-layer-libsfeatures-libsui---user-interface) - App layer responsibilities
 
 **Implementation Subtasks:**
+
 - [ ] **Generate library**: Run Nx generator to create alerts library in libs/app directory with appropriate import path
 - [ ] **Configure project tags**: Update project.json with tags: `scope:app` and `type:application`
 - [ ] **Verify tsconfig paths**: Confirm tsconfig.base.json contains proper path mapping for @teensyrom-nx/app/alerts
@@ -123,9 +131,11 @@ apps/teensyrom-ui/src/app/
 - [ ] **Check off completed subtasks**: Mark each subtask above as complete in this document as you finish it
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: No tests at this stage - library scaffolding only
 
 **Key Implementation Notes:**
+
 - Library lives in libs/app/ because alerts are a cross-cutting concern managed at the composition root (similar to shell, navigation, bootstrap)
 - Use `scope:app` tag since this library can import from infrastructure layer (composition root responsibility)
 - Library should be buildable=false for optimal build performance (consumed as source code)
@@ -142,11 +152,13 @@ apps/teensyrom-ui/src/app/
 **Purpose**: Build the core alert service that manages alert state internally using signals, provides methods for showing alerts with different severity levels, implements auto-dismiss logic with configurable timing, and exposes alerts as an observable for the container component.
 
 **Related Documentation:**
+
 - [Coding Standards - Signals-First Policy](../../CODING_STANDARDS.md#signals‑first-policy) - Using signals for state
 - [Infrastructure Service Pattern](../../OVERVIEW_CONTEXT.md#3-infrastructure-layer-libsinfrastructure---external-concerns) - Service implementation examples
 - [Store Testing](../../STORE_TESTING.md) - Testing signal-based state (reference for patterns, not store-specific)
 
 **Implementation Subtasks:**
+
 - [ ] **Create `AlertService` class**: Implement in libs/app/alerts/src/lib/alert.service.ts with Injectable decorator (not providedIn root)
 - [ ] **Implement private signal state**: Add private alertsSignal using signal with AlertMessage array type for internal queue management
 - [ ] **Expose alerts observable**: Create public alerts$ property using toObservable() for reactive subscriptions
@@ -158,9 +170,11 @@ apps/teensyrom-ui/src/app/
 - [ ] **Check off completed subtasks**: Mark each subtask above as complete in this document as you finish it
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test alert service operations (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Service uses internal signal state rather than NgRx store for simplicity
 - Use crypto.randomUUID() for generating unique alert IDs
 - Store timer references in private Map<string, number> for proper cleanup
@@ -173,6 +187,7 @@ apps/teensyrom-ui/src/app/
 **Testing Focus for Task 3:**
 
 **Behaviors to Test:**
+
 - [ ] **show() adds alert to signal**: Verify alert appears in alerts$ observable with correct properties
 - [ ] **success() creates success alert**: Verify severity is 'success' and default position is 'bottom-right'
 - [ ] **error() creates error alert**: Verify severity is 'error' and default position is 'bottom-right'
@@ -186,6 +201,7 @@ apps/teensyrom-ui/src/app/
 - [ ] **Check off completed tests**: Mark each test above as complete in this document as you verify it passes
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for unit testing approach
 - Use Vitest fake timers: `vi.useFakeTimers()`, `vi.advanceTimersByTime(3000)`, `vi.restoreAllTimers()`
 
@@ -199,11 +215,13 @@ apps/teensyrom-ui/src/app/
 **Purpose**: Create a component that renders an individual alert message with icon, text content, and dismiss button, applying basic functional styling without semantic colors.
 
 **Related Documentation:**
+
 - [Coding Standards - Component Structure](../../CODING_STANDARDS.md#component-structure) - Component organization
 - [Coding Standards - Modern Control Flow](../../CODING_STANDARDS.md#template-syntax) - @if/@for syntax
 - [Component Library - IconButtonComponent](../../COMPONENT_LIBRARY.md#iconbuttoncomponent) - Dismiss button pattern
 
 **Implementation Subtasks:**
+
 - [ ] **Create component class**: Implement AlertDisplayComponent in libs/app/alerts/src/lib/alert-display.component.ts with standalone configuration
 - [ ] **Define inputs**: Add alert input using input.required<AlertMessage>() for alert data
 - [ ] **Define output**: Add dismissed output using output<string>() that emits alert ID when dismiss button clicked
@@ -215,9 +233,11 @@ apps/teensyrom-ui/src/app/
 - [ ] **Check off completed subtasks**: Mark each subtask above as complete in this document as you finish it
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test alert display component rendering (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Component is purely presentational - no business logic or service dependencies
 - Use input.required<AlertMessage>() since alert is always provided by parent container
 - Template should display icon, message text, and dismiss button in horizontal flexbox layout
@@ -230,6 +250,7 @@ apps/teensyrom-ui/src/app/
 **Testing Focus for Task 4:**
 
 **Behaviors to Test:**
+
 - [ ] **Renders alert message**: Verify alert message text is displayed in the template
 - [ ] **Renders correct icon**: Verify icon matches severity (success → check_circle, error → error, warning → warning, info → info)
 - [ ] **Dismiss button emits event**: Verify clicking dismiss button emits dismissed output with correct alert ID
@@ -237,6 +258,7 @@ apps/teensyrom-ui/src/app/
 - [ ] **Check off completed tests**: Mark each test above as complete in this document as you verify it passes
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for UI component testing approach
 
 </details>
@@ -249,10 +271,12 @@ apps/teensyrom-ui/src/app/
 **Purpose**: Create a fixed-position container component that manages alert positioning, renders active alerts, and handles the six screen position options for alert placement.
 
 **Related Documentation:**
+
 - [Coding Standards - Signals-First Policy](../../CODING_STANDARDS.md#signals‑first-policy) - Using signals for reactive data
 - [Component Library - Positioning Patterns](../../COMPONENT_LIBRARY.md#layout-components) - Fixed positioning examples
 
 **Implementation Subtasks:**
+
 - [ ] **Create component class**: Implement AlertContainerComponent in libs/app/alerts/src/lib/alert-container.component.ts with standalone configuration
 - [ ] **Inject alert service**: Inject ALERT_SERVICE token using inject() function
 - [ ] **Subscribe to alerts**: Convert alertService.alerts$ to signal using toSignal() with empty array default
@@ -265,9 +289,11 @@ apps/teensyrom-ui/src/app/
 - [ ] **Check off completed subtasks**: Mark each subtask above as complete in this document as you finish it
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test alert container component (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Container is fixed-position overlay that doesn't affect document flow
 - Use CSS position: fixed with appropriate coordinate values for each of 6 positions
 - Bottom positions should use flex-direction: column-reverse so new alerts appear at bottom
@@ -282,6 +308,7 @@ apps/teensyrom-ui/src/app/
 **Testing Focus for Task 5:**
 
 **Behaviors to Test:**
+
 - [ ] **Renders alerts from service**: Verify alerts from service appear in container
 - [ ] **Groups alerts by position**: Verify alerts are grouped into correct position containers based on position enum value
 - [ ] **Dismiss handler calls service**: Verify onAlertDismissed() calls alertService.dismiss() with correct ID
@@ -290,6 +317,7 @@ apps/teensyrom-ui/src/app/
 - [ ] **Check off completed tests**: Mark each test above as complete in this document as you verify it passes
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for UI component testing with mocked services
 
 </details>
@@ -302,10 +330,12 @@ apps/teensyrom-ui/src/app/
 **Purpose**: Configure dependency injection to bind the IAlertService contract to the AlertService implementation, making the service available application-wide as a singleton.
 
 **Related Documentation:**
+
 - [Clean Architecture - Dependency Injection](../../OVERVIEW_CONTEXT.md#dependency-injection-patterns) - DI provider patterns
 - [Infrastructure Providers Example](../../OVERVIEW_CONTEXT.md#3-infrastructure-layer-libsinfrastructure---external-concerns) - Provider configuration examples
 
 **Implementation Subtasks:**
+
 - [ ] **Create providers file**: Create libs/app/alerts/src/lib/providers.ts following device providers pattern from infrastructure layer
 - [ ] **Define ALERT_SERVICE_PROVIDER**: Export provider object that binds ALERT_SERVICE token to AlertService class using provide/useClass pattern
 - [ ] **Export from barrel**: Add provider export to libs/app/alerts/src/index.ts for public API access
@@ -314,9 +344,11 @@ apps/teensyrom-ui/src/app/
 - [ ] **Check off completed subtasks**: Mark each subtask above as complete in this document as you finish it
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: No tests needed - configuration only
 
 **Key Implementation Notes:**
+
 - Follow exact pattern from libs/infrastructure/src/lib/device/providers.ts for consistency
 - Provider should use useClass to bind interface to implementation
 - No factory function needed for alert service (unlike API clients which need configuration)
@@ -335,10 +367,12 @@ apps/teensyrom-ui/src/app/
 **Purpose**: Add the AlertContainerComponent to the app shell layout as a fixed-position sibling to the router-outlet, making alerts visible throughout the entire application.
 
 **Related Documentation:**
+
 - [App Shell Layout](../../OVERVIEW_CONTEXT.md#4-presentation-layer-libsfeatures-libsui---user-interface) - Shell layout responsibilities
 - [Component Library - Layout Components](../../COMPONENT_LIBRARY.md#layout-components) - Layout composition patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Import AlertContainerComponent**: Add import statement to libs/app/shell/src/lib/layout/layout.component.ts
 - [ ] **Add to component imports**: Include AlertContainerComponent in LayoutComponent imports array
 - [ ] **Add to template**: Insert alert-container element selector in layout.component.html after mat-sidenav-container closing tag
@@ -346,9 +380,11 @@ apps/teensyrom-ui/src/app/
 - [ ] **Check off completed subtasks**: Mark each subtask above as complete in this document as you finish it
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Update layout.component.spec.ts to test container integration (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Alert container should be outside mat-sidenav-container to avoid layout conflicts
 - Container uses fixed positioning so it won't affect existing layout flow
 - No styling changes needed to layout component - alert container manages its own positioning
@@ -359,11 +395,13 @@ apps/teensyrom-ui/src/app/
 **Testing Focus for Task 7:**
 
 **Behaviors to Test:**
+
 - [ ] **Alert container renders**: Verify alert-container element is present in compiled template DOM
 - [ ] **Layout still functions**: Verify adding alert container doesn't break existing layout behavior (navigation, header rendering)
 - [ ] **Check off completed tests**: Mark each test above as complete in this document as you verify it passes
 
 **Testing Reference:**
+
 - Update existing layout.component.spec.ts to include alert service mock in TestBed configuration
 - Mock ALERT_SERVICE with empty alerts$ observable for testing
 
@@ -374,6 +412,7 @@ apps/teensyrom-ui/src/app/
 ## 🗂️ Files Modified or Created
 
 **New Files:**
+
 - `libs/domain/src/lib/models/alert-message.model.ts`
 - `libs/domain/src/lib/models/alert-severity.enum.ts`
 - `libs/domain/src/lib/models/alert-position.enum.ts`
@@ -398,6 +437,7 @@ apps/teensyrom-ui/src/app/
 - `libs/app/alerts/src/lib/providers.ts`
 
 **Modified Files:**
+
 - `libs/domain/src/lib/models/index.ts`
 - `libs/domain/src/lib/contracts/index.ts`
 - `libs/app/shell/src/lib/layout/layout.component.ts`
@@ -418,6 +458,7 @@ apps/teensyrom-ui/src/app/
 ### Test Coverage by Component
 
 **AlertService (Task 3)**:
+
 - Show methods add alerts to signal correctly
 - Convenience methods (success/error/warning/info) create appropriate alerts
 - Dismiss removes alert from signal
@@ -426,18 +467,21 @@ apps/teensyrom-ui/src/app/
 - Multiple alerts managed independently
 
 **AlertDisplayComponent (Task 4)**:
+
 - Renders alert message text
 - Displays correct icon for severity
 - Dismiss button emits event with alert ID
 - Component renders all visual elements
 
 **AlertContainerComponent (Task 5)**:
+
 - Subscribes to alert service and displays alerts
 - Groups alerts by position correctly
 - Dismiss handler calls service method
 - Container updates reactively when alerts change
 
 **LayoutComponent Integration (Task 7)**:
+
 - Alert container renders in layout
 - Layout functionality unaffected by alert container addition
 
@@ -474,6 +518,7 @@ npx nx test app-alerts --coverage
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Functional Requirements:**
+
 - [ ] All implementation tasks completed and checked off
 - [ ] Domain contracts created in libs/domain (IAlertService, AlertMessage, enums)
 - [ ] Alert library generated in libs/app/alerts with proper tags (scope:app, type:application)
@@ -483,6 +528,7 @@ npx nx test app-alerts --coverage
 - [ ] Code follows [Coding Standards](../../CODING_STANDARDS.md) (signals, modern control flow, component structure)
 
 **Testing Requirements:**
+
 - [ ] All testing subtasks completed within each task
 - [ ] AlertService tests verify show/dismiss/auto-dismiss behaviors with Vitest fake timers
 - [ ] AlertDisplayComponent tests verify rendering and dismiss event emission
@@ -491,6 +537,7 @@ npx nx test app-alerts --coverage
 - [ ] Test coverage meets project standards (aim for >90%)
 
 **Integration Requirements:**
+
 - [ ] Alert service registered in app.config.ts providers
 - [ ] Alert container integrated into app shell layout
 - [ ] Service can be injected via ALERT_SERVICE token in any component
@@ -498,6 +545,7 @@ npx nx test app-alerts --coverage
 - [ ] Auto-dismiss removes alerts after configured timeout
 
 **Quality Checks:**
+
 - [ ] No TypeScript errors or warnings
 - [ ] Linting passes with no errors (`npx nx lint app-alerts`)
 - [ ] ESLint module boundaries enforced (no forbidden layer dependencies)
@@ -505,12 +553,14 @@ npx nx test app-alerts --coverage
 - [ ] No console errors in browser when running application
 
 **Documentation:**
+
 - [ ] Inline code comments added for complex logic (timer management, position grouping)
 - [ ] Public service methods documented with JSDoc
 - [ ] Component inputs/outputs have descriptive names
 - [ ] All task checkboxes in this document marked complete
 
 **Ready for Phase 2:**
+
 - [ ] All Phase 1 success criteria met
 - [ ] Basic alert system functional (can show/dismiss alerts programmatically)
 - [ ] No known bugs or memory leaks (timer cleanup verified in tests)
@@ -565,6 +615,7 @@ npx nx test app-alerts --coverage
 ## 💡 Agent Implementation Instructions
 
 **Critical Workflow**:
+
 1. Read all required documentation before starting
 2. Complete tasks in order (1 → 7)
 3. **Mark each subtask checkbox as complete in this document** as you finish it
@@ -574,6 +625,7 @@ npx nx test app-alerts --coverage
 7. Document any discoveries or deviations in Notes section
 
 **Progress Tracking**:
+
 - Mark subtask checkboxes ✅ as you complete each implementation step
 - Mark test checkboxes ✅ as you verify each test passes
 - Mark success criteria ✅ as you meet each requirement

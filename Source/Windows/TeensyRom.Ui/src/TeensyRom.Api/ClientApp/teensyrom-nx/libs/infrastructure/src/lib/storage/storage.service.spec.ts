@@ -13,7 +13,15 @@ import {
   NullableOfTeensyFilterType,
 } from '@teensyrom-nx/data-access/api-client';
 import { StorageService } from './storage.service';
-import { FileItemType, StorageDirectory, StorageType, PlayerFilterType, FileItem, ALERT_SERVICE, IAlertService } from '@teensyrom-nx/domain';
+import {
+  FileItemType,
+  StorageDirectory,
+  StorageType,
+  PlayerFilterType,
+  FileItem,
+  ALERT_SERVICE,
+  IAlertService,
+} from '@teensyrom-nx/domain';
 
 describe('StorageService', () => {
   let service: StorageService;
@@ -277,7 +285,6 @@ describe('StorageService', () => {
   });
 
   describe('search', () => {
-
     const createMockSearchResponse = (files: FileItemDto[]): SearchResponse => ({
       files,
       searchText: 'test',
@@ -450,10 +457,10 @@ describe('StorageService', () => {
 
       // Assert
       expect(mockFilesApiService.search).toHaveBeenCalledWith(
-        expect.objectContaining({ 
+        expect.objectContaining({
           skip: 0,
           take: 1000,
-          filterType: NullableOfTeensyFilterType.Games 
+          filterType: NullableOfTeensyFilterType.Games,
         })
       );
     });
@@ -474,10 +481,10 @@ describe('StorageService', () => {
 
       // Assert
       expect(mockFilesApiService.search).toHaveBeenCalledWith(
-        expect.objectContaining({ 
+        expect.objectContaining({
           skip: 0,
           take: 1000,
-          filterType: NullableOfTeensyFilterType.Music 
+          filterType: NullableOfTeensyFilterType.Music,
         })
       );
     });
@@ -498,10 +505,10 @@ describe('StorageService', () => {
 
       // Assert
       expect(mockFilesApiService.search).toHaveBeenCalledWith(
-        expect.objectContaining({ 
+        expect.objectContaining({
           skip: 0,
           take: 1000,
-          filterType: NullableOfTeensyFilterType.Images 
+          filterType: NullableOfTeensyFilterType.Images,
         })
       );
     });
@@ -522,10 +529,10 @@ describe('StorageService', () => {
 
       // Assert
       expect(mockFilesApiService.search).toHaveBeenCalledWith(
-        expect.objectContaining({ 
+        expect.objectContaining({
           skip: 0,
           take: 1000,
-          filterType: NullableOfTeensyFilterType.Hex 
+          filterType: NullableOfTeensyFilterType.Hex,
         })
       );
     });
@@ -583,10 +590,7 @@ describe('StorageService', () => {
       ).rejects.toEqual(httpError);
 
       // Verify error was logged with correct format (logError utility adds ❌ prefix)
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        '❌ StorageService.search error:',
-        httpError
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith('❌ StorageService.search error:', httpError);
 
       // Cleanup
       consoleErrorSpy.mockRestore();
@@ -714,7 +718,9 @@ describe('StorageService', () => {
       expect(result[0].images).toHaveLength(2);
       expect(result[0].images[0].url).toBe('http://localhost:5168/api/assets/images/cover.png');
       expect(result[0].images[0].fileName).toBe('cover.png');
-      expect(result[0].images[1].url).toBe('http://localhost:5168/api/assets/images/screenshot.png');
+      expect(result[0].images[1].url).toBe(
+        'http://localhost:5168/api/assets/images/screenshot.png'
+      );
       expect(result[0].images[1].fileName).toBe('screenshot.png');
     });
 
@@ -775,10 +781,10 @@ describe('StorageService', () => {
 
       // Assert
       expect(mockFilesApiService.search).toHaveBeenCalledWith(
-        expect.objectContaining({ 
+        expect.objectContaining({
           skip: 0,
           take: 1000,
-          storageType: TeensyStorageType.Sd 
+          storageType: TeensyStorageType.Sd,
         })
       );
 
@@ -792,10 +798,10 @@ describe('StorageService', () => {
 
       // Assert
       expect(mockFilesApiService.search).toHaveBeenCalledWith(
-        expect.objectContaining({ 
+        expect.objectContaining({
           skip: 0,
           take: 1000,
-          storageType: TeensyStorageType.Usb 
+          storageType: TeensyStorageType.Usb,
         })
       );
     });
@@ -1161,7 +1167,7 @@ describe('StorageService', () => {
       mockAlertService = {
         error: vi.fn(),
       };
-      
+
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         providers: [
@@ -1170,7 +1176,7 @@ describe('StorageService', () => {
           { provide: ALERT_SERVICE, useValue: mockAlertService },
         ],
       });
-      
+
       service = TestBed.inject(StorageService);
       logSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     });
@@ -1256,12 +1262,10 @@ describe('StorageService', () => {
 
         await expect(
           new Promise((resolve, reject) => {
-            service
-              .search('device-1', StorageType.Sd, 'test', PlayerFilterType.Music)
-              .subscribe({
-                next: resolve,
-                error: reject,
-              });
+            service.search('device-1', StorageType.Sd, 'test', PlayerFilterType.Music).subscribe({
+              next: resolve,
+              error: reject,
+            });
           })
         ).rejects.toThrow();
 

@@ -3,7 +3,14 @@ import { signal, WritableSignal } from '@angular/core';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { PlayHistoryComponent } from './play-history.component';
-import { PLAYER_CONTEXT, IPlayerContext, PlayHistory, HistoryEntry, LaunchedFile, StorageKeyUtil } from '@teensyrom-nx/application';
+import {
+  PLAYER_CONTEXT,
+  IPlayerContext,
+  PlayHistory,
+  HistoryEntry,
+  LaunchedFile,
+  StorageKeyUtil,
+} from '@teensyrom-nx/application';
 import { FileItemType, StorageType, LaunchMode } from '@teensyrom-nx/domain';
 
 describe('PlayHistoryComponent', () => {
@@ -126,7 +133,7 @@ describe('PlayHistoryComponent', () => {
       fixture.detectChanges();
 
       const historyItems = fixture.nativeElement.querySelectorAll('.history-list-item');
-      
+
       // First item should be newest (reversed) - check by index
       expect(historyItems[0].getAttribute('data-index')).toBe('0');
       expect(historyItems.length).toBe(3);

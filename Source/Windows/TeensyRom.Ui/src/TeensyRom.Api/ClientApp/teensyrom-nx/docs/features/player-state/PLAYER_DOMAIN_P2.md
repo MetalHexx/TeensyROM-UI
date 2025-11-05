@@ -1,6 +1,7 @@
 # Phase 2: Random File Launching (Shuffle Mode)
 
 **High Level Plan Documentation**:
+
 - [Player Domain Design](./PLAYER_DOMAIN_DESIGN.md) - Complete architecture and phase planning
 - [Player Domain Requirements](./PLAYER_DOMAIN.md) - Business requirements and use cases
 - [Phase 1 Documentation](./PLAYER_DOMAIN_P1.md) - Previous phase implementation
@@ -20,6 +21,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 ## 🎭 Key Behaviors Being Implemented
 
 ### User Workflow
+
 1. **User clicks shuffle toggle button** → enables/disables shuffle mode (shuffle icon highlights when active)
 2. **User configures shuffle scope and filters** → sets preferences for random file selection
 3. **User clicks random launch button** → launches random file based on current shuffle settings (dice icon)
@@ -27,6 +29,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 5. **Multi-device support** → each TeensyROM device maintains independent shuffle state and UI controls
 
 ### Core Behaviors to Test
+
 - **Shuffle Toggle Button**: Shows current shuffle mode state with highlight color when active, normal when inactive
 - **Random Launch Button**: Launches random files using configured shuffle settings and scope
 - **State-Driven Styling**: Buttons use `highlight` color when active/enabled, `normal` when inactive following [IconButtonComponent](../../COMPONENT_LIBRARY.md#iconbuttoncomponent) patterns
@@ -75,6 +78,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 **Phase 2 Domain Types**: Shuffle-specific enums required for random file launching and scope management.
 
 #### Implementation Steps
+
 - [x] Add `PlayerFilterType` enum to `libs/domain/src/lib/models/player-filter-type.enum.ts`
   - Values: `All`, `Games`, `Music`, `Images`, `Hex` (from [Player-Specific Domain Types](./PLAYER_DOMAIN_DESIGN.md#player-specific-domain-types))
 - [x] Add `PlayerScope` enum to `libs/domain/src/lib/models/player-scope.enum.ts`
@@ -91,6 +95,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 **Contract Focus**: Simple infrastructure operations for random file selection with filtering and scope configuration.
 
 #### Implementation Steps
+
 - [x] Extend `IPlayerService` interface in `libs/domain/src/lib/contracts/player.contract.ts`
   - Add `launchRandom(deviceId: string, scope: PlayerScope, filter: PlayerFilterType, startingDirectory?: string): Observable<FileItem>` (core Phase 2 operation)
   - Follow [IPlayerService Interface specification](./PLAYER_DOMAIN_DESIGN.md#iplayerservice-interface-libsdomainsrclibcontractsplayercontractts)
@@ -105,6 +110,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 **Implementation Focus**: Simple infrastructure operations as defined in [PlayerService Behaviors](./PLAYER_DOMAIN_DESIGN.md#playerservice-behaviors) - stateless API integration only.
 
 **Behaviors Being Built**:
+
 - Call TeensyROM API to launch random file on specific device with scope and filter parameters
 - Transform API responses to domain `FileItem` models using centralized [Domain Mapper](../../../libs/infrastructure/src/lib/domain.mapper.ts)
 - Handle API errors gracefully (network failures, device not found, invalid scope/filter combinations)
@@ -112,6 +118,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 - **No application logic** - pure infrastructure implementation
 
 #### Step 3A: Write Failing Tests
+
 - [x] **Random Launch API Integration**: Test `launchRandom(deviceId, scope, filter, startingDirectory)` calls correct API endpoint
 - [x] **Parameter Mapping**: Test scope and filter enums properly mapped to API parameters
 - [x] **Domain Model Mapping**: Test API responses mapped to `FileItem` using `DomainMapper.toFileItem()`
@@ -120,6 +127,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 - [x] Verify tests fail (red phase)
 
 #### Step 3B: Implement to Pass Tests
+
 - [x] Extend `PlayerService` in `libs/infrastructure/src/lib/player/player.service.ts`
 - [x] Implement `launchRandom()` method calling `PlayerApiService.launchRandom()` (or equivalent endpoint)
 - [x] Integrate with `DomainMapper.toFileItem()` for response transformation
@@ -133,12 +141,14 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 **Architecture Setup**: Add shuffle settings to [Application State Models](./PLAYER_DOMAIN_DESIGN.md#application-state-models) and implement shuffle-specific actions and selectors following established [Action Behaviors](./PLAYER_DOMAIN_DESIGN.md#action-behaviors) and [Selector Behaviors](./PLAYER_DOMAIN_DESIGN.md#selector-behaviors) patterns.
 
 #### Step 4A: Add State Models
+
 - [x] Create `ShuffleSettings` interface in player state models following [Application State Models](./PLAYER_DOMAIN_DESIGN.md#application-state-models)
   - Properties: `scope: PlayerScope`, `filter: PlayerFilterType`, `startingDirectory?: string`
 - [x] Extend `DevicePlayerState` interface to include `shuffleSettings: ShuffleSettings`
 - [x] Update initial state structure with default shuffle settings (scope: Storage, filter: All)
 
 #### Step 4B: Write Failing Tests
+
 - [x] **Launch Random Action**: Test `launch-random-file` action calls infrastructure and updates state
 - [x] **Shuffle Settings Management**: Test `update-shuffle-settings` action updates device-specific settings
 - [x] **Launch Mode Switching**: Test mode switching between Directory and Shuffle clears file context but preserves current file
@@ -147,6 +157,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 - [x] Verify tests fail (red phase)
 
 #### Step 4C: Implement Actions & Selectors
+
 - [x] Implement `launch-random-file.ts` action following [launch-random-file action behavior](./PLAYER_DOMAIN_DESIGN.md#launch-random-file-shuffle-mode)
   - Coordinates infrastructure calls with state updates, clears context navigation, sets shuffle mode
 - [x] Implement `update-shuffle-settings.ts` action following [Action Behaviors](./PLAYER_DOMAIN_DESIGN.md#action-behaviors)
@@ -167,6 +178,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 **Orchestration Focus**: PlayerContextService as the "smart wrapper" around PlayerStore, implementing complex shuffle workflows per [Architecture Role](./PLAYER_DOMAIN_DESIGN.md#player-context-service-application-layer).
 
 **Behaviors Being Built**:
+
 - **Random Launch Orchestration**: Coordinate infrastructure service calls with state updates via [Store Integration](./PLAYER_DOMAIN_DESIGN.md#integration-patterns) patterns
 - **Shuffle Mode Management**: Toggle shuffle mode and update launch mode state following [Business Logic Implementation](./PLAYER_DOMAIN_DESIGN.md#business-logic-implementation)
 - **Settings Configuration**: Manage shuffle scope and filter settings per device
@@ -174,6 +186,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 - **Error State Management**: Track loading/error states during random launch operations
 
 #### Step 5A: Write Failing Tests
+
 - [x] **Random Launch Orchestration**: Test `launchRandomFile(deviceId)` calls infrastructure and updates state
 - [x] **Shuffle Mode Toggle**: Test `toggleShuffleMode(deviceId)` switches between Directory and Shuffle modes
 - [x] **Settings Management**: Test `setShuffleScope()`, `setFilterMode()` methods update device settings
@@ -184,6 +197,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 - [x] Verify tests fail (red phase) - methods should throw "Not implemented" errors
 
 #### Step 5B: Implement PlayerContextService Extensions
+
 - [x] Extend `IPlayerContext` interface in `libs/application/src/lib/player/player-context.interface.ts`
   - Add shuffle methods: `launchRandomFile()`, `toggleShuffleMode()`, `setShuffleScope()`, `setFilterMode()`
   - Add signal getters: `getShuffleSettings()`, `getLaunchMode()`
@@ -202,6 +216,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 **Architecture Goal**: When a random file is launched in shuffle mode, automatically load the parent directory into StorageStore and pass the directory files to player file-context for UI display.
 
 **Flow Requirements**:
+
 1. **Random File Launch**: User clicks dice button → `PlayerContextService.launchRandomFile()` executes
 2. **Infrastructure Call**: Call `PlayerService.launchRandom()` to get random file
 3. **Shuffle Mode Check**: If current launch mode is shuffle, proceed with directory loading
@@ -214,12 +229,14 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 #### Step 6A: Extend PlayerContextService Dependencies - TDD Implementation
 
 **Dependencies Extension**:
+
 - [x] **StorageStore Injection**: Add `StorageStore` dependency injection to `PlayerContextService`
 - [x] **Optional Storage Service**: Consider if `STORAGE_SERVICE` token needed for additional directory operations
 
 #### Step 6B: Write Failing Tests for Cross-Domain Orchestration
 
 **Test Categories** (in `player-context.service.spec.ts`):
+
 - [x] **Random Launch with Directory Loading**: Test complete workflow from random launch → directory load → context update
 - [x] **Shuffle Mode Directory Context**: Test directory context loaded only when shuffle mode active
 - [x] **Parent Path Extraction**: Test correct parent directory path extracted from file paths
@@ -235,6 +252,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 **Implementation Focus**: Extend `PlayerContextService.launchRandomFile()` with directory context loading while maintaining domain boundaries.
 
 **Key Methods to Implement**:
+
 - [x] **Enhanced Random Launch**: Extend `launchRandomFile()` with shuffle mode directory loading logic
 - [x] **Directory Context Loading**: Private method `loadDirectoryContextForRandomFile()` for directory coordination
 - [x] **Path Utility**: `getParentPath(filePath: string): string` for extracting parent directory
@@ -243,6 +261,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 - [x] **Error Handling**: Graceful degradation when directory operations fail
 
 **Orchestration Logic Flow**:
+
 1. Execute existing random launch logic (infrastructure call + player state update)
 2. Check if current device is in shuffle mode
 3. Extract parent directory path from launched file
@@ -255,12 +274,14 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 #### Step 6D: Testing Cross-Domain Integration
 
 **StorageStore Mocking Strategy**:
+
 - [x] **Mock StorageStore**: Create strongly typed mocks for StorageStore methods in tests
 - [x] **Directory State Mocking**: Mock `getSelectedDirectoryState()` to return test directory data
 - [x] **Navigate Method Mocking**: Mock `navigateToDirectory()` to simulate directory loading
 - [x] **Async Coordination Testing**: Test async coordination between player and storage domains
 
 **Integration Test Scenarios**:
+
 - [x] **Complete Random Launch Flow**: Test user interaction → random launch → directory load → context update → UI display
 - [x] **Shuffle Mode Activation**: Test directory loading only occurs when shuffle mode is active
 - [x] **Directory Loading Coordination**: Test StorageStore receives correct deviceId, storageType, and path parameters
@@ -272,16 +293,19 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 **Purpose**: Add shuffle control buttons using `IconButtonComponent` with Test-Driven Development following [Smart Component Testing](../../SMART_COMPONENT_TESTING.md) methodology.
 
 **UI Design**: Two buttons using `IconButtonComponent` from [Component Library](../../COMPONENT_LIBRARY.md):
+
 - **Random Launch Button**: `icon="casino"` (dice), `ariaLabel="Launch Random File"`, `color="normal"`
 - **Shuffle Toggle Button**: `icon="shuffle"`, `ariaLabel="Toggle Shuffle Mode"`, `color` based on shuffle state
 - **State-Driven Colors**: `highlight` when shuffle mode active, `normal` when inactive, following [IconButtonComponent color mapping](../../COMPONENT_LIBRARY.md#style-integration)
 
 **Design References**:
+
 - [IconButtonComponent](../../COMPONENT_LIBRARY.md#iconbuttoncomponent) - Properties, events, and accessibility features
 - [UI Component Integration](./PLAYER_DOMAIN_DESIGN.md#ui-component-integration) - Signal-based integration patterns
 - [Cross-Domain Integration](./PLAYER_DOMAIN_DESIGN.md#cross-domain-integration) - Multi-device coordination
 
 #### Step 6A: Write Failing Tests
+
 - [x] **Random Launch Button Tests**: Test dice button calls `IPlayerContext.launchRandomFile()` with correct deviceId
 - [x] **Shuffle Toggle Button Tests**: Test shuffle button calls `IPlayerContext.toggleShuffleMode()` and reflects current mode
 - [x] **Color State Tests**: Test shuffle button uses `highlight` color when LaunchMode.Shuffle active, `normal` when Directory mode
@@ -292,6 +316,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 - [x] Verify tests fail (red phase)
 
 #### Step 6B: Implement UI Components
+
 - [x] Identify appropriate UI component location (likely player toolbar or controls area based on existing Phase 1 integration)
 - [x] Import `IconButtonComponent` from `@teensyrom-nx/ui/components`
 - [x] Inject `IPlayerContext` via `PLAYER_CONTEXT` token in component
@@ -328,6 +353,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 **Purpose**: Verify complete shuffle workflow with integration tests and final build validation following [Testing Strategy](./PLAYER_DOMAIN_DESIGN.md#testing-strategy).
 
 **Design References**:
+
 - [Cross-Domain Integration](./PLAYER_DOMAIN_DESIGN.md#cross-domain-integration) - Storage domain references and device coordination
 - [Testing Strategy](./PLAYER_DOMAIN_DESIGN.md#testing-strategy) - Layer testing approach and behavioral coverage
 
@@ -345,27 +371,33 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 ## 🗂️ File Changes
 
 ### Domain Layer (New)
+
 - [libs/domain/src/lib/models/player-filter-type.enum.ts](../../../libs/domain/src/lib/models/) - New
 - [libs/domain/src/lib/models/player-scope.enum.ts](../../../libs/domain/src/lib/models/) - New
 
 ### Domain Contracts (Modified)
+
 - [libs/domain/src/lib/contracts/player.contract.ts](../../../libs/domain/src/lib/contracts/) - Extend with launchRandom method
 
 ### Application Layer (New)
+
 - [libs/application/src/lib/player/actions/launch-random-file.ts](../../../libs/application/src/lib/player/actions/) - New
 - [libs/application/src/lib/player/actions/update-shuffle-settings.ts](../../../libs/application/src/lib/player/actions/) - New
 - [libs/application/src/lib/player/selectors/get-shuffle-settings.ts](../../../libs/application/src/lib/player/selectors/) - New
 - [libs/application/src/lib/player/selectors/get-launch-mode.ts](../../../libs/application/src/lib/player/selectors/) - New (if not from Phase 1)
 
 ### Application Layer (Modified)
+
 - [libs/application/src/lib/player/player-context.interface.ts](../../../libs/application/src/lib/player/) - Extend with shuffle methods
 - [libs/application/src/lib/player/player-context.service.ts](../../../libs/application/src/lib/player/) - Implement shuffle orchestration
 - [PlayerStore state models](../../../libs/application/src/lib/player/) - Add ShuffleSettings interface and extend DevicePlayerState
 
 ### Infrastructure Layer (Modified)
+
 - [libs/infrastructure/src/lib/player/player.service.ts](../../../libs/infrastructure/src/lib/player/) - Extend with launchRandom implementation
 
 ### UI Components (Modified)
+
 - Player toolbar/controls component - Add dice and shuffle IconButtons with state-driven styling
 - Associated test files for new UI integration
 
@@ -376,6 +408,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 ### Application Layer Testing (Primary)
 
 - [x] **PlayerContextService Shuffle Testing**: Test store behaviors through the context service (facade testing approach)
+
   - Mock infrastructure layer (PlayerService) using typed mocks
   - Mock StorageStore for cross-domain coordination testing
   - Test complete random launch workflow orchestration
@@ -405,6 +438,7 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 ### UI Component Testing (Following [Smart Component Testing](../../SMART_COMPONENT_TESTING.md))
 
 - [x] **IconButton Shuffle Integration**: Test component behavior with mocked dependencies
+
   - Random launch button (dice) event handling and `launchRandomFile` calls
   - Shuffle toggle button event handling and `toggleShuffleMode` calls
   - State-driven color changes (`highlight` when shuffle active, `normal` when inactive)
@@ -419,17 +453,20 @@ Add shuffle mode capability with two UI controls: a random launch button (dice i
 ### Integration Testing
 
 - [x] **End-to-End Shuffle Workflow Testing**: Test complete shuffle flow
+
   - UI button click → component event → context service → store update → infrastructure call
   - Mode switching between Directory and Shuffle preserves device independence
   - Random launch operations with different scope and filter configurations
   - Error handling across all domain boundaries
 
 - [x] **Cross-Domain Integration Testing**: Test domain coordination
+
   - Shuffle mode interactions with storage domain via StorageKey pattern
   - Multi-device shuffle operations maintain independence
   - Phase 1 regression testing (file launching with context still works)
 
 - [x] **Directory Context Loading Integration Testing**: Test complete cross-domain workflow
+
   - Random file launch → directory loading → file context update → UI display
   - StorageStore and PlayerStore coordination without breaking domain boundaries
   - Directory-files component receives and displays sibling files correctly

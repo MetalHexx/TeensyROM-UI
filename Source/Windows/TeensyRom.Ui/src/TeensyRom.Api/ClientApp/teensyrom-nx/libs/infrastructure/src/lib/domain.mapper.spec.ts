@@ -13,7 +13,13 @@ import {
   LaunchRandomScopeEnum,
 } from '@teensyrom-nx/data-access/api-client';
 import { DomainMapper } from './domain.mapper';
-import { FileItemType, StorageType, DeviceState, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
+import {
+  FileItemType,
+  StorageType,
+  DeviceState,
+  PlayerFilterType,
+  PlayerScope,
+} from '@teensyrom-nx/domain';
 
 describe('DomainMapper (Storage)', () => {
   const baseApiUrl = 'http://localhost:5168';
@@ -380,8 +386,12 @@ describe('DomainMapper (Storage)', () => {
 
       // Assert
       expect(result.images).toHaveLength(2);
-      expect(result.images[0].url).toBe('http://localhost:5168/Assets/Games/Screenshots/screenshot1.png');
-      expect(result.images[1].url).toBe('http://localhost:5168/Assets/Games/Screenshots/screenshot2.png');
+      expect(result.images[0].url).toBe(
+        'http://localhost:5168/Assets/Games/Screenshots/screenshot1.png'
+      );
+      expect(result.images[1].url).toBe(
+        'http://localhost:5168/Assets/Games/Screenshots/screenshot2.png'
+      );
     });
 
     it('should throw error when FileItemDto is null', () => {

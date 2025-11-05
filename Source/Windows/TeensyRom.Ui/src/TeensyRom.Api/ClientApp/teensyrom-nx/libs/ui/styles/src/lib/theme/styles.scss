@@ -165,10 +165,10 @@ body {
   } @else if $border-side == all {
     border: #{$border-width} solid #{$color};
   }
-  
+
   // Apply the pulsing animation using a pre-defined keyframe
   animation: pulsing-highlight #{$duration} #{$timing} infinite;
-  
+
   // Override the custom property used in the keyframes
   --pulsing-color: #{$color};
   --pulsing-opacity: #{$opacity};
@@ -176,7 +176,8 @@ body {
 
 // Pre-defined keyframes that use CSS custom properties
 @keyframes pulsing-highlight {
-  0%, 100% {
+  0%,
+  100% {
     background-color: transparent;
   }
   50% {
@@ -193,13 +194,13 @@ body {
   transition: background-color 0.2s ease;
 
   // Style for currently playing file with error (failed launch)
-  &[data-is-playing="true"][data-has-error="true"] {
+  &[data-is-playing='true'][data-has-error='true'] {
     @include pulsing-highlight($color: var(--color-error), $opacity: 15%, $border-side: left);
     border-radius: 10px;
   }
 
   // Style for currently playing file (auto-selected)
-  &[data-is-playing="true"] {
+  &[data-is-playing='true'] {
     @include pulsing-highlight($color: var(--color-highlight), $opacity: 15%, $border-side: left);
     border-radius: 10px;
   }

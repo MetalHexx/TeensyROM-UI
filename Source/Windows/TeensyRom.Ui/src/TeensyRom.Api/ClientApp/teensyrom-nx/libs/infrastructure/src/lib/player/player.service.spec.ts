@@ -11,7 +11,15 @@ import {
   FileItemType as ApiFileItemType,
 } from '@teensyrom-nx/data-access/api-client';
 import { PlayerService } from './player.service';
-import { FileItem, FileItemType, PlayerFilterType, PlayerScope, StorageType, ALERT_SERVICE, IAlertService } from '@teensyrom-nx/domain';
+import {
+  FileItem,
+  FileItemType,
+  PlayerFilterType,
+  PlayerScope,
+  StorageType,
+  ALERT_SERVICE,
+  IAlertService,
+} from '@teensyrom-nx/domain';
 
 const createFileItemDto = (): FileItemDto => ({
   name: 'Test File',
@@ -171,7 +179,9 @@ describe('PlayerService', () => {
       expect(result.isCompatible).toBe(false);
 
       // Verify warning alert was shown with message from response
-      expect(mockAlertService.warning).toHaveBeenCalledWith('File is not compatible with this device');
+      expect(mockAlertService.warning).toHaveBeenCalledWith(
+        'File is not compatible with this device'
+      );
     });
 
     it('should not show warning when file is compatible', async () => {
@@ -239,12 +249,10 @@ describe('PlayerService', () => {
       mockPlayerApi.launchRandom.mockResolvedValue(response);
 
       await new Promise<FileItem>((resolve, reject) => {
-        service
-          .launchRandom('device-1', PlayerScope.Storage, PlayerFilterType.All)
-          .subscribe({
-            next: resolve,
-            error: reject,
-          });
+        service.launchRandom('device-1', PlayerScope.Storage, PlayerFilterType.All).subscribe({
+          next: resolve,
+          error: reject,
+        });
       });
 
       expect(mockPlayerApi.launchRandom).toHaveBeenCalledWith({
@@ -415,7 +423,7 @@ describe('PlayerService', () => {
         const deviceId = 'device-123';
         const error = new Error('Music toggle failed');
         const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-        
+
         mockPlayerApi.toggleMusic.mockRejectedValue(error);
 
         await expect(

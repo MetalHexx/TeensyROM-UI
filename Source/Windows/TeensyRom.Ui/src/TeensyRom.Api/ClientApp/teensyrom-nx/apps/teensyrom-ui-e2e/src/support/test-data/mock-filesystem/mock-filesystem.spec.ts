@@ -158,7 +158,7 @@ describe('MockFilesystem', () => {
 
     it('throws when file does not exist', () => {
       expect(() => filesystem.saveFavorite('/games/Missing.crt')).toThrowError(
-        'File not found: /games/Missing.crt',
+        'File not found: /games/Missing.crt'
       );
     });
   });
@@ -193,9 +193,9 @@ describe('MockFilesystem', () => {
     it('throws when file missing', () => {
       filesystem.removeFavorite('/games/Pac-Man (J1).crt');
 
-      expect(() =>
-        filesystem.removeFavorite('/favorites/games/Pac-Man (J1).crt'),
-      ).toThrowError('File not found: /favorites/games/Pac-Man (J1).crt');
+      expect(() => filesystem.removeFavorite('/favorites/games/Pac-Man (J1).crt')).toThrowError(
+        'File not found: /favorites/games/Pac-Man (J1).crt'
+      );
     });
   });
 

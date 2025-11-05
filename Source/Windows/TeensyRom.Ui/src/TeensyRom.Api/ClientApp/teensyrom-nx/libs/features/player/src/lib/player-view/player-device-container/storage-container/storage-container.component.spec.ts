@@ -11,7 +11,12 @@ import {
   LaunchMode,
   FileItemType,
 } from '@teensyrom-nx/domain';
-import { PLAYER_CONTEXT, IPlayerContext, PlayHistory, HistoryEntry } from '@teensyrom-nx/application';
+import {
+  PLAYER_CONTEXT,
+  IPlayerContext,
+  PlayHistory,
+  HistoryEntry,
+} from '@teensyrom-nx/application';
 import { of } from 'rxjs';
 
 describe('StorageContainerComponent', () => {
@@ -132,7 +137,7 @@ describe('StorageContainerComponent', () => {
       // Verify the computed signals work correctly
       expect(component.historyViewVisible()).toBe(true);
       expect(component.hasPlayHistory()).toBe(true);
-      
+
       // shouldShowHistory checks: historyViewVisible() && !hasActiveSearch() && hasPlayHistory()
       // When hasActiveSearch is false (no search state), shouldShowHistory should be true
       expect(component.shouldShowHistory()).toBe(true);
@@ -148,4 +153,3 @@ describe('StorageContainerComponent', () => {
     });
   });
 });
-

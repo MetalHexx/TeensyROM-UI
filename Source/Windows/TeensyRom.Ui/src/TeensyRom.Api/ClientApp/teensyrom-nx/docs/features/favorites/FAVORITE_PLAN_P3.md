@@ -11,6 +11,7 @@ This document provides detailed implementation instructions for Phase 3 of the F
 **Objective**: Generate the TypeScript API client for the new favorite endpoints (created in Phase 1 & 2) and extend the infrastructure layer services to map API responses to domain models with proper error handling and user notifications.
 
 **Prerequisites**:
+
 - Phase 1 & 2 backend endpoints completed (`FavoriteFileEndpoint` and `RemoveFavoriteEndpoint`)
 - .NET API building successfully
 - OpenAPI spec includes favorite endpoints
@@ -69,6 +70,7 @@ pnpm run generate:api-client
 ```
 
 **Expected Output**:
+
 - TypeScript client regenerated in `libs/data-access/api-client/src/lib/`
 - New methods in `FilesApiService.ts`: `saveFavorite()` and `removeFavorite()`
 - New response types: `SaveFavoriteResponse` and `RemoveFavoriteResponse`
@@ -84,11 +86,13 @@ async removeFavorite(requestParameters: RemoveFavoriteRequest): Promise<RemoveFa
 ```
 
 **Request Parameters Expected**:
+
 - `deviceId: string`
 - `storageType: TeensyStorageType`
 - `path: string` (file path to favorite/unfavorite)
 
 **Response Expected**:
+
 - `file: FileItemDto` (the updated file with `isFavorite` flag set correctly)
 - `message: string` (success message to display to user)
 
@@ -99,6 +103,7 @@ async removeFavorite(requestParameters: RemoveFavoriteRequest): Promise<RemoveFa
 ### 2.1 Check If New Response Types Exist
 
 Inspect generated response types in `libs/data-access/api-client/src/lib/models/`:
+
 - `SaveFavoriteResponse.ts`
 - `RemoveFavoriteResponse.ts`
 
@@ -147,6 +152,7 @@ saveFavorite(
 ```
 
 **Key Points**:
+
 - Use `from()` to convert Promise to Observable
 - Map `storageType` from domain to API type using `DomainMapper.toApiStorageType()`
 - Display success message using `alertService.success()`
@@ -179,6 +185,7 @@ removeFavorite(
 ```
 
 **Key Points**:
+
 - Same pattern as `saveFavorite()`
 - Different error message: "Failed to remove favorite"
 - Returns updated `FileItem` with `isFavorite` flag set to `false`
@@ -186,6 +193,7 @@ removeFavorite(
 ### 3.3 Update handleError Method (If Needed)
 
 The existing `handleError()` method already:
+
 - Extracts error messages from API responses
 - Displays error alerts via `alertService.error()`
 - Logs errors for debugging
@@ -207,8 +215,8 @@ let mockFilesApiService: {
   search: ReturnType<typeof vi.fn>;
   index: ReturnType<typeof vi.fn>;
   indexAll: ReturnType<typeof vi.fn>;
-  saveFavorite: ReturnType<typeof vi.fn>;      // ADD THIS
-  removeFavorite: ReturnType<typeof vi.fn>;    // ADD THIS
+  saveFavorite: ReturnType<typeof vi.fn>; // ADD THIS
+  removeFavorite: ReturnType<typeof vi.fn>; // ADD THIS
 };
 
 beforeEach(() => {
@@ -217,8 +225,8 @@ beforeEach(() => {
     search: vi.fn(),
     index: vi.fn(),
     indexAll: vi.fn(),
-    saveFavorite: vi.fn(),      // ADD THIS
-    removeFavorite: vi.fn(),    // ADD THIS
+    saveFavorite: vi.fn(), // ADD THIS
+    removeFavorite: vi.fn(), // ADD THIS
   };
 
   // ... rest of setup
@@ -579,7 +587,7 @@ Ensure `mockAlertService` includes `success` method in the test setup:
 ```typescript
 mockAlertService = {
   error: vi.fn(),
-  success: vi.fn(),  // ADD THIS if not present
+  success: vi.fn(), // ADD THIS if not present
 };
 ```
 
@@ -614,6 +622,7 @@ npx nx test infrastructure --coverage
 Verify all items are complete:
 
 ### API Client Generation
+
 - [ ] API client regenerated successfully
 - [ ] `saveFavorite()` method exists in `FilesApiService`
 - [ ] `removeFavorite()` method exists in `FilesApiService`
@@ -621,6 +630,7 @@ Verify all items are complete:
 - [ ] Response types include `file: FileItemDto` and `message: string`
 
 ### Storage Service Implementation
+
 - [ ] `saveFavorite()` method added to `storage.service.ts`
 - [ ] `removeFavorite()` method added to `storage.service.ts`
 - [ ] Methods return `Observable<FileItem>`
@@ -631,11 +641,13 @@ Verify all items are complete:
 - [ ] Response mapping uses `DomainMapper.toFileItem()`
 
 ### Domain Mapper (if applicable)
+
 - [ ] New mapper methods added (only if response types differ from `FileItemDto`)
 - [ ] Mapper preserves all field data
 - [ ] `isFavorite` flag correctly set in mappings
 
 ### Unit Tests
+
 - [ ] Test helper `createMockFavoriteResponse()` added
 - [ ] Mock API service includes `saveFavorite` and `removeFavorite` methods
 - [ ] Mock alert service includes `success` method
@@ -657,6 +669,7 @@ Verify all items are complete:
 - [ ] No linting errors: `npx nx lint infrastructure`
 
 ### Integration Validation
+
 - [ ] Infrastructure layer follows patterns from `device.service.ts`
 - [ ] Error extraction uses existing `extractErrorMessage()` utility
 - [ ] Alert service integration tested in unit tests
@@ -670,6 +683,7 @@ Verify all items are complete:
 ### Issue: API Client Generation Fails
 
 **Solution**:
+
 1. Ensure .NET API builds without errors
 2. Check OpenAPI spec exists at `../../api-spec/TeensyRom.Api.json`
 3. Verify `pnpm` is installed and up to date
@@ -678,6 +692,7 @@ Verify all items are complete:
 ### Issue: Generated Methods Have Different Signatures
 
 **Solution**:
+
 - Inspect generated `FilesApiService.ts` to see actual signatures
 - Update `storage.service.ts` methods to match generated signatures
 - Update test mocks to match actual response structure
@@ -685,18 +700,21 @@ Verify all items are complete:
 ### Issue: Tests Fail with "alertService.success is not a function"
 
 **Solution**:
+
 - Ensure `mockAlertService` includes `success: vi.fn()` in test setup
 - Verify `ALERT_SERVICE` token is provided in `TestBed.configureTestingModule()`
 
 ### Issue: Domain Mapper Import Errors
 
 **Solution**:
+
 - Ensure `DomainMapper` is imported at top of `storage.service.ts`
 - Check that mapper methods exist (may need to add if new types introduced)
 
 ### Issue: Type Errors with StorageType Conversion
 
 **Solution**:
+
 - Use `DomainMapper.toApiStorageType(storageType)` to convert domain type to API type
 - Ensure `TeensyStorageType` is imported from `@teensyrom-nx/data-access/api-client`
 
@@ -707,12 +725,14 @@ Verify all items are complete:
 ### Alert Service Integration
 
 The infrastructure layer is responsible for displaying notifications to users:
+
 - **Success alerts**: Call `this.alertService.success(message)` with message from API response
 - **Error alerts**: Handled automatically by `handleError()` method via `extractErrorMessage()` utility
 
 ### Error Handling Pattern
 
 The existing `handleError()` method in `storage.service.ts`:
+
 1. Extracts user-friendly message from error (or uses fallback)
 2. Logs error to console with `logError()` utility
 3. Displays error alert via `alertService.error()`
@@ -723,6 +743,7 @@ The existing `handleError()` method in `storage.service.ts`:
 ### Observable vs Promise
 
 Infrastructure services use RxJS Observables:
+
 - API client returns Promises
 - Use `from()` to convert Promise to Observable
 - Use `pipe()` with operators: `map()`, `catchError()`
@@ -731,6 +752,7 @@ Infrastructure services use RxJS Observables:
 ### Testing Philosophy
 
 Infrastructure layer tests are **unit tests** that:
+
 - Mock the API client at the infrastructure boundary
 - Test service contract implementation correctness
 - Verify DTO → Domain model mapping
@@ -744,6 +766,7 @@ Infrastructure layer tests are **unit tests** that:
 ## 🎯 Next Phase
 
 After Phase 3 is complete and all tests pass:
+
 - **Phase 4**: Application Layer - Add store actions for favorite operations
 - **Phase 5**: Feature Layer - Add favorite button to player toolbar
 - **Phase 6**: E2E Tests - Validate complete user workflows
@@ -753,6 +776,7 @@ After Phase 3 is complete and all tests pass:
 ## 📞 Questions?
 
 If you encounter issues not covered in this document:
+
 1. Review reference implementations in `device.service.ts` and `device.service.spec.ts`
 2. Check testing patterns in existing `storage.service.spec.ts`
 3. Consult documentation links provided throughout this guide

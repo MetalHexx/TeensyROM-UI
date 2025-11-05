@@ -5,6 +5,6 @@ import { CommonModule } from '@angular/common';
   selector: 'lib-alerts',
   imports: [CommonModule],
   templateUrl: './alerts.component.html',
-  styleUrl: './alerts.component.scss'
+  styleUrl: './alerts.component.scss',
 })
 export class AlertsComponent {}

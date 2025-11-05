@@ -13,19 +13,23 @@ Create comprehensive Cypress E2E tests for the device discovery workflow, valida
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [ ] [E2E Testing Plan](./E2E_PLAN.md) - High-level feature plan and context
 - [ ] [Phase 2: Device Fixtures](./E2E_PLAN_P2.md) - Available fixtures to use in tests
 - [ ] [Phase 3: Device Interceptors](./E2E_PLAN_P3.md) - Interceptor functions for mocking API calls
 
 **Standards & Guidelines:**
+
 - [ ] [Testing Standards](../../TESTING_STANDARDS.md) - Testing approaches and best practices
 - [ ] [Coding Standards](../../CODING_STANDARDS.md) - General coding patterns
 
 **External References:**
+
 - [ ] [Cypress Best Practices](https://r.jina.ai/https://docs.cypress.io/app/core-concepts/best-practiceshttps://docs.cypress.io/guides/references/best-practices) - Cypress testing patterns
 - [ ] [Cypress Assertions](https://r.jina.ai/https://docs.cypress.io/app/core-concepts/best-practiceshttps://docs.cypress.io/guides/references/assertions) - Available assertions
 
 **Component Context:**
+
 - [ ] [DeviceViewComponent](../../../libs/features/devices/src/lib/device-view/device-view.component.ts) - Component under test
 
 ---
@@ -59,6 +63,7 @@ apps/teensyrom-ui-e2e/src/
 ## 📋 Implementation Guidelines
 
 > **IMPORTANT - Test Writing Policy:**
+>
 > - Focus on **user-observable behaviors** - what users see and interact with
 > - Use **data-testid attributes** for reliable selectors (to be added to components as needed)
 > - Test **happy paths first**, then edge cases and error scenarios
@@ -66,6 +71,7 @@ apps/teensyrom-ui-e2e/src/
 > - Use **descriptive test names** that explain the scenario being tested
 
 > **IMPORTANT - Cypress Best Practices:**
+>
 > - **Don't use arbitrary waits** - use `cy.wait('@alias')` for network requests
 > - **Chain commands** - Cypress commands are automatically retried until timeout
 > - **Use proper assertions** - `.should()` commands retry until assertion passes
@@ -80,10 +86,12 @@ apps/teensyrom-ui-e2e/src/
 **Purpose**: Establish test file structure and create documentation explaining the device discovery test suite, what scenarios are covered, and how to run the tests.
 
 **Related Documentation:**
+
 - [E2E Testing Plan](./E2E_PLAN.md) - Overall testing strategy
 - [Cypress Best Practices](https://docs.cypress.io/guides/references/best-practices) - Testing patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Create devices test directory**: `apps/teensyrom-ui-e2e/src/e2e/devices/`
 - [ ] **Create README.md**: Document test suite purpose, scenarios covered, and how to run tests
 - [ ] **Document test scenarios**: List all test cases planned for device discovery
@@ -91,22 +99,27 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **Document test execution commands**: Include commands for running individual tests vs full suite
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: N/A for documentation task
 
 **Key Implementation Notes:**
+
 - README should serve as test suite documentation for future developers
 - Document the relationship between fixtures/interceptors and test scenarios
 - Include troubleshooting tips for common test failures
 - Explain how to add new device discovery test cases
 
 **README Structure** (key sections to include):
+
 ```markdown
 # Device Discovery E2E Tests
 
 ## Purpose
+
 [Explain what these tests validate]
 
 ## Test Scenarios Covered
+
 - Single device discovery
 - Multiple devices discovery
 - No devices (empty state)
@@ -114,15 +127,19 @@ apps/teensyrom-ui-e2e/src/
 - [etc.]
 
 ## Running Tests
+
 [Commands for running tests]
 
 ## Test Data
+
 [Explain fixtures and interceptors used]
 
 ## Selectors
+
 [Document data-testid strategy]
 
 ## Troubleshooting
+
 [Common issues and solutions]
 ```
 
@@ -136,9 +153,11 @@ apps/teensyrom-ui-e2e/src/
 **Purpose**: Create reusable helper functions for common device discovery test operations (navigation, waiting for API calls, verifying device cards, etc.).
 
 **Related Documentation:**
+
 - [Cypress Custom Commands](https://docs.cypress.io/api/cypress-api/custom-commands) - Custom command patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Create test-helpers.ts**: Create helper file in devices directory
 - [ ] **Create navigateToDeviceView helper**: Function to navigate to `/devices` route
 - [ ] **Create waitForDeviceDiscovery helper**: Function to wait for device API call completion
@@ -148,9 +167,11 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **Add JSDoc comments**: Document each helper's purpose and parameters
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: N/A for helper utilities (tested through usage in actual tests)
 
 **Key Implementation Notes:**
+
 - Helpers should encapsulate common test patterns for reuse
 - Use typed parameters for type safety
 - Return Cypress chainable objects to maintain Cypress command chain
@@ -167,10 +188,12 @@ apps/teensyrom-ui-e2e/src/
 **Purpose**: Test that device view correctly displays a single TeensyROM device with all device information visible and properly formatted.
 
 **Related Documentation:**
+
 - [singleDevice fixture](../../apps/teensyrom-ui-e2e/src/support/test-data/fixtures/devices.fixture.ts) - Default fixture to use
 - [interceptFindDevices](../../apps/teensyrom-ui-e2e/src/support/interceptors/device.interceptors.ts) - API interceptor
 
 **Implementation Subtasks:**
+
 - [ ] **Create device-discovery.cy.ts**: Create main test file
 - [ ] **Add test suite structure**: Describe block for "Device Discovery"
 - [ ] **Add beforeEach hook**: Set up interceptor with singleDevice fixture
@@ -182,9 +205,11 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **Test: Shows storage information**: Assert SD/USB storage status visible
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: 6 test cases covering single device display (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Use `interceptFindDevices()` with default fixture (singleDevice)
 - Test should navigate to `/devices` and wait for API response
 - Verify device properties match fixture data exactly
@@ -196,6 +221,7 @@ apps/teensyrom-ui-e2e/src/
 > Focus on **user-observable outcomes** - what appears on screen?
 
 **Behaviors to Test:**
+
 - [ ] **Device card renders**: Single device card is visible on page
 - [ ] **Device name displayed**: Device name from fixture appears in UI
 - [ ] **Device port displayed**: Connection port (COM port, USB path) visible
@@ -204,6 +230,7 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **Storage status visible**: SD and USB storage availability shows
 
 **Testing Reference:**
+
 - See [Cypress Assertions](https://docs.cypress.io/guides/references/assertions) for assertion patterns
 - Use `.should('be.visible')`, `.should('contain.text', 'value')` for UI validation
 
@@ -217,9 +244,11 @@ apps/teensyrom-ui-e2e/src/
 **Purpose**: Test that device view correctly displays multiple TeensyROM devices simultaneously, showing all devices with unique information.
 
 **Related Documentation:**
+
 - [multipleDevices fixture](../../apps/teensyrom-ui-e2e/src/support/test-data/fixtures/devices.fixture.ts) - Fixture with 3 devices
 
 **Implementation Subtasks:**
+
 - [ ] **Add test suite for multiple devices**: Describe block within device-discovery.cy.ts
 - [ ] **Add beforeEach hook**: Set up interceptor with multipleDevices fixture
 - [ ] **Test: Displays correct device count**: Verify 3 device cards render
@@ -229,9 +258,11 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **Test: Device order preserved**: Assert devices display in same order as fixture
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: 5 test cases covering multiple device display (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Use `interceptFindDevices({ fixture: multipleDevices })`
 - Verify device count matches fixture (3 devices)
 - Test that each device's unique properties are visible
@@ -241,6 +272,7 @@ apps/teensyrom-ui-e2e/src/
 **Testing Focus for Task 4:**
 
 **Behaviors to Test:**
+
 - [ ] **Correct device count**: Exactly 3 device cards render
 - [ ] **Unique device names**: Each device shows different name from fixture
 - [ ] **Unique device ports**: Each device shows different connection port
@@ -248,6 +280,7 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **Fixture order maintained**: Devices appear in same order as fixture array
 
 **Testing Reference:**
+
 - Use `.should('have.length', 3)` for counting elements
 - Use `.each()` for iterating and asserting on multiple elements
 
@@ -261,9 +294,11 @@ apps/teensyrom-ui-e2e/src/
 **Purpose**: Test that device view correctly displays empty state UI when no devices are discovered, with appropriate messaging.
 
 **Related Documentation:**
+
 - [noDevices fixture](../../apps/teensyrom-ui-e2e/src/support/test-data/fixtures/devices.fixture.ts) - Empty fixture
 
 **Implementation Subtasks:**
+
 - [ ] **Add test suite for empty state**: Describe block within device-discovery.cy.ts
 - [ ] **Add beforeEach hook**: Set up interceptor with noDevices fixture
 - [ ] **Test: Shows empty state message**: Verify "No devices found" or similar message
@@ -272,9 +307,11 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **Test: No loading indicator**: Assert loading state is not shown
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: 4 test cases covering empty state display (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Use `interceptFindDevices({ fixture: noDevices })`
 - Verify empty state message is user-friendly
 - Test that no device cards are rendered
@@ -284,12 +321,14 @@ apps/teensyrom-ui-e2e/src/
 **Testing Focus for Task 5:**
 
 **Behaviors to Test:**
+
 - [ ] **Empty state message shown**: "No devices found" (or equivalent) is visible
 - [ ] **No device cards**: Device list container is empty
 - [ ] **Empty state styling**: Empty state has appropriate visual treatment
 - [ ] **Not loading**: Loading indicator is not displayed after API response
 
 **Testing Reference:**
+
 - Use `.should('not.exist')` to verify elements don't render
 - Use `.should('be.visible')` for empty state message
 
@@ -303,9 +342,11 @@ apps/teensyrom-ui-e2e/src/
 **Purpose**: Test that device view correctly displays a device that has lost its connection, showing appropriate connection status indicators.
 
 **Related Documentation:**
+
 - [disconnectedDevice fixture](../../apps/teensyrom-ui-e2e/src/support/test-data/fixtures/devices.fixture.ts) - Device with ConnectionLost state
 
 **Implementation Subtasks:**
+
 - [ ] **Add test suite for disconnected device**: Describe block within device-discovery.cy.ts
 - [ ] **Add beforeEach hook**: Set up interceptor with disconnectedDevice fixture
 - [ ] **Test: Displays disconnected device card**: Verify device card still renders
@@ -315,9 +356,11 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **Test: Reconnect option visible**: Verify connect/reconnect button is available
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: 5 test cases covering disconnected device state (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Use `interceptFindDevices({ fixture: disconnectedDevice })`
 - Device should still render but show disconnected state
 - Test that device information (name, port) is preserved from previous connection
@@ -327,6 +370,7 @@ apps/teensyrom-ui-e2e/src/
 **Testing Focus for Task 6:**
 
 **Behaviors to Test:**
+
 - [ ] **Device card renders**: Disconnected device still displays
 - [ ] **Disconnected status shown**: Connection status indicates "disconnected" or "lost connection"
 - [ ] **Device info preserved**: Name and port information still visible
@@ -334,6 +378,7 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **Reconnect available**: Connect/reconnect button or action is present
 
 **Testing Reference:**
+
 - Use `.should('have.class', 'disconnected')` or similar for styling checks
 - Verify button state changes (enabled vs disabled)
 
@@ -347,9 +392,11 @@ apps/teensyrom-ui-e2e/src/
 **Purpose**: Test that device view correctly displays warnings or indicators when a connected device has unavailable storage.
 
 **Related Documentation:**
+
 - [unavailableStorageDevice fixture](../../apps/teensyrom-ui-e2e/src/support/test-data/fixtures/devices.fixture.ts) - Device with no available storage
 
 **Implementation Subtasks:**
+
 - [ ] **Add test suite for unavailable storage**: Describe block within device-discovery.cy.ts
 - [ ] **Add beforeEach hook**: Set up interceptor with unavailableStorageDevice fixture
 - [ ] **Test: Displays device card**: Verify device card renders (device is connected)
@@ -359,9 +406,11 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **Test: USB storage unavailable indicator**: Assert USB storage shows as unavailable
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: 5 test cases covering storage availability issues (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Use `interceptFindDevices({ fixture: unavailableStorageDevice })`
 - Device should show as connected but with storage issues
 - Test for warning icons, messages, or badges indicating storage problems
@@ -371,6 +420,7 @@ apps/teensyrom-ui-e2e/src/
 **Testing Focus for Task 7:**
 
 **Behaviors to Test:**
+
 - [ ] **Device renders normally**: Device card displays as connected
 - [ ] **Connection status normal**: Device shows as connected
 - [ ] **Storage warning present**: Warning icon/badge indicates storage issues
@@ -378,6 +428,7 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **USB unavailable shown**: USB storage status shows as unavailable
 
 **Testing Reference:**
+
 - Look for warning icons, badges, or error states
 - Verify storage status indicators show correct unavailable state
 
@@ -391,9 +442,11 @@ apps/teensyrom-ui-e2e/src/
 **Purpose**: Test that device view correctly displays multiple devices with different states simultaneously (connected, busy, disconnected).
 
 **Related Documentation:**
+
 - [mixedStateDevices fixture](../../apps/teensyrom-ui-e2e/src/support/test-data/fixtures/devices.fixture.ts) - 3 devices in different states
 
 **Implementation Subtasks:**
+
 - [ ] **Add test suite for mixed states**: Describe block within device-discovery.cy.ts
 - [ ] **Add beforeEach hook**: Set up interceptor with mixedStateDevices fixture
 - [ ] **Test: Displays all devices**: Verify 3 device cards render
@@ -403,9 +456,11 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **Test: Visual distinction between states**: Verify each state has unique visual treatment
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: 5 test cases covering mixed device states (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Use `interceptFindDevices({ fixture: mixedStateDevices })`
 - Test that all three device states render correctly simultaneously
 - Verify each device has appropriate visual indicators for its state
@@ -415,6 +470,7 @@ apps/teensyrom-ui-e2e/src/
 **Testing Focus for Task 8:**
 
 **Behaviors to Test:**
+
 - [ ] **All devices render**: 3 device cards display
 - [ ] **Connected device shown**: First device shows connected status
 - [ ] **Busy device shown**: Second device shows busy/processing indicator
@@ -422,6 +478,7 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **States visually distinct**: Each state has unique visual appearance
 
 **Testing Reference:**
+
 - Use `.eq(index)` to target specific devices by position
 - Verify each device has appropriate status class or indicator
 
@@ -435,9 +492,11 @@ apps/teensyrom-ui-e2e/src/
 **Purpose**: Test that device view shows appropriate loading state while device discovery API call is in progress.
 
 **Related Documentation:**
+
 - [DeviceViewComponent](../../../libs/features/devices/src/lib/device-view/device-view.component.ts) - Component with isLoading signal
 
 **Implementation Subtasks:**
+
 - [ ] **Add test suite for loading state**: Describe block within device-discovery.cy.ts
 - [ ] **Test: Shows loading indicator initially**: Verify loading state before API response
 - [ ] **Test: Loading indicator disappears after response**: Assert loading state clears
@@ -445,9 +504,11 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **Use cy.intercept with delay**: Simulate slow network to test loading state visibility
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: 3 test cases covering loading state (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Use `cy.intercept` with response delay to make loading state visible
 - Test that loading indicator appears before devices
 - Verify loading state transitions to content after API response
@@ -457,11 +518,13 @@ apps/teensyrom-ui-e2e/src/
 **Testing Focus for Task 9:**
 
 **Behaviors to Test:**
+
 - [ ] **Loading indicator shown**: Loading spinner/skeleton appears during API call
 - [ ] **Loading disappears on success**: Loading state clears after API response
 - [ ] **No devices during load**: Device cards don't show until loading completes
 
 **Testing Reference:**
+
 - Use `cy.intercept` with `delay` option to test loading states
 - Use `.should('exist')` then `.should('not.exist')` to verify state transitions
 
@@ -475,9 +538,11 @@ apps/teensyrom-ui-e2e/src/
 **Purpose**: Test that device view correctly handles and displays error states when device discovery API call fails.
 
 **Related Documentation:**
+
 - [interceptFindDevices error mode](../../apps/teensyrom-ui-e2e/src/support/interceptors/device.interceptors.ts) - Error simulation
 
 **Implementation Subtasks:**
+
 - [ ] **Add test suite for error handling**: Describe block within device-discovery.cy.ts
 - [ ] **Add beforeEach hook**: Set up interceptor with `errorMode: true`
 - [ ] **Test: Shows error message**: Verify error message/notification displays
@@ -486,9 +551,11 @@ apps/teensyrom-ui-e2e/src/
 - [ ] **Test: Loading state clears**: Assert loading indicator disappears after error
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: 4 test cases covering error scenarios (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Use `interceptFindDevices({ errorMode: true })` to simulate API failure
 - Test that error is communicated clearly to user
 - Verify system degrades gracefully - no crashes or blank screens
@@ -498,12 +565,14 @@ apps/teensyrom-ui-e2e/src/
 **Testing Focus for Task 10:**
 
 **Behaviors to Test:**
+
 - [ ] **Error message displayed**: User sees clear error notification
 - [ ] **No devices shown**: Device list is empty on error
 - [ ] **Retry available**: User can attempt to reload devices
 - [ ] **Loading state cleared**: Loading indicator disappears after error
 
 **Testing Reference:**
+
 - Use `interceptFindDevices({ errorMode: true })` for error simulation
 - Look for error messages, snackbars, or inline error states
 
@@ -516,14 +585,17 @@ apps/teensyrom-ui-e2e/src/
 > All files are relative to workspace root: `apps/teensyrom-ui-e2e/`
 
 **New Files:**
+
 - `src/e2e/devices/README.md` - Device discovery test suite documentation
 - `src/e2e/devices/device-discovery.cy.ts` - Main device discovery test file
 - `src/e2e/devices/test-helpers.ts` - Reusable test helper functions
 
 **Modified Files:**
+
 - None (Phase 4 is purely additive)
 
 **Potential Component Updates** (if data-testid attributes are missing):
+
 - `libs/features/devices/src/lib/device-view/device-view.component.html` - Add data-testid="device-view"
 - `libs/features/devices/src/lib/device-view/device-item/device-item.component.html` - Add data-testid attributes
 
@@ -535,6 +607,7 @@ apps/teensyrom-ui-e2e/src/
 > **IMPORTANT:** This phase IS about writing tests. All tests are E2E tests validating UI behaviors.
 
 > **Core Testing Philosophy:**
+>
 > - **User-focused**: Test what users see and interact with
 > - **Deterministic**: Same fixture always produces same results
 > - **Isolated**: Each test sets up its own state
@@ -542,12 +615,14 @@ apps/teensyrom-ui-e2e/src/
 > - **Observable**: Test visible outcomes, not internal implementation
 
 > **Reference Documentation:**
+>
 > - **All tasks**: [Cypress Best Practices](https://docs.cypress.io/guides/references/best-practices)
 > - **Assertions**: [Cypress Assertions](https://docs.cypress.io/guides/references/assertions)
 
 ### Test Execution Commands
 
 **Running Tests:**
+
 ```bash
 # Run all device discovery tests
 npx nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts"
@@ -565,8 +640,9 @@ npx nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts" --grep="Single De
 ### Test Coverage Summary
 
 **Device Discovery Scenarios:**
+
 - ✅ Single device display
-- ✅ Multiple devices display  
+- ✅ Multiple devices display
 - ✅ No devices (empty state)
 - ✅ Disconnected device
 - ✅ Unavailable storage
@@ -586,6 +662,7 @@ npx nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts" --grep="Single De
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Functional Requirements:**
+
 - [ ] All implementation tasks completed and checked off
 - [ ] All subtasks within each task completed
 - [ ] Code follows [Coding Standards](../../CODING_STANDARDS.md)
@@ -601,6 +678,7 @@ npx nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts" --grep="Single De
   - [ ] Error handling
 
 **Testing Requirements:**
+
 - [ ] All 35-40 test cases written and passing
 - [ ] Tests use Phase 2 fixtures correctly
 - [ ] Tests use Phase 3 interceptors correctly
@@ -608,6 +686,7 @@ npx nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts" --grep="Single De
 - [ ] Test execution time reasonable (< 2 minutes for full suite)
 
 **Quality Checks:**
+
 - [ ] No TypeScript errors or warnings
 - [ ] Tests follow Cypress best practices
 - [ ] Selectors are reliable (data-testid preferred)
@@ -615,18 +694,21 @@ npx nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts" --grep="Single De
 - [ ] No arbitrary waits or timeouts
 
 **Documentation:**
+
 - [ ] README includes all test scenarios
 - [ ] Test helpers are documented with JSDoc
 - [ ] Running instructions are clear
 - [ ] Troubleshooting section is complete
 
 **Component Updates:**
+
 - [ ] data-testid attributes added to DeviceViewComponent (if needed)
 - [ ] data-testid attributes added to DeviceItemComponent (if needed)
 - [ ] Empty state has testable selectors
 - [ ] Loading state has testable selectors
 
 **Ready for Next Phase:**
+
 - [ ] All success criteria met
 - [ ] No known bugs or issues
 - [ ] Tests demonstrate device discovery works correctly
@@ -657,12 +739,14 @@ npx nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts" --grep="Single De
 ### Test Scenarios Not Covered (Future Phases)
 
 **Phase 5 will cover**:
+
 - Device connection interactions (clicking connect button)
 - Device disconnection interactions
 - Connection state changes
 - Ping device workflows
 
 **Future phases**:
+
 - Device toolbar interactions
 - Device logs display
 - Storage browsing
@@ -671,6 +755,7 @@ npx nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts" --grep="Single De
 ### Selector Strategy
 
 **Preferred selector priority:**
+
 1. `data-testid` attributes (most reliable)
 2. Semantic HTML elements (`<button>`, `<nav>`, etc.)
 3. ARIA attributes (`role`, `aria-label`)
@@ -703,14 +788,17 @@ npx nx e2e teensyrom-ui-e2e --spec="**/device-discovery.cy.ts" --grep="Single De
 **Verify Prerequisites:**
 
 1. **Phase 2 complete**: Fixtures exist and are tested
+
    - Run `npx nx test teensyrom-ui-e2e --testFile=**/devices.fixture.spec.ts`
    - All tests should pass
 
 2. **Phase 3 complete**: Interceptors exist and are tested
+
    - Run `npx nx test teensyrom-ui-e2e --testFile=**/device.interceptors.spec.ts`
    - All tests should pass
 
 3. **Component exists**: DeviceViewComponent is implemented
+
    - Navigate to `libs/features/devices/src/lib/device-view/`
    - Verify component files exist
 
@@ -753,6 +841,7 @@ If components are missing data-testid attributes:
 ### Testing Best Practices
 
 **DO:**
+
 - ✅ Use `cy.wait('@alias')` for network requests
 - ✅ Chain assertions for retryability
 - ✅ Use fixture data to validate expected values
@@ -760,6 +849,7 @@ If components are missing data-testid attributes:
 - ✅ Write descriptive test names
 
 **DON'T:**
+
 - ❌ Use `cy.wait(1000)` arbitrary timeouts
 - ❌ Test implementation details
 - ❌ Hardcode expected values - use fixtures
@@ -770,17 +860,20 @@ If components are missing data-testid attributes:
 
 **Common Issues:**
 
-1. **Element not found**: 
+1. **Element not found**:
+
    - Add data-testid attribute to component
    - Verify component renders in browser
    - Check selector syntax
 
 2. **Timing issues**:
+
    - Ensure `cy.wait('@alias')` is used
    - Check that interceptor is registered before navigation
    - Verify API response structure matches
 
 3. **Assertion failures**:
+
    - Compare fixture data vs UI display
    - Check for data transformations in component
    - Verify selector targets correct element

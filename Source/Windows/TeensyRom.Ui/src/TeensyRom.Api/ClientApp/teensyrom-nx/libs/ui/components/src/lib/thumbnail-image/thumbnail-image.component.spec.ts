@@ -7,7 +7,7 @@ describe('ThumbnailImageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ThumbnailImageComponent]
+      imports: [ThumbnailImageComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ThumbnailImageComponent);

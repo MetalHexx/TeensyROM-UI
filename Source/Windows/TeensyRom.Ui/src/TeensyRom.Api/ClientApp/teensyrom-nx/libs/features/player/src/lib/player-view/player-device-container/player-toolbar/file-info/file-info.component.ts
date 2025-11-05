@@ -7,7 +7,7 @@ import { CycleImageComponent } from '@teensyrom-nx/ui/components';
   selector: 'lib-file-info',
   imports: [CommonModule, CycleImageComponent],
   templateUrl: './file-info.component.html',
-  styleUrl: './file-info.component.scss'
+  styleUrl: './file-info.component.scss',
 })
 export class FileInfoComponent {
   fileItem = input<FileItem | null>();
@@ -18,7 +18,7 @@ export class FileInfoComponent {
     if (!item?.images || item.images.length === 0) {
       return [];
     }
-    return item.images.map(img => img.url);
+    return item.images.map((img) => img.url);
   });
 
   // Get friendly file type name from meta1 field

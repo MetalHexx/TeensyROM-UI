@@ -14,7 +14,13 @@ import { BusyDialogComponent } from '../components/busy-dialog/busy-dialog.compo
 @Component({
   selector: 'lib-layout',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, NavMenuComponent, MatSidenavModule, AlertContainerComponent],
+  imports: [
+    RouterOutlet,
+    HeaderComponent,
+    NavMenuComponent,
+    MatSidenavModule,
+    AlertContainerComponent,
+  ],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })

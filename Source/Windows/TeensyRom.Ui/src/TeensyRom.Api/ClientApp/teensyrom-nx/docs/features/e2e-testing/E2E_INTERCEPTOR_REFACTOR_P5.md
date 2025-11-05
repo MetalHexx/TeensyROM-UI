@@ -11,6 +11,7 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [x] [E2E Interceptor Refactoring Plan](./E2E_INTERCEPTOR_REFACTOR_PLAN.md) - High-level feature plan
 - [x] [Phase 1 Implementation](./E2E_INTERCEPTOR_REFACTOR_P1.md) - Foundation and infrastructure
 - [x] [Phase 2 Device Migration](./E2E_INTERCEPTOR_REFACTOR_P2.md) - Completed device domain patterns
@@ -19,6 +20,7 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 - [x] [Interceptor Format Documentation](./INTERCEPTOR_FORMAT.md) - Format guidelines and patterns
 
 **Standards & Guidelines:**
+
 - [x] [E2E Testing Overview](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - Current E2E testing infrastructure
 
 ---
@@ -26,6 +28,7 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 ## 📂 Current State Analysis
 
 > **Phase 1-4 Status**: ✅ COMPLETE
+>
 > - **13 endpoints successfully migrated** to individual interceptor files
 > - **4 domains consolidated**: Device, Storage, Player, Indexing
 > - **6-section architecture** consistently applied across all endpoints
@@ -35,12 +38,14 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 ### Migrated Endpoints Inventory
 
 **Device Domain (4 endpoints):**
+
 - ✅ findDevices.interceptors.ts
 - ✅ connectDevice.interceptors.ts
 - ✅ disconnectDevice.interceptors.ts
 - ✅ pingDevice.interceptors.ts
 
 **Storage Domain (5 endpoints):**
+
 - ✅ getDirectory.interceptors.ts
 - ✅ saveFavorite.interceptors.ts
 - ✅ removeFavorite.interceptors.ts
@@ -48,10 +53,12 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 - ✅ indexAllStorage.interceptors.ts
 
 **Player Domain (2 endpoints):**
+
 - ✅ launchFile.interceptors.ts
 - ✅ launchRandom.interceptors.ts
 
 **Indexing Domain (2 endpoints):**
+
 - ✅ indexStorage.interceptors.ts (shared with storage domain)
 - ✅ indexAllStorage.interceptors.ts (shared with storage domain)
 
@@ -60,13 +67,16 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 ### Files Requiring Cleanup
 
 **Deprecated Constants:**
+
 - `apps/teensyrom-ui-e2e/src/support/constants/api.constants.ts` - Remove migrated endpoint constants
 
 **Deprecated Interceptor Files:**
+
 - `apps/teensyrom-ui-e2e/src/support/interceptors/storage-indexing.interceptors.ts` - Already deprecated
 - Need to verify if device.interceptors.ts and storage.interceptors.ts still exist
 
 **Barrel Export Files (Keep):**
+
 - `apps/teensyrom-ui-e2e/src/support/interceptors/player.interceptors.ts` - Keep as barrel export
 - `apps/teensyrom-ui-e2e/src/support/interceptors/examples/sampleEndpoint.interceptors.ts` - Keep as reference
 
@@ -75,6 +85,7 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 ## 📋 Implementation Tasks
 
 > **IMPORTANT - Progress Tracking:**
+>
 > - **Mark checkboxes ✅ as you complete each subtask**
 > - Update progress throughout implementation, not just at the end
 > - This helps track what's done and what remains
@@ -87,10 +98,12 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 **Purpose**: Systematically remove all deprecated code while maintaining backward compatibility where needed.
 
 **Related Documentation:**
+
 - [Current api.constants.ts](../../../apps/teensyrom-ui-e2e/src/support/constants/api.constants.ts) - Constants to clean up
 - [E2E Testing Standards](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - Cleanup standards
 
 **Implementation Subtasks:**
+
 - [ ] **Audit api.constants.ts**: Identify all deprecated constants and backward compatibility exports
 - [ ] **Remove Deprecated Endpoint Constants**: Clean up DEVICE_ENDPOINTS, STORAGE_ENDPOINTS, INDEXING_ENDPOINTS
 - [ ] **Clean Up INTERCEPT_ALIASES**: Remove migrated aliases while keeping essential ones
@@ -99,12 +112,14 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 - [ ] **Verify Backward Compatibility**: Ensure existing imports still work through barrel exports
 
 **Key Implementation Notes:**
+
 - Maintain essential utility functions and error handling constants
 - Keep backward compatibility exports in barrel export files
 - Remove comments indicating migration status (now complete)
 - Update JSDoc comments to reflect current state
 
 **Files to Clean Up:**
+
 ```typescript
 // apps/teensyrom-ui-e2e/src/support/constants/api.constants.ts
 
@@ -134,10 +149,12 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 **Purpose**: Update all E2E testing documentation to reflect the new consolidated patterns and provide clear guidance for developers.
 
 **Related Documentation:**
+
 - [E2E Testing Overview](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - Main E2E documentation
 - [Phase 1-4 Documentation](./E2E_INTERCEPTOR_REFACTOR_P*.md) - Reference patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Update Main E2E Documentation**: Revise E2E_TESTS.md with new interceptor patterns
 - [ ] **Document Import Patterns**: Add clear examples of explicit imports usage
 - [ ] **Update Test Authoring Guidelines**: Include new interceptor usage patterns
@@ -145,16 +162,19 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 - [ ] **Update Troubleshooting Guide**: Include common issues with new patterns
 
 **Documentation Updates Required:**
+
 ```markdown
 # Updates to E2E_TESTS.md
 
 ## New Sections to Add:
+
 - Consolidated Interceptor Architecture
 - Explicit Import Patterns
 - Endpoint-Specific Interceptor Usage
 - Cross-Domain Testing Patterns
 
 ## Sections to Update:
+
 - Test Authoring Guidelines
 - Common Testing Patterns
 - Interceptor Usage Examples
@@ -171,6 +191,7 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 **Purpose**: Create comprehensive guide for developers to migrate from old patterns to new explicit import patterns.
 
 **Implementation Subtasks:**
+
 - [ ] **Create Migration Guide Document**: New file with step-by-step migration instructions
 - [ ] **Document Common Patterns**: Show before/after examples for common scenarios
 - [ ] **Include Troubleshooting**: Address common migration issues and solutions
@@ -178,10 +199,12 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 - [ ] **Provide Quick Reference**: Cheat sheet for common import patterns
 
 **Migration Guide Contents:**
+
 ```markdown
 # New File: E2E_INTERCEPTOR_MIGRATION_GUIDE.md
 
 ## Sections:
+
 - Introduction to Consolidated Architecture
 - Step-by-Step Migration Process
 - Common Migration Scenarios
@@ -201,6 +224,7 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 **Purpose**: Run complete test suite validation to ensure no regressions and document final performance metrics.
 
 **Implementation Subtasks:**
+
 - [ ] **Run Full E2E Test Suite**: Execute all tests and document results
 - [ ] **Validate Cross-Domain Scenarios**: Test complex workflows across all domains
 - [ ] **Performance Benchmarking**: Document test execution times and performance
@@ -209,6 +233,7 @@ Remove all deprecated files and constants, update comprehensive documentation, a
 - [ ] **Document Test Results**: Create comprehensive test validation report
 
 **Test Execution Plan:**
+
 ```bash
 # Complete test validation
 npx nx e2e teensyrom-ui-e2e --record false
@@ -223,6 +248,7 @@ npx nx e2e teensyrom-ui-e2e --spec "src/e2e/devices/device-indexing.cy.ts,src/e2
 ```
 
 **Expected Results:**
+
 - All 13 migrated endpoints functioning correctly
 - Cross-domain integration working seamlessly
 - No performance regressions
@@ -238,6 +264,7 @@ npx nx e2e teensyrom-ui-e2e --spec "src/e2e/devices/device-indexing.cy.ts,src/e2
 **Purpose**: Validate that the new consolidated architecture meets or exceeds performance standards and identify optimization opportunities.
 
 **Implementation Subtasks:**
+
 - [ ] **Baseline Performance Measurement**: Document current test execution performance
 - [ ] **Memory Usage Analysis**: Check for memory leaks or excessive usage
 - [ ] **Import Resolution Performance**: Test explicit import pattern performance
@@ -246,6 +273,7 @@ npx nx e2e teensyrom-ui-e2e --spec "src/e2e/devices/device-indexing.cy.ts,src/e2
 - [ ] **Performance Documentation**: Create performance baseline and guidelines
 
 **Performance Metrics to Track:**
+
 ```typescript
 // Performance tracking metrics
 interface PerformanceMetrics {
@@ -268,6 +296,7 @@ interface PerformanceMetrics {
 **Purpose**: Create comprehensive final documentation summarizing the completed architecture and providing maintenance guidelines.
 
 **Implementation Subtasks:**
+
 - [ ] **Create Architecture Summary**: Document final consolidated architecture
 - [ ] **Maintenance Guidelines**: Provide guidelines for long-term maintenance
 - [ ] **Future Enhancement Patterns**: Document patterns for adding new endpoints
@@ -275,10 +304,12 @@ interface PerformanceMetrics {
 - [ ] **Update Main Plan**: Mark E2E_INTERCEPTOR_REFACTOR_PLAN.md as complete
 
 **Final Documentation:**
+
 ```markdown
 # New File: E2E_INTERCEPTOR_ARCHITECTURE.md
 
 ## Sections:
+
 - Final Architecture Overview
 - Component Structure and Relationships
 - Maintenance Guidelines
@@ -296,18 +327,21 @@ interface PerformanceMetrics {
 > List all files that will be changed or created during this phase with full relative paths from project root.
 
 **Modified Files:**
+
 - `apps/teensyrom-ui-e2e/src/support/constants/api.constants.ts` (remove deprecated constants)
 - `apps/teensyrom-ui-e2e/src/support/interceptors/storage-indexing.interceptors.ts` (delete)
 - `apps/teensyrom-ui-e2e/E2E_TESTS.md` (update with new patterns)
 - `docs/features/e2e-testing/E2E_INTERCEPTOR_REFACTOR_PLAN.md` (mark as complete)
 
 **New Files:**
+
 - `docs/features/e2e-testing/E2E_INTERCEPTOR_REFACTOR_P5.md` (this file)
 - `docs/features/e2e-testing/E2E_INTERCEPTOR_MIGRATION_GUIDE.md` (developer guide)
 - `docs/features/e2e-testing/E2E_INTERCEPTOR_ARCHITECTURE.md` (final architecture)
 - `docs/features/e2e-testing/PHASE_5_VALIDATION_RESULTS.md` (test results)
 
 **Files to Keep (Barrel Exports):**
+
 - `apps/teensyrom-ui-e2e/src/support/interceptors/player.interceptors.ts` (barrel export)
 - `apps/teensyrom-ui-e2e/src/support/interceptors/examples/sampleEndpoint.interceptors.ts` (reference)
 
@@ -318,42 +352,49 @@ interface PerformanceMetrics {
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Code Cleanup:**
+
 - [ ] All deprecated constants removed from api.constants.ts
 - [ ] Deprecated interceptor files properly removed or converted
 - [ ] Code follows consistent patterns across all files
 - [ ] No unused imports or legacy code remaining
 
 **Documentation Updates:**
+
 - [ ] E2E_TESTS.md updated with new interceptor patterns
 - [ ] Migration guide created with comprehensive examples
 - [ ] Architecture documentation completed
 - [ ] All cross-references and links updated correctly
 
 **Test Validation:**
+
 - [ ] Full E2E test suite passes with zero regressions
 - [ ] All 13 migrated endpoints functioning correctly
 - [ ] Cross-domain integration scenarios working
 - [ ] Performance meets or exceeds baseline metrics
 
 **Performance Validation:**
+
 - [ ] No performance regressions introduced
 - [ ] Memory usage within acceptable limits
 - [ ] Test execution time optimized
 - [ ] Performance baseline documented
 
 **Developer Experience:**
+
 - [ ] Migration guide enables smooth transition to new patterns
 - [ ] Clear documentation for adding new endpoints
 - [ ] Comprehensive examples and best practices provided
 - [ ] Troubleshooting guide addresses common issues
 
 **Project Completion:**
+
 - [ ] All phases (1-5) successfully completed
 - [ ] Main refactoring plan marked as complete
 - [ ] Lessons learned documented for future projects
 - [ ] Architecture ready for long-term maintenance
 
 **Quality Assurance:**
+
 - [ ] Code follows established coding standards
 - [ ] Documentation follows established writing standards
 - [ ] All TypeScript errors and warnings resolved
@@ -394,12 +435,14 @@ interface PerformanceMetrics {
 ### Project Success Metrics
 
 **Quantitative Metrics:**
+
 - 13 endpoints successfully migrated to individual files
 - 70%+ reduction in file fragmentation achieved
 - Zero test regressions throughout migration process
 - Performance maintained or improved
 
 **Qualitative Metrics:**
+
 - Improved developer experience with explicit imports
 - Enhanced code organization and maintainability
 - Clear documentation and migration paths
@@ -421,6 +464,7 @@ interface PerformanceMetrics {
 This phase represents the culmination of the E2E interceptor refactoring initiative, transforming a fragmented testing infrastructure into a clean, maintainable, and well-documented architecture that will serve the project effectively for years to come.
 
 **The completion of Phase 5 signifies:**
+
 - ✅ Full migration from scattered to consolidated interceptor architecture
 - ✅ Comprehensive documentation and developer resources
 - ✅ Validated performance and functionality
@@ -428,6 +472,7 @@ This phase represents the culmination of the E2E interceptor refactoring initiat
 - ✅ Established patterns for future enhancements
 
 **Legacy Achieved:**
+
 - Systematic, zero-regression migration of 13 endpoints across 4 domains
 - 70%+ reduction in file fragmentation and improved developer experience
 - Comprehensive documentation ensuring sustainable maintenance

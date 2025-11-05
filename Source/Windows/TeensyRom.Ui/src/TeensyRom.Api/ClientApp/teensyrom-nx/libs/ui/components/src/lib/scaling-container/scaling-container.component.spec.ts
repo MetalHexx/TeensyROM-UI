@@ -25,14 +25,14 @@ describe('ScalingContainerComponent', () => {
   it('should project content through ng-content', () => {
     // Create fixture with projected content
     const testFixture = TestBed.createComponent(ScalingContainerComponent);
-    
+
     // Add test content
     const compiled = testFixture.nativeElement;
     const testContent = document.createElement('div');
     testContent.className = 'test-content';
     testContent.textContent = 'Test Content';
     compiled.appendChild(testContent);
-    
+
     testFixture.detectChanges();
 
     // Component should render content
@@ -139,7 +139,7 @@ describe('ScalingContainerComponent', () => {
 
       // Verify the mode is set correctly
       expect(childComponent.animationParent()).toBe('auto');
-      
+
       // Note: Full DI hierarchy testing (parent->child waiting) requires integration tests
       // This unit test verifies the input accepts 'auto' mode correctly
     });

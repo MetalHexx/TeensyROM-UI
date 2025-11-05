@@ -13,11 +13,7 @@ export function indexStorage(
   storageService: IStorageService = inject(DEVICE_STORAGE_SERVICE)
 ) {
   return {
-    indexStorage: async (
-      deviceId: string,
-      storageType: StorageType,
-      startingPath?: string
-    ) => {
+    indexStorage: async (deviceId: string, storageType: StorageType, startingPath?: string) => {
       patchState(store, { isIndexing: true, error: null });
       try {
         await firstValueFrom(storageService.index(deviceId, storageType, startingPath));

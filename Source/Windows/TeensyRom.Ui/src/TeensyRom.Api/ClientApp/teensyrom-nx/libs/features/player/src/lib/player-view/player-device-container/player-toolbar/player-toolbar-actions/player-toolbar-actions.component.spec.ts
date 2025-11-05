@@ -63,7 +63,10 @@ describe('PlayerToolbarActionsComponent', () => {
     favoriteOperationsState: ReturnType<typeof vi.fn>;
   };
   let currentFileSignal: WritableSignal<ReturnType<typeof createLaunchedFile> | null>;
-  let favoriteOperationsStateSignal: WritableSignal<{ isProcessing: boolean; error: string | null }>;
+  let favoriteOperationsStateSignal: WritableSignal<{
+    isProcessing: boolean;
+    error: string | null;
+  }>;
 
   beforeEach(async () => {
     currentFileSignal = signal<ReturnType<typeof createLaunchedFile> | null>(null);
@@ -87,7 +90,7 @@ describe('PlayerToolbarActionsComponent', () => {
       providers: [
         { provide: PLAYER_CONTEXT, useValue: mockPlayerContext },
         { provide: StorageStore, useValue: mockStorageStore },
-      ]
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PlayerToolbarActionsComponent);
@@ -132,12 +135,16 @@ describe('PlayerToolbarActionsComponent', () => {
     });
 
     it('should return true when current file has isFavorite flag set to true', () => {
-      currentFileSignal.set(createLaunchedFile('test-device', StorageType.Sd, { isFavorite: true }));
+      currentFileSignal.set(
+        createLaunchedFile('test-device', StorageType.Sd, { isFavorite: true })
+      );
       expect(component.isFavorite()).toBe(true);
     });
 
     it('should return false when current file has isFavorite flag set to false', () => {
-      currentFileSignal.set(createLaunchedFile('test-device', StorageType.Sd, { isFavorite: false }));
+      currentFileSignal.set(
+        createLaunchedFile('test-device', StorageType.Sd, { isFavorite: false })
+      );
       expect(component.isFavorite()).toBe(false);
     });
   });
@@ -162,7 +169,10 @@ describe('PlayerToolbarActionsComponent', () => {
   describe('Toggle Favorite - toggleFavorite()', () => {
     it('should call saveFavorite and update player context when current file is not favorited', async () => {
       currentFileSignal.set(
-        createLaunchedFile('test-device', StorageType.Sd, { isFavorite: false, path: '/games/game.rom' })
+        createLaunchedFile('test-device', StorageType.Sd, {
+          isFavorite: false,
+          path: '/games/game.rom',
+        })
       );
       mockStorageStore.saveFavorite.mockImplementation(async () => {
         favoriteOperationsStateSignal.set({ isProcessing: false, error: null });
@@ -184,7 +194,10 @@ describe('PlayerToolbarActionsComponent', () => {
 
     it('should call removeFavorite and update player context when current file is favorited', async () => {
       currentFileSignal.set(
-        createLaunchedFile('test-device', StorageType.Sd, { isFavorite: true, path: '/games/game.rom' })
+        createLaunchedFile('test-device', StorageType.Sd, {
+          isFavorite: true,
+          path: '/games/game.rom',
+        })
       );
       mockStorageStore.removeFavorite.mockImplementation(async () => {
         favoriteOperationsStateSignal.set({ isProcessing: false, error: null });
@@ -216,7 +229,10 @@ describe('PlayerToolbarActionsComponent', () => {
 
     it('should pass correct identifiers from storage key when saving favorite', async () => {
       currentFileSignal.set(
-        createLaunchedFile('device-123', StorageType.Usb, { isFavorite: false, path: '/music/music.mp3' })
+        createLaunchedFile('device-123', StorageType.Usb, {
+          isFavorite: false,
+          path: '/music/music.mp3',
+        })
       );
       mockStorageStore.saveFavorite.mockImplementation(async () => {
         favoriteOperationsStateSignal.set({ isProcessing: false, error: null });
@@ -238,7 +254,10 @@ describe('PlayerToolbarActionsComponent', () => {
 
     it('should not update player context when favorite operation reports an error', async () => {
       currentFileSignal.set(
-        createLaunchedFile('test-device', StorageType.Sd, { isFavorite: false, path: '/games/game.rom' })
+        createLaunchedFile('test-device', StorageType.Sd, {
+          isFavorite: false,
+          path: '/games/game.rom',
+        })
       );
       mockStorageStore.saveFavorite.mockImplementation(async () => {
         favoriteOperationsStateSignal.set({ isProcessing: false, error: 'Failed to save' });
@@ -253,7 +272,10 @@ describe('PlayerToolbarActionsComponent', () => {
     it('should return early when an operation is already in progress', async () => {
       favoriteOperationsStateSignal.set({ isProcessing: true, error: null });
       currentFileSignal.set(
-        createLaunchedFile('test-device', StorageType.Sd, { isFavorite: false, path: '/games/game.rom' })
+        createLaunchedFile('test-device', StorageType.Sd, {
+          isFavorite: false,
+          path: '/games/game.rom',
+        })
       );
 
       await component.toggleFavorite();
@@ -329,14 +351,18 @@ describe('PlayerToolbarActionsComponent', () => {
     });
 
     it('should display favorite_border icon when file is not favorited', () => {
-      currentFileSignal.set(createLaunchedFile('test-device', StorageType.Sd, { isFavorite: false }));
+      currentFileSignal.set(
+        createLaunchedFile('test-device', StorageType.Sd, { isFavorite: false })
+      );
       fixture.detectChanges();
 
       expect(component.isFavorite()).toBe(false);
     });
 
     it('should display favorite icon when file is favorited', () => {
-      currentFileSignal.set(createLaunchedFile('test-device', StorageType.Sd, { isFavorite: true }));
+      currentFileSignal.set(
+        createLaunchedFile('test-device', StorageType.Sd, { isFavorite: true })
+      );
       fixture.detectChanges();
 
       expect(component.isFavorite()).toBe(true);
@@ -350,7 +376,9 @@ describe('PlayerToolbarActionsComponent', () => {
     });
 
     it('should disable favorite button when operation is in progress', () => {
-      currentFileSignal.set(createLaunchedFile('test-device', StorageType.Sd, { isFavorite: false }));
+      currentFileSignal.set(
+        createLaunchedFile('test-device', StorageType.Sd, { isFavorite: false })
+      );
       favoriteOperationsStateSignal.set({ isProcessing: true, error: null });
       fixture.detectChanges();
 
@@ -358,14 +386,18 @@ describe('PlayerToolbarActionsComponent', () => {
     });
 
     it('should set highlight color when file is favorited', () => {
-      currentFileSignal.set(createLaunchedFile('test-device', StorageType.Sd, { isFavorite: true }));
+      currentFileSignal.set(
+        createLaunchedFile('test-device', StorageType.Sd, { isFavorite: true })
+      );
       fixture.detectChanges();
 
       expect(component.isFavorite()).toBe(true);
     });
 
     it('should set normal color when file is not favorited', () => {
-      currentFileSignal.set(createLaunchedFile('test-device', StorageType.Sd, { isFavorite: false }));
+      currentFileSignal.set(
+        createLaunchedFile('test-device', StorageType.Sd, { isFavorite: false })
+      );
       fixture.detectChanges();
 
       expect(component.isFavorite()).toBe(false);

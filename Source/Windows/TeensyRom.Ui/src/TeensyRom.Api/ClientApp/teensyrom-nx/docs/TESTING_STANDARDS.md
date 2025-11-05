@@ -8,18 +8,19 @@ This application uses **Clean Architecture** with strict layer separation. Testi
 
 ### Testing Strategy by Layer
 
-| Layer | Location | Testing Approach | Mock Boundary |
-|-------|----------|------------------|---------------|
-| **Domain** | `libs/domain` | Don't test contracts/models.  Test domain logic. | N/A - Interfaces used as mocks |
-| **Infrastructure** | `libs/infrastructure` | Unit test in isolation | Mock generated API clients |
-| **Application** | `libs/application` | **Behavioral** - integrate stores/services | Mock infrastructure only |
-| **Features** | `libs/features` | Unit test - Mock the application layer. |
-| **UI Components** | `libs/ui` | Unit test |
-| **Utilities** | `libs/utils` | Unit test |
+| Layer              | Location              | Testing Approach                                | Mock Boundary                  |
+| ------------------ | --------------------- | ----------------------------------------------- | ------------------------------ |
+| **Domain**         | `libs/domain`         | Don't test contracts/models. Test domain logic. | N/A - Interfaces used as mocks |
+| **Infrastructure** | `libs/infrastructure` | Unit test in isolation                          | Mock generated API clients     |
+| **Application**    | `libs/application`    | **Behavioral** - integrate stores/services      | Mock infrastructure only       |
+| **Features**       | `libs/features`       | Unit test - Mock the application layer.         |
+| **UI Components**  | `libs/ui`             | Unit test                                       |
+| **Utilities**      | `libs/utils`          | Unit test                                       |
 
 **Key Principle**: Mock only at infrastructure boundaries. Application and features layers integrate real stores, services, and application logic together.
 
 **What NOT to Test**:
+
 - ❌ Domain models or interfaces (use as mocks)
 - ❌ Contract definitions (they define test mocks)
 - ❌ Backend APIs (E2E only)
@@ -34,7 +35,7 @@ This application uses **Clean Architecture** with strict layer separation. Testi
 
 ### Domain Layer (`libs/domain`)
 
-**Test Domain Logic only** - Pure contracts and models are not tested directly. They are used as mocks in other layers.  Unit test domain logic if applicable.
+**Test Domain Logic only** - Pure contracts and models are not tested directly. They are used as mocks in other layers. Unit test domain logic if applicable.
 
 ### Infrastructure Layer (`libs/infrastructure`)
 
@@ -44,19 +45,21 @@ This application uses **Clean Architecture** with strict layer separation. Testi
 // libs/infrastructure/device/device.service.spec.ts
 TestBed.configureTestingModule({
   providers: [
-    DeviceService,                                        // Infrastructure implementation
+    DeviceService, // Infrastructure implementation
     { provide: DevicesApiService, useValue: mockApiClient }, // Mock generated client
   ],
 });
 ```
 
 **Test Focus**:
+
 - Service contract implementation correctness
 - DTO → Domain model mapping (via mappers)
 - Error handling and edge cases
 - RxJS observable patterns
 
 **File Organization**:
+
 ```
 libs/infrastructure/device/
 ├── device.service.ts
@@ -73,17 +76,18 @@ libs/infrastructure/device/
 // libs/application/player/player-context.service.spec.ts
 TestBed.configureTestingModule({
   providers: [
-    PlayerContextService,                                      // Real context service
-    PlayerStore,                                               // Real store
-    { provide: PLAYER_SERVICE, useValue: mockPlayerService },  // Mock infrastructure
+    PlayerContextService, // Real context service
+    PlayerStore, // Real store
+    { provide: PLAYER_SERVICE, useValue: mockPlayerService }, // Mock infrastructure
   ],
 });
 ```
 
 **Test Focus**:
+
 - Complete workflow behaviors and state coordination
 - Store state updates and computed signals
-- Multi-component integration (stores + services working together) 
+- Multi-component integration (stores + services working together)
 - Error handling and recovery workflows
 - Complex business logic paths
 - Do not test individual store actions nor selectors.
@@ -93,6 +97,7 @@ TestBed.configureTestingModule({
 **Detailed Methodology**: See [STORE_TESTING.md](./STORE_TESTING.md)
 
 **File Organization**:
+
 ```
 libs/application/player/
 ├── player-context.service.ts
@@ -105,17 +110,18 @@ libs/application/player/
 **Behavioral testing** - Integrate with real application state. Mock infrastructure only.
 
 ```typescript
-// libs/features/devices/device-view.component.spec.ts  
+// libs/features/devices/device-view.component.spec.ts
 TestBed.configureTestingModule({
   providers: [
-    DeviceStore,                                               // Real store
-    StorageStore,                                              // Real store
-    { provide: DEVICE_SERVICE, useValue: mockDeviceService },  // Mock infrastructure
+    DeviceStore, // Real store
+    StorageStore, // Real store
+    { provide: DEVICE_SERVICE, useValue: mockDeviceService }, // Mock infrastructure
   ],
 });
 ```
 
 **Test Focus**:
+
 - Feature component workflows with realistic state
 - User interactions trigger correct application behaviors
 - Component rendering based on application state
@@ -125,6 +131,7 @@ TestBed.configureTestingModule({
 **Detailed Methodology**: See [SMART_COMPONENT_TESTING.md](./SMART_COMPONENT_TESTING.md)
 
 **File Organization**:
+
 ```
 libs/features/devices/
 ├── device-view.component.ts
@@ -136,6 +143,7 @@ libs/features/devices/
 **Unit test presentational logic** - Test pure presentation with minimal mocking.
 
 **Test Focus**:
+
 - Input property handling
 - Output event emissions
 - Rendering based on inputs
@@ -143,6 +151,7 @@ libs/features/devices/
 - Accessibility features
 
 **File Organization**:
+
 ```
 libs/ui/components/action-button/
 ├── action-button.component.ts
@@ -154,15 +163,18 @@ libs/ui/components/action-button/
 **Unit test ** - Test in complete isolation.
 
 **Test Focus**:
+
 - Pure function logic and transformations
 - Edge cases and boundary conditions
 - Error handling
 
-**Examples**: 
+**Examples**:
+
 - [`storage-key.util.spec.ts`](../libs/application/src/lib/storage/storage-key.util.spec.ts)
 - [`log-helper.spec.ts`](../libs/utils/src/lib/log-helper.spec.ts)
 
 **File Organization**:
+
 ```
 libs/utils/
 ├── log-helper.ts
@@ -208,11 +220,9 @@ beforeEach(() => {
     success: vi.fn(),
     alerts$: of([]),
   };
-  
+
   TestBed.configureTestingModule({
-    providers: [
-      { provide: ALERT_SERVICE, useValue: mockAlertService }
-    ]
+    providers: [{ provide: ALERT_SERVICE, useValue: mockAlertService }],
   });
 });
 ```
@@ -241,7 +251,7 @@ let mockService: {
 ### Pattern Summary
 
 - ✅ **Always** import domain contract interface (`IAlertService`, `IDeviceService`, etc.)
-- ✅ **Always** type mock variables as `Partial<IContract>` 
+- ✅ **Always** type mock variables as `Partial<IContract>`
 - ✅ **Always** provide mocks via injection tokens (`ALERT_SERVICE`, `DEVICE_SERVICE`)
 - ❌ **Never** use inline object types for mocks
 - ❌ **Never** skip typing mock variables
@@ -276,6 +286,7 @@ it('Should display index button for available USB storage', () => {
 **E2E tests validate complete user workflows** using Cypress with fixture-driven, interceptor-based API mocking.
 
 **Key Benefits**:
+
 - Deterministic tests (no flakiness from real API)
 - Fast execution (no network latency)
 - Isolated scenarios (test specific device states)

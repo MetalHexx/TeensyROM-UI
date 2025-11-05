@@ -1,10 +1,6 @@
 import { inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import {
-  StorageType,
-  IStorageService,
-  STORAGE_SERVICE,
-} from '@teensyrom-nx/domain';
+import { StorageType, IStorageService, STORAGE_SERVICE } from '@teensyrom-nx/domain';
 import { StorageState, NavigationHistory } from '../storage-store';
 import { StorageKeyUtil } from '../storage-key.util';
 import {

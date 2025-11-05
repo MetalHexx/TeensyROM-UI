@@ -11,10 +11,12 @@ Update the browser URL when files are launched through `PlayerContextService`, e
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [x] [Deep Linking Plan](./DEEP_LINKING_PLAN.md) - High-level feature plan and architecture
 - [x] [Player Context Service](../../../libs/application/src/lib/player/player-context.service.ts) - Service being modified
 
 **Standards & Guidelines:**
+
 - [ ] [Coding Standards](../../CODING_STANDARDS.md) - General coding patterns and conventions
 - [ ] [Testing Standards](../../TESTING_STANDARDS.md) - Testing approaches and best practices
 
@@ -38,16 +40,20 @@ libs/application/src/lib/player/
 **Purpose**: Inject Angular's `Location` service to enable URL updates without triggering route navigation.
 
 **Related Documentation:**
+
 - [Angular Location API](https://angular.io/api/common/Location) - Official Angular documentation
 
 **Implementation Subtasks:**
+
 - [ ] **Import Location**: Add `Location` import from `@angular/common` at top of file
 - [ ] **Inject Service**: Add `private readonly location = inject(Location)` to service class
 
 **Testing Subtask:**
+
 - [ ] **No Tests Required**: Simple dependency injection, validated by integration tests
 
 **Key Implementation Notes:**
+
 - Add after existing service injections (`PlayerStore`, `StorageStore`, `PlayerTimerManager`)
 - Use readonly to prevent reassignment
 - Use inject() function pattern (matches existing code style)
@@ -62,9 +68,11 @@ libs/application/src/lib/player/
 **Purpose**: Centralize URL update logic in a reusable private method that extracts current file state and updates the browser URL.
 
 **Related Documentation:**
+
 - [Deep Linking Plan - Phase 3](./DEEP_LINKING_PLAN.md#phase-3-url-update-on-file-launch) - Requirements and design decisions
 
 **Implementation Subtasks:**
+
 - [ ] **Create Method**: Add private method `updateUrlForLaunchedFile(deviceId: string): void`
 - [ ] **Extract File Info**: Get current file from `store.getCurrentFile(deviceId)()`
 - [ ] **Parse Storage Key**: Use `StorageKeyUtil.parse()` to extract `deviceId` and `storageType`
@@ -72,9 +80,11 @@ libs/application/src/lib/player/
 - [ ] **Update URL**: Call `location.go('/player', queryString)` to update URL without navigation
 
 **Testing Subtask:**
+
 - [ ] **No Tests Required**: Simple utility method, validated by E2E tests in Phase 4
 
 **Key Implementation Notes:**
+
 - Return early if `currentFile` is null (nothing to update)
 - Convert `StorageType` enum to string: `StorageType.Sd` → `'SD'`, `StorageType.Usb` → `'USB'`
 - Use `currentFile.parentPath` for the `path` parameter
@@ -83,6 +93,7 @@ libs/application/src/lib/player/
 - Use `location.go()` not `router.navigate()` to avoid re-triggering resolver
 
 **Critical Method Signature**:
+
 ```typescript
 private updateUrlForLaunchedFile(deviceId: string): void {
   const currentFile = this.store.getCurrentFile(deviceId)();
@@ -102,9 +113,11 @@ private updateUrlForLaunchedFile(deviceId: string): void {
 **Purpose**: Call the URL update helper after successful file launches in all file navigation methods.
 
 **Related Documentation:**
+
 - [Deep Linking Plan - Phase 3 Implementation](./DEEP_LINKING_PLAN.md#implementation-tasks) - All methods requiring updates
 
 **Implementation Subtasks:**
+
 - [ ] **launchFileWithContext**: Add `updateUrlForLaunchedFile()` call after error check (~line 58)
 - [ ] **launchRandomFile**: Add `updateUrlForLaunchedFile()` call after error check (~line 99)
 - [ ] **next() - Directory Mode**: Add URL update after successful navigation
@@ -116,9 +129,11 @@ private updateUrlForLaunchedFile(deviceId: string): void {
 - [ ] **navigateToHistoryPosition**: Add URL update after successful navigation (~line 490)
 
 **Testing Subtask:**
+
 - [ ] **No Tests Required**: File launch behaviors already tested, E2E tests validate URLs in Phase 4
 
 **Key Implementation Notes:**
+
 - **CRITICAL**: Only update URL after error check using `hasErrorAndCleanup()` returns false
 - Place URL update call after `setupTimerForFile()` in each method
 - For `next()` and `previous()`, update URL in both shuffle mode paths (history navigation AND new file launch)
@@ -126,6 +141,7 @@ private updateUrlForLaunchedFile(deviceId: string): void {
 - Consistent pattern: error check → record history (if new file) → setup timer → update URL
 
 **Integration Pattern Example**:
+
 ```typescript
 // After successful launch and timer setup
 if (!this.hasErrorAndCleanup(deviceId)) {
@@ -142,6 +158,7 @@ if (!this.hasErrorAndCleanup(deviceId)) {
 ## 🗂️ Files Modified or Created
 
 **Modified Files:**
+
 - `libs/application/src/lib/player/player-context.service.ts`
 
 **No New Files Created**
@@ -154,6 +171,7 @@ if (!this.hasErrorAndCleanup(deviceId)) {
 > **IMPORTANT:** Phase 3 requires **NO unit tests** - this is simple URL synchronization logic.
 
 > **Testing Philosophy:**
+>
 > - Existing unit tests already validate file launch behaviors work correctly
 > - URL updates are a side effect of successful launches (non-functional requirement)
 > - Phase 4 E2E tests will validate URL updates in real browser environment
@@ -162,11 +180,13 @@ if (!this.hasErrorAndCleanup(deviceId)) {
 ### Testing Approach
 
 **No Unit Tests Required Because:**
+
 - URL update is a simple side effect of existing validated behaviors
 - `location.go()` is a framework API call (no business logic to test)
 - E2E tests provide better validation of URL/browser history integration
 
 **Phase 4 E2E Tests Will Validate:**
+
 - URL updates when file launched from directory
 - URL updates when random file launched
 - URL updates when navigating next/previous
@@ -177,6 +197,7 @@ if (!this.hasErrorAndCleanup(deviceId)) {
 ### Manual Testing During Development
 
 **Test these scenarios manually:**
+
 1. Launch file from directory → URL updates with all 4 params
 2. Click "Random" button → URL updates with random file
 3. Click "Next" button → URL updates with next file
@@ -187,6 +208,7 @@ if (!this.hasErrorAndCleanup(deviceId)) {
 ### Test Execution Commands
 
 **Running Existing Tests:**
+
 ```bash
 # Verify no regressions in existing tests
 npx nx test application
@@ -205,6 +227,7 @@ npx nx test application --testPathPattern=player-context
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Functional Requirements:**
+
 - [ ] All implementation tasks completed and checked off
 - [ ] All subtasks within each task completed
 - [ ] Code follows [Coding Standards](../../CODING_STANDARDS.md)
@@ -213,22 +236,26 @@ npx nx test application --testPathPattern=player-context
 - [ ] All file launch methods update URL after successful launch
 
 **Testing Requirements:**
+
 - [ ] Existing unit tests still pass with no regressions
 - [ ] Manual testing confirms URL updates correctly
 - [ ] Manual testing confirms browser back/forward work
 - [ ] Manual testing confirms all 4 query params present
 
 **Quality Checks:**
+
 - [ ] No TypeScript errors or warnings
 - [ ] Linting passes with no errors (`npm run lint`)
 - [ ] Code formatting is consistent
 - [ ] No console errors in browser when testing
 
 **Documentation:**
+
 - [ ] Inline comments added for URL update logic
 - [ ] Phase 3 marked complete in [DEEP_LINKING_PLAN.md](./DEEP_LINKING_PLAN.md)
 
 **Ready for Next Phase:**
+
 - [ ] All success criteria met
 - [ ] No known bugs or issues
 - [ ] Ready to proceed to Phase 4 (E2E Testing)
@@ -284,6 +311,7 @@ npx nx test application --testPathPattern=player-context
 ### Key Integration Points
 
 **Methods Requiring URL Updates (in order of implementation):**
+
 1. `launchFileWithContext()` - Primary file launch
 2. `launchRandomFile()` - Random file selection
 3. `next()` - Both history navigation and new file paths
@@ -300,6 +328,7 @@ npx nx test application --testPathPattern=player-context
 ### Validation Checklist
 
 After each method integration:
+
 - [ ] URL update only happens after `hasErrorAndCleanup()` check
 - [ ] URL update happens after timer setup
 - [ ] All 4 query parameters present in URL

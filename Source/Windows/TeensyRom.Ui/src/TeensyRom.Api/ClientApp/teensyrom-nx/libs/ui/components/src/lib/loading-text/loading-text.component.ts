@@ -5,14 +5,14 @@ import { LeetTextContainerComponent } from '../leet-text-container/leet-text-con
 /**
  * Loading text component with fade-in/fade-out animation and leet-speak cycling effect.
  * Wraps the leet-text-container with elegant fade animations suitable for corner slots and loading indicators.
- * 
+ *
  * Displays "Loading..." by default, but custom text can be provided via ng-content.
  *
  * @example
  * ```html
  * <!-- Default "Loading..." text -->
  * <lib-loading-text [visible]="isLoading()"></lib-loading-text>
- * 
+ *
  * <!-- In a corner slot with default text -->
  * <lib-scaling-card title="Data">
  *   <lib-loading-text slot="corner" [visible]="isLoading()"></lib-loading-text>
@@ -33,8 +33,8 @@ import { LeetTextContainerComponent } from '../leet-text-container/leet-text-con
   templateUrl: './loading-text.component.html',
   styleUrl: './loading-text.component.scss',
   host: {
-    '[class.visible]': 'visible()'
-  }
+    '[class.visible]': 'visible()',
+  },
 })
 export class LoadingTextComponent {
   /**

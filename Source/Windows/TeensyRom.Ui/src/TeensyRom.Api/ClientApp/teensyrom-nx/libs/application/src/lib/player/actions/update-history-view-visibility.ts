@@ -22,10 +22,7 @@ export function updateHistoryViewVisibility(
 
   const playerState = store.players()[deviceId];
   if (!playerState) {
-    logInfo(
-      LogType.Warning,
-      `${actionMessage}: Player state not found for device ${deviceId}`
-    );
+    logInfo(LogType.Warning, `${actionMessage}: Player state not found for device ${deviceId}`);
     return;
   }
 

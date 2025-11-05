@@ -8,7 +8,7 @@ Establish the foundation for search functionality by updating domain contracts, 
 
 - [ ] [Search Plan](./SEARCH_PLAN.md) - Overall feature architecture and multi-phase plan
 - [ ] [API Client Generation](../../API_CLIENT_GENERATION.md) - Understanding API client patterns
-patterns
+      patterns
 - [ ] [Coding Standards](../../CODING_STANDARDS.md) - TypeScript and Angular patterns
 - [ ] [Testing Standards](../../TESTING_STANDARDS.md) - Unit testing methodology
 
@@ -57,6 +57,7 @@ libs/
   - Clear parameter naming
 
 **Reference Files**:
+
 - Current IStorageService interface shows patterns for `getDirectory()` and `index()` methods
 - FilesApiService.ts shows API-level search method already exists with `SearchRequest` and `SearchResponse` types
 
@@ -91,12 +92,14 @@ libs/
 - [ ] Return `Observable<FileItem[]>` to match contract
 
 **Implementation Notes**:
+
 - FilesApiService already has search() method - no API client regeneration needed
 - Base API URL extraction already handled in constructor: `this.baseApiUrl = (this.apiService as any).configuration?.basePath || 'http://localhost:5168'`
 - DomainMapper.toFileItem() already handles image URL construction when given base URL
 - Follow exact same pattern as getDirectory() for consistency
 
 **Reference Pattern** from existing getDirectory():
+
 ```typescript
 getDirectory(deviceId: string, storageType: StorageType, path?: string): Observable<StorageDirectory> {
   const apiStorageType = DomainMapper.toApiStorageType(storageType);
@@ -187,6 +190,7 @@ getDirectory(deviceId: string, storageType: StorageType, path?: string): Observa
   - Test with multiple images per file
 
 **Testing Notes**:
+
 - Use Vitest mocking patterns: `vi.fn()`, `mockReturnValue()`, `mockRejectedValue()`
 - Use TestBed for service instantiation with mocked dependencies
 - Mock FilesApiService with typed mocks
@@ -194,6 +198,7 @@ getDirectory(deviceId: string, storageType: StorageType, path?: string): Observa
 - Follow TESTING_STANDARDS.md patterns for test structure
 
 **Mock Data Examples Needed**:
+
 - `createMockSearchResponse()` - Factory for SearchResponse with FileItemDto array
 - `createMockFileItemDto()` - Factory for individual file DTOs
 - `createMockFileItem()` - Factory for expected domain FileItem
@@ -203,11 +208,13 @@ getDirectory(deviceId: string, storageType: StorageType, path?: string): Observa
 ## 🗂️ File Changes
 
 ### Modified Files
+
 - [`libs/domain/src/lib/contracts/storage.contract.ts`](../../../libs/domain/src/lib/contracts/storage.contract.ts) - Add search method signature
 - [`libs/infrastructure/src/lib/storage/storage.service.ts`](../../../libs/infrastructure/src/lib/storage/storage.service.ts) - Implement search method
 - [`libs/infrastructure/src/lib/storage/storage.service.spec.ts`](../../../libs/infrastructure/src/lib/storage/storage.service.spec.ts) - Add search tests
 
 ### Reviewed Files (No Changes)
+
 - [`libs/infrastructure/src/lib/domain.mapper.ts`](../../../libs/infrastructure/src/lib/domain.mapper.ts) - Verify existing filter mapping
 - [`libs/data-access/api-client/src/lib/apis/FilesApiService.ts`](../../../libs/data-access/api-client/src/lib/apis/FilesApiService.ts) - API method already exists
 
@@ -231,6 +238,7 @@ getDirectory(deviceId: string, storageType: StorageType, path?: string): Observa
 - [ ] Domain type conversions (StorageType, PlayerFilterType) verified
 
 **Test Coverage Requirements**:
+
 - Minimum 80% line coverage for new search method
 - 100% coverage for error handling paths
 - All filter type variations tested

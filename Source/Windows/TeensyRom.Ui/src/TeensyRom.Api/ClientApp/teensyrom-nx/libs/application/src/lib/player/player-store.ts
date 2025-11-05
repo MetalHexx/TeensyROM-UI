@@ -1,6 +1,12 @@
 import { signalStore, withState } from '@ngrx/signals';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
-import { FileItem, LaunchMode, PlayerStatus, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
+import {
+  FileItem,
+  LaunchMode,
+  PlayerStatus,
+  PlayerFilterType,
+  PlayerScope,
+} from '@teensyrom-nx/domain';
 import { StorageKey } from '../storage/storage-key.util';
 import { withPlayerSelectors } from './selectors';
 import { withPlayerActions } from './actions';

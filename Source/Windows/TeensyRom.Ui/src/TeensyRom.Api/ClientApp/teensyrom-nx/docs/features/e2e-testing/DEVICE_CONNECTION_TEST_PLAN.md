@@ -9,6 +9,7 @@ Create comprehensive E2E tests for device connection and disconnection workflows
 **Testing Value**: Validates the complete connection lifecycle - initial state, API interaction, state updates, visual feedback, error handling, and reconnection flows. Tests ensure the UI correctly reflects connection state changes and provides appropriate user feedback throughout the process.
 
 **Core Testing Focus**:
+
 - **Connection Initiation**: Clicking power button triggers connection API call
 - **State Synchronization**: UI updates correctly after successful connection
 - **Visual Feedback**: Connection status indicators reflect current state
@@ -51,6 +52,7 @@ Test basic connection and disconnection workflows for a single TeensyROM device,
 ### User Scenarios Tested
 
 **Connection Scenarios**:
+
 ```gherkin
 Given a disconnected device is displayed
 When user clicks the power button
@@ -61,6 +63,7 @@ And device card is not dimmed
 ```
 
 **Disconnection Scenarios**:
+
 ```gherkin
 Given a connected device is displayed
 When user clicks the power button
@@ -71,6 +74,7 @@ And device card is dimmed
 ```
 
 **Error Recovery Scenarios**:
+
 ```gherkin
 Given a disconnected device is displayed
 When user clicks the power button
@@ -121,6 +125,7 @@ Test connection and disconnection workflows with multiple devices simultaneously
 ### User Scenarios Tested
 
 **Independent Connection**:
+
 ```gherkin
 Given three disconnected devices are displayed
 When user connects device 1
@@ -130,16 +135,18 @@ And each device maintains independent state
 ```
 
 **Sequential Connections**:
+
 ```gherkin
 Given three disconnected devices are displayed
 When user connects device 1
-And user connects device 2  
+And user connects device 2
 And user connects device 3
 Then all three devices show connected status
 And connection states are maintained correctly
 ```
 
 **Mixed State Management**:
+
 ```gherkin
 Given device 1 is connected
 And device 2 is disconnected
@@ -189,6 +196,7 @@ Test device refresh workflows that rediscover devices and validate connection st
 ### User Scenarios Tested
 
 **Refresh Maintains State**:
+
 ```gherkin
 Given device 1 is connected
 And device 2 is disconnected
@@ -199,6 +207,7 @@ And device 2 remains disconnected after refresh
 ```
 
 **Reconnection After Refresh**:
+
 ```gherkin
 Given a device was previously disconnected
 When user clicks "Refresh Devices"
@@ -209,6 +218,7 @@ And connection state is maintained
 ```
 
 **Connection Loss Recovery**:
+
 ```gherkin
 Given a connected device loses connection (ConnectionLost state)
 When user clicks power button to reconnect
@@ -251,6 +261,7 @@ And visual indicators update correctly
 ### Testing Infrastructure Extensions
 
 **New Test Helpers Needed** (`test-helpers.ts`):
+
 - `clickPowerButton(deviceIndex: number)` - Click power button on device card
 - `verifyConnected(deviceIndex: number)` - Assert device shows connected state
 - `verifyDisconnected(deviceIndex: number)` - Assert device shows disconnected state
@@ -260,6 +271,7 @@ And visual indicators update correctly
 - `clickRefreshDevices()` - Click refresh button in toolbar (already exists, may need updates)
 
 **Interceptor Usage Patterns**:
+
 ```typescript
 // Connection success workflow
 interceptFindDevices({ fixture: disconnectedDevice });
@@ -269,7 +281,7 @@ clickPowerButton(0);
 waitForConnection();
 verifyConnected(0);
 
-// Connection error workflow  
+// Connection error workflow
 interceptFindDevices({ fixture: disconnectedDevice });
 interceptConnectDevice({ errorMode: true });
 navigateToDeviceView();
@@ -312,6 +324,7 @@ verifyDisconnected(0);
 ## ✅ Success Criteria
 
 ### Phase 5.1 Success Criteria
+
 - [ ] Single device connection workflow tests pass consistently
 - [ ] Single device disconnection workflow tests pass consistently
 - [ ] Connection error scenarios handled correctly
@@ -321,6 +334,7 @@ verifyDisconnected(0);
 - [ ] Connection test patterns documented for reuse
 
 ### Phase 5.2 Success Criteria
+
 - [ ] Multi-device connection tests pass consistently
 - [ ] Independent connection/disconnection validated
 - [ ] Sequential connection workflows work correctly
@@ -329,6 +343,7 @@ verifyDisconnected(0);
 - [ ] Multi-device connection patterns documented
 
 ### Phase 5.3 Success Criteria
+
 - [ ] Refresh devices maintains connection states correctly
 - [ ] Reconnection workflows validated
 - [ ] Connection loss recovery tested
@@ -340,6 +355,7 @@ verifyDisconnected(0);
 - [ ] Ready for Phase 6 (Device Storage/Player workflows)
 
 ### Overall Testing Success Criteria
+
 - [ ] 22-34 E2E test scenarios implemented and passing
 - [ ] No flaky tests - consistent pass rate
 - [ ] Tests follow Cypress best practices
@@ -365,6 +381,7 @@ And after API success, device shows connected status
 And power button changes to highlighted color
 And device card styling removes dimmed appearance
 ```
+
 </details>
 
 <details open>
@@ -379,6 +396,7 @@ And after API success, device shows disconnected status
 And power button changes to normal color
 And device card styling adds dimmed appearance
 ```
+
 </details>
 
 <details open>
@@ -393,6 +411,7 @@ And device remains in disconnected state
 And power button remains in disconnected appearance
 And user can attempt to reconnect (retry)
 ```
+
 </details>
 
 ---
@@ -410,6 +429,7 @@ And devices 2 and 3 remain disconnected
 And each device maintains independent connection state
 And visual indicators reflect each device's state correctly
 ```
+
 </details>
 
 <details open>
@@ -422,6 +442,7 @@ Then device 2 transitions to disconnected state
 And devices 1 and 3 remain connected
 And connection states are isolated per device
 ```
+
 </details>
 
 <details open>
@@ -438,6 +459,7 @@ Then all three devices show connected status
 And each connection was independent
 And all connection states are maintained
 ```
+
 </details>
 
 ---
@@ -456,6 +478,7 @@ And after refresh completes, device 1 remains connected
 And device 2 remains disconnected
 And device list is updated with fresh data
 ```
+
 </details>
 
 <details open>
@@ -470,6 +493,7 @@ And device transitions back to connected state
 And connection status indicators update
 And device card is no longer dimmed
 ```
+
 </details>
 
 <details open>
@@ -482,6 +506,7 @@ Then in-progress connection is handled appropriately
 And refresh completes successfully
 And device state reflects actual connection status after both operations
 ```
+
 </details>
 
 ---
@@ -499,6 +524,7 @@ Then error message is displayed
 And device remains in connected state
 And user can retry disconnection
 ```
+
 </details>
 
 <details open>
@@ -512,6 +538,7 @@ Then timeout error is displayed
 And device returns to disconnected state
 And user can retry connection
 ```
+
 </details>
 
 <details open>
@@ -524,6 +551,7 @@ Then only one connection attempt is made (debouncing)
 Or connection state changes are queued and processed sequentially
 And UI reflects correct final state after operations complete
 ```
+
 </details>
 
 ---
@@ -559,17 +587,20 @@ And UI reflects correct final state after operations complete
 ### Summary of Open Questions
 
 **Phase 5.1:**
+
 - Loading state UI during connection (power button or entire card?)
 - Error message placement strategy
 - Retry mechanism design (auto vs manual)
 - Connection timeout values
 
 **Phase 5.2:**
+
 - Concurrent connection support and handling
 - Maximum simultaneous connection limits
 - Backend-initiated state synchronization handling
 
 **Phase 5.3:**
+
 - Refresh behavior for connected devices (maintain vs reconnect)
 - Connection loss detection mechanism
 - Connection state persistence across sessions
@@ -580,17 +611,20 @@ And UI reflects correct final state after operations complete
 ## 💡 Implementation Tips
 
 **Before Starting Phase 5.1:**
+
 1. Verify Phase 4 (Device Discovery) tests all pass
 2. Review existing connection interceptors (`interceptConnectDevice`, `interceptDisconnectDevice`)
 3. Understand device card power button implementation
 4. Identify what `data-testid` attributes exist for power button and connection status
 
 **Test Development Order:**
+
 1. **Phase 5.1**: Master single-device workflows before multi-device complexity
 2. **Phase 5.2**: Build on Phase 5.1 patterns with multi-device scenarios
 3. **Phase 5.3**: Add refresh complexity last as it integrates both discovery and connection
 
 **Key Testing Patterns:**
+
 - Always register interceptors before navigation (`beforeEach`)
 - Use `cy.wait('@connectDevice')` to wait for connection API completion
 - Verify visual state changes (button color, card styling, status labels)
@@ -598,6 +632,7 @@ And UI reflects correct final state after operations complete
 - Keep tests independent - each test sets up its own initial state
 
 **Debugging Tips:**
+
 - Use Cypress Test Runner (headed mode) to see visual state changes
 - Add `cy.pause()` to inspect state during test execution
 - Check DevTools Network tab for API call patterns

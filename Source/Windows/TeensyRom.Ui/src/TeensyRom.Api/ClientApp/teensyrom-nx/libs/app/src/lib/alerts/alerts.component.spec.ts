@@ -7,7 +7,7 @@ describe('AlertsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AlertsComponent]
+      imports: [AlertsComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AlertsComponent);

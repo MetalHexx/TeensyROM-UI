@@ -210,6 +210,7 @@ Given a user is browsing directory files
 When the user double-clicks a file to launch it
 Then the file is added to play history with a timestamp and Directory launch mode
 ```
+
 </details>
 
 <details open>
@@ -220,6 +221,7 @@ Given a user is in shuffle mode
 When a random file is launched
 Then the file is added to play history with a timestamp and Shuffle launch mode
 ```
+
 </details>
 
 <details open>
@@ -230,6 +232,7 @@ Given a user has search results displayed
 When the user double-clicks a search result to launch it
 Then the file is added to play history with a timestamp and Search launch mode
 ```
+
 </details>
 
 ---
@@ -244,6 +247,7 @@ Given a user has launched 3 files in shuffle mode
 When the user clicks the previous button
 Then the previously played file is launched from history
 ```
+
 </details>
 
 <details open>
@@ -254,6 +258,7 @@ Given a user has navigated backward in shuffle history
 When the user clicks the next button
 Then the next file in forward history is launched
 ```
+
 </details>
 
 <details open>
@@ -264,6 +269,7 @@ Given a user has navigated backward in shuffle history (forward history exists)
 When the user launches a new random file
 Then the forward history is cleared and the new file becomes the current history point
 ```
+
 </details>
 
 <details open>
@@ -274,6 +280,7 @@ Given a user is in directory mode with file context
 When the user clicks the previous button
 Then the previous file in the directory context is launched (existing behavior, not history navigation)
 ```
+
 </details>
 
 <details open>
@@ -284,6 +291,7 @@ Given a user is at the beginning of play history in shuffle mode
 When the user clicks the previous button
 Then navigation wraps or is disabled (to be determined during implementation)
 ```
+
 </details>
 
 ---
@@ -298,6 +306,7 @@ Given a user is in shuffle mode viewing directory files
 When the user clicks the history toggle button
 Then the directory files view is hidden and play history view is shown
 ```
+
 </details>
 
 <details open>
@@ -308,6 +317,7 @@ Given a user is viewing play history in shuffle mode
 When the user clicks the history toggle button
 Then the play history view is hidden and directory files view is shown
 ```
+
 </details>
 
 <details open>
@@ -318,6 +328,7 @@ Given a user has history view visible
 When the user performs a search
 Then the history view is automatically hidden and search results are shown
 ```
+
 </details>
 
 <details open>
@@ -328,6 +339,7 @@ Given a user has history view visible
 When the user navigates to a different directory
 Then the history view is automatically hidden and directory files are shown
 ```
+
 </details>
 
 <details open>
@@ -338,6 +350,7 @@ Given a user has toggled history view on in shuffle mode
 When the user launches a new random file
 Then the history view remains visible showing the updated history
 ```
+
 </details>
 
 ---
@@ -352,6 +365,7 @@ Given two devices are connected (Device A and Device B)
 When files are launched on both devices
 Then each device maintains separate independent play history
 ```
+
 </details>
 
 <details open>
@@ -362,6 +376,7 @@ Given a device has accumulated play history
 When the device disconnects
 Then the play history for that device is cleared from state
 ```
+
 </details>
 
 ---
@@ -376,6 +391,7 @@ Given a user has just connected a device with no play history
 When the user toggles history view on
 Then an empty state message is displayed indicating no playback history exists
 ```
+
 </details>
 
 <details open>
@@ -386,6 +402,7 @@ Given a user attempts to launch a file that results in an error
 When the file fails to launch
 Then the failed file is NOT added to play history
 ```
+
 </details>
 
 <details open>
@@ -396,6 +413,7 @@ Given a user is viewing play history
 When a file from history is currently playing
 Then that file is visually highlighted in the history list
 ```
+
 </details>
 
 </details>
@@ -438,13 +456,16 @@ Then that file is visually highlighted in the history list
 These questions are distributed across their respective phases above:
 
 **Phase 1:**
+
 - History Entry Deduplication: Should each play create a new history entry, or group consecutive duplicates?
 - Maximum History Size: What is the optimal maximum number of history entries?
 
 **Phase 2:**
+
 - Wraparound Behavior: When at the start of history in shuffle mode and user clicks previous, should it wrap to the end, stay at start, or disable the button?
 
 **Phase 3:**
+
 - Timestamp Display: Should history entries display relative times or absolute times?
 - History View Default State: Should history view be visible by default when entering shuffle mode, or hidden by default?
 - Animation Timing: What animation duration should we use for view transitions?

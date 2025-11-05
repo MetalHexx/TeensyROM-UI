@@ -120,7 +120,8 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
   - Check: `currentPlayingFile()?.file.path === file.path && currentLaunchMode() === LaunchMode.Search`
   - Important: Only highlight if in Search mode (not Directory or Shuffle)
 
-**LaunchMode.Search Significance**: 
+**LaunchMode.Search Significance**:
+
 - Tells PlayerStore this is a search-based launch
 - PlayerStore maintains search results as fileContext
 - Next/Previous navigation works within search results
@@ -153,17 +154,18 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
   - Use `CSS.escape()` for safe path escaping in selector
 
 **Effect Pattern** (from DirectoryFilesComponent):
+
 ```typescript
 constructor() {
   effect(() => {
     const playingFile = this.currentPlayingFile();
     const results = this.searchResults();
     const launchMode = this.currentLaunchMode();
-    
+
     if (!playingFile || results.length === 0 || launchMode !== LaunchMode.Search) {
       return;
     }
-    
+
     const playingFileItem = results.find(item => item.path === playingFile.file.path);
     if (playingFileItem) {
       this.selectedItem.set(playingFileItem);
@@ -216,44 +218,40 @@ constructor() {
     - Content: `<lib-file-item [file]="file"></lib-file-item>`
 
 **Modern Control Flow** (from CODING_STANDARDS.md):
+
 - Use `@if` not `*ngIf`
 - Use `@for` with `track` expression not `*ngFor`
 - Use `@else` for alternative conditions
 - No structural directives
 
 **Template Structure**:
+
 ```html
 <div class="search-results-container">
   @if (isSearching()) {
-    <div class="loading-state">Searching...</div>
-  }
-  
-  @if (searchError()) {
-    <div class="error-state">{{ searchError() }}</div>
-  }
-  
-  @if (!hasSearched() && !isSearching()) {
-    <div class="info-state dimmed">Enter search text to begin</div>
-  }
-  
-  @if (hasSearched() && searchResults().length === 0 && !isSearching() && !searchError()) {
-    <div class="info-state dimmed">No files found</div>
-  }
-  
-  @if (searchResults().length > 0) {
-    <div class="search-results-list">
-      @for (file of searchResults(); track file.path) {
-        <div class="file-list-item no-text-selection"
-             [class.selected]="isSelected(file)"
-             [class.playing]="isCurrentlyPlaying(file)"
-             [class.error]="hasPlayerError() && isCurrentlyPlaying(file)"
-             [attr.data-item-path]="file.path"
-             (click)="onFileSelected(file)"
-             (dblclick)="onFileDoubleClick(file)">
-          <lib-file-item [file]="file"></lib-file-item>
-        </div>
-      }
+  <div class="loading-state">Searching...</div>
+  } @if (searchError()) {
+  <div class="error-state">{{ searchError() }}</div>
+  } @if (!hasSearched() && !isSearching()) {
+  <div class="info-state dimmed">Enter search text to begin</div>
+  } @if (hasSearched() && searchResults().length === 0 && !isSearching() && !searchError()) {
+  <div class="info-state dimmed">No files found</div>
+  } @if (searchResults().length > 0) {
+  <div class="search-results-list">
+    @for (file of searchResults(); track file.path) {
+    <div
+      class="file-list-item no-text-selection"
+      [class.selected]="isSelected(file)"
+      [class.playing]="isCurrentlyPlaying(file)"
+      [class.error]="hasPlayerError() && isCurrentlyPlaying(file)"
+      [attr.data-item-path]="file.path"
+      (click)="onFileSelected(file)"
+      (dblclick)="onFileDoubleClick(file)"
+    >
+      <lib-file-item [file]="file"></lib-file-item>
     </div>
+    }
+  </div>
   }
 </div>
 ```
@@ -306,6 +304,7 @@ constructor() {
 **Reference Styles**: Copy patterns from [`directory-files.component.scss`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.scss)
 
 **Style Variables** (from STYLE_GUIDE.md):
+
 - `var(--color-primary)` - Primary brand color
 - `var(--color-success)` - Success states (playing)
 - `var(--color-error)` - Error states
@@ -322,6 +321,7 @@ constructor() {
 **File**: [`libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.spec.ts`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.spec.ts) (NEW)
 
 **Test Setup**:
+
 - [ ] Import testing utilities
   - `ComponentFixture, TestBed` from `@angular/core/testing`
   - `MockedFunction, vi` from `vitest`
@@ -346,6 +346,7 @@ constructor() {
 **Test Suites**:
 
 **Component Rendering Tests**:
+
 - [ ] Test: Component renders successfully
   - Verify component created
   - Verify no errors during creation
@@ -375,6 +376,7 @@ constructor() {
   - Assert FileItemComponent rendered for each file
 
 **File Selection Tests**:
+
 - [ ] Test: Single-click selects file
   - Render results
   - Click on file item
@@ -393,6 +395,7 @@ constructor() {
   - Assert true for selected file, false for others
 
 **Player Integration Tests**:
+
 - [ ] Test: Highlights currently playing file in search mode
   - Mock current playing file in search mode
   - Mock search results including playing file
@@ -416,6 +419,7 @@ constructor() {
   - Assert `selectedItem()` matches playing file
 
 **Edge Cases and Error Handling**:
+
 - [ ] Test: Handles null search state gracefully
   - Mock `getSearchState()` returning null signal
   - Detect changes
@@ -432,12 +436,14 @@ constructor() {
   - Assert no item highlighted
 
 **Scroll Behavior Tests** (Optional - requires DOM mocking):
+
 - [ ] Test: Scrolls to selected file when playing
   - Mock `scrollIntoView()` on DOM elements
   - Trigger playing file selection
   - Assert `scrollIntoView()` called with correct parameters
 
 **Follow TESTING_STANDARDS.md**:
+
 - Use Vitest mocking patterns
 - Use TestBed for component instantiation
 - Test behavior, not implementation
@@ -449,12 +455,14 @@ constructor() {
 ## 🗂️ File Changes
 
 ### New Files
+
 - [`libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.ts`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.ts) - Component class
 - [`libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.html`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.html) - Component template
 - [`libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.scss`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.scss) - Component styles
 - [`libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.spec.ts`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-results.component.spec.ts) - Component tests
 
 ### Reference Files (No Changes)
+
 - [`libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.ts`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.ts) - Pattern reference
 - [`libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.scss`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/directory-files.component.scss) - Style reference
 - [`libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/file-item/file-item.component.ts`](../../../libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/file-item/file-item.component.ts) - FileItem component used in template
@@ -464,6 +472,7 @@ constructor() {
 ### Unit Tests
 
 **Component Rendering**:
+
 - [ ] Component creates successfully
 - [ ] Loading state displays correctly
 - [ ] Error state displays correctly
@@ -472,12 +481,14 @@ constructor() {
 - [ ] Results list renders all files
 
 **File Selection**:
+
 - [ ] Single-click updates selectedItem
 - [ ] Double-click launches file with Search mode
 - [ ] Selected CSS class applied correctly
 - [ ] isSelected() returns correct values
 
 **Player Integration**:
+
 - [ ] Playing file highlighted in search mode
 - [ ] Playing file NOT highlighted in other modes
 - [ ] Error state displayed for playing file
@@ -485,12 +496,14 @@ constructor() {
 - [ ] Scroll behavior triggers (if tested)
 
 **Edge Cases**:
+
 - [ ] Null search state handled gracefully
 - [ ] Empty deviceId doesn't crash
 - [ ] Missing files don't crash component
 - [ ] Large result sets render efficiently
 
 **Test Coverage Requirements**:
+
 - Minimum 80% line coverage
 - 100% coverage for error handling paths
 - All user interactions tested

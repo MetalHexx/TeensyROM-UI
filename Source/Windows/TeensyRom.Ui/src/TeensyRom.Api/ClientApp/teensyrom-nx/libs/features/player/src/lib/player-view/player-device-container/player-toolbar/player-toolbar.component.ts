@@ -1,6 +1,11 @@
 import { Component, inject, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ScalingCompactCardComponent, IconButtonComponent, IconButtonColor, SlidingContainerComponent } from '@teensyrom-nx/ui/components';
+import {
+  ScalingCompactCardComponent,
+  IconButtonComponent,
+  IconButtonColor,
+  SlidingContainerComponent,
+} from '@teensyrom-nx/ui/components';
 import { PLAYER_CONTEXT } from '@teensyrom-nx/application';
 import { LaunchMode, PlayerStatus, FileItemType } from '@teensyrom-nx/domain';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
@@ -10,9 +15,18 @@ import { PlayerToolbarActionsComponent } from './player-toolbar-actions/player-t
 
 @Component({
   selector: 'lib-player-toolbar',
-  imports: [CommonModule, ScalingCompactCardComponent, IconButtonComponent, SlidingContainerComponent, ProgressBarComponent, FileInfoComponent, FileTimeComponent, PlayerToolbarActionsComponent],
+  imports: [
+    CommonModule,
+    ScalingCompactCardComponent,
+    IconButtonComponent,
+    SlidingContainerComponent,
+    ProgressBarComponent,
+    FileInfoComponent,
+    FileTimeComponent,
+    PlayerToolbarActionsComponent,
+  ],
   templateUrl: './player-toolbar.component.html',
-  styleUrl: './player-toolbar.component.scss'
+  styleUrl: './player-toolbar.component.scss',
 })
 export class PlayerToolbarComponent {
   private readonly playerContext = inject(PLAYER_CONTEXT);
@@ -22,7 +36,7 @@ export class PlayerToolbarComponent {
   isLoading(): boolean {
     const deviceId = this.deviceId();
     if (!deviceId) return false;
-    
+
     return this.playerContext.isLoading(deviceId)();
   }
 
@@ -31,7 +45,7 @@ export class PlayerToolbarComponent {
     const deviceId = this.deviceId();
     if (deviceId) {
       const status = this.playerContext.getPlayerStatus(deviceId)();
-      
+
       if (status === PlayerStatus.Playing) {
         await this.playerContext.pause(deviceId);
       } else {
@@ -65,7 +79,7 @@ export class PlayerToolbarComponent {
   getPlayPauseIcon(): string {
     const deviceId = this.deviceId();
     if (!deviceId) return 'play_arrow';
-    
+
     const status = this.playerContext.getPlayerStatus(deviceId)();
     return status === PlayerStatus.Playing ? 'pause' : 'play_arrow';
   }
@@ -73,7 +87,7 @@ export class PlayerToolbarComponent {
   getPlayPauseLabel(): string {
     const deviceId = this.deviceId();
     if (!deviceId) return 'Play';
-    
+
     const status = this.playerContext.getPlayerStatus(deviceId)();
     return status === PlayerStatus.Playing ? 'Pause' : 'Play';
   }
@@ -81,7 +95,7 @@ export class PlayerToolbarComponent {
   isCurrentFileMusicType(): boolean {
     const deviceId = this.deviceId();
     if (!deviceId) return false;
-    
+
     const currentFile = this.playerContext.getCurrentFile(deviceId)();
     return currentFile?.file?.type === FileItemType.Song;
   }
@@ -89,12 +103,14 @@ export class PlayerToolbarComponent {
   canNavigate(): boolean {
     const deviceId = this.deviceId();
     if (!deviceId) return false;
-    
+
     const fileContext = this.playerContext.getFileContext(deviceId)();
     const launchMode = this.playerContext.getLaunchMode(deviceId)();
-    
+
     // Can navigate if we have file context (directory mode) or are in shuffle mode
-    return (fileContext !== null && fileContext.files.length > 1) || launchMode === LaunchMode.Shuffle;
+    return (
+      (fileContext !== null && fileContext.files.length > 1) || launchMode === LaunchMode.Shuffle
+    );
   }
 
   canNavigatePrevious(): boolean {
@@ -117,13 +133,9 @@ export class PlayerToolbarComponent {
     return currentFile !== null;
   }
 
-  hasError = computed(() =>
-    this.playerContext.getError(this.deviceId())() !== null
-  );
+  hasError = computed(() => this.playerContext.getError(this.deviceId())() !== null);
 
-  isFileCompatible = computed(() => 
-    this.playerContext.isCurrentFileCompatible(this.deviceId())()
-  );
+  isFileCompatible = computed(() => this.playerContext.isCurrentFileCompatible(this.deviceId())());
 
   getPlayButtonColor(): IconButtonColor {
     // Only show error (red) on play button when file is incompatible
@@ -131,9 +143,7 @@ export class PlayerToolbarComponent {
   }
 
   // Phase 5: Timer state for progress bar
-  timerState = computed(() =>
-    this.playerContext.getTimerState(this.deviceId())()
-  );
+  timerState = computed(() => this.playerContext.getTimerState(this.deviceId())());
 
   showProgressBar = computed(() => {
     const state = this.timerState();
@@ -149,5 +159,4 @@ export class PlayerToolbarComponent {
     if (!deviceId) return null;
     return this.playerContext.getCurrentFile(deviceId)();
   });
-
 }

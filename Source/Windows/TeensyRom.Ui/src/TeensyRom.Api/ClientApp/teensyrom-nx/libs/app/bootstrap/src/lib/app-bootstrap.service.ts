@@ -1,4 +1,11 @@
-import { effect, inject, Injectable, runInInjectionContext, Injector, untracked } from '@angular/core';
+import {
+  effect,
+  inject,
+  Injectable,
+  runInInjectionContext,
+  Injector,
+  untracked,
+} from '@angular/core';
 import { DeviceStore } from '@teensyrom-nx/application';
 import {
   ALERT_SERVICE,

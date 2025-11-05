@@ -67,4 +67,3 @@ run('DeviceService Integration Tests', () => {
     expect(result?.message).toBeDefined();
   }, 40000);
 });
-

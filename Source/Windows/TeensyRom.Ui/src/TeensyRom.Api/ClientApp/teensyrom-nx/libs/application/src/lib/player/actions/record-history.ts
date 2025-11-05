@@ -15,12 +15,18 @@ export function recordHistory(store: WritableStore<PlayerState>) {
     recordHistory: ({ deviceId, entry }: RecordHistoryParams): void => {
       const actionMessage = createAction('record-history');
 
-      logInfo(LogType.Start, `RecordHistory: Recording history entry for device ${deviceId}, file: ${entry.file.name}`);
+      logInfo(
+        LogType.Start,
+        `RecordHistory: Recording history entry for device ${deviceId}, file: ${entry.file.name}`
+      );
 
       const playerState = getPlayerState(store, deviceId);
 
       if (!playerState) {
-        logInfo(LogType.Info, `RecordHistory: No player state for device ${deviceId}, skipping history recording`);
+        logInfo(
+          LogType.Info,
+          `RecordHistory: No player state for device ${deviceId}, skipping history recording`
+        );
         return;
       }
 
@@ -30,7 +36,10 @@ export function recordHistory(store: WritableStore<PlayerState>) {
       if (currentHistory && currentHistory.entries.length > 0) {
         const lastEntry = currentHistory.entries[currentHistory.entries.length - 1];
         if (lastEntry.file.path === entry.file.path) {
-          logInfo(LogType.Info, `RecordHistory: Skipping duplicate consecutive entry for file ${entry.file.name}`);
+          logInfo(
+            LogType.Info,
+            `RecordHistory: Skipping duplicate consecutive entry for file ${entry.file.name}`
+          );
           return;
         }
       }
@@ -56,7 +65,10 @@ export function recordHistory(store: WritableStore<PlayerState>) {
 
         // Clear forward history if user navigated backward
         if (history.currentPosition !== -1) {
-          logInfo(LogType.Info, `RecordHistory: Clearing forward history from position ${history.currentPosition}`);
+          logInfo(
+            LogType.Info,
+            `RecordHistory: Clearing forward history from position ${history.currentPosition}`
+          );
           newEntries = newEntries.slice(0, history.currentPosition + 1);
         }
 
@@ -66,11 +78,17 @@ export function recordHistory(store: WritableStore<PlayerState>) {
         // Enforce maximum size - remove oldest entries if needed
         if (newEntries.length > MAX_HISTORY_ENTRIES) {
           const entriesToRemove = newEntries.length - MAX_HISTORY_ENTRIES;
-          logInfo(LogType.Info, `RecordHistory: Removing ${entriesToRemove} oldest entries to maintain max size of ${MAX_HISTORY_ENTRIES}`);
+          logInfo(
+            LogType.Info,
+            `RecordHistory: Removing ${entriesToRemove} oldest entries to maintain max size of ${MAX_HISTORY_ENTRIES}`
+          );
           newEntries = newEntries.slice(entriesToRemove);
         }
 
-        logInfo(LogType.Success, `RecordHistory: Entry recorded successfully. Total entries: ${newEntries.length}`);
+        logInfo(
+          LogType.Success,
+          `RecordHistory: Entry recorded successfully. Total entries: ${newEntries.length}`
+        );
 
         return {
           players: {

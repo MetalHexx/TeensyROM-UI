@@ -66,15 +66,8 @@ export interface GenerateMultipleIndexingDevicesOptions {
  * const device = generateDeviceForIndexing({ sdAvailable: false, usbAvailable: false });
  * ```
  */
-export function generateDeviceForIndexing(
-  options: GenerateIndexingDeviceOptions = {}
-): CartDto {
-  const {
-    sdAvailable = true,
-    usbAvailable = true,
-    connected = true,
-    compatible = true,
-  } = options;
+export function generateDeviceForIndexing(options: GenerateIndexingDeviceOptions = {}): CartDto {
+  const { sdAvailable = true, usbAvailable = true, connected = true, compatible = true } = options;
 
   const baseDevice = generateDevice({
     isConnected: connected,

@@ -21,10 +21,14 @@ The E2E testing infrastructure has been refactored from a scattered approach to 
 ## 🔄 Migration Overview
 
 ### Before (Old Pattern)
+
 ```typescript
 // Imports scattered across multiple files
 import { DEVICE_ENDPOINTS, INTERCEPT_ALIASES } from '../support/constants/api.constants';
-import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/device.interceptors';
+import {
+  interceptFindDevices,
+  waitForFindDevices,
+} from '../support/interceptors/device.interceptors';
 
 // Usage in tests
 cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.pattern, fixture).as(INTERCEPT_ALIASES.FIND_DEVICES);
@@ -32,9 +36,13 @@ cy.wait(`@${INTERCEPT_ALIASES.FIND_DEVICES}`);
 ```
 
 ### After (New Pattern)
+
 ```typescript
 // Explicit imports from individual endpoint files
-import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
+import {
+  interceptFindDevices,
+  waitForFindDevices,
+} from '../support/interceptors/findDevices.interceptors';
 
 // Usage in tests
 interceptFindDevices({ fixture: mockDevices });
@@ -61,90 +69,118 @@ grep -r "from.*storage.interceptors" src/e2e/
 Replace old scattered imports with explicit imports:
 
 **Device Domain:**
+
 ```typescript
 // Old imports to replace:
 import { DEVICE_ENDPOINTS, INTERCEPT_ALIASES } from '../support/constants/api.constants';
-import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/device.interceptors';
+import {
+  interceptFindDevices,
+  waitForFindDevices,
+} from '../support/interceptors/device.interceptors';
 
 // New explicit imports:
 import {
   interceptFindDevices,
-  waitForFindDevices
+  waitForFindDevices,
 } from '../support/interceptors/findDevices.interceptors';
 
 import {
   interceptConnectDevice,
-  waitForConnectDevice
+  waitForConnectDevice,
 } from '../support/interceptors/connectDevice.interceptors';
 
 import {
   interceptDisconnectDevice,
-  waitForDisconnectDevice
+  waitForDisconnectDevice,
 } from '../support/interceptors/disconnectDevice.interceptors';
 
 import {
   interceptPingDevice,
-  waitForPingDevice
+  waitForPingDevice,
 } from '../support/interceptors/pingDevice.interceptors';
 ```
 
 **Storage Domain:**
+
 ```typescript
 // Old imports to replace:
-import { interceptGetDirectory, waitForGetDirectory } from '../support/interceptors/storage.interceptors';
-import { interceptSaveFavorite, waitForSaveFavorite } from '../support/interceptors/storage.interceptors';
-import { interceptRemoveFavorite, waitForRemoveFavorite } from '../support/interceptors/storage.interceptors';
+import {
+  interceptGetDirectory,
+  waitForGetDirectory,
+} from '../support/interceptors/storage.interceptors';
+import {
+  interceptSaveFavorite,
+  waitForSaveFavorite,
+} from '../support/interceptors/storage.interceptors';
+import {
+  interceptRemoveFavorite,
+  waitForRemoveFavorite,
+} from '../support/interceptors/storage.interceptors';
 
 // New explicit imports:
 import {
   interceptGetDirectory,
-  waitForGetDirectory
+  waitForGetDirectory,
 } from '../support/interceptors/getDirectory.interceptors';
 
 import {
   interceptSaveFavorite,
-  waitForSaveFavorite
+  waitForSaveFavorite,
 } from '../support/interceptors/saveFavorite.interceptors';
 
 import {
   interceptRemoveFavorite,
-  waitForRemoveFavorite
+  waitForRemoveFavorite,
 } from '../support/interceptors/removeFavorite.interceptors';
 ```
 
 **Player Domain:**
+
 ```typescript
 // Old imports to replace:
-import { interceptLaunchFile, waitForLaunchFile } from '../support/interceptors/player.interceptors';
-import { interceptLaunchRandom, waitForLaunchRandom } from '../support/interceptors/player.interceptors';
+import {
+  interceptLaunchFile,
+  waitForLaunchFile,
+} from '../support/interceptors/player.interceptors';
+import {
+  interceptLaunchRandom,
+  waitForLaunchRandom,
+} from '../support/interceptors/player.interceptors';
 
 // New explicit imports:
 import {
   interceptLaunchFile,
-  waitForLaunchFile
+  waitForLaunchFile,
 } from '../support/interceptors/launchFile.interceptors';
 
 import {
   interceptLaunchRandom,
-  waitForLaunchRandom
+  waitForLaunchRandom,
 } from '../support/interceptors/launchRandom.interceptors';
 ```
 
 **Indexing Domain:**
+
 ```typescript
 // Old imports to replace:
-import { interceptIndexStorage, waitForIndexStorage } from '../support/interceptors/storage-indexing.interceptors';
-import { interceptIndexAllStorage, waitForIndexAllStorage } from '../support/interceptors/storage-indexing.interceptors';
+import {
+  interceptIndexStorage,
+  waitForIndexStorage,
+} from '../support/interceptors/storage-indexing.interceptors';
+import {
+  interceptIndexAllStorage,
+  waitForIndexAllStorage,
+} from '../support/interceptors/storage-indexing.interceptors';
 
 // New explicit imports:
 import {
   interceptIndexStorage,
-  waitForIndexStorage
+  waitForIndexStorage,
 } from '../support/interceptors/indexStorage.interceptors';
 
 import {
   interceptIndexAllStorage,
-  waitForIndexAllStorage
+  waitForIndexAllStorage,
 } from '../support/interceptors/indexAllStorage.interceptors';
 ```
 
@@ -153,19 +189,23 @@ import {
 Replace old usage patterns with new helper functions:
 
 **Before:**
+
 ```typescript
 // Old manual interceptor setup
-cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.pattern, { fixture: 'devices.json' }).as(INTERCEPT_ALIASES.FIND_DEVICES);
+cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.pattern, { fixture: 'devices.json' }).as(
+  INTERCEPT_ALIASES.FIND_DEVICES
+);
 cy.wait(`@${INTERCEPT_ALIASES.FIND_DEVICES}`);
 
 // Old manual error handling
 cy.intercept('GET', DEVICE_ENDPOINTS.FIND_DEVICES.pattern, {
   statusCode: 500,
-  body: { error: 'Internal Server Error' }
+  body: { error: 'Internal Server Error' },
 }).as(INTERCEPT_ALIASES.FIND_DEVICES);
 ```
 
 **After:**
+
 ```typescript
 // New helper function usage
 interceptFindDevices({ fixture: mockDevices });
@@ -181,6 +221,7 @@ waitForFindDevices();
 Replace old helper function calls:
 
 **Before:**
+
 ```typescript
 // Old helper functions
 setupDeviceDiscovery(mockDevices);
@@ -188,6 +229,7 @@ verifyDeviceDiscoveryCompleted();
 ```
 
 **After:**
+
 ```typescript
 // New helper functions (same names, but imported from individual files)
 setupFindDevices(mockDevices);
@@ -199,18 +241,21 @@ verifyFindDevicesCompleted();
 ## 🏗️ New Architecture Benefits
 
 ### 1. **Explicit Dependencies**
+
 ```typescript
 // Clear visibility of what endpoints each test uses
 import {
   interceptFindDevices,
   waitForFindDevices,
   interceptConnectDevice,
-  waitForConnectDevice
+  waitForConnectDevice,
 } from '../support/interceptors/findDevices.interceptors';
 ```
 
 ### 2. **Self-Contained Files**
+
 Each endpoint file contains everything needed for that endpoint:
+
 - Endpoint definition
 - Interface definitions
 - Interceptor function
@@ -219,16 +264,18 @@ Each endpoint file contains everything needed for that endpoint:
 - Export constants
 
 ### 3. **Type Safety**
+
 ```typescript
 // Better TypeScript support with proper interfaces
 interceptFindDevices({
-  fixture: mockDevices,  // Type: MockDeviceFixture
-  errorMode: false,     // Type: boolean
-  responseDelayMs: 1000 // Type: number
+  fixture: mockDevices, // Type: MockDeviceFixture
+  errorMode: false, // Type: boolean
+  responseDelayMs: 1000, // Type: number
 });
 ```
 
 ### 4. **Consistent Patterns**
+
 All endpoints follow the same 6-section structure, making them predictable and easy to use.
 
 ---
@@ -238,13 +285,15 @@ All endpoints follow the same 6-section structure, making them predictable and e
 ### Scenario 1: Device Discovery Test
 
 **Before:**
+
 ```typescript
 import { DEVICE_ENDPOINTS, INTERCEPT_ALIASES } from '../support/constants/api.constants';
 import { setupDeviceDiscovery } from '../support/interceptors/device.interceptors';
 
 it('should discover devices', () => {
-  cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.pattern, { fixture: 'devices.json' })
-    .as(INTERCEPT_ALIASES.FIND_DEVICES);
+  cy.intercept(DEVICE_ENDPOINTS.FIND_DEVICES.pattern, { fixture: 'devices.json' }).as(
+    INTERCEPT_ALIASES.FIND_DEVICES
+  );
 
   cy.visit('/');
   cy.wait(`@${INTERCEPT_ALIASES.FIND_DEVICES}`);
@@ -254,11 +303,12 @@ it('should discover devices', () => {
 ```
 
 **After:**
+
 ```typescript
 import {
   interceptFindDevices,
   waitForFindDevices,
-  setupFindDevices
+  setupFindDevices,
 } from '../support/interceptors/findDevices.interceptors';
 
 it('should discover devices', () => {
@@ -274,12 +324,14 @@ it('should discover devices', () => {
 ### Scenario 2: File Launching Test
 
 **Before:**
+
 ```typescript
 import { PLAYER_ENDPOINTS, INTERCEPT_ALIASES } from '../support/constants/api.constants';
 
 it('should launch file', () => {
-  cy.intercept('POST', PLAYER_ENDPOINTS.LAUNCH_FILE.pattern('device-1', 'sdcard'))
-    .as(INTERCEPT_ALIASES.LAUNCH_FILE);
+  cy.intercept('POST', PLAYER_ENDPOINTS.LAUNCH_FILE.pattern('device-1', 'sdcard')).as(
+    INTERCEPT_ALIASES.LAUNCH_FILE
+  );
 
   cy.get('[data-testid=launch-button]').click();
   cy.wait(`@${INTERCEPT_ALIASES.LAUNCH_FILE}`);
@@ -289,11 +341,12 @@ it('should launch file', () => {
 ```
 
 **After:**
+
 ```typescript
 import {
   interceptLaunchFile,
   waitForLaunchFile,
-  setupLaunchFile
+  setupLaunchFile,
 } from '../support/interceptors/launchFile.interceptors';
 
 it('should launch file', () => {
@@ -309,11 +362,12 @@ it('should launch file', () => {
 ### Scenario 3: Error Handling Test
 
 **Before:**
+
 ```typescript
 it('should handle connection errors', () => {
   cy.intercept('POST', DEVICE_ENDPOINTS.CONNECT_DEVICE.pattern('device-1'), {
     statusCode: 500,
-    body: { error: 'Connection failed' }
+    body: { error: 'Connection failed' },
   }).as(INTERCEPT_ALIASES.CONNECT_DEVICE);
 
   cy.get('[data-testid=connect-button]').click();
@@ -324,11 +378,12 @@ it('should handle connection errors', () => {
 ```
 
 **After:**
+
 ```typescript
 import {
   interceptConnectDevice,
   waitForConnectDevice,
-  setupConnectDeviceError
+  setupConnectDeviceError,
 } from '../support/interceptors/connectDevice.interceptors';
 
 it('should handle connection errors', () => {
@@ -346,21 +401,25 @@ it('should handle connection errors', () => {
 ## 🛠️ Available Endpoint Files
 
 ### Device Domain
+
 - `findDevices.interceptors.ts` - Device discovery
 - `connectDevice.interceptors.ts` - Device connection
 - `disconnectDevice.interceptors.ts` - Device disconnection
 - `pingDevice.interceptors.ts` - Device health checks
 
 ### Storage Domain
+
 - `getDirectory.interceptors.ts` - Directory browsing
 - `saveFavorite.interceptors.ts` - Save favorite files
 - `removeFavorite.interceptors.ts` - Remove favorite files
 
 ### Player Domain
+
 - `launchFile.interceptors.ts` - Launch specific files
 - `launchRandom.interceptors.ts` - Launch random files
 
 ### Indexing Domain
+
 - `indexStorage.interceptors.ts` - Individual storage indexing
 - `indexAllStorage.interceptors.ts` - Batch indexing operations
 
@@ -369,33 +428,41 @@ it('should handle connection errors', () => {
 ## ⚠️ Troubleshooting
 
 ### Issue: Import Errors
+
 **Problem**: `Cannot find module '../support/interceptors/findDevices.interceptors'`
 
 **Solution**:
+
 1. Verify the file exists in the correct location
 2. Check for typos in the import path
 3. Ensure you're importing from `.interceptors.ts` files, not old domain files
 
 ### Issue: Function Not Found
+
 **Problem**: `interceptFindDevices is not a function`
 
 **Solution**:
+
 1. Verify the function is exported from the interceptor file
 2. Check that you're importing the correct function name
 3. Look at the interceptor file to see available exports
 
 ### Issue: Type Errors
+
 **Problem**: TypeScript errors about missing properties
 
 **Solution**:
+
 1. Check the interface definition in the interceptor file
 2. Use the correct option object structure
 3. Look at the JSDoc comments in the interceptor file for guidance
 
 ### Issue: Tests Failing After Migration
+
 **Problem**: Tests that worked before are now failing
 
 **Solution**:
+
 1. Verify you're using the correct helper functions
 2. Check that the wait functions are called after the expected API calls
 3. Ensure fixture data matches the expected interface
@@ -405,6 +472,7 @@ it('should handle connection errors', () => {
 ## 📝 Best Practices
 
 ### 1. Import Only What You Need
+
 ```typescript
 // Good: Import specific functions
 import { interceptFindDevices, waitForFindDevices } from './findDevices.interceptors';
@@ -414,6 +482,7 @@ import * as findDevices from './findDevices.interceptors';
 ```
 
 ### 2. Use Helper Functions When Available
+
 ```typescript
 // Good: Use provided helper functions
 setupFindDevices(mockDevices);
@@ -423,11 +492,12 @@ cy.intercept(FIND_DEVICES_ENDPOINT.pattern, mockDevices).as(FIND_DEVICES_ENDPOIN
 ```
 
 ### 3. Leverage Type Safety
+
 ```typescript
 // Good: Use proper interfaces
 const options: InterceptFindDevicesOptions = {
   fixture: mockDevices,
-  errorMode: false
+  errorMode: false,
 };
 interceptFindDevices(options);
 
@@ -436,6 +506,7 @@ interceptFindDevices({ fixture: mockDevices });
 ```
 
 ### 4. Consistent Error Handling
+
 ```typescript
 // Good: Use built-in error modes
 interceptFindDevices({ errorMode: true });
@@ -447,6 +518,7 @@ setupFindDevicesError();
 ```
 
 ### 5. Wait for Correct Operations
+
 ```typescript
 // Good: Wait for specific endpoints
 waitForFindDevices();
@@ -464,19 +536,21 @@ waitForConnectDevice();
 ## 🔧 Advanced Usage
 
 ### Custom Interceptor Options
+
 ```typescript
 import { interceptGetDirectory, waitForGetDirectory } from './getDirectory.interceptors';
 
 interceptGetDirectory({
-  filesystem: mockFilesystem,  // Custom filesystem
-  path: '/games',             // Specific path
-  errorMode: false,           // Success mode
-  responseDelayMs: 1000,      // Custom delay
-  customFiles: extraFiles     // Additional files
+  filesystem: mockFilesystem, // Custom filesystem
+  path: '/games', // Specific path
+  errorMode: false, // Success mode
+  responseDelayMs: 1000, // Custom delay
+  customFiles: extraFiles, // Additional files
 });
 ```
 
 ### Complex Workflows
+
 ```typescript
 import {
   interceptFindDevices,
@@ -486,7 +560,7 @@ import {
   interceptGetDirectory,
   waitForGetDirectory,
   interceptLaunchFile,
-  waitForLaunchFile
+  waitForLaunchFile,
 } from '../support/interceptors';
 
 // Setup complex workflow

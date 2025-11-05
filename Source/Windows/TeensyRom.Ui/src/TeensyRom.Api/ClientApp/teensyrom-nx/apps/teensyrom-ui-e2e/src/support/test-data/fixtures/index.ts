@@ -25,8 +25,4 @@ export {
 } from './indexing.fixture';
 
 // Export favorites fixtures
-export {
-  favoriteTestFiles,
-  favoriteTestDevice,
-  pacManNavigationParams,
-} from './favorites.fixture';
+export { favoriteTestFiles, favoriteTestDevice, pacManNavigationParams } from './favorites.fixture';

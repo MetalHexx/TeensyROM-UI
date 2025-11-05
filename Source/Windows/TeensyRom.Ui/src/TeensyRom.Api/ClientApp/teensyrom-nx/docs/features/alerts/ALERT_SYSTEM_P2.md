@@ -11,11 +11,13 @@ Integrate the alert system throughout the infrastructure layer by adding automat
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [ ] [Alert System Plan](./ALERT_SYSTEM_PLAN.md) - High-level feature plan and phases
 - [ ] [Phase 1 Documentation](./ALERT_SYSTEM_P1.md) - Foundation built in Phase 1
 - [ ] [Phase Template](../../PHASE_TEMPLATE.md) - Template structure for phase implementation
 
 **Standards & Guidelines:**
+
 - [ ] [Service Standards](../../SERVICE_STANDARDS.md) - Infrastructure service patterns
 - [ ] [Testing Standards](../../TESTING_STANDARDS.md) - Testing approaches by layer
 - [ ] [Overview Context](../../OVERVIEW_CONTEXT.md) - Clean Architecture and dependency rules
@@ -50,13 +52,13 @@ libs/
 
 ### Services Requiring Alert Integration
 
-| Service | Observable Methods | Current Error Handling | Notes |
-|---------|-------------------|------------------------|-------|
-| **DeviceService** | `findDevices()`, `getConnectedDevices()`, `connectDevice()`, `disconnectDevice()`, `resetDevice()`, `pingDevice()` | ❌ None | 6 methods need catchError + alert |
-| **DeviceLogsService** | `connect()`, `disconnect()` | ⚠️ Partial (logs to console) | SignalR connection errors need alerts |
-| **DeviceEventsService** | `connect()`, `disconnect()` | ⚠️ Partial (logs to console) | SignalR connection errors need alerts |
-| **StorageService** | `getDirectory()`, `search()` | ⚠️ Partial (logs + rethrows) | Has catchError but no alerts |
-| **PlayerService** | `launchFile()`, `launchRandom()`, `toggleMusic()` | ⚠️ Partial (logs + rethrows) | Has catchError but **no alerts** - needs alert integration |
+| Service                 | Observable Methods                                                                                                 | Current Error Handling       | Notes                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------- | ---------------------------------------------------------- |
+| **DeviceService**       | `findDevices()`, `getConnectedDevices()`, `connectDevice()`, `disconnectDevice()`, `resetDevice()`, `pingDevice()` | ❌ None                      | 6 methods need catchError + alert                          |
+| **DeviceLogsService**   | `connect()`, `disconnect()`                                                                                        | ⚠️ Partial (logs to console) | SignalR connection errors need alerts                      |
+| **DeviceEventsService** | `connect()`, `disconnect()`                                                                                        | ⚠️ Partial (logs to console) | SignalR connection errors need alerts                      |
+| **StorageService**      | `getDirectory()`, `search()`                                                                                       | ⚠️ Partial (logs + rethrows) | Has catchError but no alerts                               |
+| **PlayerService**       | `launchFile()`, `launchRandom()`, `toggleMusic()`                                                                  | ⚠️ Partial (logs + rethrows) | Has catchError but **no alerts** - needs alert integration |
 
 ### Key Findings
 
@@ -74,11 +76,13 @@ libs/
 **Purpose**: Add comprehensive error handling with alert notifications to all DeviceService operations. This service manages device discovery, connection, disconnection, reset, and ping operations.
 
 **Related Documentation:**
+
 - [PlayerService Reference Pattern](../../../libs/infrastructure/src/lib/player/player.service.ts) - Error handling pattern to follow
 - [Service Standards](../../SERVICE_STANDARDS.md) - Error handling patterns
 - [IAlertService Contract](../../../libs/domain/src/lib/contracts/alert.contract.ts) - Alert service interface
 
 **Implementation Subtasks:**
+
 - [ ] **Inject IAlertService**: Add `private readonly alertService = inject(ALERT_SERVICE)` to DeviceService constructor
 - [ ] **Add catchError to findDevices()**: Extract error message from API response or use fallback "Failed to find devices", display error alert, rethrow
 - [ ] **Add catchError to getConnectedDevices()**: Extract error message or use fallback "Failed to retrieve connected devices", display error alert, rethrow
@@ -89,9 +93,11 @@ libs/
 - [ ] **Check off completed subtasks**: Mark each subtask above as complete in this document as you finish it
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test error handling triggers alerts correctly (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Follow the exact pattern from PlayerService: `logError()` → `alertService.error()` → `throwError()`
 - Use `inject(ALERT_SERVICE)` for DI, not constructor injection
 - Extract error messages using: `error?.message` or `error?.error?.message` or fallback
@@ -100,18 +106,19 @@ libs/
 
 **Error Message Fallbacks:**
 
-| Method | Fallback Message |
-|--------|------------------|
-| `findDevices()` | "Failed to find devices" |
+| Method                  | Fallback Message                       |
+| ----------------------- | -------------------------------------- |
+| `findDevices()`         | "Failed to find devices"               |
 | `getConnectedDevices()` | "Failed to retrieve connected devices" |
-| `connectDevice()` | "Failed to connect to device" |
-| `disconnectDevice()` | "Failed to disconnect device" |
-| `resetDevice()` | "Failed to reset device" |
-| `pingDevice()` | "Failed to ping device" |
+| `connectDevice()`       | "Failed to connect to device"          |
+| `disconnectDevice()`    | "Failed to disconnect device"          |
+| `resetDevice()`         | "Failed to reset device"               |
+| `pingDevice()`          | "Failed to ping device"                |
 
 **Testing Focus for Task 1:**
 
 **Behaviors to Test:**
+
 - [ ] **findDevices error displays alert**: Mock API rejection, verify error alert called with correct message
 - [ ] **findDevices error rethrows**: Verify error propagates after alert
 - [ ] **getConnectedDevices error displays alert**: Mock API rejection, verify error alert with message
@@ -123,6 +130,7 @@ libs/
 - [ ] **Check off completed tests**: Mark each test above as complete in this document as you verify it passes
 
 **Testing Reference:**
+
 - See [player.service.spec.ts](../../../libs/infrastructure/src/lib/player/player.service.spec.ts) for error handling test patterns
 - Use Vitest's `vi.fn()` to mock alert service
 - Verify both `alertService.error()` call AND error propagation in each test
@@ -137,10 +145,12 @@ libs/
 **Purpose**: Enhance existing error handling in StorageService by adding alert notifications. This service already has catchError blocks with console logging - we need to add alert integration following the established pattern.
 
 **Related Documentation:**
+
 - [PlayerService Reference Pattern](../../../libs/infrastructure/src/lib/player/player.service.ts) - Error handling pattern to follow
 - [Current StorageService](../../../libs/infrastructure/src/lib/storage/storage.service.ts) - Review existing catchError blocks
 
 **Implementation Subtasks:**
+
 - [ ] **Inject IAlertService**: Add `private readonly alertService = inject(ALERT_SERVICE)` to StorageService constructor
 - [ ] **Enhance getDirectory() catchError**: Add alert notification before rethrow (keep existing console.error, add alertService.error with fallback "Failed to retrieve directory")
 - [ ] **Enhance search() catchError**: Add alert notification before rethrow (keep existing console.error, add alertService.error with fallback "Search operation failed")
@@ -149,9 +159,11 @@ libs/
 - [ ] **Check off completed subtasks**: Mark each subtask above as complete in this document as you finish it
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test error handling triggers alerts correctly (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - StorageService already has catchError blocks - enhance them, don't replace
 - Keep existing `console.error()` calls for logging
 - Add `alertService.error(message)` after console.error, before throwError
@@ -160,16 +172,17 @@ libs/
 
 **Error Message Fallbacks:**
 
-| Method | Fallback Message |
-|--------|------------------|
+| Method           | Fallback Message               |
+| ---------------- | ------------------------------ |
 | `getDirectory()` | "Failed to retrieve directory" |
-| `search()` | "Search operation failed" |
-| `index()` | "Failed to index storage" |
-| `indexAll()` | "Failed to index all storage" |
+| `search()`       | "Search operation failed"      |
+| `index()`        | "Failed to index storage"      |
+| `indexAll()`     | "Failed to index all storage"  |
 
 **Testing Focus for Task 2:**
 
 **Behaviors to Test:**
+
 - [ ] **getDirectory error displays alert**: Mock API rejection, verify error alert called with message
 - [ ] **getDirectory error rethrows**: Verify error propagates after alert
 - [ ] **search error displays alert**: Mock API rejection, verify error alert with search context
@@ -180,6 +193,7 @@ libs/
 - [ ] **Check off completed tests**: Mark each test above as complete in this document as you verify it passes
 
 **Testing Reference:**
+
 - See [storage.service.spec.ts](../../../libs/infrastructure/src/lib/storage/storage.service.spec.ts) for existing test patterns
 - Add new test cases for alert integration
 - Mock both FilesApiService (already mocked) and ALERT_SERVICE (new)
@@ -194,10 +208,12 @@ libs/
 **Purpose**: Add alert notifications to DeviceLogsService SignalR connection error handling. This service uses SignalR hub connections with promise-based error handling rather than RxJS observables.
 
 **Related Documentation:**
+
 - [DeviceLogsService Current Implementation](../../../libs/infrastructure/src/lib/device/device-logs.service.ts) - Review existing error handling
 - [SignalR Error Handling](https://learn.microsoft.com/en-us/aspnet/core/signalr/javascript-client) - SignalR patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Inject IAlertService**: Add `private readonly alertService = inject(ALERT_SERVICE)` to DeviceLogsService
 - [ ] **Enhance connect() error handling**: In `.catch()` block, add alert notification after logError but before setting isConnected=false
 - [ ] **Add error handler for API call failures**: Add catchError to `from(this.deviceService.startLogs())` observable with alert notification
@@ -206,9 +222,11 @@ libs/
 - [ ] **Check off completed subtasks**: Mark each subtask above as complete in this document as you finish it
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test error handling triggers alerts correctly (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - SignalR uses promise-based error handling with `.catch()`, not RxJS `catchError`
 - Keep existing `logError()` calls
 - Add `alertService.error(message)` in promise catch blocks
@@ -218,16 +236,17 @@ libs/
 
 **Error Message Fallbacks:**
 
-| Operation | Fallback Message |
-|-----------|------------------|
+| Operation            | Fallback Message                         |
+| -------------------- | ---------------------------------------- |
 | Hub connection start | "Failed to start device logs connection" |
-| Hub reconnection | "Device logs connection lost" |
-| startLogs API call | "Failed to start device logs" |
-| stopLogs API call | "Failed to stop device logs" |
+| Hub reconnection     | "Device logs connection lost"            |
+| startLogs API call   | "Failed to start device logs"            |
+| stopLogs API call    | "Failed to stop device logs"             |
 
 **Testing Focus for Task 3:**
 
 **Behaviors to Test:**
+
 - [ ] **Hub connection error displays alert**: Mock SignalR .start() rejection, verify error alert called
 - [ ] **startLogs API error displays alert**: Mock API rejection, verify error alert
 - [ ] **stopLogs API error displays alert**: Mock API rejection, verify error alert
@@ -236,6 +255,7 @@ libs/
 - [ ] **Check off completed tests**: Mark each test above as complete in this document as you verify it passes
 
 **Testing Reference:**
+
 - Mock SignalR HubConnection using Vitest's `vi.fn()`
 - Mock API service methods
 - Mock alert service to verify error calls
@@ -250,10 +270,12 @@ libs/
 **Purpose**: Add alert notifications to DeviceEventsService SignalR connection error handling. Similar to DeviceLogsService, this uses SignalR hub connections with promise-based error handling.
 
 **Related Documentation:**
+
 - [DeviceEventsService Current Implementation](../../../libs/infrastructure/src/lib/device/device-events.service.ts) - Review existing error handling
 - [SignalR Error Handling](https://learn.microsoft.com/en-us/aspnet/core/signalr/javascript-client) - SignalR patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Inject IAlertService**: Add `private readonly alertService = inject(ALERT_SERVICE)` to DeviceEventsService
 - [ ] **Enhance connect() error handling**: In `.catch()` block, add alert notification after logError
 - [ ] **Add error handler for API call failures**: Add catchError to `from(this.deviceService.startDeviceEvents())` observable with alert notification
@@ -262,9 +284,11 @@ libs/
 - [ ] **Check off completed subtasks**: Mark each subtask above as complete in this document as you finish it
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test error handling triggers alerts correctly (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - Follow same pattern as DeviceLogsService (Task 3)
 - SignalR uses promise-based `.catch()`, not RxJS `catchError`
 - Observable API calls use RxJS `catchError` pattern
@@ -275,16 +299,17 @@ libs/
 
 **Error Message Fallbacks:**
 
-| Operation | Fallback Message |
-|-----------|------------------|
-| Hub connection start | "Failed to start device events connection" |
-| Hub reconnection | "Device events connection lost" |
-| startDeviceEvents API call | "Failed to start device events" |
-| stopDeviceEvents API call | "Failed to stop device events" |
+| Operation                  | Fallback Message                           |
+| -------------------------- | ------------------------------------------ |
+| Hub connection start       | "Failed to start device events connection" |
+| Hub reconnection           | "Device events connection lost"            |
+| startDeviceEvents API call | "Failed to start device events"            |
+| stopDeviceEvents API call  | "Failed to stop device events"             |
 
 **Testing Focus for Task 4:**
 
 **Behaviors to Test:**
+
 - [ ] **Hub connection error displays alert**: Mock SignalR .start() rejection, verify error alert called
 - [ ] **startDeviceEvents API error displays alert**: Mock API rejection, verify error alert
 - [ ] **stopDeviceEvents API error displays alert**: Mock API rejection, verify error alert
@@ -293,6 +318,7 @@ libs/
 - [ ] **Check off completed tests**: Mark each test above as complete in this document as you verify it passes
 
 **Testing Reference:**
+
 - Use same testing patterns as DeviceLogsService (Task 3)
 - Mock SignalR HubConnection
 - Mock API service methods
@@ -308,11 +334,13 @@ libs/
 **Purpose**: Add alert notifications to PlayerService error handling. PlayerService already has the most complete error handling structure (log + catchError + rethrow) - we need to add the alert integration following the established pattern.
 
 **Related Documentation:**
+
 - [PlayerService Implementation](../../../libs/infrastructure/src/lib/player/player.service.ts) - Current implementation with good error handling foundation
 - [Service Standards](../../SERVICE_STANDARDS.md) - Error handling patterns
 - [IAlertService Contract](../../../libs/domain/src/lib/contracts/alert.contract.ts) - Alert service interface
 
 **Implementation Subtasks:**
+
 - [ ] **Inject IAlertService**: Add `private readonly alertService = inject(ALERT_SERVICE)` to PlayerService
 - [ ] **Enhance launchFile() catchError**: Add `alertService.error(message)` after logError, extract message from error object or use fallback "Failed to launch file"
 - [ ] **Enhance launchRandom() catchError**: Add `alertService.error(message)` after console.error, extract message or use fallback "Failed to launch random file"
@@ -321,9 +349,11 @@ libs/
 - [ ] **Check off completed subtasks**: Mark each subtask above as complete in this document as you finish it
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Update existing tests and add alert verification (see Testing Focus below)
 
 **Key Implementation Notes:**
+
 - PlayerService already has catchError blocks - enhance them, don't replace
 - Keep existing `logError()` calls (and one `console.error()` in launchRandom)
 - Add `alertService.error(message)` after logging, before throwError
@@ -334,15 +364,16 @@ libs/
 
 **Error Message Fallbacks:**
 
-| Method | Fallback Message |
-|--------|------------------|
-| `launchFile()` | "Failed to launch file" |
+| Method           | Fallback Message               |
+| ---------------- | ------------------------------ |
+| `launchFile()`   | "Failed to launch file"        |
 | `launchRandom()` | "Failed to launch random file" |
-| `toggleMusic()` | "Failed to toggle music" |
+| `toggleMusic()`  | "Failed to toggle music"       |
 
 **Testing Focus for Task 5:**
 
 **Behaviors to Test:**
+
 - [ ] **launchFile error displays alert**: Mock API rejection, verify alertService.error called with correct message
 - [ ] **launchFile error rethrows**: Verify error propagates after alert
 - [ ] **launchRandom error displays alert**: Mock API rejection, verify alertService.error called with correct message
@@ -355,6 +386,7 @@ libs/
 - [ ] **Check off completed tests**: Mark each test above as complete in this document as you verify it passes
 
 **Testing Reference:**
+
 - See [player.service.spec.ts](../../../libs/infrastructure/src/lib/player/player.service.spec.ts) for existing error test structure
 - Add alert service mock to TestBed configuration
 - Verify both `alertService.error()` call AND error propagation in each test
@@ -369,10 +401,12 @@ libs/
 **Purpose**: Validate that the alert system integrates correctly with real infrastructure services in a running application. This task ensures the system works end-to-end with actual API calls and error scenarios.
 
 **Related Documentation:**
+
 - [Alert System Plan - Success Criteria](./ALERT_SYSTEM_PLAN.md#success-criteria) - End-to-end requirements
 - [Testing Standards - Integration Tests](../../TESTING_STANDARDS.md#infrastructure-layer-libsinfrastructure) - Integration testing approach
 
 **Implementation Subtasks:**
+
 - [ ] **Start development server**: Run `pnpm start` to launch the application with dev backend
 - [ ] **Test DeviceService errors**: Trigger findDevices error (disconnect backend), verify error alert displays
 - [ ] **Test StorageService errors**: Trigger getDirectory error (invalid path or disconnected device), verify error alert displays
@@ -386,9 +420,11 @@ libs/
 - [ ] **Check off completed subtasks**: Mark each subtask above as complete in this document as you finish it
 
 **Testing Subtask:**
+
 - [ ] **Manual Testing**: No automated tests - manual validation of alert system behavior
 
 **Key Implementation Notes:**
+
 - This is MANUAL testing - no automated test code
 - Use browser DevTools to verify alert service calls and error handling
 - Test with REAL backend API to catch integration issues
@@ -401,36 +437,38 @@ libs/
 
 **Validation Checklist:**
 
-| Scenario | Expected Behavior | ✅ Verified |
-|----------|-------------------|------------|
-| DeviceService.findDevices() fails | Red error alert with "Failed to find devices" or API message | [ ] |
-| DeviceService.connectDevice() fails | Red error alert with "Failed to connect to device" or API message | [ ] |
-| StorageService.getDirectory() fails | Red error alert with "Failed to retrieve directory" or API message | [ ] |
-| StorageService.search() fails | Red error alert with "Search operation failed" or API message | [ ] |
-| PlayerService.launchFile() fails | Red error alert with launch error message | [ ] |
-| DeviceLogsService.connect() fails | Red error alert with connection error message | [ ] |
-| DeviceEventsService.connect() fails | Red error alert with connection error message | [ ] |
-| Alert auto-dismisses | Alert disappears after 3 seconds | [ ] |
-| Alert manual dismiss | Clicking X button removes alert immediately | [ ] |
-| Error propagates | Application handles error after alert (doesn't crash) | [ ] |
+| Scenario                            | Expected Behavior                                                  | ✅ Verified |
+| ----------------------------------- | ------------------------------------------------------------------ | ----------- |
+| DeviceService.findDevices() fails   | Red error alert with "Failed to find devices" or API message       | [ ]         |
+| DeviceService.connectDevice() fails | Red error alert with "Failed to connect to device" or API message  | [ ]         |
+| StorageService.getDirectory() fails | Red error alert with "Failed to retrieve directory" or API message | [ ]         |
+| StorageService.search() fails       | Red error alert with "Search operation failed" or API message      | [ ]         |
+| PlayerService.launchFile() fails    | Red error alert with launch error message                          | [ ]         |
+| DeviceLogsService.connect() fails   | Red error alert with connection error message                      | [ ]         |
+| DeviceEventsService.connect() fails | Red error alert with connection error message                      | [ ]         |
+| Alert auto-dismisses                | Alert disappears after 3 seconds                                   | [ ]         |
+| Alert manual dismiss                | Clicking X button removes alert immediately                        | [ ]         |
+| Error propagates                    | Application handles error after alert (doesn't crash)              | [ ]         |
 
 **Issue Tracking:**
 
 If issues are found during validation, document them here:
 
 **Issue 1:**
-- **Service**: 
-- **Scenario**: 
-- **Expected**: 
-- **Actual**: 
-- **Status**: 
+
+- **Service**:
+- **Scenario**:
+- **Expected**:
+- **Actual**:
+- **Status**:
 
 **Issue 2:**
-- **Service**: 
-- **Scenario**: 
-- **Expected**: 
-- **Actual**: 
-- **Status**: 
+
+- **Service**:
+- **Scenario**:
+- **Expected**:
+- **Actual**:
+- **Status**:
 
 </details>
 
@@ -439,6 +477,7 @@ If issues are found during validation, document them here:
 ## ✅ Phase 2 Completion Checklist
 
 **Code Implementation:**
+
 - [ ] Task 1: DeviceService alert integration complete
 - [ ] Task 2: StorageService alert integration complete
 - [ ] Task 3: DeviceLogsService alert integration complete
@@ -446,12 +485,14 @@ If issues are found during validation, document them here:
 - [ ] Task 5: PlayerService tests updated with alert verification
 
 **Testing:**
+
 - [ ] All service unit tests passing with alert verification
 - [ ] Integration tests confirm error → alert → rethrow flow
 - [ ] End-to-end validation successful (Task 6)
 - [ ] No console errors or warnings in browser
 
 **Quality Checks:**
+
 - [ ] All error messages are user-friendly and actionable
 - [ ] Error handling follows consistent pattern across all services
 - [ ] Alert service is properly injected via ALERT_SERVICE token
@@ -459,6 +500,7 @@ If issues are found during validation, document them here:
 - [ ] Errors are rethrown after displaying alerts for upstream handling
 
 **Documentation:**
+
 - [ ] All task subtasks marked complete in this document
 - [ ] Any issues found documented in Task 6 Issue Tracking
 - [ ] Code comments explain error handling patterns
@@ -470,6 +512,7 @@ If issues are found during validation, document them here:
 ### Error Handling Pattern (RxJS Observable)
 
 **What to implement:**
+
 - Inject `ALERT_SERVICE` using Angular's `inject()` function
 - Wrap API calls with RxJS `catchError` operator
 - Inside catchError: extract error message from `error.message` or `error.error.message`, falling back to a contextual message if neither exists
@@ -480,6 +523,7 @@ If issues are found during validation, document them here:
 ### Error Handling Pattern (SignalR Promise)
 
 **What to implement:**
+
 - Inject `ALERT_SERVICE` using Angular's `inject()` function
 - Use promise `.catch()` blocks for SignalR hub connection errors (not RxJS catchError)
 - Inside catch block: extract error message from `err.message` or use a contextual fallback
@@ -490,6 +534,7 @@ If issues are found during validation, document them here:
 ### Test Pattern (Service Error Alert Verification)
 
 **What to test:**
+
 - Mock the API service to reject with various error structures
 - Mock the alert service to verify `error()` was called
 - Configure TestBed with both mocked services using dependency injection tokens
@@ -528,6 +573,7 @@ Phase 2 is complete when:
 **Phase 2 Goal**: Prove the alert system works end-to-end with real services before investing in visual polish.
 
 **Why This Phase Matters**:
+
 - Establishes consistent error handling patterns across all infrastructure services
 - Ensures API errors automatically provide user feedback without individual component handling
 - Validates error message extraction from API responses works correctly
@@ -535,6 +581,7 @@ Phase 2 is complete when:
 - Provides foundation for Phase 3 visual enhancements
 
 **Key Decisions**:
+
 - **No Automatic Success Alerts**: Infrastructure services do not display success alerts - application layer decides when operations warrant success feedback
 - **Error Message Priority**: API messages (error.message or error.error.message) take precedence over fallbacks for better user context
 - **Consistent Pattern**: All services follow PlayerService pattern (log → alert → rethrow) for maintainability

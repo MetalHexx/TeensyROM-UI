@@ -29,7 +29,6 @@ export function updateTimerState(store: WritableStore<PlayerState>) {
     }): void => {
       const actionMessage = createAction('update-timer-state');
 
-
       updateState(store, actionMessage, (state) => {
         const deviceState = state.players[deviceId];
         if (!deviceState) {

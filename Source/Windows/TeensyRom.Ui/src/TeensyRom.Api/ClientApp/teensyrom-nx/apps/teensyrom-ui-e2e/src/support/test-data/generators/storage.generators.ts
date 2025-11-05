@@ -38,12 +38,7 @@ export function generateFileItem(overrides: Partial<FileItemDto> = {}): FileItem
     isCompatible: overrides.isCompatible ?? true,
     title: overrides.title ?? faker.lorem.words(3),
     creator: overrides.creator ?? faker.person.fullName(),
-    releaseInfo:
-      overrides.releaseInfo ??
-      faker.date
-        .past({ years: 30 })
-        .getFullYear()
-        .toString(),
+    releaseInfo: overrides.releaseInfo ?? faker.date.past({ years: 30 }).getFullYear().toString(),
     description: overrides.description ?? faker.lorem.sentence(),
     shareUrl: overrides.shareUrl ?? faker.internet.url(),
     metadataSource: overrides.metadataSource ?? 'HVSC',
@@ -89,7 +84,7 @@ export function generateGamesDirectory(seed: number): MockFile[] {
       parentPath: '/games',
       type: FileItemType.Game,
       size: faker.helpers.arrayElement(sizePool),
-    }),
+    })
   );
 }
 
@@ -99,7 +94,7 @@ export function generateGamesDirectory(seed: number): MockFile[] {
 export function generateMusicianDirectory(
   letter: string,
   artistName: string,
-  seed: number,
+  seed: number
 ): MockFile[] {
   faker.seed(seed + letter.charCodeAt(0));
 
@@ -114,7 +109,7 @@ export function generateMusicianDirectory(
       type: FileItemType.Song,
       creator: artistName,
       size: faker.number.int({ min: 6700, max: 22900 }),
-    }),
+    })
   );
 }
 
@@ -133,7 +128,7 @@ export function generateImagesDirectory(seed: number): MockFile[] {
       parentPath: '/images',
       type: FileItemType.Image,
       size: 9800,
-    }),
+    })
   );
 }
 

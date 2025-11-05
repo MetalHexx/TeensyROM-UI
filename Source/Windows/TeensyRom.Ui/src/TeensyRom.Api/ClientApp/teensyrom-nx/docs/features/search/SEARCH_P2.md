@@ -60,6 +60,7 @@ libs/application/src/lib/storage/
   - Empty object matches pattern of other per-device records
 
 **Design Notes**:
+
 - `hasSearched` flag prevents confusion between "no search performed" and "search returned no results"
 - `filterType` stored to maintain UI state (what filter was used)
 - `searchText` stored to repopulate input field if needed
@@ -124,19 +125,25 @@ libs/application/src/lib/storage/
 - [ ] Return Promise<void> for async/await pattern
 
 **Implementation Pattern** (from STATE_STANDARDS.md):
+
 ```typescript
 export function searchFiles(store: WritableStore<StorageState>, storageService: IStorageService) {
   return {
-    searchFiles: async ({ deviceId, storageType, searchText, filterType }: {
+    searchFiles: async ({
+      deviceId,
+      storageType,
+      searchText,
+      filterType,
+    }: {
       deviceId: string;
       storageType: StorageType;
       searchText: string;
       filterType?: PlayerFilterType;
     }): Promise<void> => {
       const actionMessage = createAction('search-files');
-      
+
       logInfo(LogType.Start, `Starting search for device ${deviceId}`);
-      
+
       // Initialize if needed, set loading, call service, update on success/error
       // ALL updateState() calls use actionMessage parameter
     },
@@ -187,6 +194,7 @@ export function searchFiles(store: WritableStore<StorageState>, storageService: 
 **Purpose**: Automatically clear search when user navigates to a directory, ensuring clean state transitions.
 
 **Files to Update**:
+
 - [`libs/application/src/lib/storage/actions/navigate-to-directory.ts`](../../../libs/application/src/lib/storage/actions/navigate-to-directory.ts)
 - [`libs/application/src/lib/storage/actions/navigate-directory-backward.ts`](../../../libs/application/src/lib/storage/actions/navigate-directory-backward.ts)
 - [`libs/application/src/lib/storage/actions/navigate-directory-forward.ts`](../../../libs/application/src/lib/storage/actions/navigate-directory-forward.ts)
@@ -203,6 +211,7 @@ export function searchFiles(store: WritableStore<StorageState>, storageService: 
   - Important: Use same actionMessage for correlation in Redux DevTools
 
 **Pattern for Integration**:
+
 ```typescript
 // In each navigation action method:
 const actionMessage = createAction('navigate-to-directory'); // or appropriate action name
@@ -243,6 +252,7 @@ if (hasActiveSearch(store, deviceId)) {
   - Same structure: parameterized factory returning computed signal
 
 **Selector Pattern**:
+
 ```typescript
 export function getSearchState(store: WritableStore<StorageState>) {
   return {
@@ -290,6 +300,7 @@ export function getSearchState(store: WritableStore<StorageState>) {
   - Convenient check for navigation actions
 
 **Helper Function Rules** (from STATE_STANDARDS.md):
+
 - Mutation helpers MUST accept `actionMessage: string` as final parameter
 - Query helpers do NOT need actionMessage (read-only)
 - All mutations use `updateState()` not `patchState()`
@@ -327,6 +338,7 @@ export function getSearchState(store: WritableStore<StorageState>) {
 **File**: [`libs/application/src/lib/storage/storage-store.spec.ts`](../../../libs/application/src/lib/storage/storage-store.spec.ts)
 
 **Test Setup**:
+
 - [ ] Create typed mock for `IStorageService` with `search()` method
   - `type SearchFn = (deviceId: string, storageType: StorageType, searchText: string, filterType?: PlayerFilterType) => Observable<FileItem[]>`
   - `let searchMock: MockedFunction<SearchFn>`
@@ -336,6 +348,7 @@ export function getSearchState(store: WritableStore<StorageState>) {
 **Test Suites**:
 
 **search-files Action Tests**:
+
 - [ ] Describe block: `describe('search-files', () => {})`
 - [ ] Test: Successfully returns search results
   - Mock `searchMock.mockReturnValue(of([mockFile1, mockFile2]))`
@@ -362,6 +375,7 @@ export function getSearchState(store: WritableStore<StorageState>) {
   - First search on device should create searchState[deviceId]
 
 **clear-search Action Tests**:
+
 - [ ] Describe block: `describe('clear-search', () => {})`
 - [ ] Test: Clears search state for device
   - Setup: Execute search first to populate state
@@ -372,6 +386,7 @@ export function getSearchState(store: WritableStore<StorageState>) {
   - Should not throw error
 
 **Auto-clear on Navigation Tests**:
+
 - [ ] Test: navigateToDirectory clears active search
   - Setup: Execute search first
   - Call `store.navigateToDirectory({ deviceId, storageType, path })`
@@ -379,11 +394,12 @@ export function getSearchState(store: WritableStore<StorageState>) {
 - [ ] Test: navigateDirectoryBackward clears active search
   - Same pattern
 - [ ] Test: navigateDirectoryForward clears active search
-  - Same pattern  
+  - Same pattern
 - [ ] Test: navigateUpOneDirectory clears active search
   - Same pattern
 
 **Search State Selector Tests**:
+
 - [ ] Test: Returns search state for device
   - Setup search state
   - Call `store.getSearchState(deviceId)()`
@@ -393,6 +409,7 @@ export function getSearchState(store: WritableStore<StorageState>) {
   - Assert null returned
 
 **Per-Device Isolation Tests**:
+
 - [ ] Test: Independent search state per device
   - Search on device1
   - Search on device2 with different text
@@ -403,6 +420,7 @@ export function getSearchState(store: WritableStore<StorageState>) {
   - Assert device2 search state unchanged
 
 **Follow STORE_TESTING.md Checklist**:
+
 - [ ] Test setup via Angular TestBed
 - [ ] Typed service mocks provided via tokens
 - [ ] Initialization behavior verified
@@ -412,6 +430,7 @@ export function getSearchState(store: WritableStore<StorageState>) {
 - [ ] Edge cases covered (empty results, errors, missing state)
 
 **Helper for Async Tests**:
+
 ```typescript
 const nextTick = () => new Promise<void>((r) => setTimeout(r, 0));
 // After calling async store method:
@@ -423,11 +442,13 @@ await nextTick();
 ## 🗂️ File Changes
 
 ### New Files
+
 - [`libs/application/src/lib/storage/actions/search-files.ts`](../../../libs/application/src/lib/storage/actions/search-files.ts) - Search execution action
 - [`libs/application/src/lib/storage/actions/clear-search.ts`](../../../libs/application/src/lib/storage/actions/clear-search.ts) - Clear search action
 - [`libs/application/src/lib/storage/selectors/get-search-state.ts`](../../../libs/application/src/lib/storage/selectors/get-search-state.ts) - Search state selector
 
 ### Modified Files
+
 - [`libs/application/src/lib/storage/storage-store.ts`](../../../libs/application/src/lib/storage/storage-store.ts) - Add SearchState to StorageState
 - [`libs/application/src/lib/storage/storage-store.spec.ts`](../../../libs/application/src/lib/storage/storage-store.spec.ts) - Add search tests
 - [`libs/application/src/lib/storage/storage-helpers.ts`](../../../libs/application/src/lib/storage/storage-helpers.ts) - Add search helpers
@@ -443,6 +464,7 @@ await nextTick();
 ### Unit Tests
 
 **search-files Action**:
+
 - [ ] Successful search with multiple results
 - [ ] Successful search with empty results
 - [ ] Search without filter parameter
@@ -453,26 +475,31 @@ await nextTick();
 - [ ] State updates on subsequent searches
 
 **clear-search Action**:
+
 - [ ] Clears search state completely
 - [ ] Safe to call when no search active
 - [ ] Resets all SearchState properties
 
 **Auto-clear Behavior**:
+
 - [ ] All navigation actions clear active search
 - [ ] Navigation with no search doesn't error
 - [ ] Clear uses same actionMessage for correlation
 
 **Search State Selector**:
+
 - [ ] Returns correct search state for device
 - [ ] Returns null when no search state exists
 - [ ] Reactive to state changes
 
 **Per-Device Isolation**:
+
 - [ ] Independent search state per device
 - [ ] Search on device1 doesn't affect device2
 - [ ] Clear on device1 doesn't affect device2
 
 **Test Coverage Requirements**:
+
 - Minimum 80% line coverage for new code
 - 100% coverage for error handling paths
 - All state transitions tested

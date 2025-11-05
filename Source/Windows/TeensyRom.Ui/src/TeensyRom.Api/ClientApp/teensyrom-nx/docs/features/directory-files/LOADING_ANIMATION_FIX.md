@@ -25,10 +25,11 @@
 **File**: `directory-files.component.ts`
 
 **Problematic Code**:
+
 ```typescript
 readonly directoriesAndFiles = computed(() => {
   const contents = this.directoryContents();
-  
+
   // ❌ PROBLEM: Creates new objects for EVERY item on EVERY state change
   const directories = contents.directories.map((dir) => ({
     ...dir,
@@ -43,12 +44,14 @@ readonly directoriesAndFiles = computed(() => {
 ```
 
 **Why This Blocks**:
+
 - **Object spreading** (`{...dir}`, `{...file}`) creates new object in memory
 - With 1000 files: 1000 object allocations + 1000 property copies
 - All happens **synchronously** on main thread
 - Blocks rendering, animations, user input
 
 **Profiling Results** (Chrome DevTools):
+
 - 1000 files: ~80ms blocked time
 - 500 files: ~40ms blocked time
 - 100 files: ~8ms blocked time (noticeable)
@@ -67,7 +70,7 @@ private itemsCache = new Map<string, (DirectoryItem | FileItem) & { itemType: st
 
 readonly directoriesAndFiles = computed(() => {
   const contents = this.directoryContents();
-  
+
   // Early return for empty state
   if (!contents.hasContent || (contents.directories.length === 0 && contents.files.length === 0)) {
     this.itemsCache.clear();
@@ -116,22 +119,26 @@ readonly directoriesAndFiles = computed(() => {
 ### How It Works
 
 **First Navigation** (cache miss):
+
 - No cached objects exist
 - Creates 1000 new objects (~80ms)
 - Stores in cache with `path` as key
 
 **Subsequent Navigations** (cache hit):
+
 - Same directory data returned from store
 - **Reuses all 1000 cached objects** (~2ms)
 - No object allocations
 - Main thread unblocked
 
 **Different Directory** (cache miss):
+
 - New directory has different data
 - Creates new objects for new directory
 - Clears old cache
 
 **Benefits**:
+
 - ✅ **97% reduction** in blocked time on cache hit (80ms → 2ms)
 - ✅ Loading animation stays smooth
 - ✅ No memory leaks (cache cleared on directory change)
@@ -143,21 +150,22 @@ readonly directoriesAndFiles = computed(() => {
 
 ### Before Fix
 
-| Directory Size | Blocked Time | Animation |
-|----------------|-------------|-----------|
-| 100 files | ~8ms | Slight stutter |
-| 500 files | ~40ms | Noticeable freeze |
-| 1000 files | ~80ms | Obvious freeze |
+| Directory Size | Blocked Time | Animation         |
+| -------------- | ------------ | ----------------- |
+| 100 files      | ~8ms         | Slight stutter    |
+| 500 files      | ~40ms        | Noticeable freeze |
+| 1000 files     | ~80ms        | Obvious freeze    |
 
 ### After Fix (Cache Hit)
 
 | Directory Size | Blocked Time | Animation |
-|----------------|-------------|-----------|
-| 100 files | ~1ms | Smooth ✅ |
-| 500 files | ~2ms | Smooth ✅ |
-| 1000 files | ~2ms | Smooth ✅ |
+| -------------- | ------------ | --------- |
+| 100 files      | ~1ms         | Smooth ✅ |
+| 500 files      | ~2ms         | Smooth ✅ |
+| 1000 files     | ~2ms         | Smooth ✅ |
 
 **Cache Miss** (first time navigating to directory):
+
 - Still ~80ms for 1000 files
 - Acceptable since it only happens once per unique directory
 
@@ -170,6 +178,7 @@ readonly directoriesAndFiles = computed(() => {
 **Idea**: Add `itemType` in the store before sending to component.
 
 **Rejected Because**:
+
 - Violates clean architecture (domain models shouldn't have UI concerns)
 - Would require changing `DirectoryItem` and `FileItem` interfaces
 - Store should be pure data, not UI-specific
@@ -179,6 +188,7 @@ readonly directoriesAndFiles = computed(() => {
 **Idea**: Defer transformation to idle time.
 
 **Rejected Because**:
+
 - Complex to implement with signals
 - Data needs to be available immediately for virtual scrolling
 - Would introduce race conditions
@@ -188,6 +198,7 @@ readonly directoriesAndFiles = computed(() => {
 **Idea**: Offload transformation to background thread.
 
 **Rejected Because**:
+
 - Overkill for this problem
 - Object transfer overhead
 - Complexity not justified
@@ -197,6 +208,7 @@ readonly directoriesAndFiles = computed(() => {
 **Idea**: Don't add `itemType`, use separate arrays.
 
 **Rejected Because**:
+
 - Virtual scrolling requires single array
 - Type guards already implemented and working
 - Breaking change to existing code
@@ -204,6 +216,7 @@ readonly directoriesAndFiles = computed(() => {
 ### 5. Object Caching (Memoization) ✅ **CHOSEN**
 
 **Why**:
+
 - Simple JavaScript `Map`
 - No architecture changes
 - 97% performance improvement on cache hit
@@ -219,6 +232,7 @@ readonly directoriesAndFiles = computed(() => {
 **Status**: ✅ All 18 tests passing
 
 **Coverage**:
+
 - Object caching doesn't break existing functionality
 - Selection, navigation, playback all work
 - Virtual scrolling unaffected
@@ -226,12 +240,15 @@ readonly directoriesAndFiles = computed(() => {
 ### Manual Testing Required
 
 **Scenarios**:
+
 1. **Navigate to large directory** (1000+ files)
+
    - Expected: Loading animation stays smooth
    - First visit: May still freeze briefly (acceptable)
    - Return visits: Should be smooth
 
 2. **Navigate between directories rapidly**
+
    - Expected: Animation smooth throughout
    - Cache cleared appropriately
 
@@ -239,6 +256,7 @@ readonly directoriesAndFiles = computed(() => {
    - Expected: Works correctly with cached objects
 
 **How to Test**:
+
 1. Open Chrome DevTools → Performance tab
 2. Start recording
 3. Navigate to large directory
@@ -255,12 +273,14 @@ readonly directoriesAndFiles = computed(() => {
 ### If Cache Misses Still Cause Issues
 
 1. **Progressive Rendering**: Render items in batches
+
    ```typescript
    // Split into chunks of 100 items
    // Render chunk by chunk with requestAnimationFrame
    ```
 
 2. **Structural Sharing**: Use immutable data structures (Immer.js)
+
    ```typescript
    // Reuse object structure, only update changed properties
    ```
@@ -291,12 +311,14 @@ Apply same caching pattern to other components with heavy computed transformatio
 ### Best Practices
 
 ✅ **DO**:
+
 - Profile with Chrome DevTools Performance tab
 - Cache expensive computations
 - Reuse objects when data unchanged
 - Keep main thread work < 16ms (60fps)
 
 ❌ **DON'T**:
+
 - Create new objects unnecessarily in computed signals
 - Use `.map()` on large arrays in hot paths
 - Assume virtual scrolling fixes all performance issues

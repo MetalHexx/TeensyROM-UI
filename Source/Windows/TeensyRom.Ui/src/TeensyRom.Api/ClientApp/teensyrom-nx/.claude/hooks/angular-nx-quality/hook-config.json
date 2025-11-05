@@ -4,12 +4,7 @@
   "description": "Quality gate automation for TeensyROM's Angular/Nx monorepo with domain-driven architecture",
 
   "filePatterns": {
-    "include": [
-      "**/*.ts",
-      "**/*.tsx",
-      "**/*.js",
-      "**/*.jsx"
-    ],
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
     "exclude": [
       "**/node_modules/**",
       "**/dist/**",
@@ -27,13 +22,13 @@
       "noEmit": true,
       "skipLibCheck": true,
       "criticalErrors": [
-        "error TS2304",  // Cannot find name
-        "error TS2322",  // Type is not assignable
-        "error TS2339",  // Property does not exist
-        "error TS7006",  // Parameter implicitly has 'any' type
-        "error TS2564",  // Property has no initializer
-        "error TS2705",  // An async function or method in ES5 requires 'Promise'
-        "error TS2345"   // Argument of type X is not assignable to parameter of type Y
+        "error TS2304", // Cannot find name
+        "error TS2322", // Type is not assignable
+        "error TS2339", // Property does not exist
+        "error TS7006", // Parameter implicitly has 'any' type
+        "error TS2564", // Property has no initializer
+        "error TS2705", // An async function or method in ES5 requires 'Promise'
+        "error TS2345" // Argument of type X is not assignable to parameter of type Y
       ],
       "configFiles": [
         "tsconfig.json",

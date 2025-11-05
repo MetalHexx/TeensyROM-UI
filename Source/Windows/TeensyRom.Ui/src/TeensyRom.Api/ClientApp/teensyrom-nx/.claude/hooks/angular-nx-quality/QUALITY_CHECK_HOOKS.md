@@ -54,7 +54,9 @@ flowchart TD
 ## Core Components
 
 ### QualityChecker
+
 Main orchestrator that coordinates the entire quality check pipeline with comprehensive issue collection:
+
 - Executes TypeScript, ESLint, and Prettier checks sequentially without failing fast
 - **Collects All Issues**: Continues through all checks even when critical issues are found
 - **Complete Reporting**: Provides comprehensive view of all code quality issues in one pass
@@ -63,20 +65,26 @@ Main orchestrator that coordinates the entire quality check pipeline with compre
 - Maintains backward compatibility with existing quality check workflows
 
 ### TypeScriptConfigCache
+
 Sophisticated caching system that revolutionizes TypeScript configuration resolution:
+
 - **Hash-Based Validation**: SHA256 hashing of all tsconfig files for integrity checking
 - **Pattern-Based Mapping**: Intelligent file pattern to config mappings (e.g., `libs/domain/**/*.ts` → domain lib config)
 - **Nx-Specific Logic**: Understands apps vs libs configurations and project boundaries
 - **Performance Optimization**: Sub-second cache lookups vs expensive directory scanning
 
 ### OutputFormatter
+
 Provides three distinct output formats for different use cases:
+
 - **JSON Format**: Structured data for AI consumption and tool integration
 - **Markdown Format**: Human-readable reports with tables and recommendations
 - **Console Format**: Enhanced terminal output with colors and progress indicators
 
 ### ClaudeCodeIntegration
+
 Bridges quality issues with actionable Claude Code workflows:
+
 - Suggests appropriate tools (`clean-code`, `format`, `edit`) based on issue types
 - Generates specific commands and priority-based issue ordering
 - Calculates context-aware priority scores considering file importance and fixability
@@ -136,6 +144,7 @@ stateDiagram-v2
 ### Nx-Specific Optimizations
 
 The cache understands TeensyROM's Nx structure:
+
 - **App Configurations**: `tsconfig.app.json`, `tsconfig.spec.json`, `tsconfig.e2e.json`
 - **Library Configurations**: `tsconfig.lib.json`, `tsconfig.spec.json`
 - **Architecture Awareness**: Domain, application, infrastructure layer detection
@@ -158,11 +167,13 @@ The cache understands TeensyROM's Nx structure:
 ### Issue Detection and Categorization
 
 **TypeScript Issues (Severity 6-9)**
+
 - Critical compilation errors (TS2304, TS2322, TS2339)
 - Type assignment errors and interface mismatches
 - Requires manual intervention with detailed explanations
 
 **ESLint Issues (Severity 8-9 - All Critical)**
+
 - **Zero Tolerance Policy**: All ESLint violations are treated as critical issues
 - **TypeScript ESLint Rules**: `@typescript-eslint/no-explicit-any` and similar rule violations (Severity 9)
 - **Style Violations**: Quotes, semicolons, indentation issues (Severity 8)
@@ -170,6 +181,7 @@ The cache understands TeensyROM's Nx structure:
 - **No Auto-Fixing**: Issues are flagged for manual review to ensure code quality
 
 **Prettier Issues (Severity 3)**
+
 - Always auto-fixable formatting issues
 - Low severity as they're automatically resolved
 
@@ -227,12 +239,14 @@ The JSON format provides Claude Code with structured, actionable data:
 The system generates prioritized, tool-specific recommendations:
 
 **Auto-Fixable Issues** (Priority 1)
+
 ```bash
 npx eslint "src/file.ts" --fix
 npx prettier --write "src/file.ts"
 ```
 
 **Manual Issues** (Priority 2)
+
 ```bash
 /clean-code "src/file.ts"
 ```
@@ -293,10 +307,11 @@ The system understands TeensyROM's clean architecture:
 Numeric severity system (1-10) with intelligent weighting:
 
 ```javascript
-priority = baseSeverity +
-          (architectureLayer === 'domain' ? 2 : 0) +
-          (fileType === 'endpoint' ? 1 : 0) -
-          (fixable ? 2 : 0);
+priority =
+  baseSeverity +
+  (architectureLayer === 'domain' ? 2 : 0) +
+  (fileType === 'endpoint' ? 1 : 0) -
+  (fixable ? 2 : 0);
 ```
 
 ### Comprehensive Issue Collection Benefits
@@ -304,18 +319,21 @@ priority = baseSeverity +
 The "collect all issues" approach provides significant advantages over fail-fast workflows:
 
 **Complete Quality Picture**
+
 - **Single Pass Analysis**: All issues (TypeScript, ESLint, Prettier) identified in one execution
 - **No Hidden Problems**: Unlike fail-fast approaches, no issues are masked by earlier failures
 - **Prioritized Fixing**: Developers can see all issues and prioritize fixes effectively
 - **Reduced Iterations**: Multiple rounds of quality checks are no longer needed
 
 **Enhanced Developer Experience**
+
 - **Comprehensive Reporting**: Single unified report shows the complete state of code quality
 - **Contextual Awareness**: Issues are categorized and enriched with architectural context
 - **Actionable Recommendations**: Tool suggestions for each issue type with specific commands
 - **Better Planning**: Developers can plan comprehensive fixes rather than iterative improvements
 
 **Zero Tolerance Enforcement**
+
 - **ESLint Criticality**: All ESLint violations treated as critical (severity 8-9)
 - **Type Safety**: TypeScript compilation errors collected alongside style issues
 - **Quality Standards**: No exceptions for "minor" issues - all problems must be addressed

@@ -1,20 +1,20 @@
-{ 
-   "version": "0.2.0", 
-   "configurations": [ 
-     { 
-       "name": "Debug", 
-       "type": "pwa-chrome", 
-       "request": "launch", 
-       "preLaunchTask": "Serve Frontend", 
-       "url": "http://localhost:4200/#", 
-       "webRoot": "${workspaceFolder}", 
-       "sourceMapPathOverrides": { 
-         "webpack:/*": "${webRoot}/*", 
-         "/./*": "${webRoot}/*", 
-         "/src/*": "${webRoot}/src/*", 
-         "/*": "*", 
-         "/./~/*": "${workspaceFolder}/node_modules/*" 
-       } 
-     } 
-   ] 
- }
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "preLaunchTask": "Serve Frontend",
+      "url": "http://localhost:4200/#",
+      "webRoot": "${workspaceFolder}",
+      "sourceMapPathOverrides": {
+        "webpack:/*": "${webRoot}/*",
+        "/./*": "${webRoot}/*",
+        "/src/*": "${webRoot}/src/*",
+        "/*": "*",
+        "/./~/*": "${workspaceFolder}/node_modules/*"
+      }
+    }
+  ]
+}

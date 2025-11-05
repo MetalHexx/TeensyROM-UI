@@ -57,7 +57,8 @@ describe('DirectoryFilesComponent', () => {
     isCompatible: true,
   };
 
-  const mockStorageService: Partial<IStorageService> = {    getDirectory: () => of({} as StorageDirectory),
+  const mockStorageService: Partial<IStorageService> = {
+    getDirectory: () => of({} as StorageDirectory),
   };
 
   beforeEach(async () => {
@@ -178,16 +179,14 @@ describe('DirectoryFilesComponent', () => {
   it('should trigger player context when file is double-clicked via template', () => {
     // Wait for viewport to render items
     fixture.detectChanges();
-    
-    const fileElement: HTMLElement | null = fixture.nativeElement.querySelector(
-      'lib-file-item'
-    );
+
+    const fileElement: HTMLElement | null = fixture.nativeElement.querySelector('lib-file-item');
     expect(fileElement).toBeTruthy();
 
     // Trigger the double-click on the lib-storage-item which emits the activated event
     const storageItemElement = fileElement?.querySelector('lib-storage-item');
     expect(storageItemElement).toBeTruthy();
-    
+
     storageItemElement?.dispatchEvent(new MouseEvent('dblclick'));
     fixture.detectChanges();
 
@@ -198,7 +197,7 @@ describe('DirectoryFilesComponent', () => {
     // Virtual scrolling may not render all items at once, only visible + buffer
     const viewport = fixture.nativeElement.querySelector('cdk-virtual-scroll-viewport');
     expect(viewport).toBeTruthy();
-    
+
     const items = fixture.nativeElement.querySelectorAll('.file-list-item');
     // Should render at least some items (depends on viewport size and buffer)
     expect(items.length).toBeGreaterThan(0);
@@ -216,57 +215,57 @@ describe('DirectoryFilesComponent', () => {
   it('should identify currently playing file', () => {
     const combined = component.directoriesAndFiles();
     const fileItem = combined[1] as FileItem;
-    
+
     // Initially no file is playing
     expect(component.isCurrentlyPlaying(fileItem)).toBe(false);
-    
+
     // Get the signal and update it
     (mockPlayerContext.getCurrentFile as ReturnType<typeof vi.fn>).mockReturnValue(
       signal({
         deviceId: 'device-1',
         storageType: StorageType.Sd,
         file: fileItem,
-        isShuffleMode: false
+        isShuffleMode: false,
       }).asReadonly()
     );
-    
+
     // Re-create component to pick up the new signal
     fixture = TestBed.createComponent(DirectoryFilesComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('deviceId', 'device-1');
     fixture.detectChanges();
-    
+
     expect(component.isCurrentlyPlaying(fileItem)).toBe(true);
   });
 
   it('should auto-select currently playing file when directory context is available', () => {
     const combined = component.directoriesAndFiles();
     const fileItem = combined[1] as FileItem;
-    
+
     // Mock both signals with the playing file and context
     (mockPlayerContext.getCurrentFile as ReturnType<typeof vi.fn>).mockReturnValue(
       signal({
         deviceId: 'device-1',
         storageType: StorageType.Sd,
         file: fileItem,
-        isShuffleMode: false
+        isShuffleMode: false,
       }).asReadonly()
     );
-    
+
     (mockPlayerContext.getFileContext as ReturnType<typeof vi.fn>).mockReturnValue(
       signal({
         directoryPath: '/test',
         files: [mockFileItem],
-        currentIndex: 0
+        currentIndex: 0,
       }).asReadonly()
     );
-    
+
     // Re-create component to pick up the new signals
     fixture = TestBed.createComponent(DirectoryFilesComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('deviceId', 'device-1');
     fixture.detectChanges();
-    
+
     // The file should be auto-selected
     expect(component.selectedItem()?.path).toBe(fileItem.path);
   });
@@ -302,7 +301,7 @@ describe('DirectoryFilesComponent', () => {
           deviceId: 'device-1',
           storageType: StorageType.Sd,
           file: fileItem,
-          isShuffleMode: false
+          isShuffleMode: false,
         }).asReadonly()
       );
 
@@ -331,7 +330,7 @@ describe('DirectoryFilesComponent', () => {
           deviceId: 'device-1',
           storageType: StorageType.Sd,
           file: fileItem,
-          isShuffleMode: false
+          isShuffleMode: false,
         }).asReadonly()
       );
       (mockPlayerContext.getError as ReturnType<typeof vi.fn>).mockReturnValue(
@@ -371,7 +370,7 @@ describe('DirectoryFilesComponent', () => {
           deviceId: 'device-1',
           storageType: StorageType.Sd,
           file: fileItem,
-          isShuffleMode: false
+          isShuffleMode: false,
         }).asReadonly()
       );
 
@@ -379,7 +378,7 @@ describe('DirectoryFilesComponent', () => {
         signal({
           directoryPath: '/test',
           files: [mockFileItem],
-          currentIndex: 0
+          currentIndex: 0,
         }).asReadonly()
       );
 
@@ -390,7 +389,7 @@ describe('DirectoryFilesComponent', () => {
       fixture.detectChanges();
 
       // Wait for effects and animations
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Verify the playing file is visible in the viewport
       const fileElement = fixture.nativeElement.querySelector(

@@ -1,7 +1,21 @@
-import { ChangeDetectionStrategy, Component, input, inject, computed, signal, effect, viewChild, OnDestroy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  inject,
+  computed,
+  signal,
+  effect,
+  viewChild,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
-import { ScalingCardComponent, LoadingTextComponent, VirtualScrollAnimator } from '@teensyrom-nx/ui/components';
+import {
+  ScalingCardComponent,
+  LoadingTextComponent,
+  VirtualScrollAnimator,
+} from '@teensyrom-nx/ui/components';
 import { StorageStore, PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
 import { DirectoryItem, FileItem, LaunchMode } from '@teensyrom-nx/domain';
 import { ProgressiveBatchRenderer, BatchRenderCancellation } from '@teensyrom-nx/utils';
@@ -10,10 +24,10 @@ import { FileItemComponent } from './file-item/file-item.component';
 
 /**
  * Smart container component for displaying and managing directory contents (folders and files).
- * 
+ *
  * **Performance Optimization**: Uses Angular CDK Virtual Scrolling to efficiently render large
  * file listings (100-1000+ items) by only rendering visible items (~30) and recycling DOM nodes.
- * 
+ *
  * **Key Features**:
  * - Virtual scrolling for optimal performance with large directories
  * - Auto-scroll to currently playing file with centered positioning
@@ -22,18 +36,18 @@ import { FileItemComponent } from './file-item/file-item.component';
  * - File playback launch on double-click
  * - Real-time playing file indicator
  * - Error state visualization
- * 
+ *
  * **Virtual Scrolling Configuration**:
  * - itemSize: 52px (measured height of .file-list-item)
  * - minBufferPx: 200px (pre-render buffer above/below viewport)
  * - maxBufferPx: 400px (maximum buffer before recycling)
  * - Height constraint: 400px mat-card-content with absolutely positioned viewport
- * 
+ *
  * **Performance Metrics** (1000 items):
  * - DOM nodes: ~30 (vs 1000 without virtual scrolling)
  * - Initial render: <50ms (vs 750ms)
  * - Scroll: 60fps smooth (vs 30fps janky)
- * 
+ *
  * @see {@link https://material.angular.io/cdk/scrolling/overview Angular CDK Virtual Scrolling}
  * @see {@link ../../../../../../../../docs/VIRTUAL_SCROLL_TESTING.md Testing Guide}
  * @see {@link ../../../../../../../../docs/features/directory-files/VIRTUAL_SCROLL_PLAN.md Implementation Plan}
@@ -99,12 +113,12 @@ export class DirectoryFilesComponent implements OnDestroy {
   );
 
   // Get file context to know when directory content is available
-  readonly playerFileContext = computed(() => 
-    this.playerContext.getFileContext(this.deviceId())()
-  );
+  readonly playerFileContext = computed(() => this.playerContext.getFileContext(this.deviceId())());
 
   // Writable signal for progressive rendering
-  private readonly _directoriesAndFiles = signal<((DirectoryItem | FileItem) & { itemType: string })[]>([]);
+  private readonly _directoriesAndFiles = signal<
+    ((DirectoryItem | FileItem) & { itemType: string })[]
+  >([]);
   readonly directoriesAndFiles = this._directoriesAndFiles.asReadonly();
 
   // Utilities for progressive rendering and scrolling
@@ -112,8 +126,10 @@ export class DirectoryFilesComponent implements OnDestroy {
     DirectoryItem | FileItem,
     (DirectoryItem | FileItem) & { itemType: string }
   >();
-  private readonly scrollAnimator = new VirtualScrollAnimator<(DirectoryItem | FileItem) & { itemType: string }>();
-  
+  private readonly scrollAnimator = new VirtualScrollAnimator<
+    (DirectoryItem | FileItem) & { itemType: string }
+  >();
+
   private batchCancellation: BatchRenderCancellation | null = null;
   private readonly _isProcessingBatches = signal(false);
   private readonly _isScrollingToItem = signal(false);
@@ -125,7 +141,7 @@ export class DirectoryFilesComponent implements OnDestroy {
       const apiLoading = contents.isLoading ?? false;
       const processingBatches = this._isProcessingBatches();
       const scrollingToItem = this._isScrollingToItem();
-      
+
       // Show loading if ANY of these conditions are true:
       // 1. API is loading
       // 2. We're processing batches
@@ -136,7 +152,7 @@ export class DirectoryFilesComponent implements OnDestroy {
     // Effect to progressively populate items in batches to keep animations smooth
     effect(() => {
       const contents = this.directoryContents();
-      
+
       // Cancel any pending batch work
       if (this.batchCancellation) {
         this.batchCancellation.cancel();
@@ -156,7 +172,7 @@ export class DirectoryFilesComponent implements OnDestroy {
 
       // For small lists, just populate immediately (no performance impact)
       if (allItems.length < 100) {
-        const transformed = allItems.map((item, index) => 
+        const transformed = allItems.map((item, index) =>
           index < directories.length
             ? { ...item, itemType: 'directory' as const }
             : { ...item, itemType: 'file' as const }
@@ -169,7 +185,7 @@ export class DirectoryFilesComponent implements OnDestroy {
       // For large lists, use progressive batch renderer
       this.batchCancellation = this.batchRenderer.renderBatches(
         allItems,
-        (item, index) => 
+        (item, index) =>
           index < directories.length
             ? { ...item, itemType: 'directory' as const }
             : { ...item, itemType: 'file' as const },
@@ -203,8 +219,8 @@ export class DirectoryFilesComponent implements OnDestroy {
       }
 
       // Find the playing file in the current directory
-      const playingFileItem = directoriesAndFiles.find(item =>
-        item.path === playingFile.file.path
+      const playingFileItem = directoriesAndFiles.find(
+        (item) => item.path === playingFile.file.path
       );
 
       if (playingFileItem) {
@@ -231,9 +247,7 @@ export class DirectoryFilesComponent implements OnDestroy {
     return playingFile !== null && playingFile.file.path === item.path;
   }
 
-  hasCurrentFileError = computed(() => 
-    this.playerContext.getError(this.deviceId())() !== null
-  );
+  hasCurrentFileError = computed(() => this.playerContext.getError(this.deviceId())() !== null);
 
   onItemSelected(item: DirectoryItem | FileItem): void {
     this.selectedItem.set(item);
@@ -276,11 +290,11 @@ export class DirectoryFilesComponent implements OnDestroy {
     this.scrollAnimator.scrollToItem({
       viewport: this.viewport,
       items: this.directoriesAndFiles(),
-      findIndex: (items) => items.findIndex(item => item.path === filePath),
+      findIndex: (items) => items.findIndex((item) => item.path === filePath),
       itemHeight: 52,
       isScrollingSignal: this._isScrollingToItem,
       scrollDuration: 600,
-      renderDelay: 100
+      renderDelay: 100,
     });
   }
 
@@ -290,12 +304,11 @@ export class DirectoryFilesComponent implements OnDestroy {
       this.batchCancellation.cancel();
       this.batchCancellation = null;
     }
-    
+
     // Clean up scroll animator
     this.scrollAnimator.destroy();
-    
+
     this._isProcessingBatches.set(false);
     this._isScrollingToItem.set(false);
   }
 }
-

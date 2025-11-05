@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
   selector: 'lib-thumbnail-image',
   imports: [CommonModule],
   templateUrl: './thumbnail-image.component.html',
-  styleUrl: './thumbnail-image.component.scss'
+  styleUrl: './thumbnail-image.component.scss',
 })
 export class ThumbnailImageComponent {
   imageUrl = input<string | null>(null);

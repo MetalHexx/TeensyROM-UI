@@ -36,9 +36,7 @@ export function removeFavorite(
       try {
         logInfo(LogType.NetworkRequest, `Making API call to remove favorite: ${filePath}`);
 
-        await firstValueFrom(
-          storageService.removeFavorite(deviceId, storageType, filePath)
-        );
+        await firstValueFrom(storageService.removeFavorite(deviceId, storageType, filePath));
 
         logInfo(LogType.Success, `API call successful for remove favorite: ${filePath}`);
 

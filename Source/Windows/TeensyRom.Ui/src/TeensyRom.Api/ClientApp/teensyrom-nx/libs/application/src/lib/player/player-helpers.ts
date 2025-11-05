@@ -1,7 +1,14 @@
 import { StateSignals, WritableStateSource } from '@ngrx/signals';
 import { updateState } from '@angular-architects/ngrx-toolkit';
 import { PlayerState, DevicePlayerState, LaunchedFile, PlayerFileContext } from './player-store';
-import { FileItem, PlayerStatus, LaunchMode, StorageType, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
+import {
+  FileItem,
+  PlayerStatus,
+  LaunchMode,
+  StorageType,
+  PlayerFilterType,
+  PlayerScope,
+} from '@teensyrom-nx/domain';
 import { StorageKeyUtil, StorageKey } from '../storage/storage-key.util';
 import { logInfo, logError, LogType } from '@teensyrom-nx/utils';
 
@@ -109,14 +116,20 @@ export function setPlayerLaunchSuccess(
 ): void {
   const timestamp = Date.now();
 
-  logInfo(LogType.Success, `PlayerHelper: Setting player launch success for device ${deviceId} with file ${launchedFile.file.name}`);
+  logInfo(
+    LogType.Success,
+    `PlayerHelper: Setting player launch success for device ${deviceId} with file ${launchedFile.file.name}`
+  );
 
   ensurePlayerState(store, deviceId, actionMessage);
   updatePlayerState(
     store,
     deviceId,
     (state) => {
-      logInfo(LogType.Info, `PlayerHelper: Updating player state to Playing for device ${deviceId}`);
+      logInfo(
+        LogType.Info,
+        `PlayerHelper: Updating player state to Playing for device ${deviceId}`
+      );
 
       return {
         ...state,
@@ -140,7 +153,7 @@ export function setPlayerError(
   actionMessage: string
 ): void {
   const timestamp = Date.now();
-  
+
   logError(`PlayerHelper: Setting player error state for device ${deviceId}: ${errorMessage}`);
 
   ensurePlayerState(store, deviceId, actionMessage);
@@ -148,7 +161,10 @@ export function setPlayerError(
     store,
     deviceId,
     (state) => {
-      logInfo(LogType.Info, `PlayerHelper: Updating player state to Stopped due to error for device ${deviceId}`);
+      logInfo(
+        LogType.Info,
+        `PlayerHelper: Updating player state to Stopped due to error for device ${deviceId}`
+      );
 
       return {
         ...state,
@@ -173,14 +189,19 @@ export function setPlayerLaunchFailure(
 ): void {
   const timestamp = Date.now();
 
-  logError(`PlayerHelper: Setting player launch failure for device ${deviceId} with file ${launchedFile.file.name}: ${errorMessage}`);
+  logError(
+    `PlayerHelper: Setting player launch failure for device ${deviceId} with file ${launchedFile.file.name}: ${errorMessage}`
+  );
 
   ensurePlayerState(store, deviceId, actionMessage);
   updatePlayerState(
     store,
     deviceId,
     (state) => {
-      logInfo(LogType.Info, `PlayerHelper: Updating player state with failed file context for device ${deviceId}`);
+      logInfo(
+        LogType.Info,
+        `PlayerHelper: Updating player state with failed file context for device ${deviceId}`
+      );
 
       return {
         ...state,
@@ -227,7 +248,10 @@ export function createLaunchedFile(
   const timestamp = Date.now();
   const storageKey = StorageKeyUtil.create(deviceId, storageType);
 
-  logInfo(LogType.Info, `PlayerHelper: Creating launched file object for ${file.name} on device ${deviceId} (compatible: ${isCompatible})`);
+  logInfo(
+    LogType.Info,
+    `PlayerHelper: Creating launched file object for ${file.name} on device ${deviceId} (compatible: ${isCompatible})`
+  );
 
   return {
     parentPath: file.parentPath,
@@ -247,7 +271,10 @@ export function createPlayerFileContext(
 ): PlayerFileContext {
   const storageKey = StorageKeyUtil.create(deviceId, storageType);
 
-  logInfo(LogType.Info, `PlayerHelper: Creating player file context with ${files.length} files for device ${deviceId}`);
+  logInfo(
+    LogType.Info,
+    `PlayerHelper: Creating player file context with ${files.length} files for device ${deviceId}`
+  );
 
   return {
     storageKey,
@@ -257,7 +284,10 @@ export function createPlayerFileContext(
   };
 }
 
-export function getPlayerState(store: WritableStore<PlayerState>, deviceId: string): DevicePlayerState | null {
+export function getPlayerState(
+  store: WritableStore<PlayerState>,
+  deviceId: string
+): DevicePlayerState | null {
   return store.players()[deviceId] ?? null;
 }
 
@@ -275,7 +305,10 @@ export function setShuffleNavigationSuccess(
   const storageKey = existingStorageKey || StorageKeyUtil.create(deviceId, StorageType.Sd);
   const parentPath = launchedFile.path.substring(0, launchedFile.path.lastIndexOf('/')) || '/';
 
-  logInfo(LogType.Success, `PlayerHelper: Shuffle navigation success for device ${deviceId} with file ${launchedFile.name}`);
+  logInfo(
+    LogType.Success,
+    `PlayerHelper: Shuffle navigation success for device ${deviceId} with file ${launchedFile.name}`
+  );
 
   updateState(store, actionMessage, (state) => ({
     players: {
@@ -312,7 +345,9 @@ export function setShuffleNavigationFailure(
   const storageKey = existingStorageKey || StorageKeyUtil.create(deviceId, StorageType.Sd);
   const parentPath = launchedFile.path.substring(0, launchedFile.path.lastIndexOf('/')) || '/';
 
-  logError(`PlayerHelper: Shuffle navigation failure for device ${deviceId} with file ${launchedFile.name}: ${errorMessage}`);
+  logError(
+    `PlayerHelper: Shuffle navigation failure for device ${deviceId} with file ${launchedFile.name}: ${errorMessage}`
+  );
 
   updateState(store, actionMessage, (state) => ({
     players: {
@@ -347,7 +382,10 @@ export function setDirectoryNavigationSuccess(
 ): void {
   const timestamp = Date.now();
 
-  logInfo(LogType.Success, `PlayerHelper: Directory navigation success for device ${deviceId} with file ${launchedFile.name}`);
+  logInfo(
+    LogType.Success,
+    `PlayerHelper: Directory navigation success for device ${deviceId} with file ${launchedFile.name}`
+  );
 
   updateState(store, actionMessage, (state) => ({
     players: {
@@ -387,7 +425,9 @@ export function setDirectoryNavigationFailure(
 ): void {
   const timestamp = Date.now();
 
-  logError(`PlayerHelper: Directory navigation failure for device ${deviceId} with file ${launchedFile.name}: ${errorMessage}`);
+  logError(
+    `PlayerHelper: Directory navigation failure for device ${deviceId} with file ${launchedFile.name}: ${errorMessage}`
+  );
 
   updateState(store, actionMessage, (state) => ({
     players: {
@@ -412,6 +452,3 @@ export function setDirectoryNavigationFailure(
     },
   }));
 }
-
-
-

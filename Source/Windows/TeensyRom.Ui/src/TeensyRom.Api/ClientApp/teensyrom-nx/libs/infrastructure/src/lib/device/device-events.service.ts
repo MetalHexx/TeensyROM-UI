@@ -1,6 +1,11 @@
 import { Injectable, computed, signal, WritableSignal, Signal, Inject } from '@angular/core';
 import { DevicesApiService } from '@teensyrom-nx/data-access/api-client';
-import { DeviceState, IDeviceEventsService, ALERT_SERVICE, IAlertService } from '@teensyrom-nx/domain';
+import {
+  DeviceState,
+  IDeviceEventsService,
+  ALERT_SERVICE,
+  IAlertService,
+} from '@teensyrom-nx/domain';
 import * as signalR from '@microsoft/signalr';
 import { LogType, logInfo, logError } from '@teensyrom-nx/utils';
 
@@ -52,8 +57,7 @@ export class DeviceEventsService implements IDeviceEventsService {
         logInfo(LogType.Success, 'Device Events Connection started');
       })
       .catch((err) => {
-        const message =
-          err?.message || 'Failed to start device events connection';
+        const message = err?.message || 'Failed to start device events connection';
         logError('Error starting Device Events connection:', err);
         this.alertService.error(message);
       });
@@ -78,4 +82,3 @@ export class DeviceEventsService implements IDeviceEventsService {
     });
   }
 }
-

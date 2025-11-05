@@ -11,6 +11,7 @@ Complete the migration by consolidating player endpoints (launchFile, launchRand
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [x] [E2E Interceptor Refactoring Plan](./E2E_INTERCEPTOR_REFACTOR_PLAN.md) - High-level feature plan
 - [x] [Phase 1 Implementation](./E2E_INTERCEPTOR_REFACTOR_P1.md) - Foundation and infrastructure
 - [x] [Phase 2 Device Migration](./E2E_INTERCEPTOR_REFACTOR_P2.md) - Completed device domain patterns
@@ -18,9 +19,11 @@ Complete the migration by consolidating player endpoints (launchFile, launchRand
 - [x] [Interceptor Format Documentation](./INTERCEPTOR_FORMAT.md) - Format guidelines and patterns
 
 **Standards & Guidelines:**
+
 - [x] [E2E Testing Overview](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - Current E2E testing infrastructure
 
 **Reference Materials:**
+
 - [x] [Sample Endpoint Example](../../../apps/teensyrom-ui-e2e/src/support/interceptors/examples/sampleEndpoint.interceptors.ts) - Working example following format
 - [x] [Current Player Interceptors](../../../apps/teensyrom-ui-e2e/src/support/interceptors/player.interceptors.ts) - Source for existing implementations
 - [x] [Current Storage Indexing](../../../apps/teensyrom-ui-e2e/src/support/interceptors/storage-indexing.interceptors.ts) - Indexing implementations
@@ -60,11 +63,13 @@ apps/teensyrom-ui-e2e/src/support/constants/
 ## 📋 Implementation Guidelines
 
 > **IMPORTANT - Progress Tracking:**
+>
 > - **Mark checkboxes ✅ as you complete each subtask**
 > - Update progress throughout implementation, not just at the end
 > - This helps track what's done and what remains
 
 > **IMPORTANT - Migration Approach:**
+>
 > - **One endpoint at a time** - Complete launchFile before starting launchRandom
 > - **Systematic validation** - Run full test suite after each endpoint migration
 > - **Explicit imports only** - Use direct imports from new endpoint files
@@ -78,6 +83,7 @@ apps/teensyrom-ui-e2e/src/support/constants/
 **Purpose**: Create self-contained launchFile.interceptors.ts file following the established format, with focus on media playback patterns, file type handling, and launch validation.
 
 **Related Documentation:**
+
 - [Interceptor Format Documentation](./INTERCEPTOR_FORMAT.md) - Format to follow exactly
 - [Sample Endpoint Example](../../../apps/teensyrom-ui-e2e/src/support/interceptors/examples/sampleEndpoint.interceptors.ts) - Reference implementation
 - [Current launchFile Implementation](../../../apps/teensyrom-ui-e2e/src/support/interceptors/player.interceptors.ts) - Source code to migrate
@@ -85,6 +91,7 @@ apps/teensyrom-ui-e2e/src/support/constants/
 - [Phase 3 Storage Patterns](./E2E_INTERCEPTOR_REFACTOR_P3.md) - Learn from storage domain migration
 
 **Implementation Subtasks:**
+
 - [x] **Create launchFile.interceptors.ts**: New file following 6-section structure ✅
 - [x] **Section 1 - Endpoint Definition**: Create LAUNCH_FILE_ENDPOINT constant moved from api.constants.ts ✅
 - [x] **Section 2 - Interface Definitions**: Define InterceptLaunchFileOptions interface with media playback options ✅
@@ -96,17 +103,20 @@ apps/teensyrom-ui-e2e/src/support/constants/
 - [x] **Remove from Old Files**: Remove launchFile from player.interceptors.ts and api.constants.ts ✅
 
 **Testing Subtask:**
+
 - [x] **Write Tests**: Run favorite-functionality.cy.ts and deep-linking.cy.ts to ensure launchFile functionality unchanged ✅
 - [x] **Media Playback Testing**: Test mock media playback integration works correctly ✅
 - [x] **File Type Validation**: Test file type compatibility and launch validation scenarios ✅
 
 **Key Implementation Notes:**
+
 - Source all interface and implementation details from current player.interceptors.ts
 - Handle complex file path resolution and media type compatibility
 - Support different launch scenarios including deep-linking and favorites
 - Use explicit imports pattern: `import { interceptLaunchFile, waitForLaunchFile } from './launchFile.interceptors'`
 
 **Critical Interface:**
+
 ```typescript
 interface InterceptLaunchFileOptions {
   file?: FileEntry;
@@ -121,6 +131,7 @@ interface InterceptLaunchFileOptions {
 **Testing Focus for Task 1:**
 
 **Behaviors to Test:**
+
 - [ ] File launching succeeds with valid file entries and compatible types
 - [ ] Error mode triggers appropriate error responses for invalid files
 - [ ] waitForLaunchFile() works correctly with new alias
@@ -128,6 +139,7 @@ interface InterceptLaunchFileOptions {
 - [ ] All existing player tests pass without modification
 
 **Testing Reference:**
+
 - Run specific player tests: `npx nx e2e teensyrom-ui-e2e --spec="src/e2e/player/favorite-functionality.cy.ts" --spec="src/e2e/player/deep-linking.cy.ts"`
 
 </details>
@@ -140,11 +152,13 @@ interface InterceptLaunchFileOptions {
 **Purpose**: Create self-contained launchRandom.interceptors.ts with focus on randomization logic, user experience testing, and pool management.
 
 **Related Documentation:**
+
 - [INTERCEPTOR_FORMAT.md](./INTERCEPTOR_FORMAT.md) - Format to follow exactly
 - [launchFile.interceptors.ts](../../../apps/teensyrom-ui-e2e/src/support/interceptors/launchFile.interceptors.ts) - Pattern from Task 1
 - [Current launchRandom Implementation](../../../apps/teensyrom-ui-e2e/src/support/interceptors/player.interceptors.ts) - Source code to migrate
 
 **Implementation Subtasks:**
+
 - [x] **Create launchRandom.interceptors.ts**: New file following 6-section structure ✅
 - [x] **Section 1 - Endpoint Definition**: Create LAUNCH_RANDOM_ENDPOINT constant ✅
 - [x] **Section 2 - Interface Definitions**: Define InterceptLaunchRandomOptions interface with randomization options ✅
@@ -156,17 +170,20 @@ interface InterceptLaunchFileOptions {
 - [x] **Remove from Old Files**: Remove launchRandom from player.interceptors.ts ✅
 
 **Testing Subtask:**
+
 - [x] **Write Tests**: Run player tests to ensure launchRandom functionality unchanged ✅
 - [x] **Randomization Testing**: Test random file selection and pool management works correctly ✅
 - [x] **Cross-Endpoint Testing**: Test launchRandom integration with launchFile patterns ✅
 
 **Key Implementation Notes:**
+
 - Apply learnings and refinements from launchFile migration
 - Handle complex randomization scenarios including pool management and unique file selection
 - Use consistent naming conventions established in previous phases
 - Ensure randomization scenarios work correctly with file type compatibility
 
 **Critical Interface:**
+
 ```typescript
 interface InterceptLaunchRandomOptions {
   filePool?: FileEntry[];
@@ -182,6 +199,7 @@ interface InterceptLaunchRandomOptions {
 **Testing Focus for Task 2:**
 
 **Behaviors to Test:**
+
 - [ ] Random file launching succeeds with valid file pools
 - [ ] Randomization errors are handled correctly for empty pools
 - [ ] waitForLaunchRandom() works with new alias
@@ -189,6 +207,7 @@ interface InterceptLaunchRandomOptions {
 - [ ] Integration with launchFile patterns works seamlessly
 
 **Testing Reference:**
+
 - Run player functionality tests: `npx nx e2e teensyrom-ui-e2e --spec="src/e2e/player/*.cy.ts"`
 - Test randomization scenarios and pool management
 
@@ -202,11 +221,13 @@ interface InterceptLaunchRandomOptions {
 **Purpose**: Bring existing indexing endpoints into the unified architecture pattern, focusing on batch operations and complex error handling patterns.
 
 **Related Documentation:**
+
 - [INTERCEPTOR_FORMAT.md](./INTERCEPTOR_FORMAT.md) - Format to follow exactly
 - [launchFile.interceptors.ts](../../../apps/teensyrom-ui-e2e/src/support/interceptors/launchFile.interceptors.ts) - Established pattern
 - [Current Storage Indexing Implementation](../../../apps/teensyrom-ui-e2e/src/support/interceptors/storage-indexing.interceptors.ts) - Source code to migrate
 
 **Implementation Subtasks:**
+
 - [x] **Create indexStorage.interceptors.ts**: New file for individual device storage indexing ✅
 - [x] **Section 1 - Endpoint Definition**: Create INDEX_STORAGE_ENDPOINT constant ✅
 - [x] **Section 2 - Interface Definitions**: Define InterceptIndexStorageOptions interface ✅
@@ -220,17 +241,20 @@ interface InterceptLaunchRandomOptions {
 - [x] **Remove from Old Files**: Remove indexing endpoints from storage-indexing.interceptors.ts ✅
 
 **Testing Subtask:**
+
 - [x] **Write Tests**: Validate individual indexing scenarios work correctly ✅
 - [x] **Batch Operation Testing**: Test complex batch indexing scenarios ✅
 - [x] **Error Pattern Testing**: Test error handling consistency across indexing operations ✅
 
 **Key Implementation Notes:**
+
 - Focus on batch processing patterns and progress tracking
 - Handle complex multi-device indexing scenarios
 - Apply all refined patterns from previous endpoint migrations
 - Complete storage domain consolidation with comprehensive indexing support
 
 **Critical Interface:**
+
 ```typescript
 interface InterceptIndexStorageOptions {
   deviceIds?: string[];
@@ -250,6 +274,7 @@ interface InterceptIndexAllStorageOptions {
 **Testing Focus for Task 3:**
 
 **Behaviors to Test:**
+
 - [ ] Individual device indexing returns correct progress states
 - [ ] Batch indexing handles multiple devices correctly
 - [ ] Indexing errors are handled consistently across endpoints
@@ -257,6 +282,7 @@ interface InterceptIndexAllStorageOptions {
 - [ ] Progress tracking works correctly during long indexing operations
 
 **Testing Reference:**
+
 - Test device indexing scenarios in device-indexing.cy.ts
 - Validate batch operations and progress tracking patterns
 
@@ -270,6 +296,7 @@ interface InterceptIndexAllStorageOptions {
 **Purpose**: Ensure all player and indexing endpoints work cohesively and validate complex cross-domain scenarios involving media playback, file launching, and storage indexing.
 
 **Related Documentation:**
+
 - [All Created Player & Indexing Interceptors](../../../apps/teensyrom-ui-e2e/src/support/interceptors/) - Complete set of migrated endpoints
 - [Player Test Files](../../../apps/teensyrom-ui-e2e/src/e2e/player/) - All player domain tests
 - [Indexing Test Files](../../../apps/teensyrom-ui-e2e/src/e2e/devices/) - All indexing domain tests
@@ -278,6 +305,7 @@ interface InterceptIndexAllStorageOptions {
 - [Phase 3 Storage Integration](./E2E_INTERCEPTOR_REFACTOR_P3.md) - Learn from storage domain integration
 
 **Implementation Subtasks:**
+
 - [x] **Convert player.interceptors.ts to Barrel Export**: Re-export from dedicated interceptor files ✅
 - [x] **Deprecate storage-indexing.interceptors.ts**: Replace with deprecation notice and redirects ✅
 - [x] **Run Full Player & Indexing Test Suite**: Execute all related E2E tests ✅
@@ -288,12 +316,14 @@ interface InterceptIndexAllStorageOptions {
 - [x] **Complex Scenario Testing**: Validate complete user workflows involving all operations ✅
 
 **Testing Subtask:**
+
 - [x] **Write Integration Tests**: Test complete player and indexing domain workflows ✅
 - [x] **Cross-Domain Testing**: Test scenarios spanning device → storage → player → indexing ✅
 - [x] **Performance Regression Tests**: Compare performance with baseline ✅
 - [x] **Documentation Validation**: Ensure all documentation reflects new structure ✅
 
 **Key Implementation Notes:**
+
 - This task validates the entire player and indexing domain migration
 - Focus on complex media playback scenarios and cross-domain integration
 - Establish baseline metrics for final Phase 5 validation
@@ -303,6 +333,7 @@ interface InterceptIndexAllStorageOptions {
 **Testing Focus for Task 4:**
 
 **Behaviors to Test:**
+
 - [ ] Complete player and indexing workflows work end-to-end
 - [ ] Cross-domain integration (device → storage → player → indexing) works seamlessly
 - [ ] Error handling is consistent across all player and indexing endpoints
@@ -310,6 +341,7 @@ interface InterceptIndexAllStorageOptions {
 - [ ] Complex user scenarios involving all domains work correctly
 
 **Testing Reference:**
+
 - Run complete player and indexing test suite: `npx nx e2e teensyrom-ui-e2e --spec="src/e2e/player/*.cy.ts" --spec="src/e2e/devices/device-indexing.cy.ts"`
 - Validate integration patterns and cross-domain scenarios
 
@@ -322,12 +354,14 @@ interface InterceptIndexAllStorageOptions {
 > List all files that will be changed or created during this phase with full relative paths from project root.
 
 **New Files:**
+
 - `apps/teensyrom-ui-e2e/src/support/interceptors/launchFile.interceptors.ts`
 - `apps/teensyrom-ui-e2e/src/support/interceptors/launchRandom.interceptors.ts`
 - `apps/teensyrom-ui-e2e/src/support/interceptors/indexStorage.interceptors.ts`
 - `apps/teensyrom-ui-e2e/src/support/interceptors/indexAllStorage.interceptors.ts`
 
 **Modified Files:**
+
 - `apps/teensyrom-ui-e2e/src/support/interceptors/player.interceptors.ts` (convert to barrel export)
 - `apps/teensyrom-ui-e2e/src/support/interceptors/storage-indexing.interceptors.ts` (deprecate)
 - `apps/teensyrom-ui-e2e/src/support/constants/api.constants.ts` (remove migrated constants)
@@ -336,6 +370,7 @@ interface InterceptIndexAllStorageOptions {
 - `apps/teensyrom-ui-e2e/src/e2e/devices/device-indexing.cy.ts` (update imports)
 
 **Referenced Files (Not Modified):**
+
 - `docs/features/e2e-testing/INTERCEPTOR_FORMAT.md`
 - `apps/teensyrom-ui-e2e/src/support/interceptors/examples/sampleEndpoint.interceptors.ts`
 
@@ -347,18 +382,21 @@ interface InterceptIndexAllStorageOptions {
 > **IMPORTANT:** Tests are written **within each task above**, not here. This section is only a summary for quick reference.
 
 > **Core Testing Philosophy:**
+>
 > - **Favor behavioral testing** - test what users/consumers observe, not how it's implemented
 > - **Test as you go** - tests are integrated into each task's subtasks, not deferred to the end
 > - **Test through public APIs** - components, stores, services should be tested through their public interfaces
 > - **Mock at boundaries** - mock external dependencies (HTTP, infrastructure services), not internal logic
 
 > **Reference Documentation:**
+>
 > - **All tasks**: [Testing Standards](../../TESTING_STANDARDS.md) - Core behavioral testing approach
 > - **E2E Testing**: [E2E Testing Overview](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - E2E-specific patterns
 
 ### Where Tests Are Written
 
 **Tests are embedded in each task above** with:
+
 - **Testing Subtask**: Checkbox in the task's subtask list (e.g., "Write Tests: Test behaviors for this task")
 - **Testing Focus**: "Behaviors to Test" section listing observable outcomes
 - **Testing Reference**: Links to relevant testing documentation
@@ -368,6 +406,7 @@ interface InterceptIndexAllStorageOptions {
 ### Test Execution Commands
 
 **Running Tests:**
+
 ```bash
 # Run all player and indexing tests
 npx nx e2e teensyrom-ui-e2e --spec="src/e2e/player/*.cy.ts" --spec="src/e2e/devices/device-indexing.cy.ts"
@@ -392,14 +431,17 @@ npx nx e2e teensyrom-ui-e2e
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Player Endpoint Migrations:**
+
 - [x] launchFile.interceptors.ts created and fully functional with media playback patterns
 - [x] launchRandom.interceptors.ts created and fully functional with randomization logic
 
 **Indexing Endpoint Migrations:**
+
 - [x] indexStorage.interceptors.ts created and fully functional for individual indexing
 - [x] indexAllStorage.interceptors.ts created and fully functional for batch operations
 
 **Testing Requirements:**
+
 - [x] All player and indexing domain tests continue passing after migration
 - [x] Cross-endpoint integration scenarios work correctly (launch → random launch → index)
 - [x] Cross-domain integration scenarios work correctly (device → storage → player → indexing)
@@ -407,18 +449,21 @@ npx nx e2e teensyrom-ui-e2e
 - [x] Performance meets or exceeds baseline metrics with complex operations
 
 **Code Quality:**
+
 - [x] All new files follow INTERCEPTOR_FORMAT.md guidelines exactly
 - [x] No TypeScript errors or warnings
 - [x] Linting passes with no errors
 - [x] Code follows established coding standards
 
 **Migration Requirements:**
+
 - [x] All explicit import patterns work correctly across all test files
 - [x] Backward compatibility maintained during transition
 - [x] Old scattered code properly removed or converted to barrel exports
 - [x] Documentation updated to reflect new structure
 
 **Domain Integration:**
+
 - [x] All player and indexing endpoints work cohesively
 - [x] Cross-interceptor scenarios validated (complex workflows)
 - [x] Complete player and indexing workflows tested end-to-end
@@ -426,6 +471,7 @@ npx nx e2e teensyrom-ui-e2e
 - [x] Complex user scenarios involving all domains work correctly
 
 **Ready for Next Phase:**
+
 - [x] All success criteria met
 - [x] Player and indexing domain patterns established and documented
 - [x] No regressions or known issues
@@ -488,18 +534,21 @@ npx nx e2e teensyrom-ui-e2e
 ### Key Accomplishments
 
 1. **Successfully migrated all 4 player and indexing endpoints** using the established 6-section structure:
+
    - ✅ launchFile.interceptors.ts (media playback patterns and file compatibility)
    - ✅ launchRandom.interceptors.ts (randomization logic and pool management)
    - ✅ indexStorage.interceptors.ts (individual device indexing)
    - ✅ indexAllStorage.interceptors.ts (batch indexing operations)
 
 2. **Established comprehensive cross-domain integration** including:
+
    - Device discovery → directory browsing → file launching workflows
    - Media playback scenarios with randomization and favorites
    - Complex indexing operations across multiple storage types
    - End-to-end user scenarios spanning all domains
 
 3. **Completed unified architecture** with consistent patterns across all domains:
+
    - 6-section structure applied consistently across all 13 migrated endpoints
    - Explicit import patterns improving dependency visibility
    - Backward compatibility maintained through barrel exports

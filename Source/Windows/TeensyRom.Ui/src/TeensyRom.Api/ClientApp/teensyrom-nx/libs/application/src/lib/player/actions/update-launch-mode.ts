@@ -15,7 +15,10 @@ export function updateLaunchMode(store: WritableStore<PlayerState>) {
     }): void => {
       const actionMessage = createAction('update-launch-mode');
 
-      logInfo(LogType.Start, `PlayerAction: Updating launch mode for device ${deviceId} to ${launchMode}`);
+      logInfo(
+        LogType.Start,
+        `PlayerAction: Updating launch mode for device ${deviceId} to ${launchMode}`
+      );
 
       // Ensure player state exists
       ensurePlayerState(store, deviceId, actionMessage);
@@ -39,7 +42,10 @@ export function updateLaunchMode(store: WritableStore<PlayerState>) {
         };
       });
 
-      logInfo(LogType.Success, `PlayerAction: Launch mode updated to ${launchMode} for device ${deviceId}`);
+      logInfo(
+        LogType.Success,
+        `PlayerAction: Launch mode updated to ${launchMode} for device ${deviceId}`
+      );
     },
   };
 }

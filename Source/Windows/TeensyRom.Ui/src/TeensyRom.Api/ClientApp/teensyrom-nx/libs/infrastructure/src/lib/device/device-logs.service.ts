@@ -49,8 +49,7 @@ export class DeviceLogsService implements IDeviceLogsService {
       })
       .catch((err) => {
         this._isConnected.set(false);
-        const message =
-          err?.message || 'Failed to start device logs connection';
+        const message = err?.message || 'Failed to start device logs connection';
         logError('Error starting Device Logs connection:', err);
         this.alertService.error(message);
       });
@@ -73,4 +72,3 @@ export class DeviceLogsService implements IDeviceLogsService {
     this._logLines.set([]);
   }
 }
-

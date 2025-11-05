@@ -7,7 +7,7 @@ describe('FileTimeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FileTimeComponent]
+      imports: [FileTimeComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FileTimeComponent);
@@ -19,8 +19,8 @@ describe('FileTimeComponent', () => {
   });
 
   it('should format time correctly without hours', () => {
-    fixture.componentRef.setInput('currentTime', 4000);  // 4 seconds in milliseconds
-    fixture.componentRef.setInput('totalTime', 514000);  // 514 seconds in milliseconds
+    fixture.componentRef.setInput('currentTime', 4000); // 4 seconds in milliseconds
+    fixture.componentRef.setInput('totalTime', 514000); // 514 seconds in milliseconds
     fixture.componentRef.setInput('show', true);
     fixture.detectChanges();
 
@@ -39,8 +39,8 @@ describe('FileTimeComponent', () => {
   });
 
   it('should format time with hours when >= 1 hour', () => {
-    fixture.componentRef.setInput('currentTime', 3661000);  // 3661 seconds in milliseconds
-    fixture.componentRef.setInput('totalTime', 7200000);    // 7200 seconds in milliseconds
+    fixture.componentRef.setInput('currentTime', 3661000); // 3661 seconds in milliseconds
+    fixture.componentRef.setInput('totalTime', 7200000); // 7200 seconds in milliseconds
     fixture.componentRef.setInput('show', true);
     fixture.detectChanges();
 
@@ -60,7 +60,7 @@ describe('FileTimeComponent', () => {
 
   it('should handle negative time values', () => {
     fixture.componentRef.setInput('currentTime', -10);
-    fixture.componentRef.setInput('totalTime', 100000);  // 100 seconds in milliseconds
+    fixture.componentRef.setInput('totalTime', 100000); // 100 seconds in milliseconds
     fixture.componentRef.setInput('show', true);
     fixture.detectChanges();
 

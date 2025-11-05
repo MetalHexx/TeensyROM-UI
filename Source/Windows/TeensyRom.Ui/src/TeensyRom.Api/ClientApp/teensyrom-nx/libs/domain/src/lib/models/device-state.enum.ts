@@ -4,8 +4,8 @@
  */
 export enum DeviceState {
   Connected = 'Connected',
-  Connectable = 'Connectable', 
+  Connectable = 'Connectable',
   ConnectionLost = 'ConnectionLost',
   Busy = 'Busy',
-  Unknown = 'Unknown'
+  Unknown = 'Unknown',
 }

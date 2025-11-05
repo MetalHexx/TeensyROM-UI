@@ -1,6 +1,7 @@
 # Phase 3: Basic Playback Controls + File Navigation
 
 **High Level Plan Documentation**:
+
 - [Player Domain Design](./PLAYER_DOMAIN_DESIGN.md) - Complete architecture and phase planning
 - [Player Domain Requirements](./PLAYER_DOMAIN.md) - Business requirements and use cases
 - [Phase 1 Documentation](./PLAYER_DOMAIN_P1.md) - File launching with context implementation
@@ -21,6 +22,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 ## 🎭 Key Behaviors Being Implemented
 
 ### User Workflow
+
 1. **User views player toolbar** → sees play/pause/stop button based on current file type and playback state
 2. **User clicks play/pause button (music)** → toggles music playback state using `toggleMusic` API endpoint
 3. **User clicks stop button (games/images)** → resets device to stop playback using device `reset` endpoint
@@ -30,6 +32,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 7. **System tracks playback state** → UI reflects Playing, Paused, or Stopped states per device
 
 ### Core Behaviors to Test
+
 - **Play/Pause Toggle (Music)**: Single button toggles between Playing and Paused states for music files using `PlayerApiService.toggleMusic()`
 - **Stop Control (Games/Images)**: Stop button resets device using `DevicesApiService.resetDevice()` for non-music files
 - **Context-Based Navigation**: Next/Previous buttons navigate within established file context from Phase 1 (directory files) with wraparound behavior
@@ -81,6 +84,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 **Phase 3 Domain Types**: Playback control enums required for status tracking and control behaviors.
 
 #### Implementation Steps
+
 - [x] Add `PlayerStatus` enum to `libs/domain/src/lib/models/player-status.enum.ts`
   - Values: `Stopped`, `Playing`, `Paused` ~~`Loading`~~ (Loading removed - see Bugs Fixed section)
 - [x] Export new enum in `libs/domain/src/lib/models/index.ts`
@@ -95,6 +99,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 **Contract Focus**: Simple infrastructure operations for music toggle and device reset - no application logic.
 
 #### Implementation Steps
+
 - [x] Extend `IPlayerService` interface in `libs/domain/src/lib/contracts/player.contract.ts`
   - Add `toggleMusic(deviceId: string): Observable<void>` (core Phase 3 operation for music playback)
   - Add `resetDevice(deviceId: string): Observable<void>` (stop operation for games/images)
@@ -110,6 +115,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 **Implementation Focus**: Simple infrastructure operations as defined in [PlayerService Behaviors](./PLAYER_DOMAIN_DESIGN.md#playerservice-behaviors) - stateless API integration only.
 
 **Behaviors Being Built**:
+
 - Call `PlayerApiService.toggleMusic()` to toggle music playback on TeensyROM hardware
 - Call `DevicesApiService.resetDevice()` to reset device (stop operation for games/images)
 - Transform API responses to domain models (minimal transformation for these endpoints)
@@ -118,6 +124,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 - **No application logic** - pure infrastructure implementation
 
 #### Step 3A: Write Failing Tests
+
 - [x] **Toggle Music API Integration**: Test `toggleMusic(deviceId)` calls `PlayerApiService.toggleMusic()` with correct deviceId
 - [x] **Reset Device API Integration**: Test `resetDevice(deviceId)` calls `DevicesApiService.resetDevice()` with correct deviceId
 - [x] **Error Scenarios**: Test music toggle failures (device not playing, network errors), reset failures return proper error messages
@@ -125,6 +132,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 - [x] Verify tests fail (red phase)
 
 #### Step 3B: Implement to Pass Tests
+
 - [x] Extend `PlayerService` in `libs/infrastructure/src/lib/player/player.service.ts`
 - [x] Implement `toggleMusic()` method calling `PlayerApiService.toggleMusic()`
 - [x] Implement `resetDevice()` method calling `DevicesApiService.resetDevice()`
@@ -138,16 +146,19 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 **Architecture Setup**: Add playback status to [Application State Models](./PLAYER_DOMAIN_DESIGN.md#application-state-models) and implement playback-specific actions and selectors following established [Action Behaviors](./PLAYER_DOMAIN_DESIGN.md#action-behaviors) and [Selector Behaviors](./PLAYER_DOMAIN_DESIGN.md#selector-behaviors) patterns.
 
 #### Step 4A: Add State Models
+
 - [x] Extend `DevicePlayerState` interface to include `status: PlayerStatus` property
 - [x] Update initial state structure with default status (`Stopped`)
 
 #### Step 4B: Write Failing Tests
+
 - [x] **Update Player Status Action**: Test `update-player-status` action updates device-specific status (Playing, Paused, Stopped)
 - [x] **Status State Isolation**: Test playback status independent per device
 - [x] **Selector Access**: Test `get-player-status` selector returns correct signal for device status
 - [x] Verify tests fail (red phase)
 
 #### Step 4C: Implement Actions & Selectors
+
 - [x] Implement actions following [Action Behaviors](./PLAYER_DOMAIN_DESIGN.md#action-behaviors)
   - Single responsibility action for status changes
   - Use `logInfo(LogType.Info, ...)` from [log-helper.ts](../../../libs/utils/src/lib/log-helper.ts) for action logging
@@ -163,6 +174,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 **Orchestration Focus**: PlayerContextService as the "smart wrapper" around PlayerStore, implementing complex playback and navigation workflows per [Architecture Role](./PLAYER_DOMAIN_DESIGN.md#player-context-service-application-layer).
 
 **Behaviors Being Built**:
+
 - **Play/Pause Orchestration**: Coordinate `toggleMusic` infrastructure calls with status state updates (Playing ↔ Paused)
 - **Stop Orchestration**: Coordinate `resetDevice` infrastructure calls with status state updates (→ Stopped)
 - **Next Navigation**: Advance to next file in context (directory sequence or random shuffle) using existing file context from Phase 1
@@ -173,6 +185,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 - **Error State Management**: Track loading/error states during playback operations
 
 #### Step 5A: Write Failing Tests
+
 - [x] **Play/Pause Orchestration**: Test `playPause(deviceId)` calls infrastructure and updates status (Playing ↔ Paused for music)
 - [x] **Stop Orchestration**: Test `stop(deviceId)` calls reset infrastructure and updates status (→ Stopped for all types)
 - [x] **Next Navigation - Directory Mode**: Test `next(deviceId)` advances to next file in directory context using `currentFileIndex`
@@ -187,6 +200,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 - [x] Verify tests fail (red phase) - methods should throw "Not implemented" errors
 
 #### Step 5B: Implement PlayerContextService Extensions
+
 - [x] Extend `IPlayerContext` interface in `libs/application/src/lib/player/player-context.interface.ts`
   - Add playback methods: `playPause(deviceId)`, `stop(deviceId)`, `next(deviceId)`, `previous(deviceId)`
   - Add signal getters: `getPlayerStatus(deviceId)`, `getCurrentFile(deviceId)`
@@ -205,18 +219,21 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 **Purpose**: Add playback control buttons to player toolbar using `IconButtonComponent` with Test-Driven Development following [Smart Component Testing](../../SMART_COMPONENT_TESTING.md) methodology.
 
 **UI Design**: Four playback control buttons using `IconButtonComponent` from [Component Library](../../COMPONENT_LIBRARY.md):
+
 - **Play/Pause Button (Music)**: Dynamic icon based on state (`play_arrow` when stopped/paused, `pause` when playing), `color="normal"`
 - **Stop Button (Games/Images)**: `icon="stop"`, `ariaLabel="Stop Playback"`, `color="normal"`, visible only for non-music files
 - **Next Button**: `icon="skip_next"`, `ariaLabel="Next File"`, `color="normal"`, enabled when file context available
 - **Previous Button**: `icon="skip_previous"`, `ariaLabel="Previous File"`, `color="normal"`, enabled when file context available or shuffle mode active
 
 **Design References**:
+
 - [IconButtonComponent](../../COMPONENT_LIBRARY.md#iconbuttoncomponent) - Properties, events, and accessibility features
 - [UI Component Integration](./PLAYER_DOMAIN_DESIGN.md#ui-component-integration) - Signal-based integration patterns
 - [Core Playback Features](./PLAYER_DOMAIN.md#core-playback-features) - Universal control requirements
 - [File Type Behaviors](./PLAYER_DOMAIN.md#file-type-behaviors) - Music vs Games/Images differences
 
 #### Step 6A: Write Failing Tests
+
 - [x] **Play/Pause Button Tests**: Test button calls `IPlayerContext.playPause()` with correct deviceId
 - [x] **Stop Button Tests**: Test button calls `IPlayerContext.stop()` with correct deviceId for non-music files
 - [x] **Next Button Tests**: Test button calls `IPlayerContext.next()` with correct deviceId
@@ -230,30 +247,31 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 - [x] Verify tests fail (red phase)
 
 #### Step 6B: Implement UI Components
+
 - [x] Import `PlayerStatus` from `@teensyrom-nx/domain` in `PlayerToolbarComponent`
 - [x] Import `FileItemType` from `@teensyrom-nx/domain` in `PlayerToolbarComponent`
 - [x] Add Play/Pause Button for music files following [IconButtonComponent usage patterns](../../COMPONENT_LIBRARY.md#usage-examples):
   ```html
   @if (isCurrentFileMusicType()) {
-    <lib-icon-button
-      [icon]="getPlayPauseIcon()"
-      [ariaLabel]="getPlayPauseLabel()"
-      color="normal"
-      [disabled]="isLoading()"
-      (buttonClick)="playPause()"
-    />
+  <lib-icon-button
+    [icon]="getPlayPauseIcon()"
+    [ariaLabel]="getPlayPauseLabel()"
+    color="normal"
+    [disabled]="isLoading()"
+    (buttonClick)="playPause()"
+  />
   }
   ```
 - [ ] Add Stop Button for non-music files:
   ```html
   @if (!isCurrentFileMusicType()) {
-    <lib-icon-button
-      icon="stop"
-      ariaLabel="Stop Playback"
-      color="normal"
-      [disabled]="isLoading()"
-      (buttonClick)="stop()"
-    />
+  <lib-icon-button
+    icon="stop"
+    ariaLabel="Stop Playback"
+    color="normal"
+    [disabled]="isLoading()"
+    (buttonClick)="stop()"
+  />
   }
   ```
 - [ ] Add Next Button:
@@ -296,6 +314,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 **Purpose**: Verify complete playback control workflow with integration tests and final build validation following [Testing Strategy](./PLAYER_DOMAIN_DESIGN.md#testing-strategy).
 
 **Design References**:
+
 - [Cross-Domain Integration](./PLAYER_DOMAIN_DESIGN.md#cross-domain-integration) - Device coordination and mode switching
 - [Testing Strategy](./PLAYER_DOMAIN_DESIGN.md#testing-strategy) - Layer testing approach and behavioral coverage
 - [Core Playback Features](./PLAYER_DOMAIN.md#core-playback-features) - Universal controls integration
@@ -316,9 +335,11 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 ## 🗂️ File Changes
 
 ### Domain Layer (New)
+
 - [libs/domain/src/lib/models/player-status.enum.ts](../../../libs/domain/src/lib/models/) - New
 
 ### Domain Contracts (Modified)
+
 - [libs/domain/src/lib/contracts/player.contract.ts](../../../libs/domain/src/lib/contracts/) - Extend with toggleMusic and resetDevice methods:
   ```typescript
   // Add to IPlayerService interface:
@@ -327,6 +348,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
   ```
 
 ### Application Layer (New)
+
 - [libs/application/src/lib/player/actions/update-player-status.ts](../../../libs/application/src/lib/player/actions/) - New
 - [libs/application/src/lib/player/actions/play-pause-music.ts](../../../libs/application/src/lib/player/actions/) - New
 - [libs/application/src/lib/player/actions/stop-playback.ts](../../../libs/application/src/lib/player/actions/) - New
@@ -335,6 +357,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 - [libs/application/src/lib/player/selectors/get-player-status.ts](../../../libs/application/src/lib/player/selectors/) - New
 
 ### Application Layer (Modified)
+
 - [libs/application/src/lib/player/player-context.interface.ts](../../../libs/application/src/lib/player/) - Extend with playback and navigation methods:
   ```typescript
   // Add to IPlayerContext interface:
@@ -348,10 +371,12 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 - [PlayerStore state models](../../../libs/application/src/lib/player/) - Extend DevicePlayerState with status property
 
 ### Infrastructure Layer (Modified)
+
 - [libs/infrastructure/src/lib/player/player.service.ts](../../../libs/infrastructure/src/lib/player/) - Extend with toggleMusic and resetDevice implementations
 - [libs/infrastructure/src/lib/player/player.service.spec.ts](../../../libs/infrastructure/src/lib/player/) - Add tests for playback control methods
 
 ### UI Components (Modified)
+
 - [libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.ts](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/) - Add playback control buttons and methods
 - [libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.html](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/) - Add button UI with conditional visibility
 - [libs/features/player/src/lib/player-view/player-device-container/player-toolbar/player-toolbar.component.spec.ts](../../../libs/features/player/src/lib/player-view/player-device-container/player-toolbar/) - Add tests for playback control integration
@@ -384,6 +409,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 ### UI Component Testing (Following [Smart Component Testing](../../SMART_COMPONENT_TESTING.md))
 
 - [ ] **IconButton Playback Integration**: Test component behavior with mocked dependencies
+
   - Play/pause button event handling and `playPause()` calls for music files
   - Stop button event handling and `stop()` calls for non-music files
   - Next/previous button event handling and navigation calls
@@ -400,6 +426,7 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
 ### Integration Testing
 
 - [ ] **End-to-End Playback Workflow Testing**: Test complete playback flow
+
   - UI button click → component event → context service → store update → infrastructure call
   - Play/pause toggle cycling through PlayerStatus states correctly
   - Stop operation transitioning to Stopped state
@@ -407,12 +434,14 @@ Add basic playback controls (play/pause/stop) and file navigation (next/previous
   - Error handling across all domain boundaries
 
 - [ ] **Cross-Domain Integration Testing**: Test domain coordination
+
   - Playback operations coordinate with file context from storage domain
   - Navigation operations use existing StorageKey references from Phase 1
   - Multi-device playback operations maintain independence
   - Phase 1 & 2 regression testing (file launching and shuffle still work)
 
 - [ ] **Navigation Context Integration Testing**: Test file context usage
+
   - Next navigation advances currentFileIndex and launches next file
   - Previous navigation decrements currentFileIndex and launches previous file
   - Directory mode navigation respects file context boundaries
@@ -466,12 +495,14 @@ During Phase 3 implementation, several critical state management issues were dis
 **Root Cause**: Navigation actions (`navigate-next.ts` and `navigate-previous.ts`) were explicitly setting `status: PlayerStatus.Stopped` instead of `PlayerStatus.Playing` after launching files. This violated typical media player UX where navigation continues playback.
 
 **Fix**: Changed state transitions in both navigation actions:
+
 - **Lines 65 and 117 in navigate-next.ts**: Changed `status: PlayerStatus.Stopped` → `status: PlayerStatus.Playing`
 - **Lines 65 and 117 in navigate-previous.ts**: Changed `status: PlayerStatus.Stopped` → `status: PlayerStatus.Playing`
 
 **Impact**: Navigation now properly maintains Playing state, following typical media player UX patterns.
 
 **Files Modified**:
+
 - `libs/application/src/lib/player/actions/navigate-next.ts:65,117`
 - `libs/application/src/lib/player/actions/navigate-previous.ts:65,117`
 
@@ -482,6 +513,7 @@ During Phase 3 implementation, several critical state management issues were dis
 **Root Cause**: Defensive programming pattern where every method called `initializePlayer()` before operating. While the underlying `ensurePlayerState()` helper was already idempotent, the pattern was unnecessary and created confusion.
 
 **Fix**: Removed all unnecessary `initializePlayer()` calls from 7 PlayerContextService methods:
+
 - `playPause(deviceId)` - removed initializePlayer call
 - `stop(deviceId)` - removed initializePlayer call
 - `next(deviceId)` - removed initializePlayer call
@@ -493,6 +525,7 @@ During Phase 3 implementation, several critical state management issues were dis
 **Impact**: Cleaner code flow, proper separation of concerns - initialization only happens when explicitly needed.
 
 **Files Modified**:
+
 - `libs/application/src/lib/player/player-context.service.ts` (7 methods modified)
 
 ### Bug #3: PlayerStatus.Loading Causing Flashing Play Button (Fixed)
@@ -504,6 +537,7 @@ During Phase 3 implementation, several critical state management issues were dis
 **Design Decision**: PlayerStatus should represent playback state only (Stopped/Playing/Paused), not API operation state. The `DevicePlayerState.isLoading` boolean flag is sufficient for tracking API operations.
 
 **Fix**: Comprehensive removal of Loading status:
+
 1. **Domain Layer** - Removed `Loading = 'Loading'` from `PlayerStatus` enum (`libs/domain/src/lib/models/player-status.enum.ts`)
 2. **Navigation Actions** - Removed intermediate `patchState` calls that set `Loading` status:
    - `libs/application/src/lib/player/actions/navigate-next.ts` (2 locations)
@@ -517,6 +551,7 @@ During Phase 3 implementation, several critical state management issues were dis
 **Impact**: Eliminated flashing play button, cleaner separation of concerns between playback state and API operation state.
 
 **Files Modified**:
+
 - `libs/domain/src/lib/models/player-status.enum.ts` - Removed Loading enum value
 - `libs/application/src/lib/player/actions/navigate-next.ts` - Removed 2 Loading state transitions
 - `libs/application/src/lib/player/actions/navigate-previous.ts` - Removed 2 Loading state transitions
@@ -531,6 +566,7 @@ During Phase 3 implementation, several critical state management issues were dis
 **Root Cause**: All player actions were using `patchState` from `@ngrx/signals` instead of `updateState` from `@angular-architects/ngrx-toolkit`. The `patchState` function doesn't accept the `actionMessage` parameter required for Redux DevTools correlation, making it impossible to track state changes in Redux DevTools and causing state updates to fail silently in some cases.
 
 **Investigation**: Discovered that:
+
 - All 9 player action files were using `patchState` for state mutations
 - `patchState` doesn't support the `actionMessage` parameter needed for Redux DevTools
 - Helper functions in `player-helpers.ts` were already using `updateState` correctly, but action files weren't following this pattern
@@ -539,35 +575,43 @@ During Phase 3 implementation, several critical state management issues were dis
 **Fix**: Systematic replacement of `patchState` with `updateState` across all player action files:
 
 1. **stop-playback.ts** - Changed from `patchState` to `updateState` with `actionMessage` parameter
+
    - Added `const actionMessage = createAction('stop-playback')` at function start
    - Replaced 2 occurrences of `patchState(store, (state) => ...)` with `updateState(store, actionMessage, (state) => ...)`
    - Success path (line 22-32) and error path (line 38-48)
 
 2. **play-pause-music.ts** - Changed from `patchState` to `updateState` with `actionMessage` parameter
+
    - Added `const actionMessage = createAction('play-pause-music')` at function start
    - Replaced 2 occurrences: success path (line 35-45) and error path (line 51-61)
 
 3. **navigate-next.ts** - Changed from `patchState` to `updateState` with `actionMessage` parameter
+
    - Added `const actionMessage = createAction('navigate-next')` at function start
    - Replaced 3 occurrences: shuffle mode success (line 51-66), directory mode success (line 103-118), error path (line 132-144)
 
 4. **navigate-previous.ts** - Changed from `patchState` to `updateState` with `actionMessage` parameter
+
    - Added `const actionMessage = createAction('navigate-previous')` at function start
    - Replaced 3 occurrences: shuffle mode success (line 51-66), directory mode success (line 103-118), error path (line 132-144)
 
 5. **launch-random-file.ts** - Changed from `patchState` to `updateState` with `actionMessage` parameter
+
    - Added `const actionMessage = createAction('launch-random-file')` at function start
    - Replaced 1 occurrence for launch mode update (line 79-87)
 
 6. **update-player-status.ts** - Changed from `patchState` to `updateState` with `actionMessage` parameter
+
    - Added `const actionMessage = createAction('update-player-status')` at function start
    - Replaced 1 occurrence (line 17-26)
 
 7. **load-file-context.ts** - Changed from `patchState` to `updateState` with `actionMessage` parameter
+
    - Added `const actionMessage = createAction('load-file-context')` at function start
    - Replaced 1 occurrence (line 43-60)
 
 8. **update-launch-mode.ts** - Changed from `patchState` to `updateState` with `actionMessage` parameter
+
    - Added `const actionMessage = createAction('update-launch-mode')` at function start
    - Replaced 1 occurrence (line 24-40)
 
@@ -576,12 +620,14 @@ During Phase 3 implementation, several critical state management issues were dis
    - Replaced 1 occurrence (line 23-42)
 
 **Test Updates**: Fixed 7 failing tests in `player-context.service.spec.ts`:
+
 - Added mock setup for `launchFile` in Phase 3 beforeEach hook to fix undefined subscription errors
 - Corrected test expectations in playPause tests to match actual toggle behavior (Playing → Paused, not Stopped → Playing)
 - Updated error message expectations to match actual error message extraction (direct error.message, not fallback string)
 - Fixed Multi-Device Independence test to expect correct state transitions (both Playing after launch, device1 Paused after toggle, device2 remains Playing)
 
 **Impact**:
+
 - Stop button now works correctly - properly calls API and updates state
 - All state mutations are now properly tracked in Redux DevTools with action correlation
 - Consistent state mutation pattern across all actions
@@ -589,6 +635,7 @@ During Phase 3 implementation, several critical state management issues were dis
 - All 114 player tests passing ✅
 
 **Files Modified**:
+
 - `libs/application/src/lib/player/actions/stop-playback.ts` - Import change + 2 updateState replacements
 - `libs/application/src/lib/player/actions/play-pause-music.ts` - Import change + 2 updateState replacements
 - `libs/application/src/lib/player/actions/navigate-next.ts` - Import change + 3 updateState replacements
@@ -601,6 +648,7 @@ During Phase 3 implementation, several critical state management issues were dis
 - `libs/application/src/lib/player/player-context.service.spec.ts` - 7 test fixes
 
 **Pattern Applied**:
+
 ```typescript
 // OLD PATTERN (incorrect)
 import { patchState } from '@ngrx/signals';
@@ -627,6 +675,7 @@ export function someAction(store: WritableStore<PlayerState>) {
 ### Summary
 
 All bugs were discovered through rigorous testing and user feedback during Phase 3 implementation. Fixes follow established architectural patterns:
+
 - State transitions match typical media player UX (navigation continues playback)
 - Clear separation between playback state (PlayerStatus) and operation state (isLoading flag)
 - Idempotent initialization patterns without unnecessary defensive calls
@@ -634,6 +683,7 @@ All bugs were discovered through rigorous testing and user feedback during Phase
 - Proper Redux DevTools integration with actionMessage tracking for all state mutations
 
 **Test Results After Fixes**:
+
 - Player Feature Library: 154/154 tests passing ✅
 - Application Player Context: 32/32 tests passing ✅ (updated from 24 after test fixes)
 - Total Player Tests: 186/186 tests passing ✅ (updated from 178)

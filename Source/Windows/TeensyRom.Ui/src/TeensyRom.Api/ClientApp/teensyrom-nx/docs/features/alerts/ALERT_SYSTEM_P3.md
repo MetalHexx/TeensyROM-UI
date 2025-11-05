@@ -11,11 +11,13 @@ Transform the basic alert display from Phase 2 into a beautiful, polished notifi
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [ ] [Alert System Plan](./ALERT_SYSTEM_PLAN.md) - High-level feature plan and complete architecture
 - [ ] [Phase 2 Documentation](./ALERT_SYSTEM_P2.md) - Infrastructure integration completed in Phase 2
 - [ ] [Phase Template](../../PHASE_TEMPLATE.md) - Template structure for phase implementation
 
 **Standards & Guidelines:**
+
 - [ ] [Component Library](../../COMPONENT_LIBRARY.md) - Animation components and usage patterns
 - [ ] [Style Guide](../../STYLE_GUIDE.md) - Design tokens, color system, and utility classes
 - [ ] [Coding Standards](../../CODING_STANDARDS.md) - Angular 19 patterns and component conventions
@@ -50,19 +52,23 @@ docs/
 **Purpose**: Create a new warning color design token that aliases the existing directory yellow/amber color values, ensuring consistency between warning alerts and directory highlighting while supporting both light and dark themes.
 
 **Related Documentation:**
+
 - [Style Guide - Custom Color Variables](../../STYLE_GUIDE.md#custom-color-variables) - Existing design token patterns
 - [Alert System Plan - Phase 3](./ALERT_SYSTEM_PLAN.md#phase-3-visual-design-positioning-and-animations) - Warning color requirements
 
 **Implementation Subtasks:**
+
 - [ ] **Add `--color-warning` variable in light theme**: Set to same value as `--color-directory` in light mode (#f5d76e)
 - [ ] **Add `--color-warning` variable in dark theme**: Set to same value as `--color-directory` in dark mode (#f5e29e)
 - [ ] **Document warning color in style guide**: Add entry to Custom Color Variables section explaining warning color aliases directory color for consistency
 - [ ] **Verify color consistency**: Confirm warning color matches directory color values in both themes
 
 **Testing Subtask:**
+
 - [ ] **Manual Visual Testing**: Verify warning color renders correctly (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Warning color intentionally aliases directory color to maintain existing yellow/amber semantic meaning
 - Both light and dark theme values are defined in `styles.scss` within their respective theme blocks
 - Color will be applied to warning alerts via severity-based styling in later tasks
@@ -73,11 +79,13 @@ docs/
 > Visual validation in browser DevTools
 
 **Manual Testing:**
+
 - [ ] **Light theme warning color**: Inspect CSS variables, verify `--color-warning` equals directory color
 - [ ] **Dark theme warning color**: Switch to dark theme, verify `--color-warning` equals directory color
 - [ ] **Color match with directory**: Confirm warning and directory colors are identical in both themes
 
 **Testing Reference:**
+
 - Use browser DevTools to inspect CSS custom property values
 - Test by temporarily applying warning color to a test element
 
@@ -91,11 +99,13 @@ docs/
 **Purpose**: Apply semantic color coding to alert display component using design tokens, ensuring success alerts are green, error alerts are red, warning alerts are yellow/amber, and info alerts are cyan. This provides instant visual feedback about alert severity without requiring users to read the message.
 
 **Related Documentation:**
+
 - [Component Library - IconLabelComponent](../../COMPONENT_LIBRARY.md#iconlabelcomponent) - Icon and label composition patterns
 - [Component Library - StyledIconComponent](../../COMPONENT_LIBRARY.md#stylediconcomponent) - Semantic icon color system
 - [Style Guide - Custom Color Variables](../../STYLE_GUIDE.md#custom-color-variables) - Design token mapping
 
 **Implementation Subtasks:**
+
 - [ ] **Replace basic icon rendering**: Use `lib-icon-label` component to compose styled icon and message text
 - [ ] **Add icon color mapping computed signal**: Create `iconColor()` computed that maps severity to `StyledIconColor` type (success, error, warning, info maps to highlight)
 - [ ] **Apply severity classes to container**: Add class binding that applies severity-specific CSS class to alert container element
@@ -104,9 +114,11 @@ docs/
 - [ ] **Map other severities to existing tokens**: Success uses `--color-success`, error uses `--color-error`, info uses `--color-highlight`
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test severity color mapping (see Testing section below)
 
 **Key Implementation Notes:**
+
 - `lib-icon-label` provides consistent icon-text composition with proper spacing
 - Warning severity maps to new `--color-warning` token added in Task 1
 - Info severity uses `--color-highlight` (cyan) for informational messages
@@ -117,6 +129,7 @@ docs/
 **Testing Focus for Task 2:**
 
 **Behaviors to Test:**
+
 - [ ] **Success alert renders green**: Alert with Success severity displays check_circle icon with success color
 - [ ] **Error alert renders red**: Alert with Error severity displays error icon with error color
 - [ ] **Warning alert renders yellow**: Alert with Warning severity displays warning icon with warning color from new design token
@@ -125,6 +138,7 @@ docs/
 - [ ] **Icon-label integration**: Message text renders alongside icon with proper spacing
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for component testing approach
 - Mock AlertMessage with different severities to test color mapping
 - Verify computed signal returns correct StyledIconColor for each severity
@@ -139,10 +153,12 @@ docs/
 **Purpose**: Create fixed-position containers for each of the six alert positions (top-left, top-center, top-right, bottom-left, bottom-center, bottom-right), establishing the foundation for position-aware stacking behavior. This task focuses purely on layout and positioning without animations.
 
 **Related Documentation:**
+
 - [Alert System Plan - Positioning Options](./ALERT_SYSTEM_PLAN.md#phase-3-visual-design-positioning-and-animations) - Six position specifications
 - [Style Guide - Layout Patterns](../../STYLE_GUIDE.md) - Fixed positioning conventions
 
 **Implementation Subtasks:**
+
 - [ ] **Add six position containers in template**: Create container div for each `AlertPosition` enum value using `@for` loop over `positions` array
 - [ ] **Apply fixed positioning CSS**: Add `position: fixed` with appropriate `top`/`bottom` and `left`/`right` values for each position class
 - [ ] **Set z-index for layering**: Apply high z-index (e.g., 9999) to ensure alerts appear above all other content
@@ -153,9 +169,11 @@ docs/
 - [ ] **Add gap between stacked alerts**: Apply gap property (e.g., 0.5rem) for consistent spacing between stacked alerts
 
 **Testing Subtask:**
+
 - [ ] **Manual Visual Testing**: Verify positioning layout (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Don't configure flex-direction yet - that comes in Task 4 with stacking direction
 - Center positions use left 50% with translateX for true horizontal centering
 - Each position container manages its own subset of alerts filtered by position property
@@ -167,6 +185,7 @@ docs/
 **Testing Focus for Task 3:**
 
 **Manual Testing Checklist:**
+
 - [ ] **Top-left alerts appear in top-left corner**: Verify position and spacing from edges
 - [ ] **Top-center alerts center horizontally**: Confirm exact center alignment
 - [ ] **Top-right alerts appear in top-right corner**: Verify right-alignment
@@ -179,6 +198,7 @@ docs/
 - [ ] **Center positions stay centered on resize**: Resize viewport, verify centering remains correct
 
 **Testing Approach:**
+
 - Use alert service methods to trigger test alerts at each position
 - Use browser DevTools to inspect computed CSS values
 - Resize viewport to verify responsive centering for center positions
@@ -194,10 +214,12 @@ docs/
 **Purpose**: Configure flexbox flex-direction for each position container so that bottom positions stack upward (new alerts appear at bottom) and top positions stack downward (new alerts appear at top). This creates intuitive stacking behavior without animations yet.
 
 **Related Documentation:**
+
 - [Alert System Plan - Stacking Behavior](./ALERT_SYSTEM_PLAN.md#phase-3-visual-design-positioning-and-animations) - Position-dependent stacking specification
 - [Style Guide - Flexbox Patterns](../../STYLE_GUIDE.md) - Layout conventions
 
 **Implementation Subtasks:**
+
 - [ ] **Add column flex-direction to top position classes**: Set in top-left, top-center, top-right CSS classes so newest alert appears at top
 - [ ] **Add column-reverse flex-direction to bottom position classes**: Set in bottom-left, bottom-center, bottom-right CSS classes so newest alert appears at bottom
 - [ ] **Verify top stacking behavior**: When multiple alerts added to top position, newest appears at top and pushes others downward
@@ -205,9 +227,11 @@ docs/
 - [ ] **Test stacking order at all positions**: Trigger 3-4 alerts rapidly at each position, verify stacking direction matches expectation
 
 **Testing Subtask:**
+
 - [ ] **Manual Visual Testing**: Verify stacking direction (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Column flex-direction makes items stack vertically with first item at top (natural DOM order)
 - Column-reverse reverses stacking so first item appears at bottom, last item at top
 - Since alerts are added to array chronologically, column-reverse makes newest alert appear at bottom for bottom positions
@@ -218,6 +242,7 @@ docs/
 **Testing Focus for Task 4:**
 
 **Manual Testing Checklist:**
+
 - [ ] **Top-left stacking**: First alert appears at top, second alert appears below it, third below that
 - [ ] **Top-center stacking**: Newest alert at top, older alerts pushed downward
 - [ ] **Top-right stacking**: Same behavior - newest at top
@@ -228,6 +253,7 @@ docs/
 - [ ] **No overlap**: Alerts stack cleanly with gap between them, no z-index conflicts
 
 **Testing Approach:**
+
 - Trigger 3 alerts rapidly at each position with different messages
 - Observe stacking order and direction
 - Verify newest alert appears in expected location (top for top positions, bottom for bottom positions)
@@ -243,10 +269,12 @@ docs/
 **Purpose**: Enhance alert display component by composing the `lib-scaling-compact-card` animation component, enabling smooth directional entry/exit animations. This task adds visual polish to the working color/positioning system built in previous tasks.
 
 **Related Documentation:**
+
 - [Component Library - ScalingCompactCardComponent](../../COMPONENT_LIBRARY.md#scalingcompactcardcomponent) - Animation component API and usage
 - [Component Library - Animation System](../../COMPONENT_LIBRARY.md#animation-system) - Animation trigger and direction patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Add `animationTrigger` input**: Create required input signal that receives visibility state (boolean) from parent
 - [ ] **Add `animationEntry` input**: Create input signal that receives entry direction string (from-top or from-bottom)
 - [ ] **Add `animationExit` input**: Create input signal that receives exit direction string (same as entry)
@@ -258,9 +286,11 @@ docs/
 - [ ] **Update component imports**: Add ScalingCompactCardComponent to component imports array
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Test animation integration (see Testing section below)
 
 **Key Implementation Notes:**
+
 - `lib-scaling-compact-card` provides scale, fade, and slide animations automatically
 - `animationTrigger` controls visibility with smooth exit animations before DOM removal
 - Entry/exit directions will be passed from parent container based on alert position
@@ -271,6 +301,7 @@ docs/
 **Testing Focus for Task 5:**
 
 **Behaviors to Test:**
+
 - [ ] **Component accepts animationTrigger input**: Input signal binds correctly and controls visibility
 - [ ] **Component accepts animationEntry input**: Entry direction input binds to scaling-compact-card
 - [ ] **Component accepts animationExit input**: Exit direction input binds to scaling-compact-card
@@ -279,6 +310,7 @@ docs/
 - [ ] **Dismiss button functional**: Dismiss event still emits when button clicked
 
 **Testing Reference:**
+
 - See [Smart Component Testing](../../SMART_COMPONENT_TESTING.md) for component input testing
 - Mock animation inputs in tests to verify binding
 - Test dismiss button event emission after template restructuring
@@ -293,11 +325,13 @@ docs/
 **Purpose**: Configure alert container to pass appropriate animation directions to alert displays based on position, and add smooth CSS transitions for stacking shifts. This completes the animation system with position-aware directional animations and physics-based stacking motion.
 
 **Related Documentation:**
+
 - [Component Library - ScalingContainerComponent Animation Directions](../../COMPONENT_LIBRARY.md#scalingcontainercomponent) - Available animation directions
 - [Alert System Plan - Animation Specifications](./ALERT_SYSTEM_PLAN.md#phase-3-visual-design-positioning-and-animations) - Timing and behavior requirements
 - [Style Guide - CSS Transitions](../../STYLE_GUIDE.md) - Transition patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Create `getAnimationDirection` method**: Add method to alert container that returns from-top or from-bottom direction based on AlertPosition parameter
 - [ ] **Map top positions to from-top**: Return from-top direction for TopLeft, TopCenter, TopRight positions
 - [ ] **Map bottom positions to from-bottom**: Return from-bottom direction for BottomLeft, BottomCenter, BottomRight positions
@@ -309,9 +343,11 @@ docs/
 - [ ] **Test directional exit**: Alerts exit in same direction they entered
 
 **Testing Subtask:**
+
 - [ ] **Manual Visual Testing**: Verify animations and transitions (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Animation direction is computed per alert based on its position property
 - Entry and exit directions match - bottom alerts enter and exit from bottom, top from top
 - 250ms stacking transition applies to flexbox-driven position changes when alerts are added or removed
@@ -324,8 +360,9 @@ docs/
 **Manual Testing Checklist:**
 
 **Directional Animations:**
+
 - [ ] **Top-left alerts animate from top**: Entry slides down from top edge
-- [ ] **Top-center alerts animate from top**: Entry slides down from top edge  
+- [ ] **Top-center alerts animate from top**: Entry slides down from top edge
 - [ ] **Top-right alerts animate from top**: Entry slides down from top edge
 - [ ] **Bottom-left alerts animate from bottom**: Entry slides up from bottom edge
 - [ ] **Bottom-center alerts animate from bottom**: Entry slides up from bottom edge
@@ -333,11 +370,13 @@ docs/
 - [ ] **Exit direction matches entry**: Alerts exit in same direction they entered
 
 **Animation Timing:**
+
 - [ ] **Entry feels smooth**: 400ms entry animation is polished, not sluggish
 - [ ] **Exit feels responsive**: 300ms exit animation removes alert quickly
 - [ ] **Entry includes scale, fade, and slide**: All three effects combine smoothly
 
 **Stacking Transitions:**
+
 - [ ] **Bottom alerts shift up smoothly**: Adding new bottom alert pushes existing alerts upward with 250ms transition
 - [ ] **Top alerts shift down smoothly**: Adding new top alert pushes existing alerts downward with 250ms transition
 - [ ] **Removal shift is smooth**: Dismissing alert causes others to shift to fill gap with transition
@@ -346,6 +385,7 @@ docs/
 - [ ] **Easing feels natural**: Acceleration and deceleration is physics-based
 
 **Testing Approach:**
+
 - Trigger test alerts at each position using alert service
 - Observe entry and exit animations in browser
 - Trigger multiple alerts rapidly to test stacking transitions
@@ -361,10 +401,12 @@ docs/
 **Purpose**: Validate that all positioning, animation, color, and stacking behavior works correctly across all combinations of severity levels, positions, light/dark themes, and interaction patterns. This comprehensive testing ensures production-ready quality and catches edge cases before deployment.
 
 **Related Documentation:**
+
 - [Alert System Plan - User Scenarios](./ALERT_SYSTEM_PLAN.md#user-scenarios) - Complete scenario coverage
 - [Component Library](../../COMPONENT_LIBRARY.md) - Animation and component integration patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Create test harness component**: Build developer tool component with buttons to trigger all severity×position combinations (4 severities × 6 positions = 24 combinations)
 - [ ] **Add rapid-fire test button**: Create button that triggers 5-10 alerts quickly to test stacking performance
 - [ ] **Add theme toggle**: Include dark/light theme switcher in test harness for visual verification
@@ -379,9 +421,11 @@ docs/
 - [ ] **Document visual issues**: Record any animation glitches, color problems, or layout issues for fixing
 
 **Testing Subtask:**
+
 - [ ] **Comprehensive Manual Testing**: Complete all visual testing checklists (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Test harness component is development-only tool, not production code
 - Focus on visual quality and user experience, not just functional correctness
 - Test edge cases like many simultaneous alerts, rapid additions/removals, theme switching
@@ -394,6 +438,7 @@ docs/
 **Comprehensive Visual Testing Checklist:**
 
 **Color & Severity (both themes):**
+
 - [ ] Success alerts green with check_circle icon
 - [ ] Error alerts red with error icon
 - [ ] Warning alerts yellow/amber with warning icon
@@ -402,6 +447,7 @@ docs/
 - [ ] All colors have sufficient contrast for readability
 
 **Positioning (all 6 positions):**
+
 - [ ] Top-left: correct corner, stacks downward
 - [ ] Top-center: horizontally centered, stacks downward
 - [ ] Top-right: correct corner, stacks downward
@@ -410,6 +456,7 @@ docs/
 - [ ] Bottom-right: correct corner, stacks upward
 
 **Animations:**
+
 - [ ] Top positions: alerts enter from top, exit to top
 - [ ] Bottom positions: alerts enter from bottom, exit to bottom
 - [ ] Entry animations: smooth 400ms scale+fade+slide
@@ -418,6 +465,7 @@ docs/
 - [ ] No jank or visual glitches during animations
 
 **Stacking Behavior:**
+
 - [ ] Multiple alerts stack correctly at each position
 - [ ] New alerts push existing alerts in correct direction
 - [ ] Removing alert shifts others smoothly to fill gap
@@ -425,6 +473,7 @@ docs/
 - [ ] No overlap or z-index issues
 
 **Interaction:**
+
 - [ ] Dismiss button works at all positions
 - [ ] Manual dismiss triggers exit animation
 - [ ] Auto-dismiss removes alert after 3 seconds
@@ -432,6 +481,7 @@ docs/
 - [ ] Alerts have proper ARIA attributes
 
 **Responsive & Edge Cases:**
+
 - [ ] Alerts visible on small viewports
 - [ ] Center positions remain centered on resize
 - [ ] Many simultaneous alerts don't break layout
@@ -439,6 +489,7 @@ docs/
 - [ ] No memory leaks from repeated additions/removals
 
 **Testing Reference:**
+
 - Create test harness in separate development component
 - Use browser DevTools to inspect colors, positions, animations
 - Test in both Chrome and Firefox for cross-browser compatibility
@@ -451,6 +502,7 @@ docs/
 ## 🗂️ Files Modified or Created
 
 **Modified Files:**
+
 - `libs/app/src/lib/alert-display.component.ts` - Replace with scaling-compact-card, add animation inputs
 - `libs/app/src/lib/alert-display.component.html` - Wrap content in lib-scaling-compact-card, use lib-icon-label
 - `libs/app/src/lib/alert-display.component.scss` - Add severity color classes using design tokens
@@ -462,6 +514,7 @@ docs/
 - `docs/STYLE_GUIDE.md` - Document `--color-warning` design token and alert styling patterns
 
 **New Files (Optional - Development Only):**
+
 - `libs/app/src/lib/alert-test-harness.component.ts` - Developer tool for testing all alert combinations (optional, not required for production)
 
 ---
@@ -474,6 +527,7 @@ docs/
 ### Testing Strategy
 
 **Phase 3 Testing Focus:**
+
 - **Visual Testing**: Primary focus is on visual quality, animation smoothness, and color accuracy
 - **Manual Testing**: Most testing is manual due to visual/animation nature of this phase
 - **Unit Tests**: Component input/output behavior and computed signal logic
@@ -482,36 +536,43 @@ docs/
 ### Test Categories by Task
 
 **Task 1 (Design Token):**
+
 - Manual DevTools inspection of CSS custom property values
 - Visual verification in both themes
 
 **Task 2 (Color Styling):**
+
 - Unit tests for severity-to-color mapping
 - Component rendering tests with different severities
 - Visual verification of colors in both themes
 
 **Task 3 (Positioning):**
+
 - Manual visual testing of all six positions
 - Verify fixed positioning and z-index layering
 - Test center position alignment at different viewport sizes
 
 **Task 4 (Stacking Direction):**
+
 - Manual testing of stacking order and direction
 - Verify flexbox configuration for top vs bottom positions
 - Test with multiple alerts at same position
 
 **Task 5 (Animation Integration):**
+
 - Component tests for animation inputs and content projection
 - Verify dismiss button still works after template changes
 - Signal flow testing for animation trigger
 
 **Task 6 (Directional Animations & Transitions):**
+
 - Manual visual testing of entry/exit directions
 - Verify animation timing (400ms entry, 300ms exit, 250ms stacking)
 - Test direction matches position (top/bottom)
 - Verify stacking shift smoothness
 
 **Task 7 (Comprehensive Testing):**
+
 - Test harness for all severity×position combinations
 - Cross-browser testing (Chrome, Firefox)
 - Theme switching validation
@@ -520,6 +581,7 @@ docs/
 ### Test Execution
 
 **Unit Tests:**
+
 ```bash
 # Run app library tests
 npx nx test app
@@ -529,6 +591,7 @@ npx nx test app --watch
 ```
 
 **Manual/Visual Tests:**
+
 - Use browser DevTools for CSS inspection
 - Create test harness component to trigger all combinations
 - Test in both light and dark themes
@@ -553,6 +616,7 @@ npx nx test app --watch
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Functional Requirements:**
+
 - [ ] All seven implementation tasks completed and checked off
 - [ ] All subtasks within each task completed
 - [ ] Code follows [Coding Standards](../../CODING_STANDARDS.md)
@@ -561,6 +625,7 @@ npx nx test app --watch
 - [ ] Directional animations configured based on position
 
 **Visual Quality:**
+
 - [ ] Success alerts display green with check_circle icon
 - [ ] Error alerts display red with error icon
 - [ ] Warning alerts display yellow/amber with warning icon using new design token
@@ -572,6 +637,7 @@ npx nx test app --watch
 - [ ] Stacking shifts (250ms) feel smooth and natural
 
 **Positioning & Layout:**
+
 - [ ] Top-left position works correctly, stacks downward
 - [ ] Top-center position works correctly, centered and stacks downward
 - [ ] Top-right position works correctly, stacks downward
@@ -582,6 +648,7 @@ npx nx test app --watch
 - [ ] Consistent spacing from viewport edges (1rem padding)
 
 **Animation Quality:**
+
 - [ ] Top positions: alerts animate from-top direction
 - [ ] Bottom positions: alerts animate from-bottom direction
 - [ ] Entry animations smooth (scale + fade + slide)
@@ -591,6 +658,7 @@ npx nx test app --watch
 - [ ] No visual glitches during theme switching
 
 **Testing Requirements:**
+
 - [ ] All unit tests passing with no failures
 - [ ] All manual testing checklists completed
 - [ ] Visual testing verified in both themes
@@ -599,6 +667,7 @@ npx nx test app --watch
 - [ ] Accessibility verified (keyboard navigation works)
 
 **Quality Checks:**
+
 - [ ] No TypeScript errors or warnings
 - [ ] Linting passes with no errors
 - [ ] No console errors in browser
@@ -606,12 +675,14 @@ npx nx test app --watch
 - [ ] Colors have sufficient contrast
 
 **Documentation:**
+
 - [ ] Component library updated with alert component examples
 - [ ] Style guide updated with warning color token
 - [ ] Inline comments added for animation configuration
 - [ ] Position mapping logic documented
 
 **Ready for Phase 4:**
+
 - [ ] All success criteria met
 - [ ] Visual quality meets production standards
 - [ ] No known bugs or visual issues
@@ -673,18 +744,21 @@ npx nx test app --watch
 **This phase transforms the basic alert system into a beautiful, production-ready notification system.**
 
 **Key Focus Areas:**
+
 1. **Color Coding**: Semantic colors provide instant visual feedback about severity
 2. **Positioning**: Six positions give developers flexibility for different use cases
 3. **Animations**: Smooth directional animations create polished, professional feel
 4. **Stacking**: Physics-based stacking makes multiple alerts feel cohesive
 
 **Testing Philosophy:**
+
 - **Visual quality is paramount** - animations must feel smooth and polished
 - **Manual testing is primary** - most validation is visual/subjective
 - **Test all combinations** - severity × position × theme = many cases to verify
 - **Polish matters** - this is user-facing UI that represents product quality
 
 **Progress Tracking:**
+
 - ✅ Mark subtask checkboxes as you complete them
 - 📝 Add discoveries or issues to Notes section
 - 🎨 Take screenshots of before/after for documentation

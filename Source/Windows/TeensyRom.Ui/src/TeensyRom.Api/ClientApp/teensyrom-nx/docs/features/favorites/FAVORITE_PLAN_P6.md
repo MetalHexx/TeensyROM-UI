@@ -11,12 +11,14 @@ Deliver a deterministic Cypress test suite that validates the end-to-end favorit
 ## 📚 Required Reading
 
 **Feature Documentation:**
+
 - [x] [Favorite Feature Plan](./FAVORITE_PLAN.md) – End-to-end functional requirements
 - [x] [Storage Mock Sample](../storage/STORAGE_E2E_MOCK_SAMPLE.md) – Real-world file structure examples
 - [x] [E2E Test Suite Guide](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) – Cypress architecture and patterns
 - [x] [Device Discovery E2E Reference](../../../apps/teensyrom-ui-e2e/src/e2e/devices/E2E_DEVICE_DISCOVERY.md) – Example workflow spec
 
 **Standards & Guidelines:**
+
 - [x] [Coding Standards](../../CODING_STANDARDS.md)
 - [x] [Testing Standards](../../TESTING_STANDARDS.md)
 - [x] [E2E Constants](../../../apps/teensyrom-ui-e2e/src/support/constants/E2E_CONSTANTS.md)
@@ -24,6 +26,7 @@ Deliver a deterministic Cypress test suite that validates the end-to-end favorit
 - [x] [E2E Interceptors](../../../apps/teensyrom-ui-e2e/src/support/interceptors/E2E_INTERCEPTORS.md)
 
 **API Reference:**
+
 - OpenAPI Spec: `openapi-spec.json` - Lines 923-1056 (FileItemDto), 1115-1129 (GetDirectoryResponse)
 - Backend Code: `FavoriteFileEndpoint.cs`, `RemoveFavoriteEndpoint.cs`, `FavoriteFileModels.cs`
 - TypeScript Client: `libs/data-access/api-client/src/lib/apis/FilesApiService.ts`
@@ -47,6 +50,7 @@ E2E Specs (Given/When/Then scenarios)
 ```
 
 **Core Principles:**
+
 1. **Deterministic** - Same seed produces identical files every time
 2. **Stateful** - Interceptors mutate shared filesystem instance
 3. **Resettable** - Each test gets fresh `createMockFilesystem(seed)`
@@ -60,6 +64,7 @@ E2E Specs (Given/When/Then scenarios)
 Based on STORAGE_E2E_MOCK_SAMPLE.md (actual TeensyROM SD card):
 
 ### Source Files (Deep Nested Paths)
+
 ```
 /games/Pac-Man (J1).crt                          (flat, 2000+ files)
 /music/MUSICIANS/L/LukHash/Alpha.sid             (5 levels deep)
@@ -68,6 +73,7 @@ Based on STORAGE_E2E_MOCK_SAMPLE.md (actual TeensyROM SD card):
 ```
 
 ### Favorites (Flat Directories - Copies from Deep Paths)
+
 ```
 /favorites/games/Pac-Man (J1).crt                (copy, parentPath: '/games')
 /favorites/music/Alpha.sid                       (copy, parentPath: '/music/MUSICIANS/L/LukHash')
@@ -76,11 +82,11 @@ Based on STORAGE_E2E_MOCK_SAMPLE.md (actual TeensyROM SD card):
 
 ### File Type → Favorites Path Mapping
 
-| FileItemType | Source Example | Favorites Path | Backend Reference |
-|--------------|----------------|----------------|-------------------|
-| `Game` | `/games/Pac-Man.crt` | `/favorites/games/` | `StorageHelper.GetFavoritePath(TeensyFileType.Prg)` |
-| `Song` | `/music/MUSICIANS/L/LukHash/Alpha.sid` | `/favorites/music/` | `StorageHelper.GetFavoritePath(TeensyFileType.Sid)` |
-| `Image` | `/images/Sonic.kla` | `/favorites/images/` | `StorageHelper.GetFavoritePath(TeensyFileType.Koa)` |
+| FileItemType | Source Example                         | Favorites Path       | Backend Reference                                   |
+| ------------ | -------------------------------------- | -------------------- | --------------------------------------------------- |
+| `Game`       | `/games/Pac-Man.crt`                   | `/favorites/games/`  | `StorageHelper.GetFavoritePath(TeensyFileType.Prg)` |
+| `Song`       | `/music/MUSICIANS/L/LukHash/Alpha.sid` | `/favorites/music/`  | `StorageHelper.GetFavoritePath(TeensyFileType.Sid)` |
+| `Image`      | `/images/Sonic.kla`                    | `/favorites/images/` | `StorageHelper.GetFavoritePath(TeensyFileType.Koa)` |
 
 **Critical Insight:** Favorites creates **flat copies** (no subdirectories), tracking original location via `parentPath` field.
 
@@ -146,11 +152,13 @@ apps/teensyrom-ui-e2e/
 The player component receives the current file through one of these methods:
 
 1. **Route Parameters** - File path passed via URL:
+
    ```typescript
    cy.visit(`${APP_ROUTES.player}?filePath=/games/Pac-Man%20(J1).crt`);
    ```
 
 2. **Direct Navigation** - Click file in storage browser:
+
    ```typescript
    cy.get(STORAGE_VIEW_SELECTORS.directoryList).within(() => {
      cy.contains('games').click();
@@ -159,6 +167,7 @@ The player component receives the current file through one of these methods:
    ```
 
 3. **State Injection** - Pre-load file via test helper:
+
    ```typescript
    export function loadFileInPlayer(filePath: string, fileType: FileItemType): void {
      // Option 1: Use URL parameters
@@ -209,6 +218,7 @@ cy.wait('@getDirectory');
 ```
 
 **Important Notes:**
+
 - Always wait for `@getDirectory` after loading to ensure file metadata loads
 - The `filePath` must match exact paths in mock filesystem
 - Player will trigger interceptors to fetch file details
@@ -224,6 +234,7 @@ cy.wait('@getDirectory');
 **Prerequisites**: None - this is the foundation.
 
 **Files to Create:**
+
 - `src/support/test-data/mock-filesystem/filesystem.types.ts`
 - `src/support/test-data/mock-filesystem/mock-filesystem.ts`
 
@@ -234,6 +245,7 @@ cy.wait('@getDirectory');
 Reference OpenAPI spec for `FileItemDto` structure.
 
 **Important Notes:**
+
 - **MockFile** uses `FileItemDto` directly - all fields are relevant for our mock filesystem
 - This keeps us aligned with the actual API contract and ensures compatibility
 - Use TypeScript path aliases for imports (e.g., `@teensyrom-nx/data-access/api-client`)
@@ -246,7 +258,7 @@ import type {
   StorageCacheDto,
   GetDirectoryResponse,
   SaveFavoriteResponse,
-  RemoveFavoriteResponse
+  RemoveFavoriteResponse,
 } from '@teensyrom-nx/data-access/api-client';
 
 /**
@@ -259,9 +271,9 @@ export type MockFile = FileItemDto;
  * Mock directory containing files and subdirectories.
  */
 export interface MockDirectory {
-  path: string;                    // "/games"
+  path: string; // "/games"
   files: MockFile[];
-  subdirectories: string[];        // ["Extras", "Large"]
+  subdirectories: string[]; // ["Extras", "Large"]
 }
 
 // Re-export FileItemType for convenience
@@ -279,7 +291,7 @@ import type {
   GetDirectoryResponse,
   SaveFavoriteResponse,
   RemoveFavoriteResponse,
-  DirectoryItemDto
+  DirectoryItemDto,
 } from '@teensyrom-nx/data-access/api-client';
 import type { MockFile, MockDirectory, FileItemType } from './filesystem.types';
 
@@ -290,7 +302,7 @@ export class MockFilesystem {
   constructor(seed: number = 12345) {
     this.seed = seed;
     this.directories = new Map();
-    this.generate();  // Initially empty - populated by factory
+    this.generate(); // Initially empty - populated by factory
   }
 
   // ============== Public API Methods ==============
@@ -315,25 +327,25 @@ export class MockFilesystem {
         storageItem: {
           path: path,
           directories: [],
-          files: []
+          files: [],
         },
-        message: 'Success'
+        message: 'Success',
       };
     }
 
     // Map subdirectories to DirectoryItemDto
-    const directoryItems: DirectoryItemDto[] = dir.subdirectories.map(name => ({
+    const directoryItems: DirectoryItemDto[] = dir.subdirectories.map((name) => ({
       name: name,
-      path: `${path}/${name}`
+      path: `${path}/${name}`,
     }));
 
     return {
       storageItem: {
         path: dir.path,
         directories: directoryItems,
-        files: dir.files  // Already FileItemDto compatible
+        files: dir.files, // Already FileItemDto compatible
       },
-      message: 'Success'
+      message: 'Success',
     };
   }
 
@@ -358,15 +370,15 @@ export class MockFilesystem {
     const favoriteCopy: MockFile = {
       ...file,
       path: favoriteFilePath,
-      parentPath: file.parentPath,  // Tracks original location
-      isFavorite: true
+      parentPath: file.parentPath, // Tracks original location
+      isFavorite: true,
     };
 
     // 5. Add to favorites directory
     const favoritesDir = this.directories.get(favoritesPath);
     if (favoritesDir) {
       // Remove existing if already there
-      favoritesDir.files = favoritesDir.files.filter(f => f.name !== file.name);
+      favoritesDir.files = favoritesDir.files.filter((f) => f.name !== file.name);
       // Add new copy
       favoritesDir.files.push(favoriteCopy);
     }
@@ -375,7 +387,7 @@ export class MockFilesystem {
     return {
       message: `Favorite tagged and saved to ${favoritesPath}`,
       favoriteFile: favoriteCopy,
-      favoritePath: favoritesPath
+      favoritePath: favoritesPath,
     };
   }
 
@@ -395,12 +407,12 @@ export class MockFilesystem {
 
       // Find the favorite copy to get parentPath
       const favoritesDir = this.directories.get(favoritesPath);
-      const favoriteCopy = favoritesDir?.files.find(f => f.name === fileName);
+      const favoriteCopy = favoritesDir?.files.find((f) => f.name === fileName);
 
       if (favoriteCopy) {
         // Use parentPath to find original
         const originalDir = this.directories.get(favoriteCopy.parentPath);
-        originalFile = originalDir?.files.find(f => f.name === fileName) || null;
+        originalFile = originalDir?.files.find((f) => f.name === fileName) || null;
       }
     } else {
       // Original path - find directly
@@ -420,11 +432,11 @@ export class MockFilesystem {
     // Remove from favorites directory
     const favoritesDir = this.directories.get(favoritesPath);
     if (favoritesDir) {
-      favoritesDir.files = favoritesDir.files.filter(f => f.name !== originalFile!.name);
+      favoritesDir.files = favoritesDir.files.filter((f) => f.name !== originalFile!.name);
     }
 
     return {
-      message: `Favorite untagged and removed from ${favoritesPath}`
+      message: `Favorite untagged and removed from ${favoritesPath}`,
     };
   }
 
@@ -451,11 +463,16 @@ export class MockFilesystem {
    */
   private getFavoritePathForType(type: FileItemType): string {
     switch (type) {
-      case 'Game': return '/favorites/games';
-      case 'Song': return '/favorites/music';
-      case 'Image': return '/favorites/images';
-      case 'Hex': return '/favorites/games';  // Fallback
-      default: return '/favorites/games';
+      case 'Game':
+        return '/favorites/games';
+      case 'Song':
+        return '/favorites/music';
+      case 'Image':
+        return '/favorites/images';
+      case 'Hex':
+        return '/favorites/games'; // Fallback
+      default:
+        return '/favorites/games';
     }
   }
 
@@ -474,7 +491,7 @@ export class MockFilesystem {
    */
   private findFile(path: string): MockFile | null {
     for (const dir of this.directories.values()) {
-      const file = dir.files.find(f => f.path === path);
+      const file = dir.files.find((f) => f.path === path);
       if (file) return file;
     }
     return null;
@@ -489,6 +506,7 @@ export class MockFilesystem {
 **Create:** `src/support/test-data/mock-filesystem/mock-filesystem.spec.ts`
 
 **Test Cases:**
+
 1. **Determinism**: Same seed produces identical files across multiple resets
 2. **saveFavorite()**:
    - Original file gets `isFavorite = true`
@@ -518,10 +536,12 @@ export class MockFilesystem {
 **Prerequisites**: Task 1 (filesystem types defined)
 
 **Files to Create:**
+
 - `src/support/test-data/generators/storage.generators.ts`
 - `src/support/test-data/generators/storage.generators.spec.ts`
 
 **Reference Patterns:**
+
 - Existing: `src/support/test-data/generators/device.generators.ts`
 - Faker config: `src/support/test-data/faker-config.ts`
 
@@ -536,7 +556,7 @@ import type { FileItemDto } from '@teensyrom-nx/data-access/api-client';
 export function generateFileItem(overrides?: Partial<FileItemDto>): FileItemDto {
   return {
     name: faker.system.fileName(),
-    path: '',  // Set by caller based on directory
+    path: '', // Set by caller based on directory
     size: faker.number.int({ min: 1024, max: 102400 }),
     type: 'Game',
     isFavorite: false,
@@ -546,7 +566,7 @@ export function generateFileItem(overrides?: Partial<FileItemDto>): FileItemDto 
     releaseInfo: faker.date.past().getFullYear().toString(),
     description: faker.lorem.sentence(),
     // ... all other required FileItemDto fields with sensible defaults
-    ...overrides
+    ...overrides,
   };
 }
 ```
@@ -566,16 +586,18 @@ export function generateGamesDirectory(seed: number): MockFile[] {
     '1942 (Music v1).crt',
     'Donkey Kong (Ocean).crt',
     'Pac-Man (J1).crt',
-    'Mario Bros (Ocean) (J1).crt'
+    'Mario Bros (Ocean) (J1).crt',
   ];
 
-  return gameNames.map(name => generateFileItem({
-    name,
-    path: `/games/${name}`,
-    parentPath: '/games',
-    type: 'Game',
-    size: faker.helpers.arrayElement([64200, 80200, 88200])  // Realistic .crt sizes
-  }));
+  return gameNames.map((name) =>
+    generateFileItem({
+      name,
+      path: `/games/${name}`,
+      parentPath: '/games',
+      type: 'Game',
+      size: faker.helpers.arrayElement([64200, 80200, 88200]), // Realistic .crt sizes
+    })
+  );
 }
 
 export function generateMusicianDirectory(
@@ -583,43 +605,38 @@ export function generateMusicianDirectory(
   artistName: string,
   seed: number
 ): MockFile[] {
-  faker.seed(seed + letter.charCodeAt(0));  // Vary seed per artist
+  faker.seed(seed + letter.charCodeAt(0)); // Vary seed per artist
 
-  const trackNames = [
-    'Alpha.sid',
-    'Dreams.sid',
-    'Neon_Thrills.sid',
-    'Proxima.sid'
-  ];
+  const trackNames = ['Alpha.sid', 'Dreams.sid', 'Neon_Thrills.sid', 'Proxima.sid'];
 
   const basePath = `/music/MUSICIANS/${letter}/${artistName}`;
 
-  return trackNames.map(name => generateFileItem({
-    name,
-    path: `${basePath}/${name}`,
-    parentPath: basePath,
-    type: 'Song',
-    creator: artistName,
-    size: faker.number.int({ min: 6700, max: 22900 })  // Realistic .sid sizes
-  }));
+  return trackNames.map((name) =>
+    generateFileItem({
+      name,
+      path: `${basePath}/${name}`,
+      parentPath: basePath,
+      type: 'Song',
+      creator: artistName,
+      size: faker.number.int({ min: 6700, max: 22900 }), // Realistic .sid sizes
+    })
+  );
 }
 
 export function generateImagesDirectory(seed: number): MockFile[] {
   faker.seed(seed);
 
-  const imageNames = [
-    'ChrisCornell1.kla',
-    'Dio2.kla',
-    'SonicTheHedgehog.kla'
-  ];
+  const imageNames = ['ChrisCornell1.kla', 'Dio2.kla', 'SonicTheHedgehog.kla'];
 
-  return imageNames.map(name => generateFileItem({
-    name,
-    path: `/images/${name}`,
-    parentPath: '/images',
-    type: 'Image',
-    size: 9800  // .kla files are exactly 9.8 KB
-  }));
+  return imageNames.map((name) =>
+    generateFileItem({
+      name,
+      path: `/images/${name}`,
+      parentPath: '/images',
+      type: 'Image',
+      size: 9800, // .kla files are exactly 9.8 KB
+    })
+  );
 }
 ```
 
@@ -636,7 +653,7 @@ export function createMockFilesystem(seed: number = 12345): MockFilesystem {
   fs.addDirectory('/games', {
     path: '/games',
     files: games,
-    subdirectories: ['Extras', 'Large', 'MultiLoad64']
+    subdirectories: ['Extras', 'Large', 'MultiLoad64'],
   });
 
   // Add music directories (nested)
@@ -644,7 +661,7 @@ export function createMockFilesystem(seed: number = 12345): MockFilesystem {
   fs.addDirectory('/music/MUSICIANS/L/LukHash', {
     path: '/music/MUSICIANS/L/LukHash',
     files: lukHashTracks,
-    subdirectories: []
+    subdirectories: [],
   });
 
   // Add images directory (flat)
@@ -652,13 +669,17 @@ export function createMockFilesystem(seed: number = 12345): MockFilesystem {
   fs.addDirectory('/images', {
     path: '/images',
     files: images,
-    subdirectories: []
+    subdirectories: [],
   });
 
   // Add empty favorites directories
   fs.addDirectory('/favorites/games', { path: '/favorites/games', files: [], subdirectories: [] });
   fs.addDirectory('/favorites/music', { path: '/favorites/music', files: [], subdirectories: [] });
-  fs.addDirectory('/favorites/images', { path: '/favorites/images', files: [], subdirectories: [] });
+  fs.addDirectory('/favorites/images', {
+    path: '/favorites/images',
+    files: [],
+    subdirectories: [],
+  });
 
   return fs;
 }
@@ -669,6 +690,7 @@ export function createMockFilesystem(seed: number = 12345): MockFilesystem {
 #### Step 4: Unit Test Generators
 
 **Test Cases:**
+
 1. Determinism: Same seed produces same file names/sizes
 2. File sizes match realistic ranges from STORAGE_E2E_MOCK_SAMPLE.md
 3. All FileItemDto required fields populated
@@ -686,10 +708,12 @@ export function createMockFilesystem(seed: number = 12345): MockFilesystem {
 **Prerequisites**: Task 2 (generators available)
 
 **Files to Create:**
+
 - `src/support/test-data/fixtures/storage-favorites.fixture.ts`
 - `src/support/test-data/fixtures/storage-favorites.fixture.spec.ts`
 
 **Files to Update:**
+
 - `src/support/test-data/fixtures/README.md` - Add "Storage Favorites Fixtures" section
 - `src/support/test-data/fixtures/index.ts` - Export new fixtures
 
@@ -739,24 +763,30 @@ Add new section after existing fixture documentation:
 Pre-built filesystem scenarios for favorite workflow testing.
 
 ### `emptyFilesystem`
+
 Fresh filesystem with no favorited files. Use for testing initial save operations.
 
 **Structure:**
+
 - `/games/` - 5 .crt files
 - `/music/MUSICIANS/L/LukHash/` - 4 .sid files
 - `/images/` - 3 .kla files
 - `/favorites/*` - Empty
 
 ### `alreadyFavoritedDirectory`
+
 Filesystem with one game already favorited.
 
 **Pre-favorited:**
+
 - `/games/Pac-Man (J1).crt` → `/favorites/games/Pac-Man (J1).crt`
 
 ### `mixedFavoritesDirectory`
+
 Filesystem with favorites across all types.
 
 **Pre-favorited:**
+
 - Game: `/games/Donkey Kong (Ocean).crt`
 - Music: `/music/MUSICIANS/L/LukHash/Alpha.sid`
 - Image: `/images/SonicTheHedgehog.kla`
@@ -781,6 +811,7 @@ export * from './storage-favorites.fixture';
 #### Step 4: Unit Test Fixtures
 
 **Test Cases:**
+
 1. Each fixture has expected favorite state
 2. `getDirectory('/favorites/games')` returns correct files
 3. `parentPath` values point to original locations
@@ -798,6 +829,7 @@ export * from './storage-favorites.fixture';
 **Prerequisites**: None
 
 **Files to Update:**
+
 - `src/support/constants/api.constants.ts`
 - `src/support/constants/api.constants.spec.ts`
 
@@ -818,7 +850,7 @@ export const STORAGE_ENDPOINTS = {
       `/devices/${deviceId}/storage/${storageType}/directories`,
     full: (deviceId: string, storageType: string) =>
       `${API_CONFIG.BASE_URL}/devices/${deviceId}/storage/${storageType}/directories`,
-    pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/directories*`
+    pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/directories*`,
   },
   SAVE_FAVORITE: {
     method: 'POST',
@@ -826,7 +858,7 @@ export const STORAGE_ENDPOINTS = {
       `/devices/${deviceId}/storage/${storageType}/favorite`,
     full: (deviceId: string, storageType: string) =>
       `${API_CONFIG.BASE_URL}/devices/${deviceId}/storage/${storageType}/favorite`,
-    pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/favorite*`
+    pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/favorite*`,
   },
   REMOVE_FAVORITE: {
     method: 'DELETE',
@@ -834,8 +866,8 @@ export const STORAGE_ENDPOINTS = {
       `/devices/${deviceId}/storage/${storageType}/favorite`,
     full: (deviceId: string, storageType: string) =>
       `${API_CONFIG.BASE_URL}/devices/${deviceId}/storage/${storageType}/favorite`,
-    pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/favorite*`
-  }
+    pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/favorite*`,
+  },
 } as const;
 ```
 
@@ -854,7 +886,7 @@ export const INTERCEPT_ALIASES = {
   // Storage aliases
   GET_DIRECTORY: 'getDirectory',
   SAVE_FAVORITE: 'saveFavorite',
-  REMOVE_FAVORITE: 'removeFavorite'
+  REMOVE_FAVORITE: 'removeFavorite',
 } as const;
 ```
 
@@ -865,6 +897,7 @@ export const INTERCEPT_ALIASES = {
 **Add to `api.constants.spec.ts`:**
 
 **Test Cases:**
+
 1. Verify patterns match FilesApiService routes
 2. Verify wildcards in patterns (`*` for deviceId and storageType)
 3. Verify full URLs include BASE_URL
@@ -882,6 +915,7 @@ export const INTERCEPT_ALIASES = {
 **Prerequisites**: None (coordinate with UI team to confirm selectors exist)
 
 **Files to Update:**
+
 - `src/support/constants/selector.constants.ts`
 - `src/support/constants/selector.constants.spec.ts`
 
@@ -896,7 +930,7 @@ export const PLAYER_TOOLBAR_SELECTORS = {
   // ... existing toolbar selectors if any
   favoriteButton: '[data-testid="favorite-button"]',
   favoriteIcon: '[data-testid="favorite-icon"]',
-  favoriteSpinner: '[data-testid="favorite-spinner"]'
+  favoriteSpinner: '[data-testid="favorite-spinner"]',
 } as const;
 ```
 
@@ -917,7 +951,7 @@ export const ALERT_SELECTORS = {
 
   // New for favorites testing
   stackContainer: '[data-testid="alert-stack-bottom-right"]',
-  toast: '.alert-display.toast'
+  toast: '.alert-display.toast',
 } as const;
 ```
 
@@ -932,7 +966,7 @@ export const STORAGE_VIEW_SELECTORS = {
   directoryList: '[data-testid="directory-list"]',
   fileItem: '[data-testid="file-item"]',
   directoryItem: '[data-testid="directory-item"]',
-  favoritesDirectory: '[data-testid="favorites-directory"]'
+  favoritesDirectory: '[data-testid="favorites-directory"]',
 } as const;
 ```
 
@@ -941,6 +975,7 @@ export const STORAGE_VIEW_SELECTORS = {
 #### Step 4: Coordinate with UI Team
 
 **Before proceeding, verify these `data-testid` attributes exist on components:**
+
 1. Player toolbar favorite button
 2. Alert stack container
 3. Storage directory/file list items
@@ -954,6 +989,7 @@ export const STORAGE_VIEW_SELECTORS = {
 **Optional - add to `selector.constants.spec.ts`:**
 
 **Test Cases:**
+
 1. Verify selectors are non-empty strings
 2. Verify selectors use `data-testid` pattern (preferred)
 3. Document any CSS-based selectors as technical debt
@@ -970,10 +1006,12 @@ export const STORAGE_VIEW_SELECTORS = {
 **Prerequisites**: Tasks 1-4 (filesystem, generators, fixtures, constants)
 
 **Files to Create:**
+
 - `src/support/interceptors/storage.interceptors.ts`
 - `src/support/interceptors/storage.interceptors.spec.ts`
 
 **Files to Update:**
+
 - `src/support/interceptors/index.ts` - Export new interceptors
 
 **Reference Pattern:** `src/support/interceptors/device.interceptors.ts`
@@ -983,8 +1021,13 @@ export const STORAGE_VIEW_SELECTORS = {
 #### Step 1: Create Interceptor Functions
 
 **`interceptGetDirectory()`:**
+
 ```typescript
-import { STORAGE_ENDPOINTS, INTERCEPT_ALIASES, createProblemDetailsResponse } from '../constants/api.constants';
+import {
+  STORAGE_ENDPOINTS,
+  INTERCEPT_ALIASES,
+  createProblemDetailsResponse,
+} from '../constants/api.constants';
 import type { MockFilesystem } from '../test-data/mock-filesystem/mock-filesystem';
 
 export function interceptGetDirectory(options?: {
@@ -1006,7 +1049,7 @@ export function interceptGetDirectory(options?: {
       const path = (req.query.Path as string) || '/';
       const response = filesystem?.getDirectory(path) || {
         storageItem: { directories: [], files: [], path },
-        message: 'Success'
+        message: 'Success',
       };
 
       req.reply({ delay: responseDelayMs, body: response });
@@ -1016,6 +1059,7 @@ export function interceptGetDirectory(options?: {
 ```
 
 **`interceptSaveFavorite()`:**
+
 ```typescript
 export function interceptSaveFavorite(options?: {
   filesystem?: MockFilesystem;
@@ -1042,7 +1086,7 @@ export function interceptSaveFavorite(options?: {
         : {
             message: 'Favorite tagged and saved to /favorites/games',
             favoriteFile: favoriteFile || generateFileItem(),
-            favoritePath: '/favorites/games'
+            favoritePath: '/favorites/games',
           };
 
       req.reply({ delay: responseDelayMs, body: response });
@@ -1052,6 +1096,7 @@ export function interceptSaveFavorite(options?: {
 ```
 
 **`interceptRemoveFavorite()`:**
+
 ```typescript
 export function interceptRemoveFavorite(options?: {
   filesystem?: MockFilesystem;
@@ -1065,7 +1110,9 @@ export function interceptRemoveFavorite(options?: {
     STORAGE_ENDPOINTS.REMOVE_FAVORITE.pattern,
     (req) => {
       if (errorMode) {
-        req.reply(createProblemDetailsResponse(502, 'Failed to remove favorite. Please try again.'));
+        req.reply(
+          createProblemDetailsResponse(502, 'Failed to remove favorite. Please try again.')
+        );
         return;
       }
 
@@ -1102,6 +1149,7 @@ export * from './storage.interceptors';
 **Create `storage.interceptors.spec.ts` (Vitest):**
 
 **Test Cases:**
+
 1. Verify `cy.intercept` called with correct method, pattern, alias
 2. Verify `errorMode: true` returns ProblemDetails structure
 3. Verify `filesystem.saveFavorite()` called with correct path
@@ -1122,6 +1170,7 @@ export * from './storage.interceptors';
 **Prerequisites**: Task 5 (selectors defined)
 
 **Files to Create:**
+
 - `src/e2e/storage/test-helpers.ts`
 
 **Reference Pattern:** `src/e2e/devices/test-helpers.ts`
@@ -1131,9 +1180,15 @@ export * from './storage.interceptors';
 #### Step 1: Create Helper Functions
 
 **Navigation helpers:**
+
 ```typescript
 import { APP_ROUTES } from '../../support/constants/app-routes.constants';
-import { PLAYER_TOOLBAR_SELECTORS, STORAGE_VIEW_SELECTORS, ALERT_SELECTORS, INTERCEPT_ALIASES } from '../../support/constants/selector.constants';
+import {
+  PLAYER_TOOLBAR_SELECTORS,
+  STORAGE_VIEW_SELECTORS,
+  ALERT_SELECTORS,
+  INTERCEPT_ALIASES,
+} from '../../support/constants/selector.constants';
 
 export function navigateToPlayerView(): Cypress.Chainable<Cypress.AUTWindow> {
   return cy.visit(APP_ROUTES.player, {
@@ -1173,6 +1228,7 @@ export function openFavoritesDirectory(type: 'games' | 'music' | 'images'): void
 ```
 
 **Action helpers:**
+
 ```typescript
 export function clickFavoriteButton(): void {
   cy.get(PLAYER_TOOLBAR_SELECTORS.favoriteButton).click();
@@ -1180,6 +1236,7 @@ export function clickFavoriteButton(): void {
 ```
 
 **Assertion helpers:**
+
 ```typescript
 export function expectFavoriteIcon(expected: 'favorite' | 'favorite_border'): void {
   cy.get(PLAYER_TOOLBAR_SELECTORS.favoriteIcon).should('have.text', expected);
@@ -1203,6 +1260,7 @@ export function verifyFileInDirectory(fileName: string, shouldExist: boolean): v
 ```
 
 **Wait helpers:**
+
 ```typescript
 export function waitForSaveFavorite(): void {
   cy.wait(`@${INTERCEPT_ALIASES.SAVE_FAVORITE}`);
@@ -1222,12 +1280,10 @@ export function waitForRemoveFavorite(): void {
 export {
   PLAYER_TOOLBAR_SELECTORS,
   STORAGE_VIEW_SELECTORS,
-  ALERT_SELECTORS
+  ALERT_SELECTORS,
 } from '../../support/constants/selector.constants';
 
-export {
-  INTERCEPT_ALIASES
-} from '../../support/constants/api.constants';
+export { INTERCEPT_ALIASES } from '../../support/constants/api.constants';
 ```
 
 </details>
@@ -1242,6 +1298,7 @@ export {
 **Prerequisites**: All previous tasks
 
 **Files to Create:**
+
 - `src/e2e/storage/favorite-operations.cy.ts`
 
 **Reference:** FAVORITE_PLAN.md scenarios 1-7, 13-18
@@ -1258,7 +1315,7 @@ import {
   interceptConnectDevice,
   interceptGetDirectory,
   interceptSaveFavorite,
-  interceptRemoveFavorite
+  interceptRemoveFavorite,
 } from '../../support/interceptors';
 import {
   navigateToPlayerView,
@@ -1269,7 +1326,7 @@ import {
   waitForRemoveFavorite,
   verifyAlert,
   openFavoritesDirectory,
-  verifyFileInDirectory
+  verifyFileInDirectory,
 } from './test-helpers';
 import type { MockFilesystem } from '../../support/test-data/mock-filesystem/mock-filesystem';
 
@@ -1303,6 +1360,7 @@ describe('Favorite Operations', () => {
 #### Step 2: Implement Test Cases
 
 **Test 1 - Save favorite success (Scenarios 1 & 5):**
+
 ```typescript
 it('should save favorite and display in favorites directory', () => {
   // Given: File is not favorited
@@ -1325,6 +1383,7 @@ it('should save favorite and display in favorites directory', () => {
 ```
 
 **Test 2 - Save favorite failure recovery (Scenario 2):**
+
 ```typescript
 it('should handle save favorite failure and retry', () => {
   // First attempt fails
@@ -1347,6 +1406,7 @@ it('should handle save favorite failure and retry', () => {
 ```
 
 **Test 3 - Button disabled during operation (Scenario 3 & 13):**
+
 ```typescript
 it('should disable button during save operation', () => {
   interceptSaveFavorite({ filesystem, responseDelayMs: 1000 });
@@ -1365,6 +1425,7 @@ it('should disable button during save operation', () => {
 ```
 
 **Test 4 - Favorites directory synchronization (Scenarios 4 & 7):**
+
 ```typescript
 it('should synchronize favorites directory when removing favorite', () => {
   // Pre-favorite a file
@@ -1388,9 +1449,8 @@ it('should synchronize favorites directory when removing favorite', () => {
 });
 ```
 
-
-
 **Test 6 - Multi-type favorites (Scenario 14):**
+
 ```typescript
 it('should favorite files across multiple types', () => {
   // Favorite game
@@ -1447,6 +1507,7 @@ pnpm nx e2e teensyrom-ui-e2e --spec="src/e2e/storage/favorite-operations.cy.ts"
 ```
 
 **Verify:**
+
 1. All tests pass consistently
 2. No flaky failures
 3. Tests run offline (no network calls)
@@ -1459,17 +1520,20 @@ pnpm nx e2e teensyrom-ui-e2e --spec="src/e2e/storage/favorite-operations.cy.ts"
 ## ✅ Success Criteria
 
 **Mock Filesystem:**
+
 - ✅ Generates realistic structure matching STORAGE_E2E_MOCK_SAMPLE.md
 - ✅ Same seed produces identical files every time (deterministic)
 - ✅ State mutations work correctly (save/remove favorites)
 - ✅ Resettable per test (no cross-test pollution)
 
 **API Simulation:**
+
 - ✅ Response messages match backend exactly
 - ✅ Interceptors call filesystem methods and mutate state
 - ✅ Error modes return ProblemDetails structure
 
 **Test Coverage:**
+
 - ✅ All scenarios from FAVORITE_PLAN.md covered (1-7, 13-18)
 - ✅ Icon state updates verified
 - ✅ Alert messages verified
@@ -1477,12 +1541,14 @@ pnpm nx e2e teensyrom-ui-e2e --spec="src/e2e/storage/favorite-operations.cy.ts"
 - ✅ Button disabled states verified
 
 **Code Quality:**
+
 - ✅ All constants centralized (no hardcoded values)
 - ✅ All tests use helpers (no raw Cypress commands)
 - ✅ Unit tests for filesystem, generators, interceptors
 - ✅ Documentation updated (README.md)
 
 **Execution:**
+
 - ✅ `pnpm nx e2e teensyrom-ui-e2e` passes without flakes
 - ✅ Tests run offline (interceptors prevent network calls)
 - ✅ Fast execution (<30 seconds)
@@ -1497,7 +1563,7 @@ pnpm nx e2e teensyrom-ui-e2e --spec="src/e2e/storage/favorite-operations.cy.ts"
 
 ```typescript
 beforeEach(() => {
-  filesystem = createMockFilesystem(12345);  // Fresh instance
+  filesystem = createMockFilesystem(12345); // Fresh instance
 
   // Pass reference to interceptors
   interceptSaveFavorite({ filesystem });
@@ -1505,7 +1571,7 @@ beforeEach(() => {
 });
 
 // During test:
-clickFavoriteButton();  // → Triggers interceptor
+clickFavoriteButton(); // → Triggers interceptor
 // → Interceptor calls filesystem.saveFavorite()
 // → Filesystem state mutates
 // → Next getDirectory() call sees changes
@@ -1519,12 +1585,13 @@ clickFavoriteButton();  // → Triggers interceptor
 
 **Match backend exactly** (see `FavoriteFileEndpoint.cs`, `RemoveFavoriteEndpoint.cs`):
 
-| Operation | Success Message | Error Message |
-|-----------|----------------|---------------|
-| Save | `Favorite tagged and saved to /favorites/{type}` | `Failed to save favorite. Please try again.` |
-| Remove | `Favorite untagged and removed from /favorites/{type}` | `Failed to remove favorite. Please try again.` |
+| Operation | Success Message                                        | Error Message                                  |
+| --------- | ------------------------------------------------------ | ---------------------------------------------- |
+| Save      | `Favorite tagged and saved to /favorites/{type}`       | `Failed to save favorite. Please try again.`   |
+| Remove    | `Favorite untagged and removed from /favorites/{type}` | `Failed to remove favorite. Please try again.` |
 
 **Dynamic path in message:**
+
 - Games: `/favorites/games`
 - Music: `/favorites/music`
 - Images: `/favorites/images`
@@ -1536,17 +1603,20 @@ clickFavoriteButton();  // → Triggers interceptor
 **Always flat, never nested:**
 
 ✅ **Correct:**
+
 ```
 /favorites/games/Pac-Man (J1).crt
 /favorites/music/Alpha.sid
 ```
 
 ❌ **Wrong:**
+
 ```
 /favorites/music/MUSICIANS/L/LukHash/Alpha.sid
 ```
 
 **`parentPath` tracks original location:**
+
 ```typescript
 {
   path: '/favorites/music/Alpha.sid',
@@ -1560,13 +1630,15 @@ clickFavoriteButton();  // → Triggers interceptor
 ### Test Context Setup
 
 **Each test needs:**
+
 1. Device context (deviceId from `singleDevice` fixture)
 2. Storage context (storageType: 'SD' or 'USB')
 3. Player context (file loaded in player)
 
 **The interceptors use wildcards** to match any deviceId/storageType:
+
 ```typescript
-pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/favorite*`
+pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/favorite*`;
 ```
 
 **Actual requests** will have real values extracted from UI state.
@@ -1590,15 +1662,18 @@ pattern: `${API_CONFIG.BASE_URL}/devices/*/storage/*/favorite*`
 **Before starting implementation, verify:**
 
 1. ❓ **Alert stack selector** - Does `[data-testid="alert-stack-bottom-right"]` exist on alert component?
+
    - If not, coordinate with UI team to add it
    - Alternative: Use CSS selector for `.alert-display` parent container
 
 2. ❓ **Favorite button selectors** - Confirm player toolbar has:
+
    - `[data-testid="favorite-button"]`
    - `[data-testid="favorite-icon"]`
    - If not, request UI team add them
 
 3. ❓ **Storage view selectors** - Confirm directory browser has:
+
    - `[data-testid="directory-list"]`
    - `[data-testid="file-item"]`
    - If not, use alternative CSS selectors

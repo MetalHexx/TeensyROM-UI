@@ -6,9 +6,20 @@ import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { FilterToolbarComponent } from './filter-toolbar.component';
 import { PLAYER_CONTEXT, IPlayerContext } from '@teensyrom-nx/application';
-import { STORAGE_SERVICE, IStorageService, StorageDirectory, StorageType, LaunchMode, PlayerStatus, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
+import {
+  STORAGE_SERVICE,
+  IStorageService,
+  StorageDirectory,
+  StorageType,
+  LaunchMode,
+  PlayerStatus,
+  PlayerFilterType,
+  PlayerScope,
+} from '@teensyrom-nx/domain';
 
-type MockedObject<T> = { [K in keyof T]: T[K] extends (...args: unknown[]) => unknown ? ReturnType<typeof vi.fn> : T[K] };
+type MockedObject<T> = {
+  [K in keyof T]: T[K] extends (...args: unknown[]) => unknown ? ReturnType<typeof vi.fn> : T[K];
+};
 
 // Test constants
 const TEST_DEVICE_ID = 'test-device-id';
@@ -59,7 +70,10 @@ describe('FilterToolbarComponent', () => {
 
   beforeEach(async () => {
     // Create signals for dynamic mocking
-    shuffleSettingsSignal = signal({ scope: PlayerScope.DeviceStorage, filter: PlayerFilterType.All });
+    shuffleSettingsSignal = signal({
+      scope: PlayerScope.DeviceStorage,
+      filter: PlayerFilterType.All,
+    });
     errorSignal = signal(null);
 
     // Create strongly typed mock for IPlayerContext
@@ -96,13 +110,15 @@ describe('FilterToolbarComponent', () => {
     };
 
     const mockStorageService: Partial<IStorageService> = {
-      getDirectory: vi.fn().mockReturnValue(of({
-        deviceId: TEST_DEVICE_ID,
-        storageType: StorageType.Sd,
-        path: '/',
-        files: [],
-        directories: [],
-      } as StorageDirectory)),
+      getDirectory: vi.fn().mockReturnValue(
+        of({
+          deviceId: TEST_DEVICE_ID,
+          storageType: StorageType.Sd,
+          path: '/',
+          files: [],
+          directories: [],
+        } as StorageDirectory)
+      ),
     };
 
     await TestBed.configureTestingModule({
@@ -135,25 +151,37 @@ describe('FilterToolbarComponent', () => {
     it('should call setFilterMode with All when All filter button is clicked', () => {
       component.onAllClick();
 
-      expect(mockPlayerContext.setFilterMode).toHaveBeenCalledWith(TEST_DEVICE_ID, PlayerFilterType.All);
+      expect(mockPlayerContext.setFilterMode).toHaveBeenCalledWith(
+        TEST_DEVICE_ID,
+        PlayerFilterType.All
+      );
     });
 
     it('should call setFilterMode with Games when Games filter button is clicked', () => {
       component.onGamesClick();
 
-      expect(mockPlayerContext.setFilterMode).toHaveBeenCalledWith(TEST_DEVICE_ID, PlayerFilterType.Games);
+      expect(mockPlayerContext.setFilterMode).toHaveBeenCalledWith(
+        TEST_DEVICE_ID,
+        PlayerFilterType.Games
+      );
     });
 
     it('should call setFilterMode with Music when Music filter button is clicked', () => {
       component.onMusicClick();
 
-      expect(mockPlayerContext.setFilterMode).toHaveBeenCalledWith(TEST_DEVICE_ID, PlayerFilterType.Music);
+      expect(mockPlayerContext.setFilterMode).toHaveBeenCalledWith(
+        TEST_DEVICE_ID,
+        PlayerFilterType.Music
+      );
     });
 
     it('should call setFilterMode with Images when Images filter button is clicked', () => {
       component.onImagesClick();
 
-      expect(mockPlayerContext.setFilterMode).toHaveBeenCalledWith(TEST_DEVICE_ID, PlayerFilterType.Images);
+      expect(mockPlayerContext.setFilterMode).toHaveBeenCalledWith(
+        TEST_DEVICE_ID,
+        PlayerFilterType.Images
+      );
     });
   });
 
@@ -274,7 +302,9 @@ describe('FilterToolbarComponent', () => {
     });
 
     it('should handle async errors gracefully', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { /* noop */ });
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+        /* noop */
+      });
       mockPlayerContext.launchRandomFile.mockRejectedValue(new Error('Test error'));
 
       // Should not throw and should log error
@@ -287,7 +317,7 @@ describe('FilterToolbarComponent', () => {
   describe('Template Rendering', () => {
     it('should render all filter buttons', () => {
       const filterButtons = fixture.debugElement.queryAll(By.css(SELECTORS.filterButtons));
-      
+
       expect(filterButtons).toHaveLength(FILTER_BUTTON_COUNT);
       expect(fixture.debugElement.query(By.css(SELECTORS.filterAllButton))).toBeTruthy();
       expect(fixture.debugElement.query(By.css(SELECTORS.filterGamesButton))).toBeTruthy();
@@ -297,7 +327,7 @@ describe('FilterToolbarComponent', () => {
 
     it('should render vertical separator', () => {
       const separator = fixture.debugElement.query(By.css(SELECTORS.separator));
-      
+
       expect(separator).toBeTruthy();
       expect(separator.nativeElement.classList.contains('vertical-separator')).toBe(true);
     });
@@ -305,23 +335,25 @@ describe('FilterToolbarComponent', () => {
     it('should render random launch button', () => {
       const randomButton = fixture.debugElement.query(By.css(SELECTORS.randomLaunchButton));
       const innerButton = randomButton.query(By.css(SELECTORS.innerButton));
-      
+
       expect(randomButton).toBeTruthy();
       expect(innerButton).toBeTruthy();
-      expect(innerButton.nativeElement.getAttribute('aria-label')).toBe(EXPECTED_LABELS.randomLaunch);
+      expect(innerButton.nativeElement.getAttribute('aria-label')).toBe(
+        EXPECTED_LABELS.randomLaunch
+      );
     });
 
     it('should render custom joystick icon in games button', () => {
       const gamesButton = fixture.debugElement.query(By.css(SELECTORS.filterGamesButton));
       const joystickIcon = gamesButton.query(By.css(SELECTORS.joystickIcon));
-      
+
       expect(joystickIcon).toBeTruthy();
     });
 
     it('should render custom image icon in images button', () => {
       const imagesButton = fixture.debugElement.query(By.css(SELECTORS.filterImagesButton));
       const imageIcon = imagesButton.query(By.css(SELECTORS.imageIcon));
-      
+
       expect(imageIcon).toBeTruthy();
     });
   });
@@ -332,9 +364,9 @@ describe('FilterToolbarComponent', () => {
       const spy = vi.spyOn(component, methodName);
       const button = fixture.debugElement.query(By.css(buttonSelector));
       const innerButton = button.query(By.css(SELECTORS.innerButton));
-      
+
       innerButton.nativeElement.click();
-      
+
       expect(spy).toHaveBeenCalled();
     };
 
@@ -360,28 +392,30 @@ describe('FilterToolbarComponent', () => {
   describe('Component Layout', () => {
     it('should have proper CSS classes for layout', () => {
       const filterButtons = fixture.debugElement.query(By.css(SELECTORS.filterButtonsContainer));
-      
+
       expect(filterButtons).toBeTruthy();
       expect(filterButtons.nativeElement.classList.contains('filter-buttons')).toBe(true);
     });
 
     it('should wrap content in compact card layout', () => {
       const cardLayout = fixture.debugElement.query(By.css(SELECTORS.compactCardLayout));
-      
+
       expect(cardLayout).toBeTruthy();
     });
 
     it('should have buttons in correct order', () => {
       const buttons = fixture.debugElement.queryAll(By.css(SELECTORS.iconButton));
       const separator = fixture.debugElement.query(By.css(SELECTORS.verticalSeparator));
-      
+
       // Should have 5 buttons total (4 filters + 1 random)
       expect(buttons).toHaveLength(TOTAL_BUTTON_COUNT);
-      
+
       // Separator should be between filter buttons and random button
       const separatorElement = separator.nativeElement;
-      const randomButton = fixture.debugElement.query(By.css(SELECTORS.randomLaunchButton)).nativeElement;
-      
+      const randomButton = fixture.debugElement.query(
+        By.css(SELECTORS.randomLaunchButton)
+      ).nativeElement;
+
       expect(separatorElement.nextElementSibling).toBe(randomButton);
     });
   });
@@ -405,8 +439,8 @@ describe('FilterToolbarComponent', () => {
 
     it('should have proper button size for touch targets', () => {
       const buttons = fixture.debugElement.queryAll(By.css(SELECTORS.iconButton));
-      
-      buttons.forEach(button => {
+
+      buttons.forEach((button) => {
         expect(button.nativeElement.getAttribute('size')).toBe('large');
       });
     });
@@ -424,9 +458,9 @@ describe('FilterToolbarComponent', () => {
 
     it('should trigger dice roll animation when launching random file', async () => {
       const animateSpy = vi.spyOn(component, 'animateDiceRoll');
-      
+
       await component.launchRandomFile();
-      
+
       expect(animateSpy).toHaveBeenCalled();
     });
 
@@ -438,14 +472,14 @@ describe('FilterToolbarComponent', () => {
           remove: vi.fn(),
         },
       };
-      
+
       // Mock the randomButton signal to return our mock element
       const mockButtonSignal = vi.fn().mockReturnValue({ nativeElement: mockElement });
       component.randomButton = mockButtonSignal;
-      
+
       // Call the method
       component.animateDiceRoll();
-      
+
       expect(component.isDiceRolling()).toBe(true);
       expect(mockElement.classList.add).toHaveBeenCalledWith('dice-roll');
     });
@@ -453,20 +487,20 @@ describe('FilterToolbarComponent', () => {
     it('should prevent multiple simultaneous animations', () => {
       // Set animation state to true
       component.isDiceRolling.set(true);
-      
+
       const mockElement = {
         classList: {
           add: vi.fn(),
           remove: vi.fn(),
         },
       };
-      
+
       const mockButtonSignal = vi.fn().mockReturnValue({ nativeElement: mockElement });
       component.randomButton = mockButtonSignal;
-      
+
       // Try to animate again
       component.animateDiceRoll();
-      
+
       // Should not add animation class
       expect(mockElement.classList.add).not.toHaveBeenCalled();
     });
@@ -485,7 +519,9 @@ describe('FilterToolbarComponent', () => {
     });
 
     it('should handle playerContext service errors gracefully', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { /* noop */ });
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+        /* noop */
+      });
       mockPlayerContext.launchRandomFile.mockRejectedValue(new Error('Service unavailable'));
 
       // Should not throw unhandled errors and should log

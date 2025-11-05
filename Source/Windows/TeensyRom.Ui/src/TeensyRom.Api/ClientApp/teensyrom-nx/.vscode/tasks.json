@@ -1,31 +1,31 @@
-{ 
-   "version": "2.0.0", 
-   "tasks": [ 
-     { 
-       "label": "Serve Frontend", 
-       "type": "npm", 
-       "script": "start", 
-       "isBackground": true, 
-       "presentation": { 
-         "focus": true, 
-         "panel": "dedicated" 
-       }, 
-       "group": { 
-         "kind": "build", 
-         "isDefault": true 
-       }, 
-       "problemMatcher": { 
-         "owner": "typescript", 
-         "source": "ts", 
-         "applyTo": "closedDocuments", 
-         "fileLocation": ["relative", "${cwd}"], 
-         "pattern": "$tsc", 
-         "background": { 
-           "activeOnStart": true, 
-           "beginsPattern": "Building\\.\\.\\.", 
-           "endsPattern": "Local:   http://localhost:4200/" 
-         } 
-       } 
-     } 
-   ] 
- }
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Serve Frontend",
+      "type": "npm",
+      "script": "start",
+      "isBackground": true,
+      "presentation": {
+        "focus": true,
+        "panel": "dedicated"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "ts",
+        "applyTo": "closedDocuments",
+        "fileLocation": ["relative", "${cwd}"],
+        "pattern": "$tsc",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Building\\.\\.\\.",
+          "endsPattern": "Local:   http://localhost:4200/"
+        }
+      }
+    }
+  ]
+}

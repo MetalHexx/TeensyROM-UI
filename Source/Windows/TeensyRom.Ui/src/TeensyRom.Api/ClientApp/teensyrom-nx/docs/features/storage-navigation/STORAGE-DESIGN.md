@@ -86,16 +86,19 @@ The storage domain uses shared models from `libs/domain` and defines application
 ### Shared Domain Models (libs/domain/src/lib/models)
 
 **Core Storage Models**:
+
 - **StorageDirectory**: Container holding directories, files, and current path
 - **DirectoryItem**: Simple name/path reference for subdirectories
 - **FileItem**: Comprehensive file metadata including type, size, media info, images, and compatibility flags (shared with player domain)
 - **ViewableItemImage**: Image asset metadata with URLs constructed from API base path
 
 **Enumerations**:
+
 - **StorageType**: Device types (SD, USB)
 - **FileItemType**: File classification (Song, Game, Image, Hex, Unknown)
 
 **Key Model Characteristics**:
+
 - **Shared with Player**: FileItem and ViewableItemImage used across both domains
 - **Rich Metadata**: FileItem includes 20+ properties for media files (title, creator, playLength, subtunes, etc.)
 - **Image URLs**: Full URLs constructed in DomainMapper from baseAssetPath + baseApiUrl
@@ -104,24 +107,29 @@ The storage domain uses shared models from `libs/domain` and defines application
 ### Application State Models (libs/application/src/lib/storage)
 
 **StorageDirectoryState**: Per-storage entry in flat state structure
+
 - Contains: deviceId, storageType, currentPath, directory, loading/loaded flags, error, timestamp
 - Represents single storage (SD or USB) on a specific device
 
 **SelectedDirectory**: Tracks currently selected directory per device
+
 - Contains: deviceId, storageType, path
 - Enables UI to highlight/display current location
 
 **NavigationHistory**: Browser-like history per device
+
 - Array of NavigationHistoryItem (path + storageType)
 - Tracks currentIndex pointer into history array
 - Max 50 entries per device with automatic pruning
 
 **StorageState**: Root state structure
+
 - `storageEntries`: Record keyed by `"${deviceId}-${storageType}"` (flat structure)
 - `selectedDirectories`: Record keyed by deviceId
 - `navigationHistory`: Record keyed by deviceId
 
 **State Design Decisions**:
+
 - **Flat Structure**: Composite keys instead of nested objects for performance
 - **Multi-Device Independence**: Separate state/history per device
 - **Error Resilience**: Null directory on errors, explicit error messages
@@ -138,11 +146,13 @@ Domain contracts define the interface boundaries between layers. The IStorageSer
 **Purpose**: Domain contract for infrastructure layer operations focused on external API integration.
 
 **Core Responsibilities**:
+
 - Directory retrieval from TeensyROM API
 - Storage indexing operations on devices
 - Observable-based async operations
 
 **Interface Operations**:
+
 - `getDirectory(deviceId, storageType, path?)`: Returns Observable<StorageDirectory>
 - `index(deviceId, storageType, startingPath?)`: Triggers indexing for specific storage
 - `indexAll()`: Triggers indexing across all devices
@@ -150,6 +160,7 @@ Domain contracts define the interface boundaries between layers. The IStorageSer
 **Injection Token**: `STORAGE_SERVICE` for dependency injection
 
 **Design Focus**:
+
 - Pure infrastructure boundary (no business logic)
 - Simple API integration without orchestration
 - Observable streams for async operations
@@ -166,6 +177,7 @@ The infrastructure layer handles external system integration and implements doma
 **Purpose**: Implements IStorageService for API integration and domain model mapping.
 
 **Key Behaviors**:
+
 - Calls FilesApiService (generated TypeScript client) for directory operations
 - Transforms API DTOs to domain models via DomainMapper
 - Extracts base API URL for image asset URL construction
@@ -173,6 +185,7 @@ The infrastructure layer handles external system integration and implements doma
 - Stateless operations (no caching or state management)
 
 **Implementation Focus**:
+
 - Pure infrastructure (no business logic)
 - Direct API integration
 - Observable-based responses
@@ -183,6 +196,7 @@ The infrastructure layer handles external system integration and implements doma
 **Purpose**: Centralized transformation between API DTOs and domain models.
 
 **Key Transformations**:
+
 - `toStorageDirectory()`: Maps API StorageCacheDto to StorageDirectory
 - `toDirectoryItem()`: Maps API DirectoryItemDto to DirectoryItem
 - `toFileItem()`: Maps API FileItemDto to FileItem (20+ properties)
@@ -190,6 +204,7 @@ The infrastructure layer handles external system integration and implements doma
 - `toApiStorageType()` / `toDomainStorageType()`: Bidirectional enum conversion
 
 **Mapping Characteristics**:
+
 - Null safety with fallback values (`??` operators)
 - URL construction for image assets (baseApiUrl + baseAssetPath)
 - Shared by both Storage and Player infrastructure services
@@ -206,12 +221,14 @@ The application layer orchestrates storage workflows through NgRx Signal Store, 
 **Purpose**: Reactive state management for storage operations via NgRx Signal Store.
 
 **Store Structure**:
+
 - Root-level injection (global singleton)
 - Redux DevTools integration ('storage' namespace)
 - Custom features for selectors (`withStorageSelectors()`) and actions (`withStorageActions()`)
 - Empty initial state (populated on device connect)
 
 **State Organization**:
+
 - Flat structure with composite keys for performance
 - Follows STATE_STANDARDS.md patterns (file-per-action, file-per-selector)
 - All state mutations via `updateState()` with action message correlation
@@ -223,6 +240,7 @@ The application layer orchestrates storage workflows through NgRx Signal Store, 
 **Key Pattern**: `"${deviceId}-${storageType}"` template literal type
 
 **Utility Functions**:
+
 - `create()`: Generate key from deviceId + storageType
 - `parse()`: Extract deviceId and storageType from key
 - `forDevice()`: Filter predicate for device-specific keys
@@ -235,6 +253,7 @@ The application layer orchestrates storage workflows through NgRx Signal Store, 
 **Purpose**: Reusable functions for state operations following STATE_STANDARDS.md.
 
 **State Mutation Helpers** (require `actionMessage` for Redux DevTools):
+
 - `setLoadingStorage()`: Set loading state, clear errors
 - `setStorageLoaded()`: Mark loaded with timestamp, clear errors
 - `setStorageError()`: Set error message, clear loading
@@ -244,6 +263,7 @@ The application layer orchestrates storage workflows through NgRx Signal Store, 
 - `createStorage()`: Initialize new storage entry
 
 **State Query Helpers** (read-only, no actionMessage):
+
 - `getStorage()`: Retrieve entry by key
 - `isDirectoryLoadedAtPath()`: Check if directory loaded at path
 - `isSelectedDirectory()`: Verify if directory is currently selected
@@ -260,12 +280,14 @@ All actions follow STATE_STANDARDS.md patterns: async/await with `firstValueFrom
 ### Core Actions (libs/application/src/lib/storage/actions/)
 
 **initialize-storage.ts**: Initial root directory load
+
 - Sets selected directory to root
 - Cache check (skip if already loaded)
 - Creates storage entry, loads from API
 - Initializes navigation history
 
 **navigate-to-directory.ts**: Navigate to specific path
+
 - Updates selection if needed
 - Cache optimization (skip API if loaded)
 - Loads directory, adds to history
@@ -273,30 +295,36 @@ All actions follow STATE_STANDARDS.md patterns: async/await with `firstValueFrom
 - Maintains 50-entry history limit
 
 **navigate-up-one-directory.ts**: Navigate to parent directory
+
 - Calculates parent path (handles edge cases)
 - No-op at root
 - Loads parent, adds to history
 
 **navigate-directory-backward.ts**: Browser back navigation
+
 - Decrements history index (if possible)
 - Updates selection to history target
 - Cache check before API call
 - Preserves history array (no truncation)
 
 **navigate-directory-forward.ts**: Browser forward navigation
+
 - Increments history index (if possible)
 - Same pattern as backward (opposite direction)
 
 **refresh-directory.ts**: Force reload from API
+
 - Bypasses cache
 - Updates current entry with fresh data
 - No history modification
 
 **remove-storage.ts**: Remove single storage entry
+
 - Called when storage unavailable
 - No history/selection changes
 
 **remove-all-storage.ts**: Device cleanup
+
 - Removes all entries for device
 - Clears selection and history
 - Called on device disconnect
@@ -310,21 +338,25 @@ All selectors return computed signals following STATE_STANDARDS.md patterns. Pur
 ### Core Selectors (libs/application/src/lib/storage/selectors/)
 
 **get-selected-directory-state.ts**: Current directory state for device
+
 - Returns: `Signal<StorageDirectoryState | null>`
 - Combines selectedDirectories[deviceId] with storageEntries lookup
 - Use: Directory contents, loading/error states, current path
 
 **get-selected-directory-for-device.ts**: Selected directory metadata
+
 - Returns: `SelectedDirectory | null`
 - Simple lookup in selectedDirectories
 - Use: Breadcrumb display, storage type indicator, navigation params
 
 **get-device-storage-entries.ts**: All storage entries for device
+
 - Returns: `Signal<Record<string, StorageDirectoryState>>`
 - Filters storageEntries by device prefix
 - Use: Storage type switcher, device storage overview
 
 **get-device-directories.ts**: Flattened list of loaded directories
+
 - Returns: `Signal<StorageDirectoryState[]>`
 - Filters all entries by deviceId
 - Use: Directory tree component, cache analysis
@@ -338,6 +370,7 @@ Browser-like navigation with forward/backward/up operations and history tracking
 ### Navigation History
 
 **Architecture**:
+
 - Per-device independent history
 - Array of NavigationHistoryItem (path + storageType)
 - currentIndex pointer to current position
@@ -352,6 +385,7 @@ Browser-like navigation with forward/backward/up operations and history tracking
 **Direct**: Navigate to path, add to history (truncates forward)
 
 **Key Behaviors**:
+
 - Index-based traversal (no array modification for back/forward)
 - New navigation truncates forward entries
 - Size limit enforcement via array slicing
@@ -373,10 +407,12 @@ Clean boundaries with loose coupling between domains.
 ### Device Domain
 
 **Lifecycle Integration**:
+
 - Device connect → `initializeStorage()` for available storage types (SD/USB)
 - Device disconnect → `removeAllStorage()` clears all state
 
 **State Ownership**:
+
 - Device domain: Connection state
 - Storage domain: Navigation state
 - No circular dependencies
@@ -384,6 +420,7 @@ Clean boundaries with loose coupling between domains.
 ### Player Domain
 
 **File Launch**:
+
 - Player reads FileItem from storage directory
 - Storage provides file lists for player navigation
 - Player stores StorageKey reference to launch location
@@ -413,6 +450,7 @@ Feature layer components consume StorageStore with proper presentation/state sep
 **Purpose**: Hierarchical tree navigation
 
 **Key Features**:
+
 - Material Tree with lazy loading (placeholder nodes)
 - Auto-expansion of device/storage nodes
 - Component-local cache synced with store via effect
@@ -427,6 +465,7 @@ Feature layer components consume StorageStore with proper presentation/state sep
 **Purpose**: File/directory list in current folder
 
 **Key Features**:
+
 - Renders DirectoryItem and FileItem lists
 - Auto-scroll to playing file
 - Keyboard navigation, virtual scrolling
@@ -440,6 +479,7 @@ Feature layer components consume StorageStore with proper presentation/state sep
 **Purpose**: Breadcrumb + navigation controls
 
 **Sub-components**:
+
 - **DirectoryBreadcrumb**: Clickable path segments
 - **DirectoryNavigate**: Back/Forward/Up/Refresh buttons
 
@@ -481,6 +521,7 @@ The storage domain testing strategy focuses on behavioral testing at appropriate
 **Focus**: Contract and model validation
 
 **Test Coverage**:
+
 - **IStorageService Interface**: Verify contract structure and injection token
 - **Domain Models**: Test TypeScript interfaces compile correctly
 - **Enum Types**: Validate StorageType and FileItemType values
@@ -492,12 +533,14 @@ The storage domain testing strategy focuses on behavioral testing at appropriate
 **Focus**: External integration and domain mapping
 
 **Test Coverage**:
+
 - **StorageService**: Mock FilesApiService via dependency injection
 - **API Integration**: Test getDirectory, index, indexAll methods
 - **Error Handling**: HTTP error scenarios and error propagation
 - **DomainMapper**: Test all transformation functions with edge cases
 
 **Testing Pattern**:
+
 ```typescript
 describe('StorageService', () => {
   let service: StorageService;
@@ -509,7 +552,11 @@ describe('StorageService', () => {
   });
 
   it('should transform API response to domain model', async () => {
-    const apiResponse = { storageItem: { /* DTO */ } };
+    const apiResponse = {
+      storageItem: {
+        /* DTO */
+      },
+    };
     mockApiService.getDirectory.and.returnValue(Promise.resolve(apiResponse));
 
     const result = await firstValueFrom(service.getDirectory('device-1', StorageType.Sd, '/'));
@@ -524,6 +571,7 @@ describe('StorageService', () => {
 **Focus**: Behavioral testing with full application layer integration
 
 **Test Coverage**:
+
 - **Store Actions**: Test all action workflows with mocked IStorageService
 - **Selectors**: Verify computed signals react to state changes
 - **Helpers**: Test state mutation and query helpers independently
@@ -532,21 +580,21 @@ describe('StorageService', () => {
 - **Cache Behavior**: Verify API call optimization and cache checks
 
 **Testing Pattern** (from storage-store.spec.ts):
+
 ```typescript
 describe('StorageStore', () => {
   let store: InstanceType<typeof StorageStore>;
   let mockStorageService: jasmine.SpyObj<IStorageService>;
 
   beforeEach(() => {
-    mockStorageService = jasmine.createSpyObj<IStorageService>('IStorageService',
-      ['getDirectory', 'index', 'indexAll']
-    );
+    mockStorageService = jasmine.createSpyObj<IStorageService>('IStorageService', [
+      'getDirectory',
+      'index',
+      'indexAll',
+    ]);
 
     TestBed.configureTestingModule({
-      providers: [
-        StorageStore,
-        { provide: STORAGE_SERVICE, useValue: mockStorageService },
-      ],
+      providers: [StorageStore, { provide: STORAGE_SERVICE, useValue: mockStorageService }],
     });
 
     store = TestBed.inject(StorageStore);
@@ -567,11 +615,19 @@ describe('StorageStore', () => {
   it('should skip API call if directory already loaded', async () => {
     // Load directory first
     mockStorageService.getDirectory.and.returnValue(of(mockDirectory));
-    await store.navigateToDirectory({ deviceId: 'device-1', storageType: StorageType.Sd, path: '/foo' });
+    await store.navigateToDirectory({
+      deviceId: 'device-1',
+      storageType: StorageType.Sd,
+      path: '/foo',
+    });
 
     // Navigate to same path again
     mockStorageService.getDirectory.calls.reset();
-    await store.navigateToDirectory({ deviceId: 'device-1', storageType: StorageType.Sd, path: '/foo' });
+    await store.navigateToDirectory({
+      deviceId: 'device-1',
+      storageType: StorageType.Sd,
+      path: '/foo',
+    });
 
     expect(mockStorageService.getDirectory).not.toHaveBeenCalled();
   });
@@ -579,6 +635,7 @@ describe('StorageStore', () => {
 ```
 
 **Key Testing Principles**:
+
 - **Mock Infrastructure Only**: Use strongly typed mocks for IStorageService
 - **Test Behaviors**: Focus on action outcomes, not implementation details
 - **Signal Reactivity**: Test computed signals react to state changes
@@ -590,12 +647,14 @@ describe('StorageStore', () => {
 **Focus**: Component integration with store
 
 **Test Coverage**:
+
 - **Storage Container**: Test orchestration of child components
 - **Directory Tree**: Test tree building, lazy loading, selection
 - **Directory Files**: Test file/directory rendering, selection, navigation
 - **Directory Trail**: Test breadcrumb display, button states, navigation
 
 **Testing Pattern**:
+
 ```typescript
 describe('DirectoryTreeComponent', () => {
   let component: DirectoryTreeComponent;
@@ -634,6 +693,7 @@ describe('DirectoryTreeComponent', () => {
 **Focus**: Cross-domain and end-to-end workflows
 
 **Test Coverage**:
+
 - **Device Lifecycle**: Test storage initialization on device connect
 - **Cleanup Integration**: Test storage removal on device disconnect
 - **Player Integration**: Test file launch from storage context

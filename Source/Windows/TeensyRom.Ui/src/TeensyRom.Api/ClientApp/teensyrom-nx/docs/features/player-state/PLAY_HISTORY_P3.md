@@ -13,12 +13,14 @@ Create the visual components that display play history and integrate them into t
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [ ] [Play History Planning Document](./PLAY_HISTORY_PLANNING.md) - High-level feature plan and Phase 3 requirements
 - [ ] [Player Domain Design Document](./PLAYER_DOMAIN_DESIGN.md) - Technical design and architecture
 - [ ] [Phase 1 Implementation](./PLAY_HISTORY_P1.md) - History state structure and tracking
 - [ ] [Phase 2 Implementation](./PLAY_HISTORY_P2_REVISED.md) - History navigation in shuffle mode
 
 **Standards & Guidelines:**
+
 - [ ] [Coding Standards](../../CODING_STANDARDS.md) - General coding patterns and conventions
 - [ ] [Testing Standards](../../TESTING_STANDARDS.md) - Behavioral testing approaches
 - [ ] [State Standards](../../STATE_STANDARDS.md) - State mutation patterns with updateState()
@@ -27,6 +29,7 @@ Create the visual components that display play history and integrate them into t
 - [ ] [Smart Component Testing](../../SMART_COMPONENT_TESTING.md) - Feature component testing methodology
 
 **Code Review - Understand Existing Patterns:**
+
 - [ ] Review `search-results.component.ts` - Template for history component structure
 - [ ] Review `storage-container.component.ts` - View switching with `animationTrigger`
 - [ ] Review `directory-trail.component.ts` - Navigation button patterns
@@ -81,12 +84,14 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
 **Key Principle**: Follow established patterns from `search-results` component for consistency.
 
 Each task creates:
+
 1. **Store Action/Selector** - State management for history view visibility
 2. **UI Component** - Visual components following existing patterns
 3. **Integration** - Wire components into storage container and directory trail
 4. **Behavioral Test** - Test through component public API
 
 **Pattern Reference**: The `search-results` component provides the template:
+
 - Uses `ScalingCardComponent` with `animationTrigger` input
 - Displays list of items with empty states
 - Highlights currently playing file with `pulsing-highlight` mixin
@@ -94,6 +99,7 @@ Each task creates:
 - Integrates with `StorageContainer` via `animationTrigger` based on computed signal
 
 This approach ensures:
+
 - ✅ Consistent UI patterns across the application
 - ✅ Proper animation and view switching behavior
 - ✅ Clear separation between state (store) and presentation (components)
@@ -121,14 +127,17 @@ This approach ensures:
 **Simplified Coordination Pattern:**
 
 **Single Store Action**: `updateHistoryViewVisibility({ deviceId, visible: boolean })`
+
 - Simple setter - no toggle logic in store
 - Called by context service for all visibility changes
 
 **Context Service Orchestration**:
+
 - **`toggleHistoryView()`** - Reads current state, calls store action with opposite value
 - **`launchFileWithContext()`** - Calls store action to hide history when user launches a file
 
 **Auto-Hide Behavior**:
+
 - History is hidden when user **explicitly launches a NEW file** via:
   - Clicking file in directory view
   - Clicking file in search results
@@ -138,6 +147,7 @@ This approach ensures:
 - Single coordination point: `launchFileWithContext()` hides history for new launches
 
 **Why This Approach**:
+
 - Avoids toggle race conditions
 - Single coordination method for file launches
 - Context service contains orchestration logic (not store)
@@ -155,8 +165,9 @@ This approach ensures:
 **Status**: ✅ **COMPLETE** - All functionality implemented and tested. All 354 application tests passing.
 
 **Behaviors Implemented:**
+
 1. ✅ Toggle history view visibility
-2. ✅ Auto-hide history when launching new files  
+2. ✅ Auto-hide history when launching new files
 3. ✅ Navigate to specific history position
 
 ---
@@ -165,16 +176,19 @@ This approach ensures:
 
 **Purpose**: Extend player state to track history view visibility.
 
-**Files**: 
+**Files**:
+
 - `libs/application/src/lib/player/player-store.ts`
 - `libs/application/src/lib/player/player-helpers.ts`
 
 **Instructions:**
+
 - [x] Add `historyViewVisible: boolean` property to `DevicePlayerState` interface
 - [x] Update `createDefaultDeviceState()` to initialize `historyViewVisible: false`
 - [x] Verify TypeScript compilation succeeds
 
 **Key Notes:**
+
 - Default to `false` - history view is hidden by default
 - Per-device state maintains multi-device independence
 
@@ -187,6 +201,7 @@ This approach ensures:
 **File**: `libs/application/src/lib/player/actions/update-history-view-visibility.ts`
 
 **Instructions:**
+
 - [x] Create new action file
 - [x] Define `UpdateHistoryViewVisibilityParams` interface with:
   - `deviceId: string`
@@ -210,6 +225,7 @@ This approach ensures:
 **File**: `libs/application/src/lib/player/selectors/is-history-view-visible.ts`
 
 **Instructions:**
+
 - [x] Create new selector file
 - [x] Implement selector function that returns `computed()` signal
 - [x] Return `false` if device player state doesn't exist
@@ -226,10 +242,12 @@ This approach ensures:
 **Purpose**: Add toggle method to context service.
 
 **Files**:
+
 - `libs/application/src/lib/player/player-context.interface.ts`
 - `libs/application/src/lib/player/player-context.service.ts`
 
 **Instructions:**
+
 - [x] Add method signatures to `IPlayerContext` interface:
   - `toggleHistoryView(deviceId: string): void`
   - `isHistoryViewVisible(deviceId: string): Signal<boolean>`
@@ -250,6 +268,7 @@ This approach ensures:
 **File**: `libs/application/src/lib/player/player-context-history.service.spec.ts` ⚠️ **SAME DEDICATED FILE AS PHASE 2**
 
 **Instructions:**
+
 - [x] Add `describe('Phase 3: History View & UI Integration', () => {})` block in dedicated test file
 - [x] Add `describe('History View Visibility')` nested test suite
 - [x] Test 1: Verify history view is hidden by default after player initialization
@@ -259,6 +278,7 @@ This approach ensures:
 - [x] Run tests: `npx nx test application --run --testNamePattern="History View Visibility"`
 
 **Success Criteria:**
+
 - [x] All 4 tests passing
 - [x] No existing tests broken
 
@@ -273,6 +293,7 @@ This approach ensures:
 **File**: `libs/application/src/lib/player/actions/navigate-to-history-position.ts`
 
 **Instructions:**
+
 - [x] Create new action file
 - [x] Define `NavigateToHistoryPositionParams` interface with:
   - `deviceId: string`
@@ -293,6 +314,7 @@ This approach ensures:
 **Pattern Reference**: Similar to `navigateBackwardInHistory` and `navigateForwardInHistory`
 
 **Key Notes:**
+
 - This navigates existing history, does not record new entries
 - Validates bounds to prevent errors
 
@@ -303,10 +325,12 @@ This approach ensures:
 **Purpose**: Add history navigation method to context service.
 
 **Files**:
+
 - `libs/application/src/lib/player/player-context.interface.ts`
 - `libs/application/src/lib/player/player-context.service.ts`
 
 **Instructions:**
+
 - [x] Add method signature to `IPlayerContext`:
   - `navigateToHistoryPosition(deviceId: string, position: number): Promise<void>`
 - [x] Implement in `PlayerContextService`:
@@ -320,6 +344,7 @@ This approach ensures:
 **Pattern Reference**: Follow `next()`/`previous()` history navigation structure
 
 **Key Notes:**
+
 - User is navigating within history, not launching new files
 - History view should remain visible
 
@@ -332,6 +357,7 @@ This approach ensures:
 **File**: `libs/application/src/lib/player/player-context-history.service.spec.ts` ⚠️ **SAME DEDICATED FILE**
 
 **Instructions:**
+
 - [x] Add test to existing "Phase 3: History View & UI Integration" → "History View Visibility" suite
 - [x] Test: Navigating to history position keeps history visible
   - Setup: Initialize player, launch 3 files to build history, toggle history view on
@@ -345,6 +371,7 @@ This approach ensures:
 - [x] Run tests
 
 **Success Criteria:**
+
 - [x] Test passing
 - [x] Previous tests still passing
 
@@ -357,6 +384,7 @@ This approach ensures:
 **File**: `libs/application/src/lib/player/player-context.service.ts`
 
 **Instructions:**
+
 - [x] Locate `launchFileWithContext()` method
 - [x] After `this.store.initializePlayer()` call, add:
   - Call `this.store.updateHistoryViewVisibility()` with `visible: false`
@@ -364,6 +392,7 @@ This approach ensures:
 - [x] Verify placement is BEFORE `this.store.launchFileWithContext()` call
 
 **Key Notes:**
+
 - This captures all explicit new file launches from UI
 - Placement ensures visibility is updated before file loads
 
@@ -376,6 +405,7 @@ This approach ensures:
 **File**: `libs/application/src/lib/player/player-context-history.service.spec.ts` ⚠️ **SAME DEDICATED FILE**
 
 **Instructions:**
+
 - [x] Add test to existing "Phase 3" → "History View Visibility" suite
 - [x] Test: Launching file hides history view
   - Setup: Initialize player, toggle history view on
@@ -385,6 +415,7 @@ This approach ensures:
 - [x] Run all tests in suite
 
 **Success Criteria:**
+
 - [x] All tests passing (now 6 total in Phase 3 suite)
 - [x] No existing tests broken
 
@@ -406,6 +437,7 @@ This approach ensures:
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/play-history/history-entry/history-entry.component.ts`
 
 **Implementation Checklist:**
+
 - [ ] Create component with proper imports
 - [ ] Define inputs:
   - [ ] `entry = input.required<HistoryEntry>()`
@@ -424,6 +456,7 @@ This approach ensures:
   - [ ] `onEntryDoubleClick()` - Emit `entryDoubleClick`
 
 **Key Implementation Details:**
+
 - Create computed signal `fileIcon` that returns appropriate Material icon based on file type
 - Create computed signal `formattedTimestamp` using `toLocaleTimeString()` with 12-hour format
 - Create computed signal `launchModeLabel` that returns readable string ("Directory", "Shuffle", "Search")
@@ -433,6 +466,7 @@ This approach ensures:
 **Pattern Reference**: Follow `file-item.component.ts` structure for icon mapping and formatting
 
 **Key Notes:**
+
 - Follow `file-item.component.ts` pattern closely
 - Use `StorageItemComponent` for consistent styling
 - Include timestamp and launch mode in display
@@ -446,6 +480,7 @@ This approach ensures:
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/play-history/history-entry/history-entry.component.html`
 
 **Implementation Checklist:**
+
 - [ ] Use `lib-storage-item` component
 - [ ] Pass icon, label, selected state
 - [ ] Wire up selection and double-click events
@@ -453,6 +488,7 @@ This approach ensures:
 - [ ] Include visual indicators (badge or icon) for launch mode
 
 **Template Instructions:**
+
 - Use `lib-storage-item` component as wrapper
 - Bind `icon` input to `fileIcon()` computed signal
 - Bind `label` input to `entry().file.name`
@@ -464,6 +500,7 @@ This approach ensures:
 **Pattern Reference**: Follow `file-item.component.html` template structure
 
 **Key Notes:**
+
 - `StorageItemComponent` handles hover, selection, and keyboard navigation
 - Timestamp displayed in actions area (right-aligned)
 - Launch mode can be shown as badge or omitted for simplicity
@@ -477,6 +514,7 @@ This approach ensures:
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/play-history/history-entry/history-entry.component.scss`
 
 **Instructions:**
+
 - [ ] Set `:host` display to `flex`
 - [ ] Set `:host` width to `100%`
 - [ ] Keep styles minimal - most handled by `StorageItemComponent`
@@ -484,6 +522,7 @@ This approach ensures:
 **Pattern Reference**: Follow `file-item.component.scss` minimal host styling
 
 **Key Notes:**
+
 - Most styling handled by `StorageItemComponent`
 - Currently playing highlight applied by parent (play-history component)
 - Keep component styles minimal
@@ -497,38 +536,46 @@ This approach ensures:
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/play-history/history-entry/history-entry.component.spec.ts`
 
 **Test Suite:**
+
 - [ ] Add `describe('HistoryEntryComponent', () => {})` block
 
 **Tests to Implement:**
 
 **Test 1: Displays file information**
+
 - Setup: Provide test history entry
 - Verify: File name, icon, and timestamp rendered
 
 **Test 2: Emits entrySelected on click**
+
 - Setup: Create component with entry
 - Action: Click entry
 - Verify: `entrySelected` event emitted with entry
 
 **Test 3: Emits entryDoubleClick on double-click**
+
 - Setup: Create component with entry
 - Action: Double-click entry
 - Verify: `entryDoubleClick` event emitted with entry
 
 **Test 4: Displays selected state**
+
 - Setup: Set `selected` input to `true`
 - Verify: Component has selected styling
 
 **Test 5: Formats timestamp correctly**
+
 - Setup: Entry with specific timestamp
 - Verify: Displays formatted time (e.g., "3:45 PM")
 
 **Run Tests:**
+
 ```bash
 npx nx test player --run --testNamePattern="HistoryEntryComponent"
 ```
 
 **Success Criteria:**
+
 - [ ] All 5 tests passing
 - [ ] Component follows presentational component testing patterns
 - [ ] No console errors or warnings
@@ -551,6 +598,7 @@ npx nx test player --run --testNamePattern="HistoryEntryComponent"
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/play-history/play-history.component.ts`
 
 **Implementation Checklist:**
+
 - [ ] Create component with proper imports
 - [ ] Define inputs:
   - [ ] `deviceId = input.required<string>()`
@@ -572,6 +620,7 @@ npx nx test player --run --testNamePattern="HistoryEntryComponent"
 - [ ] Add effect for auto-scrolling to currently playing entry (optional, follow search-results pattern)
 
 **Key Implementation Details:**
+
 - Create computed signal `playHistory()` that calls `playerContext.getPlayHistory(deviceId)()`
 - Create computed signal `historyEntries()` that returns `playHistory()?.entries ?? []`
 - Create computed signal `currentFile()` that calls `playerContext.getCurrentFile(deviceId)()`
@@ -583,6 +632,7 @@ npx nx test player --run --testNamePattern="HistoryEntryComponent"
 **Pattern Reference**: Follow `search-results.component.ts` structure closely
 
 **Key Notes:**
+
 - Follow search-results component pattern for consistency
 - Handle empty history with `EmptyStateMessageComponent`
 - Track local selection state with signal
@@ -597,6 +647,7 @@ npx nx test player --run --testNamePattern="HistoryEntryComponent"
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/play-history/play-history.component.html`
 
 **Instructions:**
+
 - [ ] Wrap in div with class `play-history`
 - [ ] Use `lib-scaling-card` with title "Play History"
 - [ ] Bind `animationTrigger` input to component's `animationTrigger()` signal
@@ -614,26 +665,28 @@ npx nx test player --run --testNamePattern="HistoryEntryComponent"
 **Pattern Reference**: Follow `search-results.component.html` template structure
 
 **Key Notes:**
+
 - Empty state shows helpful message with history icon
 - Use data attributes for CSS styling hooks (pulsing-highlight mixin)
 - Pass index to double-click handler for history navigation
 - Reverse chronological order (newest first) by default
-            [attr.data-is-playing]="isCurrentlyPlaying(entry)"
-            [attr.data-has-error]="hasPlayerError() && isCurrentlyPlaying(entry)">
-            <lib-history-entry 
-              [entry]="entry"
-              [selected]="isSelected(entry)"
-              [isCurrentlyPlaying]="isCurrentlyPlaying(entry)"
-              (entrySelected)="onEntrySelected(entry)"
-              (entryDoubleClick)="onEntryDoubleClick(entry, i)">
-            </lib-history-entry>
-          </div>
-        }
-      </div>
-    }
-  </lib-scaling-card>
+[attr.data-is-playing]="isCurrentlyPlaying(entry)"
+[attr.data-has-error]="hasPlayerError() && isCurrentlyPlaying(entry)">
+<lib-history-entry
+[entry]="entry"
+[selected]="isSelected(entry)"
+[isCurrentlyPlaying]="isCurrentlyPlaying(entry)"
+(entrySelected)="onEntrySelected(entry)"
+(entryDoubleClick)="onEntryDoubleClick(entry, i)">
+</lib-history-entry>
 </div>
-```
+}
+</div>
+}
+</lib-scaling-card>
+</div>
+
+````
 
 **Key Notes:**
 - Follow search-results template structure exactly
@@ -660,7 +713,7 @@ npx nx test player --run --testNamePattern="HistoryEntryComponent"
     - Include `pulsing-highlight` mixin with error color
     - Add negative left margin and padding adjustments
   - Use attribute selector `[data-is-playing="true"]` for normal playing state
-    - Include `pulsing-highlight` mixin with highlight color  
+    - Include `pulsing-highlight` mixin with highlight color
     - Add negative left margin and padding adjustments
 
 **Pattern Reference**: Copy `search-results.component.scss` styles exactly for consistency
@@ -716,9 +769,10 @@ npx nx test player --run --testNamePattern="HistoryEntryComponent"
 **Run Tests:**
 ```bash
 npx nx test player --run --testNamePattern="PlayHistoryComponent"
-```
+````
 
 **Success Criteria:**
+
 - [ ] All 6 tests passing
 - [ ] Tests use mocked `IPlayerContext` interface
 - [ ] No console errors or warnings
@@ -741,9 +795,10 @@ npx nx test player --run --testNamePattern="PlayHistoryComponent"
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-trail/directory-navigate/directory-navigate.component.ts`
 
 **Implementation Checklist:**
+
 - [ ] Add input property:
   - [ ] `historyViewVisible = input<boolean>(false)`
-**Implementation Checklist:**
+        **Implementation Checklist:**
 - [ ] Add input signal:
   - [ ] `historyViewVisible = input<boolean>(false)` - Required input
 - [ ] Add output event:
@@ -754,6 +809,7 @@ npx nx test player --run --testNamePattern="PlayHistoryComponent"
 **Pattern Reference**: Follow existing button pattern (back, forward, up, refresh)
 
 **Key Notes:**
+
 - Input uses signal-based `input()` function, not decorator
 - Output uses `output<void>()` function for Angular 19
 - Handler emits event with no payload (void)
@@ -767,6 +823,7 @@ npx nx test player --run --testNamePattern="PlayHistoryComponent"
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-trail/directory-navigate/directory-navigate.component.html`
 
 **Implementation Checklist:**
+
 - [ ] Add `lib-icon-button` for history toggle
 - [ ] Use `history` icon
 - [ ] Set `ariaLabel` to "Toggle History"
@@ -775,14 +832,16 @@ npx nx test player --run --testNamePattern="PlayHistoryComponent"
 - [ ] Wire up `(buttonClick)` to handler
 
 **Instructions:**
+
 - [ ] Add button using `lib-icon-button` component
 - [ ] Set icon to `history`
-- [ ] Set ariaLabel to "Toggle History"  
+- [ ] Set ariaLabel to "Toggle History"
 - [ ] Set size to "large"
 - [ ] Bind color input: Use ternary to show 'highlight' when visible, 'normal' otherwise
 - [ ] Bind `buttonClick` event to `onHistoryToggleClick()` handler
 
 **Key Notes:**
+
 - Place button logically in button row (suggest: after refresh button)
 - Highlight button when history view is visible for visual feedback
 - Icon: `history` or `schedule` are good Material icon options
@@ -796,6 +855,7 @@ npx nx test player --run --testNamePattern="PlayHistoryComponent"
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-trail/directory-trail.component.ts`
 
 **Instructions:**
+
 - [ ] Inject `IPlayerContext` as private readonly property
 - [ ] Add computed signal `historyViewVisible` that calls `playerContext.isHistoryViewVisible(deviceId)()`
 - [ ] Add event handler method `onHistoryToggleClick()` that calls `playerContext.toggleHistoryView(deviceId)`
@@ -811,6 +871,7 @@ npx nx test player --run --testNamePattern="PlayHistoryComponent"
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-trail/directory-trail.component.html`
 
 **Instructions:**
+
 - [ ] Add `[historyViewVisible]` input binding to `lib-directory-navigate`
 - [ ] Bind it to `historyViewVisible()` computed signal
 - [ ] Add `(historyToggleClicked)` output binding
@@ -829,24 +890,29 @@ npx nx test player --run --testNamePattern="PlayHistoryComponent"
 **Tests to Add:**
 
 **Test 1: History toggle button visible**
+
 - Setup: Render component
 - Verify: History toggle button exists in DOM
 
 **Test 2: History toggle button highlighted when visible**
+
 - Setup: Mock history view visible = true
 - Verify: Button has highlight color
 
 **Test 3: Clicking history toggle calls playerContext**
+
 - Setup: Mock player context
 - Action: Click history toggle button
 - Verify: `toggleHistoryView()` called with correct deviceId
 
 **Run Tests:**
+
 ```bash
 npx nx test player --run --testNamePattern="DirectoryTrailComponent"
 ```
 
 **Success Criteria:**
+
 - [x] All 4 new tests passing (added 4 tests instead of 3 for better coverage)
 - [x] Existing directory trail tests still passing (35 total tests passing)
 
@@ -868,6 +934,7 @@ npx nx test player --run --testNamePattern="DirectoryTrailComponent"
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/storage-container.component.ts`
 
 **Implementation Checklist:**
+
 - [ ] Import `PlayHistoryComponent` in component
 - [ ] Add `PlayHistoryComponent` to imports array
 - [ ] Inject `IPlayerContext` service using `inject(PLAYER_CONTEXT)`
@@ -881,11 +948,13 @@ npx nx test player --run --testNamePattern="DirectoryTrailComponent"
 **Pattern Reference**: Follow search-results integration in this component (already implemented)
 
 **View Priority Logic:**
+
 1. **Search Active** → Show search results (highest priority)
 2. **History Toggle On + Has Entries** → Show play history
 3. **Default** → Show directory files
 
 **Key Notes:**
+
 - All three computed signals read from existing player context methods
 - View switching is mutually exclusive based on computed signal values
 - Search always takes priority over history
@@ -899,12 +968,14 @@ npx nx test player --run --testNamePattern="DirectoryTrailComponent"
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/storage-container.component.html`
 
 **Implementation Checklist:**
+
 - [ ] Add `lib-play-history` component in right-container
 - [ ] Pass `deviceId` and `animationTrigger` inputs
 - [ ] Set `animationTrigger` based on `shouldShowHistory()` signal
 - [ ] Update directory-files `animationTrigger` to hide when history or search shown
 
 **Template Instructions:**
+
 - [ ] Add third view component for play-history
 - [ ] Use `lib-play-history` component with required inputs
 - [ ] Set `animationTrigger` input to `shouldShowHistory()` computed signal
@@ -912,6 +983,7 @@ npx nx test player --run --testNamePattern="DirectoryTrailComponent"
 - [ ] Update directory-files `animationTrigger` to exclude history: `!hasActiveSearch() && !shouldShowHistory()`
 
 **View Priority Order** (highest to lowest):
+
 1. Search results (when `hasActiveSearch()` is true)
 2. Play history (when `shouldShowHistory()` is true)
 3. Directory files (default fallback)
@@ -919,6 +991,7 @@ npx nx test player --run --testNamePattern="DirectoryTrailComponent"
 **Pattern Reference**: Follow search-results integration pattern
 
 **Key Notes:**
+
 - Animation triggers are mutually exclusive
 - Search has highest priority (if active, others are hidden)
 - History shows when toggle is on AND not searching
@@ -935,30 +1008,37 @@ npx nx test player --run --testNamePattern="DirectoryTrailComponent"
 **Tests to Add:**
 
 **Test 1: Shows directory files by default**
+
 - Setup: No search, history toggle off
 - Verify: Directory files visible, history hidden
 
 **Test 2: Shows history when toggled on**
+
 - Setup: Mock history toggle on, has history entries
 - Verify: History visible, directory files hidden
 
 **Test 3: Shows search results over history**
+
 - Setup: History toggle on, search active
 - Verify: Search results visible, history hidden
 
 **Test 4: Hides history when no entries**
+
 - Setup: History toggle on, but no history entries exist
 - Verify: History hidden (empty), directory files shown
 
 **Test 5: View priority order**
+
 - Verify: Search > History > Directory Files
 
 **Run Tests:**
+
 ```bash
 npx nx test player --run --testNamePattern="StorageContainerComponent"
 ```
 
 **Success Criteria:**
+
 - [x] All 5 new tests passing (6 tests total including 'should create')
 - [x] Existing storage container tests still passing (all 6 passing)
 - [x] View switching logic validated
@@ -981,6 +1061,7 @@ npx nx test player --run --testNamePattern="StorageContainerComponent"
 **Tests to Implement:**
 
 **Integration Test 1: Toggle history view workflow**
+
 - Action: Launch files in shuffle mode
 - Action: Toggle history view on
 - Verify: History component displays with entries
@@ -988,6 +1069,7 @@ npx nx test player --run --testNamePattern="StorageContainerComponent"
 - Verify: Directory files component displays
 
 **Integration Test 2: Search hides history**
+
 - Setup: Toggle history view on
 - Action: Perform search
 - Verify: Search results visible, history hidden
@@ -995,20 +1077,24 @@ npx nx test player --run --testNamePattern="StorageContainerComponent"
 - Verify: History visible again
 
 **Integration Test 3: Currently playing file highlighted**
+
 - Setup: Launch multiple files, toggle history view on
 - Verify: Currently playing file has pulsing highlight
 
 **Integration Test 4: Launch file from history**
+
 - Setup: Build history with multiple files
 - Action: Double-click old history entry
 - Verify: File launches, becomes current file
 
 **Integration Test 5: Multi-device independence**
+
 - Setup: Two devices with different histories
 - Action: Toggle history on for device A
 - Verify: Only device A history visible, device B unaffected
 
 **Run Tests:**
+
 ```bash
 npx nx test player --run --testNamePattern="Play History Integration"
 ```
@@ -1023,28 +1109,23 @@ npx nx test player --run --testNamePattern="Play History Integration"
   - [ ] History button appears in directory trail
   - [ ] Clicking button toggles history view on/off
   - [ ] Button highlights when history is visible
-  
 - [ ] **History Display**
   - [ ] Empty state shows when no history
   - [ ] History entries display with file info and timestamps
   - [ ] Timestamps show absolute times (e.g., "3:45 PM")
   - [ ] Currently playing file has pulsing highlight
-  
 - [ ] **File Launching**
   - [ ] Single-click selects history entry
   - [ ] Double-click launches file from history
   - [ ] Launched file becomes currently playing
-  
 - [ ] **View Switching**
   - [ ] Search hides history, shows search results
   - [ ] Clearing search shows history again (if toggle was on)
   - [ ] Directory navigation works independently
-  
 - [ ] **Animations**
   - [ ] History component animates in/out smoothly
   - [ ] No visual glitches during view switching
   - [ ] Pulsing highlight animates properly
-  
 - [ ] **Multi-Device**
   - [ ] Each device has independent history view toggle
   - [ ] Toggling one device doesn't affect others
@@ -1056,6 +1137,7 @@ npx nx test player --run --testNamePattern="Play History Integration"
 ## 🗂️ Files Modified or Created
 
 **New Files:**
+
 ```
 libs/application/src/lib/player/
 ├── actions/
@@ -1078,6 +1160,7 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
 ```
 
 **Modified Files:**
+
 ```
 libs/application/src/lib/player/
 ├── player-store.ts                              📝 Modified - Add historyViewVisible
@@ -1114,11 +1197,13 @@ libs/features/player/src/lib/player-view/player-device-container/storage-contain
 ### Background
 
 The `fileIcon` computed signal logic is currently duplicated across three components:
+
 1. `file-item.component.ts` (directory files)
 2. `search-results.component.ts` (uses `FileItemComponent`, which has the logic)
 3. `history-entry.component.ts` (play history entries)
 
 All three use identical switch logic mapping `FileItemType` to Material icons:
+
 ```typescript
 readonly fileIcon = computed(() => {
   switch (this.entry().file.type) {
@@ -1139,17 +1224,20 @@ readonly fileIcon = computed(() => {
 **Options:**
 
 **Option A: Domain Layer** (`libs/domain/src/lib/utils/file-icon.util.ts`)
+
 - **Pros**: Icon mapping is domain knowledge - file types have canonical icons
 - **Pros**: Available to all layers (domain, application, features)
 - **Cons**: Couples domain to Material Icons (could be abstracted further)
 
 **Option B: UI Layer** (`libs/ui/utils/src/lib/file-icon.util.ts`)
+
 - **Pros**: Icon mapping is presentation concern
 - **Pros**: Keeps Material Icons dependency at UI layer
 - **Cons**: Less discoverable for feature components
 - **Cons**: Creates dependency from features → ui/utils
 
 **Option C: Utils Layer** (`libs/utils/src/lib/file-icon.util.ts`)
+
 - **Pros**: Shared utility layer, clear location
 - **Cons**: Not semantic - utils should be low-level helpers
 - **Cons**: May not be the right home for domain-specific mapping
@@ -1165,12 +1253,13 @@ readonly fileIcon = computed(() => {
 **File**: TBD based on decision above (e.g., `libs/domain/src/lib/utils/file-icon.util.ts`)
 
 **Implementation:**
+
 ```typescript
 import { FileItemType } from '../models/file-item-type.enum';
 
 /**
  * Maps FileItemType to Material Icon name.
- * 
+ *
  * @param type - The file item type to map
  * @returns Material icon name for the file type
  */
@@ -1194,6 +1283,7 @@ export function getFileIcon(type: FileItemType): string {
 **Step 6.2: Update FileItemComponent**
 
 Replace computed signal with utility call:
+
 ```typescript
 readonly fileIcon = computed(() => getFileIcon(this.fileItem().type));
 ```
@@ -1201,6 +1291,7 @@ readonly fileIcon = computed(() => getFileIcon(this.fileItem().type));
 **Step 6.3: Update HistoryEntryComponent**
 
 Replace computed signal with utility call:
+
 ```typescript
 readonly fileIcon = computed(() => getFileIcon(this.entry().file.type));
 ```
@@ -1208,16 +1299,17 @@ readonly fileIcon = computed(() => getFileIcon(this.entry().file.type));
 **Step 6.4: Add Tests**
 
 Create `file-icon.util.spec.ts` with tests for all file types:
+
 ```typescript
 describe('getFileIcon', () => {
   it('should return music_note for Song type', () => {
     expect(getFileIcon(FileItemType.Song)).toBe('music_note');
   });
-  
+
   it('should return sports_esports for Game type', () => {
     expect(getFileIcon(FileItemType.Game)).toBe('sports_esports');
   });
-  
+
   // ... etc for all types
 });
 ```
@@ -1260,6 +1352,7 @@ Currently, `search-results.component.ts` directly uses `FileItemComponent` to re
 - **Search Results**: `search-results.component.ts` → **directly uses `FileItemComponent`** ⚠️
 
 Creating `SearchResultItemComponent` will:
+
 1. Maintain pattern consistency across all file list views
 2. Allow search-specific presentation customization in the future
 3. Provide clear component hierarchy and separation of concerns
@@ -1273,6 +1366,7 @@ Creating `SearchResultItemComponent` will:
 **File**: `libs/features/player/src/lib/player-view/player-device-container/storage-container/search-results/search-result-item/search-result-item.component.ts`
 
 **Implementation:**
+
 ```typescript
 import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -1336,8 +1430,7 @@ export class SearchResultItemComponent {
   (selectedChange)="onItemClick()"
   (activated)="onItemDoubleClick()"
 >
-  <lib-storage-item-actions [label]="formattedSize()">
-  </lib-storage-item-actions>
+  <lib-storage-item-actions [label]="formattedSize()"> </lib-storage-item-actions>
 </lib-storage-item>
 ```
 
@@ -1370,20 +1463,20 @@ import { SearchResultItemComponent } from './search-result-item/search-result-it
 ```html
 <!-- In search-results.component.html -->
 @for (file of searchResults(); track file.path) {
-  <div 
-    class="file-list-item"
-    [attr.data-item-path]="file.path"
-    [attr.data-is-playing]="isCurrentlyPlaying(file)"
-    [attr.data-has-error]="hasPlayerError() && isCurrentlyPlaying(file)"
-  >
-    <lib-search-result-item
-      [fileItem]="file"
-      [selected]="isSelected(file)"
-      [isCurrentlyPlaying]="isCurrentlyPlaying(file)"
-      (itemSelected)="onFileSelected(file)"
-      (itemDoubleClick)="onFileDoubleClick(file)"
-    />
-  </div>
+<div
+  class="file-list-item"
+  [attr.data-item-path]="file.path"
+  [attr.data-is-playing]="isCurrentlyPlaying(file)"
+  [attr.data-has-error]="hasPlayerError() && isCurrentlyPlaying(file)"
+>
+  <lib-search-result-item
+    [fileItem]="file"
+    [selected]="isSelected(file)"
+    [isCurrentlyPlaying]="isCurrentlyPlaying(file)"
+    (itemSelected)="onFileSelected(file)"
+    (itemDoubleClick)="onFileDoubleClick(file)"
+  />
+</div>
 }
 ```
 
@@ -1392,6 +1485,7 @@ import { SearchResultItemComponent } from './search-result-item/search-result-it
 **File**: `search-result-item.component.spec.ts`
 
 Follow the same test pattern as `history-entry.component.spec.ts` and `file-item.component.spec.ts`:
+
 - Component creation
 - File name display
 - Icon mapping for all types
@@ -1436,9 +1530,10 @@ Update `search-results.component.spec.ts` to reflect new component usage (if nee
 ## ✅ Success Criteria
 
 **Functional Requirements:**
+
 - [x] ~~Task 1: History view visibility state management complete~~ ✅ DONE
 - [ ] Task 2: History entry component created
-- [ ] Task 3: Play history component created  
+- [ ] Task 3: Play history component created
 - [ ] Task 4: History toggle button added to directory trail
 - [ ] Task 5: Integration into storage container complete
 - [ ] Task 6: File icon utility refactored (optional cleanup)
@@ -1453,6 +1548,7 @@ Update `search-results.component.spec.ts` to reflect new component usage (if nee
 - [ ] Multi-device support with independent history views
 
 **Testing Requirements:**
+
 - [x] ~~Task 1 tests: Phase 3 visibility tests passing~~ ✅ 6/6 tests passing
 - [ ] Task 2 tests: History entry component tests passing
 - [ ] Task 3 tests: Play history component tests passing
@@ -1466,6 +1562,7 @@ Update `search-results.component.spec.ts` to reflect new component usage (if nee
 - [ ] Manual testing checklist completed
 
 **Quality Checks:**
+
 - [ ] No TypeScript errors or warnings
 - [ ] Linting passes with no errors
 - [ ] Code formatting is consistent
@@ -1474,11 +1571,13 @@ Update `search-results.component.spec.ts` to reflect new component usage (if nee
 - [ ] Component styles match existing design system
 
 **Documentation:**
+
 - [ ] Inline code comments for complex logic
 - [ ] Component JSDoc comments added
 - [ ] Update COMPONENT_LIBRARY.md if needed
 
 **Ready for Production:**
+
 - [ ] All success criteria met
 - [ ] No known bugs or issues
 - [ ] Feature works across all supported devices
@@ -1521,10 +1620,12 @@ Update `search-results.component.spec.ts` to reflect new component usage (if nee
 ## 💡 Open Questions for Phase 3
 
 **Resolved:**
+
 1. ✅ **Timestamp Display**: Absolute times (e.g., "3:45 PM")
 2. ✅ **History View Default**: Hidden by default, toggle on to show
 3. ✅ **Component Pattern**: Follow search-results.component.ts structure
 4. ✅ **Animation Timing**: Use default ScalingCard animations (no custom duration needed)
 
 **New Questions:**
+
 - None at this time - all questions resolved during planning discussion

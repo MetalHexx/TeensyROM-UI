@@ -2,11 +2,11 @@ import { ResponseError, ProblemDetails } from '@teensyrom-nx/data-access/api-cli
 
 /**
  * Extracts a user-friendly error message from an API response.
- * 
+ *
  * Attempts to parse the response body as ProblemDetails and extract the title,
  * which is the user-friendly error message from the API.
  * Falls back to the generic error message if parsing fails.
- * 
+ *
  * @param error - The error thrown by the API client
  * @param fallbackMessage - The fallback message to use if extraction fails
  * @returns A user-friendly error message
@@ -20,22 +20,25 @@ export async function extractErrorMessage(
     try {
       const contentType = error.response.headers.get('content-type') || '';
       console.log('🔍 Error response content-type:', contentType);
-      
+
       // Only attempt to parse JSON responses
-      if (contentType.includes('application/json') || contentType.includes('application/problem+json')) {
+      if (
+        contentType.includes('application/json') ||
+        contentType.includes('application/problem+json')
+      ) {
         const bodyText = await error.response.clone().text();
         console.log('🔍 Error response body:', bodyText);
-        
+
         if (bodyText) {
           const problemDetails = JSON.parse(bodyText) as ProblemDetails;
           console.log('🔍 Parsed ProblemDetails:', problemDetails);
-          
+
           // ProblemDetails title is the user-friendly message
           if (problemDetails.title) {
             console.log('✅ Using ProblemDetails.title:', problemDetails.title);
             return problemDetails.title;
           }
-          
+
           // Fall back to detail if title is not available
           if (problemDetails.detail) {
             console.log('✅ Using ProblemDetails.detail:', problemDetails.detail);

@@ -24,9 +24,7 @@ interface TimerState {
 }
 
 // Test data factory functions
-const createTestFileItem = (
-  overrides: Partial<FileItem> = {}
-): FileItem => ({
+const createTestFileItem = (overrides: Partial<FileItem> = {}): FileItem => ({
   name: 'test-file.sid',
   path: '/music/test-file.sid',
   size: 4096,
@@ -78,9 +76,12 @@ describe('PlayerContextService', () => {
 
   // Helper to wait for async operations
   const nextTick = () => new Promise<void>((r) => setTimeout(r, 0));
-  
+
   // Helper to wait for timer state to be available
-  const waitForTimerState = async (deviceId: string, maxAttempts = 50): Promise<TimerState | null> => {
+  const waitForTimerState = async (
+    deviceId: string,
+    maxAttempts = 50
+  ): Promise<TimerState | null> => {
     for (let i = 0; i < maxAttempts; i++) {
       await nextTick();
       const state = service.getTimerState(deviceId)();
@@ -135,7 +136,7 @@ describe('PlayerContextService', () => {
       // Verify player was initialized via signal getter
       const currentFile = service.getCurrentFile(deviceId);
       expect(currentFile()).toBeNull();
-      
+
       const status = service.getStatus(deviceId);
       expect(status()).toBe(PlayerStatus.Stopped);
     });
@@ -231,7 +232,7 @@ describe('PlayerContextService', () => {
       // Verify error state
       expect(service.getError(deviceId)()).toBeTruthy();
       expect(service.isLoading(deviceId)()).toBe(false);
-      
+
       // Task 10: currentFile should be set even on error so UI can show which file failed
       const currentFile = service.getCurrentFile(deviceId)();
       expect(currentFile).not.toBeNull();
@@ -262,14 +263,14 @@ describe('PlayerContextService', () => {
       const loadingPromise = new Promise<void>((resolve) => {
         triggerResolve = resolve;
       });
-      
+
       const delayedObservable = new Observable<FileItem>((subscriber) => {
         loadingPromise.then(() => {
           subscriber.next(testFile);
           subscriber.complete();
         });
       });
-      
+
       mockPlayerService.launchFile.mockReturnValue(delayedObservable);
 
       // Start launch (don't await yet)
@@ -298,7 +299,10 @@ describe('PlayerContextService', () => {
 
   describe('Phase 2: Random File Launching & Shuffle Mode', () => {
     const deviceId = 'device-456';
-    const randomFile = createTestFileItem({ name: 'random-song.sid', path: '/games/random-song.sid' });
+    const randomFile = createTestFileItem({
+      name: 'random-song.sid',
+      path: '/games/random-song.sid',
+    });
 
     beforeEach(() => {
       service.initializePlayer(deviceId);
@@ -455,12 +459,12 @@ describe('PlayerContextService', () => {
           directoryPath: '/music',
           files: [musicFile],
         });
-        
+
         // Stop the player
         mockDeviceService.resetDevice.mockReturnValue(of(undefined));
         await service.stop(deviceId);
         expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Stopped);
-        
+
         // Now test play
         mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
         await service.play(deviceId);
@@ -481,12 +485,12 @@ describe('PlayerContextService', () => {
           directoryPath: '/music',
           files: [musicFile],
         });
-        
+
         // Pause it first
         mockPlayerService.toggleMusic.mockReturnValue(of(undefined));
         await service.pause(deviceId);
         expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Paused);
-        
+
         // Now test play
         await service.play(deviceId);
         await nextTick();
@@ -530,15 +534,15 @@ describe('PlayerContextService', () => {
           directoryPath: '/music',
           files: [musicFile],
         });
-        
+
         // Stop the player so we can test play() when not playing
         mockDeviceService.resetDevice.mockReturnValue(of(undefined));
         await service.stop(deviceId);
         expect(service.getPlayerStatus(deviceId)()).toBe(PlayerStatus.Stopped);
-        
+
         // Clear any previous state and setup mock for error
         await nextTick();
-        
+
         // Now test play with API error
         const error = new Error('Play failed');
         mockPlayerService.toggleMusic.mockReturnValue(throwError(() => error));
@@ -628,13 +632,15 @@ describe('PlayerContextService', () => {
     describe('Incompatible File Playback Prevention', () => {
       it('should prevent play() when current file is incompatible', async () => {
         // Launch an incompatible file
-        const incompatibleFile = createTestFileItem({ 
-          name: 'incompatible.sid', 
+        const incompatibleFile = createTestFileItem({
+          name: 'incompatible.sid',
           path: '/music/incompatible.sid',
-          isCompatible: false 
+          isCompatible: false,
         });
-        
-        mockPlayerService.launchFile.mockReturnValue(throwError(() => new Error('Incompatible file')));
+
+        mockPlayerService.launchFile.mockReturnValue(
+          throwError(() => new Error('Incompatible file'))
+        );
         await service.launchFileWithContext({
           deviceId,
           storageType: StorageType.Sd,
@@ -657,13 +663,15 @@ describe('PlayerContextService', () => {
 
       it('should prevent pause() when current file is incompatible', async () => {
         // Launch an incompatible file
-        const incompatibleFile = createTestFileItem({ 
-          name: 'incompatible.sid', 
+        const incompatibleFile = createTestFileItem({
+          name: 'incompatible.sid',
           path: '/music/incompatible.sid',
-          isCompatible: false 
+          isCompatible: false,
         });
-        
-        mockPlayerService.launchFile.mockReturnValue(throwError(() => new Error('Incompatible file')));
+
+        mockPlayerService.launchFile.mockReturnValue(
+          throwError(() => new Error('Incompatible file'))
+        );
         await service.launchFileWithContext({
           deviceId,
           storageType: StorageType.Sd,
@@ -686,13 +694,15 @@ describe('PlayerContextService', () => {
 
       it('should allow stop() even when current file is incompatible', async () => {
         // Launch an incompatible file
-        const incompatibleFile = createTestFileItem({ 
-          name: 'incompatible.sid', 
+        const incompatibleFile = createTestFileItem({
+          name: 'incompatible.sid',
           path: '/music/incompatible.sid',
-          isCompatible: false 
+          isCompatible: false,
         });
-        
-        mockPlayerService.launchFile.mockReturnValue(throwError(() => new Error('Incompatible file')));
+
+        mockPlayerService.launchFile.mockReturnValue(
+          throwError(() => new Error('Incompatible file'))
+        );
         await service.launchFileWithContext({
           deviceId,
           storageType: StorageType.Sd,
@@ -714,17 +724,17 @@ describe('PlayerContextService', () => {
       });
     });
 
-
     describe('Stop Control', () => {
-    it('should reset device for stop operation', async () => {
-      mockDeviceService.resetDevice.mockReturnValue(of(undefined));
+      it('should reset device for stop operation', async () => {
+        mockDeviceService.resetDevice.mockReturnValue(of(undefined));
 
-      await service.stop(deviceId);
-      await nextTick();
+        await service.stop(deviceId);
+        await nextTick();
 
-      expect(mockDeviceService.resetDevice).toHaveBeenCalledWith(deviceId);
-      expect(service.getError(deviceId)()).toBeNull();
-    });      it('should handle reset device API error', async () => {
+        expect(mockDeviceService.resetDevice).toHaveBeenCalledWith(deviceId);
+        expect(service.getError(deviceId)()).toBeNull();
+      });
+      it('should handle reset device API error', async () => {
         const error = new Error('Device reset failed');
         mockDeviceService.resetDevice.mockReturnValue(throwError(() => error));
 
@@ -743,7 +753,7 @@ describe('PlayerContextService', () => {
 
     beforeEach(async () => {
       service.initializePlayer(deviceId);
-      
+
       // Setup initial context with file1 as current
       mockPlayerService.launchFile.mockReturnValue(of(file1));
       await service.launchFileWithContext({
@@ -836,7 +846,7 @@ describe('PlayerContextService', () => {
       beforeEach(() => {
         // Clear any history from parent beforeEach to test pure shuffle behavior
         service.clearHistory(deviceId);
-        
+
         // Switch to shuffle mode
         service.toggleShuffleMode(deviceId);
       });
@@ -849,7 +859,7 @@ describe('PlayerContextService', () => {
         await nextTick();
 
         expect(mockPlayerService.launchRandom).toHaveBeenCalled();
-        
+
         const currentFile = service.getCurrentFile(deviceId)();
         expect(currentFile?.file).toEqual(randomFile);
         expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Shuffle);
@@ -863,7 +873,7 @@ describe('PlayerContextService', () => {
         await nextTick();
 
         expect(mockPlayerService.launchRandom).toHaveBeenCalled();
-        
+
         const currentFile = service.getCurrentFile(deviceId)();
         expect(currentFile?.file).toEqual(randomFile);
         expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Shuffle);
@@ -880,7 +890,7 @@ describe('PlayerContextService', () => {
         mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
         mockStorageStore.navigateToDirectory.mockResolvedValue(undefined);
         mockStorageStore.getSelectedDirectoryState.mockReturnValue(() => ({
-          directory: { files: directoryFiles }
+          directory: { files: directoryFiles },
         }));
 
         await service.next(deviceId);
@@ -893,7 +903,7 @@ describe('PlayerContextService', () => {
         expect(mockStorageStore.navigateToDirectory).toHaveBeenCalledWith({
           deviceId,
           storageType: StorageType.Sd,
-          path: '/music'
+          path: '/music',
         });
 
         // Should have loaded file context with the directory files
@@ -912,7 +922,7 @@ describe('PlayerContextService', () => {
         mockPlayerService.launchRandom.mockReturnValue(of(randomFile));
         mockStorageStore.navigateToDirectory.mockResolvedValue(undefined);
         mockStorageStore.getSelectedDirectoryState.mockReturnValue(() => ({
-          directory: { files: directoryFiles }
+          directory: { files: directoryFiles },
         }));
 
         await service.previous(deviceId);
@@ -925,7 +935,7 @@ describe('PlayerContextService', () => {
         expect(mockStorageStore.navigateToDirectory).toHaveBeenCalledWith({
           deviceId,
           storageType: StorageType.Sd,
-          path: '/sounds'
+          path: '/sounds',
         });
 
         // Should have loaded file context with the directory files
@@ -945,7 +955,7 @@ describe('PlayerContextService', () => {
 
         // Should still launch random file
         expect(mockPlayerService.launchRandom).toHaveBeenCalled();
-        
+
         const currentFile = service.getCurrentFile(deviceId)();
         expect(currentFile?.file).toEqual(randomFile);
 
@@ -1009,7 +1019,7 @@ describe('PlayerContextService', () => {
     it('should return consistent values from getStatus and getPlayerStatus', () => {
       const status1 = service.getStatus(deviceId)();
       const status2 = service.getPlayerStatus(deviceId)();
-      
+
       expect(status1).toBe(status2);
       expect(status1).toBe(PlayerStatus.Stopped); // Initial state
     });
@@ -1173,7 +1183,7 @@ describe('PlayerContextService', () => {
       const loadingPromise = new Promise<void>((resolve) => {
         triggerResolve = resolve;
       });
-      
+
       const delayedObservable = new Observable<FileItem>((subscriber) => {
         loadingPromise.then(() => {
           subscriber.next(testFile);
@@ -1243,7 +1253,7 @@ describe('PlayerContextService', () => {
 
     beforeEach(() => {
       service.initializePlayer(testDeviceId);
-      
+
       // Ensure all mocks are properly set up for state transition tests
       mockPlayerService.launchFile = vi.fn().mockReturnValue(of(createTestFileItem()));
       mockPlayerService.toggleMusic = vi.fn().mockReturnValue(of(undefined));
@@ -1458,10 +1468,12 @@ describe('PlayerContextService', () => {
         expect(service.getPlayerStatus(testDeviceId)()).toBe(PlayerStatus.Playing);
 
         // Simulate API failure for pause
-        mockPlayerService.toggleMusic = vi.fn().mockReturnValue(throwError(() => new Error('API Error')));
+        mockPlayerService.toggleMusic = vi
+          .fn()
+          .mockReturnValue(throwError(() => new Error('API Error')));
 
         await service.pause(testDeviceId);
-        
+
         // Should handle error gracefully and maintain consistent state
         const status = service.getPlayerStatus(testDeviceId)();
         expect([PlayerStatus.Playing, PlayerStatus.Paused, PlayerStatus.Stopped]).toContain(status);
@@ -1682,12 +1694,10 @@ describe('PlayerContextService', () => {
         const timerState = service.getTimerState(deviceId)();
         expect(timerState).not.toBeNull();
         expect(timerState?.totalTime).toBe(180000); // 3 minutes default
-        
+
         // Should log warning about invalid playLength
-        expect(warnSpy).toHaveBeenCalledWith(
-          expect.stringContaining('invalid playLength format')
-        );
-        
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('invalid playLength format'));
+
         warnSpy.mockRestore();
       });
 
@@ -1714,12 +1724,10 @@ describe('PlayerContextService', () => {
         const timerState = service.getTimerState(deviceId)();
         expect(timerState).not.toBeNull();
         expect(timerState?.totalTime).toBe(180000); // 3 minutes default
-        
+
         // Should log warning about empty playLength
-        expect(warnSpy).toHaveBeenCalledWith(
-          expect.stringContaining('empty playLength')
-        );
-        
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('empty playLength'));
+
         warnSpy.mockRestore();
       });
 
@@ -2066,7 +2074,7 @@ describe('PlayerContextService', () => {
         });
 
         mockPlayerService.launchFile
-          .mockReturnValueOnce(of(musicFile1))  // Initial launch
+          .mockReturnValueOnce(of(musicFile1)) // Initial launch
           .mockReturnValueOnce(of(musicFile2)); // Auto-progression
 
         mockStorageStore.getSelectedDirectoryState.mockReturnValue(() => ({
@@ -2271,9 +2279,7 @@ describe('PlayerContextService', () => {
         });
 
         // Mock service to throw error
-        mockPlayerService.launchFile.mockReturnValue(
-          throwError(() => new Error('Launch failed'))
-        );
+        mockPlayerService.launchFile.mockReturnValue(throwError(() => new Error('Launch failed')));
 
         // Attempt to launch file (will set error state, not throw)
         await service.launchFileWithContext({
@@ -2316,13 +2322,13 @@ describe('PlayerContextService', () => {
 
         // Attempt to launch random file (will fail but won't throw - handles internally)
         await service.launchRandomFile(deviceId);
-        
+
         await nextTick();
 
         // Timer state should be null (no timer created)
         const timerState = service.getTimerState(deviceId)();
         expect(timerState).toBeNull();
-        
+
         // Player should be in error state
         const error = service.getError(deviceId)();
         expect(error).toBeTruthy();
@@ -2343,9 +2349,7 @@ describe('PlayerContextService', () => {
         // First launch succeeds
         mockPlayerService.launchFile
           .mockReturnValueOnce(of(musicFile1))
-          .mockReturnValueOnce(
-            throwError(() => new Error('Next launch failed'))
-          );
+          .mockReturnValueOnce(throwError(() => new Error('Next launch failed')));
 
         await service.launchFileWithContext({
           deviceId,
@@ -2361,7 +2365,7 @@ describe('PlayerContextService', () => {
 
         // Attempt next (will fail but won't throw - handles internally)
         await service.next(deviceId);
-        
+
         await nextTick();
 
         // Timer state should still be from first file (not updated for failed file)
@@ -2369,7 +2373,7 @@ describe('PlayerContextService', () => {
         if (timerState) {
           expect(timerState.totalTime).toBe(firstTimerTotalTime);
         }
-        
+
         // Player should be in error state
         const error = service.getError(deviceId)();
         expect(error).toBeTruthy();
@@ -2390,9 +2394,7 @@ describe('PlayerContextService', () => {
         // First launch succeeds
         mockPlayerService.launchFile
           .mockReturnValueOnce(of(musicFile1))
-          .mockReturnValueOnce(
-            throwError(() => new Error('Previous launch failed'))
-          );
+          .mockReturnValueOnce(throwError(() => new Error('Previous launch failed')));
 
         await service.launchFileWithContext({
           deviceId,
@@ -2408,7 +2410,7 @@ describe('PlayerContextService', () => {
 
         // Attempt previous (will fail but won't throw - handles internally)
         await service.previous(deviceId);
-        
+
         await nextTick();
 
         // Timer state should still be from first file (not updated for failed file)
@@ -2416,7 +2418,7 @@ describe('PlayerContextService', () => {
         if (timerState) {
           expect(timerState.totalTime).toBe(firstTimerTotalTime);
         }
-        
+
         // Player should be in error state
         const error = service.getError(deviceId)();
         expect(error).toBeTruthy();
@@ -2508,9 +2510,7 @@ describe('PlayerContextService', () => {
         // First launch succeeds
         mockPlayerService.launchFile
           .mockReturnValueOnce(of(musicFile1))
-          .mockReturnValueOnce(
-            throwError(() => new Error('Second launch failed'))
-          );
+          .mockReturnValueOnce(throwError(() => new Error('Second launch failed')));
 
         // First successful launch
         await service.launchFileWithContext({
@@ -3413,9 +3413,7 @@ describe('PlayerContextService', () => {
     describe('Clear History', () => {
       beforeEach(async () => {
         // Create some history
-        mockPlayerService.launchFile
-          .mockReturnValueOnce(of(file1))
-          .mockReturnValueOnce(of(file2));
+        mockPlayerService.launchFile.mockReturnValueOnce(of(file1)).mockReturnValueOnce(of(file2));
 
         await service.launchFileWithContext({
           deviceId,
@@ -3538,9 +3536,7 @@ describe('PlayerContextService', () => {
       });
 
       it('should maintain independent history per device', async () => {
-        mockPlayerService.launchFile
-          .mockReturnValueOnce(of(file1))
-          .mockReturnValueOnce(of(file2));
+        mockPlayerService.launchFile.mockReturnValueOnce(of(file1)).mockReturnValueOnce(of(file2));
 
         // Launch file1 on device1
         await service.launchFileWithContext({
@@ -3574,9 +3570,7 @@ describe('PlayerContextService', () => {
       });
 
       it('should not affect other device history when clearing one', async () => {
-        mockPlayerService.launchFile
-          .mockReturnValueOnce(of(file1))
-          .mockReturnValueOnce(of(file2));
+        mockPlayerService.launchFile.mockReturnValueOnce(of(file1)).mockReturnValueOnce(of(file2));
 
         await service.launchFileWithContext({
           deviceId,

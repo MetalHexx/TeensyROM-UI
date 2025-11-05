@@ -10,14 +10,12 @@ import {
   type CypressMethod,
 } from './primitives/interceptor-primitives';
 
-
 /**
  * Window state type for tracking connectDevice API call count
  */
 interface WindowWithCallCount {
   __connectDeviceCallCount?: number;
 }
-
 
 /**
  * connectDevice endpoint configuration
@@ -27,7 +25,6 @@ export const CONNECT_DEVICE_ENDPOINT: EndpointDefinition = {
   pattern: 'http://localhost:5168/devices/*/connect',
   alias: 'connectDevice',
 } as const;
-
 
 /**
  * Options for interceptConnectDevice interceptor
@@ -44,7 +41,6 @@ export interface InterceptConnectDeviceOptions {
   /** Custom error message for error responses */
   errorMessage?: string;
 }
-
 
 /**
  * Intercepts POST /devices/{deviceId}/connect - Device connection endpoint
@@ -71,7 +67,6 @@ export function interceptConnectDevice(options: InterceptConnectDeviceOptions = 
   interceptSuccess(CONNECT_DEVICE_ENDPOINT, response, options.responseDelayMs);
 }
 
-
 /**
  * Waits for connectDevice endpoint call to complete
  */
@@ -87,7 +82,6 @@ export function waitForConnectDevice(): void {
 export function waitForConnectDeviceToStart(timeout = 2000): void {
   cy.wait(`@${CONNECT_DEVICE_ENDPOINT.alias}`, { timeout });
 }
-
 
 /**
  * Verifies connectDevice completed successfully and was called
@@ -400,7 +394,6 @@ export function resetConnectDeviceCallCount(): void {
     (win as unknown as WindowWithCallCount).__connectDeviceCallCount = 0;
   });
 }
-
 
 export const CONNECT_DEVICE_ALIAS = CONNECT_DEVICE_ENDPOINT.alias;
 export const INTERCEPT_CONNECT_DEVICE = 'connectDevice';

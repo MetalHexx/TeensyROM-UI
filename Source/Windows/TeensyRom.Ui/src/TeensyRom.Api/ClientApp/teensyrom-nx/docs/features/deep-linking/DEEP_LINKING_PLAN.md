@@ -3,6 +3,7 @@
 **Project Overview**: Enable URL-based navigation and deep linking for the TeensyROM player, allowing users to share and bookmark specific files, directories, and storage locations across multi-device configurations. The system provides progressive enhancement from simple `/player` navigation to fully parameterized URLs that automatically load specific content.
 
 **Standards Documentation**:
+
 - **Architecture Overview**: [OVERVIEW_CONTEXT.md](../../OVERVIEW_CONTEXT.md)
 - **Coding Standards**: [CODING_STANDARDS.md](../../CODING_STANDARDS.md)
 - **Testing Standards**: [TESTING_STANDARDS.md](../../TESTING_STANDARDS.md)
@@ -44,6 +45,7 @@ Create a simple, non-blocking route resolver that coordinates DeviceStore and St
 ### Implementation Summary
 
 **Simple Resolver Pattern:**
+
 - Resolver returns immediately (non-blocking)
 - Background initialization: Wait for DeviceStore → Initialize all storage → Handle deep linking
 - Direct store method calls: `initializeStorage()`, `navigateToDirectory()`
@@ -51,6 +53,7 @@ Create a simple, non-blocking route resolver that coordinates DeviceStore and St
 - No dedicated store actions—keeps business logic minimal
 
 **Completed Tasks:**
+
 1. ✅ Created `playerRouteResolver` with fire-and-forget pattern
 2. ✅ Implemented `waitForDeviceStoreInitialization()` polling function
 3. ✅ Implemented `initializeAllDeviceStorage()` for all devices
@@ -62,6 +65,7 @@ Create a simple, non-blocking route resolver that coordinates DeviceStore and St
 ### Testing Focus
 
 **What to Test:**
+
 - Route parameter parsing (device, storage, path, file)
 - DeviceStore initialization wait logic
 - Storage initialization for all connected devices
@@ -71,6 +75,7 @@ Create a simple, non-blocking route resolver that coordinates DeviceStore and St
 - E2E testing of complete workflows
 
 **Testing Approach:**
+
 - Unit tests for resolver helper functions
 - Integration tests with real stores + mocked services
 - E2E tests validating browser navigation
@@ -90,6 +95,7 @@ Enable direct file launching via URL parameters. Already implemented in Phase 1 
 ### Implementation Summary
 
 **File Launch Pattern:**
+
 - Optional `file` query parameter in URL
 - Resolver waits for directory to load
 - Finds file in directory's files array
@@ -97,6 +103,7 @@ Enable direct file launching via URL parameters. Already implemented in Phase 1 
 - Handles file-not-found with warning log
 
 **Already Complete:**
+
 - ✅ File parameter parsing in `initDeeplinking()`
 - ✅ Directory pre-loading before file lookup
 - ✅ File launching with full context (directory, files array)
@@ -131,6 +138,7 @@ Update browser URL when a file is launched through `PlayerContextService.launchF
 ### Implementation Summary
 
 **URL Update Pattern:**
+
 - After file launches successfully (no error)
 - Extract current file info from store
 - Build query parameters: `?device=X&storage=SD&path=/dir&file=filename`
@@ -138,6 +146,7 @@ Update browser URL when a file is launched through `PlayerContextService.launchF
 - No navigation triggered—just updates browser URL bar and history
 
 **Implementation Tasks:**
+
 1. Import `Location` from `@angular/common` in `PlayerContextService`
 2. Inject `Location` service in constructor
 3. Add `updateUrlForLaunchedFile(deviceId: string)` private method
@@ -146,6 +155,7 @@ Update browser URL when a file is launched through `PlayerContextService.launchF
 6. Handle URL encoding for special characters in paths and file names
 
 **Key Implementation Notes:**
+
 - Use `location.go()` not `router.navigate()` (avoids re-triggering resolver)
 - Only update URL on successful launches (check for errors first)
 - URL encoding: Angular handles encoding automatically in query params
@@ -172,6 +182,7 @@ Create simple Cypress E2E tests validating resolver behavior and file launching 
 ### Test Scenarios
 
 **Scenario 1: Directory Navigation Without File Parameter**
+
 ```gherkin
 Given a user navigates to /player?device=teensy-01&storage=SD&path=/games
 When the page loads
@@ -180,6 +191,7 @@ And no file should be launched
 ```
 
 **Scenario 2: File Auto-Launch With File Parameter**
+
 ```gherkin
 Given a user navigates to /player?device=teensy-01&storage=SD&path=/games&file=sonic.prg
 When the page loads
@@ -188,6 +200,7 @@ And the file should be launched in the player
 ```
 
 **Scenario 3: Missing Parameters - Player Toolbar Not Displayed**
+
 ```gherkin
 Given a user navigates to /player with no query parameters
 When the page loads
@@ -196,6 +209,7 @@ And no file launched.
 ```
 
 **Scenario 4: URL Updates After File Launch (Phase 3)**
+
 ```gherkin
 Given a user is viewing /player?device=teensy-01&storage=SD&path=/games
 When the user double clicks a file "sonic.prg" in the file list
@@ -204,6 +218,7 @@ And all four parameters are present (device, storage, path, file)
 ```
 
 **Scenario 5: Next File Updates URL (Phase 3)**
+
 ```gherkin
 Given a file is playing at /player?device=teensy-01&storage=SD&path=/games&file=sonic.prg
 When the user clicks "Next" to play the next file
@@ -213,6 +228,7 @@ And browser history records the navigation
 ```
 
 **Scenario 5: Previous File Updates URL (Phase 3)**
+
 ```gherkin
 Given a file is playing at /player?device=teensy-01&storage=SD&path=/games&file=sonic.prg
 When the user clicks "Previous" to play the next file
@@ -222,9 +238,10 @@ And browser history records the navigation
 ```
 
 **Scenario 5: Random Launch Updates URL (Phase 3)**
+
 ```gherkin
 Given no file playing
-When the user clicks the "Random Button" 
+When the user clicks the "Random Button"
 Then the next random file launches
 And all four parameters are present (device, storage, path, file)
 And browser history records the navigation
@@ -239,7 +256,6 @@ And browser history records the navigation
 - Run tests with real backend or mocked API responses
 
 </details>
-
 
 <details open>
 <summary><h2>🏗️ Architecture Overview</h2></summary>
@@ -310,6 +326,7 @@ Test resolver behavior with real stores and mocked infrastructure services:
 <summary><h2>✅ Success Criteria</h2></summary>
 
 **Phase 1 & 2 (Complete):**
+
 - [x] Users can navigate to `/player?device=X&storage=SD&path=/games` to load specific directories
 - [x] Users can share URLs like `/player?storage=USB&path=/music&file=song.sid` that auto-launch files
 - [x] URL parameters correctly parsed and handled by resolver
@@ -322,11 +339,13 @@ Test resolver behavior with real stores and mocked infrastructure services:
 - [x] Non-blocking pattern maintains responsive UI
 
 **Phase 3 (In Progress):**
+
 - [ ] URL updates when file launched from UI
 - [ ] PlayerContextService updates browser URL/history after successful launch
 - [ ] URL reflects currently playing file
 
 **Phase 4 (Future):**
+
 - [ ] E2E test for directory navigation (without file parameter)
 - [ ] E2E test for file auto-launch (with file parameter)
 - [ ] E2E test for missing parameters (default state)
@@ -376,18 +395,21 @@ Test resolver behavior with real stores and mocked infrastructure services:
 Following simplified testing approach:
 
 **Resolver Integration Tests:**
+
 - Test resolver helper functions with real stores + mocked infrastructure
 - Mock `IStorageService`, `IDeviceService`, `IPlayerService` at boundaries
 - Assert on store state after resolver execution
 - Cover parameter parsing, initialization sequencing, deep linking
 
 **E2E Tests:**
+
 - Validate complete browser navigation workflows
 - Test URL parameter combinations
 - Verify UI responds correctly to route changes
 - Cover edge cases (missing params, invalid values)
 
 **No Complex Store Actions:**
+
 - No dedicated `storage-store.routing.spec.ts` file needed
 - No special route actions in stores
 - Testing focused on resolver coordination logic only
@@ -401,26 +423,30 @@ Following simplified testing approach:
 ### Completed Implementation
 
 **1. Route Resolver (`libs/app/navigation/src/lib/player-route.resolver.ts`)** ✅
-   - Non-blocking ResolveFn pattern (returns immediately)
-   - `playerRouteResolver`: Kicks off background initialization
-   - `waitForDeviceStoreInitialization()`: Polls DeviceStore until ready
-   - `initPlayer()`: Orchestrator coordinating initialization sequence
-   - `initializeAllDeviceStorage()`: Initializes SD/USB for all devices
-   - `initDeeplinking()`: Handles route parameters for navigation + file launch
+
+- Non-blocking ResolveFn pattern (returns immediately)
+- `playerRouteResolver`: Kicks off background initialization
+- `waitForDeviceStoreInitialization()`: Polls DeviceStore until ready
+- `initPlayer()`: Orchestrator coordinating initialization sequence
+- `initializeAllDeviceStorage()`: Initializes SD/USB for all devices
+- `initDeeplinking()`: Handles route parameters for navigation + file launch
 
 **2. Player View Component** ✅
-   - Simplified to 19-line render-only component
-   - All initialization moved to resolver
-   - Component just renders state from stores
+
+- Simplified to 19-line render-only component
+- All initialization moved to resolver
+- Component just renders state from stores
 
 **3. Route Configuration** ✅
-   - Resolver wired to `/player` route in `app.routes.ts`
-   - Runs before component loads
+
+- Resolver wired to `/player` route in `app.routes.ts`
+- Runs before component loads
 
 **4. Documentation** ✅
-   - Architecture documented in `PLAYER_ROUTING.md`
-   - Deep linking examples with clickable URLs
-   - References to resolver and component files
+
+- Architecture documented in `PLAYER_ROUTING.md`
+- Deep linking examples with clickable URLs
+- References to resolver and component files
 
 ### What Works Now
 
@@ -434,6 +460,7 @@ Following simplified testing approach:
 ### Next Steps (Future Phases)
 
 **Phase 3: URL Update on File Launch**
+
 - Inject Angular Location service in PlayerContextService
 - Update URL after successful file launches
 - Build query parameters with device, storage, path, file
@@ -441,6 +468,7 @@ Following simplified testing approach:
 - No unit tests needed—simple URL update logic
 
 **Phase 4: Cypress E2E Testing**
+
 - Test directory navigation via URL (without file parameter)
 - Test file auto-launch via URL (with file parameter)
 - Test missing parameters (default state)

@@ -11,17 +11,20 @@ Create Cypress E2E tests validating deep linking functionality (Phases 1-3) thro
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [ ] [Deep Linking Plan](./DEEP_LINKING_PLAN.md) - High-level feature plan and architecture
 - [ ] [Player Route Resolver](../../../libs/app/navigation/src/lib/player-route.resolver.ts) - Resolver implementation
 - [ ] [Player Context Service](../../../libs/application/src/lib/player/player-context.service.ts) - Service with URL updates
 
 **E2E Testing Standards:**
+
 - [ ] [E2E Tests Overview](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - Testing architecture and patterns
 - [ ] [E2E Fixtures](../../../apps/teensyrom-ui-e2e/src/support/test-data/fixtures/E2E_FIXTURES.md) - Fixture reference
 - [ ] [E2E Interceptors](../../../apps/teensyrom-ui-e2e/src/support/interceptors/E2E_INTERCEPTORS.md) - Interceptor reference
 - [ ] [Favorite Operations Tests](../../../apps/teensyrom-ui-e2e/src/e2e/storage/favorite-operations.cy.ts) - Similar pattern example
 
 **General Standards:**
+
 - [ ] [Coding Standards](../../CODING_STANDARDS.md) - General coding patterns and conventions
 - [ ] [Testing Standards](../../TESTING_STANDARDS.md) - Testing approaches and best practices
 
@@ -58,10 +61,12 @@ libs/features/player/src/lib/player-view/player-device-container/
 **Purpose**: Add data-testid attributes to UI components and templates to enable reliable E2E test selectors.
 
 **Related Documentation:**
+
 - [E2E Testing Standards](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - Selector strategy guidelines
 - [Coding Standards](../../CODING_STANDARDS.md) - Component input patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Update IconButtonComponent**: Add optional `testId` input and bind to button element
 - [ ] **Update StorageItemComponent**: Add optional `testId` input and bind to container div
 - [ ] **Update PlayerToolbarComponent**: Add data-testid="player-toolbar" to container
@@ -72,14 +77,17 @@ libs/features/player/src/lib/player-view/player-device-container/
 ### Files and Elements Requiring data-testid
 
 **1. IconButtonComponent** (`libs/ui/components/src/lib/icon-button/`)
+
 - **TypeScript**: Add optional `testId` input signal
 - **HTML**: Bind `testId` input to the `<button>` element's `data-testid` attribute
 
 **2. StorageItemComponent** (`libs/ui/components/src/lib/storage-item/`)
+
 - **TypeScript**: Add optional `testId` input signal
 - **HTML**: Bind `testId` input to the root `<div class="storage-item">` element's `data-testid` attribute
 
 **3. PlayerToolbarComponent** (`libs/features/player/src/lib/player-view/player-device-container/player-toolbar/`)
+
 - **HTML**: Add `testId` prop to all `<lib-icon-button>` components in all 3 layout sections (desktop, tablet, mobile):
   - Previous button: `testId="player-previous-button"`
   - Play/Pause button: `testId="player-play-pause-button"`
@@ -87,15 +95,19 @@ libs/features/player/src/lib/player-view/player-device-container/
   - Next button: `testId="player-next-button"`
 
 **4. FileInfoComponent** (`libs/features/player/src/lib/player-view/player-device-container/player-toolbar/file-info/`)
+
 - **HTML**: Add `data-testid="current-file-info"` to the root `<div class="file-info">` element
 
 **5. DirectoryFilesComponent** (`libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/`)
+
 - **HTML**: Add `data-testid="directory-files-container"` to the root `<div class="directory-files">` element
 
 **6. FileItemComponent** (`libs/features/player/src/lib/player-view/player-device-container/storage-container/directory-files/file-item/`)
+
 - **HTML**: Pass `[testId]="'file-item-' + fileItem().name"` to the `<lib-storage-item>` component (creates unique IDs like `file-item-Pac-Man (J1).crt`)
 
 **7. RandomRollButtonComponent** (already has data-testid in FilterToolbarComponent)
+
 - **No changes needed**: Already has `data-testid="random-launch-button"` in parent template
 
 </details>
@@ -108,10 +120,12 @@ libs/features/player/src/lib/player-view/player-device-container/
 **Purpose**: Centralize player-specific selectors, navigation helpers, and assertion utilities for reuse across tests.
 
 **Related Documentation:**
+
 - [Storage Test Helpers](../../../apps/teensyrom-ui-e2e/src/e2e/storage/test-helpers.ts) - Similar pattern example
 - [E2E Testing Standards](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - Helper function patterns
 
 **Implementation Subtasks:**
+
 - [ ] **Create File**: `apps/teensyrom-ui-e2e/src/e2e/player/test-helpers.ts`
 - [ ] **Define Selectors**: Player toolbar buttons, file list items, current file display
 - [ ] **Navigation Helpers**: `navigateToPlayerWithParams()`, `loadPlayerView()`
@@ -120,12 +134,14 @@ libs/features/player/src/lib/player-view/player-device-container/
 - [ ] **Wait Helpers**: `waitForFileToLoad()`, `waitForDirectoryLoad()` (reuse from storage helpers)
 
 **Key Implementation Notes:**
+
 - Follow existing test-helpers.ts pattern from storage tests
 - Re-export commonly used constants from other files for convenience
 - All selectors must use constants, no hardcoded strings
 - Helper functions should be composable and reusable
 
 **Critical Selectors to Define**:
+
 ```typescript
 const PLAYER_SELECTORS = {
   // Player controls (using data-testid attributes)
@@ -141,10 +157,11 @@ const PLAYER_SELECTORS = {
   // File list (using data-testid attributes)
   directoryFilesContainer: '[data-testid="directory-files-container"]',
   fileListItem: (fileName: string) => `[data-testid="file-item-${fileName}"]`,
-}
+};
 ```
 
 **Critical Helper Functions**:
+
 ```typescript
 // Navigate to player with query parameters
 export function navigateToPlayerWithParams(params: {
@@ -182,10 +199,12 @@ export function waitForFileToLoad(): void;
 **Purpose**: Validate route resolver behavior and file auto-launch functionality (Phases 1 & 2).
 
 **Related Documentation:**
+
 - [Deep Linking Plan - Phase 1 & 2](./DEEP_LINKING_PLAN.md#implementation-phases) - Requirements
 - [Player Route Resolver](../../../libs/app/navigation/src/lib/player-route.resolver.ts) - Implementation under test
 
 **Implementation Subtasks:**
+
 - [ ] **Create Test File**: `apps/teensyrom-ui-e2e/src/e2e/player/deep-linking.cy.ts`
 - [ ] **Setup beforeEach**: Mock filesystem, intercept device/storage APIs
 - [ ] **Scenario 1**: Directory navigation without file parameter
@@ -193,6 +212,7 @@ export function waitForFileToLoad(): void;
 - [ ] **Scenario 3**: Missing parameters - no deep linking
 
 **Scenario 1: Directory Navigation Without File Parameter**
+
 ```gherkin
 Given a user navigates to /player?device=teensy-01&storage=SD&path=/games
 When the page loads
@@ -203,12 +223,13 @@ And the URL remains unchanged
 ```
 
 **Test Implementation**:
+
 ```typescript
 it('navigates to directory without launching file', () => {
   navigateToPlayerWithParams({
     device: 'teensy-01',
     storage: 'SD',
-    path: '/games'
+    path: '/games',
   });
 
   waitForDirectoryLoad();
@@ -224,12 +245,13 @@ it('navigates to directory without launching file', () => {
   expectUrlContainsParams({
     device: 'teensy-01',
     storage: 'SD',
-    path: '/games'
+    path: '/games',
   });
 });
 ```
 
 **Scenario 2: File Auto-Launch With File Parameter**
+
 ```gherkin
 Given a user navigates to /player?device=teensy-01&storage=SD&path=/games&file=Pac-Man (J1).crt
 When the page loads
@@ -240,13 +262,14 @@ And the URL contains all 4 parameters
 ```
 
 **Test Implementation**:
+
 ```typescript
 it('auto-launches file when file parameter provided', () => {
   navigateToPlayerWithParams({
     device: 'teensy-01',
     storage: 'SD',
     path: '/games',
-    file: 'Pac-Man (J1).crt'
+    file: 'Pac-Man (J1).crt',
   });
 
   waitForFileToLoad();
@@ -260,12 +283,13 @@ it('auto-launches file when file parameter provided', () => {
     device: 'teensy-01',
     storage: 'SD',
     path: '/games',
-    file: 'Pac-Man (J1).crt'
+    file: 'Pac-Man (J1).crt',
   });
 });
 ```
 
 **Scenario 3: Missing Parameters - No Deep Linking**
+
 ```gherkin
 Given a user navigates to /player with no query parameters
 When the page loads
@@ -276,6 +300,7 @@ And the player toolbar may be hidden or disabled
 ```
 
 **Test Implementation**:
+
 ```typescript
 it('displays default view when no parameters provided', () => {
   navigateToPlayerView(); // No params
@@ -289,6 +314,7 @@ it('displays default view when no parameters provided', () => {
 ```
 
 **Testing Notes:**
+
 - Use `createMockFilesystem(12345)` for deterministic test data
 - Mock device with `singleDevice` fixture
 - Intercept `GET_DIRECTORY` with filesystem
@@ -304,15 +330,18 @@ it('displays default view when no parameters provided', () => {
 **Purpose**: Validate URL updates when files are launched through UI interactions (Phase 3).
 
 **Related Documentation:**
+
 - [Deep Linking Plan - Phase 3](./DEEP_LINKING_PLAN.md#phase-3-url-update-on-file-launch) - Requirements
 - [Player Context Service](../../../libs/application/src/lib/player/player-context.service.ts) - URL update implementation
 
 **Implementation Subtasks:**
+
 - [ ] **Scenario 4**: URL updates when file clicked from directory
 - [ ] **Scenario 5**: URL updates when next button clicked
 - [ ] **Scenario 6**: URL updates when random button clicked
 
 **Scenario 4: URL Updates After Directory File Click**
+
 ```gherkin
 Given a user is viewing /player?device=teensy-01&storage=SD&path=/games
 When the user clicks "Pac-Man (J1).crt" in the file list
@@ -323,13 +352,14 @@ And browser history records the navigation
 ```
 
 **Test Implementation**:
+
 ```typescript
 it('updates URL when file clicked from directory', () => {
   // Start at directory view
   navigateToPlayerWithParams({
     device: 'teensy-01',
     storage: 'SD',
-    path: '/games'
+    path: '/games',
   });
 
   waitForDirectoryLoad();
@@ -346,7 +376,7 @@ it('updates URL when file clicked from directory', () => {
     device: 'teensy-01',
     storage: 'SD',
     path: '/games',
-    file: 'Pac-Man (J1).crt'
+    file: 'Pac-Man (J1).crt',
   });
 
   // Verify clean URL formatting (no %2F encoding)
@@ -356,6 +386,7 @@ it('updates URL when file clicked from directory', () => {
 ```
 
 **Scenario 5: Next File Updates URL**
+
 ```gherkin
 Given a file is playing at /player?device=teensy-01&storage=SD&path=/games&file=Pac-Man (J1).crt
 When the user clicks "Next File" button
@@ -366,6 +397,7 @@ And browser history records the navigation
 ```
 
 **Test Implementation**:
+
 ```typescript
 it('updates URL when next file button clicked', () => {
   // Start with file playing
@@ -373,7 +405,7 @@ it('updates URL when next file button clicked', () => {
     device: 'teensy-01',
     storage: 'SD',
     path: '/games',
-    file: 'Pac-Man (J1).crt'
+    file: 'Pac-Man (J1).crt',
   });
 
   waitForFileToLoad();
@@ -399,6 +431,7 @@ it('updates URL when next file button clicked', () => {
 ```
 
 **Scenario 6: Random File Updates URL**
+
 ```gherkin
 Given a user is viewing /player?device=teensy-01&storage=SD&path=/games
 When the user clicks "Launch Random File" button
@@ -409,13 +442,14 @@ And browser history records the navigation
 ```
 
 **Test Implementation**:
+
 ```typescript
 it('updates URL when random file button clicked', () => {
   // Start at directory view
   navigateToPlayerWithParams({
     device: 'teensy-01',
     storage: 'SD',
-    path: '/games'
+    path: '/games',
   });
 
   waitForDirectoryLoad();
@@ -438,6 +472,7 @@ it('updates URL when random file button clicked', () => {
 ```
 
 **Testing Notes:**
+
 - Verify browser history with `cy.go('back')` and `cy.go('forward')`
 - Check for clean URL formatting (forward slashes preserved)
 - Handle timing with proper waits after button clicks
@@ -453,15 +488,18 @@ it('updates URL when random file button clicked', () => {
 **Purpose**: Add player-specific selectors to centralized constants if they don't exist.
 
 **Related Documentation:**
+
 - [E2E Constants](../../../apps/teensyrom-ui-e2e/src/support/constants/E2E_CONSTANTS.md) - Constants reference
 - [Selector Constants](../../../apps/teensyrom-ui-e2e/src/support/constants/selector.constants.ts) - Existing selectors
 
 **Implementation Subtasks:**
+
 - [ ] **Check Existing Selectors**: Review selector.constants.ts for player controls
 - [ ] **Add Missing Selectors**: Only if not already defined
 - [ ] **Export from Test Helpers**: Re-export for convenience
 
 **Selectors to Add** (if not present):
+
 ```typescript
 // Player toolbar and controls
 export const PLAYER_TOOLBAR_SELECTORS = {
@@ -482,6 +520,7 @@ export const PLAYER_FILE_LIST_SELECTORS = {
 ```
 
 **Implementation Notes:**
+
 - All selectors use data-testid attributes
 - If a component lacks data-testid, add it to the component (Task 0)
 - Follow existing selector naming conventions
@@ -494,13 +533,16 @@ export const PLAYER_FILE_LIST_SELECTORS = {
 ## 🗂️ Files Created or Modified
 
 **New Files:**
+
 - `apps/teensyrom-ui-e2e/src/e2e/player/deep-linking.cy.ts` - Main test spec (6 scenarios)
 - `apps/teensyrom-ui-e2e/src/e2e/player/test-helpers.ts` - Helper functions and selectors
 
 **Modified Files:**
+
 - `apps/teensyrom-ui-e2e/src/support/constants/selector.constants.ts` - Add player selectors (if needed)
 
 **Reused Infrastructure:**
+
 - `createMockFilesystem()` from `storage.generators.ts`
 - `singleDevice` fixture from `devices.fixture.ts`
 - `interceptFindDevices()` from `device.interceptors.ts`
@@ -515,6 +557,7 @@ export const PLAYER_FILE_LIST_SELECTORS = {
 > **Test Count**: 6 E2E tests validating deep linking functionality
 
 > **Testing Philosophy:**
+>
 > - E2E tests validate complete browser workflows (resolver → service → URL)
 > - Use established three-layer pattern (fixtures → interceptors → tests)
 > - Focus on user-visible behavior, not implementation details
@@ -523,18 +566,17 @@ export const PLAYER_FILE_LIST_SELECTORS = {
 ### Test Organization
 
 **Phase 1 & 2 Tests (Route Resolver)**:
+
 1. Directory navigation without file parameter
 2. File auto-launch with file parameter
 3. Missing parameters - default view
 
-**Phase 3 Tests (URL Updates)**:
-4. URL updates when file clicked from directory
-5. URL updates when next button clicked
-6. URL updates when random button clicked
+**Phase 3 Tests (URL Updates)**: 4. URL updates when file clicked from directory 5. URL updates when next button clicked 6. URL updates when random button clicked
 
 ### Test Coverage Areas
 
 **Route Resolver Behavior**:
+
 - Query parameter parsing (device, storage, path, file)
 - Non-blocking initialization pattern
 - Directory navigation with deep linking
@@ -542,6 +584,7 @@ export const PLAYER_FILE_LIST_SELECTORS = {
 - Graceful handling of missing parameters
 
 **URL Update Behavior**:
+
 - URL updates after file launch from directory click
 - URL updates after next/previous navigation
 - URL updates after random file launch
@@ -574,6 +617,7 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Implementation Requirements:**
+
 - [ ] All implementation tasks completed and checked off
 - [ ] Test helpers file created with all selectors and functions
 - [ ] Main test spec created with all 6 scenarios
@@ -581,6 +625,7 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 - [ ] Code follows [E2E Testing Standards](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md)
 
 **Test Execution Requirements:**
+
 - [ ] All 6 tests passing
 - [ ] No flakiness (tests pass consistently)
 - [ ] No timing issues (proper waits in place)
@@ -588,6 +633,7 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 - [ ] Clean console (no errors during test execution)
 
 **Functionality Verification:**
+
 - [ ] Phase 1 & 2: Route resolver loads directories and launches files
 - [ ] Phase 3: URL updates after file launches
 - [ ] URL contains all 4 parameters when file launched
@@ -596,6 +642,7 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 - [ ] Missing parameters handled gracefully
 
 **Quality Checks:**
+
 - [ ] All selectors use constants (no hardcoded strings)
 - [ ] Helper functions are reusable
 - [ ] Tests follow established patterns
@@ -603,11 +650,13 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 - [ ] Comments explain complex assertions
 
 **Documentation:**
+
 - [ ] Inline comments added for complex test logic
 - [ ] Phase 4 marked complete in [DEEP_LINKING_PLAN.md](./DEEP_LINKING_PLAN.md)
 - [ ] E2E test documentation updated if needed
 
 **Ready for Production:**
+
 - [ ] All success criteria met
 - [ ] No known bugs or issues
 - [ ] Deep linking feature fully validated end-to-end
@@ -680,6 +729,7 @@ pnpm nx e2e teensyrom-ui-e2e:open-cypress
 ### Key Integration Points
 
 **Test Setup Pattern** (following favorite-operations.cy.ts):
+
 ```typescript
 beforeEach(() => {
   filesystem = createMockFilesystem(12345);
@@ -690,23 +740,25 @@ beforeEach(() => {
 ```
 
 **Navigation Pattern**:
+
 ```typescript
 // Helper function builds URL with query params
 navigateToPlayerWithParams({
   device: 'teensy-01',
   storage: 'SD',
   path: '/games',
-  file: 'Pac-Man (J1).crt' // optional
+  file: 'Pac-Man (J1).crt', // optional
 });
 ```
 
 **URL Assertion Pattern**:
+
 ```typescript
 expectUrlContainsParams({
   device: 'teensy-01',
   storage: 'SD',
   path: '/games',
-  file: 'Pac-Man (J1).crt'
+  file: 'Pac-Man (J1).crt',
 });
 
 // Or manual check
@@ -724,6 +776,7 @@ cy.location('search').should('not.include', '%2F'); // Clean URLs
 ### Validation Checklist
 
 After implementing each test:
+
 - [ ] Test passes consistently (run 3+ times)
 - [ ] Selectors use constants (no hardcoded strings)
 - [ ] Proper waits in place (no race conditions)
@@ -733,12 +786,14 @@ After implementing each test:
 ### Debugging Tips
 
 **If tests are flaky**:
+
 - Add explicit waits before assertions
 - Check interceptor aliases are correct
 - Verify filesystem has expected files
 - Use `cy.debug()` to inspect state
 
 **If selectors don't match**:
+
 - Check component template has data-testid attribute
 - Add data-testid to component if missing (Task 0)
 - Use Cypress selector playground in Test Runner UI

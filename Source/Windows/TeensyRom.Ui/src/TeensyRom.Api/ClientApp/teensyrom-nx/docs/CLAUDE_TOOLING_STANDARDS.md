@@ -13,6 +13,7 @@ This document defines the architecture and design patterns for Claude Code slash
 Slash commands are **focused, reusable prompts** that perform specific operations.
 
 **Characteristics**:
+
 - Single, well-defined responsibility
 - Can be invoked manually by users
 - Can be invoked programmatically by subagents via `SlashCommand` tool
@@ -27,6 +28,7 @@ Slash commands are **focused, reusable prompts** that perform specific operation
 **Tool Access**: Commands inherit tools from the conversation by default, or can specify `allowed-tools` in frontmatter to limit access (e.g., `allowed-tools: Bash(pnpm:*), Bash(nx:*)`).
 
 **Example**: `/clean-code <file-path>`
+
 - Reads the file and analyzes errors
 - Fixes TypeScript and ESLint issues
 - Runs tests to validate
@@ -39,6 +41,7 @@ Slash commands are **focused, reusable prompts** that perform specific operation
 Subagents are **specialized AI personalities** that operate in their own context window and can use slash commands as tools.
 
 **Characteristics**:
+
 - Operate in separate context window (preserves main conversation)
 - Can use slash commands via `SlashCommand` tool
 - Can use any tools (Read, Write, Edit, Bash, etc.)
@@ -54,6 +57,7 @@ Subagents are **specialized AI personalities** that operate in their own context
 **Tool Access**: Subagents inherit all tools from the main thread by default. Specify `tools: Read, Write, Edit, Grep, Glob, Bash, SlashCommand` in frontmatter to limit or customize access.
 
 **Example**: `code-cleaner`
+
 - Finds all files with errors (via Grep, Bash)
 - Calls `/clean-code` for each file (via SlashCommand tool)
 - Tracks progress across multiple files
@@ -68,22 +72,28 @@ Subagents are **specialized AI personalities** that operate in their own context
 ### 1. Avoid Redundancy
 
 **❌ Anti-Pattern**: Subagent duplicates command logic
+
 ```markdown
 # Bad: e2e-runner parses Cypress output the same way /run-e2e-test does
+
 Subagent workflow:
+
 1. Run Cypress via Bash: pnpm nx e2e ...
 2. Parse Cypress JSON output
-3. Format test results  
+3. Format test results
 4. Locate screenshots in specific directories
 5. Analyze failures
 6. Fix issues
 ```
 
 **✅ Correct Pattern**: Subagent uses command as primitive
+
 ```markdown
 # Good: e2e-runner orchestrates using /run-e2e-test
+
 Subagent workflow:
-1. Call /run-e2e-test <files>  # Command handles execution + parsing
+
+1. Call /run-e2e-test <files> # Command handles execution + parsing
 2. Interpret structured results from command
 3. Analyze failure patterns
 4. Fix issues by modifying files
@@ -97,11 +107,13 @@ Subagent workflow:
 Commands should be useful on their own and in combination:
 
 **Manual invocation** (user calls directly):
+
 ```
 /clean-code libs/infrastructure/device/device.service.ts
 ```
 
 **Programmatic invocation** (subagent calls):
+
 ```
 code-cleaner agent:
   1. Find all files with errors
@@ -115,15 +127,18 @@ code-cleaner agent:
 Each command should do one thing well:
 
 **✅ Good** - Focused commands:
+
 - `/clean-code <file>` - Clean one file
 - `/run-e2e-test [file]` - Run tests
 
 **❌ Bad** - Kitchen sink command:
+
 - `/fix-everything` - Lints, tests, formats, builds, deploys
 
 ### 4. Clear Separation of Concerns
 
 **Commands** handle focused tasks:
+
 - Perform specific operations (run tests, clean code, etc.)
 - Can read/write files, run bash commands, etc.
 - Parse output and format results
@@ -131,6 +146,7 @@ Each command should do one thing well:
 - Execute and report - no complex iteration
 
 **Subagents** handle orchestration:
+
 - Decide what commands to run and when
 - Interpret results in broader context
 - Make strategic decisions
@@ -157,6 +173,7 @@ disable-model-invocation: false  # Optional - prevent SlashCommand tool from cal
 ```
 
 **Key Points**:
+
 - Commands inherit all tools from the conversation if `allowed-tools` is omitted
 - Use `allowed-tools` to restrict tools for security or focus
 - Bash tools can be scoped: `Bash(git:*)` allows only git commands
@@ -170,24 +187,28 @@ Brief description of what the command does.
 
 ## Context
 
-- Argument 1: $1  # Individual positional arg
-- All arguments: $ARGUMENTS  # All args as string
-- Pre-execution info: !`bash-command-for-context`  # Runs before command
-- File reference: @path/to/important-file.md  # Includes file in context
+- Argument 1: $1 # Individual positional arg
+- All arguments: $ARGUMENTS # All args as string
+- Pre-execution info: !`bash-command-for-context` # Runs before command
+- File reference: @path/to/important-file.md # Includes file in context
 
 ## Your Task
 
 ### Step 1: Validate Input
+
 [Check arguments, ensure prerequisites]
 
 ### Step 2: Execute Operation
+
 [Core operation - can use Read, Write, Edit, Bash, etc.]
 [Commands CAN modify files, fix issues, run tests, etc.]
 
 ### Step 3: Report Results
+
 [Provide clear, structured output]
 
 ## Guidelines
+
 - Focus on ONE specific task
 - Can take action (read/write files, run commands)
 - Don't orchestrate across multiple files/iterations
@@ -197,6 +218,7 @@ Brief description of what the command does.
 #### Best Practices
 
 **DO**:
+
 - Use `$ARGUMENTS` or `$1, $2` for parameters
 - Use `!`command`` for pre-execution context gathering
 - Use `@file/path` to reference documentation files
@@ -207,6 +229,7 @@ Brief description of what the command does.
 - Focus on ONE well-defined task
 
 **DON'T**:
+
 - Orchestrate across multiple files (that's for subagents)
 - Iterate with complex retry logic (that's for subagents)
 - Make strategic decisions about "what to do next" (that's for subagents)
@@ -219,15 +242,16 @@ Brief description of what the command does.
 
 ```markdown
 ---
-name: agent-name  # Required - lowercase with hyphens
-description: When this agent should be invoked (use PROACTIVELY for auto-invoke)  # Required
-model: inherit  # Optional - inherit, sonnet, opus, or haiku (default: sonnet)
-tools: Read, Write, Edit, Grep, Glob, Bash, SlashCommand  # Optional - inherits all by default
-color: cyan  # Optional - visual identifier in UI
+name: agent-name # Required - lowercase with hyphens
+description: When this agent should be invoked (use PROACTIVELY for auto-invoke) # Required
+model: inherit # Optional - inherit, sonnet, opus, or haiku (default: sonnet)
+tools: Read, Write, Edit, Grep, Glob, Bash, SlashCommand # Optional - inherits all by default
+color: cyan # Optional - visual identifier in UI
 ---
 ```
 
 **Key Points**:
+
 - Subagents inherit ALL tools from main thread if `tools` is omitted
 - Include `SlashCommand` in tools to let agent invoke slash commands
 - Use `model: inherit` to match the main conversation's model
@@ -245,6 +269,7 @@ Define the agent's primary responsibility and how it adds value beyond just call
 ## When to invoke
 
 You MUST BE USED proactively in these scenarios:
+
 - [Scenario 1]
 - [Scenario 2]
 - Use PROACTIVELY keyword to encourage auto-invocation
@@ -252,29 +277,37 @@ You MUST BE USED proactively in these scenarios:
 ## Your workflow
 
 ### 1. Analyze context
+
 [Understand the situation before acting]
 
 ### 2. Use slash commands as primitives
+
 [Call commands to gather information or execute operations]
 
 ### 3. Interpret results
+
 [Add intelligence - what do the results mean?]
 
 ### 4. Take action
+
 [Make code changes, fix issues, etc.]
 
 ### 5. Validate
+
 [Re-run commands to verify your changes]
 
 ### 6. Iterate if needed
+
 [Continue until goal is achieved]
 
 ### 7. Report
+
 [Summarize what you did, not just what you found]
 
 ## Decision-making guidelines
 
 When to act automatically vs. ask for help:
+
 - ✅ Fix automatically: [List auto-fixable issues]
 - ❌ Ask for help: [List cases requiring human judgment]
 
@@ -295,6 +328,7 @@ Links to relevant documentation.
 Your goal: [Clear success criteria]
 
 You are an orchestrator, not just a reporter:
+
 - Use slash commands as composable tools
 - Add value through intelligence and action
 - Iterate until success
@@ -304,6 +338,7 @@ You are an orchestrator, not just a reporter:
 #### Best Practices
 
 **DO**:
+
 - Use `/slash-commands` via SlashCommand tool as primitives
 - Make actual code changes (you have Write, Edit, etc.)
 - Iterate until goals achieved
@@ -314,6 +349,7 @@ You are an orchestrator, not just a reporter:
 - Show before/after for changes
 
 **DON'T**:
+
 - Duplicate command logic (use commands via SlashCommand tool)
 - Just report without taking action
 - Stop after first failure
@@ -328,6 +364,7 @@ You are an orchestrator, not just a reporter:
 ### Example 1: Code Cleaning
 
 **Command**: `/clean-code <file-path>`
+
 - Focused on cleaning ONE file
 - Reads the file, analyzes errors
 - Fixes TypeScript and ESLint issues
@@ -335,6 +372,7 @@ You are an orchestrator, not just a reporter:
 - Reports what was fixed
 
 **Subagent**: `code-cleaner`
+
 - Orchestrates across multiple files
 - Finds all files with errors (Bash, Grep)
 - Calls `/clean-code` for each file (SlashCommand tool)
@@ -343,6 +381,7 @@ You are an orchestrator, not just a reporter:
 - Reports summary of all changes made
 
 **Why this works**:
+
 - Command: focused task (one file)
 - Subagent: orchestration (many files)
 - Command is useful standalone
@@ -353,6 +392,7 @@ You are an orchestrator, not just a reporter:
 ### Example 2: E2E Testing
 
 **Command**: `/run-e2e-test [file-path]`
+
 - Focused on running tests and reporting
 - Executes Cypress via Bash (pnpm nx e2e ...)
 - Parses output (pass/fail counts, errors)
@@ -361,6 +401,7 @@ You are an orchestrator, not just a reporter:
 - Does NOT fix issues or iterate
 
 **Subagent**: `e2e-runner`
+
 - Orchestrates the testing workflow
 - Determines which tests to run (git diff, feature scope)
 - Calls `/run-e2e-test` to execute (SlashCommand tool)
@@ -371,6 +412,7 @@ You are an orchestrator, not just a reporter:
 - Reports what it fixed
 
 **Why this works**:
+
 - Command: focused task (run tests, report results)
 - Subagent: orchestration (analyze, fix, retry, iterate)
 - Command is useful for manual test runs
@@ -402,6 +444,7 @@ You are an orchestrator, not just a reporter:
 # code-fixer agent
 
 For each file:
+
 1. Run `pnpm nx lint <file>` directly via Bash
 2. Parse linting JSON output manually
 3. Identify error categories (unused vars, type errors, etc.)
@@ -444,12 +487,14 @@ For each file:
 Ask these questions:
 
 ### For Slash Commands:
+
 1. **Can I call this manually and get value?** (Should be yes)
 2. **Does it do ONE focused task?** (Should be yes)
 3. **Does it orchestrate across many files/iterations?** (Should be no - that's for subagents)
 4. **Is the output clear and useful?** (Should be yes)
 
 ### For Subagents:
+
 1. **Does it orchestrate multiple operations?** (Should be yes)
 2. **Does it use slash commands via SlashCommand tool?** (Should be yes, when applicable)
 3. **Does it add intelligence beyond individual commands?** (Should be yes)
@@ -464,12 +509,15 @@ Ask these questions:
 If you find redundancy or poor separation:
 
 ### Step 1: Identify the Focused Task
+
 What is the core, reusable task that does ONE thing? → Make this a command
 
 ### Step 2: Identify the Orchestration
+
 What decisions, multi-step workflows, or iteration is needed? → Make this a subagent
 
 ### Step 3: Refactor
+
 - Move focused task execution to command
 - Move orchestration and iteration to subagent
 - Ensure command is usable standalone
@@ -479,6 +527,7 @@ What decisions, multi-step workflows, or iteration is needed? → Make this a su
 ### Example Refactor:
 
 **Before**: `e2e-tester` agent does everything
+
 ```
 1. Parse arguments
 2. Run Cypress via Bash
@@ -490,10 +539,11 @@ What decisions, multi-step workflows, or iteration is needed? → Make this a su
 ```
 
 **After**: Split into command + agent
+
 ```
 /run-e2e-test command:
 1. Parse arguments
-2. Run Cypress via Bash  
+2. Run Cypress via Bash
 3. Parse output
 4. Format results
 
@@ -509,6 +559,7 @@ e2e-runner agent:
 ## Summary
 
 **Slash Commands**:
+
 - Focused task execution (not just reporting!)
 - Can use all tools (Read, Write, Edit, Bash, etc.)
 - Single, well-defined responsibility
@@ -516,6 +567,7 @@ e2e-runner agent:
 - Useful standalone
 
 **Subagents**:
+
 - Intelligent orchestrators
 - Separate context window (preserves main conversation)
 - Use commands via SlashCommand tool
@@ -524,6 +576,7 @@ e2e-runner agent:
 - Add strategic decision-making
 
 **Together**:
+
 - Maximum composability
 - Minimal duplication
 - Clear separation of concerns

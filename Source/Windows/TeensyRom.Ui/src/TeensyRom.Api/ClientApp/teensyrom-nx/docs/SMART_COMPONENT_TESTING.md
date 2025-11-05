@@ -5,12 +5,14 @@ This document describes the standard methodology for testing Angular smart compo
 ## Overview
 
 **Smart Components** are feature layer components that:
+
 - Inject and depend on application stores or context services
 - Coordinate between multiple data sources
 - Handle complex user interactions and workflows
 - Manage local UI state in conjunction with global application state
 
 **Testing Strategy**:
+
 - Test components through their public interface (inputs, outputs, DOM)
 - **Mock application layer dependencies using interfaces** (e.g., `IDeviceService`, `IStorageService`)
 - Focus on component behavior, not implementation details
@@ -23,12 +25,14 @@ This document describes the standard methodology for testing Angular smart compo
 **Always mock using interfaces** - Feature components should depend on service contracts, not concrete implementations. This allows clean mocking at the test boundary.
 
 **Setup Pattern**:
+
 1. Create strongly-typed mocks implementing interfaces (e.g., `IDeviceService`, `IPlayerService`)
 2. Use Vitest's `vi.fn()` for method mocks
 3. Provide mocks via injection tokens in TestBed
 4. For signal-based services, return writable signals from mock methods
 
 **Signal Mocking**:
+
 - Create writable signals in test setup for mutable state
 - Return readonly versions from mock service methods
 - Update signals during tests to trigger component reactions
@@ -39,6 +43,7 @@ This document describes the standard methodology for testing Angular smart compo
 ### Input/Output Testing
 
 **Test component inputs and outputs** - Verify that:
+
 - Component correctly responds to input property changes
 - Input changes trigger appropriate service method calls
 - User interactions emit expected output events with correct data
@@ -47,6 +52,7 @@ This document describes the standard methodology for testing Angular smart compo
 ### State-Dependent Rendering
 
 **Test UI rendering based on state** - Verify that:
+
 - Loading states display appropriate loading indicators
 - Error states show error messages to the user
 - Success states render data correctly in the DOM
@@ -56,6 +62,7 @@ This document describes the standard methodology for testing Angular smart compo
 ### User Interaction Testing
 
 **Test user interaction handling** - Verify that:
+
 - Button clicks trigger expected service method calls
 - Form submissions call appropriate service methods
 - Keyboard interactions work as expected
@@ -88,48 +95,56 @@ This document describes the standard methodology for testing Angular smart compo
 Use this checklist to design comprehensive smart component tests:
 
 ### 1. Initialization
+
 - [ ] Component initializes with correct default state
 - [ ] Required services are injected properly
 - [ ] Initial data loading triggered when appropriate
 - [ ] Input signals properly bound to component properties
 
 ### 2. Input Handling
+
 - [ ] Input changes trigger appropriate service calls
 - [ ] Input validation and error handling
 - [ ] Multiple input combinations work correctly
 - [ ] Input changes update component state appropriately
 
 ### 3. Output Events
+
 - [ ] User interactions emit correct output events
 - [ ] Event payloads contain expected data
 - [ ] Events fired at appropriate times
 - [ ] No unwanted event emissions
 
 ### 4. State-Dependent Rendering
+
 - [ ] Loading states display appropriate UI
 - [ ] Error states show error messages
 - [ ] Success states render data correctly
 - [ ] Empty states handled gracefully
 
 ### 5. User Interactions
+
 - [ ] Click handlers trigger expected actions
 - [ ] Form submissions call appropriate services
 - [ ] Keyboard interactions work correctly
 - [ ] Touch/mobile interactions (if applicable)
 
 ### 6. Service Integration
+
 - [ ] Service methods called with correct parameters
 - [ ] Service responses handled appropriately
 - [ ] Service errors displayed to user
 - [ ] Service state changes update component UI
 
 ### 7. Complex Workflows
+
 - [ ] Multi-step user workflows complete successfully
 - [ ] State transitions between different UI modes
 - [ ] Conditional logic based on service state
 - [ ] Integration between multiple service dependencies
 
 ### 8. Edge Cases
+
 - [ ] Null/undefined input handling
 - [ ] Empty data sets handled gracefully
 - [ ] Network failures and recovery
@@ -138,6 +153,7 @@ Use this checklist to design comprehensive smart component tests:
 ## Do / Don't
 
 ### Do
+
 - **Use interfaces for all mocks** (e.g., `IPlayerContext`)
 - Test through component's public interface (inputs, outputs, DOM)
 - Use strongly typed mocks that implement contracts
@@ -148,6 +164,7 @@ Use this checklist to design comprehensive smart component tests:
 - Use injection tokens when providing mocked services
 
 ### Don't
+
 - Mock concrete classes - always use interfaces when available.
 - Test application layer logic in component tests (test that in application layer - see [STORE_TESTING.md](./STORE_TESTING.md))
 - Use real stores or context services in component unit tests

@@ -9,11 +9,13 @@ This document defines the standard structure and patterns for per-endpoint inter
 **Pattern**: `{endpointName}.interceptors.ts`
 
 **Examples**:
+
 - `findDevices.interceptors.ts`
 - `connectDevice.interceptors.ts`
 - `saveFavorite.interceptors.ts`
 
 **Naming Rules**:
+
 - Use camelCase for endpoint names
 - End with `.interceptors.ts` suffix
 - Name should clearly indicate the API endpoint being intercepted
@@ -35,11 +37,12 @@ export const SAMPLE_ENDPOINT = {
   path: '/sample',
   full: 'http://localhost:5168/sample',
   pattern: 'http://localhost:5168/sample*',
-  alias: 'sampleEndpoint'
+  alias: 'sampleEndpoint',
 } as const;
 ```
 
 **Requirements**:
+
 - Use descriptive endpoint name in uppercase
 - Include HTTP method, API path, full URL, and pattern for cy.intercept()
 - Define alias for cy.wait() calls
@@ -66,6 +69,7 @@ export interface InterceptSampleEndpointOptions {
 ```
 
 **Requirements**:
+
 - Interface name pattern: `Intercept{EndpointName}Options`
 - Include JSDoc comments for all properties
 - Use union types for optional fixture arrays
@@ -123,6 +127,7 @@ export function interceptSampleEndpoint(options?: InterceptSampleEndpointOptions
 ```
 
 **Requirements**:
+
 - Function name pattern: `intercept{EndpointName}`
 - Accept options parameter matching the interface
 - Handle both success and error modes
@@ -144,6 +149,7 @@ export function waitForSampleEndpoint(): void {
 ```
 
 **Requirements**:
+
 - Function name pattern: `waitFor{EndpointName}`
 - Use template literal with endpoint alias
 - No parameters required
@@ -170,6 +176,7 @@ export function setupSampleEndpoint(): void {
 ```
 
 **Requirements**:
+
 - Focus on endpoint-specific functionality
 - Use descriptive function names
 - Keep functions simple and focused
@@ -186,6 +193,7 @@ export const INTERCEPT_SAMPLE_ENDPOINT = 'sampleEndpoint';
 ```
 
 **Requirements**:
+
 - Provide alias exports for existing import patterns
 - Maintain compatibility during transition
 - Export both endpoint object and string alias
@@ -199,7 +207,7 @@ import {
   interceptSampleEndpoint,
   waitForSampleEndpoint,
   verifySampleEndpointCompleted,
-  SAMPLE_ENDPOINT
+  SAMPLE_ENDPOINT,
 } from './sampleEndpoint.interceptors';
 ```
 
@@ -234,10 +242,14 @@ if (options?.errorMode) {
 ```typescript
 function getErrorTitle(statusCode: number): string {
   switch (statusCode) {
-    case 400: return 'Bad Request';
-    case 404: return 'Not Found';
-    case 500: return 'Internal Server Error';
-    default: return 'Error';
+    case 400:
+      return 'Bad Request';
+    case 404:
+      return 'Not Found';
+    case 500:
+      return 'Internal Server Error';
+    default:
+      return 'Error';
   }
 }
 ```
@@ -275,10 +287,11 @@ export const SAMPLE_ENDPOINT = {
 ### From Current Pattern
 
 **Before** (scattered across files):
+
 ```typescript
 // api.constants.ts
 export const INTERCEPT_ALIASES = {
-  SAMPLE_ENDPOINT: 'sampleEndpoint'
+  SAMPLE_ENDPOINT: 'sampleEndpoint',
 } as const;
 
 // device.interceptors.ts
@@ -293,13 +306,24 @@ export function waitForSampleEndpoint(): void {
 ```
 
 **After** (consolidated):
+
 ```typescript
 // sampleEndpoint.interceptors.ts
-export const SAMPLE_ENDPOINT = { /* ... */ } as const;
-export interface InterceptSampleEndpointOptions { /* ... */ }
-export function interceptSampleEndpoint(options?: InterceptSampleEndpointOptions): void { /* ... */ }
-export function waitForSampleEndpoint(): void { /* ... */ }
-export function verifySampleEndpointCompleted(): void { /* ... */ }
+export const SAMPLE_ENDPOINT = {
+  /* ... */
+} as const;
+export interface InterceptSampleEndpointOptions {
+  /* ... */
+}
+export function interceptSampleEndpoint(options?: InterceptSampleEndpointOptions): void {
+  /* ... */
+}
+export function waitForSampleEndpoint(): void {
+  /* ... */
+}
+export function verifySampleEndpointCompleted(): void {
+  /* ... */
+}
 ```
 
 ### Migration Steps
@@ -319,7 +343,7 @@ export function verifySampleEndpointCompleted(): void { /* ... */ }
 ```typescript
 beforeEach(() => {
   interceptSampleEndpoint({
-    fixture: { id: '1', name: 'Test Item', status: 'active' }
+    fixture: { id: '1', name: 'Test Item', status: 'active' },
   });
 });
 
@@ -336,7 +360,7 @@ it('should handle sample endpoint successfully', () => {
 it('should handle sample endpoint error', () => {
   interceptSampleEndpoint({
     errorMode: true,
-    statusCode: 404
+    statusCode: 404,
   });
 
   // trigger endpoint call
@@ -349,7 +373,7 @@ it('should handle sample endpoint error', () => {
 ```typescript
 it('should handle delayed response', () => {
   interceptSampleEndpoint({
-    responseDelayMs: 2000
+    responseDelayMs: 2000,
   });
 
   // trigger endpoint call

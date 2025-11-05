@@ -1,8 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import {
-  DevicesApiService,
-} from '@teensyrom-nx/data-access/api-client';
+import { DevicesApiService } from '@teensyrom-nx/data-access/api-client';
 import { DeviceService } from './device.service';
 import { ALERT_SERVICE } from '@teensyrom-nx/domain';
 

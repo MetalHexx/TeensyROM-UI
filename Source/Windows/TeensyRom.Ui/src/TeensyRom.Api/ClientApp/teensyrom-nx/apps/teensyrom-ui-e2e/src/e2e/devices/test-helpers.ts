@@ -34,7 +34,6 @@ import {
 } from '../../support/constants/selector.constants';
 import { APP_ROUTES } from '../../support/constants/app-routes.constants';
 
-
 /**
  * Navigate to the device view page with cleared storage
  */
@@ -234,4 +233,3 @@ export function verifyDisconnected(deviceIndex: number): void {
     .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
     .should('have.class', 'normal');
 }
-

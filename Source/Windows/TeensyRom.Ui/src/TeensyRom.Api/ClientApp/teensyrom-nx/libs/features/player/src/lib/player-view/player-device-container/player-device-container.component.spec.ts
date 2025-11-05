@@ -37,9 +37,7 @@ describe('PlayerDeviceContainerComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [PlayerDeviceContainerComponent],
-      providers: [
-        { provide: PLAYER_CONTEXT, useValue: mockPlayerContext },
-      ],
+      providers: [{ provide: PLAYER_CONTEXT, useValue: mockPlayerContext }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PlayerDeviceContainerComponent);
@@ -47,7 +45,7 @@ describe('PlayerDeviceContainerComponent', () => {
     fixture.componentRef.setInput('device', {
       id: 'test-device',
       name: 'Test Device',
-      status: 'connected'
+      status: 'connected',
     });
     fixture.detectChanges();
   });

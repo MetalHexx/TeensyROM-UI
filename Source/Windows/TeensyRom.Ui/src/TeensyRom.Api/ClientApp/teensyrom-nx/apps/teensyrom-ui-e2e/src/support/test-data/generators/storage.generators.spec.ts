@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  FileItemType,
-  instanceOfFileItemDto,
-} from '@teensyrom-nx/data-access/api-client';
+import { FileItemType, instanceOfFileItemDto } from '@teensyrom-nx/data-access/api-client';
 import { faker } from '../faker-config';
 import {
   createMockFilesystem,

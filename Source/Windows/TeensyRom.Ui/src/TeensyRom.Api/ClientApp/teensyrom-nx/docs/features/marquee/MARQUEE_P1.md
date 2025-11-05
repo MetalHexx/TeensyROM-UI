@@ -14,6 +14,7 @@
 Implement a scrolling text marquee component that displays the current file's description field from player state. The marquee should only scroll when text overflows the available width, providing an elegant way to show long file descriptions without truncating important information.
 
 **Key Value Propositions**:
+
 - **No Information Loss**: Users see full file descriptions even when very long
 - **Retro Aesthetic**: Classic scrolling text effect fits vintage computing theme
 - **Reusable Component**: Can be used anywhere scrolling text is needed
@@ -58,14 +59,16 @@ Create a standalone, reusable scrolling marquee component in the UI component li
 ### Technical Implementation
 
 **Component Inputs**:
+
 ```typescript
-text = input<string>('');              // Text to display
-speed = input<number>(50);             // Pixels per second scroll speed
-direction = input<'left' | 'right'>('left');  // Scroll direction
-pauseOnHover = input<boolean>(true);   // Pause animation on mouse hover
+text = input<string>(''); // Text to display
+speed = input<number>(50); // Pixels per second scroll speed
+direction = input<'left' | 'right'>('left'); // Scroll direction
+pauseOnHover = input<boolean>(true); // Pause animation on mouse hover
 ```
 
 **Animation Logic**:
+
 ```scss
 @keyframes scroll-left {
   0% {
@@ -82,6 +85,7 @@ pauseOnHover = input<boolean>(true);   // Pause animation on mouse hover
 ```
 
 **Overflow Detection**:
+
 ```typescript
 private checkOverflow(): void {
   const container = this.containerRef.nativeElement;
@@ -110,17 +114,20 @@ Integrate marquee component into player-device-container to display current file
 ### High-Level Tasks
 
 1. **Update player-device-container.component.ts**:
+
    - Inject PLAYER_CONTEXT service
    - Create `fileDescription` computed signal
    - Get `LaunchedFile.file.description` from current file
 
 2. **Update player-device-container.component.html**:
+
    - Add marquee component below file-other
    - Pass file description to marquee
    - Style for proper spacing
    - Put this inside a Scaling-Compact-Card component.
 
 3. **Update player-device-container.component.scss**:
+
    - Add marquee container styles
    - Ensure proper alignment with existing components
    - Responsive sizing
@@ -133,6 +140,7 @@ Integrate marquee component into player-device-container to display current file
 ### Integration Code
 
 **TypeScript**:
+
 ```typescript
 export class PlayerDeviceContainerComponent {
   private readonly playerContext = inject(PLAYER_CONTEXT);
@@ -147,6 +155,7 @@ export class PlayerDeviceContainerComponent {
 ```
 
 **HTML**:
+
 ```html
 <div class="device-container">
   <div class="device-header">
@@ -160,9 +169,9 @@ export class PlayerDeviceContainerComponent {
   </div>
 
   @if (isPlayerLoaded()) {
-    <div class="player-toolbar">
-      <lib-player-toolbar [deviceId]="deviceId()"></lib-player-toolbar>
-    </div>
+  <div class="player-toolbar">
+    <lib-player-toolbar [deviceId]="deviceId()"></lib-player-toolbar>
+  </div>
   }
   <!-- ... rest of template -->
 </div>
@@ -187,11 +196,13 @@ Add optional retro demo-style text effects to the marquee component, creating vi
 ### Retro Demo Effects
 
 #### 1. **Wave Effect** (Classic Sine Wave)
+
 **Description**: Characters flow up and down in a smooth sine wave pattern as they scroll.
 
 **Visual**: Letters undulate like ocean waves, each character offset by its position in the text.
 
 **Technical**:
+
 ```scss
 .wave-effect .char {
   animation: wave 1.5s ease-in-out infinite;
@@ -199,17 +210,24 @@ Add optional retro demo-style text effects to the marquee component, creating vi
 }
 
 @keyframes wave {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 ```
 
 #### 2. **Rainbow Cycling** (Commodore 64 Vibes)
+
 **Description**: Text colors cycle through the full spectrum, creating a flowing rainbow effect.
 
 **Visual**: Each character displays a different hue, colors shift continuously through the rainbow.
 
 **Technical**:
+
 ```scss
 .rainbow-effect .char {
   animation: rainbow 3s linear infinite;
@@ -217,22 +235,38 @@ Add optional retro demo-style text effects to the marquee component, creating vi
 }
 
 @keyframes rainbow {
-  0% { color: #ff0000; }
-  16.6% { color: #ff8800; }
-  33.3% { color: #ffff00; }
-  50% { color: #00ff00; }
-  66.6% { color: #0088ff; }
-  83.3% { color: #8800ff; }
-  100% { color: #ff0000; }
+  0% {
+    color: #ff0000;
+  }
+  16.6% {
+    color: #ff8800;
+  }
+  33.3% {
+    color: #ffff00;
+  }
+  50% {
+    color: #00ff00;
+  }
+  66.6% {
+    color: #0088ff;
+  }
+  83.3% {
+    color: #8800ff;
+  }
+  100% {
+    color: #ff0000;
+  }
 }
 ```
 
 #### 3. **Glitch Distortion** (CRT Interference)
+
 **Description**: Random character displacement with scanline artifacts, simulating CRT display glitches.
 
 **Visual**: Characters randomly shift position slightly, creating a digital corruption aesthetic.
 
 **Technical**:
+
 ```scss
 .glitch-effect .char {
   animation: glitch 0.3s infinite;
@@ -240,19 +274,30 @@ Add optional retro demo-style text effects to the marquee component, creating vi
 }
 
 @keyframes glitch {
-  0%, 100% { transform: translate(0, 0); }
-  25% { transform: translate(-2px, 1px); }
-  50% { transform: translate(2px, -1px); }
-  75% { transform: translate(-1px, -2px); }
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-2px, 1px);
+  }
+  50% {
+    transform: translate(2px, -1px);
+  }
+  75% {
+    transform: translate(-1px, -2px);
+  }
 }
 ```
 
 #### 4. **Bounce Elastic** (Rubber Band Physics)
+
 **Description**: Characters bounce and stretch like elastic rubber as they move.
 
 **Visual**: Letters squash and stretch with exaggerated timing, creating playful motion.
 
 **Technical**:
+
 ```scss
 .bounce-effect .char {
   animation: bounce 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
@@ -260,19 +305,30 @@ Add optional retro demo-style text effects to the marquee component, creating vi
 }
 
 @keyframes bounce {
-  0%, 100% { transform: scale(1, 1); }
-  25% { transform: scale(0.9, 1.1); }
-  50% { transform: scale(1.1, 0.9); }
-  75% { transform: scale(0.95, 1.05); }
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  25% {
+    transform: scale(0.9, 1.1);
+  }
+  50% {
+    transform: scale(1.1, 0.9);
+  }
+  75% {
+    transform: scale(0.95, 1.05);
+  }
 }
 ```
 
 #### 5. **Copper Bars** (Amiga Demo Classic)
+
 **Description**: Horizontal colored bands sweep through text, changing character colors as they pass.
 
 **Visual**: Metallic copper-colored bars move vertically through the text.
 
 **Technical**:
+
 ```scss
 .copper-effect .char {
   animation: copper 2s linear infinite;
@@ -280,19 +336,34 @@ Add optional retro demo-style text effects to the marquee component, creating vi
 }
 
 @keyframes copper {
-  0%, 100% { color: #ff6600; text-shadow: 0 0 8px #ff6600; }
-  25% { color: #ffaa00; text-shadow: 0 0 12px #ffaa00; }
-  50% { color: #ffdd00; text-shadow: 0 0 16px #ffdd00; }
-  75% { color: #ffaa00; text-shadow: 0 0 12px #ffaa00; }
+  0%,
+  100% {
+    color: #ff6600;
+    text-shadow: 0 0 8px #ff6600;
+  }
+  25% {
+    color: #ffaa00;
+    text-shadow: 0 0 12px #ffaa00;
+  }
+  50% {
+    color: #ffdd00;
+    text-shadow: 0 0 16px #ffdd00;
+  }
+  75% {
+    color: #ffaa00;
+    text-shadow: 0 0 12px #ffaa00;
+  }
 }
 ```
 
 #### 6. **Spiral Twist** (3D Rotation)
+
 **Description**: Characters rotate around the text baseline, creating a twisting spiral effect.
 
 **Visual**: Letters spin on their axis with staggered timing, appearing to spiral through space.
 
 **Technical**:
+
 ```scss
 .spiral-effect .char {
   animation: spiral 2s ease-in-out infinite;
@@ -300,37 +371,45 @@ Add optional retro demo-style text effects to the marquee component, creating vi
 }
 
 @keyframes spiral {
-  0%, 100% { transform: rotateY(0deg); }
-  50% { transform: rotateY(180deg); }
+  0%,
+  100% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(180deg);
+  }
 }
 ```
 
 ### Implementation Approach
 
 **Component Updates**:
+
 ```typescript
-effect = input<MarqueeEffect>('none');  // Effect type selector
+effect = input<MarqueeEffect>('none'); // Effect type selector
 
 export type MarqueeEffect =
-  | 'none'           // Basic scroll only
-  | 'wave'           // Sine wave vertical motion
-  | 'rainbow'        // Color spectrum cycling
-  | 'glitch'         // Random displacement
-  | 'bounce'         // Elastic squash/stretch
-  | 'copper'         // Copper bar sweep
-  | 'spiral';        // 3D rotation twist
+  | 'none' // Basic scroll only
+  | 'wave' // Sine wave vertical motion
+  | 'rainbow' // Color spectrum cycling
+  | 'glitch' // Random displacement
+  | 'bounce' // Elastic squash/stretch
+  | 'copper' // Copper bar sweep
+  | 'spiral'; // 3D rotation twist
 ```
 
 **Character Wrapping**:
+
 ```html
 <div class="marquee-content" [class]="effectClass()">
   @for (char of characters(); track $index) {
-    <span class="char" [style.--char-index]="$index">{{ char }}</span>
+  <span class="char" [style.--char-index]="$index">{{ char }}</span>
   }
 </div>
 ```
 
 **Performance Considerations**:
+
 - Use CSS transforms (GPU-accelerated) for position/scale effects
 - Limit effects to reasonable character counts (< 100 chars)
 - Provide option to disable effects on low-end devices
@@ -380,6 +459,7 @@ libs/ui/components/src/lib/scaling-compact-card/scrolling-marquee/
 ```
 
 **Location Rationale**: The marquee component is placed within the `scaling-compact-card/` directory because:
+
 - It follows similar organizational patterns to other specialized card components
 - Often used in combination with compact card layouts for player UI
 - Keeps related presentational components grouped together
@@ -451,6 +531,7 @@ CSS Animation (if overflow detected)
 ## ✅ Success Criteria
 
 ### Phase 1 & 2 (Basic Marquee)
+
 - [ ] Marquee component scrolls text smoothly when overflow detected
 - [ ] Static text displayed normally when fits in container
 - [ ] File description from player state displays correctly
@@ -461,6 +542,7 @@ CSS Animation (if overflow detected)
 - [ ] Component documented in COMPONENT_LIBRARY.md
 
 ### Phase 3 (Retro Demo Effects)
+
 - [ ] All 6 effects (wave, rainbow, glitch, bounce, copper, spiral) implemented
 - [ ] Effects can be toggled via effect input property
 - [ ] Character-level animations working correctly
@@ -485,12 +567,14 @@ CSS Animation (if overflow detected)
 ### CSS Animation Approach
 
 **Advantages**:
+
 - Hardware-accelerated (GPU-based transform)
 - Smooth 60fps animation
 - No JavaScript interval overhead
 - Automatic pause when tab inactive (browser optimization)
 
 **Implementation**:
+
 ```scss
 .marquee-container {
   overflow: hidden;
@@ -511,8 +595,12 @@ CSS Animation (if overflow detected)
 }
 
 @keyframes scroll-left {
-  from { transform: translateX(0); }
-  to { transform: translateX(-100%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
 }
 ```
 
@@ -592,6 +680,7 @@ private calculateDuration(): void {
 ## 🚀 Implementation Checklist
 
 ### Phase 1 Tasks
+
 - [ ] Create `scrolling-marquee` component directory
 - [ ] Implement component with text input
 - [ ] Add CSS keyframe animations
@@ -601,6 +690,7 @@ private calculateDuration(): void {
 - [ ] Export from ui/components index
 
 ### Phase 2 Tasks
+
 - [ ] Inject PLAYER_CONTEXT in player-device-container
 - [ ] Create fileDescription computed signal
 - [ ] Add marquee to template below file-other
@@ -609,6 +699,7 @@ private calculateDuration(): void {
 - [ ] Update COMPONENT_LIBRARY.md documentation
 
 ### Phase 3 Tasks (Retro Demo Effects)
+
 - [ ] Add MarqueeEffect type definition
 - [ ] Add effect input property to component
 - [ ] Implement character splitting logic
@@ -628,11 +719,13 @@ private calculateDuration(): void {
 ## 📊 Estimated Timeline
 
 - **Phase 1** (Component Creation): 1-2 days
+
   - Component implementation: 4-6 hours
   - Animation and overflow logic: 2-3 hours
   - Testing: 2-3 hours
 
 - **Phase 2** (Integration): 0.5-1 day
+
   - Player integration: 2-3 hours
   - Styling and layout: 1-2 hours
   - Testing and polish: 1-2 hours
@@ -649,6 +742,7 @@ private calculateDuration(): void {
   - Testing and polish: 2-3 hours
 
 **Total Estimated Time**:
+
 - **Phases 1-2** (Basic Marquee): 2-3 days
 - **Phase 3** (Retro Effects): 2-3 days additional
 - **Complete Implementation**: 4-6 days total

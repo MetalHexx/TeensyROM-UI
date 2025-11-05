@@ -5,6 +5,7 @@
 Transform the existing fragmented E2E interceptor infrastructure into a unified, primitive-based architecture that eliminates code duplication while maintaining complete backward compatibility. This migration will replace custom `cy.intercept()` implementations across 14 interceptor files with standardized primitive functions, reducing code complexity by 60-70% and establishing consistent patterns for future development.
 
 **Key Benefits:**
+
 - Eliminate 4,111+ lines of duplicate interceptor code across 14 files
 - Standardize RFC 9110 compliant error handling across all endpoints
 - Maintain zero test failures through systematic validation
@@ -17,11 +18,13 @@ Transform the existing fragmented E2E interceptor infrastructure into a unified,
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [x] [INTERCEPTOR_PRIMITIVES_PLAN.md](./INTERCEPTOR_PRIMITIVES_PLAN.md) - Complete architecture overview and design rationale
 - [x] [INTERCEPTOR_PRIMITIVES_P2.md](./INTERCEPTOR_PRIMITIVES_P2.md) - Detailed Phase 2 implementation plan and migration strategy
 - [ ] [E2E_TESTS.md](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - Current E2E testing patterns and standards
 
 **Standards & Guidelines:**
+
 - [ ] [INTERCEPTOR_PRIMITIVES.md](../../../apps/teensyrom-ui-e2e/src/support/interceptors/primitives/INTERCEPTOR_PRIMITIVES.md) - Info on interceptor primitives.
 
 ---
@@ -31,6 +34,7 @@ Transform the existing fragmented E2E interceptor infrastructure into a unified,
 > Provide a clear file tree showing new files (✨) and modified files (📝) to understand the implementation scope.
 
 **Interceptor Infrastructure:**
+
 ```
 apps/teensyrom-ui-e2e/src/support/interceptors/
 ├── primitives/
@@ -54,6 +58,7 @@ apps/teensyrom-ui-e2e/src/support/interceptors/
 ```
 
 **Test Files (Unchanged - Zero Breaking Changes):**
+
 ```
 apps/teensyrom-ui-e2e/src/e2e/
 ├── device/
@@ -74,6 +79,7 @@ apps/teensyrom-ui-e2e/src/e2e/
 ## 📋 Implementation Guidelines
 
 > **IMPORTANT - One-Interceptor-Per-Task Policy:**
+>
 > - Each task focuses on exactly ONE interceptor file for maximum isolation
 > - Run baseline tests BEFORE any changes to establish working state
 > - Run tests after each individual interceptor migration to catch issues immediately
@@ -88,18 +94,22 @@ apps/teensyrom-ui-e2e/src/e2e/
 **Purpose**: Establish comprehensive baseline test results before making any changes, ensuring we have a known-good state to compare against throughout the migration process.
 
 **Related Documentation:**
+
 - [E2E Testing Standards](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - Current testing patterns and validation criteria
 
 **Implementation Subtasks:**
+
 - [x] **Subtask 0.1**: Execute @agent-e2e-runner on complete E2E test suite with current interceptors
 - [x] **Subtask 0.2**: Document baseline test results including execution time and pass/fail status
 - [x] **Subtask 0.3**: Archive baseline results for comparison throughout migration
 - [x] **Subtask 0.4**: Verify all 12+ E2E tests are currently passing with existing interceptors
 
 **Testing Subtask:**
+
 - [x] **Baseline Validation**: Confirm all tests pass and document baseline metrics
 
 **Key Implementation Notes:**
+
 - This baseline is our reference point - all subsequent migrations must match or exceed these results
 - Document any existing flaky tests or known issues to avoid false positives during migration
 - Record execution time to monitor performance impact throughout migration
@@ -107,11 +117,13 @@ apps/teensyrom-ui-e2e/src/e2e/
 **Testing Focus for Task 0:**
 
 **Behaviors to Test:**
+
 - [x] **Complete Suite**: All E2E tests pass with current implementation
 - [x] **Performance**: Baseline execution time recorded for comparison
 - [x] **Known Issues**: Any existing problems documented to avoid confusion
 
 **Testing Reference:**
+
 - Agent-based testing using @agent-e2e-runner for comprehensive baseline analysis
 
 </details>
@@ -124,10 +136,12 @@ apps/teensyrom-ui-e2e/src/e2e/
 **Purpose**: Migrate the most critical device discovery interceptor to use primitive functions, establishing migration patterns while maintaining complete API compatibility. This is the highest priority interceptor as it's used by 12+ tests.
 
 **Related Documentation:**
+
 - [Phase 2 Device Migration](#phase-21-device-domain-migration) - Device-specific migration guidance
 - [findDevices Analysis](#211-finddevicesinterceptorsts) - Specific implementation details
 
 **Implementation Subtasks:**
+
 - [x] **Subtask 1.1**: Update `findDevices.interceptors.ts` endpoint definition to use `EndpointDefinition` interface
 - [x] **Subtask 1.2**: Replace custom `req.reply()` success logic in `interceptFindDevices()` with `interceptSuccess()` primitive
 - [x] **Subtask 1.3**: Replace manual RFC 9110 error handling with `interceptError()` primitive in error scenarios
@@ -135,19 +149,23 @@ apps/teensyrom-ui-e2e/src/e2e/
 - [x] **Subtask 1.5**: Preserve all existing function signatures and exports for backward compatibility
 
 **Testing Subtask:**
+
 - [x] **Post-Migration Test**: Execute @agent-e2e-runner to validate findDevices functionality
 
 **Code Cleanup Subtask:**
+
 - [x] **Code Cleaning**: Execute @agent-code-cleaner on all changed files.
 - [x] **Post-Cleanup Test**: Execute @agent-e2e-runner again to ensure no regressions from cleanup
 
 **Key Implementation Notes:**
+
 - This is the most complex interceptor (287 lines) with extensive custom logic
 - Critical to maintain all existing function signatures: `interceptFindDevices(options: InterceptFindDevicesOptions = {})`
 - Must preserve wait functions: `waitForFindDevices()`, `checkFindDevicesCalled()`
 - Keep fixture handling: `options.fixture ?? singleDevice`
 
 **Critical Type Interface:**
+
 ```typescript
 // Existing interface to preserve exactly
 export interface InterceptFindDevicesOptions {
@@ -164,6 +182,7 @@ export interface InterceptFindDevicesOptions {
 > Focus on **complete behavioral preservation** - findDevices must work identically
 
 **Behaviors to Test:**
+
 - [x] **Device Discovery**: Tests can discover devices with various fixture configurations
 - [x] **Error Handling**: Device discovery errors are properly simulated with correct RFC 9110 format
 - [x] **Timing**: Response delays work correctly with `responseDelayMs` parameter
@@ -171,6 +190,7 @@ export interface InterceptFindDevicesOptions {
 - [x] **Wait Functions**: `waitForFindDevices()` continues to work for test synchronization
 
 **Testing Reference:**
+
 - Agent-based testing using @agent-e2e-runner for comprehensive validation
 - Compare results directly with baseline to ensure zero regression
 
@@ -184,10 +204,12 @@ export interface InterceptFindDevicesOptions {
 **Purpose**: Migrate the device connection interceptor to use primitive functions, following the pattern established by findDevices while handling connection-specific response formatting.
 
 **Related Documentation:**
+
 - [Phase 2 Device Migration](#phase-21-device-domain-migration) - Device domain patterns
 - [Connection Interceptor Analysis](#212-connectdeviceinterceptorsts) - Connection-specific details
 
 **Implementation Subtasks:**
+
 - [x] **Subtask 2.1**: Update `connectDevice.interceptors.ts` endpoint definition to use `EndpointDefinition` interface
 - [x] **Subtask 2.2**: Replace custom connection success logic with `interceptSuccess()` primitive
 - [x] **Subtask 2.3**: Replace connection error handling with `interceptError()` primitive
@@ -195,13 +217,16 @@ export interface InterceptFindDevicesOptions {
 - [x] **Subtask 2.5**: Preserve all existing connection-specific response formatting
 
 **Testing Subtask:**
+
 - [x] **Post-Migration Test**: Execute @agent-e2e-runner to validate connectDevice functionality
 
 **Code Cleanup Subtask:**
+
 - [x] **Code Cleaning**: Execute @agent-code-cleaner on all changed files.
 - [x] **Post-Cleanup Test**: Execute @agent-e2e-runner again to ensure no regressions from cleanup
 
 **Key Implementation Notes:**
+
 - Connection responses often include device-specific metadata that must be preserved
 - Connection error scenarios must maintain exact same response format for UI compatibility
 - This interceptor is simpler than findDevices but still critical for device management workflow
@@ -209,6 +234,7 @@ export interface InterceptFindDevicesOptions {
 **Testing Focus for Task 2:**
 
 **Behaviors to Test:**
+
 - [x] **Device Connection**: Connection workflows function identically to before migration
 - [x] **Connection Errors**: Connection failure scenarios are properly simulated
 - [x] **Device Metadata**: Connection responses include expected device information
@@ -224,10 +250,12 @@ export interface InterceptFindDevicesOptions {
 **Purpose**: Migrate the device disconnection interceptor to use primitive functions, mirroring the connectDevice patterns while handling disconnection-specific scenarios.
 
 **Related Documentation:**
+
 - [Phase 2 Device Migration](#phase-21-device-domain-migration) - Device domain patterns
 - [Disconnection Interceptor Analysis](#213-disconnectdeviceinterceptorsts) - Disconnection-specific details
 
 **Implementation Subtasks:**
+
 - [x] **Subtask 3.1**: Update `disconnectDevice.interceptors.ts` endpoint definition to use `EndpointDefinition` interface
 - [x] **Subtask 3.2**: Replace custom disconnection logic with `interceptSuccess()` primitive
 - [x] **Subtask 3.3**: Replace disconnection error handling with `interceptError()` primitive
@@ -235,13 +263,16 @@ export interface InterceptFindDevicesOptions {
 - [x] **Subtask 3.5**: Preserve all existing disconnection response patterns
 
 **Testing Subtask:**
+
 - [x] **Post-Migration Test**: Execute @agent-e2e-runner to validate disconnectDevice functionality
 
 **Code Cleanup Subtask:**
+
 - [x] **Code Cleaning**: Execute @agent-code-cleaner on all changed files.
 - [x] **Post-Cleanup Test**: Execute @agent-e2e-runner again to ensure no regressions from cleanup
 
 **Key Implementation Notes:**
+
 - Disconnection is typically simpler than connection but still has specific response requirements
 - Should follow the exact same pattern established in connectDevice migration
 - Maintain all existing wait and convenience functions
@@ -249,6 +280,7 @@ export interface InterceptFindDevicesOptions {
 **Testing Focus for Task 3:**
 
 **Behaviors to Test:**
+
 - [x] **Device Disconnection**: Disconnection workflows function identically
 - [x] **Disconnection Errors**: Disconnection failure scenarios are properly simulated
 - [x] **State Cleanup**: Disconnection responses properly clean up device state
@@ -264,10 +296,12 @@ export interface InterceptFindDevicesOptions {
 **Purpose**: Migrate the device health check interceptor to use primitive functions, handling ping-specific response patterns and timeout scenarios.
 
 **Related Documentation:**
+
 - [Phase 2 Device Migration](#phase-21-device-domain-migration) - Device domain patterns
 - [Ping Interceptor Analysis](#214-pingdeviceinterceptorsts) - Health check specifics
 
 **Implementation Subtasks:**
+
 - [x] **Subtask 4.1**: Update `pingDevice.interceptors.ts` endpoint definition to use `EndpointDefinition` interface
 - [x] **Subtask 4.2**: Replace custom health check logic with `interceptSuccess()` primitive
 - [x] **Subtask 4.3**: Replace ping error handling with `interceptError()` primitive
@@ -275,18 +309,22 @@ export interface InterceptFindDevicesOptions {
 - [x] **Subtask 4.5**: Update ping convenience functions to use primitives
 
 **Testing Subtask:**
+
 - [x] **Post-Migration Test**: Execute @agent-e2e-runner to validate pingDevice functionality
 
 **Code Cleanup Subtask:**
+
 - [x] **Code Cleaning**: Execute @agent-code-cleaner on all changed files.
 - [x] **Post-Cleanup Test**: Execute @agent-e2e-runner again to ensure no regressions from cleanup
 
 **Key Implementation Notes:**
+
 - Ping operations often have timeout scenarios that need careful handling
 - Health check responses may include device status information that must be preserved
 - This completes the device domain migration
 
 **✅ TASK 4 COMPLETED - Device Domain Pilot Complete**
+
 - **Migration Date**: 2025-11-01
 - **Result**: Successfully migrated pingDevice.interceptors.ts (275→220 lines, 20% reduction)
 - **Tests**: All device health check functionality preserved and validated
@@ -296,6 +334,7 @@ export interface InterceptFindDevicesOptions {
 **Testing Focus for Task 4:**
 
 **Behaviors to Test:**
+
 - [x] **Health Checks**: Device ping operations return expected health status
 - [x] **Timeout Scenarios**: Ping timeout scenarios are properly simulated
 - [x] **Error Responses**: Ping failure responses match existing format
@@ -311,10 +350,12 @@ export interface InterceptFindDevicesOptions {
 **Purpose**: Migrate the file launch interceptor to use primitive functions, handling file-specific response formats and launch scenarios.
 
 **Related Documentation:**
+
 - [Phase 2 Player Migration](#phase-22-player-domain-migration) - Player domain patterns
 - [Launch File Analysis](#phase-22-player-domain-migration) - File launch specifics
 
 **Implementation Subtasks:**
+
 - [x] **Subtask 5.1**: Update `launchFile.interceptors.ts` endpoint definition to use `EndpointDefinition` interface
 - [x] **Subtask 5.2**: Replace custom file launch logic with `interceptSuccess()` primitive
 - [x] **Subtask 5.3**: Replace launch error handling with `interceptError()` primitive
@@ -322,13 +363,16 @@ export interface InterceptFindDevicesOptions {
 - [x] **Subtask 5.5**: Update launch convenience functions to use primitives
 
 **Testing Subtask:**
+
 - [x] **Post-Migration Test**: Execute @agent-e2e-runner to validate launchFile functionality
 
 **Code Cleanup Subtask:**
+
 - [x] **Code Cleaning**: Execute @agent-code-cleaner on all changed files.
 - [x] **Post-Cleanup Test**: Execute @agent-e2e-runner again to ensure no regressions from cleanup
 
 **✅ TASK 5 COMPLETED - Player Domain Migration Started**
+
 - **Migration Date**: 2025-11-02
 - **Result**: Successfully migrated launchFile.interceptors.ts (373→295 lines, 21% reduction)
 - **Tests**: All file launch functionality preserved and validated
@@ -336,6 +380,7 @@ export interface InterceptFindDevicesOptions {
 - **Player Domain Status**: ✅ 1 of 3 interceptors migrated successfully
 
 **Key Implementation Notes:**
+
 - File launch responses often include metadata about the launched file
 - Launch error scenarios must maintain specific response formats for player UI
 - This begins the player domain migration
@@ -343,6 +388,7 @@ export interface InterceptFindDevicesOptions {
 **Testing Focus for Task 5:**
 
 **Behaviors to Test:**
+
 - [ ] **File Launch**: Individual file launches work with correct response data
 - [ ] **Launch Metadata**: Launch responses include expected file information
 - [ ] **Launch Errors**: Launch failure scenarios are properly simulated
@@ -358,10 +404,12 @@ export interface InterceptFindDevicesOptions {
 **Purpose**: Migrate the random file launch interceptor to use primitive functions, handling complex random selection logic and parameterized URLs.
 
 **Related Documentation:**
+
 - [Phase 2 Player Migration](#phase-22-player-domain-migration) - Player domain patterns
 - [Launch Random Analysis](#phase-22-player-domain-migration) - Random launch specifics
 
 **Implementation Subtasks:**
+
 - [x] **Subtask 6.1**: Update `launchRandom.interceptors.ts` endpoint definition to use `EndpointDefinition` interface
 - [x] **Subtask 6.2**: Replace custom random launch logic with `interceptSuccess()` primitive
 - [x] **Subtask 6.3**: Handle complex parameterized URLs using primitive wildcard matching
@@ -369,13 +417,16 @@ export interface InterceptFindDevicesOptions {
 - [x] **Subtask 6.5**: Update random launch convenience functions to use primitives
 
 **Testing Subtask:**
+
 - [x] **Post-Migration Test**: Execute @agent-e2e-runner to validate launchRandom functionality
 
 **Code Cleanup Subtask:**
+
 - [x] **Code Cleaning**: Execute @agent-code-cleaner on all changed files.
 - [x] **Post-Cleanup Test**: Execute @agent-e2e-runner again to ensure no regressions from cleanup
 
 **✅ TASK 6 COMPLETED - Player Domain Migration Complete**
+
 - **Migration Date**: 2025-11-02
 - **Result**: Successfully migrated launchRandom.interceptors.ts (451→355 lines, 21% reduction)
 - **Tests**: All random launch functionality preserved and validated
@@ -383,6 +434,7 @@ export interface InterceptFindDevicesOptions {
 - **Player Domain Status**: ✅ COMPLETE - All 3 interceptors migrated successfully
 
 **Key Implementation Notes:**
+
 - This is a complex interceptor (451 lines) with sophisticated random selection logic
 - Parameterized URLs require careful handling with primitive wildcard matching
 - Random selection logic must be preserved exactly while using primitives for responses
@@ -390,6 +442,7 @@ export interface InterceptFindDevicesOptions {
 **Testing Focus for Task 6:**
 
 **Behaviors to Test:**
+
 - [ ] **Random Launch**: Random file selection functions identically to before migration
 - [ ] **Parameterized URLs**: Complex URL patterns work correctly with primitives
 - [ ] **Launch Responses**: Random launch responses include expected file information
@@ -405,21 +458,26 @@ export interface InterceptFindDevicesOptions {
 **Purpose**: Remove the barrel export file from player domain and update any imports, completing the player domain migration.
 
 **Related Documentation:**
+
 - [Barrel Export Cleanup](#phase-22-player-domain-migration) - Cleanup guidance
 
 **Implementation Subtasks:**
+
 - [ ] **Subtask 7.1**: Remove `player.interceptors.ts` barrel export file
 - [ ] **Subtask 7.2**: Update any test files importing from player barrel to use specific imports
 - [ ] **Subtask 7.3**: Verify all player domain interceptors are properly exported individually
 
 **Testing Subtask:**
+
 - [ ] **Post-Cleanup Test**: Execute @agent-e2e-runner to validate player domain functionality
 
 **Code Cleanup Subtask:**
+
 - [ ] **Code Cleaning**: Execute @agent-code-cleaner on all changed files.
 - [ ] **Post-Cleanup Test**: Execute @agent-e2e-runner again to ensure no regressions
 
 **Key Implementation Notes:**
+
 - This is a simple cleanup task to remove barrel exports
 - Need to verify no test files are broken by removing the barrel
 - Individual interceptor exports must be working correctly
@@ -427,6 +485,7 @@ export interface InterceptFindDevicesOptions {
 **Testing Focus for Task 7:**
 
 **Behaviors to Test:**
+
 - [ ] **Import Resolution**: All player interceptor imports continue to work
 - [ ] **Player Tests**: All player domain tests continue to pass
 - [ ] **Export Accessibility**: Individual interceptors are accessible without barrel
@@ -441,10 +500,12 @@ export interface InterceptFindDevicesOptions {
 **Purpose**: Migrate the directory browsing interceptor to use primitive functions, handling complex filesystem response structures and directory hierarchies.
 
 **Related Documentation:**
+
 - [Phase 2 Storage Migration](#phase-23-storage-domain-migration) - Storage domain patterns
 - [Directory Browsing Analysis](#phase-23-storage-domain-migration) - Directory specifics
 
 **Implementation Subtasks:**
+
 - [ ] **Subtask 8.1**: Update `getDirectory.interceptors.ts` endpoint definition to use `EndpointDefinition` interface
 - [ ] **Subtask 8.2**: Replace custom directory browsing logic with `interceptSuccess()` primitive
 - [ ] **Subtask 8.3**: Handle complex filesystem response structures using primitives
@@ -452,13 +513,16 @@ export interface InterceptFindDevicesOptions {
 - [ ] **Subtask 8.5**: Update directory convenience functions to use primitives
 
 **Testing Subtask:**
+
 - [ ] **Post-Migration Test**: Execute @agent-e2e-runner to validate getDirectory functionality
 
 **Code Cleanup Subtask:**
+
 - [ ] **Code Cleaning**: Execute @agent-code-cleaner on all changed files.
 - [ ] **Post-Cleanup Test**: Execute @agent-e2e-runner again to ensure no regressions from cleanup
 
 **Key Implementation Notes:**
+
 - Directory responses involve complex hierarchies (files, folders, metadata)
 - Filesystem structures must be preserved exactly for UI compatibility
 - This begins the storage domain migration which has the most complex interceptors
@@ -466,6 +530,7 @@ export interface InterceptFindDevicesOptions {
 **Testing Focus for Task 8:**
 
 **Behaviors to Test:**
+
 - [ ] **Directory Browsing**: File and folder navigation works correctly
 - [ ] **Filesystem Structure**: Directory responses maintain expected hierarchy
 - [ ] **File Metadata**: File information is preserved correctly
@@ -481,10 +546,12 @@ export interface InterceptFindDevicesOptions {
 **Purpose**: Migrate the favorite saving interceptor to use primitive functions, handling CRUD operations and favorite-specific response formats.
 
 **Related Documentation:**
+
 - [Phase 2 Storage Migration](#phase-23-storage-domain-migration) - Storage domain patterns
 - [Save Favorite Analysis](#phase-23-storage-domain-migration) - Favorite specifics
 
 **Implementation Subtasks:**
+
 - [ ] **Subtask 9.1**: Update `saveFavorite.interceptors.ts` endpoint definition to use `EndpointDefinition` interface
 - [ ] **Subtask 9.2**: Replace custom save favorite logic with `interceptSuccess()` primitive
 - [ ] **Subtask 9.3**: Replace save favorite error handling with `interceptError()` primitive
@@ -492,13 +559,16 @@ export interface InterceptFindDevicesOptions {
 - [ ] **Subtask 9.5**: Update favorite convenience functions to use primitives
 
 **Testing Subtask:**
+
 - [ ] **Post-Migration Test**: Execute @agent-e2e-runner to validate saveFavorite functionality
 
 **Code Cleanup Subtask:**
+
 - [ ] **Code Cleaning**: Execute @agent-code-cleaner on all changed files.
 - [ ] **Post-Cleanup Test**: Execute @agent-e2e-runner again to ensure no regressions from cleanup
 
 **Key Implementation Notes:**
+
 - Favorite operations are CRUD patterns that should be straightforward to migrate
 - Response formats must maintain exact same structure for UI compatibility
 - This interceptor should follow the established patterns from device domain
@@ -506,6 +576,7 @@ export interface InterceptFindDevicesOptions {
 **Testing Focus for Task 9:**
 
 **Behaviors to Test:**
+
 - [ ] **Save Favorite**: Add to favorite operations work correctly
 - [ ] **Favorite Responses**: Save responses include expected favorite information
 - [ ] **Error Handling**: Save error scenarios are properly simulated
@@ -521,10 +592,12 @@ export interface InterceptFindDevicesOptions {
 **Purpose**: Migrate the favorite removal interceptor to use primitive functions, following the saveFavorite patterns while handling removal-specific scenarios.
 
 **Related Documentation:**
+
 - [Phase 2 Storage Migration](#phase-23-storage-domain-migration) - Storage domain patterns
 - [Remove Favorite Analysis](#phase-23-storage-domain-migration) - Favorite specifics
 
 **Implementation Subtasks:**
+
 - [ ] **Subtask 10.1**: Update `removeFavorite.interceptors.ts` endpoint definition to use `EndpointDefinition` interface
 - [ ] **Subtask 10.2**: Replace custom remove favorite logic with `interceptSuccess()` primitive
 - [ ] **Subtask 10.3**: Replace remove favorite error handling with `interceptError()` primitive
@@ -532,13 +605,16 @@ export interface InterceptFindDevicesOptions {
 - [ ] **Subtask 10.5**: Update remove favorite convenience functions to use primitives
 
 **Testing Subtask:**
+
 - [ ] **Post-Migration Test**: Execute @agent-e2e-runner to validate removeFavorite functionality
 
 **Code Cleanup Subtask:**
+
 - [ ] **Code Cleaning**: Execute @agent-code-cleaner on all changed files.
 - [ ] **Post-Cleanup Test**: Execute @agent-e2e-runner again to ensure no regressions from cleanup
 
 **Key Implementation Notes:**
+
 - Should mirror the saveFavorite migration pattern exactly
 - Removal operations often have simpler response requirements than save operations
 - Maintain all existing wait and convenience functions
@@ -546,6 +622,7 @@ export interface InterceptFindDevicesOptions {
 **Testing Focus for Task 10:**
 
 **Behaviors to Test:**
+
 - [ ] **Remove Favorite**: Remove from favorite operations work correctly
 - [ ] **Removal Responses**: Remove responses include expected confirmation
 - [ ] **Error Handling**: Remove error scenarios are properly simulated
@@ -561,11 +638,13 @@ export interface InterceptFindDevicesOptions {
 **Purpose**: Migrate the storage indexing interceptor to use primitive functions, handling progressive response patterns using `interceptSequence()` for complex indexing operations.
 
 **Related Documentation:**
+
 - [Phase 2 Storage Migration](#phase-23-storage-domain-migration) - Storage domain patterns
 - [Index Storage Analysis](#phase-23-storage-domain-migration) - Indexing specifics
 - [Sequence Primitive Usage](./INTERCEPTOR_PRIMITIVES_PLAN.md#primitive-function-categories) - Progressive operations
 
 **Implementation Subtasks:**
+
 - [ ] **Subtask 11.1**: Update `indexStorage.interceptors.ts` endpoint definition to use `EndpointDefinition` interface
 - [ ] **Subtask 11.2**: Use `interceptSequence()` for progressive indexing operations
 - [ ] **Subtask 11.3**: Replace indexing error handling with `interceptError()` primitive
@@ -573,13 +652,16 @@ export interface InterceptFindDevicesOptions {
 - [ ] **Subtask 11.5**: Update indexing convenience functions to use primitives
 
 **Testing Subtask:**
+
 - [ ] **Post-Migration Test**: Execute @agent-e2e-runner to validate indexStorage functionality
 
 **Code Cleanup Subtask:**
+
 - [ ] **Code Cleaning**: Execute @agent-code-cleaner on all changed files.
 - [ ] **Post-Cleanup Test**: Execute @agent-e2e-runner again to ensure no regressions from cleanup
 
 **Key Implementation Notes:**
+
 - This is a complex interceptor (457 lines) with progressive response patterns
 - Indexing operations benefit greatly from `interceptSequence()` usage
 - Progress tracking and status updates must be preserved exactly
@@ -587,6 +669,7 @@ export interface InterceptFindDevicesOptions {
 **Testing Focus for Task 11:**
 
 **Behaviors to Test:**
+
 - [ ] **Storage Indexing**: Progressive indexing operations work correctly
 - [ ] **Progress Updates**: Indexing progress is reported accurately
 - [ ] **Sequence Responses**: Progressive response patterns function identically
@@ -602,10 +685,12 @@ export interface InterceptFindDevicesOptions {
 **Purpose**: Migrate the bulk storage indexing interceptor to use primitive functions, handling the most complex progressive response patterns for bulk operations.
 
 **Related Documentation:**
+
 - [Phase 2 Storage Migration](#phase-23-storage-domain-migration) - Storage domain patterns
 - [Index All Storage Analysis](#phase-23-storage-domain-migration) - Bulk indexing specifics
 
 **Implementation Subtasks:**
+
 - [ ] **Subtask 12.1**: Update `indexAllStorage.interceptors.ts` endpoint definition to use `EndpointDefinition` interface
 - [ ] **Subtask 12.2**: Use `interceptSequence()` for complex bulk indexing operations
 - [ ] **Subtask 12.3**: Replace bulk indexing error handling with `interceptError()` primitive
@@ -613,13 +698,16 @@ export interface InterceptFindDevicesOptions {
 - [ ] **Subtask 12.5**: Update bulk indexing convenience functions to use primitives
 
 **Testing Subtask:**
+
 - [ ] **Post-Migration Test**: Execute @agent-e2e-runner to validate indexAllStorage functionality
 
 **Code Cleanup Subtask:**
+
 - [ ] **Code Cleaning**: Execute @agent-code-cleaner on all changed files.
 - [ ] **Post-Cleanup Test**: Execute @agent-e2e-runner again to ensure no regressions from cleanup
 
 **Key Implementation Notes:**
+
 - This is the most complex interceptor (483 lines) with sophisticated bulk operations
 - Bulk indexing requires careful handling of progressive responses
 - Must maintain exact same progress tracking and status reporting
@@ -627,6 +715,7 @@ export interface InterceptFindDevicesOptions {
 **Testing Focus for Task 12:**
 
 **Behaviors to Test:**
+
 - [ ] **Bulk Indexing**: Large-scale indexing operations complete successfully
 - [ ] **Progress Tracking**: Bulk operation progress is reported accurately
 - [ ] **Error Recovery**: Bulk operation error scenarios are properly handled
@@ -642,10 +731,12 @@ export interface InterceptFindDevicesOptions {
 **Purpose**: Apply comprehensive comment cleanup across all migrated interceptor files and execute final testing to ensure the complete migration is successful and code quality is consistent.
 
 **Related Documentation:**
+
 - [Code Quality Standards](../../CODING_STANDARDS.md) - General code quality requirements
 - [E2E Testing Standards](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - Final validation requirements
 
 **Implementation Subtasks:**
+
 - [ ] **Subtask 13.1**: Launch @agent-comment-cleaner on `findDevices.interceptors.ts`
 - [ ] **Subtask 13.2**: Launch @agent-comment-cleaner on `connectDevice.interceptors.ts`
 - [ ] **Subtask 13.3**: Launch @agent-comment-cleaner on `disconnectDevice.interceptors.ts`
@@ -659,10 +750,12 @@ export interface InterceptFindDevicesOptions {
 - [ ] **Subtask 13.11**: Launch @agent-comment-cleaner on `indexAllStorage.interceptors.ts`
 
 **Testing Subtask:**
+
 - [ ] **Final Validation**: Execute @agent-e2e-runner on complete E2E test suite after all comment cleanup
 - [ ] **Performance Comparison**: Compare final results with baseline to ensure no performance regression
 
 **Key Implementation Notes:**
+
 - Comment cleaners can run in parallel to speed up the process
 - Each interceptor should have consistent documentation and commenting style
 - Final test run must include all 12+ E2E test files using the migrated interceptors
@@ -671,6 +764,7 @@ export interface InterceptFindDevicesOptions {
 **Testing Focus for Task 13:**
 
 **Behaviors to Test:**
+
 - [ ] **Complete Suite**: All E2E tests pass after migration and cleanup
 - [ ] **Performance**: Test execution time matches or exceeds baseline performance
 - [ ] **Code Quality**: All interceptors follow consistent commenting patterns
@@ -685,6 +779,7 @@ export interface InterceptFindDevicesOptions {
 > List all files that will be changed or created during this phase with full relative paths from project root.
 
 **Modified Files (One Per Task):**
+
 ```
 apps/teensyrom-ui-e2e/src/support/interceptors/device/findDevices.interceptors.ts        (Task 1)
 apps/teensyrom-ui-e2e/src/support/interceptors/device/connectDevice.interceptors.ts      (Task 2)
@@ -701,6 +796,7 @@ apps/teensyrom-ui-e2e/src/support/interceptors/storage/indexAllStorage.intercept
 ```
 
 **Potentially Modified Test Files (if barrel imports need updating):**
+
 ```
 apps/teensyrom-ui-e2e/src/e2e/device/device-discovery.cy.ts
 apps/teensyrom-ui-e2e/src/e2e/device/device-connection.cy.ts
@@ -720,6 +816,7 @@ apps/teensyrom-ui-e2e/src/e2e/player/launch-features.cy.ts
 > **IMPORTANT**: Tests are executed continuously throughout this phase with perfect isolation for debugging.
 
 > **Core Testing Philosophy:**
+>
 > - **One-Interceptor-Per-Task**: Maximum isolation for immediate issue identification
 > - **Baseline-First Policy**: Establish known-good state before any changes (Task 0)
 > - **Continuous Validation**: Test after each migration, then again after cleanup
@@ -727,6 +824,7 @@ apps/teensyrom-ui-e2e/src/e2e/player/launch-features.cy.ts
 > - **Agent-Based Quality**: Use @agent-e2e-runner, @agent-code-cleaner, @agent-comment-cleaner
 
 > **Testing Cadence Per Task:**
+>
 > 1. **Before**: Baseline established (Task 0) or previous task validated
 > 2. **Migration**: Modify ONE interceptor file only
 > 3. **Post-Migration Test**: @agent-e2e-runner to validate migration
@@ -737,6 +835,7 @@ apps/teensyrom-ui-e2e/src/e2e/player/launch-features.cy.ts
 ### Agent-Based Testing Strategy
 
 **Primary Testing Agents:**
+
 - **@agent-e2e-runner**: Comprehensive E2E test execution and detailed reporting
 - **@agent-code-cleaner**: TypeScript/ESLint error fixing and code quality improvement
 - **@agent-comment-cleaner**: Comment cleanup and standardization
@@ -744,12 +843,14 @@ apps/teensyrom-ui-e2e/src/e2e/player/launch-features.cy.ts
 ### Isolation Benefits
 
 **Perfect Issue Isolation:**
+
 - If tests fail after migration, the issue is in the single interceptor just modified
 - If tests fail after code cleanup, the issue is from the @agent-code-cleaner changes
 - If tests fail after comment cleanup, the issue is from @agent-comment-cleaner changes
 - Never have to search through multiple changed files to find the root cause
 
 **Immediate Feedback:**
+
 - Each task provides immediate validation of changes
 - No need to wait until end of phase to discover issues
 - Can rollback single interceptor changes if problems arise
@@ -758,6 +859,7 @@ apps/teensyrom-ui-e2e/src/e2e/player/launch-features.cy.ts
 ### Performance Monitoring
 
 **Baseline Comparison:**
+
 - Task 0 establishes baseline execution time and test results
 - Each subsequent task compares against baseline to catch performance regressions
 - Task 13 provides final performance comparison to ensure no degradation
@@ -772,12 +874,14 @@ apps/teensyrom-ui-e2e/src/e2e/player/launch-features.cy.ts
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Baseline Requirements:**
+
 - [x] Task 0 completed with comprehensive baseline test results documented
 - [x] All 12+ E2E tests passing with current implementation (54/54 device tests passing)
 - [x] Baseline execution time recorded for performance comparison
 - [x] Any existing issues documented to avoid false positives during migration
 
 **Per-Interceptor Requirements (Tasks 1-12):**
+
 - [x] Each interceptor migrated to primitive-based architecture individually (All domains complete: Device + Storage + Player)
 - [x] All existing function signatures preserved without changes for each interceptor
 - [x] All convenience functions and wait functions maintained for each interceptor
@@ -787,6 +891,7 @@ apps/teensyrom-ui-e2e/src/e2e/player/launch-features.cy.ts
 - [x] Zero test failures throughout entire migration process (All domains validated)
 
 **Code Quality Requirements:**
+
 - [x] 20% average code reduction achieved across all interceptor files (exceeded targets with cleaner code)
 - [x] All custom `cy.intercept()` implementations replaced with primitives (All domains complete)
 - [x] RFC 9110 compliant error handling standardized across all endpoints
@@ -794,6 +899,7 @@ apps/teensyrom-ui-e2e/src/e2e/player/launch-features.cy.ts
 - [x] Comment cleaner validation passes for all migrated files (completed successfully)
 
 **Final Validation Requirements (Task 13):**
+
 - [x] All @agent-comment-cleaner agents completed successfully
 - [x] Final @agent-e2e-runner execution shows zero test failures
 - [x] Final execution time meets or exceeds baseline performance
@@ -801,6 +907,7 @@ apps/teensyrom-ui-e2e/src/e2e/player/launch-features.cy.ts
 - [x] Consistent patterns and documentation established across all files
 
 **Architecture Requirements:**
+
 - [x] Complete backward compatibility maintained for all test files (device domain validated)
 - [x] Future interceptor development simplified through primitive usage
 - [x] Primitive infrastructure leveraged effectively across all domains
@@ -911,6 +1018,7 @@ apps/teensyrom-ui-e2e/src/e2e/player/launch-features.cy.ts
 #### 📊 **Current Results Summary**
 
 **Tasks Completed:**
+
 - ✅ **Task 0**: Baseline established (54/54 device tests passing)
 - ✅ **Task 1**: findDevices.interceptors.ts migrated (287→239 lines, 17% reduction)
 - ✅ **Task 2**: connectDevice.interceptors.ts migrated (218→175 lines, 20% reduction)
@@ -920,6 +1028,7 @@ apps/teensyrom-ui-e2e/src/e2e/player/launch-features.cy.ts
 - ✅ **Task 6**: saveFavorite.interceptors.ts migrated (367→290 lines, 21% reduction)
 
 **Total Impact So Far:**
+
 - **Code Reduction**: 1,349→1,074 lines (20% overall reduction)
 - **RFC 9110 Compliance**: ✅ Standardized across Device + Storage interceptors
 - **Backward Compatibility**: ✅ Zero breaking changes
@@ -927,6 +1036,7 @@ apps/teensyrom-ui-e2e/src/e2e/player/launch-features.cy.ts
 - **Performance**: ✅ Maintained or improved execution times
 
 #### 🚀 **Current Architecture Benefits:**
+
 - **Device Domain**: ✅ All 4 interceptors successfully migrated to primitive architecture
 - **Storage Domain**: ✅ 2 of 5 interceptors migrated (getDirectory, saveFavorite)
 - **Primitive Integration**: ✅ interceptSuccess, interceptError, interceptSequence all functioning

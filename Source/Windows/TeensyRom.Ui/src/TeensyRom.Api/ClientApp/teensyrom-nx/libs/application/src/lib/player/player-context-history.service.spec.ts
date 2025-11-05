@@ -16,9 +16,7 @@ import { PlayerStore } from './player-store';
 import { StorageStore, StorageDirectoryState } from '../storage/storage-store';
 
 // Test data factory functions
-const createTestFileItem = (
-  overrides: Partial<FileItem> = {}
-): FileItem => ({
+const createTestFileItem = (overrides: Partial<FileItem> = {}): FileItem => ({
   name: 'test-file.sid',
   path: '/music/test-file.sid',
   size: 4096,
@@ -48,8 +46,14 @@ const createTestDirectoryFiles = (): FileItem[] => [
   createTestFileItem({ name: 'song3.sid', path: '/music/song3.sid' }),
 ];
 
-type NavigateToDirectoryFn = (params: { deviceId: string; storageType: StorageType; path: string }) => Promise<void>;
-type GetSelectedDirectoryStateFn = (deviceId: string) => () => Partial<StorageDirectoryState> | null;
+type NavigateToDirectoryFn = (params: {
+  deviceId: string;
+  storageType: StorageType;
+  path: string;
+}) => Promise<void>;
+type GetSelectedDirectoryStateFn = (
+  deviceId: string
+) => () => Partial<StorageDirectoryState> | null;
 
 describe('PlayerContextService - Phase 2: History Navigation', () => {
   let service: PlayerContextService;
@@ -73,8 +77,8 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
 
   // Helper to wait for async operations
   const nextTick = () => new Promise<void>((r) => setTimeout(r, 0));
-  
-  // Helper to wait for timer state to be available  
+
+  // Helper to wait for timer state to be available
   const waitForTimerState = async (deviceId: string, maxAttempts = 50) => {
     for (let i = 0; i < maxAttempts; i++) {
       await nextTick();
@@ -85,7 +89,6 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
     }
     return null;
   };
-
 
   beforeEach(() => {
     // Create mocks implementing the actual service contracts
@@ -129,7 +132,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
 
     beforeEach(async () => {
       service.initializePlayer(deviceId);
-      
+
       // Switch to Shuffle mode
       service.toggleShuffleMode(deviceId);
       expect(service.getLaunchMode(deviceId)()).toBe(LaunchMode.Shuffle);
@@ -161,7 +164,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       // At this point we have history: [file1, file2, file3] with position -1 (at end)
       const playHistory = service.getPlayHistory(deviceId)();
       expect(playHistory?.entries.length).toBe(3);
-      
+
       const position = service.getCurrentHistoryPosition(deviceId)();
       expect(position).toBe(-1);
     });
@@ -230,9 +233,9 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       // Now navigate backward from position 0 - should wrap to position 2 (end)
       mockPlayerService.launchFile.mockClear(); // Clear previous calls
       mockPlayerService.launchFile.mockReturnValue(of(file3));
-      
+
       await service.previous(deviceId);
-      
+
       // Wait for state to fully update with multiple ticks
       for (let i = 0; i < 5; i++) {
         await nextTick();
@@ -240,14 +243,14 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
 
       // Should have wrapped to position 2 (last entry)
       const newPosition = service.getCurrentHistoryPosition(deviceId)();
-      
+
       // Debug: Check if file was launched
       expect(mockPlayerService.launchFile).toHaveBeenCalled();
-      
+
       // Verify history still has 3 entries (no new entry added)
       const historyAfter = service.getPlayHistory(deviceId)();
       expect(historyAfter?.entries.length).toBe(3);
-      
+
       expect(newPosition).toBe(2);
 
       // Should have launched file3
@@ -256,7 +259,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
         StorageType.Sd,
         file3.path
       );
-      
+
       // Verify current file is file3
       const currentFile = service.getCurrentFile(deviceId)();
       expect(currentFile?.file.path).toBe(file3.path);
@@ -265,10 +268,10 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
     it('should launch random when no history exists', async () => {
       // Clear history
       service.clearHistory(deviceId);
-      
+
       const playHistory = service.getPlayHistory(deviceId)();
       expect(playHistory).toBeNull();
-      
+
       const canNavigateBack = service.canNavigateBackwardInHistory(deviceId)();
       expect(canNavigateBack).toBe(false);
 
@@ -495,7 +498,8 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       // Next should launch new random file, not use forward history
       const newFile = createTestFileItem({
         name: 'file4.prg',
-        path: '/music/file4.prg',      });
+        path: '/music/file4.prg',
+      });
       mockPlayerService.launchRandom.mockReturnValue(of(newFile));
 
       await service.next(deviceId);
@@ -546,7 +550,8 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       // Launch new random file at end
       const newFile = createTestFileItem({
         name: 'file4.prg',
-        path: '/music/file4.prg',      });
+        path: '/music/file4.prg',
+      });
       mockPlayerService.launchRandom.mockReturnValue(of(newFile));
 
       await service.next(deviceId);
@@ -579,7 +584,8 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       // This should clear file3 and replace with new file
       const newFile = createTestFileItem({
         name: 'file-new.prg',
-        path: '/music/file-new.prg',      });
+        path: '/music/file-new.prg',
+      });
 
       // To trigger "launch new random" instead of forward history,
       // we need to be at the end of history. Let's test from position 2 instead.
@@ -672,7 +678,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
     beforeEach(async () => {
       // Create test files
       testFiles = createTestDirectoryFiles();
-      
+
       // Setup with shuffle mode enabled
       await service.initializePlayer(deviceId);
       await service.toggleShuffleMode(deviceId);
@@ -785,7 +791,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
         .mockReturnValueOnce(of(file1))
         .mockReturnValueOnce(of(file2))
         .mockReturnValueOnce(of(file3));
-      
+
       await service.next(deviceId);
       await nextTick();
       await service.next(deviceId);
@@ -822,7 +828,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
 
     it('should maintain independent histories for multiple devices', async () => {
       const deviceId2 = 'device-edge-cases-2';
-      
+
       // Setup device2
       await service.initializePlayer(deviceId2);
       await service.toggleShuffleMode(deviceId2);
@@ -870,19 +876,15 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       // Launch files to build history
       const file1 = testFiles[0];
       const file2 = testFiles[1];
-      mockPlayerService.launchRandom
-        .mockReturnValueOnce(of(file1))
-        .mockReturnValueOnce(of(file2));
-      
+      mockPlayerService.launchRandom.mockReturnValueOnce(of(file1)).mockReturnValueOnce(of(file2));
+
       await service.next(deviceId);
       await nextTick();
       await service.next(deviceId);
       await nextTick();
 
       // Mock navigateToDirectory to fail/reject
-      mockStorageStore.navigateToDirectory.mockRejectedValue(
-        new Error('Directory load failed')
-      );
+      mockStorageStore.navigateToDirectory.mockRejectedValue(new Error('Directory load failed'));
 
       // Navigate backward - file should still launch successfully
       mockPlayerService.launchFile.mockReturnValue(of(file1));
@@ -908,7 +910,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
         createTestFileItem({ name: 'song5.sid', path: '/music/song5.sid' }),
       ];
       const files = [...testFiles, ...additionalFiles];
-      
+
       for (const file of files) {
         mockPlayerService.launchRandom.mockReturnValueOnce(of(file));
         await service.next(deviceId);
@@ -950,7 +952,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       const historyAfter = service.getPlayHistory(deviceId)();
       expect(historyAfter?.currentPosition).toBe(4);
       expect(historyAfter?.entries).toHaveLength(5);
-      
+
       const currentFile = service.getCurrentFile(deviceId)();
       expect(currentFile?.file.path).toBe(files[4].path);
     });
@@ -959,10 +961,8 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       // Launch files in shuffle mode to build history
       const file1 = testFiles[0];
       const file2 = testFiles[1];
-      mockPlayerService.launchRandom
-        .mockReturnValueOnce(of(file1))
-        .mockReturnValueOnce(of(file2));
-      
+      mockPlayerService.launchRandom.mockReturnValueOnce(of(file1)).mockReturnValueOnce(of(file2));
+
       await service.next(deviceId);
       await nextTick();
       await service.next(deviceId);
@@ -1050,7 +1050,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       mockPlayerService.launchFile.mockReturnValueOnce(of(files[4]));
       await service.previous(deviceId);
       await nextTick();
-      
+
       let currentHistory = service.getPlayHistory(deviceId)();
       expect(currentHistory?.currentPosition).toBe(4);
       expect(service.getCurrentFile(deviceId)()?.file.name).toBe('song5.sid');
@@ -1058,7 +1058,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       mockPlayerService.launchFile.mockReturnValueOnce(of(files[3]));
       await service.previous(deviceId);
       await nextTick();
-      
+
       currentHistory = service.getPlayHistory(deviceId)();
       expect(currentHistory?.currentPosition).toBe(3);
       expect(service.getCurrentFile(deviceId)()?.file.name).toBe('song4.sid');
@@ -1066,7 +1066,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       mockPlayerService.launchFile.mockReturnValueOnce(of(files[2]));
       await service.previous(deviceId);
       await nextTick();
-      
+
       currentHistory = service.getPlayHistory(deviceId)();
       expect(currentHistory?.currentPosition).toBe(2);
       expect(service.getCurrentFile(deviceId)()?.file.name).toBe('song3.sid');
@@ -1075,7 +1075,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       mockPlayerService.launchFile.mockReturnValueOnce(of(files[3]));
       await service.next(deviceId);
       await nextTick();
-      
+
       currentHistory = service.getPlayHistory(deviceId)();
       expect(currentHistory?.currentPosition).toBe(3);
       expect(service.getCurrentFile(deviceId)()?.file.name).toBe('song4.sid');
@@ -1083,7 +1083,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       mockPlayerService.launchFile.mockReturnValueOnce(of(files[4]));
       await service.next(deviceId);
       await nextTick();
-      
+
       currentHistory = service.getPlayHistory(deviceId)();
       expect(currentHistory?.currentPosition).toBe(4);
       expect(service.getCurrentFile(deviceId)()?.file.name).toBe('song5.sid');
@@ -1138,7 +1138,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       mockPlayerService.launchFile.mockReturnValueOnce(of(files[3]));
       await service.previous(deviceId);
       await nextTick();
-      
+
       mockPlayerService.launchFile.mockReturnValueOnce(of(files[2]));
       await service.previous(deviceId);
       await nextTick();
@@ -1205,16 +1205,19 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       expect(launchMode1).toBe(LaunchMode.Directory);
 
       // Action: Navigate in directory mode (mock file context)
-      const directoryFile = createTestFileItem({ name: 'dir-file.sid', path: '/music/dir-file.sid' });
+      const directoryFile = createTestFileItem({
+        name: 'dir-file.sid',
+        path: '/music/dir-file.sid',
+      });
       mockPlayerService.launchFile.mockReturnValueOnce(of(directoryFile));
-      
+
       // Mock navigateNext to simulate directory navigation
       await service.next(deviceId);
       await nextTick();
 
       // Verify directory navigation worked
       expect(service.getCurrentFile(deviceId)()?.file.name).toBe('dir-file.sid');
-      
+
       // History should grow even in directory mode
       const historyInDirectory = service.getPlayHistory(deviceId)();
       expect(historyInDirectory?.entries.length).toBeGreaterThanOrEqual(2);
@@ -1347,7 +1350,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       // Position should be 5 (at index 5)
       history = service.getPlayHistory(deviceId)();
       expect(history?.currentPosition).toBe(5);
-      
+
       // Current file should match entry at position 5
       const currentFile = service.getCurrentFile(deviceId)();
       expect(currentFile?.file.name).toBe(history?.entries[5].file.name);
@@ -1363,7 +1366,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       // Position should be 8 (at index 8)
       history = service.getPlayHistory(deviceId)();
       expect(history?.currentPosition).toBe(8);
-      
+
       // Current file should match entry at position 8
       const currentFileAfterForward = service.getCurrentFile(deviceId)();
       expect(currentFileAfterForward?.file.name).toBe(history?.entries[8].file.name);
@@ -1379,7 +1382,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       // Position should be 6 (at index 6)
       history = service.getPlayHistory(deviceId)();
       expect(history?.currentPosition).toBe(6);
-      
+
       // Current file should match entry at position 6
       const finalCurrentFile = service.getCurrentFile(deviceId)();
       expect(finalCurrentFile?.file.name).toBe(history?.entries[6].file.name);
@@ -1457,7 +1460,7 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
       it('should keep history visible when navigating to history position', async () => {
         // Switch to shuffle mode and build history
         service.toggleShuffleMode(deviceId);
-        
+
         // Mock directory state
         const mockDirectoryState: Partial<StorageDirectoryState> = {
           directory: {
@@ -1536,4 +1539,3 @@ describe('PlayerContextService - Phase 2: History Navigation', () => {
     });
   });
 });
-

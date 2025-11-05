@@ -80,6 +80,7 @@ docs/features/player-state/
 - [ ] Used by UI components to display images directly
 
 **Interface Shape**:
+
 ```typescript
 export interface ViewableItemImage {
   fileName: string;
@@ -105,6 +106,7 @@ export interface ViewableItemImage {
 - [ ] Maintain null safety for all transformations
 
 **Method Signatures**:
+
 ```typescript
 static toViewableItemImage(dto: ViewableItemImageDto, baseApiUrl: string): ViewableItemImage
 static toFileItem(dto: FileItemDto, baseApiUrl: string): FileItem
@@ -127,6 +129,7 @@ static toFileItem(dto: FileItemDto, baseApiUrl: string): FileItem
 - [ ] Test null safety (missing properties don't cause errors)
 
 **Test Cases**:
+
 - Valid baseAssetPath: `http://localhost:5168` + `/Assets/Games/Screenshots/game.png` = `http://localhost:5168/Assets/Games/Screenshots/game.png`
 - Empty baseAssetPath: `url` = `''`
 - Multiple images: All receive proper URLs
@@ -217,14 +220,13 @@ static toFileItem(dto: FileItemDto, baseApiUrl: string): FileItem
 - [ ] Add `<img>` with `[src]="img"`, `alt="Viewable item image"`, `class="carousel-image"`
 
 **Template Structure**:
+
 ```html
-@if (currentImage()) {
-  @for (img of [currentImage()]; track imageKey()) {
-    <lib-scaling-container [animationEntry]="animationDirection()">
-      <img [src]="img" alt="Viewable item image" class="carousel-image" />
-    </lib-scaling-container>
-  }
-}
+@if (currentImage()) { @for (img of [currentImage()]; track imageKey()) {
+<lib-scaling-container [animationEntry]="animationDirection()">
+  <img [src]="img" alt="Viewable item image" class="carousel-image" />
+</lib-scaling-container>
+} }
 ```
 
 **Key Pattern**: `track imageKey()` changes force Angular to destroy/recreate element, triggering ScalingContainer animation
@@ -302,16 +304,13 @@ static toFileItem(dto: FileItemDto, baseApiUrl: string): FileItem
   - `@else` - Show `<img src="/placeholder.jpg" alt="Artist Image" />`
 
 **Template Structure**:
+
 ```html
 <lib-scaling-card [title]="creatorName()" [metadataSource]="metadataSource()">
   @if (hasImages()) {
-    <lib-cycle-image
-      [images]="imageUrls()"
-      [intervalMs]="3000"
-      animationDirection="random"
-    />
+  <lib-cycle-image [images]="imageUrls()" [intervalMs]="3000" animationDirection="random" />
   } @else {
-    <img src="/placeholder.jpg" alt="Artist Image" />
+  <img src="/placeholder.jpg" alt="Artist Image" />
   }
 </lib-scaling-card>
 ```
@@ -354,11 +353,14 @@ static toFileItem(dto: FileItemDto, baseApiUrl: string): FileItem
 - [ ] Cross-reference this document (PLAYER_DOMAIN_P6.md)
 
 **Section Content**:
+
 ```markdown
 ### Phase 6: Asset Image URLs & Animated Image Carousel
+
 **Goal**: Display file artwork/screenshots with animated carousel cycling through available images
 
 **Scope**:
+
 - Regenerate API client to pick up `baseAssetPath` property on `ViewableItemImageDto`
 - Add `url` property to `ViewableItemImage` domain model
 - Update `DomainMapper` to construct full URLs from `baseAssetPath` + base API URL
@@ -369,6 +371,7 @@ static toFileItem(dto: FileItemDto, baseApiUrl: string): FileItem
 - **NO** custom Asset service - base URL extracted from existing infrastructure services
 
 **Additions**:
+
 - `ViewableItemImage.url` property (full URL to image asset)
 - `DomainMapper.toViewableItemImage(dto, baseApiUrl)` - accepts base URL parameter
 - `DomainMapper.toFileItem(dto, baseApiUrl)` - passes URL to image mapper
@@ -384,12 +387,14 @@ static toFileItem(dto: FileItemDto, baseApiUrl: string): FileItem
 ## 🗂️ File Changes
 
 **New Files**:
+
 - [libs/ui/components/src/lib/cycle-image/cycle-image.component.ts](../../../libs/ui/components/src/lib/cycle-image/cycle-image.component.ts)
 - [libs/ui/components/src/lib/cycle-image/cycle-image.component.html](../../../libs/ui/components/src/lib/cycle-image/cycle-image.component.html)
 - [libs/ui/components/src/lib/cycle-image/cycle-image.component.scss](../../../libs/ui/components/src/lib/cycle-image/cycle-image.component.scss)
 - [libs/ui/components/src/lib/cycle-image/cycle-image.component.spec.ts](../../../libs/ui/components/src/lib/cycle-image/cycle-image.component.spec.ts)
 
 **Modified Files**:
+
 - [libs/domain/src/lib/models/viewable-item-image.model.ts](../../../libs/domain/src/lib/models/viewable-item-image.model.ts)
 - [libs/infrastructure/src/lib/domain.mapper.ts](../../../libs/infrastructure/src/lib/domain.mapper.ts)
 - [libs/infrastructure/src/lib/domain.mapper.spec.ts](../../../libs/infrastructure/src/lib/domain.mapper.spec.ts)
@@ -402,6 +407,7 @@ static toFileItem(dto: FileItemDto, baseApiUrl: string): FileItem
 - [PLAYER_DOMAIN_DESIGN.md](./PLAYER_DOMAIN_DESIGN.md)
 
 **Generated Files** (from API client regeneration):
+
 - Updates to `libs/data-access/api-client/src/lib/models/ViewableItemImageDto.ts` (adds `baseAssetPath` property)
 
 ---
@@ -411,12 +417,14 @@ static toFileItem(dto: FileItemDto, baseApiUrl: string): FileItem
 ### Unit Tests
 
 **DomainMapper Tests** (`domain.mapper.spec.ts`):
+
 - [ ] `toViewableItemImage()` constructs URL from baseApiUrl + baseAssetPath
 - [ ] `toViewableItemImage()` handles empty baseAssetPath (returns empty url)
 - [ ] `toFileItem()` passes baseApiUrl to image mapper correctly
 - [ ] Multiple images in FileItem all receive proper URLs
 
 **CycleImageComponent Tests** (`cycle-image.component.spec.ts`):
+
 - [ ] Component creates successfully with required images input
 - [ ] Displays current image from array
 - [ ] Cycles through images at specified interval (fakeAsync testing)
@@ -427,6 +435,7 @@ static toFileItem(dto: FileItemDto, baseApiUrl: string): FileItem
 - [ ] Interval timer cleanup on destroy (no memory leaks)
 
 **FileImageComponent Integration**:
+
 - [ ] Injects player context successfully
 - [ ] currentFile signal derives from player context
 - [ ] imageUrls signal extracts URLs from currentFile images
@@ -469,6 +478,7 @@ static toFileItem(dto: FileItemDto, baseApiUrl: string): FileItem
 ## 📝 Notes
 
 **Design Decisions**:
+
 - **No Asset Service**: Base URL extracted from PlayerApiService and FilesApiService configurations via `apiService.configuration?.basePath`
 - **No Assets API Endpoint**: Backend Assets endpoint is commented out - only using baseAssetPath property on ViewableItemImageDto
 - **DOM Re-rendering Strategy**: Using `@for` with changing `track imageKey()` to force element recreation for animations
@@ -476,6 +486,7 @@ static toFileItem(dto: FileItemDto, baseApiUrl: string): FileItem
 - **Fallback Behavior**: Empty or missing baseAssetPath results in empty url string, component shows placeholder
 
 **Future Enhancements** (Not in Phase 6):
+
 - Custom timer durations per image
 - Pause carousel on hover
 - Manual navigation controls (prev/next buttons)
@@ -484,6 +495,7 @@ static toFileItem(dto: FileItemDto, baseApiUrl: string): FileItem
 - Image preloading for smoother transitions
 
 **Dependencies**:
+
 - Phase 5 must be complete (player context and timer system)
 - Backend must provide baseAssetPath on ViewableItemImageDto
 - ScalingContainerComponent must be available in ui/components

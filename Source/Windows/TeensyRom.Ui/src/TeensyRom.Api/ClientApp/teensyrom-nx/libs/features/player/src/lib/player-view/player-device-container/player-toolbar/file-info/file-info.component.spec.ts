@@ -36,7 +36,7 @@ describe('FileInfoComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [FileInfoComponent],
-      providers: [provideNoopAnimations()]
+      providers: [provideNoopAnimations()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FileInfoComponent);
@@ -267,12 +267,14 @@ describe('FileInfoComponent', () => {
 
     it('should extract image URLs from single image', () => {
       const mockFile = createMockFile({
-        images: [{ 
-          url: 'https://example.com/image1.png',
-          fileName: 'image1.png',
-          path: '/images/image1.png',
-          source: 'gamebase'
-        }],
+        images: [
+          {
+            url: 'https://example.com/image1.png',
+            fileName: 'image1.png',
+            path: '/images/image1.png',
+            source: 'gamebase',
+          },
+        ],
       });
 
       fixture.componentRef.setInput('fileItem', mockFile);
@@ -284,23 +286,23 @@ describe('FileInfoComponent', () => {
     it('should extract image URLs from multiple images', () => {
       const mockFile = createMockFile({
         images: [
-          { 
+          {
             url: 'https://example.com/image1.png',
             fileName: 'image1.png',
             path: '/images/image1.png',
-            source: 'gamebase'
+            source: 'gamebase',
           },
-          { 
+          {
             url: 'https://example.com/image2.jpg',
             fileName: 'image2.jpg',
             path: '/images/image2.jpg',
-            source: 'gamebase'
+            source: 'gamebase',
           },
-          { 
+          {
             url: 'https://example.com/image3.gif',
             fileName: 'image3.gif',
             path: '/images/image3.gif',
-            source: 'gamebase'
+            source: 'gamebase',
           },
         ],
       });
@@ -318,17 +320,17 @@ describe('FileInfoComponent', () => {
     it('should pass imageUrls to CycleImageComponent', () => {
       const mockFile = createMockFile({
         images: [
-          { 
+          {
             url: 'https://example.com/img1.png',
             fileName: 'img1.png',
             path: '/images/img1.png',
-            source: 'gamebase'
+            source: 'gamebase',
           },
-          { 
+          {
             url: 'https://example.com/img2.png',
             fileName: 'img2.png',
             path: '/images/img2.png',
-            source: 'gamebase'
+            source: 'gamebase',
           },
         ],
       });
@@ -346,12 +348,14 @@ describe('FileInfoComponent', () => {
 
     it('should pass intervalMs of 4000 to CycleImageComponent', () => {
       const mockFile = createMockFile({
-        images: [{ 
-          url: 'https://example.com/img.png',
-          fileName: 'img.png',
-          path: '/images/img.png',
-          source: 'gamebase'
-        }],
+        images: [
+          {
+            url: 'https://example.com/img.png',
+            fileName: 'img.png',
+            path: '/images/img.png',
+            source: 'gamebase',
+          },
+        ],
       });
 
       fixture.componentRef.setInput('fileItem', mockFile);
@@ -363,12 +367,14 @@ describe('FileInfoComponent', () => {
 
     it('should pass thumbnail size to CycleImageComponent', () => {
       const mockFile = createMockFile({
-        images: [{ 
-          url: 'https://example.com/img.png',
-          fileName: 'img.png',
-          path: '/images/img.png',
-          source: 'gamebase'
-        }],
+        images: [
+          {
+            url: 'https://example.com/img.png',
+            fileName: 'img.png',
+            path: '/images/img.png',
+            source: 'gamebase',
+          },
+        ],
       });
 
       fixture.componentRef.setInput('fileItem', mockFile);
@@ -382,20 +388,24 @@ describe('FileInfoComponent', () => {
   describe('Computed Signal Reactivity', () => {
     it('should update imageUrls when fileItem changes', () => {
       const mockFile1 = createMockFile({
-        images: [{ 
-          url: 'https://example.com/image1.png',
-          fileName: 'image1.png',
-          path: '/images/image1.png',
-          source: 'gamebase'
-        }],
+        images: [
+          {
+            url: 'https://example.com/image1.png',
+            fileName: 'image1.png',
+            path: '/images/image1.png',
+            source: 'gamebase',
+          },
+        ],
       });
       const mockFile2 = createMockFile({
-        images: [{ 
-          url: 'https://example.com/image2.png',
-          fileName: 'image2.png',
-          path: '/images/image2.png',
-          source: 'gamebase'
-        }],
+        images: [
+          {
+            url: 'https://example.com/image2.png',
+            fileName: 'image2.png',
+            path: '/images/image2.png',
+            source: 'gamebase',
+          },
+        ],
       });
 
       fixture.componentRef.setInput('fileItem', mockFile1);
@@ -432,14 +442,14 @@ describe('FileInfoComponent', () => {
 
       fixture.componentRef.setInput('fileItem', mockFile1);
       fixture.detectChanges();
-      
+
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.querySelector('.file-title')?.textContent).toBe('First File');
       expect(compiled.querySelector('.file-creator')?.textContent).toBe('Creator 1');
 
       fixture.componentRef.setInput('fileItem', mockFile2);
       fixture.detectChanges();
-      
+
       expect(compiled.querySelector('.file-title')?.textContent).toBe('Second File');
       expect(compiled.querySelector('.file-creator')?.textContent).toBe('Creator 2');
     });
@@ -448,12 +458,14 @@ describe('FileInfoComponent', () => {
   describe('Component Integration', () => {
     it('should render CycleImageComponent when file has images', () => {
       const mockFile = createMockFile({
-        images: [{ 
-          url: 'https://example.com/img.png',
-          fileName: 'img.png',
-          path: '/images/img.png',
-          source: 'gamebase'
-        }],
+        images: [
+          {
+            url: 'https://example.com/img.png',
+            fileName: 'img.png',
+            path: '/images/img.png',
+            source: 'gamebase',
+          },
+        ],
       });
 
       fixture.componentRef.setInput('fileItem', mockFile);
@@ -487,4 +499,3 @@ describe('FileInfoComponent', () => {
     });
   });
 });
-

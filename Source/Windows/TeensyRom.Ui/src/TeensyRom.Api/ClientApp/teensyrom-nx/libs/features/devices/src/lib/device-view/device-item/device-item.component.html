@@ -1,44 +1,10 @@
-
-
-
-
-
-
-
-
-
-
-
 <lib-scaling-card
   [title]="device()?.name"
   [enableOverflow]="false"
   data-testid="device-card"
   [ngClass]="{ dimmed: !connectionStatus() }"
-  animationEntry="from-left">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  animationEntry="from-left"
+>
   <!-- Power button in corner slot -->
   <lib-icon-button
     slot="corner"
@@ -67,7 +33,8 @@
       <lib-icon-label
         icon="usb"
         data-testid="device-port-label"
-        [label]="'Port: ' + (device()?.comPort ?? '')">
+        [label]="'Port: ' + (device()?.comPort ?? '')"
+      >
       </lib-icon-label>
       <lib-icon-label
         icon="device_hub"

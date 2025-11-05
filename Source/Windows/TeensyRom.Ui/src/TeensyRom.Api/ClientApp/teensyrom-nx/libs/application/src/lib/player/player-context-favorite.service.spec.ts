@@ -133,10 +133,7 @@ describe('PlayerContextService - Favorite Synchronization', () => {
 
   it('should update current file favorite status when paths match', async () => {
     const file = createTestFile({ path: '/music/song1.sid', isFavorite: false });
-    const directoryFiles = [
-      file,
-      createTestFile({ path: '/music/song2.sid', name: 'song2.sid' }),
-    ];
+    const directoryFiles = [file, createTestFile({ path: '/music/song2.sid', name: 'song2.sid' })];
 
     await launchFileForDevice(file, directoryFiles);
 

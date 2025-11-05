@@ -1703,7 +1703,9 @@ describe('StorageStore (NgRx Signal Store)', () => {
       const key = StorageKeyUtil.create(deviceId, storageType);
 
       // First search
-      searchMock.mockReturnValue(of([createMockFileItem({ name: 'first.sid', path: '/first.sid' })]));
+      searchMock.mockReturnValue(
+        of([createMockFileItem({ name: 'first.sid', path: '/first.sid' })])
+      );
       await store.searchFiles({ deviceId, storageType, searchText: 'first' });
 
       let searchState = store.searchState()[key];

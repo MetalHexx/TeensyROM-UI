@@ -11,14 +11,17 @@ Systematically migrate all device-related endpoints (findDevices, connectDevice,
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [ ] [E2E Interceptor Refactoring Plan](./E2E_INTERCEPTOR_REFACTOR_PLAN.md) - High-level feature plan
 - [ ] [Phase 1 Implementation](./E2E_INTERCEPTOR_REFACTOR_P1.md) - Foundation and infrastructure
 - [ ] [Interceptor Format Documentation](./INTERCEPTOR_FORMAT.md) - Format guidelines and patterns
 
 **Standards & Guidelines:**
+
 - [ ] [E2E Testing Overview](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - Current E2E testing infrastructure
 
 **Reference Materials:**
+
 - [ ] [Sample Endpoint Example](../../../apps/teensyrom-ui-e2e/src/support/interceptors/examples/sampleEndpoint.interceptors.ts) - Working example following format
 - [ ] [Current Device Interceptors](../../../apps/teensyrom-ui-e2e/src/support/interceptors/device.interceptors.ts) - Source for existing implementations
 
@@ -57,11 +60,13 @@ apps/teensyrom-ui-e2e/src/support/constants/
 ## 📋 Implementation Guidelines
 
 > **IMPORTANT - Progress Tracking:**
+>
 > - **Mark checkboxes ✅ as you complete each subtask**
 > - Update progress throughout implementation, not just at the end
 > - This helps track what's done and what remains
 
 > **IMPORTANT - Migration Approach:**
+>
 > - **One endpoint at a time** - Complete findDevices before starting connectDevice
 > - **Systematic validation** - Run full test suite after each endpoint migration
 > - **Explicit imports only** - Use direct imports from new endpoint files
@@ -75,11 +80,13 @@ apps/teensyrom-ui-e2e/src/support/constants/
 **Purpose**: Create self-contained findDevices.interceptors.ts file following the established format, update all dependent tests, and validate the migration.
 
 **Related Documentation:**
+
 - [Interceptor Format Documentation](./INTERCEPTOR_FORMAT.md) - Format to follow exactly
 - [Sample Endpoint Example](../../../apps/teensyrom-ui-e2e/src/support/interceptors/examples/sampleEndpoint.interceptors.ts) - Reference implementation
 - [Current findDevices Implementation](../../../apps/teensyrom-ui-e2e/src/support/interceptors/device.interceptors.ts) - Source code to migrate
 
 **Implementation Subtasks:**
+
 - [x] **Create findDevices.interceptors.ts**: New file following 6-section structure ✅
 - [x] **Section 1 - Endpoint Definition**: Create FIND_DEVICES_ENDPOINT constant moved from api.constants.ts ✅
 - [x] **Section 2 - Interface Definitions**: Define InterceptFindDevicesOptions interface ✅
@@ -92,17 +99,20 @@ apps/teensyrom-ui-e2e/src/support/constants/
 - [x] **Remove from Old Files**: Remove findDevices from device.interceptors.ts and api.constants.ts ✅
 
 **Testing Subtask:**
+
 - [x] **Write Tests**: Run device-discovery.cy.ts to ensure findDevices functionality unchanged ✅
 - [x] **Validate Imports**: Test new explicit imports work correctly ✅
 - [x] **Backward Compatibility**: Verify existing test patterns continue working ✅
 
 **Key Implementation Notes:**
+
 - Source all interface and implementation details from current device.interceptors.ts
 - Maintain exact same functionality to ensure test compatibility
 - Use explicit imports pattern: `import { interceptFindDevices, waitForFindDevices } from './findDevices.interceptors'`
 - Ensure all test files that use findDevices are updated to use new imports
 
 **Critical Interface:**
+
 ```typescript
 interface InterceptFindDevicesOptions {
   fixture?: MockDeviceFixture;
@@ -113,12 +123,14 @@ interface InterceptFindDevicesOptions {
 **Testing Focus for Task 1:**
 
 **Behaviors to Test:**
+
 - [ ] Device discovery returns expected fixtures
 - [ ] Error mode triggers appropriate error responses
 - [ ] waitForFindDevices() works correctly with new alias
 - [ ] All existing device-discovery.cy.ts tests pass without modification
 
 **Testing Reference:**
+
 - Run specific device discovery tests: `npx nx e2e teensyrom-ui-e2e --spec="src/e2e/devices/device-discovery.cy.ts"`
 
 </details>
@@ -131,11 +143,13 @@ interface InterceptFindDevicesOptions {
 **Purpose**: Create self-contained connectDevice.interceptors.ts file, applying refined patterns from findDevices migration.
 
 **Related Documentation:**
+
 - [INTERCEPTOR_FORMAT.md](./INTERCEPTOR_FORMAT.md) - Format to follow exactly
 - [findDevices.interceptors.ts](../../../apps/teensyrom-ui-e2e/src/support/interceptors/findDevices.interceptors.ts) - Pattern from Task 1
 - [Current connectDevice Implementation](../../../apps/teensyrom-ui-e2e/src/support/interceptors/device.interceptors.ts) - Source code to migrate
 
 **Implementation Subtasks:**
+
 - [x] **Create connectDevice.interceptors.ts**: New file following 6-section structure ✅
 - [x] **Section 1 - Endpoint Definition**: Create CONNECT_DEVICE_ENDPOINT constant ✅
 - [x] **Section 2 - Interface Definitions**: Define InterceptConnectDeviceOptions interface ✅
@@ -147,17 +161,20 @@ interface InterceptFindDevicesOptions {
 - [x] **Remove from Old Files**: Remove connectDevice from device.interceptors.ts ✅
 
 **Testing Subtask:**
+
 - [x] **Write Tests**: Run device-connection.cy.ts to ensure connectDevice functionality unchanged ✅
 - [x] **Cross-Endpoint Testing**: Test findDevices + connectDevice integration ✅
 - [x] **Performance Validation**: Ensure no performance regression from migration ✅
 
 **Key Implementation Notes:**
+
 - Apply learnings and refinements from findDevices migration
 - Maintain exact same error handling and response patterns
 - Use consistent naming conventions established in Task 1
 - Ensure device connection scenarios work correctly with findDevices
 
 **Critical Interface:**
+
 ```typescript
 interface InterceptConnectDeviceOptions {
   device?: CartDto;
@@ -168,12 +185,14 @@ interface InterceptConnectDeviceOptions {
 **Testing Focus for Task 2:**
 
 **Behaviors to Test:**
+
 - [ ] Device connection succeeds with valid device
 - [ ] Connection errors are handled correctly
 - [ ] waitForConnectDevice() works with new alias
 - [ ] Integration with findDevices works seamlessly
 
 **Testing Reference:**
+
 - Run device connection tests: `npx nx e2e teensyrom-ui-e2e --spec="src/e2e/devices/device-connection.cy.ts"`
 - Test multi-device scenarios: `npx nx e2e teensyrom-ui-e2e --spec="src/e2e/devices/device-connection-multi.cy.ts"`
 
@@ -187,11 +206,13 @@ interface InterceptConnectDeviceOptions {
 **Purpose**: Create self-contained disconnectDevice.interceptors.ts with focus on error handling patterns and cleanup logic.
 
 **Related Documentation:**
+
 - [INTERCEPTOR_FORMAT.md](./INTERCEPTOR_FORMAT.md) - Format to follow exactly
 - [findDevices.interceptors.ts](../../../apps/teensyrom-ui-e2e/src/support/interceptors/findDevices.interceptors.ts) - Established pattern
 - [Current disconnectDevice Implementation](../../../apps/teensyrom-ui-e2e/src/support/interceptors/device.interceptors.ts) - Source code to migrate
 
 **Implementation Subtasks:**
+
 - [x] **Create disconnectDevice.interceptors.ts**: New file following 6-section structure ✅
 - [x] **Section 1 - Endpoint Definition**: Create DISCONNECT_DEVICE_ENDPOINT constant ✅
 - [x] **Section 2 - Interface Definitions**: Define InterceptDisconnectDeviceOptions interface ✅
@@ -203,17 +224,20 @@ interface InterceptConnectDeviceOptions {
 - [x] **Remove from Old Files**: Remove disconnectDevice from device.interceptors.ts ✅
 
 **Testing Subtask:**
+
 - [x] **Write Tests**: Validate disconnection scenarios work correctly ✅
 - [x] **Error Pattern Testing**: Test error handling patterns consistency ✅
 - [x] **Cleanup Validation**: Ensure proper cleanup after disconnection ✅
 
 **Key Implementation Notes:**
+
 - Focus on consistent error handling patterns across device endpoints
 - Ensure cleanup logic works correctly with connection state
 - Maintain integration with connectDevice functionality
 - Apply refined patterns from previous endpoint migrations
 
 **Critical Interface:**
+
 ```typescript
 interface InterceptDisconnectDeviceOptions {
   errorMode?: boolean;
@@ -223,12 +247,14 @@ interface InterceptDisconnectDeviceOptions {
 **Testing Focus for Task 3:**
 
 **Behaviors to Test:**
+
 - [ ] Device disconnection succeeds for connected devices
 - [ ] Disconnection errors are handled appropriately
 - [ ] waitForDisconnectDevice() functions correctly
 - [ ] Connection state cleanup works properly
 
 **Testing Reference:**
+
 - Test disconnection scenarios in device connection test files
 - Validate cleanup in multi-device connection tests
 
@@ -242,11 +268,13 @@ interface InterceptDisconnectDeviceOptions {
 **Purpose**: Create self-contained pingDevice.interceptors.ts completing the device domain with focus on health-check patterns and timing validation.
 
 **Related Documentation:**
+
 - [INTERCEPTOR_FORMAT.md](./INTERCEPTOR_FORMAT.md) - Format to follow exactly
 - [findDevices.interceptors.ts](../../../apps/teensyrom-ui-e2e/src/support/interceptors/findDevices.interceptors.ts) - Established pattern
 - [Current pingDevice Implementation](../../../apps/teensyrom-ui-e2e/src/support/interceptors/device.interceptors.ts) - Source code to migrate
 
 **Implementation Subtasks:**
+
 - [x] **Create pingDevice.interceptors.ts**: New file following 6-section structure ✅
 - [x] **Section 1 - Endpoint Definition**: Create PING_DEVICE_ENDPOINT constant ✅
 - [x] **Section 2 - Interface Definitions**: Define InterceptPingDeviceOptions interface ✅
@@ -258,17 +286,20 @@ interface InterceptDisconnectDeviceOptions {
 - [x] **Remove from Old Files**: Remove pingDevice from device.interceptors.ts ✅
 
 **Testing Subtask:**
+
 - [x] **Write Tests**: Validate health-check patterns work correctly ✅
 - [x] **Timing Validation**: Test timing and response delay handling ✅
 - [x] **Performance Testing**: Ensure no performance regressions ✅
 
 **Key Implementation Notes:**
+
 - Focus on health-check patterns and timing validation
 - Maintain consistent isAlive/health state handling
 - Apply all refined patterns from previous endpoint migrations
 - Complete device domain consolidation
 
 **Critical Interface:**
+
 ```typescript
 interface InterceptPingDeviceOptions {
   isAlive?: boolean;
@@ -279,12 +310,14 @@ interface InterceptPingDeviceOptions {
 **Testing Focus for Task 4:**
 
 **Behaviors to Test:**
+
 - [ ] Device health checks return correct alive/dead states
 - [ ] Ping errors are handled correctly
 - [ ] waitForPingDevice() works with timing scenarios
 - [ ] Performance impact is minimal
 
 **Testing Reference:**
+
 - Test device health scenarios in device test files
 - Validate timing patterns and response delays
 
@@ -298,11 +331,13 @@ interface InterceptPingDeviceOptions {
 **Purpose**: Ensure all device endpoints work cohesively and validate cross-interceptor scenarios after all migrations are complete.
 
 **Related Documentation:**
+
 - [All Created Device Interceptors](../../../apps/teensyrom-ui-e2e/src/support/interceptors/) - Complete set of migrated endpoints
 - [Device Test Files](../../../apps/teensyrom-ui-e2e/src/e2e/devices/) - All device domain tests
 - [E2E Testing Standards](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - Integration testing patterns
 
 **Implementation Subtasks:**
+
 - [x] **Run Full Device Test Suite**: Execute all device-related E2E tests ✅
 - [x] **Cross-Endpoint Validation**: Test scenarios using multiple device endpoints ✅
 - [x] **Import Pattern Validation**: Verify all explicit imports work correctly ✅
@@ -311,11 +346,13 @@ interface InterceptPingDeviceOptions {
 - [x] **Update Documentation**: Update device domain documentation with new patterns ✅
 
 **Testing Subtask:**
+
 - [x] **Write Integration Tests**: Test complete device domain workflows ✅
 - [x] **Performance Regression Tests**: Compare performance with baseline ✅
 - [x] **Documentation Validation**: Ensure all documentation reflects new structure ✅
 
 **Key Implementation Notes:**
+
 - This task validates the entire device domain migration
 - Focus on cross-endpoint scenarios and integration patterns
 - Establish baseline metrics for future domain migrations
@@ -324,12 +361,14 @@ interface InterceptPingDeviceOptions {
 **Testing Focus for Task 5:**
 
 **Behaviors to Test:**
+
 - [ ] Complete device discovery → connection → health check workflows
 - [ ] Multi-device scenarios work across all endpoints
 - [ ] Error handling is consistent across all device endpoints
 - [ ] Performance meets or exceeds baseline metrics
 
 **Testing Reference:**
+
 - Run complete device test suite: `npx nx e2e teensyrom-ui-e2e --spec="src/e2e/devices/*.cy.ts"`
 - Validate integration patterns and cross-endpoint scenarios
 
@@ -342,12 +381,14 @@ interface InterceptPingDeviceOptions {
 > List all files that will be changed or created during this phase with full relative paths from project root.
 
 **New Files:**
+
 - `apps/teensyrom-ui-e2e/src/support/interceptors/findDevices.interceptors.ts`
 - `apps/teensyrom-ui-e2e/src/support/interceptors/connectDevice.interceptors.ts`
 - `apps/teensyrom-ui-e2e/src/support/interceptors/disconnectDevice.interceptors.ts`
 - `apps/teensyrom-ui-e2e/src/support/interceptors/pingDevice.interceptors.ts`
 
 **Modified Files:**
+
 - `apps/teensyrom-ui-e2e/src/support/interceptors/device.interceptors.ts` (remove migrated endpoints)
 - `apps/teensyrom-ui-e2e/src/support/constants/api.constants.ts` (remove migrated constants)
 - `apps/teensyrom-ui-e2e/src/e2e/devices/test-helpers.ts` (update imports)
@@ -357,6 +398,7 @@ interface InterceptPingDeviceOptions {
 - [Other device test files as needed]
 
 **Referenced Files (Not Modified):**
+
 - `docs/features/e2e-testing/INTERCEPTOR_FORMAT.md`
 - `apps/teensyrom-ui-e2e/src/support/interceptors/examples/sampleEndpoint.interceptors.ts`
 
@@ -368,18 +410,21 @@ interface InterceptPingDeviceOptions {
 > **IMPORTANT:** Tests are written **within each task above**, not here. This section is only a summary for quick reference.
 
 > **Core Testing Philosophy:**
+>
 > - **Favor behavioral testing** - test what users/consumers observe, not how it's implemented
 > - **Test as you go** - tests are integrated into each task's subtasks, not deferred to the end
 > - **Test through public APIs** - components, stores, services should be tested through their public interfaces
 > - **Mock at boundaries** - mock external dependencies (HTTP, infrastructure services), not internal logic
 
 > **Reference Documentation:**
+>
 > - **All tasks**: [Testing Standards](../../TESTING_STANDARDS.md) - Core behavioral testing approach
 > - **E2E Testing**: [E2E Testing Overview](../../../apps/teensyrom-ui-e2e/E2E_TESTS.md) - E2E-specific patterns
 
 ### Where Tests Are Written
 
 **Tests are embedded in each task above** with:
+
 - **Testing Subtask**: Checkbox in the task's subtask list (e.g., "Write Tests: Test behaviors for this task")
 - **Testing Focus**: "Behaviors to Test" section listing observable outcomes
 - **Testing Reference**: Links to relevant testing documentation
@@ -389,6 +434,7 @@ interface InterceptPingDeviceOptions {
 ### Test Execution Commands
 
 **Running Tests:**
+
 ```bash
 # Run all device tests
 npx nx e2e teensyrom-ui-e2e --spec="src/e2e/devices/*.cy.ts"
@@ -410,36 +456,42 @@ npx nx e2e teensyrom-ui-e2e
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Device Endpoint Migrations:**
+
 - [x] findDevices.interceptors.ts created and fully functional ✅
 - [x] connectDevice.interceptors.ts created and fully functional ✅
 - [x] disconnectDevice.interceptors.ts created and fully functional ✅
 - [x] pingDevice.interceptors.ts created and fully functional ✅
 
 **Testing Requirements:**
+
 - [x] All device domain tests continue passing after migration ✅
 - [x] Cross-endpoint integration scenarios work correctly ✅
 - [x] No test failures introduced by migration ✅
 - [x] Performance meets or exceeds baseline metrics ✅
 
 **Code Quality:**
+
 - [x] All new files follow INTERCEPTOR_FORMAT.md guidelines exactly ✅
 - [x] No TypeScript errors or warnings ✅
 - [x] Linting passes with no errors ✅
 - [x] Code follows established coding standards ✅
 
 **Migration Requirements:**
+
 - [x] All explicit import patterns work correctly ✅
 - [x] Backward compatibility maintained during transition ✅
 - [x] Old scattered code properly removed ✅
 - [x] Documentation updated to reflect new structure ✅
 
 **Domain Integration:**
+
 - [x] All device endpoints work cohesively ✅
 - [x] Cross-interceptor scenarios validated ✅
 - [x] Complete device workflows tested end-to-end ✅
 - [x] Lessons learned documented for future phases ✅
 
 **Ready for Next Phase:**
+
 - [x] All success criteria met ✅
 - [x] Device domain patterns established for other domains ✅
 - [x] No regressions or known issues ✅
@@ -498,20 +550,26 @@ npx nx e2e teensyrom-ui-e2e
 ### Key Accomplishments
 
 1. **Successfully migrated all 4 device endpoints** using the established 6-section structure:
+
    - ✅ findDevices.interceptors.ts (30+ tests passing)
    - ✅ connectDevice.interceptors.ts (44+ tests passing across connection tests)
    - ✅ disconnectDevice.interceptors.ts (full integration with connection workflows)
    - ✅ pingDevice.interceptors.ts (health check patterns established)
 
 2. **Established explicit import patterns** that improve dependency visibility:
+
    ```typescript
    import { interceptFindDevices, waitForFindDevices } from './findDevices.interceptors';
    import { interceptConnectDevice, waitForConnectDevice } from './connectDevice.interceptors';
-   import { interceptDisconnectDevice, waitForDisconnectDevice } from './disconnectDevice.interceptors';
+   import {
+     interceptDisconnectDevice,
+     waitForDisconnectDevice,
+   } from './disconnectDevice.interceptors';
    import { interceptPingDevice, waitForPingDevice } from './pingDevice.interceptors';
    ```
 
 3. **Validated cross-endpoint scenarios** including complete device workflows:
+
    - Device discovery → connection → health check scenarios
    - Multi-device connection/disconnection workflows
    - Error handling consistency across all endpoints

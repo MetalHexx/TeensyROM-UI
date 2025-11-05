@@ -32,7 +32,12 @@ describe('HistoryEntryComponent', () => {
     images: [],
   });
 
-  const createMockHistoryEntry = (type: FileItemType, size: number, name: string, timestamp: number): HistoryEntry => ({
+  const createMockHistoryEntry = (
+    type: FileItemType,
+    size: number,
+    name: string,
+    timestamp: number
+  ): HistoryEntry => ({
     file: createMockFileItem(type, size, name),
     storageKey: StorageKeyUtil.create('test-device', StorageType.Usb),
     parentPath: '/test',
@@ -59,7 +64,12 @@ describe('HistoryEntryComponent', () => {
   });
 
   it('should display file name', () => {
-    const entry = createMockHistoryEntry(FileItemType.Song, 1024, 'my-favorite-song.sid', Date.now());
+    const entry = createMockHistoryEntry(
+      FileItemType.Song,
+      1024,
+      'my-favorite-song.sid',
+      Date.now()
+    );
     fixture.componentRef.setInput('entry', entry);
     fixture.detectChanges();
 
@@ -70,7 +80,12 @@ describe('HistoryEntryComponent', () => {
   it('should display formatted timestamp', () => {
     // Create a specific timestamp for testing: 3:45 PM
     const testDate = new Date(2025, 9, 9, 15, 45, 0); // October 9, 2025, 3:45 PM
-    const entry = createMockHistoryEntry(FileItemType.Song, 1024, 'test-song.sid', testDate.getTime());
+    const entry = createMockHistoryEntry(
+      FileItemType.Song,
+      1024,
+      'test-song.sid',
+      testDate.getTime()
+    );
     fixture.componentRef.setInput('entry', entry);
     fixture.detectChanges();
 

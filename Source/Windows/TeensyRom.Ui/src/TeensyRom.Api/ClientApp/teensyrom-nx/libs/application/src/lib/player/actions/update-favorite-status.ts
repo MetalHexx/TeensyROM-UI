@@ -11,7 +11,11 @@ interface UpdateFavoriteStatusParams {
 
 export function updateFavoriteStatus(store: WritableStore<PlayerState>) {
   return {
-    updateCurrentFileFavoriteStatus: ({ deviceId, filePath, isFavorite }: UpdateFavoriteStatusParams): void => {
+    updateCurrentFileFavoriteStatus: ({
+      deviceId,
+      filePath,
+      isFavorite,
+    }: UpdateFavoriteStatusParams): void => {
       const actionMessage = createAction('update-current-file-favorite-status');
 
       logInfo(
@@ -34,22 +38,23 @@ export function updateFavoriteStatus(store: WritableStore<PlayerState>) {
       let currentFileUpdated = false;
       let fileContextUpdated = false;
 
-      const updatedCurrentFile = currentFile && currentFile.file.path === filePath
-        ? (() => {
-            if (currentFile.file.isFavorite === isFavorite) {
-              return currentFile;
-            }
+      const updatedCurrentFile =
+        currentFile && currentFile.file.path === filePath
+          ? (() => {
+              if (currentFile.file.isFavorite === isFavorite) {
+                return currentFile;
+              }
 
-            currentFileUpdated = true;
-            return {
-              ...currentFile,
-              file: {
-                ...currentFile.file,
-                isFavorite,
-              },
-            };
-          })()
-        : currentFile;
+              currentFileUpdated = true;
+              return {
+                ...currentFile,
+                file: {
+                  ...currentFile.file,
+                  isFavorite,
+                },
+              };
+            })()
+          : currentFile;
 
       const updatedFileContext = fileContext
         ? (() => {
@@ -117,4 +122,3 @@ export function updateFavoriteStatus(store: WritableStore<PlayerState>) {
     },
   };
 }
-

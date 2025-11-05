@@ -1,7 +1,7 @@
 <div class="storage-container">
   <div class="top-row">
     <div class="directory-trail-container">
-      <lib-directory-trail [deviceId]="deviceId()"></lib-directory-trail>    
+      <lib-directory-trail [deviceId]="deviceId()"></lib-directory-trail>
     </div>
     <div class="filter-toolbar-container">
       <lib-filter-toolbar [deviceId]="deviceId()"></lib-filter-toolbar>
@@ -15,17 +15,14 @@
       <lib-directory-tree [deviceId]="deviceId()"></lib-directory-tree>
     </div>
     <div class="right-container">
-      <lib-search-results 
-        [deviceId]="deviceId()"        
-        [animationTrigger]="hasActiveSearch()">
+      <lib-search-results [deviceId]="deviceId()" [animationTrigger]="hasActiveSearch()">
       </lib-search-results>
-      <lib-play-history
-        [deviceId]="deviceId()"
-        [animationTrigger]="shouldShowHistory()">
+      <lib-play-history [deviceId]="deviceId()" [animationTrigger]="shouldShowHistory()">
       </lib-play-history>
-      <lib-directory-files 
+      <lib-directory-files
         [deviceId]="deviceId()"
-        [animationTrigger]="!hasActiveSearch() && !shouldShowHistory()">
+        [animationTrigger]="!hasActiveSearch() && !shouldShowHistory()"
+      >
       </lib-directory-files>
     </div>
   </div>

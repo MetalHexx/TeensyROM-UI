@@ -233,45 +233,56 @@ _This document describes the complete business requirements for [Feature Name]. 
 ### Core Principles
 
 **Focus on WHAT, not HOW**
+
 - ✅ "Users can adjust playback speed from -50% to +200%"
 - ❌ "The SpeedControlService updates the speedSignal computed property"
 
 **Use user-centric language**
+
 - ✅ "The system automatically saves preferences"
 - ❌ "The savePreferences() method is called on component destroy"
 
 **Define concepts before using them**
+
 - ✅ Create a "Core Concepts" section with clear definitions
 - ❌ Use undefined terms throughout the document
 
 **Cross-reference liberally**
+
 - ✅ Use markdown links: [Shuffle Mode](#shuffle-mode)
 - ❌ Assume readers remember earlier sections
 
 ### Document Structure
 
 **Start broad, go specific**
+
 - Executive Summary → Core Capabilities → Detailed Behaviors
 
 **Group related features logically**
+
 - Not by technical architecture, but by user mental models
 
 **Use consistent section patterns**
+
 - Capabilities → Behaviors → Rules → Success Criteria
 
 ### Writing Style
 
 **Be precise about behavior**
+
 - ✅ "Advances to next file when timer expires"
 - ❌ "Moves to the next thing automatically"
 
 **Define all modes and states**
+
 - Every option, mode, or variant needs explicit definition
 
 **Explain business rules clearly**
+
 - Why certain behaviors happen in certain contexts
 
 **Avoid technical jargon**
+
 - Don't mention: components, services, signals, stores, APIs
 - Do mention: views, areas, controls, features, behaviors
 
@@ -311,15 +322,19 @@ Before finalizing your PRD, ensure:
 ## Example Transformations
 
 ### ❌ Technical Writing
+
 "The PlayerStore manages playback state using NgRx signals. When the play() method is called, it dispatches an action that updates the isPlaying signal and calls the DeviceApiService to send commands to the hardware."
 
 ### ✅ PRD Writing
+
 "The system maintains playback state for each device independently. When a user starts playback, the current file begins playing and the system updates the progress display. All playback commands are synchronized with the connected hardware device."
 
 ---
 
 ### ❌ Technical Writing
+
 "Implement a computed signal that derives the effective speed from baseSpeed and activeModifiers using the following formula: effectiveSpeed = baseSpeed + sum(modifiers)"
 
 ### ✅ PRD Writing
+
 "Speed adjustments combine additively. For example, a base speed of +10% with a +5% nudge results in +15% total playback speed. When the nudge is released, playback returns to the +10% base speed."

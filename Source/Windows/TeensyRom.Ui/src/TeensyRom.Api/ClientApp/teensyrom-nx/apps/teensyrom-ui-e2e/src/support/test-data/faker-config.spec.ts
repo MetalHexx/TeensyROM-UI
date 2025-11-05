@@ -38,19 +38,11 @@ describe('Faker Configuration', () => {
       faker.seed(12345);
 
       // Generate expected sequence
-      const expectedValues = [
-        faker.string.uuid(),
-        faker.string.uuid(),
-        faker.string.uuid(),
-      ];
+      const expectedValues = [faker.string.uuid(), faker.string.uuid(), faker.string.uuid()];
 
       // Reset and generate again
       faker.seed(12345);
-      const actualValues = [
-        faker.string.uuid(),
-        faker.string.uuid(),
-        faker.string.uuid(),
-      ];
+      const actualValues = [faker.string.uuid(), faker.string.uuid(), faker.string.uuid()];
 
       // Should match exactly
       expect(actualValues).toEqual(expectedValues);

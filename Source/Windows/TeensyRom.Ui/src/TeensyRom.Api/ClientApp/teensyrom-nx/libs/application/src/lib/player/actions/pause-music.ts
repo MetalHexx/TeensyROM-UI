@@ -46,7 +46,6 @@ export function pauseMusic(store: WritableStore<PlayerState>, playerService: IPl
             },
           },
         }));
-
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to pause music';
         logError(`Music pause failed for ${deviceId}:`, error);

@@ -35,9 +35,7 @@ export const DeviceStore = signalStore(
   withDevtools('devices'),
   withState(initialState),
   withComputed((store) => ({
-    hasConnectedDevices: computed(() =>
-      store.devices().some((device) => device.isConnected)
-    ),
+    hasConnectedDevices: computed(() => store.devices().some((device) => device.isConnected)),
   })),
   withMethods(
     (

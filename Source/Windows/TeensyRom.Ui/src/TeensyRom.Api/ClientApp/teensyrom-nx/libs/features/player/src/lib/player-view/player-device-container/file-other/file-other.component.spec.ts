@@ -90,7 +90,7 @@ describe('FileOtherComponent', () => {
 
       const emptyState = fixture.debugElement.query(By.css('lib-empty-state-message'));
       expect(emptyState).toBeTruthy();
-      
+
       // Verify the rendered text content
       const emptyStateElement = emptyState.nativeElement as HTMLElement;
       const textContent = emptyStateElement.textContent || '';
@@ -460,7 +460,9 @@ describe('FileOtherComponent', () => {
       expect(component.hasContent()).toBe(false);
       const noMetadata = fixture.debugElement.query(By.css('.no-metadata'));
       expect(noMetadata).toBeTruthy();
-      expect(noMetadata.nativeElement.textContent.trim()).toBe('Try launching a file from the device.');
+      expect(noMetadata.nativeElement.textContent.trim()).toBe(
+        'Try launching a file from the device.'
+      );
     });
 
     it('hasContent should return true when title exists even without description', () => {
@@ -651,7 +653,7 @@ describe('FileOtherComponent', () => {
           images: [],
           links: [
             { name: 'CSDb', url: 'https://csdb.dk/release/?id=12345' },
-            { name: 'Pouët', url: 'https://pouet.net/prod.php?which=12345' }
+            { name: 'Pouët', url: 'https://pouet.net/prod.php?which=12345' },
           ],
           tags: [],
           youTubeVideos: [],
@@ -662,13 +664,13 @@ describe('FileOtherComponent', () => {
       fixture.detectChanges();
 
       expect(component.links().length).toBe(2);
-      
+
       const linksSection = fixture.debugElement.query(By.css('.links-section'));
       expect(linksSection).toBeTruthy();
-      
+
       const heading = linksSection.query(By.css('h4'));
       expect(heading.nativeElement.textContent).toBe('Links');
-      
+
       const links = linksSection.queryAll(By.css('lib-external-link'));
       expect(links.length).toBe(2);
       expect(links[0].nativeElement.textContent.trim()).toContain('CSDb');
@@ -783,8 +785,18 @@ describe('FileOtherComponent', () => {
           links: [],
           tags: [],
           youTubeVideos: [
-            { videoId: 'abc123', url: 'https://youtube.com/watch?v=abc123', channel: 'C64 Music Channel', subtune: 0 },
-            { videoId: 'def456', url: 'https://youtube.com/watch?v=def456', channel: 'Retro Gaming', subtune: 2 }
+            {
+              videoId: 'abc123',
+              url: 'https://youtube.com/watch?v=abc123',
+              channel: 'C64 Music Channel',
+              subtune: 0,
+            },
+            {
+              videoId: 'def456',
+              url: 'https://youtube.com/watch?v=def456',
+              channel: 'Retro Gaming',
+              subtune: 2,
+            },
           ],
           competitions: [],
         },
@@ -793,13 +805,13 @@ describe('FileOtherComponent', () => {
       fixture.detectChanges();
 
       expect(component.youTubeVideos().length).toBe(2);
-      
+
       const videosSection = fixture.debugElement.query(By.css('.youtube-section'));
       expect(videosSection).toBeTruthy();
-      
+
       const heading = videosSection.query(By.css('h4'));
       expect(heading.nativeElement.textContent).toBe('Related Videos');
-      
+
       const videos = videosSection.queryAll(By.css('lib-action-link'));
       expect(videos.length).toBe(2);
       expect(videos[0].nativeElement.textContent.trim()).toContain('C64 Music Channel');
@@ -807,8 +819,13 @@ describe('FileOtherComponent', () => {
     });
 
     it('should open YouTube dialog when video link is clicked', () => {
-      const video = { videoId: 'abc123', url: 'https://youtube.com/watch?v=abc123', channel: 'Test Channel', subtune: 0 };
-      
+      const video = {
+        videoId: 'abc123',
+        url: 'https://youtube.com/watch?v=abc123',
+        channel: 'Test Channel',
+        subtune: 0,
+      };
+
       currentFileSignal.set({
         deviceId: 1,
         storageType: StorageType.Sd,
@@ -874,7 +891,12 @@ describe('FileOtherComponent', () => {
           links: [],
           tags: [],
           youTubeVideos: [
-            { videoId: 'xyz789', url: 'https://youtube.com/watch?v=xyz789', channel: 'SID Channel', subtune: 3 }
+            {
+              videoId: 'xyz789',
+              url: 'https://youtube.com/watch?v=xyz789',
+              channel: 'SID Channel',
+              subtune: 3,
+            },
           ],
           competitions: [],
         },
@@ -915,7 +937,12 @@ describe('FileOtherComponent', () => {
           links: [],
           tags: [],
           youTubeVideos: [
-            { videoId: 'xyz789', url: 'https://youtube.com/watch?v=xyz789', channel: 'SID Channel', subtune: 0 }
+            {
+              videoId: 'xyz789',
+              url: 'https://youtube.com/watch?v=xyz789',
+              channel: 'SID Channel',
+              subtune: 0,
+            },
           ],
           competitions: [],
         },
@@ -997,23 +1024,20 @@ describe('FileOtherComponent', () => {
           links: [],
           tags: [],
           youTubeVideos: [],
-          competitions: [
-            { name: 'X Party 2024', place: 1 },
-            { name: 'Demo Scene Awards' }
-          ],
+          competitions: [{ name: 'X Party 2024', place: 1 }, { name: 'Demo Scene Awards' }],
         },
         isShuffleMode: false,
       });
       fixture.detectChanges();
 
       expect(component.competitions().length).toBe(2);
-      
+
       const competitionsSection = fixture.debugElement.query(By.css('.competitions-section'));
       expect(competitionsSection).toBeTruthy();
-      
+
       const heading = competitionsSection.query(By.css('h4'));
       expect(heading.nativeElement.textContent).toBe('Competition Results');
-      
+
       const items = competitionsSection.queryAll(By.css('.competition-item'));
       expect(items.length).toBe(2);
       expect(items[0].nativeElement.textContent.trim()).toContain('X Party 2024');
@@ -1048,9 +1072,7 @@ describe('FileOtherComponent', () => {
           links: [],
           tags: [],
           youTubeVideos: [],
-          competitions: [
-            { name: 'Demo Scene Awards' }
-          ],
+          competitions: [{ name: 'Demo Scene Awards' }],
         },
         isShuffleMode: false,
       });
@@ -1058,7 +1080,7 @@ describe('FileOtherComponent', () => {
 
       const competitionItem = fixture.debugElement.query(By.css('.competition-item'));
       expect(competitionItem.nativeElement.textContent.trim()).toBe('Demo Scene Awards');
-      
+
       const position = competitionItem.query(By.css('.position'));
       expect(position).toBeNull();
     });
@@ -1132,7 +1154,7 @@ describe('FileOtherComponent', () => {
           links: [],
           tags: [
             { name: 'Chiptune', type: 'genre' },
-            { name: 'Classic', type: 'era' }
+            { name: 'Classic', type: 'era' },
           ],
           youTubeVideos: [],
           competitions: [],
@@ -1142,16 +1164,16 @@ describe('FileOtherComponent', () => {
       fixture.detectChanges();
 
       expect(component.tags().length).toBe(2);
-      
+
       const tagsSection = fixture.debugElement.query(By.css('.tags-section'));
       expect(tagsSection).toBeTruthy();
-      
+
       const heading = tagsSection.query(By.css('h4'));
       expect(heading.nativeElement.textContent).toBe('Tags');
-      
+
       const chipSet = tagsSection.query(By.css('mat-chip-set'));
       expect(chipSet).toBeTruthy();
-      
+
       const chips = chipSet.queryAll(By.css('mat-chip'));
       expect(chips.length).toBe(2);
       expect(chips[0].nativeElement.textContent.trim()).toBe('Chiptune');
@@ -1239,7 +1261,7 @@ describe('FileOtherComponent', () => {
 
       expect(component.avgRating()).toBe(4.5);
       expect(component.ratingCount()).toBe(42);
-      
+
       const ratingSection = fixture.debugElement.query(By.css('.rating-section'));
       expect(ratingSection).toBeTruthy();
       expect(ratingSection.nativeElement.textContent).toContain('4.5/5.0');
@@ -1322,10 +1344,10 @@ describe('FileOtherComponent', () => {
       fixture.detectChanges();
 
       expect(component.isSong()).toBe(true);
-      
+
       const descriptionSection = fixture.debugElement.query(By.css('.description-section'));
       expect(descriptionSection).toBeTruthy();
-      
+
       const sectionTitle = descriptionSection.query(By.css('.section-title'));
       expect(sectionTitle).toBeTruthy();
       expect(sectionTitle.nativeElement.textContent.trim()).toBe('HVSC STIL');
@@ -1366,7 +1388,7 @@ describe('FileOtherComponent', () => {
       fixture.detectChanges();
 
       expect(component.isSong()).toBe(false);
-      
+
       const sectionTitle = fixture.debugElement.query(By.css('.section-title'));
       expect(sectionTitle).toBeNull();
     });
@@ -1407,7 +1429,7 @@ describe('FileOtherComponent', () => {
 
       expect(component.isSong()).toBe(true);
       expect(component.description()).toBe('');
-      
+
       const descriptionSection = fixture.debugElement.query(By.css('.description-section'));
       expect(descriptionSection).toBeNull();
     });
@@ -1479,7 +1501,9 @@ describe('FileOtherComponent', () => {
           images: [],
           links: [{ name: 'Link', url: 'http://example.com' }],
           tags: [{ name: 'Tag', type: 'genre' }],
-          youTubeVideos: [{ videoId: 'abc', url: 'http://youtube.com', channel: 'Channel', subtune: 0 }],
+          youTubeVideos: [
+            { videoId: 'abc', url: 'http://youtube.com', channel: 'Channel', subtune: 0 },
+          ],
           competitions: [{ name: 'Competition', place: 1 }],
         },
         isShuffleMode: false,
@@ -1600,7 +1624,9 @@ describe('FileOtherComponent', () => {
           images: [],
           links: [],
           tags: [],
-          youTubeVideos: [{ videoId: 'abc', url: 'http://youtube.com', channel: 'Channel', subtune: 0 }],
+          youTubeVideos: [
+            { videoId: 'abc', url: 'http://youtube.com', channel: 'Channel', subtune: 0 },
+          ],
           competitions: [],
         },
         isShuffleMode: false,
@@ -1648,4 +1674,3 @@ describe('FileOtherComponent', () => {
     });
   });
 });
-

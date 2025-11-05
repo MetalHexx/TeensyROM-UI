@@ -8,4 +8,6 @@ export interface IDeviceEventsService {
   getDeviceState(deviceId: string): Signal<DeviceState | null>;
 }
 
-export const DEVICE_EVENTS_SERVICE = new InjectionToken<IDeviceEventsService>('DEVICE_EVENTS_SERVICE');
+export const DEVICE_EVENTS_SERVICE = new InjectionToken<IDeviceEventsService>(
+  'DEVICE_EVENTS_SERVICE'
+);

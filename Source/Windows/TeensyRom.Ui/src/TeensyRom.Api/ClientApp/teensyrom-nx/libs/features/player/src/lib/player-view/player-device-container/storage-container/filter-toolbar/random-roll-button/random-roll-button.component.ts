@@ -3,17 +3,17 @@ import { IconButtonComponent, IconButtonColor } from '@teensyrom-nx/ui/component
 
 const COMPONENT_CONSTANTS = {
   CSS_CLASSES: {
-    DICE_ROLL: 'dice-roll'
+    DICE_ROLL: 'dice-roll',
   },
   SELECTORS: {
-    MAT_ICON: 'mat-icon'
+    MAT_ICON: 'mat-icon',
   },
   COLORS: {
-    NORMAL: 'normal'
+    NORMAL: 'normal',
   },
   ANIMATION: {
-    DURATION_MS: 1200
-  }
+    DURATION_MS: 1200,
+  },
 } as const;
 
 @Component({
@@ -21,7 +21,7 @@ const COMPONENT_CONSTANTS = {
   standalone: true,
   imports: [IconButtonComponent],
   templateUrl: './random-roll-button.component.html',
-  styleUrl: './random-roll-button.component.scss'
+  styleUrl: './random-roll-button.component.scss',
 })
 export class RandomRollButtonComponent {
   getButtonColor = input<IconButtonColor>(COMPONENT_CONSTANTS.COLORS.NORMAL as IconButtonColor);
@@ -34,20 +34,22 @@ export class RandomRollButtonComponent {
   animateDiceRoll(event: Event): void {
     // Find the mat-icon element within the clicked element
     const target = event.target as HTMLElement;
-    const matIcon = target.parentElement?.querySelector(COMPONENT_CONSTANTS.SELECTORS.MAT_ICON) || target.querySelector(COMPONENT_CONSTANTS.SELECTORS.MAT_ICON);
-    
+    const matIcon =
+      target.parentElement?.querySelector(COMPONENT_CONSTANTS.SELECTORS.MAT_ICON) ||
+      target.querySelector(COMPONENT_CONSTANTS.SELECTORS.MAT_ICON);
+
     console.log('Animation target found:', matIcon);
-    
+
     if (matIcon) {
       // Remove existing animation class if present
       matIcon.classList.remove(COMPONENT_CONSTANTS.CSS_CLASSES.DICE_ROLL);
-      
+
       // Force reflow to ensure the class removal takes effect
       void (matIcon as HTMLElement).offsetHeight;
-      
+
       // Add the animation class
       matIcon.classList.add(COMPONENT_CONSTANTS.CSS_CLASSES.DICE_ROLL);
-      
+
       // Remove the class after animation completes
       setTimeout(() => {
         matIcon.classList.remove(COMPONENT_CONSTANTS.CSS_CLASSES.DICE_ROLL);

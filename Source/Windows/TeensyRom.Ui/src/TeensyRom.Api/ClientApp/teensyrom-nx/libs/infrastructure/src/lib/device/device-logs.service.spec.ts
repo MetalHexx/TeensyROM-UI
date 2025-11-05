@@ -50,7 +50,7 @@ describe('DeviceLogsService - Alert Integration', () => {
       service.connect();
 
       // Wait one tick for promise chain to complete
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockAlertService.error).toHaveBeenCalledWith('Start logs failed');
     });
@@ -61,7 +61,7 @@ describe('DeviceLogsService - Alert Integration', () => {
 
       service.connect();
 
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockAlertService.error).toHaveBeenCalledWith('Failed to start device logs');
     });
@@ -73,7 +73,7 @@ describe('DeviceLogsService - Alert Integration', () => {
 
       service.connect();
 
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       // Non-Error objects use fallback message
       expect(mockAlertService.error).toHaveBeenCalledWith('Failed to start device logs');
@@ -87,7 +87,7 @@ describe('DeviceLogsService - Alert Integration', () => {
 
       service.disconnect();
 
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockAlertService.error).toHaveBeenCalledWith('Stop logs failed');
     });
@@ -98,7 +98,7 @@ describe('DeviceLogsService - Alert Integration', () => {
 
       service.disconnect();
 
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockAlertService.error).toHaveBeenCalledWith('Failed to stop device logs');
     });

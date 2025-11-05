@@ -18,50 +18,50 @@
     align-items: center;
     gap: 1rem;
     flex-shrink: 0;
-    
+
     .directory-trail-container {
       flex: 1;
       min-width: 0; // Allow truncation if needed
     }
-    
+
     .filter-toolbar-container {
       flex: 0 0 auto; // Let content determine width
       min-width: fit-content; // Ensure content fits
     }
-    
+
     .search-toolbar-container {
       flex: 0 0 400px; // Fixed width for search toolbar
       max-width: 400px;
-      
+
       // Make search toolbar smaller on medium screens
       @media (max-width: 1400px) {
         flex: 0 0 350px;
         max-width: 350px;
       }
-      
+
       // Further reduce search toolbar size on smaller screens
       @media (max-width: 1000px) {
         flex: 0 0 300px;
         max-width: 300px;
       }
-      
+
       @media (max-width: 768px) {
         flex: 0 0 250px;
         max-width: 250px;
       }
     }
-    
+
     // Stack vertically on smaller screens
     @media (max-width: 900px) {
       flex-direction: column;
       align-items: stretch;
       gap: 0.5rem;
-      
+
       .filter-toolbar-container {
         flex: none;
         min-width: auto;
       }
-      
+
       .search-toolbar-container {
         flex: none;
         max-width: none;

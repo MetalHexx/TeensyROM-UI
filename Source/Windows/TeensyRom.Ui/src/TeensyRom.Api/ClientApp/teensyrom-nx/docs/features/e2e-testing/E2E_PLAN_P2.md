@@ -13,15 +13,18 @@ Create pre-built device fixture constants representing realistic TeensyROM devic
 > Review these documents before starting implementation. Check the boxes as you read them.
 
 **Feature Documentation:**
+
 - [ ] [E2E Testing Plan](./E2E_PLAN.md) - Overall E2E testing strategy and phase overview
 - [ ] [Phase 1 Implementation](./E2E_PLAN_P1.md) - Context on generators created in Phase 1
 - [ ] [Phase 1 Test Data Documentation](../../../apps/teensyrom-ui-e2e/src/support/test-data/FAKE_TEST_DATA.md) - Generator usage patterns
 
 **Standards & Guidelines:**
+
 - [ ] [Coding Standards](../../CODING_STANDARDS.md) - General coding patterns and conventions
 - [ ] [Testing Standards](../../TESTING_STANDARDS.md) - Testing approaches and best practices
 
 **API References:**
+
 - [CartDto Type](../../../libs/data-access/api-client/src/lib/models/CartDto.ts) - Device DTO structure
 - [DeviceState Type](../../../libs/data-access/api-client/src/lib/models/DeviceState.ts) - Device state enum values
 - [CartStorageDto Type](../../../libs/data-access/api-client/src/lib/models/CartStorageDto.ts) - Storage DTO structure
@@ -53,9 +56,11 @@ apps/teensyrom-ui-e2e/src/support/test-data/
 **Purpose**: Create the `MockDeviceFixture` interface that defines the structure for all device fixtures used throughout E2E tests.
 
 **Related Documentation:**
+
 - [E2E Testing Plan - Phase 2](./E2E_PLAN.md#phase-2-device-mock-fixtures) - Fixture structure definition
 
 **Implementation Subtasks:**
+
 - [ ] Create `apps/teensyrom-ui-e2e/src/support/test-data/fixtures/fixture.types.ts`
 - [ ] Import `CartDto` from `@teensyrom-nx/data-access/api-client`
 - [ ] Define `MockDeviceFixture` interface with `devices` property (array of CartDto)
@@ -63,15 +68,18 @@ apps/teensyrom-ui-e2e/src/support/test-data/
 - [ ] Add example JSDoc showing fixture structure
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify fixture type structure (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Interface is intentionally simple - just wraps an array of devices
 - Designed to align with API response structure for `/api/devices`
 - Future phases may extend this interface for more complex scenarios
 - Use readonly array to prevent accidental mutation in tests
 
 **Critical Interface Structure**:
+
 ```typescript
 interface MockDeviceFixture {
   readonly devices: readonly CartDto[];
@@ -81,12 +89,14 @@ interface MockDeviceFixture {
 **Testing Focus for Task 1:**
 
 **Behaviors to Test:**
+
 - [ ] `MockDeviceFixture` interface compiles without errors
 - [ ] Interface correctly types device arrays
 - [ ] Readonly constraint prevents modification
 - [ ] Type checking enforces CartDto structure
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for type validation testing
 
 </details>
@@ -99,9 +109,11 @@ interface MockDeviceFixture {
 **Purpose**: Create a fixture representing a single connected TeensyROM device with available storage - the most common "happy path" scenario.
 
 **Related Documentation:**
+
 - [Phase 1 Generators](./E2E_PLAN_P1.md#task-5-create-cartdto-generator) - Using generateDevice function
 
 **Implementation Subtasks:**
+
 - [ ] Create `apps/teensyrom-ui-e2e/src/support/test-data/fixtures/devices.fixture.ts`
 - [ ] Import `generateDevice` from `../generators/device.generators`
 - [ ] Import `MockDeviceFixture` from `./fixture.types`
@@ -113,9 +125,11 @@ interface MockDeviceFixture {
 - [ ] Add JSDoc describing scenario: "Single connected device with available SD and USB storage"
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify single device fixture (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Use generator defaults (isConnected: true, deviceState: Connected, storage available: true)
 - This represents the most common successful scenario
 - Faker seed reset ensures this fixture always produces the same device
@@ -124,6 +138,7 @@ interface MockDeviceFixture {
 **Testing Focus for Task 2:**
 
 **Behaviors to Test:**
+
 - [ ] Fixture contains exactly 1 device
 - [ ] Device `isConnected` is true
 - [ ] Device `deviceState` is `DeviceState.Connected`
@@ -134,6 +149,7 @@ interface MockDeviceFixture {
 - [ ] Multiple test runs produce identical device data
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for fixture validation patterns
 
 </details>
@@ -146,9 +162,11 @@ interface MockDeviceFixture {
 **Purpose**: Create a fixture representing 3 connected TeensyROM devices with varied names and ports to test multi-device scenarios.
 
 **Related Documentation:**
+
 - [Phase 1 Generators](./E2E_PLAN_P1.md#task-5-create-cartdto-generator) - Using generateDevice with overrides
 
 **Implementation Subtasks:**
+
 - [ ] Add `multipleDevices` constant to `devices.fixture.ts`
 - [ ] Reset faker seed to 12345 before generation
 - [ ] Generate 3 devices using `generateDevice()` with default values
@@ -157,9 +175,11 @@ interface MockDeviceFixture {
 - [ ] Export constant with explicit `MockDeviceFixture` type
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify multiple devices fixture (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Faker's seeded sequence naturally produces different values on each call
 - Reset seed at start to ensure consistent fixture across runs
 - All devices use default "connected" state - tests can override if needed
@@ -168,6 +188,7 @@ interface MockDeviceFixture {
 **Testing Focus for Task 3:**
 
 **Behaviors to Test:**
+
 - [ ] Fixture contains exactly 3 devices
 - [ ] All devices have unique `deviceId` values
 - [ ] All devices have unique `comPort` values
@@ -178,6 +199,7 @@ interface MockDeviceFixture {
 - [ ] Multiple test runs produce identical set of 3 devices
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for fixture validation
 
 </details>
@@ -190,18 +212,22 @@ interface MockDeviceFixture {
 **Purpose**: Create a fixture representing the scenario where no TeensyROM devices are found - tests empty state handling.
 
 **Related Documentation:**
+
 - [E2E Testing Plan - Phase 2](./E2E_PLAN.md#phase-2-device-mock-fixtures) - Empty fixture requirement
 
 **Implementation Subtasks:**
+
 - [ ] Add `noDevices` constant to `devices.fixture.ts`
 - [ ] Create fixture with empty `devices` array
 - [ ] Add JSDoc describing scenario: "No devices found - tests empty state handling"
 - [ ] Export constant with explicit `MockDeviceFixture` type
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify no devices fixture (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Simplest fixture - just an empty array
 - Critical for testing UI empty states and "no devices found" messages
 - No faker generation needed - static empty array
@@ -209,11 +235,13 @@ interface MockDeviceFixture {
 **Testing Focus for Task 4:**
 
 **Behaviors to Test:**
+
 - [ ] Fixture contains empty array (length 0)
 - [ ] Fixture structure matches `MockDeviceFixture` interface
 - [ ] Array is properly typed as `CartDto[]`
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for fixture validation
 
 </details>
@@ -226,10 +254,12 @@ interface MockDeviceFixture {
 **Purpose**: Create a fixture with a device that was previously connected but has lost connection - tests connection loss handling.
 
 **Related Documentation:**
+
 - [DeviceState Enum](../../../libs/data-access/api-client/src/lib/models/DeviceState.ts) - ConnectionLost state
 - [Phase 1 Generators](./E2E_PLAN_P1.md#task-5-create-cartdto-generator) - Using overrides
 
 **Implementation Subtasks:**
+
 - [ ] Add `disconnectedDevice` constant to `devices.fixture.ts`
 - [ ] Reset faker seed to 12345 before generation
 - [ ] Generate device using `generateDevice()` with overrides:
@@ -239,9 +269,11 @@ interface MockDeviceFixture {
 - [ ] Export constant with explicit `MockDeviceFixture` type
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify disconnected device fixture (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Device has valid properties (name, port, etc.) from previous connection
 - Storage availability remains true (storage is still physically present)
 - This tests UI's ability to show disconnected state and offer reconnection
@@ -250,6 +282,7 @@ interface MockDeviceFixture {
 **Testing Focus for Task 5:**
 
 **Behaviors to Test:**
+
 - [ ] Fixture contains exactly 1 device
 - [ ] Device `isConnected` is false
 - [ ] Device `deviceState` is `DeviceState.ConnectionLost`
@@ -258,6 +291,7 @@ interface MockDeviceFixture {
 - [ ] Fixture structure matches `MockDeviceFixture` interface
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for fixture validation
 
 </details>
@@ -270,10 +304,12 @@ interface MockDeviceFixture {
 **Purpose**: Create a fixture with a connected device but unavailable storage - tests storage error handling.
 
 **Related Documentation:**
+
 - [Phase 1 Generators](./E2E_PLAN_P1.md#task-4-create-cartstoragedto-generator) - CartStorageDto generation
 - [CartStorageDto Type](../../../libs/data-access/api-client/src/lib/models/CartStorageDto.ts) - Storage structure
 
 **Implementation Subtasks:**
+
 - [ ] Add `unavailableStorageDevice` constant to `devices.fixture.ts`
 - [ ] Import `generateCartStorage` from `../generators/device.generators`
 - [ ] Reset faker seed to 12345 before generation
@@ -284,9 +320,11 @@ interface MockDeviceFixture {
 - [ ] Export constant with explicit `MockDeviceFixture` type
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify unavailable storage fixture (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Device is connected but storage is not accessible (hardware issue, unmounted, etc.)
 - Both SD and USB storage are unavailable in this scenario
 - Tests UI's ability to show storage warnings and prevent file operations
@@ -295,6 +333,7 @@ interface MockDeviceFixture {
 **Testing Focus for Task 6:**
 
 **Behaviors to Test:**
+
 - [ ] Fixture contains exactly 1 device
 - [ ] Device `isConnected` is true
 - [ ] Device `deviceState` is `DeviceState.Connected`
@@ -303,6 +342,7 @@ interface MockDeviceFixture {
 - [ ] Fixture structure matches `MockDeviceFixture` interface
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for fixture validation
 
 </details>
@@ -315,10 +355,12 @@ interface MockDeviceFixture {
 **Purpose**: Create a fixture with multiple devices in different states (connected, busy, disconnected) - tests complex multi-device scenarios.
 
 **Related Documentation:**
+
 - [DeviceState Enum](../../../libs/data-access/api-client/src/lib/models/DeviceState.ts) - All device states
 - [E2E Testing Plan](./E2E_PLAN.md#phase-2-device-mock-fixtures) - Multi-device testing
 
 **Implementation Subtasks:**
+
 - [ ] Add `mixedStateDevices` constant to `devices.fixture.ts`
 - [ ] Reset faker seed to 12345 before generation
 - [ ] Generate 3 devices with different states:
@@ -329,9 +371,11 @@ interface MockDeviceFixture {
 - [ ] Export constant with explicit `MockDeviceFixture` type
 
 **Testing Subtask:**
+
 - [ ] **Write Tests**: Verify mixed state devices fixture (see Testing section below)
 
 **Key Implementation Notes:**
+
 - Represents realistic scenario where some devices work and others don't
 - Tests UI's ability to differentiate and display different device states
 - Each device should have unique port and name (faker sequence)
@@ -340,6 +384,7 @@ interface MockDeviceFixture {
 **Testing Focus for Task 7:**
 
 **Behaviors to Test:**
+
 - [ ] Fixture contains exactly 3 devices
 - [ ] Device 1 has `deviceState: DeviceState.Connected` and `isConnected: true`
 - [ ] Device 2 has `deviceState: DeviceState.Busy` and `isConnected: true`
@@ -349,6 +394,7 @@ interface MockDeviceFixture {
 - [ ] State variety covers key testing scenarios
 
 **Testing Reference:**
+
 - See [Testing Standards](../../TESTING_STANDARDS.md) for fixture validation
 
 </details>
@@ -361,23 +407,28 @@ interface MockDeviceFixture {
 **Purpose**: Create index file that exports all fixtures for clean imports in tests.
 
 **Related Documentation:**
+
 - [Coding Standards](../../CODING_STANDARDS.md) - Barrel export patterns
 
 **Implementation Subtasks:**
+
 - [ ] Create `apps/teensyrom-ui-e2e/src/support/test-data/fixtures/index.ts`
 - [ ] Export all fixture constants from `devices.fixture.ts`
 - [ ] Export `MockDeviceFixture` interface from `fixture.types.ts`
 - [ ] Add file-level JSDoc explaining fixture library usage
 
 **Testing Subtask:**
+
 - [ ] **Verify Exports**: Confirm barrel exports resolve correctly (manual verification)
 
 **Key Implementation Notes:**
+
 - Enables clean imports: `import { singleDevice, multipleDevices } from '../fixtures'`
 - Re-export types alongside fixtures for convenience
 - Keep exports organized and alphabetical
 
 **Barrel Export Pattern**:
+
 ```typescript
 export * from './fixture.types';
 export * from './devices.fixture';
@@ -386,6 +437,7 @@ export * from './devices.fixture';
 **Testing Focus for Task 8:**
 
 **Behaviors to Test:**
+
 - [ ] All fixtures importable via barrel export
 - [ ] `MockDeviceFixture` type importable via barrel export
 - [ ] No TypeScript errors when importing from `./fixtures`
@@ -401,10 +453,12 @@ export * from './devices.fixture';
 **Purpose**: Document the fixture system, available fixtures, and usage patterns for E2E test authors.
 
 **Related Documentation:**
+
 - [E2E Testing Plan](./E2E_PLAN.md) - Overall testing context
 - [Phase 1 Documentation](../../../apps/teensyrom-ui-e2e/src/support/test-data/FAKE_TEST_DATA.md) - Related generator docs
 
 **Implementation Subtasks:**
+
 - [ ] Create `apps/teensyrom-ui-e2e/src/support/test-data/fixtures/README.md`
 - [ ] Document fixture system purpose and architecture
 - [ ] List all available device fixtures with descriptions
@@ -415,9 +469,11 @@ export * from './devices.fixture';
 - [ ] Include troubleshooting section
 
 **Testing Subtask:**
+
 - [ ] **Review Documentation**: Validate clarity and completeness (manual review)
 
 **Key Implementation Notes:**
+
 - Target audience: developers writing E2E tests
 - Provide copy-paste-ready examples
 - Link to Phase 1 generator docs for context
@@ -425,6 +481,7 @@ export * from './devices.fixture';
 - Document relationship between fixtures and interceptors
 
 **Documentation Sections:**
+
 1. **Overview**: Fixture system purpose
 2. **Available Fixtures**: Table listing all fixtures with scenarios
 3. **Fixture Structure**: Explain `MockDeviceFixture` interface
@@ -444,9 +501,11 @@ export * from './devices.fixture';
 **Purpose**: Update the main test data documentation to reference the new fixture system.
 
 **Related Documentation:**
+
 - [Phase 1 Documentation](../../../apps/teensyrom-ui-e2e/src/support/test-data/FAKE_TEST_DATA.md) - Existing test data docs
 
 **Implementation Subtasks:**
+
 - [ ] Open `apps/teensyrom-ui-e2e/src/support/test-data/FAKE_TEST_DATA.md`
 - [ ] Add section on fixture system after generator documentation
 - [ ] Link to `fixtures/README.md` for detailed fixture documentation
@@ -454,9 +513,11 @@ export * from './devices.fixture';
 - [ ] Update table of contents if present
 
 **Testing Subtask:**
+
 - [ ] **Review Documentation**: Verify links and examples work (manual review)
 
 **Key Implementation Notes:**
+
 - Keep this update lightweight - detailed docs are in fixtures/README.md
 - Show how fixtures build on generators from Phase 1
 - Provide navigation path to fixture documentation
@@ -468,6 +529,7 @@ export * from './devices.fixture';
 ## 🗂️ Files Modified or Created
 
 **New Files:**
+
 - `apps/teensyrom-ui-e2e/src/support/test-data/fixtures/README.md` - Fixture system documentation
 - `apps/teensyrom-ui-e2e/src/support/test-data/fixtures/fixture.types.ts` - MockDeviceFixture interface
 - `apps/teensyrom-ui-e2e/src/support/test-data/fixtures/devices.fixture.ts` - Device fixture constants
@@ -475,6 +537,7 @@ export * from './devices.fixture';
 - `apps/teensyrom-ui-e2e/src/support/test-data/fixtures/index.ts` - Barrel exports
 
 **Modified Files:**
+
 - `apps/teensyrom-ui-e2e/src/support/test-data/FAKE_TEST_DATA.md` - Add fixture system section
 
 ---
@@ -485,6 +548,7 @@ export * from './devices.fixture';
 > **IMPORTANT:** Tests are written **within each task above**, not here. This section is only a summary for quick reference.
 
 > **Core Testing Philosophy:**
+>
 > - **Test fixture integrity**: Validate structure, required properties, and type correctness
 > - **Test fixture determinism**: Same faker seed = same fixture data across runs
 > - **Test fixture variety**: Ensure different fixtures provide distinct scenarios
@@ -493,6 +557,7 @@ export * from './devices.fixture';
 ### Where Tests Are Written
 
 **Tests are embedded in Tasks 1-7** with:
+
 - **Testing Subtask**: "Write Tests" checkbox in each task
 - **Testing Focus**: "Behaviors to Test" section with specific validation criteria
 - **Testing Reference**: Links to testing documentation
@@ -500,6 +565,7 @@ export * from './devices.fixture';
 ### Test File Location
 
 All fixture validation tests live in:
+
 - `apps/teensyrom-ui-e2e/src/support/test-data/fixtures/devices.fixture.spec.ts`
 
 ### Test Execution Commands
@@ -527,6 +593,7 @@ pnpm nx test teensyrom-ui-e2e --coverage
 > **Mark checkboxes as criteria are met**. All items must be checked before phase is complete.
 
 **Functional Requirements:**
+
 - [ ] `MockDeviceFixture` interface created and exported
 - [ ] `singleDevice` fixture created (1 connected device)
 - [ ] `multipleDevices` fixture created (3 connected devices)
@@ -539,6 +606,7 @@ pnpm nx test teensyrom-ui-e2e --coverage
 - [ ] Test data documentation updated with fixture references
 
 **Testing Requirements:**
+
 - [ ] All fixture validation tests written and passing
 - [ ] Tests verify fixture structure matches `MockDeviceFixture` interface
 - [ ] Tests verify device properties are properly populated
@@ -548,18 +616,21 @@ pnpm nx test teensyrom-ui-e2e --coverage
 - [ ] All tests run successfully via `pnpm nx test teensyrom-ui-e2e`
 
 **Type Safety:**
+
 - [ ] No TypeScript errors in fixture files
 - [ ] All fixtures properly typed as `MockDeviceFixture`
 - [ ] Fixtures use proper DTO types from API client
 - [ ] Barrel exports resolve correctly
 
 **Quality Checks:**
+
 - [ ] Linting passes with no errors (`pnpm nx lint teensyrom-ui-e2e`)
 - [ ] Code formatting is consistent
 - [ ] JSDoc comments present on all exported fixtures
 - [ ] No console warnings when running tests
 
 **Documentation:**
+
 - [ ] Fixture README explains system architecture clearly
 - [ ] All fixtures listed with scenario descriptions
 - [ ] Usage examples are runnable and clear
@@ -567,6 +638,7 @@ pnpm nx test teensyrom-ui-e2e --coverage
 - [ ] Troubleshooting section addresses common issues
 
 **Ready for Next Phase:**
+
 - [ ] All success criteria met
 - [ ] Fixtures produce realistic device scenarios
 - [ ] Tests demonstrate fixtures are structurally valid
@@ -612,6 +684,7 @@ pnpm nx test teensyrom-ui-e2e --coverage
 ### Fixture Usage Guidelines
 
 **When to use existing fixtures:**
+
 - Default/happy path testing → `singleDevice` or `multipleDevices`
 - Empty state testing → `noDevices`
 - Connection error testing → `disconnectedDevice`
@@ -619,6 +692,7 @@ pnpm nx test teensyrom-ui-e2e --coverage
 - Complex state testing → `mixedStateDevices`
 
 **When to create custom fixtures:**
+
 - Specific device property combinations not covered by existing fixtures
 - Test-specific edge cases that don't generalize
 - Temporary fixtures for debugging specific scenarios
@@ -688,6 +762,7 @@ Once all success criteria are met:
 3. **Phase 5**: Write device connection E2E tests
 
 **Validation**: Before moving to Phase 3, confirm you can:
+
 - Import any fixture in a test file via barrel export
 - Access fixture devices array and individual device properties
 - Verify fixture data is identical across multiple test runs

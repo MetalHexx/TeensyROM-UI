@@ -17,7 +17,7 @@ import { Component, input } from '@angular/core';
   selector: 'lib-storage-item-actions',
   template: `
     @if (label()) {
-      <span class="actions-label">{{ label() }}</span>
+    <span class="actions-label">{{ label() }}</span>
     }
     <ng-content></ng-content>
   `,

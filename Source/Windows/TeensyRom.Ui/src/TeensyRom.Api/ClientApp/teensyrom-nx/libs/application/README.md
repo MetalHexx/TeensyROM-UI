@@ -5,13 +5,15 @@ This library contains the application-level state management for the TeensyROM U
 ## Purpose
 
 The application library serves as the centralized location for:
+
 - Cross-cutting application state management
-- Application-level business logic coordination  
+- Application-level business logic coordination
 - State orchestration between different domains
 
 ## Current Structure
 
 ### Device State Management
+
 - **Location**: `src/lib/device/`
 - **Store**: `device-store.ts` - NgRx Signal Store for device state management
 - **Methods**: `methods/` - Individual store method implementations
@@ -24,6 +26,7 @@ The application library serves as the centralized location for:
   - `reset-all-devices.ts` - Reset all connected devices
 
 ### Storage State Management ✨ NEW!
+
 - **Location**: `src/lib/storage/`
 - **Store**: `storage-store.ts` - NgRx Signal Store for storage state management
 - **Utilities**: `storage-key.util.ts`, `storage-helpers.ts` - Storage utilities
@@ -63,6 +66,7 @@ export class MyComponent {
 ## Architecture Compliance
 
 This library follows the established clean architecture pattern:
+
 - **Domain libraries** contain pure models and interfaces
 - **Application library** contains state management and coordination logic
 - **Feature libraries** consume application state for UI components
@@ -71,6 +75,7 @@ This library follows the established clean architecture pattern:
 ## Future Expansion
 
 This library is designed to accommodate additional application state:
+
 - Storage state management (planned migration from domain layer)
 - Player state coordination
 - Global application settings
@@ -79,6 +84,7 @@ This library is designed to accommodate additional application state:
 ## Standards Compliance
 
 This library follows the Nx Library Standards:
+
 - Non-buildable library (consumed as source code)
 - Proper import path: `@teensyrom-nx/application`
 - Clean barrel exports in `src/index.ts`

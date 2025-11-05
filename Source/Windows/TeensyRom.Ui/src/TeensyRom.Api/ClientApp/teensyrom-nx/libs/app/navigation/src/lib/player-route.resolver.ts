@@ -1,7 +1,13 @@
 import { inject } from '@angular/core';
 import { ResolveFn, ActivatedRouteSnapshot } from '@angular/router';
 import { StorageStore, PlayerContextService, DeviceStore } from '@teensyrom-nx/application';
-import { StorageType, LaunchMode, AlertPosition, ALERT_SERVICE, IAlertService } from '@teensyrom-nx/domain';
+import {
+  StorageType,
+  LaunchMode,
+  AlertPosition,
+  ALERT_SERVICE,
+  IAlertService,
+} from '@teensyrom-nx/domain';
 import { logInfo, logError, logWarn, LogType } from '@teensyrom-nx/utils';
 
 /**
@@ -70,10 +76,13 @@ async function waitForDeviceStoreInitialization(
   logInfo(LogType.Start, 'Waiting for DeviceStore to initialize');
 
   while (!deviceStore.hasInitialised()) {
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  logInfo(LogType.Success, `DeviceStore initialized: ${deviceStore.devices().length} device(s) found`);
+  logInfo(
+    LogType.Success,
+    `DeviceStore initialized: ${deviceStore.devices().length} device(s) found`
+  );
 }
 
 /**
@@ -114,10 +123,7 @@ async function initializeAllDeviceStorage(
 
     logInfo(LogType.Success, 'All device storage initialized');
   } catch (error) {
-    logError(
-      'Error initializing device storage:',
-      error instanceof Error ? error.message : error
-    );
+    logError('Error initializing device storage:', error instanceof Error ? error.message : error);
   }
 }
 
@@ -180,7 +186,7 @@ async function initDeeplinking(
 
       if (directoryState?.directory?.files) {
         // Find the file in the directory
-        const targetFile = directoryState.directory.files.find(f => f.name === file);
+        const targetFile = directoryState.directory.files.find((f) => f.name === file);
 
         if (targetFile) {
           logInfo(LogType.Info, `Found file: ${file}, launching...`);
@@ -198,15 +204,11 @@ async function initDeeplinking(
           logInfo(LogType.Success, `File launched: ${file}`);
         } else {
           logWarn(`File not found in directory: ${file}`);
-          alertService.warning(
-            `File "${file}" not found in directory "${path}"`
-          );
+          alertService.warning(`File "${file}" not found in directory "${path}"`);
         }
       } else {
         logWarn(`Directory not loaded or has no files: ${path}`);
-        alertService.warning(
-          `Directory "${path}" could not be loaded or has no files`
-        );
+        alertService.warning(`Directory "${path}" could not be loaded or has no files`);
       }
     }
 

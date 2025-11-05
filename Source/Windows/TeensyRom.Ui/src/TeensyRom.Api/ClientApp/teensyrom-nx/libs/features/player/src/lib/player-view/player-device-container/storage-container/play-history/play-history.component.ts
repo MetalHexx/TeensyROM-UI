@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, input, inject, computed, signal, effect } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  inject,
+  computed,
+  signal,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PLAYER_CONTEXT, IPlayerContext, HistoryEntry } from '@teensyrom-nx/application';
 import { ScalingCardComponent, EmptyStateMessageComponent } from '@teensyrom-nx/ui/components';
@@ -18,29 +26,21 @@ export class PlayHistoryComponent {
   private readonly playerContext: IPlayerContext = inject(PLAYER_CONTEXT);
 
   // Computed signal for play history
-  readonly playHistory = computed(() => 
-    this.playerContext.getPlayHistory(this.deviceId())()
-  );
+  readonly playHistory = computed(() => this.playerContext.getPlayHistory(this.deviceId())());
 
   // Computed signal for history entries (reverse chronological - newest first)
-  readonly historyEntries = computed(() => 
-    this.playHistory()?.entries.slice().reverse() ?? []
-  );
+  readonly historyEntries = computed(() => this.playHistory()?.entries.slice().reverse() ?? []);
 
   // Computed signal for current playing file
-  readonly currentPlayingFile = computed(() => 
+  readonly currentPlayingFile = computed(() =>
     this.playerContext.getCurrentFile(this.deviceId())()
   );
 
   // Computed signal for current history position
-  readonly currentHistoryPosition = computed(() => 
-    this.playHistory()?.currentPosition ?? -1
-  );
+  readonly currentHistoryPosition = computed(() => this.playHistory()?.currentPosition ?? -1);
 
   // Computed signal for player error state
-  readonly hasPlayerError = computed(() => 
-    this.playerContext.getError(this.deviceId())() !== null
-  );
+  readonly hasPlayerError = computed(() => this.playerContext.getError(this.deviceId())() !== null);
 
   // Local signal for selected entry (user clicks only)
   readonly selectedEntry = signal<HistoryEntry | null>(null);
@@ -58,8 +58,8 @@ export class PlayHistoryComponent {
 
       // Find the matching entry by path and timestamp
       const matchingEntry = entries.find(
-        entry => entry.file.path === playingFile.file.path && 
-                 entry.timestamp === playingFile.launchedAt
+        (entry) =>
+          entry.file.path === playingFile.file.path && entry.timestamp === playingFile.launchedAt
       );
 
       if (matchingEntry) {
@@ -91,16 +91,19 @@ export class PlayHistoryComponent {
   }
 
   isSelected(entry: HistoryEntry): boolean {
-    return this.selectedEntry()?.file.path === entry.file.path && 
-           this.selectedEntry()?.timestamp === entry.timestamp;
+    return (
+      this.selectedEntry()?.file.path === entry.file.path &&
+      this.selectedEntry()?.timestamp === entry.timestamp
+    );
   }
 
   isCurrentlyPlaying(entry: HistoryEntry): boolean {
     const playingFile = this.currentPlayingFile();
-    
+
     // Check if this entry matches the currently playing file by path and timestamp
-    return playingFile?.file.path === entry.file.path && 
-           playingFile?.launchedAt === entry.timestamp;
+    return (
+      playingFile?.file.path === entry.file.path && playingFile?.launchedAt === entry.timestamp
+    );
   }
 
   private scrollToSelectedEntry(index: number): void {
@@ -112,7 +115,7 @@ export class PlayHistoryComponent {
       if (targetElement) {
         targetElement.scrollIntoView({
           behavior: 'smooth',
-          block: 'center'
+          block: 'center',
         });
       }
     }, 0);

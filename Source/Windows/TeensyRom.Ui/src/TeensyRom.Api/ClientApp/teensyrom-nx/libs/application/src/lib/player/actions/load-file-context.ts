@@ -24,7 +24,10 @@ export function loadFileContext(store: WritableStore<PlayerState>) {
     }): void => {
       const actionMessage = createAction('load-file-context');
 
-      logInfo(LogType.Start, `PlayerAction: Loading file context for device ${deviceId} with ${files.length} files`);
+      logInfo(
+        LogType.Start,
+        `PlayerAction: Loading file context for device ${deviceId} with ${files.length} files`
+      );
 
       // Ensure player state exists
       ensurePlayerState(store, deviceId, actionMessage);
@@ -58,7 +61,10 @@ export function loadFileContext(store: WritableStore<PlayerState>) {
         };
       });
 
-      logInfo(LogType.Success, `PlayerAction: File context loaded for device ${deviceId} with ${files.length} files`);
+      logInfo(
+        LogType.Success,
+        `PlayerAction: File context loaded for device ${deviceId} with ${files.length} files`
+      );
     },
   };
 }

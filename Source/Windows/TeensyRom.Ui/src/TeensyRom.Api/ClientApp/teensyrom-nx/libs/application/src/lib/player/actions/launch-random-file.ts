@@ -15,10 +15,7 @@ import {
 } from '../player-helpers';
 import { LaunchMode, PlayerFilterType, PlayerScope } from '@teensyrom-nx/domain';
 
-export function launchRandomFile(
-  store: WritableStore<PlayerState>,
-  playerService: IPlayerService
-) {
+export function launchRandomFile(store: WritableStore<PlayerState>, playerService: IPlayerService) {
   return {
     launchRandomFile: async ({ deviceId }: { deviceId: string }): Promise<void> => {
       const actionMessage = createAction('launch-random-file');
@@ -28,7 +25,7 @@ export function launchRandomFile(
       try {
         // Ensure player state exists to access shuffle settings
         ensurePlayerState(store, deviceId, actionMessage);
-        
+
         // Get current player state to access shuffle settings
         const playerState = store.players()[deviceId];
         if (!playerState) {
@@ -37,19 +34,30 @@ export function launchRandomFile(
 
         const { scope, filter, startingDirectory } = playerState.shuffleSettings;
 
-        logInfo(LogType.Info, `PlayerAction: Using shuffle settings - scope: ${scope}, filter: ${filter}, startingDirectory: ${startingDirectory || 'none'}`);
+        logInfo(
+          LogType.Info,
+          `PlayerAction: Using shuffle settings - scope: ${scope}, filter: ${filter}, startingDirectory: ${
+            startingDirectory || 'none'
+          }`
+        );
 
         // Set loading state
         setPlayerLoading(store, deviceId, actionMessage);
 
-        logInfo(LogType.NetworkRequest, `PlayerAction: Requesting random file launch from player service`);
+        logInfo(
+          LogType.NetworkRequest,
+          `PlayerAction: Requesting random file launch from player service`
+        );
 
         // Launch random file using infrastructure service
         const launchedFile = await firstValueFrom(
           playerService.launchRandom(deviceId, scope, filter, startingDirectory)
         );
 
-        logInfo(LogType.Success, `PlayerAction: Random file launched successfully: ${launchedFile.name}`);
+        logInfo(
+          LogType.Success,
+          `PlayerAction: Random file launched successfully: ${launchedFile.name}`
+        );
 
         // For random files, we assume SD storage for now (this should be improved in future phases)
         // TODO: Random launch should return storage context or derive from scope settings
@@ -57,7 +65,7 @@ export function launchRandomFile(
 
         // Check if file is compatible with hardware
         const isCompatible = launchedFile.isCompatible;
-        
+
         // Create launched file object with shuffle mode
         const launchedFileObj = createLaunchedFile(
           deviceId,
@@ -78,16 +86,35 @@ export function launchRandomFile(
         // If file is incompatible, treat as failure but with file context preserved
         if (!isCompatible) {
           const errorMessage = 'File is not compatible with TeensyROM hardware';
-          logError(`PlayerAction: Random file ${launchedFile.name} is incompatible with device ${deviceId}: ${errorMessage}`);
-          setPlayerLaunchFailure(store, deviceId, launchedFileObj, emptyFileContext, LaunchMode.Shuffle, errorMessage, actionMessage);
+          logError(
+            `PlayerAction: Random file ${launchedFile.name} is incompatible with device ${deviceId}: ${errorMessage}`
+          );
+          setPlayerLaunchFailure(
+            store,
+            deviceId,
+            launchedFileObj,
+            emptyFileContext,
+            LaunchMode.Shuffle,
+            errorMessage,
+            actionMessage
+          );
           return;
         }
 
         // Update state with success
-        setPlayerLaunchSuccess(store, deviceId, launchedFileObj, emptyFileContext, LaunchMode.Shuffle, actionMessage);
+        setPlayerLaunchSuccess(
+          store,
+          deviceId,
+          launchedFileObj,
+          emptyFileContext,
+          LaunchMode.Shuffle,
+          actionMessage
+        );
 
-        logInfo(LogType.Finish, `PlayerAction: Random file launch completed for device ${deviceId}`);
-
+        logInfo(
+          LogType.Finish,
+          `PlayerAction: Random file launch completed for device ${deviceId}`
+        );
       } catch (error) {
         const errorMessage = (error as Error)?.message || 'Failed to launch random file';
         logError(`PlayerAction: Random file launch failed for device ${deviceId}:`, error);
