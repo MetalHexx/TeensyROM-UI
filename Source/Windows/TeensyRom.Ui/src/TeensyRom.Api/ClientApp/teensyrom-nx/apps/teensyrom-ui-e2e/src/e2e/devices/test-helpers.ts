@@ -1,12 +1,5 @@
 /// <reference types="cypress" />
 
-export { API_CONFIG, createProblemDetailsResponse } from '../../support/constants/api.constants';
-
-// DOM/UI test helpers for device testing
-// Wait functions have been migrated to primitive files
-// Example: import { interceptFindDevices, FIND_DEVICES_ALIAS } from '../../support/interceptors/findDevices.interceptors';
-// Example: import { waitForDeviceDiscovery } from '../primitives/findDevices.primitives';
-
 export {
   BUSY_DIALOG_SELECTORS,
   DEVICE_CARD_SELECTORS,
@@ -17,12 +10,6 @@ export {
   CSS_CLASSES,
   DOM_ATTRIBUTES,
   CONSTANTS,
-  UI_SELECTORS,
-  getAlertMessageSelector,
-  getAlertIconSelector,
-  getDeviceCardByIndexSelector,
-  getByTestId,
-  getByClass,
 } from '../../support/constants/selector.constants';
 
 import {

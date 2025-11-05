@@ -88,18 +88,18 @@ export const DIRECTORY_FILES_SELECTORS = {
 
 // Storage index buttons (indexing feature)
 export const STORAGE_INDEX_BUTTON_SELECTORS = {
-  usb: getByTestId('storage-index-button-usb'),
-  sd: getByTestId('storage-index-button-sd'),
+  usb: '[data-testid="storage-index-button-usb"]',
+  sd: '[data-testid="storage-index-button-sd"]',
   byType: (storageType: 'usb' | 'sd') =>
     storageType === 'usb'
-      ? getByTestId('storage-index-button-usb')
-      : getByTestId('storage-index-button-sd'),
+      ? '[data-testid="storage-index-button-usb"]'
+      : '[data-testid="storage-index-button-sd"]',
 } as const;
 
 // Busy dialog with generic selectors (reusable for multiple operations)
 export const BUSY_DIALOG_GENERIC_SELECTORS = {
-  container: getByTestId('busy-dialog-container'),
-  message: getByTestId('busy-dialog-message'),
+  container: '[data-testid="busy-dialog-container"]',
+  message: '[data-testid="busy-dialog-message"]',
   backdrop: '.cdk-overlay-backdrop',
 } as const;
 
@@ -130,50 +130,4 @@ export const DOM_ATTRIBUTES = {
 export const CONSTANTS = {
   ERROR_TEXT: 'error',
   DEFAULT_TIMEOUT: 5000,
-} as const;
-
-// Consolidated export for bulk imports
-export const UI_SELECTORS = {
-  alert: ALERT_SELECTORS,
-  busyDialog: BUSY_DIALOG_SELECTORS,
-  busyDialogGeneric: BUSY_DIALOG_GENERIC_SELECTORS,
-  deviceView: DEVICE_VIEW_SELECTORS,
-  deviceCard: DEVICE_CARD_SELECTORS,
-  deviceToolbar: DEVICE_TOOLBAR_SELECTORS,
-  playerToolbar: PLAYER_TOOLBAR_SELECTORS,
-  directoryFiles: DIRECTORY_FILES_SELECTORS,
-  storageIndexButton: STORAGE_INDEX_BUTTON_SELECTORS,
-  buttons: BUTTON_SELECTORS,
-  icons: ICON_CLASSES,
-  css: CSS_CLASSES,
-  dom: DOM_ATTRIBUTES,
-  constants: CONSTANTS,
-} as const;
-
-// Helper functions for common patterns
-export function getAlertMessageSelector(): string {
-  return ALERT_SELECTORS.messageInContainer;
-}
-
-export function getAlertIconSelector(): string {
-  return ALERT_SELECTORS.iconInContainer;
-}
-
-export function getDeviceCardByIndexSelector(index: number): string {
-  return `${DEVICE_CARD_SELECTORS.card}:eq(${index})`;
-}
-
-export function getByTestId(testId: string): string {
-  return `[data-testid="${testId}"]`;
-}
-
-export function getByClass(className: string): string {
-  return `.${className}`;
-}
-
-// Dialog messages (UI text content)
-export const DIALOG_MESSAGES = {
-  INDEXING: 'Indexing Storage',
-  INDEXING_USB: 'Indexing USB Storage',
-  INDEXING_SD: 'Indexing SD Storage',
 } as const;
