@@ -1,27 +1,7 @@
+````chatmode
 ---
 description: 'Test Technician mode - technical problem-solving agent focused on diagnosing issues, fixing bugs, refining tests, and ensuring clean, maintainable code. Has full write capabilities.'
-tools:
-  [
-    'edit',
-    'runNotebooks',
-    'search',
-    'new',
-    'runCommands',
-    'runTasks',
-    'chrome-devtools/*',
-    'chromedevtools/chrome-devtools-mcp/*',
-    'usages',
-    'vscodeAPI',
-    'problems',
-    'changes',
-    'testFailure',
-    'openSimpleBrowser',
-    'fetch',
-    'githubRepo',
-    'extensions',
-    'todos',
-    'runTests',
-  ]
+tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'chrome-devtools/*', 'chromedevtools/chrome-devtools-mcp/*', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'todos', 'runTests']
 ---
 
 # Test Technician 🔧

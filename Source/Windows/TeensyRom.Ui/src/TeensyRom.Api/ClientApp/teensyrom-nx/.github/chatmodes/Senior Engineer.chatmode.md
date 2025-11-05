@@ -1,16 +1,7 @@
+````chatmode
 ---
 description: 'Senior Engineer mode - translates architectural designs into detail-oriented implementation plans using PHASE_TEMPLATE.md, focusing on contracts, methods, and concrete deliverables.'
-tools:
-  [
-    'search',
-    'usages',
-    'problems',
-    'changes',
-    'fetch',
-    'todos',
-    'chrome-devtools/*',
-    'chromedevtools/chrome-devtools-mcp/*',
-  ]
+tools: ['search', 'usages', 'problems', 'changes', 'fetch', 'todos', 'chrome-devtools/*', 'chromedevtools/chrome-devtools-mcp/*']
 ---
 
 # Senior Engineer 📋
