@@ -1,24 +1,15 @@
 // =========================================================================
 // INTERCEPTOR EXPORTS
 // =========================================================================
-
-// Device domain interceptors
-export * from './findDevices.interceptors';
 export * from './connectDevice.interceptors';
 export * from './disconnectDevice.interceptors';
-export * from './pingDevice.interceptors';
-
-// Storage domain interceptors
+export * from './findDevices.interceptors';
 export * from './getDirectory.interceptors';
-export * from './saveFavorite.interceptors';
-export * from './removeFavorite.interceptors';
-
-// Player domain interceptors
-export * from './player.interceptors';
-
-// Indexing interceptors
-export * from './indexStorage.interceptors';
 export * from './indexAllStorage.interceptors';
-
-// Examples and reference
-export * from './examples/sampleEndpoint.interceptors';
+export * from './indexStorage.interceptors';
+export * from './launchFile.interceptors';
+export * from './launchRandom.interceptors';
+export * from './pingDevice.interceptors';
+export * from './player.interceptors';
+export * from './removeFavorite.interceptors';
+export * from './saveFavorite.interceptors';

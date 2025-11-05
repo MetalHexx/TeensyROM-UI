@@ -68,21 +68,6 @@ import { faker } from '@faker-js/faker';
 import { faker } from '../faker-config';
 ```
 
-### Resetting the Seed
-
-If you need to reset the sequence in tests:
-
-```typescript
-import { faker } from '../faker-config';
-
-// Reset to initial seed
-faker.seed(12345);
-
-// Now generates from start of sequence
-const device1 = generateDevice();
-const device2 = generateDevice();
-```
-
 ---
 
 ## 🎯 Available Generators
@@ -102,33 +87,6 @@ function generateCartStorage(overrides?: Partial<CartStorageDto>): CartStorageDt
 - `deviceId`: Random UUID
 - `type`: Randomly selected from `TeensyStorageType.Sd` or `TeensyStorageType.Usb`
 - `available`: `true`
-
-**Example - Default Usage:**
-
-```typescript
-import { generateCartStorage } from './generators/device.generators';
-
-const storage = generateCartStorage();
-// {
-//   deviceId: "a1b2c3d4-e5f6-...",
-//   type: "SD",
-//   available: true
-// }
-```
-
-**Example - Unavailable USB Storage:**
-
-```typescript
-const usbStorage = generateCartStorage({
-  type: TeensyStorageType.Usb,
-  available: false,
-});
-// {
-//   deviceId: "...",
-//   type: "USB",
-//   available: false
-// }
-```
 
 ---
 
@@ -154,188 +112,21 @@ function generateDevice(overrides?: Partial<CartDto>): CartDto;
 - `sdStorage`: Generated via `generateCartStorage` with type SD
 - `usbStorage`: Generated via `generateCartStorage` with type USB
 
-**Example - Default Connected Device:**
-
-```typescript
-import { generateDevice } from './generators/device.generators';
-
-const device = generateDevice();
-// {
-//   deviceId: "a1b2c3d4-...",
-//   isConnected: true,
-//   deviceState: "Connected",
-//   comPort: "COM4",
-//   name: "TeensyROM Industrial Solutions",
-//   fwVersion: "1.3.8",
-//   isCompatible: true,
-//   sdStorage: { deviceId: "a1b2c3d4-...", type: "SD", available: true },
-//   usbStorage: { deviceId: "a1b2c3d4-...", type: "USB", available: true }
-// }
-```
-
-**Example - Disconnected Device:**
-
-```typescript
-const disconnectedDevice = generateDevice({
-  isConnected: false,
-  deviceState: DeviceState.Connectable,
-});
-```
-
-**Example - Incompatible Device:**
-
-```typescript
-const incompatibleDevice = generateDevice({
-  isCompatible: false,
-  fwVersion: '0.1.0',
-});
-```
-
-**Example - Device with Unavailable Storage:**
-
-```typescript
-const noStorageDevice = generateDevice({
-  sdStorage: {
-    deviceId: deviceId,
-    type: TeensyStorageType.Sd,
-    available: false,
-  },
-  usbStorage: {
-    deviceId: deviceId,
-    type: TeensyStorageType.Usb,
-    available: false,
-  },
-});
-```
-
 ---
 
 ## 🎨 Override Patterns
 
 ### Partial Overrides
 
-Generators accept `Partial<T>` parameters, so you only specify what you want to change:
-
-```typescript
-// Override just one property
-const device = generateDevice({ name: 'Test Device' });
-// All other properties use defaults/generated values
-
-// Override multiple properties
-const device = generateDevice({
-  isConnected: false,
-  deviceState: DeviceState.Busy,
-  isCompatible: false,
-});
-```
+Generators accept `Partial<T>` parameters, allowing you to override specific properties while defaults are applied to the rest.
 
 ### Nested Object Overrides
 
-For nested properties like `sdStorage` and `usbStorage`, provide complete override objects:
-
-```typescript
-const device = generateDevice({
-  sdStorage: {
-    deviceId: 'custom-id',
-    type: TeensyStorageType.Sd,
-    available: false,
-  },
-  // usbStorage uses default generated value
-});
-```
+For nested properties like `sdStorage` and `usbStorage`, provide complete override objects rather than partial updates.
 
 ### Combining Generators
 
-Build complex scenarios by combining generators:
-
-```typescript
-const deviceId = faker.string.uuid();
-
-const device = generateDevice({
-  deviceId,
-  sdStorage: generateCartStorage({ deviceId, type: TeensyStorageType.Sd, available: true }),
-  usbStorage: generateCartStorage({ deviceId, type: TeensyStorageType.Usb, available: false }),
-});
-```
-
----
-
-## 📖 Usage Examples
-
-### Example 1: Single Connected Device
-
-```typescript
-import { generateDevice } from '../support/test-data/generators/device.generators';
-
-// Cypress test
-it('should display connected device', () => {
-  const device = generateDevice();
-
-  cy.intercept('GET', '/api/devices', {
-    statusCode: 200,
-    body: { devices: [device] },
-  }).as('getDevices');
-
-  cy.visit('/devices');
-  cy.wait('@getDevices');
-
-  // Verify device appears
-  cy.contains(device.name).should('be.visible');
-  cy.contains(device.comPort).should('be.visible');
-});
-```
-
-### Example 2: Multiple Devices
-
-```typescript
-import { faker } from '../support/test-data/faker-config';
-import { generateDevice } from '../support/test-data/generators/device.generators';
-
-faker.seed(12345); // Reset seed
-
-const devices = [generateDevice(), generateDevice(), generateDevice()];
-
-cy.intercept('GET', '/api/devices', {
-  statusCode: 200,
-  body: { devices },
-}).as('getDevices');
-```
-
-### Example 3: Disconnected Device Scenario
-
-```typescript
-const disconnectedDevice = generateDevice({
-  isConnected: false,
-  deviceState: DeviceState.Connectable,
-});
-
-cy.intercept('GET', '/api/devices', {
-  statusCode: 200,
-  body: { devices: [disconnectedDevice] },
-});
-
-// Test shows "Connect" button instead of "Connected" state
-```
-
-### Example 4: Device Connection Error
-
-```typescript
-const device = generateDevice();
-
-// Mock successful discovery
-cy.intercept('GET', '/api/devices', {
-  statusCode: 200,
-  body: { devices: [device] },
-});
-
-// Mock connection failure
-cy.intercept('POST', `/api/devices/${device.deviceId}/connect`, {
-  statusCode: 500,
-  body: { error: 'Connection failed' },
-});
-
-// Test error handling
-```
+Build complex scenarios by composing generator calls—pass output from one generator as input to another for interconnected data.
 
 ---
 
@@ -343,7 +134,7 @@ cy.intercept('POST', `/api/devices/${device.deviceId}/connect`, {
 
 ### 1. Reset Seed for Consistency
 
-Reset the seed at the start of each test to ensure predictable data:
+Reset the seed at the start of each test to ensure predictable data. Use `beforeEach()` in test suites to reset automatically, or call `faker.seed(12345)` manually when needed:
 
 ```typescript
 beforeEach(() => {
@@ -396,68 +187,15 @@ const devices = Array.from({ length: 3 }, () => generateDevice());
 
 ### 5. Keep Test Data Close to Test
 
-Don't create giant fixture files. Generate data in tests where it's needed:
-
-```typescript
-// ✅ Good - data generated in test
-it('should handle multiple devices', () => {
-  const devices = [generateDevice(), generateDevice()];
-  // Use devices in test
-});
-
-// ❌ Avoid - disconnected fixture far from test
-const DEVICES_FIXTURE = [
-  /* 50 devices */
-];
-it('should handle multiple devices', () => {
-  // Which device am I testing?
-});
-```
+Don't create giant fixture files. Generate data in tests where it's needed for clarity and maintainability.
 
 ---
 
-## 🎯 Device Mock Fixtures (Phase 2)
+## 🎯 Device Mock Fixtures
 
 **What are fixtures?** Pre-built device scenarios using generators - ready-to-use constants for common testing scenarios.
 
 **Why use fixtures?** Instead of generating devices in every test, use validated, deterministic fixture constants for common scenarios like "single connected device" or "no devices found".
-
-### Available Fixtures
-
-| Fixture                    | Scenario             | Quick Description        |
-| -------------------------- | -------------------- | ------------------------ |
-| `singleDevice`             | 1 connected device   | Most common "happy path" |
-| `multipleDevices`          | 3 connected devices  | Multi-device scenarios   |
-| `noDevices`                | Empty array          | Empty state testing      |
-| `disconnectedDevice`       | Lost connection      | Reconnection workflows   |
-| `unavailableStorageDevice` | Storage unavailable  | Storage error handling   |
-| `mixedStateDevices`        | Varied device states | Complex state testing    |
-
-### Quick Example
-
-```typescript
-import { singleDevice, noDevices } from '../support/test-data/fixtures';
-
-it('should handle device connection', () => {
-  // Start with no devices
-  cy.intercept('GET', '/api/devices', {
-    statusCode: 200,
-    body: noDevices,
-  });
-
-  cy.visit('/devices');
-  cy.contains('No devices found').should('be.visible');
-
-  // Simulate device connection
-  cy.intercept('GET', '/api/devices', {
-    statusCode: 200,
-    body: singleDevice,
-  });
-
-  cy.get('[data-testid="refresh"]').click();
-  cy.contains('TeensyROM').should('be.visible');
-});
-```
 
 ### When to Use Fixtures vs Generators
 
@@ -488,7 +226,7 @@ Generator functions are fully tested in `generators/device.generators.spec.ts`. 
 - ✅ Determinism with fixed seed
 - ✅ Type safety (TypeScript validates DTOs)
 
-Run generator tests:
+Run tests with:
 
 ```bash
 pnpm nx test teensyrom-ui-e2e
@@ -504,15 +242,7 @@ pnpm nx test teensyrom-ui-e2e
 
 **Cause**: Importing Faker directly instead of from `faker-config.ts`
 
-**Solution**:
-
-```typescript
-// ❌ Wrong
-import { faker } from '@faker-js/faker';
-
-// ✅ Correct
-import { faker } from '../support/test-data/faker-config';
-```
+**Solution**: See the "Critical Import Rule" section above—always import from `faker-config.ts` to use the seeded instance.
 
 ---
 
@@ -549,26 +279,8 @@ const device = generateDevice({ deviceState: 'Busy' });
 
 ---
 
-## 🚀 Future Enhancements
-
-Planned additions to the test data system:
-
-- **Storage Generators**: `generateFileItem`, `generateDirectoryItem` for file system mocking
-- **Response Generators**: `generateFindDevicesResponse`, `generateConnectDeviceResponse`
-- **Custom Faker Helpers**: Domain-specific generators like `faker.teensyrom.deviceName()`
-- **Additional Fixtures**: More specialized device scenarios as testing needs emerge
-
----
-
 ## 📚 Related Documentation
 
-- [E2E Testing Plan](../../../docs/features/e2e-testing/E2E_PLAN.md) - Overall E2E strategy
-- [Phase 1 Plan](../../../docs/features/e2e-testing/E2E_PLAN_P1.md) - Generator implementation details
-- [Phase 2 Plan](../../../docs/features/e2e-testing/E2E_PLAN_P2.md) - Fixture implementation details
-- [Fixture Documentation](./fixtures/README.md) - Comprehensive fixture usage guide
+- [Fixture Documentation](./fixtures/E2E_FIXTURES.md) - Comprehensive fixture usage guide
 - [Faker.js Documentation](https://fakerjs.dev/) - Faker API reference
 - [API Client Types](../../../libs/data-access/api-client/src/lib/models/) - Generated DTO interfaces
-
----
-
-**Need Help?** Check generator tests for working examples of all patterns documented here.
