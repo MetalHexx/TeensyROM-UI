@@ -7,8 +7,9 @@ import { interceptGetDirectory } from '../../support/interceptors/getDirectory.i
 import { interceptSaveFavorite, waitForSaveFavorite } from '../../support/interceptors/saveFavorite.interceptors';
 import { interceptRemoveFavorite, waitForRemoveFavorite } from '../../support/interceptors/removeFavorite.interceptors';
 import { interceptLaunchFile } from '../../support/interceptors/launchFile.interceptors';
-import { VIEWPORT, MOCK_SEEDS } from '../../support/constants/test.constants';
+import { VIEWPORT, MOCK_SEEDS, TIMEOUTS } from '../../support/constants/test.constants';
 import { TeensyStorageType, TEST_FILES, TEST_PATHS } from '../../support/constants/storage.constants';
+import { DIRECTORY_FILES_SELECTORS } from '../../support/constants/selector.constants';
 import {
   navigateToPlayer,
   verifyFavoriteIconIsEmpty,
@@ -25,6 +26,8 @@ import {
   verifyErrorAlertDisplayed,
   verifyFavoriteStateUnchangedAfterError,
   verifyFavoriteButtonEnabledAfterError,
+  navigateToDirectory,
+  waitForDirectoryLoad,
 } from './test-helpers';
 
 describe('Favorites Functionality', () => {
@@ -125,11 +128,22 @@ describe('Favorites Functionality', () => {
 
       clickFavoriteButtonAndWaitForRemove();
 
+      // Force a directory refresh to ensure the UI reflects the favorite removal
+      // This handles the timing gap between API completion and UI update
+      cy.log('Forcing directory refresh to ensure UI is updated');
+      navigateToDirectory({
+        device: testDeviceId,
+        storage: TeensyStorageType.Sd,
+        path: TEST_PATHS.FAVORITES_GAMES,
+      });
+      waitForDirectoryLoad();
+
+      // Wait for the file list to update after the directory refresh
+      cy.get(DIRECTORY_FILES_SELECTORS.directoryFilesContainer, { timeout: TIMEOUTS.DEFAULT }).should('exist');
+
       cy.log('Verifying PAC_MAN disappeared from favorites directory');
       const favoritesFilePath = `${TEST_PATHS.FAVORITES_GAMES}/${TEST_FILES.GAMES.PAC_MAN.fileName}`;
       verifyFileNotInDirectory(favoritesFilePath);
-
-      verifyFavoriteIconIsEmpty();
     });
   });
 

@@ -32,14 +32,11 @@
 
 import {
   navigateToDeviceView,
-  waitForDeviceDiscovery,
   getDeviceCard,
   verifyFullDeviceInfo,
   verifyDeviceCount,
   CSS_CLASSES,
   clickPowerButton,
-  waitForConnection,
-  waitForDisconnection,
   verifyConnected,
   verifyDisconnected,
   DEVICE_CARD_SELECTORS,
@@ -47,9 +44,11 @@ import {
 } from './test-helpers';
 import {
   interceptFindDevices,
+  waitForFindDevices,
 } from '../../support/interceptors/findDevices.interceptors';
 import {
   interceptDisconnectDevice,
+  waitForDisconnectDevice,
 } from '../../support/interceptors/disconnectDevice.interceptors';
 import {
   interceptConnectDevice,
@@ -70,7 +69,7 @@ describe('Device Connection - Multi-Device', () => {
       interceptFindDevices({ fixture: threeDisconnectedDevices });
       interceptConnectDevice();
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should connect device 1 while devices 2 and 3 remain disconnected', () => {
@@ -79,7 +78,7 @@ describe('Device Connection - Multi-Device', () => {
       verifyDisconnected(2);
 
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
 
       verifyConnected(0);
       verifyDisconnected(1);
@@ -92,7 +91,7 @@ describe('Device Connection - Multi-Device', () => {
       verifyDisconnected(2);
 
       clickPowerButton(1);
-      waitForConnection();
+      waitForConnectDevice();
 
       verifyDisconnected(0);
       verifyConnected(1);
@@ -105,7 +104,7 @@ describe('Device Connection - Multi-Device', () => {
       verifyDisconnected(2);
 
       clickPowerButton(2);
-      waitForConnection();
+      waitForConnectDevice();
 
       verifyDisconnected(0);
       verifyDisconnected(1);
@@ -114,7 +113,7 @@ describe('Device Connection - Multi-Device', () => {
 
     it('should maintain independent power button states', () => {
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
 
       getDeviceCard(0)
         .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
@@ -142,7 +141,7 @@ describe('Device Connection - Multi-Device', () => {
       interceptFindDevices({ fixture: multipleDevices });
       interceptDisconnectDevice();
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should disconnect device 1 while devices 2 and 3 remain connected', () => {
@@ -151,7 +150,7 @@ describe('Device Connection - Multi-Device', () => {
       verifyConnected(2);
 
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
 
       verifyDisconnected(0);
       verifyConnected(1);
@@ -164,7 +163,7 @@ describe('Device Connection - Multi-Device', () => {
       verifyConnected(2);
 
       clickPowerButton(1);
-      waitForDisconnection();
+      waitForDisconnectDevice();
 
       verifyConnected(0);
       verifyDisconnected(1);
@@ -177,7 +176,7 @@ describe('Device Connection - Multi-Device', () => {
       verifyConnected(2);
 
       clickPowerButton(2);
-      waitForDisconnection();
+      waitForDisconnectDevice();
 
       verifyConnected(0);
       verifyConnected(1);
@@ -186,7 +185,7 @@ describe('Device Connection - Multi-Device', () => {
 
     it('should maintain device information for all devices after partial disconnection', () => {
       clickPowerButton(1);
-      waitForDisconnection();
+      waitForDisconnectDevice();
 
       verifyFullDeviceInfo(0);
       verifyFullDeviceInfo(1);
@@ -202,7 +201,7 @@ describe('Device Connection - Multi-Device', () => {
       interceptFindDevices({ fixture: threeDisconnectedDevices });
       interceptConnectDevice();
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should connect three devices sequentially', () => {
@@ -211,15 +210,15 @@ describe('Device Connection - Multi-Device', () => {
       verifyDisconnected(2);
 
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(0);
 
       clickPowerButton(1);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(1);
 
       clickPowerButton(2);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(2);
 
       verifyConnected(0);
@@ -229,21 +228,21 @@ describe('Device Connection - Multi-Device', () => {
 
     it('should maintain connection order and state', () => {
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
 
       verifyConnected(0);
       verifyDisconnected(1);
       verifyDisconnected(2);
 
       clickPowerButton(1);
-      waitForConnection();
+      waitForConnectDevice();
 
       verifyConnected(0);
       verifyConnected(1);
       verifyDisconnected(2);
 
       clickPowerButton(2);
-      waitForConnection();
+      waitForConnectDevice();
 
       verifyConnected(0);
       verifyConnected(1);
@@ -254,19 +253,19 @@ describe('Device Connection - Multi-Device', () => {
       interceptDisconnectDevice();
 
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(0);
 
       clickPowerButton(1);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(1);
 
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       verifyDisconnected(0);
 
       clickPowerButton(2);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(2);
 
       verifyDisconnected(0);
@@ -296,7 +295,7 @@ describe('Device Connection - Multi-Device', () => {
     it('should display mixed connection states correctly', () => {
       interceptFindDevices({ fixture: mixedConnectionDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
       verifyDisconnected(1);
@@ -306,7 +305,7 @@ describe('Device Connection - Multi-Device', () => {
     it('should show correct visual state for each device in mixed state', () => {
       interceptFindDevices({ fixture: mixedConnectionDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       getDeviceCard(0).should('not.have.class', CSS_CLASSES.DIMMED);
       getDeviceCard(0)
@@ -328,14 +327,14 @@ describe('Device Connection - Multi-Device', () => {
       interceptFindDevices({ fixture: mixedConnectionDevices });
       interceptDisconnectDevice();
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
       verifyDisconnected(1);
       verifyConnected(2);
 
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
 
       verifyDisconnected(0);
       verifyDisconnected(1);
@@ -345,7 +344,7 @@ describe('Device Connection - Multi-Device', () => {
     it('should render all devices in correct order with mixed states', () => {
       interceptFindDevices({ fixture: mixedConnectionDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyDeviceCount(3);
 
@@ -366,14 +365,14 @@ describe('Device Connection - Multi-Device', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: threeDisconnectedDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should isolate connection error to single device', () => {
       interceptConnectDevice({ errorMode: true });
 
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
 
       verifyDisconnected(0);
       verifyDisconnected(1);
@@ -382,7 +381,7 @@ describe('Device Connection - Multi-Device', () => {
       interceptConnectDevice({ errorMode: false });
 
       clickPowerButton(1);
-      waitForConnection();
+      waitForConnectDevice();
 
       verifyDisconnected(0);
       verifyConnected(1);
@@ -393,17 +392,17 @@ describe('Device Connection - Multi-Device', () => {
       interceptConnectDevice({ errorMode: true });
 
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyDisconnected(0);
 
       interceptConnectDevice({ errorMode: false });
 
       clickPowerButton(1);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(1);
 
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
 
       verifyConnected(0);
       verifyConnected(1);
@@ -413,12 +412,12 @@ describe('Device Connection - Multi-Device', () => {
     it('should isolate disconnection error to single device', () => {
       interceptFindDevices({ fixture: multipleDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       interceptDisconnectDevice({ errorMode: true });
 
       clickPowerButton(1);
-      waitForDisconnection();
+      waitForDisconnectDevice();
 
       verifyConnected(0);
       verifyConnected(1);
@@ -427,7 +426,7 @@ describe('Device Connection - Multi-Device', () => {
       interceptDisconnectDevice({ errorMode: false });
 
       clickPowerButton(2);
-      waitForDisconnection();
+      waitForDisconnectDevice();
 
       verifyConnected(0);
       verifyConnected(1);
@@ -438,7 +437,7 @@ describe('Device Connection - Multi-Device', () => {
       interceptConnectDevice({ errorMode: true });
 
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
 
       verifyDisconnected(0);
       verifyDisconnected(1);
@@ -454,20 +453,20 @@ describe('Device Connection - Multi-Device', () => {
       interceptFindDevices({ fixture: threeDisconnectedDevices });
       interceptConnectDevice();
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyDeviceCount(3);
 
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyDeviceCount(3);
 
       clickPowerButton(1);
-      waitForConnection();
+      waitForConnectDevice();
       verifyDeviceCount(3);
 
       clickPowerButton(2);
-      waitForConnection();
+      waitForConnectDevice();
       verifyDeviceCount(3);
 
       verifyDeviceCount(3);
@@ -478,20 +477,20 @@ describe('Device Connection - Multi-Device', () => {
       interceptConnectDevice();
       interceptDisconnectDevice();
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyDeviceCount(3);
 
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       verifyDeviceCount(3);
 
       clickPowerButton(1);
-      waitForConnection();
+      waitForConnectDevice();
       verifyDeviceCount(3);
 
       clickPowerButton(2);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       verifyDeviceCount(3);
 
       verifyDeviceCount(3);
@@ -501,20 +500,20 @@ describe('Device Connection - Multi-Device', () => {
       interceptFindDevices({ fixture: threeDisconnectedDevices });
       interceptConnectDevice();
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyDeviceCount(3);
 
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       cy.get(DEVICE_CARD_SELECTORS.card).should('have.length', 3);
 
       clickPowerButton(1);
-      waitForConnection();
+      waitForConnectDevice();
       cy.get(DEVICE_CARD_SELECTORS.card).should('have.length', 3);
 
       clickPowerButton(2);
-      waitForConnection();
+      waitForConnectDevice();
       cy.get(DEVICE_CARD_SELECTORS.card).should('have.length', 3);
 
       verifyDeviceCount(3);

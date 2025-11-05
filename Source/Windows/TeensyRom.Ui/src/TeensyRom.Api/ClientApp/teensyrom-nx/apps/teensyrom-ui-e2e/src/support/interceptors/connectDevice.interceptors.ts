@@ -10,9 +10,6 @@ import {
   type CypressMethod,
 } from './primitives/interceptor-primitives';
 
-// ============================================================================
-// TYPE DEFINITIONS
-// ============================================================================
 
 /**
  * Window state type for tracking connectDevice API call count
@@ -21,9 +18,6 @@ interface WindowWithCallCount {
   __connectDeviceCallCount?: number;
 }
 
-// ============================================================================
-// ENDPOINT DEFINITION
-// ============================================================================
 
 /**
  * connectDevice endpoint configuration
@@ -34,9 +28,6 @@ export const CONNECT_DEVICE_ENDPOINT: EndpointDefinition = {
   alias: 'connectDevice',
 } as const;
 
-// ============================================================================
-// INTERFACES
-// ============================================================================
 
 /**
  * Options for interceptConnectDevice interceptor
@@ -54,9 +45,6 @@ export interface InterceptConnectDeviceOptions {
   errorMessage?: string;
 }
 
-// ============================================================================
-// INTERCEPTOR FUNCTION
-// ============================================================================
 
 /**
  * Intercepts POST /devices/{deviceId}/connect - Device connection endpoint
@@ -83,9 +71,6 @@ export function interceptConnectDevice(options: InterceptConnectDeviceOptions = 
   interceptSuccess(CONNECT_DEVICE_ENDPOINT, response, options.responseDelayMs);
 }
 
-// ============================================================================
-// WAIT FUNCTION
-// ============================================================================
 
 /**
  * Waits for connectDevice endpoint call to complete
@@ -94,9 +79,15 @@ export function waitForConnectDevice(): void {
   cy.wait(`@${CONNECT_DEVICE_ENDPOINT.alias}`);
 }
 
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
+/**
+ * Wait for connectDevice API call to start
+ * Used to create timing windows for race condition testing
+ * @param timeout - Optional timeout in milliseconds (default: 2000ms for race testing)
+ */
+export function waitForConnectDeviceToStart(timeout = 2000): void {
+  cy.wait(`@${CONNECT_DEVICE_ENDPOINT.alias}`, { timeout });
+}
+
 
 /**
  * Verifies connectDevice completed successfully and was called
@@ -151,9 +142,6 @@ export function setupConnectDeviceWithDevice(device: CartDto): void {
   interceptConnectDevice({ device });
 }
 
-/**
- * Gets the last request made to the connectDevice endpoint
- */
 export function getLastConnectDeviceRequest(): Cypress.Chainable<JQuery<HTMLElement>> {
   return cy.get('@connectDevice');
 }
@@ -413,9 +401,6 @@ export function resetConnectDeviceCallCount(): void {
   });
 }
 
-// ============================================================================
-// EXPORT CONSTANTS (BACKWARD COMPATIBILITY)
-// ============================================================================
 
 export const CONNECT_DEVICE_ALIAS = CONNECT_DEVICE_ENDPOINT.alias;
 export const INTERCEPT_CONNECT_DEVICE = 'connectDevice';

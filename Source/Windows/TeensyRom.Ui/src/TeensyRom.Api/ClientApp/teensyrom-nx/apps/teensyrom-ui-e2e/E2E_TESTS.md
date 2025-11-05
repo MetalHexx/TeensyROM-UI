@@ -65,21 +65,29 @@ const customDevice = generateDevice({ firmwareVersion: 'v2.0.0' });
 - `interceptConnectDevice()` - Device connection (`POST /devices/{id}/connect`)
 - `interceptDisconnectDevice()` - Device disconnection (`DELETE /devices/{id}`)
 - `interceptPingDevice()` - Device health check (`GET /devices/{id}/ping`)
+- `interceptGetDirectory()` - Directory listing (`GET /devices/{id}/storage/{type}/directory`)
+- `interceptIndexStorage()` - Storage indexing (`POST /devices/{id}/storage/{type}/index`)
+- `interceptLaunchFile()` - File launch (`POST /devices/{id}/storage/{type}/launch`)
+- `interceptSaveFavorite()` - Save favorite (`POST /devices/{id}/favorites`)
+- `interceptRemoveFavorite()` - Remove favorite (`DELETE /devices/{id}/favorites/{id}`)
+
+**Wait Functions**: Each interceptor provides co-located `waitFor<EndpointName>()` functions for standardized timing control. See [E2E_INTERCEPTORS.md](./src/support/interceptors/E2E_INTERCEPTORS.md) for complete reference.
 
 **Example Usage**:
 ```typescript
-import { interceptFindDevices } from '../support/interceptors';
+import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
 
 beforeEach(() => {
   interceptFindDevices({ fixture: singleDevice });
   navigateToDeviceView();
-  waitForDeviceDiscovery();
+  waitForFindDevices(); // Use co-located wait function
 });
 
 // Error mode example
 it('should handle API errors', () => {
   interceptFindDevices({ errorMode: true });
   navigateToDeviceView();
+  waitForFindDevices(); // Wait functions work with error mode too
   // Verify error UI displays
 });
 ```
@@ -101,11 +109,13 @@ it('should handle API errors', () => {
 
 **Example Test Structure**:
 ```typescript
+import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
+
 describe('Device Discovery', () => {
   beforeEach(() => {
     interceptFindDevices({ fixture: multipleDevices });
     navigateToDeviceView();
-    waitForDeviceDiscovery();
+    waitForFindDevices(); // Use co-located wait function
   });
 
   it('should display all devices', () => {
@@ -461,6 +471,56 @@ import {
 } from './test-helpers';
 ```
 
+### Wait Function Patterns
+
+**Co-located Wait Functions** - Import wait functions directly from interceptor files:
+```typescript
+// ❌ Old pattern - wait functions in separate files
+import { interceptFindDevices } from '../support/interceptors';
+import { waitForDeviceDiscovery } from '../e2e/devices/test-helpers';
+
+// ✅ Current pattern - wait functions co-located with interceptors
+import {
+  interceptFindDevices,
+  waitForFindDevices,
+  waitForFindDevicesToStart  // For race condition testing
+} from '../support/interceptors/findDevices.interceptors';
+```
+
+**Unified Naming Convention** - All wait functions follow `waitFor<EndpointName>` pattern:
+```typescript
+// Standard waits (wait for completion)
+waitForFindDevices()
+waitForConnectDevice()
+waitForLaunchFile()
+
+// Race condition variants (wait for start, not completion)
+waitForFindDevicesToStart()
+waitForConnectDeviceToStart()
+waitForLaunchFileToStart()
+```
+
+**Import Strategy** - Direct imports from interceptor files (no barrel exports):
+```typescript
+// Import both interceptor and its wait functions from same file
+import {
+  interceptFindDevices,
+  waitForFindDevices
+} from '../support/interceptors/findDevices.interceptors';
+
+import {
+  interceptLaunchFile,
+  waitForLaunchFile
+} from '../support/interceptors/launchFile.interceptors';
+```
+
+**Benefits**:
+- ✅ **Co-location** - Wait functions located with their interceptors
+- ✅ **Unified naming** - Consistent `waitFor<EndpointName>` pattern
+- ✅ **Race condition testing** - `*ToStart()` variants for precise timing
+- ✅ **Type safety** - Uses same endpoint definitions as interceptors
+- ✅ **Maintainability** - Changes to interceptors automatically reflected in wait functions
+
 ### Test Independence
 - Each test sets up its own interceptors and state
 - Use `beforeEach` for common setup
@@ -483,6 +543,8 @@ import {
 - Register interceptors before navigation (`beforeEach`)
 - Use descriptive aliases (`@findDevices`, not `@api`)
 - Support both success and error modes
+- Use co-located wait functions for timing control
+- Import wait functions directly from interceptor files (not from barrel exports)
 
 ### Test Naming
 - Be descriptive: `should display device name` not `test 1`
@@ -497,7 +559,7 @@ import {
 Detailed implementation guides for each testing phase:
 
 - **Phase 2**: Fixtures & Generators - [E2E_FIXTURES.md](./src/support/test-data/fixtures/E2E_FIXTURES.md)
-- **Phase 3**: API Interceptors - [E2E_INTERCEPTORS.md](./src/support/interceptors/E2E_INTERCEPTORS.md)
+- **Phase 3**: API Interceptors & Wait Functions - [E2E_INTERCEPTORS.md](./src/support/interceptors/E2E_INTERCEPTORS.md) *(Updated with wait helper functions)*
 - **Phase 4**: Device Discovery Tests - [E2E_DEVICE_DISCOVERY.md](./src/e2e/devices/E2E_DEVICE_DISCOVERY.md)
 - **Constants & Selectors**: [E2E_CONSTANTS.md](./src/support/constants/E2E_CONSTANTS.md)
 
@@ -518,6 +580,7 @@ Detailed implementation guides for each testing phase:
 **Fixtures**: `src/support/test-data/fixtures/`
 **Generators**: `src/support/test-data/generators/`
 **Interceptors**: `src/support/interceptors/`
+**Wait Functions**: Co-located in interceptor files (e.g., `waitForFindDevices()` in `findDevices.interceptors.ts`)
 **Constants**: `src/support/constants/`
 **Test Helpers**: `src/e2e/devices/test-helpers.ts`
 **Test Specs**: `src/e2e/devices/`

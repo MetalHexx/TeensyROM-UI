@@ -15,21 +15,21 @@
 
 import {
   navigateToDeviceView,
-  waitForDeviceDiscovery,
   DEVICE_CARD_SELECTORS,
   clickPowerButton,
-  waitForConnection,
-  waitForDisconnection,
   DEVICE_TOOLBAR_SELECTORS,
 } from './test-helpers';
 import {
   interceptFindDevices,
+  waitForFindDevices,
 } from '../../support/interceptors/findDevices.interceptors';
 import {
   interceptConnectDevice,
+  waitForConnectDevice,
 } from '../../support/interceptors/connectDevice.interceptors';
 import {
   interceptDisconnectDevice,
+  waitForDisconnectDevice,
 } from '../../support/interceptors/disconnectDevice.interceptors';
 import {
   singleDevice,
@@ -41,13 +41,13 @@ import {
 
 describe('Device Toolbar Button Disabled State', () => {
   // =========================================================================
-  // SUITE 1: NO DEVICES (EMPTY STATE)
+  // NO DEVICES (EMPTY STATE)
   // =========================================================================
   describe('No Devices Connected - Empty State', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: noDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should disable Index All button when no devices exist', () => {
@@ -72,13 +72,13 @@ describe('Device Toolbar Button Disabled State', () => {
   });
 
   // =========================================================================
-  // SUITE 2: ALL DEVICES DISCONNECTED
+  // ALL DEVICES DISCONNECTED
   // =========================================================================
   describe('All Devices Disconnected', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: threeDisconnectedDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should disable Index All button when all devices are disconnected', () => {
@@ -107,13 +107,13 @@ describe('Device Toolbar Button Disabled State', () => {
   });
 
   // =========================================================================
-  // SUITE 3: AT LEAST ONE DEVICE CONNECTED
+  // AT LEAST ONE DEVICE CONNECTED
   // =========================================================================
   describe('At Least One Device Connected', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should enable Index All button when at least one device is connected', () => {
@@ -142,13 +142,13 @@ describe('Device Toolbar Button Disabled State', () => {
   });
 
   // =========================================================================
-  // SUITE 4: MIXED CONNECTION STATES (SOME CONNECTED, SOME DISCONNECTED)
+  // MIXED CONNECTION STATES (SOME CONNECTED, SOME DISCONNECTED)
   // =========================================================================
   describe('Mixed Device Connection States', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: mixedConnectionDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should enable Index All button when at least one device is connected (mixed state)', () => {
@@ -183,13 +183,13 @@ describe('Device Toolbar Button Disabled State', () => {
   });
 
   // =========================================================================
-  // SUITE 5: BUTTON ACCESSIBILITY AND VISIBILITY
+  // BUTTON ACCESSIBILITY AND VISIBILITY
   // =========================================================================
   describe('Button Accessibility and Visibility', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: noDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should render toolbar with all four buttons visible', () => {
@@ -212,7 +212,7 @@ describe('Device Toolbar Button Disabled State', () => {
   });
 
   // =========================================================================
-  // SUITE 6: FUNCTIONAL WORKFLOW - DEVICE CONNECTION STATE CHANGES
+  // FUNCTIONAL WORKFLOW - DEVICE CONNECTION STATE CHANGES
   // =========================================================================
   describe('Functional Workflow: Device Connection State Changes', () => {
     /**
@@ -229,7 +229,7 @@ describe('Device Toolbar Button Disabled State', () => {
         interceptDisconnectDevice();
 
         navigateToDeviceView();
-        waitForDeviceDiscovery();
+        waitForFindDevices();
       });
 
       it('should start with action buttons disabled when device is disconnected', () => {
@@ -246,7 +246,7 @@ describe('Device Toolbar Button Disabled State', () => {
           .should('be.disabled');
 
         clickPowerButton(0);
-        waitForConnection();
+        waitForConnectDevice();
 
         cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
           .should('not.be.disabled');
@@ -258,13 +258,13 @@ describe('Device Toolbar Button Disabled State', () => {
 
       it('should disable action buttons after disconnecting a connected device', () => {
         clickPowerButton(0);
-        waitForConnection();
+        waitForConnectDevice();
 
         cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
           .should('not.be.disabled');
 
         clickPowerButton(0);
-        waitForDisconnection();
+        waitForDisconnectDevice();
 
         cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
           .should('be.disabled');
@@ -279,13 +279,13 @@ describe('Device Toolbar Button Disabled State', () => {
           .should('not.be.disabled');
 
         clickPowerButton(0);
-        waitForConnection();
+        waitForConnectDevice();
 
         cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton)
           .should('not.be.disabled');
 
         clickPowerButton(0);
-        waitForDisconnection();
+        waitForDisconnectDevice();
 
         cy.get(DEVICE_TOOLBAR_SELECTORS.refreshButton)
           .should('not.be.disabled');
@@ -299,7 +299,7 @@ describe('Device Toolbar Button Disabled State', () => {
         interceptDisconnectDevice();
 
         navigateToDeviceView();
-        waitForDeviceDiscovery();
+        waitForFindDevices();
       });
 
       it('should start with all action buttons disabled when all three devices are disconnected', () => {
@@ -313,7 +313,7 @@ describe('Device Toolbar Button Disabled State', () => {
 
       it('should enable action buttons after connecting first of three devices', () => {
         clickPowerButton(0);
-        waitForConnection();
+        waitForConnectDevice();
 
         cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
           .should('not.be.disabled');
@@ -325,13 +325,13 @@ describe('Device Toolbar Button Disabled State', () => {
 
       it('should disable action buttons after disconnecting the only connected device', () => {
         clickPowerButton(0);
-        waitForConnection();
+        waitForConnectDevice();
 
         cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
           .should('not.be.disabled');
 
         clickPowerButton(0);
-        waitForDisconnection();
+        waitForDisconnectDevice();
 
         cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton)
           .should('be.disabled');

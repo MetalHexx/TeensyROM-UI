@@ -20,17 +20,17 @@ Interceptors bridge static test data (fixtures) with dynamic test scenarios by:
 
 ```typescript
 import { cy } from 'cypress';
-import { interceptFindDevices } from '../support/interceptors';
+import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
 
 describe('Device Discovery', () => {
   it('should display discovered devices', () => {
     // Register mock API interceptor with default fixture
     interceptFindDevices();
-    
+
     cy.visit('/devices');
-    
-    // Wait for intercepted request and assert alias
-    cy.wait('@findDevices');
+
+    // Wait for intercepted request using co-located wait function
+    waitForFindDevices();
     cy.get('[data-testid="device-list"]').should('be.visible');
   });
 });
@@ -40,15 +40,15 @@ describe('Device Discovery', () => {
 
 ```typescript
 import { multipleDevices } from '../support/test-data/fixtures';
-import { interceptFindDevices } from '../support/interceptors';
+import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
 
 describe('Device Discovery', () => {
   it('should handle multiple devices', () => {
     // Override default fixture with custom scenario
     interceptFindDevices({ fixture: multipleDevices });
-    
+
     cy.visit('/devices');
-    cy.wait('@findDevices');
+    waitForFindDevices();
     cy.get('[data-testid="device-item"]').should('have.length', 3);
   });
 });
@@ -57,15 +57,15 @@ describe('Device Discovery', () => {
 ### Error Mode Testing
 
 ```typescript
-import { interceptFindDevices } from '../support/interceptors';
+import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
 
 describe('Device Discovery', () => {
   it('should handle discovery errors', () => {
     // Simulate API error
     interceptFindDevices({ errorMode: true });
-    
+
     cy.visit('/devices');
-    cy.wait('@findDevices');
+    waitForFindDevices();
     cy.get('[data-testid="error-message"]').should('contain', 'failed');
   });
 });
@@ -518,6 +518,214 @@ describe('Device Health Check', () => {
      });
    });
    ```
+
+---
+
+## Wait Helper Functions
+
+Wait helper functions are co-located with their corresponding interceptors and provide standardized timing control for API calls. All wait functions follow the `waitFor<EndpointName>` naming convention for consistency and discoverability.
+
+### Standard Wait Functions
+
+Each interceptor exports a standard `waitFor<EndpointName>()` function that waits for the API call to complete:
+
+```typescript
+import { interceptFindDevices, waitForFindDevices } from './interceptors/findDevices.interceptors';
+
+// Standard usage pattern
+beforeEach(() => {
+  interceptFindDevices({ fixture: multipleDevices });
+  navigateToDeviceView();
+  waitForFindDevices(); // Wait for request completion
+});
+```
+
+### Race Condition Testing Variants
+
+For precise timing control and race condition testing, each interceptor also exports a `waitFor<EndpointName>ToStart()` variant:
+
+```typescript
+import { interceptFindDevices, waitForFindDevicesToStart } from './interceptors/findDevices.interceptors';
+
+// Race condition testing - wait for request to start (not complete)
+it('should handle UI state during API call', () => {
+  interceptFindDevices({ responseDelayMs: 2000 });
+  navigateToDeviceView();
+
+  // Wait for API call to start, then test loading states
+  waitForFindDevicesToStart();
+  cy.get('[data-testid="loading-indicator"]').should('be.visible');
+
+  // Then wait for completion
+  waitForFindDevices();
+  cy.get('[data-testid="device-list"]').should('be.visible');
+});
+```
+
+### Available Wait Functions
+
+All interceptors provide these wait functions:
+
+| Interceptor File | Standard Wait Function | Race Condition Variant |
+|------------------|-----------------------|------------------------|
+| `findDevices.interceptors.ts` | `waitForFindDevices()` | `waitForFindDevicesToStart()` |
+| `connectDevice.interceptors.ts` | `waitForConnectDevice()` | `waitForConnectDeviceToStart()` |
+| `disconnectDevice.interceptors.ts` | `waitForDisconnectDevice()` | `waitForDisconnectDeviceToStart()` |
+| `pingDevice.interceptors.ts` | `waitForPingDevice()` | `waitForPingDeviceToStart()` |
+| `getDirectory.interceptors.ts` | `waitForGetDirectory()` | `waitForGetDirectoryToStart()` |
+| `indexStorage.interceptors.ts` | `waitForIndexStorage()` | `waitForIndexStorageToStart()` |
+| `indexAllStorage.interceptors.ts` | `waitForIndexAllStorage()` | `waitForIndexAllStorageToStart()` |
+| `launchFile.interceptors.ts` | `waitForLaunchFile()` | `waitForLaunchFileToStart()` |
+| `launchRandom.interceptors.ts` | `waitForLaunchRandom()` | `waitForLaunchRandomToStart()` |
+| `player.interceptors.ts` | `waitForPlayer()` | `waitForPlayerToStart()` |
+| `saveFavorite.interceptors.ts` | `waitForSaveFavorite()` | `waitForSaveFavoriteToStart()` |
+| `removeFavorite.interceptors.ts` | `waitForRemoveFavorite()` | `waitForRemoveFavoriteToStart()` |
+
+### Import Patterns
+
+**Direct Import from Interceptor Files** (Recommended):
+```typescript
+// Import both interceptor and wait function from same file
+import {
+  interceptFindDevices,
+  waitForFindDevices,
+  waitForFindDevicesToStart
+} from '../support/interceptors/findDevices.interceptors';
+
+// Import multiple interceptors and their wait functions
+import {
+  interceptFindDevices,
+  waitForFindDevices
+} from '../support/interceptors/findDevices.interceptors';
+import {
+  interceptConnectDevice,
+  waitForConnectDevice
+} from '../support/interceptors/connectDevice.interceptors';
+```
+
+**Barrel Import Pattern** (From index.ts):
+```typescript
+import {
+  interceptFindDevices,
+  interceptConnectDevice,
+  // Note: Wait functions are NOT exported from barrel - import directly from interceptor files
+} from '../support/interceptors';
+
+// Still need to import wait functions directly
+import { waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
+import { waitForConnectDevice } from '../support/interceptors/connectDevice.interceptors';
+```
+
+### Usage Examples
+
+**Basic Test Setup**:
+```typescript
+import { interceptFindDevices, waitForFindDevices } from '../support/interceptors/findDevices.interceptors';
+import { interceptConnectDevice, waitForConnectDevice } from '../support/interceptors/connectDevice.interceptors';
+
+describe('Device Connection', () => {
+  beforeEach(() => {
+    interceptFindDevices({ fixture: singleDevice });
+    interceptConnectDevice();
+    navigateToDeviceView();
+    waitForFindDevices();
+  });
+
+  it('should connect to device', () => {
+    cy.get('[data-testid="device-item"]').first().click();
+    waitForConnectDevice();
+    cy.get('[data-testid="connected-status"]').should('be.visible');
+  });
+});
+```
+
+**Loading State Testing**:
+```typescript
+import {
+  interceptFindDevices,
+  waitForFindDevicesToStart,
+  waitForFindDevices
+} from '../support/interceptors/findDevices.interceptors';
+
+describe('Loading States', () => {
+  it('should show loading indicator during device discovery', () => {
+    interceptFindDevices({ responseDelayMs: 2000 });
+    navigateToDeviceView();
+
+    // Wait for API call to start, then test loading state
+    waitForFindDevicesToStart();
+    cy.get('[data-testid="loading-indicator"]').should('be.visible');
+
+    // Wait for completion and verify final state
+    waitForFindDevices();
+    cy.get('[data-testid="device-list"]').should('be.visible');
+    cy.get('[data-testid="loading-indicator"]').should('not.exist');
+  });
+});
+```
+
+**Multiple API Calls**:
+```typescript
+import {
+  interceptFindDevices,
+  waitForFindDevices
+} from '../support/interceptors/findDevices.interceptors';
+import {
+  interceptGetDirectory,
+  waitForGetDirectory
+} from '../support/interceptors/getDirectory.interceptors';
+
+describe('File Browser Workflow', () => {
+  it('should browse device storage', () => {
+    interceptFindDevices({ fixture: singleDevice });
+    interceptGetDirectory({ fixture: mockDirectory });
+
+    navigateToDeviceView();
+    waitForFindDevices();
+
+    cy.get('[data-testid="device-item"]').first().click();
+    cy.get('[data-testid="browse-storage-btn"]').click();
+    waitForGetDirectory();
+
+    cy.get('[data-testid="file-list"]').should('be.visible');
+  });
+});
+```
+
+### Migration Changes
+
+**Previous Pattern** (Wait functions in separate files):
+```typescript
+// ❌ Old pattern - wait functions in separate test-helpers files
+import { interceptFindDevices } from '../support/interceptors';
+import { waitForDeviceDiscovery } from '../e2e/devices/test-helpers';
+```
+
+**Current Pattern** (Wait functions co-located with interceptors):
+```typescript
+// ✅ Current pattern - wait functions in interceptor files
+import {
+  interceptFindDevices,
+  waitForFindDevices
+} from '../support/interceptors/findDevices.interceptors';
+```
+
+### Key Benefits
+
+1. **Unified Naming Convention**: All wait functions follow `waitFor<EndpointName>` pattern
+2. **Co-location**: Wait functions are located with their corresponding interceptors
+3. **Race Condition Testing**: `*ToStart()` variants for precise timing control
+4. **Direct Imports**: No barrel exports for wait functions - import directly from interceptor files
+5. **Type Safety**: Wait functions are typed and use the same endpoint definitions
+6. **Consistency**: All interceptors provide the same wait function patterns
+
+### Best Practices
+
+1. **Use Standard Waits**: Use `waitFor<EndpointName>()` for most test scenarios
+2. **Race Condition Testing**: Use `waitFor<EndpointName>ToStart()` when testing loading states or race conditions
+3. **Import Together**: Import interceptors and their wait functions from the same file
+4. **Chain Waits**: Chain multiple wait functions for multi-step workflows
+5. **Error Testing**: Wait functions work with both success and error interceptor modes
 
 ---
 

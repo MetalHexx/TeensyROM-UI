@@ -20,7 +20,6 @@
 
 import {
   navigateToDeviceView,
-  waitForDeviceDiscovery,
   clickRefreshDevices,
   verifyConnected as expectDeviceConnected,
   verifyDeviceCount,
@@ -31,6 +30,7 @@ import {
 } from './test-helpers';
 import {
   ALERT_SEVERITY,
+  clearAllAlerts,
   dismissAlert,
   verifyAlertDismissed,
   verifyAlertMessage,
@@ -55,9 +55,10 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
     const errorMessage = 'No TeensyRom devices found.';
 
     beforeEach(() => {
+      clearAllAlerts();
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       expectDeviceConnected(0);
       verifyDeviceCount(1);
@@ -173,7 +174,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
 
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       expectDeviceConnected(0);
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage).should('not.exist');
@@ -182,9 +183,10 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
 
   describe('Other Error Scenarios', () => {
     beforeEach(() => {
+      clearAllAlerts();
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should handle 500 Internal Server Error with ProblemDetails', () => {
@@ -282,7 +284,7 @@ describe('Device Refresh - Error Handling with ProblemDetails', () => {
 
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       expectDeviceConnected(0);
       cy.get(DEVICE_VIEW_SELECTORS.emptyStateMessage).should('not.exist');

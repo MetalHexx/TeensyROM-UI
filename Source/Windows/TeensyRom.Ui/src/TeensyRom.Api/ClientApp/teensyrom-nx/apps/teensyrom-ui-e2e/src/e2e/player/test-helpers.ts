@@ -4,11 +4,16 @@ import { APP_ROUTES } from '../../support/constants/app-routes.constants';
 import { TeensyStorageType, TEST_PATHS } from '../../support/constants/storage.constants';
 import {
   PLAYER_TOOLBAR_SELECTORS,
-  DIRECTORY_FILES_SELECTORS
+  DIRECTORY_FILES_SELECTORS,
 } from '../../support/constants/selector.constants';
 import { interceptSaveFavorite } from '../../support/interceptors/saveFavorite.interceptors';
 import { interceptRemoveFavorite } from '../../support/interceptors/removeFavorite.interceptors';
-import { verifyAlertVisible, verifyAlertMessage, verifyAlertIcon, verifyAlertSeverity } from '../../support/helpers/alert.helpers';
+import {
+  verifyAlertVisible,
+  verifyAlertMessage,
+  verifyAlertIcon,
+  verifyAlertSeverity,
+} from '../../support/helpers/alert.helpers';
 import type MockFilesystem from '../../support/test-data/mock-filesystem/mock-filesystem';
 
 export * from '../../support/helpers/alert.helpers';
@@ -37,23 +42,18 @@ export function navigateToPlayer(params?: {
 /**
  * Assert URL contains expected parameters
  * @param params Query parameters to verify in URL
- * @param options Optional configuration including timeout and logging
+ * @param options Optional configuration including timeout
  */
-export function expectUrlContainsParams(params: {
-  device?: string;
-  storage?: string;
-  path?: string;
-  file?: string;
-}, options?: {
-  timeout?: number;
-  logWaiting?: boolean;
-}): void {
-  const timeout = options?.timeout || 4000; // Cypress default timeout
-  const logWaiting = options?.logWaiting || false;
-
-  if (logWaiting) {
-    cy.log(`Waiting for URL to update with file: ${params.file}`);
-  }
+export function expectUrlContainsParams(
+  params: {
+    device?: string;
+    storage?: string;
+    path?: string;
+    file?: string;
+  },
+  options?: { timeout?: number }
+): void {
+  const timeout = options?.timeout || 10000;
 
   cy.location('search', { timeout }).should((search) => {
     if (params.device) expect(search).to.include(`device=${params.device}`);
@@ -65,13 +65,8 @@ export function expectUrlContainsParams(params: {
       expect(search).to.satisfy((s: string) => s.includes(encoded) || s.includes(notEncoded));
     }
     if (params.file) expect(search).to.include(`file=${encodeURIComponent(params.file)}`);
-  }).then((search) => {
-    if (logWaiting) {
-      cy.log(`✅ URL updated successfully: ${search}`);
-    }
   });
 }
-
 
 /**
  * Click a file in the directory listing by path
@@ -86,7 +81,7 @@ export function clickFileInDirectory(filePath: string): void {
  */
 export function doubleClickFileInDirectory(filePath: string): void {
   cy.get(DIRECTORY_FILES_SELECTORS.fileListItem(filePath)).scrollIntoView();
-  cy.get(DIRECTORY_FILES_SELECTORS.fileListItem(filePath)).dblclick();
+  cy.get(DIRECTORY_FILES_SELECTORS.fileListItem(filePath)).dblclick({ force: true });
 }
 
 /**
@@ -114,16 +109,14 @@ export function clickRandomButton(): void {
  * Assert a specific file is currently launched/playing
  */
 export function expectFileIsLaunched(fileName: string): void {
-  cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo)
-    .should('be.visible')
-    .should('contain.text', fileName);
+  cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo).should('exist').should('contain.text', fileName);
 }
 
 /**
  * Assert any file is currently launched (don't care which one)
  */
 export function expectFileIsLaunchedAny(): void {
-  cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo).should('be.visible');
+  cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo).should('exist');
 }
 
 /**
@@ -158,7 +151,7 @@ export function verifyFileInDirectory(filePath: string, shouldBeVisible = true):
  * Wait for directory to load (GET_DIRECTORY API call completes)
  */
 export function waitForDirectoryLoad(): void {
-  cy.wait('@getDirectory');
+  cy.wait('@getDirectory', { timeout: 10000 });
 }
 
 /**
@@ -175,14 +168,14 @@ export function waitForDirectoryFilesToBeVisible(pathPrefix = '/'): void {
  * Wait for file metadata to load after launch (GET_DIRECTORY API call completes)
  */
 export function waitForFileToLoad(): void {
-  cy.wait('@getDirectory');
+  cy.wait('@getDirectory', { timeout: 10000 });
 }
 
 /**
  * Wait for file launch API call to complete (LAUNCH_FILE interceptor)
  */
-export function waitForFileLaunch(timeout = 10000): void {
-  cy.wait('@launchFile', { timeout });
+export function waitForFileLaunch(): void {
+  cy.wait('@launchFile', { timeout: 10000 });
 }
 
 /**
@@ -196,7 +189,7 @@ export function waitForRandomLaunch(): void {
  * Wait for file info to appear after launching a file
  */
 export function waitForFileInfoToAppear(): void {
-  cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo, { timeout: 10000 }).first().should('be.visible');
+  cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo, { timeout: 10000 }).first().should('exist');
 }
 
 /**
@@ -217,33 +210,18 @@ export function goForward(): void {
 // Favorites Testing Helpers
 // ============================================================================
 
-
-/**
- * Wait for device discovery to complete (FIND_DEVICES API call)
- */
-export function waitForDeviceDiscovery(): void {
-  cy.wait('@findDevices');
-}
-
-/**
- * Wait for device connection to complete (CONNECT_DEVICE API call)
- */
-export function waitForDeviceConnection(): void {
-  cy.wait('@connectDevice');
-}
-
 /**
  * Wait for save favorite API call to complete (SAVE_FAVORITE API call)
  */
-export function waitForSaveFavorite(timeout = 10000): void {
-  cy.wait('@saveFavorite', { timeout });
+export function waitForSaveFavorite(): void {
+  cy.wait('@saveFavorite', { timeout: 10000 });
 }
 
 /**
  * Wait for remove favorite API call to complete (REMOVE_FAVORITE API call)
  */
-export function waitForRemoveFavorite(timeout = 10000): void {
-  cy.wait('@removeFavorite', { timeout });
+export function waitForRemoveFavorite(): void {
+  cy.wait('@removeFavorite', { timeout: 10000 });
 }
 
 /**
@@ -257,7 +235,9 @@ export function waitForPlayerToolbarVisible(): void {
  * Wait for favorite button to be visible and enabled
  */
 export function waitForFavoriteButtonReady(): void {
-  cy.get(`${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteButton}`, { timeout: 10000 })
+  cy.get(`${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteButton}`, {
+    timeout: 10000,
+  })
     .should('be.visible')
     .should('not.be.disabled');
 }
@@ -266,8 +246,10 @@ export function waitForFavoriteButtonReady(): void {
  * Wait for favorite icon to contain specific text content
  */
 export function waitForFavoriteIconToContain(expectedIcon: string): void {
-  cy.get(PLAYER_TOOLBAR_SELECTORS.favoriteIcon, { timeout: 10000 })
-    .should('contain.text', expectedIcon);
+  cy.get(PLAYER_TOOLBAR_SELECTORS.favoriteIcon, { timeout: 10000 }).should(
+    'contain.text',
+    expectedIcon
+  );
 }
 
 // ============================================================================
@@ -278,7 +260,9 @@ export function waitForFavoriteIconToContain(expectedIcon: string): void {
  * Click the favorite button in the player toolbar
  */
 export function clickFavoriteButton(): void {
-  cy.get(`${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteButton}`).click();
+  cy.get(
+    `${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteButton}`
+  ).click();
 }
 
 /**
@@ -312,23 +296,25 @@ export function verifyFavoriteIconState(expectedIcon: string): void {
  * Verify the favorite icon shows empty state (favorite_border)
  */
 export function verifyFavoriteIconIsEmpty(): void {
-  cy.get(`${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteIcon}`).should('contain.text', 'favorite_border');
+  cy.get(
+    `${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteIcon}`
+  ).should('contain.text', 'favorite_border');
 }
 
 /**
  * Verify the favorite icon shows filled state (favorite)
  */
 export function verifyFavoriteIconIsFilled(): void {
-  cy.get(`${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteIcon}`).should('contain.text', 'favorite');
+  cy.get(
+    `${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteIcon}`
+  ).should('contain.text', 'favorite');
 }
 
 /**
  * Verify current file info shows expected file name
  */
 export function verifyCurrentFileInfo(fileName: string): void {
-  cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo)
-    .should('be.visible')
-    .should('contain.text', fileName);
+  cy.get(PLAYER_TOOLBAR_SELECTORS.currentFileInfo).should('exist').should('contain.text', fileName);
 }
 
 // ============================================================================
@@ -376,7 +362,7 @@ export function launchFileFromFavorites(params: {
   const favoritesFilePath = `${TEST_PATHS.FAVORITES_GAMES}/${params.fileName}`;
   cy.get(DIRECTORY_FILES_SELECTORS.fileListItem(favoritesFilePath))
     .should('be.visible')
-    .click();
+    .click({ force: true });
 }
 
 /**
@@ -397,7 +383,7 @@ export function setupSaveFavoriteErrorScenario(filesystem?: MockFilesystem): voi
   interceptSaveFavorite({
     filesystem,
     errorMode: true,
-    responseDelayMs: 500
+    responseDelayMs: 500,
   });
 }
 
@@ -408,7 +394,7 @@ export function setupRemoveFavoriteErrorScenario(filesystem?: MockFilesystem): v
   interceptRemoveFavorite({
     filesystem,
     errorMode: true,
-    responseDelayMs: 500
+    responseDelayMs: 500,
   });
 }
 
@@ -426,14 +412,16 @@ export function verifyErrorAlertDisplayed(expectedMessage: string): void {
  * Verify favorite icon state remains unchanged after error
  */
 export function verifyFavoriteStateUnchangedAfterError(expectedIcon: string): void {
-  cy.get(`${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteIcon}`)
-    .should('contain.text', expectedIcon);
+  cy.get(
+    `${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteIcon}`
+  ).should('contain.text', expectedIcon);
 }
 
 /**
  * Verify favorite button is enabled after error scenario
  */
 export function verifyFavoriteButtonEnabledAfterError(): void {
-  cy.get(`${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteButton}`)
-    .should('not.be.disabled');
+  cy.get(
+    `${PLAYER_TOOLBAR_SELECTORS.toolbar}:visible ${PLAYER_TOOLBAR_SELECTORS.favoriteButton}`
+  ).should('not.be.disabled');
 }

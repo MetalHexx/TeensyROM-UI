@@ -115,11 +115,83 @@ export function interceptGetDirectory(options: InterceptGetDirectoryOptions = {}
 // ============================================================================
 
 /**
- * Waits for getDirectory endpoint call to complete
+ * Waits for getDirectory endpoint call to complete with enhanced error reporting
  * Uses the registered alias from the interceptor
  */
-export function waitForGetDirectory(): void {
-  cy.wait(`@${GET_DIRECTORY_ENDPOINT.alias}`);
+export function waitForGetDirectory(timeout = 10000): void {
+  cy.log(`⏳ Waiting for directory load API call to complete (timeout: ${timeout}ms)`);
+  const startTime = Date.now();
+
+  cy.wait(`@${GET_DIRECTORY_ENDPOINT.alias}`, { timeout }).then((xhr) => {
+    const elapsedTime = Date.now() - startTime;
+    cy.log(`✅ Directory load API call completed in ${formatDuration(elapsedTime)}`);
+
+    // Additional context about the request
+    if (xhr?.request) {
+      const url = xhr.request.url;
+      const method = xhr.request.method;
+      cy.log(`📡 Request: ${method} ${url}`);
+
+      // Extract directory path from request for better debugging
+      if (url.includes('Path=')) {
+        const dirPath = new URL(url).searchParams.get('Path');
+        if (dirPath) {
+          cy.log(`📁 Directory path: ${decodeURIComponent(dirPath)}`);
+        }
+      }
+    }
+
+    // Log directory contents for debugging
+    if (xhr?.response?.body?.storageItem) {
+      const { directories, files } = xhr.response.body.storageItem;
+      const dirCount = directories?.length || 0;
+      const fileCount = files?.length || 0;
+      cy.log(`📂 Directory contents: ${dirCount} subdirectories, ${fileCount} files`);
+
+      if (fileCount > 0 && fileCount <= 5) {
+        // Log file names if there aren't too many
+        const fileNames = files.map((f: FileItemDto) => f.name).join(', ');
+        cy.log(`📄 Files: ${fileNames}`);
+      }
+    }
+
+    // Check for error responses
+    if (xhr?.response?.statusCode && xhr.response.statusCode >= 400) {
+      const errorMsg = [
+        `❌ Directory load API call failed after ${formatDuration(elapsedTime)}`,
+        `Status: ${xhr.response.statusCode}`,
+        `Response: ${JSON.stringify(xhr.response.body)}`,
+        '',
+        '💡 This might indicate:',
+        '  • Directory not found or does not exist',
+        '  • Storage device is not accessible',
+        '  • Filesystem permissions issues',
+        '  • Network connectivity problems',
+        '',
+        '🔧 Debugging suggestions:',
+        '  • Verify the directory path exists in the mock filesystem',
+        '  • Check device connection and storage status',
+        '  • Ensure proper filesystem permissions',
+      ].join('\n');
+
+      cy.log(`⚠️ ${errorMsg}`);
+    }
+  });
+}
+
+/**
+ * Simple duration formatter for logging
+ */
+function formatDuration(ms: number): string {
+  if (ms < 1000) {
+    return `${ms}ms`;
+  } else if (ms < 60000) {
+    return `${(ms / 1000).toFixed(1)}s`;
+  } else {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}m ${seconds}s`;
+  }
 }
 
 /**

@@ -158,7 +158,7 @@ export function setupSampleEndpointWithDelay(delayMs: number, fixture?: MockResp
  * Gets the last request made to the sample endpoint
  * Useful for verifying request parameters in tests
  */
-export function getLastSampleEndpointRequest(): Cypress.Chainable<any> {
+export function getLastSampleEndpointRequest(): Cypress.Chainable<JQuery<HTMLElement>> {
   return cy.get('@sampleEndpoint');
 }
 

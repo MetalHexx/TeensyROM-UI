@@ -95,8 +95,66 @@ export function interceptSaveFavorite(options: InterceptSaveFavoriteOptions = {}
   }
 }
 
-export function waitForSaveFavorite(): void {
-  cy.wait(`@${SAVE_FAVORITE_ENDPOINT.alias}`);
+export function waitForSaveFavorite(timeout = 10000): void {
+  cy.log(`⏳ Waiting for save favorite API call to complete (timeout: ${timeout}ms)`);
+  const startTime = Date.now();
+
+  cy.wait(`@${SAVE_FAVORITE_ENDPOINT.alias}`, { timeout }).then((xhr) => {
+    const elapsedTime = Date.now() - startTime;
+    cy.log(`✅ Save favorite API call completed in ${formatDuration(elapsedTime)}`);
+
+    // Additional context about the request
+    if (xhr?.request) {
+      const url = xhr.request.url;
+      const method = xhr.request.method;
+      cy.log(`📡 Request: ${method} ${url}`);
+
+      // Extract file path from request for better debugging
+      if (url.includes('FilePath=')) {
+        const filePath = new URL(url).searchParams.get('FilePath');
+        if (filePath) {
+          cy.log(`📁 File path: ${decodeURIComponent(filePath)}`);
+        }
+      }
+    }
+
+    // Check for error responses
+    if (xhr?.response?.statusCode && xhr.response.statusCode >= 400) {
+      const errorMsg = [
+        `❌ Save favorite API call failed after ${formatDuration(elapsedTime)}`,
+        `Status: ${xhr.response.statusCode}`,
+        `Response: ${JSON.stringify(xhr.response.body)}`,
+        '',
+        '💡 This might indicate:',
+        '  • File already exists in favorites',
+        '  • Storage device is not accessible',
+        '  • Filesystem permissions issues',
+        '  • Network connectivity problems',
+        '',
+        '🔧 Debugging suggestions:',
+        '  • Verify the file exists and is not already favorited',
+        '  • Check device connection and storage status',
+        '  • Ensure sufficient storage space is available',
+      ].join('\n');
+
+      cy.log(`⚠️ ${errorMsg}`);
+    }
+  });
+}
+
+/**
+ * Simple duration formatter for logging
+ */
+function formatDuration(ms: number): string {
+  if (ms < 1000) {
+    return `${ms}ms`;
+  } else if (ms < 60000) {
+    return `${(ms / 1000).toFixed(1)}s`;
+  } else {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}m ${seconds}s`;
+  }
 }
 
 /**

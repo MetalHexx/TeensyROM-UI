@@ -11,7 +11,10 @@
  * @see E2E_TESTS.md for architecture and patterns
  */
 
-import { interceptFindDevices } from '../../support/interceptors/findDevices.interceptors';
+import {
+  interceptFindDevices,
+  waitForFindDevices
+} from '../../support/interceptors/findDevices.interceptors';
 import {
   deviceWithAvailableStorage,
   deviceWithUnavailableUsbStorage,
@@ -37,10 +40,10 @@ import {
   DEVICE_TOOLBAR_SELECTORS,
   BUSY_DIALOG_GENERIC_SELECTORS,
 } from '../../support/constants/selector.constants';
-import { navigateToDeviceView, waitForDeviceDiscovery } from './test-helpers';
+import { navigateToDeviceView } from './test-helpers';
 
 // =============================================================================
-// Test Suite: Single Device Storage Indexing (Task 6)
+// SINGLE DEVICE STORAGE INDEXING
 // =============================================================================
 
 describe('Device Storage Indexing - Single Device', () => {
@@ -49,7 +52,7 @@ describe('Device Storage Indexing - Single Device', () => {
       interceptFindDevices({ fixture: deviceWithAvailableStorage });
       setupIndexingScenario(deviceWithAvailableStorage, { delay: 500 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       cy.get(STORAGE_INDEX_BUTTON_SELECTORS.usb).should('be.visible').and('not.be.disabled');
     });
@@ -58,7 +61,7 @@ describe('Device Storage Indexing - Single Device', () => {
       interceptFindDevices({ fixture: deviceWithUnavailableUsbStorage });
       setupIndexingScenario(deviceWithUnavailableUsbStorage, { delay: 500 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       cy.get(STORAGE_INDEX_BUTTON_SELECTORS.sd).should('be.visible');
       cy.get(STORAGE_INDEX_BUTTON_SELECTORS.usb).should('be.visible');
@@ -68,7 +71,7 @@ describe('Device Storage Indexing - Single Device', () => {
       interceptFindDevices({ fixture: allStorageUnavailable });
       setupIndexingScenario(allStorageUnavailable, { delay: 500 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       cy.get(STORAGE_INDEX_BUTTON_SELECTORS.usb).should('be.visible');
       cy.get(STORAGE_INDEX_BUTTON_SELECTORS.sd).should('be.visible');
@@ -80,7 +83,7 @@ describe('Device Storage Indexing - Single Device', () => {
       interceptFindDevices({ fixture: deviceWithAvailableStorage });
       setupIndexingScenario(deviceWithAvailableStorage, { delay: 2000 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       clickStorageIndexButton('usb');
       verifyBusyDialogDisplayed();
@@ -95,7 +98,7 @@ describe('Device Storage Indexing - Single Device', () => {
       interceptFindDevices({ fixture: deviceWithAvailableStorage });
       setupIndexingScenario(deviceWithAvailableStorage, { delay: 2000 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       clickStorageIndexButton('sd');
       verifyBusyDialogDisplayed();
@@ -112,7 +115,7 @@ describe('Device Storage Indexing - Single Device', () => {
       interceptFindDevices({ fixture: deviceWithAvailableStorage });
       setupIndexingScenario(deviceWithAvailableStorage, { delay: 3000 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       clickStorageIndexButton('usb');
       cy.get(STORAGE_INDEX_BUTTON_SELECTORS.usb).should('be.visible');
@@ -131,7 +134,7 @@ describe('Device Storage Indexing - Single Device', () => {
         errorMessage: 'Failed to index USB storage',
       });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       clickStorageIndexButton('usb');
       verifyBusyDialogDisplayed();
@@ -144,7 +147,7 @@ describe('Device Storage Indexing - Single Device', () => {
 });
 
 // =============================================================================
-// Test Suite: Index All / Batch Indexing (Task 7)
+// INDEX ALL / BATCH INDEXING
 // =============================================================================
 
 describe('Device Storage Indexing - Index All', () => {
@@ -153,7 +156,7 @@ describe('Device Storage Indexing - Index All', () => {
       interceptFindDevices({ fixture: noDevicesForIndexing });
       setupIndexingScenario(noDevicesForIndexing, { delay: 500 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('be.disabled');
     });
@@ -162,7 +165,7 @@ describe('Device Storage Indexing - Index All', () => {
       interceptFindDevices({ fixture: multipleDevicesForIndexing });
       setupIndexingScenario(multipleDevicesForIndexing, { delay: 500 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       cy.get(DEVICE_TOOLBAR_SELECTORS.indexAllButton).should('not.be.disabled');
     });
@@ -173,7 +176,7 @@ describe('Device Storage Indexing - Index All', () => {
       interceptFindDevices({ fixture: threeDevicesFullIndexing });
       setupIndexingScenario(threeDevicesFullIndexing, { delay: 2000 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       clickIndexAllButton();
       verifyBusyDialogDisplayed();
@@ -185,7 +188,7 @@ describe('Device Storage Indexing - Index All', () => {
       interceptFindDevices({ fixture: multipleDevicesForIndexing });
       setupIndexingScenario(multipleDevicesForIndexing, { delay: 1500 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       clickIndexAllButton();
       verifyBusyDialogDisplayed();
@@ -197,7 +200,7 @@ describe('Device Storage Indexing - Index All', () => {
       interceptFindDevices({ fixture: multipleDevicesForIndexing });
       setupIndexingScenario(multipleDevicesForIndexing, { delay: 3000 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       clickIndexAllButton();
       verifyBusyDialogDisplayed();
@@ -216,7 +219,7 @@ describe('Device Storage Indexing - Index All', () => {
         errorMessage: 'Failed to index all storage',
       });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       clickIndexAllButton();
       verifyBusyDialogDisplayed();
@@ -227,7 +230,7 @@ describe('Device Storage Indexing - Index All', () => {
 });
 
 // =============================================================================
-// Test Suite: Error Handling & Edge Cases (Task 8)
+// ERROR HANDLING & EDGE CASES
 // =============================================================================
 
 describe('Device Storage Indexing - Error Handling & Edge Cases', () => {
@@ -241,7 +244,7 @@ describe('Device Storage Indexing - Error Handling & Edge Cases', () => {
         errorMessage: 'Bad request - invalid storage',
       });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       clickStorageIndexButton('usb');
       verifyBusyDialogDisplayed();
@@ -260,7 +263,7 @@ describe('Device Storage Indexing - Error Handling & Edge Cases', () => {
         errorMessage: 'No devices found',
       });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       clickIndexAllButton();
       verifyBusyDialogDisplayed();
@@ -278,7 +281,7 @@ describe('Device Storage Indexing - Error Handling & Edge Cases', () => {
         errorMessage: 'First attempt failed',
       });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       const deviceId = deviceWithAvailableStorage.devices[0].deviceId;
 
@@ -300,7 +303,7 @@ describe('Device Storage Indexing - Error Handling & Edge Cases', () => {
       interceptFindDevices({ fixture: deviceWithAvailableStorage });
       setupIndexingScenario(deviceWithAvailableStorage, { delay: 3000 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       clickStorageIndexButton('usb');
       verifyBusyDialogDisplayed();
@@ -314,7 +317,7 @@ describe('Device Storage Indexing - Error Handling & Edge Cases', () => {
 });
 
 // =============================================================================
-// Test Suite: Multi-Device Integration (Task 9)
+// MULTI-DEVICE INTEGRATION
 // =============================================================================
 
 describe('Device Storage Indexing - Multi-Device Integration', () => {
@@ -323,7 +326,7 @@ describe('Device Storage Indexing - Multi-Device Integration', () => {
       interceptFindDevices({ fixture: multipleDevicesForIndexing });
       setupIndexingScenario(multipleDevicesForIndexing, { delay: 500 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       cy.get(STORAGE_INDEX_BUTTON_SELECTORS.usb).should('have.length', 2);
       cy.get(STORAGE_INDEX_BUTTON_SELECTORS.sd).should('have.length', 2);
@@ -332,7 +335,7 @@ describe('Device Storage Indexing - Multi-Device Integration', () => {
 });
 
 // =============================================================================
-// Test Suite: Busy Dialog Content Verification (Task 10)
+// BUSY DIALOG CONTENT VERIFICATION
 // =============================================================================
 
 describe('Busy Dialog - Indexing Content', () => {
@@ -341,7 +344,7 @@ describe('Busy Dialog - Indexing Content', () => {
       interceptFindDevices({ fixture: deviceWithAvailableStorage });
       setupIndexingScenario(deviceWithAvailableStorage, { delay: 2000 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       clickStorageIndexButton('usb');
       verifyBusyDialogDisplayed();
@@ -355,7 +358,7 @@ describe('Busy Dialog - Indexing Content', () => {
       interceptFindDevices({ fixture: multipleDevicesForIndexing });
       setupIndexingScenario(multipleDevicesForIndexing, { delay: 2000 });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       clickIndexAllButton();
       verifyBusyDialogDisplayed();

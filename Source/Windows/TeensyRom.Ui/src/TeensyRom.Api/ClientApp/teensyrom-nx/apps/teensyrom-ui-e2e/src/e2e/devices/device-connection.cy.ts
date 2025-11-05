@@ -22,18 +22,18 @@
 
 import {
   navigateToDeviceView,
-  waitForDeviceDiscovery,
   getDeviceCard,
   verifyFullDeviceInfo,
   CSS_CLASSES,
   DEVICE_CARD_SELECTORS,
   clickPowerButton,
-  waitForConnection,
-  waitForDisconnection,
   verifyConnected,
   verifyDisconnected,
 } from './test-helpers';
-import { interceptFindDevices } from '../../support/interceptors/findDevices.interceptors';
+import {
+  interceptFindDevices,
+  waitForFindDevices,
+} from '../../support/interceptors/findDevices.interceptors';
 import {
   interceptDisconnectDevice,
   setupDisconnectDeviceWithValidation,
@@ -55,20 +55,20 @@ describe('Device Connection - Single Device', () => {
       interceptFindDevices({ fixture: disconnectedDevice });
       interceptConnectDevice();
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should connect to disconnected device when power button clicked', () => {
       verifyDisconnected(0);
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(0);
     });
 
     it('should update power button color after connection', () => {
       verifyDisconnected(0);
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
 
       getDeviceCard(0)
         .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
@@ -78,7 +78,7 @@ describe('Device Connection - Single Device', () => {
     it('should remove dimmed styling from device card after connection', () => {
       getDeviceCard(0).should('have.class', CSS_CLASSES.DIMMED);
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       getDeviceCard(0).should('not.have.class', CSS_CLASSES.DIMMED);
     });
 
@@ -101,20 +101,20 @@ describe('Device Connection - Single Device', () => {
       interceptFindDevices({ fixture: singleDevice });
       interceptDisconnectDevice();
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should disconnect from connected device when power button clicked', () => {
       verifyConnected(0);
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       verifyDisconnected(0);
     });
 
     it('should update power button color after disconnection', () => {
       verifyConnected(0);
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
 
       getDeviceCard(0).find(DEVICE_CARD_SELECTORS.powerButtonIcon).should('have.class', 'normal');
     });
@@ -122,7 +122,7 @@ describe('Device Connection - Single Device', () => {
     it('should apply dimmed styling to device card after disconnection', () => {
       getDeviceCard(0).should('not.have.class', CSS_CLASSES.DIMMED);
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       getDeviceCard(0).should('have.class', CSS_CLASSES.DIMMED);
     });
 
@@ -141,40 +141,40 @@ describe('Device Connection - Single Device', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: disconnectedDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should handle connection API failure', () => {
       interceptConnectDevice({ errorMode: true });
       verifyDisconnected(0);
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyDisconnected(0);
     });
 
     it('should display error message after connection failure', () => {
       interceptConnectDevice({ errorMode: true });
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyDisconnected(0);
     });
 
     it('should allow retry after connection failure', () => {
       interceptConnectDevice({ errorMode: true });
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyDisconnected(0);
 
       interceptConnectDevice({ errorMode: false });
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(0);
     });
 
     it('should maintain device information after connection failure', () => {
       interceptConnectDevice({ errorMode: true });
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyFullDeviceInfo(0);
     });
   });
@@ -186,40 +186,40 @@ describe('Device Connection - Single Device', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should handle disconnection API failure', () => {
       interceptDisconnectDevice({ errorMode: true });
       verifyConnected(0);
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       verifyConnected(0);
     });
 
     it('should display error message after disconnection failure', () => {
       interceptDisconnectDevice({ errorMode: true });
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       verifyConnected(0);
     });
 
     it('should allow retry after disconnection failure', () => {
       interceptDisconnectDevice({ errorMode: true });
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       verifyConnected(0);
 
       interceptDisconnectDevice({ errorMode: false });
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       verifyDisconnected(0);
     });
 
     it('should maintain connected state after disconnection failure', () => {
       interceptDisconnectDevice({ errorMode: true });
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       verifyConnected(0);
     });
   });
@@ -231,14 +231,14 @@ describe('Device Connection - Single Device', () => {
     it('should show correct initial visual state for disconnected device', () => {
       interceptFindDevices({ fixture: disconnectedDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
       verifyDisconnected(0);
     });
 
     it('should show correct initial visual state for connected device', () => {
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
       verifyConnected(0);
     });
 
@@ -246,11 +246,11 @@ describe('Device Connection - Single Device', () => {
       interceptFindDevices({ fixture: disconnectedDevice });
       interceptConnectDevice();
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyDisconnected(0);
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(0);
     });
 
@@ -258,11 +258,11 @@ describe('Device Connection - Single Device', () => {
       interceptFindDevices({ fixture: singleDevice });
       interceptDisconnectDevice();
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       verifyDisconnected(0);
     });
 
@@ -271,14 +271,14 @@ describe('Device Connection - Single Device', () => {
       interceptConnectDevice();
       interceptDisconnectDevice();
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyFullDeviceInfo(0);
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyFullDeviceInfo(0);
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       verifyFullDeviceInfo(0);
     });
   });

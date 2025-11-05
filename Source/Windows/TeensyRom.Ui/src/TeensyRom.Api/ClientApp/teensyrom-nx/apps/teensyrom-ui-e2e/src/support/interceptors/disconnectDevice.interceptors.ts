@@ -9,9 +9,6 @@ import {
   type CypressMethod,
 } from './primitives/interceptor-primitives';
 
-// ============================================================================
-// TYPE DEFINITIONS
-// ============================================================================
 
 interface WindowWithDisconnectCallCount {
   __disconnectDeviceCallCount?: number;
@@ -23,9 +20,6 @@ export const DISCONNECT_DEVICE_ENDPOINT: EndpointDefinition = {
   alias: 'disconnectDevice',
 } as const;
 
-// ============================================================================
-// INTERFACE DEFINITIONS
-// ============================================================================
 
 export interface InterceptDisconnectDeviceOptions {
   /** When true, return HTTP 500 error to simulate disconnection failure */
@@ -38,11 +32,6 @@ export interface InterceptDisconnectDeviceOptions {
   responseDelayMs?: number;
 }
 
-/**
- * Intercepts DELETE /devices/{deviceId} endpoint for device disconnection
- *
- * @param options Configuration options for the interceptor
- */
 export function interceptDisconnectDevice(options: InterceptDisconnectDeviceOptions = {}): void {
   if (options.errorMode) {
     interceptError(
@@ -61,17 +50,20 @@ export function interceptDisconnectDevice(options: InterceptDisconnectDeviceOpti
   interceptSuccess(DISCONNECT_DEVICE_ENDPOINT, response, options.responseDelayMs);
 }
 
-// ============================================================================
-// WAIT FUNCTION
-// ============================================================================
 
 export function waitForDisconnectDevice(): void {
   cy.wait(`@${DISCONNECT_DEVICE_ENDPOINT.alias}`);
 }
 
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
+/**
+ * Wait for disconnectDevice API call to start
+ * Used to create timing windows for race condition testing
+ * @param timeout - Optional timeout in milliseconds (default: 2000ms for race testing)
+ */
+export function waitForDisconnectDeviceToStart(timeout = 2000): void {
+  cy.wait(`@${DISCONNECT_DEVICE_ENDPOINT.alias}`, { timeout });
+}
+
 
 /**
  * Sets up disconnectDevice interceptor with a delay for testing loading states
@@ -119,15 +111,7 @@ export function verifyDisconnectDeviceRequested(): Cypress.Chainable<JQuery<HTML
   return cy.get(`@${DISCONNECT_DEVICE_ENDPOINT.alias}`);
 }
 
-// ============================================================================
-// VALIDATION HELPER FUNCTIONS
-// ============================================================================
 
-/**
- * Creates standard response headers for disconnectDevice interceptor
- * @param contentType The Content-Type header value
- * @returns Headers object for response
- */
 function createDisconnectDeviceHeaders(contentType: string): Record<string, string> {
   return {
     'content-type': contentType,
@@ -135,13 +119,6 @@ function createDisconnectDeviceHeaders(contentType: string): Record<string, stri
   };
 }
 
-/**
- * Handles device ID validation and response routing
- * @param req Cypress request object
- * @param expectedDeviceId The device ID to validate against
- * @param errorStatusCode HTTP status code for validation failure
- * @param errorMessage Error message for validation failure
- */
 function handleDeviceIdValidation(
   req: CypressRequest,
   expectedDeviceId: string,

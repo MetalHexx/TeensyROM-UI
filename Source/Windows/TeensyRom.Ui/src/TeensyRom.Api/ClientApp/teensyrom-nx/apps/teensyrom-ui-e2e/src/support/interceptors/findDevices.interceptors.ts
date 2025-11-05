@@ -69,6 +69,15 @@ export function waitForFindDevices(): void {
 }
 
 /**
+ * Wait for findDevices API call to start
+ * Used to create timing windows for race condition testing
+ * @param timeout - Optional timeout in milliseconds (default: 2000ms for race testing)
+ */
+export function waitForFindDevicesToStart(timeout = 2000): void {
+  cy.wait(`@${FIND_DEVICES_ENDPOINT.alias}`, { timeout });
+}
+
+/**
  * Verifies findDevices endpoint was called
  */
 export function verifyFindDevicesCompleted(): void {

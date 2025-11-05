@@ -22,19 +22,13 @@
 
 import {
   navigateToDeviceView,
-  waitForDeviceDiscovery,
   clickRefreshDevices,
   clickPowerButton,
-  waitForConnection,
-  waitForDisconnection,
   verifyConnected,
   verifyDisconnected,
   verifyDeviceCount,
   verifyFullDeviceInfo,
   getDeviceCard,
-  waitForConnectionToStart,
-  waitForDisconnectionToStart,
-  waitForFindDevicesToStart,
   DEVICE_CARD_SELECTORS,
   CSS_CLASSES,
   ICON_CLASSES,
@@ -43,6 +37,7 @@ import {
   interceptFindDevices,
   interceptFindDevicesWithDelay,
   waitForFindDevices,
+  waitForFindDevicesToStart,
 } from '../../support/interceptors/findDevices.interceptors';
 import {
   setupConnectDeviceWithCounting,
@@ -50,10 +45,14 @@ import {
   setupConnectDeviceWithValidation,
   setupConnectDeviceWithDelay,
   interceptConnectDevice,
+  waitForConnectDevice,
+  waitForConnectDeviceToStart,
 } from '../../support/interceptors/connectDevice.interceptors';
 import {
   interceptDisconnectDevice,
   setupDisconnectDeviceWithDelay,
+  waitForDisconnectDevice,
+  waitForDisconnectDeviceToStart,
 } from '../../support/interceptors/disconnectDevice.interceptors';
 import {
   singleDevice,
@@ -65,13 +64,13 @@ import {
 
 describe('Device Connection - Refresh & Recovery', () => {
   // =========================================================================
-  // SUITE 1: REFRESH CONNECTED DEVICES
+  // REFRESH CONNECTED DEVICES
   // =========================================================================
   describe('Refresh Connected Devices', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should maintain single connected device after refresh', () => {
@@ -79,7 +78,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
     });
@@ -87,7 +86,7 @@ describe('Device Connection - Refresh & Recovery', () => {
     it('should maintain all connected devices after refresh', () => {
       interceptFindDevices({ fixture: multipleDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
       verifyConnected(1);
@@ -95,7 +94,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       interceptFindDevices({ fixture: multipleDevices });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
       verifyConnected(1);
@@ -111,7 +110,7 @@ describe('Device Connection - Refresh & Recovery', () => {
         .then((deviceId) => {
           interceptFindDevices({ fixture: singleDevice });
           clickRefreshDevices();
-          waitForDeviceDiscovery();
+          waitForFindDevices();
 
           verifyFullDeviceInfo(0);
           getDeviceCard(0)
@@ -125,7 +124,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
 
@@ -136,13 +135,13 @@ describe('Device Connection - Refresh & Recovery', () => {
   });
 
   // =========================================================================
-  // SUITE 2: REFRESH DISCONNECTED DEVICES
+  // REFRESH DISCONNECTED DEVICES
   // =========================================================================
   describe('Refresh Disconnected Devices', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: disconnectedDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should maintain single disconnected device after refresh', () => {
@@ -150,7 +149,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       interceptFindDevices({ fixture: disconnectedDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyDisconnected(0);
     });
@@ -158,7 +157,7 @@ describe('Device Connection - Refresh & Recovery', () => {
     it('should maintain all disconnected devices after refresh', () => {
       interceptFindDevices({ fixture: threeDisconnectedDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyDisconnected(0);
       verifyDisconnected(1);
@@ -166,7 +165,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       interceptFindDevices({ fixture: threeDisconnectedDevices });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyDisconnected(0);
       verifyDisconnected(1);
@@ -180,7 +179,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       interceptFindDevices({ fixture: disconnectedDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyDisconnected(0);
 
@@ -194,20 +193,20 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       interceptFindDevices({ fixture: disconnectedDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyFullDeviceInfo(0);
     });
   });
 
   // =========================================================================
-  // SUITE 3: REFRESH MIXED CONNECTION STATES
+  // REFRESH MIXED CONNECTION STATES
   // =========================================================================
   describe('Refresh Mixed Connection States', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: mixedConnectionDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should maintain mixed connection states after refresh', () => {
@@ -217,7 +216,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       interceptFindDevices({ fixture: mixedConnectionDevices });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
       verifyDisconnected(1);
@@ -227,7 +226,7 @@ describe('Device Connection - Refresh & Recovery', () => {
     it('should handle user-created mixed states through refresh', () => {
       interceptFindDevices({ fixture: threeDisconnectedDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyDisconnected(0);
       verifyDisconnected(1);
@@ -235,16 +234,16 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       interceptConnectDevice();
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(0);
 
       clickPowerButton(2);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(2);
 
       interceptFindDevices({ fixture: mixedConnectionDevices });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
       verifyDisconnected(1);
@@ -259,7 +258,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       interceptFindDevices({ fixture: mixedConnectionDevices });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyDeviceCount(3);
       verifyConnected(0);
@@ -270,7 +269,7 @@ describe('Device Connection - Refresh & Recovery', () => {
     it('should maintain visual state indicators after refresh', () => {
       interceptFindDevices({ fixture: mixedConnectionDevices });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       getDeviceCard(0).should('not.have.class', CSS_CLASSES.DIMMED);
       getDeviceCard(0)
@@ -293,25 +292,25 @@ describe('Device Connection - Refresh & Recovery', () => {
   });
 
   // =========================================================================
-  // SUITE 4: RECONNECTION AFTER REFRESH
+  // RECONNECTION AFTER REFRESH
   // =========================================================================
   describe('Reconnection After Refresh', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: disconnectedDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should allow reconnection to disconnected device after refresh', () => {
       interceptFindDevices({ fixture: disconnectedDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyDisconnected(0);
 
       interceptConnectDevice();
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
 
       verifyConnected(0);
     });
@@ -321,25 +320,25 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       interceptFindDevices({ fixture: disconnectedDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       setupConnectDeviceWithValidation(deviceId, disconnectedDevice.devices[0]);
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
     });
 
     it('should allow selective reconnection after refresh', () => {
       interceptFindDevices({ fixture: threeDisconnectedDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       interceptFindDevices({ fixture: threeDisconnectedDevices });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       interceptConnectDevice();
       clickPowerButton(1);
-      waitForConnection();
+      waitForConnectDevice();
 
       verifyDisconnected(0);
       verifyConnected(1);
@@ -349,35 +348,35 @@ describe('Device Connection - Refresh & Recovery', () => {
     it('should handle full reconnection workflow after refresh', () => {
       interceptFindDevices({ fixture: disconnectedDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       interceptConnectDevice();
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(0);
 
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
     });
   });
 
   // =========================================================================
-  // SUITE 5: REFRESH DURING CONNECTION
+  // REFRESH DURING CONNECTION
   // =========================================================================
   describe('Refresh During Connection', () => {
     it('should handle refresh clicked during connection in progress', () => {
       interceptFindDevices({ fixture: disconnectedDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       setupConnectDeviceWithDelay(1000, singleDevice.devices[0]);
 
       clickPowerButton(0);
 
-      waitForConnectionToStart();
+      waitForConnectDeviceToStart();
       interceptFindDevices({ fixture: disconnectedDevice });
       clickRefreshDevices();
 
@@ -388,7 +387,7 @@ describe('Device Connection - Refresh & Recovery', () => {
     it('should handle refresh clicked during disconnection in progress', () => {
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
 
@@ -396,7 +395,7 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       clickPowerButton(0);
 
-      waitForDisconnectionToStart();
+      waitForDisconnectDeviceToStart();
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
 
@@ -407,7 +406,7 @@ describe('Device Connection - Refresh & Recovery', () => {
     it('should allow connection after interrupted refresh', () => {
       interceptFindDevices({ fixture: disconnectedDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       interceptFindDevicesWithDelay(1000, disconnectedDevice);
 
@@ -423,13 +422,13 @@ describe('Device Connection - Refresh & Recovery', () => {
   });
 
   // =========================================================================
-  // SUITE 6: REFRESH ERROR HANDLING
+  // REFRESH ERROR HANDLING
   // =========================================================================
   describe('Refresh Error Handling', () => {
     it('should preserve connection state when refresh fails', () => {
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
 
@@ -443,7 +442,7 @@ describe('Device Connection - Refresh & Recovery', () => {
     it('should preserve mixed states when refresh fails', () => {
       interceptFindDevices({ fixture: mixedConnectionDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
       verifyDisconnected(1);
@@ -459,7 +458,7 @@ describe('Device Connection - Refresh & Recovery', () => {
     it('should display error message on refresh failure', () => {
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       interceptFindDevices({ errorMode: true });
       clickRefreshDevices();
@@ -471,7 +470,7 @@ describe('Device Connection - Refresh & Recovery', () => {
     it('should allow retry after refresh failure', () => {
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       interceptFindDevices({ errorMode: true });
       clickRefreshDevices();
@@ -481,50 +480,50 @@ describe('Device Connection - Refresh & Recovery', () => {
 
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
     });
   });
 
   // =========================================================================
-  // SUITE 7: CONNECTION STATE PERSISTENCE
+  // CONNECTION STATE PERSISTENCE
   // =========================================================================
   describe('Connection State Persistence', () => {
     it('should persist connection through multiple refreshes', () => {
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyConnected(0);
 
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
       verifyConnected(0);
 
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
       verifyConnected(0);
 
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
       verifyConnected(0);
     });
 
     it('should persist disconnection through multiple refreshes', () => {
       interceptFindDevices({ fixture: disconnectedDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       verifyDisconnected(0);
 
       for (let i = 0; i < 3; i++) {
         interceptFindDevices({ fixture: disconnectedDevice });
         clickRefreshDevices();
-        waitForDeviceDiscovery();
+        waitForFindDevices();
         verifyDisconnected(0);
       }
     });
@@ -532,53 +531,53 @@ describe('Device Connection - Refresh & Recovery', () => {
     it('should persist user-initiated state changes through refreshes', () => {
       interceptFindDevices({ fixture: disconnectedDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       interceptConnectDevice();
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(0);
 
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
       verifyConnected(0);
 
       interceptDisconnectDevice();
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       verifyDisconnected(0);
 
       interceptFindDevices({ fixture: disconnectedDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
       verifyDisconnected(0);
     });
 
     it('should handle connect-refresh-disconnect-refresh workflow', () => {
       interceptFindDevices({ fixture: disconnectedDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
       verifyDisconnected(0);
 
       interceptConnectDevice();
       clickPowerButton(0);
-      waitForConnection();
+      waitForConnectDevice();
       verifyConnected(0);
 
       interceptFindDevices({ fixture: singleDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
       verifyConnected(0);
 
       interceptDisconnectDevice();
       clickPowerButton(0);
-      waitForDisconnection();
+      waitForDisconnectDevice();
       verifyDisconnected(0);
 
       interceptFindDevices({ fixture: disconnectedDevice });
       clickRefreshDevices();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
       verifyDisconnected(0);
     });
   });

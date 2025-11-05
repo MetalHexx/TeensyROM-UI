@@ -2,7 +2,6 @@
 
 import {
   navigateToDeviceView,
-  waitForDeviceDiscovery,
   verifyEmptyState,
   verifyLoadingState,
   verifyDeviceCount,
@@ -16,6 +15,7 @@ import {
 import {
   interceptFindDevices,
   interceptFindDevicesWithDelay,
+  waitForFindDevices,
 } from '../../support/interceptors/findDevices.interceptors';
 import {
   singleDevice,
@@ -28,13 +28,13 @@ import {
 
 describe('Device Discovery E2E Tests', () => {
   // =========================================================================
-  // SUITE 1: SINGLE DEVICE DISCOVERY
+  // SINGLE DEVICE DISCOVERY
   // =========================================================================
   describe('Single Device Discovery', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should display single device card', () => {
@@ -74,13 +74,13 @@ describe('Device Discovery E2E Tests', () => {
   });
 
   // =========================================================================
-  // SUITE 2: MULTIPLE DEVICES DISCOVERY
+  // MULTIPLE DEVICES DISCOVERY
   // =========================================================================
   describe('Multiple Devices Discovery', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: multipleDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should display correct device count', () => {
@@ -123,13 +123,13 @@ describe('Device Discovery E2E Tests', () => {
   });
 
   // =========================================================================
-  // SUITE 3: NO DEVICES (EMPTY STATE)
+  // NO DEVICES (EMPTY STATE)
   // =========================================================================
   describe('No Devices (Empty State)', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: noDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should display empty state message', () => {
@@ -151,13 +151,13 @@ describe('Device Discovery E2E Tests', () => {
   });
 
   // =========================================================================
-  // SUITE 4: DISCONNECTED DEVICE
+  // DISCONNECTED DEVICE
   // =========================================================================
   describe('Disconnected Device', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: disconnectedDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should display disconnected device card', () => {
@@ -189,13 +189,13 @@ describe('Device Discovery E2E Tests', () => {
   });
 
   // =========================================================================
-  // SUITE 5: UNAVAILABLE STORAGE
+  // UNAVAILABLE STORAGE
   // =========================================================================
   describe('Unavailable Storage', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: unavailableStorageDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should display device card', () => {
@@ -227,13 +227,13 @@ describe('Device Discovery E2E Tests', () => {
   });
 
   // =========================================================================
-  // SUITE 6: MIXED DEVICE STATES
+  // MIXED DEVICE STATES
   // =========================================================================
   describe('Mixed Device States', () => {
     beforeEach(() => {
       interceptFindDevices({ fixture: mixedStateDevices });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
     });
 
     it('should display all devices regardless of state', () => {
@@ -281,7 +281,7 @@ describe('Device Discovery E2E Tests', () => {
   });
 
   // =========================================================================
-  // SUITE 7: LOADING STATES
+  // LOADING STATES
   // =========================================================================
   describe('Loading States', () => {
     it('should show loading indicator during API call', () => {
@@ -295,7 +295,7 @@ describe('Device Discovery E2E Tests', () => {
     it('should remove loading indicator after response', () => {
       interceptFindDevices({ fixture: singleDevice });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
     });
@@ -315,7 +315,7 @@ describe('Device Discovery E2E Tests', () => {
 
       verifyLoadingState();
 
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
       verifyDeviceCount(1);
@@ -323,13 +323,13 @@ describe('Device Discovery E2E Tests', () => {
   });
 
   // =========================================================================
-  // SUITE 8: ERROR HANDLING
+  // ERROR HANDLING
   // =========================================================================
   describe('Error Handling', () => {
     it('should display error state on API failure', () => {
       interceptFindDevices({ errorMode: true });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       cy.get(DEVICE_VIEW_SELECTORS.deviceList).should('be.visible');
       cy.get(DEVICE_CARD_SELECTORS.card).should('not.exist');
@@ -338,7 +338,7 @@ describe('Device Discovery E2E Tests', () => {
     it('should not show loading after error', () => {
       interceptFindDevices({ errorMode: true });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       cy.get(DEVICE_VIEW_SELECTORS.loadingIndicator).should('not.exist');
     });
@@ -346,7 +346,7 @@ describe('Device Discovery E2E Tests', () => {
     it('should handle gracefully with no crash', () => {
       interceptFindDevices({ errorMode: true });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       cy.get(DEVICE_VIEW_SELECTORS.container).should('be.visible');
     });
@@ -354,7 +354,7 @@ describe('Device Discovery E2E Tests', () => {
     it('should clear device list on error', () => {
       interceptFindDevices({ errorMode: true });
       navigateToDeviceView();
-      waitForDeviceDiscovery();
+      waitForFindDevices();
 
       cy.get(DEVICE_CARD_SELECTORS.card).should('not.exist');
     });

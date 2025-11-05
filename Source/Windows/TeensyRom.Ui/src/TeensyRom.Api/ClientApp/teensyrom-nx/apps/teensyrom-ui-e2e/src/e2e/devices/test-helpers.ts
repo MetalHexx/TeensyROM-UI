@@ -2,8 +2,10 @@
 
 export { API_CONFIG, createProblemDetailsResponse } from '../../support/constants/api.constants';
 
-// Note: DEVICE_ENDPOINTS has been removed - please use individual interceptor imports
+// DOM/UI test helpers for device testing
+// Wait functions have been migrated to primitive files
 // Example: import { interceptFindDevices, FIND_DEVICES_ALIAS } from '../../support/interceptors/findDevices.interceptors';
+// Example: import { waitForDeviceDiscovery } from '../primitives/findDevices.primitives';
 
 export {
   BUSY_DIALOG_SELECTORS,
@@ -30,12 +32,12 @@ import {
   DOM_ATTRIBUTES,
   CSS_CLASSES,
 } from '../../support/constants/selector.constants';
-import { FIND_DEVICES_ALIAS } from '../../support/interceptors/findDevices.interceptors';
-import { CONNECT_DEVICE_ALIAS } from '../../support/interceptors/connectDevice.interceptors';
-import { DISCONNECT_DEVICE_ALIAS } from '../../support/interceptors/disconnectDevice.interceptors';
 import { APP_ROUTES } from '../../support/constants/app-routes.constants';
 
 
+/**
+ * Navigate to the device view page with cleared storage
+ */
 export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
   return cy.visit(APP_ROUTES.devices, {
     onBeforeLoad: (win) => {
@@ -45,14 +47,16 @@ export function navigateToDeviceView(): Cypress.Chainable<Cypress.AUTWindow> {
   });
 }
 
-export function waitForDeviceDiscovery(timeout = 10000): void {
-  cy.wait(`@${FIND_DEVICES_ALIAS}`, { timeout });
-}
-
+/**
+ * Get device card element by index
+ */
 export function getDeviceCard(index: number): Cypress.Chainable<JQuery<HTMLElement>> {
   return cy.get(DEVICE_CARD_SELECTORS.card).eq(index);
 }
 
+/**
+ * Verify device card is visible at specified index
+ */
 export function expectDeviceCardVisible(index: number): void {
   getDeviceCard(index).should('be.visible');
 }
@@ -167,14 +171,23 @@ export function verifyFullDeviceInfo(deviceIndex: number): void {
     });
 }
 
+/**
+ * Click connect button for device at specified index
+ */
 export function clickConnectDevice(deviceIndex: number): void {
   getDeviceCard(deviceIndex).find(DEVICE_CARD_SELECTORS.powerButton).click();
 }
 
+/**
+ * Click disconnect button for device at specified index
+ */
 export function clickDisconnectDevice(deviceIndex: number): void {
   getDeviceCard(deviceIndex).find(DEVICE_CARD_SELECTORS.powerButton).click();
 }
 
+/**
+ * Verify error message is displayed in the page
+ */
 export function verifyErrorMessage(): void {
   cy.get(DOM_ATTRIBUTES.BODY_TAG).should(($body) => {
     const hasErrorText = $body.text().toLowerCase().includes(CONSTANTS.ERROR_TEXT);
@@ -188,47 +201,23 @@ export function verifyErrorMessage(): void {
   });
 }
 
+/**
+ * Click refresh devices button
+ */
 export function clickRefreshDevices(): void {
   cy.contains('Refresh Devices').click();
 }
 
-
+/**
+ * Click power button for device at specified index
+ */
 export function clickPowerButton(deviceIndex: number): void {
   getDeviceCard(deviceIndex).find(DEVICE_CARD_SELECTORS.powerButton).click();
 }
 
-export function waitForConnection(timeout = CONSTANTS.DEFAULT_TIMEOUT): void {
-  cy.wait(`@${CONNECT_DEVICE_ALIAS}`, { timeout });
-}
-
-export function waitForDisconnection(timeout = CONSTANTS.DEFAULT_TIMEOUT): void {
-  cy.wait(`@${DISCONNECT_DEVICE_ALIAS}`, { timeout });
-}
-
 /**
- * Wait for connection API call to start
- * Used to create timing windows for race condition testing
+ * Verify device is connected (not dimmed with highlighted power button)
  */
-export function waitForConnectionToStart(): void {
-  cy.wait(`@${CONNECT_DEVICE_ALIAS}`, { timeout: 2000 });
-}
-
-/**
- * Wait for disconnection API call to start
- * Used to create timing windows for race condition testing
- */
-export function waitForDisconnectionToStart(): void {
-  cy.wait(`@${DISCONNECT_DEVICE_ALIAS}`, { timeout: 2000 });
-}
-
-/**
- * Wait for find devices API call to start
- * Used to create timing windows for race condition testing
- */
-export function waitForFindDevicesToStart(): void {
-  cy.wait(`@${FIND_DEVICES_ALIAS}`, { timeout: 2000 });
-}
-
 export function verifyConnected(deviceIndex: number): void {
   getDeviceCard(deviceIndex).should('not.have.class', CSS_CLASSES.DIMMED);
   getDeviceCard(deviceIndex)
@@ -236,9 +225,13 @@ export function verifyConnected(deviceIndex: number): void {
     .should('have.class', 'highlight');
 }
 
+/**
+ * Verify device is disconnected (dimmed with normal power button)
+ */
 export function verifyDisconnected(deviceIndex: number): void {
   getDeviceCard(deviceIndex).should('have.class', CSS_CLASSES.DIMMED);
   getDeviceCard(deviceIndex)
     .find(DEVICE_CARD_SELECTORS.powerButtonIcon)
     .should('have.class', 'normal');
 }
+

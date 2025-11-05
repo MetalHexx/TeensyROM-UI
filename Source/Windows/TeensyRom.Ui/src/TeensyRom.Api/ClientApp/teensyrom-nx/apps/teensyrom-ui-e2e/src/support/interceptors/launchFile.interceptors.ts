@@ -117,11 +117,69 @@ export function interceptLaunchFile(options: InterceptLaunchFileOptions = {}): v
 }
 
 /**
- * Waits for launchFile endpoint call to complete
+ * Waits for launchFile endpoint call to complete with enhanced error reporting
  * Uses the registered alias from the interceptor
  */
-export function waitForLaunchFile(): void {
-  cy.wait(`@${LAUNCH_FILE_ENDPOINT.alias}`);
+export function waitForLaunchFile(timeout = 10000): void {
+  cy.log(`⏳ Waiting for file launch API call to complete (timeout: ${timeout}ms)`);
+  const startTime = Date.now();
+
+  cy.wait(`@${LAUNCH_FILE_ENDPOINT.alias}`, { timeout }).then((xhr) => {
+    const elapsedTime = Date.now() - startTime;
+    cy.log(`✅ File launch API call completed in ${formatDuration(elapsedTime)}`);
+
+    // Additional context about the request
+    if (xhr?.request) {
+      const url = xhr.request.url;
+      const method = xhr.request.method;
+      cy.log(`📡 Request: ${method} ${url}`);
+
+      // Extract file path from request for better debugging
+      if (url.includes('FilePath=')) {
+        const filePath = new URL(url).searchParams.get('FilePath');
+        if (filePath) {
+          cy.log(`📁 File path: ${decodeURIComponent(filePath)}`);
+        }
+      }
+    }
+
+    // Check for error responses
+    if (xhr?.response?.statusCode && xhr.response.statusCode >= 400) {
+      const errorMsg = [
+        `❌ File launch API call failed after ${formatDuration(elapsedTime)}`,
+        `Status: ${xhr.response.statusCode}`,
+        `Response: ${JSON.stringify(xhr.response.body)}`,
+        '',
+        '💡 This might indicate:',
+        '  • File not found on the filesystem',
+        '  • Network connectivity issues',
+        '  • Device communication problems',
+        '  • File compatibility issues',
+        '',
+        '🔧 Debugging suggestions:',
+        '  • Verify the file exists in the mock filesystem',
+        '  • Check device connection status',
+        '  • Ensure file format is supported by TeensyROM',
+      ].join('\n');
+
+      cy.log(`⚠️ ${errorMsg}`);
+    }
+  });
+}
+
+/**
+ * Simple duration formatter for logging
+ */
+function formatDuration(ms: number): string {
+  if (ms < 1000) {
+    return `${ms}ms`;
+  } else if (ms < 60000) {
+    return `${(ms / 1000).toFixed(1)}s`;
+  } else {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}m ${seconds}s`;
+  }
 }
 
 /**

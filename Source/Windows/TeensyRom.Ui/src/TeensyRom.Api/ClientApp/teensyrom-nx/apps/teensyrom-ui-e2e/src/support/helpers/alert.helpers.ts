@@ -101,13 +101,115 @@ export function verifyAlertSeverity(severity: AlertSeverityParam): void {
 }
 
 /**
- * Click the alert dismiss button.
+ * Click the alert dismiss button with enhanced error reporting.
  *
  * @example
  * dismissAlert();
  */
 export function dismissAlert(): void {
-  cy.get(ALERT_SELECTORS.dismissButton).click();
+  const startTime = Date.now();
+  cy.log('⏳ Looking for alert to dismiss');
+
+  // Find the first visible alert and dismiss it
+  cy.get(ALERT_SELECTORS.container, { timeout: 10000 })
+    .should('be.visible')
+    .then(($alerts) => {
+      if ($alerts.length === 0) {
+        const elapsedTime = Date.now() - startTime;
+        const errorMsg = [
+          `❌ No alerts found to dismiss after ${elapsedTime}ms`,
+          `💡 Common causes:`,
+          `  • No alert was triggered by the application`,
+          `  • Alert auto-dismissed before we could interact with it`,
+          `  • Alert selector is incorrect or has changed`,
+          `  • Alert is in a different DOM state`,
+          `🔧 Debugging suggestions:`,
+          `  • Verify an alert should be displayed at this point`,
+          `  • Check if alerts auto-dismiss quickly`,
+          `  • Use dismissAlertWithDebug() to see DOM structure`,
+          `  • Wait for alert to appear first: verifyAlertVisible()`,
+        ].join('\n');
+
+        assert.fail(errorMsg);
+      }
+
+      cy.log(`✅ Found ${$alerts.length} alert(s) to dismiss`);
+    });
+
+  cy.get(ALERT_SELECTORS.container, { timeout: 10000 }).should('be.visible').first();
+
+  cy.get(ALERT_SELECTORS.container)
+    .first()
+    .within(() => {
+      // Find the dismiss button with explicit visibility and state checks
+      // This uses the exact selector that matches the DOM structure from alert-display.component.html
+      cy.get('button[aria-label="Dismiss alert"]', { timeout: 5000 })
+        .should('be.visible')
+        .and('not.be.disabled')
+        .and('be.enabled')
+        .then(() => {
+          cy.log('✅ Found dismiss button, attempting to click');
+        });
+
+      cy.get('button[aria-label="Dismiss alert"]').click();
+
+      cy.then(() => {
+        const elapsedTime = Date.now() - startTime;
+        cy.log(`✅ Alert dismissed successfully in ${elapsedTime}ms`);
+      });
+    });
+}
+
+/**
+ * Debug version of dismissAlert that logs DOM structure for troubleshooting.
+ * Use this only when the regular dismissAlert() function fails.
+ *
+ * @example
+ * dismissAlertWithDebug();
+ */
+export function dismissAlertWithDebug(): void {
+  cy.get(ALERT_SELECTORS.container)
+    .should('be.visible')
+    .first()
+    .within(() => {
+      // Debug: log the alert DOM structure to understand what's happening
+      cy.get('.alert-display').then(($alert) => {
+        cy.log('Alert DOM HTML:', $alert.html());
+        cy.log('Alert DOM text:', $alert.text());
+
+        // Log all buttons found within the alert
+        cy.get('button').then(($buttons) => {
+          cy.log(`Found ${$buttons.length} button(s) in alert`);
+          $buttons.each((index, button) => {
+            cy.log(`Button ${index}:`, button.outerHTML);
+          });
+        });
+
+        // Now try to dismiss
+        cy.get('button[aria-label="Dismiss alert"]')
+          .should('be.visible')
+          .and('not.be.disabled')
+          .and('be.enabled')
+          .click();
+      });
+    });
+}
+
+/**
+ * Clear all alerts by clicking all dismiss buttons.
+ * Useful for test cleanup to ensure a clean state.
+ *
+ * @example
+ * clearAllAlerts();
+ */
+export function clearAllAlerts(): void {
+  cy.get('body').then(($body) => {
+    if ($body.find(ALERT_SELECTORS.dismissButton).length > 0) {
+      cy.get(ALERT_SELECTORS.dismissButton).each(($button) => {
+        cy.wrap($button).should('be.visible').and('not.be.disabled').and('be.enabled').click();
+      });
+    }
+  });
 }
 
 /**
@@ -124,13 +226,24 @@ export function waitForAlertAutoDismiss(timeoutMs = 5500): void {
 }
 
 /**
- * Assert that the alert container has been dismissed.
+ * Assert that the alert container has been dismissed with enhanced error reporting.
  *
  * @example
  * verifyAlertDismissed();
  */
 export function verifyAlertDismissed(): void {
-  verifyAlertNotVisible();
+  const startTime = Date.now();
+  const timeout = 6000;
+  cy.log(`⏳ Waiting for alert to be dismissed (timeout: ${timeout}ms)`);
+
+  // Wait for the alert to be removed from DOM with a longer timeout
+  // This accounts for manual dismissal which might need more time
+  cy.get(ALERT_SELECTORS.container, { timeout })
+    .should('not.exist')
+    .then(() => {
+      const elapsedTime = Date.now() - startTime;
+      cy.log(`✅ Alert dismissed successfully in ${elapsedTime}ms`);
+    });
 }
 
 /**
