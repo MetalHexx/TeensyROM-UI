@@ -14,7 +14,7 @@ namespace TeensyRom.Core.Serial
 
         public static (Version? version, bool isSupported) IsVersionSupported(string input)
         {
-            string pattern = @"\d+\.\d+\.\d+";
+            string pattern = @"\d+\.\d+(?:\.\d+)?";
             Match match = Regex.Match(input, pattern);
             Version? parsedVersion = null;
 
