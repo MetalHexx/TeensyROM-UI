@@ -19,11 +19,13 @@ namespace TeensyRom.Core.Settings
         private string _settingsFilePath => Path.Combine(Assembly.GetExecutingAssembly().GetPath(), SettingsConstants.SettingsPath);
 
         private readonly ILoggingService _log;
+		private readonly IAlertService _alert;
 
-        public SettingsService(ILoggingService log)
+		public SettingsService(ILoggingService log, IAlertService alert)
         {
             _log = log;
-            _settings = new BehaviorSubject<TeensySettings>(GetSettings());
+			_alert = alert;
+			_settings = new BehaviorSubject<TeensySettings>(GetSettings());
         }
 
         public TeensySettings GetSettings()
@@ -147,6 +149,7 @@ namespace TeensyRom.Core.Settings
         {
             if (!Directory.Exists(settings.WatchDirectoryLocation))
             {
+                _alert.Publish($"Watch directory '{settings.WatchDirectoryLocation}' was not found.  Create it or pick another directory.");
                 _log.InternalError($"The watch directory '{settings.WatchDirectoryLocation}' was not found.  Please go create it.");
                 return false;
             }
