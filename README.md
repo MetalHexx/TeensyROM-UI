@@ -1,3 +1,6 @@
+> [!WARNING]
+> **TeensyROM-UI is end of life and no longer maintained.** Use [TeensyROM Suite](https://github.com/MetalHexx/TeensyROM-Suite) instead: **Trom UI** runs in your browser on Windows, macOS and Linux.
+
 # TeensyROM Desktop UI
 Command your Commodore 64 / 128 with a modern desktop user experience.  This user interface is designed to compliment the [TeensyROM Hardware Cartridge](https://github.com/SensoriumEmbedded/TeensyROM), *designed by Travis S/Sensorium* to enable lighting fast exploration of Games, Scene Demos, Music and Images in very large file collections.  Coupled with remote launch capability, you will cover a lot of ground very quickly and discover great content faster than ever.
 
